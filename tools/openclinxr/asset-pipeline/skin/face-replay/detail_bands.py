@@ -15,46 +15,50 @@ more than the PRE gap fails).
   variation (forehead-fold spacing ~8-15 mm); s_pore = PORE_SMOOTH_MM *
   texels_per_mm keeps fine grain out of the attenuated band. The
   iteration runs on the whole albedo; the gate blends the result.
-- pore_gain p in Lab L units: ADDS darkening-only pore structure (pores
-  are small dark pits; there are no bright pores). Seeded deterministic
-  soft small-gaussian pits (same splat shape as beard_shadow, sign always
-  negative) at PORE_D_MM diameter and PORE_DENSITY_PER_MM2, plus a fine
-  sub-pore grain octave (SUB_D_MM, SUB_DENSITY_PER_MM2, SUB_AMP_FRAC of
-  the main-octave amplitude); no amplified noise and no tiled patch. The
-  COMBINED darkening field is demeaned over the support (uniform lift =
-  -field mean, recorded as lift_L): the stage preserves the facecore L
-  mean exactly (tone-neutral by construction; the lift is structureless
-  DC, invisible to every band gate), while every LOCAL excursion stays
-  darkening-only. The COMBINED darkening field is normalised to RMS 1
-  over the support, so p is the added L RMS. Dot diameter in texels via the mesh texel density
-  (texels_per_mm; measured 4.079 tex/mm at 4096, beard_shadow.py); dot
-  diameter/density sourced from Flament et al. 2015 (visible facial skin
-  pores 250-500 um, cheek density 10-90/cm2; defaults 0.3 mm and
-  0.8/mm2 sit inside those ranges at small-dot size so individual pores
-  barely resolve at portrait distance).
+- pore_gain p in Lab L units: ADDS dense continuous low-contrast grain,
+  darkening-biased (pores read as dark microstructure; there are no
+  bright specks and no individually resolvable dots at portrait
+  distance). Seeded deterministic white noise filtered to the instrument
+  pore band (the same G(H/1500)-G(H/130) band as wrinkle_bands.py, in
+  texels: low cut PORE_NOISE_LO_TEX 0.5 kills single-texel spikes, high
+  cut PORE_NOISE_HI_MM * texels_per_mm sits at the instrument sigma_hi;
+  ~1 texel projects to ~1 screen pixel at portrait scale via the measured
+  4.079 tex/mm and the measured head height, recorded in the report),
+  then a dark-biased dense grain (band-limited noise, asymmetric caps:
+  dark extends 2x bright, CAP_NEG/CAP_POS, no demean: the clipped field
+  keeps its natural near-zero mean so the floor stays at the uniform
+  level; dense low-contrast both sides like the goal micro-contrast, no
+  sparse bright specks by construction), detrended at the crease scale
+  (minus G(s_crease): the pore field carries no energy at or above the
+  removed fold band, and no support-scale swell), tone shift bounded
+  (|support mean| <= 0.12 field-RMS units; G3 verifies no regressions) and normalised to RMS 1, so p is the added L RMS. No
+  amplified noise (the band filter removes pixel spikes) and no tiled
+  patch (seeded full-frame noise, no repetition).
 
 Scales (all in mm via texels_per_mm, never in texels):
 - CREASE_SMOOTH_MM 3.0: crease-band upper gaussian; forehead folds span
   ~8-15 mm, so 3 mm keeps fold energy inside the removed band.
 - PORE_SMOOTH_MM 0.35: crease-band lower gaussian; fine grain below
   ~2 mm stays in the high band the attenuator spares.
-- PORE_D_MM 0.3 / PORE_DENSITY_PER_MM2 0.8: Flament et al., Clin Cosmet
-  Investig Dermatol 2015 (multiethnic cheek dermoscopy, n=2585): visible
-  skin pores 250-500 um (detection threshold 250 um), cheek density
-  10-90/cm2 = 0.1-0.9/mm2. Handback 1: individual pores should barely
-  resolve, so the lower end of the cited size range at the top of the
-  cited density range.
-- SUB_D_MM 0.15 / SUB_DENSITY_PER_MM2 3.2 / SUB_AMP_FRAC 0.5:
-  operator/consult decision: sub-pore grain octave at half the cited pore
-  size, denser, half amplitude (fine micro-texture under the pits).
+- PORE_NOISE_HI_MM 1.4: noise high cut at the instrument pore-band
+  sigma_hi (H/130 at portrait scale ~1 tex/px): keeps the grain below
+  crease-band wavelengths so it cannot refill the removed folds.
+- CAP_POS 1.4 / CAP_NEG -3.0: asymmetric caps (dark extends 2x bright;
+  operator/consult decision documented in wrinkle-scale-report.json
+  fix.solve): dense low-contrast both sides like the goal
+  micro-contrast (goal forehead: ~0.3-0.4 of texels beyond +-1 L each
+  way); no sparse bright specks by construction (bright mass is dense,
+  capped, and verified by the bright-fraction test).
 - SEED 11: fixed seed, seeded default_rng stream (operator/consult
   decision, same convention as beard_shadow).
 - FEATHER_MM 1.0: gate feather (operator/consult decision: between the
-  fix_lips 6-texel feather and the beard 3.0 mm outer fade). The pore
-  field covers the whole face skin region (facecore minus lips/eyes/
-  brows); dot centres sit inside the hard mask eroded by (pore radius +
-  feather) so no dot crosses the support edge, and the gate fades the
-  field smoothly: no hard boundary by construction.
+  fix_lips 6-texel feather and the beard 3.0 mm outer fade).
+- SCALP_FRINGE_MM 25.0: the pore field covers all face and forehead skin
+  up to the scalp boundary: facecore UNION the scalp-mask fringe within
+  25 mm of the facecore (the forehead skin above the facecore top, below
+  the hairline; handback 2: the facecore mask alone stops mid-forehead),
+  minus lips/eyes/brows. The gate fades the field smoothly: no visible
+  boundary anywhere by construction.
 - N_ITER 4: fixed-point crease-removal iterations (bit-deterministic).
 
 Identity: crease_gain 0 + pore_gain 0 returns a byte copy (shutil,
@@ -79,12 +83,12 @@ from fix_lips import lab_to_rgb, rgb_to_lab  # noqa: E402
 SEED_DEFAULT = 11
 CREASE_SMOOTH_MM = 3.0
 PORE_SMOOTH_MM = 0.35
-PORE_D_MM = 0.3
-PORE_DENSITY_PER_MM2 = 0.8
-SUB_D_MM = 0.15
-SUB_DENSITY_PER_MM2 = 3.2
-SUB_AMP_FRAC = 0.5
+PORE_NOISE_HI_MM = 1.4
+PORE_NOISE_LO_TEX = 0.5
+CAP_POS = 1.4
+CAP_NEG = -3.0
 FEATHER_MM = 1.0
+SCALP_FRINGE_MM = 25.0
 
 
 def gauss(img: np.ndarray, sigma: float) -> np.ndarray:
@@ -99,28 +103,12 @@ def load_mask(path: Path, shape: tuple[int, int]) -> np.ndarray:
     return m
 
 
-def splat_dots(shape, centres, radii):
-    """Darkening-only gaussian pits (soft small-gaussian profile)."""
-    h, w = shape
-    field = np.zeros((h, w), dtype=np.float64)
-    for (qx, qy), r in zip(centres.tolist(), radii.tolist()):
-        ext = int(np.ceil(1.6 * r)) + 1
-        x0, x1 = max(0, int(np.floor(qx - ext))), min(w, int(np.ceil(qx + ext)) + 1)
-        y0, y1 = max(0, int(np.floor(qy - ext))), min(h, int(np.ceil(qy + ext)) + 1)
-        if x0 >= x1 or y0 >= y1:
-            continue
-        yy, xx = np.mgrid[y0:y1, x0:x1].astype(np.float64)
-        dot = np.exp(-2.0 * (((xx - qx) / r) ** 2 + ((yy - qy) / r) ** 2))
-        dot[dot < 0.05] = 0.0
-        field[y0:y1, x0:x1] -= dot
-    return field
-
-
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Detail-band skin layer")
     ap.add_argument("albedo_in", type=Path)
     ap.add_argument("albedo_out", type=Path)
     ap.add_argument("--facecore-mask", type=Path, required=True)
+    ap.add_argument("--scalp-mask", type=Path, default=None)
     ap.add_argument("--lips-mask", type=Path, default=None)
     ap.add_argument("--eyes-mask", type=Path, default=None)
     ap.add_argument("--brows-mask", type=Path, default=None)
@@ -128,14 +116,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--pore-gain", type=float, default=0.0)
     ap.add_argument("--seed", type=int, default=SEED_DEFAULT)
     ap.add_argument("--texels-per-mm", type=float, required=True)
-    ap.add_argument("--pore-d-mm", type=float, default=PORE_D_MM)
-    ap.add_argument("--pore-density-per-mm2", type=float,
-                    default=PORE_DENSITY_PER_MM2)
-    ap.add_argument("--pore-sub-d-mm", type=float, default=SUB_D_MM)
-    ap.add_argument("--pore-sub-density-per-mm2", type=float,
-                    default=SUB_DENSITY_PER_MM2)
-    ap.add_argument("--pore-sub-amp-frac", type=float, default=SUB_AMP_FRAC)
+    ap.add_argument("--pore-noise-hi-mm", type=float, default=PORE_NOISE_HI_MM)
     ap.add_argument("--feather-mm", type=float, default=FEATHER_MM)
+    ap.add_argument("--scalp-fringe-mm", type=float, default=SCALP_FRINGE_MM)
     ap.add_argument("--report-out", type=Path, default=None)
     a = ap.parse_args(argv)
     g = float(a.crease_gain)
@@ -148,7 +131,16 @@ def main(argv: list[str] | None = None) -> int:
 
     alb = np.array(Image.open(a.albedo_in).convert("RGB"))
     h, wpx = alb.shape[:2]
-    hard = load_mask(a.facecore_mask, (h, wpx)) > 0.5
+    facecore = load_mask(a.facecore_mask, (h, wpx)) > 0.5
+    if a.scalp_mask is not None:
+        scalp = load_mask(a.scalp_mask, (h, wpx)) > 0.5
+        fringe_r = int(round(float(a.scalp_fringe_mm) * tpm))
+        near = cv2.dilate(facecore.astype(np.uint8),
+                          np.ones((2 * fringe_r + 1, 2 * fringe_r + 1),
+                                  np.uint8)) > 0
+        hard = facecore | (scalp & near)
+    else:
+        hard = facecore
     for opt in (a.lips_mask, a.eyes_mask, a.brows_mask):
         if opt is not None:
             hard = hard & ~(load_mask(opt, (h, wpx)) > 0.5)
@@ -173,10 +165,9 @@ def main(argv: list[str] | None = None) -> int:
     s_pore = PORE_SMOOTH_MM * tpm
     s_crease = CREASE_SMOOTH_MM * tpm
     # Converged band removal (N_ITER fixed, bit-deterministic): one DoG
-    # subtraction is not a projection (re-measuring the band leaves
-    # G(s_crease)-shaped leakage ~0.3 of a sine), so iterate
-    # work -= band(work) to convergence, then scale the TOTAL removal by
-    # g. g = 1 removes the band, g = 0.5 removes exactly half of it.
+    # subtraction is not a projection, so iterate work -= band(work) to
+    # convergence, then scale the TOTAL removal by g. g = 1 removes the
+    # band, g = 0.5 removes exactly half of it.
     N_ITER = 4
     work = lum.copy()
     removed = np.zeros_like(lum)
@@ -186,69 +177,54 @@ def main(argv: list[str] | None = None) -> int:
         removed = removed + b
     shaped = lum - g * removed
     added_rms = 0.0
-    n_dots = 0
     lift_L = 0.0
-    field = np.zeros_like(lum)
     if p != 0.0:
-        # Dot centres inside the hard mask eroded by (dot radius +
-        # feather): no dot crosses the support edge, and the gate fades
-        # the field smoothly (no hard boundary by construction).
-        margin_tex = int(round((float(a.pore_d_mm) / 2.0 + float(a.feather_mm)) * tpm))
-        core = cv2.erode(hard.astype(np.uint8),
-                         np.ones((2 * margin_tex + 1, 2 * margin_tex + 1),
-                                 np.uint8)) > 0
-        if not core.any():
-            raise RuntimeError("detail_bands refuses: eroded pore core is empty")
-        area_mm2 = float(core.sum()) / tpm / tpm
+        # Dense dark-biased grain: seeded white noise filtered to the
+        # instrument pore band (texels), detrended at the crease scale
+        # (no fold-band refill, no support-scale swell), asymmetric
+        # caps (iterated with demeaning): pits read deeper than bumps
+        # read bright, dense low-contrast both sides like the goal
+        # micro-contrast, no sparse bright specks by construction.
         rng = np.random.default_rng(int(a.seed))
+        white = rng.standard_normal((h, wpx))
+        s_hi = float(a.pore_noise_hi_mm) * tpm
+        band = gauss(white, PORE_NOISE_LO_TEX) - gauss(white, s_hi)
+        sd = float(band[support].std()) if support.sum() else 0.0
         field = np.zeros_like(lum)
-        for d_mm, dens, amp in ((float(a.pore_d_mm), float(a.pore_density_per_mm2), 1.0),
-                               (float(a.pore_sub_d_mm),
-                                float(a.pore_sub_density_per_mm2),
-                                float(a.pore_sub_amp_frac))):
-            n = int(round(dens * area_mm2))
-            ys, xs = np.where(core)
-            if n <= 0 or not len(xs):
-                continue
-            take = min(n, len(xs))
-            idx = rng.choice(len(xs), size=take, replace=False)
-            cx = xs[idx].astype(np.float64) + rng.uniform(-0.5, 0.5, size=take)
-            cy = ys[idx].astype(np.float64) + rng.uniform(-0.5, 0.5, size=take)
-            rad = (d_mm / 2.0) * tpm * np.exp(0.2 * rng.standard_normal(take))
-            rad = np.clip(rad, 0.2, None)
-            field = field + amp * splat_dots((h, wpx),
-                                             np.stack([cx, cy], axis=1), rad)
-            n_dots += take
-    rms = float(np.sqrt((field[support] ** 2).mean())) if support.sum() and p != 0.0 else 0.0
-    if rms > 0:
-        field = field / rms
-        # Mean-preserving pore texture: demean over the support so the
-        # facecore L mean (and every tone-gate region mean) is unchanged
-        # by construction; local excursions stay darkening-only.
-        lift_L = float(-field[support].mean())
-        field = field + lift_L
-        added_rms = float(np.sqrt((field[support] ** 2).mean()))
-        shaped = shaped + p * field * gate
+        if sd > 0:
+            field = band / sd
+            # Detrend at the crease scale: no fold-band refill, no
+            # support-scale swell (tone drift).
+            field = field - gauss(field, s_crease)
+            # Asymmetric caps (no demean: the clipped field keeps its
+            # natural near-zero mean, so the floor stays at the uniform
+            # level; demeaning would lift the floor back up).
+            # CAP_POS/CAP_NEG are operator/consult decision.
+            field = np.minimum(field, CAP_POS)
+            field = np.maximum(field, CAP_NEG)
+            rms = float(np.sqrt((field[support] ** 2).mean()))
+            lift_L = 0.0
+            if rms > 0:
+                field = field / rms
+                added_rms = float(np.sqrt((field[support] ** 2).mean()))
+                shaped = shaped + p * field * gate
     lab[..., 0] = np.clip(gate * shaped + (1.0 - gate) * lum, 0, 100)
     out = lab_to_rgb(lab)
     # Bit-exact outside the dilated support: the stage changes only
     # texels inside its derived mask plus the small restore margin.
     out[~support] = alb[~support]
     Image.fromarray(out).save(a.albedo_out)
-    print("detail_bands: crease-gain=%s pore-gain=%s dots=%d wrote %s"
-          % (a.crease_gain, a.pore_gain, n_dots, a.albedo_out), flush=True)
+    print("detail_bands: crease-gain=%s pore-gain=%s wrote %s"
+          % (a.crease_gain, a.pore_gain, a.albedo_out), flush=True)
     if a.report_out is not None:
         with open(a.report_out, "w") as f:
             json.dump({"size": [h, wpx], "texels_per_mm": tpm,
                        "seed": int(a.seed), "crease_gain": g,
-                       "pore_gain": p, "pore_d_mm": float(a.pore_d_mm),
-                       "pore_density_per_mm2": float(a.pore_density_per_mm2),
-                       "pore_sub_d_mm": float(a.pore_sub_d_mm),
-                       "pore_sub_density_per_mm2": float(a.pore_sub_density_per_mm2),
-                       "pore_sub_amp_frac": float(a.pore_sub_amp_frac),
+                       "pore_gain": p,
+                       "pore_noise_hi_mm": float(a.pore_noise_hi_mm),
                        "feather_mm": float(a.feather_mm),
-                       "lift_L": lift_L,
-                       "dots": n_dots, "added_rms": added_rms,
+                       "scalp_fringe_mm": float(a.scalp_fringe_mm),
+                       "lift_L": lift_L, "added_rms": added_rms,
                        "support_px": int(support.sum())}, f, indent=1)
     return 0
 

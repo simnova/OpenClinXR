@@ -250,10 +250,10 @@ def invariance_probe(an, landmarker):
 
 
 POST_STORE = "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale"
-POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post2.png"),
-               "aisha": os.path.join(POST_STORE, "albedo_detail_aisha_post2.png")}
-POST_RENDER = {"body2": os.path.join(POST_STORE, "post2", "wrinkle-body2-post2-front.png"),
-               "aisha": os.path.join(POST_STORE, "post2", "wrinkle-aisha-post2-front.png")}
+POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post3.png"),
+               "aisha": os.path.join(POST_STORE, "albedo_detail_aisha_post3.png")}
+POST_RENDER = {"body2": os.path.join(POST_STORE, "post3", "wrinkle-body2-post3-front.png"),
+               "aisha": os.path.join(POST_STORE, "post3", "wrinkle-aisha-post3-front.png")}
 SPLIT_REPORT = os.path.join(DIR, "skin-gates-split-report.json")
 
 
@@ -491,17 +491,26 @@ def run_post():
            "parameters": dstage["parameters"],
            "overrides": ov,
            "solve": {
-               "transfer": ("affine from room-rig probes, handback-1 stage "
-                            "(darkening-only pits 0.3mm/0.8mm2 + sub-grain): "
-                            "body2 probeC (g=1,p=0, reused: stage-independent) "
-                            "fh_c 0.01475->0.00448 fh_p 0.02271->0.01008; "
-                            "body2 probeD (g=1,p=3.0) and aisha probeD "
-                            "(g=1,p=3.0) in store/skin-wrinkle-scale/probes2/; "
-                            "old bipolar probes retained in probes/ + "
-                            "wrinkletest/ as superseded evidence"),
+               "transfer": ("affine from room-rig probes, handback-2 noise "
+                            "stage (band-limited 0.5tex-1.4mm grain, "
+                            "asymmetric caps, no demean): body2 probeN "
+                            "(g=1,p=3) and aisha probeN (g=1,p=3) in "
+                            "store/skin-wrinkle-scale/probes3/; probeC "
+                            "(g=1,p=0) reused (stage-independent); old "
+                            "bipolar/dot probes retained in probes/ + "
+                            "wrinkletest/ + probes2/ as superseded evidence"),
+               "texel_per_px": ("facecore UV island ~780 texels wide; "
+                                "forehead screen patch ~300-400 px wide -> "
+                                "~2-2.6 tex/px on the forehead; the 1.4 mm "
+                                "hi-cut (5.7 tex) projects to ~2.4 screen px, "
+                                "inside the instrument pore band "
+                                "(G(H/1500)-G(H/130), peak sensitivity "
+                                "~2-4 px); render transfer measured, not "
+                                "assumed"),
                "chosen": ("body2 (g=%s,p=%s) aisha (g=%s,p=%s): corrected "
-                          "G1 targets in log ratio (mid-window); POST "
-                          "verifies no excess overshoot"
+                          "G1 targets in log ratio (low-edge past midpoint, "
+                          "no excess overshoot) with G3 headroom from "
+                          "albedo-space region means; POST3 verifies"
                           % (ov["adult_male_street_casual"]["crease_gain"],
                              ov["adult_male_street_casual"]["pore_gain"],
                              ov["aisha"]["crease_gain"],

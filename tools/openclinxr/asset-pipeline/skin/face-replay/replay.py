@@ -170,6 +170,7 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
         cmd += [str(resolved["albedo_png"]), str(store_dir / output_paths["albedo_detail_png"])]
         derive_out = store_dir / "derive_out"
         cmd += ["--facecore-mask", str(derive_out / "mask-facecore.png")]
+        cmd += ["--scalp-mask", str(derive_out / "mask-scalp.png")]
         from PIL import Image as _PI2
         import numpy as _np2
         _eyes = (_np2.array(_PI2.open(derive_out / "mask-eyes-L.png").convert("L")) |
@@ -187,12 +188,9 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
         cmd += ["--seed", str(params["seed"])]
         cmd += ["--crease-gain", str(params["crease_gain"])]
         cmd += ["--pore-gain", str(params["pore_gain"])]
-        cmd += ["--pore-d-mm", str(params["pore_d_mm"])]
-        cmd += ["--pore-density-per-mm2", str(params["pore_density_per_mm2"])]
-        cmd += ["--pore-sub-d-mm", str(params["pore_sub_d_mm"])]
-        cmd += ["--pore-sub-density-per-mm2", str(params["pore_sub_density_per_mm2"])]
-        cmd += ["--pore-sub-amp-frac", str(params["pore_sub_amp_frac"])]
+        cmd += ["--pore-noise-hi-mm", str(params["pore_noise_hi_mm"])]
         cmd += ["--feather-mm", str(params["feather_mm"])]
+        cmd += ["--scalp-fringe-mm", str(params["scalp_fringe_mm"])]
         inputs["albedo_detail_png"] = store_dir / output_paths["albedo_detail_png"]
         inputs["albedo_png"] = store_dir / output_paths["albedo_detail_png"]
     else:

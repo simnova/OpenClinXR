@@ -37,9 +37,10 @@ function shaOf(file: string): string {
     .split(" ")[0]!;
 }
 
-function makeFixture(tmp: string): { albedo: string; facecore: string } {
+function makeFixture(tmp: string): { albedo: string; facecore: string; scalp: string } {
   const albedo = path.join(tmp, "albedo.png");
   const facecore = path.join(tmp, "facecore.png");
+  const scalp = path.join(tmp, "scalp.png");
   execFileSync("python3", ["-c", [
     "import numpy as np",
     "from PIL import Image",
@@ -54,8 +55,12 @@ function makeFixture(tmp: string): { albedo: string; facecore: string } {
     `Image.fromarray(a).save(${JSON.stringify(albedo)})`,
     `m=np.zeros((N,N),np.uint8); m[32:224,32:224]=255`,
     `Image.fromarray(m).save(${JSON.stringify(facecore)})`,
+    // Scalp block sits above the facecore (forehead skin above the
+    // facecore top); the fringe must carry the grain too.
+    `s=np.zeros((N,N),np.uint8); s[0:48,32:224]=255`,
+    `Image.fromarray(s).save(${JSON.stringify(scalp)})`,
   ].join("\n")], { encoding: "utf8" });
-  return { albedo, facecore };
+  return { albedo, facecore, scalp };
 }
 
 function runStage(tmp: string, albedo: string, facecore: string,
@@ -129,41 +134,20 @@ describe("detail_bands stage is generic, deterministic, calibrated", () => {
     expect(rHalf).toBeLessThan(0.6);
   });
 
-  it("adds darkening-only pore structure at the stated RMS (no bright pores)", () => {
+  it("adds dark-biased dense grain at the stated RMS (goal-like micro-contrast)", () => {
+    // Handback 2: dense, continuous, low-contrast micro-texture with no
+    // individually resolvable dots. Calibrated against the goal
+    // forehead crops (goal_body2: 0.389/0.411 of texels beyond +-1 L;
+    // goal_aisha: 0.296/0.338): the grain is dense both sides (not the
+    // handback-1 dots at 0.13 cover), dark-biased (asymmetric caps),
+    // tone shift bounded (near-zero support mean).
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "detail-pore-"));
-    const { albedo, facecore } = makeFixture(tmp);
+    const { albedo, facecore, scalp } = makeFixture(tmp);
     const out = runStage(tmp, albedo, facecore,
-      ["--crease-gain", "0", "--pore-gain", "3.0"], "pore.png");
+      ["--crease-gain", "0", "--pore-gain", "3.0",
+        "--scalp-mask", scalp, "--scalp-fringe-mm", "2.0"], "pore.png");
     const { addedRms } = bandEnergies(albedo, out, facecore);
     expect(Math.abs(addedRms - 3.0) / 3.0).toBeLessThan(0.15);
-    // No LOCAL positive excursions: pores are dark pits (handback 1).
-    // The stage preserves the facecore L mean exactly (uniform lift =
-    // -field mean, tone-neutral by construction), so excursions are
-    // measured against the uniform level (median over the block); the
-    // uint8 round-trip admits half-LSB dust, not bright dots.
-    const raw = execFileSync("python3", ["-c", [
-      "import sys, json",
-      `sys.path.insert(0, ${JSON.stringify(DIR)})`,
-      "import numpy as np",
-      "from PIL import Image",
-      "from fix_lips import rgb_to_lab",
-      `a=rgb_to_lab(np.array(Image.open(${JSON.stringify(albedo)}).convert('RGB')))[...,0]`,
-      `b=rgb_to_lab(np.array(Image.open(${JSON.stringify(out)}).convert('RGB')))[...,0]`,
-      `m=(np.array(Image.open(${JSON.stringify(facecore)}).convert('L'))>127)`,
-      "d=b-a",
-      "lvl=float(np.median(d[m]))",
-      "print(json.dumps({'maxUp':float((d-lvl)[m].max()),'minDown':float((d-lvl)[m].min())}))",
-    ].join("\n")], { encoding: "utf8" });
-    const s = JSON.parse(raw) as { maxUp: number; minDown: number };
-    expect(s.maxUp).toBeLessThanOrEqual(0.5);
-    expect(s.minDown).toBeLessThan(-1.0);
-  });
-
-  it("leaves no hard edge at the support border", () => {
-    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "detail-edge-"));
-    const { albedo, facecore } = makeFixture(tmp);
-    const out = runStage(tmp, albedo, facecore,
-      ["--crease-gain", "0", "--pore-gain", "3.0"], "pore.png");
     const raw = execFileSync("python3", ["-c", [
       "import sys, json",
       `sys.path.insert(0, ${JSON.stringify(DIR)})`,
@@ -171,18 +155,60 @@ describe("detail_bands stage is generic, deterministic, calibrated", () => {
       "from PIL import Image",
       "import cv2",
       "from fix_lips import rgb_to_lab",
+      `a=rgb_to_lab(np.array(Image.open(${JSON.stringify(albedo)}).convert('RGB')))[...,0]`,
       `b=rgb_to_lab(np.array(Image.open(${JSON.stringify(out)}).convert('RGB')))[...,0]`,
-      // support = dilate(facecore, feather_tex=4) at 4.079 tex/mm;
-      // ring = transition zone, interior = eroded deep field.
-      `fc=(np.array(Image.open(${JSON.stringify(facecore)}).convert('L'))>127).astype(np.uint8)`,
-      "sup=cv2.dilate(fc,np.ones((9,9),np.uint8))>0",
-      "ring=(cv2.dilate(fc,np.ones((13,13),np.uint8))>0)&(cv2.erode(fc,np.ones((13,13),np.uint8))==0)",
-      "inter=(cv2.erode(fc,np.ones((29,29),np.uint8))>0)",
-      "lap=np.abs(cv2.Laplacian(b.astype(np.float32),cv2.CV_32F))",
-      "print(json.dumps({'ring':float(lap[ring].max()),'inter':float(lap[inter].max())}))",
+      `m0=(np.array(Image.open(${JSON.stringify(facecore)}).convert('L'))>127)`,
+      "m=cv2.erode(m0.astype(np.uint8),np.ones((33,33),np.uint8))>0",
+      "d=b-a",
+      "print(json.dumps({'maxUp':float(d[m].max()),'minDown':float(d[m].min()),'brightFrac':float((d[m]>1.0).mean()),'darkFrac':float((d[m]<-1.0).mean()),'mean':float(d[m].mean())}))",
     ].join("\n")], { encoding: "utf8" });
-    const s = JSON.parse(raw) as { ring: number; inter: number };
-    expect(s.ring).toBeLessThanOrEqual(s.inter);
+    const s = JSON.parse(raw) as { maxUp: number; minDown: number; brightFrac: number; darkFrac: number; mean: number };
+    expect(s.maxUp).toBeLessThanOrEqual(5.0);
+    expect(s.minDown).toBeLessThan(-3.0);
+    expect(s.brightFrac).toBeGreaterThan(0.2);
+    expect(s.brightFrac).toBeLessThan(0.5);
+    expect(s.darkFrac).toBeGreaterThan(0.2);
+    expect(s.darkFrac).toBeLessThan(0.5);
+    expect(Math.abs(s.mean)).toBeLessThan(1.0);
+  });
+
+  it("carries the grain into the scalp fringe with no edge", () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "detail-fringe-"));
+    const { albedo, facecore, scalp } = makeFixture(tmp);
+    const out = runStage(tmp, albedo, facecore,
+      ["--crease-gain", "0", "--pore-gain", "3.0",
+        "--scalp-mask", scalp, "--scalp-fringe-mm", "2.0"], "pore.png");
+    const raw = execFileSync("python3", ["-c", [
+      "import sys, json",
+      `sys.path.insert(0, ${JSON.stringify(DIR)})`,
+      "import numpy as np",
+      "from PIL import Image",
+      "import cv2",
+      "from fix_lips import rgb_to_lab",
+      `a=rgb_to_lab(np.array(Image.open(${JSON.stringify(albedo)}).convert('RGB')))[...,0]`,
+      `b=rgb_to_lab(np.array(Image.open(${JSON.stringify(out)}).convert('RGB')))[...,0]`,
+      `fc=(np.array(Image.open(${JSON.stringify(facecore)}).convert('L'))>127).astype(np.uint8)`,
+      `sc=(np.array(Image.open(${JSON.stringify(scalp)}).convert('L'))>127).astype(np.uint8)`,
+      // extended hard mask, same construction as the stage
+      "hard=(fc>0)|((sc>0)&(cv2.dilate(fc,np.ones((17,17),np.uint8))>0))",
+      "sup=cv2.dilate(hard.astype(np.uint8),np.ones((9,9),np.uint8))>0",
+      "ring=(cv2.dilate(hard.astype(np.uint8),np.ones((13,13),np.uint8))>0)&(cv2.erode(hard.astype(np.uint8),np.ones((13,13),np.uint8))==0)",
+      "inter=(cv2.erode(hard.astype(np.uint8),np.ones((29,29),np.uint8))>0)",
+      "d=np.abs(b-a)",
+      // fringe core at gate~=1 (scalp rows well inside the fringe,
+      // away from both the facecore edge and the fringe outer edge;
+      // fixture fringe spans rows 24:32, feather sigma is 4 tex)
+      "yy=np.mgrid[0:256,0:256][0]",
+      "fr=(sc>0)&(fc==0)&(yy>=28)",
+      "print(json.dumps({'fringe':float(d[fr].mean()),'inter':float(d[inter].mean())}))",
+      "lap=np.abs(cv2.Laplacian(b.astype(np.float32),cv2.CV_32F))",
+      "print(json.dumps({'ring':float(lap[ring].max()),'inner':float(lap[inter].max())}))",
+    ].join("\n")], { encoding: "utf8" });
+    const lines = raw.trim().split("\n");
+    const s = JSON.parse(lines[0]) as { fringe: number; inter: number };
+    const e = JSON.parse(lines[1]) as { ring: number; inner: number };
+    expect(s.fringe).toBeGreaterThan(0.5 * s.inter);
+    expect(e.ring).toBeLessThanOrEqual(e.inner);
   });
 
   it("names no subject (generic, case-driven)", () => {

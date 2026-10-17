@@ -10,7 +10,9 @@
         "size": 4096,
         "no_ao": false
       },
-      "input_kinds": ["subject_glb"],
+      "input_kinds": [
+        "subject_glb"
+      ],
       "output_shas_aisha": {
         "occupancy.png": "PLACEHOLDER_SHA256",
         "mask-lips.png": "PLACEHOLDER_SHA256",
@@ -74,7 +76,11 @@
         "p": 0.9,
         "k": 2.0
       },
-      "input_kinds": ["albedo_png", "ao_png", "occupancy_png"],
+      "input_kinds": [
+        "albedo_png",
+        "ao_png",
+        "occupancy_png"
+      ],
       "output_shas_aisha": {
         "albedo_occ.png": "PLACEHOLDER_SHA256"
       },
@@ -94,7 +100,13 @@
       "parameters": {
         "tcoef": 0.08
       },
-      "input_kinds": ["albedo_png", "ao_png", "lip_uv_npz", "landmarks_uv_json", "facecore_mask"],
+      "input_kinds": [
+        "albedo_png",
+        "ao_png",
+        "lip_uv_npz",
+        "landmarks_uv_json",
+        "facecore_mask"
+      ],
       "output_shas_aisha": {
         "roughness.png": "PLACEHOLDER_SHA256"
       },
@@ -117,7 +129,10 @@
       "parameters": {
         "ratio": 1.0
       },
-      "input_kinds": ["albedo_png", "lip_uv_npz"],
+      "input_kinds": [
+        "albedo_png",
+        "lip_uv_npz"
+      ],
       "output_shas_aisha": {
         "albedo_lips.png": "PLACEHOLDER_SHA256"
       },
@@ -135,11 +150,24 @@
       "script": "fix_corner.py",
       "entry": "main",
       "parameters": {
-        "inner_rgb": [200, 140, 125],
-        "outer_rgb": [215, 185, 170],
+        "inner_rgb": [
+          200,
+          140,
+          125
+        ],
+        "outer_rgb": [
+          215,
+          185,
+          170
+        ],
         "feather_px": 8
       },
-      "input_kinds": ["albedo_png", "socket_wall_L_png", "socket_wall_R_png", "landmarks_uv_json"],
+      "input_kinds": [
+        "albedo_png",
+        "socket_wall_L_png",
+        "socket_wall_R_png",
+        "landmarks_uv_json"
+      ],
       "output_shas_aisha": {
         "albedo_corners.png": "PLACEHOLDER_SHA256"
       },
@@ -165,7 +193,16 @@
         "w_feather": 32.0,
         "feat_ramp": 72.0
       },
-      "input_kinds": ["albedo_png", "subject_glb", "facecore_mask", "lips_mask", "eyes_L_mask", "eyes_R_mask", "brows_L_mask", "brows_R_mask"],
+      "input_kinds": [
+        "albedo_png",
+        "subject_glb",
+        "facecore_mask",
+        "lips_mask",
+        "eyes_L_mask",
+        "eyes_R_mask",
+        "brows_L_mask",
+        "brows_R_mask"
+      ],
       "output_shas_aisha": {
         "albedo_sym.png": "PLACEHOLDER_SHA256"
       },
@@ -185,11 +222,19 @@
       "script": "fix_socket.py",
       "entry": "main",
       "parameters": {
-        "cheek_lab": [45, 12.7, 14.0],
+        "cheek_lab": [
+          45,
+          12.7,
+          14.0
+        ],
         "dilate_px": 8,
         "feather_px": 6
       },
-      "input_kinds": ["albedo_png", "eyes_L_mask", "eyes_R_mask"],
+      "input_kinds": [
+        "albedo_png",
+        "eyes_L_mask",
+        "eyes_R_mask"
+      ],
       "output_shas_aisha": {
         "albedo_socket.png": "PLACEHOLDER_SHA256"
       },
@@ -215,7 +260,12 @@
         "seed": 11,
         "texels_per_mm": 4.079
       },
-      "input_kinds": ["albedo_png", "landmarks_uv_json", "lips_mask", "facecore_mask"],
+      "input_kinds": [
+        "albedo_png",
+        "landmarks_uv_json",
+        "lips_mask",
+        "facecore_mask"
+      ],
       "output_shas_aisha": {
         "albedo_beard.png": "PLACEHOLDER_SHA256"
       },
@@ -238,14 +288,15 @@
         "pore_gain": 0.0,
         "seed": 11,
         "texels_per_mm": 4.079,
-        "pore_d_mm": 0.3,
-        "pore_density_per_mm2": 0.8,
-        "pore_sub_d_mm": 0.15,
-        "pore_sub_density_per_mm2": 3.2,
-        "pore_sub_amp_frac": 0.5,
-        "feather_mm": 1.0
+        "pore_noise_hi_mm": 1.4,
+        "feather_mm": 1.0,
+        "scalp_fringe_mm": 25.0
       },
-      "input_kinds": ["albedo_png", "facecore_mask", "lips_mask"],
+      "input_kinds": [
+        "albedo_png",
+        "facecore_mask",
+        "lips_mask"
+      ],
       "output_shas_aisha": {
         "albedo_detail.png": "PLACEHOLDER_SHA256"
       },
@@ -257,12 +308,9 @@
         "pore_gain": "solved per case against that case's goal photo (wrinkle-scale-report.json fix.solve; 0.0 = no added structure)",
         "seed": "operator/consult decision: fixed seed 11, seeded default_rng stream (same convention as beard_shadow)",
         "texels_per_mm": "measurement: S/beard/RESULT.md sqrt(facecore UV-texel area / 3D mm area) = 4.079 at 4096 (beard_shadow.py method)",
-        "pore_d_mm": "Flament et al., Clin Cosmet Investig Dermatol 2015: visible facial skin pores 250-500 um (detection threshold 250 um); handback 1 (barely resolve at portrait distance): 0.3 mm lower end of the cited range",
-        "pore_density_per_mm2": "Flament et al. 2015: cheek density 10-90/cm2 = 0.1-0.9/mm2; handback 1 (dense): 0.8/mm2 top of the cited range",
-        "pore_sub_d_mm": "operator/consult decision: sub-pore grain octave at half the cited pore size",
-        "pore_sub_density_per_mm2": "operator/consult decision: sub-pore grain denser (4x the pore octave)",
-        "pore_sub_amp_frac": "operator/consult decision: sub-pore grain at half the main-octave amplitude",
+        "pore_noise_hi_mm": "instrument pore-band sigma_hi (H/130 at portrait scale ~1 tex/px via 4.079 tex/mm and the measured head height; report fix.solve): keeps the grain below crease-band wavelengths so it cannot refill the removed folds",
         "feather_mm": "operator/consult decision: 1.0 mm gate feather (between the fix_lips 6-texel feather and the beard 3.0 mm outer fade)",
+        "scalp_fringe_mm": "handback 2: 25.0 mm scalp fringe covers the forehead skin above the facecore top up to the hairline (facecore alone stops mid-forehead)",
         "crease_smooth_mm": "operator/consult decision: 3.0 mm upper gaussian keeps forehead-fold energy (~8-15 mm spacing) inside the removed band; 0.35 mm lower gaussian spares fine grain"
       }
     }
@@ -272,24 +320,46 @@
       "glb_sha256": "2be4b0980beb612d9a18dcb3093d3969a1d4c04cf70119ab588d7de998a38d5f",
       "sources": {
         "glb_sha256": "measured: sha256sum S/eyefinal/base.glb; its derive --no-ao 4096 reproduces S/derive/A 13/13 masks + landmarks-uv.json byte-identical (card tsk_adb53f2a4f22fd72 STEP0, S/aishareal/derive-base)",
-        "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (handback 1: g=1 with affine transfer; probeC moves fh_c 0.00407->0.00302, darkening-only cross-talk compensated by pore_gain)",
-        "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 1: p=7.0 affine from probeD slope 0.004693/L-unit against goal 0.03686 under corrected G1; POST2 verifies)"
+        "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: g=1; probeN moves fh_c 0.00407->0.01064; dark-biased noise cross-talk compensated by pore_gain)",
+        "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: p=3.0 (POST=probe, no extrapolation); affine probeN slope 0.007667/L-unit against goal 0.03686 under corrected G1 low-edge; POST3 verifies)"
       },
       "overrides": {
-        "lips": { "ratio": 1.30 },
-        "symmetrise": { "strength": 1.0 },
-        "beard_shadow": { "weight": 0.0 },
-        "detail_bands": { "crease_gain": 1.0, "pore_gain": 7.0 }
+        "lips": {
+          "ratio": 1.3
+        },
+        "symmetrise": {
+          "strength": 1.0
+        },
+        "beard_shadow": {
+          "weight": 0.0
+        },
+        "detail_bands": {
+          "crease_gain": 1.0,
+          "pore_gain": 3.0
+        }
       }
     },
     "adult_male_street_casual": {
       "glb_sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
-      "skin_tone_rgb": [0.66, 0.50, 0.40],
+      "skin_tone_rgb": [
+        0.66,
+        0.5,
+        0.4
+      ],
       "overrides": {
-        "lips": { "ratio": 1.0 },
-        "symmetrise": { "strength": 1.0 },
-        "beard_shadow": { "weight": 0.9 },
-        "detail_bands": { "crease_gain": 1.0, "pore_gain": 4.0 }
+        "lips": {
+          "ratio": 1.0
+        },
+        "symmetrise": {
+          "strength": 1.0
+        },
+        "beard_shadow": {
+          "weight": 0.9
+        },
+        "detail_bands": {
+          "crease_gain": 1.0,
+          "pore_gain": 3.5
+        }
       },
       "sources": {
         "glb_sha256": "measured: shasum -a 256 S/body2/final.glb (male-macro rebake, bake.log MACRO_BASE gender 1.0)",
@@ -297,17 +367,27 @@
         "lips.ratio": "measurement: S/skins/RESULT.md G2 — pre-lips lip a* 13.11 vs goal 13.64, ratio 1.30 would push to 17.0; 1.0 = no-op recorded per subject",
         "symmetrise.strength": "operator/consult decision: 1.0 default per S/sym/fix_sym.py (same as aisha; recorded per subject)",
         "beard_shadow.weight": "measurement: card tsk_adb53f2a4f22fd72 G4 polygon re-measure (face_landmark_regions upperlip_skin+chin vs goal on the same S/beard/sweep renders): min max|dLab| at 0.9 (2.38) vs 1.0 (3.41); was 1.0 by box-patch rule (S/aishareal/g4-polygon-sweep.json)",
-        "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (handback 1: g=1 with affine transfer; probeC moves fh_c 0.01475->0.00448, residual is the lighting-x-geometry floor)",
-        "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 1: p=4.0 affine from probeD slope 0.009987/L-unit against goal 0.07087 under corrected G1; POST2 verifies)"
+        "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: g=1; probeN moves fh_c 0.01475->0.01686; dark-biased noise cross-talk compensated by pore_gain)",
+        "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: p=3.5 interpolated between probeN (p=3, fh_c 0.936) and POST3-first (p=3.8, fh_c 1.193) for fh_c ~1.10 under corrected G1; fh_p ~0.69 past midpoint; POST3-second verifies)"
       }
     },
     "peds_patient_child": {
       "glb_sha256": "a969db3ba0a63d43597b5c3007a6e520a85c46bec9e28c97aa88638500ed79b1",
-      "skin_tone_rgb": [0.84, 0.70, 0.60],
+      "skin_tone_rgb": [
+        0.84,
+        0.7,
+        0.6
+      ],
       "overrides": {
-        "lips": { "ratio": 1.0 },
-        "symmetrise": { "strength": 1.0 },
-        "beard_shadow": { "weight": 0.0 }
+        "lips": {
+          "ratio": 1.0
+        },
+        "symmetrise": {
+          "strength": 1.0
+        },
+        "beard_shadow": {
+          "weight": 0.0
+        }
       },
       "sources": {
         "glb_sha256": "measured: shasum -a 256 apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (== face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb byte-identical copy); the GLB the child stage 3 uses per case-inputs.json:cases.peds_asthma_parent_anxiety_v1.stage3_glb",
@@ -327,7 +407,22 @@
       "distance": 0.03,
       "seed": 0,
       "margin": 8,
-      "garments_hidden": ["jeans", "pant", "shoe", "boot", "shirt", "t_shirt", "hair", "mhair", "blunt", "bob", "cap", "hat", "glass", "icosphere"],
+      "garments_hidden": [
+        "jeans",
+        "pant",
+        "shoe",
+        "boot",
+        "shirt",
+        "t_shirt",
+        "hair",
+        "mhair",
+        "blunt",
+        "bob",
+        "cap",
+        "hat",
+        "glass",
+        "icosphere"
+      ],
       "duration_seconds_per_subject": "87-93"
     },
     "note": "AO bake needs Blender; tracked test must not launch it. Record command + parameters in manifest. Human/station runs this separately."
