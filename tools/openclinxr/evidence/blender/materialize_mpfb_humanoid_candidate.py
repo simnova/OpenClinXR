@@ -2496,6 +2496,25 @@ def parse_args():
     parser.add_argument("--eye-tear-fan-steps", default="1.5,3.0,4.5")
     parser.add_argument("--eye-tear-snap-mm", type=float, default=2.5)
     parser.add_argument(
+        "--eye-sclera-lid-ao",
+        action="store_true",
+        help=(
+            "Sclera lid-shadow bake: ray-cast lid occlusion onto the eye globe "
+            "and multiply it into the sclera texels of the eye diffuse "
+            "(iris/pupil texels byte-identical). Opt-in; default off."
+        ),
+    )
+    parser.add_argument("--eye-sclera-lid-ao-strength", type=float, default=0.5)
+    parser.add_argument("--eye-sclera-lid-ao-feather", type=float, default=1.0)
+    parser.add_argument(
+        "--eye-sclera-lid-ao-uniform",
+        action="store_true",
+        help=(
+            "Probe-only: replace the baked occlusion field with its "
+            "sclera-mean before multiplying (uniform control bake)."
+        ),
+    )
+    parser.add_argument(
         "--no-lid-conform",
         action="store_true",
         help=(
@@ -4020,6 +4039,281 @@ def _eyshell_transfer_lid_keys(path):
 
 
 EYEMESH_CORNEA_CTX = {}
+
+
+def _eye_sclera_lid_ao(eyes_asset, human, strength, feather, uniform_probe,
+                       ao_map_path, eye_png_path):
+    """Bake seated-lid occlusion into the eye diffuse (sclera texels only).
+
+    Method: numpy ray-cast per eye-vertex. A Blender BVHTree is built from
+    the seated body meshes (every scene mesh except the eye itself and any
+    occlusion shell / tearline); for each eye vertex outside the iris disks,
+    K=64 deterministic fibonacci hemisphere rays are cast (origin on the
+    globe surface, max distance 20 mm) and occlusion = fraction blocked.
+    Per-vertex occlusion is rasterized into eye-texture UV space by
+    barycentric interpolation inside each UV triangle, then multiplied into
+    the eye diffuse for sclera texels only.
+
+    Shadow source is geometry only: seated lid/body meshes. No photo value
+    is read at bake time. The iris/pupil disks (same numerals as the
+    eyeshell spare, with the bpy v-flip) keep factor exactly 1, so those
+    texels are byte-identical to the source texture. The modified image is
+    a per-subject copy saved beside the export; the source texture file is
+    never written.
+    """
+    import hashlib as _hashlib
+
+    from mathutils import Vector as _BV
+    from mathutils.bvhtree import BVHTree as _BVHTree
+
+    if not np.isfinite(strength) or strength < 0.0 or strength > 2.0:
+        raise RuntimeError(f"SCLERA_LID_AO: strength must be finite in [0,2], got {strength!r}")
+    if not np.isfinite(feather) or feather < 0.0 or feather > 3.0:
+        raise RuntimeError(f"SCLERA_LID_AO: feather must be finite in [0,3], got {feather!r}")
+
+    tex_node = None
+    for _mat in eyes_asset.data.materials:
+        if _mat is None or _mat.node_tree is None:
+            continue
+        for _node in _mat.node_tree.nodes:
+            if _node.bl_idname == "ShaderNodeTexImage" and _node.image is not None:
+                tex_node = _node
+                break
+        if tex_node is not None:
+            break
+    if tex_node is None:
+        raise RuntimeError("SCLERA_LID_AO: no image texture on the eye material -- refusing")
+    src_img = tex_node.image
+    w, h = int(src_img.size[0]), int(src_img.size[1])
+    if w <= 0 or h <= 0:
+        raise RuntimeError("SCLERA_LID_AO: eye image has no pixels -- refusing")
+
+    # Iris numerals: eye-parallax.ts file-UV (v=0 at image top), bpy loop UVs
+    # use v=0 at image bottom, so the bake compares (u, 1-v). Same numerals
+    # and flip as the eyeshell spare above.
+    _IRIS_C = ((299.55 / 1024.0, 724.0 / 1024.0),
+               (724.65 / 1024.0, 302.72 / 1024.0))
+    _IRIS_R = 135.0 / 1024.0
+    _LIMBUS_W = 30.0 / 1024.0
+
+    dg = bpy.context.evaluated_depsgraph_get()
+    _occ_verts = []
+    _occ_polys = []
+    _occ_names = []
+    for _obj in bpy.context.scene.objects:
+        if _obj.type != "MESH" or _obj is eyes_asset:
+            continue
+        _nm = _obj.name or ""
+        if "occlusion_shell" in _nm or "tearline" in _nm:
+            continue
+        _eobj = _obj.evaluated_get(dg)
+        try:
+            _mesh = _eobj.to_mesh()
+        except RuntimeError:
+            continue
+        if _mesh is None:
+            continue
+        _mesh.calc_loop_triangles()
+        _MW = _eobj.matrix_world
+        _base = len(_occ_verts)
+        _occ_verts.extend([_MW @ _v.co for _v in _mesh.vertices])
+        _ntri = 0
+        for _tri in _mesh.loop_triangles:
+            _occ_polys.append((_base + _tri.vertices[0],
+                              _base + _tri.vertices[1],
+                              _base + _tri.vertices[2]))
+            _ntri += 1
+        _eobj.to_mesh_clear()
+        _occ_names.append(f"{_nm}:{_ntri}")
+    if not _occ_polys:
+        raise RuntimeError("SCLERA_LID_AO: no occluder triangles -- refusing")
+    _tree = _BVHTree.FromPolygons(_occ_verts, _occ_polys)
+    print(f"SCLERA_LID_AO_OCCLUDERS tris={len(_occ_polys)} "
+          f"objects={json.dumps(_occ_names)}")
+
+    _eeye = eyes_asset.evaluated_get(dg)
+    _emesh = _eeye.to_mesh()
+    _emesh.calc_loop_triangles()
+    _EMW = _eeye.matrix_world
+    _EMW3 = _EMW.to_3x3()
+    _npos = len(_emesh.vertices)
+    _epos = np.array([tuple(_EMW @ _v.co) for _v in _emesh.vertices], dtype=float)
+    _enor = np.array([tuple((_EMW3 @ _v.normal).normalized())
+                      for _v in _emesh.vertices], dtype=float)
+    _uv_layer = _emesh.uv_layers.active
+    if _uv_layer is None:
+        raise RuntimeError("SCLERA_LID_AO: eye mesh has no UV layer -- refusing")
+    _uv_sum = np.zeros((_npos, 2), dtype=float)
+    _uv_cnt = np.zeros(_npos, dtype=float)
+    for _poly in _emesh.polygons:
+        for _li in _poly.loop_indices:
+            _vi = _emesh.loops[_li].vertex_index
+            _uv = _uv_layer.data[_li].uv
+            _uv_sum[_vi, 0] += float(_uv[0])
+            _uv_sum[_vi, 1] += float(_uv[1])
+            _uv_cnt[_vi] += 1.0
+    _uv_cnt[_uv_cnt == 0.0] = 1.0
+    _vert_uv = _uv_sum / _uv_cnt[:, None]
+
+    def _disc_min(_uv):
+        _d0 = np.linalg.norm(_uv - np.asarray(_IRIS_C[0]), axis=-1)
+        _d1 = np.linalg.norm(_uv - np.asarray(_IRIS_C[1]), axis=-1)
+        return np.minimum(_d0, _d1)
+
+    _flip = np.stack([_vert_uv[:, 0], 1.0 - _vert_uv[:, 1]], axis=1)
+    _d_flip = _disc_min(_flip)
+    _d_noflip = _disc_min(_vert_uv)
+    _n_flip = int((_d_flip <= _IRIS_R).sum())
+    _n_noflip = int((_d_noflip <= _IRIS_R).sum())
+    print(f"SCLERA_LID_AO_UVCHECK flipped={_n_flip} unflipped={_n_noflip}")
+    if _n_flip < 100 or _n_noflip > 40:
+        raise RuntimeError(
+            "SCLERA_LID_AO: UV-convention check failed "
+            f"(flipped={_n_flip} unflipped={_n_noflip}) -- refusing")
+
+    # Deterministic fibonacci hemisphere about +Z, mapped per-vert.
+    _K = 64
+    _ga = np.pi * (3.0 - np.sqrt(5.0))
+    _dirs = np.zeros((_K, 3), dtype=float)
+    for _k in range(_K):
+        _z = 1.0 - (_k + 0.5) / _K
+        _r = np.sqrt(max(0.0, 1.0 - _z * _z))
+        _ph = _ga * _k
+        _dirs[_k] = (_r * np.cos(_ph), _r * np.sin(_ph), _z)
+    _EPS = 0.0005
+    _MAXD = 0.02
+    _is_sclera_vert = _d_flip > _IRIS_R
+    _occ = np.zeros(_npos, dtype=float)
+    _up = np.array([0.0, 0.0, 1.0])
+    for _vi in np.nonzero(_is_sclera_vert)[0]:
+        _n = _enor[_vi]
+        _t = _up - _n * float(np.dot(_up, _n))
+        if float(np.dot(_t, _t)) < 1e-8:
+            _t = np.array([1.0, 0.0, 0.0])
+        _t = _t / float(np.linalg.norm(_t))
+        _b = np.cross(_n, _t)
+        _hits = 0
+        _org = _epos[_vi] + _n * _EPS
+        for _kk in range(_K):
+            _d = _t * _dirs[_kk, 0] + _b * _dirs[_kk, 1] + _n * _dirs[_kk, 2]
+            _res = _tree.ray_cast(_BV(_org), _BV(_d), _MAXD)
+            if _res[0] is not None:
+                _hits += 1
+        _occ[_vi] = _hits / _K
+    _eeye.to_mesh_clear()
+    print(f"SCLERA_LID_AO_RAYS verts={int(_is_sclera_vert.sum())}/{_npos} "
+          f"k={_K} maxDmm={_MAXD * 1000.0:.1f}")
+
+    # Rasterize per-vertex occlusion into texture pixels by UV triangles.
+    # _vert_uv above came from the evaluated mesh; the loop below walks the
+    # original mesh topology, which shares vertex indices.
+    _ao = np.full((h, w), np.nan, dtype=float)
+    _skipped_seam = 0
+    _omesh = eyes_asset.data
+    _tmp.calc_loop_triangles()
+    for _tri in _tmp.loop_triangles:
+        _vidx = list(_tri.vertices)
+        _uvs = np.array([_vert_uv[_vi] for _vi in _vidx])
+        if float(_uvs[:, 0].max() - _uvs[:, 0].min()) > 0.5:
+            _skipped_seam += 1
+            continue
+        _xs = _uvs[:, 0] * w
+        _ys = _uvs[:, 1] * h
+        _x0 = max(0, int(np.floor(_xs.min())))
+        _x1 = min(w - 1, int(np.ceil(_xs.max())))
+        _y0 = max(0, int(np.floor(_ys.min())))
+        _y1 = min(h - 1, int(np.ceil(_ys.max())))
+        if _x1 < _x0 or _y1 < _y0:
+            continue
+        _gx, _gy = np.meshgrid(np.arange(_x0, _x1 + 1), np.arange(_y0, _y1 + 1))
+        _px = (_gx.ravel() + 0.5) / w - _uvs[0, 0]
+        _py = (_gy.ravel() + 0.5) / h - _uvs[0, 1]
+        _e1 = _uvs[1] - _uvs[0]
+        _e2 = _uvs[2] - _uvs[0]
+        _den = _e1[0] * _e2[1] - _e1[1] * _e2[0]
+        if abs(_den) < 1e-12:
+            continue
+        _l1 = (_px * _e2[1] - _py * _e2[0]) / _den
+        _l2 = (_e1[0] * _py - _e1[1] * _px) / _den
+        _l0 = 1.0 - _l1 - _l2
+        _inside = (_l0 >= -1e-9) & (_l1 >= -1e-9) & (_l2 >= -1e-9)
+        if not _inside.any():
+            continue
+        _vals = (_l0 * _occ[_vidx[0]] + _l1 * _occ[_vidx[1]]
+                 + _l2 * _occ[_vidx[2]])
+        _rows = _gy.ravel()[_inside]
+        _cols = _gx.ravel()[_inside]
+        _old = _ao[_rows, _cols]
+        _new = _vals[_inside]
+        _fill = np.isnan(_old)
+        _old[_fill] = _new[_fill]
+        _old[~_fill] = 0.5 * (_old[~_fill] + _new[~_fill])
+        _ao[_rows, _cols] = _old
+    bpy.data.meshes.remove(_tmp)
+
+    _yy, _xx = np.mgrid[0:h, 0:w]
+    _u = (_xx + 0.5) / w
+    _v_file = 1.0 - (_yy + 0.5) / h
+    _dmin = np.minimum(
+        np.sqrt((_u - _IRIS_C[0][0]) ** 2 + (_v_file - _IRIS_C[0][1]) ** 2),
+        np.sqrt((_u - _IRIS_C[1][0]) ** 2 + (_v_file - _IRIS_C[1][1]) ** 2))
+    _iris = _dmin <= _IRIS_R
+    _smooth = _eyshell_smoothstep(_IRIS_R, _IRIS_R + _LIMBUS_W * float(feather),
+                                  _dmin)
+    _smooth = np.where(_dmin <= _IRIS_R, 0.0, _smooth)
+    _occ_px = np.where(np.isnan(_ao), 0.0, _ao)
+    if bool(uniform_probe):
+        _mean = float(_occ_px[~_iris & ~np.isnan(_ao)].mean()) \
+            if (~_iris).any() else 0.0
+        _occ_px = np.full((h, w), _mean, dtype=float)
+        print(f"SCLERA_LID_AO_UNIFORM meanOcc={_mean:.4f}")
+    _factor = np.clip(1.0 - float(strength) * _occ_px * _smooth, 0.0, 1.0)
+    _factor[_iris] = 1.0
+
+    _old = np.array(src_img.pixels[:], dtype=np.float32).reshape(h, w, 4)
+    _new = _old.copy()
+    for _c in range(3):
+        _new[:, :, _c] = np.clip(_old[:, :, _c] * _factor, 0.0, 1.0)
+    _iris_diff = int((np.abs(_new[:, :, :3] - _old[:, :, :3]).max(axis=-1)
+                      [_iris] > 0.0).sum())
+    if _iris_diff != 0:
+        raise RuntimeError(
+            f"SCLERA_LID_AO: iris texels changed ({_iris_diff}) -- refusing")
+    _sclera_tex = int((~_iris).sum())
+    _uncovered = int((~_iris & np.isnan(_ao)).sum())
+    _changed = int((np.abs(_new[:, :, :3] - _old[:, :, :3]).max(axis=-1)
+                    [~_iris] > 0.0).sum())
+
+    _dst = src_img.copy()
+    _dst.pixels[:] = _new.ravel()
+    _dst.filepath_raw = str(eye_png_path)
+    _dst.file_format = "PNG"
+    _dst.save()
+    tex_node.image = _dst
+
+    _ao_img = bpy.data.images.new("sclera_lid_ao", width=w, height=h, alpha=False)
+    _ao_px = np.zeros((h, w, 4), dtype=np.float32)
+    _ao_px[:, :, 0] = _ao_px[:, :, 1] = _ao_px[:, :, 2] = \
+        np.where(np.isnan(_ao), 0.0, _ao).astype(np.float32)
+    _ao_px[:, :, 3] = 1.0
+    _ao_img.pixels[:] = _ao_px.ravel()
+    _ao_img.filepath_raw = str(ao_map_path)
+    _ao_img.file_format = "PNG"
+    _ao_img.save()
+
+    def _sha(_p):
+        _hh = _hashlib.sha256()
+        with open(_p, "rb") as _f:
+            _hh.update(_f.read())
+        return _hh.hexdigest()
+
+    print(f"SCLERA_LID_AO_BAKED strength={strength} feather={feather} "
+          f"uniform={bool(uniform_probe)} scleraTexels={_sclera_tex} "
+          f"uncoveredScleraTexels={_uncovered} changedScleraTexels={_changed} "
+          f"irisDiff={_iris_diff} seamSkipped={_skipped_seam}")
+    print(f"SCLERA_LID_AO_FILES eye={eye_png_path} ao={ao_map_path}")
+    print(f"SCLERA_LID_AO_SHA eye={_sha(str(eye_png_path))} "
+          f"ao={_sha(str(ao_map_path))}")
 
 
 def _eyemesh_split_cornea_glb(path, subject_id):
@@ -8838,6 +9132,19 @@ def main():
               + json.dumps({"subject": subject_id,
                             "noLidConform": bool(getattr(
                                 args, "no_lid_conform", False))}))
+    # Sclera lid-shadow bake (opt-in): ray-cast occlusion of the seated lids
+    # onto the eye globe in the eye texture's UV space, multiplied into the
+    # sclera texels of a per-subject eye-diffuse copy. Runs AFTER lid-conform
+    # has seated the lids, on the final eye geometry, before export.
+    if getattr(args, "eye_sclera_lid_ao", False):
+        _ao_out = output.parent / f"{output.stem}.sclera-lid-ao.png"
+        _eye_out = output.parent / f"{output.stem}.sclera-lid-eye.png"
+        _eye_sclera_lid_ao(
+            eyes_asset, human,
+            strength=float(args.eye_sclera_lid_ao_strength),
+            feather=float(args.eye_sclera_lid_ao_feather),
+            uniform_probe=bool(getattr(args, "eye_sclera_lid_ao_uniform", False)),
+            ao_map_path=str(_ao_out), eye_png_path=str(_eye_out))
     bpy.context.view_layer.objects.active = human
     human.select_set(True)
     # Every subject: MPFB's subdiv bake swaps body mesh data via
