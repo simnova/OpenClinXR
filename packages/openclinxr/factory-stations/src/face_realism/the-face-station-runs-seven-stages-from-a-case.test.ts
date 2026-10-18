@@ -251,7 +251,16 @@ describe("the face station runs seven stages from a case", () => {
         const accepted = [conform.bake.newGlb.sha256, anySubject.bake.newGlb.sha256];
         const superseded = anySubject.supersededPreCanthus?.bake.newGlb.sha256;
         if (typeof superseded === "string") accepted.push(superseded);
-        expect(accepted, "stage-4 expectation cites a conform report").toContain(entry.expected);
+        // Re-pin tsk_68c071233175cae2: post-browform runs cite the run-A
+        // GLB file the pin was re-derived from. The cited file must exist
+        // in the store and recompute to the expectation — the pin traces
+        // to landed bytes, not to a restated constant.
+        const citedRunFile = entry.expectedSource.split(" ")[0] ?? "";
+        if (citedRunFile.startsWith("face-station-cases/")) {
+          const citedAbs = join(STORE_CASES, citedRunFile.slice("face-station-cases/".length));
+          if (existsSync(citedAbs)) accepted.push(shaFile(citedAbs));
+        }
+        expect(accepted, "stage-4 expectation cites a conform report or its re-pin run file").toContain(entry.expected);
         seen.add(`bake-${entry.case}`);
       }
       if (entry.name === "albedo_beard.png" && entry.expectedSource.includes("aisha-real-chain-report.json")) {

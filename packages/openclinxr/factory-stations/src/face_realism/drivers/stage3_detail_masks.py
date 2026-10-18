@@ -24,9 +24,14 @@ from PIL import Image
 
 
 def max_union(first: Path, second: Path, out: Path) -> Path:
+    # Bitwise OR, exactly as the tracked replay builds its eye/brow unions
+    # inline (replay.py run_stage detail_bands branch: array(L) |
+    # array(R)). For binary-disjoint masks OR == maximum; the feathered
+    # edges can differ from maximum by a few levels, which detail_bands.py
+    # thresholds away (>0.5 gate), but the station keeps byte parity anyway.
     a = np.array(Image.open(first).convert("L"))
     b = np.array(Image.open(second).convert("L"))
-    Image.fromarray(np.maximum(a, b)).save(out)
+    Image.fromarray(a | b).save(out)
     return out
 
 
