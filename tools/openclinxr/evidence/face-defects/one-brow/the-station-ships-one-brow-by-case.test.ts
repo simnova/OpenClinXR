@@ -252,6 +252,32 @@ describe("the station ships one brow by case: cited bytes recompute", () => {
     }
   });
 
+  it("H1 control: sheet PRE and POST name the same albedo and roughness shas", () => {
+    // The handback defect: PRE/POST must differ ONLY by the eyebrow mesh.
+    // Both capture JSONs record their served texture files + shas in `inputs`.
+    const pre = join(SCRATCH, "render", "pre3-body2.json");
+    const post = join(SCRATCH, "render", "post-body2.json");
+    if (!existsSync(pre) || !existsSync(post)) return;
+    const shaOf = (doc: Record<string, unknown>, needle: string): string => {
+      const inputs = doc["inputs"] as Record<string, { sha256?: unknown }>;
+      for (const [path, rec] of Object.entries(inputs)) {
+        if (path.includes(needle)) {
+          expect(typeof rec.sha256 === "string" && rec.sha256.length > 0, needle).toBe(true);
+          return rec.sha256 as string;
+        }
+      }
+      throw new Error(`no input matching ${needle}`);
+    };
+    const preDoc = loadJson(pre);
+    const postDoc = loadJson(post);
+    expect(shaOf(preDoc, "albedo_socket.png"), "PRE/POST albedo sha").toBe(
+      shaOf(postDoc, "albedo_socket.png"),
+    );
+    expect(shaOf(preDoc, "roughness.png"), "PRE/POST roughness sha").toBe(
+      shaOf(postDoc, "roughness.png"),
+    );
+  });
+
   it("noise render shas recompute when the store is present", () => {
     if (!existsSync(BROW_FORM_STORE)) return;
     const r = loadJson(REPORT) as {

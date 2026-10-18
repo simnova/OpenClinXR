@@ -166,12 +166,12 @@
    "sheets": {
     "aisha": {
      "columns": [
-      "PRE store one-brow/renders/onepre-aisha-front.png",
+      "PRE S/st-browform/render/pre-aisha-station-front.png (station: run2 mesh GLB 0fbaf4c6 + run2 socket albedo 8b4c1582)",
       "goal S/project/edit-v9/edit-0.png"
      ],
      "mark": "pending skin-brow-clear-and-colour",
      "png": "/Volumes/files/openclinxr-assets/store/brow-form/sheet-aisha-pending.png",
-     "sha256": "bfccadd3bf50de99bbc7ed5d4086afd27dff09b3ad2dfd71a5261556f38a31a0",
+     "sha256": "974f41456a444c42f3b78d061ad49deaf67587fc0bb9d45c4c160c5aededc3fb",
      "size": [
       2304,
       1280
@@ -179,16 +179,24 @@
     },
     "body2": {
      "columns": [
-      "PRE store one-brow/renders/onepre-body2-front.png",
-      "POST S/st-browform/render/post-body2-front.png",
+      "PRE S/st-browform/render/pre3-body2-front.png (controlled: run2 mesh GLB 643563fc + run1 textures)",
+      "POST S/st-browform/render/post-body2-front.png (run1 texture GLB 4316ce9f + run1 textures)",
       "goal store one-brow/goal-body2.png"
      ],
      "png": "/Volumes/files/openclinxr-assets/store/brow-form/sheet-body2.png",
-     "sha256": "bdf71d259ba9dd0480a54c2957554f1f8d8e8e2493a5b6e789f0c79cd8c8df19",
+     "sha256": "10555f320bbd238e54b548500f8ddc5adef38e245b550651eefcb3ddbdada730",
      "size": [
       3584,
       1280
-     ]
+     ],
+     "control": {
+      "albedo_sha256": "4e8b36305aa30fce751e5ba836bbfa5afec83af784476a9458695c79f04befe2",
+      "roughness_sha256": "97a4ac54cd9a64e92c9d0f9257d0ee1db2f77e32afd122dfba1cdec1d3da2ee6",
+      "normal_sha256": "a6cc5a4fe769105aa5c937f1b496ee6ac19a7689ef229e7166c4635d184c4a89",
+      "note": "PRE and POST share identical albedo+roughness+normal bytes (capture inputs maps); run2 vs run1 body POSITION identical (12/12 meshes), GLBs differ ONLY by the eyebrow mesh. PRE png 3342a85e... == pre2 (run2 normal is pixel-identical here). D(PRE-controlled)=4.9863 vs D(POST)=5.4075.",
+      "preGlb": "face-station-cases/body2/run2/body2-lidconform.glb sha256 643563fcf7f606e5367a9f97a29d0dfefdf5a61ea49991e1b70f2c71d7c51b13 (13 meshes, brow mesh present)",
+      "postGlb": "face-station-cases/body2/browform-texture-run1/body2-lidconform.glb sha256 4316ce9fc1cf4ff6252c51c49e4c44ddda9307b233ff87bb74b570fdf4f32d2c (12 meshes)"
+     }
     },
     "child": {
      "columns": [
@@ -201,7 +209,8 @@
      "size": [
       2304,
       1280
-     ]
+     ],
+     "note": "unchanged by H1: no child station albedo exists (stage-3 refused), so no matching-PRE render is possible; PRE is the shipped-GLB native render."
     }
    }
   }
@@ -309,5 +318,6 @@
    "test": "tools/openclinxr/evidence/second-subject/the-station-runs-on-a-child-case.test.ts (5) G3 counterweight freeze (childin card tsk_386c8c91eee19dca)"
   },
   "note": "BEFORE COMMIT suites: arch 291/291, face_realism 46/46 (with new test), face-gate/face-shape-clauses/face-fit/face-replay/one-brow green. The two reds above are proven pre-existing and out of this card\u2019s write roots; neither was edited nor skipped."
- }
+ },
+ "handback_h1": "sheet-body2 was not a controlled before/after (PRE post10 albedo vs POST socket albedo). Fixed: PRE re-rendered from the matching mesh-brow GLB (run2, body POSITION 12/12 identical to run1) with run1 albedo+roughness+normal bytes; sheet rebuilt (PRE pre3 | POST post | goal). Aisha pending sheet rebuilt the same way (station PRE: run2 GLB + run2 socket albedo). Child sheet unchanged (no station albedo exists). Test asserts PRE/POST albedo+roughness sha equality from the capture inputs maps."
 }
