@@ -3,7 +3,12 @@
  * is gathered by commands, template slots are left as headings for the model.
  *
  * Usage: pnpm exec tsx tools/openclinxr/openclaw/handoff.ts write <lane>
- *   [--result <path> ...] [--card <id> ...] [--repo <path>] [--out <path>]
+ *   [--result <path> ...] [--card <id> ...] [--worktree <path> ...]
+ *   [--repo <path>] [--out <path>]
+ *
+ * With no --worktree, only worktrees with commits ahead of origin/main or
+ * dirty files are listed; clean ones are counted in one omitted line so the
+ * lane's own trees are not buried under ~300 repo worktrees.
  *
  * Board cards are listed only: board-cli has no cheap read (its status command
  * posts via gh), and the write never fails when the board is unreachable.
@@ -22,6 +27,7 @@ export type HandoffOptions = {
   lane: string;
   results: string[];
   cards: string[];
+  worktrees: string[];
   out?: string;
 };
 
@@ -114,20 +120,46 @@ async function worktreeFacts(repo: string): Promise<WorktreeFacts[] | null> {
   });
 }
 
-type WorkerFacts = { pid: string; cwd: string };
+type WorkerFacts = { pid: string; cwd: string; worktree: string };
 
-async function workerFacts(repo: string): Promise<WorkerFacts[] | string> {
-  const out = await run("pgrep", ["-a", "-f", repo], repo);
-  if (out === null) return "pgrep unavailable — worker processes unmeasured, not assumed absent";
-  const pids = out
+/**
+ * Worker processes matched against the LISTED worktree paths only (cmdline
+ * or cwd): lane worktrees live under ~/.grok/worktrees, so matching the main
+ * repo path finds none and matching all ~300 worktrees buries the lane.
+ */
+async function workerFacts(repo: string, listedPaths: string[]): Promise<WorkerFacts[] | string> {
+  const out = await run("pgrep", ["-a", "-f", "opencode run --dir|grok"], repo);
+  if (out === null || listedPaths.length === 0) {
+    return out === null
+      ? "pgrep returned nothing — no worker processes matched, or pgrep unavailable"
+      : [];
+  }
+  const candidates = out
     .split("\n")
-    .filter((line) => /opencode run --dir|grok/.test(line) && line.includes(repo))
-    .map((line) => line.split(/\s+/)[0] ?? "?");
-  return mapPool(pids, CONCURRENCY, async (pid): Promise<WorkerFacts> => {
+    .filter((line) => /opencode run --dir|grok/.test(line))
+    .map((line) => ({ pid: line.split(/\s+/)[0] ?? "?", line }));
+  const hits = await mapPool(candidates, CONCURRENCY, async ({ pid, line }): Promise<WorkerFacts | null> => {
     const cwd = await run("lsof", ["-a", "-p", pid, "-d", "cwd", "-F", "n"], repo);
     const dir = cwd?.split("\n").find((l) => l.startsWith("n"))?.slice(1) ?? "(cwd unreadable)";
-    return { pid, cwd: dir };
+    const worktree =
+      listedPaths.find((wt) => line.includes(wt) || (dir !== "(cwd unreadable)" && (dir === wt || dir.startsWith(`${wt}/`)))) ?? null;
+    return worktree === null ? null : { pid, cwd: dir, worktree };
   });
+  const seen = new Set<string>();
+  return hits.filter((h): h is WorkerFacts => {
+    if (!h || seen.has(h.pid)) return false;
+    seen.add(h.pid);
+    return true;
+  });
+}
+
+function pushWorktree(lines: string[], t: WorktreeFacts): void {
+  lines.push(`- path: ${t.path}`);
+  lines.push(`  branch: ${t.branch}`);
+  lines.push(`  HEAD: ${t.head}`);
+  lines.push(`  dirty files: ${t.dirty < 0 ? "unmeasured" : t.dirty}`);
+  lines.push(`  commits ahead of origin/main: ${t.ahead.length}`);
+  for (const c of t.ahead) lines.push(`    - ${c.sha} ${c.subject}`);
 }
 
 export async function renderHandoff(opts: HandoffOptions): Promise<string> {
@@ -136,28 +168,40 @@ export async function renderHandoff(opts: HandoffOptions): Promise<string> {
   lines.push("## Mechanical (gathered by commands, verify with git before acting)", "");
   const trees = await worktreeFacts(repo);
   lines.push("### Worktrees", "");
+  let listed: WorktreeFacts[] = [];
   if (trees === null) {
     lines.push("not a readable git repo — worktrees unmeasured, not assumed clean");
   } else if (trees.length === 0) {
     lines.push("(no worktrees listed)");
-  } else {
-    for (const t of trees) {
-      lines.push(`- path: ${t.path}`);
-      lines.push(`  branch: ${t.branch}`);
-      lines.push(`  HEAD: ${t.head}`);
-      lines.push(`  dirty files: ${t.dirty < 0 ? "unmeasured" : t.dirty}`);
-      lines.push(`  commits ahead of origin/main: ${t.ahead.length}`);
-      for (const c of t.ahead) lines.push(`    - ${c.sha} ${c.subject}`);
+  } else if (opts.worktrees.length > 0) {
+    const known = new Map(trees.map((t) => [t.path, t]));
+    for (const requested of opts.worktrees) {
+      const facts = known.get(requested) ?? {
+        path: requested,
+        branch: "(not a known worktree)",
+        head: "?",
+        ahead: [],
+        dirty: -1,
+      };
+      listed.push(facts);
+      pushWorktree(lines, facts);
     }
+  } else {
+    const isInteresting = (t: WorktreeFacts): boolean => t.ahead.length > 0 || t.dirty !== 0;
+    listed = trees.filter(isInteresting);
+    const omitted = trees.length - listed.length;
+    for (const t of listed) pushWorktree(lines, t);
+    if (listed.length === 0) lines.push("(no worktree has commits ahead of origin/main or dirty files)");
+    lines.push(`${omitted} clean worktree(s) omitted (no commits ahead of origin/main and no dirty files)`);
   }
   lines.push("", "### Worker processes", "");
-  const workers = await workerFacts(repo);
+  const workers = await workerFacts(repo, listed.map((t) => t.path));
   if (typeof workers === "string") {
     lines.push(workers);
   } else if (workers.length === 0) {
-    lines.push("(no `opencode run --dir` / `grok` processes matched this worktree path)");
+    lines.push("(no `opencode run --dir` / `grok` processes matched the listed worktree paths)");
   } else {
-    for (const w of workers) lines.push(`- pid ${w.pid}, cwd ${w.cwd}`);
+    for (const w of workers) lines.push(`- pid ${w.pid}, cwd ${w.cwd}, worktree ${w.worktree}`);
   }
   lines.push("", "### RESULT files (last line each)", "");
   if (results.length === 0) {
@@ -208,13 +252,14 @@ export async function writeHandoff(opts: HandoffOptions): Promise<string> {
 function parseArgs(argv: string[]): HandoffOptions | null {
   const [cmd, lane] = argv;
   if (cmd !== "write" || !lane) return null;
-  const opts: HandoffOptions = { repo: process.cwd(), lane, results: [], cards: [] };
+  const opts: HandoffOptions = { repo: process.cwd(), lane, results: [], cards: [], worktrees: [] };
   for (let i = 2; i < argv.length; i += 1) {
     const flag = argv[i];
     const value = argv[i + 1];
-    if ((flag === "--result" || flag === "--card" || flag === "--repo" || flag === "--out") && value) {
+    if ((flag === "--result" || flag === "--card" || flag === "--worktree" || flag === "--repo" || flag === "--out") && value) {
       if (flag === "--result") opts.results.push(value);
       else if (flag === "--card") opts.cards.push(value);
+      else if (flag === "--worktree") opts.worktrees.push(value);
       else if (flag === "--repo") opts.repo = value;
       else opts.out = value;
       i += 1;
@@ -230,7 +275,7 @@ if (invokedDirectly) {
   const opts = parseArgs(process.argv.slice(2));
   if (!opts) {
     process.stderr.write(
-      "usage: handoff.ts write <lane> [--result <path> ...] [--card <id> ...] [--repo <path>] [--out <path>]\n",
+      "usage: handoff.ts write <lane> [--result <path> ...] [--card <id> ...] [--worktree <path> ...] [--repo <path>] [--out <path>]\n",
     );
     process.exit(2);
   }

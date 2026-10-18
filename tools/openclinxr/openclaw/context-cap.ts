@@ -4,6 +4,9 @@
  * Claude transcript (JSONL at stdin field transcript_path): assistant lines are
  * {type:"assistant",message:{usage:{input_tokens,cache_creation_input_tokens,
  * cache_read_input_tokens}}}. Context = the sum on the NEWEST assistant line.
+ * Only the last 4 MB are read (usage lives at the end; first partial line
+ * dropped; whole file only when the tail holds no usable line). Bad lines are
+ * skipped — a half-written last line must not silence the cap.
  * Grok (--grok): ~/.grok/sessions/<urlencoded cwd>/<sessionId>/updates.jsonl,
  * lines carry params._meta.totalTokens on some events; the newest such line wins.
  * The session id comes from the hook stdin JSON when present, else the newest
@@ -12,12 +15,14 @@
  * Reads hook JSON on stdin. Below or equal to cap, or transcript
  * missing/unreadable: prints nothing, exit 0. Never writes any file.
  */
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, openSync, readFileSync, readSync, readdirSync, statSync, closeSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
 export const DEFAULT_CAP = 180000;
 export const HANDOFF_RECENCY_MS = 10 * 60 * 1000;
+/** Tail window for transcript reads: newest usage lines live at the end. */
+export const TAIL_BYTES = 4 * 1024 * 1024;
 
 export function buildCapMessage(tokens: number, cap: number): string {
   return (
@@ -38,7 +43,9 @@ export function contextTokensFromClaudeTranscript(text: string): number | null {
     try {
       entry = JSON.parse(trimmed);
     } catch {
-      return null;
+      // A half-written last line (the transcript is appended while the hook
+      // runs) must not silence the cap — skip bad lines, never bail.
+      continue;
     }
     if (entry?.type !== "assistant") continue;
     const usage = entry?.message?.usage;
@@ -65,7 +72,8 @@ export function contextTokensFromGrokUpdates(text: string): number | null {
     try {
       entry = JSON.parse(trimmed);
     } catch {
-      return null;
+      // Same half-written-line rule as the Claude parser: skip, never bail.
+      continue;
     }
     const total = entry?.params?._meta?.totalTokens;
     if (typeof total === "number" && Number.isFinite(total)) newest = total;
@@ -197,6 +205,69 @@ function readTranscriptFile(path: string): string | null {
   }
 }
 
+/**
+ * Read at most the last maxBytes of a (possibly huge) JSONL file, dropping
+ * the first partial line so the parser never starts mid-object.
+ * Returns the text plus whether the file was larger than the window.
+ */
+export function readTailText(path: string, maxBytes: number): { text: string; truncated: boolean } | null {
+  let size: number;
+  try {
+    size = statSync(path).size;
+  } catch {
+    return null;
+  }
+  if (size <= maxBytes) {
+    const text = readTranscriptFile(path);
+    return text === null ? null : { text, truncated: false };
+  }
+  let fd = -1;
+  try {
+    fd = openSync(path, "r");
+    const buf = Buffer.alloc(maxBytes);
+    let read = 0;
+    while (read < maxBytes) {
+      const n = readSync(fd, buf, read, maxBytes - read, size - maxBytes + read);
+      if (n <= 0) break;
+      read += n;
+    }
+    const chunk = buf.slice(0, read).toString("utf8");
+    const firstNewline = chunk.indexOf("\n");
+    return {
+      text: firstNewline === -1 ? "" : chunk.slice(firstNewline + 1),
+      truncated: true,
+    };
+  } catch {
+    return null;
+  } finally {
+    if (fd !== -1) {
+      try {
+        closeSync(fd);
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+}
+
+/**
+ * Newest token count from a transcript file: parse the tail window first
+ * (usage lines live at the end); only when the tail holds no usable line and
+ * the file is larger, fall back to the whole file.
+ */
+export function tokensFromTranscriptFile(
+  path: string,
+  parse: (text: string) => number | null,
+  maxBytes = TAIL_BYTES,
+): number | null {
+  const tail = readTailText(path, maxBytes);
+  if (tail === null) return null;
+  const fromTail = parse(tail.text);
+  if (fromTail !== null || !tail.truncated) return fromTail;
+  const whole = readTranscriptFile(path);
+  return whole === null ? null : parse(whole);
+}
+
 function main(): void {
   const argv = process.argv.slice(2);
   const grok = argv.includes("--grok");
@@ -227,8 +298,7 @@ function main(): void {
       if (existsSync(candidate)) updatesPath = candidate;
     }
     updatesPath ??= newestUpdatesFile(grokSessionDir(repoRoot));
-    const text = updatesPath ? readTranscriptFile(updatesPath) : null;
-    const tokens = text === null ? null : contextTokensFromGrokUpdates(text);
+    const tokens = updatesPath ? tokensFromTranscriptFile(updatesPath, contextTokensFromGrokUpdates) : null;
     const stopActive =
       input.stop_hook_active === true ||
       input.stopHookActive === true ||
@@ -258,8 +328,9 @@ function main(): void {
   }
 
   const transcriptPath = str("transcript_path") ?? str("transcriptPath");
-  const text = transcriptPath ? readTranscriptFile(transcriptPath) : null;
-  const tokens = text === null ? null : contextTokensFromClaudeTranscript(text);
+  const tokens = transcriptPath
+    ? tokensFromTranscriptFile(transcriptPath, contextTokensFromClaudeTranscript)
+    : null;
   const hookEvent = str("hook_event_name") ?? str("hookEventName") ?? "UserPromptSubmit";
   const stopHookActive =
     input.stop_hook_active === true || input.stopHookActive === true;

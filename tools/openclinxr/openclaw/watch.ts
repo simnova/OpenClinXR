@@ -11,7 +11,12 @@
  *   DECISION — a new line starting DECISION
  *   STALL  — worker pid alive but transcript unchanged for --stall seconds (default 600)
  *   EXIT   — worker pid gone
- * An unchanged file emits nothing. State lives in memory; --once runs one tick.
+ * An unchanged file emits nothing. State lives in memory.
+ *
+ * Loop mode baselines on the first tick: existing log content, RESULT states,
+ * board output and worker presence are recorded with nothing emitted, so
+ * starting the watcher on an old log does not replay history. --once keeps
+ * reporting everything, including pre-existing content.
  */
 import { execFileSync } from "node:child_process";
 import { readFileSync, statSync } from "node:fs";
@@ -46,7 +51,13 @@ export function emptyWatchState(): WatchState {
 
 const FAIL_RE = /\b(FAIL|ERROR|GAVE_UP)\b/;
 
-export function tick(prev: WatchState, snap: WatchSnapshot): { state: WatchState; lines: string[] } {
+export type TickOptions = { baseline?: boolean };
+
+export function tick(
+  prev: WatchState,
+  snap: WatchSnapshot,
+  opts: TickOptions = {},
+): { state: WatchState; lines: string[] } {
   const lines: string[] = [];
   const state: WatchState = {
     results: { ...prev.results },
@@ -113,7 +124,7 @@ export function tick(prev: WatchState, snap: WatchSnapshot): { state: WatchState
     }
   }
 
-  return { state, lines };
+  return { state, lines: opts.baseline ? [] : lines };
 }
 
 function readText(path: string): string | null {
@@ -213,11 +224,12 @@ if (invokedDirectly) {
   try {
     flags = parseFlags(process.argv.slice(2));
   } catch (error) {
-    process.stderr.write(`usage: watch.ts [--result <p> ...] [--log <p> ...] [--board-cmd "<cmd>"] [--worker <pid>:<transcript> ...] [--interval <s>] [--stall <s>] [--once]\n${String(error)}\n`);
+    process.stderr.write(`usage: watch.ts [--result <p> ...] [--log <p> ...] [--board-cmd "<cmd>"] [--worker <pid>:<transcript> ...] [--interval <s>] [--stall <s>] [--once]\n--once reports everything, including pre-existing content; loop mode baselines on the first tick and only reports what changes after.\n${String(error)}\n`);
     process.exit(2);
   }
   const offsets = new Map<string, number>();
   let state = emptyWatchState();
+  let firstTick = !flags.once;
   const runOnce = (): void => {
     const nowMs = Date.now();
     const logs: LogSnapshot[] = flags.logs.map((path) => {
@@ -237,8 +249,9 @@ if (invokedDirectly) {
       nowMs,
       stallMs: flags.stallS * 1000,
     };
-    const out = tick(state, snap);
+    const out = tick(state, snap, firstTick ? { baseline: true } : {});
     state = out.state;
+    firstTick = false;
     for (const line of out.lines) process.stdout.write(`${line}\n`);
   };
   if (flags.once) {

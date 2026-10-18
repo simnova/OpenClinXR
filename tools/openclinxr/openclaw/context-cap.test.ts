@@ -1,3 +1,6 @@
+import { mkdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -6,6 +9,7 @@ import {
   contextTokensFromGrokUpdates,
   decideClaude,
   decideGrok,
+  readTailText,
 } from "./context-cap.js";
 
 const CAP = 180000;
@@ -77,6 +81,33 @@ describe("context-cap", () => {
     const out = decideGrok({ tokens: CAP + 1, cap: CAP, isStop: false, stopHookActive: false, handoffRecent: false });
     expect(out).not.toBeNull();
     expect(out!.text ?? out!.json ?? "").toContain(String(CAP + 1));
+  });
+
+  it("a truncated trailing line does not silence a cap+1 transcript", () => {
+    const text = `${claudeTranscript(CAP + 1)}\n{"type":"assistant","message":{"usage":{"input_tokens":`;
+    expect(contextTokensFromClaudeTranscript(text)).toBe(CAP + 1);
+    expect(
+      decideClaude({
+        tokens: contextTokensFromClaudeTranscript(text),
+        cap: CAP,
+        hookEvent: "UserPromptSubmit",
+        stopHookActive: false,
+        handoffRecent: false,
+      }),
+    ).not.toBeNull();
+    const grokText = `${grokUpdates(CAP + 1)}\n{"params":{"_meta":{"totalTokens":`;
+    expect(contextTokensFromGrokUpdates(grokText)).toBe(CAP + 1);
+  });
+
+  it("readTailText drops the first partial line", () => {
+    const root = join(tmpdir(), `ocxr-tail-${Date.now()}`);
+    mkdirSync(root, { recursive: true });
+    const path = join(root, "t.jsonl");
+    writeFileSync(path, "0123456789\nsecond\n");
+    expect(readTailText(path, 100)).toEqual({ text: "0123456789\nsecond\n", truncated: false });
+    const tail = readTailText(path, 8);
+    expect(tail?.truncated).toBe(true);
+    expect(tail?.text).toBe("second\n");
   });
 
   it("cap message names the handoff command", () => {

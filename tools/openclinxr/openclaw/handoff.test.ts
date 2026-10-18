@@ -23,11 +23,12 @@ function git(cwd: string, ...args: string[]): string {
   return execFileSync("git", args, { cwd, encoding: "utf8", env: GIT_ENV }).trim();
 }
 
-function buildFixture(): { repo: string; branch: string; head: string; subjects: string[] } {
+function buildFixture(): { repo: string; branch: string; head: string; subjects: string[]; cleanSide: string } {
   const base = join(tmpdir(), `ocxr-handoff-${Date.now()}-${Math.floor(Math.random() * 1e6)}`);
   const origin = join(base, "origin.git");
   const repo = join(base, "repo");
-  git(base === "" ? tmpdir() : tmpdir(), "init", "--bare", origin);
+  const cleanSide = join(base, "wt-side");
+  git(tmpdir(), "init", "--bare", origin);
   execFileSync("git", ["init", "-b", "main", repo], { encoding: "utf8", env: GIT_ENV });
   git(repo, "remote", "add", "origin", origin);
   git(repo, "commit", "--allow-empty", "-m", "seed main");
@@ -35,16 +36,16 @@ function buildFixture(): { repo: string; branch: string; head: string; subjects:
   git(repo, "checkout", "-b", "lane-x");
   git(repo, "commit", "--allow-empty", "-m", "lane first commit");
   git(repo, "commit", "--allow-empty", "-m", "lane second commit");
-  git(repo, "worktree", "add", join(base, "wt-side"), "main");
+  git(repo, "worktree", "add", cleanSide, "main");
   const head = git(repo, "rev-parse", "HEAD");
-  return { repo, branch: "lane-x", head, subjects: ["lane second commit", "lane first commit"] };
+  return { repo, branch: "lane-x", head, subjects: ["lane second commit", "lane first commit"], cleanSide };
 }
 
 describe("handoff", () => {
   it("names the branch, HEAD sha and both unpushed commit subjects", { timeout: 15_000 }, async () => {
-    const { repo, branch, head, subjects } = buildFixture();
+    const { repo, branch, head, subjects, cleanSide } = buildFixture();
     const out = join(repo, ".openclinxr", "handoffs", "lane-x.md");
-    const written = await writeHandoff({ repo, lane: "lane-x", results: [], cards: [] });
+    const written = await writeHandoff({ repo, lane: "lane-x", results: [], cards: [], worktrees: [] });
     expect(written).toBe(out);
     expect(existsSync(out)).toBe(true);
     const body = readFileSync(out, "utf8");
@@ -52,5 +53,21 @@ describe("handoff", () => {
     expect(body).toContain(head);
     for (const subject of subjects) expect(body).toContain(subject);
     expect(body).toContain("You are resuming lane lane-x.");
+  });
+
+  it("omits the clean worktree with a count, and --worktree selects it", { timeout: 15_000 }, async () => {
+    const { repo, cleanSide } = buildFixture();
+    const defBody = readFileSync(
+      await writeHandoff({ repo, lane: "lane-x", results: [], cards: [], worktrees: [] }),
+      "utf8",
+    );
+    expect(defBody).not.toContain(`path: ${cleanSide}`);
+    expect(defBody).toContain("1 clean worktree(s) omitted");
+    const selBody = readFileSync(
+      await writeHandoff({ repo, lane: "lane-x", results: [], cards: [], worktrees: [cleanSide] }),
+      "utf8",
+    );
+    expect(selBody).toContain(`path: ${cleanSide}`);
+    expect(selBody).not.toContain("omitted");
   });
 });
