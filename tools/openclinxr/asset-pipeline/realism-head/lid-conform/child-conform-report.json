@@ -1,0 +1,1060 @@
+{
+ "bake": {
+  "argv": "--reference peds_patient_child --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea (per run: --output <store>/run<N>/peds_asthma_parent_anxiety_v1-lidconform.glb)",
+  "argvNote": "argv-driven: the station CLI's plan gate needs record.cases[caseId].references.goal_front in the reference-set manifest, which holds aisha + body2 only (F2 -- no child goal image). The argv is the station's own resolved argv for this case minus the --no-lid-conform flag the pre-conform base bake passes, with the output stem from stage4OutputStem(caseRec, caseId) = <caseId>-lidconform. No --eye-texture: the case's authored eye colour resolves its iris image (green_eye) from the phenotype.",
+  "baseBakeReproduction": {
+   "argv": "--reference peds_patient_child --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea --no-lid-conform --output <dir>/peds_asthma_parent_anxiety_v1-eyeglobe-base.glb",
+   "bodyPositionEqual": true,
+   "bodyPositionSha256": "6091d6f5ea3bb8d4557ebb97238a35c0e8bb377b804c3b129b197604a0d92799",
+   "dir": "/Volumes/files/openclinxr-assets/store/lid-conform-child/reverify2",
+   "note": "the recorded argv reproduces the base bake's body POSITION bit-for-bit (skin-texture PNGs differ in bytes, the documented skin-bake variance)"
+  },
+  "baseGlb": {
+   "path": "/Volumes/files/openclinxr-assets/store/lid-conform-child/peds_asthma_parent_anxiety_v1-eyeglobe-base.glb",
+   "sha256": "5196e1aa4ca6974ea6a0faf21717334fe1e9cc06bbf235cca3009fb3c13285b4"
+  },
+  "lidconformRecord": {
+   "b2": {
+    "seatSpreadK2": 0.0,
+    "seatSpreadK3": 0.0,
+    "seatSpreadK4": 0.0,
+    "seatSpreadPasses": 0,
+    "seatSpreadRate": 0.0
+   },
+   "baseGlb": "/Volumes/files/openclinxr-assets/store/lid-conform-child/peds_asthma_parent_anxiety_v1-eyeglobe-base.glb",
+   "displacedVerts": 624,
+   "h1": {
+    "lashFollowMm": 4.0,
+    "patchD": 2,
+    "patchK": 6,
+    "patchM": 8,
+    "seatCeilingMm": 1.5,
+    "seatFloorMm": 0.5,
+    "targetWidthMm": 21.68
+   },
+   "keyBlocksCarried": [
+    "Basis",
+    "eye-left-closure",
+    "eye-left-opened-up",
+    "eye-left-slit",
+    "eye-right-closure",
+    "eye-right-opened-up",
+    "eye-right-slit",
+    "eyebrows-left-down",
+    "eyebrows-left-extern-up",
+    "eyebrows-left-inner-up",
+    "eyebrows-left-up",
+    "eyebrows-right-down",
+    "eyebrows-right-extern-up",
+    "eyebrows-right-inner-up",
+    "eyebrows-right-up",
+    "mouth-compression",
+    "mouth-corner-puller",
+    "mouth-depression-retraction",
+    "mouth-depression-retraction.001",
+    "mouth-elevation",
+    "mouth-eversion",
+    "mouth-open",
+    "mouth-parling",
+    "mouth-part-later",
+    "mouth-protusion",
+    "mouth-pursing",
+    "mouth-retraction",
+    "mouth-upward-retraction",
+    "neck-platysma",
+    "nose-compression-uncompress",
+    "nose-depression",
+    "nose-left-dilatation",
+    "nose-left-elevation",
+    "viseme_aa",
+    "viseme_CH",
+    "viseme_DD",
+    "viseme_E",
+    "viseme_FF",
+    "viseme_I",
+    "viseme_kk",
+    "viseme_nn",
+    "viseme_O",
+    "viseme_PP",
+    "viseme_RR",
+    "viseme_sil",
+    "viseme_SS",
+    "viseme_TH",
+    "viseme_U"
+   ],
+   "lashFollow": {
+    "found": true,
+    "keyBlocks": 0,
+    "maxFollowMm": 1.9318135709222415,
+    "movedVerts": 11088
+   },
+   "offsetMm": 0.5,
+   "perSide": {
+    "L": {
+     "baseRing1": 56,
+     "fleshVerts": 8,
+     "matchMaxMm": 0.0006,
+     "matchMedMm": 0.0005,
+     "matchedRing1": 56,
+     "maxDiffuseMm": 0.0,
+     "maxSeatMm": 1.9312,
+     "maxSpreadMm": 0.0,
+     "maxWidenMm": 0.2291,
+     "movedVerts": 48,
+     "patchSizes": [
+      149,
+      149
+     ],
+     "preWidenWidthMm": 21.222,
+     "ring2": 112,
+     "ring3": 112,
+     "ring4": 112,
+     "ring56": 224,
+     "seatedVerts": 48,
+     "widenNeedMm": 0.458
+    },
+    "R": {
+     "baseRing1": 56,
+     "fleshVerts": 8,
+     "matchMaxMm": 0.0005,
+     "matchMedMm": 0.0005,
+     "matchedRing1": 56,
+     "maxDiffuseMm": 0.0,
+     "maxSeatMm": 1.9326,
+     "maxSpreadMm": 0.0,
+     "maxWidenMm": 0.2291,
+     "movedVerts": 48,
+     "patchSizes": [
+      149,
+      149
+     ],
+     "preWidenWidthMm": 21.222,
+     "ring2": 112,
+     "ring3": 112,
+     "ring4": 112,
+     "ring56": 224,
+     "seatedVerts": 48,
+     "widenNeedMm": 0.458
+    }
+   },
+   "ringSource": "own-pre-conform-bake-topological",
+   "weights": [
+    1.0,
+    0.0
+   ]
+  },
+  "lidconformRecordRun2": {
+   "b2": {
+    "seatSpreadK2": 0.0,
+    "seatSpreadK3": 0.0,
+    "seatSpreadK4": 0.0,
+    "seatSpreadPasses": 0,
+    "seatSpreadRate": 0.0
+   },
+   "baseGlb": "/Volumes/files/openclinxr-assets/store/lid-conform-child/peds_asthma_parent_anxiety_v1-eyeglobe-base.glb",
+   "displacedVerts": 624,
+   "h1": {
+    "lashFollowMm": 4.0,
+    "patchD": 2,
+    "patchK": 6,
+    "patchM": 8,
+    "seatCeilingMm": 1.5,
+    "seatFloorMm": 0.5,
+    "targetWidthMm": 21.68
+   },
+   "keyBlocksCarried": [
+    "Basis",
+    "eye-left-closure",
+    "eye-left-opened-up",
+    "eye-left-slit",
+    "eye-right-closure",
+    "eye-right-opened-up",
+    "eye-right-slit",
+    "eyebrows-left-down",
+    "eyebrows-left-extern-up",
+    "eyebrows-left-inner-up",
+    "eyebrows-left-up",
+    "eyebrows-right-down",
+    "eyebrows-right-extern-up",
+    "eyebrows-right-inner-up",
+    "eyebrows-right-up",
+    "mouth-compression",
+    "mouth-corner-puller",
+    "mouth-depression-retraction",
+    "mouth-depression-retraction.001",
+    "mouth-elevation",
+    "mouth-eversion",
+    "mouth-open",
+    "mouth-parling",
+    "mouth-part-later",
+    "mouth-protusion",
+    "mouth-pursing",
+    "mouth-retraction",
+    "mouth-upward-retraction",
+    "neck-platysma",
+    "nose-compression-uncompress",
+    "nose-depression",
+    "nose-left-dilatation",
+    "nose-left-elevation",
+    "viseme_aa",
+    "viseme_CH",
+    "viseme_DD",
+    "viseme_E",
+    "viseme_FF",
+    "viseme_I",
+    "viseme_kk",
+    "viseme_nn",
+    "viseme_O",
+    "viseme_PP",
+    "viseme_RR",
+    "viseme_sil",
+    "viseme_SS",
+    "viseme_TH",
+    "viseme_U"
+   ],
+   "lashFollow": {
+    "found": true,
+    "keyBlocks": 0,
+    "maxFollowMm": 1.9318135709222415,
+    "movedVerts": 11088
+   },
+   "offsetMm": 0.5,
+   "perSide": {
+    "L": {
+     "baseRing1": 56,
+     "fleshVerts": 8,
+     "matchMaxMm": 0.0006,
+     "matchMedMm": 0.0005,
+     "matchedRing1": 56,
+     "maxDiffuseMm": 0.0,
+     "maxSeatMm": 1.9312,
+     "maxSpreadMm": 0.0,
+     "maxWidenMm": 0.2291,
+     "movedVerts": 48,
+     "patchSizes": [
+      149,
+      149
+     ],
+     "preWidenWidthMm": 21.222,
+     "ring2": 112,
+     "ring3": 112,
+     "ring4": 112,
+     "ring56": 224,
+     "seatedVerts": 48,
+     "widenNeedMm": 0.458
+    },
+    "R": {
+     "baseRing1": 56,
+     "fleshVerts": 8,
+     "matchMaxMm": 0.0005,
+     "matchMedMm": 0.0005,
+     "matchedRing1": 56,
+     "maxDiffuseMm": 0.0,
+     "maxSeatMm": 1.9326,
+     "maxSpreadMm": 0.0,
+     "maxWidenMm": 0.2291,
+     "movedVerts": 48,
+     "patchSizes": [
+      149,
+      149
+     ],
+     "preWidenWidthMm": 21.222,
+     "ring2": 112,
+     "ring3": 112,
+     "ring4": 112,
+     "ring56": 224,
+     "seatedVerts": 48,
+     "widenNeedMm": 0.458
+    }
+   },
+   "ringSource": "own-pre-conform-bake-topological",
+   "weights": [
+    1.0,
+    0.0
+   ]
+  },
+  "newGlb": {
+   "path": "/Volumes/files/openclinxr-assets/store/lid-conform-child/run1/peds_asthma_parent_anxiety_v1-lidconform.glb",
+   "sha256": "67aadf8169efabb8a850f5f969355681dacc4eaef06529c7d2c5f7e0d3c8c2ab"
+  },
+  "subjectCensus": {
+   "chestSpanMeters": 0.5308,
+   "chestWaistRatio": 0.6981,
+   "footwear": {
+    "bodyMinZ": 0.0,
+    "kind": "toigo_mj_cloth_shoes",
+    "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_patient_child",
+    "shoeMinZ": 0.0,
+    "soleDeltaZ": 0.012179,
+    "tris": 1004,
+    "verts": 556,
+    "weights": true
+   },
+   "hair": {
+    "fitWallClockS": 0.0076,
+    "licence": "CC0",
+    "material": "openclinxr_fitted_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mat",
+    "mesh": "makeclothes_library_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mesh",
+    "pageCc0Override": false,
+    "style": "toigo_curled_under_bob_with_bangs",
+    "textureMaps": [
+     "diffuse",
+     "normal",
+     "specular"
+    ],
+    "tris": 4976,
+    "weightedBone": "head",
+    "wiredTextureMaps": "diffuse,normal"
+   },
+   "macro": {
+    "age": 0.15,
+    "cupsize": 0.5,
+    "firmness": 0.5,
+    "gender": 0.5,
+    "height": 0.5775,
+    "muscle": 0.5,
+    "proportions": 0.5,
+    "race": {
+     "african": 0.33,
+     "asian": 0.33,
+     "caucasian": 0.33
+    },
+    "weight": 0.5
+   },
+   "macroSource": "apps/ui-xr/public/generated-humanoids/peds_patient_child.anny_base.obj (measured stature + head-height fraction; height solved by bake-measure-interpolate)",
+   "outOfScopeWrongness": "garment/hide-mask/poke-through were not re-graded for the new bodies; the toigo t-shirt was authored for an adult and is expected to fit the child loosely. Exact MADR 0051 \u00a75 landmark match (shoulder/girths/limbs) is NOT claimed \u2014 follow-on.",
+   "reference": "peds_patient_child",
+   "statureMeters": 1.2482,
+   "waistSpanMeters": 0.7603
+  }
+ },
+ "captureMethod": "render_eye_sheet.py (committed): Blender EEVEE, camera on the bake's own eye mid-point along the facing, distance = span/(2 tan(fov/2)) for an exact mmPerPx 0.097656 at the eye plane, 2048 px, fitted hair hidden, front + yaw25",
+ "card": "tsk_083b92e9c7ca5d7b",
+ "counterweights": {
+  "c1": {
+   "pass": true,
+   "positionSha256": {
+    "makeclothes_library_eyes_high_poly_globe_mpfb_peds_patient_child_mesh": {
+     "base": "9ed4aaebf348877447d57dc9f428965810f7aa9bad73a5d73e93343f3417b4ee",
+     "new": "9ed4aaebf348877447d57dc9f428965810f7aa9bad73a5d73e93343f3417b4ee"
+    },
+    "openclinxr_eye_cornea_high_poly_left_mpfb_peds_patient_child_mesh": {
+     "base": "72896c650d84290a84f9356f4ad678aa5b73e8ba68a84d1a2397a88502b807dd",
+     "new": "72896c650d84290a84f9356f4ad678aa5b73e8ba68a84d1a2397a88502b807dd"
+    },
+    "openclinxr_eye_cornea_high_poly_right_mpfb_peds_patient_child_mesh": {
+     "base": "47d9860473128ec5412271ea075a2be10edac6cd461e13b2893d5015c8b9d95f",
+     "new": "47d9860473128ec5412271ea075a2be10edac6cd461e13b2893d5015c8b9d95f"
+    }
+   }
+  },
+  "c2": {
+   "childNote": "the scorer's c2 band is the adult criterion (28-30 x 8-11); the child's own criterion is the width clause of G1 (within 1 mm of the child target) plus the recorded height deviation",
+   "fissureMm": {
+    "L": {
+     "base": {
+      "heightMm": 10.75044261502535,
+      "widthMm": 21.918674167149103
+     },
+     "new": {
+      "heightMm": 12.666707689385476,
+      "widthMm": 22.174453614044694
+     }
+    },
+    "R": {
+     "base": {
+      "heightMm": 10.750550453112055,
+      "widthMm": 21.918674892002123
+     },
+     "new": {
+      "heightMm": 12.667434509970917,
+      "widthMm": 22.17445590502514
+     }
+    }
+   },
+   "pass": false,
+   "pass_": null,
+   "targetWidthMm": 21.68
+  },
+  "c3": {
+   "bandFaces": 5868,
+   "flips": 0,
+   "pass": true
+  },
+  "c4": {
+   "bandRadiusMm": 8.0,
+   "bandVerts": 2922,
+   "bodyVerts": 41950,
+   "lash": {
+    "baseSha256": "c07a8d49f65b173947f8310316498cf1289c1338c4dfaae1bc94028ca7714243",
+    "maxMoveMm": 1.932,
+    "medMoveMm": 1.315,
+    "n": 11088
+   },
+   "outsideMovedVerts": 0,
+   "pass": true
+  },
+  "iris": {
+   "base": {
+    "bytes": 662241,
+    "sha256": "b9864ac4f4fa484b24e18f6aba030d70dbc8820cbbacfbe63a974c76772c2009"
+   },
+   "conformed": {
+    "bytes": 662241,
+    "sha256": "b9864ac4f4fa484b24e18f6aba030d70dbc8820cbbacfbe63a974c76772c2009"
+   },
+   "note": "the case's authored eye colour reaches the iris through the phenotype (no --eye-texture override): both bakes carry the green_eye pack image, 662241 B, as the committed the-peds-cast-iris-matches-its-authored-eye-colour test expects"
+  }
+ },
+ "cropMethod": "crop_eye_sheet.py on the renderer's own portrait-<label>.json: 420x420 native crops at the projected eye centres, box clamped inside the 2048 frame (no upscale, no resample); crops.json carries box, source full-render sha256 and per-crop sha256",
+ "cropRecord": {
+  "crops": {
+   "sheet-child-new-front-eyeL-crop.png": {
+    "box": [
+     547,
+     814,
+     967,
+     1234
+    ],
+    "eye": "eyeL",
+    "sha256": "4868ae05ac6f0272934b7ca391ed9c8cf20518f9fe66a46d974d5c10ff86a21d",
+    "size": [
+     420,
+     420
+    ],
+    "source": {
+     "path": "/Volumes/files/openclinxr-assets/store/lid-conform-child/sheet/new-front-full.png",
+     "sha256": "2097fe5639df5029bf06320fc97d60343d39d6e5eb4e4ab4b4f059d119533267"
+    },
+    "view": "front"
+   },
+   "sheet-child-new-front-eyeR-crop.png": {
+    "box": [
+     1081,
+     814,
+     1501,
+     1234
+    ],
+    "eye": "eyeR",
+    "sha256": "9d38addf8c484841bc332ba61ea7453b47b85c763ff2503a9a405744e08bb044",
+    "size": [
+     420,
+     420
+    ],
+    "source": {
+     "path": "/Volumes/files/openclinxr-assets/store/lid-conform-child/sheet/new-front-full.png",
+     "sha256": "2097fe5639df5029bf06320fc97d60343d39d6e5eb4e4ab4b4f059d119533267"
+    },
+    "view": "front"
+   },
+   "sheet-child-new-yaw25-eyeL-crop.png": {
+    "box": [
+     581,
+     814,
+     1001,
+     1234
+    ],
+    "eye": "eyeL",
+    "sha256": "34e4735723a58180a86682af93ec3a4d7817fa7a95ffa782c6ca761377b84d1e",
+    "size": [
+     420,
+     420
+    ],
+    "source": {
+     "path": "/Volumes/files/openclinxr-assets/store/lid-conform-child/sheet/new-yaw25-full.png",
+     "sha256": "fea76c1a4b316f1c4390379de0e38fff553826f8c372222d14101f38cc83e471"
+    },
+    "view": "yaw25"
+   },
+   "sheet-child-new-yaw25-eyeR-crop.png": {
+    "box": [
+     1064,
+     814,
+     1484,
+     1234
+    ],
+    "eye": "eyeR",
+    "sha256": "4b4839d65fbb2727a7315dc83de3abfa23ca6428acbed9bfd97231c241566166",
+    "size": [
+     420,
+     420
+    ],
+    "source": {
+     "path": "/Volumes/files/openclinxr-assets/store/lid-conform-child/sheet/new-yaw25-full.png",
+     "sha256": "fea76c1a4b316f1c4390379de0e38fff553826f8c372222d14101f38cc83e471"
+    },
+    "view": "yaw25"
+   }
+  },
+  "edge": 420,
+  "label": "new",
+  "portrait": {
+   "mmPerPx": 0.097656,
+   "path": "/Volumes/files/openclinxr-assets/store/lid-conform-child/sheet/portrait-new.json",
+   "resolution": 2048,
+   "sha256": "335baf7f9b526ad989a70965db38a51c57991317afa6861e71b7f1b61e432cd5"
+  },
+  "tool": "crop_eye_sheet.py"
+ },
+ "falsifier": {
+  "checks": {
+   "match": "base-ring to in-Blender match med 0.0005 mm / max 0.0006 mm, far under MATCH_REFUSE_MM 0.5",
+   "ringFound": "child ring1 = 56 verts on both sides (adults 56) -- derive_eye_rings found the margin loop, so the stop-and-record branch did not fire",
+   "targetIndependence": "the target was read from the child's own render + mesh, not copied from an adult row; the two independent instruments agree to 0.24 mm"
+  },
+  "triggered": false
+ },
+ "gates": {
+  "g1": {
+   "bakedMarker": "LIDCONFORM_BAKED present in run1 bake log",
+   "bandFaces": 5868,
+   "canthalFlesh": {
+    "L": {
+     "gapMm": [
+      0.502,
+      0.932,
+      1.693
+     ],
+     "lateralMm": [
+      8.535,
+      12.703
+     ],
+     "n": 23,
+     "preGapMm": [
+      0.37,
+      0.931,
+      1.468
+     ],
+     "sphereCap": {
+      "overBandN": 11,
+      "overBandPastCapN": 7,
+      "thresholdMm": 12.385,
+      "worstGapLateralMm": 12.687,
+      "worstGapMm": 1.693,
+      "worstPastCap": true
+     },
+     "verts": [
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 0.645,
+       "lateralMm": 11.118,
+       "preGapMm": 0.68
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 1.143,
+       "lateralMm": 11.97,
+       "preGapMm": 1.076
+      },
+      {
+       "beyondCap": true,
+       "capRMm": 12.385,
+       "gapMm": 1.529,
+       "lateralMm": 12.528,
+       "preGapMm": 1.304
+      },
+      {
+       "beyondCap": true,
+       "capRMm": 12.385,
+       "gapMm": 1.661,
+       "lateralMm": 12.687,
+       "preGapMm": 1.436
+      },
+      {
+       "beyondCap": true,
+       "capRMm": 12.385,
+       "gapMm": 1.693,
+       "lateralMm": 12.687,
+       "preGapMm": 1.468
+      },
+      {
+       "beyondCap": true,
+       "capRMm": 12.385,
+       "gapMm": 1.62,
+       "lateralMm": 12.545,
+       "preGapMm": 1.396
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 0.596,
+       "lateralMm": 11.172,
+       "preGapMm": 0.591
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 0.524,
+       "lateralMm": 8.666,
+       "preGapMm": 0.478
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 0.593,
+       "lateralMm": 8.82,
+       "preGapMm": 0.628
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 0.577,
+       "lateralMm": 8.732,
+       "preGapMm": 0.599
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 1.251,
+       "lateralMm": 12.035,
+       "preGapMm": 1.142
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 0.505,
+       "lateralMm": 10.626,
+       "preGapMm": 0.393
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 0.849,
+       "lateralMm": 11.571,
+       "preGapMm": 0.867
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 0.502,
+       "lateralMm": 8.535,
+       "preGapMm": 0.37
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 0.56,
+       "lateralMm": 8.767,
+       "preGapMm": 0.568
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 1.39,
+       "lateralMm": 12.309,
+       "preGapMm": 1.218
+      },
+      {
+       "beyondCap": true,
+       "capRMm": 12.385,
+       "gapMm": 1.597,
+       "lateralMm": 12.633,
+       "preGapMm": 1.372
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 0.602,
+       "lateralMm": 8.809,
+       "preGapMm": 0.641
+      },
+      {
+       "beyondCap": true,
+       "capRMm": 12.385,
+       "gapMm": 1.69,
+       "lateralMm": 12.703,
+       "preGapMm": 1.465
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 0.531,
+       "lateralMm": 8.603,
+       "preGapMm": 0.497
+      },
+      {
+       "beyondCap": true,
+       "capRMm": 12.385,
+       "gapMm": 1.674,
+       "lateralMm": 12.642,
+       "preGapMm": 1.45
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 1.518,
+       "lateralMm": 12.377,
+       "preGapMm": 1.293
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.385,
+       "gapMm": 0.932,
+       "lateralMm": 11.629,
+       "preGapMm": 0.931
+      }
+     ]
+    },
+    "R": {
+     "gapMm": [
+      0.502,
+      0.932,
+      1.693
+     ],
+     "lateralMm": [
+      8.555,
+      12.682
+     ],
+     "n": 23,
+     "preGapMm": [
+      0.37,
+      0.932,
+      1.468
+     ],
+     "sphereCap": {
+      "overBandN": 11,
+      "overBandPastCapN": 7,
+      "thresholdMm": 12.376,
+      "worstGapLateralMm": 12.667,
+      "worstGapMm": 1.693,
+      "worstPastCap": true
+     },
+     "verts": [
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 0.645,
+       "lateralMm": 11.098,
+       "preGapMm": 0.68
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 1.143,
+       "lateralMm": 11.95,
+       "preGapMm": 1.076
+      },
+      {
+       "beyondCap": true,
+       "capRMm": 12.376,
+       "gapMm": 1.53,
+       "lateralMm": 12.508,
+       "preGapMm": 1.304
+      },
+      {
+       "beyondCap": true,
+       "capRMm": 12.376,
+       "gapMm": 1.661,
+       "lateralMm": 12.667,
+       "preGapMm": 1.436
+      },
+      {
+       "beyondCap": true,
+       "capRMm": 12.376,
+       "gapMm": 1.693,
+       "lateralMm": 12.667,
+       "preGapMm": 1.468
+      },
+      {
+       "beyondCap": true,
+       "capRMm": 12.376,
+       "gapMm": 1.62,
+       "lateralMm": 12.524,
+       "preGapMm": 1.396
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 0.596,
+       "lateralMm": 11.152,
+       "preGapMm": 0.591
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 0.524,
+       "lateralMm": 8.686,
+       "preGapMm": 0.478
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 0.593,
+       "lateralMm": 8.84,
+       "preGapMm": 0.628
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 0.577,
+       "lateralMm": 8.753,
+       "preGapMm": 0.599
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 1.251,
+       "lateralMm": 12.014,
+       "preGapMm": 1.142
+      },
+      {
+       "beyondCap": true,
+       "capRMm": 12.376,
+       "gapMm": 1.69,
+       "lateralMm": 12.682,
+       "preGapMm": 1.465
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 0.531,
+       "lateralMm": 8.623,
+       "preGapMm": 0.496
+      },
+      {
+       "beyondCap": true,
+       "capRMm": 12.376,
+       "gapMm": 1.674,
+       "lateralMm": 12.621,
+       "preGapMm": 1.45
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 1.518,
+       "lateralMm": 12.357,
+       "preGapMm": 1.293
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 0.932,
+       "lateralMm": 11.608,
+       "preGapMm": 0.932
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 0.505,
+       "lateralMm": 10.606,
+       "preGapMm": 0.393
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 0.849,
+       "lateralMm": 11.55,
+       "preGapMm": 0.867
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 0.502,
+       "lateralMm": 8.555,
+       "preGapMm": 0.37
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 0.56,
+       "lateralMm": 8.787,
+       "preGapMm": 0.568
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 1.39,
+       "lateralMm": 12.289,
+       "preGapMm": 1.218
+      },
+      {
+       "beyondCap": true,
+       "capRMm": 12.376,
+       "gapMm": 1.597,
+       "lateralMm": 12.613,
+       "preGapMm": 1.372
+      },
+      {
+       "beyondCap": false,
+       "capRMm": 12.376,
+       "gapMm": 0.602,
+       "lateralMm": 8.83,
+       "preGapMm": 0.641
+      }
+     ]
+    }
+   },
+   "closedLidGlobePxOutside": 0,
+   "fissureWidthDeltaMm": 0.491,
+   "fissureWidthMm": 22.174,
+   "flips": 0,
+   "globeDiameterMm": [
+    22.77,
+    22.752
+   ],
+   "pass": true,
+   "seatedSpanBand": [
+    0.3,
+    1.0
+   ],
+   "seatedSpanGapMm": {
+    "L": [
+     0.5,
+     0.5,
+     0.5
+    ],
+    "R": [
+     0.5,
+     0.5,
+     0.5
+    ]
+   },
+   "targetWidthMm": 21.68
+  },
+  "g2": {
+   "cases": {
+    "aisha": {
+     "positionEqual": true,
+     "post": {
+      "path": "/Volumes/files/openclinxr-assets/store/lid-conform-child/control/post/aisha-lidconform.glb",
+      "positionSha256": "b26b40ca9ffb8de6c7baf88edb46666a6ba7206c69a4e53237850fd6b4ddb7dd",
+      "sha256": "db1fe78e47281d4728c264a9bfe417936bdb3475809a3246f020fccff26dc7e1"
+     },
+     "pre": {
+      "path": "/Volumes/files/openclinxr-assets/store/lid-conform-child/control/pre/aisha-lidconform.glb",
+      "positionSha256": "b26b40ca9ffb8de6c7baf88edb46666a6ba7206c69a4e53237850fd6b4ddb7dd",
+      "sha256": "e84eea02520afaf7f4b75cf8351f67ee47c4c146f7cb7c6c4f63d5b84fab9bee"
+     },
+     "subject": "ob_patient_aisha"
+    },
+    "body2": {
+     "positionEqual": true,
+     "post": {
+      "path": "/Volumes/files/openclinxr-assets/store/lid-conform-child/control/post/body2-lidconform.glb",
+      "positionSha256": "323088678be401a2c661583e7c857f7382a54316ec24a25ede9f8efa896575e9",
+      "sha256": "269c7966f7b74190595a9c08f6749a31d709ad6542447a716457d7b17f93e304"
+     },
+     "pre": {
+      "path": "/Volumes/files/openclinxr-assets/store/lid-conform-child/control/pre/body2-lidconform.glb",
+      "positionSha256": "323088678be401a2c661583e7c857f7382a54316ec24a25ede9f8efa896575e9",
+      "sha256": "9cecfff441983c754e36767e507fb30cb187b72772d0dda4c9754354e9a89e7e"
+     },
+     "subject": "adult_male_street_casual"
+    }
+   },
+   "note": "post-edit rebake body POSITION sha256 vs the pre-edit rebake of the same argv; the pinned store GLBs are byte-different, so byte-equality against the store is not the test",
+   "pass": true
+  },
+  "g3": {
+   "basePositionSha256": "6091d6f5ea3bb8d4557ebb97238a35c0e8bb377b804c3b129b197604a0d92799",
+   "pass": true,
+   "run1PositionSha256": "a47c3ebd5944b4f11d38283334a474f33e262ca10c493523bdd22d711d23dec5",
+   "run2PositionSha256": "a47c3ebd5944b4f11d38283334a474f33e262ca10c493523bdd22d711d23dec5"
+  },
+  "g4": {
+   "detail": "RuntimeError: #377: no anatomical eye target for actor stem 'stage4-lidconform' \u2014 add it to EYE_DIAMETER_TARGET_MM (['aisha-eyeglobe-base', 'aisha-eyeglobe-fit', 'aisha-eyetex', 'aisha-hp-cornea', 'aisha-lidconform', 'aisha-realism', 'aisha-ref-control', 'aisha-ref-inert', 'aisha-ref-lipsC', 'aisha-ref2', 'aisha-ref3', 'aisha-shell-b2b3', 'body2-eyeglobe-base', 'body2-lidconform', 'eg-100-2', 'eg-100-4', 'eg-100-m1', 'eg-100-m2', 'eg-100-m3', 'eg-102-0', 'eg-102-2', 'eg-102-4', 'eg-102-m1', 'eg-102-m2', 'eg-102-m3', 'eg-104-0', 'eg-104-2', 'eg-104-4', 'eg-104-m1', 'eg-104-m2', 'eg-104-m3', 'eyegeo-final', 'eyeshell-final', 'eyetex-final', 'mpfb-clinical-nurse-adult', 'mpfb-clinical-physician-adult', 'mpfb-family-partner-adult', 'mpfb-gown-adult-patient', 'mpfb-ob-patient-aisha', 'mpfb-peds-nurse-kevin', 'mpfb-peds-parent-aisha', 'mpfb-peds-patient-child', 'mpfb-street-adult-male', 'mpfb-viseme-inspect', 'peds_asthma_parent_anxiety_v1-eyeglobe-base', 'peds_asthma_parent_anxiety_v1-lidconform']) before baking a new actor",
+   "pass": true,
+   "refused": true,
+   "registeredStems": {
+    "mpfb-peds-patient-child": {
+     "stem": "mpfb-peds-patient-child",
+     "targetDiameterMm": 22.723
+    },
+    "peds_asthma_parent_anxiety_v1-eyeglobe-base": {
+     "stem": "peds_asthma_parent_anxiety_v1-eyeglobe-base",
+     "targetDiameterMm": 22.723
+    },
+    "peds_asthma_parent_anxiety_v1-lidconform": {
+     "stem": "peds_asthma_parent_anxiety_v1-lidconform",
+     "targetDiameterMm": 22.723
+    }
+   },
+   "unregisteredStem": "stage4-lidconform"
+  }
+ },
+ "globeVsAnatomy": {
+  "beforeDiameterMm": 28.977,
+  "fittedDiameterMm": {
+   "L": 22.77,
+   "R": 22.752
+  },
+  "fittedNote": "Kasa fit rms sub-0.001 mm; fit sits 0.05 mm over the target by the globe mesh's own tessellation, as the adult rows do",
+  "scale": 0.7842,
+  "seatShiftForwardMm": 3.127,
+  "source": "CHILD_AXIAL_LENGTH_MM in tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py: round(22.2 + (8-4)/(17-4) * (23.9-22.2), 3) from Rauscher 2021 (doi 10.1111/opo.12814) axial length 4y 22.2 mm -> 17y 23.9 mm at the case's phenotype age 8",
+  "targetDiameterMm": 22.723
+ },
+ "name": "child-lid-conform",
+ "notTested": [
+  "gaze rotation (compat-eyes NT)",
+  "clinical validity / exam equivalence",
+  "Quest readiness (no worn-headset evidence)",
+  "pediatric eye-seat calibration (the seatShiftForward rule is diameter-proportional; the child's aperture height growth is recorded, not fixed)",
+  "the wider aperture's socket-wall exposure at yaw (G2/G3 of the adult scorer are recorded in gates/counterweights but not re-thresholded for the child)"
+ ],
+ "round": "h1-child",
+ "sheets": {
+  "base-front-full.png": {
+   "bytes": 4428472,
+   "sha256": "80f552095da737222a1f15d58ee5fbca4003bebbae6cfae24f6ddbf5408137d8"
+  },
+  "base-yaw25-full.png": {
+   "bytes": 4425220,
+   "sha256": "99c84134a19be6e5ea8ca1043c9804ea33a19fe0aae427827f36e474e3d10ef5"
+  },
+  "new-front-full.png": {
+   "bytes": 4438083,
+   "sha256": "2097fe5639df5029bf06320fc97d60343d39d6e5eb4e4ab4b4f059d119533267"
+  },
+  "new-yaw25-full.png": {
+   "bytes": 4433930,
+   "sha256": "fea76c1a4b316f1c4390379de0e38fff553826f8c372222d14101f38cc83e471"
+  },
+  "sheet-child-base-front-eyeL-crop.png": {
+   "bytes": 187132,
+   "sha256": "3aca5455cbc86d60a2566d132106e2602d24e0ecbded707098ba1416e563e8e6"
+  },
+  "sheet-child-base-front-eyeR-crop.png": {
+   "bytes": 184443,
+   "sha256": "b7492c0a824e8334debee6ca85d589cfbb75e737d14e83ce788b18b47311a1a5"
+  },
+  "sheet-child-base-yaw25-eyeL-crop.png": {
+   "bytes": 181167,
+   "sha256": "1fc2ff3ad96ed847be67a31fd8a411852bb46dcbbd5e9b2b7849820013040990"
+  },
+  "sheet-child-base-yaw25-eyeR-crop.png": {
+   "bytes": 187976,
+   "sha256": "3c55044878f9b5f75574f9a80d632379d0860fc320c8e4572ecd02a36816b128"
+  },
+  "sheet-child-new-front-eyeL-crop.png": {
+   "bytes": 192079,
+   "sha256": "4868ae05ac6f0272934b7ca391ed9c8cf20518f9fe66a46d974d5c10ff86a21d"
+  },
+  "sheet-child-new-front-eyeR-crop.png": {
+   "bytes": 189004,
+   "sha256": "9d38addf8c484841bc332ba61ea7453b47b85c763ff2503a9a405744e08bb044"
+  },
+  "sheet-child-new-yaw25-eyeL-crop.png": {
+   "bytes": 185486,
+   "sha256": "34e4735723a58180a86682af93ec3a4d7817fa7a95ffa782c6ca761377b84d1e"
+  },
+  "sheet-child-new-yaw25-eyeR-crop.png": {
+   "bytes": 193607,
+   "sha256": "4b4839d65fbb2727a7315dc83de3abfa23ca6428acbed9bfd97231c241566166"
+  }
+ },
+ "target": {
+  "bakeParamNote": "param equals the measured goal; the Aisha prototype's 0.9 mm seat-pullback is NOT borrowed (that calibration is adult-only and the child has no prototype row). Seating lands the measured width at 22.174 mm, 0.491 mm from the goal.",
+  "bakeParamWidthMm": 21.68,
+  "heightBandMm": [
+   8.0,
+   11.0
+  ],
+  "heightBandNote": "measured aperture height 12.667 mm = base 10.75 + 1.916; over the band -- recorded as a deviation, not claimed as passing. Family measure (same scorer, same run set): aisha +1.306, body2 +1.795.",
+  "source": "the child's OWN base-bake render (sheet/base-front-full.png, 2048 px, exact mmPerPx 0.097656 = 200 mm eye-plane span / 2048): mediapipe face_landmarker (store/face-fit/face_landmarker.task sha256 64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff, the method of evidence/face-fit/make_any_subject_targets.py) eye-corner pairs 33-133 / 362-263 give 221.61 / 222.47 px (mean 222.04) x 0.097656 = 21.683 mm. Corroborated independently by the child's own margin loop on the same base GLB (derive_eye_rings + fissure_dims): 21.919 mm (agreement 0.24 mm). No child goal image exists (F2), so no adult or case goal is borrowed.",
+  "widthMm": 21.683
+ },
+ "verdict": "the pediatric patient (case peds_asthma_parent_anxiety_v1, phenotype age 8, stature 1.25 m) conforms against its OWN base bake: the margin loop seats on the age-sized globe at the 0.5 mm tear offset (seated span 0.5 mm min), fissure width 22.174 mm against the 21.683 mm goal read off the child's own render (within 1 mm), 0 face flips in the band, blink seals (0 globe px outside the closed lid), globe 22.77/22.752 mm = the cited age-8 axial length 22.723 mm (Rauscher 2021). Recorded, not claimed: canthal flesh stands off-globe to 1.693 mm (worst carrier at 12.687 mm >= R+1 mm, so the sphere cap forbids <=1.0 there) and the aperture height 12.667 mm is 1.916 mm over its pre-conform value -- above the adult 8-11 mm band; the same class of growth measures +1.306 mm on Aisha and +1.795 mm on body2 (seat over a globe shifted 3.127 mm forward), and a pediatric eye-seat calibration is a follow-on."
+}

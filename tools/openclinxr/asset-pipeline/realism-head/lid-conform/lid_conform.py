@@ -135,6 +135,19 @@ LID_CONFORM_BY_CASE_ID = {
               "seatSpreadK2": 0.5, "seatSpreadK3": 0.25,
               "seatSpreadK4": 0.125, "seatSpreadPasses": 3,
               "seatSpreadRate": 0.5},
+    # Child (childlid tsk_083b92e9c7ca5d7b): the pediatric case's target is
+    # measured from ITS OWN base bake, not borrowed -- detector (mediapipe
+    # face_landmarker 64184e22, the any-subject method) on the child's own
+    # base render front view: eye-corner pairs (33,133) and (362,263) mean
+    # 222.04 px x the render's exact mmPerPx 0.097656 (eye-span 200 mm over
+    # 2048 px at the eye plane) = 21.683 mm; the child's own margin-loop
+    # width measures 21.919 mm independently, agreeing within 0.24 mm. No
+    # aisha 0.9 seat-pullback is borrowed (that pullback was the adult
+    # prototype's calibration; the child has no prototype row).
+    "peds_asthma_parent_anxiety_v1": {"offsetMm": 0.5, "weights": [1.0, 0.0],
+              "targetWidthMm": 21.68, "patchK": 6, "patchM": 8,
+              "patchD": 2, "seatCeilingMm": 1.5,
+              "seatFloorMm": 0.5, "lashFollowMm": 4.0},
 }
 
 
