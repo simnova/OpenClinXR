@@ -1,0 +1,165 @@
+{
+  "version": 1,
+  "card": "tsk_528c17d1809cac92",
+  "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/third",
+  "subject": {
+    "caseId": "peds_asthma_parent_anxiety_v1",
+    "actorId": "patient_maya_johnson_v1",
+    "reference": "peds_patient_child",
+    "goal": "none"
+  },
+  "goalNote": "No goal image for the child exists anywhere (searched the reference-set manifest, the working tree, and /Volumes/files/openclinxr-assets/store). The child is a text-only phenotype (packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json:entries.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1). No goal image was generated (card forbids Imagine/LLM).",
+  "runner": {
+    "command": "pnpm exec tsx packages/openclinxr/factory-stations/src/face_realism/run-case.ts <caseId> <runN>",
+    "recordPath": "tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+    "storeRoot": "/Volumes/files/openclinxr-assets/store/face-station-cases",
+    "runs": [
+      {
+        "run": "run1",
+        "cli_argv": ["peds_asthma_parent_anxiety_v1", "1"],
+        "status": "refused",
+        "stop_reason": "record has no case peds_asthma_parent_anxiety_v1: refused",
+        "wallSeconds": 0.001,
+        "stageRecords": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/stage-records.json"
+      },
+      {
+        "run": "run2",
+        "cli_argv": ["peds_asthma_parent_anxiety_v1", "2"],
+        "status": "refused",
+        "stop_reason": "record has no case peds_asthma_parent_anxiety_v1: refused",
+        "wallSeconds": 0.001,
+        "stageRecords": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/stage-records.json"
+      }
+    ]
+  },
+  "stages": [
+    {
+      "stage": 1,
+      "name": "family_tone",
+      "status": "refused",
+      "reached": false,
+      "reason": "plan refused before stage 1: record has no case peds_asthma_parent_anxiety_v1: refused",
+      "outputs": [],
+      "would_refuse_on": "stages-a.ts:68-71 reads phenotype_tone from the (adult-only) record manifest; tone-check.py:152-163 tone_anchors_Lab has warm_light+warm_medium only, so the child tone warm_light_child has no anchor row and the stage would throw \"tone report holds no anchor for the case tone\""
+    },
+    {
+      "stage": 2,
+      "name": "skin_layers",
+      "status": "refused",
+      "reached": false,
+      "reason": "plan refused before stage 1: record has no case peds_asthma_parent_anxiety_v1: refused",
+      "outputs": [],
+      "would_refuse_on": "tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases holds aisha+body2 only; the child has no flush/freckle/pallor case-layer record"
+    },
+    {
+      "stage": 3,
+      "name": "skin_chain",
+      "status": "refused",
+      "reached": false,
+      "reason": "plan refused before stage 1: record has no case peds_asthma_parent_anxiety_v1: refused",
+      "outputs": [],
+      "would_refuse_on": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:subjects holds aisha+adult_male_street_casual only (no child row); the chain needs a goal-derived compose base for the subject and the child has no goal image"
+    },
+    {
+      "stage": 4,
+      "name": "lid_conform_bake",
+      "status": "refused",
+      "reached": false,
+      "reason": "plan refused before stage 1: record has no case peds_asthma_parent_anxiety_v1: refused",
+      "outputs": [],
+      "would_refuse_on": "materialize_mpfb_humanoid_candidate.py:137-141 LID_CONFORM_CASE_BY_SUBJECT_ID maps only ob_patient_aisha+adult_male_street_casual (child unmapped, no lid conform); the station stage-4 default output stem stage4-lidconform (stages-b.ts:99) is absent from EYE_DIAMETER_TARGET_MM (2638-2646) so the bake raises the guard at 5991-5996"
+    },
+    {
+      "stage": 5,
+      "name": "eye_flags",
+      "status": "refused",
+      "reached": false,
+      "reason": "plan refused before stage 1: record has no case peds_asthma_parent_anxiety_v1: refused",
+      "outputs": [],
+      "would_refuse_on": "materialize_mpfb_humanoid_candidate.py:2646 carries a child eye row (mpfb-peds-patient-child -> 22.5 mm vs adult 24.0 at 2711/2716), but the row is keyed to the output GLB stem and the station's stem (stage4-lidconform) is not in the table"
+    },
+    {
+      "stage": 6,
+      "name": "face_fit",
+      "status": "refused",
+      "reached": false,
+      "reason": "plan refused before stage 1: record has no case peds_asthma_parent_anxiety_v1: refused",
+      "outputs": [],
+      "would_refuse_on": "fit_facefit2.py:148-151 refuses a case absent from any-subject-targets.json (cases aisha+body2 only); and face-fit needs a goal_front landmark target the child does not have"
+    },
+    {
+      "stage": 7,
+      "name": "checks",
+      "status": "refused",
+      "reached": false,
+      "reason": "plan refused before stage 1: record has no case peds_asthma_parent_anxiety_v1: refused",
+      "outputs": [],
+      "would_refuse_on": "checks-by-case has adults only; model-vetting / skin-realism check tables carry no child row"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1-plan-gate",
+      "claim": "The station never reaches a stage for the child: the plan refuses at the record lookup.",
+      "evidence": "packages/openclinxr/factory-stations/src/face_realism/plan.ts:115 returns `record has no case <caseId>: refused` because plan.ts:117-119 requires cases[caseId].references.goal_front; tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases holds aisha+body2 only.",
+      "verdict": "blocker"
+    },
+    {
+      "id": "F2-no-goal",
+      "claim": "No child goal image exists (goal: none).",
+      "evidence": "packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json:58 (the child is text-only: skin_tone warm_light_child, height_cm 125); tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases holds aisha+body2 only.",
+      "verdict": "missing_input"
+    },
+    {
+      "id": "F3-tone-anchor",
+      "claim": "Tone anchors are adult-only: the child tone warm_light_child has no anchor row.",
+      "evidence": "tools/openclinxr/asset-pipeline/skin/families/tone-check.py:152-156 (tone_anchors_Lab) vs tone-check.py:161-163 (nearest lists warm_light_child: young).",
+      "verdict": "adult_assumption"
+    },
+    {
+      "id": "F4-lid-map",
+      "claim": "Lid-conform case map is adult-only.",
+      "evidence": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:137-141 (ob_patient_aisha, adult_male_street_casual only).",
+      "verdict": "adult_assumption"
+    },
+    {
+      "id": "F5-eye-stem",
+      "claim": "A child eye diameter row exists but is keyed to a stem the station never produces.",
+      "evidence": "materialize_mpfb_humanoid_candidate.py:2646 (mpfb-peds-patient-child: 22.5) vs the station default stem stage4-lidconform (stages-b.ts:99) and the guard at materialize_mpfb_humanoid_candidate.py:5991-5996.",
+      "verdict": "partial_support_then_refuse"
+    },
+    {
+      "id": "F6-chain-subjects",
+      "claim": "The replay chain has no child subject row.",
+      "evidence": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:232 subjects = aisha (line 243) + adult_male_street_casual (line 244) only; no child row.",
+      "verdict": "adult_assumption"
+    },
+    {
+      "id": "F7-face-fit",
+      "claim": "Face-fit refuses any case absent from its target table.",
+      "evidence": "tools/openclinxr/evidence/face-fit/fit_facefit2.py:148-151; tools/openclinxr/evidence/face-fit/any-subject-targets.json:cases = aisha, body2.",
+      "verdict": "adult_assumption"
+    }
+  ],
+  "sheet": {
+    "kind": "shipped_glb_product_path_capture",
+    "note": "NOT station output: the station produced no output (plan refused). This is the read-only SHIPPED child GLB apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb rendered through the product three.js isolated-subject path (runtime-portrait-capture.ts --variant, RENDER_SIZE 1280, productEnvironmentId ob_triage_room_v1, no skinOverride). Provenance: GLB sha256 a969db3ba0a63d43597b5c3007a6e520a85c46bec9e28c97aa88638500ed79b1.",
+    "variant": "/Volumes/files/openclinxr-assets/store/third-subject/st-third-child.variant.json",
+    "root": "/Volumes/files/openclinxr-assets/store/third-subject",
+    "files": {
+      "sheet.png": "2b0f6a87ad888fe702f6346eefa8c24c2671a4e700572621629ac2430b5ea3d8",
+      "st-third-child-front.png": "95848ab8ce7c190540c490c298f2698919254aa43f7b72910350b67cfd665d64",
+      "st-third-child-yaw25.png": "847f832e78404a1305c2b6fbed2fb5f3ef58ea1b3ac9fe876e6cb0d1c6dd00e4",
+      "st-third-child-yaw40.png": "09f89e384bbb9ac4053b95e96d66c191cbebbdcbdc52ea6bff23635fd9407735"
+    }
+  },
+  "verdict": "does_not_run",
+  "verdictNote": "The face station is adult-only by construction: the plan gate (F1) refuses the child before stage 1, so no stage ran and no station output exists. Every downstream adult assumption (F3-F7) is therefore unreachable proof rather than an exercised failure. A real child run first needs a goal image for peds_patient_child and a case record, then child tone anchors, a lid-conform case mapping, a child chain subject, and a face-fit target.",
+  "followUps": [
+    "Author a goal image + goal_front record for peds_patient_child (reference-set manifest) so the plan gate can pass.",
+    "Add a warm_light_child row to tone_anchors_Lab (tone-check.py).",
+    "Add a child entry to LID_CONFORM_CASE_BY_SUBJECT_ID and a stage-4 output stem mapped in EYE_DIAMETER_TARGET_MM.",
+    "Add a child subject row to face-replay/chain-manifest.json.",
+    "Add a child case to any-subject-targets.json for face-fit."
+  ]
+}

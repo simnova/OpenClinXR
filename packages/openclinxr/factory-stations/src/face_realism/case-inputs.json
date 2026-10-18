@@ -518,6 +518,166 @@
     "value": false,
     "source": "CARD tsk_2c547dda8753bba0 h1: fit-bake is opt-in; default off (landing safety) so default runs reproduce the pre-fix bake"
    }
+  },
+  "peds_asthma_parent_anxiety_v1": {
+   "catchlight_render": {
+    "path": {
+     "source": "no lit render for the child exists: the only child asset is the GLB apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (not a render) and no child render was found under /Volumes/files/openclinxr-assets/store (searched; card tsk_528c17d1809cac92)",
+     "value": null
+    },
+    "sha256": {
+     "source": "no child render exists (see path.source)",
+     "value": null
+    }
+   },
+   "chain_manifest": {
+    "source": "packages/openclinxr/factory-stations/src/face_realism/run-report.json key chainManifest (same chain replay is used for every case)",
+    "value": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json"
+   },
+   "chain_subject": {
+    "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:subjects holds aisha and adult_male_street_casual only (no child row); a child replay would take the stage base parameters with no per-subject override",
+    "value": null
+   },
+   "derive_size": {
+    "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:stages[derive].parameters.size (same 4096 atlas as both adult cases)",
+    "value": 4096
+   },
+   "eye_flags": {
+    "asset": {
+     "source": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:2645 maps the child stem mpfb-peds-patient-child to a 22.5 mm (school-age) eye under --eye-asset high-poly; asset high-poly per every adult case row",
+     "value": "high-poly"
+    },
+    "cornea": {
+     "source": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:2412 --eye-cornea default off; kept on as in every adult case row (any-subject-report.json:bake.argv)",
+     "value": true
+    },
+    "shell": {
+     "source": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:2412,2427 --eye-occlusion-shell/--eye-tearline default off; shell off for the child (no child shell fit exists)",
+     "value": false
+    },
+    "texture": {
+     "source": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:2437 --eye-texture default None keeps the case-driven brown_eye.png selector",
+     "value": null
+    }
+   },
+   "family": {
+    "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:nearest.warm_light_child (the family the child tone resolves to)",
+    "value": "young"
+   },
+   "family_png": {
+    "assets": {
+     "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:families.young.assets",
+     "value": "skin-families/young/young-family-v3.png"
+    },
+    "sha256": {
+     "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:families.young.sha256",
+     "value": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    }
+   },
+   "fit_bake": {
+    "value": false,
+    "source": "CARD tsk_2c547dda8753bba0 h1: fit-bake is opt-in; default off (landing safety); no goal-front target exists for the child anyway"
+   },
+   "fit_case": {
+    "source": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:cases holds aisha and body2 only; the child has no goal-front landmark target (no goal image exists), so face-fit has nothing to key on",
+    "value": null
+   },
+   "layer_weights": {
+    "source": "tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases holds aisha and body2 only (no flush/freckle/pallor field for the child); the child phenotype flush 0.05 in packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json is a descriptor, not a case skin-layer weight",
+    "value": {
+     "cheek_redness": 0.0,
+     "ear": 0.0,
+     "freckles": 0.0,
+     "lip": 0.0,
+     "nose_redness": 0.0,
+     "pallor": 0.0
+    }
+   },
+   "lid_ring_source": {
+    "assets": {
+     "source": "no child pre-conform eyeglobe base bake exists; tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:137-141 LID_CONFORM_CASE_BY_SUBJECT_ID maps only ob_patient_aisha and adult_male_street_casual",
+     "value": null
+    },
+    "sha256": {
+     "source": "no child lid ring source exists (see assets.source)",
+     "value": null
+    }
+   },
+   "materializer_argv": {
+    "source": "child reference token from tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7547 (--reference peds_patient_child) plus the shared --actor-role/--bake-device/--eye-asset/--eye-cornea tokens every adult case row carries; --output is appended per run by the station",
+    "value": [
+     "--reference",
+     "peds_patient_child",
+     "--actor-role",
+     "patient",
+     "--bake-device",
+     "metal",
+     "--eye-asset",
+     "high-poly",
+     "--eye-cornea"
+    ]
+   },
+   "materializer_eye_colour_reference": {
+    "source": "no eye-colour-reference bake was ever produced for the child (adult cases name ob_patient_aisha or use --reference)",
+    "value": null
+   },
+   "materializer_reference": {
+    "source": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7547 (child waistband branch keyed to --reference peds_patient_child)",
+    "value": "peds_patient_child"
+   },
+   "phenotype_tone": {
+    "source": "packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json:entries.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.phenotype.skin_tone (authored in packages/openclinxr/scenario-fixtures/src/pediatric-asthma-mod.ts)",
+    "value": "warm_light_child"
+   },
+   "stage3_beard": {
+    "source": "no child beard bake exists; weight 0 is the chain-manifest base beard_shadow weight and the child is a school-age patient (no facial hair)",
+    "value": {
+     "weight": {
+      "value": 0.0,
+      "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:stages[beard_shadow].parameters.weight (0.0 base; the adult-male override 0.9 is keyed to adult_male_street_casual only)"
+     },
+     "seed": {
+      "value": 11,
+      "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:stages[beard_shadow].parameters.seed"
+     },
+     "texels_per_mm": {
+      "value": 4.079,
+      "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:stages[beard_shadow].parameters.texels_per_mm"
+     },
+     "expected_out_sha256": {
+      "value": null,
+      "source": "no pinned child beard albedo exists; the identity expectation (albedo_beard == albedo_socket) is only pinned for aisha (aisha-real-chain-report.json:G3_real_chain)"
+     }
+    }
+   },
+   "stage3_colour": {
+    "source": "refused on any child run: face_replay_colour.py needs a goal-derived solve for the subject, and the child has no goal image (reference-set manifest.json cases aisha+body2 only; no child goal_front)",
+    "value": "refused_no_goal_image"
+   },
+   "stage3_compose": {
+    "source": "refused on any child run: face_replay_compose.py needs a subject base albedo, skin-family island donor and masks, and no child compose inputs exist (no goal image, no child reference-set record)",
+    "value": "refused_no_goal_image"
+   },
+   "stage3_glb": {
+    "assets": {
+     "source": "the only child humanoid GLB is apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (sha256 read from that read-only shipped file; copied byte-identical into the store for the station)",
+     "value": "face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb"
+    },
+    "sha256": {
+     "source": "sha256 of apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (read-only shipped child)",
+     "value": "a969db3ba0a63d43597b5c3007a6e520a85c46bec9e28c97aa88638500ed79b1"
+    }
+   },
+   "stage3_skip_stages": {
+    "source": "beard_shadow skipped in the replay so it runs as its own beard_shadow.py subprocess (same as the adult cases); occlusion is not skipped",
+    "value": [
+     "beard_shadow"
+    ]
+   },
+   "tone_anchor_lab": {
+    "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:tone_anchors_Lab has warm_light and warm_medium only (tone-check.py:152-156); the child tone warm_light_child has no anchor row, so stage 1 cannot compute a family distance for it",
+    "value": null
+   }
   }
  },
  "version": 1
