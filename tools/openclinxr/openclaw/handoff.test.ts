@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { writeHandoff } from "./handoff.js";
+import { isWorkerCommand, writeHandoff } from "./handoff.js";
 import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 // Under a pre-commit hook git exports GIT_DIR / GIT_INDEX_FILE / GIT_WORK_TREE,
@@ -69,5 +69,14 @@ describe("handoff", () => {
     );
     expect(selBody).toContain(`path: ${cleanSide}`);
     expect(selBody).not.toContain("omitted");
+  });
+});
+
+describe("worker process match", () => {
+  it("matches opencode run and grok executables, not commands that only name a ~/.grok path", () => {
+    expect(isWorkerCommand(["/Users/p/.opencode/bin/opencode", "run", "--dir", "/w"])).toBe(true);
+    expect(isWorkerCommand(["/Users/p/.grok/bin/grok", "-p", "x"])).toBe(true);
+    expect(isWorkerCommand(["bash", "./run-free4.sh", "brief", "/Users/p/.grok/worktrees/x"])).toBe(false);
+    expect(isWorkerCommand(["node", "tsx", "handoff.ts", "--worktree", "/Users/p/.grok/worktrees/x"])).toBe(false);
   });
 });

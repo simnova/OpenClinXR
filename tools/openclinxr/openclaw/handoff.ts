@@ -127,16 +127,26 @@ type WorkerFacts = { pid: string; cwd: string; worktree: string };
  * or cwd): lane worktrees live under ~/.grok/worktrees, so matching the main
  * repo path finds none and matching all ~300 worktrees buries the lane.
  */
+/**
+ * A worker is an `opencode run` or a `grok` EXECUTABLE. Matching the text
+ * "grok" anywhere also caught every process whose arguments name a path under
+ * ~/.grok/worktrees, including this script's own pnpm/tsx chain.
+ */
+export function isWorkerCommand(argv: string[]): boolean {
+  const exe = (argv[0] ?? "").split("/").at(-1) ?? "";
+  return (exe === "opencode" && argv[1] === "run") || exe === "grok";
+}
+
 async function workerFacts(repo: string, listedPaths: string[]): Promise<WorkerFacts[] | string> {
-  const out = await run("pgrep", ["-a", "-f", "opencode run --dir|grok"], repo);
-  if (out === null || listedPaths.length === 0) {
-    return out === null
-      ? "pgrep returned nothing — no worker processes matched, or pgrep unavailable"
-      : [];
-  }
+  // `ps` rather than pgrep: macOS pgrep prints PIDs only (its -a means
+  // "include ancestors"), so a command-line match never saw the worktree path.
+  const out = await run("ps", ["-axo", "pid=,command="], repo);
+  if (out === null) return "ps unavailable — worker processes unmeasured, not assumed absent";
+  if (listedPaths.length === 0) return [];
   const candidates = out
     .split("\n")
-    .filter((line) => /opencode run --dir|grok/.test(line))
+    .map((line) => line.trim())
+    .filter((line) => isWorkerCommand(line.split(/\s+/).slice(1)))
     .map((line) => ({ pid: line.split(/\s+/)[0] ?? "?", line }));
   const hits = await mapPool(candidates, CONCURRENCY, async ({ pid, line }): Promise<WorkerFacts | null> => {
     const cwd = await run("lsof", ["-a", "-p", pid, "-d", "cwd", "-F", "n"], repo);
