@@ -72,6 +72,18 @@ export type FootBaseState = {
    * and the height datum by it. Null until the first step.
    */
   rigLengthScale: number | null;
+  /**
+   * First-handover pin-snap guard (handover slice): the first schedule
+   * handover fires 1-3 substeps after arming on a truncated first swing, so
+   * the plan-built plant can sit centimetres past the planting foot's reach.
+   * Seen flips at the first handover; pendingSide/gridAlong arm the touchdown
+   * seed (cleared at seeding or abandon); deltaAlong carries the signed
+   * along-route miss the next plant adds back (exact grid re-anchor).
+   */
+  firstHandoverSeen: boolean;
+  firstPlantPendingSide: FootBaseSide | null;
+  firstPlantGridAlong: number | null;
+  firstPlantDeltaAlong: number | null;
 };
 
 export type FootBaseStepSummary = {
@@ -101,6 +113,72 @@ export function getOrCreateFootBaseState(approach: object, stance: FootBaseSide)
   const created = createState(stance);
   states.set(approach, created);
   return created;
+}
+
+/**
+ * First-handover plant bookkeeping (handover slice; called from the handover
+ * branch of `applyFootBaseStep`). Returns the effective plant
+ * along-coordinate: the grid value on the first handover (the actual seed is
+ * taken at band entry by `seedFirstPlantAtTouchdown`), the grid value plus
+ * the stored seed delta on the next handover (exact grid re-anchor, so
+ * downstream footholds and arrival never move), the grid value after that. A
+ * pending first plant that never touches down is abandoned here (no stance
+ * window, no slide) without disturbing the grid.
+ */
+export function noteFirstHandoverPlant(input: {
+  state: FootBaseState;
+  scheduled: FootBaseSide;
+  plantAlong: number;
+}): number {
+  const { state, scheduled, plantAlong } = input;
+  if (!state.firstHandoverSeen) {
+    state.firstHandoverSeen = true;
+    state.firstPlantPendingSide = scheduled;
+    state.firstPlantGridAlong = plantAlong;
+    return plantAlong;
+  }
+  state.firstPlantPendingSide = null;
+  state.firstPlantGridAlong = null;
+  if (state.firstPlantDeltaAlong === null) return plantAlong;
+  const reanchored = plantAlong + state.firstPlantDeltaAlong;
+  state.firstPlantDeltaAlong = null;
+  return reanchored;
+}
+
+/**
+ * First-plant seed (handover slice; called after the pin pass while the
+ * first-planted foot is still the stance foot). When that foot first touches
+ * down (post-pin toe inside the contact band), its provisional grid foothold
+ * is snapped to the foot's actual position — but only when the plan misses by
+ * more than 1 mm (the pin budget), so plan-accurate rigs keep byte-identical
+ * footholds. The signed along-route miss is stored for the next plant's
+ * re-anchor. History-free after seeding, abandon, or a stance change.
+ */
+export function seedFirstPlantAtTouchdown(input: {
+  state: FootBaseState;
+  stance: FootBaseSide;
+  leftToe: Object3D | null;
+  rightToe: Object3D | null;
+  startX: number;
+  startZ: number;
+  unitX: number;
+  unitZ: number;
+  floorY: number;
+  bandM: number;
+}): void {
+  const { state, stance } = input;
+  const pending = state.firstPlantPendingSide;
+  const gridAlong = state.firstPlantGridAlong;
+  if (pending === null || gridAlong === null || pending !== stance) return;
+  const toe = toeWorldNow(pending === "left" ? input.leftToe : input.rightToe);
+  if (toe === null || !(toe.y <= input.bandM)) return;
+  const anchor = state.foothold[pending];
+  state.firstPlantPendingSide = null;
+  state.firstPlantGridAlong = null;
+  if (Math.hypot(anchor.x - toe.x, anchor.z - toe.z) <= 0.001) return;
+  const seededAlong = (toe.x - input.startX) * input.unitX + (toe.z - input.startZ) * input.unitZ;
+  state.foothold[pending] = { x: toe.x, y: input.floorY, z: toe.z };
+  state.firstPlantDeltaAlong = gridAlong - seededAlong;
 }
 
 export function toeWorldNow(toe: Object3D | null): { x: number; y: number; z: number } | null {
@@ -141,5 +219,9 @@ export function createState(stance: FootBaseSide): FootBaseState {
     kneeBudget: null,
     prevClamped: { left: false, right: false },
     rigLengthScale: null,
+    firstHandoverSeen: false,
+    firstPlantPendingSide: null,
+    firstPlantGridAlong: null,
+    firstPlantDeltaAlong: null,
   };
 }

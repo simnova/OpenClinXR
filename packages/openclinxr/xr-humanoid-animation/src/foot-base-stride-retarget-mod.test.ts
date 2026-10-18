@@ -797,7 +797,11 @@ describe("foot-base symmetric half travel (step-asym slice)", () => {
       }
     }
     // Entry pair (both feet same substep) bases the chain; every later plant
-    // is one half-travel past the other foothold.
+    // is one half-travel past the other foothold — except the FIRST plant,
+    // which the handover slice may re-snap once to the actual touchdown past
+    // the 1 mm gate (measured 1.2 mm here on the static fixture). The
+    // re-anchor puts the second plant exactly back on grid, so at most the
+    // two gaps adjacent to the first plant deviate, and only by millimetres.
     expect(placements.length).toBeGreaterThanOrEqual(5);
     const gaps: number[] = [];
     for (let k = 1; k < placements.length; k += 1) {
@@ -808,7 +812,8 @@ describe("foot-base symmetric half travel (step-asym slice)", () => {
       gaps.push(Math.abs(cur.z - prev.z));
     }
     expect(gaps.length).toBeGreaterThanOrEqual(3);
-    for (const gap of gaps) expect(gap).toBeCloseTo(0.5, 9);
+    for (const gap of gaps) expect(gap).toBeCloseTo(0.5, 2);
+    expect(gaps.filter((gap) => Math.abs(gap - 0.5) > 1e-9).length).toBeLessThanOrEqual(2);
     clearFootBaseState(approach);
   });
 
@@ -941,5 +946,116 @@ describe("rig-capability gate (default flip round 3)", () => {
         clip: { labels, actionTimeSeconds: 0.3 },
       }),
     ).toBeNull();
+  });
+});
+
+describe("first-handover touchdown seed (handover slice)", () => {
+  /**
+   * Exercises the seed + re-anchor through the public entrypoint only (no new
+   * imports): sweep the clip across the first two plant boundaries on a
+   * standard rig (plan-accurate: no seed, grid plants, null delta) and on a
+   * child-proportioned rig (short legs miss the plan plant by centimetres:
+   * seed fires, next plant re-anchors onto the grid). Route +z, so along = z.
+   */
+  function sweepTwoHandovers(hipHeightM: number, segmentM: number): {
+    halfTravel: number;
+    gridExpected: number;
+    firstPlant: number;
+    seeded: boolean;
+    seedDelta: number | null;
+    seededZ: number | null;
+    secondPlantZ: number;
+  } {
+    setSearch("?footstepPlan=1&fixedClock=1&footBase=1");
+    const { slot, leftToe, rightToe } = buildLeggedRig(hipHeightM, segmentM);
+    const approach = {
+      actorSlot: slot,
+      leftToe,
+      rightToe,
+      floorOriginY: 0,
+      contactBandMeters: 0.06,
+      footstep: { scale: 0.707, steps: 3, bones: [], lastToeSeparationM: null },
+      execution: { phase: "walking", walkSimSubsteps: 0 },
+      lockArmed: true,
+      start: { x: 0, y: 0, z: 0 },
+      lock: { stanceFoot: "left" },
+    };
+    const labels = stanceLabels();
+    const halfTravel = 1.31 / 3;
+    // Per-substep snapshots AFTER each call; the analysis below is timing-free
+    // (the seed may fire in the handover call itself or substeps later).
+    const snaps: Array<{ stance: string; fhL: number; fhR: number; delta: number | null }> = [];
+    for (let sub = 0; sub < 320; sub += 1) {
+      (approach.execution as { walkSimSubsteps: number }).walkSimSubsteps = sub;
+      const summary = applyFootBaseStep({
+        approach: approach as never,
+        routeDx: 0,
+        routeDz: 1.31,
+        routeLength: 1.31,
+        clip: { labels, actionTimeSeconds: 0.3 + sub * 0.005 },
+      });
+      expect(summary).not.toBeNull();
+      const state = readFootBaseState(approach);
+      expect(state).not.toBeNull();
+      snaps.push({
+        stance: state!.stance,
+        fhL: state!.foothold.left.z,
+        fhR: state!.foothold.right.z,
+        delta: state!.firstPlantDeltaAlong,
+      });
+    }
+    const firstIdx = snaps.findIndex((s, i) => i > 0 && s.stance !== snaps[i - 1]!.stance);
+    expect(firstIdx).toBeGreaterThan(0);
+    const firstPlanted = snaps[firstIdx]!.stance as "left" | "right";
+    const oldStance = snaps[firstIdx - 1]!.stance as "left" | "right";
+    // Grid plant the handover branch computes: other (old-stance) foothold
+    // plus one half-travel. The pre-handover snapshot's other foothold is
+    // untouched by the handover call itself, so this is exact.
+    const prevFh = oldStance === "left" ? snaps[firstIdx - 1]!.fhL : snaps[firstIdx - 1]!.fhR;
+    const gridExpected = prevFh + halfTravel;
+    const fhOf = (s: (typeof snaps)[number], side: "left" | "right"): number =>
+      side === "left" ? s.fhL : s.fhR;
+    const firstPlant = fhOf(snaps[firstIdx]!, firstPlanted);
+    const seedIdx = snaps.findIndex((s) => s.delta !== null);
+    const seeded = seedIdx !== -1;
+    const secondIdx = snaps.findIndex((s, i) => i > firstIdx && s.stance !== snaps[firstIdx]!.stance);
+    expect(secondIdx).toBeGreaterThan(firstIdx);
+    const secondPlanted = snaps[secondIdx]!.stance as "left" | "right";
+    const secondPlantZ = fhOf(snaps[secondIdx]!, secondPlanted);
+    clearFootBaseState(approach);
+    return {
+      halfTravel,
+      gridExpected,
+      firstPlant,
+      seeded,
+      seedDelta: seeded ? snaps[seedIdx]!.delta : null,
+      seededZ: seeded ? fhOf(snaps[seedIdx]!, firstPlanted) : null,
+      secondPlantZ,
+    };
+  }
+
+  it("a plan-accurate rig never seeds: grid plants and a null delta", () => {
+    const run = sweepTwoHandovers(0.78, 0.21);
+    // No seed fired on either plant (delta never set).
+    expect(run.seeded).toBe(false);
+    expect(run.seedDelta).toBeNull();
+    // First plant is exactly the grid value, and the second exactly one
+    // half-travel past it: pure grid chain.
+    expect(run.firstPlant).toBeCloseTo(run.gridExpected, 9);
+    expect(run.secondPlantZ).toBeCloseTo(run.gridExpected + run.halfTravel, 9);
+  });
+
+  it("a short-legged rig seeds the first plant and re-anchors the next", () => {
+    const run = sweepTwoHandovers(0.5, 0.12);
+    // The seed fired exactly once, past the 1 mm gate but at stride scale.
+    expect(run.seeded).toBe(true);
+    expect(run.seedDelta).not.toBeNull();
+    expect(Math.abs(run.seedDelta as number)).toBeGreaterThan(0.001);
+    expect(Math.abs(run.seedDelta as number)).toBeLessThan(0.05);
+    // Seeded + delta reconstructs the provisional grid plant exactly.
+    expect((run.seededZ as number) + (run.seedDelta as number)).toBeCloseTo(run.gridExpected, 9);
+    // The next plant re-anchors: it sits one half-travel past the GRID first
+    // plant, not past the seeded one, so downstream never drifts.
+    expect(run.secondPlantZ).toBeCloseTo(run.gridExpected + run.halfTravel, 9);
   });
 });

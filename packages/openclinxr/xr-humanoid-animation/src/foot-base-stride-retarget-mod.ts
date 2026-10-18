@@ -19,6 +19,8 @@ import {
   type FootBaseStepSummary,
   getOrCreateFootBaseState,
   heelWorldNow,
+  noteFirstHandoverPlant,
+  seedFirstPlantAtTouchdown,
   toeWorldNow,
 } from "./foot-base-state-mod.js";
 import { resolveRigFootGeometry } from "./foot-rig-geometry-mod.js";
@@ -79,9 +81,12 @@ export {
  * plant boundary, none between, no hysteresis, no dwell) names the summary
  * stance and orders the slot pin. Footholds are fixed when the plan is built: the
  * entry pair from the physical feet, every later plant one plan step ahead of
- * the other foothold on the planting foot's home side — never re-snapped to
- * the physical landing foot, so swing-IK miss cannot bake into the next
- * foothold. Targets are absolute rebuilds (no takeoff-relative deltas).
+ * the other foothold on the planting foot's home side — except the FIRST
+ * plant, re-snapped once to the actual touchdown past a 1 mm miss (the first
+ * handover fires on a truncated swing; pinning that miss dragged the planted
+ * child toe 7.77 mm). The miss is added back at the next plant, so swing-IK
+ * miss still cannot accumulate downstream. Targets are absolute rebuilds
+ * (no takeoff-relative deltas).
  *
  * The plan datum is anchored to walking entry (halves/body travel count route
  * progress since the first active substep, not clip absolute time). The heel
@@ -255,7 +260,9 @@ export function applyFootBaseStep(input: {
     const other: FootBaseSide = scheduled === "left" ? "right" : "left";
     const otherAlong = (state.foothold[other].x - approach.start.x) * unitX
       + (state.foothold[other].z - approach.start.z) * unitZ;
-    const plantAlong = otherAlong + halfTravel;
+    // First-handover guard (handover slice): provisional grid plant, seeded
+    // from the actual touchdown at band entry; the next plant re-anchors.
+    const plantAlong = noteFirstHandoverPlant({ state, scheduled, plantAlong: otherAlong + halfTravel });
     state.foothold[scheduled] = {
       x: approach.start.x + unitX * plantAlong + sideX * state.sideHome[scheduled],
       y: floorY,
@@ -468,6 +475,20 @@ export function applyFootBaseStep(input: {
       slot.updateMatrixWorld(true);
     }
   }
+  // First-plant seed (handover slice): snap the provisional grid plant to the
+  // actual touchdown once (gated at 1 mm; the miss is re-anchored next plant).
+  seedFirstPlantAtTouchdown({
+    state,
+    stance,
+    leftToe: approach.leftToe,
+    rightToe: approach.rightToe,
+    startX: approach.start.x,
+    startZ: approach.start.z,
+    unitX,
+    unitZ,
+    floorY,
+    bandM: approach.contactBandMeters,
+  });
   // Band-hold signal for the next substep (consumed one frame later).
   for (const side of ["left", "right"] as const) {
     const toe = toeWorldNow(side === "left" ? approach.leftToe : approach.rightToe);
