@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then exit 0; fi; pnpm exec tsx tools/openclinxr/openclaw/context-cap.ts --grok",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then exit 0; fi; pnpm exec tsx tools/openclinxr/openclaw/context-cap.ts --grok",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

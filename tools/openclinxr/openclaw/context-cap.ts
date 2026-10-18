@@ -1,0 +1,278 @@
+/**
+ * context-cap — hook that warns when a long agent session is near its context limit.
+ *
+ * Claude transcript (JSONL at stdin field transcript_path): assistant lines are
+ * {type:"assistant",message:{usage:{input_tokens,cache_creation_input_tokens,
+ * cache_read_input_tokens}}}. Context = the sum on the NEWEST assistant line.
+ * Grok (--grok): ~/.grok/sessions/<urlencoded cwd>/<sessionId>/updates.jsonl,
+ * lines carry params._meta.totalTokens on some events; the newest such line wins.
+ * The session id comes from the hook stdin JSON when present, else the newest
+ * updates.jsonl under the cwd's session directory.
+ *
+ * Reads hook JSON on stdin. Below or equal to cap, or transcript
+ * missing/unreadable: prints nothing, exit 0. Never writes any file.
+ */
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
+
+export const DEFAULT_CAP = 180000;
+export const HANDOFF_RECENCY_MS = 10 * 60 * 1000;
+
+export function buildCapMessage(tokens: number, cap: number): string {
+  return (
+    `context ${tokens} tokens is over the cap ${cap}; write your handoff now with ` +
+    "`pnpm exec tsx tools/openclinxr/openclaw/handoff.ts write <lane>`, fill its slots, and start no new work."
+  );
+}
+
+export function contextTokensFromClaudeTranscript(text: string): number | null {
+  let newest: number | null = null;
+  for (const line of String(text ?? "").split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    let entry: {
+      type?: unknown;
+      message?: { usage?: Record<string, unknown> };
+    };
+    try {
+      entry = JSON.parse(trimmed);
+    } catch {
+      return null;
+    }
+    if (entry?.type !== "assistant") continue;
+    const usage = entry?.message?.usage;
+    if (!usage || typeof usage !== "object") continue;
+    const num = (key: string): number | null => {
+      const value = usage[key];
+      return typeof value === "number" && Number.isFinite(value) ? value : null;
+    };
+    const input = num("input_tokens");
+    const created = num("cache_creation_input_tokens");
+    const read = num("cache_read_input_tokens");
+    if (input === null || created === null || read === null) continue;
+    newest = input + created + read;
+  }
+  return newest;
+}
+
+export function contextTokensFromGrokUpdates(text: string): number | null {
+  let newest: number | null = null;
+  for (const line of String(text ?? "").split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    let entry: { params?: { _meta?: { totalTokens?: unknown } } };
+    try {
+      entry = JSON.parse(trimmed);
+    } catch {
+      return null;
+    }
+    const total = entry?.params?._meta?.totalTokens;
+    if (typeof total === "number" && Number.isFinite(total)) newest = total;
+  }
+  return newest;
+}
+
+function readJsonFile(path: string): unknown {
+  try {
+    return JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    return undefined;
+  }
+}
+
+export function resolveCap(repoRoot: string, env: NodeJS.ProcessEnv = process.env): number {
+  const fromEnv = Number(env.OPENCLINXR_CONTEXT_CAP);
+  if (Number.isFinite(fromEnv) && fromEnv > 0) return fromEnv;
+  const role = env.OPENCLINXR_ROLE;
+  if (role) {
+    const file = readJsonFile(join(repoRoot, ".openclinxr", "context-cap.json"));
+    if (file && typeof file === "object" && !Array.isArray(file)) {
+      const perRole = (file as Record<string, unknown>)[role];
+      if (typeof perRole === "number" && Number.isFinite(perRole) && perRole > 0) return perRole;
+    }
+  }
+  return DEFAULT_CAP;
+}
+
+function newestFileMtimeMs(dir: string): number | null {
+  let newest: number | null = null;
+  let entries: string[];
+  try {
+    entries = readdirSync(dir);
+  } catch {
+    return null;
+  }
+  for (const name of entries) {
+    const path = join(dir, name);
+    try {
+      const stat = statSync(path);
+      if (stat.isFile() && (newest === null || stat.mtimeMs > newest)) newest = stat.mtimeMs;
+    } catch {
+      continue;
+    }
+  }
+  return newest;
+}
+
+export function hasRecentHandoff(repoRoot: string, nowMs = Date.now()): boolean {
+  const newest = newestFileMtimeMs(join(repoRoot, ".openclinxr", "handoffs"));
+  return newest !== null && nowMs - newest <= HANDOFF_RECENCY_MS;
+}
+
+export type ClaudeDecision = {
+  tokens: number | null;
+  cap: number;
+  hookEvent: string;
+  stopHookActive: boolean;
+  handoffRecent: boolean;
+};
+
+/** Returns the stdout payload, or null for silence. */
+export function decideClaude(opts: ClaudeDecision): string | null {
+  const { tokens, cap, hookEvent, stopHookActive, handoffRecent } = opts;
+  if (tokens === null || tokens <= cap) return null;
+  const msg = buildCapMessage(tokens, cap);
+  if (hookEvent === "Stop") {
+    if (stopHookActive || handoffRecent) return null;
+    return JSON.stringify({ decision: "block", reason: msg });
+  }
+  return JSON.stringify({
+    hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: msg },
+  });
+}
+
+export type GrokDecision =
+  | { json: string; text?: undefined }
+  | { text: string; json?: undefined };
+
+export function decideGrok(opts: {
+  tokens: number | null;
+  cap: number;
+  isStop: boolean;
+  stopHookActive: boolean;
+  handoffRecent: boolean;
+}): GrokDecision | null {
+  const { tokens, cap, isStop, stopHookActive, handoffRecent } = opts;
+  if (tokens === null || tokens <= cap) return null;
+  const msg = buildCapMessage(tokens, cap);
+  if (isStop) {
+    if (stopHookActive || handoffRecent) return null;
+    return { json: JSON.stringify({ decision: "block", reason: msg }) };
+  }
+  return { text: msg };
+}
+
+function grokSessionDir(cwd: string): string {
+  return join(homedir(), ".grok", "sessions", encodeURIComponent(cwd));
+}
+
+function newestUpdatesFile(dir: string): string | null {
+  let best: { path: string; mtimeMs: number } | null = null;
+  let sessions: string[];
+  try {
+    sessions = readdirSync(dir);
+  } catch {
+    return null;
+  }
+  for (const sessionId of sessions) {
+    const candidate = join(dir, sessionId, "updates.jsonl");
+    try {
+      const stat = statSync(candidate);
+      if (stat.isFile() && (!best || stat.mtimeMs > best.mtimeMs)) {
+        best = { path: candidate, mtimeMs: stat.mtimeMs };
+      }
+    } catch {
+      continue;
+    }
+  }
+  return best?.path ?? null;
+}
+
+function readTranscriptFile(path: string): string | null {
+  try {
+    return readFileSync(path, "utf8");
+  } catch {
+    return null;
+  }
+}
+
+function main(): void {
+  const argv = process.argv.slice(2);
+  const grok = argv.includes("--grok");
+  const repoRoot = process.cwd();
+  let raw = "";
+  try {
+    raw = readFileSync(0, "utf8");
+  } catch {
+    raw = "";
+  }
+  let input: Record<string, unknown> = {};
+  if (raw.trim()) {
+    try {
+      input = JSON.parse(raw) as Record<string, unknown>;
+    } catch {
+      process.exit(0);
+    }
+  }
+  const cap = resolveCap(repoRoot);
+  const str = (key: string): string | null =>
+    typeof input[key] === "string" ? (input[key] as string) : null;
+
+  if (grok) {
+    const sessionId = str("sessionId") ?? str("session_id") ?? str("sessionID");
+    let updatesPath: string | null = null;
+    if (sessionId) {
+      const candidate = join(grokSessionDir(repoRoot), sessionId, "updates.jsonl");
+      if (existsSync(candidate)) updatesPath = candidate;
+    }
+    updatesPath ??= newestUpdatesFile(grokSessionDir(repoRoot));
+    const text = updatesPath ? readTranscriptFile(updatesPath) : null;
+    const tokens = text === null ? null : contextTokensFromGrokUpdates(text);
+    const stopActive =
+      input.stop_hook_active === true ||
+      input.stopHookActive === true ||
+      input.stop_hook_active === "true";
+    // The Grok Stop payload carries the closing message (see
+    // blocked-work-must-escalate.mjs); SessionStart/PreCompact payloads do not.
+    // Those events only show stdout text, so they get the plain message.
+    const eventName =
+      typeof input.hook_event_name === "string" ? input.hook_event_name : null;
+    const isStop =
+      stopActive ||
+      eventName === "Stop" ||
+      (eventName === null &&
+        ("lastAssistantMessage" in input || "last_assistant_message" in input));
+    const out = decideGrok({
+      tokens,
+      cap,
+      isStop,
+      stopHookActive: stopActive,
+      handoffRecent: hasRecentHandoff(repoRoot),
+    });
+    // Grok shows hook stdout/stderr text to the agent; the Stop event also
+    // honors the {"decision":"block"} JSON shape (see blocked-work-must-escalate.mjs).
+    if (out?.json !== undefined) process.stdout.write(`${out.json}\n`);
+    else if (out?.text !== undefined) process.stdout.write(`${out.text}\n`);
+    process.exit(0);
+  }
+
+  const transcriptPath = str("transcript_path") ?? str("transcriptPath");
+  const text = transcriptPath ? readTranscriptFile(transcriptPath) : null;
+  const tokens = text === null ? null : contextTokensFromClaudeTranscript(text);
+  const hookEvent = str("hook_event_name") ?? str("hookEventName") ?? "UserPromptSubmit";
+  const stopHookActive =
+    input.stop_hook_active === true || input.stopHookActive === true;
+  const out = decideClaude({
+    tokens,
+    cap,
+    hookEvent,
+    stopHookActive,
+    handoffRecent: hasRecentHandoff(repoRoot),
+  });
+  if (out !== null) process.stdout.write(`${out}\n`);
+  process.exit(0);
+}
+
+const invokedDirectly = process.argv[1]?.endsWith("context-cap.ts") ?? false;
+if (invokedDirectly) main();
