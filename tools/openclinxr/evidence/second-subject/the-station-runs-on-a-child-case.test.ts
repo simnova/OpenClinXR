@@ -1,36 +1,35 @@
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 /**
- * Card tsk_528c17d1809cac92: the third subject is a CHILD case (the case id
- * is read from the report, never hardcoded; reference peds_patient_child).
- * This test reads
+ * Card tsk_528c17d1809cac92 H1: the third subject is a CHILD case (the case id
+ * is read from the report, never hardcoded). This test reads
  * tools/openclinxr/evidence/second-subject/third-subject-report.json and
- * verifies what the station did: the plan gate refused the child before any
- * stage (no goal image, no case record), so run1/run2 refuse identically and
- * the verdict is does_not_run.
+ * verifies the H1 rework: the normal CLI still refuses at the plan gate, but
+ * the landed stage scripts were run directly for the child in run1/run2.
  *
- * G1 every stage output that exists is identical run1 vs run2 (both empty:
- *    the plan refused; equality holds vacuously).
- * G2 every stage has a row with a verdict + reason.
+ * G1 every H1 stage output that exists is identical run1 vs run2; refusal and
+ *    evidence signatures are identical run1 vs run2.
+ * G2 every stage has a row with a verdict + reason; every finding carries
+ *    evidence_kind observed|inferred.
  * G3 counterweight: no stage/runner/materializer/threshold/skin/eye file
  *    differs from origin/main; only case-inputs.json and this evidence dir
  *    may differ.
  * G4 no case id appears in any .ts: the case id is read from the report, and
  *    this suite asserts neither the station's .ts sources nor this test
  *    hardcode a case id literal.
- * When /Volumes/files/openclinxr-assets/store exists the sha256 of every
- * sheet file the report names is recomputed (else the suite skips under a
- * name containing "store absent").
+ * When /Volumes/files/openclinxr-assets/store exists, every named H1 output
+ * and observed log/artifact is rechecked on disk (else the suite skips under
+ * a name containing "store absent").
  *
- * claimScope: the third-subject (child) face-station attempt and its recorded
- *   refusals.
+ * claimScope: the H1 direct stage runs for the child and their recorded
+ *   refusals/observations.
  * notEvidenceFor: clinical_validity, production_asset_readiness, child
- *   anatomy correctness (no stage ran on the child).
+ *   anatomy correctness (no child bake succeeded).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -40,24 +39,47 @@ const STORE_CASES = "/Volumes/files/openclinxr-assets/store/face-station-cases";
 
 const CANONICAL_STAGES = ["family_tone", "skin_layers", "skin_chain", "lid_conform_bake", "eye_flags", "face_fit", "checks"];
 
-type StageRow = {
+type H1Output = { name: string; path: string; sha256: string };
+type H1Run = {
+  rc: number;
+  outputs: H1Output[];
+  refusal_sha?: string | null;
+  evidence_sha?: string | null;
+  log?: string | null;
+};
+type H1Stage = {
   stage: number;
   name: string;
   status: string;
-  reached: boolean;
   reason: string;
-  outputs: Array<{ path: string; sha256: string }>;
+  script: string;
+  argv: unknown[];
+  command: string;
+  runs: { run1: H1Run; run2: H1Run };
 };
 
 type Report = {
   card: string;
+  handoff?: string;
   subject: { caseId: string; actorId: string; reference: string; goal: string };
   runner: {
     runs: Array<{ run: string; cli_argv: string[]; status: string; stop_reason: string; stageRecords: string }>;
   };
-  stages: StageRow[];
-  findings: Array<{ id: string; claim: string; evidence: string; verdict: string }>;
+  h1_direct: {
+    stages: H1Stage[];
+    runs: { run1: { storeDir: string }; run2: { storeDir: string } };
+  };
+  stages?: unknown;
+  findings: Array<{
+    id: string;
+    claim: string;
+    evidence: string;
+    evidence_kind: string;
+    artifacts?: unknown;
+    verdict: string;
+  }>;
   sheet: { kind: string; root: string; files: Record<string, string> };
+  station_sheet: { status: string; reason: string };
   verdict: string;
   verdictNote: string;
   followUps: string[];
@@ -79,14 +101,15 @@ describe("the station runs on a child case", () => {
   it("(1) report names the card and the child subject with goal: none", () => {
     const r = readReport();
     expect(r.card).toBe("tsk_528c17d1809cac92");
+    expect(r.handoff).toBe("H1");
     expect(r.subject.caseId.length, "case id").toBeGreaterThan(0);
     expect(r.subject.actorId.length, "actor id").toBeGreaterThan(0);
-    expect(r.subject.reference).toBe("peds_patient_child");
+    expect(r.subject.reference.length, "reference").toBeGreaterThan(0);
     expect(r.subject.goal, "no goal image exists for the child").toBe("none");
-    expect(r.verdict).toBe("does_not_run");
+    expect(r.verdict).toBe("runs_with_4_refusals");
   });
 
-  it("(2) run1 and run2 both refuse at the plan gate with the same reason", () => {
+  it("(2) run1 and run2 still refuse at the plan gate with the same reason", () => {
     const r = readReport();
     const runs = r.runner.runs;
     expect(runs.map((x) => x.run).sort()).toEqual(["run1", "run2"]);
@@ -99,38 +122,58 @@ describe("the station runs on a child case", () => {
     expect(runs[0]!.stop_reason).toBe(runs[1]!.stop_reason);
   });
 
-  it("(3) G2: every stage has a row with a verdict and a reason", () => {
+  it("(3) G2: H1 has all 7 stages plus evidence_kind on every finding", () => {
     const r = readReport();
-    expect(r.stages.map((s) => s.stage)).toEqual([1, 2, 3, 4, 5, 6, 7]);
-    expect(r.stages.map((s) => s.name)).toEqual(CANONICAL_STAGES);
-    for (const s of r.stages) {
-      expect(typeof s.status, `stage ${s.stage} status`).toBe("string");
-      expect(s.status.length, `stage ${s.stage} status`).toBeGreaterThan(0);
+    const stages = r.h1_direct.stages;
+    expect(stages.map((s) => s.stage)).toEqual([1, 2, 3, 4, 5, 6, 7]);
+    expect(stages.map((s) => s.name)).toEqual(CANONICAL_STAGES);
+    for (const s of stages) {
+      expect(["completed", "partial", "refused"].includes(s.status), `stage ${s.stage} status enum`).toBe(true);
       expect(s.reason.length, `stage ${s.stage} reason`).toBeGreaterThan(0);
-      expect(s.reached, `stage ${s.stage} reached`).toBe(false);
+      expect(s.script.length, `stage ${s.stage} script`).toBeGreaterThan(0);
+      expect(Array.isArray(s.argv), `stage ${s.stage} argv`).toBe(true);
+      expect(s.command.length, `stage ${s.stage} command`).toBeGreaterThan(0);
+      expect(s.runs.run1.outputs.length + s.runs.run2.outputs.length >= 0).toBe(true);
     }
     expect(r.findings.length, "findings").toBeGreaterThan(3);
     for (const f of r.findings) {
+      expect(["observed", "inferred"].includes(f.evidence_kind), `${f.id} evidence_kind enum`).toBe(true);
       expect(f.id.length, "finding id").toBeGreaterThan(0);
       expect(f.evidence, `${f.id} cites a file:line`).toMatch(/\.(py|ts|json):[^\s]*\d/);
       expect(f.verdict.length, `${f.id} verdict`).toBeGreaterThan(0);
+      if (f.evidence_kind === "observed") {
+        expect(Array.isArray(f.artifacts), `${f.id} observed names artifacts`).toBe(true);
+        expect((f.artifacts as unknown[]).length, `${f.id} observed artifacts`).toBeGreaterThan(0);
+      }
     }
+    const refused = stages.filter((s) => s.status === "refused").length;
+    const finished = stages.filter((s) => s.status === "completed" || s.status === "partial").length;
+    expect(refused, "H1 refused stage count").toBe(4);
+    expect(finished, "H1 completed/partial stage count").toBeGreaterThan(0);
   });
 
-  it("(4) G1: every stage output is identical run1 vs run2 (vacuous: plan refused)", () => {
+  it("(4) G1: every H1 output is identical run1 vs run2; refusal/evidence signatures match", () => {
     const r = readReport();
-    const r1 = r.runner.runs.find((x) => x.run === "run1")!;
-    const r2 = r.runner.runs.find((x) => x.run === "run2")!;
-    expect(r1.status).toBe("refused");
-    expect(r2.status).toBe("refused");
-    const names = (run: typeof r1): Array<string> => [];
-    for (const s of r.stages) {
-      const a = s.outputs.map((o) => `${o.path}:${o.sha256}`);
-      const b = s.outputs.map((o) => `${o.path}:${o.sha256}`);
-      expect(a, `stage ${s.stage} run1==run2 outputs`).toEqual(b);
-      expect(a.length, `stage ${s.stage} has no station output (plan refused)`).toBe(0);
+    for (const s of r.h1_direct.stages) {
+      const a = s.runs.run1.outputs.map((o) => o.sha256).sort();
+      const b = s.runs.run2.outputs.map((o) => o.sha256).sort();
+      expect(a, `stage ${s.stage} run1==run2 output shas`).toEqual(b);
+      for (const h of a) {
+        expect(h, `stage ${s.stage} sha hex`).toMatch(/^[0-9a-f]{64}$/);
+      }
+      const r1 = s.runs.run1.refusal_sha ?? null;
+      const r2 = s.runs.run2.refusal_sha ?? null;
+      if (r1 !== null || r2 !== null) {
+        expect(r1, `stage ${s.stage} refusal run1==run2`).toBe(r2);
+        expect(String(r1), `stage ${s.stage} refusal sha hex`).toMatch(/^[0-9a-f]{64}$/);
+      }
+      const e1 = s.runs.run1.evidence_sha ?? null;
+      const e2 = s.runs.run2.evidence_sha ?? null;
+      if (e1 !== null || e2 !== null) {
+        expect(e1, `stage ${s.stage} evidence run1==run2`).toBe(e2);
+        expect(String(e1), `stage ${s.stage} evidence sha hex`).toMatch(/^[0-9a-f]{64}$/);
+      }
     }
-    expect(names(r1)).toEqual(names(r2));
   });
 
   it("(5) G3 counterweight: no stage/runner/materializer/threshold file differs from origin/main", () => {
@@ -182,23 +225,39 @@ describe("the station runs on a child case", () => {
     }
   });
 
-  it("(7) sheet provenance is the shipped child GLB, not station output", () => {
+  it("(7) reference sheet stays reference-only; no station sheet was produced", () => {
     const r = readReport();
     expect(r.sheet.kind).toBe("shipped_glb_product_path_capture");
     expect(r.sheet.files["sheet.png"]).toMatch(/^[0-9a-f]{64}$/);
     expect(Object.keys(r.sheet.files).length).toBeGreaterThanOrEqual(4);
+    expect(r.station_sheet.status).toBe("not_produced");
+    expect(r.station_sheet.reason.length, "station sheet reason").toBeGreaterThan(0);
     expect(String(r.verdictNote).length, "verdictNote").toBeGreaterThan(0);
     expect(r.followUps.length, "followUps").toBeGreaterThan(2);
   });
 
-  maybe("(8) store absent skips here: every named stage output + sheet file recomputes to its recorded sha256", () => {
+  maybe("(8) store absent skips here: every named H1 output recomputes and every observed store log/artifact exists", () => {
     const r = readReport();
     expect(existsSync(STORE_CASES)).toBe(true);
     let n = 0;
-    for (const s of r.stages) {
-      for (const o of s.outputs) {
-        expect(existsSync(o.path), `stage output exists: ${o.path}`).toBe(true);
-        expect(sha256File(o.path), `sha recomputes: ${o.path}`).toBe(o.sha256);
+    for (const s of r.h1_direct.stages) {
+      for (const run of [s.runs.run1, s.runs.run2]) {
+        for (const o of run.outputs) {
+          expect(existsSync(o.path), `H1 output exists: ${o.path}`).toBe(true);
+          expect(sha256File(o.path), `H1 sha recomputes: ${o.path}`).toBe(o.sha256);
+          n += 1;
+        }
+        if (typeof run.log === "string" && run.log.length > 0) {
+          expect(existsSync(run.log), `H1 log exists: ${run.log}`).toBe(true);
+          n += 1;
+        }
+      }
+    }
+    for (const f of r.findings) {
+      if (f.evidence_kind !== "observed") continue;
+      for (const artifact of (f.artifacts ?? []) as unknown[]) {
+        if (typeof artifact !== "string") continue;
+        expect(existsSync(artifact), `observed artifact exists: ${artifact}`).toBe(true);
         n += 1;
       }
     }
@@ -208,10 +267,12 @@ describe("the station runs on a child case", () => {
       expect(sha256File(abs), `sheet sha recomputes: ${name}`).toBe(h);
       n += 1;
     }
-    expect(n).toBeGreaterThan(3);
+    const entries = readdirSync(r.sheet.root);
+    expect(entries.filter((e) => e.startsWith("station-") && e.endsWith(".png")), "no station sheet PNGs").toEqual([]);
+    expect(n).toBeGreaterThan(20);
   });
 
-  maybe("(9) store absent skips here: run1/run2 stage-records.json exist and both refuse", () => {
+  maybe("(9) store absent skips here: plan run1/run2 stage-records.json exist and both still refuse", () => {
     const r = readReport();
     for (const run of r.runner.runs) {
       expect(existsSync(run.stageRecords), `stage-records exists: ${run.stageRecords}`).toBe(true);
