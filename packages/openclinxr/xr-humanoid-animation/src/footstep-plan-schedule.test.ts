@@ -66,14 +66,35 @@ describe("footstep-plan schedule", () => {
   });
 
   it("refuses a short route that would need a middle step under 0.7", () => {
+    // ## CHANGED (short-route slice): 0.8 m now plans (2 halves at 0.5837,
+    // no middle half, short floor 0.55); the refusal boundary moved to
+    // ~0.77 m. Old assertion text kept:
+    //   expect(plan.reason).toMatch(/under 0\.7/);
+    //   const short = planFootsteps(0.8);
+    //   if (!("refused" in short)) throw new Error(`planned 0.8 m at scale ${short.scale}`);
+    //   expect(short.reason).toMatch(/under 0\.7/);
+    // The old text asserted "the per-foot intercepts keep short routes
+    // refused below ~0.89 m: the M6 parser accepts 0.8 m but the planner
+    // still stops it loudly here."
     const plan = planFootsteps(0.7);
     if (!("refused" in plan)) throw new Error(`planned 0.7 m at scale ${plan.scale}`);
-    expect(plan.reason).toMatch(/under 0\.7/);
-    // The per-foot intercepts keep short routes refused below ~0.89 m: the
-    // M6 parser accepts 0.8 m but the planner still stops it loudly here.
-    const short = planFootsteps(0.8);
-    if (!("refused" in short)) throw new Error(`planned 0.8 m at scale ${short.scale}`);
-    expect(short.reason).toMatch(/under 0\.7/);
+    expect(plan.reason).toMatch(/under 0\.55/);
+    // Below the parser floor the plan still refuses loudly: 0.6 m needs
+    // k=2 s=0.3306, 0.7 m needs s=0.4572, both under the 0.55 short floor.
+    for (const route of [0.6, 0.7]) {
+      const refused = planFootsteps(route);
+      if (!("refused" in refused)) throw new Error(`planned ${route} m`);
+      expect(refused.reason).toMatch(/under 0\.55/);
+    }
+    // [0.8, 0.89] plans as exactly 2 halves (one full step + closing step):
+    // 0.5837 / 0.6470 / 0.6976, each the route over the k=2 affines.
+    for (const [route, scale] of [[0.8, 0.5837], [0.85, 0.647], [0.89, 0.6976]] as const) {
+      const short = planFootsteps(route);
+      if ("refused" in short) throw new Error(`refused ${route} m: ${short.reason}`);
+      expect(short.steps).toBe(2);
+      expect(short.scale).toBeCloseTo(scale, 3);
+      expect(short.plannedTravelM).toBeCloseTo(route, 9);
+    }
   });
 
   it("refuses non-positive route lengths", () => {

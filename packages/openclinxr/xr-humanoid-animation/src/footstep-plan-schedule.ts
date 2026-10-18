@@ -38,7 +38,7 @@
  *
  * claimScope: step counts and scales for the physician walk clip.
  * notEvidenceFor: gait realism, other actors/clips, or any route whose plan
- * refuses here (short routes needing a middle step under 0.7).
+ * refuses here (routes under ~0.77 m or non-positive lengths).
  */
 
 /** Scale-1 travel of one passing-to-passing step, in metres (see header). */
@@ -76,6 +76,23 @@ export const FOOTSTEP_R_PASSING_S = 1.38;
 
 /** Minimum uniform scale: below this the plan refuses (the S2 STOP rule). */
 export const FOOTSTEP_MIN_SCALE = 0.7;
+
+/**
+ * Minimum uniform scale for a SHORT 2-half plan only (one full step +
+ * closing step, routes [0.8, ~0.89] m): below FOOTSTEP_MIN_SCALE, allowed
+ * because a 2-half plan has no middle half — the first half ends at the R
+ * passing, the second (last) at L, so the S2 STOP rule (a middle step under
+ * 0.7) is vacuously satisfied. Floor value from the shortest covered route:
+ * 0.8 m solves to k=2 s=0.5837, so 0.55 holds it with 0.03 scale (~27 mm
+ * route) margin. The affines are mild extrapolation below the [0.7, 1.0] fit
+ * range (same R/L ends the fit measured, only shorter): verified by the
+ * short-route capture gates (slide/arrival/knee/pitch), not by the fit.
+ * Shorter stride bends less than the 1.31 m plan the swing-knee budget
+ * already caps. Routes needing k=2 below 0.55 (~0.77 m), and any k>2 below
+ * 0.7, still refuse; below-parser routes (< 0.8 m) stay legacy behind the
+ * route gate (no single-half step-to evidence).
+ */
+const FOOTSTEP_SHORT_MIN_SCALE = 0.55;
 
 /**
  * Which passing a passing-to-passing half ends at. The stance foot carries
@@ -137,11 +154,15 @@ export type FootstepPlanRefusal = { refused: true; reason: string };
  * Halves alternate R-end, L-end from the L-passing walk start (half i ends R
  * for odd i, L for even i), and each half's travel comes from the per-foot
  * affine model (M1), not the shared linear table: k is the smallest count
- * with the solved scale <= 1; refusal when that scale < 0.7 (a middle step
- * under 0.7) or the length is not positive. The one scale seeds every half;
- * the late correction (M3) re-solves it for the last two at the
- * antepenultimate passing. No per-route constant: 1.31 m -> 3 halves at
- * 0.7070, 2.0 m -> 4 halves at 0.8369, 6.0 m -> 11 halves at 0.9557.
+ * with the solved scale <= 1; refusal when that scale is under the floor —
+ * 0.7 for k != 2 (a middle step under 0.7), 0.55 for exactly k = 2 (one full
+ * step + closing step, no middle half, so the STOP rule is vacuous) — or
+ * the length is not positive. The one scale seeds every half; the late
+ * correction (M3) re-solves it for the last two at the antepenultimate
+ * passing (k = 2 never reaches one: antepenultimate 0 < 1, so short plans
+ * walk uncorrected to the k-th passing). No per-route constant: 0.8 m ->
+ * 2 halves at 0.5837, 1.31 m -> 3 halves at 0.7070, 2.0 m -> 4 halves at
+ * 0.8369, 6.0 m -> 11 halves at 0.9557.
  *
  * modelScale (default 1) multiplies the affines before solving: the G6
  * probe channel only (?footstepProbeModel=1.2 seeds +20% at plan time; the
@@ -169,12 +190,18 @@ export function planFootsteps(routeLengthMeters: number, modelScale = 1): Footst
     }
     const scale = (routeLengthMeters - intercept) / slope;
     if (scale > 1) continue;
-    if (scale < FOOTSTEP_MIN_SCALE) {
+    // Short-route floor: exactly-2-half plans (one full step + closing
+    // step, no middle half) may solve down to FOOTSTEP_SHORT_MIN_SCALE;
+    // longer plans keep the 0.7 STOP floor. Below either floor refuses.
+    const floor = steps === 2 ? FOOTSTEP_SHORT_MIN_SCALE : FOOTSTEP_MIN_SCALE;
+    if (scale < floor) {
       return {
         refused: true,
         reason:
-          `route ${routeLengthMeters} m needs scale ${scale.toFixed(4)} < ${FOOTSTEP_MIN_SCALE}: `
-          + "a middle step under 0.7 (S2 STOP rule)",
+          `route ${routeLengthMeters} m needs scale ${scale.toFixed(4)} < ${floor}: `
+          + (steps === 2
+            ? "a short 2-half plan under 0.55 (S2 STOP rule; longer plans stay at 0.7+)"
+            : "a middle step under 0.7 (S2 STOP rule)"),
       };
     }
     let plannedTravelM = 0;

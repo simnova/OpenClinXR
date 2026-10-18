@@ -248,12 +248,20 @@ describe("foot-base stride retarget", () => {
   });
 
   it("route gate: flag on AND route in [0.8, 6.0] AND plan accepts", () => {
-    // The planner alone accepts 0.5 m (s=0.891) and 10 m and refuses 0.8 m,
-    // so the gate must enforce the shared [0.8, 6.0] bounds on top of it.
+    // ## CHANGED (short-route slice): the planner now accepts 0.8 m (2-half
+    // short plan at 0.5837), so the gate opens there. Old assertion text kept:
+    //   expect(footBaseStepIsActive(0.8)).toBe(false);
+    // with the comment "The planner alone accepts 0.5 m (s=0.891) and 10 m
+    // and refuses 0.8 m, so the gate must enforce the shared [0.8, 6.0]
+    // bounds on top of it."
+    // The planner alone accepts 0.5 m (s=0.891) and 10 m; 0.8 m now plans,
+    // so the gate enforces only the shared [0.8, 6.0] bounds on top of it.
     setSearch("?footBase=1");
     expect(footBaseStepIsActive(0.5)).toBe(false);
     expect(footBaseStepIsActive(0.79)).toBe(false);
-    expect(footBaseStepIsActive(0.8)).toBe(false);
+    expect(footBaseStepIsActive(0.8)).toBe(true);
+    expect(footBaseStepIsActive(0.85)).toBe(true);
+    expect(footBaseStepIsActive(0.89)).toBe(true);
     expect(footBaseStepIsActive(1.31)).toBe(true);
     expect(footBaseStepIsActive(6.0)).toBe(true);
     expect(footBaseStepIsActive(6.01)).toBe(false);

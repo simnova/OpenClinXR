@@ -54,9 +54,12 @@ const routeIntentCache = new WeakMap<ResolvedBedsideApproach, ResolvedBedsideApp
 
 /**
  * Second route for the plan (gate cells plus any orchestrator route in
- * [0.8, 6.0]): prepend collinear waypoints and move the start back along
- * the route axis until the polyline matches the flag, reusing
- * extendLocoGroundRoute. Pure; null route flag or an already-long route
+ * [0.8, 6.0]): lengthen by prepending collinear waypoints and moving the
+ * start back along the route axis until the polyline matches the flag
+ * (reusing extendLocoGroundRoute), or SHORTEN — when the flag asks below
+ * the scene length (bedside approaches under 0.9 m) — by moving the start
+ * forward along the same axis, dropping passed waypoints and re-anchoring
+ * at the new start; the bedside target never moves. Pure; null route flag
  * returns the input untouched. Default off (plan flag required).
  */
 export function extendFootstepRouteIntent(intent: ResolvedBedsideApproach): ResolvedBedsideApproach {
@@ -71,11 +74,72 @@ export function extendFootstepRouteIntent(intent: ResolvedBedsideApproach): Reso
     waypoints: intent.plan.waypoints,
     routeMeters,
   });
-  const out = extended === null
+  if (extended !== null) {
+    const out = { ...intent, start: extended.start, plan: { ...intent.plan, waypoints: extended.waypoints } };
+    routeIntentCache.set(intent, out);
+    return out;
+  }
+  // Short probe route (short-route slice): the flag asks below the scene
+  // length. Previously a no-op (extension returns null), which left short
+  // plans unverifiable on SC-05; now the walked polyline matches the flag.
+  // No existing behaviour changes: every previously-effective flag
+  // (routeMeters >= scene length) still takes the extension branch above.
+  const shortened = shortenFootstepRouteToLength({
+    start: intent.start,
+    target: intent.target.position,
+    waypoints: intent.plan.waypoints,
+    routeMeters,
+  });
+  const out = shortened === null
     ? intent
-    : { ...intent, start: extended.start, plan: { ...intent.plan, waypoints: extended.waypoints } };
+    : { ...intent, start: shortened.start, plan: { ...intent.plan, waypoints: shortened.waypoints } };
   routeIntentCache.set(intent, out);
   return out;
+}
+
+type FootstepRoutePoint = { x: number; y: number; z: number };
+
+/**
+ * Shorten a resolved approach to a probe route length along its own
+ * start->target axis (module-local: probe shaping only, no new public
+ * symbol). The target (bedside) is unchanged; the start moves forward so
+ * |target - start| is routeMeters; waypoints behind the new start are
+ * dropped (along-axis projection, 1 mm tolerance) and the new start is
+ * prepended with the first kept heading. Null when the route is already at
+ * or below the flag (nothing to do). Collinear by construction, so the
+ * route heading the executor derives is unchanged; clearance for the moved
+ * start is NOT re-vetted (same standing caveat as the extension).
+ */
+function shortenFootstepRouteToLength(input: {
+  start: FootstepRoutePoint;
+  target: FootstepRoutePoint;
+  waypoints: ReadonlyArray<{ position: FootstepRoutePoint; headingRadians: number }>;
+  routeMeters: number;
+}): { start: FootstepRoutePoint; waypoints: Array<{ position: FootstepRoutePoint; headingRadians: number }> } | null {
+  const dx = input.target.x - input.start.x;
+  const dz = input.target.z - input.start.z;
+  const length = Math.hypot(dx, dz);
+  if (!(length > 0) || length <= input.routeMeters) return null;
+  if (!(input.routeMeters > 0)) return null;
+  const unitX = dx / length;
+  const unitZ = dz / length;
+  const cutM = length - input.routeMeters;
+  const start: FootstepRoutePoint = {
+    x: input.target.x - unitX * input.routeMeters,
+    y: input.start.y,
+    z: input.target.z - unitZ * input.routeMeters,
+  };
+  const kept = input.waypoints
+    .filter(
+      (w) => (w.position.x - input.start.x) * unitX + (w.position.z - input.start.z) * unitZ >= cutM - 0.001,
+    )
+    .map((w) => ({ position: { ...w.position }, headingRadians: w.headingRadians }));
+  const heading = kept[0]?.headingRadians ?? input.waypoints[0]?.headingRadians ?? Math.atan2(unitX, unitZ);
+  const startY = kept[0]?.position.y ?? input.start.y;
+  return {
+    start,
+    waypoints: [{ position: { x: start.x, y: startY, z: start.z }, headingRadians: heading }, ...kept],
+  };
 }
 
 /** Node-testable gate twin: pure parser over the search string. */
