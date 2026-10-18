@@ -393,6 +393,21 @@ const SUBSTEP_SOURCE = `
 })()
 `;
 
+/**
+ * Light phase read for the freeze-aware parity fix-up (turn-tempo slice):
+ * the walk counter freezes at walk end, so an odd substep diff after the
+ * freeze means the walk ended mid-window, not lattice drift — half-stepping
+ * against a frozen counter stretches one sample 0.13-0.17 s and reads a
+ * phantom 256-328 deg/s yaw. The fix-up runs only on walking frames;
+ * frozen frames advance exactly 1/30 s per sample (see the fine loop).
+ */
+const PHASE_SOURCE = `
+(() => {
+  const ev = globalThis.__openClinXrBedsideApproachEvidence || null;
+  return ev ? ev.phase : null;
+})()
+`;
+
 async function readSubsteps(page: Page): Promise<number | null> {
   return (await page.evaluate(SUBSTEP_SOURCE)) as number | null;
 }
@@ -552,6 +567,15 @@ async function runOnce(
       let subNow = await readSubsteps(page);
       let fix = 0;
       while (lastSub !== null && subNow !== null && (subNow - lastSub) % 2 !== 0 && fix < 8) {
+        // Freeze-aware (turn-tempo slice): fix the lattice only while the
+        // walk counter is advancing. After the walk ends the counter
+        // freezes, so an odd diff is the end-of-walk mid-window partial,
+        // not drift — and every half-step then fires zero substeps without
+        // ever repairing parity, stretching one sample by 8 half-steps
+        // (measured 8.6 deg yaw on the transition frame). Frozen frames
+        // advance exactly 1/30 s per sample.
+        const phaseNow = (await page.evaluate(PHASE_SOURCE)) as string | null;
+        if (phaseNow !== "walking") break;
         await page.clock.fastForward(HALF_STEP_MS);
         const s = await readSubsteps(page);
         if (s === null) break;
