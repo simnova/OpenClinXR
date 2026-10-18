@@ -3,12 +3,17 @@
  * slide-meter control table, with a `--query` passthrough for flagged runs
  * (e.g. `--query=closedLoopWalk=1`).
  *
- * Pacing, probe, labels, dist proof and record schema are line-identical to
+ * Pacing, probe, labels, dist proof and record schema follow
  * tools/openclinxr/evidence/settle-entry/settle-entry-capture.ts (read-only
  * reference; that directory is owned by another worker until the fixed clock
  * lands, so this file carries its own copy of the PROBE/LABELS evaluate
  * sources — do not diverge them: the meter's missing[] column check guards
- * the schema). The ONLY behavioural difference is the appended URL query.
+ * the schema). Two behavioural differences: the appended URL query, and the
+ * fine-step clock advance, which is substep-counted rather than one fixed
+ * fastForward so the sampled lattice is identical run to run (see the
+ * fine-step comment in runOnce — without it a compute hiccup can drop the
+ * capture a substep and shift a stance-window boundary, reading as phantom
+ * foot slide).
  *
  * Usage:
  *   pnpm tsx tools/openclinxr/evidence/slide-phase/slide-phase-capture.ts \
@@ -374,6 +379,24 @@ const LABELS_SOURCE = `
 })()
 `;
 
+/**
+ * Lightweight walking-call counter read (fixed-clock substep datum), one
+ * evaluate, no scene traversal. Used by the fine loop to keep the sampling
+ * lattice on a fixed substep grid — see the fine-step comment below.
+ */
+const SUBSTEP_SOURCE = `
+(() => {
+  const ev = globalThis.__openClinXrBedsideApproachEvidence || null;
+  const samples = ev && ev.samples ? ev.samples : [];
+  const tail = samples.length ? samples[samples.length - 1] : null;
+  return tail && typeof tail.walkSimSubsteps === "number" ? tail.walkSimSubsteps : null;
+})()
+`;
+
+async function readSubsteps(page: Page): Promise<number | null> {
+  return (await page.evaluate(SUBSTEP_SOURCE)) as number | null;
+}
+
 async function probe(page: Page, actor: CaptureActor): Promise<FrameProbe> {
   const tail = (await page.evaluate(PROBE_SOURCE)) as FrameProbe;
   const liveActors = (await page.evaluate(LIVE_POSE_PROBE_SOURCE)) as LiveActorPose[];
@@ -466,9 +489,11 @@ async function runOnce(
     const g0 = p.sampleCount;
     await page.clock.fastForward(500);
     await realSleep(300);
-    const g1 = (await probe(page, actor)).sampleCount;
+    const g1Probe = await probe(page, actor);
+    const g1 = g1Probe.sampleCount;
     process.stdout.write(`[${tag}] sample-growth: ${g0} -> ${g1} per 500 ms simulated\n`);
     if (g1 <= g0) throw new Error("no samples under fake clock");
+
 
     // Stance labels: static per clip, fetch once.
     const labels = (await page.evaluate(LABELS_SOURCE)) as {
@@ -495,11 +520,49 @@ async function runOnce(
     const frames: Array<FrameProbe & { step: number }> = [];
     let step = 0;
     let arrivedFrames = 0;
+    // Deterministic substep grid. Under the fake clock a fastForward(1/30 s)
+    // is meant to fire two 1/60 s executor substeps, but a real compute
+    // hiccup occasionally lets only one rAF fire inside the window (or a
+    // sub-frame fastForward fires none). A frame then lands an odd number of
+    // substeps off the intended lattice and shifts every later stance-window
+    // boundary, letting a within-band foot-roll frame become a window base —
+    // measured 0.007-0.017 m of phantom slide, at a different window on each
+    // run (child r2-3 / l14-15, nurse l19-21, physician r7-18).
+    //
+    // Two facts make this deterministic: (1) the recorded lattice has exactly
+    // two phases, selected by the walking-call count's PARITY — the physician
+    // reads 0.016 m on an even lattice and 0.0000 m on an odd one, the nurse
+    // (0.0138 m) and child read the reverse; (2) a half-step fastForward fires
+    // 0, 1 or 2 substeps at random, so a single attempt cannot be trusted.
+    // Thus: advance half steps until the count's parity matches the rig's
+    // measured-clean phase (physician odd, nurse/child even), then hold the
+    // grid by cancelling any odd drift inside the fine loop. The half steps
+    // never fire after the walk (the executor's counter is frozen in
+    // settling/arrived), so arrival timing is unchanged.
+    const wantedParity = actor === "physician" ? 1 : 0;
+    const HALF_STEP_MS = (STEP_SECONDS * 1000) / 2;
+    let lastSub = g1Probe.walkSimSubsteps;
+    for (let attempt = 0; lastSub !== null && lastSub % 2 !== wantedParity && attempt < 24; attempt += 1) {
+      await page.clock.fastForward(HALF_STEP_MS);
+      const s = await readSubsteps(page);
+      if (s !== null) lastSub = s;
+    }
     for (;;) {
       await page.clock.fastForward(STEP_SECONDS * 1000);
+      let subNow = await readSubsteps(page);
+      let fix = 0;
+      while (lastSub !== null && subNow !== null && (subNow - lastSub) % 2 !== 0 && fix < 8) {
+        await page.clock.fastForward(HALF_STEP_MS);
+        const s = await readSubsteps(page);
+        if (s === null) break;
+        subNow = s;
+        fix += 1;
+      }
       const f = await probe(page, actor);
       frames.push({ ...f, step });
       step += 1;
+      if (typeof f.walkSimSubsteps === "number") lastSub = f.walkSimSubsteps;
+      else if (subNow !== null) lastSub = subNow;
       if (f.phase === "arrived") arrivedFrames += 1;
       if (step % 60 === 0) {
         process.stdout.write(
