@@ -1,0 +1,738 @@
+{
+ "card": "tsk_e0afe706b7a5f071",
+ "date": "2026-10-18",
+ "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/eyeshade",
+ "branch": "wt/eyeshade",
+ "subjects": {
+  "aisha": {
+   "glb": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-lidconform.glb",
+   "glbSha256": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76"
+  },
+  "body2": {
+   "glb": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run3/body2-lidconform.glb",
+   "glbSha256": "bdb051938777cde567825a8e7b5e993d3ea1f84b442c0d7903828c4f096ce83b"
+  }
+ },
+ "framings": {
+  "roomRigPortrait": "ob_triage_room_v1 product rig, portrait fov24 head-78%, focus head, hideHair, subjectOnly, renderSize 1280, view front + yawDegrees 0/25 (variant shape of ss-aisha.variant.json)",
+  "oct15": "Oct-15 bisect framing reused (portrait room-rig front at 1280; EEVEE side: lidany_portrait.py bone-projected eye head +-210px at 1280)"
+ },
+ "method": {
+  "catchLightCarrier": "globe mesh only (makeclothes_library_eyes_high_poly_globe_* with mat_makeclothes_library_eyes_*): the lab scene carries no cornea Mesh (GLTFLoader builds no Mesh for the 2 cornea nodes; the openclinxr_eye_cornea_mat never lands on a rendered Mesh), so the scoped globe envMap IS the catch-light surface and it lives on the iris-disc texels \u2014 not on a separate cornea mesh, not on the sclera texels. Verified in-session: GLB inventory (13 meshes, 2 cornea nodes, eye material only on globe mesh 10) + iris-region UV means at x=+-30.7mm + violet debug-viz red disc covering the iris.",
+  "envChange": "sclera-only envMap attenuation via onBeforeCompile in eye-shader/eye-sclera-shade.ts (NEW): iblIrradiance+radiance x 0.35 outside the iris disc (EYE_SCLERA_RADIUS_UV 135/1024, feather 8/1024), iris disc keeps envMapIntensity 1.0. Injection point measured in three r184 sources (lights_fragment_maps; the envmap_fragment chunk is a PMREM no-op \u2014 first try hooked there and measured POST==PRE to +-2 levels). Iris-centre numerals are the mesh-derived eye-parallax centres (re-measured on the embedded eye texture dark pupils, both GLBs embed the identical 594900-byte texture).",
+  "shadowMechanism": "lid-contact",
+  "whyLidContact": "first try was a key shadow map (map 2048 over +-0.3m = 0.29mm texels, head-recentered axis, bias -0.0001/normalBias 0.001, near 0.5/far 2.6): the shadow-only ablation moved M2b by -0.05 (noise floor 0.156) \u2014 the conformed lids sit ~0-1mm off the globe AND the upper sclera meets the overhead key at grazing incidence, so no shadow map resolves the occlusion. The contact term darkens sclera texels within 7mm below the live upper-lid margin plane (uLidDarken 0.85, smoothstep falloff): the margin is recomputed from SKINNED lid-vertex positions every render (bind~=live assumption exposed by measurement: matrixWorld-only search landed on bind-pose garbage at centre height; the skeleton.accumulate path finds the margin at +3.2mm aisha / +1.5mm body2 over the pupil, 217/226 column verts), follows the lid under pose/gaze (world-space margin transformed into the globe's current object space each render, never baked to globe UV), masked to sclera texels by (1-irisM) (iris-sparing), no skin mesh touched (skin crops bit-identical).",
+  "acesGuard": "isolated-subject-lab.ts refuses (throws) when eyeRuntimeShading resolves ON and renderer.toneMapping !== ACESFilmicToneMapping. eyeRuntimeShading defaults ON only for portrait+product-rig; explicit false renders the legacy eye (PRE). Probe: toneMapping=None + shading -> refusal 'eyeRuntimeShading requires ACESFilmic tone mapping (got 0)'; same + eyeRuntimeShading:false -> renders (guard scoped)."
+ },
+ "constants": {
+  "scleraEnvAtten": 0.35,
+  "lidBandM": 0.007,
+  "lidDarken": 0.85,
+  "irisRadiusUv": 0.1318359375,
+  "irisFeatherUv": 0.0078125
+ },
+ "goals": {
+  "aisha": {
+   "M1": -14.032,
+   "M2a": 7.182,
+   "M2b": -8.655,
+   "D90": -7.201,
+   "source": "sclera-shade-report.json goal-aisha"
+  },
+  "body2": {
+   "M1": -23.236,
+   "M2a": 16.915,
+   "M2b": -14.089,
+   "D90": -5.832,
+   "source": "sclera-shade-report.json goal-body2"
+  }
+ },
+ "eeveeReference": {
+  "method": "lidany_portrait.py EEVEE (BLENDER_EEVEE engine, not Cycles fallback), body2 named store file + fresh aisha render",
+  "aisha-front": {
+   "M1": -16.909,
+   "M2b": -1.007,
+   "scleraMedianL": 13.405,
+   "mask": "eroded-polygon"
+  },
+  "aisha-yaw25": {
+   "M1": -16.773,
+   "M2b": -1.532,
+   "scleraMedianL": 12.838,
+   "mask": "eroded-polygon"
+  },
+  "body2-front": {
+   "M1": -12.227,
+   "M2b": -1.609,
+   "scleraMedianL": 10.376,
+   "mask": "eroded-polygon"
+  },
+  "body2-yaw25": {
+   "M1": -10.929,
+   "M2b": -2.263,
+   "scleraMedianL": 11.335,
+   "mask": "eroded-polygon"
+  }
+ },
+ "noiseFloors": {
+  "method": "shell-placement-report.json 1px method, recomputed on these renders (probe_noise.py: 1px erode/dilate mask deltas + iris-radius +-1px euclid + measure_catchlight radius noise); aisha-front reproduces shell-placement values exactly",
+  "mask": {
+   "aisha-front": {
+    "M1": 0.759,
+    "M2a": 0.664,
+    "M2b": 0.156,
+    "D90": 0.1
+   },
+   "aisha-yaw25": {
+    "M1": 0.479,
+    "M2a": 0.283,
+    "M2b": 0.239,
+    "D90": 0.025
+   },
+   "body2-front": {
+    "M1": 1.144,
+    "M2a": 0.463,
+    "M2b": 0.633,
+    "D90": 0.327
+   },
+   "body2-yaw25": {
+    "M1": 1.374,
+    "M2a": 0.904,
+    "M2b": 0.739,
+    "D90": 0.1
+   }
+  },
+  "irisEuclidFloor": {
+   "aisha-front": 6.896,
+   "aisha-yaw25": 10.283,
+   "body2-front": 7.523,
+   "body2-yaw25": 9.187
+  },
+  "catchlight": {
+   "aisha-front": {
+    "peakL": 93.918,
+    "noiseL": 0.435
+   },
+   "aisha-yaw25": {
+    "peakL": 95.672,
+    "noiseL": 0.088
+   },
+   "body2-front": {
+    "peakL": 93.584,
+    "noiseL": 0.0
+   },
+   "body2-yaw25": {
+    "peakL": 93.931,
+    "noiseL": 0.0
+   }
+  }
+ },
+ "cells": {
+  "aisha-front": {
+   "pre": {
+    "M1": -0.909,
+    "M2a": 4.088,
+    "M2b": 2.046,
+    "D90": 2.934,
+    "scleraMedianL": 89.279,
+    "skinMedianL": 90.188,
+    "nSclera": 2481,
+    "irisRGB": [
+     128.29,
+     110.78,
+     101.9
+    ],
+    "png": "frames/pre-aisha-front.png",
+    "sha256": "9a70ceabe6cbe3f55f274ded35e43fae4b1804243306083dd61604ecd91eef1d",
+    "idPng": "frames/pre-aisha-front-id.png",
+    "idSha256": "93b1ea0204a82bf1c558d69151f8e0e47e2ac923dd812fb7806cd86da84fb04f"
+   },
+   "post": {
+    "M1": -13.182,
+    "M2a": 6.392,
+    "M2b": -4.88,
+    "D90": -4.431,
+    "scleraMedianL": 77.006,
+    "skinMedianL": 90.188,
+    "nSclera": 2511,
+    "irisRGB": [
+     122.86,
+     105.06,
+     95.94
+    ],
+    "png": "frames/post-aisha-front.png",
+    "sha256": "c156b886eb2c392894c7200a088e4667759949aa3f1fb0a14d95648a6310c4e6",
+    "maskNote": "PRE-ID mask (paired comparison); POST-ID mask agrees within 1.5% (nSclera 2537)"
+   },
+   "marginWorldY": {
+    "L": 1.5493433314674245,
+    "R": 1.549343688054259,
+    "pupilDeltaMm": [
+     3.3,
+     3.1
+    ],
+    "columnVerts": [
+     217,
+     217
+    ]
+   },
+   "g1": {
+    "post": -4.88,
+    "needBelow": -0.156,
+    "pass": true
+   },
+   "g2": {
+    "pre": -0.909,
+    "post": -13.182,
+    "goal": -14.032,
+    "deltaToward": -12.273,
+    "needMoreThan": 0.759,
+    "pass": true
+   }
+  },
+  "aisha-yaw25": {
+   "pre": {
+    "M1": 0.043,
+    "M2a": 3.884,
+    "M2b": 2.521,
+    "D90": 3.507,
+    "scleraMedianL": 89.959,
+    "skinMedianL": 89.915,
+    "nSclera": 1643,
+    "irisRGB": [
+     116.09,
+     98.4,
+     89.93
+    ],
+    "png": "frames/pre-aisha-yaw25.png",
+    "sha256": "223b2cb50275e6a126ce3ac4045ddd4608e429ffe1c78d38c29cfcd94819dd4e",
+    "idPng": "frames/pre-aisha-yaw25-id.png",
+    "idSha256": "4f1c62682629348833cb956a6cf1a1ec65d56a767226d42d33d3e9e3eb28fa86"
+   },
+   "post": {
+    "M1": -11.719,
+    "M2a": 6.04,
+    "M2b": -3.187,
+    "D90": -4.827,
+    "scleraMedianL": 78.152,
+    "skinMedianL": 89.871,
+    "nSclera": 1650,
+    "irisRGB": [
+     112.4,
+     94.29,
+     85.5
+    ],
+    "png": "frames/post-aisha-yaw25.png",
+    "sha256": "20e94e7064b15960d03dc379f194cbf065638b674f1e016332562b9f234c1bac",
+    "maskNote": "PRE-ID mask (paired comparison)"
+   },
+   "g1": {
+    "post": -3.187,
+    "needBelow": -0.239,
+    "pass": true
+   },
+   "g2": {
+    "pre": 0.043,
+    "post": -11.719,
+    "goal": -14.032,
+    "deltaToward": -11.762,
+    "needMoreThan": 0.479,
+    "pass": true
+   }
+  },
+  "body2-front": {
+   "pre": {
+    "M1": 0.843,
+    "M2a": 3.199,
+    "M2b": 2.511,
+    "D90": 5.033,
+    "scleraMedianL": 87.153,
+    "skinMedianL": 86.311,
+    "nSclera": 1883,
+    "irisRGB": [
+     123.4,
+     105.58,
+     96.08
+    ],
+    "png": "frames/pre-body2-front.png",
+    "sha256": "53261213d627573e9e4f7693a867a19f8baa57d501172a6a21a11537edcf096e",
+    "idPng": "frames/pre-body2-front-id.png",
+    "idSha256": "e051d557f5ff90b6e2b3e94e91c1249b6d05e16e8bd3271c40527236fb937d7e"
+   },
+   "post": {
+    "M1": -13.057,
+    "M2a": 4.88,
+    "M2b": -2.736,
+    "D90": -5.406,
+    "scleraMedianL": 73.217,
+    "skinMedianL": 86.274,
+    "nSclera": 1886,
+    "irisRGB": [
+     118.8,
+     100.53,
+     90.65
+    ],
+    "png": "frames/post-body2-front.png",
+    "sha256": "8af3bdfb7c4117434d0d5efdc170577a1509e21455d6fb4e27d14be2ab3500dd",
+    "maskNote": "PRE-ID mask (paired comparison); POST-ID mask agrees within 1.5% (nSclera 1888)"
+   },
+   "marginWorldY": {
+    "L": 1.6537,
+    "R": 1.6537,
+    "pupilDeltaMm": [
+     1.5,
+     1.4
+    ],
+    "columnVerts": [
+     226,
+     226
+    ]
+   },
+   "g1": {
+    "post": -2.736,
+    "needBelow": -0.633,
+    "pass": true
+   },
+   "g2": {
+    "pre": 0.843,
+    "post": -13.057,
+    "goal": -23.236,
+    "deltaToward": -13.9,
+    "needMoreThan": 1.144,
+    "pass": true
+   }
+  },
+  "body2-yaw25": {
+   "pre": {
+    "M1": 0.472,
+    "M2a": 4.724,
+    "M2b": 3.603,
+    "D90": 5.098,
+    "scleraMedianL": 86.39,
+    "skinMedianL": 85.918,
+    "nSclera": 1374,
+    "irisRGB": [
+     114.81,
+     98.02,
+     89.14
+    ],
+    "png": "frames/pre-body2-yaw25.png",
+    "sha256": "53c1b708f26154f1b5587172447d9151c3b8bea14d88aed05a95e0310af8df15",
+    "idPng": "frames/pre-body2-yaw25-id.png",
+    "idSha256": "922b962fe09c62e1258e268f7335bc6110e00feab7ed1495fdc96a1ec0780aa9"
+   },
+   "post": {
+    "M1": -13.468,
+    "M2a": 6.96,
+    "M2b": -1.503,
+    "D90": -5.948,
+    "scleraMedianL": 72.237,
+    "skinMedianL": 85.705,
+    "nSclera": 1381,
+    "irisRGB": [
+     113.32,
+     96.43,
+     87.12
+    ],
+    "png": "frames/post-body2-yaw25.png",
+    "sha256": "7b3d34138a6dafa2614a35373e0b5027d913e13b998305c771d3b2a53abfa99e",
+    "maskNote": "PRE-ID mask (paired comparison)"
+   },
+   "g1": {
+    "post": -1.503,
+    "needBelow": -0.739,
+    "pass": true
+   },
+   "g2": {
+    "pre": 0.472,
+    "post": -13.468,
+    "goal": -23.236,
+    "deltaToward": -13.94,
+    "needMoreThan": 1.374,
+    "pass": true
+   }
+  }
+ },
+ "constancyWitnesses": {
+  "methodNote": "per-image landmarks jitter ~0.5px; the paired check detects ONCE on PRE and applies the same circles to POST (probe_cw.py), isolating appearance change from detection jitter (per-image full-disc euclid was jitter-dominated: aisha-front 9.89 vs shared 4.34 core).",
+  "irisCoreShared": {
+   "aisha-front": {
+    "euclid": 4.34,
+    "floor": 6.896,
+    "pass": true
+   },
+   "aisha-yaw25": {
+    "euclid": 2.68,
+    "floor": 10.283,
+    "pass": true
+   },
+   "body2-front": {
+    "euclid": 5.52,
+    "floor": 7.523,
+    "pass": true
+   },
+   "body2-yaw25": {
+    "euclid": 5.47,
+    "floor": 9.187,
+    "pass": true
+   }
+  },
+  "irisCoreNote": "iris core (2px-eroded disc, 1000+ px) is pixel-identical (radial profile: r<18 mean_dL = 0.00 all cells); the residual euclid sits in the limbus ring the shadow intentionally darkens.",
+  "skinInfraorbitalD": {
+   "aisha-front": 0.0,
+   "aisha-yaw25": -0.044,
+   "body2-front": -0.037,
+   "body2-yaw25": -0.213
+  },
+  "skinCrops": {
+   "aisha.front": {
+    "cheek": {
+     "rect": [
+      432,
+      800,
+      532,
+      880
+     ],
+     "dL": 0.0
+    },
+    "forehead": {
+     "rect": [
+      560,
+      379,
+      720,
+      499
+     ],
+     "dL": 0.0
+    }
+   },
+   "aisha.yaw25": {
+    "cheek": {
+     "rect": [
+      359,
+      809,
+      459,
+      889
+     ],
+     "dL": 0.0
+    },
+    "forehead": {
+     "rect": [
+      520,
+      370,
+      680,
+      490
+     ],
+     "dL": 0.0
+    }
+   },
+   "body2.front": {
+    "cheek": {
+     "rect": [
+      434,
+      800,
+      534,
+      880
+     ],
+     "dL": 0.0
+    },
+    "forehead": {
+     "rect": [
+      560,
+      379,
+      720,
+      499
+     ],
+     "dL": 0.0
+    }
+   },
+   "body2.yaw25": {
+    "cheek": {
+     "rect": [
+      352,
+      808,
+      452,
+      888
+     ],
+     "dL": 0.0
+    },
+    "forehead": {
+     "rect": [
+      515,
+      371,
+      675,
+      491
+     ],
+     "dL": 0.0
+    }
+   },
+   "note": "catch-light-key rects reused verbatim (our headBoxPx matches that report to 0.001px); all dL = 0.0 bit-identical \u2014 no skin mesh touched, no shadow maps enabled. Verdict: pass."
+  },
+  "catchlight": {
+   "body2-front": {
+    "maxBoxD": 0.0,
+    "noise": 0.0,
+    "pass": true
+   },
+   "body2-yaw25": {
+    "maxBoxD": 0.0,
+    "noise": 0.0,
+    "pass": true
+   },
+   "aisha-front": {
+    "maxBoxD": -3.316,
+    "noise": 0.435,
+    "letterVerdict": "deviation-noted"
+   },
+   "aisha-yaw25": {
+    "maxBoxD": -1.595,
+    "noise": 0.088,
+    "letterVerdict": "deviation-noted"
+   },
+   "deviation": "the max-5x5-box metric locked onto the pathological upper-limbus brightness PRE (peak at image rfrac 0.9 upper limbus: aisha-front PRE peak (528,699) L*93.45 vs POST (513,739) L*86.11) \u2014 the very artifact the fix removes. The TRUE glint (max single pixel, lower iris) is bit-identical PRE->POST on all 8 eyes: aisha-front (499,720) 100.0->100.0, (784,720) 97.7->97.7; aisha-yaw25 (383,713) 96.0->96.0, (632,716) 98.0->98.0; body2-front (484,689) 97.6->97.6, (795,689) 96.9->96.9; body2-yaw25 (348,679) 95.2->95.2, (592,687) 96.9->96.9. The catch-light surface (iris-disc env at 1.0) is intact by construction (GLSL K=1.0 on the disc) and by measurement (glint pixels). The metric as defined measures the disease, not the witness, on aisha.",
+   "glintVerdict": "pass"
+  }
+ },
+ "ablation": {
+  "hookOnly_aisha-front": {
+   "M1": -5.423,
+   "M2b": 2.859,
+   "note": "uniform env dim moves M1 but leaves/inverts the gradient (upper dims less: feather spares limbus-adjacent upper strip)"
+  },
+  "contactOnly_aisha-front": {
+   "M1": -8.182,
+   "M2b": -5.295,
+   "upperMedianL": 80.46,
+   "lowerMedianL": 85.755,
+   "note": "lid-contact alone supplies the upper shadow; lower also moves (band reaches -3.8mm)"
+  },
+  "shadowMap": {
+   "M2bDelta": -0.05,
+   "floor": 0.156,
+   "note": "key shadow map (2048, +-0.3m, recentered) measured no-op \u2014 mechanism rejected with evidence, replaced by lid-contact"
+  }
+ },
+ "acneCheck": {
+  "aisha-front-lowerSclera": {
+   "meanDL": -8.03,
+   "stdDL": 1.81,
+   "n": 441
+  },
+  "body2-front-lowerSclera": {
+   "meanDL": -9.81,
+   "stdDL": 1.84,
+   "n": 278
+  },
+  "note": "no shadow maps enabled anywhere in the path (nothing to produce acne); the lower shift is the smooth contact band (smoothstep falloff, std << |mean| => smooth, no speckle). Recorded shadow bias fields removed with the shadow map."
+ },
+ "g3": {
+  "probe": "frames/aces-guard.json",
+  "verdict": "pass",
+  "caseA": "shaded + toneMapping None -> refused: 'eyeRuntimeShading requires ACESFilmic tone mapping (got 0) \u2014 refusing rather than grading a blowout eye'",
+  "caseB": "legacy (shading off) + toneMapping None -> renders (guard scoped to the shaded eye)"
+ },
+ "sheet": {
+  "path": "/Volumes/files/openclinxr-assets/store/eyes-runtime-shading/sheet/eyes-runtime-shading-sheet.png",
+  "sha256": "414fd5b3df86bd3ddbcf595ea3051511b2d2c49d5b708b2d4d6878db72ed7223",
+  "mapping": "/Volumes/files/openclinxr-assets/store/eyes-runtime-shading/sheet/eyes-runtime-shading-sheet.mapping.json",
+  "mappingSha256": "c21dbebfdeb61852710c74f9b6c97c17f1304f8c41e24e64a3aee93fe9a01772",
+  "cells": "420x420 native; rows aisha-front/aisha-yaw25/body2-front/body2-yaw25 (anatomical-left eye); cols PRE|POST|EEVEE-Oct15-method",
+  "eeveeCrops": {
+   "aisha-front-eyeL": "833c42f56b342dcadd90e40d95e227272a5789c90930f59b4ed53a62d932cbf2",
+   "aisha-yaw25-eyeL": "b9e09b057b362540a8b9b92a2652804035afce0ba4d315221c46284a2ae309d1",
+   "body2-front-eyeL": "f01a4000b600245f8e91d241ca2cd1cabdda63ef499ff6eb7535cfbcc25fe694",
+   "body2-yaw25-eyeL": "b0db07a936727e37e8be35979d2ca2a338beefb1a5a385c05a7b3f644c5f5272"
+  }
+ },
+ "parked": {
+  "file": "tools/openclinxr/asset-pipeline/realism-head/sclera-shade/PARKED.json",
+  "action": "reopened",
+  "reopenReason": "lid-attached (live skinned lid-margin plane recomputed every render, world-to-globe transform per frame \u2014 follows the lid under pose/gaze, never baked to globe UV), iris-sparing (sclera-texel mask + iris core pixel-identical + iris core euclid within floor), catch-light within noise (true glint pixels bit-identical all 8 eyes; body2 max-box bit-identical). G1+G2 pass all 4 cells; skin bit-identical.",
+  "deviation": "mechanism is lid-contact, not the shadow map named as the example in PARKED: the shadow map was TRIED and measured no-op (ablation M2b -0.05, grazing incidence + conformed ~0-1mm gap below shadow-texel resolution at 0.29mm) \u2014 recorded here with evidence rather than shipped as theater."
+ },
+ "followUps": [
+  "h1 iris-disc roughness numerals in isolated-subject-rig-variants.ts use the v-flipped convention (measured: true iris at v_top 0.707, h1 disc at 0.293) \u2014 the glossy disc sits off the iris; left untouched by this card (CW compares PRE vs POST, both carry it). Recorded for the lighting lane.",
+  "eye bones (eye.L/eye.R) exist as GLB nodes 105/110 but no isBone objects matched at runtime \u2014 bone-anchored centres unavailable; iris-UV means used instead. Recorded, no action.",
+  "globe mesh 10 (552 verts) spans both eyes (charts split at u=0.5 with ~49 stray verts/side); chart means are 7mm off-pupil \u2014 iris-UV means used instead. Recorded, no action.",
+  "apps/ui-xr runtime: no edit required and none made \u2014 eye shading is lab-scoped (isolated-subject-lab/rig-variants only, portrait+product-rig default); the lab's key shadow stays owned by the capture key light per lighting-rig-runtime.ts, and no shadow maps were left enabled."
+ ],
+ "probes": [
+  "tools/openclinxr/asset-pipeline/realism-head/eye-realism/probe_eyeshade_capture.ts",
+  "tools/openclinxr/asset-pipeline/realism-head/eye-realism/probe_noise.py",
+  "tools/openclinxr/asset-pipeline/realism-head/eye-realism/probe_cw.py",
+  "tools/openclinxr/asset-pipeline/realism-head/eye-realism/probe_sheet.py",
+  "tools/openclinxr/asset-pipeline/realism-head/eye-realism/probe_aces_guard.ts"
+ ],
+ "verdict": "pass",
+ "verdictNote": "G1+G2 green all 4 cells; CW iris/skin green; CW catch-light green on body2 (bit-exact) with a documented mechanism-backed deviation on aisha (true glint pixels bit-exact, max-box measured the removed pathology); G3 green. Sheet pending orchestrator grade.",
+ "sweep": {
+  "method": "one-constant-at-a-time around the shipped point (atten 0.35 / band 0.007 / darken 0.85 = POST row), both subjects FRONT, PRE-ID masks, RoomEnvironment portrait rig; per row M1/M2b/D90 + catch-light max-box. 12 sweep renders + shipped POST row.",
+  "rows": [
+   {
+    "vary": "atten",
+    "atten": 0.25,
+    "bandM": 0.007,
+    "darken": 0.85,
+    "aisha": {
+     "M1": -14.223,
+     "M2b": -4.777,
+     "D90": -5.423,
+     "CL": 88.559
+    },
+    "body2": {
+     "M1": -14.213,
+     "M2b": -2.39,
+     "D90": -6.309,
+     "CL": 93.584
+    }
+   },
+   {
+    "vary": "atten",
+    "atten": 0.35,
+    "bandM": 0.007,
+    "darken": 0.85,
+    "shipped": true,
+    "aisha": {
+     "M1": -13.182,
+     "M2b": -4.88,
+     "D90": -4.431,
+     "CL": 90.602
+    },
+    "body2": {
+     "M1": -13.057,
+     "M2b": -2.736,
+     "D90": -5.406,
+     "CL": 93.584
+    }
+   },
+   {
+    "vary": "atten",
+    "atten": 0.5,
+    "bandM": 0.007,
+    "darken": 0.85,
+    "aisha": {
+     "M1": -11.734,
+     "M2b": -5.061,
+     "D90": -3.321,
+     "CL": 91.48
+    },
+    "body2": {
+     "M1": -11.498,
+     "M2b": -3.097,
+     "D90": -4.096,
+     "CL": 93.584
+    }
+   },
+   {
+    "vary": "bandM",
+    "atten": 0.35,
+    "bandM": 0.005,
+    "darken": 0.85,
+    "aisha": {
+     "M1": -10.169,
+     "M2b": -3.758,
+     "D90": -3.208,
+     "CL": 91.175
+    },
+    "body2": {
+     "M1": -9.726,
+     "M2b": -2.551,
+     "D90": -2.403,
+     "CL": 93.584
+    }
+   },
+   {
+    "vary": "bandM",
+    "atten": 0.35,
+    "bandM": 0.007,
+    "darken": 0.85,
+    "shipped": true,
+    "aisha": {
+     "M1": -13.182,
+     "M2b": -4.88,
+     "D90": -4.431,
+     "CL": 90.602
+    },
+    "body2": {
+     "M1": -13.057,
+     "M2b": -2.736,
+     "D90": -5.406,
+     "CL": 93.584
+    }
+   },
+   {
+    "vary": "bandM",
+    "atten": 0.35,
+    "bandM": 0.01,
+    "darken": 0.85,
+    "aisha": {
+     "M1": -16.456,
+     "M2b": -3.502,
+     "D90": -7.651,
+     "CL": 90.602
+    },
+    "body2": {
+     "M1": -15.696,
+     "M2b": -0.878,
+     "D90": -9.19,
+     "CL": 93.584
+    }
+   },
+   {
+    "vary": "darken",
+    "atten": 0.35,
+    "bandM": 0.007,
+    "darken": 0.7,
+    "aisha": {
+     "M1": -10.923,
+     "M2b": -2.019,
+     "D90": -4.399,
+     "CL": 91.175
+    },
+    "body2": {
+     "M1": -10.148,
+     "M2b": -0.257,
+     "D90": -4.48,
+     "CL": 93.584
+    }
+   },
+   {
+    "vary": "darken",
+    "atten": 0.35,
+    "bandM": 0.007,
+    "darken": 0.85,
+    "shipped": true,
+    "aisha": {
+     "M1": -13.182,
+     "M2b": -4.88,
+     "D90": -4.431,
+     "CL": 90.602
+    },
+    "body2": {
+     "M1": -13.057,
+     "M2b": -2.736,
+     "D90": -5.406,
+     "CL": 93.584
+    }
+   },
+   {
+    "vary": "darken",
+    "atten": 0.35,
+    "bandM": 0.007,
+    "darken": 1.0,
+    "aisha": {
+     "M1": -15.271,
+     "M2b": -7.379,
+     "D90": -4.787,
+     "CL": 89.189
+    },
+    "body2": {
+     "M1": -15.719,
+     "M2b": -5.909,
+     "D90": -6.284,
+     "CL": 93.584
+    }
+   }
+  ],
+  "reading": "atten: M1 moves monotonically toward goal as atten falls (aisha -14.22/-13.18/-11.73; body2 -14.21/-13.06/-11.50); M2b flat (-4.8..-5.1 / -2.4..-3.1) so atten does not drive the gradient. 0.25 lands aisha M1 nearest goal but deepens the documented CL deviation (88.6 vs 90.6) and iris-ring dimming with no gate need; all three pass G1/G2. Keep 0.35 (balances M1 progress with constancy headroom). band: 7mm is the M2b optimum on both (aisha -3.76/-4.88/-3.50; body2 -2.55/-2.74/-0.88 \u2014 10mm collapses the gradient by reaching the lower strip and overshoots aisha M1 past goal). Keep 0.007. darken: 0.7 FAILS G1 on body2-front (M2b -0.257, need below -0.633) \u2014 ruled out; 1.0 passes but overshoots toward harshness (M2b -7.38/-5.91, deeper CL deviation) with no gate need; the accepted sheet is 0.85. Keep 0.85. No value changes; no re-render; no sheet redo."
+ }
+}

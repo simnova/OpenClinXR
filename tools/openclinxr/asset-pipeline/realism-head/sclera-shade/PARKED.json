@@ -45,7 +45,13 @@
   "commit": "6937c98f1",
   "store": "store/sclera-lid-shadow-bake.FABRICATED-6937c98f1"
  },
- "reopenCondition": "a method whose shadow follows the lid, not the globe, and keeps iris colour and catch-light within their noise floors; a texture-baked directional shadow does not qualify",
+  "reopenCondition": "a method whose shadow follows the lid, not the globe, and keeps iris colour and catch-light within their noise floors; a texture-baked directional shadow does not qualify",
+  "reopened": {
+   "card": "tsk_e0afe706b7a5f071",
+   "date": "2026-10-18",
+   "method": "lid-contact (replaces the tried-and-rejected key shadow map, which measured no-op: shadow-only ablation M2b -0.05 vs 0.156 floor — conformed ~0-1mm lid gap at grazing incidence is below shadow-texel resolution)",
+   "verdict": "reopen condition met: margin plane recomputed from live skinned lid-vertex positions every render (follows the lid under pose/gaze, never baked to globe UV); iris core pixel-identical with shared-landmark euclid within floor (4.34/2.68/5.52/5.47 vs 6.896/10.283/7.523/9.187); true glint pixels bit-identical all 8 eyes (body2 max-box bit-exact; aisha max-box deviation documented with peak-location mechanism). G1+G2 pass all 4 cells. Evidence: tools/openclinxr/asset-pipeline/realism-head/eye-realism/eye-runtime-shading-report.json."
+  },
  "toolsKept": [
   "sclera_metrics.py",
   "measure_catchlight.py",

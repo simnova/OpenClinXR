@@ -38,6 +38,11 @@ type Capture = {
   glbAbs: string;
   yawDegrees: number;
   eyeRuntimeShading?: boolean;
+  eyeScleraShade?: boolean;
+  eyeLidShadow?: boolean;
+  eyeScleraAtten?: number;
+  eyeLidBandM?: number;
+  eyeLidDarken?: number;
   idPass: boolean;
 };
 
@@ -50,6 +55,23 @@ for (const [tag, glbAbs] of [["aisha", AISHA], ["body2", BODY2]] as const) {
     CAPTURES.push({ id: `post-${tag}-${view}-id`, file: `post-${tag}-${view}-id.png`, glbAbs, yawDegrees, idPass: true });
   }
 }
+// Ablation cells (aisha-front): hook-only and shadow-only.
+CAPTURES.push({ id: "abl-hook-aisha-front", file: "abl-hook-aisha-front.png", glbAbs: AISHA, yawDegrees: 0, eyeLidShadow: false, idPass: false });
+CAPTURES.push({ id: "abl-shadow-aisha-front", file: "abl-shadow-aisha-front.png", glbAbs: AISHA, yawDegrees: 0, eyeScleraShade: false, idPass: false });
+// Constant sweep (front only, both subjects): 3 values per constant, shipped
+// value is the centre row (atten 0.35 / band 0.007 / darken 0.85 = POST).
+for (const [tag, glbAbs] of [["aisha", AISHA], ["body2", BODY2]] as const) {
+  for (const [row, ov] of [
+    ["a025", { eyeScleraAtten: 0.25 }],
+    ["a050", { eyeScleraAtten: 0.5 }],
+    ["b005", { eyeLidBandM: 0.005 }],
+    ["b010", { eyeLidBandM: 0.01 }],
+    ["d070", { eyeLidDarken: 0.7 }],
+    ["d100", { eyeLidDarken: 1.0 }],
+  ] as const) {
+    CAPTURES.push({ id: `sw-${row}-${tag}-front`, file: `sw-${row}-${tag}-front.png`, glbAbs, yawDegrees: 0, ...ov, idPass: false });
+  }
+}
 
 async function main(): Promise<void> {
   const mode = process.argv.includes("--mode")
@@ -57,6 +79,8 @@ async function main(): Promise<void> {
     : "all";
   const wanted = CAPTURES.filter((c) => {
     if (mode === "all") return true;
+    if (mode === "abl") return c.id.startsWith("abl-");
+    if (mode === "sweep") return c.id.startsWith("sw-");
     if (mode === "pre") return c.id.startsWith("pre-") && !c.idPass;
     if (mode === "post") return c.id.startsWith("post-") && !c.idPass;
     if (mode === "id") return c.idPass;
@@ -107,6 +131,11 @@ async function main(): Promise<void> {
           yawDegrees: cap.yawDegrees,
           productEnvironmentId: "ob_triage_room_v1",
           ...(cap.eyeRuntimeShading === false ? { eyeRuntimeShading: false } : {}),
+          ...(cap.eyeScleraShade === false ? { eyeScleraShade: false } : {}),
+          ...(cap.eyeLidShadow === false ? { eyeLidShadow: false } : {}),
+          ...(cap.eyeScleraAtten !== undefined ? { eyeScleraAtten: cap.eyeScleraAtten } : {}),
+          ...(cap.eyeLidBandM !== undefined ? { eyeLidBandM: cap.eyeLidBandM } : {}),
+          ...(cap.eyeLidDarken !== undefined ? { eyeLidDarken: cap.eyeLidDarken } : {}),
           ...(cap.idPass
             ? {
                 materialOverrides: [
@@ -135,7 +164,7 @@ async function main(): Promise<void> {
           glbSha256: createHash("sha256").update(readFileSync(cap.glbAbs)).digest("hex"),
           png: abs,
           pngSha256: sha256File(abs),
-          spec: { yawDegrees: cap.yawDegrees, eyeRuntimeShading: cap.eyeRuntimeShading ?? "default", idPass: cap.idPass },
+            spec: { yawDegrees: cap.yawDegrees, eyeRuntimeShading: cap.eyeRuntimeShading ?? "default", eyeScleraShade: cap.eyeScleraShade ?? "default", eyeLidShadow: cap.eyeLidShadow ?? "default", eyeScleraAtten: cap.eyeScleraAtten ?? "default", eyeLidBandM: cap.eyeLidBandM ?? "default", eyeLidDarken: cap.eyeLidDarken ?? "default", idPass: cap.idPass },
           url: subjectUrl(ui.url, { ...spec, subjectId: cap.id, label: cap.id }),
           frameSpanFraction: (evidence as { frameSpanFraction?: number | null }).frameSpanFraction ?? null,
           renderer: (debug as Record<string, unknown> | null)?.["renderer"] ?? null,

@@ -24,6 +24,11 @@ import {
   type WebGLRenderer,
 } from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import {
+  applyEyeShading,
+  GLOBE_MATERIAL_RE,
+  type LidMarginRec,
+} from "./eye-shader/eye-lid-contact.js";
 
 /**
  * Product rig lighting bridge (variant evaluator). The lab cannot import from
@@ -112,6 +117,35 @@ export type ProductRigApplied = {
     matched: string[];
     envMapSet: boolean;
     roughnessDisc: { inner: number; outer: number; radiusUv: number; featherUv: number } | null;
+  };
+  /**
+   * Eye runtime shading (card tsk_e0afe706b7a5f071): sclera-only env
+   * attenuation + key shadow map. Readback for the gate report — proved by
+   * values read from the live scene, not by source text.
+   */
+  eyeShading: {
+    enabled: boolean;
+    /** Sclera indirect-env multiplier (iris disc keeps 1.0). */
+    scleraEnvAtten: number;
+    scleraMatched: string[];
+    /**
+     * Lid-shadow mechanism: "lid-contact" — the globe hook darkens
+     * sclera texels within a band below the live upper-lid margin plane.
+     * Chosen over a key shadow map because the map measured no-op
+     * (shadow-only ablation M2b -0.05 = noise): the conformed lids sit
+     * ~0-1mm off the globe and the upper sclera meets the overhead key
+     * at grazing incidence, so no shadow map resolves the occlusion.
+     * The margin plane is recomputed from live lid-vertex positions
+     * every render (follows the lid under pose/gaze, never baked to
+     * globe UV); receivers are globe sclera texels only (iris-sparing
+     * by mask), no skin mesh touched.
+     */
+    shadowMechanism: "lid-contact" | null;
+    lidContact: {
+      bandM: number;
+      darken: number;
+      margins: LidMarginRec[];
+    } | null;
   };
 };
 
@@ -236,18 +270,6 @@ export function applyRigOverride(
 }
 
 /**
- * Globe (eye) material filter for the scoped product-path env map. Mirrors
- * the lab eye-channel regex (isolated-subject-focus.ts EYE_MESH_RE) but on
- * MATERIAL names: the shipped MPFB eye node is renamed by GLTFLoader to
- * `mpfb_*_body_mesh.low-poly`, so the mesh name never matches — the
- * materialize script names the globe material `mat_makeclothes_library_eyes_*`
- * on every MPFB actor. Eyelash/eyebrow materials (`..._eyelashes_...`,
- * `..._eyebrow_...`) contain no `eyes|iris|cornea|sclera` substring and are
- * never matched.
- */
-const GLOBE_MATERIAL_RE = /eyes|iris|cornea|sclera/i;
-
-/**
  * h1 iris-disc UV numerals (v=0 at image top, the flipY=false glTF
  * convention — the same numerals eye-parallax.ts samples with).
  * Duplicated here, NOT imported from ./eye-shader/eye-parallax.js: that
@@ -323,7 +345,13 @@ export async function applyProductRig(
   renderer: WebGLRenderer,
   environmentId: string,
   headCentre: Vector3,
+  opts?: { eyeShading?: boolean; scleraShade?: boolean; lidShadow?: boolean; scleraAtten?: number | undefined; lidBandM?: number | undefined; lidDarken?: number | undefined },
 ): Promise<ProductRigApplied> {
+  const eyeShading = opts?.eyeShading ?? true;
+  const scleraShade = (opts?.scleraShade ?? eyeShading) && eyeShading;
+  const lidShadow = (opts?.lidShadow ?? eyeShading) && eyeShading;
+  // Value overrides ride opts into applyEyeShading, which fail-closes via
+  // resolveScleraShadeOptions before any hook installs.
   const fns = (window as unknown as { __openClinXrProductLightingRigFns?: ProductLightingRigFns })
     .__openClinXrProductLightingRigFns;
   if (!fns) {
@@ -365,9 +393,13 @@ export async function applyProductRig(
   pmrem.dispose();
   const globeMatched: string[] = [];
   const roughDisc = buildIrisDiscRoughnessMap();
+  const scleraMatched: string[] = [];
+  const globeMeshes: Mesh[] = [];
+  // First pass: scoped env + inventory (no hook yet — margins first).
   scene.traverse((o) => {
     if (!(o instanceof Mesh)) return;
     const mats = Array.isArray(o.material) ? o.material : [o.material];
+    let hit = false;
     for (const m of mats) {
       if (!m) continue;
       const std = m as unknown as { envMapIntensity?: unknown; envMap?: unknown; roughnessMap?: unknown };
@@ -376,7 +408,9 @@ export async function applyProductRig(
       std.envMap = globeEnv;
       std.roughnessMap = roughDisc;
       globeMatched.push(`${o.name}|${m.name}`);
+      hit = true;
     }
+    if (hit) globeMeshes.push(o);
   });
   if (globeMatched.length === 0) {
     globeEnv.dispose();
@@ -397,6 +431,23 @@ export async function applyProductRig(
     if (light instanceof DirectionalLight) light.target.position.add(delta);
   }
   scene.updateMatrixWorld(true);
+  // Eye runtime shading: sclera hook with live lid margins (see
+  // ./eye-shader/eye-lid-contact.ts — split out by the file-size budget).
+  let eyeShadingResult: {
+    scleraMatched: string[];
+    scleraEnvAtten: number;
+    shadowMechanism: "lid-contact" | null;
+    lidContact: ProductRigApplied["eyeShading"]["lidContact"];
+  } = { scleraMatched: [], scleraEnvAtten: 1, shadowMechanism: null, lidContact: null };
+  if (eyeShading && (scleraShade || lidShadow)) {
+    eyeShadingResult = applyEyeShading(scene, globeMeshes, {
+      scleraShade,
+      lidShadow,
+      scleraAtten: opts?.scleraAtten,
+      lidBandM: opts?.lidBandM,
+      lidDarken: opts?.lidDarken,
+    });
+  }
   return {
     environmentId,
     variantId: applied.variantId,
@@ -412,6 +463,13 @@ export async function applyProductRig(
         globeMatched.length > 0
           ? { inner: ROUGH_DISC_INNER, outer: 1, radiusUv: IRIS_RADIUS_UV, featherUv: LIMBUS_WIDTH_UV }
           : null,
+    },
+    eyeShading: {
+      enabled: eyeShading,
+      scleraEnvAtten: eyeShadingResult.scleraEnvAtten,
+      scleraMatched: eyeShadingResult.scleraMatched,
+      shadowMechanism: eyeShadingResult.shadowMechanism,
+      lidContact: eyeShadingResult.lidContact,
     },
   };
 }

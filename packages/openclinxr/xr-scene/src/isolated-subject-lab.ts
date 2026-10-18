@@ -13,6 +13,7 @@
  */
 
 import {
+  ACESFilmicToneMapping,
   AmbientLight,
   Color,
   DirectionalLight,
@@ -128,6 +129,30 @@ export type IsolatedSubjectSpec = {
   productEnvironmentId?: string;
   /** Tight portrait framing: fov 24 at head-centre height, head fills 78% of frame height. */
   portrait?: boolean;
+  /**
+   * Eye runtime shading (card tsk_e0afe706b7a5f071): sclera-only globe
+   * envMap attenuation + key shadow map onto the globe + ACES guard.
+   * Defaults ON only for the portrait lab with a product rig (room-rig
+   * portraits); every other harness path defaults OFF. Explicit false
+   * renders the legacy eye (PRE). Requires a productEnvironmentId when
+   * ON — refusing rather than shading a different rig.
+   */
+  eyeRuntimeShading?: boolean;
+  /**
+   * Ablation levers for the eye-shading report (default: follow
+   * eyeRuntimeShading). scleraShade = globe onBeforeCompile attenuation;
+   * lidShadow = lid-margin contact darkening. The shipped default is both ON.
+   */
+  eyeScleraShade?: boolean;
+  eyeLidShadow?: boolean;
+  /**
+   * Value overrides for the eye-shading sweep (default: the shipped
+   * constants). Fail closed via resolveScleraShadeOptions (attenuation in
+   * [0,1], bandM > 0, darken in [0,1]); garbage refuses.
+   */
+  eyeScleraAtten?: number;
+  eyeLidBandM?: number;
+  eyeLidDarken?: number;
   label?: string;
 };
 
@@ -418,6 +443,16 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
 
   // Product rig: base + overlay through the PRODUCT functions, overlay
   // re-anchored so the rig's patient locus sits on the framed head centre.
+  // Eye runtime shading defaults ON only for the portrait lab with a
+  // product rig; explicit false renders the legacy eye (PRE).
+  const eyeRuntimeShading = spec.eyeRuntimeShading ?? (spec.portrait === true && spec.productEnvironmentId != null);
+  const eyeScleraShade = spec.eyeScleraShade ?? eyeRuntimeShading;
+  const eyeLidShadow = spec.eyeLidShadow ?? eyeRuntimeShading;
+  if (eyeRuntimeShading && spec.productEnvironmentId == null) {
+    throw new Error(
+      "eyeRuntimeShading needs a productEnvironmentId (the globe envMap + lid margins live on the product rig) — refusing rather than shading a different rig",
+    );
+  }
   let productRig: ProductRigApplied | null = null;
   if (spec.productEnvironmentId) {
     productRig = await applyProductRig(
@@ -425,6 +460,16 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
       renderer,
       spec.productEnvironmentId,
       frameBounds.getCenter(new Vector3()),
+      { eyeShading: eyeRuntimeShading, scleraShade: eyeScleraShade, lidShadow: eyeLidShadow, scleraAtten: spec.eyeScleraAtten, lidBandM: spec.eyeLidBandM, lidDarken: spec.eyeLidDarken },
+    );
+  }
+
+  // ACES guard (card tsk_e0afe706b7a5f071): the shaded eye is graded under
+  // ACESFilmic (the bisect measured toneMapping=None as blowout, M2b +9.0).
+  // Fails loudly — a non-ACES portrait with eye shading refuses.
+  if (eyeRuntimeShading && renderer.toneMapping !== ACESFilmicToneMapping) {
+    throw new Error(
+      `eyeRuntimeShading requires ACESFilmic tone mapping (got ${renderer.toneMapping}) — refusing rather than grading a blowout eye`,
     );
   }
 

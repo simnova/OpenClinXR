@@ -2,7 +2,7 @@
  "card": "tsk_e248d339fd18da20",
  "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/catchlight",
  "module": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts",
- "moduleSha256": "bf571dede3a0d759fe7e936e890e5e5316e6b9b32f6853021c6ba27772d35c7d",
+ "moduleSha256": "d5a70ff46282cb5e919395fe00025d7cc5ecbca56fd8f7470e01a067a856a56a",
  "store": "/Volumes/files/openclinxr-assets/store/eye-catchlight/",
  "subject": {
   "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
