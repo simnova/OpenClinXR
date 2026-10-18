@@ -16,25 +16,28 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 
 def _vermilion_union(store_dir: Path, albedo_png: Path, derive_out: Path) -> Path:
-    """Albedo-chroma vermilion mask shared by beard + detail (handback 6).
+    """Visible-lip mask shared by beard + detail (handback 8).
 
-    The lipuv union is the lip MESH region, bigger than the visible
-    vermilion (margin skin at the corners/borders), so hugging it leaves
-    a pale band. The vermilion is segmented from the albedo itself (the
-    half-maximum a* edge: redder than surrounding skin by half the
-    peak-minus-skin range; no absolute threshold), so both stages hug
-    the identical border with no seam between the grain and beard
-    exclusions. Saved under store_dir for provenance; identical bytes
-    on re-runs of the same inputs (falls back to the union on flat
-    albedos).
+    Segmented from the LIPS-stage albedo (albedo_lips_png: the lip colour
+    the chain carries) with the derive lips mask as the base region, by
+    the lane-manager acceptance rule (half-maximum a* edge against the
+    surrounding skin, closed and hole-filled; no absolute threshold), so
+    both stages hug the identical visible border with no seam between
+    the grain and beard exclusions. Saved under store_dir for provenance;
+    identical bytes on re-runs of the same inputs (falls back to the
+    lipuv union on flat albedos).
     """
     import numpy as _np
     from PIL import Image as _PI
     import detail_bands as _DB
     alb = _np.array(_PI.open(albedo_png).convert("RGB"))
-    z = _np.load(str(derive_out / "lipuv.npz"))
-    union = ((_np.array(z["hard_up"]) > 0) | (_np.array(z["hard_lo"]) > 0))
-    verm = _DB.vermilion_mask_from_albedo(alb, union)
+    lips_png = derive_out / "mask-lips.png"
+    if lips_png.exists():
+        base = _np.array(_PI.open(lips_png).convert("L")) > 127
+    else:
+        z = _np.load(str(derive_out / "lipuv.npz"))
+        base = ((_np.array(z["hard_up"]) > 0) | (_np.array(z["hard_lo"]) > 0))
+    verm = _DB.vermilion_mask_from_albedo(alb, base)
     out = store_dir / "lip-vermilion-albedo-union.png"
     _PI.fromarray(verm.astype(_np.uint8) * 255).save(out)
     return out
@@ -186,14 +189,14 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
         cmd += [str(resolved["albedo_png"]), str(store_dir / output_paths["albedo_beard_png"])]
         derive_out = store_dir / "derive_out"
         cmd += ["--landmarks", str(derive_out / "landmarks-uv.json")]
-        # Vermilion from the albedo (handback 6): the SAME mask detail
+        # Vermilion from the lips albedo (handback 8): the SAME mask detail
         # hugs, so grain and beard meet it with no seam. The beard keeps
         # the derive lips mask for its calibrated treatment geometry
-        # (top edge, trim, zone bounds) and uses the vermilion only for
+        # (top edge, trim, zone bounds) and uses the visible lip only for
         # the exclusion hole + lip feather. Aisha (weight 0) is
         # unaffected: identity by copy.
-        _socket_alb = Path(inputs.get("albedo_socket_png", resolved["albedo_png"]))
-        _verm_union = _vermilion_union(store_dir, _socket_alb, derive_out)
+        _lips_alb = Path(inputs.get("albedo_lips_png", resolved["albedo_png"]))
+        _verm_union = _vermilion_union(store_dir, _lips_alb, derive_out)
         cmd += ["--lips-mask", str(derive_out / "mask-lips.png")]
         cmd += ["--vermilion-mask", str(_verm_union)]
         cmd += ["--facecore-mask", str(derive_out / "mask-facecore.png")]
@@ -217,11 +220,11 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
                   _np2.array(_PI2.open(derive_out / "mask-brows-R.png").convert("L")))
         _brows_union = store_dir / "brow-mask-union.png"
         _PI2.fromarray(_brows).save(_brows_union)
-        # Vermilion from the albedo (handback 6): the same shared mask the
+        # Vermilion from the lips albedo (handback 8): the same shared mask the
         # beard stage hugs, so grain and beard meet at one identical
         # border (no seam between the two exclusions).
-        _socket_alb2 = Path(inputs.get("albedo_socket_png", resolved["albedo_png"]))
-        _verm_union = _vermilion_union(store_dir, _socket_alb2, derive_out)
+        _lips_alb2 = Path(inputs.get("albedo_lips_png", resolved["albedo_png"]))
+        _verm_union = _vermilion_union(store_dir, _lips_alb2, derive_out)
         cmd += ["--lips-mask", str(_verm_union)]
         cmd += ["--eyes-mask", str(_eyes_union)]
         cmd += ["--brows-mask", str(_brows_union)]

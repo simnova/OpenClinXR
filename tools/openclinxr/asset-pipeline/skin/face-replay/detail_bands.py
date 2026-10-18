@@ -121,49 +121,47 @@ def load_mask(path: Path, shape: tuple[int, int]) -> np.ndarray:
     return m
 
 
+def visible_lip_mask(albedo_rgb: np.ndarray, base_mask: np.ndarray) -> np.ndarray:
+    """Visible lip from the albedo itself (lane-manager acceptance rule).
+
+    base_mask is the derive lips mask; a texel is visible lip where its
+    a* exceeds the surrounding skin a* (median over the ring 12-24 texels
+    outside the mask) by at least HALF of (lip a* peak minus skin a*):
+    the half-maximum edge (peak = 95th percentile inside the mask, no
+    absolute threshold). Closed morphologically (3 iterations) and
+    hole-filled (mouth opening stays excluded). No new constants beyond
+    the half-max: ring/close/hole sizes are the acceptance rule's own.
+    """
+    from scipy import ndimage
+
+    lab = rgb_to_lab(np.asarray(albedo_rgb, dtype=np.uint8))
+    a = lab[..., 1].astype(np.float64)
+    m = np.asarray(base_mask, dtype=bool)
+    if not m.any():
+        return m
+    ring = ndimage.binary_dilation(m, iterations=24) & ~ndimage.binary_dilation(m, iterations=12)
+    skin = float(np.median(a[ring])) if np.count_nonzero(ring) else 0.0
+    peak = float(np.percentile(a[m], 95))
+    raw = m & (a > skin + 0.5 * max(0.0, peak - skin))
+    closed = ndimage.binary_closing(raw, iterations=3)
+    return ndimage.binary_fill_holes(closed)
+
+
 def vermilion_mask_from_albedo(albedo_rgb: np.ndarray, union: np.ndarray) -> np.ndarray:
-    """Vermilion from the albedo itself (handback 7).
+    """Vermilion from the albedo itself (handback 8).
 
     The lipuv union is the lip MESH region, bigger than the visible
     vermilion (margin skin at the corners/borders), so hugging it leaves
-    a pale band. Edge rule: inside the union neighbourhood, a texel is
-    vermilion where its a* exceeds the local skin a* (median 3-6 mm
-    outside the lips mask: ring dilate-49 minus dilate-25 texels) by at
-    least HALF of (lip a* peak minus skin a*): the half-maximum edge.
-    Stated numbers are measured per image and recorded in
-    wrinkle-scale-report.json fix.vermilion (skin ~10-14, peaks ~23-29,
-    thresholds ~18-20 on both subjects). The contour is closed
-    morphologically, then smoothed with a 0.5 mm Gaussian and
-    thresholded at 0.5 (no polygons, no straight segments), hole-filled
-    (mouth opening stays excluded), components < 200 texels dropped.
+    a pale band. The visible lip is segmented by visible_lip_mask (the
+    lane-manager acceptance rule: half-maximum a* edge against the
+    surrounding skin, closed and hole-filled; stated numbers are measured
+    per image and recorded in wrinkle-scale-report.json fix.vermilion).
     Falls back to the union when it covers < 5% of the union (flat
     albedo, synthetic fixtures).
     """
-    lab = rgb_to_lab(np.asarray(albedo_rgb, dtype=np.uint8))
-    h, w = lab.shape[:2]
-    av = cv2.GaussianBlur(lab[..., 1].astype(np.float64), (0, 0), 3.0)
-    ring = (cv2.dilate(union.astype(np.uint8), np.ones((25, 25), np.uint8)) > 0) & (
-        cv2.dilate(union.astype(np.uint8), np.ones((13, 13), np.uint8)) == 0)
-    skin = float(np.median(av[ring])) if np.count_nonzero(ring) else 0.0
-    near = cv2.dilate(union.astype(np.uint8), np.ones((21, 21), np.uint8)) > 0
-    peak = float(av[union].max(initial=skin)) if np.count_nonzero(union) else skin
-    thr = skin + 0.5 * max(0.0, peak - skin)
-    raw = (av > thr) & near
-    cl = cv2.morphologyEx(raw.astype(np.uint8), cv2.MORPH_CLOSE,
-                          np.ones((7, 7), np.uint8))
-    sm = cv2.GaussianBlur(cl.astype(np.float64), (0, 0), 4.079 * 0.5)
-    keep = sm > 0.5
-    ff = keep.astype(np.uint8).copy()
-    pad = np.zeros((h + 2, w + 2), np.uint8)
-    cv2.floodFill(ff, pad, (0, 0), 1)
-    filled = keep | (ff != 1)
-    n, lbl, stats, _ = cv2.connectedComponentsWithStats(filled.astype(np.uint8), 8)
-    out = np.zeros(filled.shape, dtype=bool)
-    for i in range(1, n):
-        if stats[i, cv2.CC_STAT_AREA] >= 200:
-            out[lbl == i] = True
-    if out.sum() < 0.05 * max(1, int(union.sum())):
-        return union
+    out = visible_lip_mask(albedo_rgb, union)
+    if out.sum() < 0.05 * max(1, int(np.asarray(union).sum())):
+        return np.asarray(union, dtype=bool)
     return out
 
 
@@ -174,9 +172,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--facecore-mask", type=Path, required=True)
     ap.add_argument("--scalp-mask", type=Path, default=None)
     ap.add_argument("--lips-mask", type=Path, default=None,
-                    help="vermilion-core mask (lipuv hard_up|hard_lo union): "
-                         "grain hugs it with LIPS_HUG_MM + LIPS_FEATHER_MM, "
-                         "the beard_shadow.py vermilion hug")
+                    help="visible-lip mask (lane-manager acceptance rule on "
+                         "the lips albedo, shared with beard_shadow.py): "
+                         "grain hugs it with LIPS_HUG_MM + LIPS_FEATHER_MM")
     ap.add_argument("--eyes-mask", type=Path, default=None)
     ap.add_argument("--brows-mask", type=Path, default=None)
     ap.add_argument("--crease-gain", type=float, default=0.0)
@@ -214,12 +212,11 @@ def main(argv: list[str] | None = None) -> int:
     for opt in (a.eyes_mask, a.brows_mask):
         if opt is not None:
             hard = hard & ~(load_mask(opt, (h, wpx)) > 0.5)
-    # Lips (vermilion hug, handback 3+4): the grain meets the lips with
-    # no ring. The derive lips mask carries ~3 mm of margin past the
-    # vermilion (measured albedo a* profile vs mask edge), so the
-    # vermilion core (lipuv hard_up|hard_lo union, passed as --lips-mask)
-    # is hugged with the beard_shadow hug/feather (0.5 mm hug + 0.5 mm
-    # feather). The cut is a BOUNDED smoothstep over exactly
+    # Lips (visible-lip hug, handback 8): the grain meets the lips with
+    # no ring. The derive lips mask carries margin skin past the
+    # vermilion, so the visible lip (half-maximum a* edge on the lips
+    # albedo, passed as --lips-mask) is hugged with the beard_shadow
+    # hug/feather (0.5 mm hug + 0.5 mm feather). The cut is a BOUNDED smoothstep over exactly
     # [hug, hug+feather] texels (a gaussian's tails would smear the
     # transition to ~3x the prescribed width, which is what read as a
     # halo).
