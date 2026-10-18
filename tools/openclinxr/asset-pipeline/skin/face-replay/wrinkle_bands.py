@@ -63,11 +63,22 @@ STORE_REG = "/Volumes/files/openclinxr-assets/store/skin-regional-shading"
 S = "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike"
 GOAL_BODY2 = os.path.join(S, "body2", "goal-front.png")
 GOAL_AISHA = os.path.join(S, "project", "edit-v9", "edit-0.png")
-RENDER_BODY2 = os.path.join(STORE_IOR, "skinior-body2-14a-front.png")
+RENDER_BODY2 = ("/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/"
+                "post12/wrinkle-body2-pre-r3-front.png")
 RENDER_AISHA = os.path.join(STORE_IOR, "skinior-aisha-14-front.png")
 REPORT_OUT = os.path.join(DIR, "wrinkle-scale-report.json")
 REGIONS = ["forehead", "nasolabial"]
 ABLATIONS = ["A1", "A2", "A4a", "A4b", "A5"]
+# Handback 9: every POST body2 render was captured on the wrong GLB
+# (face-station-cases/body2/final.glb, the r2 bake before iris-neutral
+# and lid-conform). Body2 renders ride the current run3 lidconform bake
+# (eyes iris-centred-c); aisha has no run3, so she keeps her run2 bake.
+GLB_BODY2 = {
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run3/body2-lidconform.glb",
+    "sha256": "bdb051938777cde567825a8e7b5e993d3ea1f84b442c0d7903828c4f096ce83b"}
+GLB_AISHA = {
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+    "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"}
 
 INSTRUMENT = {
     "exposure_invariant": (
@@ -252,7 +263,7 @@ def invariance_probe(an, landmarker):
 POST_STORE = "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale"
 POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post11.png"),
                "aisha": os.path.join(POST_STORE, "albedo_detail_aisha_post10.png")}
-POST_RENDER = {"body2": os.path.join(POST_STORE, "post11", "wrinkle-body2-post11-front.png"),
+POST_RENDER = {"body2": os.path.join(POST_STORE, "post12", "wrinkle-body2-post11-r3-front.png"),
                "aisha": os.path.join(POST_STORE, "post10", "wrinkle-aisha-post10-front.png")}
 SPLIT_REPORT = os.path.join(DIR, "skin-gates-split-report.json")
 
@@ -328,6 +339,7 @@ def run_post():
         post_e[subj] = {"H": round(an["H"], 2),
                         "path": POST_RENDER[subj],
                         "sha256": sha256_file(POST_RENDER[subj]),
+                        "glb": GLB_BODY2 if subj == "body2" else GLB_AISHA,
                         "bands": e,
                         "forehead_bbox": [int(xs.min()), int(ys.min()),
                                           int(xs.max()), int(ys.max())],
@@ -618,6 +630,28 @@ def run_post():
     msp = os.path.join(POST_STORE, "sheet_body2_mouth_pre-post-goal.png")
     mstrip.save(msp)
     strips.append(msp)
+    # Full-face sheets (handback 9, lane manager): PRE | POST | goal whole
+    # frames at native resolution, both subjects, eyes included.
+    for subj in ("body2", "aisha"):
+        pre_p = report["pre"][f"render_{subj}"]["path"]
+        goal_p = GOAL_BODY2 if subj == "body2" else GOAL_AISHA
+        face_parts = []
+        for p in (pre_p, POST_RENDER[subj], goal_p):
+            face_parts.append(Image.open(p).convert("RGB"))
+        fhh = max(im.size[1] for im in face_parts)
+        frow = []
+        for im in face_parts:
+            cv = Image.new("RGB", (im.size[0], fhh), (128, 128, 128))
+            cv.paste(im, (0, 0))
+            frow.append(cv)
+        fstrip = Image.new("RGB", (sum(im.size[0] for im in frow) + 20, fhh), (0, 0, 0))
+        x = 0
+        for im in frow:
+            fstrip.paste(im, (x, 0))
+            x += im.size[0] + 10
+        fsp = os.path.join(POST_STORE, f"sheet_{subj}_fullface_pre-post-goal.png")
+        fstrip.save(fsp)
+        strips.append(fsp)
     g4 = {"strips": strips,
           "method": "native room-rig pixels, no upscaling or resampling; "
                     "padded (not scaled) to common height per strip",
@@ -627,6 +661,7 @@ def run_post():
                            "nasolabial: fold unchanged (geometry, routed)."),
           "lane_manager": "pending"}
     report["fix"] = fix
+    post_glb = {"body2": GLB_BODY2, "aisha": GLB_AISHA}
     n_fix_pass = sum(1 for r in g1_rows if r["route"] == "fix" and r["pass"])
     report["gates"] = {"g1": {"rows": g1_rows,
                               "verdict": (
@@ -640,11 +675,15 @@ def run_post():
     report["post"] = post_e
     report["renders"] = [
         {"path": report["pre"]["render_body2"]["path"],
-         "sha256": report["pre"]["render_body2"]["sha256"]},
+         "sha256": report["pre"]["render_body2"]["sha256"],
+         "glb": post_glb["body2"]},
         {"path": report["pre"]["render_aisha"]["path"],
-         "sha256": report["pre"]["render_aisha"]["sha256"]},
-        {"path": POST_RENDER["body2"], "sha256": post_e["body2"]["sha256"]},
-        {"path": POST_RENDER["aisha"], "sha256": post_e["aisha"]["sha256"]},
+         "sha256": report["pre"]["render_aisha"]["sha256"],
+         "glb": post_glb["aisha"]},
+        {"path": POST_RENDER["body2"], "sha256": post_e["body2"]["sha256"],
+         "glb": post_glb["body2"]},
+        {"path": POST_RENDER["aisha"], "sha256": post_e["aisha"]["sha256"],
+         "glb": post_glb["aisha"]},
         {"path": POST_ALBEDO["body2"], "sha256": sha256_file(POST_ALBEDO["body2"])},
         {"path": POST_ALBEDO["aisha"], "sha256": sha256_file(POST_ALBEDO["aisha"])}]
     for k in ("forehead_patch",):
@@ -834,6 +873,8 @@ def run_pre():
             REX.luminance_Y(REX.srgb_to_linear(an["rgb"])), 1e-6)), an["H"], an["masks"])
         pre[key] = {"H": round(an["H"], 2),
                     "path": path, "sha256": sha256_file(path),
+                    "glb": {"render_body2": GLB_BODY2,
+                            "render_aisha": GLB_AISHA}.get(key),
                     "sigmas_px": e.pop("_sigmas_px"),
                     "bands": e,
                     "robust": robustness_energies(an["rgb"], an["H"], an["masks"])}
