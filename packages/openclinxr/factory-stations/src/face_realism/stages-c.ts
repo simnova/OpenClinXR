@@ -208,6 +208,7 @@ export function runBeardSubStage(
   caseRec: Record<string, unknown>,
   socketPng: string,
   outDir: string,
+  outFile: string = path.join(outDir, "albedo_beard.png"),
 ): SubStage {
   const cfg = caseValue<Record<string, unknown>>(caseRec, "stage3_beard");
   const weight = cfgValue<number>(cfg, "weight");
@@ -221,7 +222,7 @@ export function runBeardSubStage(
     if (!existsSync(file)) throw new Error(`beard input missing at ${file}: refused`);
   }
   const script = path.join(repoRoot(), BEARD_REL);
-  const outPng = path.join(outDir, "albedo_beard.png");
+  const outPng = outFile;
   const argv = [
     "--landmarks",
     landmarks,
@@ -258,6 +259,142 @@ export function runBeardSubStage(
         outSha === expected
           ? `beard output matches the pinned known-good (${outSha.slice(0, 12)})`
           : `beard output ${outSha.slice(0, 12)} vs known-good ${expected.slice(0, 12)}`,
+    },
+  };
+}
+
+// Detail-band stage: argv mirrors the tracked replay.py run_stage
+// detail_bands branch (same masks, same parameters, same order), but runs
+// as its own subprocess AFTER beard_shadow so the manifest order
+// beard_shadow -> detail_bands is honoured. Gains come from the manifest
+// (base parameters + the subject override), never hard-coded here.
+const DETAIL_REL = "tools/openclinxr/asset-pipeline/skin/face-replay/detail_bands.py";
+const FACE_REPLAY_DIR_REL = "tools/openclinxr/asset-pipeline/skin/face-replay";
+const STAGE3_DETAIL_MASKS_DRIVER_REL =
+  "packages/openclinxr/factory-stations/src/face_realism/drivers/stage3_detail_masks.py";
+
+function detailParam(params: Record<string, unknown>, key: string): string {
+  const value = params[key];
+  if (value === undefined || value === null) {
+    throw new Error(`chain manifest detail_bands parameters hold no ${key}: refused`);
+  }
+  return String(value);
+}
+
+export function runDetailSubStage(
+  caseRec: Record<string, unknown>,
+  chainSubject: string,
+  manifestDoc: {
+    stages?: Array<{ name?: unknown; output_paths?: unknown; parameters?: unknown }>;
+    subjects?: Record<string, { overrides?: Record<string, Record<string, unknown>> }>;
+  },
+  detailInPng: string,
+  outFile: string,
+  outDir: string,
+): SubStage {
+  const def = (manifestDoc.stages ?? []).find((stage) => String(stage.name ?? "") === "detail_bands");
+  if (def === undefined) {
+    throw new Error("chain manifest holds no detail_bands stage: refused");
+  }
+  const paths = def.output_paths as Record<string, unknown> | undefined;
+  const manifestOut = Object.values(paths ?? {}).find(
+    (value): value is string => typeof value === "string" && value.endsWith(".png"),
+  );
+  if (manifestOut === undefined || path.basename(outFile) !== manifestOut) {
+    throw new Error(
+      `detail output ${path.basename(outFile)} != manifest output_paths (${String(manifestOut)}): refused`,
+    );
+  }
+  const baseParams = (def.parameters ?? {}) as Record<string, unknown>;
+  const subjectOverrides = manifestDoc.subjects?.[chainSubject]?.overrides?.["detail_bands"] ?? {};
+  const params = { ...baseParams, ...subjectOverrides };
+  const deriveOut = path.join(outDir, "derive_out");
+  const lipsAlbedo = path.join(outDir, "albedo_lips.png");
+  const driver = path.join(repoRoot(), STAGE3_DETAIL_MASKS_DRIVER_REL);
+  const masksArgv = [
+    "--face-replay-dir",
+    path.join(repoRoot(), FACE_REPLAY_DIR_REL),
+    "--albedo",
+    detailInPng,
+    "--derive-out",
+    deriveOut,
+    "--store",
+    outDir,
+  ];
+  if (existsSync(lipsAlbedo)) masksArgv.push("--albedo-lips", lipsAlbedo);
+  const masks = JSON.parse(
+    runMisePython([driver, ...masksArgv], 600_000),
+  ) as { eyes_mask?: unknown; brows_mask?: unknown; lips_mask?: unknown };
+  const eyesMask = String(masks.eyes_mask ?? "");
+  const browsMask = String(masks.brows_mask ?? "");
+  const lipsMask = String(masks.lips_mask ?? "");
+  if (!existsSync(eyesMask) || !existsSync(browsMask) || !existsSync(lipsMask)) {
+    throw new Error("detail exclusion masks missing after the masks driver: refused");
+  }
+  const script = path.join(repoRoot(), DETAIL_REL);
+  const reportJson = path.join(outDir, "stage3-detail-report.json");
+  const argv = [
+    detailInPng,
+    outFile,
+    "--facecore-mask",
+    path.join(deriveOut, "mask-facecore.png"),
+    "--scalp-mask",
+    path.join(deriveOut, "mask-scalp.png"),
+    "--lips-mask",
+    lipsMask,
+    "--eyes-mask",
+    eyesMask,
+    "--brows-mask",
+    browsMask,
+    "--texels-per-mm",
+    detailParam(params, "texels_per_mm"),
+    "--seed",
+    detailParam(params, "seed"),
+    "--crease-gain",
+    detailParam(params, "crease_gain"),
+    "--pore-gain",
+    detailParam(params, "pore_gain"),
+    "--pore-noise-hi-mm",
+    detailParam(params, "pore_noise_hi_mm"),
+    "--pore-detrend-mm",
+    String(params["pore_detrend_mm"] ?? 12.0),
+    "--feather-mm",
+    detailParam(params, "feather_mm"),
+    "--lips-hug-mm",
+    detailParam(params, "lips_hug_mm"),
+    "--lips-feather-mm",
+    detailParam(params, "lips_feather_mm"),
+    "--scalp-fringe-mm",
+    detailParam(params, "scalp_fringe_mm"),
+    "--report-out",
+    reportJson,
+  ];
+  runMisePython([script, ...argv], 600_000);
+  const outSha = sha256File(outFile);
+  const detailCfg = caseValue<Record<string, unknown>>(caseRec, "stage3_detail");
+  const expected = cfgLeaf(detailCfg, "expected_out_sha256", "value");
+  const inputs: StageIO[] = [
+    { path: detailInPng, sha256: sha256File(detailInPng) },
+    { path: path.join(deriveOut, "mask-facecore.png"), sha256: sha256File(path.join(deriveOut, "mask-facecore.png")) },
+    { path: path.join(deriveOut, "mask-scalp.png"), sha256: sha256File(path.join(deriveOut, "mask-scalp.png")) },
+    { path: eyesMask, sha256: sha256File(eyesMask) },
+    { path: browsMask, sha256: sha256File(browsMask) },
+    { path: lipsMask, sha256: sha256File(lipsMask) },
+  ];
+  const outputs: StageIO[] = [{ path: outFile, sha256: outSha }];
+  if (existsSync(reportJson)) outputs.push({ path: reportJson, sha256: sha256File(reportJson) });
+  return {
+    script: DETAIL_REL,
+    argv,
+    inputs,
+    outputs,
+    ran: true,
+    gate: {
+      pass: outSha === expected,
+      detail:
+        outSha === expected
+          ? `detail output matches the pinned known-good (${outSha.slice(0, 12)})`
+          : `detail output ${outSha.slice(0, 12)} vs known-good ${expected.slice(0, 12)}`,
     },
   };
 }

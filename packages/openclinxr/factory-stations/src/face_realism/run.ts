@@ -18,6 +18,7 @@ import { repoRoot } from "../repo-root.js";
 import type { StationPlanResult, StationRunner } from "../runner.js";
 import {
   assertNoModelStage,
+  planChainManifest,
   prepareFixtureReplayDir,
   runReplayChain,
   stageSyntheticFixtureGlb,
@@ -39,6 +40,7 @@ import { runStage5, runStage6 } from "./stages-d.js";
 
 export {
   assertNoModelStage,
+  planChainManifest,
   prepareFixtureReplayDir,
   runReplayChain,
   stageSyntheticFixtureGlb,

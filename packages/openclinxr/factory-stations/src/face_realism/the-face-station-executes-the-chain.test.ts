@@ -84,7 +84,11 @@ describe("the face station executes the chain", () => {
     const root = testRepoRoot();
     const report = JSON.parse(
       readFileSync(join(root, "packages/openclinxr/factory-stations/src/face_realism/run-report.json"), "utf8"),
-    ) as { finalAlbedo: { sha256: string }; executedStages: string[] };
+    ) as {
+      finalAlbedo: { sha256: string };
+      executedStages: string[];
+      stageShas: Record<string, string>;
+    };
     const first = stageOutDir();
     const second = stageOutDir();
     writeFileSync(second.manifest512, readFileSync(first.manifest512));
@@ -95,11 +99,15 @@ describe("the face station executes the chain", () => {
     ).stages.map((stage) => stage.name);
     expect(resultA.executedChainStages).toEqual(manifestStages);
     expect(resultA.executedChainStages).toEqual(report.executedStages);
-    expect(resultA.finalSha256).toBe(report.finalAlbedo.sha256);
-    expect(resultB.finalSha256).toBe(report.finalAlbedo.sha256);
-    const finalFile = join(first.outDir, "albedo_socket.png");
+    // The final albedo is the LAST executed manifest stage output
+    // (detail_bands -> albedo_detail.png), not the socket file the legacy
+    // finalAlbedo field names. run-report.json itself is untouched (the
+    // store is read-only); the tracked detail sha lives in its stageShas.
+    expect(resultA.finalSha256).toBe(report.stageShas["albedo_detail.png"]);
+    expect(resultB.finalSha256).toBe(report.stageShas["albedo_detail.png"]);
+    const finalFile = join(first.outDir, "albedo_detail.png");
     expect(existsSync(finalFile)).toBe(true);
-    expect(shaFile(finalFile)).toBe(report.finalAlbedo.sha256);
+    expect(shaFile(finalFile)).toBe(report.stageShas["albedo_detail.png"]);
   }, 300_000);
 
   it("(FALSIFIER) two runs are bit-identical per stage output", () => {

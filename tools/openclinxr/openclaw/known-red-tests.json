@@ -280,11 +280,6 @@
       "path": "packages/openclinxr/data-mongodb/src/api-persistence-sink.integration.test.ts",
       "reason": "1 of 29 fails on main 4773a5bda (2026-10-08) and earlier on 3bbfe0711 without the shrink-a change: 'replays scenario review decisions after API app recreation' gets GraphQL errors instead of data, the same review-gate authoredContentIdentity refusal recorded for the review-route evidence probes.",
       "card": "unfiled: supply authoredContentIdentity evidence in the review-route probes, or record why the gate refuses them"
-    },
-    {
-      "path": "packages/openclinxr/factory-stations/src/face_realism/the-station-runs-every-manifest-stage.test.ts",
-      "reason": "Planted RED for tsk_68c071233175cae2 STEP 1: G1 executedChainStages lists skipped stages (chain.ts returns all manifest names), G1c/G1d finalName is a sorted-dir guess (prefers albedo_socket.png) instead of the last executed manifest stage output. Turns green with the STEP 2 manifest-driven stage-3 fix in the same card; remove this entry in that commit.",
-      "card": "tsk_68c071233175cae2: STEP 2 makes stage 3 drive from the manifest"
     }
   ]
 }

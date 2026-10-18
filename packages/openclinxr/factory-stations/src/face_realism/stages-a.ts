@@ -4,7 +4,7 @@
 import { existsSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { repoRoot } from "../repo-root.js";
-import { runReplayChain, FACE_REALISM_REPLAY_REL } from "./chain.js";
+import { runReplayChain, planChainManifest, FACE_REALISM_REPLAY_REL } from "./chain.js";
 import {
   ASSET_STORE_ROOT,
   caseValue,
@@ -28,6 +28,7 @@ import {
   runBeardSubStage,
   runColourSubStage,
   runComposeSubStage,
+  runDetailSubStage,
   storeAbs,
   type SubStage,
 } from "./stages-c.js";
@@ -185,7 +186,9 @@ export function runStage3(
     if (
       entry.startsWith("albedo_") ||
       entry === "roughness.png" ||
-      entry === "eye-mask-union.png"
+      entry === "eye-mask-union.png" ||
+      entry === "brow-mask-union.png" ||
+      entry === "lip-vermilion-albedo-union.png"
     ) {
       const abs = path.join(outDir, entry);
       try {
@@ -196,7 +199,20 @@ export function runStage3(
     }
   }
   const manifestDoc = readJsonFile(manifestAbs) as {
-    stages?: Array<{ name?: unknown; parameters?: Record<string, unknown> }>;
+    stages?: Array<{ name?: unknown; output_paths?: unknown; parameters?: Record<string, unknown> }>;
+    subjects?: Record<string, { overrides?: Record<string, Record<string, unknown>> }>;
+  };
+  // Manifest-driven output filename: the station never hard-codes which
+  // file a chain stage writes; the manifest's output_paths is the source.
+  const manifestOutputPng = (stageName: string): string => {
+    const def = manifestDoc.stages?.find((stage) => String(stage.name ?? "") === stageName);
+    const out = Object.values((def?.output_paths ?? {}) as Record<string, unknown>).find(
+      (value): value is string => typeof value === "string" && value.endsWith(".png"),
+    );
+    if (def === undefined || out === undefined) {
+      throw new Error(`chain manifest holds no png output for stage ${stageName}: refused`);
+    }
+    return out;
   };
   const deriveSize = caseValue<number>(caseRec, "derive_size");
   const deriveParams = manifestDoc.stages?.find((stage) => stage.name === "derive")?.parameters;
@@ -227,7 +243,7 @@ export function runStage3(
     colourOut,
     ...(skipStages.length > 0 ? ["--skip-stages", skipStages.join(",")] : []),
   ];
-  const socketPng = path.join(outDir, "albedo_socket.png");
+  const socketPng = path.join(outDir, manifestOutputPng("socket"));
   const socketSha = sha256File(socketPng);
   const colourCfg = caseValue<Record<string, unknown>>(caseRec, "stage3_colour");
   const socketExpected = cfgLeaf(colourCfg, "expected_chain_socket_sha256", "value");
@@ -266,51 +282,92 @@ export function runStage3(
   if (existsSync(deriveAo)) {
     chain.outputs.push({ path: deriveAo, sha256: sha256File(deriveAo) });
   }
-  const beard = runBeardSubStage(caseRec, socketPng, outDir);
-  const beardSha = beard.outputs[0]!.sha256;
-  const subStages = [compose, colour, chain, beard];
+  // Standalone sub-stages run in manifest position: replay skipped them
+  // (the case's stage3_skip_stages), so the station chains them here in
+  // manifest order on the chain's current albedo. The order comes from the
+  // manifest plan, never from a hard-coded list here; the dispatch below is
+  // keyed by stage name (the beard argv is the landed standalone argv,
+  // without replay's --vermilion-mask, so replay must not run it: the
+  // pins and the wrinkle lineage both record the standalone behaviour).
+  const skipped = new Set(skipStages);
+  const plan = planChainManifest(
+    manifestDoc as { stages?: Array<{ name?: unknown; output_paths?: unknown }> },
+    skipStages,
+  );
+  let currentAlbedo = colourOut;
+  const standalone: SubStage[] = [];
+  for (const stage of plan.stages) {
+    if (!skipped.has(stage.name)) {
+      if (stage.outputPng !== null && stage.outputPng.startsWith("albedo_")) {
+        currentAlbedo = path.join(outDir, stage.outputPng);
+      }
+      continue;
+    }
+    const outFile = path.join(outDir, manifestOutputPng(stage.name));
+    if (stage.name === "beard_shadow") {
+      standalone.push(runBeardSubStage(caseRec, currentAlbedo, outDir, outFile));
+    } else if (stage.name === "detail_bands") {
+      standalone.push(runDetailSubStage(caseRec, chainSubject, manifestDoc, currentAlbedo, outFile, outDir));
+    } else {
+      throw new Error(`skipped chain stage ${stage.name} has no standalone runner: refused`);
+    }
+    currentAlbedo = outFile;
+  }
+  const finalFile = plan.finalOutput ?? currentAlbedo;
+  const finalAbs = path.isAbsolute(finalFile) ? finalFile : path.join(outDir, finalFile);
+  const finalSha256 = sha256File(finalAbs);
+  const finalStageName = [...plan.stages].reverse().find((stage) => stage.outputPng !== null)?.name ?? "";
+  const subStages = [compose, colour, chain, ...standalone];
   const inputs: StageIO[] = [
     ...compose.inputs,
     ...colour.inputs,
     ...chain.inputs,
-    ...beard.inputs,
+    ...standalone.flatMap((sub) => sub.inputs),
   ];
   const outputs: StageIO[] = [
     ...compose.outputs,
     ...colour.outputs,
     ...chain.outputs,
-    ...beard.outputs,
+    ...standalone.flatMap((sub) => sub.outputs),
   ];
   rec.script = FACE_REALISM_REPLAY_REL;
   rec.argv = chainArgv;
   rec.note =
-    "compose -> colour -> chain-manifest hand steps derive..socket -> beard_shadow; each ran as its own landed-script subprocess (see extra.subStages)";
+    "compose -> colour -> replay (manifest minus skips) -> skipped stages standalone in manifest position (see extra.subStages and extra.executedChainStages); the final albedo is the last executed manifest stage output";
   rec.inputs = inputs;
   rec.outputs = outputs;
   rec.ran = true;
   const failed = subStages.filter((sub) => !sub.gate.pass);
-  const beardCfg = caseValue<Record<string, unknown>>(caseRec, "stage3_beard");
-  const beardExpectedSource = cfgLeafSource(beardCfg, "expected_out_sha256");
+  // Stage-level known-good keys the FINAL manifest stage by stage name
+  // (detail_bands -> stage3_detail, beard_shadow -> stage3_beard); a final
+  // stage with no pin passes through on the sub-stage gates, recorded.
+  const finalCfgKey = finalStageName === "detail_bands" ? "stage3_detail" : finalStageName === "beard_shadow" ? "stage3_beard" : null;
+  const finalCfg = finalCfgKey !== null ? caseValue<Record<string, unknown>>(caseRec, finalCfgKey) : null;
+  const finalExpected = finalCfg !== null ? cfgLeaf(finalCfg, "expected_out_sha256", "value") : finalSha256;
+  const finalExpectedSource =
+    finalCfg !== null ? cfgLeafSource(finalCfg, "expected_out_sha256") : "no pin for the final stage; sub-stage gates decide";
   rec.gate = {
-    pass: failed.length === 0,
+    pass: failed.length === 0 && finalSha256 === finalExpected,
     detail:
-      failed.length === 0
-        ? `compose+colour+chain+beard all match their pinned known-goods; final albedo_beard.png ${beardSha.slice(0, 12)}`
-        : `failing sub-stages: ${failed.map((sub) => `${sub.script.split("/").at(-1)}: ${sub.gate.detail}`).join("; ")}`,
+      failed.length === 0 && finalSha256 === finalExpected
+        ? `compose+colour+chain+standalone all match their pinned known-goods; final ${path.basename(finalAbs)} ${finalSha256.slice(0, 12)}`
+        : `failing sub-stages: ${failed.map((sub) => `${sub.script.split("/").at(-1)}: ${sub.gate.detail}`).join("; ")}${finalSha256 === finalExpected ? "" : `; final ${path.basename(finalAbs)} ${finalSha256.slice(0, 12)} vs known-good ${finalExpected.slice(0, 12)}`}`,
     knownGood: {
-      name: "albedo_beard.png",
-      expected: cfgLeaf(beardCfg, "expected_out_sha256", "value"),
-      expectedSource: beardExpectedSource,
-      actual: beardSha,
+      name: path.basename(finalAbs),
+      expected: finalExpected,
+      expectedSource: finalExpectedSource,
+      actual: finalSha256,
     },
   };
   rec.wallSeconds = (Date.now() - t0) / 1000;
   rec.extra = {
     executedChainStages: replayed.executedChainStages,
     manifestSha256: replayed.manifestSha256,
+    manifestPlan: plan,
     socketExpected,
     socketExpectedSource: socketSource,
     socketActual: socketSha,
+    finalAlbedo: { file: finalAbs, sha256: finalSha256, stage: finalStageName },
     subStages: subStages.map((sub) => ({
       script: sub.script,
       argv: sub.argv,
@@ -320,5 +377,5 @@ export function runStage3(
       gate: sub.gate,
     })),
   };
-  return { record: rec, finalSha256: beardSha };
+  return { record: rec, finalSha256 };
 }

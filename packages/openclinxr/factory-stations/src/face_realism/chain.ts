@@ -108,6 +108,49 @@ export type ReplayChainOptions = {
   skipStages: string[];
 };
 
+export type ManifestStagePlan = {
+  name: string;
+  outputPng: string | null;
+};
+
+export type ChainManifestPlan = {
+  /** Manifest stage names minus the declared skips, in manifest order. */
+  executed: string[];
+  /** Output PNG of the last executed manifest stage (null when none declares one). */
+  finalOutput: string | null;
+  stages: ManifestStagePlan[];
+};
+
+/**
+ * Manifest-driven stage plan: execution order and the final albedo file
+ * both derive from the manifest's stage list and output_paths, minus the
+ * case's declared skips. No stage name or output filename is hard-coded
+ * here: appending a stage to the manifest changes the plan with no code
+ * change. The albedo_ preference mirrors the chain convention that the
+ * carried texture is the albedo_* product (roughness/derive maps never
+ * advance the chain albedo).
+ */
+export function planChainManifest(
+  manifest: { stages?: Array<{ name?: unknown; output_paths?: unknown }> },
+  skipStages: string[],
+): ChainManifestPlan {
+  const skipped = new Set(skipStages);
+  const stages: ManifestStagePlan[] = [];
+  for (const stage of manifest.stages ?? []) {
+    const name = String(stage.name ?? "");
+    if (name.length === 0 || skipped.has(name)) continue;
+    const paths = stage.output_paths as Record<string, unknown> | undefined;
+    const pngs =
+      paths !== undefined && paths !== null && typeof paths === "object"
+        ? Object.values(paths).filter((value): value is string => typeof value === "string" && value.endsWith(".png"))
+        : [];
+    const outputPng = pngs.find((value) => value.startsWith("albedo_")) ?? pngs[0] ?? null;
+    stages.push({ name, outputPng });
+  }
+  const finalOutput = [...stages].reverse().find((stage) => stage.outputPng !== null)?.outputPng ?? null;
+  return { executed: stages.map((stage) => stage.name), finalOutput, stages };
+}
+
 /**
  * Runs the tracked skin-chain replay driver as a subprocess and returns the
  * per-output shas. The caller stages inputs and (for fixture scale) the flat
@@ -147,14 +190,17 @@ export function runReplayChain(options: ReplayChainOptions): {
     if (!entry.endsWith(".png")) continue;
     stageShas[entry] = sha256File(path.join(options.storeDir, entry));
   }
-  const finalName = existsSync(path.join(options.storeDir, "albedo_socket.png"))
-    ? "albedo_socket.png"
-    : (Object.keys(stageShas).sort().at(-1) ?? "");
+  const plan = planChainManifest(chain as { stages?: Array<{ name?: unknown; output_paths?: unknown }> }, options.skipStages);
+  const finalName =
+    plan.finalOutput ??
+    (existsSync(path.join(options.storeDir, "albedo_socket.png"))
+      ? "albedo_socket.png"
+      : (Object.keys(stageShas).sort().at(-1) ?? ""));
   return {
     finalName,
     finalSha256: finalName.length > 0 ? (stageShas[finalName] ?? null) : null,
     stageShas,
-    executedChainStages: (chain.stages as ChainStage[]).map((stage) => String(stage.name)),
+    executedChainStages: plan.executed,
     manifestSha256: sha256File(options.manifestFile),
   };
 }
