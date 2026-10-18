@@ -2670,14 +2670,12 @@ def install_visemes02_targets():
 # the gaze pivot stays at the new centre (the runtime gaze drive rotates about
 # the bone's own position, gaze-drives-eyes.ts).
 # ---------------------------------------------------------------------------
-# Rauscher 2021 (Ophthalmic Physiol Opt, doi 10.1111/opo.12814) axial length
-# table: age 4 = 22.2 mm .. age 17 = 23.9 mm. The pediatric patient's
-# phenotype declares age 8 (packages/openclinxr/scenario-fixtures/generated/
-# actor-phenotype.v1.json:
-# entries.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.phenotype.age),
-# so the child target INTERPOLATES that table instead of assuming a
-# school-age value: 22.2 + (8 - 4) / (17 - 4) * (23.9 - 22.2) = 22.723 mm.
-CHILD_AXIAL_LENGTH_MM = round(22.2 + (8 - 4) / (17 - 4) * (23.9 - 22.2), 3)
+# tsk_083b92e9c7ca5d7b handback 1: child stems are NOT rows in this table.
+# The pediatric globe is case-driven: _eye_target_for_output_stem resolves a
+# listed child stem through pediatric_axial_length at the case phenotype's
+# own age (actor-phenotype.v1.json entries.<case>.<actor>.phenotype.age,
+# Rauscher 2021 doi 10.1111/opo.12814: 4y 22.2 mm .. 17y 23.9 mm). A second
+# child case gets its own age's globe, never a copied constant.
 
 EYE_DIAMETER_TARGET_MM = {
     # Ocular axial length, sourced external anatomy (~24 mm adult; Rauscher 2021:
@@ -2685,16 +2683,14 @@ EYE_DIAMETER_TARGET_MM = {
     "mpfb-ob-patient-aisha": 24.0,
     "mpfb-peds-parent-aisha": 24.0,  # #388: same adult-female body as aisha
     "mpfb-peds-nurse-kevin": 24.0,
-    "mpfb-peds-patient-child": CHILD_AXIAL_LENGTH_MM,
     # tsk_083b92e9c7ca5d7b: the face station's stage-4 output stem for a case
     # with no stage4_known_good is derived from the case id
     # (stages-b.ts stage4OutputStem -> '<case>-lidconform'), matching the
     # '<case>-eyeglobe-base' naming of the case's own pre-conform base bake.
     # The shared 'stage4-lidconform' key is deliberately NOT registered: one
-    # key sized for every unknown case would size an adult wrong (a child's
-    # 22.723 mm globe in an adult socket).
-    "peds_asthma_parent_anxiety_v1-eyeglobe-base": CHILD_AXIAL_LENGTH_MM,
-    "peds_asthma_parent_anxiety_v1-lidconform": CHILD_AXIAL_LENGTH_MM,
+    # key sized for every unknown case would size an adult wrong.
+    # (Child stems resolve through _child_eye_target_mm_for_stem below, not
+    # as rows here, so no age can be copied into a constant.)
     # #403 — the two ED adults are adult-female; adult axial length applies.
     "mpfb-clinical-nurse-adult": 24.0,
     # 2026-08-14 medical wardrobe — the physician is the same adult-female body as
@@ -5712,19 +5708,101 @@ def replay_seated_rest_bind(actor_glb, skin_recipe_id=None, skin_job_root=None, 
     print(f"SEATED_REST_BIND_OK output={output_glb}")
 
 
+# tsk_083b92e9c7ca5d7b handback 1: output stems whose globe is pediatric,
+# with the subject they bake. A stem not listed here is not a child stem:
+# it falls through to the #377 refusal, never to a default.
+_CHILD_STEM_TO_SUBJECT_ID = {
+    "mpfb-peds-patient-child": "peds_patient_child",
+    "peds_asthma_parent_anxiety_v1-eyeglobe-base": "peds_patient_child",
+    "peds_asthma_parent_anxiety_v1-lidconform": "peds_patient_child",
+}
+
+
+def _pediatric_axial_length_module():
+    """Import the bpy-free axial-length helper (same pattern as lid_conform)."""
+    import sys as _sys_pal
+    _pal_dir = (
+        REPO_ROOT / "tools/openclinxr/asset-pipeline/realism-head/lid-conform"
+    )
+    if str(_pal_dir) not in _sys_pal.path:
+        _sys_pal.path.insert(0, str(_pal_dir))
+    import pediatric_axial_length as _pal  # noqa: E402
+    return _pal
+
+
+def _actor_id_for_subject(subject_id):
+    """Actor id for a baked subject, from its tracked anny manifest.
+
+    Same manifest + input_params shape the phenotype_* helpers read; the
+    manifest's actor_id names the actor-phenotype.v1.json entry the subject
+    was authored from. A missing manifest or field refuses with the named
+    pediatric error instead of guessing an actor.
+    """
+    pal = _pediatric_axial_length_module()
+    manifest = _anny_manifest_for(subject_id)
+    if manifest is None:
+        raise pal.PediatricAxialAgeError(
+            f"no tracked anny manifest for subject {subject_id!r}; a pediatric "
+            "globe needs the manifest's actor_id to reach the case phenotype age"
+        )
+    try:
+        actor_id = json.loads(manifest.read_text(encoding="utf-8")).get(
+            "input_params", {}).get("actor_id")
+    except Exception:
+        actor_id = None
+    if not actor_id:
+        raise pal.PediatricAxialAgeError(
+            f"tracked anny manifest for subject {subject_id!r} names no "
+            "actor_id; a pediatric globe needs it to reach the case phenotype age"
+        )
+    return actor_id
+
+
+def _child_eye_target_mm_for_stem(stem):
+    """Pediatric axial length (mm) for a child output stem, case-driven.
+
+    stem -> subject (table above) -> case (lid_conform_case_for_subject) +
+    actor (tracked anny manifest) -> age
+    (actor-phenotype.v1.json entries.<case>.<actor>.phenotype.age) ->
+    Rauscher 2021 interpolation. Every missing link refuses with the named
+    error; nothing falls back to an age or a constant.
+    """
+    pal = _pediatric_axial_length_module()
+    subject_id = _CHILD_STEM_TO_SUBJECT_ID[stem]
+    case_id = lid_conform_case_for_subject(subject_id)
+    if case_id is None:
+        raise pal.PediatricAxialAgeError(
+            f"subject {subject_id!r} (stem {stem!r}) maps to no lid-conform "
+            "case; a pediatric globe needs a case to read the phenotype age from"
+        )
+    actor_id = _actor_id_for_subject(subject_id)
+    entries_path = (
+        REPO_ROOT / "packages/openclinxr/scenario-fixtures/generated/"
+        "actor-phenotype.v1.json"
+    )
+    entries = json.loads(entries_path.read_text(encoding="utf-8")).get(
+        "entries", {})
+    return pal.axial_length_mm_for_case_actor(case_id, actor_id, entries)
+
+
 def _eye_target_for_output_stem(stem):
     """#377 anatomical eye target for an output GLB stem, or a loud refusal.
 
     Single source of truth for the guard: the bake calls this mid-run and
     --verify-eye-stem calls it standalone, so a test can prove that an
-    unregistered stem refuses BEFORE any bake work.
+    unregistered stem refuses BEFORE any bake work. Child stems resolve
+    through the case phenotype age (handback 1); static adult rows stay in
+    EYE_DIAMETER_TARGET_MM.
     """
     target = EYE_DIAMETER_TARGET_MM.get(stem)
     if target is None:
-        raise RuntimeError(
-            f"#377: no anatomical eye target for actor stem {stem!r} — "
-            f"add it to EYE_DIAMETER_TARGET_MM ({sorted(EYE_DIAMETER_TARGET_MM)}) before baking a new actor"
-        )
+        if stem in _CHILD_STEM_TO_SUBJECT_ID:
+            target = _child_eye_target_mm_for_stem(stem)
+        else:
+            raise RuntimeError(
+                f"#377: no anatomical eye target for actor stem {stem!r} — "
+                f"add it to EYE_DIAMETER_TARGET_MM ({sorted(EYE_DIAMETER_TARGET_MM)}) before baking a new actor"
+            )
     return {"stem": stem, "targetDiameterMm": target}
 
 

@@ -1,7 +1,7 @@
 {
  "bake": {
   "argv": "--reference peds_patient_child --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea (per run: --output <store>/run<N>/peds_asthma_parent_anxiety_v1-lidconform.glb)",
-  "argvNote": "argv-driven: the station CLI's plan gate needs record.cases[caseId].references.goal_front in the reference-set manifest, which holds aisha + body2 only (F2 -- no child goal image). The argv is the station's own resolved argv for this case minus the --no-lid-conform flag the pre-conform base bake passes, with the output stem from stage4OutputStem(caseRec, caseId) = <caseId>-lidconform. No --eye-texture: the case's authored eye colour resolves its iris image (green_eye) from the phenotype.",
+  "argvNote": "argv-driven: the station CLI's plan gate needs record.cases[caseId].references.goal_front in the reference-set manifest, which holds aisha + body2 only (F2 -- no child goal image). The argv is the station's own resolved argv for this case minus the --no-lid-conform flag the pre-conform base bake passes, with the output stem from stage4OutputStem(caseRec, caseId) = <caseId>-lidconform. No --eye-texture: the case's authored eye colour resolves its iris image (green_eye) from the phenotype. The globe diameter is not in the argv: the bake resolves the output stem through the case phenotype age at bake time (handback 1).",
   "baseBakeReproduction": {
    "argv": "--reference peds_patient_child --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea --no-lid-conform --output <dir>/peds_asthma_parent_anxiety_v1-eyeglobe-base.glb",
    "bodyPositionEqual": true,
@@ -276,6 +276,19 @@
   "newGlb": {
    "path": "/Volumes/files/openclinxr-assets/store/lid-conform-child/run1/peds_asthma_parent_anxiety_v1-lidconform.glb",
    "sha256": "67aadf8169efabb8a850f5f969355681dacc4eaef06529c7d2c5f7e0d3c8c2ab"
+  },
+  "stemTableRowChange": {
+   "affectsOnNextBake": [
+    "mpfb-peds-patient-child",
+    "peds_asthma_parent_anxiety_v1-eyeglobe-base",
+    "peds_asthma_parent_anxiety_v1-lidconform"
+   ],
+   "newSource": "case-driven since handback 1: no table row; the stem resolves through pediatric_axial_length at the case phenotype age 8 (Rauscher 2021 interpolation)",
+   "newValueMm": 22.723,
+   "nextBakeNote": "age 8 computes the same value, so the next bakes of these stems are unchanged; a new child age or case flows through the function instead of copying a constant",
+   "oldSource": "EYE_DIAMETER_TARGET_MM row before tsk_083b92e9c7ca5d7b: an unsourced school-age assumption (height_cm 125, gender_presentation child)",
+   "oldValueMm": 22.5,
+   "stem": "mpfb-peds-patient-child"
   },
   "subjectCensus": {
    "chestSpanMeters": 0.5308,
@@ -954,7 +967,7 @@
    "run2PositionSha256": "a47c3ebd5944b4f11d38283334a474f33e262ca10c493523bdd22d711d23dec5"
   },
   "g4": {
-   "detail": "RuntimeError: #377: no anatomical eye target for actor stem 'stage4-lidconform' \u2014 add it to EYE_DIAMETER_TARGET_MM (['aisha-eyeglobe-base', 'aisha-eyeglobe-fit', 'aisha-eyetex', 'aisha-hp-cornea', 'aisha-lidconform', 'aisha-realism', 'aisha-ref-control', 'aisha-ref-inert', 'aisha-ref-lipsC', 'aisha-ref2', 'aisha-ref3', 'aisha-shell-b2b3', 'body2-eyeglobe-base', 'body2-lidconform', 'eg-100-2', 'eg-100-4', 'eg-100-m1', 'eg-100-m2', 'eg-100-m3', 'eg-102-0', 'eg-102-2', 'eg-102-4', 'eg-102-m1', 'eg-102-m2', 'eg-102-m3', 'eg-104-0', 'eg-104-2', 'eg-104-4', 'eg-104-m1', 'eg-104-m2', 'eg-104-m3', 'eyegeo-final', 'eyeshell-final', 'eyetex-final', 'mpfb-clinical-nurse-adult', 'mpfb-clinical-physician-adult', 'mpfb-family-partner-adult', 'mpfb-gown-adult-patient', 'mpfb-ob-patient-aisha', 'mpfb-peds-nurse-kevin', 'mpfb-peds-parent-aisha', 'mpfb-peds-patient-child', 'mpfb-street-adult-male', 'mpfb-viseme-inspect', 'peds_asthma_parent_anxiety_v1-eyeglobe-base', 'peds_asthma_parent_anxiety_v1-lidconform']) before baking a new actor",
+   "detail": "RuntimeError: #377: no anatomical eye target for actor stem 'stage4-lidconform' \u2014 add it to EYE_DIAMETER_TARGET_MM (['aisha-eyeglobe-base', 'aisha-eyeglobe-fit', 'aisha-eyetex', 'aisha-hp-cornea', 'aisha-lidconform', 'aisha-realism', 'aisha-ref-control', 'aisha-ref-inert', 'aisha-ref-lipsC', 'aisha-ref2', 'aisha-ref3', 'aisha-shell-b2b3', 'body2-eyeglobe-base', 'body2-lidconform', 'eg-100-2', 'eg-100-4', 'eg-100-m1', 'eg-100-m2', 'eg-100-m3', 'eg-102-0', 'eg-102-2', 'eg-102-4', 'eg-102-m1', 'eg-102-m2', 'eg-102-m3', 'eg-104-0', 'eg-104-2', 'eg-104-4', 'eg-104-m1', 'eg-104-m2', 'eg-104-m3', 'eyegeo-final', 'eyeshell-final', 'eyetex-final', 'mpfb-clinical-nurse-adult', 'mpfb-clinical-physician-adult', 'mpfb-family-partner-adult', 'mpfb-gown-adult-patient', 'mpfb-ob-patient-aisha', 'mpfb-peds-nurse-kevin', 'mpfb-peds-parent-aisha', 'mpfb-street-adult-male', 'mpfb-viseme-inspect']) before baking a new actor",
    "pass": true,
    "refused": true,
    "registeredStems": {
@@ -983,8 +996,38 @@
   "fittedNote": "Kasa fit rms sub-0.001 mm; fit sits 0.05 mm over the target by the globe mesh's own tessellation, as the adult rows do",
   "scale": 0.7842,
   "seatShiftForwardMm": 3.127,
-  "source": "CHILD_AXIAL_LENGTH_MM in tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py: round(22.2 + (8-4)/(17-4) * (23.9-22.2), 3) from Rauscher 2021 (doi 10.1111/opo.12814) axial length 4y 22.2 mm -> 17y 23.9 mm at the case's phenotype age 8",
+  "source": "case-driven (handback 1): _child_eye_target_mm_for_stem resolves through pediatric_axial_length at the case phenotype's own age (actor-phenotype.v1.json entries.<case>.<actor>.phenotype.age) interpolating Rauscher 2021 (doi 10.1111/opo.12814) axial length 4y 22.2 mm -> 17y 23.9 mm; no table row, no copied constant",
   "targetDiameterMm": 22.723
+ },
+ "handback1": {
+  "pass": true,
+  "rebake": {
+   "eyesAnatomical": {
+    "perEye": [
+     {
+      "beforeDiameterMm": 28.977,
+      "scale": 0.7842,
+      "seatShiftForwardMm": 3.127,
+      "side": "L"
+     },
+     {
+      "beforeDiameterMm": 28.977,
+      "scale": 0.7842,
+      "seatShiftForwardMm": 3.127,
+      "side": "R"
+     }
+    ],
+    "targetDiameterMm": 22.723
+   },
+   "glb": {
+    "path": "/Volumes/files/openclinxr-assets/store/lid-conform-child/confirm/peds_asthma_parent_anxiety_v1-lidconform.glb",
+    "sha256": "42a4d4cfe3cf0fca8fbaf93f1b89c80a8e561d37c371ea8863da74a2f430facf"
+   },
+   "globeEqualRun1": true,
+   "log": "/Volumes/files/openclinxr-assets/store/lid-conform-child/confirm/bake-confirm.log",
+   "positionEqualRun1Run2": true,
+   "positionSha256": "a47c3ebd5944b4f11d38283334a474f33e262ca10c493523bdd22d711d23dec5"
+  }
  },
  "name": "child-lid-conform",
  "notTested": [

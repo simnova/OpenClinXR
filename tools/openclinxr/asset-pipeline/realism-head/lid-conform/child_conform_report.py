@@ -242,6 +242,24 @@ guard_err = (guard.stdout + guard.stderr).strip().splitlines()
 # #377 line itself, together with the absence of EYE_STEM_OK.
 guard_refused = (any("#377" in line for line in guard_err)
                  and "EYE_STEM_OK" not in guard.stdout)
+confirm_glb = CHILD / "confirm" / f"{CASE}-lidconform.glb"
+confirm_log = CHILD / "confirm" / "bake-confirm.log"
+confirm_pose = body_position_sha(confirm_glb)
+confirm_eyes = marker(confirm_log, "EYES_ANATOMICAL")
+handback1 = {
+    "rebake": {
+        "log": str(confirm_log),
+        "glb": {"path": str(confirm_glb), "sha256": sha256_file(confirm_glb)},
+        "eyesAnatomical": confirm_eyes,
+        "positionSha256": confirm_pose,
+        "globeEqualRun1": (
+            confirm_eyes["targetDiameterMm"] == eyes_anat["targetDiameterMm"]),
+        "positionEqualRun1Run2": confirm_pose == run1_pose == run2_pose,
+    },
+    "pass": bool(
+        confirm_eyes["targetDiameterMm"] == eyes_anat["targetDiameterMm"]
+        and confirm_pose == run1_pose == run2_pose),
+}
 registered = {}
 for stem in (f"{CASE}-eyeglobe-base", f"{CASE}-lidconform",
              "mpfb-peds-patient-child"):
@@ -322,10 +340,11 @@ report = {
     "globeVsAnatomy": {
         "targetDiameterMm": eyes_anat["targetDiameterMm"],
         "source": (
-            "CHILD_AXIAL_LENGTH_MM in tools/openclinxr/evidence/blender/"
-            "materialize_mpfb_humanoid_candidate.py: round(22.2 + (8-4)/(17-4) * "
-            "(23.9-22.2), 3) from Rauscher 2021 (doi 10.1111/opo.12814) axial "
-            "length 4y 22.2 mm -> 17y 23.9 mm at the case's phenotype age 8"
+            "case-driven (handback 1): _child_eye_target_mm_for_stem resolves "
+            "through pediatric_axial_length at the case phenotype's own age "
+            "(actor-phenotype.v1.json entries.<case>.<actor>.phenotype.age) "
+            "interpolating Rauscher 2021 (doi 10.1111/opo.12814) axial length "
+            "4y 22.2 mm -> 17y 23.9 mm; no table row, no copied constant"
         ),
         "beforeDiameterMm": eyes_anat["perEye"][0]["beforeDiameterMm"],
         "scale": eyes_anat["perEye"][0]["scale"],
@@ -350,8 +369,38 @@ report = {
             "--no-lid-conform flag the pre-conform base bake passes, with the "
             "output stem from stage4OutputStem(caseRec, caseId) = <caseId>-lidconform. "
             "No --eye-texture: the case's authored eye colour resolves its iris "
-            "image (green_eye) from the phenotype."
+            "image (green_eye) from the phenotype. The globe diameter is not in "
+            "the argv: the bake resolves the output stem through the case "
+            "phenotype age at bake time (handback 1)."
         ),
+        "stemTableRowChange": {
+            # The old row is history (a replaced assumption), not a source: the
+            # only literal here is the value being retired, cited to the diff
+            # that removed it.
+            "stem": "mpfb-peds-patient-child",
+            "oldValueMm": 22.5,
+            "oldSource": (
+                "EYE_DIAMETER_TARGET_MM row before tsk_083b92e9c7ca5d7b: an "
+                "unsourced school-age assumption (height_cm 125, "
+                "gender_presentation child)"
+            ),
+            "newValueMm": eyes_anat["targetDiameterMm"],
+            "newSource": (
+                "case-driven since handback 1: no table row; the stem resolves "
+                "through pediatric_axial_length at the case phenotype age 8 "
+                "(Rauscher 2021 interpolation)"
+            ),
+            "affectsOnNextBake": [
+                "mpfb-peds-patient-child",
+                f"{CASE}-eyeglobe-base",
+                f"{CASE}-lidconform",
+            ],
+            "nextBakeNote": (
+                "age 8 computes the same value, so the next bakes of these "
+                "stems are unchanged; a new child age or case flows through "
+                "the function instead of copying a constant"
+            ),
+        },
         "lidconformRecord": baked,
         "lidconformRecordRun2": baked2,
         "baseGlb": {"path": str(base_glb), "sha256": sha256_file(base_glb)},
@@ -444,6 +493,7 @@ report = {
             ),
         },
     },
+    "handback1": handback1,
     "falsifier": {
         "triggered": False,
         "checks": {

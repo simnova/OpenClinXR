@@ -146,6 +146,17 @@ type Report = {
   };
   falsifier: { triggered: boolean };
   sheets: Record<string, { sha256: string; bytes: number }>;
+  handback1: {
+    rebake: {
+      log: string;
+      glb: { path: string; sha256: string };
+      eyesAnatomical: { targetDiameterMm: number };
+      positionSha256: string;
+      globeEqualRun1: boolean;
+      positionEqualRun1Run2: boolean;
+    };
+    pass: boolean;
+  };
 };
 
 function readReport(): Report {
@@ -185,6 +196,18 @@ describe("the child lid conforms to its age-sized globe", () => {
     expect(r.bake.argv).toMatch(/--reference peds_patient_child/);
     expect(r.bake.argv).not.toMatch(/no-lid-conform/);
     expect(r.bake.argv).not.toMatch(/--eye-texture/);
+    const row = (r.bake as { stemTableRowChange: {
+      stem: string; oldValueMm: number; newValueMm: number;
+      affectsOnNextBake: string[];
+    } }).stemTableRowChange;
+    expect(row.stem).toBe("mpfb-peds-patient-child");
+    expect(row.oldValueMm).toBe(22.5);
+    expect(row.newValueMm).toBe(r.globeVsAnatomy.targetDiameterMm);
+    expect(row.affectsOnNextBake).toEqual([
+      "mpfb-peds-patient-child",
+      "peds_asthma_parent_anxiety_v1-eyeglobe-base",
+      "peds_asthma_parent_anxiety_v1-lidconform",
+    ]);
   });
 
   it("(2) the stage-4 default stem is case-derived, not shared", () => {
@@ -373,5 +396,18 @@ describe("the child lid conforms to its age-sized globe", () => {
     for (const key of ["card", "round", "verdict"] as const) {
       expect(typeof r[key]).toBe("string");
     }
+  });
+
+  it("(11) handback 1: one rebake logs the same globe and body", () => {
+    const r = readReport();
+    expect(r.handback1.pass).toBe(true);
+    expect(r.handback1.rebake.globeEqualRun1).toBe(true);
+    expect(r.handback1.rebake.positionEqualRun1Run2).toBe(true);
+    expect(r.handback1.rebake.eyesAnatomical.targetDiameterMm).toBe(
+      r.globeVsAnatomy.targetDiameterMm,
+    );
+    expect(r.handback1.rebake.positionSha256).toBe(r.gates.g3.run1PositionSha256);
+    expect(existsSync(r.handback1.rebake.log), "confirm bake log exists").toBe(true);
+    expect(existsSync(r.handback1.rebake.glb.path), "confirm bake GLB exists").toBe(true);
   });
 });
