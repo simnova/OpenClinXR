@@ -33,6 +33,41 @@ import {
   type SubStage,
 } from "./stages-c.js";
 
+/**
+ * Manifest stages the station chains itself, in manifest position, instead
+ * of the replay (their standalone argv differs from replay.py's, so the
+ * replay must skip them). Keyed by stage name per the card; the ORDER
+ * still comes from the manifest plan.
+ */
+export const STATION_CHAINED_STAGES = ["beard_shadow", "detail_bands"] as const;
+
+/**
+ * Refuses a manifest whose replay-executed stages would run before the
+ * station-chained stages: the replay runs every non-skipped stage first,
+ * then the station chains the skipped ones, so a replay-executed stage
+ * AFTER a chained stage would be silently reordered (its product is
+ * already on disk when the chained stage runs). Append new stages only
+ * at the end (after the chained suffix) or give them a standalone runner.
+ */
+export function assertChainedStagesAreSuffix(
+  ordered: Array<{ name: string; skipped: boolean }>,
+): void {
+  const chained = new Set<string>(STATION_CHAINED_STAGES);
+  let seenChained = "";
+  for (const stage of ordered) {
+    if (stage.skipped && chained.has(stage.name)) {
+      seenChained = stage.name;
+      continue;
+    }
+    if (stage.skipped) continue;
+    if (seenChained !== "") {
+      throw new Error(
+        `chain order violated: replay-executed stage ${stage.name} comes after station-chained stage ${seenChained}: refused`,
+      );
+    }
+  }
+}
+
 export function runStage1(
   caseId: string,
   caseRec: Record<string, unknown>,
@@ -221,6 +256,11 @@ export function runStage3(
       `chain derive size ${String(deriveParams?.["size"])} != case derive_size ${String(deriveSize)}: refused`,
     );
   }
+  const prePlan = planChainManifest(
+    manifestDoc as { stages?: Array<{ name?: unknown; output_paths?: unknown }> },
+    skipStages,
+  );
+  assertChainedStagesAreSuffix(prePlan.ordered);
   const replayed = runReplayChain({
     subject: chainSubject,
     manifestFile: manifestAbs,

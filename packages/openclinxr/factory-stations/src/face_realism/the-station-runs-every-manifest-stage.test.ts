@@ -6,7 +6,9 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { planFaceRealism } from "./plan.js";
 import {
+  assertChainedStagesAreSuffix,
   FACE_REALISM_FIXTURE_ALBEDO_REL,
+  planChainManifest,
   prepareFixtureReplayDir,
   runReplayChain,
 } from "./run.js";
@@ -141,6 +143,41 @@ describe("the station runs every manifest stage", () => {
     const fileSha = createHash("sha256").update(readFileSync(join(outDir, "albedo_occ.png"))).digest("hex");
     expect(finalSha256).toBe(fileSha);
   }, 240_000);
+
+  it("(G1e) a replay-executed stage after a station-chained stage is refused, not silently reordered", () => {
+    const root = testRepoRoot();
+    const chain = JSON.parse(readFileSync(join(root, CHAIN), "utf8")) as {
+      stages: ManifestStage[];
+      subjects: Record<string, Record<string, unknown>>;
+    };
+    const byName = new Map(chain.stages.map((stage) => [stage.name, stage]));
+    // A stage appended AFTER detail_bands (the last station-chained
+    // stage): the replay would run it before the station chains
+    // beard_shadow/detail_bands, silently breaking manifest order.
+    const appended = JSON.parse(JSON.stringify(byName.get("occlusion"))) as ManifestStage;
+    appended.output_paths = { albedo_occ_png: "albedo_occ_2.png" };
+    const doc = {
+      method_version: "face-replay-hands-v1-test",
+      stages: [...chain.stages.map((stage) => JSON.parse(JSON.stringify(stage)) as ManifestStage), appended],
+      subjects: { aisha: { glb_sha256: "PLACEHOLDER_GLB_SHA256", overrides: {} } },
+    };
+    const withExtra = planChainManifest(
+      doc as { stages: Array<{ name?: unknown; output_paths?: unknown }> },
+      ["beard_shadow", "detail_bands"],
+    );
+    expect(withExtra.executed.at(-1)).toBe("occlusion");
+    expect(() => assertChainedStagesAreSuffix(withExtra.ordered)).toThrow(
+      /chain order violated: replay-executed stage occlusion comes after station-chained stage detail_bands/,
+    );
+    // The real manifest with the real skips chains beard+detail last: no refusal.
+    const real = planChainManifest(
+      chain as { stages: Array<{ name?: unknown; output_paths?: unknown }> },
+      ["apply_occ", "beard_shadow", "detail_bands"],
+    );
+    expect(real.executed.at(-1)).toBe("socket");
+    expect(real.ordered.at(-1)).toEqual({ name: "detail_bands", outputPng: "albedo_detail.png", skipped: true });
+    expect(() => assertChainedStagesAreSuffix(real.ordered)).not.toThrow();
+  }, 60_000);
 
   it("(G1d) skipping the last manifest stage moves the final back to the new last stage", () => {
     const manifest = smallManifestPath(["derive", "roughness", "occlusion"]);

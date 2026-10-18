@@ -34,7 +34,13 @@ import {
   type StageIO,
   type StageRecord,
 } from "./shared.js";
-import { runStage1, runStage2, runStage3 } from "./stages-a.js";
+import {
+  STATION_CHAINED_STAGES,
+  assertChainedStagesAreSuffix,
+  runStage1,
+  runStage2,
+  runStage3,
+} from "./stages-a.js";
 import { runStage4, runStage7 } from "./stages-b.js";
 import { runStage5, runStage6 } from "./stages-d.js";
 
@@ -45,6 +51,7 @@ export {
   runReplayChain,
   stageSyntheticFixtureGlb,
 };
+export { STATION_CHAINED_STAGES, assertChainedStagesAreSuffix };
 export { sanitizedFaceRealismEnv };
 export type { StageGate, StageIO, StageRecord } from "./shared.js";
 export { FACE_REALISM_FIXTURE_ALBEDO_REL, FACE_REALISM_REPLAY_REL } from "./chain.js";
