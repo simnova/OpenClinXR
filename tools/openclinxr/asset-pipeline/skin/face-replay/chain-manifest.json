@@ -10,9 +10,7 @@
         "size": 4096,
         "no_ao": false
       },
-      "input_kinds": [
-        "subject_glb"
-      ],
+      "input_kinds": ["subject_glb"],
       "output_shas_aisha": {
         "occupancy.png": "PLACEHOLDER_SHA256",
         "mask-lips.png": "PLACEHOLDER_SHA256",
@@ -76,11 +74,7 @@
         "p": 0.9,
         "k": 2.0
       },
-      "input_kinds": [
-        "albedo_png",
-        "ao_png",
-        "occupancy_png"
-      ],
+      "input_kinds": ["albedo_png", "ao_png", "occupancy_png"],
       "output_shas_aisha": {
         "albedo_occ.png": "PLACEHOLDER_SHA256"
       },
@@ -100,13 +94,7 @@
       "parameters": {
         "tcoef": 0.08
       },
-      "input_kinds": [
-        "albedo_png",
-        "ao_png",
-        "lip_uv_npz",
-        "landmarks_uv_json",
-        "facecore_mask"
-      ],
+      "input_kinds": ["albedo_png", "ao_png", "lip_uv_npz", "landmarks_uv_json", "facecore_mask"],
       "output_shas_aisha": {
         "roughness.png": "PLACEHOLDER_SHA256"
       },
@@ -129,10 +117,7 @@
       "parameters": {
         "ratio": 1.0
       },
-      "input_kinds": [
-        "albedo_png",
-        "lip_uv_npz"
-      ],
+      "input_kinds": ["albedo_png", "lip_uv_npz"],
       "output_shas_aisha": {
         "albedo_lips.png": "PLACEHOLDER_SHA256"
       },
@@ -150,24 +135,11 @@
       "script": "fix_corner.py",
       "entry": "main",
       "parameters": {
-        "inner_rgb": [
-          200,
-          140,
-          125
-        ],
-        "outer_rgb": [
-          215,
-          185,
-          170
-        ],
+        "inner_rgb": [200, 140, 125],
+        "outer_rgb": [215, 185, 170],
         "feather_px": 8
       },
-      "input_kinds": [
-        "albedo_png",
-        "socket_wall_L_png",
-        "socket_wall_R_png",
-        "landmarks_uv_json"
-      ],
+      "input_kinds": ["albedo_png", "socket_wall_L_png", "socket_wall_R_png", "landmarks_uv_json"],
       "output_shas_aisha": {
         "albedo_corners.png": "PLACEHOLDER_SHA256"
       },
@@ -193,16 +165,7 @@
         "w_feather": 32.0,
         "feat_ramp": 72.0
       },
-      "input_kinds": [
-        "albedo_png",
-        "subject_glb",
-        "facecore_mask",
-        "lips_mask",
-        "eyes_L_mask",
-        "eyes_R_mask",
-        "brows_L_mask",
-        "brows_R_mask"
-      ],
+      "input_kinds": ["albedo_png", "subject_glb", "facecore_mask", "lips_mask", "eyes_L_mask", "eyes_R_mask", "brows_L_mask", "brows_R_mask"],
       "output_shas_aisha": {
         "albedo_sym.png": "PLACEHOLDER_SHA256"
       },
@@ -222,19 +185,11 @@
       "script": "fix_socket.py",
       "entry": "main",
       "parameters": {
-        "cheek_lab": [
-          45,
-          12.7,
-          14.0
-        ],
+        "cheek_lab": [45, 12.7, 14.0],
         "dilate_px": 8,
         "feather_px": 6
       },
-      "input_kinds": [
-        "albedo_png",
-        "eyes_L_mask",
-        "eyes_R_mask"
-      ],
+      "input_kinds": ["albedo_png", "eyes_L_mask", "eyes_R_mask"],
       "output_shas_aisha": {
         "albedo_socket.png": "PLACEHOLDER_SHA256"
       },
@@ -260,12 +215,7 @@
         "seed": 11,
         "texels_per_mm": 4.079
       },
-      "input_kinds": [
-        "albedo_png",
-        "landmarks_uv_json",
-        "lips_mask",
-        "facecore_mask"
-      ],
+      "input_kinds": ["albedo_png", "landmarks_uv_json", "lips_mask", "facecore_mask"],
       "output_shas_aisha": {
         "albedo_beard.png": "PLACEHOLDER_SHA256"
       },
@@ -330,42 +280,20 @@
         "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: p=3.0 (POST=probe, no extrapolation); affine probeN slope 0.007667/L-unit against goal 0.03686 under corrected G1 low-edge; POST3 verifies)"
       },
       "overrides": {
-        "lips": {
-          "ratio": 1.3
-        },
-        "symmetrise": {
-          "strength": 1.0
-        },
-        "beard_shadow": {
-          "weight": 0.0
-        },
-        "detail_bands": {
-          "crease_gain": 1.0,
-          "pore_gain": 3.0
-        }
+        "lips": { "ratio": 1.30 },
+        "symmetrise": { "strength": 1.0 },
+        "beard_shadow": { "weight": 0.0 },
+        "detail_bands": { "crease_gain": 1.0, "pore_gain": 3.0 }
       }
     },
     "adult_male_street_casual": {
       "glb_sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
-      "skin_tone_rgb": [
-        0.66,
-        0.5,
-        0.4
-      ],
+      "skin_tone_rgb": [0.66, 0.50, 0.40],
       "overrides": {
-        "lips": {
-          "ratio": 1.0
-        },
-        "symmetrise": {
-          "strength": 1.0
-        },
-        "beard_shadow": {
-          "weight": 0.9
-        },
-        "detail_bands": {
-          "crease_gain": 1.0,
-          "pore_gain": 3.9
-        }
+        "lips": { "ratio": 1.0 },
+        "symmetrise": { "strength": 1.0 },
+        "beard_shadow": { "weight": 0.9 },
+        "detail_bands": { "crease_gain": 1.0, "pore_gain": 3.9 }
       },
       "sources": {
         "glb_sha256": "measured: shasum -a 256 S/body2/final.glb (male-macro rebake, bake.log MACRO_BASE gender 1.0)",
@@ -379,21 +307,11 @@
     },
     "peds_patient_child": {
       "glb_sha256": "a969db3ba0a63d43597b5c3007a6e520a85c46bec9e28c97aa88638500ed79b1",
-      "skin_tone_rgb": [
-        0.84,
-        0.7,
-        0.6
-      ],
+      "skin_tone_rgb": [0.84, 0.70, 0.60],
       "overrides": {
-        "lips": {
-          "ratio": 1.0
-        },
-        "symmetrise": {
-          "strength": 1.0
-        },
-        "beard_shadow": {
-          "weight": 0.0
-        }
+        "lips": { "ratio": 1.0 },
+        "symmetrise": { "strength": 1.0 },
+        "beard_shadow": { "weight": 0.0 }
       },
       "sources": {
         "glb_sha256": "measured: shasum -a 256 apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (== face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb byte-identical copy); the GLB the child stage 3 uses per case-inputs.json:cases.peds_asthma_parent_anxiety_v1.stage3_glb",
@@ -413,22 +331,7 @@
       "distance": 0.03,
       "seed": 0,
       "margin": 8,
-      "garments_hidden": [
-        "jeans",
-        "pant",
-        "shoe",
-        "boot",
-        "shirt",
-        "t_shirt",
-        "hair",
-        "mhair",
-        "blunt",
-        "bob",
-        "cap",
-        "hat",
-        "glass",
-        "icosphere"
-      ],
+      "garments_hidden": ["jeans", "pant", "shoe", "boot", "shirt", "t_shirt", "hair", "mhair", "blunt", "bob", "cap", "hat", "glass", "icosphere"],
       "duration_seconds_per_subject": "87-93"
     },
     "note": "AO bake needs Blender; tracked test must not launch it. Record command + parameters in manifest. Human/station runs this separately."

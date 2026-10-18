@@ -66,6 +66,7 @@ describe("the face station replays a stored record", () => {
       "symmetrise",
       "socket",
       "beard_shadow",
+      "detail_bands",
     ]);
     expect(result.plan["shellDefault"]).toBe("off");
   });
