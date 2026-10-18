@@ -9,8 +9,8 @@
  * the wrinkle pore band converted to cycles/H ([130/2pi, 1500/2pi]).
  * The fix moves the grain's spectral peak with ONE generic parameter
  * (detail_bands.py pore_noise_hi_mm, the grain band's upper scale in
- * mm), solved per case against that case's goal peak and recorded in
- * chain-manifest.json subject overrides with a sources entry.
+ * mm). Verdict not_converged: G1 failed on both subjects, so no per-case
+ * override ships (chain-manifest.json keeps the 1.4 mm default).
  *
  * Fixture-scale stage contract (detail_bands.py, no subject literals):
  * the hi-mm parameter moves a synthetic grain's spectral peak by the
@@ -184,24 +184,25 @@ describe("pore-scale-fine stage contract", () => {
 });
 
 describe("pore-scale-fine manifest + report", () => {
-  it("chain-manifest records solved per-case hi-mm with sources", () => {
+  it("not converged: chain-manifest carries no pore_noise_hi_mm override (default 1.4 mm ships)", () => {
+    // Verdict not_converged (pore-scale-fine-report.json verdict): fine grain
+    // spreads below the render's resolve, G1 failed on both subjects, so the
+    // solved overrides were reverted. RESTORE only with a new solve whose G1
+    // passes on both subjects; do not re-add the reverted 0.7/2.4 values.
     const man = JSON.parse(fs.readFileSync(MANIFEST, "utf8")) as {
       subjects: Record<string, {
         overrides?: Record<string, Record<string, unknown>>;
         sources?: Record<string, string>;
       }>;
     };
-    for (const subj of ["aisha", "adult_male_street_casual"]) {
+    for (const subj of Object.keys(man.subjects)) {
       const ov = man.subjects[subj].overrides?.detail_bands;
-      expect(ov, `${subj} detail_bands overrides`).toBeDefined();
-      const hi = ov?.pore_noise_hi_mm as number;
-      expect(typeof hi).toBe("number");
-      expect(hi).toBeGreaterThan(0);
-      expect(hi).toBeLessThan(3.0);
-      expect(hi).not.toBe(1.4);
-      const src = man.subjects[subj].sources?.["detail_bands.pore_noise_hi_mm"] ?? "";
-      expect(src).toContain("pore-scale-fine");
+      expect(ov?.pore_noise_hi_mm, `${subj} has no hi-mm override`).toBeUndefined();
+      expect(man.subjects[subj].sources?.["detail_bands.pore_noise_hi_mm"]).toBeUndefined();
     }
+    const rep = JSON.parse(fs.readFileSync(REPORT, "utf8"));
+    expect(rep.verdict.status).toBe("not_converged");
+    expect(rep.gates.g1.rows.every((r: { pass: boolean }) => r.pass === false)).toBe(true);
   });
 
   it("report validates: instrument before numbers, falsifier + G1 recomputed, G2-G4 recorded", () => {

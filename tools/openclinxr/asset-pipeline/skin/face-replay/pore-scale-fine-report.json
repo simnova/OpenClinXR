@@ -1104,5 +1104,12 @@
  "sheets": [
   "/Volumes/files/openclinxr-assets/store/skin-pore-scale-fine/sheet_body2_forehead_pre-wrinklepost-new-goal.png",
   "/Volumes/files/openclinxr-assets/store/skin-pore-scale-fine/sheet_aisha_forehead_pre-wrinklepost-new-goal.png"
- ]
+ ],
+ "verdict": {
+  "status": "not_converged",
+  "cause": "fine grain spreads below the render's resolve: the hi-mm parameter moves the UV grain (albedo difference spectra body2 low-cut 5.7->2.9 tex, aisha 5.7->9.8 tex), but render-visible grain centres cap near ~85 cycles/H at this texels-per-pixel while body2's G1 window starts at 106.6; the render-domain argmax falls onto base texture (body2 73.5->54.3) or stays on base mottle (aisha 22.14->22.15). G1 fails on both subjects.",
+  "shipped": "no parameter change: the pore_noise_hi_mm subject overrides are reverted, chain-manifest.json equals main (default 1.4 mm, the wrinkle output). Instrument (pore_scale.py), stage parameter (detail_bands.py --pore-noise-hi-mm, default identity), report and test are kept.",
+  "decided_by": "coordinator, after native grade of sheet_body2_forehead: new grain barely distinguishable from the wrinkle POST",
+  "date": "2026-10-18"
+ }
 }
