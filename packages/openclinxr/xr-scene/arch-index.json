@@ -74,6 +74,7 @@
   ],
   "tests": [
     "src/compiled-room-readiness.test.ts",
+    "src/cornea-env/catchlight-room-key.test.ts",
     "src/cornea-env/the-cornea-env-intensity-changes-the-globe.test.ts",
     "src/cornea-env/the-key-catchlight-is-falsified-by-rig.test.ts",
     "src/encounter-actor-framing.test.ts",
