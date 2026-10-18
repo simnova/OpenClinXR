@@ -1,0 +1,313 @@
+{
+ "briefMissing": [
+  "G1 pixel leg reformulated (measured cause): the brow-pixel rule cannot count one-vs-two bands \u2014 painted and mesh brows are vertically coincident (y-projection gaps>3px = 0..1 on all six one-brow PRE/A/M renders; connected-component counts fragment 1..4 on TRUE one-brow renders). G1 therefore rests on materialInventory (no eyebrow mesh) + brow detected both sides + D(POST) nearest the A winner. Method evidence: S/st-browform/scratch/ygap.py + count_brow_bands.py runs in this report.",
+  "Child POST does not exist: the child stage-4 bake refuses (lid_ring_source null) and stage-3 refuses (no goal-derived inputs), so no child texture GLB can be produced on this card. Child brow_form stays default texture; child G1/G2 recorded as pending-eye-and-skin-lanes with the PRE render + inventory evidence. Same shape as the card's allowed aisha pending record.",
+  "G2 face-gate C6 lighting clause moves +0.003 POST vs PRE (noise 0.0): the removed brow mesh shaded the forehead, so a lighting-clause move is expected by construction; not a skin regression. All other enforced clauses within noise.",
+  "G2 stage-3 leg: albedo_beard.png differs PRE(973b4c16) vs POST(8652e33f) \u2014 NOT this card: landed beard change 770fb3a54 (skin-wrinkle-scale) postdates the case-inputs pin; current beard_shadow.py deterministically reproduces 8652e33f (manual redo + run4 + run5). Pin left untouched (re-pinning is the skin lane's known-good call; out of scope). Every other stage-3 output byte-identical.",
+  "G4: every-actor-has-brows-lashes-and-teeth clause (3) (garment-fit-target tris) REDS, proven PRE-EXISTING via stash at 5b7abce65 (fails identically without this card's changes): 8 shipped decimated-LOD actors in apps/ui-xr/public (e.g. mpfb-ob-patient-aisha.glb 10705 tris). Brow clauses (1)(2) green. Not edited/skipped per the card; fixing shipped LODs is out of scope (never write apps/ui-xr/public)."
+ ],
+ "card": "tsk_27220fbaeb48dab4",
+ "childDefault": {
+  "reason": "the mesh-vs-albedo bake-off cannot be rendered for the child on this card: stage-3 compose/colour are refused_no_goal_derived_inputs (no child goal-derived inputs; skin lane) and lid_ring_source is null (no child pre-conform base bake; eye lane, the card's F5 refusal). Re-runs on this card re-recorded the same refusals (child run4/run5 stage-records.json). No child stage-4 GLB or chain albedo exists to render A/M conditions on the room rig.",
+  "value": "texture"
+ },
+ "fields": {
+  "aisha": {
+   "source": "tools/openclinxr/evidence/face-defects/one-brow/report.json:subjects.aisha.distances M 2.4088 < A 3.6632 (one-brow bake-off tsk_6f4a446db8bf5164 favours the mesh brow)",
+   "value": "mesh"
+  },
+  "body2": {
+   "source": "tools/openclinxr/evidence/face-defects/one-brow/report.json:subjects.body2.distances A 5.2595 < M 6.1004 (one-brow bake-off tsk_6f4a446db8bf5164 favours the albedo brow)",
+   "value": "texture"
+  },
+  "peds_asthma_parent_anxiety_v1": {
+   "source": "default texture (CARD tsk_27220fbaeb48dab4 STEP 1): bake-off not renderable for the child \u2014 stage3_compose/stage3_colour refused_no_goal_derived_inputs + lid_ring_source null; refusals re-recorded in child run4/run5 on this card",
+   "value": "texture"
+  }
+ },
+ "gates": {
+  "G1": {
+   "aisha": {
+    "evidence": "store one-brow/renders/onepre-aisha-front.png b020e6cf (two-brow state, mesh retained by design: aisha is a mesh case, bake unchanged)",
+    "status": "pending skin-brow-clear-and-colour"
+   },
+   "body2_POST": {
+    "D_POST": 5.4075,
+    "D_nearest": "A (5.2595): |POST-A|=0.148 < |POST-M|=0.693 < |POST-PRE|=0.727",
+    "bands_LR": "(2,2) fragmentation (not asserted; see briefMissing)",
+    "browPx_LR": [
+     3578,
+     4926
+    ],
+    "capture": "S/st-browform/render/post-body2.json sha256 56781a5a062febd996e36c95e0d6d88f1acce0913f0eadbdddb9ce392d31f773",
+    "detected_LR": [
+     true,
+     true
+    ],
+    "glb": "face-station-cases/body2/browform-texture-run1/body2-lidconform.glb sha256 4316ce9fc1cf4ff6252c51c49e4c44ddda9307b233ff87bb74b570fdf4f32d2c (12 meshes)",
+    "materialInventoryEyebrowMeshes": [],
+    "materialInventoryN": 15,
+    "render": "S/st-browform/render/post-body2-front.png sha256 08bc7913d5030bad820dd6693a9047b425420b3b5cbe5a99383a544801353766",
+    "status": "pass",
+    "glbNote": "GLB bytes unchanged by the r3-precedent move (run5 -> browform-texture-run1); POST capture JSON glb.path still names the run5 path with the same sha 4316ce9f."
+   },
+   "child_POST": {
+    "evidence": "S/st-browform/render/pre-child-front.png sha256 95848ab8ce7c190540c490c298f2698919254aa43f7b72910350b67cfd665d64 (== third-subject reference_input: same shipped GLB through the same deterministic path); inventory lists openclinxr_fitted_eyebrow_mindfront_eyebrows_03 mesh; child GLB sha a969db3b matches the case-inputs pin",
+    "status": "pending eye-and-skin-lanes (no POST producible: stage-4 ring null + stage-3 refused)"
+   }
+  },
+  "G2": {
+   "beardNote": "albedo_beard.png PRE 973b4c16c7267abe (run2) vs POST 8652e33f9078a3c2 (run4/run5/manual-redo, deterministic): stale pin predates landed beard change 770fb3a54; pin untouched (skin lane's call). All other stage-3 outputs byte-identical (compose 940ce5c6, socket 4e8b3630, corners/lips/occ/sym, eye-mask, roughness, tone, layers, eyesflags, fit, shape-verify).",
+   "faceGateSocketPreVsPost": {
+    "C1": {
+     "delta": 0.09,
+     "noise": 7.132,
+     "post": 25.26,
+     "pre": 25.17
+    },
+    "C2a_da": {
+     "delta": -0.03,
+     "noise": 0.581,
+     "post": 3.44,
+     "pre": 3.47
+    },
+    "C2b_dL": {
+     "delta": 0.17,
+     "noise": 4.16,
+     "post": 14.3,
+     "pre": 14.13
+    },
+    "C3a_da": {
+     "delta": 0.09,
+     "noise": 0.154,
+     "post": 12.87,
+     "pre": 12.78
+    },
+    "C3b_db": {
+     "delta": 0.08,
+     "noise": 0.224,
+     "post": 7.92,
+     "pre": 7.84
+    },
+    "C3ratio": {
+     "delta": 0.0,
+     "noise": 0.01,
+     "post": 0.051,
+     "pre": 0.051
+    },
+    "C4_reportOnly": {
+     "delta": -0.79,
+     "post": 4.88,
+     "pre": 5.67
+    },
+    "C5": {
+     "delta": 0.08,
+     "noise": 0.164,
+     "post": 13.72,
+     "pre": 13.64
+    },
+    "C6_lighting": {
+     "caveat": "removed mesh shadow moves the lighting clause by construction; not a skin regression",
+     "delta": 0.003,
+     "noise": 0.0,
+     "post": -0.063,
+     "pre": -0.06
+    },
+    "method": "face_gate.py --target body2-goal-front.png --render pre2-body2-front.png post-body2-front.png (socket albedo both sides; only the GLB differs). Absolute FAILs (C1/C2/C3/C5 vs Imagine goal) are pre-existing on PRE too (r3 pattern); the G2 bar is relative.",
+    "noiseSource": "tools/openclinxr/evidence/face-gate/clause-sources.json"
+   },
+   "shapeSubjectMode": {
+    "LID": {
+     "cutoff": 0.1613,
+     "delta": 0.0,
+     "noise": 0.0,
+     "note": "absolute FAIL is pre-existing (open eyes vs closed-lid cutoff, r3 0.319 pattern); PRE==POST identical so no regression",
+     "post": 0.326087,
+     "pre": 0.326087
+    },
+    "TINT": {
+     "cutoff": 0.326,
+     "delta": 0.0,
+     "noise": 0.0,
+     "post": 0.0,
+     "pre": 0.0
+    }
+   },
+   "stage3Note": "byte-identical run2 vs run5 except albedo_beard.png (see beardNote) and stage-4 byproducts skin-baked/skin-normal.png (expected: bake changed by design) + stage-records.json (the record itself)"
+  },
+  "G3": {
+   "body2": {
+    "differingPositionMeshes": [],
+    "glbRun5": "4316ce9fc1cf4ff6252c51c49e4c44ddda9307b233ff87bb74b570fdf4f32d2c",
+    "glbRun6": "411d57229c74a8d2",
+    "meshSetsEqual": true,
+    "method": "drivers/stage4_position_shas.py on both GLBs",
+    "nMeshes": 12,
+    "positionIdentical": true,
+    "status": "pass (bytes differ: known jitter, r3 pattern)",
+    "runDirs": [
+     "face-station-cases/body2/browform-texture-run1",
+     "face-station-cases/body2/browform-texture-run2"
+    ]
+   },
+   "child": {
+    "run4vsRun5": "identical refusals (s3 base_skin.assets not a string; s4 assets.value not a string)",
+    "status": "pass (no GLB either run; nothing to compare)"
+   }
+  },
+  "G4": {
+   "gateA": "tools/openclinxr/evidence/every-actor-has-brows-lashes-and-teeth.test.ts:77 const D reads shipped apps/ui-xr/public/generated-humanoids (NOT station output)",
+   "gateB": "tools/openclinxr/evidence/the-reduced-eyebrow-still-spans-and-darkens-the-brow-band.test.ts:80 const DIR reads shipped apps/ui-xr/public/generated-humanoids (NOT station output)",
+   "browClauses": "green (gate A clauses 1+2, gate B all 8 passed)",
+   "clause3": "PRE-EXISTING red, stash-proven at 5b7abce65 (fails identically with this card stashed): 8 shipped decimated LODs fail the 26756-tris fit-target pin (e.g. mpfb-ob-patient-aisha.glb 10705). Not edited, not skipped; fixing shipped LODs is out of scope (never write apps/ui-xr/public)."
+  },
+  "G5": {
+   "layout": "native pixels only: renders at 1280, goals at native 1024 (no upscale); columns documented in sheets{}; pending marks in filenames + this report (pixels untouched)",
+   "sheets": {
+    "aisha": {
+     "columns": [
+      "PRE store one-brow/renders/onepre-aisha-front.png",
+      "goal S/project/edit-v9/edit-0.png"
+     ],
+     "mark": "pending skin-brow-clear-and-colour",
+     "png": "/Volumes/files/openclinxr-assets/store/brow-form/sheet-aisha-pending.png",
+     "sha256": "bfccadd3bf50de99bbc7ed5d4086afd27dff09b3ad2dfd71a5261556f38a31a0",
+     "size": [
+      2304,
+      1280
+     ]
+    },
+    "body2": {
+     "columns": [
+      "PRE store one-brow/renders/onepre-body2-front.png",
+      "POST S/st-browform/render/post-body2-front.png",
+      "goal store one-brow/goal-body2.png"
+     ],
+     "png": "/Volumes/files/openclinxr-assets/store/brow-form/sheet-body2.png",
+     "sha256": "bdf71d259ba9dd0480a54c2957554f1f8d8e8e2493a5b6e789f0c79cd8c8df19",
+     "size": [
+      3584,
+      1280
+     ]
+    },
+    "child": {
+     "columns": [
+      "PRE S/st-browform/render/pre-child-front.png",
+      "goal store third-subject/goal-front.png"
+     ],
+     "mark": "pending eye-and-skin-lanes (no POST)",
+     "png": "/Volumes/files/openclinxr-assets/store/brow-form/sheet-child-pending.png",
+     "sha256": "c99aefdf9d51971858698ca82c843df4d97a66963d014633754d4d05ee511c2a",
+     "size": [
+      2304,
+      1280
+     ]
+    }
+   }
+  }
+ },
+ "materializer": {
+  "absentBehaviour": "unchanged (condition False, same block)",
+  "flag": {
+   "choices": [
+    "texture",
+    "mesh"
+   ],
+   "default": null,
+   "line": 2380
+  },
+  "gate": {
+   "line": 6771
+  },
+  "skipLog": {
+   "line": 6917
+  }
+ },
+ "noise": {
+  "aisha": {
+   "A_run1": 3.6632,
+   "A_run2": 3.6632,
+   "M_run1": 2.4088,
+   "M_run2": 2.4088,
+   "decisionGap": 1.2544,
+   "gapExceedsNoise": true
+  },
+  "body2": {
+   "A_run1": 5.2595,
+   "A_run2": 5.2595,
+   "M_run1": 6.1004,
+   "M_run2": 6.1004,
+   "decisionGap": 0.8409,
+   "gapExceedsNoise": true
+  },
+  "caveat": "body2 gap 0.8409 exceeds noise 0.0: no caveat needed",
+  "method": "each one-brow condition re-rendered a second time from scratch through runtime-portrait-capture.ts (RENDER_SIZE 1280, ob_triage_room_v1) and re-measured with measure_brow.py; run2 PNGs byte-identical to run1 (shas equal report.json); D recomputed to 4 decimals",
+  "noise": 0.0,
+  "renders": {
+   "twoalb-aisha": "3496e74e04b7044efa52e710caf1bf6f22d5e68c21439e32751055bab7491e55",
+   "twoalb-body2": "488a1279f8996e9aefd92392e5a0ffc7f9b3d47c91f3b6bd78a6e46e90d9fad4",
+   "twomesh-aisha": "807a9d0ff782a49cece750704a1618b4932265dbd18aab27f9b2e2bbee891f49",
+   "twomesh-body2": "6b29ec3bc8b933394eedbe2f20856ea488849342a27af82f2b4ed7c4fdac79d0"
+  }
+ },
+ "notTested": [
+  "three-quarter/profile views",
+  "reduced-budget mesh",
+  "C6 lighting re-verification after any rig change"
+ ],
+ "rebakes": {
+  "method": "r3 precedent (second-subject-r3-report.json env_notes): experimental runs keep their bytes in non-runN store dirs and the tracked case-run-report.json is restored, so unrelated suites keep reading run1-3. Rebake records live in the dirs below (stage-records.json each).",
+  "body2_run0_failed": {
+   "dir": "face-station-cases/body2/browform-texture-run0-failed-cachegap",
+   "note": "FAILED attempt (was run4): stage-4 bake crashed on a provider-cache gap (garments .mhmat missing from the worktree-local cache); cache repaired from realism-95 (rsync, verified identical) before run1. Record kept as evidence.",
+   "status": "partial (s4 blocked, no GLB)"
+  },
+  "body2_run1": {
+   "argv": [
+    "--reference",
+    "adult_male_street_casual",
+    "--actor-role",
+    "patient",
+    "--bake-device",
+    "metal",
+    "--eye-asset",
+    "high-poly",
+    "--eye-cornea",
+    "--brow-form",
+    "texture",
+    "--output"
+   ],
+   "dir": "face-station-cases/body2/browform-texture-run1",
+   "glb": "body2-lidconform.glb sha256 4316ce9fc1cf4ff6252c51c49e4c44ddda9307b233ff87bb74b570fdf4f32d2c (12 meshes, no eyebrow)",
+   "s4gate": "bytes differ; body POSITION identical (0 meshes differ vs stale pin); blocked_by r3-record drift on 1 mesh (the removed eyebrow, by design)",
+   "s7": "pass (lid G1 PASS)",
+   "status": "partial (s3 beard pin, see G2)"
+  },
+  "body2_run2": {
+   "dir": "face-station-cases/body2/browform-texture-run2",
+   "glb": "body2-lidconform.glb sha256 411d57229c74a8d2",
+   "status": "partial (same legs as run1)"
+  },
+  "child_run1": {
+   "dir": "face-station-cases/peds_asthma_parent_anxiety_v1/browform-child-run1",
+   "status": "partial (s3+s4 refusals re-recorded)"
+  },
+  "child_run2": {
+   "dir": "face-station-cases/peds_asthma_parent_anxiety_v1/browform-child-run2",
+   "status": "partial (identical refusals)"
+  }
+ },
+ "station": {
+  "argvBuilder": "packages/openclinxr/factory-stations/src/face_realism/shared.ts browFormArgv (line 194) wired into runStage4 (stages-b.ts line 106): texture appends --brow-form texture, mesh/absent appends nothing",
+  "argvProof": "S/st-browform/scratch/argv-proof.json (texture->[--brow-form,texture], mesh/absent/null->[]; sharedSha256 529daf17b0d73d2619a59f8c73d8943385883e1ae2f61203fdd902961481c594)",
+  "caseLiteralsInTs": "none added (texture/--brow-form are flag literals, not case names); existing G4 grep on run.ts/plan.ts unaffected (files untouched)",
+  "rebakeDirs": "non-runN store dirs per the r3 precedent; tracked case-run-report.json restored to HEAD (no diff)"
+ },
+ "preExistingReds": {
+  "freeze_test": {
+   "cause": "52 files differ from the recorded H1 base c59529b (one-brow, footstep, sclera, wrinkle-scale lanes); one-brow/report.json alone is non-allowlisted, so the test is red since the one-brow card at the latest \u2014 before this card. This card adds shared.ts/stages-b.ts/materializer diffs that STEP3 explicitly requires; amending the freeze allowlist is outside WRITE_ROOTS (second-subject/ lane owns it). Reported for coordinator adjudication.",
+   "test": "tools/openclinxr/evidence/second-subject/the-station-runs-on-a-child-case.test.ts (5) G3 counterweight freeze (childin card tsk_386c8c91eee19dca)"
+  },
+  "note": "BEFORE COMMIT suites: arch 291/291, face_realism 46/46 (with new test), face-gate/face-shape-clauses/face-fit/face-replay/one-brow green. The two reds above are proven pre-existing and out of this card\u2019s write roots; neither was edited nor skipped."
+ }
+}
