@@ -73,6 +73,7 @@ describe("The frame loop composes position.x from its base", () => {
       shouldUseCleanHumanoidSourceComparatorCapture: () => false,
       dialogueText: () => ({ line: "", initial: "" }),
       visemeUtterance: () => "",
+    isDeterministicCaptureClock: () => true,
       triggerDialogue: vi.fn(),
       schedulePedsPlaybackIfReady: vi.fn(),
       recordBootPhase: vi.fn(),

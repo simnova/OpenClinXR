@@ -69,6 +69,7 @@ function buildStandingSlotContext(): { ctx: HumanoidAnimationRuntimeContext; slo
     shouldUseCleanHumanoidSourceComparatorCapture: () => false,
     dialogueText: () => ({ line: "", initial: "" }),
     visemeUtterance: () => "",
+    isDeterministicCaptureClock: () => true,
     triggerDialogue: () => {},
     schedulePedsPlaybackIfReady: () => {},
     recordBootPhase: () => {},

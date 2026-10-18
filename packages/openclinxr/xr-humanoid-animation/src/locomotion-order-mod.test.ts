@@ -49,6 +49,7 @@ function stubContext(slots: GeneratedHumanoidAnimationSlot[]): HumanoidAnimation
     shouldUseCleanHumanoidSourceComparatorCapture: () => false,
     dialogueText: () => ({ line: "", initial: "" }),
     visemeUtterance: () => "",
+    isDeterministicCaptureClock: () => true,
     triggerDialogue: vi.fn(),
     schedulePedsPlaybackIfReady: vi.fn(),
     recordBootPhase: vi.fn(),

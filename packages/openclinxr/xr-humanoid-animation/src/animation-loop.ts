@@ -1,10 +1,10 @@
+import { phonemesForText, visemesForText } from "@openclinxr/xr-dialogue/package-actor-turn";
 import {
   applyGazeToHumanoid,
   applyGeneratedScalarVisemeToRoot,
   applyNamedSpeechVisemes,
   expressionWeightsForEmotion,
 } from "@openclinxr/xr-dialogue/package-viseme";
-import { phonemesForText, visemesForText } from "@openclinxr/xr-dialogue/package-actor-turn";
 import {
   applyPosturePose,
   applySupinePoseHoldingIncline,
@@ -26,8 +26,9 @@ import {
   visemeOpenness,
 } from "./face-rig.js";
 import { buildHumanoidSpeechEvidence, resolveHumanoidGazeTargetWorld, updateHumanoidGazeCue, updateVirtualDeviceActorSpeechPulses } from "./gaze-evidence.js";
-import { driveSlotLocomotion } from "./locomotion-clip-playback-mod.js";
 import { snapshotLocoGroundTap } from "./loco-ground-tap-mod.js";
+import { driveSlotLocomotion } from "./locomotion-clip-playback-mod.js";
+import { resolveIdleLifePhaseSeconds } from "./locomotion-drive-clock-mod.js";
 import {
   applyLocomotionOrderStanceLocks,
   createLocomotionOrderRegistry,
@@ -176,13 +177,6 @@ export function updateGeneratedHumanoidAnimations(
     if (isSupineFrame) {
       applySupinePoseHoldingIncline(slot.root);
     }
-    const t = (nowMs + slot.phaseOffsetMs) / 1000;
-    const breathing = Math.sin(t * 1.15);
-    const isSpeaking = slot.activeSpeech !== undefined;
-    const dialogueLean = isSpeaking ? -0.035 + Math.sin(t * 2.6) * 0.008 : Math.sin(t * 0.51) * 0.006;
-    const emotionalSway = Math.sin(t * 0.43) * 0.012;
-    const dialogueWeightShift = isSpeaking ? Math.sin(t * 3.1) * 0.008 : 0;
-    const pediatricAsthmaOverlay = pediatricAsthmaActingOverlayForSlot(ctx, slot, t, isSpeaking);
     // A map resolves each slot's OWN drive by actorId, so more than one actor can be driven at
     // once (see `updateGeneratedHumanoidAnimations`'s own parameter doc). A single drive keeps
     // the pre-existing behaviour: `actorId`, when set, scopes the LOCOMOTION effect to the one
@@ -192,6 +186,13 @@ export function updateGeneratedHumanoidAnimations(
     // them did not turn a previously-safe shared value into a newly-unsafe one for those two.
     const slotDrive = drive instanceof Map ? (drive.get(slot.actorId) ?? null) : (drive ?? null);
     const locomotionAppliesToThisSlot = slotDrive?.actorId === undefined || slotDrive.actorId === slot.actorId;
+    const t = resolveIdleLifePhaseSeconds(slot, drive, deltaSeconds, nowMs, ctx.isDeterministicCaptureClock());
+    const breathing = Math.sin(t * 1.15);
+    const isSpeaking = slot.activeSpeech !== undefined;
+    const dialogueLean = isSpeaking ? -0.035 + Math.sin(t * 2.6) * 0.008 : Math.sin(t * 0.51) * 0.006;
+    const emotionalSway = Math.sin(t * 0.43) * 0.012;
+    const dialogueWeightShift = isSpeaking ? Math.sin(t * 3.1) * 0.008 : 0;
+    const pediatricAsthmaOverlay = pediatricAsthmaActingOverlayForSlot(ctx, slot, t, isSpeaking);
     if (slotDrive && !isSupineFrame) {
       const locomotion = locomotionAppliesToThisSlot ? generatedDriveScalar(slotDrive.locomotion) : null;
       if (locomotion !== null) {
