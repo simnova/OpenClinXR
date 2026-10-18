@@ -6,10 +6,10 @@
  * tongue/eye/clothing): split body primitives merge only when they
  * partition one surface on one UV atlas (pairwise 3D-bbox-disjoint and
  * UV IoU < 0.05), else the largest body primitive wins. It REFUSES with
- * NO_BODY_SKIN_MESH when no body mesh qualifies (too few faces for
- * 4096px derivation, or no mouth hole loop) or no body mesh exists --
- * so the decimated runtime LOD (eyebrow card largest) hits the named
- * refusal instead of the mouth-hole assert. aisha-real-chain-report.json
+ * NO_BODY_SKIN_MESH when no body mesh qualifies (face-region mesh
+ * density below 400000 faces/m2 for 4096px derivation, or no mouth hole
+ * loop) or no body mesh exists -- so the decimated runtime LOD (eyebrow
+ * card largest) hits the named refusal instead of the mouth-hole assert. aisha-real-chain-report.json
  * pins the evidence: G2 derive table (base.glb reproduces S/derive/A),
  * G3 byte-identical real chain with/without the beard stage, G4
  * polygon-measured beard-weight sweep.
@@ -72,7 +72,12 @@ function writeSyntheticGLB(tmpDir: string, opts: {
     " keep=~hole",
     " idx=np.full(xv.shape,-1,int)",
     " idx[keep]=np.arange(int(keep.sum()))",
-    " v=np.column_stack([xv[keep],yv[keep],np.zeros(int(keep.sum()))])",
+    // Nose-like relief bump inside the stature-scaled face window so the
+    // fixture has measurable 3D face area (a flat plane has none and the
+    // density leg fires before the loop leg). The bump sits far from the
+    // mouth hole, so loop detection is unchanged.
+    " zb=0.010*np.exp(-(((xv-0.0)/0.015)**2+((yv-0.075)/0.020)**2))",
+    " v=np.column_stack([xv[keep],yv[keep],zb[keep]])",
     " faces=[]",
     " for j in range(N-1):",
     "  for i in range(N-1):",
@@ -107,10 +112,11 @@ function writeSyntheticGLB(tmpDir: string, opts: {
 describe("derive refuses a non-body skin", { timeout: 240000 }, () => {
   it("an eyebrow-named mesh larger than a body-named one never wins skin", () => {
     const tmp = fs.mkdtempSync(osp.tmpdir() + "/refuse-bigbrow-");
-    // body 61x61 (~7k faces, below the 20k floor) with a mouth hole,
-    // eyebrow 200x200 (80k faces): size must not elect the eyebrow.
+    // body 41x41 (coarse: face-region density below the 400k floor)
+    // with a mouth hole, eyebrow 200x200 (80k faces): size must not
+    // elect the eyebrow, and the coarse body refuses on density.
     const glb = writeSyntheticGLB(tmp, {
-      bodyName: "fixture_body_test", bodyGrid: 61, mouthHole: true,
+      bodyName: "fixture_body_test", bodyGrid: 41, mouthHole: true,
       browGrid: 200,
     });
     const raw = expectRefusal(glb);
@@ -119,8 +125,8 @@ describe("derive refuses a non-body skin", { timeout: 240000 }, () => {
 
   it("a full-size body without a mouth hole loop is refused", () => {
     const tmp = fs.mkdtempSync(osp.tmpdir() + "/refuse-noloop-");
-    // body 121x121 (~28k faces, above the floor) but closed lips:
-    // the loop leg fires, not the size leg.
+    // body 121x121 (dense: above the 400k floor) but closed lips:
+    // the loop leg fires, not the density leg.
     const glb = writeSyntheticGLB(tmp, {
       bodyName: "fixture_body_test", bodyGrid: 121, mouthHole: false,
       browGrid: 20,
@@ -139,8 +145,9 @@ describe("derive refuses a non-body skin", { timeout: 240000 }, () => {
 
   it("a qualifying body is still selected when the eyebrow is smaller", () => {
     const tmp = fs.mkdtempSync(osp.tmpdir() + "/refuse-okbody-");
-    // body 121x121 with mouth hole (~27k faces, no ".001" in the name):
-    // passes floor + loop, eyebrow 200x200 is larger and must still lose.
+    // body 121x121 with mouth hole (dense, above the floor, no ".001"
+    // in the name): passes density + loop, eyebrow 200x200 is larger
+    // and must still lose.
     const glb = writeSyntheticGLB(tmp, {
       bodyName: "fixture_body_v1", bodyGrid: 121, mouthHole: true,
       browGrid: 200,
