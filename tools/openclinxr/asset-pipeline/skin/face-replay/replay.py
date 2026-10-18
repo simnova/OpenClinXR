@@ -186,15 +186,16 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
         cmd += [str(resolved["albedo_png"]), str(store_dir / output_paths["albedo_beard_png"])]
         derive_out = store_dir / "derive_out"
         cmd += ["--landmarks", str(derive_out / "landmarks-uv.json")]
-        # Vermilion from the albedo (handback 6): the lipuv union is the
-        # lip MESH region, bigger than the visible vermilion, so hugging
-        # it leaves a pale band. The SAME albedo-chroma mask detail_bands
-        # hugs is built here from the pre-beard socket albedo (identical
-        # bytes on re-runs; falls back to the union on flat albedos).
-        # Aisha (weight 0) is unaffected: identity by copy.
+        # Vermilion from the albedo (handback 6): the SAME mask detail
+        # hugs, so grain and beard meet it with no seam. The beard keeps
+        # the derive lips mask for its calibrated treatment geometry
+        # (top edge, trim, zone bounds) and uses the vermilion only for
+        # the exclusion hole + lip feather. Aisha (weight 0) is
+        # unaffected: identity by copy.
         _socket_alb = Path(inputs.get("albedo_socket_png", resolved["albedo_png"]))
         _verm_union = _vermilion_union(store_dir, _socket_alb, derive_out)
-        cmd += ["--lips-mask", str(_verm_union)]
+        cmd += ["--lips-mask", str(derive_out / "mask-lips.png")]
+        cmd += ["--vermilion-mask", str(_verm_union)]
         cmd += ["--facecore-mask", str(derive_out / "mask-facecore.png")]
         cmd += ["--weight", str(params["weight"])]
         cmd += ["--seed", str(params["seed"])]

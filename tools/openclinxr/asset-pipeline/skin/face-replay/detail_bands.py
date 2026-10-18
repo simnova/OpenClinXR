@@ -127,20 +127,23 @@ def vermilion_mask_from_albedo(albedo_rgb: np.ndarray, union: np.ndarray) -> np.
     The lipuv union is the lip MESH region, bigger than the visible
     vermilion (margin skin at the corners/borders), so hugging it leaves
     a pale band. Edge rule: inside the union neighbourhood, a texel is
-    vermilion where its a* exceeds the local skin a* (median 2-4 mm
-    outside the lips mask) by at least HALF of (lip a* peak minus skin
-    a*): the half-maximum edge. Stated numbers (measured per image):
-    skin ~10-14, peaks ~23-29, thresholds ~17-20 on both subjects. The contour is closed morphologically, then
-    smoothed with a 0.5 mm Gaussian and thresholded at 0.5 (no polygons,
-    no straight segments), hole-filled (mouth opening stays excluded),
-    components < 200 texels dropped. Falls back to the union when it
-    covers < 5% of the union (flat albedo, synthetic fixtures).
+    vermilion where its a* exceeds the local skin a* (median 3-6 mm
+    outside the lips mask: ring dilate-49 minus dilate-25 texels) by at
+    least HALF of (lip a* peak minus skin a*): the half-maximum edge.
+    Stated numbers are measured per image and recorded in
+    wrinkle-scale-report.json fix.vermilion (skin ~10-14, peaks ~23-29,
+    thresholds ~18-20 on both subjects). The contour is closed
+    morphologically, then smoothed with a 0.5 mm Gaussian and
+    thresholded at 0.5 (no polygons, no straight segments), hole-filled
+    (mouth opening stays excluded), components < 200 texels dropped.
+    Falls back to the union when it covers < 5% of the union (flat
+    albedo, synthetic fixtures).
     """
     lab = rgb_to_lab(np.asarray(albedo_rgb, dtype=np.uint8))
     h, w = lab.shape[:2]
     av = cv2.GaussianBlur(lab[..., 1].astype(np.float64), (0, 0), 3.0)
-    ring = (cv2.dilate(union.astype(np.uint8), np.ones((49, 49), np.uint8)) > 0) & (
-        cv2.dilate(union.astype(np.uint8), np.ones((25, 25), np.uint8)) == 0)
+    ring = (cv2.dilate(union.astype(np.uint8), np.ones((25, 25), np.uint8)) > 0) & (
+        cv2.dilate(union.astype(np.uint8), np.ones((13, 13), np.uint8)) == 0)
     skin = float(np.median(av[ring])) if np.count_nonzero(ring) else 0.0
     near = cv2.dilate(union.astype(np.uint8), np.ones((21, 21), np.uint8)) > 0
     peak = float(av[union].max(initial=skin)) if np.count_nonzero(union) else skin
@@ -317,6 +320,10 @@ def main(argv: list[str] | None = None) -> int:
     # Bit-exact outside the dilated support: the stage changes only
     # texels inside its derived mask plus the small restore margin.
     out[~support] = alb[~support]
+    # Bit-exact where the gate is exactly zero (vermilion core, dark
+    # interiors): those texels receive literally zero change, so bypass
+    # the lossy Lab round trip for them (handback 7 proof (a)).
+    out[gate == 0.0] = alb[gate == 0.0]
     Image.fromarray(out).save(a.albedo_out)
     print("detail_bands: crease-gain=%s pore-gain=%s wrote %s"
           % (a.crease_gain, a.pore_gain, a.albedo_out), flush=True)

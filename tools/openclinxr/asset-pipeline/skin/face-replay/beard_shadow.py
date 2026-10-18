@@ -144,7 +144,14 @@ def load_mask(path: Path, shape: tuple[int, int]) -> np.ndarray:
 
 
 def build_beard_mask(facecore: np.ndarray, lips: np.ndarray,
-                     landmarks: dict, tpm: float) -> dict:
+                     landmarks: dict, tpm: float,
+                     vermilion: np.ndarray | None = None) -> dict:
+    """Beard support masks. lips drives the calibrated GEOMETRY (top edge,
+    trim, zone bounds, ramps: measured against the derive lips mask, see
+    the module docstring). vermilion, when given, drives ONLY the
+    exclusion hole + lip feather (handback 6: hugging the derive mask
+    leaves a pale band, so the hole/feather follow the albedo-chroma
+    vermilion instead while the treatment geometry stays frozen)."""
     size = float(landmarks["size"])
     h, w = facecore.shape
     pts: dict[str, np.ndarray] = {}
@@ -175,7 +182,13 @@ def build_beard_mask(facecore: np.ndarray, lips: np.ndarray,
     lips_ref = (lips_bin > 0) & (alat <= raw_half - COMMISSURE_TRIM_MM * tpm)
     if not lips_ref.any():
         raise RuntimeError("beard_shadow refuses: trimmed lips reference is empty")
-    lips_excl = dilate(lips_ref.astype(np.uint8), LIPS_EXCLUDE_MM * tpm)
+    # Exclusion hole + lip distance follow the vermilion when given
+    # (handback 6: hugging the derive mask leaves a pale band); all
+    # treatment geometry above stays on the calibrated derive reference.
+    vref = (vermilion > 0.5) if vermilion is not None else lips_ref
+    if not vref.any():
+        raise RuntimeError("beard_shadow refuses: vermilion reference is empty")
+    lips_excl = dilate(vref.astype(np.uint8), LIPS_EXCLUDE_MM * tpm)
     lip_top = float(proj[lips_ref].min())
     lip_half = float(alat[lips_ref].max())
     nostril_lat = float((abs(((pts["nostril-L"] - p0) * perp).sum())
@@ -200,7 +213,7 @@ def build_beard_mask(facecore: np.ndarray, lips: np.ndarray,
                             lip_line - slope_ear * (alat - lip_half)))
     hard = ((facecore > 0.5) & (proj > top) & (alat <= ear_half)
             & (proj <= chin_proj + CHIN_BEYOND_MM * tpm) & (~lips_excl))
-    dist_lips = cv2.distanceTransform((1 - lips_ref.astype(np.uint8)),
+    dist_lips = cv2.distanceTransform((1 - vref.astype(np.uint8)),
                                       cv2.DIST_L2, 3).astype(np.float64)
     zone = (hard & (proj <= lip_line)
             & (dist_lips <= MUSTACHE_ZONE_MM * tpm))
@@ -216,7 +229,7 @@ def build_beard_mask(facecore: np.ndarray, lips: np.ndarray,
                          np.clip((proj - top) / (NOSE_RAMP_MM * tpm), 0, 1), 1.0)
     return {"hard": hard, "zone": zone, "support": support, "top": top,
             "proj": proj, "rampband": rampband, "rampval": rampval,
-            "nose_gate": nose_gate,
+            "nose_gate": nose_gate, "lips_excl": lips_excl,
             "band_mm2": float(rampband.sum()) / tpm / tpm,
             "area_mm2": float(hard.sum()) / tpm / tpm,
             "zone_mm2": float(zone.sum()) / tpm / tpm,
@@ -263,6 +276,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--landmarks", type=Path, required=True)
     ap.add_argument("--lips-mask", type=Path, required=True)
     ap.add_argument("--facecore-mask", type=Path, required=True)
+    ap.add_argument("--vermilion-mask", type=Path, default=None,
+                    help="albedo-chroma vermilion (handback 6): when given, "
+                         "the exclusion hole + lip feather follow it instead "
+                         "of the lips mask; treatment geometry stays on the "
+                         "lips mask")
     ap.add_argument("--weight", type=float, default=0.0)
     ap.add_argument("--seed", type=int, default=SEED_DEFAULT)
     ap.add_argument("--texels-per-mm", type=float, required=True)
@@ -279,6 +297,7 @@ def main(argv: list[str] | None = None) -> int:
     h, wpx = alb.shape[:2]
     facecore = load_mask(a.facecore_mask, (h, wpx))
     lips = load_mask(a.lips_mask, (h, wpx))
+    verm = load_mask(a.vermilion_mask, (h, wpx)) if a.vermilion_mask else None
     with open(a.landmarks) as f:
         landmarks = json.load(f)
 
@@ -289,9 +308,10 @@ def main(argv: list[str] | None = None) -> int:
         print("beard_shadow: weight=0 no-op, copied %s" % a.albedo_out, flush=True)
         return 0
 
-    parts = build_beard_mask(facecore, lips, landmarks, tpm)
+    parts = build_beard_mask(facecore, lips, landmarks, tpm, vermilion=verm)
     hard, zone = parts["hard"], parts["zone"]
     support = parts["support"]
+    lips_excl = parts["lips_excl"]
     dist_lips = parts["dist_lips"]
     rampband = parts["rampband"]
     rampval = parts["rampval"]
@@ -345,11 +365,15 @@ def main(argv: list[str] | None = None) -> int:
                 0.2 * rng.standard_normal(len(ramp_c)))
             ramp_r = np.clip(ramp_r, 0.2, None)
             apply_stipple(lab, support, ramp_c, ramp_r, w, gate)
-        lab[..., 0] = np.clip(lab[..., 0], 0, 100)
+            lab[..., 0] = np.clip(lab[..., 0], 0, 100)
         out = lab_to_rgb(lab)
         # Bit-exact outside the faded support: the stage changes only
         # texels inside its derived mask plus the mm fade.
         out[~support] = alb[~support]
+        # Bit-exact inside the hard lips exclusion (handback 7 proof (a)):
+        # the vermilion receives literally zero change, so bypass the lossy
+        # Lab round trip for it.
+        out[lips_excl] = alb[lips_excl]
         Image.fromarray(out).save(a.albedo_out)
         print("beard_shadow: weight=%s mask=%d zone=%d dots=%d+ramp%d wrote %s"
               % (a.weight, int(hard.sum()), int(zone.sum()),

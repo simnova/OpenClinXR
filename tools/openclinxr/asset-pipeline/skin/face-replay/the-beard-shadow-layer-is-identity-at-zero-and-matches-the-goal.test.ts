@@ -132,6 +132,39 @@ describe("the beard-shadow layer is identity at zero and matches the goal", () =
     expect(r.changed).toBeGreaterThan(0);
   });
 
+  it("a vermilion mask holds the hole while geometry stays on the lips mask", () => {
+    // Handback 6: --vermilion-mask moves ONLY the exclusion hole +
+    // lip feather to the albedo vermilion; top edge/trim/zone stay on
+    // the derive lips mask. Synthetic vermilion box strictly inside the
+    // lips box: texels inside it must be bit-identical while the beard
+    // zone outside still changes.
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "beard-verm-"));
+    const fx = writeFixture(tmp);
+    const verm = path.join(tmp, "vermilion.png");
+    const out = path.join(tmp, "out.png");
+    execFileSync("python3", ["-c", [
+      "import numpy as np",
+      "from PIL import Image",
+      `v=np.zeros((512,512),np.uint8); v[270:290,236:276]=255`,
+      `Image.fromarray(v).save(${JSON.stringify(verm)})`,
+    ].join("\n")], { encoding: "utf8" });
+    runBeard(tmp, [...beardArgs(fx, out, 0.75), "--vermilion-mask", verm]);
+    const raw = execFileSync("python3", ["-c", [
+      "import sys, json",
+      `sys.path.insert(0, ${JSON.stringify(DIR)})`,
+      "import numpy as np",
+      "from PIL import Image",
+      `rgb1=np.array(Image.open(${JSON.stringify(fx.albedo)}).convert('RGB'))`,
+      `rgb2=np.array(Image.open(${JSON.stringify(out)}).convert('RGB'))`,
+      `v=(np.array(Image.open(${JSON.stringify(verm)}).convert('L'))>127)`,
+      "d=np.abs(rgb1.astype(int)-rgb2.astype(int)).max(axis=2)",
+      "print(json.dumps({'in_verm_max':int(d[v].max()),'n_out':int((~v).sum()),'out_changed':int((d[~v]>0).sum())}))",
+    ].join("\n")], { encoding: "utf8" });
+    const r = JSON.parse(raw) as { in_verm_max: number; n_out: number; out_changed: number };
+    expect(r.in_verm_max).toBe(0);
+    expect(r.out_changed).toBeGreaterThan(0);
+  });
+
   it("the stage source carries no texel constants", () => {
     const src = fs.readFileSync(MODULE, "utf8");
     const code = src.split("\n").filter((l) => !l.trimStart().startsWith("#"));

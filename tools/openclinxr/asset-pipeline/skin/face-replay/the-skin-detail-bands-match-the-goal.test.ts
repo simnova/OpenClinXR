@@ -254,11 +254,10 @@ describe("detail_bands stage is generic, deterministic, calibrated", () => {
     expect(s.ring).toBeGreaterThan(1.0);
   });
 
-  it("hugs the vermilion with no pale ring (beard hug 0.5mm + 0.5mm)", () => {    // Handback 3: the derive lips mask carries ~3 mm of margin past the
-    // vermilion (measured body2 albedo a* profile vs mask edge), which
-    // left a pale untreated ring. The grain hugs the lipuv hard-core
-    // vermilion with the beard_shadow hug instead: grain reaches the
-    // band just outside the core while the core itself stays untreated.
+  it("hugs the vermilion with no pale ring (beard hug 0.5mm + 0.5mm)", () => {
+    // Handback 3/7: the grain hugs the vermilion core with the
+    // beard_shadow hug (0.5mm hug + bounded 0.5mm feather): grain reaches
+    // the band just outside while the core itself stays bit-exact.
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "detail-hug-"));
     const { albedo, facecore, vermilion } = makeFixture(tmp);
     const out = runStage(tmp, albedo, facecore,
@@ -285,16 +284,15 @@ describe("detail_bands stage is generic, deterministic, calibrated", () => {
       "print(json.dumps({'core':float(d[core].mean()),'band':float(d[band].mean()),'inter':float(d[inter].mean())}))",
     ].join("\n")], { encoding: "utf8" });
     const s = JSON.parse(raw) as { core: number; band: number; inter: number };
-    expect(s.core).toBeLessThan(0.2 * s.inter);
+    expect(s.core).toBe(0);
     expect(s.band).toBeGreaterThan(0.5 * s.inter);
   });
 
   it("finds the vermilion from the albedo, falling back to the union", () => {
-    // Handback 6: the lipuv union is the lip MESH region, bigger than the
-    // visible vermilion. The builder takes the steepest a* descent after
-    // the vermilion peak along 360 rays: on a synthetic face (red lips on
-    // mid-gray skin inside a union box) it must hug the lips (not the
-    // whole union); on a flat field it falls back to the union.
+    // Handback 6/7: the lipuv union is the lip MESH region, bigger than
+    // the visible vermilion. The builder takes the half-maximum a* edge:
+    // on a synthetic face it must hug the red lips (not the whole
+    // union); on a flat field it falls back to the union.
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "detail-verm-"));
     const raw = execFileSync("python3", ["-c", [
       "import sys, json",
