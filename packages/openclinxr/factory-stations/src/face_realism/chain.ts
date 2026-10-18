@@ -111,13 +111,16 @@ export type ReplayChainOptions = {
 export type ManifestStagePlan = {
   name: string;
   outputPng: string | null;
+  skipped: boolean;
 };
 
 export type ChainManifestPlan = {
-  /** Manifest stage names minus the declared skips, in manifest order. */
+  /** Manifest stage names minus the declared skips, in manifest order (what the replay runs). */
   executed: string[];
   /** Output PNG of the last executed manifest stage (null when none declares one). */
   finalOutput: string | null;
+  /** Every manifest stage in manifest order, with skip flags (what the station chains). */
+  ordered: ManifestStagePlan[];
   stages: ManifestStagePlan[];
 };
 
@@ -135,20 +138,21 @@ export function planChainManifest(
   skipStages: string[],
 ): ChainManifestPlan {
   const skipped = new Set(skipStages);
-  const stages: ManifestStagePlan[] = [];
+  const ordered: ManifestStagePlan[] = [];
   for (const stage of manifest.stages ?? []) {
     const name = String(stage.name ?? "");
-    if (name.length === 0 || skipped.has(name)) continue;
+    if (name.length === 0) continue;
     const paths = stage.output_paths as Record<string, unknown> | undefined;
     const pngs =
       paths !== undefined && paths !== null && typeof paths === "object"
         ? Object.values(paths).filter((value): value is string => typeof value === "string" && value.endsWith(".png"))
         : [];
     const outputPng = pngs.find((value) => value.startsWith("albedo_")) ?? pngs[0] ?? null;
-    stages.push({ name, outputPng });
+    ordered.push({ name, outputPng, skipped: skipped.has(name) });
   }
+  const stages = ordered.filter((stage) => !stage.skipped);
   const finalOutput = [...stages].reverse().find((stage) => stage.outputPng !== null)?.outputPng ?? null;
-  return { executed: stages.map((stage) => stage.name), finalOutput, stages };
+  return { executed: stages.map((stage) => stage.name), finalOutput, ordered, stages };
 }
 
 /**

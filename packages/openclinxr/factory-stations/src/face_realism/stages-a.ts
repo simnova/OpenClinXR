@@ -296,10 +296,21 @@ export function runStage3(
   );
   let currentAlbedo = colourOut;
   const standalone: SubStage[] = [];
-  for (const stage of plan.stages) {
+  // The station executes every manifest stage in manifest order: the
+  // non-skipped ones ran in the replay above (their products are already
+  // on disk; the walk tracks the chain's current albedo), and the skipped
+  // ones with a standalone runner chain here in manifest position. The
+  // station final is the last chained stage's manifest output.
+  let finalStageName = "";
+  let finalFile = colourOut;
+  for (const stage of plan.ordered) {
     if (!skipped.has(stage.name)) {
-      if (stage.outputPng !== null && stage.outputPng.startsWith("albedo_")) {
-        currentAlbedo = path.join(outDir, stage.outputPng);
+      if (stage.outputPng !== null) {
+        if (stage.outputPng.startsWith("albedo_")) {
+          currentAlbedo = path.join(outDir, stage.outputPng);
+        }
+        finalStageName = stage.name;
+        finalFile = path.join(outDir, stage.outputPng);
       }
       continue;
     }
@@ -312,11 +323,11 @@ export function runStage3(
       throw new Error(`skipped chain stage ${stage.name} has no standalone runner: refused`);
     }
     currentAlbedo = outFile;
+    finalStageName = stage.name;
+    finalFile = outFile;
   }
-  const finalFile = plan.finalOutput ?? currentAlbedo;
   const finalAbs = path.isAbsolute(finalFile) ? finalFile : path.join(outDir, finalFile);
   const finalSha256 = sha256File(finalAbs);
-  const finalStageName = [...plan.stages].reverse().find((stage) => stage.outputPng !== null)?.name ?? "";
   const subStages = [compose, colour, chain, ...standalone];
   const inputs: StageIO[] = [
     ...compose.inputs,
