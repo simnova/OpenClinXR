@@ -1,0 +1,631 @@
+{
+ "card": "tsk_6a923ad05526b9e0",
+ "verdict": "not_converged",
+ "method": "numpy ray-cast per eye-vertex: Blender BVHTree over the seated body meshes (every scene mesh except the eye itself and any occlusion shell/tearline), K=64 deterministic fibonacci hemisphere rays per sclera vertex (origin on the globe surface, max distance 20 mm), occlusion = fraction blocked; per-vertex occlusion rasterized into eye-texture UV space by barycentric interpolation inside each UV triangle, then multiplied into the eye diffuse for sclera texels only. Shadow source is geometry only; no photo value read at bake time.",
+ "goal": {
+  "aisha": {
+   "M1": -14.032,
+   "M2a": 7.182,
+   "M2b": -8.655,
+   "D90": -7.201
+  },
+  "body2": {
+   "M1": -23.236,
+   "M2a": 16.915,
+   "M2b": -14.089,
+   "D90": -5.832
+  }
+ },
+ "pre": {
+  "aisha": {
+   "M1": -0.909,
+   "M2a": 4.088,
+   "M2b": 2.046,
+   "D90": 2.934,
+   "catchlightPeakL": 93.918,
+   "catchlightNoiseL": 0.435,
+   "irisMeanRGB": {
+    "R": 128.29,
+    "G": 110.78,
+    "B": 101.9
+   }
+  },
+  "body2": {
+   "M1": 16.39,
+   "M2a": 4.025,
+   "M2b": 2.865,
+   "D90": 20.475,
+   "catchlightPeakL": 93.584,
+   "catchlightNoiseL": 0.0,
+   "irisMeanRGB": {
+    "R": 101.5,
+    "G": 81.25,
+    "B": 72.88
+   }
+  },
+  "note": "re-measured on this session's flag-off bakes (registered stems aisha-lidconform / body2-lidconform); flag-off embeds the source texture pixel-identical (see probes.flagOff)"
+ },
+ "midpoints": {
+  "aisha": {
+   "M1": -7.471,
+   "M2a": 5.635,
+   "M2b": -3.304
+  },
+  "body2": {
+   "M1": -3.423,
+   "M2a": 10.47,
+   "M2b": -5.612
+  }
+ },
+ "d90Windows": {
+  "aisha": [
+   -12.268,
+   -2.133
+  ],
+  "body2": [
+   -18.986,
+   7.322
+  ]
+ },
+ "noise": {
+  "irisEuclidFloor": {
+   "aisha": 6.896,
+   "body2": 5.159
+  },
+  "irisMethod": "shell-placement 1px dilation and erosion of the iris circle radius on PRE; larger euclid RGB shift",
+  "catchlightNoise": {
+   "aisha": 0.435,
+   "body2": 0.0
+  },
+  "catchlightMethod": "measure_catchlight.py max 5x5 box mean inside the iris circle on the PRE frame; noise = max change under 1px erode/dilate"
+ },
+ "diagnosis": {
+  "uvConvention": "bpy loop UVs use v=0 at image bottom; eye-parallax.ts file-UV has v=0 at image top, so the bake compares (u, 1-v). Verified per bake (SCLERA_LID_AO_UVCHECK flipped=232 in-disc verts vs unflipped=1 on aisha r1; same check passes every round, both subjects).",
+  "occluders": "aisha r1: 153120 tris (body 107024, hair, eyebrows, eyelashes per bake log); body2 analogous (see bake logs). Lashes ship as a scene mesh and are included.",
+  "aoField": "aisha meanOcc over sclera 0.8320 (uniform-probe log), body2 0.7721; eye bake AO map sha in files (aisha-lidconform.sclera-lid-ao.png).",
+  "gradient": "the AO field darkens the LOWER visible sclera more than the upper (r1: aisha upper -14.6 vs lower -17.7; body2 upper -13.6 vs lower -16.8 from pre upper/lower medians), so M2b moves AWAY from goal monotonically with strength (aisha +2.05 -> +2.85 -> +5.09 -> +4.25; body2 +2.87 -> +4.26 -> +6.02 -> +1.66). Pure hemisphere AO cannot produce the upper-lid directional gradient: the lower socket occludes as much as the upper lid. Recorded mechanism for the not_converged verdict.",
+  "irisDisc": "iris-disc texels byte-identical to the source texture in every round eye PNG (offline byte check, 0 diffs, max 0) and irisDiff=0 asserted at every bake; tracked iris-centred-c.png sha unchanged (76c805e5...)."
+ },
+ "fix": {
+  "files": [
+   "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py (sclera lid-AO code + call site only)"
+  ],
+  "knobs": {
+   "--eye-sclera-lid-ao-strength": 0.5,
+   "--eye-sclera-lid-ao-feather": 1.0
+  },
+  "knobNote": "flag off by default; sweep passes strength explicitly (0.25/0.5/1.0). Pick r1 by most-passes + fewest-CW-breaks tiebreak.",
+  "baseArgv": {
+   "aisha": "--eye-colour-reference ob_patient_aisha --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea --eye-texture tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+   "body2": "--reference adult_male_street_casual --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea"
+  },
+  "structure": "ray-cast AO in UV space with iris spare (limbus feather), uniform probe mode replaces the field by its mean; all generic, no subject literal",
+  "g3": "no subject name/stem literal and no goal-photo path in added bake lines (asserted by the test)"
+ },
+ "sweep": [
+  {
+   "row": "r1",
+   "params": {
+    "strength": 0.5,
+    "feather": 1.0
+   },
+   "aisha": {
+    "M1": -16.797,
+    "M2a": 17.6,
+    "M2b": 5.087,
+    "D90": -2.353,
+    "irisEuclidVsPre": 4.305,
+    "catchlightPeakL": 90.457,
+    "catchlightDeltaVsPre": -3.461,
+    "nSclera": 2511
+   },
+   "body2": {
+    "M1": 1.377,
+    "M2a": 17.444,
+    "M2b": 6.019,
+    "D90": 14.365,
+    "irisEuclidVsPre": 4.717,
+    "catchlightPeakL": 93.584,
+    "catchlightDeltaVsPre": 0.0,
+    "nSclera": 1723
+   }
+  },
+  {
+   "row": "r2",
+   "params": {
+    "strength": 0.25,
+    "feather": 1.0
+   },
+   "aisha": {
+    "M1": -7.064,
+    "M2a": 8.155,
+    "M2b": 2.847,
+    "D90": 0.451,
+    "irisEuclidVsPre": 0.086,
+    "catchlightPeakL": 92.479,
+    "catchlightDeltaVsPre": -1.439,
+    "nSclera": 2432
+   },
+   "body2": {
+    "M1": 10.297,
+    "M2a": 9.247,
+    "M2b": 4.257,
+    "D90": 17.566,
+    "irisEuclidVsPre": 1.188,
+    "catchlightPeakL": 93.584,
+    "catchlightDeltaVsPre": 0.0,
+    "nSclera": 1697
+   }
+  },
+  {
+   "row": "r3",
+   "params": {
+    "strength": 1.0,
+    "feather": 1.0
+   },
+   "aisha": {
+    "M1": -53.654,
+    "M2a": 32.823,
+    "M2b": 4.251,
+    "D90": -9.134,
+    "irisEuclidVsPre": 14.339,
+    "catchlightPeakL": 87.046,
+    "catchlightDeltaVsPre": -6.872,
+    "nSclera": 2580
+   },
+   "body2": {
+    "M1": -28.011,
+    "M2a": 26.823,
+    "M2b": 1.658,
+    "D90": 10.256,
+    "irisEuclidVsPre": 13.915,
+    "catchlightPeakL": 93.584,
+    "catchlightDeltaVsPre": 0.0,
+    "nSclera": 1842
+   }
+  }
+ ],
+ "gates": {
+  "g1": {
+   "aisha": {
+    "M1": {
+     "value": -16.797,
+     "mid": -7.471,
+     "pass": true
+    },
+    "M2a": {
+     "value": 17.6,
+     "mid": 5.635,
+     "pass": true
+    },
+    "M2b": {
+     "value": 5.087,
+     "mid": -3.304,
+     "pass": false
+    }
+   },
+   "body2": {
+    "M1": {
+     "value": 1.377,
+     "mid": -3.423,
+     "pass": false
+    },
+    "M2a": {
+     "value": 17.444,
+     "mid": 10.47,
+     "pass": true
+    },
+    "M2b": {
+     "value": 6.019,
+     "mid": -5.612,
+     "pass": false
+    }
+   }
+  },
+  "g2": {
+   "aisha": {
+    "D90": {
+     "value": -2.353,
+     "window": [
+      -12.268,
+      -2.133
+     ],
+     "pass": true
+    },
+    "iris": {
+     "value": 4.305,
+     "floor": 6.896,
+     "pass": true
+    },
+    "catchlight": {
+     "value": 90.457,
+     "pre": 93.918,
+     "noise": 0.435,
+     "pass": false
+    }
+   },
+   "body2": {
+    "D90": {
+     "value": 14.365,
+     "window": [
+      -18.986,
+      7.322
+     ],
+     "pass": false
+    },
+    "iris": {
+     "value": 4.717,
+     "floor": 5.159,
+     "pass": true
+    },
+    "catchlight": {
+     "value": 93.584,
+     "pre": 93.584,
+     "noise": 0.0,
+     "pass": true
+    }
+   }
+  },
+  "g3": {
+   "pass": true,
+   "method": "added-lines grep + function-slice assertion in the test"
+  }
+ },
+ "probes": {
+  "flagOff": {
+   "note": "flag-off bakes embed the source texture pixel-identical (extracted GLB eye image == iris-centred-c.png, max diff 0, both subjects); metrics == PRE below",
+   "M2b": {
+    "aisha": 2.046,
+    "body2": 2.865
+   },
+   "result": "fails G1 M2b on both (aisha 2.046 > -3.304; body2 2.865 > -5.612)"
+  },
+  "uniform": {
+   "note": "same bake code path with --eye-sclera-lid-ao-uniform at the pick strength (occ field replaced by its sclera mean); mean multiply factor over mapped texels 0.611 (aisha) vs pick round r1 mean 0.598",
+   "aisha": {
+    "M1": -21.194,
+    "M2a": 9.419,
+    "M2b": 5.453,
+    "D90": -7.014
+   },
+   "body2": {
+    "M1": -3.583,
+    "M2a": 7.534,
+    "M2b": 5.523,
+    "D90": 8.589
+   },
+   "result": "fails G1 M2b on both (aisha 5.453 > -3.304; body2 5.523 > -5.612)"
+  }
+ },
+ "defaults": {
+  "unchanged": true,
+  "ao": "opt-in store_true; no default-on (gates did not pass); no shipped GLB rebaked"
+ },
+ "pick": "r1",
+ "files": {
+  "pre/aisha-bake.log": {
+   "sha256": "fdabb19f1ae23e29d0da0e11fb4859cb1fbe7a509e6fd275965785c1331376d6"
+  },
+  "pre/aisha-id/ss-aisha-pre-id-front.png": {
+   "sha256": "97c1ec03dc026c58123bce94a954e1e47e15b66ae6ae69163c2d5bad4e72159d"
+  },
+  "pre/aisha-id/ss-aisha-pre-id.json": {
+   "sha256": "4a51224b4d02f289d5ebd10935a3f67b2ae545e79a9f4851f28db518a567bab3"
+  },
+  "pre/aisha-lidconform.glb": {
+   "sha256": "bb93ad847a59a99f7559559a21c2bef4d59a279aeb5656416fc1e06126337351"
+  },
+  "pre/aisha-render/ss-aisha-pre-front.png": {
+   "sha256": "b775e908fabff2fcf1e98976e385cc71171572a8cf6b396998d5cb116112ac80"
+  },
+  "pre/aisha-render/ss-aisha-pre.json": {
+   "sha256": "e5f381aaeeeb10455e9104fce85555c00ebee52f4b71053176184d2439ebbec1"
+  },
+  "pre/aisha-yaw25/ss-aisha-pre-yaw25-yaw25.png": {
+   "sha256": "a914eceabd8d5bf180760bfcbdb19583a777af153d6cf1de117d32abddac709d"
+  },
+  "pre/aisha-yaw25/ss-aisha-pre-yaw25.json": {
+   "sha256": "ba3b2e3ace09537cc4a13690d7cd3f514a399fd426a4e17cd77d23fd6f4cf0fe"
+  },
+  "pre/b2s4-pre-id.variant.json": {
+   "sha256": "df86eccc9ad0b5e0f23d9f69bc86b121de25057fb1d1c0b7746d7ed117f549c9"
+  },
+  "pre/b2s4-pre-yaw25.variant.json": {
+   "sha256": "5b74b27ca6dab809ec21bf4447b00228f32b2ab85cecc42697a51974977f975e"
+  },
+  "pre/b2s4-pre.variant.json": {
+   "sha256": "5d5b8cb9ccfa1e7f2118777dc81892222de578655b6349d52274e5fa8aaeb4f7"
+  },
+  "pre/body2-bake.log": {
+   "sha256": "ec111d39b0f4edc543aaf33dd4f7b8f3eac4f5c8aa39ecb9cb527726f67a1d02"
+  },
+  "pre/body2-id/b2s4-pre-id-front.png": {
+   "sha256": "79c01a5d8a2ff3af07ab25241907d89cc721b271364e6a4a9025e5bde5efb647"
+  },
+  "pre/body2-id/b2s4-pre-id.json": {
+   "sha256": "1159a021cbff8a16176c9602ab9c0efedfac4cfbd00352b664e89179521a7a78"
+  },
+  "pre/body2-lidconform.glb": {
+   "sha256": "559939aa61ff2581c90ad396d30ad0e182a6525c356a84d6e000a581fd941d5c"
+  },
+  "pre/body2-render/b2s4-pre-front.png": {
+   "sha256": "290c793f59fa96cdc53c882c1e86a0021ca443502bdd05716c5d75bb19d72165"
+  },
+  "pre/body2-render/b2s4-pre.json": {
+   "sha256": "8704c26f1781ce32d9d1df4de4b0f197ba75df0def6d34d85af3a305b981d702"
+  },
+  "pre/body2-yaw25/b2s4-pre-yaw25-yaw25.png": {
+   "sha256": "74f29a582d7ad2bfc10dfff751b69c69006f8d9bd5d4c8ea38d4d0373773a011"
+  },
+  "pre/body2-yaw25/b2s4-pre-yaw25.json": {
+   "sha256": "2dd09455a904a825f9d111e5c0d22e8b749a6c4918d6eb1b60a9139cf427b8a3"
+  },
+  "pre/ss-aisha-pre-id.variant.json": {
+   "sha256": "c8716f74d4941105e8522ca4a5b0633c54e464f0cd5588590d834145978ffca7"
+  },
+  "pre/ss-aisha-pre-yaw25.variant.json": {
+   "sha256": "d5f4574d9af3d735f93e1774129da830a5e50fc2bd0fe273b0ca169364420039"
+  },
+  "pre/ss-aisha-pre.variant.json": {
+   "sha256": "ec832ed2bbb8409949f390e21d2dabd3e19396b8cee3ec9d91430ed5ff1fa7dc"
+  },
+  "r1/aisha-bake.log": {
+   "sha256": "277e7caf5fb5fdbe42934bb77332199d3943d8767c1caab3741a8deeaafee271"
+  },
+  "r1/aisha-id/ss-aisha-r1-id-front.png": {
+   "sha256": "97c1ec03dc026c58123bce94a954e1e47e15b66ae6ae69163c2d5bad4e72159d"
+  },
+  "r1/aisha-id/ss-aisha-r1-id.json": {
+   "sha256": "8cbec760a34a5859378e623cb1d319668d73f5f534bbdafedefbf046e2f908a5"
+  },
+  "r1/aisha-lidconform.glb": {
+   "sha256": "d527bf36d3febf262853150c6d7f8c2f4cefb9ab21ec795fd8ffe54297780039"
+  },
+  "r1/aisha-render/ss-aisha-r1-front.png": {
+   "sha256": "caf43653820f3ed8a7925df068a1fdd8a75539212a56706f763536b1514625cb"
+  },
+  "r1/aisha-render/ss-aisha-r1.json": {
+   "sha256": "4d1e12099cb412b082a6d1e1c3e42762b97fddb3977bd88f96f1963d1989fc82"
+  },
+  "r1/aisha-yaw25/ss-aisha-r1-yaw25-yaw25.png": {
+   "sha256": "67706f4f3196d143417d1211851e247159ae178e3c5a86f50a4df71e34185600"
+  },
+  "r1/aisha-yaw25/ss-aisha-r1-yaw25.json": {
+   "sha256": "3f8467bdc4ffc926512d31abc426d7d836c2bfef4aa9f2b21a1d7430ca7eee07"
+  },
+  "r1/b2s4-r1-id.variant.json": {
+   "sha256": "cdfcb126443d4bbe3e62b4297a55e36fd65d89d643a0e4ce297c89c78c2a8ee3"
+  },
+  "r1/b2s4-r1-yaw25.variant.json": {
+   "sha256": "596c9f0d8edffcfb51c0e7152abc372a651d6fd182b1aa071a5628745c4ccb56"
+  },
+  "r1/b2s4-r1.variant.json": {
+   "sha256": "bd283509064bd280359c54cfca3bd1991268ec878cb738dd1acdab678f408381"
+  },
+  "r1/body2-bake.log": {
+   "sha256": "0fd56a87917a8fbd33d6b734dd97597b65c23280008845e8ff6084202fdd66df"
+  },
+  "r1/body2-id/b2s4-r1-id-front.png": {
+   "sha256": "79c01a5d8a2ff3af07ab25241907d89cc721b271364e6a4a9025e5bde5efb647"
+  },
+  "r1/body2-id/b2s4-r1-id.json": {
+   "sha256": "860cf51f06a3b0e7546118683d89dcd18e730333593dffd6255ab553f9cf2857"
+  },
+  "r1/body2-lidconform.glb": {
+   "sha256": "ec9b8be2dce6fdef33543f690b34fddc70e867ed98686ca9a7e42b28318cc2cc"
+  },
+  "r1/body2-render/b2s4-r1-front.png": {
+   "sha256": "534b57f71a90ccb11c8fcf9342dcabcaef26e0cda7322b4bc72734450ed4694e"
+  },
+  "r1/body2-render/b2s4-r1.json": {
+   "sha256": "df27a85d7b2d32c6ccebda34d1d3773e81e5be5dd933da49d5613acbdd58aee5"
+  },
+  "r1/body2-yaw25/b2s4-r1-yaw25-yaw25.png": {
+   "sha256": "d2404325fc4e6902d14ea610ae60400f9213fec50b564da4e019598328541051"
+  },
+  "r1/body2-yaw25/b2s4-r1-yaw25.json": {
+   "sha256": "828da68ac5675c31b02c32363dc77c2886594b77a482372fc174eb45edd5cedb"
+  },
+  "r1/ss-aisha-r1-id.variant.json": {
+   "sha256": "4d7936e3eaff96f2598d266240446429990e3d1e89c5ee0237278c18ad45840c"
+  },
+  "r1/ss-aisha-r1-yaw25.variant.json": {
+   "sha256": "53700b6f6108caebebf4e5579b1212c8848cd36c419a30d7100709af776cc154"
+  },
+  "r1/ss-aisha-r1.variant.json": {
+   "sha256": "31913b668ada85f6e98b82ef0f44d274b7d17e6843b0ed058eea9aae6f106d93"
+  },
+  "r2/aisha-bake.log": {
+   "sha256": "7d5849a0b6a1cc705eb12ff331f9b20a649429a6360a7498666bf7e84c46fab9"
+  },
+  "r2/aisha-id/ss-aisha-r2-id-front.png": {
+   "sha256": "93b1ea0204a82bf1c558d69151f8e0e47e2ac923dd812fb7806cd86da84fb04f"
+  },
+  "r2/aisha-id/ss-aisha-r2-id.json": {
+   "sha256": "44a394cf7e1100ffc00afdfd5242f294b6fecf5651b19f92182696740400e02e"
+  },
+  "r2/aisha-lidconform.glb": {
+   "sha256": "a60b552ae1b257b34ada7db7eb4f7559943890a2796f63226c84103065aa1946"
+  },
+  "r2/aisha-render/ss-aisha-r2-front.png": {
+   "sha256": "f7e81dca261eda60ffe01bb336beb446f2d70c0788d73af300f44617b4a5b296"
+  },
+  "r2/aisha-render/ss-aisha-r2.json": {
+   "sha256": "39a14423ffaeb95ef4ad8d79c200e59ba09388b5885039189aae85d4eda1a444"
+  },
+  "r2/aisha-yaw25/ss-aisha-r2-yaw25-yaw25.png": {
+   "sha256": "eb7b9777859cdd38e541f852ffad871679651180846276bfd4d75f3e20d705fc"
+  },
+  "r2/aisha-yaw25/ss-aisha-r2-yaw25.json": {
+   "sha256": "f6b56b82056338e8befd48000cc98c0be9c0db9e3d6d6af3dfe15d3d46356c1c"
+  },
+  "r2/b2s4-r2-id.variant.json": {
+   "sha256": "db27f8c59d607a86711d9bd2a29cf6f7aa79e7658a3397dadfb66ac41f3e8b9d"
+  },
+  "r2/b2s4-r2-yaw25.variant.json": {
+   "sha256": "8587f9acc6c9be7bcbbb5b519dceb2b12f108d16046ed1d7fec1b946d440a29a"
+  },
+  "r2/b2s4-r2.variant.json": {
+   "sha256": "810b51c332cec704b0896ec3f0215e6cd8fe6ed88f37a92426f9a4071bf4d5c2"
+  },
+  "r2/body2-bake.log": {
+   "sha256": "81005fee57549b97ee5294bfeff0588106019f4bab8018fbb6bff38dceea12cf"
+  },
+  "r2/body2-id/b2s4-r2-id-front.png": {
+   "sha256": "79c01a5d8a2ff3af07ab25241907d89cc721b271364e6a4a9025e5bde5efb647"
+  },
+  "r2/body2-id/b2s4-r2-id.json": {
+   "sha256": "f09ef3fc213ebb5906f4cc34957b842ba2ad27a04e579dea21f9f0f0ac6b5ab7"
+  },
+  "r2/body2-lidconform.glb": {
+   "sha256": "7cf9edeb51df220dc7252173d7842d1461ba212b4f59e94a69349533f0f56b86"
+  },
+  "r2/body2-render/b2s4-r2-front.png": {
+   "sha256": "9f5ac3ad464dafab52a0001fc83c14dcd894db1ab659327e1ec9d5fcbbe89e29"
+  },
+  "r2/body2-render/b2s4-r2.json": {
+   "sha256": "93d150c38a68a40e7e85cf4eaa35b8e77ff309317fd63406cbcf87386c7e94e3"
+  },
+  "r2/body2-yaw25/b2s4-r2-yaw25-yaw25.png": {
+   "sha256": "7a8e4672b8794c2689ea30b83fd42c3c40a1c00bc28076f44045474b295c39ab"
+  },
+  "r2/body2-yaw25/b2s4-r2-yaw25.json": {
+   "sha256": "0b4bdd6ef0c6d8b7718238fd59e854e42e5a649b116ebfbe8b9249261b7907cf"
+  },
+  "r2/ss-aisha-r2-id.variant.json": {
+   "sha256": "dbc3326f0864fa6618efbab21c48ea2406ce73161fc1b0dcef5825052b82b475"
+  },
+  "r2/ss-aisha-r2-yaw25.variant.json": {
+   "sha256": "36d02cd8c2a0729f62c43f558cde648bd2876dc7a46b7372412b0753dcd4a208"
+  },
+  "r2/ss-aisha-r2.variant.json": {
+   "sha256": "36868d02b6321d64890777152c6c58a1300fee3b83e9627a97f1b0c11bffd4d8"
+  },
+  "r3/aisha-bake.log": {
+   "sha256": "f348136c3640b18e691b936a5d46cf6572e9036e06b42c8dd50b57a1af1d32ea"
+  },
+  "r3/aisha-id/ss-aisha-r3-id-front.png": {
+   "sha256": "93b1ea0204a82bf1c558d69151f8e0e47e2ac923dd812fb7806cd86da84fb04f"
+  },
+  "r3/aisha-id/ss-aisha-r3-id.json": {
+   "sha256": "19216591a6fe12bab37bb2e235ea270e9f0cee894d22abf921f0b7effebd4a80"
+  },
+  "r3/aisha-lidconform.glb": {
+   "sha256": "b735ab75ce0300e3981eac5e4754c46080019179cc6e98f9cdb66eb7039a422f"
+  },
+  "r3/aisha-render/ss-aisha-r3-front.png": {
+   "sha256": "6d76f262fcad5b815f9907beb9bdefeaef803cfed62ee280984b368d4bcf582f"
+  },
+  "r3/aisha-render/ss-aisha-r3.json": {
+   "sha256": "84414ca37d795703d41fc037fdb061fc3475a53f0519e7e9336752eac7b05304"
+  },
+  "r3/aisha-yaw25/ss-aisha-r3-yaw25-yaw25.png": {
+   "sha256": "5e78dc6bca054890ab186636c89c526f71b188ef353b1c9b0560970412b15851"
+  },
+  "r3/aisha-yaw25/ss-aisha-r3-yaw25.json": {
+   "sha256": "7e89a1da5e59daf34866471b89e9725015bd1047e8f55e10cdcbfa1fbdfa2ce7"
+  },
+  "r3/b2s4-r3-id.variant.json": {
+   "sha256": "f7d6656bb2e2c1997238fbeffa823cf497f12e1c2aaf0426548ae3b48f04d1db"
+  },
+  "r3/b2s4-r3-yaw25.variant.json": {
+   "sha256": "93adc4955421f907cc8c37bf6599e485e0b4864a92501d24d2c72fbdd0608624"
+  },
+  "r3/b2s4-r3.variant.json": {
+   "sha256": "99c3f5fa7864037a29e272a3c7362a8762d2014aadf3ba02e5f88b69c1f41c01"
+  },
+  "r3/body2-bake.log": {
+   "sha256": "5818cd56595ac754e129b72519b8632ace854f6dcb0ec81faca680c01b762f51"
+  },
+  "r3/body2-id/b2s4-r3-id-front.png": {
+   "sha256": "79c01a5d8a2ff3af07ab25241907d89cc721b271364e6a4a9025e5bde5efb647"
+  },
+  "r3/body2-id/b2s4-r3-id.json": {
+   "sha256": "d285dc15da3f4b9e9ac66b37ead59f1f36074661b8186e5ff14044e401756bb3"
+  },
+  "r3/body2-lidconform.glb": {
+   "sha256": "16f39c9d4d819ccabc2f957a69e05cdca2e2de0553bf5d740ecd20eb269c9c3c"
+  },
+  "r3/body2-render/b2s4-r3-front.png": {
+   "sha256": "0540179f415966e9f99d2b33d6116186afdc76a3ad2a85e67f42b8f6c04b1938"
+  },
+  "r3/body2-render/b2s4-r3.json": {
+   "sha256": "56e20f83e691bb88e8b8e52ca5b3064fc52a42f07b91b04adba928feef3514ca"
+  },
+  "r3/body2-yaw25/b2s4-r3-yaw25-yaw25.png": {
+   "sha256": "f3336eb4c884de09a83387e5d539922b63aba3b7a65bc719b4eaed84e0119ac2"
+  },
+  "r3/body2-yaw25/b2s4-r3-yaw25.json": {
+   "sha256": "abf006498690a956d8606f09fd068e2393f191df371c8a4ababe8370ffad7918"
+  },
+  "r3/ss-aisha-r3-id.variant.json": {
+   "sha256": "565414192e7dfa044e3175bd342750dc9435f5cd202a18c203b402ca726896e9"
+  },
+  "r3/ss-aisha-r3-yaw25.variant.json": {
+   "sha256": "0f6a9064bb72f844f407a833241a6127ec132c8ff71a4b10067e00f0d6d76c9a"
+  },
+  "r3/ss-aisha-r3.variant.json": {
+   "sha256": "cfa966aa9fa71023151a696550222d13239957c78bad4012d1c72217a15faaac"
+  },
+  "uniform/aisha-bake.log": {
+   "sha256": "69c7ead7cccd1ed27b4c71b8551d7ad22e4e69ff847f52d2de3ce45f80316326"
+  },
+  "uniform/aisha-id/ss-aisha-u-id-front.png": {
+   "sha256": "93b1ea0204a82bf1c558d69151f8e0e47e2ac923dd812fb7806cd86da84fb04f"
+  },
+  "uniform/aisha-id/ss-aisha-u-id.json": {
+   "sha256": "0b53c04e1a97b0b05d26da6695b4e75e537c0599a969fc403c09ae0e3125c887"
+  },
+  "uniform/aisha-lidconform.glb": {
+   "sha256": "e9ba0702bd6f2c06a0b6a27996e8e05f5a6f5282bbaf28010d9e9eca9d4c8e53"
+  },
+  "uniform/aisha-render/ss-aisha-u-front.png": {
+   "sha256": "1d665ca840cabbbf63a5d756122abb0b27c7dfe20bdd6c85205ba2606230a5a4"
+  },
+  "uniform/aisha-render/ss-aisha-u.json": {
+   "sha256": "a8aa2424ca4b6ad8afe82e93db48c6ea73d250adbf214300b5d2e847e596f94c"
+  },
+  "uniform/b2s4-u-id.variant.json": {
+   "sha256": "6af896a721bd0ebc81e052ac3b6f36153e849064a73829063e439392eb6ed82d"
+  },
+  "uniform/b2s4-u.variant.json": {
+   "sha256": "4faa5c25db24b1b24014993a602d1021bb5a547130af2de4c7b3ae7dea61435d"
+  },
+  "uniform/body2-bake.log": {
+   "sha256": "d681ce4f80f424a1697a960ba4e6781571a1d84556721a6a0a766fd3f105d2ec"
+  },
+  "uniform/body2-id/b2s4-u-id-front.png": {
+   "sha256": "79c01a5d8a2ff3af07ab25241907d89cc721b271364e6a4a9025e5bde5efb647"
+  },
+  "uniform/body2-id/b2s4-u-id.json": {
+   "sha256": "c6ac825f5dbfd3a62c221c534212ff6d4f7e5eb82b31c5a4d1d904c760ac4284"
+  },
+  "uniform/body2-lidconform.glb": {
+   "sha256": "4837b25c4d34c449f3776a2f88b43ad51b85c3b0f01d4a4060228f22d22250e6"
+  },
+  "uniform/body2-render/b2s4-u-front.png": {
+   "sha256": "cc106fa1960eabbf13a49c2e237245134d2ed857af94e911dc6b6e1f88aae521"
+  },
+  "uniform/body2-render/b2s4-u.json": {
+   "sha256": "f31c72333cec6f1d3751c848a9f8522183fadc23564c3b3ab3a4309374bce143"
+  },
+  "uniform/ss-aisha-u-id.variant.json": {
+   "sha256": "7b1a2a578a52cf0c9e67e5caa727d9d86b80c6e7dbc54f145d22e46b7ed5831a"
+  },
+  "uniform/ss-aisha-u.variant.json": {
+   "sha256": "501c8cd044b24354a1641ccf896e3974b3ebc7de5dfd75712de27ee96f4d9f8a"
+  }
+ },
+ "sheet": {
+  "root": "/Volumes/files/openclinxr-assets/store/sclera-lid-shadow-bake/sheet",
+  "files": {
+   "band-aisha-r1-front.png": "7ee7564ea8ffc4755c4d53f488bc1874da8e5ea31bf38c200d8d38630b47ab2b",
+   "band-aisha-r1-yaw25.png": "b3697831473e68405c43a56085ecd022c10664474adf5c685f3ccb6e10a97119",
+   "band-body2-r1-front.png": "a42243d5c586bfdee51a5060b5578c64da398e0e4bca1142bbb4e965621c1091",
+   "band-body2-r1-yaw25.png": "91f600d072173b6bc182acba8cb8e47c6155c6e6081d2ebf40b68712361422c9",
+   "ao-aisha-r1.png": "a0a04e971d45deb63909ca1667846f29cc403e0fef5990bff4217600445760c5",
+   "ao-body2-r1.png": "ea61963339fa6d58dffa031bbd40bcf9d9ff4fa5f275076b171a35485cd050e5"
+  },
+  "note": "PRE | POST(r1) | goal eye-band crops, front and yaw25, native >=420px, no upscale; plus per-subject baked AO maps (UV space)"
+ }
+}
