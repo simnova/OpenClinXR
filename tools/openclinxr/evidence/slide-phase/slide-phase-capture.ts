@@ -165,6 +165,13 @@ type FrameProbe = {
    */
   heelContactL: Vec3 | null;
   heelContactR: Vec3 | null;
+  /**
+   * Upper-body slice (2026-10-18): pelvis/spine/arm/head world positions
+   * plus the pelvis.L world matrix, read by a SEPARATE evaluate
+   * (UPPER_BODY_PROBE_SOURCE below) so the verbatim PROBE_SOURCE copy
+   * above never diverges. Null on old captures / pre-spawn frames.
+   */
+  upperBody: UpperBodyProbe | null;
   /** S2: executor walking-call index (fixed-clock substep datum); null on old builds. */
   walkSimSubsteps: number | null;
   /**
@@ -391,6 +398,83 @@ function standingPitchProbeSource(actor: CaptureActor): string {
 `;
 }
 
+/** Upper-body world snapshot for one frame (see FrameProbe.upperBody). */
+export type UpperBodyProbe = {
+  pelvisL: Vec3 | null;
+  pelvisR: Vec3 | null;
+  /** pelvis.L world matrix, column-major 16 elements (three.js layout); null off-rig. */
+  pelvisMatrix: number[] | null;
+  spineBase: Vec3 | null;
+  spineTop: Vec3 | null;
+  shoulderL: Vec3 | null;
+  shoulderR: Vec3 | null;
+  elbowL: Vec3 | null;
+  elbowR: Vec3 | null;
+  wristL: Vec3 | null;
+  wristR: Vec3 | null;
+  head: Vec3 | null;
+};
+
+/**
+ * Upper-body slice (2026-10-18): pelvis/spine/arm/head worlds for the
+ * upper-body meter. Separate evaluate (same pattern as the standing-pitch
+ * probe): positions only, no angles — the meter derives every quantity, so
+ * the probe stays dumb and testable. Bone spellings mirror PROBE_SOURCE
+ * (sanitised first, dotted fallback); a rig matching neither yields nulls.
+ */
+const UPPER_BODY_PROBE_SOURCE = `
+(() => {
+  const none = {
+    pelvisL: null, pelvisR: null, pelvisMatrix: null,
+    spineBase: null, spineTop: null,
+    shoulderL: null, shoulderR: null, elbowL: null, elbowR: null,
+    wristL: null, wristR: null, head: null,
+  };
+  const scene = globalThis.__openClinXrDebugScene;
+  if (!scene) return none;
+  const ev = globalThis.__openClinXrBedsideApproachEvidence || null;
+  const actorId = ev ? ev.physicianActorId : null;
+  let physRoot = null;
+  scene.traverse((o) => {
+    if (physRoot) return;
+    const ud = o.userData || {};
+    if (actorId && ud.openClinXrActorId === actorId) {
+      let a = o;
+      while (a.parent && a.parent !== scene) a = a.parent;
+      physRoot = a;
+    }
+  });
+  if (!physRoot) return none;
+  const wOf = (a, b) => {
+    const bone = physRoot.getObjectByName(a) || physRoot.getObjectByName(b);
+    if (!bone) return null;
+    if (typeof bone.updateWorldMatrix === "function") bone.updateWorldMatrix(true, false);
+    const e = bone.matrixWorld.elements;
+    return { x: e[12], y: e[13], z: e[14] };
+  };
+  const mOf = (a, b) => {
+    const bone = physRoot.getObjectByName(a) || physRoot.getObjectByName(b);
+    if (!bone) return null;
+    if (typeof bone.updateWorldMatrix === "function") bone.updateWorldMatrix(true, false);
+    return Array.from(bone.matrixWorld.elements);
+  };
+  return {
+    pelvisL: wOf("pelvisL", "pelvis.L"),
+    pelvisR: wOf("pelvisR", "pelvis.R"),
+    pelvisMatrix: mOf("pelvisL", "pelvis.L"),
+    spineBase: wOf("spine05", "spine05"),
+    spineTop: wOf("spine01", "spine01"),
+    shoulderL: wOf("shoulder01L", "shoulder01.L"),
+    shoulderR: wOf("shoulder01R", "shoulder01.R"),
+    elbowL: wOf("lowerarm01L", "lowerarm01.L"),
+    elbowR: wOf("lowerarm01R", "lowerarm01.R"),
+    wristL: wOf("wristL", "wrist.L"),
+    wristR: wOf("wristR", "wrist.R"),
+    head: wOf("head", "head"),
+  };
+})()
+`;
+
 /** COPIED VERBATIM from settle-entry-capture.ts LABELS_SOURCE (see file header). */
 const LABELS_SOURCE = `
 (() => {
@@ -474,6 +558,14 @@ async function probe(page: Page, actor: CaptureActor): Promise<FrameProbe> {
   } catch {
     /* quats stay null; the tail still records */
   }
+  // Upper-body additive read; a failing evaluate must never lose the tail.
+  let upperBody: UpperBodyProbe | null = null;
+  try {
+    const read = (await page.evaluate(UPPER_BODY_PROBE_SOURCE)) as UpperBodyProbe | null;
+    if (read && typeof read === "object") upperBody = read;
+  } catch {
+    /* upper-body stays null; the tail still records */
+  }
   return {
     ...tail,
     heelContactL: tail.heelContactL ?? heel.heelContactL,
@@ -483,6 +575,7 @@ async function probe(page: Page, actor: CaptureActor): Promise<FrameProbe> {
     toeQuatL: tail.toeQuatL ?? quats.toeQuatL,
     toeQuatR: tail.toeQuatR ?? quats.toeQuatR,
     capDbg: tail.capDbg ?? quats.capDbg,
+    upperBody: tail.upperBody ?? upperBody,
     liveActors: Array.isArray(liveActors) ? liveActors : [],
   };
 }
