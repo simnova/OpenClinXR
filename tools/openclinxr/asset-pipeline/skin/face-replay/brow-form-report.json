@@ -1,0 +1,71 @@
+{
+ "card": "tsk_b438966217dd814e",
+ "testEvidence": {
+  "red": "11/11 failed pre-build (no brow_form.py, no manifest stage, no report); post-build 9/11 (2 report-validation pending this skeleton)"
+ },
+ "values": {
+  "aisha": {
+   "dC": 0.0,
+   "dL": 0.0,
+   "mode": "mesh",
+   "source": "cases.aisha.brow_form mesh (chain_subject aisha); one-brow M 2.4088 < A 3.6632"
+  },
+  "body2": {
+   "dC": -17.4,
+   "dL": -17.0,
+   "mode": "texture",
+   "source": "cases.body2.brow_form texture (chain_subject adult_male_street_casual); solved 100% PRE-to-goal gap (PRE dL -37.3815 dC 3.123 to goal dL -54.352 dC -14.2805)"
+  }
+ },
+ "where": {
+  "slot": "last chain stage after detail_bands",
+  "why": "detail_bands excludes the brow union from grain synthesis, so an earlier slot would leak the edit outside the masks through the crease lowband; last placement keeps every counterweight byte-exact (verified outside_max_dLab 0.0 both subjects)"
+ },
+ "gates": {
+  "G1": {
+   "status": "pending renders",
+   "albedo": {
+    "inmask_C": 19.2885,
+    "inmask_L": 55.6073,
+    "method": "in-mask mean vs 10..40-texel facecore-gated ring around the brow union on albedo_browform_aisha.png",
+    "ring_C": "19.5185 +- 3.6437",
+    "ring_L": "57.6080 +- 12.1219",
+    "verdict": "within spread"
+   }
+  },
+  "G2": {
+   "status": "pending renders",
+   "albedo": {
+    "achieved_dC": -15.7926,
+    "achieved_dL": -15.4803,
+    "method": "in-mask mean POST minus PRE on the chain albedos (render response measured next)"
+   }
+  },
+  "G3": {
+   "status": "pending renders",
+   "method": "station instrument tools/openclinxr/evidence/face-defects/one-brow/measure_brow.py imported, not copied"
+  },
+  "G4": {
+   "status": "pending renders",
+   "albedo": {
+    "halo_changed_frac": 0.0,
+    "halo_n": {
+     "aisha": 12570,
+     "body2": 11670
+    },
+    "method": "adapted S/wrinkle/lm_lipcheck.py halo: 2..12-texel band outside the brow union, frac with |dLab|>3",
+    "outside_max_dLab": 0.0
+   }
+  },
+  "G5": {
+   "status": "pending renders",
+   "method": "room rig, copies of the PRE variant with only baseColorUrl changed, --glb explicit per card"
+  }
+ },
+ "notTested": [
+  "three-quarter/profile views",
+  "reduced-budget mesh",
+  "child case (no goal-derived chain albedo)",
+  "run-to-run render repeatability"
+ ]
+}
