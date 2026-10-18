@@ -47,19 +47,7 @@ export function assertNoModelStage(chain: { stages?: ChainStage[] }): void {
 
 /**
  * Stages the deterministic synthetic fixture subject GLB (plane + eye/brow
- * blobs + nose-like relief bump, same recipe as the chain-execution test)
- * for fixture-scale replays.
- *
- * Geometry rule shared verbatim with the hand-steps fixture
- * (tools/openclinxr/asset-pipeline/skin/face-replay/the-hand-steps-replay-from-the-chain-manifest.test.ts
- * writeSyntheticGLB): identical grid (61x261 over 60x260mm), mouth hole,
- * and relief bump zb=0.010*exp(-((x/0.015)^2+((y-0.075)/0.020)^2)) at the
- * stature-scaled face-window centre, far from mouth/eyes/brows so loop,
- * socket and ring geometry are unchanged. The bump gives the fixture
- * measurable 3D face area so the derive density gate (face-region mesh
- * density, child-inputs-report.json) admits it; a flat plane measures
- * 0 faces / 0 m2 and refuses. Neither copy may change the constants
- * without re-deriving the face_realism pins by running the chain.
+ * blobs, same recipe as the chain-execution test) for fixture-scale replays.
  */
 export function stageSyntheticFixtureGlb(glbPath: string): void {
   const genPath = path.join(path.dirname(glbPath), "gen_glb.py");
@@ -78,8 +66,7 @@ export function stageSyntheticFixtureGlb(glbPath: string): void {
       "keep=~hole",
       "idx=np.full(xv.shape,-1,int)",
       "idx[keep]=np.arange(int(keep.sum()))",
-      "zb=0.010*np.exp(-(((xv-0.0)/0.015)**2+((yv-0.075)/0.020)**2))",
-      "v=np.column_stack([xv[keep],yv[keep],zb[keep]])",
+      "v=np.column_stack([xv[keep],yv[keep],np.zeros(int(keep.sum()))])",
       "faces=[]",
       "for j in range(len(ys)-1):",
       " for i in range(len(xs)-1):",

@@ -128,14 +128,15 @@ MERGE_IOU_MAX = 0.05
 # masks, measured directly as face-region mesh density (faces per m2 of
 # 3D face area over a stature-scaled window). Measured
 # (child-inputs-report.json; window y in [ytop-0.30s, ytop-0.02s],
-# |x-cx| < 0.09s, z > median z, s = stature/1.7, faces with >=2 verts
+# |x-cx| < 0.09s, z >= median z (>= so a flat fixture keeps its
+# window), s = stature/1.7, faces with >=2 verts
 # inside; UV texel density does NOT separate -- the decimated meshes
 # share the full UV atlas):
-#   Aisha S/eyefinal/base.glb ............ 589,953 faces/m2 (mouth loop 188)
-#   body2 S/body2/final.glb .............. 618,415 faces/m2 (mouth loop 188)
+#   Aisha S/eyefinal/base.glb ............ 590,146 faces/m2 (mouth loop 188)
+#   body2 S/body2/final.glb .............. 618,663 faces/m2 (mouth loop 188)
 #   dense child (79,240-face body) ....... 867,489 faces/m2 (mouth loop 188)
 #   shipped child input (19,802 faces) ... 211,799 faces/m2 (mouth loop 94)
-#   runtime LOD (7,060-face primitive) .... 36,597 faces/m2 (mouth loop 51)
+#   runtime LOD (7,060-face primitive) .... 36,419 faces/m2 (mouth loop 51)
 # The shipped input is a 4.00x decimation (79240/19802, identical bboxes)
 # of its own full body, so the old 20000-face floor (19,802 vs 20,000)
 # could not tell decimated from full. Threshold sits between the
@@ -146,7 +147,9 @@ SKIN_FACE_DENSITY_MIN = 400000
 
 def face_region_density(V: np.ndarray, F: np.ndarray) -> tuple:
     """(density faces/m2, n faces, area m2) of the stature-scaled face
-    window on a skin mesh. Area <= 0 (e.g. a flat fixture) -> 0.0."""
+    window on a skin mesh. z >= median keeps a flat plane's window
+    (z > median selected nothing on one and refused every flat fixture).
+    Area <= 0 -> 0.0."""
     stature = float(V[:, 1].max() - V[:, 1].min())
     if not np.isfinite(stature) or stature <= 0:
         return (0.0, 0, 0.0)
@@ -155,7 +158,7 @@ def face_region_density(V: np.ndarray, F: np.ndarray) -> tuple:
     cx = float((V[:, 0].min() + V[:, 0].max()) / 2)
     zmed = float(np.median(V[:, 2]))
     m = (V[:, 1] > ytop - 0.30 * s) & (V[:, 1] < ytop - 0.02 * s) \
-        & (np.abs(V[:, 0] - cx) < 0.09 * s) & (V[:, 2] > zmed)
+        & (np.abs(V[:, 0] - cx) < 0.09 * s) & (V[:, 2] >= zmed)
     fm = (m[F].sum(axis=1) >= 2)
     Fface = F[fm]
     if not len(Fface):
@@ -273,8 +276,8 @@ def load_subject(glb_path: Path) -> dict:
             "NO_BODY_SKIN_MESH: chosen skin mesh %s in %s has face-region "
             "mesh density %d faces/m2 over %d faces / %.4f m2 "
             "(min %d faces/m2 for 4096px derivation; "
-            "child-inputs-report.json: runtime LOD 36,597, decimated "
-            "child input 211,799, Aisha 589,953, body2 618,415, dense "
+            "child-inputs-report.json: runtime LOD 36,419, decimated "
+            "child input 211,799, Aisha 590,146, body2 618,663, dense "
             "child 867,489); decimated meshes are not derive subjects"
             % (roles["skin"][3], glb_path, round(dens), dn, darea,
                SKIN_FACE_DENSITY_MIN))

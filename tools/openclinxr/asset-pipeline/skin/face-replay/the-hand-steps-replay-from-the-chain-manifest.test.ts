@@ -488,15 +488,7 @@ function writeSyntheticAO(tmpDir: string, size = 512, value = 230): string {
 
 function writeSyntheticGLB(tmpDir: string): string {
   // Metre-scale plane subject (60x260mm, +z normals, centred 40x16mm mouth
-  // hole) + r=12mm eye blobs + brow blobs + a nose-like relief bump in the
-  // stature-scaled face window (a flat plane has no 3D face area and the
-  // density leg would fire; the bump sits far from mouth/eyes/brows so
-  // loop, socket and ring geometry are unchanged). Geometry rule shared
-  // verbatim with the station fixture (packages/openclinxr/factory-stations
-  // /src/face_realism/chain.ts stageSyntheticFixtureGlb): identical grid,
-  // hole and bump constants; neither copy may change them without
-  // re-deriving the face_realism pins by running the chain. Names match
-  // by pattern only.
+  // hole) + r=12mm eye blobs + brow blobs. Names match by pattern only.
   const glbPath = path.join(tmpDir, "subject.glb");
   const genPath = path.join(tmpDir, "gen_glb.py");
   fs.writeFileSync(genPath, [
@@ -512,8 +504,7 @@ function writeSyntheticGLB(tmpDir: string): string {
     "keep=~hole",
     "idx=np.full(xv.shape,-1,int)",
     "idx[keep]=np.arange(int(keep.sum()))",
-    "zb=0.010*np.exp(-(((xv-0.0)/0.015)**2+((yv-0.075)/0.020)**2))",
-    "v=np.column_stack([xv[keep],yv[keep],zb[keep]])",
+    "v=np.column_stack([xv[keep],yv[keep],np.zeros(int(keep.sum()))])",
     "faces=[]",
     "for j in range(len(ys)-1):",
     " for i in range(len(xs)-1):",

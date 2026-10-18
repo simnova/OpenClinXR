@@ -9,7 +9,7 @@
  * the property the floor stood for -- face-region mesh density (faces per
  * m2 of 3D face area over a stature-scaled window), threshold 400000
  * faces/m2: above the decimated input (211799) and the runtime LOD
- * (36597), below the full subjects (Aisha 589953, body2 618415, dense
+ * (36419), below the full subjects (Aisha 590146, body2 618663, dense
  * child 867489). child-inputs-report.json pins every number.
  */
 import { execFileSync } from "node:child_process";

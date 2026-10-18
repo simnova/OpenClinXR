@@ -72,12 +72,7 @@ function writeSyntheticGLB(tmpDir: string, opts: {
     " keep=~hole",
     " idx=np.full(xv.shape,-1,int)",
     " idx[keep]=np.arange(int(keep.sum()))",
-    // Nose-like relief bump inside the stature-scaled face window so the
-    // fixture has measurable 3D face area (a flat plane has none and the
-    // density leg fires before the loop leg). The bump sits far from the
-    // mouth hole, so loop detection is unchanged.
-    " zb=0.010*np.exp(-(((xv-0.0)/0.015)**2+((yv-0.075)/0.020)**2))",
-    " v=np.column_stack([xv[keep],yv[keep],zb[keep]])",
+    " v=np.column_stack([xv[keep],yv[keep],np.zeros(int(keep.sum()))])",
     " faces=[]",
     " for j in range(N-1):",
     "  for i in range(N-1):",
