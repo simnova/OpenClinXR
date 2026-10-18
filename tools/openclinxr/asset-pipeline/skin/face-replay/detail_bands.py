@@ -43,6 +43,13 @@ Scales (all in mm via texels_per_mm, never in texels):
 - PORE_NOISE_HI_MM 1.4: noise high cut at the instrument pore-band
   sigma_hi (H/130 at portrait scale ~2 tex/px): keeps the grain below
   crease-band wavelengths so it cannot refill the removed folds.
+  pore-scale-fine (card tsk_ca445c4e7f770eaf): this ONE generic
+  parameter is the grain band's solved upper scale in mm (the added
+  grain is white noise through G(PORE_NOISE_LO_TEX) - G(hi), so moving
+  hi moves the grain's spectral peak; the lo cut and the filter form
+  are untouched: no added white noise, no blur). Per-case values live
+  in chain-manifest.json subject overrides; the stage refuses hi-mm at
+  or above CREASE_SMOOTH_MM (grain must stay out of the fold band).
 - PORE_DETREND_MM 12.0: second detrend scale (4x the crease smooth):
   kills patch-scale swells the one-sided mapping rectifies into the
   field (handback 3: a bin-1 render-FFT peak on the portrait re-render);
@@ -196,6 +203,11 @@ def main(argv: list[str] | None = None) -> int:
         raise RuntimeError("detail_bands refuses: texels-per-mm must be positive")
     if not 0.0 <= g <= 1.0:
         raise RuntimeError("detail_bands refuses: crease-gain must be in [0,1]")
+    hi_mm = float(a.pore_noise_hi_mm)
+    if not 0.0 < hi_mm < CREASE_SMOOTH_MM:
+        raise RuntimeError(
+            "detail_bands refuses: pore-noise-hi-mm must lie below the "
+            "crease smooth scale (the grain band stays out of the fold band)")
 
     alb = np.array(Image.open(a.albedo_in).convert("RGB"))
     h, wpx = alb.shape[:2]

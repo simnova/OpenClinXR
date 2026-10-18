@@ -277,13 +277,14 @@
       "sources": {
         "glb_sha256": "measured: sha256sum S/eyefinal/base.glb; its derive --no-ao 4096 reproduces S/derive/A 13/13 masks + landmarks-uv.json byte-identical (card tsk_adb53f2a4f22fd72 STEP0, S/aishareal/derive-base)",
         "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: g=1; probeN moves fh_c 0.00407->0.01064; dark-biased noise cross-talk compensated by pore_gain)",
-        "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: p=3.0 (POST=probe, no extrapolation); affine probeN slope 0.007667/L-unit against goal 0.03686 under corrected G1 low-edge; POST3 verifies)"
+        "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: p=3.0 (POST=probe, no extrapolation); affine probeN slope 0.007667/L-unit against goal 0.03686 under corrected G1 low-edge; POST3 verifies)",
+        "detail_bands.pore_noise_hi_mm": "solved: pore-scale-fine-report.json transfer+fix (aisha goal peak 41.69 cycles/H; render grain peak 64.7->41.5 at hi 2.4; G1 composite target 31.9-61.2 cycles/H)"
       },
       "overrides": {
         "lips": { "ratio": 1.30 },
         "symmetrise": { "strength": 1.0 },
         "beard_shadow": { "weight": 0.0 },
-        "detail_bands": { "crease_gain": 1.0, "pore_gain": 3.0 }
+        "detail_bands": { "crease_gain": 1.0, "pore_gain": 3.0, "pore_noise_hi_mm": 2.4 }
       }
     },
     "adult_male_street_casual": {
@@ -293,7 +294,7 @@
         "lips": { "ratio": 1.0 },
         "symmetrise": { "strength": 1.0 },
         "beard_shadow": { "weight": 0.9 },
-        "detail_bands": { "crease_gain": 1.0, "pore_gain": 3.9 }
+        "detail_bands": { "crease_gain": 1.0, "pore_gain": 3.9, "pore_noise_hi_mm": 0.7 }
       },
       "sources": {
         "glb_sha256": "measured: shasum -a 256 S/body2/final.glb (male-macro rebake, bake.log MACRO_BASE gender 1.0)",
@@ -302,7 +303,8 @@
         "symmetrise.strength": "operator/consult decision: 1.0 default per S/sym/fix_sym.py (same as aisha; recorded per subject)",
         "beard_shadow.weight": "measurement: handback 7 full-chain re-check, split masks (hole/feather on albedo-vermilion, geometry frozen on derive; S/beard sweep lineage): 0.9 -> 13.10 vs 1.0 -> 12.39; min at 1.0, RECOMMENDATION ONLY (recorded; weight stays 0.9 per the frozen IOR station choice)",
         "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: g=1; probeN moves fh_c 0.01475->0.01686; dark-biased noise cross-talk compensated by pore_gain)",
-        "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 6: p=3.9 affine against goal 0.07087 under corrected G1; lip exclusion is the albedo-vermilion mask shared with beard; POST7 verifies)"
+        "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 6: p=3.9 affine against goal 0.07087 under corrected G1; lip exclusion is the albedo-vermilion mask shared with beard; POST7 verifies)",
+        "detail_bands.pore_noise_hi_mm": "solved: pore-scale-fine-report.json transfer+fix (body2 goal peak 139.73 cycles/H; render grain peak 73.5->~120 at hi 0.7 via measured transfer k~741-842 cycles/H per cycle/texel; G1 composite target 106.7-205.9 cycles/H)"
       }
     },
     "peds_patient_child": {
