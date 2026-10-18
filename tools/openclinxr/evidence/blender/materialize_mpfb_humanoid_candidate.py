@@ -2393,6 +2393,18 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        "--brow-form",
+        default=None,
+        choices=("texture", "mesh"),
+        help=(
+            "Per-case brow form (CARD tsk_27220fbaeb48dab4): 'texture' skips "
+            "the #542 fitted-eyebrow fit so the station ships the painted "
+            "albedo brow alone; 'mesh' (or absent) keeps the current "
+            "behaviour and fits the brow. Absent keeps every other bake "
+            "byte-stable."
+        ),
+    )
+    parser.add_argument(
         "--eye-asset",
         default="low-poly",
         choices=("low-poly", "high-poly"),
@@ -6878,7 +6890,11 @@ def main():
         args.reference, EYEBROW_STYLE_BY_REFERENCE[None]
     )
     _eyebrow_fitted = None
-    if _eyebrow_style:
+    # CARD tsk_27220fbaeb48dab4: per-case brow form. 'texture' skips the
+    # fitted-eyebrow fit so the station ships the painted albedo brow alone;
+    # 'mesh' (or absent) keeps the current behaviour. Absent = current
+    # behaviour, so every other bake stays byte-stable.
+    if _eyebrow_style and getattr(args, "brow_form", None) != "texture":
         _brow_dir = resolve_eyebrow_style_dir(_eyebrow_style)
         _brow_mhclo = _brow_dir / f"{_eyebrow_style}.mhclo"
         _brow_obj = _brow_dir / declared_hair_obj_file(_brow_mhclo)
@@ -7021,6 +7037,10 @@ def main():
             "facsUnitsTransferred": sorted(_brow_facs_displacements_m.keys()),
         }
         print(f"EYEBROW_FIT {json.dumps(_eyebrow_fitted)}")
+    elif getattr(args, "brow_form", None) == "texture":
+        # CARD tsk_27220fbaeb48dab4: texture form ships the painted albedo
+        # brow alone; the fit is skipped by the gate above, never removed.
+        print("BROW_FORM_SKIP " + json.dumps({"browForm": "texture"}))
 
     # #683 — fitted eyelashes BEFORE the helper strip, the same load-bearing order
     # as hair/eyes/brows (the eyelashes01 .mhclo refs basemesh verts and must see the

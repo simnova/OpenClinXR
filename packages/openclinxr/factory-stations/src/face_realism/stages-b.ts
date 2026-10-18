@@ -20,6 +20,7 @@ import {
 } from "./fit-bake.js";
 import {
   ASSET_STORE_ROOT,
+  browFormArgv,
   caseValue,
   emptyStageRecord,
   entryString,
@@ -125,6 +126,10 @@ export function runStage4(caseRec: Record<string, unknown>, outDir: string, case
   if (partition !== null && partition.applied.length > 0) {
     argv.push("--face-targets", faceTargetsCsv);
   }
+  // CARD tsk_27220fbaeb48dab4: a texture case passes --brow-form texture so
+  // the materializer skips the eyebrow fit; a mesh case (or absent) passes
+  // no flag and bakes exactly as before.
+  argv.push(...browFormArgv(caseRec));
   argv.push("--output", outGlb);
   const materialize = path.join(repoRoot(), MATERIALIZE_REL);
   rec.script = MATERIALIZE_REL;

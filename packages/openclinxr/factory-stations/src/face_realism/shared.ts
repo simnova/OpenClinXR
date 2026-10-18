@@ -188,6 +188,20 @@ export function entryString(node: unknown, ...keys: string[]): string {
   return current;
 }
 
+/**
+ * CARD tsk_27220fbaeb48dab4: per-case brow form argv for the stage-4 bake.
+ * A texture case ships the painted albedo brow alone, so the station passes
+ * --brow-form texture to the materializer. A mesh case (or an absent
+ * brow_form) keeps the current behaviour: no flag. Names no case; the value
+ * comes from case-inputs.json cases.<caseId>.brow_form.
+ */
+export function browFormArgv(caseRec: Record<string, unknown>): string[] {
+  const entry = caseRec["brow_form"] as { value?: unknown } | undefined;
+  const form =
+    entry !== undefined && entry !== null && typeof entry === "object" ? entry.value : undefined;
+  return form === "texture" ? ["--brow-form", "texture"] : [];
+}
+
 export function pngOutputs(dir: string): StageIO[] {
   if (!existsSync(dir)) return [];
   return readdirSync(dir)

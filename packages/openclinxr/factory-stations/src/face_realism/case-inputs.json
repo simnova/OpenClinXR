@@ -246,13 +246,17 @@
     "sha256": {
      "value": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
      "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.newGlb.sha256"
+     }
+    },
+    "fit_bake": {
+     "value": false,
+     "source": "CARD tsk_2c547dda8753bba0 h1: fit-bake is opt-in; default off (landing safety) so default runs reproduce the pre-fix bake"
+    },
+    "brow_form": {
+     "value": "mesh",
+     "source": "tools/openclinxr/evidence/face-defects/one-brow/report.json:subjects.aisha.distances M 2.4088 < A 3.6632 (one-brow bake-off tsk_6f4a446db8bf5164 favours the mesh brow)"
     }
    },
-   "fit_bake": {
-    "value": false,
-    "source": "CARD tsk_2c547dda8753bba0 h1: fit-bake is opt-in; default off (landing safety) so default runs reproduce the pre-fix bake"
-   }
-  },
   "body2": {
    "catchlight_render": {
     "path": {
@@ -508,17 +512,21 @@
        "sha256": "92d51c44851b5a3dfe760c813a62720381494d3dc2c09ab6c7b626eede335e90",
        "source": "tools/openclinxr/evidence/second-subject/second-subject-r3-report.json:body2.runs.r3-run1.stages[3].outputs[0] (path and sha256)"
       },
-      "body": {
-       "value": "mpfb_adult_male_street_casual_body",
-       "source": "tools/openclinxr/evidence/second-subject/second-subject-r3-report.json:body2.runs.r3-run1.stages[3].positionFallback.oursBody"
+       "body": {
+        "value": "mpfb_adult_male_street_casual_body",
+        "source": "tools/openclinxr/evidence/second-subject/second-subject-r3-report.json:body2.runs.r3-run1.stages[3].positionFallback.oursBody"
+       }
       }
-     }
+     },
+    "fit_bake": {
+     "value": false,
+     "source": "CARD tsk_2c547dda8753bba0 h1: fit-bake is opt-in; default off (landing safety) so default runs reproduce the pre-fix bake"
     },
-   "fit_bake": {
-    "value": false,
-    "source": "CARD tsk_2c547dda8753bba0 h1: fit-bake is opt-in; default off (landing safety) so default runs reproduce the pre-fix bake"
-   }
-  },
+    "brow_form": {
+     "value": "texture",
+     "source": "tools/openclinxr/evidence/face-defects/one-brow/report.json:subjects.body2.distances A 5.2595 < M 6.1004 (one-brow bake-off tsk_6f4a446db8bf5164 favours the albedo brow)"
+    }
+   },
   "peds_asthma_parent_anxiety_v1": {
    "catchlight_render": {
     "path": {
@@ -574,10 +582,14 @@
      "value": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
     }
    },
-   "fit_bake": {
-    "value": false,
-    "source": "CARD tsk_2c547dda8753bba0 h1: fit-bake is opt-in; default off (landing safety); no goal-front target exists for the child anyway"
-   },
+    "fit_bake": {
+     "value": false,
+     "source": "CARD tsk_2c547dda8753bba0 h1: fit-bake is opt-in; default off (landing safety); no goal-front target exists for the child anyway"
+    },
+    "brow_form": {
+     "value": "texture",
+     "source": "default texture (CARD tsk_27220fbaeb48dab4 STEP 1): the mesh-vs-albedo bake-off cannot be rendered for the child — stage3_compose and stage3_colour are refused_no_goal_derived_inputs (no child goal-derived inputs; skin lane) and lid_ring_source is null (no child pre-conform base bake; eye lane, the card's F5 refusal), so no child stage-4 GLB or chain albedo exists to render on the room rig; revisit when the skin lane derives child goal inputs"
+    },
    "fit_case": {
     "source": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:cases key peds_asthma_parent_anxiety_v1 (child goal-front landmark target generated this card)",
     "value": "peds_asthma_parent_anxiety_v1"
