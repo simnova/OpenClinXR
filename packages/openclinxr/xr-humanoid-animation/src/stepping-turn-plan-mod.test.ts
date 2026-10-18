@@ -148,9 +148,9 @@ describe("the stepping-turn plan", () => {
     }
   });
 
-  it("times each step at 0.7 s and lifts the swing foot mid-step", () => {
+  it("times each step at 0.4 s and lifts the swing foot mid-step", () => {
     const plan = planFor(62.67);
-    expect(plan.totalS).toBeCloseTo(1.4, 12);
+    expect(plan.totalS).toBeCloseTo(0.8, 12);
     for (const step of plan.steps) expect(step.durationS).toBe(STEPPING_TURN_STEP_DURATION_S);
     const mid = steppingTurnAt(plan, STEPPING_TURN_STEP_DURATION_S / 2);
     expect(mid.swingToe.y).toBeGreaterThanOrEqual(0.016 + 0.02);
@@ -158,10 +158,11 @@ describe("the stepping-turn plan", () => {
     const start = steppingTurnAt(plan, 0);
     expect(start.swingToe.y).toBeCloseTo(0.016, 12);
     expect(start.stanceToe.y).toBeCloseTo(0.016, 12);
-    // Pelvis dip: 0 at the entry (hold ramps in), 0.015 swing dip plus the full
-    // 0.02 hold once ramped (mid-step here is past the 0.3 s ramp), hold at the end.
+    // Pelvis dip: 0 at the entry (hold ramps in), 0.015 swing dip plus the
+    // part-ramped 0.02 hold (mid-step at 0.2 s is inside the 0.3 s ramp),
+    // full hold at the end.
     expect(start.pelvisDipM).toBeCloseTo(0, 12);
-    expect(mid.pelvisDipM).toBeCloseTo(0.015 + 0.02, 3);
+    expect(mid.pelvisDipM).toBeCloseTo(0.015 + 0.02 * (0.2 / 0.3), 3);
     expect(steppingTurnAt(plan, plan.totalS).pelvisDipM).toBeCloseTo(0.02, 9);
   });
 

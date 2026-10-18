@@ -24,7 +24,7 @@
  * (`stepping-turn-execution-mod.ts`) consumes this; the headless assay poses its markers
  * from the same published targets the browser feeds its leg hinge with.
  *
- * Rhythm reference (not shipped): 2 steps for <= 90 deg, ~0.6-0.8 s per step, foot lift a
+ * Rhythm reference (not shipped): 2 steps for <= 90 deg, ~0.6 s per turn, foot lift a
  * few cm, body yaw following the feet, pair centered under the pelvis on every landing.
  */
 
@@ -36,8 +36,11 @@ export type Xz = { x: number; z: number };
 
 /** Max yaw one step covers: 45 deg, so a <= 90 deg residual plans exactly 2 steps. */
 export const STEPPING_TURN_MAX_STEP_YAW_RADIANS = (45 * Math.PI) / 180;
-/** Per-step duration: 0.7 s, inside the 0.6-0.8 s reference rhythm. */
-export const STEPPING_TURN_STEP_DURATION_S = 0.7;
+/** Per-step duration: 0.4 s. The 2-step SC-05 turn then totals 0.8 s and the
+ * shaped yaw sweep (t10..t90 = 0.664 of total, measured 2026-10-18: 0.93 of
+ * 1.4 s) lands at ~0.53 s, inside the 0.5-0.9 s gate and the ~0.6 s per-turn
+ * reference — down from 0.7 s per step, which read as a 0.93 s two-beat wait. */
+export const STEPPING_TURN_STEP_DURATION_S = 0.4;
 /** Swing-foot lift peak above the stance baseline: 0.030 m on every rig (NOT
  * leg-scaled). Clearance is absolute — floor bumps do not scale with legs — and the
  * 0.02 m lift bar is absolute too; scaling the lift down with the child (0.021 m)
