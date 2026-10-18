@@ -1,0 +1,114 @@
+{
+  "card": "catchroom",
+  "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/catchroom",
+  "goal": "Frontal catch-light on the room lighting station for seated patients, so the portrait lab shows an iris catch-light.",
+  "method": "Added one frontal 'catchlight' area source to designLightingRig (packages/openclinxr/factory-stations/src/lighting_design/run.ts), placed from the patient cast anchor (0,0.5,1) at the recorded rigRequirement band, regenerated the ob_triage_room_v1 rig through the station runner, then rendered the isolated-subject lab with the light on and off and diffed L*.",
+  "stationRule": {
+    "rule": "one 'area' light, name 'catchlight', per seated cast member (actorId /patient/i and cast z >= 0.8 m). Position = cast anchor + 2.0 m along the frontal axis, elevation 49.0 deg, azimuth 0 deg; target = cast anchor; size 0.35; 5000K.",
+    "elevationDeg": 49.0,
+    "azimuthDeg": 0,
+    "distanceM": 2.0,
+    "blenderPosition": [0, -0.8121, 2.5094],
+    "blenderTarget": [0, 0.5, 1],
+    "energy_clinic_day_ob": 204,
+    "threeIntensity": 2.04,
+    "numberSources": {
+      "elevation": "catchlight-key-report.json rigRequirement.perSubject intersection: aisha 48.5-67.0, body2 47.0-50.0 -> 48.5-50.0; 49.0 = midpoint",
+      "azimuth": "catchlight-key-report.json rigRequirement.azimuthDeg [-30, 30]; 0 = on camera axis",
+      "distance": "chosen so the source stays inside the ob_triage_room_v1 footprint 6.0 x 4.8 x 2.65 (z 2.5094 <= 2.65, y -0.8121 >= -2.4)"
+    },
+    "reverted": true,
+    "revertReason": "FALSIFIER fired (see measurement): the rig light is not visible through the lab's catch-light path, so the rule was reverted per the card. See requiredWiring."
+  },
+  "rigRegeneration": {
+    "command": "pnpm tsx .openclinxr/regenerate-catchlight-rigs.ts ob_triage_room_v1 (calls the station runner runLightingDesign; ephemeral, gitignored)",
+    "stationRunner": "packages/openclinxr/factory-stations/src/lighting_design/run.ts runLightingDesign -> designLightingRig",
+    "reproducedShippedRig": "the first 7 lights reproduce the shipped ob_triage_room_v1.rig.json byte-identically; only the catchlight block was appended (8 lights)",
+    "blenderExit": 0,
+    "placementReport": ".openclinxr/lighting-rig-reports/ob_triage_room_v1.report.json (8 lights placed, headless Blender)",
+    "shippedRigReverted": "apps/ui-xr/public/xr-assets/lighting/ob_triage_room_v1.rig.json restored to HEAD"
+  },
+  "subjects": {
+    "aisha": {
+      "glb": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-lidconform.glb",
+      "glbSha256": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76"
+    }
+  },
+  "store": "/Volumes/files/openclinxr-assets/store/catchlight-room-key/",
+  "renderSpec": {
+    "productEnvironmentId": "ob_triage_room_v1",
+    "portrait": true,
+    "renderSize": 1280,
+    "subjectOnly": true,
+    "views": [0, 25],
+    "materialOverrides": "none (product variant; no envMapIntensity override)"
+  },
+  "spotDefinition": "in-disc pixels (iris circle = darkCoreCircle L*<45 comp x1.15) whose (L_on - L_off) >= 25, peaked at the max-delta pixel in a +-45px eye rect (catchlight-key-report.json spotDefinition)",
+  "measurement": {
+    "baseline": "the same render with the 'catchlight' light hidden by userData.openClinXrLightingRigRole === 'catchlight' (hiddenLights=1); all other rig lights identical",
+    "stationValue": {
+      "threeIntensity": 2.04,
+      "eyeMaxDeltaLstar": { "L": 4.71, "R": 4.84 },
+      "inDiscPxAt25": { "L": 0, "R": 0 }
+    },
+    "runtimeCeiling": {
+      "threeIntensity": 5.0,
+      "note": "MAX_THREE_INTENSITY = 5 (apps/ui-xr/src/lighting-rig-runtime.ts); equals the rig MAX_RIG_ENERGY = 500 at energy*0.01",
+      "eyeMaxDeltaLstar": { "L": 10.54, "R": 10.9 },
+      "inDiscPxAt25": { "L": 0, "R": 0 }
+    },
+    "overCeiling": {
+      "threeIntensity": 20.0,
+      "note": "4x the reachable ceiling; unrealisable through the rig. Proves the punctual path stays below the spot threshold even far outside the rig's range.",
+      "eyeMaxDeltaLstar": { "L": 31.01, "R": 31.52 },
+      "inDiscPxAt25": { "L": 0, "R": 0 },
+      "maxPixelInIrisDisc": false
+    },
+    "conclusion": "The punctual contribution scales with intensity and reaches only ~10.5 L* at the reachable ceiling; the iris spot threshold is 25. No energy reachable by the rig makes the added source visible as a catch-light. FALSIFIER fired -> station rule reverted."
+  },
+  "rootCause": {
+    "labCatchLightPath": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts:363-380 sets material.envMap = PMREM(new RoomEnvironment(), 0.04) on the globe material and a procedural iris-disc roughnessMap; the catch-light is the scoped envMap reflection. Scene punctual lights are ignored by that path.",
+    "removedModule": "packages/openclinxr/xr-scene/src/cornea-env/rig-key-globe-env.ts (git 324890e64) rebuilt that env from the rig lights (7 loci); removed in fffa8648c with its call site in isolated-subject-rig-variants.ts restored to RoomEnvironment. That is why the rig key (70deg overhead) put the reflection under the upper lid and why a scene light does nothing."
+  },
+  "requiredWiring": {
+    "file": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts",
+    "change": "replace new RoomEnvironment() in the globe env with a rig-built env (the 8th frontal locus), i.e. restore packages/openclinxr/xr-scene/src/cornea-env/rig-key-globe-env.ts and call it here",
+    "status": "OUTSIDE WRITE_ROOTS: the card says the catch-light path may not be re-wired, so this is stopped and reported, not changed"
+  },
+  "renders": {
+    "on_front": "ck-aisha-on-front.png",
+    "on_front_sha256": "049b1cfd4d7a36da9e04720502fff4417ca263ffe248c5a8c642ddd275b05f49",
+    "on_yaw25": "ck-aisha-on-yaw25.png",
+    "on_yaw25_sha256": "24646157b7834f3e9a7f55da77cd662b03fa43f5b8a779201459895f2af0afbe",
+    "catchlightOff_front": "ck-aisha-role-catchlight-front.png",
+    "catchlightOff_front_sha256": "9a70ceabe6cbe3f55f274ded35e43fae4b1804243306083dd61604ecd91eef1d",
+    "catchlightOff_yaw25": "ck-aisha-role-catchlight-yaw25.png",
+    "catchlightOff_yaw25_sha256": "223b2cb50275e6a126ce3ac4045ddd4608e429ffe1c78d38c29cfcd94819dd4e",
+    "probeIntensity5_front": "ck-aisha-probe-probe5-front.png",
+    "probeIntensity5_front_sha256": "f05a350d942d9a2f8bd47d0e2938fbb865a642447e7ea4c0b037442e0712650c",
+    "probeIntensity20_front": "ck-aisha-probe-probe20-front.png",
+    "probeIntensity20_front_sha256": "3dad09d5f279347870bfef2ce8b7225f0f2506d961f32125f8f452fb922677a1",
+    "g1Json": {
+      "stationValue": "ck-aisha-front-g1.json (e4cccba18044d1486b0e0f436322fe1246ad73d77f3aa9e3fd78be1e7f370223)",
+      "ceiling5": "ck-aisha-probe5-g1.json (067a7627a5eba4df0de8639236eaf1ebba9dcda17aa1f820fdca1073ec344ef8)",
+      "over20": "ck-aisha-probe20-g1.json (cf9b0cfdd114ab39058d4b8d5ccdef7dbd94b7ddd407ea96cf054ec1328437ed)"
+    }
+  },
+  "gates": {
+    "G1": "fail (no in-disc spot >= 25 L* at any reachable intensity; max 10.9 L*)",
+    "G2": "NOT TESTED (falsifier reached before the skin PRE/POST pair)",
+    "G3": "pass (pnpm exec vitest run packages/openclinxr/factory-stations/src/lighting_design on the reverted tree)",
+    "G4": "n/a (no station rule shipped; the room-id-literal grep is moot). Pinned by catchlight-room-key.test.ts instead."
+  },
+  "body2": "NOT TESTED (falsifier reached on Aisha first, at the intensity ceiling)",
+  "fullRoomFrame": "NOT TESTED (no other room file/glb was written)",
+  "storeShas": {
+    "on_front": "049b1cfd4d7a36da9e04720502fff4417ca263ffe248c5a8c642ddd275b05f49",
+    "catchlightOff_front": "9a70ceabe6cbe3f55f274ded35e43fae4b1804243306083dd61604ecd91eef1d"
+  },
+  "falsifier": {
+    "antecedent": "no source in the rigRequirement band produces a visible spot through the lab's catch-light path",
+    "verdict": "fired",
+    "action": "station rule reverted; measurement + required wiring recorded"
+  }
+}
