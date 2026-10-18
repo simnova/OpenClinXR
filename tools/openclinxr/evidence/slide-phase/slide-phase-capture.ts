@@ -623,6 +623,27 @@ async function runOnce(
       ),
     );
     process.stdout.write(`[${tag}] tapRecords=${tapRecords.length}\n`);
+    // TEMP SPLIT-STANCE TAP drain (measurement only): per-substep foot-base
+    // pin mechanics, absent (empty) on runs where foot-base never steps.
+    const footBaseTap = (await page.evaluate(
+      `(() => Array.isArray(globalThis.__openClinXrFootBaseTap) ? globalThis.__openClinXrFootBaseTap : [])()`,
+    )) as unknown[];
+    await writeFile(
+      path.join(outDir, `footbase-tap-${tag}.json`),
+      JSON.stringify(
+        {
+          schemaVersion: "openclinxr.footbase-tap.v1",
+          measuredAt: new Date().toISOString(),
+          vehicle,
+          runIndex,
+          urlQuery: fullQuery,
+          records: footBaseTap,
+        },
+        null,
+        2,
+      ),
+    );
+    process.stdout.write(`[${tag}] footBaseTap=${footBaseTap.length}\n`);
     await writeFile(
       path.join(outDir, `${tag}.json`),
       JSON.stringify(

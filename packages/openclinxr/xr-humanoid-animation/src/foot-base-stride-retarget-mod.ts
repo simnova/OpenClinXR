@@ -13,6 +13,7 @@ import {
   footBaseRowAt,
   footBaseScheduleStance,
 } from "./foot-base-schedule-mod.js";
+import { finishSplitStancePin, splitStanceHoldBandM } from "./foot-base-split-stance-mod.js";
 import {
   type FootBaseApproachState,
   type FootBaseClipRead,
@@ -20,7 +21,6 @@ import {
   getOrCreateFootBaseState,
   heelWorldNow,
   noteFirstHandoverPlant,
-  seedFirstPlantAtTouchdown,
   toeWorldNow,
 } from "./foot-base-state-mod.js";
 import { resolveRigFootGeometry } from "./foot-rig-geometry-mod.js";
@@ -291,7 +291,7 @@ export function applyFootBaseStep(input: {
     phase01,
     lastToeY: state.lastToeY,
     floorY,
-    bandM: approach.contactBandMeters,
+    bandM: splitStanceHoldBandM(approach.contactBandMeters, steps),
   })
     .filter((side) => !scheduledPin.includes(side))
     // Knee-budget hold exemption (see `prevClamped`): a foot the budget
@@ -463,37 +463,15 @@ export function applyFootBaseStep(input: {
   // foot fighting the mixer's swing pose, or a fresh landing, can carry a cm
   // miss while the settled foot's is mm). Single support is one pin either
   // way; all-single-miss ties keep role order (stable sort).
-  pinQueue.sort((a, b) => b.missM - a.missM);
-  for (const { side } of pinQueue) {
-    // THE SLOT PIN: exact rigid translate of the pinned toe onto its
-    // foothold.
-    const toeNow = toeWorldNow(side === "left" ? approach.leftToe : approach.rightToe);
-    const anchor = state.foothold[side];
-    if (toeNow !== null) {
-      slot.position.x += anchor.x - toeNow.x;
-      slot.position.z += anchor.z - toeNow.z;
-      slot.updateMatrixWorld(true);
-    }
-  }
-  // First-plant seed (handover slice): snap the provisional grid plant to the
-  // actual touchdown once (gated at 1 mm; the miss is re-anchored next plant).
-  seedFirstPlantAtTouchdown({
-    state,
-    stance,
-    leftToe: approach.leftToe,
-    rightToe: approach.rightToe,
-    startX: approach.start.x,
-    startZ: approach.start.z,
-    unitX,
-    unitZ,
-    floorY,
-    bandM: approach.contactBandMeters,
+  // Split-stance pins live in `./foot-base-split-stance-mod.js` (2-half only);
+  // the whole post-solve pin-phase tail (pin pass, first-plant seed,
+  // band-hold signal, TEMP tap record) lives there too, to hold this file's
+  // 500-line zone budget. Order inside is unchanged.
+  finishSplitStancePin({
+    slot, state, approach, pinQueue, steps,
+    pinTargetFor, sub, scheduled, stance, pinned, swingMissM,
+    unitX, unitZ, floorY,
   });
-  // Band-hold signal for the next substep (consumed one frame later).
-  for (const side of ["left", "right"] as const) {
-    const toe = toeWorldNow(side === "left" ? approach.leftToe : approach.rightToe);
-    state.lastToeY[side] = toe?.y ?? null;
-  }
   slot.updateMatrixWorld(true);
   return { stanceFoot: stance, phase01, halfIndex, stanceMissM, swingMissM };
 }
