@@ -625,16 +625,16 @@
      "pallor": 0.0
     }
    },
-   "lid_ring_source": {
-    "assets": {
-     "source": "no child pre-conform eyeglobe base bake exists; tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:137-141 LID_CONFORM_CASE_BY_SUBJECT_ID maps only ob_patient_aisha and adult_male_street_casual",
-     "value": null
+    "lid_ring_source": {
+     "assets": {
+      "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/child-conform-report.json:bake.baseGlb.path",
+      "value": "lid-conform-child/peds_asthma_parent_anxiety_v1-eyeglobe-base.glb"
+     },
+     "sha256": {
+      "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/child-conform-report.json:bake.baseGlb.sha256",
+      "value": "5196e1aa4ca6974ea6a0faf21717334fe1e9cc06bbf235cca3009fb3c13285b4"
+     }
     },
-    "sha256": {
-     "source": "no child lid ring source exists (see assets.source)",
-     "value": null
-    }
-   },
    "materializer_argv": {
     "source": "child reference token from tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7547 (--reference peds_patient_child) plus the shared --actor-role/--bake-device/--eye-asset/--eye-cornea tokens every adult case row carries; --output is appended per run by the station",
     "value": [
