@@ -52,6 +52,43 @@ function legTrackName(track: { name: string }): string {
 }
 
 /**
+ * Locomotion-owned ARM bones (sanitised GLTFLoader node names, dots
+ * stripped). While a walk action drives the arms, no other action may
+ * contribute to these joints: the idle take co-ran at weight 1 beside the
+ * walk at weight 1 and three.js normalised the pair to a half-amplitude arm
+ * swing (arms slice, 2026-10-19: live shoulder ROM 17-23 deg vs the bound
+ * clip 34.8-35.4, phase lag R 0.19 vs 0.00; the bound-clip/idle-clip FK in
+ * the slice evidence shows the co-blend halves every rotation amplitude).
+ *
+ * ONLY the three joints the clinical idle posture pass overwrites at rest
+ * (upperarm01 by bind-relative delta, lowerarm01 by bind-relative bend,
+ * wrist by absolute euler): at rest the idle tracks are redundant with the
+ * posture write, so stripping them leaves the rest pose byte-identical while
+ * the walk owns the swing. Clavicle / shoulder01 / spine / neck / fingers
+ * keep their idle tracks: the posture pass never writes them, so stripping
+ * would freeze them at the last walking pose instead of the idle rest.
+ * (Measured: restoring full clip clavicle motion does not move R lag and
+ * hurts L, so the shoulder girdle stays blended.)
+ */
+const LOCOMOTION_OWNED_ARM_BONES: ReadonlySet<string> = new Set([
+  "upperarm01L", "upperarm01R",
+  "lowerarm01L", "lowerarm01R",
+  "wristL", "wristR",
+]);
+
+/**
+ * Remove locomotion-owned arm tracks from an autoplayed non-locomotion
+ * clip, in place. Same shape as `stripLocomotionLegTracks` (legs, walk-clip
+ * slice Stage B); idempotent the same way.
+ */
+function stripLocomotionArmTracks(clip: AnimationClip): { removed: number; kept: number } {
+  const kept = clip.tracks.filter((track) => !LOCOMOTION_OWNED_ARM_BONES.has(legTrackName(track)));
+  const removed = clip.tracks.length - kept.length;
+  if (removed > 0) clip.tracks = kept;
+  return { removed, kept: kept.length };
+}
+
+/**
  * Remove locomotion-owned leg tracks from an autoplayed non-locomotion
  * clip, in place. The idle take's own leg tracks are bind-static (measured
  * <=0.04 deg / 0 mm off bind on the physician), so standing legs keep the
@@ -145,6 +182,11 @@ export function registerGeneratedHumanoidAnimation(ctx: AssetLoadingContext, inp
   }
   if (mixer) {
     const legStrips: Array<{ clip: string; removed: number; kept: number }> = [];
+    // Seated role clips keep their arm tracks: a seated actor never walks,
+    // and its role take may gesture. Standing actors lose the idle arm
+    // tracks (arms slice): the posture pass overwrites exactly these joints
+    // at rest, so the rest pose is unchanged and the walk owns the swing.
+    const stripArms = !isSeated && !isSupine;
     for (const clip of clipsToPlay) {
       // Locomotion clips own the legs: play them whole. Every other
       // autoplayed clip loses its leg tracks first, so the idle take can
@@ -152,6 +194,7 @@ export function registerGeneratedHumanoidAnimation(ctx: AssetLoadingContext, inp
       if (!isDeliberateSelectionOnlyClip(clip.name)) {
         const strip = stripLocomotionLegTracks(clip);
         legStrips.push({ clip: clip.name, removed: strip.removed, kept: strip.kept });
+        if (stripArms) stripLocomotionArmTracks(clip);
       }
       mixer.clipAction(clip)?.play();
     }

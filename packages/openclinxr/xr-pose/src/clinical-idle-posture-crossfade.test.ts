@@ -305,10 +305,11 @@ describe("locomotion crossfade with clinical idle posture", () => {
       rotations.push(lowerArmL.quaternion.clone());
     }
 
-    // The idle target for MPFB lowerarm01 is bind-relative: 0.6 * bindBend
+    // The idle target for MPFB lowerarm01 is bind-relative:
+    // MPFB_IDLE_FORELARM_BEND_FRACTION * bindBend (arms slice: 0.55)
     // bindBend = 2 * atan2(bind.x, bind.w)
     const bindBend = 2 * Math.atan2(bind.x, bind.w);
-    const idleBend = 0.6 * bindBend; // MPFB_IDLE_FORELARM_BEND_FRACTION = 0.6
+    const idleBend = 0.55 * bindBend; // MPFB_IDLE_FORELARM_BEND_FRACTION = 0.55
     const idleQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(idleBend, 0, 0));
 
     // The frame after the claim clears: the unowned MPFB forearm path takes over. A snap is a jump

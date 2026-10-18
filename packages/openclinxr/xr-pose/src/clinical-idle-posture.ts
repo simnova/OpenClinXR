@@ -22,27 +22,29 @@
 
 import type { Object3D, SkinnedMesh } from "three";
 import { Euler, Quaternion } from "three";
-import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
-import { isMpfb2Rig } from "./seated-pose-mpfb2.js";
 import { boneIsOwned, boneOwnershipWeight, type OwnedChain } from "./chain-ownership.js";
 import {
+  applyMpfbUpperArmIdle,
   CLINICAL_IDLE_ARM_HANG,
+  type EulerPartial,
   LIBRARY_CLINICAL_IDLE_ARM_HANG,
   MIXAMO_CLINICAL_IDLE_ARM_HANG,
   MPFB_CLINICAL_IDLE_ARM_HANG,
   MPFB_IDLE_FORELARM_BEND_FRACTION,
   mpfbForearmIdleEuler,
-  type EulerPartial,
+  mpfbUpperArmIdleTarget,
 } from "./clinical-idle-posture-maps.js";
+import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
+import { isMpfb2Rig } from "./seated-pose-mpfb2.js";
 
 export {
   CLINICAL_IDLE_ARM_HANG,
+  type EulerPartial,
   LIBRARY_CLINICAL_IDLE_ARM_HANG,
   MIXAMO_CLINICAL_IDLE_ARM_HANG,
   MPFB_CLINICAL_IDLE_ARM_HANG,
   MPFB_IDLE_FORELARM_BEND_FRACTION,
   mpfbForearmIdleEuler,
-  type EulerPartial,
 } from "./clinical-idle-posture-maps.js";
 
 // Module-level scratch objects for crossfade (finding 2: avoid per-bone per-frame allocation)
@@ -257,6 +259,14 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     humanoid.userData.openClinXrMpfbForearmBinds as Map<string, BindQuaternion> | undefined
     ?? (humanoid.userData.openClinXrMpfbForearmBinds = new Map<string, BindQuaternion>());
 
+  // Arms slice (2026-10-19): pristine upper-arm binds for the bind-relative
+  // hang (same first-untouched-sight guarantee as the forearms above).
+  let mpfbUpperArmBinds = humanoid.userData.openClinXrMpfbUpperArmBinds as Map<string, BindQuaternion> | undefined;
+  if (!mpfbUpperArmBinds) {
+    mpfbUpperArmBinds = new Map<string, BindQuaternion>();
+    humanoid.userData.openClinXrMpfbUpperArmBinds = mpfbUpperArmBinds;
+  }
+
   // 2026-09-23: pristine head/neck binds for bind-relative attention (see
   // applyHeadAttentionBindRelative). Same first-untouched-sight guarantee as forearms.
   const headNeckBinds: Map<string, BindQuaternion> =
@@ -286,7 +296,9 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
       // then slerp toward it by (1 - w). For bones with no idle target at all, leave to mixer.
       const idleRotation = resolvedHangMap.get(sanitised) ?? resolveIdleRotation(object.name, hangMap);
       
-      // For MPFB forearm (lowerarm01), compute bind-relative idle target if no hangMap entry
+      // For MPFB forearm (lowerarm01) and upper arm (upperarm01), compute the
+      // bind-relative idle target if no hangMap entry (both are DELIBERATELY
+      // absent from the MPFB map; see clinical-idle-posture-maps.ts).
       let targetQuat: Quaternion | null = null;
       if (!idleRotation && isMpfbRig && sanitised.startsWith("lowerarm01")) {
         // This bone has no hangMap entry; compute its idle target as the unowned path would
@@ -302,6 +314,9 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
             ),
           );
         }
+      } else if (!idleRotation && isMpfbRig && sanitised.startsWith("upperarm01")) {
+        // Bind-relative hang delta (arms slice): the unowned path's target.
+        targetQuat = mpfbUpperArmIdleTarget(object, mpfbUpperArmBinds);
       } else if (idleRotation) {
         const boundTarget = isHeadFamily(idleRotation)
           ? headAttentionTargetQuat(object, headNeckBinds, idleRotation)
@@ -327,6 +342,12 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
         object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose_crossfade";
       }
       if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
+      return;
+    }
+
+    // MPFB upper-arm bind-relative idle (only if not owned; arms slice)
+    if (isMpfbRig && sanitised.startsWith("upperarm01")) {
+      applyMpfbUpperArmIdle(object, mpfbUpperArmBinds, bonesTouched);
       return;
     }
 

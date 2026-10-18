@@ -27,6 +27,7 @@ import {
   createStanceLockState,
 } from "./stance-lock-mod.js";
 import { applyFootPinAndSwingLift } from "./stance-toe-xz-pin-mod.js";
+import { pinSteppingTurnArmHang } from "./stepping-turn-arm-settle-mod.js";
 import {
   applySteppingTurn,
   enterSteppingTurn,
@@ -232,6 +233,7 @@ export function advanceCaseOwnedBedsideApproach(
   // entry) skips this and keeps the executor's own drive for the clip path.
   const steppingOwnsLegs =
     approach.steppingTurnEnabled && approach.steppingTurn !== null && execution.phase === "settling";
+  if (steppingOwnsLegs) pinSteppingTurnArmHang(approach.stanceLabelSlot?.root ?? null);
   return {
     locomotion: steppingOwnsLegs ? 0 : execution.drive.locomotion,
     locomotionTimeScaleFactor: execution.drive.timeScaleFactor ?? 1,
