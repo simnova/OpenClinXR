@@ -256,6 +256,22 @@
         "symmetrise.strength": "operator/consult decision: 1.0 default per S/sym/fix_sym.py (same as aisha; recorded per subject)",
         "beard_shadow.weight": "measurement: card tsk_adb53f2a4f22fd72 G4 polygon re-measure (face_landmark_regions upperlip_skin+chin vs goal on the same S/beard/sweep renders): min max|dLab| at 0.9 (2.38) vs 1.0 (3.41); was 1.0 by box-patch rule (S/aishareal/g4-polygon-sweep.json)"
       }
+    },
+    "peds_patient_child": {
+      "glb_sha256": "a969db3ba0a63d43597b5c3007a6e520a85c46bec9e28c97aa88638500ed79b1",
+      "skin_tone_rgb": [0.84, 0.70, 0.60],
+      "overrides": {
+        "lips": { "ratio": 1.0 },
+        "symmetrise": { "strength": 1.0 },
+        "beard_shadow": { "weight": 0.0 }
+      },
+      "sources": {
+        "glb_sha256": "measured: shasum -a 256 apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (== face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb byte-identical copy); the GLB the child stage 3 uses per case-inputs.json:cases.peds_asthma_parent_anxiety_v1.stage3_glb",
+        "skin_tone_rgb": "phenotype tone source: tools/openclinxr/asset-pipeline/reference-set/reference_constants.json:5 warm_light_child [0.84, 0.70, 0.60] (== materialize_mpfb_humanoid_candidate.py:378 peds_patient_child tone rgb)",
+        "lips.ratio": "measurement: 1.0 = no-op, as body2 records (child has no lip chroma target; no goal-derived lip ratio exists)",
+        "symmetrise.strength": "operator/consult decision: 1.0 default per S/sym/fix_sym.py (same as aisha and body2; recorded per subject)",
+        "beard_shadow.weight": "child is a school-age patient (no facial hair): weight 0 = identity per chain-manifest.json stages[beard_shadow].parameter_sources.weight"
+      }
     }
   },
   "ao_bake": {

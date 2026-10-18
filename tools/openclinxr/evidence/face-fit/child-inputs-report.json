@@ -1,0 +1,80 @@
+{
+ "card": "tsk_386c8c91eee19dca",
+ "case": "peds_asthma_parent_anxiety_v1",
+ "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/childin (branch wt/childin)",
+ "steps": {
+  "s1_goal": {
+   "image_edit": {
+    "prompt": "Same person, same framing, same neutral closed-mouth expression, seen straight on. Photorealistic 8-year-old child, warm light child skin with natural pores and subtle colour variation, slight flush on cheeks and nose, green eyes, natural soft lips, minimal age wrinkle. Child gender presentation, wearing a soft blue exam t-shirt. Same soft studio lighting, plain dark background, head and neck filling the frame like the original. Keep the head as the input shows it (no added hairstyle).",
+    "input": "/Volumes/files/openclinxr-assets/store/third-subject/st-third-child-front.png",
+    "input_sha256": "95848ab8ce7c190540c490c298f2698919254aa43f7b72910350b67cfd665d64",
+    "input_bytes": 400374,
+    "attempts": 1,
+    "driver": "muse-spark-1-go (wire meta/muse-spark-1.3-contributor per session usage)"
+   },
+   "output": "/Volumes/files/openclinxr-assets/store/third-subject/goal-front.png",
+   "output_sha256": "02618d523cb3aca0982e8cdac888e8d9f8e06feb125ba383cb44191a03e36cda",
+   "output_bytes": 178510,
+   "size": [
+    1024,
+    1024
+   ],
+   "seed": "not exposed by image_edit; frozen by output sha256",
+   "manifest": "tools/openclinxr/asset-pipeline/reference-set/manifest.json cases.peds_asthma_parent_anxiety_v1 (references.goal_front + phenotype_tone warm_light_child)",
+   "acceptance": {
+    "grader": "orchestrator",
+    "verdict": "pending"
+   }
+  },
+  "s2_plan": {
+   "command": "pnpm exec tsx -e planFaceRealism({actorId:'peds_asthma_parent_anxiety_v1',recordPath:'tools/openclinxr/asset-pipeline/reference-set/manifest.json'})",
+   "result": "status=replay",
+   "promptSha": "036075fde1f60eee9530c910b9d268a505e4a53afaec89904449fd79054ad0d0",
+   "referenceSha256": "02618d523cb3aca0982e8cdac888e8d9f8e06feb125ba383cb44191a03e36cda",
+   "plan_ts_gate": "unchanged (no diff vs origin/main)"
+  },
+  "s3_chain": {
+   "row": "peds_patient_child",
+   "glb_sha256": "a969db3ba0a63d43597b5c3007a6e520a85c46bec9e28c97aa88638500ed79b1",
+   "glb_computed_from": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (shasum -a 256; == face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb byte-identical copy)",
+   "skin_tone_rgb": [
+    0.84,
+    0.7,
+    0.6
+   ],
+   "tone_source": "tools/openclinxr/asset-pipeline/reference-set/reference_constants.json:5 warm_light_child",
+   "overrides": {
+    "lips_ratio": 1.0,
+    "symmetrise_strength": 1.0,
+    "beard_shadow_weight": 0
+   },
+   "case_inputs_chain_subject": "peds_patient_child (matches --reference token, as body2 key matches its --reference token)",
+   "rederivation": "two fixture-scale runs of runReplayChain on the new manifest (size 512, placeholder GLB pin): run1==run2 on every stage output; aisha final albedo_socket 9cbf06772f6e6bb322cb3ae7e36d0788fcd891aa9d28c8d44e6d4bdcb6ebe312 unchanged (the-face-station-executes-the-chain.test.ts G1+FALSIFIER green on the new manifest before pin update)",
+   "pins": {
+    "chainManifestSha": "97f8dc85c919b6f5c73c1935e8cbd070941316d1093ecbb295355a234fb17071",
+    "files": [
+     "packages/openclinxr/factory-stations/src/face_realism/station-manifest.json",
+     "packages/openclinxr/factory-stations/src/face_realism/run-report.json"
+    ]
+   },
+   "suite": "packages/openclinxr/factory-stations/src/face_realism/ 27/27 green after pin update"
+  },
+  "s4_fit": {
+   "builder": "tools/openclinxr/evidence/face-fit/make_any_subject_targets.py now reads extra cases+goals from the reference-set manifest (resolve_manifest_goal_front; aisha/body2 code paths untouched)",
+   "adult_entries": "aisha and body2 entries identical to origin/main (parsed dict compare); regenerated aisha/body2 npy files byte-identical (no git modification)",
+   "child_target": "tools/openclinxr/evidence/face-fit/pts_target_peds_asthma_parent_anxiety_v1_front.npy n=478 allInside (eye L=98.7 R=99.9)",
+   "child_entry": "any-subject-targets.json cases.peds_asthma_parent_anxiety_v1 (front-only, no goal_yaw, same 2x yaw-scan exclusion note)",
+   "fit_command": "mise exec -C /Volumes/files/src/openclinxr -- python3 tools/openclinxr/evidence/face-fit/fit_facefit2.py --case peds_asthma_parent_anxiety_v1",
+   "fit_result": "completed rms 1.772->0.893mm beatsSweep=true selfPass=true; fit_weights_peds_asthma_parent_anxiety_v1.json + fit_file_weights + fit-report.json cases[child]"
+  }
+ },
+ "refusals_still_open": {
+  "F3_tone_anchor": "skin lane (tone-check.py has no warm_light_child anchor; stage 1 still blocked)",
+  "F4_lid_map": "eyes lane (LID_CONFORM_CASE_BY_SUBJECT_ID has no child row; no lid-conform record)",
+  "F5_eye_stem": "eyes lane (direct materialize --output stage4-lidconform.glb still raises #377; reference resolves, 22.5mm eye row exists for the GLB stem only)",
+  "F8_derive_floor": "skin lane (direct derive.py on shipped child GLB still NO_BODY_SKIN_MESH: 19802 faces < 20000 for 4096px)",
+  "note_preexisting": "face-fit the-station-bakes-the-fitted-face.test.ts G5 fails on body2 run1 store GLB sha drift (store file dated 2026-10-16, identity-report.json unmodified in git): pre-existing, outside this card; 17/18 face-fit green"
+ },
+ "not_yours": "F3/F8 skin lane, F4/F5 eyes lane: recorded as still_refused with owner, no edits to plan.ts gate, materializer, eye code, skin scripts (chain-manifest child row only), or thresholds",
+ "pin_maintenance": "second-body-report.json chain_manifest_sha256 e25155f1->97f8dc85 + reference_set_manifest_sha256 a9adc4b2->7010ba7b (current file shas; mechanical pin upkeep forced by the in-scope manifest edits, no behavioral change; the face-replay suite demands CURRENT shas per the-second-body-cites-the-chain-and-not-the-parent-sheet.test.ts)"
+}

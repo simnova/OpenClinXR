@@ -101,6 +101,36 @@ def resolve_body2_front():
         "(no placeholder)" % (BODY2_GOAL_SHA[:16], cands))
 
 
+def resolve_manifest_goal_front(case_id, goal_rec):
+    """Resolve a manifest-driven case's goal_front bytes by its pinned sha.
+
+    Card tsk_386c8c91eee19dca: cases beyond aisha/body2 are read from the
+    reference-set manifest (case id + goal sha), never hard-coded here.
+    Candidates: REFERENCE_SET_STORE_ROOT/<store_relpath>, the asset store
+    copy of <store_relpath>/<path>, the face-fit-any store, /tmp. Mismatch
+    or absence is a hard refuse (no placeholder, no synthesis)."""
+    want = goal_rec["output"]["sha256"]
+    rel = goal_rec["output"].get("store_relpath") or goal_rec["output"].get("path")
+    base = os.path.basename(rel or "")
+    cands = []
+    env_root = os.environ.get("REFERENCE_SET_STORE_ROOT")
+    if env_root and rel:
+        cands.append(os.path.join(env_root, rel))
+    if rel:
+        cands.append(os.path.join("/Volumes/files/openclinxr-assets/store", rel))
+    inp = (goal_rec.get("reference_input") or {}).get("path")
+    if inp:
+        cands.append(os.path.join("/Volumes/files/openclinxr-assets/store", inp))
+    cands.append(os.path.join(ANY_STORE, base))
+    cands.append(os.path.join("/tmp", base))
+    for p in cands:
+        if p and os.path.isfile(p) and sha256_file(p) == want:
+            return p
+    raise SystemExit(
+        "any-subject refuse: %s goal_front sha %s not found under %s "
+        "(no placeholder)" % (case_id, str(want)[:16], cands))
+
+
 def check_target(case, pts, size, require_inside):
     w, h = size
     assert pts.shape == (478, 2), (case, pts.shape)
@@ -203,6 +233,58 @@ def main():
     cases["body2"]["source3q"] = None
     cases["body2"]["note"] = ("no reference-set goal_yaw for body2; "
                               "front-only fit (same 2x yaw-scan exclusion rule)")
+
+    # Manifest-driven extra cases (card tsk_386c8c91eee19dca): every
+    # reference-set case beyond aisha/body2 carrying a goal_front prompt +
+    # output sha gets the same detector/model treatment as body2 (single
+    # run, inside-gated, shared embedding entry, front-only). aisha/body2
+    # above are untouched so their entries reproduce byte-identically.
+    for case in sorted(manifest["cases"]):
+        if case in cases:
+            continue
+        goal_rec = ((manifest["cases"][case] or {}).get("references") or {}).get("goal_front")
+        if not isinstance(goal_rec, dict):
+            continue
+        if not isinstance(goal_rec.get("prompt"), str):
+            continue
+        if not isinstance((goal_rec.get("output") or {}).get("sha256"), str):
+            continue
+        src = resolve_manifest_goal_front(case, goal_rec)
+        pil_size = Image.open(src).size
+        runs = [detect_points(src, model)]
+        assert all(r is not None and r.shape == (478, 2) for r in runs), \
+            "%s: detector found no face" % case
+        pts = runs[0]
+        corners, outside = check_target(case, pts, pil_size, require_inside=True)
+        out_npy = os.path.join(HERE, "pts_target_%s_front.npy" % case)
+        np.save(out_npy, pts)
+        cases[case] = {
+            "source": "reference-set %s goal_front (manifest.json)" % case,
+            "sourceSha256": sha256_file(src),
+            "imageSize": [int(pil_size[0]), int(pil_size[1])],
+            "targetNpy": "tools/openclinxr/evidence/face-fit/pts_target_%s_front.npy" % case,
+            "targetSha256": sha256_file(out_npy),
+            "nPoints": 478,
+            "allInsideImage": bool(outside == 0),
+            "outsideCount": int(outside),
+            "eyeCorners": corners,
+            "embedding": {
+                "file": "tools/openclinxr/evidence/face-fit/embedding.json",
+                "sha256": emb_sha,
+                "n": int(len(emb["landmarks"])),
+                "trackN": 35,
+                "contourExcluded": [58, 172, 234, 288, 454],
+                "fallbacks": int(emb["fallbacks"]),
+                "note": "shared neutral-mesh barycentric triples (base-derived, subject-independent)",
+            },
+        }
+        print("ANY_TARGET %s n=478 inside=%sx%s corners L=%.1f R=%.1f" % (
+            case, pil_size[0], pil_size[1],
+            abs(float(pts[133, 0] - pts[33, 0])),
+            abs(float(pts[263, 0] - pts[362, 0]))))
+        cases[case]["source3q"] = None
+        cases[case]["note"] = ("no reference-set goal_yaw for %s; "
+                               "front-only fit (same 2x yaw-scan exclusion rule)" % case)
 
     doc = {
         "card": "tsk_96256abb59a7b6c7",

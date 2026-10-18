@@ -535,8 +535,8 @@
     "value": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json"
    },
    "chain_subject": {
-    "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:subjects holds aisha and adult_male_street_casual only (no child row); a child replay would take the stage base parameters with no per-subject override",
-    "value": null
+    "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:subjects key peds_patient_child (child row added this card; key matches the --reference token peds_patient_child as body2's key matches its --reference token)",
+    "value": "peds_patient_child"
    },
    "derive_size": {
     "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:stages[derive].parameters.size (same 4096 atlas as both adult cases)",
@@ -579,8 +579,8 @@
     "source": "CARD tsk_2c547dda8753bba0 h1: fit-bake is opt-in; default off (landing safety); no goal-front target exists for the child anyway"
    },
    "fit_case": {
-    "source": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:cases holds aisha and body2 only; the child has no goal-front landmark target (no goal image exists), so face-fit has nothing to key on",
-    "value": null
+    "source": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:cases key peds_asthma_parent_anxiety_v1 (child goal-front landmark target generated this card)",
+    "value": "peds_asthma_parent_anxiety_v1"
    },
    "layer_weights": {
     "source": "tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases holds aisha and body2 only (no flush/freckle/pallor field for the child); the child phenotype flush 0.05 in packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json is a descriptor, not a case skin-layer weight",
@@ -651,12 +651,12 @@
     }
    },
    "stage3_colour": {
-    "source": "refused on any child run: face_replay_colour.py needs a goal-derived solve for the subject, and the child has no goal image (reference-set manifest.json cases aisha+body2 only; no child goal_front)",
-    "value": "refused_no_goal_image"
+    "source": "still refused on any child run: face_replay_colour.py needs a goal-derived solve for the subject; the child goal_front exists as of this card but no child solve/params were derived (skin lane); case-inputs keeps the refusing marker so stage 3 refuses instead of substituting another case",
+    "value": "refused_no_goal_derived_inputs"
    },
    "stage3_compose": {
-    "source": "refused on any child run: face_replay_compose.py needs a subject base albedo, skin-family island donor and masks, and no child compose inputs exist (no goal image, no child reference-set record)",
-    "value": "refused_no_goal_image"
+    "source": "still refused on any child run: face_replay_compose.py needs a subject base albedo, skin-family island donor and masks; the child goal_front exists as of this card but no child compose inputs were derived (skin lane); case-inputs keeps the refusing marker so stage 3 refuses instead of substituting another case",
+    "value": "refused_no_goal_derived_inputs"
    },
    "stage3_glb": {
     "assets": {

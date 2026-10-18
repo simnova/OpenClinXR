@@ -1,446 +1,604 @@
 {
-  "version": 2,
-  "card": "tsk_528c17d1809cac92",
-  "handoff": "H1",
-  "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/third",
-  "subject": {
-    "caseId": "peds_asthma_parent_anxiety_v1",
-    "actorId": "patient_maya_johnson_v1",
-    "reference": "peds_patient_child",
-    "goal": "none"
-  },
-  "goalNote": "No goal image for the child exists anywhere (searched the reference-set manifest, the working tree, and /Volumes/files/openclinxr-assets/store). The child is a text-only phenotype (packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json:entries.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1). No goal image was generated (card forbids Imagine/LLM).",
-  "runner": {
-    "command": "pnpm exec tsx packages/openclinxr/factory-stations/src/face_realism/run-case.ts <caseId> <runN>",
-    "recordPath": "tools/openclinxr/asset-pipeline/reference-set/manifest.json",
-    "storeRoot": "/Volumes/files/openclinxr-assets/store/face-station-cases",
-    "runs": [
-      {
-        "run": "run1",
-        "cli_argv": ["peds_asthma_parent_anxiety_v1", "1"],
-        "status": "refused",
-        "stop_reason": "record has no case peds_asthma_parent_anxiety_v1: refused",
-        "wallSeconds": 0.001,
-        "stageRecords": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/stage-records.json"
-      },
-      {
-        "run": "run2",
-        "cli_argv": ["peds_asthma_parent_anxiety_v1", "2"],
-        "status": "refused",
-        "stop_reason": "record has no case peds_asthma_parent_anxiety_v1: refused",
-        "wallSeconds": 0.001,
-        "stageRecords": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/stage-records.json"
-      }
-    ]
-  },
-  "h1_direct": {
-    "method": "Bypass only the plan gate. Invoke each landed stage script as a subprocess with the body2 argv form, substituting the child case-input values. No stage/runner/materializer/threshold/skin/eye file was edited. Model credentials were stripped for every subprocess (ANTHROPIC_API_KEY unset).",
-    "worktree_local_setup": "The third worktree initially lacked two ignored provider-cache packs. Copied byte-identical local packs into .openclinxr-local (untracked): visemes makehuman-visemes02 from /Volumes/files/src/openclinxr (556K) and eyes makehuman-highpoly from the realism-95 worktree (absent in main). No tracked file was touched. The first two child stage-4 attempts therefore blocked on missing local caches (#432 visemes, then #337 high-poly eyes) before reaching the child-specific #377 refusal.",
-    "runs": {
-      "run1": {
-        "storeDir": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1"
-      },
-      "run2": {
-        "storeDir": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2"
-      }
-    },
-    "stages": [
-      {
-        "stage": 1,
-        "name": "family_tone",
-        "status": "refused",
-        "reason": "tone-check.py reproduced the tone report byte-identically in both runs, and the report declares nearest[warm_light_child]=young; but the report has no warm_light_child anchor row, so the runner selection rule (stages-a.ts:68-71) cannot compute a distance pick for the child.",
-        "script": "tools/openclinxr/asset-pipeline/skin/families/tone-check.py",
-        "argv": [],
-        "command": "env -u ANTHROPIC_API_KEY MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees mise exec -C /Volumes/files/src/openclinxr -- python3 /Users/patrick/.grok/worktrees/src-openclinxr/third/tools/openclinxr/asset-pipeline/skin/families/tone-check.py",
-        "observed": {
-          "stdout": "wrote tone-report.json; lip gate 2.04 vs 39.73; ear gate 0.42 vs 38.90",
-          "tone_report_before_sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
-          "tone_report_after_sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
-          "nearest_warm_light_child": "young",
-          "tone_anchors": ["warm_light", "warm_medium"],
-          "pick": null
-        },
-        "runs": {
-          "run1": {
-            "rc": 0,
-            "outputs": [],
-            "evidence_sha": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
-            "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage1-tone-run1.log"
-          },
-          "run2": {
-            "rc": 0,
-            "outputs": [],
-            "evidence_sha": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
-            "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage1-tone-run2.log"
-          }
-        }
-      },
-      {
-        "stage": 2,
-        "name": "skin_layers",
-        "status": "completed",
-        "reason": "All-zero layer weights reproduce the picked young family PNG byte-identically in both runs.",
-        "script": "packages/openclinxr/factory-stations/src/face_realism/drivers/stage2_apply_layers.py",
-        "argv": [
-          "--families-dir",
-          "/Users/patrick/.grok/worktrees/src-openclinxr/third/tools/openclinxr/asset-pipeline/skin/families",
-          "--family",
-          "skin-families/young/young-family-v3.png",
-          "--weights",
-          "{\"cheek_redness\":0.0,\"ear\":0.0,\"freckles\":0.0,\"lip\":0.0,\"nose_redness\":0.0,\"pallor\":0.0}",
-          "--out",
-          "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/runN/stage2-layers.png"
-        ],
-        "command": "env -u ANTHROPIC_API_KEY MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees mise exec -C /Volumes/files/src/openclinxr -- python3 <worktree>/packages/openclinxr/factory-stations/src/face_realism/drivers/stage2_apply_layers.py --families-dir <worktree>/tools/openclinxr/asset-pipeline/skin/families --family skin-families/young/young-family-v3.png --weights '<zero weights>' --out <store child runN>/stage2-layers.png",
-        "runs": {
-          "run1": {
-            "rc": 0,
-            "outputs": [
-              {
-                "name": "stage2-layers.png",
-                "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/stage2-layers.png",
-                "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
-              }
-            ],
-            "evidence_sha": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
-            "log": null
-          },
-          "run2": {
-            "rc": 0,
-            "outputs": [
-              {
-                "name": "stage2-layers.png",
-                "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/stage2-layers.png",
-                "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
-              }
-            ],
-            "evidence_sha": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
-            "log": null
-          }
-        }
-      },
-      {
-        "stage": 3,
-        "name": "skin_chain",
-        "status": "refused",
-        "reason": "No child bake and no child albedo exist, so compose/colour/chain hand steps were not invoked. Direct derive.py on the only landed child GLB refuses: the shipped child body has 19802 faces, below the 20000-face floor for 4096px derivation. Occlusion, roughness, lips, eye corners, symmetrise, socket and beard_shadow were not reached.",
-        "script": "tools/openclinxr/asset-pipeline/skin/face-replay/derive.py",
-        "argv": [
-          "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb",
-          "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/runN/derive_out",
-          "--size",
-          "4096"
-        ],
-        "command": "env -u ANTHROPIC_API_KEY MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees mise exec -C /Volumes/files/src/openclinxr -- python3 <worktree>/tools/openclinxr/asset-pipeline/skin/face-replay/derive.py <store child>/inputs/mpfb-peds-patient-child.glb <store child runN>/derive_out --size 4096",
-        "observed": {
-          "refusal": "NoBodySkinMeshError: NO_BODY_SKIN_MESH: chosen skin mesh mpfb_peds_patient_child_body in /Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb has 19802 faces (min 20000 for 4096px derivation); decimated runtime LOD is not a derive subject"
-        },
-        "runs": {
-          "run1": {
-            "rc": 1,
-            "outputs": [],
-            "refusal_sha": "98209cfb29abe8ee84ab34825776649c84b2fca4dffed4d85b24f53d3ff1cd25",
-            "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage3-derive-run1-full.log"
-          },
-          "run2": {
-            "rc": 1,
-            "outputs": [],
-            "refusal_sha": "98209cfb29abe8ee84ab34825776649c84b2fca4dffed4d85b24f53d3ff1cd25",
-            "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage3-derive-run2-full.log"
-          }
-        }
-      },
-      {
-        "stage": 4,
-        "name": "lid_conform_bake",
-        "status": "refused",
-        "reason": "The child reference resolves and the high-poly eye mesh loads, but the station-form output stem stage4-lidconform is absent from EYE_DIAMETER_TARGET_MM, so the bake raises #377 before any globe resize, lid-conform record, or output. No globe diameter was used and no lid-conform ran.",
-        "script": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-        "argv": [
-          "--reference",
-          "peds_patient_child",
-          "--actor-role",
-          "patient",
-          "--bake-device",
-          "metal",
-          "--eye-asset",
-          "high-poly",
-          "--eye-cornea",
-          "--output",
-          "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/runN/stage4-lidconform.glb"
-        ],
-        "command": "env -u ANTHROPIC_API_KEY /opt/homebrew/bin/blender --background --python <worktree>/tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --reference peds_patient_child --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea --output <store child runN>/stage4-lidconform.glb",
-        "observed": {
-          "blender_rc": 0,
-          "output_exists": false,
-          "output": null,
-          "reference_measured": "{\"referenceId\": \"peds_patient_child\", \"statureMeters\": 1.25, \"headHeightFraction\": 0.1599999999999998, \"chestSpanMeters\": 0.450022, \"waistSpanMeters\": 0.742578}",
-          "skin_material": "mpfb_skin_peds_patient_child tone=warm_light_child rgb=[0.84, 0.7, 0.6] shader=enhanced_skin",
-          "eyes_fit": "mpfb_peds_patient_child_body_mesh.high-poly verts 1064 tris 2040 material ['mpfb_peds_patient_child_body_mesh.high-poly'] dominantGroups {'eye.L': 532, 'eye.R': 532}",
-          "lidconform_baked": false,
-          "globe_diameter_used_mm": null,
-          "refusal": "RuntimeError: #377: no anatomical eye target for actor stem 'stage4-lidconform' — add it to EYE_DIAMETER_TARGET_MM (['aisha-eyeglobe-base', 'aisha-eyeglobe-fit', 'aisha-eyetex', 'aisha-hp-cornea', 'aisha-lidconform', 'aisha-realism', 'aisha-ref-control', 'aisha-ref-inert', 'aisha-ref-lipsC', 'aisha-ref2', 'aisha-ref3', 'aisha-shell-b2b3', 'body2-eyeglobe-base', 'body2-lidconform', 'eg-100-2', 'eg-100-4', 'eg-100-m1', 'eg-100-m2', 'eg-100-m3', 'eg-102-0', 'eg-102-2', 'eg-102-4', 'eg-102-m1', 'eg-102-m2', 'eg-102-m3', 'eg-104-0', 'eg-104-2', 'eg-104-4', 'eg-104-m1', 'eg-104-m2', 'eg-104-m3', 'eyegeo-final', 'eyeshell-final', 'eyetex-final', 'mpfb-clinical-nurse-adult', 'mpfb-clinical-physician-adult', 'mpfb-family-partner-adult', 'mpfb-gown-adult-patient', 'mpfb-ob-patient-aisha', 'mpfb-peds-nurse-kevin', 'mpfb-peds-parent-aisha', 'mpfb-peds-patient-child', 'mpfb-street-adult-male', 'mpfb-viseme-inspect']) before baking a new actor",
-          "note": "The eye table does contain mpfb-peds-patient-child (22.5 mm), but that row is keyed to the output GLB stem; the station-form stem stage4-lidconform is not in the table."
-        },
-        "runs": {
-          "run1": {
-            "rc": 0,
-            "outputs": [],
-            "refusal_sha": "75d9249cf0418fd5febc2d5b474ceabfddf6847a08956a3a788956ab35922615",
-            "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage4-run1-full.log",
-            "log_sha256": "d911ec29fcb1fb7cffddf0dd3d3a7408f06c57b2a3f4de111c70742fe3ff5929"
-          },
-          "run2": {
-            "rc": 0,
-            "outputs": [],
-            "refusal_sha": "75d9249cf0418fd5febc2d5b474ceabfddf6847a08956a3a788956ab35922615",
-            "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage4-run2-full.log",
-            "log_sha256": "3be1b6123abe9c4251982b4d7aa7976ea29dca72158c875f549d0a9178a0d969"
-          }
-        }
-      },
-      {
-        "stage": 5,
-        "name": "eye_flags",
-        "status": "completed",
-        "reason": "The station's stage 5 writes the eye-flag JSON from the recorded bake argv without a subprocess. The child record resolves to high-poly/cornea/shell-off, identical in both runs.",
-        "script": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-        "argv": ["--eye-asset", "--eye-cornea"],
-        "command": "stage 5 has no subprocess by station design (stages-d.ts:21-57 writes stage5-eyesflags.json from materializer_argv + eye_flags); H1 wrote the same record into both run dirs",
-        "observed": {
-          "doc": {"asset": "high-poly", "cornea": true, "texture": null, "shell": "off"}
-        },
-        "runs": {
-          "run1": {
-            "rc": 0,
-            "outputs": [
-              {
-                "name": "stage5-eyesflags.json",
-                "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/stage5-eyesflags.json",
-                "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
-              }
-            ],
-            "evidence_sha": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d",
-            "log": null
-          },
-          "run2": {
-            "rc": 0,
-            "outputs": [
-              {
-                "name": "stage5-eyesflags.json",
-                "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/stage5-eyesflags.json",
-                "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
-              }
-            ],
-            "evidence_sha": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d",
-            "log": null
-          }
-        }
-      },
-      {
-        "stage": 6,
-        "name": "face_fit",
-        "status": "refused",
-        "reason": "The child case-input fit_case is null and the face-fit target table has no child row. Direct fit_facefit2.py --case <child case id> refuses with the unknown-case line in both runs.",
-        "script": "tools/openclinxr/evidence/face-fit/fit_facefit2.py",
-        "argv": ["--case", "peds_asthma_parent_anxiety_v1"],
-        "command": "env -u ANTHROPIC_API_KEY MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees mise exec -C /Volumes/files/src/openclinxr -- python3 <worktree>/tools/openclinxr/evidence/face-fit/fit_facefit2.py --case <child case id>",
-        "observed": {
-          "refusal": "face-fit refuse: unknown case 'peds_asthma_parent_anxiety_v1' (want one of ['aisha', 'body2'])"
-        },
-        "runs": {
-          "run1": {
-            "rc": 1,
-            "outputs": [],
-            "refusal_sha": "99f7aac323b5a232cf968899c402bade035c3f141fbda10d7eb3631bfe6b15a1",
-            "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage6-fit-run1.log"
-          },
-          "run2": {
-            "rc": 1,
-            "outputs": [],
-            "refusal_sha": "99f7aac323b5a232cf968899c402bade035c3f141fbda10d7eb3631bfe6b15a1",
-            "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage6-fit-run2.log"
-          }
-        }
-      },
-      {
-        "stage": 7,
-        "name": "checks",
-        "status": "partial",
-        "reason": "Fixture shape verification and subject-mode shape on the reference child front both complete. Face-gate, lid G1/G4 and catch-light are blocked or report-only because there is no child goal, no child bake, and no case render.",
-        "script": "tools/openclinxr/evidence/face-shape-clauses/shape_clauses.py",
-        "argv": ["--verify"],
-        "command": "shape --verify in both runs; plus shape subject mode on the reference child front with the pinned store landmark model",
-        "observed": {
-          "shape_verify_stdout_sha256": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90",
-          "shape_subject_stdout": "peds_asthma_parent_anxiety_v1: LID=1.000000 FAIL TINT=None boxA=[401, 667, 588, 778] boxB=[694, 669, 881, 780]",
-          "shape_subject_detected": true,
-          "shape_subject_lid": 1.0,
-          "shape_subject_tint": null,
-          "shape_subject_model_sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
-          "shape_subject_render_sha256": "95848ab8ce7c190540c490c298f2698919254aa43f7b72910350b67cfd665d64",
-          "face_gate": "blocked: no child goal/target pair",
-          "lid_g1": "blocked: no child bake and no pinned child GLB for POSITION comparison",
-          "lid_g4": "blocked: no closed-lid child portrait render",
-          "catchlight": "blocked/report-only: no landed child render is named in case-inputs; no numeric gate in stage code"
-        },
-        "runs": {
-          "run1": {
-            "rc": 0,
-            "outputs": [
-              {
-                "name": "h1-stage7-shape-verify-run1.json",
-                "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage7-shape-verify-run1.json",
-                "sha256": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90"
-              },
-              {
-                "name": "h1-stage7-shape-subject-run1.json",
-                "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage7-shape-subject-run1.json",
-                "sha256": "4627c087e3af93a688762bbe9227f48d3bd70ba7894a4d25460066f6a73d00a1"
-              }
-            ],
-            "evidence_sha": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90",
-            "log": null
-          },
-          "run2": {
-            "rc": 0,
-            "outputs": [
-              {
-                "name": "h1-stage7-shape-verify-run2.json",
-                "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage7-shape-verify-run2.json",
-                "sha256": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90"
-              },
-              {
-                "name": "h1-stage7-shape-subject-run2.json",
-                "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage7-shape-subject-run2.json",
-                "sha256": "4627c087e3af93a688762bbe9227f48d3bd70ba7894a4d25460066f6a73d00a1"
-              }
-            ],
-            "evidence_sha": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90",
-            "log": null
-          }
-        }
-      }
-    ]
-  },
-  "findings": [
-    {
-      "id": "F1-plan-gate",
-      "claim": "The station never reaches a stage through the normal CLI for the child: the plan refuses at the record lookup.",
-      "evidence": "packages/openclinxr/factory-stations/src/face_realism/plan.ts:115 returns `record has no case <caseId>: refused` because plan.ts:117-119 requires cases[caseId].references.goal_front; tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases holds aisha+body2 only.",
-      "evidence_kind": "observed",
-      "artifacts": [
-        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/stage-records.json",
-        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/stage-records.json"
-      ],
-      "verdict": "blocker"
-    },
-    {
-      "id": "F2-no-goal",
-      "claim": "No child goal image exists (goal: none). The only landed child asset encountered is the shipped child GLB; no goal-front render was found.",
-      "evidence": "packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json:58 (the child is text-only: skin_tone warm_light_child, height_cm 125); tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases holds aisha+body2 only.",
-      "evidence_kind": "observed",
-      "artifacts": [
-        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb"
-      ],
-      "absence": "searched the reference-set manifest, the working tree, and /Volumes/files/openclinxr-assets/store; no child goal image was generated",
-      "verdict": "missing_input"
-    },
-    {
-      "id": "F3-tone-anchor",
-      "claim": "Tone-check reproduces byte-identically and declares nearest[warm_light_child]=young, but there is no warm_light_child anchor row, so the runner cannot compute a distance pick for the child.",
-      "evidence": "tools/openclinxr/asset-pipeline/skin/families/tone-check.py:152-156 has tone_anchors_Lab for warm_light+warm_medium only; tone-check.py:161-163 declares nearest.warm_light_child=young; stages-a.ts:68-71 throws when the case tone has no anchor.",
-      "evidence_kind": "observed",
-      "artifacts": [
-        "/Users/patrick/.grok/worktrees/src-openclinxr/third/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
-        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage1-tone-run1.log",
-        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage1-tone-run2.log"
-      ],
-      "observed_value": "nearest[warm_light_child]=young; tone_report sha 402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3 before and after",
-      "verdict": "adult_assumption"
-    },
-    {
-      "id": "F4-lid-map",
-      "claim": "The child station-form bake emits no lid-conform record and stops before lid work. The conform-case map names only adult subjects.",
-      "evidence": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:137-141 LID_CONFORM_CASE_BY_SUBJECT_ID maps only ob_patient_aisha+adult_male_street_casual; child station-form logs contain REFERENCE_MEASURED/SKIN_MATERIAL/EYES_FIT but no LIDCONFORM_BAKED.",
-      "evidence_kind": "observed",
-      "artifacts": [
-        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage4-run1-full.log",
-        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage4-run2-full.log"
-      ],
-      "verdict": "adult_assumption"
-    },
-    {
-      "id": "F5-eye-stem",
-      "claim": "The child reference resolves to a 1.25 m school-age patient and the eye table contains mpfb-peds-patient-child (22.5 mm), but the station-form output stem stage4-lidconform is absent from EYE_DIAMETER_TARGET_MM, so the bake raises #377 before any globe resize.",
-      "evidence": "materialize_mpfb_humanoid_candidate.py:2646 (mpfb-peds-patient-child: 22.5) vs the station default stem stage4-lidconform (stages-b.ts:99) and the guard at materialize_mpfb_humanoid_candidate.py:5991-5996.",
-      "evidence_kind": "observed",
-      "artifacts": [
-        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage4-run1-full.log",
-        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage4-run2-full.log"
-      ],
-      "observed_value": "REFERENCE_MEASURED statureMeters=1.25; EYES_FIT high-poly 1064 verts/2040 tris; refusal_sha 75d9249cf0418fd5febc2d5b474ceabfddf6847a08956a3a788956ab35922615 in both runs; no output GLB",
-      "verdict": "partial_support_then_refuse"
-    },
-    {
-      "id": "F6-chain-subjects",
-      "claim": "The replay chain has no child subject row. This was not executed for the child because there is no child bake and therefore no child skin albedo; compose/colour need goal-derived child inputs.",
-      "evidence": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:232 subjects = aisha (line 243) + adult_male_street_casual (line 244) only; no child row.",
-      "evidence_kind": "inferred",
-      "artifacts": [],
-      "verdict": "adult_assumption"
-    },
-    {
-      "id": "F7-face-fit",
-      "claim": "Face-fit refuses any case absent from its target table; the child fit_case is null and the table has no child row.",
-      "evidence": "tools/openclinxr/evidence/face-fit/fit_facefit2.py:148-151; tools/openclinxr/evidence/face-fit/any-subject-targets.json:cases = aisha, body2.",
-      "evidence_kind": "observed",
-      "artifacts": [
-        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage6-fit-run1.log",
-        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage6-fit-run2.log"
-      ],
-      "observed_value": "face-fit refuse: unknown case 'peds_asthma_parent_anxiety_v1' (want one of ['aisha', 'body2'])",
-      "verdict": "adult_assumption"
-    },
-    {
-      "id": "F8-derive-floor",
-      "claim": "Direct derive on the only landed child GLB refuses at the adult-calibrated derive floor: the shipped child body has 19802 faces, below the 20000-face minimum for 4096px derivation.",
-      "evidence": "tools/openclinxr/asset-pipeline/skin/face-replay/derive.py:236 SKIN_MIN_FACES=20000 for 4096px derivation; load_subject selects mpfb_peds_patient_child_body and counts 19802 faces.",
-      "evidence_kind": "observed",
-      "artifacts": [
-        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage3-derive-run1-full.log",
-        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage3-derive-run2-full.log",
-        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb"
-      ],
-      "observed_value": "NO_BODY_SKIN_MESH: 19802 faces vs min 20000; refusal_sha 98209cfb29abe8ee84ab34825776649c84b2fca4dffed4d85b24f53d3ff1cd25 in both runs",
-      "verdict": "adult_assumption"
-    }
-  ],
-  "sheet": {
-    "kind": "shipped_glb_product_path_capture",
-    "note": "NOT station output: the child bake did not succeed, so no station sheet exists. This remains the read-only SHIPPED child GLB apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb rendered through the product three.js isolated-subject path (runtime-portrait-capture.ts --variant, RENDER_SIZE 1280, productEnvironmentId ob_triage_room_v1, no skinOverride). Provenance: GLB sha256 a969db3ba0a63d43597b5c3007a6e520a85c46bec9e28c97aa88638500ed79b1.",
-    "variant": "/Volumes/files/openclinxr-assets/store/third-subject/st-third-child.variant.json",
-    "root": "/Volumes/files/openclinxr-assets/store/third-subject",
-    "files": {
-      "sheet.png": "2b0f6a87ad888fe702f6346eefa8c24c2671a4e700572621629ac2430b5ea3d8",
-      "st-third-child-front.png": "95848ab8ce7c190540c490c298f2698919254aa43f7b72910350b67cfd665d64",
-      "st-third-child-yaw25.png": "847f832e78404a1305c2b6fbed2fb5f3ef58ea1b3ac9fe876e6cb0d1c6dd00e4",
-      "st-third-child-yaw40.png": "09f89e384bbb9ac4053b95e96d66c191cbebbdcbdc52ea6bff23635fd9407735"
-    }
-  },
-  "station_sheet": {
-    "status": "not_produced",
-    "reason": "The child bake did not succeed (H1 stage 4 refused before output), so there is no station child bake and no station stage-3 albedo to capture. No station-* files were written."
-  },
-  "verdict": "runs_with_4_refusals",
-  "verdictNote": "The normal CLI still refuses at the plan gate, but H1 bypassed it and ran the landed stage scripts. Four H1 stage rows refused (family_tone anchor, skin_chain derive, lid_conform output stem, face_fit unknown case); skin_layers and eye_flags completed and checks were partial (fixture shape verification plus reference-front subject mode completed; goal/bake-dependent checks blocked).",
-  "followUps": [
-    "Author a goal image + goal_front record for peds_patient_child (reference-set manifest) so the plan gate can pass.",
-    "Add a warm_light_child row to tone_anchors_Lab (tone-check.py) so family_tone can compute a distance pick.",
-    "Add a stage-4 output stem mapped in EYE_DIAMETER_TARGET_MM (or a child stage4 known-good stem) so the child bake can pass the #377 guard.",
-    "Add a child lid-conform case mapping if lid seating is required for the child bake.",
-    "Add a child subject row to face-replay/chain-manifest.json and a child case to any-subject-targets.json for face-fit.",
-    "Reconcile the derive floor for the shipped child body (19802 faces vs 20000 minimum) before expecting derive..socket..beard on a child bake."
+ "version": 2,
+ "card": "tsk_528c17d1809cac92",
+ "handoff": "H1",
+ "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/third",
+ "subject": {
+  "caseId": "peds_asthma_parent_anxiety_v1",
+  "actorId": "patient_maya_johnson_v1",
+  "reference": "peds_patient_child",
+  "goal": "none"
+ },
+ "goalNote": "No goal image for the child exists anywhere (searched the reference-set manifest, the working tree, and /Volumes/files/openclinxr-assets/store). The child is a text-only phenotype (packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json:entries.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1). No goal image was generated (card forbids Imagine/LLM).",
+ "runner": {
+  "command": "pnpm exec tsx packages/openclinxr/factory-stations/src/face_realism/run-case.ts <caseId> <runN>",
+  "recordPath": "tools/openclinxr/asset-pipeline/reference-set/manifest.json",
+  "storeRoot": "/Volumes/files/openclinxr-assets/store/face-station-cases",
+  "runs": [
+   {
+    "run": "run1",
+    "cli_argv": [
+     "peds_asthma_parent_anxiety_v1",
+     "1"
+    ],
+    "status": "refused",
+    "stop_reason": "record has no case peds_asthma_parent_anxiety_v1: refused",
+    "wallSeconds": 0.001,
+    "stageRecords": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/stage-records.json"
+   },
+   {
+    "run": "run2",
+    "cli_argv": [
+     "peds_asthma_parent_anxiety_v1",
+     "2"
+    ],
+    "status": "refused",
+    "stop_reason": "record has no case peds_asthma_parent_anxiety_v1: refused",
+    "wallSeconds": 0.001,
+    "stageRecords": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/stage-records.json"
+   }
   ]
+ },
+ "h1_direct": {
+  "method": "Bypass only the plan gate. Invoke each landed stage script as a subprocess with the body2 argv form, substituting the child case-input values. No stage/runner/materializer/threshold/skin/eye file was edited. Model credentials were stripped for every subprocess (ANTHROPIC_API_KEY unset).",
+  "worktree_local_setup": "The third worktree initially lacked two ignored provider-cache packs. Copied byte-identical local packs into .openclinxr-local (untracked): visemes makehuman-visemes02 from /Volumes/files/src/openclinxr (556K) and eyes makehuman-highpoly from the realism-95 worktree (absent in main). No tracked file was touched. The first two child stage-4 attempts therefore blocked on missing local caches (#432 visemes, then #337 high-poly eyes) before reaching the child-specific #377 refusal.",
+  "runs": {
+   "run1": {
+    "storeDir": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1"
+   },
+   "run2": {
+    "storeDir": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2"
+   }
+  },
+  "stages": [
+   {
+    "stage": 1,
+    "name": "family_tone",
+    "status": "refused",
+    "reason": "tone-check.py reproduced the tone report byte-identically in both runs, and the report declares nearest[warm_light_child]=young; but the report has no warm_light_child anchor row, so the runner selection rule (stages-a.ts:68-71) cannot compute a distance pick for the child.",
+    "script": "tools/openclinxr/asset-pipeline/skin/families/tone-check.py",
+    "argv": [],
+    "command": "env -u ANTHROPIC_API_KEY MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees mise exec -C /Volumes/files/src/openclinxr -- python3 /Users/patrick/.grok/worktrees/src-openclinxr/third/tools/openclinxr/asset-pipeline/skin/families/tone-check.py",
+    "observed": {
+     "stdout": "wrote tone-report.json; lip gate 2.04 vs 39.73; ear gate 0.42 vs 38.90",
+     "tone_report_before_sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+     "tone_report_after_sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+     "nearest_warm_light_child": "young",
+     "tone_anchors": [
+      "warm_light",
+      "warm_medium"
+     ],
+     "pick": null
+    },
+    "runs": {
+     "run1": {
+      "rc": 0,
+      "outputs": [],
+      "evidence_sha": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+      "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage1-tone-run1.log"
+     },
+     "run2": {
+      "rc": 0,
+      "outputs": [],
+      "evidence_sha": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+      "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage1-tone-run2.log"
+     }
+    }
+   },
+   {
+    "stage": 2,
+    "name": "skin_layers",
+    "status": "completed",
+    "reason": "All-zero layer weights reproduce the picked young family PNG byte-identically in both runs.",
+    "script": "packages/openclinxr/factory-stations/src/face_realism/drivers/stage2_apply_layers.py",
+    "argv": [
+     "--families-dir",
+     "/Users/patrick/.grok/worktrees/src-openclinxr/third/tools/openclinxr/asset-pipeline/skin/families",
+     "--family",
+     "skin-families/young/young-family-v3.png",
+     "--weights",
+     "{\"cheek_redness\":0.0,\"ear\":0.0,\"freckles\":0.0,\"lip\":0.0,\"nose_redness\":0.0,\"pallor\":0.0}",
+     "--out",
+     "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/runN/stage2-layers.png"
+    ],
+    "command": "env -u ANTHROPIC_API_KEY MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees mise exec -C /Volumes/files/src/openclinxr -- python3 <worktree>/packages/openclinxr/factory-stations/src/face_realism/drivers/stage2_apply_layers.py --families-dir <worktree>/tools/openclinxr/asset-pipeline/skin/families --family skin-families/young/young-family-v3.png --weights '<zero weights>' --out <store child runN>/stage2-layers.png",
+    "runs": {
+     "run1": {
+      "rc": 0,
+      "outputs": [
+       {
+        "name": "stage2-layers.png",
+        "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/stage2-layers.png",
+        "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+       }
+      ],
+      "evidence_sha": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+      "log": null
+     },
+     "run2": {
+      "rc": 0,
+      "outputs": [
+       {
+        "name": "stage2-layers.png",
+        "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/stage2-layers.png",
+        "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+       }
+      ],
+      "evidence_sha": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+      "log": null
+     }
+    }
+   },
+   {
+    "stage": 3,
+    "name": "skin_chain",
+    "status": "refused",
+    "reason": "No child bake and no child albedo exist, so compose/colour/chain hand steps were not invoked. Direct derive.py on the only landed child GLB refuses: the shipped child body has 19802 faces, below the 20000-face floor for 4096px derivation. Occlusion, roughness, lips, eye corners, symmetrise, socket and beard_shadow were not reached.",
+    "script": "tools/openclinxr/asset-pipeline/skin/face-replay/derive.py",
+    "argv": [
+     "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb",
+     "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/runN/derive_out",
+     "--size",
+     "4096"
+    ],
+    "command": "env -u ANTHROPIC_API_KEY MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees mise exec -C /Volumes/files/src/openclinxr -- python3 <worktree>/tools/openclinxr/asset-pipeline/skin/face-replay/derive.py <store child>/inputs/mpfb-peds-patient-child.glb <store child runN>/derive_out --size 4096",
+    "observed": {
+     "refusal": "NoBodySkinMeshError: NO_BODY_SKIN_MESH: chosen skin mesh mpfb_peds_patient_child_body in /Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb has 19802 faces (min 20000 for 4096px derivation); decimated runtime LOD is not a derive subject"
+    },
+    "runs": {
+     "run1": {
+      "rc": 1,
+      "outputs": [],
+      "refusal_sha": "98209cfb29abe8ee84ab34825776649c84b2fca4dffed4d85b24f53d3ff1cd25",
+      "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage3-derive-run1-full.log"
+     },
+     "run2": {
+      "rc": 1,
+      "outputs": [],
+      "refusal_sha": "98209cfb29abe8ee84ab34825776649c84b2fca4dffed4d85b24f53d3ff1cd25",
+      "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage3-derive-run2-full.log"
+     }
+    }
+   },
+   {
+    "stage": 4,
+    "name": "lid_conform_bake",
+    "status": "refused",
+    "reason": "The child reference resolves and the high-poly eye mesh loads, but the station-form output stem stage4-lidconform is absent from EYE_DIAMETER_TARGET_MM, so the bake raises #377 before any globe resize, lid-conform record, or output. No globe diameter was used and no lid-conform ran.",
+    "script": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "argv": [
+     "--reference",
+     "peds_patient_child",
+     "--actor-role",
+     "patient",
+     "--bake-device",
+     "metal",
+     "--eye-asset",
+     "high-poly",
+     "--eye-cornea",
+     "--output",
+     "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/runN/stage4-lidconform.glb"
+    ],
+    "command": "env -u ANTHROPIC_API_KEY /opt/homebrew/bin/blender --background --python <worktree>/tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --reference peds_patient_child --actor-role patient --bake-device metal --eye-asset high-poly --eye-cornea --output <store child runN>/stage4-lidconform.glb",
+    "observed": {
+     "blender_rc": 0,
+     "output_exists": false,
+     "output": null,
+     "reference_measured": "{\"referenceId\": \"peds_patient_child\", \"statureMeters\": 1.25, \"headHeightFraction\": 0.1599999999999998, \"chestSpanMeters\": 0.450022, \"waistSpanMeters\": 0.742578}",
+     "skin_material": "mpfb_skin_peds_patient_child tone=warm_light_child rgb=[0.84, 0.7, 0.6] shader=enhanced_skin",
+     "eyes_fit": "mpfb_peds_patient_child_body_mesh.high-poly verts 1064 tris 2040 material ['mpfb_peds_patient_child_body_mesh.high-poly'] dominantGroups {'eye.L': 532, 'eye.R': 532}",
+     "lidconform_baked": false,
+     "globe_diameter_used_mm": null,
+     "refusal": "RuntimeError: #377: no anatomical eye target for actor stem 'stage4-lidconform' \u2014 add it to EYE_DIAMETER_TARGET_MM (['aisha-eyeglobe-base', 'aisha-eyeglobe-fit', 'aisha-eyetex', 'aisha-hp-cornea', 'aisha-lidconform', 'aisha-realism', 'aisha-ref-control', 'aisha-ref-inert', 'aisha-ref-lipsC', 'aisha-ref2', 'aisha-ref3', 'aisha-shell-b2b3', 'body2-eyeglobe-base', 'body2-lidconform', 'eg-100-2', 'eg-100-4', 'eg-100-m1', 'eg-100-m2', 'eg-100-m3', 'eg-102-0', 'eg-102-2', 'eg-102-4', 'eg-102-m1', 'eg-102-m2', 'eg-102-m3', 'eg-104-0', 'eg-104-2', 'eg-104-4', 'eg-104-m1', 'eg-104-m2', 'eg-104-m3', 'eyegeo-final', 'eyeshell-final', 'eyetex-final', 'mpfb-clinical-nurse-adult', 'mpfb-clinical-physician-adult', 'mpfb-family-partner-adult', 'mpfb-gown-adult-patient', 'mpfb-ob-patient-aisha', 'mpfb-peds-nurse-kevin', 'mpfb-peds-parent-aisha', 'mpfb-peds-patient-child', 'mpfb-street-adult-male', 'mpfb-viseme-inspect']) before baking a new actor",
+     "note": "The eye table does contain mpfb-peds-patient-child (22.5 mm), but that row is keyed to the output GLB stem; the station-form stem stage4-lidconform is not in the table."
+    },
+    "runs": {
+     "run1": {
+      "rc": 0,
+      "outputs": [],
+      "refusal_sha": "75d9249cf0418fd5febc2d5b474ceabfddf6847a08956a3a788956ab35922615",
+      "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage4-run1-full.log",
+      "log_sha256": "d911ec29fcb1fb7cffddf0dd3d3a7408f06c57b2a3f4de111c70742fe3ff5929"
+     },
+     "run2": {
+      "rc": 0,
+      "outputs": [],
+      "refusal_sha": "75d9249cf0418fd5febc2d5b474ceabfddf6847a08956a3a788956ab35922615",
+      "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage4-run2-full.log",
+      "log_sha256": "3be1b6123abe9c4251982b4d7aa7976ea29dca72158c875f549d0a9178a0d969"
+     }
+    }
+   },
+   {
+    "stage": 5,
+    "name": "eye_flags",
+    "status": "completed",
+    "reason": "The station's stage 5 writes the eye-flag JSON from the recorded bake argv without a subprocess. The child record resolves to high-poly/cornea/shell-off, identical in both runs.",
+    "script": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "argv": [
+     "--eye-asset",
+     "--eye-cornea"
+    ],
+    "command": "stage 5 has no subprocess by station design (stages-d.ts:21-57 writes stage5-eyesflags.json from materializer_argv + eye_flags); H1 wrote the same record into both run dirs",
+    "observed": {
+     "doc": {
+      "asset": "high-poly",
+      "cornea": true,
+      "texture": null,
+      "shell": "off"
+     }
+    },
+    "runs": {
+     "run1": {
+      "rc": 0,
+      "outputs": [
+       {
+        "name": "stage5-eyesflags.json",
+        "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/stage5-eyesflags.json",
+        "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
+       }
+      ],
+      "evidence_sha": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d",
+      "log": null
+     },
+     "run2": {
+      "rc": 0,
+      "outputs": [
+       {
+        "name": "stage5-eyesflags.json",
+        "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/stage5-eyesflags.json",
+        "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
+       }
+      ],
+      "evidence_sha": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d",
+      "log": null
+     }
+    }
+   },
+   {
+    "stage": 6,
+    "name": "face_fit",
+    "status": "refused",
+    "reason": "The child case-input fit_case is null and the face-fit target table has no child row. Direct fit_facefit2.py --case <child case id> refuses with the unknown-case line in both runs.",
+    "script": "tools/openclinxr/evidence/face-fit/fit_facefit2.py",
+    "argv": [
+     "--case",
+     "peds_asthma_parent_anxiety_v1"
+    ],
+    "command": "env -u ANTHROPIC_API_KEY MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees mise exec -C /Volumes/files/src/openclinxr -- python3 <worktree>/tools/openclinxr/evidence/face-fit/fit_facefit2.py --case <child case id>",
+    "observed": {
+     "refusal": "face-fit refuse: unknown case 'peds_asthma_parent_anxiety_v1' (want one of ['aisha', 'body2'])"
+    },
+    "runs": {
+     "run1": {
+      "rc": 1,
+      "outputs": [],
+      "refusal_sha": "99f7aac323b5a232cf968899c402bade035c3f141fbda10d7eb3631bfe6b15a1",
+      "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage6-fit-run1.log"
+     },
+     "run2": {
+      "rc": 1,
+      "outputs": [],
+      "refusal_sha": "99f7aac323b5a232cf968899c402bade035c3f141fbda10d7eb3631bfe6b15a1",
+      "log": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage6-fit-run2.log"
+     }
+    }
+   },
+   {
+    "stage": 7,
+    "name": "checks",
+    "status": "partial",
+    "reason": "Fixture shape verification and subject-mode shape on the reference child front both complete. Face-gate, lid G1/G4 and catch-light are blocked or report-only because there is no child goal, no child bake, and no case render.",
+    "script": "tools/openclinxr/evidence/face-shape-clauses/shape_clauses.py",
+    "argv": [
+     "--verify"
+    ],
+    "command": "shape --verify in both runs; plus shape subject mode on the reference child front with the pinned store landmark model",
+    "observed": {
+     "shape_verify_stdout_sha256": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90",
+     "shape_subject_stdout": "peds_asthma_parent_anxiety_v1: LID=1.000000 FAIL TINT=None boxA=[401, 667, 588, 778] boxB=[694, 669, 881, 780]",
+     "shape_subject_detected": true,
+     "shape_subject_lid": 1.0,
+     "shape_subject_tint": null,
+     "shape_subject_model_sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+     "shape_subject_render_sha256": "95848ab8ce7c190540c490c298f2698919254aa43f7b72910350b67cfd665d64",
+     "face_gate": "blocked: no child goal/target pair",
+     "lid_g1": "blocked: no child bake and no pinned child GLB for POSITION comparison",
+     "lid_g4": "blocked: no closed-lid child portrait render",
+     "catchlight": "blocked/report-only: no landed child render is named in case-inputs; no numeric gate in stage code"
+    },
+    "runs": {
+     "run1": {
+      "rc": 0,
+      "outputs": [
+       {
+        "name": "h1-stage7-shape-verify-run1.json",
+        "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage7-shape-verify-run1.json",
+        "sha256": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90"
+       },
+       {
+        "name": "h1-stage7-shape-subject-run1.json",
+        "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage7-shape-subject-run1.json",
+        "sha256": "4627c087e3af93a688762bbe9227f48d3bd70ba7894a4d25460066f6a73d00a1"
+       }
+      ],
+      "evidence_sha": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90",
+      "log": null
+     },
+     "run2": {
+      "rc": 0,
+      "outputs": [
+       {
+        "name": "h1-stage7-shape-verify-run2.json",
+        "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage7-shape-verify-run2.json",
+        "sha256": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90"
+       },
+       {
+        "name": "h1-stage7-shape-subject-run2.json",
+        "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage7-shape-subject-run2.json",
+        "sha256": "4627c087e3af93a688762bbe9227f48d3bd70ba7894a4d25460066f6a73d00a1"
+       }
+      ],
+      "evidence_sha": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90",
+      "log": null
+     }
+    }
+   }
+  ]
+ },
+ "findings": [
+  {
+   "id": "F1-plan-gate",
+   "claim": "The station never reaches a stage through the normal CLI for the child: the plan refuses at the record lookup.",
+   "evidence": "packages/openclinxr/factory-stations/src/face_realism/plan.ts:115 returns `record has no case <caseId>: refused` because plan.ts:117-119 requires cases[caseId].references.goal_front; tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases holds aisha+body2 only.",
+   "evidence_kind": "observed",
+   "artifacts": [
+    "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/stage-records.json",
+    "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/stage-records.json"
+   ],
+   "verdict": "blocker"
+  },
+  {
+   "id": "F2-no-goal",
+   "claim": "No child goal image exists (goal: none). The only landed child asset encountered is the shipped child GLB; no goal-front render was found.",
+   "evidence": "packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json:58 (the child is text-only: skin_tone warm_light_child, height_cm 125); tools/openclinxr/asset-pipeline/reference-set/manifest.json:cases holds aisha+body2 only.",
+   "evidence_kind": "observed",
+   "artifacts": [
+    "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb"
+   ],
+   "absence": "searched the reference-set manifest, the working tree, and /Volumes/files/openclinxr-assets/store; no child goal image was generated",
+   "verdict": "missing_input"
+  },
+  {
+   "id": "F3-tone-anchor",
+   "claim": "Tone-check reproduces byte-identically and declares nearest[warm_light_child]=young, but there is no warm_light_child anchor row, so the runner cannot compute a distance pick for the child.",
+   "evidence": "tools/openclinxr/asset-pipeline/skin/families/tone-check.py:152-156 has tone_anchors_Lab for warm_light+warm_medium only; tone-check.py:161-163 declares nearest.warm_light_child=young; stages-a.ts:68-71 throws when the case tone has no anchor.",
+   "evidence_kind": "observed",
+   "artifacts": [
+    "/Users/patrick/.grok/worktrees/src-openclinxr/third/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+    "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage1-tone-run1.log",
+    "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage1-tone-run2.log"
+   ],
+   "observed_value": "nearest[warm_light_child]=young; tone_report sha 402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3 before and after",
+   "verdict": "adult_assumption"
+  },
+  {
+   "id": "F4-lid-map",
+   "claim": "The child station-form bake emits no lid-conform record and stops before lid work. The conform-case map names only adult subjects.",
+   "evidence": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:137-141 LID_CONFORM_CASE_BY_SUBJECT_ID maps only ob_patient_aisha+adult_male_street_casual; child station-form logs contain REFERENCE_MEASURED/SKIN_MATERIAL/EYES_FIT but no LIDCONFORM_BAKED.",
+   "evidence_kind": "observed",
+   "artifacts": [
+    "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage4-run1-full.log",
+    "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage4-run2-full.log"
+   ],
+   "verdict": "adult_assumption"
+  },
+  {
+   "id": "F5-eye-stem",
+   "claim": "The child reference resolves to a 1.25 m school-age patient and the eye table contains mpfb-peds-patient-child (22.5 mm), but the station-form output stem stage4-lidconform is absent from EYE_DIAMETER_TARGET_MM, so the bake raises #377 before any globe resize.",
+   "evidence": "materialize_mpfb_humanoid_candidate.py:2646 (mpfb-peds-patient-child: 22.5) vs the station default stem stage4-lidconform (stages-b.ts:99) and the guard at materialize_mpfb_humanoid_candidate.py:5991-5996.",
+   "evidence_kind": "observed",
+   "artifacts": [
+    "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage4-run1-full.log",
+    "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage4-run2-full.log"
+   ],
+   "observed_value": "REFERENCE_MEASURED statureMeters=1.25; EYES_FIT high-poly 1064 verts/2040 tris; refusal_sha 75d9249cf0418fd5febc2d5b474ceabfddf6847a08956a3a788956ab35922615 in both runs; no output GLB",
+   "verdict": "partial_support_then_refuse"
+  },
+  {
+   "id": "F6-chain-subjects",
+   "claim": "The replay chain has no child subject row. This was not executed for the child because there is no child bake and therefore no child skin albedo; compose/colour need goal-derived child inputs.",
+   "evidence": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:232 subjects = aisha (line 243) + adult_male_street_casual (line 244) only; no child row.",
+   "evidence_kind": "inferred",
+   "artifacts": [],
+   "verdict": "adult_assumption"
+  },
+  {
+   "id": "F7-face-fit",
+   "claim": "Face-fit refuses any case absent from its target table; the child fit_case is null and the table has no child row.",
+   "evidence": "tools/openclinxr/evidence/face-fit/fit_facefit2.py:148-151; tools/openclinxr/evidence/face-fit/any-subject-targets.json:cases = aisha, body2.",
+   "evidence_kind": "observed",
+   "artifacts": [
+    "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage6-fit-run1.log",
+    "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage6-fit-run2.log"
+   ],
+   "observed_value": "face-fit refuse: unknown case 'peds_asthma_parent_anxiety_v1' (want one of ['aisha', 'body2'])",
+   "verdict": "adult_assumption"
+  },
+  {
+   "id": "F8-derive-floor",
+   "claim": "Direct derive on the only landed child GLB refuses at the adult-calibrated derive floor: the shipped child body has 19802 faces, below the 20000-face minimum for 4096px derivation.",
+   "evidence": "tools/openclinxr/asset-pipeline/skin/face-replay/derive.py:236 SKIN_MIN_FACES=20000 for 4096px derivation; load_subject selects mpfb_peds_patient_child_body and counts 19802 faces.",
+   "evidence_kind": "observed",
+   "artifacts": [
+    "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage3-derive-run1-full.log",
+    "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage3-derive-run2-full.log",
+    "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb"
+   ],
+   "observed_value": "NO_BODY_SKIN_MESH: 19802 faces vs min 20000; refusal_sha 98209cfb29abe8ee84ab34825776649c84b2fca4dffed4d85b24f53d3ff1cd25 in both runs",
+   "verdict": "adult_assumption"
+  }
+ ],
+ "sheet": {
+  "kind": "shipped_glb_product_path_capture",
+  "note": "NOT station output: the child bake did not succeed, so no station sheet exists. This remains the read-only SHIPPED child GLB apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb rendered through the product three.js isolated-subject path (runtime-portrait-capture.ts --variant, RENDER_SIZE 1280, productEnvironmentId ob_triage_room_v1, no skinOverride). Provenance: GLB sha256 a969db3ba0a63d43597b5c3007a6e520a85c46bec9e28c97aa88638500ed79b1.",
+  "variant": "/Volumes/files/openclinxr-assets/store/third-subject/st-third-child.variant.json",
+  "root": "/Volumes/files/openclinxr-assets/store/third-subject",
+  "files": {
+   "sheet.png": "2b0f6a87ad888fe702f6346eefa8c24c2671a4e700572621629ac2430b5ea3d8",
+   "st-third-child-front.png": "95848ab8ce7c190540c490c298f2698919254aa43f7b72910350b67cfd665d64",
+   "st-third-child-yaw25.png": "847f832e78404a1305c2b6fbed2fb5f3ef58ea1b3ac9fe876e6cb0d1c6dd00e4",
+   "st-third-child-yaw40.png": "09f89e384bbb9ac4053b95e96d66c191cbebbdcbdc52ea6bff23635fd9407735"
+  }
+ },
+ "station_sheet": {
+  "status": "not_produced",
+  "reason": "The child bake did not succeed (H1 stage 4 refused before output), so there is no station child bake and no station stage-3 albedo to capture. No station-* files were written."
+ },
+ "verdict": "runs_with_4_refusals",
+ "verdictNote": "The normal CLI still refuses at the plan gate, but H1 bypassed it and ran the landed stage scripts. Four H1 stage rows refused (family_tone anchor, skin_chain derive, lid_conform output stem, face_fit unknown case); skin_layers and eye_flags completed and checks were partial (fixture shape verification plus reference-front subject mode completed; goal/bake-dependent checks blocked).",
+ "followUps": [
+  "Author a goal image + goal_front record for peds_patient_child (reference-set manifest) so the plan gate can pass.",
+  "Add a warm_light_child row to tone_anchors_Lab (tone-check.py) so family_tone can compute a distance pick.",
+  "Add a stage-4 output stem mapped in EYE_DIAMETER_TARGET_MM (or a child stage4 known-good stem) so the child bake can pass the #377 guard.",
+  "Add a child lid-conform case mapping if lid seating is required for the child bake.",
+  "Add a child subject row to face-replay/chain-manifest.json and a child case to any-subject-targets.json for face-fit.",
+  "Reconcile the derive floor for the shipped child body (19802 faces vs 20000 minimum) before expecting derive..socket..beard on a child bake."
+ ],
+ "r2": {
+  "card": "tsk_386c8c91eee19dca",
+  "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/childin (branch wt/childin)",
+  "date": "2026-10-18",
+  "steps": {
+   "s1_goal": "image_edit (one attempt) of third-subject/st-third-child-front.png -> third-subject/goal-front.png sha 02618d523cb3aca0982e8cdac888e8d9f8e06feb125ba383cb44191a03e36cda 1024x1024; recorded in reference-set manifest cases.peds_asthma_parent_anxiety_v1.references.goal_front (prompt, generator image_edit, driverModel muse-spark-1-go, seed frozen-by-sha, acceptance orchestrator/pending) + phenotype_tone warm_light_child",
+   "s2_plan": "planFaceRealism(child) status=replay referenceSha256=02618d523cb3aca0982e8cdac888e8d9f8e06feb125ba383cb44191a03e36cda; plan.ts gate unchanged",
+   "s3_chain": "chain-manifest subjects.peds_patient_child (glb a969db3b..., tone [0.84,0.70,0.60], lips 1.0, sym 1.0, beard 0, every value sourced); case-inputs chain_subject=peds_patient_child; pins re-derived by two fixture runs run1==run2 with aisha final albedo 9cbf0677 unchanged; chainManifestSha=97f8dc85c919b6f5c73c1935e8cbd070941316d1093ecbb295355a234fb17071 in station-manifest.json + run-report.json; face_realism suite 27/27 green",
+   "s4_fit": "make_any_subject_targets.py generalized to read extra cases+goals from the manifest (aisha/body2 entries identical to origin/main); child target pts_target_peds_asthma_parent_anxiety_v1_front.npy n=478 allInside; fit_facefit2.py --case peds_asthma_parent_anxiety_v1 completed rms 1.772->0.893mm beatsSweep=true selfPass=true; case-inputs fit_case=child"
+  },
+  "runner": {
+   "command": "pnpm exec tsx packages/openclinxr/factory-stations/src/face_realism/run-case.ts peds_asthma_parent_anxiety_v1",
+   "run": "run3",
+   "status": "partial",
+   "storeDir": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3",
+   "stageRecords": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3/stage-records.json",
+   "stages": {
+    "1_family_tone": "blocked: tone report holds no anchor for warm_light_child (F3)",
+    "2_skin_layers": "pass: all-zero weights byte copy of young family PNG",
+    "3_skin_chain": "blocked: stage-3 compose/colour inputs underived (refusing marker, F6 remainder)",
+    "4_lid_conform": "blocked: no child lid ring source (F4)",
+    "5_eye_flags": "pass: high-poly/cornea/shell-off record",
+    "6_face_fit": "pass: fit weights match tracked file 4f260650e287, beatsSweep=true",
+    "7_checks": "partial: shape_clauses rc=0 pass; lid G1/G4, face-gate, catchlight blocked (need bake/render)"
+   }
+  },
+  "direct": {
+   "method": "Same bypass form as H1: landed stage scripts as subprocesses, no stage/runner/materializer/threshold/skin/eye file edited. Untracked provider caches staged byte-identical from the third worktree (.openclinxr-local visemes02 + high-poly eyes) to reach the child-specific refusals.",
+   "stage1_tone": {
+    "script": "tools/openclinxr/asset-pipeline/skin/families/tone-check.py",
+    "rc": 0,
+    "tone_report_sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3 (unchanged)",
+    "nearest_warm_light_child": "young",
+    "anchor": null,
+    "log": "/tmp/childin-r2/stage1-tone.log"
+   },
+   "stage3_derive": {
+    "script": "tools/openclinxr/asset-pipeline/skin/face-replay/derive.py",
+    "argv": [
+     "face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb",
+     "/tmp/childin-r2/derive_out",
+     "--size",
+     "4096"
+    ],
+    "rc": 1,
+    "refusal": "NO_BODY_SKIN_MESH: mpfb_peds_patient_child_body has 19802 faces (min 20000 for 4096px derivation)",
+    "log": "/tmp/childin-r2/stage3-derive.log"
+   },
+   "stage4_materialize": {
+    "script": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "argv": [
+     "--reference",
+     "peds_patient_child",
+     "--actor-role",
+     "patient",
+     "--bake-device",
+     "metal",
+     "--eye-asset",
+     "high-poly",
+     "--eye-cornea",
+     "--output",
+     "/tmp/childin-r2/stage4-lidconform.glb"
+    ],
+    "blender_rc": 0,
+    "output_exists": false,
+    "refusal": "RuntimeError: #377: no anatomical eye target for actor stem 'stage4-lidconform'",
+    "observed": {
+     "reference_measured_statureMeters": 1.25,
+     "skin_material_tone": "warm_light_child rgb [0.84, 0.7, 0.6]",
+     "eyes_fit_high_poly": "1064 verts 2040 tris"
+    },
+    "log": "/tmp/childin-r2/stage4.log"
+   },
+   "stage6_fit": "covered by runner run3 stage 6 (pass); direct fit_facefit2.py --case child completed rms 1.772->0.893mm (recorded in child-inputs-report.json s4)"
+  },
+  "findingsStatus": [
+   {
+    "id": "F1-plan-gate",
+    "before": "blocker",
+    "status": "resolved",
+    "owner": "station lane (this card)",
+    "evidence": "plan() status=replay; run3 ran through run-case.ts"
+   },
+   {
+    "id": "F2-no-goal",
+    "before": "missing_input",
+    "status": "resolved",
+    "owner": "station lane (this card)",
+    "evidence": "third-subject/goal-front.png sha 02618d523c... recorded in reference-set manifest"
+   },
+   {
+    "id": "F3-tone-anchor",
+    "before": "adult_assumption",
+    "status": "still_refused",
+    "owner": "skin lane",
+    "evidence": "tone-check.py:152-156 anchors warm_light+warm_medium only; runner stage 1 + direct run still blocked"
+   },
+   {
+    "id": "F4-lid-map",
+    "before": "adult_assumption",
+    "status": "still_refused",
+    "owner": "eyes lane",
+    "evidence": "LID_CONFORM_CASE_BY_SUBJECT_ID maps ob_patient_aisha+adult_male_street_casual only; runner stage 4 + case-inputs lid_ring_source null"
+   },
+   {
+    "id": "F5-eye-stem",
+    "before": "partial_support_then_refuse",
+    "status": "still_refused",
+    "owner": "eyes lane",
+    "evidence": "direct materialize still raises #377 for stem stage4-lidconform before any globe resize"
+   },
+   {
+    "id": "F6-chain-subjects",
+    "before": "adult_assumption",
+    "status": "resolved",
+    "owner": "station lane (this card)",
+    "evidence": "chain-manifest subjects.peds_patient_child added with sources; pins re-derived; compose/colour derivation itself remains skin lane"
+   },
+   {
+    "id": "F7-face-fit",
+    "before": "adult_assumption",
+    "status": "resolved",
+    "owner": "station lane (this card)",
+    "evidence": "any-subject-targets.json child entry; runner stage 6 pass; direct fit completed"
+   },
+   {
+    "id": "F8-derive-floor",
+    "before": "adult_assumption",
+    "status": "still_refused",
+    "owner": "skin lane",
+    "evidence": "direct derive.py still NO_BODY_SKIN_MESH: 19802 faces vs min 20000"
+   }
+  ],
+  "verdict": "runs_with_4_refusals_remaining",
+  "verdictNote": "The normal CLI now plans and runs the child to partial (stages 2, 5, 6 pass). Four station-lane findings resolved (F1, F2, F6, F7). Four refusals remain with their owner lanes: F3+F8 skin, F4+F5 eyes. No edits to plan.ts gate, materializer, eye code, skin scripts (chain-manifest child row only), or thresholds."
+ }
 }

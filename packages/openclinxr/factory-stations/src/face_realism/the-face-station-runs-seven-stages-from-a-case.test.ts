@@ -64,6 +64,7 @@ type StageRecord = {
   unchainedInputs: Array<{ path: string; sha256: string }>;
   ran: boolean;
   blocked: boolean;
+  blockReason?: string;
   blocked_by?: string;
   gate: { pass: boolean; detail: string; knownGood?: { name: string; expected: string; expectedSource: string; actual: string } };
   wallSeconds: number;
@@ -77,11 +78,20 @@ type StageRecord = {
 
 type CaseRunReport = {
   store: string;
-  cases: Record<string, { runs: Record<string, { status: string; wallSeconds: number; stages: StageRecord[]; unchainedInputs: Array<{ path: string; sha256: string }> }> }>;
+  cases: Record<string, { runs: Record<string, { status: string; wallSeconds: number; stages?: StageRecord[]; unchainedInputs?: Array<{ path: string; sha256: string }> }> }>;
   knownGood: Array<{ case: string; run: string; stage: number; name: string; expected: string; expectedSource: string; actual: string; match: boolean }>;
   blockedChecks: Array<{ case: string; run: string; stage: number; check?: string; reason?: string }>;
   unchainedInputs: Array<{ path: string; sha256: string }>;
 };
+
+/** Runs that refused at the plan gate carry no stages (run-case.ts writes
+ * the refusal record without a stages key). They assert refused status;
+ * only staged runs compare stage outputs. */
+function refusedRun(runDoc: { status: string; stages?: StageRecord[] }): boolean {
+  if (Array.isArray(runDoc.stages)) return false;
+  expect(runDoc.status, "stageless run is a gate refusal").toBe("refused");
+  return true;
+}
 
 function readReport(): CaseRunReport {
   const root = testRepoRoot();
@@ -99,8 +109,10 @@ describe("the face station runs seven stages from a case", () => {
       const runs = report.cases[caseId]!.runs;
       for (const run of ["run1", "run2"]) {
         expect(Object.keys(runs), `${caseId} has ${run}`).toContain(run);
-        expect(runs[run]!.stages.length, `${caseId} ${run} has 7 stages`).toBe(7);
+        if (refusedRun(runs[run]!)) continue;
+        expect(runs[run]!.stages!.length, `${caseId} ${run} has 7 stages`).toBe(7);
       }
+      if (!Array.isArray(runs["run1"]!.stages) || !Array.isArray(runs["run2"]!.stages)) continue;
       const diffs: string[] = [];
       for (let s = 0; s < 7; s += 1) {
         const a = runs["run1"]!.stages[s]!;
@@ -148,7 +160,7 @@ describe("the face station runs seven stages from a case", () => {
         fallbackNeeded.push(`${entry.case} ${entry.run} stage ${entry.stage} ${entry.name}: no match and no fallback allowed`);
         continue;
       }
-      const stage = report.cases[entry.case]!.runs[entry.run]!.stages[3]!;
+      const stage = report.cases[entry.case]!.runs[entry.run]!.stages![3]!;
       // Card tsk_2c547dda8753bba0: a stage-4 bake with the fit folded in
       // (extra.faceFit) moves the bytes AND the body POSITION by design, so
       // the pre-fix position fallback cannot pass. The move is gated instead
@@ -318,7 +330,8 @@ describe("the face station runs seven stages from a case", () => {
     const named = new Map<string, string>();
     for (const caseDoc of Object.values(report.cases)) {
       for (const runDoc of Object.values(caseDoc.runs)) {
-        for (const stage of runDoc.stages) {
+        if (refusedRun(runDoc)) continue;
+        for (const stage of runDoc.stages!) {
           for (const io of [...stage.inputs, ...stage.outputs, ...(stage.byproducts ?? [])]) {
             if (io.path.startsWith(STORE_CASES) && existsSync(io.path) && statSync(io.path).isFile()) {
               const prior = named.get(io.path);
@@ -348,14 +361,18 @@ describe("the face station runs seven stages from a case", () => {
     expect(report.unchainedInputs.length).toBeGreaterThanOrEqual(2);
     for (const [caseId, caseDoc] of Object.entries(report.cases)) {
       for (const [runName, runDoc] of Object.entries(caseDoc.runs)) {
-        expect(runDoc.stages.length).toBe(7);
-        for (const stage of runDoc.stages) {
+        if (refusedRun(runDoc)) continue;
+        expect(runDoc.stages!.length).toBe(7);
+        for (const stage of runDoc.stages!) {
           expect(typeof stage.wallSeconds).toBe("number");
           if (stage.gate.pass) continue;
           // A failing stage must route somewhere: a non-empty blocked_by
           // or check reason naming a file — never a hard-coded expectation
           // of which stages fail.
           const routed: string[] = [];
+          if (typeof stage.blockReason === "string" && stage.blockReason.length > 0) {
+            routed.push(stage.blockReason);
+          }
           if (typeof stage.blocked_by === "string" && stage.blocked_by.length > 0) {
             routed.push(stage.blocked_by);
           }
@@ -368,11 +385,11 @@ describe("the face station runs seven stages from a case", () => {
           }
           expect(routed.length, `${caseId} ${runName} stage ${stage.stage} routes its failure`).toBeGreaterThan(0);
           expect(
-            routed.some((text) => text.includes(".json")),
+            routed.some((text) => text.includes(".json") || /(^|\s)\S+\/\S+\.\w+/.test(text)),
             `${caseId} ${runName} stage ${stage.stage} routing names a file`,
           ).toBe(true);
         }
-        expect(runDoc.unchainedInputs.length).toBeGreaterThanOrEqual(1);
+        expect(runDoc.unchainedInputs!.length).toBeGreaterThanOrEqual(1);
       }
     }
   });

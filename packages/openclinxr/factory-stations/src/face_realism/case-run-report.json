@@ -9643,6 +9643,358 @@
      ]
     }
    }
+  },
+  "peds_asthma_parent_anxiety_v1": {
+   "runs": {
+    "run1": {
+     "status": "refused",
+     "wallSeconds": 0.001
+    },
+    "run2": {
+     "status": "refused",
+     "wallSeconds": 0.001
+    },
+    "run3": {
+     "status": "partial",
+     "wallSeconds": 5.079,
+     "stages": [
+      {
+       "stage": 1,
+       "name": "stage_1",
+       "script": "",
+       "argv": [],
+       "inputs": [],
+       "outputs": [],
+       "unchainedInputs": [],
+       "ran": false,
+       "blocked": true,
+       "gate": {
+        "pass": false,
+        "detail": "threw before completing: tone report holds no anchor for the case tone (see tools/openclinxr/asset-pipeline/skin/families/tone-report.json)"
+       },
+       "wallSeconds": 0,
+       "blockReason": "tone report holds no anchor for the case tone (see tools/openclinxr/asset-pipeline/skin/families/tone-report.json)"
+      },
+      {
+       "stage": 2,
+       "name": "skin_layers",
+       "script": "tools/openclinxr/asset-pipeline/skin/families/skin_layers.py",
+       "argv": [
+        "--families-dir",
+        "/Users/patrick/.grok/worktrees/src-openclinxr/childin/tools/openclinxr/asset-pipeline/skin/families",
+        "--family",
+        "skin-families/young/young-family-v3.png",
+        "--weights",
+        "{\"cheek_redness\":0,\"ear\":0,\"freckles\":0,\"lip\":0,\"nose_redness\":0,\"pallor\":0}",
+        "--out",
+        "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3/stage2-layers.png"
+       ],
+       "inputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+         "prevStageOutputs": []
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "all-zero weights are a byte copy of the picked family PNG"
+       },
+       "wallSeconds": 0.466,
+       "driver": "packages/openclinxr/factory-stations/src/face_realism/drivers/stage2_apply_layers.py"
+      },
+      {
+       "stage": 3,
+       "name": "stage_3",
+       "script": "",
+       "argv": [],
+       "inputs": [],
+       "outputs": [],
+       "unchainedInputs": [],
+       "ran": false,
+       "blocked": true,
+       "gate": {
+        "pass": false,
+        "detail": "threw before completing: stage-3 config base_skin.assets is not a string (see case-inputs.json)"
+       },
+       "wallSeconds": 0,
+       "blockReason": "stage-3 config base_skin.assets is not a string (see case-inputs.json)"
+      },
+      {
+       "stage": 4,
+       "name": "stage_4",
+       "script": "",
+       "argv": [],
+       "inputs": [],
+       "outputs": [],
+       "unchainedInputs": [],
+       "ran": false,
+       "blocked": true,
+       "gate": {
+        "pass": false,
+        "detail": "threw before completing: case record entry assets.value is not a string (see packages/openclinxr/factory-stations/src/face_realism/case-inputs.json)"
+       },
+       "wallSeconds": 0,
+       "blockReason": "case record entry assets.value is not a string (see packages/openclinxr/factory-stations/src/face_realism/case-inputs.json)"
+      },
+      {
+       "stage": 5,
+       "name": "eye_flags",
+       "script": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+       "argv": [
+        "--eye-asset",
+        "--eye-cornea"
+       ],
+       "inputs": [],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3/stage5-eyesflags.json",
+         "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
+        }
+       ],
+       "unchainedInputs": [],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "eye flag record matches the case inputs (shell off)"
+       },
+       "wallSeconds": 0.001,
+       "note": "flags resolved from the recorded bake argv; JSON written by the station (no subprocess: the hand run names code, not a script)"
+      },
+      {
+       "stage": 6,
+       "name": "face_fit",
+       "script": "tools/openclinxr/evidence/face-fit/fit_facefit2.py",
+       "argv": [
+        "--case",
+        "peds_asthma_parent_anxiety_v1"
+       ],
+       "inputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/childin/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+         "sha256": "5504d8e22c0aeb783a8448c73dd57e2cc89e1f49de4357607601bc6c021a8406"
+        }
+       ],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3/stage6-fit-weights.json",
+         "sha256": "4f260650e287dc0faadbec15d69f1eece77b81a836ad601ab086c8f17ed2e319"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3/stage6-fit-file-weights.json",
+         "sha256": "22a37a8feda8b2c3d930bb3f1a195523d932a6ea8a0c528c471e8e726523872e"
+        }
+       ],
+       "unchainedInputs": [
+        {
+         "path": "/Users/patrick/.grok/worktrees/src-openclinxr/childin/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+         "sha256": "5504d8e22c0aeb783a8448c73dd57e2cc89e1f49de4357607601bc6c021a8406",
+         "prevStageOutputs": [
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3/stage2-layers.png",
+           "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+          },
+          {
+           "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3/stage5-eyesflags.json",
+           "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
+          }
+         ]
+        }
+       ],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": true,
+        "detail": "fit weights match the tracked file (4f260650e287); beatsSweep=true; tracked files restored=true",
+        "knownGood": {
+         "name": "fit_weights_peds_asthma_parent_anxiety_v1.json",
+         "expected": "4f260650e287dc0faadbec15d69f1eece77b81a836ad601ab086c8f17ed2e319",
+         "expectedSource": "tools/openclinxr/evidence/face-fit/fit_weights_peds_asthma_parent_anxiety_v1.json (tracked, read live)",
+         "actual": "4f260650e287dc0faadbec15d69f1eece77b81a836ad601ab086c8f17ed2e319"
+        }
+       },
+       "wallSeconds": 1.868,
+       "byproducts": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3/stage6-fit.log",
+         "sha256": "48f293af97cb7e741b142384a3f37e7a91910f9e5522d0277bea4a03a37393a9"
+        }
+       ],
+       "extra": {
+        "caseEntry": {
+         "rmsBeforeMm": 1.772,
+         "rmsAfterMm": 0.893,
+         "onTrackMm": 0.893,
+         "beatsSweep": true,
+         "featBefore": {
+          "lips": 0.894,
+          "nose": 1.685,
+          "jaw": 6.027,
+          "eyes": 1.538
+         },
+         "featAfter": {
+          "lips": 0.186,
+          "nose": 0.63,
+          "jaw": 0.057,
+          "eyes": 1.278
+         },
+         "top": [
+          [
+           "nose-greek-incr",
+           1
+          ],
+          [
+           "asym-eye-2-l",
+           0.9337
+          ],
+          [
+           "asym-eye-2-r",
+           0.9112
+          ],
+          [
+           "asym-brown-1-l",
+           0.8115
+          ],
+          [
+           "forehead-temple-incr",
+           0.7354
+          ],
+          [
+           "chin-height-decr",
+           0.6784
+          ],
+          [
+           "head-scale-depth-incr",
+           0.6157
+          ],
+          [
+           "head-oval",
+           0.5604
+          ],
+          [
+           "asym-mouth-2-l",
+           0.5597
+          ],
+          [
+           "nose-curve-convex",
+           0.5368
+          ]
+         ],
+         "weightsFile": "tools/openclinxr/evidence/face-fit/fit_weights_peds_asthma_parent_anxiety_v1.json",
+         "targetNpy": "tools/openclinxr/evidence/face-fit/pts_target_peds_asthma_parent_anxiety_v1_front.npy",
+         "targetSha256": "a31287a69cb0da8e380adc03ed947f17c6f68db8a06c27259d031b1fe7fe221c",
+         "sourceSha256": "02618d523cb3aca0982e8cdac888e8d9f8e06feb125ba383cb44191a03e36cda",
+         "source3qSha256": null,
+         "camera": {
+          "yawScan": {},
+          "yawDeg": 0,
+          "use3q": false,
+          "frontPrePx": 3.3,
+          "yawWeight": 0
+         },
+         "solve": {
+          "nVars": 178,
+          "nRows": 70,
+          "lambda": 1,
+          "knee": 5
+         }
+        },
+        "restored": true,
+        "note": "fit ran in place; tracked files snapshotted before and restored byte-identical after; outputs are copies in the out dir"
+       }
+      },
+      {
+       "stage": 7,
+       "name": "checks",
+       "script": "tools/openclinxr/evidence/face-shape-clauses/shape_clauses.py",
+       "argv": [
+        "--verify"
+       ],
+       "inputs": [],
+       "outputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3/stage7-shape-verify.json",
+         "sha256": "c8a43ab71bc533a1ccd52269afce7e2b0656d0926ffcd6b8df9c7ccfa6eb3b90"
+        }
+       ],
+       "unchainedInputs": [],
+       "ran": true,
+       "blocked": false,
+       "gate": {
+        "pass": false,
+        "detail": "shape_clauses --verify rc=0; lid G1 FAIL/blocked; face-gate/G4/catchlight blocked-or-report-only as recorded"
+       },
+       "wallSeconds": 0.303,
+       "note": "face-gate/shape run as r2 did; lid G1/G4 derive from the stage-4 record; catch-light is report-only; a sibling card makes the checks case-driven",
+       "extra": {
+        "checks": {
+         "face_gate": {
+          "blocked": true,
+          "reason": "landmark model absent at /Users/patrick/.grok/worktrees/src-openclinxr/childin/tools/openclinxr/evidence/landmarks/models/face_landmarker.task (face_gate.py MODEL_PATH)",
+          "wanted": "face_gate.py --target <goal png> --render <render png> --out <dir>"
+         },
+         "shape_clauses": {
+          "ran": true,
+          "rc": 0,
+          "pass": true
+         },
+         "lid_g1": {
+          "blocked": true,
+          "reason": "stage 4 did not produce a GLB in this run",
+          "wanted": "a completed stage-4 bake plus the pinned store GLB"
+         },
+         "lid_g4": {
+          "blocked": true,
+          "reason": "closed-lid globe-px count needs the portrait rig; not re-rendered on this card",
+          "wanted": "front closed-lid render plus the globe-px count outside the closed lid"
+         },
+         "catchlight": {
+          "blocked": true,
+          "reason": "no landed render is named for the case",
+          "wanted": "a lit front render path for the case"
+         }
+        }
+       }
+      }
+     ],
+     "unchainedInputs": [
+      {
+       "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+       "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+       "prevStageOutputs": []
+      },
+      {
+       "path": "/Users/patrick/.grok/worktrees/src-openclinxr/childin/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+       "sha256": "5504d8e22c0aeb783a8448c73dd57e2cc89e1f49de4357607601bc6c021a8406",
+       "prevStageOutputs": [
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3/stage2-layers.png",
+         "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+        },
+        {
+         "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3/stage5-eyesflags.json",
+         "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
+        }
+       ]
+      }
+     ]
+    }
+   }
   }
  },
  "knownGood": [
@@ -9831,6 +10183,16 @@
    "expectedSource": "tools/openclinxr/evidence/face-fit/fit_weights_body2.json (tracked, read live)",
    "actual": "ce7913e11d0e5b8750ce0be2072413345ad32d79e212a99a10ed289de6faf3ed",
    "match": true
+  },
+  {
+   "case": "peds_asthma_parent_anxiety_v1",
+   "run": "run3",
+   "stage": 6,
+   "name": "fit_weights_peds_asthma_parent_anxiety_v1.json",
+   "expected": "4f260650e287dc0faadbec15d69f1eece77b81a836ad601ab086c8f17ed2e319",
+   "expectedSource": "tools/openclinxr/evidence/face-fit/fit_weights_peds_asthma_parent_anxiety_v1.json (tracked, read live)",
+   "actual": "4f260650e287dc0faadbec15d69f1eece77b81a836ad601ab086c8f17ed2e319",
+   "match": true
   }
  ],
  "blockedChecks": [
@@ -9977,6 +10339,60 @@
    "blocked": true,
    "reason": "closed-lid globe-px count needs the portrait rig; not re-rendered on this card",
    "wanted": "front closed-lid render plus the globe-px count outside the closed lid"
+  },
+  {
+   "case": "peds_asthma_parent_anxiety_v1",
+   "run": "run3",
+   "stage": 1,
+   "reason": "tone report holds no anchor for the case tone (see tools/openclinxr/asset-pipeline/skin/families/tone-report.json)"
+  },
+  {
+   "case": "peds_asthma_parent_anxiety_v1",
+   "run": "run3",
+   "stage": 3,
+   "reason": "stage-3 config base_skin.assets is not a string (see case-inputs.json)"
+  },
+  {
+   "case": "peds_asthma_parent_anxiety_v1",
+   "run": "run3",
+   "stage": 4,
+   "reason": "case record entry assets.value is not a string (see packages/openclinxr/factory-stations/src/face_realism/case-inputs.json)"
+  },
+  {
+   "case": "peds_asthma_parent_anxiety_v1",
+   "run": "run3",
+   "stage": 7,
+   "check": "face_gate",
+   "blocked": true,
+   "reason": "landmark model absent at /Users/patrick/.grok/worktrees/src-openclinxr/childin/tools/openclinxr/evidence/landmarks/models/face_landmarker.task (face_gate.py MODEL_PATH)",
+   "wanted": "face_gate.py --target <goal png> --render <render png> --out <dir>"
+  },
+  {
+   "case": "peds_asthma_parent_anxiety_v1",
+   "run": "run3",
+   "stage": 7,
+   "check": "lid_g1",
+   "blocked": true,
+   "reason": "stage 4 did not produce a GLB in this run",
+   "wanted": "a completed stage-4 bake plus the pinned store GLB"
+  },
+  {
+   "case": "peds_asthma_parent_anxiety_v1",
+   "run": "run3",
+   "stage": 7,
+   "check": "lid_g4",
+   "blocked": true,
+   "reason": "closed-lid globe-px count needs the portrait rig; not re-rendered on this card",
+   "wanted": "front closed-lid render plus the globe-px count outside the closed lid"
+  },
+  {
+   "case": "peds_asthma_parent_anxiety_v1",
+   "run": "run3",
+   "stage": 7,
+   "check": "catchlight",
+   "blocked": true,
+   "reason": "no landed render is named for the case",
+   "wanted": "a lit front render path for the case"
   }
  ],
  "unchainedInputs": [
@@ -12666,6 +13082,29 @@
     },
     {
      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run3/stage5-eyesflags.json",
+     "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
+    }
+   ]
+  },
+  {
+   "case": "peds_asthma_parent_anxiety_v1",
+   "run": "run3",
+   "path": "/Volumes/files/openclinxr-assets/store/skin-families/young/young-family-v3.png",
+   "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa",
+   "prevStageOutputs": []
+  },
+  {
+   "case": "peds_asthma_parent_anxiety_v1",
+   "run": "run3",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/childin/tools/openclinxr/evidence/face-fit/any-subject-targets.json",
+   "sha256": "5504d8e22c0aeb783a8448c73dd57e2cc89e1f49de4357607601bc6c021a8406",
+   "prevStageOutputs": [
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3/stage2-layers.png",
+     "sha256": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
+    },
+    {
+     "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run3/stage5-eyesflags.json",
      "sha256": "bc125822ae8696eb5b7b00500b125530e09436e146e0dd6c4af6f7455a1f852d"
     }
    ]

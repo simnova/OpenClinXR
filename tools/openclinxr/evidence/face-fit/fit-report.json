@@ -329,6 +329,84 @@
     "lambda": 1.0,
     "knee": 5
    }
+  },
+  "peds_asthma_parent_anxiety_v1": {
+   "rmsBeforeMm": 1.772,
+   "rmsAfterMm": 0.893,
+   "onTrackMm": 0.893,
+   "beatsSweep": true,
+   "featBefore": {
+    "lips": 0.894,
+    "nose": 1.685,
+    "jaw": 6.027,
+    "eyes": 1.538
+   },
+   "featAfter": {
+    "lips": 0.186,
+    "nose": 0.63,
+    "jaw": 0.057,
+    "eyes": 1.278
+   },
+   "top": [
+    [
+     "nose-greek-incr",
+     1.0
+    ],
+    [
+     "asym-eye-2-l",
+     0.9337
+    ],
+    [
+     "asym-eye-2-r",
+     0.9112
+    ],
+    [
+     "asym-brown-1-l",
+     0.8115
+    ],
+    [
+     "forehead-temple-incr",
+     0.7354
+    ],
+    [
+     "chin-height-decr",
+     0.6784
+    ],
+    [
+     "head-scale-depth-incr",
+     0.6157
+    ],
+    [
+     "head-oval",
+     0.5604
+    ],
+    [
+     "asym-mouth-2-l",
+     0.5597
+    ],
+    [
+     "nose-curve-convex",
+     0.5368
+    ]
+   ],
+   "weightsFile": "tools/openclinxr/evidence/face-fit/fit_weights_peds_asthma_parent_anxiety_v1.json",
+   "targetNpy": "tools/openclinxr/evidence/face-fit/pts_target_peds_asthma_parent_anxiety_v1_front.npy",
+   "targetSha256": "a31287a69cb0da8e380adc03ed947f17c6f68db8a06c27259d031b1fe7fe221c",
+   "sourceSha256": "02618d523cb3aca0982e8cdac888e8d9f8e06feb125ba383cb44191a03e36cda",
+   "source3qSha256": null,
+   "camera": {
+    "yawScan": {},
+    "yawDeg": 0.0,
+    "use3q": false,
+    "frontPrePx": 3.3,
+    "yawWeight": 0.0
+   },
+   "solve": {
+    "nVars": 178,
+    "nRows": 70,
+    "lambda": 1.0,
+    "knee": 5
+   }
   }
  }
 }

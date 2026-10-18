@@ -114,6 +114,54 @@
    },
    "source3q": null,
    "note": "no reference-set goal_yaw for body2; front-only fit (same 2x yaw-scan exclusion rule)"
+  },
+  "peds_asthma_parent_anxiety_v1": {
+   "source": "reference-set peds_asthma_parent_anxiety_v1 goal_front (manifest.json)",
+   "sourceSha256": "02618d523cb3aca0982e8cdac888e8d9f8e06feb125ba383cb44191a03e36cda",
+   "imageSize": [
+    1024,
+    1024
+   ],
+   "targetNpy": "tools/openclinxr/evidence/face-fit/pts_target_peds_asthma_parent_anxiety_v1_front.npy",
+   "targetSha256": "a31287a69cb0da8e380adc03ed947f17c6f68db8a06c27259d031b1fe7fe221c",
+   "nPoints": 478,
+   "allInsideImage": true,
+   "outsideCount": 0,
+   "eyeCorners": {
+    "33": [
+     354.621,
+     495.682
+    ],
+    "133": [
+     453.297,
+     507.376
+    ],
+    "362": [
+     579.511,
+     508.296
+    ],
+    "263": [
+     679.416,
+     496.462
+    ]
+   },
+   "embedding": {
+    "file": "tools/openclinxr/evidence/face-fit/embedding.json",
+    "sha256": "2473e825cde0a3e848f89519add47d7e0d6a3c6b61a3262a7c9698e7215ca889",
+    "n": 40,
+    "trackN": 35,
+    "contourExcluded": [
+     58,
+     172,
+     234,
+     288,
+     454
+    ],
+    "fallbacks": 0,
+    "note": "shared neutral-mesh barycentric triples (base-derived, subject-independent)"
+   },
+   "source3q": null,
+   "note": "no reference-set goal_yaw for peds_asthma_parent_anxiety_v1; front-only fit (same 2x yaw-scan exclusion rule)"
   }
  }
 }

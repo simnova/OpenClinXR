@@ -27,7 +27,7 @@
    "crown_step": "S/port5/compose-report.json region_table.crown_step max 27.035 > bound 8.0 (p999 14.422); logged as a quality flag in r1 while the run continued"
   }
  },
-  "chain_manifest_sha256": "e25155f177a04f8c5e18ce475c407e9fc3896989beb5d3309b6b8ccd18baf549",
+  "chain_manifest_sha256": "97f8dc85c919b6f5c73c1935e8cbd070941316d1093ecbb295355a234fb17071",
  "commands": [
   "REUSED r1 (code+outputs unchanged, shas re-verified): python3 tools/openclinxr/asset-pipeline/skin/face-replay/face_replay_compose.py --base-skin S/body2/join/compose-new/albedo-4096.png --locked-island S/body2/uv2-src/island-T.png --locked-sha 3e2aaa3a6345e941e2a45d64563c63fc9f39cd5854762e739f37577fab1c9069 --glb S/body2/final.glb --skip-join --out S/port5/compose-albedo.png --report S/port5/compose-report.json",
   "REUSED r1: python3 tools/openclinxr/asset-pipeline/skin/face-replay/derive.py S/body2/final.glb S/port5/chain/derive_out --size 4096 (chain-bb/derive_out is a byte copy; derive.json sha re-verified)",
@@ -95,7 +95,7 @@
  },
  "parent_sheet_albedo_sha256": "97a4cf03a35d0550408ea86b71c5e23864c5dcc46b68651d7307befbfab7446d",
  "parent_sheet_source": "tools/openclinxr/asset-pipeline/skin/sheets/peds_anxious_parent/albedo.png (read-only sha; never used as input; not a source of this subject)",
- "reference_set_manifest_sha256": "a9adc4b224c54698babddcc3e954eee73620bf494cc2a0d7a40f98376fd3a665",
+ "reference_set_manifest_sha256": "7010ba7bea06e613af999dc8562164f6d4492e8454267dbb04024f97c3e6c879",
  "render_vs_goal": {
   "mask_method": "S/port5/make_belowbrow_mask.py skinchroma-a6-largest-erode8-below-brow60 applied identically to both renders (bb-final n=208933 eye 527.4 brow 467 mouth 719; goal n=156502 eye 419.0 brow 359 mouth 726)",
   "regions": {
