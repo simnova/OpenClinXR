@@ -19,7 +19,9 @@ import { existsSync, openSync, readFileSync, readSync, readdirSync, statSync, cl
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-export const DEFAULT_CAP = 180000;
+// A fresh agent starts at ~163-186k tokens of project instructions alone (eyes lane managers,
+// 2026-10-18), so 180k fired before any work. 300k leaves ~115k for one card of work.
+export const DEFAULT_CAP = 300000;
 export const HANDOFF_RECENCY_MS = 10 * 60 * 1000;
 /** Tail window for transcript reads: newest usage lines live at the end. */
 export const TAIL_BYTES = 4 * 1024 * 1024;
