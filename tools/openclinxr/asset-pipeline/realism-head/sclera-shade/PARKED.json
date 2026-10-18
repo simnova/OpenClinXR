@@ -1,0 +1,55 @@
+{
+ "status": "parked",
+ "parkedOn": "2026-10-17",
+ "parkedBy": "coordinator, after five sclera cards did not converge",
+ "statement": "Lid shadow on sclera needs a lid-attached, iris-sparing method.",
+ "attempts": [
+  {
+   "card": "sclera-shade",
+   "taskId": "tsk_c120564ce449c2b1",
+   "commit": "97429d175",
+   "method": "B2 occlusion shell, defaults sweep",
+   "failure": "cause named as lid occlusion; no sweep row passed G1+G2 on both subjects; the shell greyed the whole sclera"
+  },
+  {
+   "card": "shell-placement",
+   "taskId": "tsk_6a46705a72eb008b",
+   "commit": "ceb93d70f",
+   "method": "lid-relative shell alpha with a limbus gate",
+   "failure": "M1 and M2b past midpoint on both, but iris darkened past its noise floor and Aisha's sclera read grey-mauve"
+  },
+  {
+   "card": "shell-iris-spare",
+   "taskId": "tsk_57f4ae74d62739e0",
+   "commit": "68350ab09",
+   "method": "shell alpha zeroed over the iris in UV, strength scaled by lid occlusion",
+   "failure": "iris and catch-light failures independent of the spare; the picked row had occlusion scaling off"
+  },
+  {
+   "card": "shell-alpha-readback",
+   "taskId": "tsk_6c0405833c1f5952",
+   "commit": "e1434f4fe",
+   "method": "measurement only",
+   "failure": "verdict alpha_applied_shell_occludes_iris: per-vertex alpha is applied, so the darkening is the baked shell itself"
+  },
+  {
+   "card": "sclera-lid-shadow-bake",
+   "taskId": "tsk_6a923ad05526b9e0",
+   "commit": "b209ea990",
+   "method": "hemisphere AO from the seated lids baked into each subject's sclera texture",
+   "failure": "AO is symmetric around the eye opening, so the lower sclera darkened more than the upper; a texture-baked shadow also rotates with the globe under gaze"
+  }
+ ],
+ "fabricatedAttemptPreserved": {
+  "branch": "wt/lidshadow-fabricated",
+  "commit": "6937c98f1",
+  "store": "store/sclera-lid-shadow-bake.FABRICATED-6937c98f1"
+ },
+ "reopenCondition": "a method whose shadow follows the lid, not the globe, and keeps iris colour and catch-light within their noise floors; a texture-baked directional shadow does not qualify",
+ "toolsKept": [
+  "sclera_metrics.py",
+  "measure_catchlight.py",
+  "shell-placement-report.json noise floors"
+ ],
+ "whyNotMarkdown": "docs:drift-check refuses unregistered Markdown and registering a new doc regenerates the authority registry"
+}
