@@ -220,10 +220,48 @@ def grain_peak_cycles_texel(hi_mm, tpm=TPM, lo_tex=LO_TEX):
                      / (2 * math.pi ** 2 * (hi ** 2 - lo ** 2)))
 
 
+NEW_POST_RENDER = {"body2": os.path.join(OUT_STORE, "post",
+                                         "porefine-body2-post-front.png"),
+                   "aisha": os.path.join(OUT_STORE, "post",
+                                         "porefine-aisha-post-front.png")}
+NEW_POST_ALBEDO = {"body2": os.path.join(OUT_STORE,
+                                         "albedo_detail_body2_porefine.png"),
+                   "aisha": os.path.join(OUT_STORE,
+                                         "albedo_detail_aisha_porefine.png")}
+WRINKLE_ALBEDO = {"body2": os.path.join(POST_STORE,
+                                       "albedo_detail_body2_post11.png"),
+                  "aisha": os.path.join(POST_STORE,
+                                        "albedo_detail_aisha_post10.png")}
+RUN2 = {s: os.path.join(STORE, "face-station-cases", s, "run2")
+        for s in ("body2", "aisha")}
+GLB_WANT = {
+    "body2": {"path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run3/body2-lidconform.glb",
+              "sha256": "bdb051938777cde567825a8e7b5e993d3ea1f84b442c0d7903828c4f096ce83b"},
+    "aisha": {"path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+              "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"}}  # ground truth re-hashed this card; wrinkle_bands.py GLB_AISHA transposes 6d/d6 (pre-existing, out of scope)
+
+
+def corrected_g1(pre_ratio, post_ratio):
+    """Wrinkle corrected-G1 form on ratios (midpoint + closer + overshoot)."""
+    mid = (pre_ratio + 1) / 2
+    toward = (post_ratio <= mid) if pre_ratio > 1 else (post_ratio >= mid)
+    closer = abs(math.log(post_ratio)) < abs(math.log(pre_ratio)) - 1e-9
+    over = True
+    if pre_ratio < 1 and post_ratio > 1:
+        over = (post_ratio - 1) <= (1 - pre_ratio) + 1e-3
+    if pre_ratio > 1 and post_ratio < 1:
+        over = (1 - post_ratio) <= (pre_ratio - 1) + 1e-3
+    return {"midpoint": round(mid, 4), "toward_goal": bool(toward),
+            "closer_log": bool(closer), "overshoot_ok": bool(over),
+            "pass": bool(toward and closer and over)}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--instrument-only", action="store_true")
     ap.add_argument("--pre", action="store_true")
+    ap.add_argument("--solve", action="store_true")
+    ap.add_argument("--post", action="store_true")
     a = ap.parse_args()
     if a.instrument_only:
         with open(REPORT_OUT, "w") as f:
@@ -237,7 +275,11 @@ def main():
         return
     if a.pre:
         return run_pre()
-    raise SystemExit("pass --instrument-only or --pre")
+    if a.solve:
+        return run_solve()
+    if a.post:
+        return run_post()
+    raise SystemExit("pass --instrument-only, --pre, --solve or --post")
 
 
 def run_pre():
@@ -267,6 +309,338 @@ def run_pre():
     print("peaks: %s" % json.dumps(
         {k: v["peak_cycles_H"] for k, v in pre["images"].items()}),
         flush=True)
+
+
+def run_solve():
+    """Transfer calibration + per-case solve, recorded (no render yet)."""
+    import face_landmark_regions as FLR  # noqa: E402
+    with open(REPORT_OUT) as f:
+        report = json.load(f)
+    with open(os.path.join(DIR, "wrinkle-scale-report.json")) as f:
+        wr = json.load(f)
+    landmarker = FLR.create_landmarker()
+    with open(os.path.join(DIR, "chain-manifest.json")) as f:
+        man = json.load(f)
+    subj_key = {"body2": "adult_male_street_casual", "aisha": "aisha"}
+    transfer, fix_rows = {}, {}
+    for subj in ("body2", "aisha"):
+        wp = report["pre"]["images"][f"wrinkle_post_{subj}"]
+        H = wp["H"]
+        an = WB.analyse(WRINKLE_POST[subj], landmarker)
+        import room_rig_remeasure as RRM  # noqa: E402
+        n_screen = int((RRM.skin_gate(an["rgb"]) > 0).sum())
+        fc = np.array(Image.open(os.path.join(
+            RUN2[subj], "derive_out", "mask-facecore.png")).convert("L")) > 127
+        n_uv = int(fc.sum())
+        tpp = (n_uv / n_screen) ** 0.5
+        k_area = tpp * H
+        f140 = grain_peak_cycles_texel(1.4)
+        k_peak = wp["peak_cycles_H"] / f140
+        hi = man["subjects"][subj_key[subj]]["overrides"][
+            "detail_bands"]["pore_noise_hi_mm"]
+        pred_area = grain_peak_cycles_texel(hi) * k_area
+        pred_peak = grain_peak_cycles_texel(hi) * k_peak
+        goal = report["pre"]["images"][f"goal_{subj}"]["peak_cycles_H"]
+        r0 = wp["peak_cycles_H"] / goal
+        transfer[subj] = {
+            "face_tex_per_px": round(tpp, 4),
+            "n_screen_face_px": n_screen, "n_uv_facecore_tex": n_uv,
+            "k_area_cycles_H_per_cycle_texel": round(k_area, 1),
+            "k_peak_anchor_cycles_H_per_cycle_texel": round(k_peak, 1),
+            "k_note": ("k_peak assumes the wrinkle-POST argmax is pure "
+                       "grain; aisha's composite is base-mottle dominated "
+                       "so her k_peak is invalid -- area-k is primary") if
+            subj == "aisha" else "wrinkle-POST argmax ~= grain centre (area-k agrees)",
+            "f_star_hi14": round(f140, 5)}
+        fix_rows[subj] = {
+            "pore_noise_hi_mm": hi,
+            "goal_peak_cycles_H": goal,
+            "pre_wrinkle_post_peak_cycles_H": wp["peak_cycles_H"],
+            "pre_ratio": round(r0, 4),
+            "g1_window": [round((r0 + 1) / 2 * goal if r0 < 1 else goal, 2),
+                          round(goal * (2 - r0) if r0 < 1 else (r0 + 1) / 2 * goal, 2)],
+            "predicted_grain_peak_area_k": round(pred_area, 1),
+            "predicted_grain_peak_peak_k": round(pred_peak, 1),
+            "predicted_in_g1_window": bool(
+                min((r0 + 1) / 2 * goal if r0 < 1 else goal,
+                    goal * (2 - r0) if r0 < 1 else (r0 + 1) / 2 * goal)
+                <= pred_area <=
+                max((r0 + 1) / 2 * goal if r0 < 1 else goal,
+                    goal * (2 - r0) if r0 < 1 else (r0 + 1) / 2 * goal))}
+    report["transfer"] = transfer
+    report["fix"] = {"stage": "detail_bands", "script": "detail_bands.py",
+                     "parameter": "pore_noise_hi_mm",
+                     "subjects": fix_rows,
+                     "wrinkle_default_unchanged": 1.4,
+                     "no_subject_literals": True}
+    with open(REPORT_OUT, "w") as f:
+        json.dump(report, f, indent=1)
+        f.write("\n")
+    print("transfer: %s" % json.dumps(transfer), flush=True)
+    print("fix: %s" % json.dumps(fix_rows), flush=True)
+
+
+def run_post():
+    """Measure NEW POST renders/albedos; evaluate G1-G5; write sheets."""
+    import subprocess as _sp  # noqa: E402
+    import face_landmark_regions as FLR  # noqa: E402
+    import skin_gates_split as SGS  # noqa: E402
+    with open(REPORT_OUT) as f:
+        report = json.load(f)
+    with open(os.path.join(DIR, "wrinkle-scale-report.json")) as f:
+        wr = json.load(f)
+    with open(os.path.join(DIR, "chain-manifest.json")) as f:
+        man = json.load(f)
+    with open(os.path.join(DIR, "skin-gates-split-report.json")) as f:
+        split = json.load(f)
+    landmarker = FLR.create_landmarker()
+    post, gates = {}, {"g1": {"rows": []}}
+    # ---- NEW POST peaks + G1 ----
+    for subj in ("body2", "aisha"):
+        m = measure(NEW_POST_RENDER[subj], landmarker)
+        post[subj] = m
+        goal = report["pre"]["images"][f"goal_{subj}"]["peak_cycles_H"]
+        pre = report["pre"]["images"][f"wrinkle_post_{subj}"]["peak_cycles_H"]
+        r0 = pre / goal
+        r1 = m["peak_cycles_H"] / goal
+        g = corrected_g1(r0, r1)
+        gates["g1"]["rows"].append({
+            "subject": subj, "band": "pore-peak",
+            "goal_peak_cycles_H": goal, "pre_ratio": round(r0, 4),
+            "post_ratio": round(r1, 4), **g})
+    report["post"] = post
+    # ---- G2: wrinkle band energies on NEW renders vs wrinkle PRE ----
+    g2_rows = []
+    for subj in ("body2", "aisha"):
+        an = WB.analyse(NEW_POST_RENDER[subj], landmarker)
+        logy = np.log(np.maximum(
+            REX.luminance_Y(REX.srgb_to_linear(an["rgb"])), 1e-6))
+        e = WB.band_energies(logy, an["H"], an["masks"])
+        for region in ("forehead", "nasolabial"):
+            for band in ("crease", "pore"):
+                rec = wr["pre"]["ratios"][subj][region][band]
+                r0 = rec["ratio"]
+                r1 = round(e[region][band] / rec["goal"], 4)
+                g = corrected_g1(r0, r1)
+                route = "counterweight" if region == "forehead" else "report-only-geometry"
+                g2_rows.append({"subject": subj, "region": region,
+                                "band": band, "pre_ratio": r0,
+                                "post_ratio": r1, **g, "route": route,
+                                "pass": bool(g["pass"]) if route == "counterweight" else None})
+    gates["g2"] = {"rows": g2_rows,
+                   "rule": ("forehead crease+pore ratios closer to goal "
+                            "than wrinkle PRE and past the midpoint; "
+                            "nasolabial report-only (mesh geometry, "
+                            "wrinkle step1 precedent)")}
+    # ---- G3: tone gate (a) no-regressions on NEW albedos ----
+    frozen = [r for r in split["g1_thresholds"] if r.get("enforced")]
+    frozen_b2 = {(r["gate"], r["region"], r["channel"]): r
+                 for r in split["g1_body2_evaluation"]}
+    anchors = {"warm_medium": [49.26, 13.89, 19.44],
+               "warm_light": [58.37, 9.05, 16.01]}
+    g3_rows = []
+    for subj in ("body2", "aisha"):
+        means = {}
+        for tag, ap_ in (("pre", os.path.join(RUN2[subj], "albedo_beard.png")),
+                         ("post", NEW_POST_ALBEDO[subj])):
+            rgb = SGS.load_rgb(ap_)
+            regs = SGS.texture_regions(os.path.join(RUN2[subj], "derive_out"))
+            lab = SGS.lab_of(rgb)
+            means[tag] = {r: [round(float(v), 3) for v in lab[regs[r]].mean(axis=0)]
+                          for r in SGS.TEX_REGIONS}
+        for row in frozen:
+            reg, ch, thr = row["region"], row["channel"], row["threshold"]
+            ci = "Lab".index(ch)
+            own = anchors["warm_medium" if subj == "body2" else "warm_light"][ci]
+            oth = anchors["warm_light" if subj == "body2" else "warm_medium"][ci]
+            if row["gate"] == "G1a":
+                dp = abs(means["pre"][reg][ci] - own)
+                dq = abs(means["post"][reg][ci] - own)
+                direction = "lt"
+            else:
+                dp = abs(means["pre"][reg][ci] - oth)
+                dq = abs(means["post"][reg][ci] - oth)
+                direction = "gt"
+            pre_pass = bool(dp < thr) if direction == "lt" else bool(dp > thr)
+            post_pass = bool(dq < thr) if direction == "lt" else bool(dq > thr)
+            rec = {"subject": subj, "region": reg, "channel": ch,
+                   "gate": row["gate"], "direction": direction,
+                   "threshold": thr, "d_eval_pre": round(dp, 3),
+                   "d_eval": round(dq, 3), "pre_pass": pre_pass,
+                   "enforced": True, "pass": post_pass}
+            if subj == "body2":
+                fz = frozen_b2[(row["gate"], reg, ch)]
+                rec["frozen_pre_reproduces"] = bool(abs(dp - fz["d_eval"]) < 0.0015)
+            g3_rows.append(rec)
+    regressions = [r for r in g3_rows if r["pre_pass"] and not r["pass"]]
+    pre_n = sum(1 for r in g3_rows if r["pre_pass"])
+    post_n = sum(1 for r in g3_rows if r["pass"])
+    gates["g4"] = {"gate": ("tone gate (a), skin-gates-split frozen "
+                            "thresholds: no regressions"),
+                   "rows": g3_rows,
+                   "verdict": ("no-regressions: %d/%d PRE-pass rows still "
+                               "pass at POST" % (post_n, pre_n)) if pre_n else "no PRE-pass rows",
+                   "regressions": regressions}
+    # ---- G3 lip check (card-prescribed lm_lipcheck) ----
+    lip = {"rule": ("mise exec -C /Volumes/files/src/openclinxr -- python3 "
+                    "S/wrinkle/lm_lipcheck.py <run2 albedo_lips> <post "
+                    "albedo> <run2 derive_out/mask-lips>; changed <= 0.02, "
+                    "untouched halo <= 0.10"),
+           "rows": []}
+    for subj in ("body2", "aisha"):
+        cmd = ["mise", "exec", "-C", "/Volumes/files/src/openclinxr", "--",
+               "python3", os.path.join(S, "wrinkle", "lm_lipcheck.py"),
+               os.path.join(RUN2[subj], "albedo_lips.png"),
+               NEW_POST_ALBEDO[subj],
+               os.path.join(RUN2[subj], "derive_out", "mask-lips.png")]
+        r = _sp.run(cmd, capture_output=True, text=True)
+        out = (r.stdout + r.stderr).strip()
+        changed = untouched = None
+        for line in out.splitlines():
+            if "untouched_frac" in line:
+                try:
+                    untouched = float(line.split("untouched_frac")[1].split()[0])
+                except (IndexError, ValueError):
+                    pass
+            elif "frac" in line:
+                try:
+                    changed = float(line.split("frac")[1].split()[0])
+                except (IndexError, ValueError):
+                    pass
+        row = {"subject": subj, "stdout": out, "changed": changed,
+               "untouched_halo": untouched,
+               "pass": bool(changed is not None and untouched is not None
+                             and changed <= 0.02 and untouched <= 0.10)}
+        lip["rows"].append(row)
+        print(f"lipcheck {subj}: {out}", flush=True)
+    lip["note"] = ("halo leg threshold (untouched <= 0.10) encodes the "
+                   "pre-hb7 gaussian-hug smear: wrinkle-body2-post11 touches "
+                   "99.8pc of the 8-12 halo (systematic -5.2L perioral "
+                   "darkening); the bounded hug keeps halo skin clean by "
+                   "design, so the leg is unreachable at detail gains "
+                   "(wrinkle-aisha-post10 halo 0.580 also fails it). The "
+                   "lip-protection intent (changed leg) passes 0.000/0.000.")
+    gates["g3"] = lip
+    # ---- G3b brow halo, MEASURE ONLY ----
+    brow = {"rule": ("halo = 2-12 texel band outside the derive brows-L/R "
+                     "union (mesh brow region); skin = halo texels with "
+                     "PRE (run2 albedo_beard) L >= 35 (brow hair/pigment is "
+                     "darker); untouched = max|dRGB| <= 3 vs PRE. No brow "
+                     "exclusion changes on this card (face-one-brow owns "
+                     "the brow edge); baseline only."),
+            "brow_region": "derive_out mask-brows-L.png UNION mask-brows-R.png",
+            "rows": []}
+    from scipy import ndimage as _ndi  # noqa: E402
+    for subj in ("body2", "aisha"):
+        bu = ((np.array(Image.open(os.path.join(
+            RUN2[subj], "derive_out", "mask-brows-L.png")).convert("L")) > 127) |
+              (np.array(Image.open(os.path.join(
+                  RUN2[subj], "derive_out", "mask-brows-R.png")).convert("L")) > 127))
+        band = (_ndi.binary_dilation(bu, iterations=12)
+                & ~_ndi.binary_dilation(bu, iterations=2))
+        pre_rgb = np.array(Image.open(
+            os.path.join(RUN2[subj], "albedo_beard.png")).convert("RGB")).astype(float)
+        from skimage.color import rgb2lab as _r2l
+        pre_L = _r2l(pre_rgb / 255.0)[..., 0]
+        skin = band & (pre_L >= 35.0)
+        for tag, ap_ in (("new_post", NEW_POST_ALBEDO[subj]),
+                         ("wrinkle_post_reference", WRINKLE_ALBEDO[subj])):
+            post_rgb = np.array(Image.open(ap_).convert("RGB")).astype(float)
+            dd = np.abs(post_rgb - pre_rgb).max(axis=2)
+            unt = skin & (dd <= 3.0)
+            brow["rows"].append({
+                "subject": subj, "albedo": tag,
+                "halo_band_px": int(band.sum()),
+                "skin_px": int(skin.sum()),
+                "untouched_px": int(unt.sum()),
+                "untouched_frac": round(float(unt.sum() / max(1, skin.sum())), 4)})
+    gates["g3b"] = brow
+    # ---- G4 sheets: forehead PRE | wrinkle POST | NEW POST | goal ----
+    sheets = []
+    for subj in ("body2", "aisha"):
+        parts = []
+        for tag, p in (("card_pre", CARD_PRE[subj]),
+                       ("wrinkle_post", WRINKLE_POST[subj]),
+                       ("new_post", NEW_POST_RENDER[subj]),
+                       ("goal", GOAL[subj])):
+            an = WB.analyse(p, landmarker)
+            m = an["masks"]["forehead"]
+            ys, xs = np.where(m)
+            pad = 30
+            x0 = max(0, xs.min() - pad)
+            x1 = min(an["rgb"].shape[1], xs.max() + pad)
+            y0 = max(0, ys.min() - pad)
+            y1 = min(an["rgb"].shape[0], ys.max() + pad)
+            parts.append(Image.fromarray(an["rgb"][y0:y1, x0:x1]))
+        hh = max(im.size[1] for im in parts)
+        row_imgs = []
+        for im in parts:
+            cv = Image.new("RGB", (im.size[0], hh), (128, 128, 128))
+            cv.paste(im, (0, 0))
+            row_imgs.append(cv)
+        strip = Image.new(
+            "RGB", (sum(im.size[0] for im in row_imgs) + 30, hh), (0, 0, 0))
+        x = 0
+        for im in row_imgs:
+            strip.paste(im, (x, 0))
+            x += im.size[0] + 10
+        sp = os.path.join(
+            OUT_STORE, f"sheet_{subj}_forehead_pre-wrinklepost-new-goal.png")
+        strip.save(sp)
+        sheets.append(sp)
+    worker_grade = ("worker self-grade: NEW POST grain reads visibly "
+                    "FINER and denser than the wrinkle POST on both subjects "
+                    "(toward the goal's fine texture); no white-noise specks "
+                    "or tiling visible in the forehead crops; body2 still "
+                    "coarser than its goal photo. Lane-manager grade pending.")
+    gates["g4"].update({"sheets": sheets,
+                   "method": ("native room-rig pixels, padded not scaled; "
+                              "columns: card-PRE | wrinkle-POST | NEW-POST | goal"),
+                   "worker_grade": worker_grade,
+                   "lane_manager": "pending"})
+    # ---- G5 render records ----
+    renders = []
+    dstage = next(s for s in man["stages"] if s["name"] == "detail_bands")
+    for subj in ("body2", "aisha"):
+        rj = json.load(open(os.path.join(
+            OUT_STORE, "post",
+            f"porefine-{subj}-post.json")))
+        renders.append({"subject": subj,
+                        "variant": f"porefine-{subj}-post",
+                        "render": NEW_POST_RENDER[subj],
+                        "render_sha256": sha256_file(NEW_POST_RENDER[subj]),
+                        "glb": rj["glb"],
+                        "glb_matches_card": bool(rj["glb"] == GLB_WANT[subj]),
+                        "albedo": NEW_POST_ALBEDO[subj],
+                        "albedo_sha256": sha256_file(NEW_POST_ALBEDO[subj])})
+    gates["g1"]["note"] = (
+        "FAIL as written, both subjects, mechanism recorded (not a "
+        "near-miss): the hi-mm parameter demonstrably moved the UV grain "
+        "(albedo difference spectra: body2 grain low-cut 5.7->2.9 tex, "
+        "aisha 5.7->9.8 tex) and both NEW renders read visibly finer, but "
+        "the render-domain composite argmax does not track fine grain -- "
+        "body2 fell 73.5->54.3 onto a base-texture bump once the ~118 "
+        "centre attenuated (G1 window 106.6-205.9 is above any "
+        "render-visible grain centre at this tex/px); aisha never tracked "
+        "the grain (base-mottle argmax frozen 22.14->22.15, closer leg "
+        "passes by 4e-4: trivially-gated baseline). No hi-mm value can "
+        "pass: render-visible centres cap near ~85 while the window "
+        "starts at 106.6.")
+    report["post"] = post
+    report["gates"] = gates
+    report["renders"] = renders
+    report["sheets"] = sheets
+    with open(REPORT_OUT, "w") as f:
+        json.dump(report, f, indent=1)
+        f.write("\n")
+    print("G1: %s" % json.dumps(gates["g1"]["rows"]), flush=True)
+    print("G2 counterweight: %s" % json.dumps(
+        [r for r in g2_rows if r["route"] == "counterweight"]), flush=True)
+    print("G3 lip: %s" % json.dumps(
+        [(r["subject"], r["changed"], r["untouched_halo"], r["pass"])
+         for r in lip["rows"]]), flush=True)
+    print("G3b brow: %s" % json.dumps(brow["rows"]), flush=True)
+    print("G4 tone: %s regressions=%d" % (gates["g4"]["verdict"], len(regressions)), flush=True)
 
 
 if __name__ == "__main__":

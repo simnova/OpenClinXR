@@ -126,10 +126,983 @@
    }
   }
  },
- "transfer": {},
- "fix": {},
- "post": {},
- "gates": {},
- "renders": [],
- "sheets": []
+ "transfer": {
+  "body2": {
+   "face_tex_per_px": 0.9763,
+   "n_screen_face_px": 560210,
+   "n_uv_facecore_tex": 533985,
+   "k_area_cycles_H_per_cycle_texel": 741.0,
+   "k_peak_anchor_cycles_H_per_cycle_texel": 842.2,
+   "k_note": "wrinkle-POST argmax ~= grain centre (area-k agrees)",
+   "f_star_hi14": 0.08732
+  },
+  "aisha": {
+   "face_tex_per_px": 0.9985,
+   "n_screen_face_px": 536535,
+   "n_uv_facecore_tex": 534899,
+   "k_area_cycles_H_per_cycle_texel": 740.7,
+   "k_peak_anchor_cycles_H_per_cycle_texel": 253.5,
+   "k_note": "k_peak assumes the wrinkle-POST argmax is pure grain; aisha's composite is base-mottle dominated so her k_peak is invalid -- area-k is primary",
+   "f_star_hi14": 0.08732
+  }
+ },
+ "fix": {
+  "stage": "detail_bands",
+  "script": "detail_bands.py",
+  "parameter": "pore_noise_hi_mm",
+  "subjects": {
+   "body2": {
+    "pore_noise_hi_mm": 0.7,
+    "goal_peak_cycles_H": 139.73,
+    "pre_wrinkle_post_peak_cycles_H": 73.54,
+    "pre_ratio": 0.5263,
+    "g1_window": [
+     106.64,
+     205.92
+    ],
+    "predicted_grain_peak_area_k": 110.7,
+    "predicted_grain_peak_peak_k": 125.9,
+    "predicted_in_g1_window": true
+   },
+   "aisha": {
+    "pore_noise_hi_mm": 2.4,
+    "goal_peak_cycles_H": 41.69,
+    "pre_wrinkle_post_peak_cycles_H": 22.14,
+    "pre_ratio": 0.5311,
+    "g1_window": [
+     31.91,
+     61.24
+    ],
+    "predicted_grain_peak_area_k": 41.6,
+    "predicted_grain_peak_peak_k": 14.2,
+    "predicted_in_g1_window": true
+   }
+  },
+  "wrinkle_default_unchanged": 1.4,
+  "no_subject_literals": true
+ },
+ "post": {
+  "body2": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-pore-scale-fine/post/porefine-body2-post-front.png",
+   "sha256": "92f5f3d63cc3f49ac5dd754e87d3db0cb5e46e5a4d36396344a803cca5705a9d",
+   "H": 757.8,
+   "patch_shape": [
+    56,
+    317
+   ],
+   "n_forehead_px": 12226,
+   "peak_bin": 54,
+   "peak_cycles_H": 54.31,
+   "peak_power": 51.434756945650044,
+   "floor": 3.1713181514398823,
+   "empty_bins_interpolated": 103
+  },
+  "aisha": {
+   "path": "/Volumes/files/openclinxr-assets/store/skin-pore-scale-fine/post/porefine-aisha-post-front.png",
+   "sha256": "bab64066be92e8214ec8d8f91c7e0cffb514c41164f780128c19c2a127c775fa",
+   "H": 739.79,
+   "patch_shape": [
+    51,
+    291
+   ],
+   "n_forehead_px": 10476,
+   "peak_bin": 22,
+   "peak_cycles_H": 22.15,
+   "peak_power": 16.237346253566567,
+   "floor": 1.0703503558592464,
+   "empty_bins_interpolated": 108
+  }
+ },
+ "gates": {
+  "g1": {
+   "rows": [
+    {
+     "subject": "body2",
+     "band": "pore-peak",
+     "goal_peak_cycles_H": 139.73,
+     "pre_ratio": 0.5263,
+     "post_ratio": 0.3887,
+     "midpoint": 0.7632,
+     "toward_goal": false,
+     "closer_log": false,
+     "overshoot_ok": true,
+     "pass": false
+    },
+    {
+     "subject": "aisha",
+     "band": "pore-peak",
+     "goal_peak_cycles_H": 41.69,
+     "pre_ratio": 0.5311,
+     "post_ratio": 0.5313,
+     "midpoint": 0.7655,
+     "toward_goal": false,
+     "closer_log": true,
+     "overshoot_ok": true,
+     "pass": false
+    }
+   ],
+   "note": "FAIL as written, both subjects, mechanism recorded (not a near-miss): the hi-mm parameter demonstrably moved the UV grain (albedo difference spectra: body2 grain low-cut 5.7->2.9 tex, aisha 5.7->9.8 tex) and both NEW renders read visibly finer, but the render-domain composite argmax does not track fine grain -- body2 fell 73.5->54.3 onto a base-texture bump once the ~118 centre attenuated (G1 window 106.6-205.9 is above any render-visible grain centre at this tex/px); aisha never tracked the grain (base-mottle argmax frozen 22.14->22.15, closer leg passes by 4e-4: trivially-gated baseline). No hi-mm value can pass: render-visible centres cap near ~85 while the window starts at 106.6."
+  },
+  "g2": {
+   "rows": [
+    {
+     "subject": "body2",
+     "region": "forehead",
+     "band": "crease",
+     "pre_ratio": 0.819,
+     "post_ratio": 0.9728,
+     "midpoint": 0.9095,
+     "toward_goal": true,
+     "closer_log": true,
+     "overshoot_ok": true,
+     "pass": true,
+     "route": "counterweight"
+    },
+    {
+     "subject": "body2",
+     "region": "forehead",
+     "band": "pore",
+     "pre_ratio": 0.3204,
+     "post_ratio": 0.7041,
+     "midpoint": 0.6602,
+     "toward_goal": true,
+     "closer_log": true,
+     "overshoot_ok": true,
+     "pass": true,
+     "route": "counterweight"
+    },
+    {
+     "subject": "body2",
+     "region": "nasolabial",
+     "band": "crease",
+     "pre_ratio": 1.447,
+     "post_ratio": 0.9026,
+     "midpoint": 1.2235,
+     "toward_goal": true,
+     "closer_log": true,
+     "overshoot_ok": true,
+     "pass": null,
+     "route": "report-only-geometry"
+    },
+    {
+     "subject": "body2",
+     "region": "nasolabial",
+     "band": "pore",
+     "pre_ratio": 1.045,
+     "post_ratio": 1.0215,
+     "midpoint": 1.0225,
+     "toward_goal": true,
+     "closer_log": true,
+     "overshoot_ok": true,
+     "pass": null,
+     "route": "report-only-geometry"
+    },
+    {
+     "subject": "aisha",
+     "region": "forehead",
+     "band": "crease",
+     "pre_ratio": 0.2993,
+     "post_ratio": 0.7676,
+     "midpoint": 0.6497,
+     "toward_goal": true,
+     "closer_log": true,
+     "overshoot_ok": true,
+     "pass": true,
+     "route": "counterweight"
+    },
+    {
+     "subject": "aisha",
+     "region": "forehead",
+     "band": "pore",
+     "pre_ratio": 0.1913,
+     "post_ratio": 0.7491,
+     "midpoint": 0.5957,
+     "toward_goal": true,
+     "closer_log": true,
+     "overshoot_ok": true,
+     "pass": true,
+     "route": "counterweight"
+    },
+    {
+     "subject": "aisha",
+     "region": "nasolabial",
+     "band": "crease",
+     "pre_ratio": 1.372,
+     "post_ratio": 1.2988,
+     "midpoint": 1.186,
+     "toward_goal": false,
+     "closer_log": true,
+     "overshoot_ok": true,
+     "pass": null,
+     "route": "report-only-geometry"
+    },
+    {
+     "subject": "aisha",
+     "region": "nasolabial",
+     "band": "pore",
+     "pre_ratio": 1.3033,
+     "post_ratio": 1.3193,
+     "midpoint": 1.1517,
+     "toward_goal": false,
+     "closer_log": false,
+     "overshoot_ok": true,
+     "pass": null,
+     "route": "report-only-geometry"
+    }
+   ],
+   "rule": "forehead crease+pore ratios closer to goal than wrinkle PRE and past the midpoint; nasolabial report-only (mesh geometry, wrinkle step1 precedent)"
+  },
+  "g4": {
+   "gate": "tone gate (a), skin-gates-split frozen thresholds: no regressions",
+   "rows": [
+    {
+     "subject": "body2",
+     "region": "forehead",
+     "channel": "L",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 4.555,
+     "d_eval_pre": 1.643,
+     "d_eval": 1.517,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "forehead",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 3.916,
+     "d_eval_pre": 7.467,
+     "d_eval": 7.593,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "forehead",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 3.012,
+     "d_eval": 3.013,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "forehead",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.419,
+     "d_eval_pre": 1.828,
+     "d_eval": 1.827,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "forehead",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 3.374,
+     "d_eval_pre": 4.813,
+     "d_eval": 4.815,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_lo",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 7.588,
+     "d_eval_pre": 10.482,
+     "d_eval": 11.232,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_lo",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 0.26,
+     "d_eval": 0.26,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_lo",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 3.715,
+     "d_eval_pre": 5.1,
+     "d_eval": 5.1,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_lo",
+     "channel": "b",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 1.715,
+     "d_eval_pre": 0.542,
+     "d_eval": 0.543,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_lo",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 2.236,
+     "d_eval_pre": 3.972,
+     "d_eval": 3.973,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_hi",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 12.448,
+     "d_eval_pre": 15.557,
+     "d_eval": 16.033,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_hi",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 4.299,
+     "d_eval": 4.299,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "cheek_u_hi",
+     "channel": "b",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 1.715,
+     "d_eval_pre": 2.594,
+     "d_eval": 2.593,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "chin",
+     "channel": "L",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 4.555,
+     "d_eval_pre": 1.35,
+     "d_eval": 1.161,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "chin",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 4.582,
+     "d_eval_pre": 7.76,
+     "d_eval": 7.949,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "chin",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 3.102,
+     "d_eval": 3.103,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "chin",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.35,
+     "d_eval_pre": 1.738,
+     "d_eval": 1.737,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "chin",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 2.994,
+     "d_eval_pre": 4.145,
+     "d_eval": 4.145,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "upperlip_skin",
+     "channel": "L",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 4.555,
+     "d_eval_pre": 3.132,
+     "d_eval": 3.572,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "upperlip_skin",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 8.011,
+     "d_eval_pre": 12.242,
+     "d_eval": 12.682,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "upperlip_skin",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 3.424,
+     "d_eval": 3.424,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "upperlip_skin",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.113,
+     "d_eval_pre": 1.416,
+     "d_eval": 1.416,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "upperlip_skin",
+     "channel": "b",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 1.715,
+     "d_eval_pre": 0.538,
+     "d_eval": 0.538,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "body2",
+     "region": "upperlip_skin",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.934,
+     "d_eval_pre": 2.892,
+     "d_eval": 2.892,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true,
+     "frozen_pre_reproduces": true
+    },
+    {
+     "subject": "aisha",
+     "region": "forehead",
+     "channel": "L",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 4.555,
+     "d_eval_pre": 0.368,
+     "d_eval": 0.642,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "forehead",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 3.916,
+     "d_eval_pre": 8.742,
+     "d_eval": 8.468,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "forehead",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 1.01,
+     "d_eval": 1.01,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "forehead",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.419,
+     "d_eval_pre": 3.83,
+     "d_eval": 3.83,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "forehead",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 3.374,
+     "d_eval_pre": 1.494,
+     "d_eval": 1.493,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_lo",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 7.588,
+     "d_eval_pre": 4.414,
+     "d_eval": 3.701,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_lo",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 2.33,
+     "d_eval": 2.33,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_lo",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 3.715,
+     "d_eval_pre": 2.51,
+     "d_eval": 2.51,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_lo",
+     "channel": "b",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 1.715,
+     "d_eval_pre": 0.501,
+     "d_eval": 0.501,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_lo",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 2.236,
+     "d_eval_pre": 2.929,
+     "d_eval": 2.929,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_hi",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 12.448,
+     "d_eval_pre": 0.227,
+     "d_eval": 0.959,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_hi",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 0.819,
+     "d_eval": 0.82,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "cheek_u_hi",
+     "channel": "b",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 1.715,
+     "d_eval_pre": 1.052,
+     "d_eval": 1.051,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "chin",
+     "channel": "L",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 4.555,
+     "d_eval_pre": 1.407,
+     "d_eval": 1.725,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "chin",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 4.582,
+     "d_eval_pre": 7.703,
+     "d_eval": 7.385,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "chin",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 0.961,
+     "d_eval": 0.962,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "chin",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.35,
+     "d_eval_pre": 3.879,
+     "d_eval": 3.878,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "chin",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 2.994,
+     "d_eval_pre": 1.587,
+     "d_eval": 1.587,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false
+    },
+    {
+     "subject": "aisha",
+     "region": "upperlip_skin",
+     "channel": "L",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 4.555,
+     "d_eval_pre": 3.782,
+     "d_eval": 4.245,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "upperlip_skin",
+     "channel": "L",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 8.011,
+     "d_eval_pre": 5.328,
+     "d_eval": 4.865,
+     "pre_pass": false,
+     "enforced": true,
+     "pass": false
+    },
+    {
+     "subject": "aisha",
+     "region": "upperlip_skin",
+     "channel": "a",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 2.42,
+     "d_eval_pre": 0.812,
+     "d_eval": 0.811,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "upperlip_skin",
+     "channel": "a",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.113,
+     "d_eval_pre": 4.028,
+     "d_eval": 4.029,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "upperlip_skin",
+     "channel": "b",
+     "gate": "G1a",
+     "direction": "lt",
+     "threshold": 1.715,
+     "d_eval_pre": 0.978,
+     "d_eval": 0.978,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    },
+    {
+     "subject": "aisha",
+     "region": "upperlip_skin",
+     "channel": "b",
+     "gate": "G1b",
+     "direction": "gt",
+     "threshold": 1.934,
+     "d_eval_pre": 2.452,
+     "d_eval": 2.452,
+     "pre_pass": true,
+     "enforced": true,
+     "pass": true
+    }
+   ],
+   "verdict": "no-regressions: 37/37 PRE-pass rows still pass at POST",
+   "regressions": [],
+   "sheets": [
+    "/Volumes/files/openclinxr-assets/store/skin-pore-scale-fine/sheet_body2_forehead_pre-wrinklepost-new-goal.png",
+    "/Volumes/files/openclinxr-assets/store/skin-pore-scale-fine/sheet_aisha_forehead_pre-wrinklepost-new-goal.png"
+   ],
+   "method": "native room-rig pixels, padded not scaled; columns: card-PRE | wrinkle-POST | NEW-POST | goal",
+   "worker_grade": "worker self-grade: NEW POST grain reads visibly FINER and denser than the wrinkle POST on both subjects (toward the goal's fine texture); no white-noise specks or tiling visible in the forehead crops; body2 still coarser than its goal photo. Lane-manager grade pending.",
+   "lane_manager": "pending"
+  },
+  "g3": {
+   "rule": "mise exec -C /Volumes/files/src/openclinxr -- python3 S/wrinkle/lm_lipcheck.py <run2 albedo_lips> <post albedo> <run2 derive_out/mask-lips>; changed <= 0.02, untouched halo <= 0.10",
+   "rows": [
+    {
+     "subject": "body2",
+     "stdout": "skin_a 13.4 peak_a 21.1 visible_lip_px 4728 changed_px 0 frac 0.000\nhalo_band_px 4488 untouched_px 2710 untouched_frac 0.604",
+     "changed": 0.0,
+     "untouched_halo": 0.604,
+     "pass": false
+    },
+    {
+     "subject": "aisha",
+     "stdout": "skin_a 9.9 peak_a 27.5 visible_lip_px 5039 changed_px 0 frac 0.000\nhalo_band_px 5771 untouched_px 3381 untouched_frac 0.586",
+     "changed": 0.0,
+     "untouched_halo": 0.586,
+     "pass": false
+    }
+   ],
+   "note": "halo leg threshold (untouched <= 0.10) encodes the pre-hb7 gaussian-hug smear: wrinkle-body2-post11 touches 99.8pc of the 8-12 halo (systematic -5.2L perioral darkening); the bounded hug keeps halo skin clean by design, so the leg is unreachable at detail gains (wrinkle-aisha-post10 halo 0.580 also fails it). The lip-protection intent (changed leg) passes 0.000/0.000."
+  },
+  "g3b": {
+   "rule": "halo = 2-12 texel band outside the derive brows-L/R union (mesh brow region); skin = halo texels with PRE (run2 albedo_beard) L >= 35 (brow hair/pigment is darker); untouched = max|dRGB| <= 3 vs PRE. No brow exclusion changes on this card (face-one-brow owns the brow edge); baseline only.",
+   "brow_region": "derive_out mask-brows-L.png UNION mask-brows-R.png",
+   "rows": [
+    {
+     "subject": "body2",
+     "albedo": "new_post",
+     "halo_band_px": 11670,
+     "skin_px": 10605,
+     "untouched_px": 2776,
+     "untouched_frac": 0.2618
+    },
+    {
+     "subject": "body2",
+     "albedo": "wrinkle_post_reference",
+     "halo_band_px": 11670,
+     "skin_px": 10605,
+     "untouched_px": 2761,
+     "untouched_frac": 0.2603
+    },
+    {
+     "subject": "aisha",
+     "albedo": "new_post",
+     "halo_band_px": 12570,
+     "skin_px": 11843,
+     "untouched_px": 3081,
+     "untouched_frac": 0.2602
+    },
+    {
+     "subject": "aisha",
+     "albedo": "wrinkle_post_reference",
+     "halo_band_px": 12570,
+     "skin_px": 11843,
+     "untouched_px": 3088,
+     "untouched_frac": 0.2607
+    }
+   ]
+  }
+ },
+ "renders": [
+  {
+   "subject": "body2",
+   "variant": "porefine-body2-post",
+   "render": "/Volumes/files/openclinxr-assets/store/skin-pore-scale-fine/post/porefine-body2-post-front.png",
+   "render_sha256": "92f5f3d63cc3f49ac5dd754e87d3db0cb5e46e5a4d36396344a803cca5705a9d",
+   "glb": {
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run3/body2-lidconform.glb",
+    "sha256": "bdb051938777cde567825a8e7b5e993d3ea1f84b442c0d7903828c4f096ce83b"
+   },
+   "glb_matches_card": true,
+   "albedo": "/Volumes/files/openclinxr-assets/store/skin-pore-scale-fine/albedo_detail_body2_porefine.png",
+   "albedo_sha256": "af593bf83a3227a39042d6a7d818f7f259a9f53b12d480a7e12734206ae03d1b"
+  },
+  {
+   "subject": "aisha",
+   "variant": "porefine-aisha-post",
+   "render": "/Volumes/files/openclinxr-assets/store/skin-pore-scale-fine/post/porefine-aisha-post-front.png",
+   "render_sha256": "bab64066be92e8214ec8d8f91c7e0cffb514c41164f780128c19c2a127c775fa",
+   "glb": {
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+    "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
+   },
+   "glb_matches_card": true,
+   "albedo": "/Volumes/files/openclinxr-assets/store/skin-pore-scale-fine/albedo_detail_aisha_porefine.png",
+   "albedo_sha256": "9c4fd6b122dea14767917e729a3f8cbb6e6268ca7d927de04446a49ca3895e1e"
+  }
+ ],
+ "sheets": [
+  "/Volumes/files/openclinxr-assets/store/skin-pore-scale-fine/sheet_body2_forehead_pre-wrinklepost-new-goal.png",
+  "/Volumes/files/openclinxr-assets/store/skin-pore-scale-fine/sheet_aisha_forehead_pre-wrinklepost-new-goal.png"
+ ]
 }
