@@ -267,13 +267,16 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
         inputs["albedo_png"] = store_dir / output_paths["albedo_detail_png"]
     elif name == "brow_form":
         cmd += [str(resolved["albedo_png"]), str(store_dir / output_paths["albedo_browform_png"])]
-        derive_out = store_dir / "derive_out"
-        cmd += ["--brows-mask-L", str(derive_out / "mask-brows-L.png")]
-        cmd += ["--brows-mask-R", str(derive_out / "mask-brows-R.png")]
+        cmd += ["--brows-mask-L", str(resolved["brows_L_mask"])]
+        cmd += ["--brows-mask-R", str(resolved["brows_R_mask"])]
+        cmd += ["--facecore-mask", str(resolved["facecore_mask"])]
+        cmd += ["--eyes-mask-L", str(resolved["eyes_L_mask"])]
+        cmd += ["--eyes-mask-R", str(resolved["eyes_R_mask"])]
         cmd += ["--brow-form", _case_brow_form(subject)]
         cmd += ["--dL", str(params["dL"])]
         cmd += ["--dC", str(params["dC"])]
         cmd += ["--feather-px", str(params["feather_px"])]
+        cmd += ["--coverage-power", str(params["coverage_power"])]
         inputs["albedo_browform_png"] = store_dir / output_paths["albedo_browform_png"]
         inputs["albedo_png"] = store_dir / output_paths["albedo_browform_png"]
     else:

@@ -4,8 +4,8 @@
  "where": {
   "slot": "last chain stage after detail_bands (tools/openclinxr/asset-pipeline/skin/face-replay/brow_form.py, wired in chain-manifest.json + replay.py brow_form branch)",
   "why": "detail_bands excludes the brow union from grain synthesis, so an earlier slot would leak the edit outside the masks through the crease lowband; last placement keeps every counterweight byte-exact (verified outside_max_dLab 0.0 both subjects)",
-  "mesh_method": "Telea inpaint (radius feather+2) of the brow-union texels from surrounding skin, bounded-inside smoothstep feather (alpha 0 at edge, 1 at feather_px inside, 0 outside): deterministic, seamless, grain-continuous",
-  "texture_method": "L += dL*alpha, chroma += dC*alpha (a,b per-texel rescale), same bounded-inside feather; dL/dC from chain-manifest subject overrides (solved per case); 0/0 is a byte copy",
+  "mesh_method": "coverage-gated clear (smoothstep(0.15,0.45,coverage): unpainted skin inside the mask untouched) from forehead skin ABOVE the brow only (eyes + below-lower-edge excluded, neutralized to forehead mean before Telea); grain = low-pass fill + sigma-1 high-pass sampled at nearest source above + its own blur (pre-compensates the sigma-2 gate blur); bounded-inside smoothstep feather",
+  "texture_method": "shift each pixel by coverage^2 (coverage from restricted-inpaint skin estimate vs darkest-decile core); dL/dC = solved per-hair pair from chain-manifest overrides; 0/0 is a byte copy",
   "mode_resolution": "replay.py _case_brow_form reads case-inputs.json via chain_subject reverse lookup; brow_form.py and the replay branch carry no subject literals (test greps)"
  },
  "values": {
@@ -13,13 +13,13 @@
    "mode": "mesh",
    "dL": 0.0,
    "dC": 0.0,
-   "source": "cases.aisha.brow_form mesh; one-brow M 2.4088 < A 3.6632 (report.json:subjects.aisha.distances)"
+   "source": "identity: cases.aisha.brow_form mesh clears painted texels only (coverage-gated smoothstep 0.15-0.45) via forehead-sourced inpaint + sigma-1 grain restore with pre-compensation (one-brow report.json:subjects.aisha.distances M 2.4088 < A 3.6632)"
   },
   "body2": {
    "mode": "texture",
-   "dL": -17.0,
-   "dC": -17.4,
-   "source": "solved 100% PRE-to-goal gap: PRE dL -37.3815 dC 3.123 to goal dL -54.352 dC -14.2805 (report.json:subjects.body2.measurements); albedo achieved -15.48/-15.79 (clip on ~4% low-C texels)"
+   "dL": -29.0,
+   "dC": -27.0,
+   "source": "solved hb1: coverage-weighted re-solve (weight=coverage^2; skin estimate=restricted inpaint, L_brow_core 33.3 darkest decile, hair_frac 0.178, mean_w_hair 0.503): S_L=-14.8/0.503=-29.4 rounded -29.0, S_C=-13.8/0.503=-27.4 rounded -27.0; albedo hair response 0.503; per-hair past 100% of mean gap"
   },
   "child": {
    "mode": "texture",
@@ -31,21 +31,20 @@
  "instrument": "tools/openclinxr/evidence/face-defects/one-brow/measure_brow.py imported from the station path, not copied; D = |pos-gpos|/0.10 + |thick-gthick|/0.10 + (|dL-gdL|+|dC-gdC|)/10",
  "gates": {
   "G1": {
-   "status": "pass",
+   "status": "re-render hb1 pending (albedo verified below)",
    "aisha_POST_D": 2.1373,
    "aisha_PRE_D": 3.4906,
    "note": "POST < PRE; also beats the scratch M-condition 2.4088",
    "albedo": {
-    "inmask_L": 55.6073,
-    "ring_L": "57.6080 +- 12.1219",
-    "inmask_C": 19.2885,
-    "ring_C": "19.5185 +- 3.6437",
-    "verdict": "within surrounding forehead spread",
-    "method": "in-mask mean vs 10..40-texel facecore-gated ring on albedo_browform_aisha.png"
+    "inmask_L": 56.63,
+    "ring_L": "57.61 +- 12.12",
+    "inmask_C": 20.5,
+    "ring_C": "19.52 +- 3.64",
+    "verdict": "within spread"
    }
   },
   "G2": {
-   "status": "pass",
+   "status": "re-render hb1 pending (albedo verified below)",
    "body2_PRE_D": 4.7584,
    "body2_POST_D": 1.4985,
    "body2_POST_dL": -50.5615,
@@ -54,18 +53,19 @@
    "midpoint_dC": -5.58,
    "note": "dL and dC both past the midpoint toward the goal (slope ~0.85/0.95 vs albedo shift)",
    "albedo": {
-    "achieved_dL": -15.4803,
-    "achieved_dC": -15.7926,
-    "solved_dL": -17.0,
-    "solved_dC": -17.4
+    "hair_dL": -10.57,
+    "hair_dC": -8.86,
+    "solved_dL": -29.0,
+    "solved_dC": -27.0,
+    "note": "albedo hair response 0.503; render re-verify next"
    }
   },
   "G3": {
-   "status": "pass",
+   "status": "re-render hb1 pending (albedo verified below)",
    "method": "station instrument run fresh on PRE+POST renders both subjects (measure-aisha/measure-body2/measurements.json + overlays); PRE D reproduces the recorded one-brow numbers (aisha 3.4906 byte-identical render b020e6cf)"
   },
   "G4": {
-   "status": "pass",
+   "status": "re-render hb1 pending (albedo verified below)",
    "halo": {
     "changed_frac": 0.0,
     "halo_n": {
@@ -105,7 +105,7 @@
    }
   },
   "G5": {
-   "status": "pass",
+   "status": "re-render hb1 pending (albedo verified below)",
    "rig": "ob_triage_room_v1 (productEnvironmentId + rig record in every capture json)",
    "portrait": true,
    "glbs": {
@@ -132,12 +132,37 @@
     "post-body2.json": "a8079f8ad0818692a811f0c64ecf6a9cfdd0312394f6a52b7d90a40e3ed578c3"
    },
    "grade": "numbers above are the lane-manager grade input: every gate passes with margin; sheets carry native PRE|POST|goal crops + full-face views"
+  },
+  "G6": {
+   "status": "pass (albedo; render re-verify next)",
+   "method": "inside-mask pixels with coverage<0.2: max |dLab| vs PRE (script stdout on hb1 albedos)",
+   "g6_max_dL": 1.16,
+   "g6_max_dC": 1.08,
+   "bound": 2,
+   "coverage_mean": 0.2373
+  },
+  "G7": {
+   "status": "pass (albedo; render re-verify next)",
+   "method": "lower-interior band (12 rows above union bottom, eroded 4): mean dL POST-PRE on hb1 aisha albedo",
+   "G7_dL": 0.0,
+   "bound_dL": ">=-2",
+   "cause": "coverage gating leaves unpainted lower rows byte-identical"
+  },
+  "G8": {
+   "status": "pass (albedo; render re-verify next)",
+   "method": "sigma-2 high-pass std of eroded union interior vs immediate forehead strip above on hb1 aisha albedo",
+   "G8_ratio": 0.72,
+   "bound": [
+    0.7,
+    1.3
+   ],
+   "note": "grain sampled at nearest source above (sigma-1 band) with pre-compensation; surrounding skin itself is 1.34 vs strip 2.87 (wash-smoothed zone restored to strip energy)"
   }
  },
  "pins": {
-  "chain_manifest_sha256": "ecf3710228d1ed36da24eb91c1f0cb74e5a3e9802ec946c58d6939308bb2b6a5",
-  "method": "two fixture-scale runReplayChain runs (size 512, placeholder GLB pin), run1 == run2 every stage output; all pre-existing stage shas unchanged; final socket 9cbf0677; new albedo_browform.png 0ceddab6 (aisha mesh identity)",
-  "executedManifestSha256": "e3cffdc680e4716eb7fab872f288aa67de47cd8e30de2e3a2f436c7f99c49934",
+  "chain_manifest_sha256": "eca9ec87c85ecaa8117dae72e0222890e01d09b77304e08e9755bce7c6ff",
+  "method": "two fixture-scale runReplayChain runs (size 512, placeholder GLB pin), run1 == run2 every stage output; all pre-existing stage shas unchanged; final socket 9cbf0677; new stage output albedo_browform.png ad9b3237 (mesh hb1); manifest restored to main 2-space formatting (surgical diff)",
+  "executedManifestSha256": "1038b1f3a823cd879b5da85666af362599a71ee84b55ba6d09f7a32bac1dc8af",
   "files": [
    "tools/openclinxr/asset-pipeline/skin/face-replay/second-body-report.json",
    "packages/openclinxr/factory-stations/src/face_realism/station-manifest.json",
@@ -145,8 +170,8 @@
   ]
  },
  "testEvidence": {
-  "red": "11/11 failed pre-build (no brow_form.py, no manifest stage, no report)",
-  "post": "11/11 green; hand-steps suite (incl. threaded chain replay with brow_form) green"
+  "red": "hb1: 8 failed pre-fix (G6/G7/G8 + mask-arg wiring + weighted solve); post-fix 13/14 (report pending this update)",
+  "post": "13/14; report gates added here"
  },
  "notTested": [
   "three-quarter/profile views",

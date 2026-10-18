@@ -1,481 +1,380 @@
 {
- "method_version": "face-replay-hands-v1",
- "stages": [
-  {
-   "name": "derive",
-   "description": "Mesh-only derivation of occlusion, occupancy, part masks, socket-wall masks, and landmark UVs",
-   "script": "derive.py",
-   "entry": "main",
-   "parameters": {
-    "size": 4096,
-    "no_ao": false
-   },
-   "input_kinds": [
-    "subject_glb"
-   ],
-   "output_shas_aisha": {
-    "occupancy.png": "PLACEHOLDER_SHA256",
-    "mask-lips.png": "PLACEHOLDER_SHA256",
-    "mask-brows-L.png": "PLACEHOLDER_SHA256",
-    "mask-brows-R.png": "PLACEHOLDER_SHA256",
-    "mask-eyes-L.png": "PLACEHOLDER_SHA256",
-    "mask-eyes-R.png": "PLACEHOLDER_SHA256",
-    "mask-ears-L.png": "PLACEHOLDER_SHA256",
-    "mask-ears-R.png": "PLACEHOLDER_SHA256",
-    "mask-neck.png": "PLACEHOLDER_SHA256",
-    "mask-scalp.png": "PLACEHOLDER_SHA256",
-    "mask-facecore.png": "PLACEHOLDER_SHA256",
-    "socket-wall-L.png": "PLACEHOLDER_SHA256",
-    "socket-wall-R.png": "PLACEHOLDER_SHA256",
-    "landmarks-uv.json": "PLACEHOLDER_SHA256",
-    "derive.json": "PLACEHOLDER_SHA256",
-    "ao.png": "PLACEHOLDER_SHA256"
-   },
-   "output_paths": {
-    "occupancy_png": "occupancy.png",
-    "lipuv_npz": "lipuv.npz",
-    "mask_lips_png": "mask-lips.png",
-    "mask_brows_L_png": "mask-brows-L.png",
-    "mask_brows_R_png": "mask-brows-R.png",
-    "mask_eyes_L_png": "mask-eyes-L.png",
-    "mask_eyes_R_png": "mask-eyes-R.png",
-    "mask_ears_L_png": "mask-ears-L.png",
-    "mask_ears_R_png": "mask-ears-R.png",
-    "mask_neck_png": "mask-neck.png",
-    "mask_scalp_png": "mask-scalp.png",
-    "mask_facecore_png": "mask-facecore.png",
-    "socket_wall_L_png": "socket-wall-L.png",
-    "socket_wall_R_png": "socket-wall-R.png",
-    "landmarks_uv_json": "landmarks-uv.json",
-    "derive_json": "derive.json",
-    "ao_png": "ao.png"
-   },
-   "parameter_sources": {
-    "LIP_RING": "measurement: S/derive/RESULT2.md neon ground truth 8mm",
-    "BROW_BAND": "measurement: S/derive/RESULT2.md 6mm (was 15mm)",
-    "EYE_RING": "measurement: S/derive/RESULT2.md 2mm (was 6mm)",
-    "EAR_DROP": "measurement: S/derive/RESULT2.md 12mm + two-pass medoid",
-    "NECK_DEPTH": "measurement: S/derive/RESULT.md 110mm",
-    "CHIN_SEARCH": "measurement: S/derive/RESULT.md 90mm",
-    "NOSTRIL_WIN": "measurement: S/derive/RESULT.md 20/25mm",
-    "AO_SAMPLES": "operator/consult decision: 96 samples per shade/bake_ao.py",
-    "AO_DISTANCE": "operator/consult decision: 0.03m per shade/bake_ao.py",
-    "AO_MARGIN": "operator/consult decision: 8px per shade/bake_ao.py",
-    "FEATHER": "measurement: S/derive/RESULT2.md (lips 6, eyes 6, socket 8, brows 16, ears 16, default 32)",
-    "sock_window": "measurement: S/derive/RESULT.md fix_corner inequalities [0.009, 0.018, 0.0002, 0.006, -0.003, 0.006]",
-    "eye_pattern": "measurement: S/eyetex/RESULT2.md NAMES globe makeclothes_library_eyes_high_poly globe mesh; eye mesh matches /eyes_(low|high)_poly/i (globe)",
-    "lipuv_npz": "method: same mouth-loop ring as mask-lips, split upper/lower by ring-centre height, row=v*S (stored solve3 lipuv was landmark-box derived and row=(1-v)*S per S/derive/RESULT.md G4 line 8)"
-   }
+  "method_version": "face-replay-hands-v1",
+  "stages": [
+    {
+      "name": "derive",
+      "description": "Mesh-only derivation of occlusion, occupancy, part masks, socket-wall masks, and landmark UVs",
+      "script": "derive.py",
+      "entry": "main",
+      "parameters": {
+        "size": 4096,
+        "no_ao": false
+      },
+      "input_kinds": ["subject_glb"],
+      "output_shas_aisha": {
+        "occupancy.png": "PLACEHOLDER_SHA256",
+        "mask-lips.png": "PLACEHOLDER_SHA256",
+        "mask-brows-L.png": "PLACEHOLDER_SHA256",
+        "mask-brows-R.png": "PLACEHOLDER_SHA256",
+        "mask-eyes-L.png": "PLACEHOLDER_SHA256",
+        "mask-eyes-R.png": "PLACEHOLDER_SHA256",
+        "mask-ears-L.png": "PLACEHOLDER_SHA256",
+        "mask-ears-R.png": "PLACEHOLDER_SHA256",
+        "mask-neck.png": "PLACEHOLDER_SHA256",
+        "mask-scalp.png": "PLACEHOLDER_SHA256",
+        "mask-facecore.png": "PLACEHOLDER_SHA256",
+        "socket-wall-L.png": "PLACEHOLDER_SHA256",
+        "socket-wall-R.png": "PLACEHOLDER_SHA256",
+        "landmarks-uv.json": "PLACEHOLDER_SHA256",
+        "derive.json": "PLACEHOLDER_SHA256",
+        "ao.png": "PLACEHOLDER_SHA256"
+      },
+      "output_paths": {
+        "occupancy_png": "occupancy.png",
+        "lipuv_npz": "lipuv.npz",
+        "mask_lips_png": "mask-lips.png",
+        "mask_brows_L_png": "mask-brows-L.png",
+        "mask_brows_R_png": "mask-brows-R.png",
+        "mask_eyes_L_png": "mask-eyes-L.png",
+        "mask_eyes_R_png": "mask-eyes-R.png",
+        "mask_ears_L_png": "mask-ears-L.png",
+        "mask_ears_R_png": "mask-ears-R.png",
+        "mask_neck_png": "mask-neck.png",
+        "mask_scalp_png": "mask-scalp.png",
+        "mask_facecore_png": "mask-facecore.png",
+        "socket_wall_L_png": "socket-wall-L.png",
+        "socket_wall_R_png": "socket-wall-R.png",
+        "landmarks_uv_json": "landmarks-uv.json",
+        "derive_json": "derive.json",
+        "ao_png": "ao.png"
+      },
+      "parameter_sources": {
+        "LIP_RING": "measurement: S/derive/RESULT2.md neon ground truth 8mm",
+        "BROW_BAND": "measurement: S/derive/RESULT2.md 6mm (was 15mm)",
+        "EYE_RING": "measurement: S/derive/RESULT2.md 2mm (was 6mm)",
+        "EAR_DROP": "measurement: S/derive/RESULT2.md 12mm + two-pass medoid",
+        "NECK_DEPTH": "measurement: S/derive/RESULT.md 110mm",
+        "CHIN_SEARCH": "measurement: S/derive/RESULT.md 90mm",
+        "NOSTRIL_WIN": "measurement: S/derive/RESULT.md 20/25mm",
+        "AO_SAMPLES": "operator/consult decision: 96 samples per shade/bake_ao.py",
+        "AO_DISTANCE": "operator/consult decision: 0.03m per shade/bake_ao.py",
+        "AO_MARGIN": "operator/consult decision: 8px per shade/bake_ao.py",
+        "FEATHER": "measurement: S/derive/RESULT2.md (lips 6, eyes 6, socket 8, brows 16, ears 16, default 32)",
+        "sock_window": "measurement: S/derive/RESULT.md fix_corner inequalities [0.009, 0.018, 0.0002, 0.006, -0.003, 0.006]",
+        "eye_pattern": "measurement: S/eyetex/RESULT2.md NAMES globe makeclothes_library_eyes_high_poly globe mesh; eye mesh matches /eyes_(low|high)_poly/i (globe)",
+        "lipuv_npz": "method: same mouth-loop ring as mask-lips, split upper/lower by ring-centre height, row=v*S (stored solve3 lipuv was landmark-box derived and row=(1-v)*S per S/derive/RESULT.md G4 line 8)"
+      }
+    },
+    {
+      "name": "occlusion",
+      "description": "Apply AO map to albedo: albedo *= AO^p, a* += k*(1-AO), occupancy-gated",
+      "script": "apply_occ.py",
+      "entry": "main",
+      "parameters": {
+        "p": 0.9,
+        "k": 2.0
+      },
+      "input_kinds": ["albedo_png", "ao_png", "occupancy_png"],
+      "output_shas_aisha": {
+        "albedo_occ.png": "PLACEHOLDER_SHA256"
+      },
+      "output_paths": {
+        "albedo_occ_png": "albedo_occ.png"
+      },
+      "parameter_sources": {
+        "p": "measurement: S/shade/RESULT.md oc_about_right p=0.9 (front bandpass 1.166/1.205/1.251)",
+        "k": "measurement: S/shade/RESULT.md k=2 confirmed by three-strength test S/brow2/RESULT.md"
+      }
+    },
+    {
+      "name": "roughness",
+      "description": "Build roughness map: 0.62 - Tc*T + 0.08*C + 0.05*H clipped [0.3, 0.8], lips 0.45",
+      "script": "build_roughness.py",
+      "entry": "main",
+      "parameters": {
+        "tcoef": 0.08
+      },
+      "input_kinds": ["albedo_png", "ao_png", "lip_uv_npz", "landmarks_uv_json", "facecore_mask"],
+      "output_shas_aisha": {
+        "roughness.png": "PLACEHOLDER_SHA256"
+      },
+      "output_paths": {
+        "roughness_png": "roughness.png"
+      },
+      "parameter_sources": {
+        "tcoef": "measurement: S/shade/RESULT.md Tc=0.08 chosen (nose 15.38/15.62/16.34, duller wins)",
+        "lip_roughness": "operator/consult decision: 0.45 per shade/build_roughness.py",
+        "creases_coef": "operator/consult decision: 0.08 * C (1-AO)",
+        "highband_coef": "operator/consult decision: 0.05 * H (fine albedo band)",
+        "tzone": "method: disks at derived nose-tip/chin/brow-pushed-forehead landmarks (radii 0.035/0.030/0.055 of S), facecore-gated, dilate-5/blur-12 as scratch; replaces MediaPipe gate polygons (subject-constant boxes) per S/shade/build_roughness.py"
+      }
+    },
+    {
+      "name": "lips",
+      "description": "Scale lip chroma by ratio under feathered lip mask (sigma 6)",
+      "script": "fix_lips.py",
+      "entry": "main",
+      "parameters": {
+        "ratio": 1.0
+      },
+      "input_kinds": ["albedo_png", "lip_uv_npz"],
+      "output_shas_aisha": {
+        "albedo_lips.png": "PLACEHOLDER_SHA256"
+      },
+      "output_paths": {
+        "albedo_lips_png": "albedo_lips.png"
+      },
+      "parameter_sources": {
+        "ratio": "measurement: S/skins/RESULT.md 1.30 tuned on female skin, correctly skipped on male (default 1.0 = no change)",
+        "default_ratio": "operator/consult decision: 1.0 = no change, with value recorded per subject"
+      }
+    },
+    {
+      "name": "eye_corners",
+      "description": "Paint socket-wall texels visible through eye corners as conjunctiva (caruncle pink medially, pale conjunctiva laterally)",
+      "script": "fix_corner.py",
+      "entry": "main",
+      "parameters": {
+        "inner_rgb": [200, 140, 125],
+        "outer_rgb": [215, 185, 170],
+        "feather_px": 8
+      },
+      "input_kinds": ["albedo_png", "socket_wall_L_png", "socket_wall_R_png", "landmarks_uv_json"],
+      "output_shas_aisha": {
+        "albedo_corners.png": "PLACEHOLDER_SHA256"
+      },
+      "output_paths": {
+        "albedo_corners_png": "albedo_corners.png"
+      },
+      "parameter_sources": {
+        "inner_rgb": "operator/consult decision: caruncle pink (~0.3x renders ~60,42,38)",
+        "outer_rgb": "operator/consult decision: pale lateral conjunctiva (~0.5x renders ~108,93,85)",
+        "feather_px": "measurement: S/eyegeo/fix_corner.py 8px at 4096",
+        "zone_bounds": "measurement: S/eyegeo/fix_corner.py [0.009, 0.018, 0.0002, 0.006, -0.003, 0.006] vs subject eye mesh",
+        "innersplit": "method: texel to nearer derived eye-corner inner/outer landmark (replaces 3-D sidedness vs eye centroid)"
+      }
+    },
+    {
+      "name": "symmetrise",
+      "description": "Mirror-average low band (sigma>=40) of L,a,b across face core using mesh correspondence",
+      "script": "fix_sym.py",
+      "entry": "main",
+      "parameters": {
+        "strength": 1.0,
+        "sigma": 48.0,
+        "w_feather": 32.0,
+        "feat_ramp": 72.0
+      },
+      "input_kinds": ["albedo_png", "subject_glb", "facecore_mask", "lips_mask", "eyes_L_mask", "eyes_R_mask", "brows_L_mask", "brows_R_mask"],
+      "output_shas_aisha": {
+        "albedo_sym.png": "PLACEHOLDER_SHA256"
+      },
+      "output_paths": {
+        "albedo_sym_png": "albedo_sym.png"
+      },
+      "parameter_sources": {
+        "strength": "measurement: S/sym/fix_sym.py default 1.0 (Aisha 1.0)",
+        "sigma": "measurement: S/sym/fix_sym.py 48.0 texels",
+        "w_feather": "measurement: S/sym/fix_sym.py 32.0 (~96 texel feather at 3 sigma)",
+        "feat_ramp": "measurement: S/sym/fix_sym.py 72.0 (smoothstep ramp outside features)"
+      }
+    },
+    {
+      "name": "socket",
+      "description": "Socket-red fix: fill eye-band texels (dilate 8) with cheek hue/chroma at L45",
+      "script": "fix_socket.py",
+      "entry": "main",
+      "parameters": {
+        "cheek_lab": [45, 12.7, 14.0],
+        "dilate_px": 8,
+        "feather_px": 6
+      },
+      "input_kinds": ["albedo_png", "eyes_L_mask", "eyes_R_mask"],
+      "output_shas_aisha": {
+        "albedo_socket.png": "PLACEHOLDER_SHA256"
+      },
+      "output_paths": {
+        "albedo_socket_png": "albedo_socket.png"
+      },
+      "parameter_sources": {
+        "cheek_lab": "measurement: S/polish/RESULT.md D1 fix line 'socket-red texels (eye-band verts, dilate 8) filled with cheek hue/chroma at L45 (132,100,80), feather 6' + 'adjacent skin 12.7/14.0' (L45 with adjacent a*/b*)",
+        "dilate_px": "measurement: S/polish/RESULT.md D1 fix line 'eye-band verts, dilate 8'",
+        "feather_px": "measurement: S/polish/RESULT.md D1 fix line 'feather 6'",
+        "band_substitution": "method: eye-band vertex selection rule NOT recorded (no mesh/window/threshold) so band = derived eye-mask union dilated 8; fill numbers above are verbatim from the D1 fix line"
+      },
+      "not_scripted": false,
+      "not_scripted_reason": ""
+    },
+    {
+      "name": "beard_shadow",
+      "description": "Beard-shadow stipple + low-band darken/desaturate inside a landmark-derived beard mask (upper lip, chin, jaw)",
+      "script": "beard_shadow.py",
+      "entry": "main",
+      "parameters": {
+        "weight": 0.0,
+        "seed": 11,
+        "texels_per_mm": 4.079
+      },
+      "input_kinds": ["albedo_png", "landmarks_uv_json", "lips_mask", "facecore_mask"],
+      "output_shas_aisha": {
+        "albedo_beard.png": "PLACEHOLDER_SHA256"
+      },
+      "output_paths": {
+        "albedo_beard_png": "albedo_beard.png"
+      },
+      "parameter_sources": {
+        "weight": "default 0.0 = byte copy (identity by construction, as skin_layers.apply_layers); per-subject override below",
+        "seed": "operator/consult decision: fixed seed 11, seeded default_rng stream (base dots then mustache-zone dots)",
+        "texels_per_mm": "measurement: S/beard/RESULT.md sqrt(facecore UV-texel area / 3D mm area) over body.001 of S/body2/final.glb = 4.079 at 4096 (skin_layers.py method)"
+      }
+    },
+    {
+      "name": "detail_bands",
+      "description": "Reshape albedo detail by frequency band: attenuate the crease band, add seeded pore-scale structure",
+      "script": "detail_bands.py",
+      "entry": "main",
+      "parameters": {
+        "crease_gain": 0.0,
+        "pore_gain": 0.0,
+        "seed": 11,
+        "texels_per_mm": 4.079,
+        "pore_noise_hi_mm": 1.4,
+        "feather_mm": 1.0,
+        "scalp_fringe_mm": 25.0,
+        "lips_hug_mm": 0.5,
+        "lips_feather_mm": 0.5,
+        "pore_detrend_mm": 12.0
+      },
+      "input_kinds": [
+        "albedo_png",
+        "facecore_mask",
+        "lips_mask"
+      ],
+      "output_shas_aisha": {
+        "albedo_detail.png": "PLACEHOLDER_SHA256"
+      },
+      "output_paths": {
+        "albedo_detail_png": "albedo_detail.png"
+      },
+      "parameter_sources": {
+        "crease_gain": "solved per case against that case's goal photo (wrinkle-scale-report.json fix.solve; 0.0 = identity)",
+        "pore_gain": "solved per case against that case's goal photo (wrinkle-scale-report.json fix.solve; 0.0 = no added structure)",
+        "seed": "operator/consult decision: fixed seed 11, seeded default_rng stream (same convention as beard_shadow)",
+        "texels_per_mm": "measurement: S/beard/RESULT.md sqrt(facecore UV-texel area / 3D mm area) = 4.079 at 4096 (beard_shadow.py method)",
+        "pore_noise_hi_mm": "instrument pore-band sigma_hi (H/130 at portrait scale ~1 tex/px via 4.079 tex/mm and the measured head height; report fix.solve): keeps the grain below crease-band wavelengths so it cannot refill the removed folds",
+        "feather_mm": "operator/consult decision: 1.0 mm gate feather (between the fix_lips 6-texel feather and the beard 3.0 mm outer fade)",
+        "scalp_fringe_mm": "handback 2: 25.0 mm scalp fringe covers the forehead skin above the facecore top up to the hairline (facecore alone stops mid-forehead)",
+        "crease_smooth_mm": "operator/consult decision: 3.0 mm upper gaussian keeps forehead-fold energy (~8-15 mm spacing) inside the removed band; 0.35 mm lower gaussian spares fine grain",
+        "lips_hug_mm": "handback 3: beard_shadow.py LIPS_EXCLUDE_MM 0.5 hug from the vermilion border (lipuv hard_up|hard_lo union; derive lips mask carries ~3mm margin past the vermilion, measured body2 albedo a* profile vs mask edge, lipuv hard ~1.5mm)",
+        "lips_feather_mm": "handback 3: beard_shadow.py LIP_FEATHER_MM 0.5 feather from the vermilion border",
+        "pore_detrend_mm": "handback 3: second detrend 12.0mm (4x crease smooth) kills patch-scale swells (bin-1 render-FFT peak on the portrait re-render); ~8x above the grain band, no pore-band energy removed"
+      }
+    },
+    {
+      "name": "brow_form",
+      "description": "Per-case brow form (last: detail_bands excludes the brow union from grain synthesis, so an earlier slot would leak the edit outside the masks through the crease lowband; last placement keeps every counterweight byte-exact)",
+      "script": "brow_form.py",
+      "entry": "main",
+      "parameters": {
+        "dL": 0.0,
+        "dC": 0.0,
+        "feather_px": 6,
+        "coverage_power": 2.0
+      },
+      "input_kinds": [
+        "albedo_png",
+        "brows_L_mask",
+        "brows_R_mask",
+        "facecore_mask",
+        "eyes_L_mask",
+        "eyes_R_mask"
+      ],
+      "output_shas_aisha": {
+        "albedo_browform.png": "PLACEHOLDER_SHA256"
+      },
+      "output_paths": {
+        "albedo_browform_png": "albedo_browform.png"
+      },
+      "parameter_sources": {
+        "dL": "default 0.0 = no texture shift (mesh form clears via inpaint instead; the solved per-case pair lives in subject overrides)",
+        "dC": "default 0.0 = no texture shift (mesh form clears via inpaint instead; the solved per-case pair lives in subject overrides)",
+        "feather_px": "operator/consult decision: 6 texel bounded-inside smoothstep (feather lives inside the brow union so zero texels change outside; same order as fix_socket feather 6)",
+        "coverage_power": "operator/consult decision: 2 (quadratic coverage weight: bare skin inside the mask (coverage<0.2) moves <=0.04*S<=2 while hair pixels carry the solve; hb1 re-solve)"
+      }
+    }
+  ],
+  "subjects": {
+    "aisha": {
+      "glb_sha256": "2be4b0980beb612d9a18dcb3093d3969a1d4c04cf70119ab588d7de998a38d5f",
+      "sources": {
+        "glb_sha256": "measured: sha256sum S/eyefinal/base.glb; its derive --no-ao 4096 reproduces S/derive/A 13/13 masks + landmarks-uv.json byte-identical (card tsk_adb53f2a4f22fd72 STEP0, S/aishareal/derive-base)",
+        "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: g=1; probeN moves fh_c 0.00407->0.01064; dark-biased noise cross-talk compensated by pore_gain)",
+        "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: p=3.0 (POST=probe, no extrapolation); affine probeN slope 0.007667/L-unit against goal 0.03686 under corrected G1 low-edge; POST3 verifies)",
+        "brow_form.dL": "identity: cases.aisha.brow_form mesh clears the painted brow via forehead-sourced inpaint + grain restore, no Lab shift (one-brow report.json:subjects.aisha.distances M 2.4088 < A 3.6632)",
+        "brow_form.dC": "identity: cases.aisha.brow_form mesh clears the painted brow via forehead-sourced inpaint + grain restore, no Lab shift (one-brow report.json:subjects.aisha.distances M 2.4088 < A 3.6632)"
+      },
+      "overrides": {
+        "lips": { "ratio": 1.30 },
+        "symmetrise": { "strength": 1.0 },
+        "beard_shadow": { "weight": 0.0 },
+        "detail_bands": { "crease_gain": 1.0, "pore_gain": 3.0 },
+        "brow_form": { "dL": 0.0, "dC": 0.0 }
+      }
+    },
+    "adult_male_street_casual": {
+      "glb_sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
+      "skin_tone_rgb": [0.66, 0.50, 0.40],
+      "overrides": {
+        "lips": { "ratio": 1.0 },
+        "symmetrise": { "strength": 1.0 },
+        "beard_shadow": { "weight": 0.9 },
+        "detail_bands": { "crease_gain": 1.0, "pore_gain": 3.9 },
+        "brow_form": { "dL": -29.0, "dC": -27.0 }
+      },
+      "sources": {
+        "glb_sha256": "measured: shasum -a 256 S/body2/final.glb (male-macro rebake, bake.log MACRO_BASE gender 1.0)",
+        "skin_tone_rgb": "card SUBJECT line: warm_medium (0.66, 0.50, 0.40)",
+        "lips.ratio": "measurement: S/skins/RESULT.md G2 — pre-lips lip a* 13.11 vs goal 13.64, ratio 1.30 would push to 17.0; 1.0 = no-op recorded per subject",
+        "symmetrise.strength": "operator/consult decision: 1.0 default per S/sym/fix_sym.py (same as aisha; recorded per subject)",
+        "beard_shadow.weight": "measurement: handback 7 full-chain re-check, split masks (hole/feather on albedo-vermilion, geometry frozen on derive; S/beard sweep lineage): 0.9 -> 13.10 vs 1.0 -> 12.39; min at 1.0, RECOMMENDATION ONLY (recorded; weight stays 0.9 per the frozen IOR station choice)",
+        "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: g=1; probeN moves fh_c 0.01475->0.01686; dark-biased noise cross-talk compensated by pore_gain)",
+        "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 6: p=3.9 affine against goal 0.07087 under corrected G1; lip exclusion is the albedo-vermilion mask shared with beard; POST7 verifies)",
+        "brow_form.dL": "solved hb1: coverage-weighted re-solve (weight=coverage^2; skin estimate=restricted inpaint, L_brow_core 33.3 darkest decile, hair_frac 0.178, mean_w_hair 0.630): S_L=-14.8/0.503=-29.4 rounded -29.0 for render delta_dL -12.5 (lands ~-50.0, past midpoint -8.5 with margin at slope 0.85, short of goal -16.97 with margin); G6 max 0.04*29=1.16<=2; hair response 0.503 measured on hb1 POST albedo",
+        "brow_form.dC": "solved hb1: coverage-weighted re-solve (weight=coverage^2): S_C=-13.8/0.503=-27.4 rounded -27.0 for render delta_dC -10.0 (past midpoint -8.6 at slope 0.95, short of goal -17.40); G6 max 0.04*27=1.08<=2; hair response 0.503 measured on hb1 POST albedo"
+      }
+    },
+    "peds_patient_child": {
+      "glb_sha256": "a969db3ba0a63d43597b5c3007a6e520a85c46bec9e28c97aa88638500ed79b1",
+      "skin_tone_rgb": [0.84, 0.70, 0.60],
+      "overrides": {
+        "lips": { "ratio": 1.0 },
+        "symmetrise": { "strength": 1.0 },
+        "beard_shadow": { "weight": 0.0 },
+        "brow_form": { "dL": 0.0, "dC": 0.0 }
+      },
+      "sources": {
+        "glb_sha256": "measured: shasum -a 256 apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (== face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb byte-identical copy); the GLB the child stage 3 uses per case-inputs.json:cases.peds_asthma_parent_anxiety_v1.stage3_glb",
+        "skin_tone_rgb": "phenotype tone source: tools/openclinxr/asset-pipeline/reference-set/reference_constants.json:5 warm_light_child [0.84, 0.70, 0.60] (== materialize_mpfb_humanoid_candidate.py:378 peds_patient_child tone rgb)",
+        "lips.ratio": "measurement: 1.0 = no-op, as body2 records (child has no lip chroma target; no goal-derived lip ratio exists)",
+        "symmetrise.strength": "operator/consult decision: 1.0 default per S/sym/fix_sym.py (same as aisha and body2; recorded per subject)",
+        "beard_shadow.weight": "child is a school-age patient (no facial hair): weight 0 = identity per chain-manifest.json stages[beard_shadow].parameter_sources.weight",
+        "brow_form.dL": "identity: no child goal-derived chain albedo exists, so no child shift is solved (case-inputs.json stages stay refused_no_goal_derived_inputs)",
+        "brow_form.dC": "identity: no child goal-derived chain albedo exists, so no child shift is solved (case-inputs.json stages stay refused_no_goal_derived_inputs)"
+      }
+    }
   },
-  {
-   "name": "occlusion",
-   "description": "Apply AO map to albedo: albedo *= AO^p, a* += k*(1-AO), occupancy-gated",
-   "script": "apply_occ.py",
-   "entry": "main",
-   "parameters": {
-    "p": 0.9,
-    "k": 2.0
-   },
-   "input_kinds": [
-    "albedo_png",
-    "ao_png",
-    "occupancy_png"
-   ],
-   "output_shas_aisha": {
-    "albedo_occ.png": "PLACEHOLDER_SHA256"
-   },
-   "output_paths": {
-    "albedo_occ_png": "albedo_occ.png"
-   },
-   "parameter_sources": {
-    "p": "measurement: S/shade/RESULT.md oc_about_right p=0.9 (front bandpass 1.166/1.205/1.251)",
-    "k": "measurement: S/shade/RESULT.md k=2 confirmed by three-strength test S/brow2/RESULT.md"
-   }
-  },
-  {
-   "name": "roughness",
-   "description": "Build roughness map: 0.62 - Tc*T + 0.08*C + 0.05*H clipped [0.3, 0.8], lips 0.45",
-   "script": "build_roughness.py",
-   "entry": "main",
-   "parameters": {
-    "tcoef": 0.08
-   },
-   "input_kinds": [
-    "albedo_png",
-    "ao_png",
-    "lip_uv_npz",
-    "landmarks_uv_json",
-    "facecore_mask"
-   ],
-   "output_shas_aisha": {
-    "roughness.png": "PLACEHOLDER_SHA256"
-   },
-   "output_paths": {
-    "roughness_png": "roughness.png"
-   },
-   "parameter_sources": {
-    "tcoef": "measurement: S/shade/RESULT.md Tc=0.08 chosen (nose 15.38/15.62/16.34, duller wins)",
-    "lip_roughness": "operator/consult decision: 0.45 per shade/build_roughness.py",
-    "creases_coef": "operator/consult decision: 0.08 * C (1-AO)",
-    "highband_coef": "operator/consult decision: 0.05 * H (fine albedo band)",
-    "tzone": "method: disks at derived nose-tip/chin/brow-pushed-forehead landmarks (radii 0.035/0.030/0.055 of S), facecore-gated, dilate-5/blur-12 as scratch; replaces MediaPipe gate polygons (subject-constant boxes) per S/shade/build_roughness.py"
-   }
-  },
-  {
-   "name": "lips",
-   "description": "Scale lip chroma by ratio under feathered lip mask (sigma 6)",
-   "script": "fix_lips.py",
-   "entry": "main",
-   "parameters": {
-    "ratio": 1.0
-   },
-   "input_kinds": [
-    "albedo_png",
-    "lip_uv_npz"
-   ],
-   "output_shas_aisha": {
-    "albedo_lips.png": "PLACEHOLDER_SHA256"
-   },
-   "output_paths": {
-    "albedo_lips_png": "albedo_lips.png"
-   },
-   "parameter_sources": {
-    "ratio": "measurement: S/skins/RESULT.md 1.30 tuned on female skin, correctly skipped on male (default 1.0 = no change)",
-    "default_ratio": "operator/consult decision: 1.0 = no change, with value recorded per subject"
-   }
-  },
-  {
-   "name": "eye_corners",
-   "description": "Paint socket-wall texels visible through eye corners as conjunctiva (caruncle pink medially, pale conjunctiva laterally)",
-   "script": "fix_corner.py",
-   "entry": "main",
-   "parameters": {
-    "inner_rgb": [
-     200,
-     140,
-     125
-    ],
-    "outer_rgb": [
-     215,
-     185,
-     170
-    ],
-    "feather_px": 8
-   },
-   "input_kinds": [
-    "albedo_png",
-    "socket_wall_L_png",
-    "socket_wall_R_png",
-    "landmarks_uv_json"
-   ],
-   "output_shas_aisha": {
-    "albedo_corners.png": "PLACEHOLDER_SHA256"
-   },
-   "output_paths": {
-    "albedo_corners_png": "albedo_corners.png"
-   },
-   "parameter_sources": {
-    "inner_rgb": "operator/consult decision: caruncle pink (~0.3x renders ~60,42,38)",
-    "outer_rgb": "operator/consult decision: pale lateral conjunctiva (~0.5x renders ~108,93,85)",
-    "feather_px": "measurement: S/eyegeo/fix_corner.py 8px at 4096",
-    "zone_bounds": "measurement: S/eyegeo/fix_corner.py [0.009, 0.018, 0.0002, 0.006, -0.003, 0.006] vs subject eye mesh",
-    "innersplit": "method: texel to nearer derived eye-corner inner/outer landmark (replaces 3-D sidedness vs eye centroid)"
-   }
-  },
-  {
-   "name": "symmetrise",
-   "description": "Mirror-average low band (sigma>=40) of L,a,b across face core using mesh correspondence",
-   "script": "fix_sym.py",
-   "entry": "main",
-   "parameters": {
-    "strength": 1.0,
-    "sigma": 48.0,
-    "w_feather": 32.0,
-    "feat_ramp": 72.0
-   },
-   "input_kinds": [
-    "albedo_png",
-    "subject_glb",
-    "facecore_mask",
-    "lips_mask",
-    "eyes_L_mask",
-    "eyes_R_mask",
-    "brows_L_mask",
-    "brows_R_mask"
-   ],
-   "output_shas_aisha": {
-    "albedo_sym.png": "PLACEHOLDER_SHA256"
-   },
-   "output_paths": {
-    "albedo_sym_png": "albedo_sym.png"
-   },
-   "parameter_sources": {
-    "strength": "measurement: S/sym/fix_sym.py default 1.0 (Aisha 1.0)",
-    "sigma": "measurement: S/sym/fix_sym.py 48.0 texels",
-    "w_feather": "measurement: S/sym/fix_sym.py 32.0 (~96 texel feather at 3 sigma)",
-    "feat_ramp": "measurement: S/sym/fix_sym.py 72.0 (smoothstep ramp outside features)"
-   }
-  },
-  {
-   "name": "socket",
-   "description": "Socket-red fix: fill eye-band texels (dilate 8) with cheek hue/chroma at L45",
-   "script": "fix_socket.py",
-   "entry": "main",
-   "parameters": {
-    "cheek_lab": [
-     45,
-     12.7,
-     14.0
-    ],
-    "dilate_px": 8,
-    "feather_px": 6
-   },
-   "input_kinds": [
-    "albedo_png",
-    "eyes_L_mask",
-    "eyes_R_mask"
-   ],
-   "output_shas_aisha": {
-    "albedo_socket.png": "PLACEHOLDER_SHA256"
-   },
-   "output_paths": {
-    "albedo_socket_png": "albedo_socket.png"
-   },
-   "parameter_sources": {
-    "cheek_lab": "measurement: S/polish/RESULT.md D1 fix line 'socket-red texels (eye-band verts, dilate 8) filled with cheek hue/chroma at L45 (132,100,80), feather 6' + 'adjacent skin 12.7/14.0' (L45 with adjacent a*/b*)",
-    "dilate_px": "measurement: S/polish/RESULT.md D1 fix line 'eye-band verts, dilate 8'",
-    "feather_px": "measurement: S/polish/RESULT.md D1 fix line 'feather 6'",
-    "band_substitution": "method: eye-band vertex selection rule NOT recorded (no mesh/window/threshold) so band = derived eye-mask union dilated 8; fill numbers above are verbatim from the D1 fix line"
-   },
-   "not_scripted": false,
-   "not_scripted_reason": ""
-  },
-  {
-   "name": "beard_shadow",
-   "description": "Beard-shadow stipple + low-band darken/desaturate inside a landmark-derived beard mask (upper lip, chin, jaw)",
-   "script": "beard_shadow.py",
-   "entry": "main",
-   "parameters": {
-    "weight": 0.0,
-    "seed": 11,
-    "texels_per_mm": 4.079
-   },
-   "input_kinds": [
-    "albedo_png",
-    "landmarks_uv_json",
-    "lips_mask",
-    "facecore_mask"
-   ],
-   "output_shas_aisha": {
-    "albedo_beard.png": "PLACEHOLDER_SHA256"
-   },
-   "output_paths": {
-    "albedo_beard_png": "albedo_beard.png"
-   },
-   "parameter_sources": {
-    "weight": "default 0.0 = byte copy (identity by construction, as skin_layers.apply_layers); per-subject override below",
-    "seed": "operator/consult decision: fixed seed 11, seeded default_rng stream (base dots then mustache-zone dots)",
-    "texels_per_mm": "measurement: S/beard/RESULT.md sqrt(facecore UV-texel area / 3D mm area) over body.001 of S/body2/final.glb = 4.079 at 4096 (skin_layers.py method)"
-   }
-  },
-  {
-   "name": "detail_bands",
-   "description": "Reshape albedo detail by frequency band: attenuate the crease band, add seeded pore-scale structure",
-   "script": "detail_bands.py",
-   "entry": "main",
-   "parameters": {
-    "crease_gain": 0.0,
-    "pore_gain": 0.0,
-    "seed": 11,
-    "texels_per_mm": 4.079,
-    "pore_noise_hi_mm": 1.4,
-    "feather_mm": 1.0,
-    "scalp_fringe_mm": 25.0,
-    "lips_hug_mm": 0.5,
-    "lips_feather_mm": 0.5,
-    "pore_detrend_mm": 12.0
-   },
-   "input_kinds": [
-    "albedo_png",
-    "facecore_mask",
-    "lips_mask"
-   ],
-   "output_shas_aisha": {
-    "albedo_detail.png": "PLACEHOLDER_SHA256"
-   },
-   "output_paths": {
-    "albedo_detail_png": "albedo_detail.png"
-   },
-   "parameter_sources": {
-    "crease_gain": "solved per case against that case's goal photo (wrinkle-scale-report.json fix.solve; 0.0 = identity)",
-    "pore_gain": "solved per case against that case's goal photo (wrinkle-scale-report.json fix.solve; 0.0 = no added structure)",
-    "seed": "operator/consult decision: fixed seed 11, seeded default_rng stream (same convention as beard_shadow)",
-    "texels_per_mm": "measurement: S/beard/RESULT.md sqrt(facecore UV-texel area / 3D mm area) = 4.079 at 4096 (beard_shadow.py method)",
-    "pore_noise_hi_mm": "instrument pore-band sigma_hi (H/130 at portrait scale ~1 tex/px via 4.079 tex/mm and the measured head height; report fix.solve): keeps the grain below crease-band wavelengths so it cannot refill the removed folds",
-    "feather_mm": "operator/consult decision: 1.0 mm gate feather (between the fix_lips 6-texel feather and the beard 3.0 mm outer fade)",
-    "scalp_fringe_mm": "handback 2: 25.0 mm scalp fringe covers the forehead skin above the facecore top up to the hairline (facecore alone stops mid-forehead)",
-    "crease_smooth_mm": "operator/consult decision: 3.0 mm upper gaussian keeps forehead-fold energy (~8-15 mm spacing) inside the removed band; 0.35 mm lower gaussian spares fine grain",
-    "lips_hug_mm": "handback 3: beard_shadow.py LIPS_EXCLUDE_MM 0.5 hug from the vermilion border (lipuv hard_up|hard_lo union; derive lips mask carries ~3mm margin past the vermilion, measured body2 albedo a* profile vs mask edge, lipuv hard ~1.5mm)",
-    "lips_feather_mm": "handback 3: beard_shadow.py LIP_FEATHER_MM 0.5 feather from the vermilion border",
-    "pore_detrend_mm": "handback 3: second detrend 12.0mm (4x crease smooth) kills patch-scale swells (bin-1 render-FFT peak on the portrait re-render); ~8x above the grain band, no pore-band energy removed"
-   }
-  },
-  {
-   "name": "brow_form",
-   "description": "Per-case brow form (last: detail_bands excludes the brow union from grain synthesis, so an earlier slot would leak the edit outside the masks through the crease lowband; last placement keeps every counterweight byte-exact)",
-   "script": "brow_form.py",
-   "entry": "main",
-   "parameters": {
-    "dL": 0.0,
-    "dC": 0.0,
-    "feather_px": 6
-   },
-   "input_kinds": [
-    "albedo_png",
-    "brows_L_mask",
-    "brows_R_mask"
-   ],
-   "output_shas_aisha": {
-    "albedo_browform.png": "PLACEHOLDER_SHA256"
-   },
-   "output_paths": {
-    "albedo_browform_png": "albedo_browform.png"
-   },
-   "parameter_sources": {
-    "dL": "default 0.0 = no texture shift (mesh form clears via inpaint instead; the solved per-case pair lives in subject overrides)",
-    "dC": "default 0.0 = no texture shift (mesh form clears via inpaint instead; the solved per-case pair lives in subject overrides)",
-    "feather_px": "operator/consult decision: 6 texel bounded-inside smoothstep (feather lives inside the brow union so zero texels change outside; same order as fix_socket feather 6)"
-   }
+  "ao_bake": {
+    "command": "blender --background --python bake_ao_tmp.py",
+    "parameters": {
+      "engine": "CYCLES",
+      "device": "CPU",
+      "samples": 96,
+      "distance": 0.03,
+      "seed": 0,
+      "margin": 8,
+      "garments_hidden": ["jeans", "pant", "shoe", "boot", "shirt", "t_shirt", "hair", "mhair", "blunt", "bob", "cap", "hat", "glass", "icosphere"],
+      "duration_seconds_per_subject": "87-93"
+    },
+    "note": "AO bake needs Blender; tracked test must not launch it. Record command + parameters in manifest. Human/station runs this separately."
   }
- ],
- "subjects": {
-  "aisha": {
-   "glb_sha256": "2be4b0980beb612d9a18dcb3093d3969a1d4c04cf70119ab588d7de998a38d5f",
-   "sources": {
-    "glb_sha256": "measured: sha256sum S/eyefinal/base.glb; its derive --no-ao 4096 reproduces S/derive/A 13/13 masks + landmarks-uv.json byte-identical (card tsk_adb53f2a4f22fd72 STEP0, S/aishareal/derive-base)",
-    "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: g=1; probeN moves fh_c 0.00407->0.01064; dark-biased noise cross-talk compensated by pore_gain)",
-    "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: p=3.0 (POST=probe, no extrapolation); affine probeN slope 0.007667/L-unit against goal 0.03686 under corrected G1 low-edge; POST3 verifies)",
-    "brow_form.dL": "identity: cases.aisha.brow_form mesh clears the painted brow via inpaint, no Lab shift (tools/openclinxr/evidence/face-defects/one-brow/report.json:subjects.aisha.distances M 2.4088 < A 3.6632)",
-    "brow_form.dC": "identity: cases.aisha.brow_form mesh clears the painted brow via inpaint, no Lab shift (tools/openclinxr/evidence/face-defects/one-brow/report.json:subjects.aisha.distances M 2.4088 < A 3.6632)"
-   },
-   "overrides": {
-    "lips": {
-     "ratio": 1.3
-    },
-    "symmetrise": {
-     "strength": 1.0
-    },
-    "beard_shadow": {
-     "weight": 0.0
-    },
-    "detail_bands": {
-     "crease_gain": 1.0,
-     "pore_gain": 3.0
-    },
-    "brow_form": {
-     "dL": 0.0,
-     "dC": 0.0
-    }
-   }
-  },
-  "adult_male_street_casual": {
-   "glb_sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437",
-   "skin_tone_rgb": [
-    0.66,
-    0.5,
-    0.4
-   ],
-   "overrides": {
-    "lips": {
-     "ratio": 1.0
-    },
-    "symmetrise": {
-     "strength": 1.0
-    },
-    "beard_shadow": {
-     "weight": 0.9
-    },
-    "detail_bands": {
-     "crease_gain": 1.0,
-     "pore_gain": 3.9
-    },
-    "brow_form": {
-     "dL": -17.0,
-     "dC": -17.4
-    }
-   },
-   "sources": {
-    "glb_sha256": "measured: shasum -a 256 S/body2/final.glb (male-macro rebake, bake.log MACRO_BASE gender 1.0)",
-    "skin_tone_rgb": "card SUBJECT line: warm_medium (0.66, 0.50, 0.40)",
-    "lips.ratio": "measurement: S/skins/RESULT.md G2 \u2014 pre-lips lip a* 13.11 vs goal 13.64, ratio 1.30 would push to 17.0; 1.0 = no-op recorded per subject",
-    "symmetrise.strength": "operator/consult decision: 1.0 default per S/sym/fix_sym.py (same as aisha; recorded per subject)",
-    "beard_shadow.weight": "measurement: handback 7 full-chain re-check, split masks (hole/feather on albedo-vermilion, geometry frozen on derive; S/beard sweep lineage): 0.9 -> 13.10 vs 1.0 -> 12.39; min at 1.0, RECOMMENDATION ONLY (recorded; weight stays 0.9 per the frozen IOR station choice)",
-    "detail_bands.crease_gain": "solved: wrinkle-scale-report.json fix.solve (handback 2: g=1; probeN moves fh_c 0.01475->0.01686; dark-biased noise cross-talk compensated by pore_gain)",
-    "detail_bands.pore_gain": "solved: wrinkle-scale-report.json fix.solve (handback 6: p=3.9 affine against goal 0.07087 under corrected G1; lip exclusion is the albedo-vermilion mask shared with beard; POST7 verifies)",
-    "brow_form.dL": "solved: 100% of the PRE-to-goal dL gap (PRE -37.3815 to goal -54.352 = -16.9705, rounded -17.0; tools/openclinxr/evidence/face-defects/one-brow/report.json:subjects.body2.measurements)",
-    "brow_form.dC": "solved: 100% of the PRE-to-goal dC gap (PRE 3.123 to goal -14.2805 = -17.4035, rounded -17.4; tools/openclinxr/evidence/face-defects/one-brow/report.json:subjects.body2.measurements)"
-   }
-  },
-  "peds_patient_child": {
-   "glb_sha256": "a969db3ba0a63d43597b5c3007a6e520a85c46bec9e28c97aa88638500ed79b1",
-   "skin_tone_rgb": [
-    0.84,
-    0.7,
-    0.6
-   ],
-   "overrides": {
-    "lips": {
-     "ratio": 1.0
-    },
-    "symmetrise": {
-     "strength": 1.0
-    },
-    "beard_shadow": {
-     "weight": 0.0
-    },
-    "brow_form": {
-     "dL": 0.0,
-     "dC": 0.0
-    }
-   },
-   "sources": {
-    "glb_sha256": "measured: shasum -a 256 apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (== face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb byte-identical copy); the GLB the child stage 3 uses per case-inputs.json:cases.peds_asthma_parent_anxiety_v1.stage3_glb",
-    "skin_tone_rgb": "phenotype tone source: tools/openclinxr/asset-pipeline/reference-set/reference_constants.json:5 warm_light_child [0.84, 0.70, 0.60] (== materialize_mpfb_humanoid_candidate.py:378 peds_patient_child tone rgb)",
-    "lips.ratio": "measurement: 1.0 = no-op, as body2 records (child has no lip chroma target; no goal-derived lip ratio exists)",
-    "symmetrise.strength": "operator/consult decision: 1.0 default per S/sym/fix_sym.py (same as aisha and body2; recorded per subject)",
-    "beard_shadow.weight": "child is a school-age patient (no facial hair): weight 0 = identity per chain-manifest.json stages[beard_shadow].parameter_sources.weight",
-    "brow_form.dL": "identity: no child goal-derived chain albedo exists on this card, so no child shift is solved (case-inputs.json stages stay refused_no_goal_derived_inputs)",
-    "brow_form.dC": "identity: no child goal-derived chain albedo exists on this card, so no child shift is solved (case-inputs.json stages stay refused_no_goal_derived_inputs)"
-   }
-  }
- },
- "ao_bake": {
-  "command": "blender --background --python bake_ao_tmp.py",
-  "parameters": {
-   "engine": "CYCLES",
-   "device": "CPU",
-   "samples": 96,
-   "distance": 0.03,
-   "seed": 0,
-   "margin": 8,
-   "garments_hidden": [
-    "jeans",
-    "pant",
-    "shoe",
-    "boot",
-    "shirt",
-    "t_shirt",
-    "hair",
-    "mhair",
-    "blunt",
-    "bob",
-    "cap",
-    "hat",
-    "glass",
-    "icosphere"
-   ],
-   "duration_seconds_per_subject": "87-93"
-  },
-  "note": "AO bake needs Blender; tracked test must not launch it. Record command + parameters in manifest. Human/station runs this separately."
- }
 }
