@@ -897,24 +897,24 @@
   },
   "vermilion": {
    "body2": {
-    "skin_med_a": 13.71,
-    "peak_a": 23.39,
-    "threshold_a": 18.55,
-    "frac_of_union": 0.286,
-    "sha_note": "mask bytes identical to replay-built lip-vermilion-albedo-union.png (deterministic same inputs)"
+    "skin_med_a": 13.36,
+    "peak_a": 21.13,
+    "threshold_a": 17.24,
+    "frac_of_union": 0.243,
+    "sha_note": "visible-lip mask from run2 albedo_lips + derive mask-lips (handback-8 rule; deterministic same inputs)"
    },
    "aisha": {
-    "skin_med_a": 10.06,
-    "peak_a": 29.38,
-    "threshold_a": 19.72,
-    "frac_of_union": 0.308,
-    "sha_note": "mask bytes identical to replay-built lip-vermilion-albedo-union.png (deterministic same inputs)"
+    "skin_med_a": 9.91,
+    "peak_a": 27.51,
+    "threshold_a": 18.71,
+    "frac_of_union": 0.27,
+    "sha_note": "visible-lip mask from run2 albedo_lips + derive mask-lips (handback-8 rule; deterministic same inputs)"
    }
   },
   "solve": {
    "transfer": "affine from room-rig probes, handback-4 noise stage (band-limited 0.5tex-1.4mm grain, asymmetric caps [-3.0,+1.4], no demean, patch detrend 12mm): body2 probeN (g=1,p=3) and aisha probeN (g=1,p=3) in probes3/; probeC (g=1,p=0) reused; old bipolar/dot probes retained in probes/ + wrinkletest/ + probes2/ as superseded evidence",
    "texel_per_px": "facecore UV island ~780 texels wide; forehead screen patch ~300-400 px wide -> ~2-2.6 tex/px on the forehead; the 1.4 mm hi-cut (5.7 tex) projects to ~2.4 screen px, inside the instrument pore band (G(H/1500)-G(H/130), peak sensitivity ~2-4 px); render transfer measured, not assumed",
-   "chosen": "body2 (g=1.0,p=3.9) aisha (g=1.0,p=3.0): corrected G1 targets (forehead fix rows past midpoint, closer in log, no excess overshoot); lip exclusion is the albedo-vermilion mask (handback 6, same for beard+detail, tone-neutral); POST verifies",
+   "chosen": "body2 (g=1.0,p=3.9) aisha (g=1.0,p=3.0): corrected G1 targets (forehead fix rows past midpoint, closer in log, no excess overshoot); lip exclusion is the visible-lip mask on the lips albedo (handback 8 lane-manager rule, same for beard+detail, tone-neutral); POST verifies",
    "goal_bands_source": "this report pre.ratios (goal-photo band energies)"
   }
  },
@@ -926,7 +926,7 @@
      "region": "forehead",
      "band": "crease",
      "pre_ratio": 0.819,
-     "post_ratio": 1.0922,
+     "post_ratio": 1.1033,
      "midpoint": 0.9095,
      "toward_goal": true,
      "closer_log": true,
@@ -940,7 +940,7 @@
      "region": "forehead",
      "band": "pore",
      "pre_ratio": 0.3204,
-     "post_ratio": 0.7114,
+     "post_ratio": 0.7161,
      "midpoint": 0.6602,
      "toward_goal": true,
      "closer_log": true,
@@ -954,7 +954,7 @@
      "region": "nasolabial",
      "band": "crease",
      "pre_ratio": 1.447,
-     "post_ratio": 1.0093,
+     "post_ratio": 0.9985,
      "midpoint": 1.2235,
      "toward_goal": true,
      "closer_log": true,
@@ -968,7 +968,7 @@
      "region": "nasolabial",
      "band": "pore",
      "pre_ratio": 1.045,
-     "post_ratio": 1.1528,
+     "post_ratio": 1.1189,
      "midpoint": 1.0225,
      "toward_goal": false,
      "closer_log": false,
@@ -1084,8 +1084,8 @@
     {
      "subject": "body2",
      "albedo": "post",
-     "step": 0.1644,
-     "max_abs_laplacian": 115.3205
+     "step": 0.1527,
+     "max_abs_laplacian": 100.8049
     },
     {
      "subject": "aisha",
@@ -1167,7 +1167,7 @@
      "direction": "lt",
      "threshold": 2.42,
      "d_eval_pre": 3.012,
-     "d_eval": 3.012,
+     "d_eval": 3.011,
      "pre_pass": false,
      "enforced": true,
      "pass": false,
@@ -1194,7 +1194,7 @@
      "direction": "gt",
      "threshold": 1.419,
      "d_eval_pre": 1.828,
-     "d_eval": 1.828,
+     "d_eval": 1.829,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1221,7 +1221,7 @@
      "direction": "gt",
      "threshold": 3.374,
      "d_eval_pre": 4.813,
-     "d_eval": 4.812,
+     "d_eval": 4.813,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1248,7 +1248,7 @@
      "direction": "gt",
      "threshold": 7.588,
      "d_eval_pre": 10.482,
-     "d_eval": 11.269,
+     "d_eval": 11.284,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1275,7 +1275,7 @@
      "direction": "lt",
      "threshold": 2.42,
      "d_eval_pre": 0.26,
-     "d_eval": 0.257,
+     "d_eval": 0.254,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1302,7 +1302,7 @@
      "direction": "gt",
      "threshold": 3.715,
      "d_eval_pre": 5.1,
-     "d_eval": 5.097,
+     "d_eval": 5.094,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1329,7 +1329,7 @@
      "direction": "lt",
      "threshold": 1.715,
      "d_eval_pre": 0.542,
-     "d_eval": 0.54,
+     "d_eval": 0.539,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1356,7 +1356,7 @@
      "direction": "gt",
      "threshold": 2.236,
      "d_eval_pre": 3.972,
-     "d_eval": 3.97,
+     "d_eval": 3.969,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1383,7 +1383,7 @@
      "direction": "gt",
      "threshold": 12.448,
      "d_eval_pre": 15.557,
-     "d_eval": 16.614,
+     "d_eval": 16.729,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1410,7 +1410,7 @@
      "direction": "lt",
      "threshold": 2.42,
      "d_eval_pre": 4.299,
-     "d_eval": 4.672,
+     "d_eval": 4.669,
      "pre_pass": false,
      "enforced": true,
      "pass": false,
@@ -1437,7 +1437,7 @@
      "direction": "lt",
      "threshold": 1.715,
      "d_eval_pre": 2.594,
-     "d_eval": 2.797,
+     "d_eval": 2.796,
      "pre_pass": false,
      "enforced": true,
      "pass": false,
@@ -1464,7 +1464,7 @@
      "direction": "lt",
      "threshold": 4.555,
      "d_eval_pre": 1.35,
-     "d_eval": 1.195,
+     "d_eval": 1.19,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1491,7 +1491,7 @@
      "direction": "gt",
      "threshold": 4.582,
      "d_eval_pre": 7.76,
-     "d_eval": 7.915,
+     "d_eval": 7.92,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1572,7 +1572,7 @@
      "direction": "gt",
      "threshold": 2.994,
      "d_eval_pre": 4.145,
-     "d_eval": 4.143,
+     "d_eval": 4.142,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1599,7 +1599,7 @@
      "direction": "lt",
      "threshold": 4.555,
      "d_eval_pre": 3.132,
-     "d_eval": 3.529,
+     "d_eval": 3.544,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1626,7 +1626,7 @@
      "direction": "gt",
      "threshold": 8.011,
      "d_eval_pre": 12.242,
-     "d_eval": 12.639,
+     "d_eval": 12.654,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1707,7 +1707,7 @@
      "direction": "lt",
      "threshold": 1.715,
      "d_eval_pre": 0.538,
-     "d_eval": 0.546,
+     "d_eval": 0.544,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1734,7 +1734,7 @@
      "direction": "gt",
      "threshold": 1.934,
      "d_eval_pre": 2.892,
-     "d_eval": 2.884,
+     "d_eval": 2.886,
      "pre_pass": true,
      "enforced": true,
      "pass": true,
@@ -1775,7 +1775,7 @@
     {
      "subject": "body2",
      "pre": 3.187,
-     "post": 3.687,
+     "post": 3.751,
      "goal": -3.547
     },
     {
@@ -1797,16 +1797,16 @@
    "sha256": "fd54c967bc75fab42ee419f297d60eb574803e3d77db77c65b128b94282a5343"
   },
   {
-   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post10/wrinkle-body2-post10-front.png",
-   "sha256": "4cadbae347e8335b9ea2670fe7f532e39ccc65e6259e65f7b972459dcfea2471"
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post11/wrinkle-body2-post11-front.png",
+   "sha256": "383e31c36a1bbdfcc3d5a743f029bcc671d8c836b1677d9d7278008fb1bce335"
   },
   {
    "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post10/wrinkle-aisha-post10-front.png",
    "sha256": "b020e6cfdd75deca60cc2fff8af77d75d3c42429693d6003a07f5b33c73d075c"
   },
   {
-   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/albedo_detail_body2_post10.png",
-   "sha256": "78491892daf2cb36b4bbcbd30e55814b932913dd9353985ca0852febd8dd8b6a"
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/albedo_detail_body2_post11.png",
+   "sha256": "fb8ecdb6985f9c1e7ee57206497a0bb84cbb4fa4dddba2de8231008e2ffe757e"
   },
   {
    "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/albedo_detail_aisha_post10.png",
@@ -1815,25 +1815,25 @@
  ],
  "post": {
   "body2": {
-   "H": 758.85,
-   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post10/wrinkle-body2-post10-front.png",
-   "sha256": "4cadbae347e8335b9ea2670fe7f532e39ccc65e6259e65f7b972459dcfea2471",
+   "H": 755.43,
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post11/wrinkle-body2-post11-front.png",
+   "sha256": "383e31c36a1bbdfcc3d5a743f029bcc671d8c836b1677d9d7278008fb1bce335",
    "bands": {
     "forehead": {
-     "crease": 0.01967,
-     "pore": 0.05042,
-     "n": 12381
+     "crease": 0.01987,
+     "pore": 0.05075,
+     "n": 12065
     },
     "nasolabial": {
-     "crease": 0.05873,
-     "pore": 0.14026,
-     "n": 3635
+     "crease": 0.0581,
+     "pore": 0.13614,
+     "n": 3786
     }
    },
    "forehead_bbox": [
-    485,
-    517,
-    799,
+    488,
+    518,
+    800,
     573
    ]
   },

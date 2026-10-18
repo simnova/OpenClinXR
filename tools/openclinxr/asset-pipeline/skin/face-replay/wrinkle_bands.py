@@ -250,9 +250,9 @@ def invariance_probe(an, landmarker):
 
 
 POST_STORE = "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale"
-POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post10.png"),
+POST_ALBEDO = {"body2": os.path.join(POST_STORE, "albedo_detail_body2_post11.png"),
                "aisha": os.path.join(POST_STORE, "albedo_detail_aisha_post10.png")}
-POST_RENDER = {"body2": os.path.join(POST_STORE, "post10", "wrinkle-body2-post10-front.png"),
+POST_RENDER = {"body2": os.path.join(POST_STORE, "post11", "wrinkle-body2-post11-front.png"),
                "aisha": os.path.join(POST_STORE, "post10", "wrinkle-aisha-post10-front.png")}
 SPLIT_REPORT = os.path.join(DIR, "skin-gates-split-report.json")
 
@@ -501,23 +501,31 @@ def run_post():
     for subj in ("body2", "aisha"):
         dd = ("/Volumes/files/openclinxr-assets/store/face-station-cases/"
               f"{subj}/run2/derive_out")
+        # Handback 8: the chain segments the visible lip from the LIPS
+        # albedo with the derive lips mask (the lane-manager acceptance
+        # rule), so the record uses the same inputs.
         alb0 = np.array(Image.open(
             "/Volumes/files/openclinxr-assets/store/face-station-cases/"
-            f"{subj}/run2/albedo_socket.png").convert("RGB"))
-        z = np.load(os.path.join(dd, "lipuv.npz"))
-        uu = ((z["hard_up"] > 0) | (z["hard_lo"] > 0))
+            f"{subj}/run2/albedo_lips.png").convert("RGB"))
+        lm_p = os.path.join(dd, "mask-lips.png")
+        if os.path.exists(lm_p):
+            uu = (np.array(Image.open(lm_p).convert("L")) > 127)
+        else:
+            z = np.load(os.path.join(dd, "lipuv.npz"))
+            uu = ((z["hard_up"] > 0) | (z["hard_lo"] > 0))
         import detail_bands as _DB
+        from scipy import ndimage as _ndi
         lab0 = _DB.rgb_to_lab(alb0)
-        av0 = cv2.GaussianBlur(lab0[..., 1].astype(float), (0, 0), 3.0)
-        ring0 = (cv2.dilate(uu.astype(np.uint8), np.ones((49, 49), np.uint8)) > 0) & (
-            cv2.dilate(uu.astype(np.uint8), np.ones((25, 25), np.uint8)) == 0)
-        sk = round(float(np.median(av0[ring0])), 2) if ring0.sum() else 0.0
-        pk = round(float(av0[uu].max()), 2) if uu.sum() else sk
+        a0 = lab0[..., 1].astype(float)
+        ring0 = (_ndi.binary_dilation(uu, iterations=24)
+                 & ~_ndi.binary_dilation(uu, iterations=12))
+        sk = round(float(np.median(a0[ring0])), 2) if ring0.sum() else 0.0
+        pk = round(float(np.percentile(a0[uu], 95)), 2) if uu.sum() else sk
         m = _DB.vermilion_mask_from_albedo(alb0, uu)
         verm_rec[subj] = {"skin_med_a": sk, "peak_a": pk,
                           "threshold_a": round(sk + 0.5 * max(0.0, pk - sk), 2),
                           "frac_of_union": round(float(m.sum() / max(1, uu.sum())), 3),
-                          "sha_note": "mask bytes identical to replay-built lip-vermilion-albedo-union.png (deterministic same inputs)"}
+                          "sha_note": "visible-lip mask from run2 albedo_lips + derive mask-lips (handback-8 rule; deterministic same inputs)"}
     fix = {"stage": "detail_bands", "script": "detail_bands.py",
            "parameters": dstage["parameters"],
            "overrides": ov,
@@ -542,7 +550,8 @@ def run_post():
                 "chosen": ("body2 (g=%s,p=%s) aisha (g=%s,p=%s): corrected "
                            "G1 targets (forehead fix rows past midpoint, "
                            "closer in log, no excess overshoot); lip exclusion "
-                           "is the albedo-vermilion mask (handback 6, same "
+                           "is the visible-lip mask on the lips albedo "
+                           "(handback 8 lane-manager rule, same "
                            "for beard+detail, tone-neutral); POST verifies"
                            % (ov["adult_male_street_casual"]["crease_gain"],
                               ov["adult_male_street_casual"]["pore_gain"],
