@@ -150,10 +150,29 @@ describe("the face station runs seven stages from a case", () => {
     const report = readReport();
     expect(report.knownGood.length).toBeGreaterThanOrEqual(6);
     const fallbackNeeded: string[] = [];
+    const root = testRepoRoot();
+    const liveInputs = JSON.parse(
+      readFileSync(join(root, FACE_DIR, "case-inputs.json"), "utf8"),
+    ) as { cases: Record<string, { stage3_detail?: { value?: { expected_out_sha256?: { value?: unknown } } } }> };
     for (const entry of report.knownGood) {
       if (entry.match) continue;
       if ((entry as { informational?: boolean }).informational === true) {
         expect(typeof (entry as { note?: unknown }).note, `${entry.case} ${entry.run} informational row carries a note`).toBe("string");
+        continue;
+      }
+      // Superseded pre-repin placeholder (tsk_68c071233175cae2 run A):
+      // the card's re-pin protocol records the placeholder expectation at
+      // run time and re-derives the pin from the run's actual. The row is
+      // allowed only when the live case-inputs pin for that case/stage
+      // equals this run's actual — the re-pin really came from run A.
+      if (
+        entry.stage === 3 &&
+        entry.name === "albedo_detail.png" &&
+        /^0{64}$/.test(entry.expected) &&
+        entry.expectedSource.includes("placeholder")
+      ) {
+        const livePin = liveInputs.cases[entry.case]?.stage3_detail?.value?.expected_out_sha256?.value;
+        expect(livePin, `${entry.case} ${entry.run} placeholder row was re-pinned from its actual`).toBe(entry.actual);
         continue;
       }
       if (entry.stage !== 4) {
@@ -366,15 +385,21 @@ describe("the face station runs seven stages from a case", () => {
         for (const stage of runDoc.stages!) {
           expect(typeof stage.wallSeconds).toBe("number");
           if (stage.gate.pass) continue;
-          // A failing stage must route somewhere: a non-empty blocked_by
-          // or check reason naming a file — never a hard-coded expectation
-          // of which stages fail.
+          // A failing stage must route somewhere: a non-empty blocked_by,
+          // a check reason naming a file, or the gate's own known-good
+          // source (a pinned expectation that names its source file) —
+          // never a hard-coded expectation of which stages fail.
           const routed: string[] = [];
           if (typeof stage.blockReason === "string" && stage.blockReason.length > 0) {
             routed.push(stage.blockReason);
           }
           if (typeof stage.blocked_by === "string" && stage.blocked_by.length > 0) {
             routed.push(stage.blocked_by);
+          }
+          const knownGoodSource = (stage.gate as { knownGood?: { expectedSource?: unknown } }).knownGood
+            ?.expectedSource;
+          if (typeof knownGoodSource === "string" && knownGoodSource.length > 0) {
+            routed.push(knownGoodSource);
           }
           const checks = (stage.extra as { checks?: Record<string, { blocked_by?: unknown; reason?: unknown }> } | undefined)?.checks ?? {};
           for (const result of Object.values(checks)) {

@@ -412,7 +412,13 @@ export function runStage3(
   };
   rec.wallSeconds = (Date.now() - t0) / 1000;
   rec.extra = {
-    executedChainStages: replayed.executedChainStages,
+    // The station executes every manifest stage in manifest order: the
+    // replay ran the unskipped ones, the standalone sub-stages chained the
+    // skipped ones in position. replayExecutedChainStages is the replay's
+    // own list (manifest minus skips); executedChainStages is the
+    // station-level list (every manifest stage).
+    executedChainStages: plan.ordered.map((stage) => stage.name),
+    replayExecutedChainStages: replayed.executedChainStages,
     manifestSha256: replayed.manifestSha256,
     manifestPlan: plan,
     socketExpected,

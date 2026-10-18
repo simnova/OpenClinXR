@@ -235,8 +235,8 @@
      "source": "detail_bands.py standalone argv mirrors replay.py run_stage detail_bands (tsk_68c071233175cae2); gains from the chain manifest subject overrides",
      "value": {
       "expected_out_sha256": {
-       "value": "0000000000000000000000000000000000000000000000000000000000000000",
-       "source": "placeholder: re-pinned from run A (this card); see detail-bands-report.json"
+       "value": "c56e7ae6a134a8af39d3d1efd71c295b2cbcda165bfa59c86233c4f0cb86858d",
+       "source": "face-station-cases/aisha/run3/albedo_detail.png (tsk_68c071233175cae2 run A; first pin for the manifest-position standalone detail)"
       }
      }
     },
@@ -253,10 +253,10 @@
      "value": "lid-conform/aisha-lidconform.glb",
      "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.newGlb.path"
     },
-    "sha256": {
-     "value": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
-     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/conform-report.json:bake.newGlb.sha256"
-     }
+       "sha256": {
+        "value": "28f9bec5d94f3b1c15eb460219c0021ec45f100fdd42672ce23b2fec2b111c32",
+        "source": "face-station-cases/aisha/run3/aisha-lidconform.glb (tsk_68c071233175cae2 run A; post-browform bake bytes)"
+       }
     },
     "fit_bake": {
      "value": false,
@@ -473,9 +473,9 @@
        "value": 4.079,
        "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:stages[beard_shadow].parameters.texels_per_mm and beard-shadow-report.json:texels_per_mm.value"
       },
-      "expected_out_sha256": {
-       "value": "973b4c16c7267abede71a4a87e1c9c08d7dd220b6e3dba1c1fe83168476e76db",
-       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/aisha-real-chain-report.json:G4_polygon_sweep.w09_albedo_regenerated_sha256 (mask_px 227668 == beard-shadow-report.json:mask.mask_px)"
+       "expected_out_sha256": {
+        "value": "8652e33f9078a3c2b262799b58231d4f523046a43463b9a9bd86db906ab2b905",
+        "source": "face-station-cases/body2/run6/albedo_beard.png (tsk_68c071233175cae2 run A); supersedes the G4 w09 pin 973b4c16 (beard_shadow.py split-mask/lip-hug evolution changed standalone bytes on identical inputs; derive masks identical run3==run6, socket pin holds)"
        }
       }
      },
@@ -483,21 +483,21 @@
      "source": "detail_bands.py standalone argv mirrors replay.py run_stage detail_bands (tsk_68c071233175cae2); gains from the chain manifest subject overrides",
      "value": {
       "expected_out_sha256": {
-       "value": "0000000000000000000000000000000000000000000000000000000000000000",
-       "source": "placeholder: re-pinned from run A (this card); see detail-bands-report.json"
+       "value": "c2afabdfa430476ee6924db1596cd42f8055d5e62cced22f912747f22f94c3a5",
+       "source": "face-station-cases/body2/run6/albedo_detail.png (tsk_68c071233175cae2 run A; first pin for the manifest-position standalone detail)"
       }
      }
     },
-   "stage3_glb": {
-    "assets": {
-     "source": "copied from S/body2/final.glb (sha verified after copy); named by tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.glb_sha256 and tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:subjects.adult_male_street_casual.glb_sha256",
-     "value": "face-station-cases/body2/final.glb"
+    "stage3_glb": {
+     "assets": {
+      "source": "copied from S/body2/final.glb (sha verified after copy); named by tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.glb_sha256 and tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:subjects.adult_male_street_casual.glb_sha256",
+      "value": "face-station-cases/body2/final.glb"
+     },
+     "sha256": {
+      "source": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.glb_sha256",
+      "value": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437"
+     }
     },
-    "sha256": {
-     "source": "tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.glb_sha256",
-     "value": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437"
-    }
-   },
     "stage3_skip_stages": {
      "source": "apply_occ matches no chain stage name, so occlusion RAN (per tools/openclinxr/evidence/second-subject/second-subject-r2-report.json:stages.3_replay_albedo.inputs.skip_stages); beard_shadow and detail_bands skipped in the replay so they run as their own subprocesses in manifest position (tsk_68c071233175cae2)",
      "value": [
@@ -519,10 +519,10 @@
        "value": "lid-conform-any/r2-canthus/body2-lidconform.glb",
        "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.path (re-pinned tsk_b85fc19dac1bc8cc post-canthus)"
       },
-      "sha256": {
-       "value": "c3bdb636feefa611e1803548330fceeba3016e300f1154ddac6cb45100aa7382",
-       "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/any-subject-report.json:bake.newGlb.sha256 (re-pinned tsk_b85fc19dac1bc8cc; pre-fix ab2765e4… in supersededPreCanthus)"
-      }
+       "sha256": {
+        "value": "50f2d7081c5aabe81ac4668a0ac40885b1ac8ea126d193bcc0b8270624a25666",
+        "source": "face-station-cases/body2/run6/body2-lidconform.glb (tsk_68c071233175cae2 run A; post-browform bake bytes)"
+       }
      },
     "stage4_position_known_good": {
      "source": "post-canthus bake record: tools/openclinxr/evidence/second-subject/second-subject-r3-report.json:body2.runs.r3-run1.stages[3] (fresh bakes equal it per rechain-report.json:G5)",
