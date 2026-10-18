@@ -285,8 +285,12 @@
  "pre": {
   "render_body2": {
    "H": 755.8,
-   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-14a-front.png",
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post12/wrinkle-body2-pre-r3-front.png",
    "sha256": "7be7cda9145ded59404e57793866b6ee0b62d65ab1ba8668d9f464626413cd61",
+   "glb": {
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run3/body2-lidconform.glb",
+    "sha256": "bdb051938777cde567825a8e7b5e993d3ea1f84b442c0d7903828c4f096ce83b"
+   },
    "sigmas_px": {
     "crease": [
      1.758,
@@ -325,6 +329,10 @@
    "H": 739.82,
    "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-aisha-14-front.png",
    "sha256": "fd54c967bc75fab42ee419f297d60eb574803e3d77db77c65b128b94282a5343",
+   "glb": {
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+    "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
+   },
    "sigmas_px": {
     "crease": [
      1.721,
@@ -363,6 +371,7 @@
    "H": 647.0,
    "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/body2/goal-front.png",
    "sha256": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97",
+   "glb": null,
    "sigmas_px": {
     "crease": [
      1.505,
@@ -401,6 +410,7 @@
    "H": 516.88,
    "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/project/edit-v9/edit-0.png",
    "sha256": "534c0468b2d80a0bb0380cd9689b11e70f527322c38069909f100311bcbebfbf",
+   "glb": null,
    "sigmas_px": {
     "crease": [
      1.202,
@@ -926,7 +936,7 @@
      "region": "forehead",
      "band": "crease",
      "pre_ratio": 0.819,
-     "post_ratio": 1.1033,
+     "post_ratio": 1.0922,
      "midpoint": 0.9095,
      "toward_goal": true,
      "closer_log": true,
@@ -940,7 +950,7 @@
      "region": "forehead",
      "band": "pore",
      "pre_ratio": 0.3204,
-     "post_ratio": 0.7161,
+     "post_ratio": 0.7127,
      "midpoint": 0.6602,
      "toward_goal": true,
      "closer_log": true,
@@ -954,7 +964,7 @@
      "region": "nasolabial",
      "band": "crease",
      "pre_ratio": 1.447,
-     "post_ratio": 0.9985,
+     "post_ratio": 0.9971,
      "midpoint": 1.2235,
      "toward_goal": true,
      "closer_log": true,
@@ -968,7 +978,7 @@
      "region": "nasolabial",
      "band": "pore",
      "pre_ratio": 1.045,
-     "post_ratio": 1.1189,
+     "post_ratio": 1.1206,
      "midpoint": 1.0225,
      "toward_goal": false,
      "closer_log": false,
@@ -1763,7 +1773,9 @@
     "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_body2_nasolabial_pre-post-goal.png",
     "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_aisha_forehead_pre-post-goal.png",
     "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_aisha_nasolabial_pre-post-goal.png",
-    "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_body2_mouth_pre-post-goal.png"
+    "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_body2_mouth_pre-post-goal.png",
+    "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_body2_fullface_pre-post-goal.png",
+    "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/sheet_aisha_fullface_pre-post-goal.png"
    ],
    "method": "native room-rig pixels, no upscaling or resampling; padded (not scaled) to common height per strip",
    "worker_grade": "forehead: pores visible both subjects, no plastic smoothing, no tiling; fold lines geometrically intact (expected: mesh geometry). nasolabial: fold unchanged (geometry, routed).",
@@ -1775,7 +1787,7 @@
     {
      "subject": "body2",
      "pre": 3.187,
-     "post": 3.751,
+     "post": 3.765,
      "goal": -3.547
     },
     {
@@ -1789,20 +1801,36 @@
  },
  "renders": [
   {
-   "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-body2-14a-front.png",
-   "sha256": "7be7cda9145ded59404e57793866b6ee0b62d65ab1ba8668d9f464626413cd61"
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post12/wrinkle-body2-pre-r3-front.png",
+   "sha256": "7be7cda9145ded59404e57793866b6ee0b62d65ab1ba8668d9f464626413cd61",
+   "glb": {
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run3/body2-lidconform.glb",
+    "sha256": "bdb051938777cde567825a8e7b5e993d3ea1f84b442c0d7903828c4f096ce83b"
+   }
   },
   {
    "path": "/Volumes/files/openclinxr-assets/store/skin-ior-room/skinior-aisha-14-front.png",
-   "sha256": "fd54c967bc75fab42ee419f297d60eb574803e3d77db77c65b128b94282a5343"
+   "sha256": "fd54c967bc75fab42ee419f297d60eb574803e3d77db77c65b128b94282a5343",
+   "glb": {
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+    "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
+   }
   },
   {
-   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post11/wrinkle-body2-post11-front.png",
-   "sha256": "383e31c36a1bbdfcc3d5a743f029bcc671d8c836b1677d9d7278008fb1bce335"
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post12/wrinkle-body2-post11-r3-front.png",
+   "sha256": "90ef46cf467d6ac0f92ff3e1b581edb4ae5732bfb2a42299d50dfe529206e74a",
+   "glb": {
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run3/body2-lidconform.glb",
+    "sha256": "bdb051938777cde567825a8e7b5e993d3ea1f84b442c0d7903828c4f096ce83b"
+   }
   },
   {
    "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post10/wrinkle-aisha-post10-front.png",
-   "sha256": "b020e6cfdd75deca60cc2fff8af77d75d3c42429693d6003a07f5b33c73d075c"
+   "sha256": "b020e6cfdd75deca60cc2fff8af77d75d3c42429693d6003a07f5b33c73d075c",
+   "glb": {
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+    "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
+   }
   },
   {
    "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/albedo_detail_body2_post11.png",
@@ -1815,32 +1843,40 @@
  ],
  "post": {
   "body2": {
-   "H": 755.43,
-   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post11/wrinkle-body2-post11-front.png",
-   "sha256": "383e31c36a1bbdfcc3d5a743f029bcc671d8c836b1677d9d7278008fb1bce335",
+   "H": 758.94,
+   "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post12/wrinkle-body2-post11-r3-front.png",
+   "sha256": "90ef46cf467d6ac0f92ff3e1b581edb4ae5732bfb2a42299d50dfe529206e74a",
+   "glb": {
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run3/body2-lidconform.glb",
+    "sha256": "bdb051938777cde567825a8e7b5e993d3ea1f84b442c0d7903828c4f096ce83b"
+   },
    "bands": {
     "forehead": {
-     "crease": 0.01987,
-     "pore": 0.05075,
-     "n": 12065
+     "crease": 0.01967,
+     "pore": 0.05051,
+     "n": 12208
     },
     "nasolabial": {
-     "crease": 0.0581,
-     "pore": 0.13614,
-     "n": 3786
+     "crease": 0.05802,
+     "pore": 0.13634,
+     "n": 3870
     }
    },
    "forehead_bbox": [
-    488,
-    518,
+    487,
+    516,
     800,
-    573
+    572
    ]
   },
   "aisha": {
    "H": 741.87,
    "path": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/post10/wrinkle-aisha-post10-front.png",
    "sha256": "b020e6cfdd75deca60cc2fff8af77d75d3c42429693d6003a07f5b33c73d075c",
+   "glb": {
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+    "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
+   },
    "bands": {
     "forehead": {
      "crease": 0.01033,
