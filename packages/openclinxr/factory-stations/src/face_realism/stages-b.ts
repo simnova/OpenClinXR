@@ -40,7 +40,30 @@ import {
   type StageRecord,
 } from "./shared.js";
 
-export function runStage4(caseRec: Record<string, unknown>, outDir: string): StageRecord {
+/**
+ * Default stage-4 output stem for a case that pins no `stage4_known_good`.
+ *
+ * The materializer's #377 guard keys the anatomical eye target by output GLB
+ * stem (EYE_DIAMETER_TARGET_MM). The old shared default `stage4-lidconform`
+ * is keyed for nobody, so such a bake refuses mid-run — and registering it
+ * would be worse: one entry would size every unknown case alike, seating a
+ * child's globe in an adult socket. So the default is derived from the bake's
+ * own case (else the --reference / --eye-colour-reference subject), matching
+ * the `<case>-eyeglobe-base` ring-source naming the pre-conform base bake
+ * already uses (tsk_083b92e9c7ca5d7b).
+ */
+export function stage4OutputStem(caseRec: Record<string, unknown>, caseId?: string): string {
+  const argv = caseValue<string[]>(caseRec, "materializer_argv");
+  const tokenAfter = (flag: string): string => {
+    const i = argv.indexOf(flag);
+    return i >= 0 && typeof argv[i + 1] === "string" ? argv[i + 1]! : "";
+  };
+  const subject = tokenAfter("--reference") || tokenAfter("--eye-colour-reference");
+  const base = caseId || subject || "stage4";
+  return `${base.replace(/[^A-Za-z0-9._-]+/g, "_")}-lidconform`;
+}
+
+export function runStage4(caseRec: Record<string, unknown>, outDir: string, caseId?: string): StageRecord {
   const rec = emptyStageRecord(4, "lid_conform_bake");
   const t0 = Date.now();
   const ringEntry = caseRec["lid_ring_source"] as Record<string, unknown>;
@@ -96,7 +119,7 @@ export function runStage4(caseRec: Record<string, unknown>, outDir: string): Sta
   const targetsAbs = path.join(repoRoot(), FIT_DIR_REL, "any-subject-targets.json");
   const outGlb = path.join(
     outDir,
-    knownRel !== null ? path.basename(knownRel) : "stage4-lidconform.glb",
+    knownRel !== null ? path.basename(knownRel) : `${stage4OutputStem(caseRec, caseId)}.glb`,
   );
   const argv = [...resolvedArgv];
   if (partition !== null && partition.applied.length > 0) {

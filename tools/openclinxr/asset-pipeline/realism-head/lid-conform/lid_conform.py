@@ -61,14 +61,34 @@ import lid_conform_core as core  # noqa: E402
 
 # Store roots holding each case's own pre-conform eyeglobe base bake
 # (bit-identical body to the conformed bake's pre-conform body; sha256
-# pinned in the conform record). Built per case id -- no stem literal.
+# pinned in the conform record). Keyed per case id -- no stem literal.
 _LID_STORE = "/Volumes/files/openclinxr-assets/store/lid-conform"
 _LID_ANY_STORE = "/Volumes/files/openclinxr-assets/store/lid-conform-any"
+# The pediatric case's own store (childlid tsk_083b92e9c7ca5d7b): the child
+# is neither the aisha adult nor an any-subject adult, so it gets its own
+# root rather than sharing either adult's base bake.
+_LID_CHILD_STORE = "/Volumes/files/openclinxr-assets/store/lid-conform-child"
+
+_LID_STORE_BY_CASE_ID = {
+    "aisha": _LID_STORE,
+    "body2": _LID_ANY_STORE,
+    "peds_asthma_parent_anxiety_v1": _LID_CHILD_STORE,
+}
 
 
 def base_glb_for_case(case_id):
-    """Ring-source GLB for a case: the subject's own pre-conform bake."""
-    store = _LID_STORE if case_id == "aisha" else _LID_ANY_STORE
+    """Ring-source GLB for a case: the subject's own pre-conform bake.
+
+    A case with no registered store refuses instead of silently defaulting
+    to another subject's base bake (the base body is the ring geometry, so
+    a wrong store is a wrong ring).
+    """
+    store = _LID_STORE_BY_CASE_ID.get(case_id)
+    if store is None:
+        raise RuntimeError(
+            f"LIDCONFORM: no ring-source store for case {case_id!r} -- "
+            f"refusing (known: {sorted(_LID_STORE_BY_CASE_ID)})"
+        )
     return f"{store}/{case_id}-eyeglobe-base.glb"
 
 

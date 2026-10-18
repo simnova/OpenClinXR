@@ -169,7 +169,7 @@ export function runFaceRealism(input: unknown): Record<string, unknown> {
   stages.push(runStage(() => runStage1(caseId, caseRec, recordPath, outDir)));
   stages.push(runStage(() => runStage2(caseRec, outDir)));
   stages.push(runStage(() => runStage3(caseRec, recordChainManifest, outDir).record));
-  stages.push(runStage(() => runStage4(caseRec, outDir)));
+  stages.push(runStage(() => runStage4(caseRec, outDir, caseId)));
   stages.push(runStage(() => runStage5(caseRec, outDir)));
   stages.push(runStage(() => runStage6(caseRec, outDir)));
   const stage4 = stages.find((stage) => stage.stage === 4);

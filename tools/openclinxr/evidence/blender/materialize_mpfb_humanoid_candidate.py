@@ -137,6 +137,11 @@ def mesh_prefix_for_subject(subject_id, eye_colour_reference):
 LID_CONFORM_CASE_BY_SUBJECT_ID = {
     "ob_patient_aisha": "aisha",
     "adult_male_street_casual": "body2",
+    # childlid tsk_083b92e9c7ca5d7b: the pediatric patient of the asthma case
+    # (peds_patient_child, phenotype age 8) conforms against its own base
+    # bake in its own store; the case id is the reference-set case id so the
+    # config row and the ring-source path agree.
+    "peds_patient_child": "peds_asthma_parent_anxiety_v1",
 }
 
 
@@ -2329,6 +2334,17 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        "--verify-eye-stem",
+        default=None,
+        help=(
+            "#377 witness: resolve the anatomical eye target for an output "
+            "stem through the bake's OWN guard (_eye_target_for_output_stem) "
+            "and print EYE_STEM_OK before any bake work. An unregistered stem "
+            "raises #377 here exactly as it does mid-bake, so a test can prove "
+            "the refusal without running a bake."
+        ),
+    )
+    parser.add_argument(
         "--skin-recipe-id",
         default=None,
         help="Explicit factory skin recipe. Omit to keep the legacy seated-rest replay.",
@@ -2654,15 +2670,31 @@ def install_visemes02_targets():
 # the gaze pivot stays at the new centre (the runtime gaze drive rotates about
 # the bone's own position, gaze-drives-eyes.ts).
 # ---------------------------------------------------------------------------
+# Rauscher 2021 (Ophthalmic Physiol Opt, doi 10.1111/opo.12814) axial length
+# table: age 4 = 22.2 mm .. age 17 = 23.9 mm. The pediatric patient's
+# phenotype declares age 8 (packages/openclinxr/scenario-fixtures/generated/
+# actor-phenotype.v1.json:
+# entries.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.phenotype.age),
+# so the child target INTERPOLATES that table instead of assuming a
+# school-age value: 22.2 + (8 - 4) / (17 - 4) * (23.9 - 22.2) = 22.723 mm.
+CHILD_AXIAL_LENGTH_MM = round(22.2 + (8 - 4) / (17 - 4) * (23.9 - 22.2), 3)
+
 EYE_DIAMETER_TARGET_MM = {
     # Ocular axial length, sourced external anatomy (~24 mm adult; Rauscher 2021:
-    # 4y = 22.2 mm .. 17y = 23.9 mm). The child's target assumes the school-age
-    # patient the peds_patient_child phenotype declares (height_cm 125,
-    # gender_presentation child) — consistent with the 22.5 mm assumption.
+    # 4y = 22.2 mm .. 17y = 23.9 mm).
     "mpfb-ob-patient-aisha": 24.0,
     "mpfb-peds-parent-aisha": 24.0,  # #388: same adult-female body as aisha
     "mpfb-peds-nurse-kevin": 24.0,
-    "mpfb-peds-patient-child": 22.5,
+    "mpfb-peds-patient-child": CHILD_AXIAL_LENGTH_MM,
+    # tsk_083b92e9c7ca5d7b: the face station's stage-4 output stem for a case
+    # with no stage4_known_good is derived from the case id
+    # (stages-b.ts stage4OutputStem -> '<case>-lidconform'), matching the
+    # '<case>-eyeglobe-base' naming of the case's own pre-conform base bake.
+    # The shared 'stage4-lidconform' key is deliberately NOT registered: one
+    # key sized for every unknown case would size an adult wrong (a child's
+    # 22.723 mm globe in an adult socket).
+    "peds_asthma_parent_anxiety_v1-eyeglobe-base": CHILD_AXIAL_LENGTH_MM,
+    "peds_asthma_parent_anxiety_v1-lidconform": CHILD_AXIAL_LENGTH_MM,
     # #403 — the two ED adults are adult-female; adult axial length applies.
     "mpfb-clinical-nurse-adult": 24.0,
     # 2026-08-14 medical wardrobe — the physician is the same adult-female body as
@@ -5680,6 +5712,22 @@ def replay_seated_rest_bind(actor_glb, skin_recipe_id=None, skin_job_root=None, 
     print(f"SEATED_REST_BIND_OK output={output_glb}")
 
 
+def _eye_target_for_output_stem(stem):
+    """#377 anatomical eye target for an output GLB stem, or a loud refusal.
+
+    Single source of truth for the guard: the bake calls this mid-run and
+    --verify-eye-stem calls it standalone, so a test can prove that an
+    unregistered stem refuses BEFORE any bake work.
+    """
+    target = EYE_DIAMETER_TARGET_MM.get(stem)
+    if target is None:
+        raise RuntimeError(
+            f"#377: no anatomical eye target for actor stem {stem!r} — "
+            f"add it to EYE_DIAMETER_TARGET_MM ({sorted(EYE_DIAMETER_TARGET_MM)}) before baking a new actor"
+        )
+    return {"stem": stem, "targetDiameterMm": target}
+
+
 def main():
     args = parse_args()
     if args.skin_recipe_id or args.skin_job_root or args.skin_attempt_dir:
@@ -5714,6 +5762,10 @@ def main():
     _BAKE_DEVICE = args.bake_device
     if args.print_bake_device:
         print(f"BAKE_DEVICE={_resolve_cycles_bake_device()}")
+        return
+    if args.verify_eye_stem is not None:
+        print("EYE_STEM_OK " + json.dumps(
+            _eye_target_for_output_stem(args.verify_eye_stem)))
         return
     # #687 — D13: a bake must say who it is baking. The naming identity comes from
     # --reference (measured-reference path) or --eye-colour-reference (the manifest-id
@@ -6283,12 +6335,8 @@ def main():
     # (see resize_eyes_to_anatomy). Runs BEFORE the socket-footprint measurement
     # below so the scalp unpaint, forehead plane and hairline all use the FINAL
     # eye geometry — the eye area is unpainted where the shipped eye actually sits.
-    _eye_target_mm = EYE_DIAMETER_TARGET_MM.get(pathlib.Path(args.output).stem)
-    if _eye_target_mm is None:
-        raise RuntimeError(
-            f"#377: no anatomical eye target for actor stem {pathlib.Path(args.output).stem!r} — "
-            f"add it to EYE_DIAMETER_TARGET_MM ({sorted(EYE_DIAMETER_TARGET_MM)}) before baking a new actor"
-        )
+    _eye_target_mm = _eye_target_for_output_stem(
+        pathlib.Path(args.output).stem)["targetDiameterMm"]
     _eye_armature = next((o for o in bpy.context.scene.objects if o.type == "ARMATURE"), None)
     # Eyeglobe fit (tsk_55d4f55390439822): per-stem globe scale + forward seat
     # behind --eye-asset high-poly; absent stem = identity (byte-stable).
