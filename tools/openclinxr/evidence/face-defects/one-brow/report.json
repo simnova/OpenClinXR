@@ -1,0 +1,730 @@
+{
+ "albedoFillEvidence": {
+  "aisha": {
+   "albedo": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/albedo_detail_aisha_post10.png",
+   "ringL": [
+    176.4,
+    174.9
+   ],
+   "underL": [
+    160.9,
+    157.4
+   ]
+  },
+  "body2": {
+   "albedo": "/Volumes/files/openclinxr-assets/store/skin-wrinkle-scale/albedo_detail_body2_post10.png",
+   "ringL": [
+    157.3,
+    158.2
+   ],
+   "underL": [
+    143.9,
+    149.0
+   ]
+  },
+  "method": "scratch/fill_brow.py: out = albedo*(1-a) + ringMean*a, ring = dilate(mask,8px) minus mask",
+  "scratchAlbedos": [
+   "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/st-onebrow/scratch/albedo-meshonly-aisha.png",
+   "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/st-onebrow/scratch/albedo-meshonly-body2.png"
+  ]
+ },
+ "candidateRoutes": {
+  "A_wins_would_be": "brow-form field per case in packages/openclinxr/factory-stations/src/face_realism/case-inputs.json; station passes it to the materializer; gate the eyebrow fit at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:6755 (`if _eyebrow_style:`); rebake aisha+body2 via run-case.ts. NOT DONE (split).",
+  "M_wins_would_be": "clear the painted brow in the skin albedo stage (skin-lane code, untouched): the brow is present in the chain base albedo face-station-cases/<subject>/inputs/compose-base-albedo.png and survives face_replay_compose.compose() (tools/openclinxr/asset-pipeline/skin/face-replay/face_replay_compose.py:958 `base = load_rgb(...)` -> stage3-compose-out.png, saved at :1156); the change would be a brows keep-out beside zero_interiors (:442) using the already-loaded brows masks (chain-manifest.json:36-37, replay.py:137-138). NOT DONE (split, and skin edits are out of scope)."
+ },
+ "card": "tsk_6f4a446db8bf5164",
+ "decision": "split",
+ "decisionNote": "subjects disagree: aisha favours M (mesh brow alone, D 2.4088 < A 3.6632) and body2 favours A (albedo brow alone, D 5.2595 < M 6.1004). Per the card, no brow ships; no STEP 3 edit; STEP 4 gates do not run. Numbers below.",
+ "gates": {
+  "G1": "not-applicable (no POST render; PRE renders list the eyebrow mesh in materialInventory as shipped)",
+  "G2": "not-applicable (no POST clauses to compare; no skin bytes changed)",
+  "G3": "not-applicable (child materializer run is an A-wins-path step)",
+  "G4": "not-applicable as an A-wins gate (no POST); evidence sheets A|M|PRE|goal produced for the grade (see sheets); no POST column exists",
+  "G5": "not-applicable (no rebake)",
+  "reason": "subject split: STEP 4 gates are the A-wins path and there is no POST to gate; no rebake was run; no G5 run1==run2 exists",
+  "status": "not-run"
+ },
+ "isolation": {
+  "A": "eyebrow mesh hidden via variant materialOverride {match: eyebrow, hide: true}; landed readback hidden=true in each A capture",
+  "M": "painted brow removed from the albedo under that subject's derive mask-brows-L/R, filled with the mean of the mask's 8px dilation ring (scratch/fill_brow.py; scratch input only, never shipped)",
+  "PRE": "as shipped: station GLB + post10 skinOverride, no overrides",
+  "glbNote": "all six renders use the station GLBs at the post10-recorded shas (aisha 0fbaf4c6, body2 643563fc), passed via --glb; an earlier pass that omitted --glb rendered the default shipped aisha GLB and was discarded and re-rendered"
+ },
+ "materializer": {
+  "gate": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:6755",
+  "touched": false
+ },
+ "notTested": [
+  "three-quarter/profile views",
+  "reduced-budget mesh",
+  "child case",
+  "run-to-run render repeatability"
+ ],
+ "sheets": {
+  "aisha": {
+   "layout": "columns left-to-right A | M | PRE at 1280 native + goal at 1024 native centered on a 1024-wide #18211d column; 4864x1280",
+   "png": "/Volumes/files/openclinxr-assets/store/one-brow/sheets/sheet-aisha.png",
+   "sha256": "a9aaab492d65269ae7a6a6cb167d5cec329af803997d0ad84286acc10c6d24aa"
+  },
+  "body2": {
+   "layout": "columns left-to-right A | M | PRE at 1280 native + goal at 1024 native centered on a 1024-wide #18211d column; 4864x1280",
+   "png": "/Volumes/files/openclinxr-assets/store/one-brow/sheets/sheet-body2.png",
+   "sha256": "42d489149ffbc9fe129f93f5ab3fe21432b26476a6ca4cabc4643cd606383b42"
+  }
+ },
+ "subjects": {
+  "aisha": {
+   "distances": {
+    "A": 3.6632,
+    "M": 2.4088,
+    "PRE": 3.4906
+   },
+   "goal": {
+    "png": "/Volumes/files/openclinxr-assets/store/one-brow/goal-aisha.png",
+    "sha256": "534c0468b2d80a0bb0380cd9689b11e70f527322c38069909f100311bcbebfbf"
+   },
+   "measurements": {
+    "A": {
+     "detected": true,
+     "distance": {
+      "D": 3.6632,
+      "colour": 2.2652,
+      "pos": 0.674,
+      "thick": 0.724
+     },
+     "foreheadC": 14.09,
+     "foreheadL": 86.33,
+     "mean": {
+      "dC": 15.6755,
+      "dL": -40.939,
+      "pos": 0.4595,
+      "thick": 0.3484
+     },
+     "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/st-onebrow/render/onealb-aisha-front.png",
+     "sides": {
+      "L": {
+       "boxPx": [
+        363,
+        558,
+        595,
+        659
+       ],
+       "dC": 16.428,
+       "dL": -39.457,
+       "eyeWidth": 120.63,
+       "n": 5771,
+       "pos": 0.4553,
+       "thick": 0.3628
+      },
+      "R": {
+       "boxPx": [
+        689,
+        556,
+        923,
+        659
+       ],
+       "dC": 14.923,
+       "dL": -42.421,
+       "eyeWidth": 122.14,
+       "n": 5381,
+       "pos": 0.4636,
+       "thick": 0.334
+      }
+     }
+    },
+    "M": {
+     "detected": true,
+     "distance": {
+      "D": 2.4088,
+      "colour": 1.5978,
+      "pos": 0.128,
+      "thick": 0.683
+     },
+     "foreheadC": 14.51,
+     "foreheadL": 85.99,
+     "mean": {
+      "dC": 2.749,
+      "dL": -29.4705,
+      "pos": 0.3793,
+      "thick": 0.2077
+     },
+     "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/st-onebrow/render/onemesh-aisha-front.png",
+     "sides": {
+      "L": {
+       "boxPx": [
+        363,
+        567,
+        595,
+        666
+       ],
+       "dC": 2.541,
+       "dL": -29.166,
+       "eyeWidth": 120.58,
+       "n": 1286,
+       "pos": 0.364,
+       "thick": 0.2246
+      },
+      "R": {
+       "boxPx": [
+        692,
+        563,
+        924,
+        663
+       ],
+       "dC": 2.957,
+       "dL": -29.775,
+       "eyeWidth": 120.29,
+       "n": 1227,
+       "pos": 0.3946,
+       "thick": 0.1908
+      }
+     }
+    },
+    "PRE": {
+     "detected": true,
+     "distance": {
+      "D": 3.4906,
+      "colour": 1.9056,
+      "pos": 0.565,
+      "thick": 1.02
+     },
+     "foreheadC": 14.11,
+     "foreheadL": 86.28,
+     "mean": {
+      "dC": 12.952,
+      "dL": -40.067,
+      "pos": 0.4486,
+      "thick": 0.378
+     },
+     "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/st-onebrow/render/onepre-aisha-front.png",
+     "sides": {
+      "L": {
+       "boxPx": [
+        362,
+        559,
+        596,
+        661
+       ],
+       "dC": 13.461,
+       "dL": -39.129,
+       "eyeWidth": 122.05,
+       "n": 6169,
+       "pos": 0.4422,
+       "thick": 0.3941
+      },
+      "R": {
+       "boxPx": [
+        690,
+        557,
+        925,
+        659
+       ],
+       "dC": 12.443,
+       "dL": -41.005,
+       "eyeWidth": 121.63,
+       "n": 5662,
+       "pos": 0.455,
+       "thick": 0.3619
+      }
+     }
+    },
+    "formula": {
+     "D": "|pos-gpos|/0.10 + |thick-gthick|/0.10 + (|dL-gdL|+|dC-gdC|)/10.0",
+     "K_CON": 8.0,
+     "browBox": "brow-landmark x +/-18% eye width; y top=min brow y -0.55 eye widths; y bottom=upper-lid apex"
+    },
+    "goal": {
+     "detected": true,
+     "foreheadC": 18.59,
+     "foreheadL": 68.82,
+     "mean": {
+      "dC": -4.3685,
+      "dL": -38.331,
+      "pos": 0.3921,
+      "thick": 0.276
+     },
+     "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/project/edit-v9/edit-0.png",
+     "sides": {
+      "L": {
+       "boxPx": [
+        316,
+        421,
+        481,
+        490
+       ],
+       "dC": -5.271,
+       "dL": -39.079,
+       "eyeWidth": 83.96,
+       "n": 2300,
+       "pos": 0.391,
+       "thick": 0.2681
+      },
+      "R": {
+       "boxPx": [
+        545,
+        421,
+        712,
+        492
+       ],
+       "dC": -3.466,
+       "dL": -37.583,
+       "eyeWidth": 84.76,
+       "n": 2282,
+       "pos": 0.3931,
+       "thick": 0.2839
+      }
+     }
+    },
+    "instrument": "tools/openclinxr/evidence/face-defects/one-brow/measure_brow.py",
+    "landmarkModel": "tools/openclinxr/evidence/face-gate/landmark-model.json"
+   },
+   "overlays": {
+    "A": {
+     "png": "/Volumes/files/openclinxr-assets/store/one-brow/overlays/aisha-A.overlay.png",
+     "sha256": "1f27962553c79ed92e5af52bfac609b1ba0240336e774cade3fd453a33641a59"
+    },
+    "M": {
+     "png": "/Volumes/files/openclinxr-assets/store/one-brow/overlays/aisha-M.overlay.png",
+     "sha256": "04cd34bdf3883f2bd07a3e5fa3f48bb8ec3c7472d94bb3ac94687e0b65bcfb23"
+    },
+    "PRE": {
+     "png": "/Volumes/files/openclinxr-assets/store/one-brow/overlays/aisha-PRE.overlay.png",
+     "sha256": "3ece47735a02dbfa38ced1f782d9e116b697a2a58befb1f53569e272e791d2d4"
+    },
+    "goal": {
+     "png": "/Volumes/files/openclinxr-assets/store/one-brow/overlays/aisha-goal.overlay.png",
+     "sha256": "be974dff1d847dd5ed99bf83dc0ab7d21028a16e77248467bb813421314bd7b0"
+    }
+   },
+   "renders": {
+    "A": {
+     "capture": "/Volumes/files/openclinxr-assets/store/one-brow/renders/onealb-aisha.json",
+     "glb": {
+      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+      "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
+     },
+     "landedChecks": [
+      "roughness readback=1 want=1",
+      "hasNormalMap=true",
+      "normalScale applied=0.5",
+      "matOverride[eyebrow] matched=openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh|openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+      "matOverride[eyebrow] readback ok x1",
+      "toneMapping=4 want=4 (ACESFilmic)",
+      "exposure=0.9 want=0.9",
+      "rigApplied=true",
+      "rigRoles=hemisphere,key,key,fill,wash_px,wash_nx,wash_py,wash_ny,spill"
+     ],
+     "materialInventoryEyebrowMeshes": [
+      "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh"
+     ],
+     "materialOverridesApplied": [
+      {
+       "match": "eyebrow",
+       "matched": [
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh|openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat"
+       ],
+       "readback": [
+        {
+         "clearcoat": null,
+         "clearcoatRoughness": null,
+         "color": "#65554b",
+         "emissive": "#000000",
+         "emissiveIntensity": 1,
+         "envMapIntensity": 1,
+         "eyeShade": false,
+         "hasBaseColorMap": false,
+         "hidden": true,
+         "ior": null,
+         "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mat",
+         "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+         "metalness": 0,
+         "roughness": 0.8999999761581421,
+         "skinShade": false,
+         "skinShadeCurvature": false,
+         "type": "MeshStandardMaterial"
+        }
+       ]
+      }
+     ],
+     "png": "/Volumes/files/openclinxr-assets/store/one-brow/renders/onealb-aisha-front.png",
+     "sha256": "3496e74e04b7044efa52e710caf1bf6f22d5e68c21439e32751055bab7491e55",
+     "variant": "/Volumes/files/openclinxr-assets/store/one-brow/variants/alb-aisha.json"
+    },
+    "M": {
+     "capture": "/Volumes/files/openclinxr-assets/store/one-brow/renders/onemesh-aisha.json",
+     "glb": {
+      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+      "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
+     },
+     "landedChecks": [
+      "roughness readback=1 want=1",
+      "hasNormalMap=true",
+      "normalScale applied=0.5",
+      "toneMapping=4 want=4 (ACESFilmic)",
+      "exposure=0.9 want=0.9",
+      "rigApplied=true",
+      "rigRoles=hemisphere,key,key,fill,wash_px,wash_nx,wash_py,wash_ny,spill"
+     ],
+     "materialInventoryEyebrowMeshes": [
+      "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh"
+     ],
+     "materialOverridesApplied": null,
+     "png": "/Volumes/files/openclinxr-assets/store/one-brow/renders/onemesh-aisha-front.png",
+     "sha256": "807a9d0ff782a49cece750704a1618b4932265dbd18aab27f9b2e2bbee891f49",
+     "variant": "/Volumes/files/openclinxr-assets/store/one-brow/variants/mesh-aisha.json"
+    },
+    "PRE": {
+     "capture": "/Volumes/files/openclinxr-assets/store/one-brow/renders/onepre-aisha.json",
+     "glb": {
+      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+      "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
+     },
+     "landedChecks": [
+      "roughness readback=1 want=1",
+      "hasNormalMap=true",
+      "normalScale applied=0.5",
+      "toneMapping=4 want=4 (ACESFilmic)",
+      "exposure=0.9 want=0.9",
+      "rigApplied=true",
+      "rigRoles=hemisphere,key,key,fill,wash_px,wash_nx,wash_py,wash_ny,spill"
+     ],
+     "materialInventoryEyebrowMeshes": [
+      "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh"
+     ],
+     "materialOverridesApplied": null,
+     "png": "/Volumes/files/openclinxr-assets/store/one-brow/renders/onepre-aisha-front.png",
+     "sha256": "b020e6cfdd75deca60cc2fff8af77d75d3c42429693d6003a07f5b33c73d075c",
+     "variant": "/Volumes/files/openclinxr-assets/store/one-brow/variants/pre-aisha.json"
+    }
+   },
+   "winner": "M"
+  },
+  "body2": {
+   "distances": {
+    "A": 5.2595,
+    "M": 6.1004,
+    "PRE": 4.6804
+   },
+   "goal": {
+    "png": "/Volumes/files/openclinxr-assets/store/one-brow/goal-body2.png",
+    "sha256": "b42f8105add75fb8a99909126445c76cdeeecce66f431f42b02ab8d286102a97"
+   },
+   "measurements": {
+    "A": {
+     "detected": true,
+     "distance": {
+      "D": 5.2595,
+      "colour": 3.8345,
+      "pos": 0.244,
+      "thick": 1.181
+     },
+     "foreheadC": 23.25,
+     "foreheadL": 81.94,
+     "mean": {
+      "dC": 8.2435,
+      "dL": -38.531,
+      "pos": 0.3522,
+      "thick": 0.2717
+     },
+     "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/st-onebrow/render/onealb-body2-front.png",
+     "sides": {
+      "L": {
+       "boxPx": [
+        363,
+        550,
+        596,
+        645
+       ],
+       "dC": 7.194,
+       "dL": -35.015,
+       "eyeWidth": 119.88,
+       "n": 3332,
+       "pos": 0.3591,
+       "thick": 0.26
+      },
+      "R": {
+       "boxPx": [
+        687,
+        550,
+        924,
+        644
+       ],
+       "dC": 9.293,
+       "dL": -42.047,
+       "eyeWidth": 120.94,
+       "n": 4535,
+       "pos": 0.3453,
+       "thick": 0.2834
+      }
+     }
+    },
+    "M": {
+     "detected": true,
+     "distance": {
+      "D": 6.1004,
+      "colour": 3.9394,
+      "pos": 0.117,
+      "thick": 2.044
+     },
+     "foreheadC": 23.68,
+     "foreheadL": 81.48,
+     "mean": {
+      "dC": 0.7915,
+      "dL": -30.03,
+      "pos": 0.3649,
+      "thick": 0.1854
+     },
+     "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/st-onebrow/render/onemesh-body2-front.png",
+     "sides": {
+      "L": {
+       "boxPx": [
+        358,
+        550,
+        593,
+        644
+       ],
+       "dC": -1.111,
+       "dL": -29.444,
+       "eyeWidth": 120.31,
+       "n": 1853,
+       "pos": 0.3922,
+       "thick": 0.1763
+      },
+      "R": {
+       "boxPx": [
+        690,
+        552,
+        927,
+        646
+       ],
+       "dC": 2.694,
+       "dL": -30.616,
+       "eyeWidth": 120.11,
+       "n": 1568,
+       "pos": 0.3376,
+       "thick": 0.1944
+      }
+     }
+    },
+    "PRE": {
+     "detected": true,
+     "distance": {
+      "D": 4.6804,
+      "colour": 3.4374,
+      "pos": 0.058,
+      "thick": 1.185
+     },
+     "foreheadC": 23.25,
+     "foreheadL": 81.96,
+     "mean": {
+      "dC": 3.123,
+      "dL": -37.3815,
+      "pos": 0.3708,
+      "thick": 0.2713
+     },
+     "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/st-onebrow/render/onepre-body2-front.png",
+     "sides": {
+      "L": {
+       "boxPx": [
+        360,
+        548,
+        595,
+        642
+       ],
+       "dC": 1.044,
+       "dL": -34.61,
+       "eyeWidth": 119.15,
+       "n": 3532,
+       "pos": 0.3892,
+       "thick": 0.2493
+      },
+      "R": {
+       "boxPx": [
+        688,
+        549,
+        924,
+        643
+       ],
+       "dC": 5.202,
+       "dL": -40.153,
+       "eyeWidth": 118.59,
+       "n": 4263,
+       "pos": 0.3524,
+       "thick": 0.2934
+      }
+     }
+    },
+    "formula": {
+     "D": "|pos-gpos|/0.10 + |thick-gthick|/0.10 + (|dL-gdL|+|dC-gdC|)/10.0",
+     "K_CON": 8.0,
+     "browBox": "brow-landmark x +/-18% eye width; y top=min brow y -0.55 eye widths; y bottom=upper-lid apex"
+    },
+    "goal": {
+     "detected": true,
+     "foreheadC": 23.72,
+     "foreheadL": 69.79,
+     "mean": {
+      "dC": -14.2805,
+      "dL": -54.352,
+      "pos": 0.3766,
+      "thick": 0.3898
+     },
+     "path": "/Volumes/files/openclinxr-assets/store/face-fit-any/body2-goal-front.png",
+     "sides": {
+      "L": {
+       "boxPx": [
+        282,
+        337,
+        483,
+        419
+       ],
+       "dC": -14.89,
+       "dL": -55.262,
+       "eyeWidth": 100.74,
+       "n": 5699,
+       "pos": 0.3906,
+       "thick": 0.3892
+      },
+      "R": {
+       "boxPx": [
+        556,
+        341,
+        755,
+        423
+       ],
+       "dC": -13.671,
+       "dL": -53.442,
+       "eyeWidth": 100.42,
+       "n": 5791,
+       "pos": 0.3626,
+       "thick": 0.3904
+      }
+     }
+    },
+    "instrument": "tools/openclinxr/evidence/face-defects/one-brow/measure_brow.py",
+    "landmarkModel": "tools/openclinxr/evidence/face-gate/landmark-model.json"
+   },
+   "overlays": {
+    "A": {
+     "png": "/Volumes/files/openclinxr-assets/store/one-brow/overlays/body2-A.overlay.png",
+     "sha256": "628e3d9903b5fb713ede0fd42e68a071609b66b447037c6bd5bb1864f586229b"
+    },
+    "M": {
+     "png": "/Volumes/files/openclinxr-assets/store/one-brow/overlays/body2-M.overlay.png",
+     "sha256": "69cb5ed67a6b40a54647b0653eb051771652607ff8e7bbb9bffbb673dcecfaf2"
+    },
+    "PRE": {
+     "png": "/Volumes/files/openclinxr-assets/store/one-brow/overlays/body2-PRE.overlay.png",
+     "sha256": "34cf181968b01b9d4271ffcd543e1bb95069de31266c9580d0ad6849176602dc"
+    },
+    "goal": {
+     "png": "/Volumes/files/openclinxr-assets/store/one-brow/overlays/body2-goal.overlay.png",
+     "sha256": "563e428bc09e9169379d38713f6f153e4edfd4a36e12187ddc5a7ea706e2a6df"
+    }
+   },
+   "renders": {
+    "A": {
+     "capture": "/Volumes/files/openclinxr-assets/store/one-brow/renders/onealb-body2.json",
+     "glb": {
+      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
+      "sha256": "643563fcf7f606e5367a9f97a29d0dfefdf5a61ea49991e1b70f2c71d7c51b13"
+     },
+     "landedChecks": [
+      "roughness readback=1 want=1",
+      "hasNormalMap=true",
+      "normalScale applied=0.5",
+      "matOverride[eyebrow] matched=openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh|openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mat",
+      "matOverride[eyebrow] readback ok x1",
+      "toneMapping=4 want=4 (ACESFilmic)",
+      "exposure=0.9 want=0.9",
+      "rigApplied=true",
+      "rigRoles=hemisphere,key,key,fill,wash_px,wash_nx,wash_py,wash_ny,spill"
+     ],
+     "materialInventoryEyebrowMeshes": [
+      "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh"
+     ],
+     "materialOverridesApplied": [
+      {
+       "match": "eyebrow",
+       "matched": [
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh|openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mat"
+       ],
+       "readback": [
+        {
+         "clearcoat": null,
+         "clearcoatRoughness": null,
+         "color": "#65554b",
+         "emissive": "#000000",
+         "emissiveIntensity": 1,
+         "envMapIntensity": 1,
+         "eyeShade": false,
+         "hasBaseColorMap": false,
+         "hidden": true,
+         "ior": null,
+         "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mat",
+         "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh",
+         "metalness": 0,
+         "roughness": 0.8999999761581421,
+         "skinShade": false,
+         "skinShadeCurvature": false,
+         "type": "MeshStandardMaterial"
+        }
+       ]
+      }
+     ],
+     "png": "/Volumes/files/openclinxr-assets/store/one-brow/renders/onealb-body2-front.png",
+     "sha256": "488a1279f8996e9aefd92392e5a0ffc7f9b3d47c91f3b6bd78a6e46e90d9fad4",
+     "variant": "/Volumes/files/openclinxr-assets/store/one-brow/variants/alb-body2.json"
+    },
+    "M": {
+     "capture": "/Volumes/files/openclinxr-assets/store/one-brow/renders/onemesh-body2.json",
+     "glb": {
+      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
+      "sha256": "643563fcf7f606e5367a9f97a29d0dfefdf5a61ea49991e1b70f2c71d7c51b13"
+     },
+     "landedChecks": [
+      "roughness readback=1 want=1",
+      "hasNormalMap=true",
+      "normalScale applied=0.5",
+      "toneMapping=4 want=4 (ACESFilmic)",
+      "exposure=0.9 want=0.9",
+      "rigApplied=true",
+      "rigRoles=hemisphere,key,key,fill,wash_px,wash_nx,wash_py,wash_ny,spill"
+     ],
+     "materialInventoryEyebrowMeshes": [
+      "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh"
+     ],
+     "materialOverridesApplied": null,
+     "png": "/Volumes/files/openclinxr-assets/store/one-brow/renders/onemesh-body2-front.png",
+     "sha256": "6b29ec3bc8b933394eedbe2f20856ea488849342a27af82f2b4ed7c4fdac79d0",
+     "variant": "/Volumes/files/openclinxr-assets/store/one-brow/variants/mesh-body2.json"
+    },
+    "PRE": {
+     "capture": "/Volumes/files/openclinxr-assets/store/one-brow/renders/onepre-body2.json",
+     "glb": {
+      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
+      "sha256": "643563fcf7f606e5367a9f97a29d0dfefdf5a61ea49991e1b70f2c71d7c51b13"
+     },
+     "landedChecks": [
+      "roughness readback=1 want=1",
+      "hasNormalMap=true",
+      "normalScale applied=0.5",
+      "toneMapping=4 want=4 (ACESFilmic)",
+      "exposure=0.9 want=0.9",
+      "rigApplied=true",
+      "rigRoles=hemisphere,key,key,fill,wash_px,wash_nx,wash_py,wash_ny,spill"
+     ],
+     "materialInventoryEyebrowMeshes": [
+      "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh"
+     ],
+     "materialOverridesApplied": null,
+     "png": "/Volumes/files/openclinxr-assets/store/one-brow/renders/onepre-body2-front.png",
+     "sha256": "4cadbae347e8335b9ea2670fe7f532e39ccc65e6259e65f7b972459dcfea2471",
+     "variant": "/Volumes/files/openclinxr-assets/store/one-brow/variants/pre-body2.json"
+    }
+   },
+   "winner": "A"
+  }
+ },
+ "testDivergence": "TEST asserts the split-path equivalents: per-subject winners follow from the recorded numbers on BOTH subjects, decision is split with no ship action, gates are recorded not-run, and sheet/render/goal shas recompute from the store when present. G1/G2 A-path clauses have no POST and are asserted as not-run."
+}
