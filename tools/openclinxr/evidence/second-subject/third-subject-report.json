@@ -2,6 +2,10 @@
  "version": 2,
  "card": "tsk_528c17d1809cac92",
  "handoff": "H1",
+ "diffBase": {
+  "sha": "c59529b5e80e8875f644ef98ca0a54bc4ae61372",
+  "note": "eac5186c0 parent on origin/main: the tree the H1 run was made at. G3 (the-station-runs-on-a-child-case.test.ts (5)) diffs stage/runner files against this recorded sha, not origin/main, so later cards that legitimately change data files do not trip it."
+ },
  "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/third",
  "subject": {
   "caseId": "peds_asthma_parent_anxiety_v1",

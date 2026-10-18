@@ -4,6 +4,7 @@
 //   pnpm tsx packages/openclinxr/factory-stations/src/face_realism/run-case.ts <caseId> [runN]
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { runFaceRealism } from "./run.js";
 
 const STORE_ROOT = "/Volumes/files/openclinxr-assets/store";
@@ -145,6 +146,32 @@ export function rebuildCaseRunReport(): Record<string, unknown> {
   return report;
 }
 
+function dirIsNonEmpty(dir: string): boolean {
+  if (!existsSync(dir)) return false;
+  return readdirSync(dir).length > 0;
+}
+
+/**
+ * Never-overwrite run allocation (card tsk_386c8c91eee19dca handback B1):
+ * an explicitly requested run dir that already exists and is non-empty is
+ * never reused; the next free runN is allocated instead and the redirect
+ * is recorded (returned + logged + written into stage-records.json).
+ */
+export function resolveRunDir(caseDir: string, requestedRun: number | null): {
+  runN: number;
+  redirected: boolean;
+} {
+  if (requestedRun !== null && Number.isInteger(requestedRun) && requestedRun > 0) {
+    const wanted = path.join(caseDir, `run${requestedRun}`);
+    if (!dirIsNonEmpty(wanted)) {
+      return { runN: requestedRun, redirected: false };
+    }
+    const fallback = nextRunIndex(caseDir);
+    return { runN: fallback, redirected: true };
+  }
+  return { runN: nextRunIndex(caseDir), redirected: false };
+}
+
 async function main(): Promise<void> {
   const caseId = process.argv[2];
   if (typeof caseId !== "string" || caseId.length === 0) {
@@ -152,7 +179,11 @@ async function main(): Promise<void> {
   }
   const caseDir = path.join(STORE_ROOT, CASES_DIR, caseId);
   const runArg = Number(process.argv[3]);
-  const runN = Number.isInteger(runArg) && runArg > 0 ? runArg : nextRunIndex(caseDir);
+  const requested = Number.isInteger(runArg) && runArg > 0 ? runArg : null;
+  const { runN, redirected } = resolveRunDir(caseDir, requested);
+  if (redirected) {
+    console.log(`requested run${requested} occupied (non-empty); allocated run${runN} instead`);
+  }
   const outDir = path.join(caseDir, `run${runN}`);
   mkdirSync(outDir, { recursive: true });
   const started = Date.now();
@@ -167,6 +198,7 @@ async function main(): Promise<void> {
       {
         case: caseId,
         run: `run${runN}`,
+        ...(redirected ? { requestedRun: `run${requested}`, redirected: true } : {}),
         status: result["status"],
         wallSeconds: (Date.now() - started) / 1000,
         stages: result["stages"],
@@ -183,10 +215,20 @@ async function main(): Promise<void> {
   console.log(`case=${caseId} run=run${runN} status=${String(result["status"])} runs=[${caseRuns.join(",")}]`);
 }
 
-void main().then(
-  () => undefined,
-  (error: unknown) => {
-    console.error(error instanceof Error ? error.message : String(error));
-    process.exit(1);
-  },
-);
+const isEntryPoint = (() => {
+  try {
+    return path.resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url);
+  } catch {
+    return false;
+  }
+})();
+
+if (isEntryPoint) {
+  void main().then(
+    () => undefined,
+    (error: unknown) => {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    },
+  );
+}

@@ -76,5 +76,48 @@
   "note_preexisting": "face-fit the-station-bakes-the-fitted-face.test.ts G5 fails on body2 run1 store GLB sha drift (store file dated 2026-10-16, identity-report.json unmodified in git): pre-existing, outside this card; 17/18 face-fit green"
  },
  "not_yours": "F3/F8 skin lane, F4/F5 eyes lane: recorded as still_refused with owner, no edits to plan.ts gate, materializer, eye code, skin scripts (chain-manifest child row only), or thresholds",
- "pin_maintenance": "second-body-report.json chain_manifest_sha256 e25155f1->97f8dc85 + reference_set_manifest_sha256 a9adc4b2->7010ba7b (current file shas; mechanical pin upkeep forced by the in-scope manifest edits, no behavioral change; the face-replay suite demands CURRENT shas per the-second-body-cites-the-chain-and-not-the-parent-sheet.test.ts)"
+ "pin_maintenance": "second-body-report.json chain_manifest_sha256 e25155f1->97f8dc85 + reference_set_manifest_sha256 a9adc4b2->7010ba7b (current file shas; mechanical pin upkeep forced by the in-scope manifest edits, no behavioral change; the face-replay suite demands CURRENT shas per the-second-body-cites-the-chain-and-not-the-parent-sheet.test.ts)",
+ "h1_followup": {
+  "A_third_subject_G3": {
+   "base": "c59529b5e80e8875f644ef98ca0a54bc4ae61372 (eac5186c0 parent on origin/main) recorded as diffBase in third-subject-report.json",
+   "test": "the-station-runs-on-a-child-case.test.ts (5) diffs strict stage/runner/materializer paths vs recorded base; whole-tree diff must match card allowlist (case-id names built from report)",
+   "proof": "9/9 pass here; planted edit to stages-a.ts fails G3, reverted"
+  },
+  "B1_never_overwrite": {
+   "change": "run-case.ts resolveRunDir: requested non-empty run dir redirects to next free runN, recorded (console + stage-records requestedRun/redirected); main() behind entrypoint guard",
+   "test": "the-run-case-never-overwrites-evidence.test.ts 5/5"
+  },
+  "B2_identity_rebake": {
+   "method": "stage-4 runner with fit off (same argv+env as pre-fix bake) into identity-owned prefix dirs; provider caches staged byte-identical from identity worktree (untracked)",
+   "body2": {
+    "glb_old": "face-station-cases/body2/run1/body2-lidconform.glb 7acdc59b",
+    "glb_new": "identity/body2-prefix/body2-lidconform.glb 2e5af515",
+    "flat_old": "identity/face/body2-pre-flat.png dccd3190",
+    "flat_new": "identity/body2-prefix/body2-pre-flat.png 94c9199e",
+    "m1": "19.9799 mapmax 198.4378 mapmean 38.2712 mesh+verts identical",
+    "m2_old": 0.00394,
+    "m2_new": 0.00381,
+    "ratio_old": 1.0225,
+    "ratio_new": 1.0222,
+    "ortho": 0.2687,
+    "note": "POSITION identical to r3 record (d57672ce)"
+   },
+   "aisha": {
+    "glb_old": "face-station-cases/aisha/run1/aisha-lidconform.glb 0cfe1a42",
+    "glb_new": "identity/aisha-prefix/aisha-lidconform.glb 46a91cdf",
+    "flat_old": "identity/face/aisha-pre-flat.png db735040",
+    "flat_new": "identity/aisha-prefix/aisha-pre-flat.png 05b17650",
+    "m1": "3.9525 mapmax 381.3676 mapmean 33.8229 verts 37699 identical",
+    "m2": "0.00578 unchanged",
+    "ratio_old": 1.0055,
+    "ratio_new": 1.0056,
+    "ortho": 0.1708
+   },
+   "thresholds": "m1 record values identical; m2 kg/kb/noise/separation strings identical; statuses unchanged (invalid_instrument, report-only); g2.detail + experimentNote pre numbers updated",
+   "other_rows": "body2/aisha fitbake+nomouth GLBs verified byte-identical to recorded shas; all 4 flat pngs unchanged on disk"
+  },
+  "pin_upkeep": [
+   "arch-index.json regenerated (new B1 test file)"
+  ]
+ }
 }

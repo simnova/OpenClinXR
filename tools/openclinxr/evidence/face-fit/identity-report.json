@@ -9,12 +9,12 @@
      "case": "body2",
      "goalCase": "body2",
      "glb": {
-      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run1/body2-lidconform.glb",
-      "sha256": "7acdc59b91af7fd0a9dd1c3fb27c00ef5cf68a52f6307a61ba787ea9cad15973"
+      "path": "/Volumes/files/openclinxr-assets/store/identity/body2-prefix/body2-lidconform.glb",
+      "sha256": "2e5af515196886f24946f9b80412381f54ed397b9c6fee6d7aede93d4f6a356b"
      },
      "flatRender": {
-      "path": "/Volumes/files/openclinxr-assets/store/identity/face/body2-pre-flat.png",
-      "sha256": "dccd3190e1bad7f5312ae6aa2562ea999556ce8b65439572ec65305133a96e75"
+      "path": "/Volumes/files/openclinxr-assets/store/identity/body2-prefix/body2-pre-flat.png",
+      "sha256": "94c9199e7cbdc6d7a4b56d6d210b43ad8f571fe577f6c9be99120570472472cd"
      },
      "m1Mm": 19.9799,
      "m1MappingMaxMm": 198.4378,
@@ -22,7 +22,7 @@
      "m1BodyMesh": "mpfb_adult_male_street_casual_body",
      "m1BodyVerts": 38995,
      "m1Hm08Verts": 19158,
-     "m2": 0.00394,
+     "m2": 0.00381,
      "method": {
       "m1": "fitter embedding triples on shipped body mesh (nearest-vertex map if subdiv), fitter front camera; shipped projections AND goal both STABLE-aligned to the base frame (same as score_render_facefit2.py:80-85); RMS mm over 35 TRACK",
       "m2": "similarity-aligned residual RMS / 1024 over 35 TRACK: flat render vs goal detections",
@@ -109,7 +109,7 @@
    "framing": {
     "goalIocPx": 330.2,
     "renderRatios": {
-     "pre": 1.0225,
+     "pre": 1.0222,
      "fitbake": 1.0123,
      "nomouth": 1.0175
     },
@@ -128,12 +128,12 @@
      "case": "aisha",
      "goalCase": "aisha",
      "glb": {
-      "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run1/aisha-lidconform.glb",
-      "sha256": "0cfe1a42311fed45976744a994a4ddaa8316cb562daf53700d9989068381e358"
+      "path": "/Volumes/files/openclinxr-assets/store/identity/aisha-prefix/aisha-lidconform.glb",
+      "sha256": "46a91cdf1d02fb94fdcf87be08b64f714ba4daee70d34a11b81d4d2c3736a980"
      },
      "flatRender": {
-      "path": "/Volumes/files/openclinxr-assets/store/identity/face/aisha-pre-flat.png",
-      "sha256": "db735040682ca38d0e8eaad8a7f808fc066b517d0fee59eb72d75fdefea3ddf0"
+      "path": "/Volumes/files/openclinxr-assets/store/identity/aisha-prefix/aisha-pre-flat.png",
+      "sha256": "05b176505d27b42b2eda582e9b3857e053ae5df2483ee9b9c2dd814bc82ee3ed"
      },
      "m1Mm": 3.9525,
      "m1MappingMaxMm": 381.3676,
@@ -228,7 +228,7 @@
    "framing": {
     "goalIocPx": 523.9,
     "renderRatios": {
-     "pre": 1.0055,
+     "pre": 1.0056,
      "fitbake": 0.9969,
      "nomouth": 0.9999
     },
@@ -296,7 +296,7 @@
   ],
   "suspectedWeightsSource": "tools/openclinxr/evidence/face-fit/fit-report.json:cases.body2.top (|w|>=0.05 mouth-*)",
   "verdict": "cause_suspected",
-  "experimentNote": "no-mouth bake (34 mouth-* excluded, 65 kept) M2 body2 0.00366 < pre 0.00394 < fitbake 0.00407: excluding the mouth terms moves M2 toward the goal, consistent with the mouth terms alone causing the wedge; aisha nomouth 0.00574 vs fitbake 0.00561 vs pre 0.00578 (within ~noise)"
+  "experimentNote": "no-mouth bake (34 mouth-* excluded, 65 kept) M2 body2 0.00366 < pre 0.00381 < fitbake 0.00407: excluding the mouth terms moves M2 toward the goal, consistent with the mouth terms alone causing the wedge; aisha nomouth 0.00574 vs fitbake 0.00561 vs pre 0.00578 (within ~noise)"
  },
  "experiments": [
   {
@@ -3667,7 +3667,7 @@
   },
   "g2": {
    "status": "report-only",
-   "detail": "body2 fitbake M2 0.00407 vs pre 0.00394; knownGood 0.00561 knownBad 0.00436 noise 0.00009 -> report-only"
+   "detail": "body2 fitbake M2 0.00407 vs pre 0.00381; knownGood 0.00561 knownBad 0.00436 noise 0.00009 -> report-only"
   },
   "g3": {
    "pass": true,
