@@ -491,7 +491,12 @@ function writeSyntheticGLB(tmpDir: string): string {
   // hole) + r=12mm eye blobs + brow blobs + a nose-like relief bump in the
   // stature-scaled face window (a flat plane has no 3D face area and the
   // density leg would fire; the bump sits far from mouth/eyes/brows so
-  // loop, socket and ring geometry are unchanged). Names match by pattern.
+  // loop, socket and ring geometry are unchanged). Geometry rule shared
+  // verbatim with the station fixture (packages/openclinxr/factory-stations
+  // /src/face_realism/chain.ts stageSyntheticFixtureGlb): identical grid,
+  // hole and bump constants; neither copy may change them without
+  // re-deriving the face_realism pins by running the chain. Names match
+  // by pattern only.
   const glbPath = path.join(tmpDir, "subject.glb");
   const genPath = path.join(tmpDir, "gen_glb.py");
   fs.writeFileSync(genPath, [
