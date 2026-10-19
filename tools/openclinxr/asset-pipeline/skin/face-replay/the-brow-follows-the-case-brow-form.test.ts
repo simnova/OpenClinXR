@@ -815,7 +815,7 @@ describe("the brow follows the case brow_form: report validates", () => {
     expect(r.card).toBe("tsk_b438966217dd814e");
     expect(r.values?.["aisha"]?.mode).toBe("mesh");
     expect(r.values?.["body2"]?.mode).toBe("texture");
-    for (const g of ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10", "G11"]) expect(r.gates?.[g], g).toBeDefined();
+    for (const g of ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10", "G11", "G12"]) expect(r.gates?.[g], g).toBeDefined();
   });
 
   it("report mode values match case-inputs.json brow_form", () => {

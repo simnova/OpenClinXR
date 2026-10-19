@@ -41,6 +41,18 @@
     "inmask_C": 20.73,
     "ring_C": "19.52 +- 3.51",
     "verdict": "within spread (hb2: 56.75 / 56.55+-9.48, 20.54 / 19.46+-3.17)"
+   },
+   "hb4": {
+    "aisha_POST_D": 2.5968,
+    "aisha_PRE_D": 3.4906,
+    "note": "POST < PRE (hb4 2.60; hb3 2.52; hb2 2.28). Station instrument fresh on hb4 PRE+POST (hb4/measure-aisha/measurements.json); PRE render byte-reproduces hb3 PRE (b020e6cf) so PRE D reproduces exactly",
+    "albedo": {
+     "inmask_L": 57.68,
+     "ring_L": "58.11 +- 11.42",
+     "inmask_C": 20.77,
+     "ring_C": "19.72 +- 3.43",
+     "verdict": "within spread (hb3: 58.05 / 57.31+-11.60, 20.73 / 19.52+-3.51)"
+    }
    }
   },
   "G2": {
@@ -57,11 +69,13 @@
     "hair_dC": -8.86,
     "solved_dL": -29.0,
     "solved_dC": -27.0
-   }
+   },
+   "hb4": "stands: texture branch code path untouched (shift_texture only; match_core_hp3 lives in clear_mesh), body2 albedo sha 5f6cee80 reproduces; hb1 renders stand"
   },
   "G3": {
    "status": "pass",
-   "method": "station instrument tools/openclinxr/evidence/face-defects/one-brow/measure_brow.py imported, run fresh on hb2 PRE+POST renders (hb2/measure-aisha/measurements.json + overlays); hb2 PRE render byte-reproduces hb1 PRE (b020e6cf) so PRE D 3.4906 reproduces exactly"
+   "method": "station instrument tools/openclinxr/evidence/face-defects/one-brow/measure_brow.py imported, run fresh on hb2 PRE+POST renders (hb2/measure-aisha/measurements.json + overlays); hb2 PRE render byte-reproduces hb1 PRE (b020e6cf) so PRE D 3.4906 reproduces exactly",
+   "hb4": "station instrument tools/openclinxr/evidence/face-defects/one-brow/measure_brow.py imported, run fresh on hb4 PRE (hb3 PRE file, b020e6cf) + hb4 POST renders (hb4/measure-aisha/measurements.json + overlays)"
   },
   "G4": {
    "status": "pass",
@@ -88,6 +102,24 @@
    },
    "tone_a": {
     "brow_excluded": "48/48 no-regression (stands: mesh hb3 outside-union writes 0 (outside_max_dLab 0.0), so every brow-excluded region is byte-identical; body2 albedo byte-identical to hb1 (sha 5f6cee80))"
+   },
+   "hb4": {
+    "halo": {
+     "changed_frac": 0.0,
+     "bound": 0.1,
+     "method": "adapted lm_lipcheck halo: 2..12-texel band outside the brow union (hb4 albedo; hb3: 0.0)"
+    },
+    "lm_lipcheck": {
+     "changed": 0.0,
+     "halo": 1.0,
+     "verdict": "still passes (hb4 POST vs PRE albedo; hb3: 0/1.0)"
+    },
+    "wrinkle": {
+     "albedo_facecore_new_bins": [],
+     "render_forehead_new_bins": [],
+     "verdict": "no new 2D-FFT isolated bins either domain under the canonical rule (>3x annulus median AND >2x PRE same-bin; hb3: none either domain)"
+    },
+    "tone_a": "stands: mesh hb4 outside-union writes 0 (outside_max_dLab 0.0), so every brow-excluded region is byte-identical; body2 albedo sha 5f6cee80 reproduces"
    }
   },
   "G5": {
@@ -115,6 +147,18 @@
    "variants": {
     "hb3/pre-aisha.json": "hb2preaisha content + id hb3preaisha",
     "hb3/post-aisha.json": "hb2postaisha content + id hb3postaisha + hb3 baseColorUrl"
+   },
+   "hb4": {
+    "note": "hb4 Aisha POST room-rig render (same variant/GLB/normal/roughness as hb3, --glb explicit aisha-lidconform.glb 0fbaf4c6); PRE reuses the hb3 PRE file (b020e6cf byte-reproduces); body2 untouched",
+    "renders": {
+     "hb4postaisha-front.png": "edc9c934 (hb3 POST was 3f233e67; hb2 POST 12ed18c1)"
+    },
+    "H1": "POST differs from hb3 POST ONLY in baseColorUrl (normal 493fae43 + roughness f150fec7 + glb 0fbaf4c6 + rig c2de99cb input shas identical)",
+    "sheets": {
+     "hb4/native-render-brows.png": "520x560 native: boxes L(340,560,600,700) R(680,560,940,700) side by side, rows PRE|hb2|hb3|hb4",
+     "hb4/native-albedo-brows.png": "558x692 native: albedo box (3290,1770,3476,2462), columns PRE|hb3|hb4",
+     "hb4/browcrops-aisha.png": "hb2-style grid (2-row L/R x 3-col PRE|hb4 POST|goal, 300x170 native cells + labels): PRE + goal cells byte-identical to hb3 sheet cells (same boxes: render L(327,533) R(657,529), goal edit-0 L(248,370) R(478,371)); POST cells are the hb4 render at the same boxes"
+    }
    }
   },
   "G6": {
@@ -123,14 +167,20 @@
    "g6_max_dL": 1.16,
    "g6_max_dC": 1.08,
    "bound": 2,
-   "coverage_mean": 0.2373
+   "coverage_mean": 0.2373,
+   "hb4": "stands (texture branch untouched; body2 sha 5f6cee80)"
   },
   "G7": {
    "status": "pass",
    "method": "lower-interior band (12 rows above union bottom, eroded 4): mean dL POST-PRE on hb3 aisha albedo",
    "G7_dL": 0.0,
    "bound_dL": ">=-2",
-   "cause": "beta-blend keeps unpainted lid-side skin byte-identical (its own texture, not just lows); only painted texels take Telea fill, so no lid-crease dark drags up (hb2: -1.83)"
+   "cause": "beta-blend keeps unpainted lid-side skin byte-identical (its own texture, not just lows); only painted texels take Telea fill, so no lid-crease dark drags up (hb2: -1.83)",
+   "hb4": {
+    "G7_dL": 0.0,
+    "bound_dL": ">=-2",
+    "note": "hb4 (hb3: 0.0; hb2: -1.83). Beta-blend + interior-only hp3 map keep unpainted lid-side skin byte-identical"
+   }
   },
   "G8": {
    "status": "pass",
@@ -140,7 +190,15 @@
     0.7,
     1.3
    ],
-   "note": "hb2: 1.022. Band-matched (2-8 px) renormalization to the clean source pool keeps fine-band energy faithful on white and 1/f alike"
+   "note": "hb2: 1.022. Band-matched (2-8 px) renormalization to the clean source pool keeps fine-band energy faithful on white and 1/f alike",
+   "hb4": {
+    "G8_ratio": 1.16,
+    "bound": [
+     0.7,
+     1.3
+    ],
+    "note": "hb4 fixture probe (hb3: 1.08). Pool-quantile hp3 map sets fine-band energy to the pool level"
+   }
   },
   "G9": {
    "status": "pass",
@@ -154,7 +212,12 @@
    "coherence_margin": 0.0204,
    "coherence_bound": 0.05,
    "known_bad_note": "hb2: energy 1.048, margin +0.028; hb1: energy 0.907, margin +0.630",
-   "note": "tight 1 px gate feather tracks the ragged paint contour (no straight frame for coherence to read); hole-excluded blurs keep paint out of source and low fields"
+   "note": "tight 1 px gate feather tracks the ragged paint contour (no straight frame for coherence to read); hole-excluded blurs keep paint out of source and low fields",
+   "hb4": {
+    "energy_ratio": 1.026,
+    "coherence_margin": 0.0188,
+    "note": "hb4 ghost fixture (hb3: 1.021/+0.0204; hb2: 1.048/+0.028). Rank-preserving (monotonic) map keeps orientation; winsorized patches keep no straight frame"
+   }
   },
   "G10": {
    "status": "pass",
@@ -163,7 +226,13 @@
    "cleared_banded": 1.83,
    "strip_banded": 1.19,
    "bound": 2,
-   "note": "hb2: total 3.58 banded 1.86. Real skin, no stripes introduced"
+   "note": "hb2: total 3.58 banded 1.86. Real skin, no stripes introduced",
+   "hb4": {
+    "cleared_banded": 1.82,
+    "strip_banded": 1.19,
+    "bound": 2,
+    "note": "hb4 real albedo (hb3: 1.83/1.19). No stripes introduced"
+   }
   },
   "G11": {
    "status": "pass",
@@ -189,7 +258,44 @@
     ],
     "verdict": "pass both sides (hb3 albedo db2cfa9b)"
    },
-   "dL_note": "REPORT ONLY (eye-excluded tone step vs clean surround; margin under its noise per handback)"
+   "dL_note": "REPORT ONLY (eye-excluded tone step vs clean surround; margin under its noise per handback)",
+   "hb4": {
+    "comp_L": {
+     "ratio": 0.814,
+     "dL": -4.51
+    },
+    "comp_R": {
+     "ratio": 1.018,
+     "dL": -4.13
+    },
+    "bound": [
+     0.65,
+     1.35
+    ],
+    "verdict": "pass both sides, eye-excluded (hb3: 0.80/1.02; hb3 albedo db2cfa9b; hb4 albedo a37c1889)"
+   }
+  },
+  "G12": {
+   "status": "pass",
+   "method": "per side, s = std of the L*-minus-gauss3 high-pass over the eye-excluded ring (eyes dilated 8 px, as G11): bright = frac(core with hp > +2s) <= 0.0096 (midpoint of known-good max 0.0027 ring / 0.0017 forehead and known-bad min 0.0165 hb3 core). Counterweights: dark = frac(core with hp < -2s) >= 0.5x the ring dark tail; eye-excluded G11 in 0.65-1.35. dL core-minus-ring report only. Calibrated in-test on the PRE ring/forehead (known-good) and the frozen hb3 file (known-bad, RED).",
+   "bound": 0.0096,
+   "calibration": {
+    "known_good": "PRE ring self bright 0.0011-0.0028, open forehead (rows 1700-2500, cols 3170-3300) 0.0017 (reproduced in-test)",
+    "known_bad_hb3": "core bright 0.0165/0.0308, both over the bound (RED; hb2 0.0236/0.0224)"
+   },
+   "hb4": {
+    "comp_L": {
+     "bright": 0.002,
+     "dark": 0.0279
+    },
+    "comp_R": {
+     "bright": 0.0039,
+     "dark": 0.0418
+    },
+    "ring_dark": 0.0334,
+    "verdict": "pass both sides (dark ratios 0.84x/1.25x >= 0.5x; G11 0.814/1.018 in bounds)"
+   },
+   "dL_note": "REPORT ONLY: hb4 -4.51/-4.13 (hb3 -4.51/-4.12; hb2 -4.87/-4.24; hb1 -5.28/-4.57)"
   }
  },
  "pins": {
@@ -205,7 +311,8 @@
  "testEvidence": {
   "red": "hb2: 3 failed pre-fix on hb1 code (G9 ghost fixture ratio 1.548>1.3, G10 real banded 3.06>2, report gates missing); 13/14 other tests green throughout",
   "post": "16/16 file-green; face-replay suite 23 files 173 passed + 2 expected-fail",
-  "hb3": "hb3: G11 calibration (literal known-good/bad reproduced, hb2 RED) + ceiling proof + live eye-excluded gate pass; mesh/texture/refuse + G6/G7/G8 + G9/G10 + manifest wiring + report validation all green (19/19 file tests)"
+  "hb3": "hb3: G11 calibration (literal known-good/bad reproduced, hb2 RED) + ceiling proof + live eye-excluded gate pass; mesh/texture/refuse + G6/G7/G8 + G9/G10 + manifest wiring + report validation all green (19/19 file tests)",
+  "hb4": "G12 calibration (known-good/bad reproduced, hb3 RED) + live gate + counterweights; full face-replay suite + architecture + build + knip before commit"
  },
  "notTested": [
   "three-quarter/profile views",
@@ -234,5 +341,13 @@
   "body2": "untouched: texture branch code path byte-identical (sha 5f6cee80 reproduced); G2/G6 stand as hb1",
   "red": "hb3: G11 calibration fails on hb2 file (literal 0.292/0.290 < 0.65 RED) before the fix; live eye-excluded gate on current output passes 0.80/1.02 GREEN; 17/19 file tests green pre-report (report gate only)",
   "render": "same variant/GLB/normal/roughness as hb2 (--glb explicit aisha-lidconform.glb 0fbaf4c6); PRE byte-reproduces b020e6cf; POST 3f233e67"
+ },
+ "hb4": {
+  "grade_in": "lane manager FAILs hb3 Aisha: thin arc line mostly gone, but the upper cleared region shows bright light speckle reading as a patch on both sides. Measured cause: natural skin high-pass is dark-skewed (pores); the fill is symmetric. Bright tail fraction of core pixels with (L*-gauss3) > 2x ring std: ring 0.0011-0.0027, forehead 0.0017; hb2 cores 0.0236/0.0224, hb3 0.0165/0.0308. Likely mechanism: averaging overlapping Hann patches + ~1.6 gain symmetrizes and lifts the bright tail.",
+  "fix_mesh": "histogram-match the transplanted high-pass to the source pool (keeps skew) instead of a scalar gain; min-error boundary cut rejected: no scalar maps a symmetric distribution onto a skewed one, and the cut would keep the per-patch amplitude-match + gain symmetrization. Forensics picked the two-stage form: exceedances are isolated 1-2 px coincident RGB spikes (+[68,60,54] over PRE at 69/109 px, both sides; low-only output has zero tail, so all speckle is transplant). (1) winsorize each source patch per channel to the pool hp [0.5,99.5]% + pg clip 4.0->2.0 (a near-flat patch carrying one outlier took the full boost and planted the speckle); (2) scalar band gain kept (scalars preserve channel correlations, unlike per-channel quantile maps which stack ranks into coincident-white: tried first, L bright 0.0106/0.0166 still RED); (3) rank-preserving quantile-map of the cleared interior L* sigma-3 high-pass onto the pool L* high-pass over R = 2px-eroded paint (single channel: no correlation fabrication; chroma untouched; outside-R pixels bit-identical so the ==0 outside gate stands). Seed 20261019, patch 32-48, sigma 24 unchanged (method consts); new consts winsor [0.5,99.5]%, pg clip 2.0, hp3 sigma 3, erode 2. Stage stdout records gain + winsor bounds + hp3_match/hp3_n/hp3_ref_n/hp3_ref_std.",
+  "manifest": "untouched (all new constants are method consts, not per-case solves; body2 override pair unchanged) so chain pins stand",
+  "body2": "untouched: texture branch code path byte-identical; albedo sha 5f6cee80 reproduces; G2/G6 stand as hb1",
+  "red": "G12 gate on hb3-code live output 0.0165 > 0.0096 RED (calibration + counterweights green pre-fix); 19/19 prior file tests unaffected",
+  "render": "same variant/GLB/normal/roughness as hb3 (--glb explicit aisha-lidconform.glb 0fbaf4c6); PRE reuses hb3 file (b020e6cf); POST edc9c934"
  }
 }
