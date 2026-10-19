@@ -75,6 +75,7 @@
     "src/equipment_generate/the-equipment-generate-r5-best-treatment.test.ts",
     "src/equipment_generate/the-equipment-station-publishes-a-runtime-asset-url.test.ts",
     "src/face_realism/the-detail-bands-report-holds.test.ts",
+    "src/face_realism/the-face-station-completes-the-child-case.test.ts",
     "src/face_realism/the-face-station-executes-the-chain.test.ts",
     "src/face_realism/the-face-station-replays-a-stored-record.test.ts",
     "src/face_realism/the-face-station-runs-seven-stages-from-a-case.test.ts",
