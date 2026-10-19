@@ -9,6 +9,7 @@ import {
   runMisePython,
   sha256File,
 } from "./shared.js";
+import type { SubStage } from "./stages-c.js";
 
 /** Tracked replay driver for the hand-steps chain (verifies input shas). */
 export const FACE_REALISM_REPLAY_REL =
@@ -246,3 +247,56 @@ export function prepareFixtureReplayDir(
   const aoFile = stageFlatAo(outDir, Math.round(deriveSize));
   return { albedoFile, glbFile, aoFile };
 }
+
+/**
+ * Manifest stages the station chains itself, in manifest position, instead
+ * of the replay (their standalone argv differs from replay.py's, so the
+ * replay must skip them). Keyed by stage name per the card; the ORDER
+ * still comes from the manifest plan.
+ */
+export const STATION_CHAINED_STAGES = ["beard_shadow", "detail_bands"] as const;
+
+export type Stage3ManifestDoc = {
+  stages?: Array<{ name?: unknown; output_paths?: unknown; parameters?: Record<string, unknown> }>;
+  subjects?: Record<string, { overrides?: Record<string, Record<string, unknown>> }>;
+};
+
+// Manifest-driven output filename: the station never hard-codes which
+// file a chain stage writes; the manifest's output_paths is the source.
+export function manifestOutputPng(manifestDoc: Stage3ManifestDoc, stageName: string): string {
+  const def = manifestDoc.stages?.find((stage) => String(stage.name ?? "") === stageName);
+  const out = Object.values((def?.output_paths ?? {}) as Record<string, unknown>).find(
+    (value): value is string => typeof value === "string" && value.endsWith(".png"),
+  );
+  if (def === undefined || out === undefined) {
+    throw new Error(`chain manifest holds no png output for stage ${stageName}: refused`);
+  }
+  return out;
+}
+
+export type Stage3ChainOptions = {
+  caseRec: Record<string, unknown>;
+  manifestDoc: Stage3ManifestDoc;
+  manifestAbs: string;
+  chainSubject: string;
+  glbAbs: string;
+  /** Chain input albedo (stage-3 colour output in production). */
+  albedoIn: string;
+  storeDir: string;
+  /** Full AO bake in the first segment (production); later segments reuse derive_out. */
+  skipAo: boolean;
+  skipStages: string[];
+};
+
+export type Stage3ChainResult = {
+  plan: ChainManifestPlan;
+  /** Replay segment records + standalone records, in manifest order. */
+  records: SubStage[];
+  manifestSha256: string;
+  socketExpected: string;
+  socketExpectedSource: string;
+  socketActual: string;
+  finalAbs: string;
+  finalStageName: string;
+  finalSha256: string;
+};

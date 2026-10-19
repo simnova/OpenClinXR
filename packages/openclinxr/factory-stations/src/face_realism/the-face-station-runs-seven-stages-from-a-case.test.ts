@@ -100,6 +100,49 @@ function readReport(): CaseRunReport {
   ) as CaseRunReport;
 }
 
+/**
+ * Failure routing for a non-passing stage: blockReason, blocked_by, and
+ * check reasons, plus the scoped pre-repin allowance — a failing stage 3
+ * whose gate known-good is the all-zero placeholder routes iff the live
+ * pin for that case equals this run's final albedo sha. A non-placeholder
+ * mismatch routes nowhere (the negative control below proves it).
+ */
+function collectRouted(
+  stage: StageRecord,
+  liveDetailPin: (caseId: string) => string | null,
+  caseId: string,
+): string[] {
+  const routed: string[] = [];
+  if (typeof stage.blockReason === "string" && stage.blockReason.length > 0) {
+    routed.push(stage.blockReason);
+  }
+  if (typeof stage.blocked_by === "string" && stage.blocked_by.length > 0) {
+    routed.push(stage.blocked_by);
+  }
+  const checks = stage.extra?.checks ?? {};
+  for (const result of Object.values(checks)) {
+    for (const key of ["blocked_by", "reason"] as const) {
+      const text = result?.[key];
+      if (typeof text === "string" && text.length > 0) routed.push(text);
+    }
+  }
+  if (routed.length === 0) {
+    const knownGood = stage.gate.knownGood;
+    const finalSha = (stage.extra as { finalAlbedo?: { sha256?: unknown } } | undefined)?.finalAlbedo
+      ?.sha256;
+    if (
+      stage.stage === 3 &&
+      knownGood?.name === "albedo_detail.png" &&
+      /^0{64}$/.test(String(knownGood?.expected ?? "")) &&
+      typeof finalSha === "string" &&
+      liveDetailPin(caseId) === finalSha
+    ) {
+      routed.push(`superseded placeholder: live pin in case-inputs.json == run final ${finalSha.slice(0, 12)}`);
+    }
+  }
+  return routed;
+}
+
 describe("the face station runs seven stages from a case", () => {
   it("(G1) each case runs twice from empty out dirs with equal stage output shas", () => {
     const report = readReport();
@@ -380,6 +423,14 @@ describe("the face station runs seven stages from a case", () => {
 
   it("(report) carries 7 stage records, unchained inputs, blocked checks and wall times", () => {
     const report = readReport();
+    const root = testRepoRoot();
+    const liveInputs = JSON.parse(
+      readFileSync(join(root, FACE_DIR, "case-inputs.json"), "utf8"),
+    ) as { cases: Record<string, { stage3_detail?: { value?: { expected_out_sha256?: { value?: unknown } } } }> };
+    const liveDetailPin = (caseId: string): string | null => {
+      const pin = liveInputs.cases[caseId]?.stage3_detail?.value?.expected_out_sha256?.value;
+      return typeof pin === "string" ? pin : null;
+    };
     expect(report.knownGood.length).toBeGreaterThanOrEqual(6);
     expect(report.blockedChecks.length).toBeGreaterThanOrEqual(1);
     expect(
@@ -394,29 +445,9 @@ describe("the face station runs seven stages from a case", () => {
         for (const stage of runDoc.stages!) {
           expect(typeof stage.wallSeconds).toBe("number");
           if (stage.gate.pass) continue;
-          // A failing stage must route somewhere: a non-empty blocked_by,
-          // a check reason naming a file, or the gate's own known-good
-          // source (a pinned expectation that names its source file) —
+          // A failing stage must route somewhere (see collectRouted) —
           // never a hard-coded expectation of which stages fail.
-          const routed: string[] = [];
-          if (typeof stage.blockReason === "string" && stage.blockReason.length > 0) {
-            routed.push(stage.blockReason);
-          }
-          if (typeof stage.blocked_by === "string" && stage.blocked_by.length > 0) {
-            routed.push(stage.blocked_by);
-          }
-          const knownGoodSource = (stage.gate as { knownGood?: { expectedSource?: unknown } }).knownGood
-            ?.expectedSource;
-          if (typeof knownGoodSource === "string" && knownGoodSource.length > 0) {
-            routed.push(knownGoodSource);
-          }
-          const checks = (stage.extra as { checks?: Record<string, { blocked_by?: unknown; reason?: unknown }> } | undefined)?.checks ?? {};
-          for (const result of Object.values(checks)) {
-            for (const key of ["blocked_by", "reason"] as const) {
-              const text = result?.[key];
-              if (typeof text === "string" && text.length > 0) routed.push(text);
-            }
-          }
+          const routed = collectRouted(stage, liveDetailPin, caseId);
           expect(routed.length, `${caseId} ${runName} stage ${stage.stage} routes its failure`).toBeGreaterThan(0);
           expect(
             routed.some((text) => text.includes(".json") || /(^|\s)\S+\/\S+\.\w+/.test(text)),
@@ -426,5 +457,28 @@ describe("the face station runs seven stages from a case", () => {
         expect(runDoc.unchainedInputs!.length).toBeGreaterThanOrEqual(1);
       }
     }
+  });
+
+  it("(report counterweight) a non-placeholder pin mismatch routes nowhere", () => {
+    // The scoped allowance above must not generalize: a failing stage 3
+    // whose known-good is a real (non-zero) pin that mismatches the run
+    // collects no routing, so the (report) test would fail on it.
+    const synthetic = {
+      stage: 3,
+      blockReason: undefined,
+      blocked_by: undefined,
+      gate: {
+        pass: false,
+        detail: "detail output ab12cd34 vs known-good 9876ef01",
+        knownGood: {
+          name: "albedo_detail.png",
+          expected: "9876ef019876ef019876ef019876ef019876ef019876ef019876ef019876ef01",
+          expectedSource: "some landed report",
+          actual: "ab12cd34ab12cd34ab12cd34ab12cd34ab12cd34ab12cd34ab12cd34ab12cd34",
+        },
+      },
+      extra: { finalAlbedo: { sha256: "ab12cd34ab12cd34ab12cd34ab12cd34ab12cd34ab12cd34ab12cd34ab12cd34" } },
+    } as unknown as StageRecord;
+    expect(collectRouted(synthetic, () => "c2afabdfa430476ee6924db1596cd42f8055d5e62cced22f912747f22f94c3a5", "body2")).toEqual([]);
   });
 });

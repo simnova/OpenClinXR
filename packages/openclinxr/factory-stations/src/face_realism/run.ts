@@ -22,6 +22,7 @@ import {
   prepareFixtureReplayDir,
   runReplayChain,
   stageSyntheticFixtureGlb,
+  STATION_CHAINED_STAGES,
 } from "./chain.js";
 import { FACE_REALISM_DEFAULT_CHAIN_REL, planFaceRealism, type FaceRealismInput } from "./plan.js";
 import {
@@ -35,11 +36,10 @@ import {
   type StageRecord,
 } from "./shared.js";
 import {
-  STATION_CHAINED_STAGES,
-  assertChainedStagesAreSuffix,
   runStage1,
   runStage2,
   runStage3,
+  runStage3Chain,
 } from "./stages-a.js";
 import { runStage4, runStage7 } from "./stages-b.js";
 import { runStage5, runStage6 } from "./stages-d.js";
@@ -51,7 +51,7 @@ export {
   runReplayChain,
   stageSyntheticFixtureGlb,
 };
-export { STATION_CHAINED_STAGES, assertChainedStagesAreSuffix };
+export { STATION_CHAINED_STAGES, runStage3Chain };
 export { sanitizedFaceRealismEnv };
 export type { StageGate, StageIO, StageRecord } from "./shared.js";
 export { FACE_REALISM_FIXTURE_ALBEDO_REL, FACE_REALISM_REPLAY_REL } from "./chain.js";

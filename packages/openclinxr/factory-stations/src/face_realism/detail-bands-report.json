@@ -8,7 +8,7 @@
  "fix": {
   "approach": "replay skips beard_shadow + detail_bands; the station chains their standalone runners in manifest position; executed list and final derive from manifest output_paths (planChainManifest)",
   "reason": "replay.py's beard branch passes --vermilion-mask (handback 8), the standalone runner does not, so letting replay run beard would change its bytes vs the pins and the wrinkle lineage; standalone detail reuses replay's mask construction (vermilion via replay._vermilion_union, eye/brow unions bitwise OR as replay builds them inline)",
-  "orderingGuard": "assertChainedStagesAreSuffix: a replay-executed stage after a station-chained stage throws"
+  "orderingGuard": "segmented execution: consecutive replay-run stages go through replay.py as one invocation; a replay-run stage after a station-chained stage runs in a further invocation with --albedo set to the previous segment final and every other stage skipped (derive never name-skipped: it seeds via --skip-ao + existing derive_out, replay.py:116; name-skipping it would refuse at replay.py:87)"
  },
  "subjects": {
   "body2": {
@@ -261,32 +261,68 @@
   }
  },
  "child": {
-  "runA": "face-station-cases/peds_asthma_parent_anxiety_v1/run4",
-  "runB": "face-station-cases/peds_asthma_parent_anxiety_v1/run5",
+  "runA": "face-station-cases/peds_asthma_parent_anxiety_v1/run6",
+  "runB": "face-station-cases/peds_asthma_parent_anxiety_v1/run7",
+  "stage4": {
+   "status": "bakes clean after ring wiring (no #377)",
+   "runAGlb": {
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run6/peds_asthma_parent_anxiety_v1-lidconform.glb",
+    "sha256": "5f01a7d96dc43eaf7fec1aee49707b68851b469ebac502e41c3606618cc07b02"
+   },
+   "runBGlb": {
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run7/peds_asthma_parent_anxiety_v1-lidconform.glb",
+    "sha256": "5083e7e17d3c419382dfb297503e2ff9f07a0da68d3ea2c8bacc312b8cc0680f"
+   },
+   "positionEqual": true,
+   "positionNote": "GLB bytes differ (bake nondeterminism, as adults); per-mesh POSITION identical 12/12 meshes mpfb_peds_patient_child_body (stage4_position_shas.py); no stage-4 pin set (bytes not pinnable)"
+  },
+  "childRows": [
+   {
+    "row": "tone_anchor_lab",
+    "status": "still refused",
+    "missing": "tone_anchors_Lab.warm_light_child: measured Lab triple from the child goal_front facecore, same method as the two adult anchors",
+    "landed": "nearest.warm_light_child='young' EXISTS (tone-report.json:101); the anchor lookup at stages-a.ts:107 precedes it",
+    "anchorSource": "tone_anchors_Lab source is adult-only: 'aisha goal_front facecore + body2 goal_front facecore' (tone-check.py:152-156)",
+    "owner": "skin lane (tone-check.py + tone-report.json; skin/** is out of scope for this card)",
+    "upstreamRefusal": "stages-a.ts:107 (runStage1); inventing a Lab triple is refused by the card",
+    "wired": false
+   },
+   {
+    "row": "stage3_compose base_skin/locked_island/masks",
+    "status": "still refused",
+    "missing": "child compose inputs: subject base albedo, skin-family island donor, derive masks",
+    "owner": "skin lane (derive floor: decimated child input below density)",
+    "upstreamRefusal": "derive.py:275 NoBodySkinMeshError on the pinned child GLB (211799 faces/m2 < 400000 min at 4096px; measured this card via scratch derive run)",
+    "note": "station-child-inputs 5834ece58 landed the chain row only; child-inputs-report.json F8 records the floor",
+    "wired": false
+   },
+   {
+    "row": "lid_ring_source",
+    "status": "WIRED this card",
+    "artifact": "store/lid-conform-child/peds_asthma_parent_anxiety_v1-eyeglobe-base.glb sha256 5196e1aa4ca6974ea6a0faf21717334fe1e9cc06bbf235cca3009fb3c13285b4",
+    "artifactSource": "child-conform-report.json:bake.baseGlb (eyes lane, childlid; sha verified before wiring)",
+    "effect": "stage-3 ring check passes; child stage-4 Blender bake completes (no #377): run6/run7 GLBs bake clean, per-mesh POSITION identical (12 meshes, mpfb_peds_patient_child_body)",
+    "wired": true
+   }
+  ],
+  "verdict": "no child POST end to end this card: stage 1 (tone anchor) and stage 3 (compose inputs) still refuse on skin-lane inputs; stage 4 unblocked by the wired ring",
   "refusals": [
    {
     "stage": 1,
     "file": "packages/openclinxr/factory-stations/src/face_realism/stages-a.ts",
     "line": 107,
-    "reason": "tone report holds no anchor for warm_light_child (tone-report.json has warm_light/warm_medium only)",
-    "source": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run5/stage-records.json"
+    "reason": "tone report holds no anchor for warm_light_child (tone-report.json:tone_anchors_Lab has warm_light/warm_medium only)",
+    "source": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run7/stage-records.json"
    },
    {
     "stage": 3,
     "file": "packages/openclinxr/factory-stations/src/face_realism/stages-c.ts",
     "line": 32,
     "reason": "stage3_compose is refused_no_goal_derived_inputs (cfgLeaf base_skin.assets is not a string)",
-    "source": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run5/stage-records.json"
-   },
-   {
-    "stage": 4,
-    "file": "packages/openclinxr/factory-stations/src/face_realism/shared.ts",
-    "line": 186,
-    "reason": "lid_ring_source is null (entryString assets.value is not a string), raised by stages-b.ts runStage4",
-    "source": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run5/stage-records.json"
+    "source": "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run7/stage-records.json"
    }
   ],
-  "note": "run4 == run5: identical refusal pattern; no eye/lid/skin/materializer edits made"
+  "note": "run6 == run7: identical refusal pattern (stages 1+3); stage 4 unblocked by the wired ring and bakes clean; no child POST end to end (skin-lane tone anchor + compose inputs missing); no eye/lid/skin/materializer code edits made"
  },
  "pinsRederived": {
   "body2": [
@@ -416,6 +452,58 @@
   "face-station-cases/body2/run4": "aborted by manager (lane handback h1), pre-rebase base; not run A; left as-is",
   "face-station-cases/body2/run5": "killed by manager handback (pre-rebase code); partial, no stage-records.json; left as-is"
  },
+ "reportFindings": [
+  {
+   "id": "F1",
+   "subject": "body2",
+   "finding": "POST upper lip shows no visible stubble while the PRE (run3) render did",
+   "measure": "beard_shadow changes 1.72% of run7 texels (288720/16777216 albedo texels differ socket-vs-beard)",
+   "measureSource": "direct PNG comparison face-station-cases/body2/run7/albedo_socket.png vs albedo_beard.png",
+   "sheet": "/Volumes/files/openclinxr-assets/store/station-detail-bands/station-body2-sheet.png",
+   "cropSheetCoords": [
+    1677,
+    894,
+    2165,
+    1074
+   ],
+   "cropRenderCoords": [
+    397,
+    830,
+    885,
+    1010
+   ],
+   "cropSource": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/st-detailbands/find_crops.py outer-lip landmark bbox on the POST render (x+1280 POST-cell offset, +64 label bar)",
+   "route": "skin lane (beard_shadow coverage/placement)"
+  },
+  {
+   "id": "F2",
+   "subject": "aisha",
+   "finding": "POST shows a dark olive band under the lower lip and a speckled rim on the upper vermilion edge that the PRE lacks",
+   "sheet": "/Volumes/files/openclinxr-assets/store/station-detail-bands/station-aisha-sheet.png",
+   "cropSheetCoords": [
+    1675,
+    1131,
+    2167,
+    1291
+   ],
+   "cropRenderCoords": [
+    395,
+    1067,
+    887,
+    1227
+   ],
+   "cropSource": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/st-detailbands/find_crops.py outer-lip landmark bbox on the POST render (x+1280 POST-cell offset, +64 label bar)",
+   "route": "skin lane (detail_bands lip exclusion / vermilion hug)"
+  },
+  {
+   "id": "F3",
+   "subject": "body2+aisha",
+   "finding": "both POSTs carry a uniform coarse speckle grain (pore band) across the forehead",
+   "measure": "station POST forehead pore 0.05058 (body2) / 0.02757 (aisha), past the wrinkle midpoints toward POST",
+   "measureSource": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/st-detailbands/logs/station-post-bands.json (wrinkle_bands instrument, imported)",
+   "route": "skin lane (detail_bands pore_gain)"
+  }
+ ],
  "renderRecords": [
   {
    "path": "/Volumes/files/openclinxr-assets/store/station-detail-bands/station-body2-detail-post.json",
