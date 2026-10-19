@@ -1,0 +1,9 @@
+{
+  "card": "tsk_0e618fa5e9ac3e15",
+  "phase": 1,
+  "status": "uncalibrated",
+  "perturbation": "seed s; every 8-bit channel of the golden is offset by a seeded uniform integer in {-1,0,+1} (per-channel, per-pixel), clipped to 0..255",
+  "seed": 20261018,
+  "regions": {},
+  "note": "Phase 2 (STEP 5/STEP 6) fills regions: noise = max delta between two from-scratch renders of identical inputs; floor = metric between the golden and the golden perturbed above. Threshold = max(noise, floor). No threshold is typed; each entry records the measurement that produced it."
+}
