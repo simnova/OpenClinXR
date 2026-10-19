@@ -6,6 +6,7 @@ node_modules/
 .envrc
 .env.local
 .env
+.env*.bak*
 .openclinxr/
 .openclinxr-local/
 .agent-factory/browser-evidence/
