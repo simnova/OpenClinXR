@@ -31,8 +31,10 @@
  "instrument": "tools/openclinxr/evidence/face-defects/one-brow/measure_brow.py imported from the station path, not copied; D = |pos-gpos|/0.10 + |thick-gthick|/0.10 + (|dL-gdL|+|dC-gdC|)/10",
  "gates": {
    "G1": {
-    "status": "pending_rerender",
-    "note": "hb2 re-render + one-brow re-measure in flight; hb1 values superseded",
+    "status": "pass",
+    "aisha_POST_D": 2.2832,
+    "aisha_PRE_D": 3.4906,
+    "note": "POST < PRE (full-mask paint-presence gate clears strong + faint paint; unpainted tone kept); hb1 POST was 2.3177",
     "albedo": {
      "inmask_L": 56.75,
      "ring_L": "56.55 +- 9.48",
@@ -58,8 +60,8 @@
    }
   },
    "G3": {
-    "status": "pending_rerender",
-    "method": "station instrument tools/openclinxr/evidence/face-defects/one-brow/measure_brow.py imported, to be rerun on hb2 PRE+POST renders; hb1 values superseded"
+    "status": "pass",
+    "method": "station instrument tools/openclinxr/evidence/face-defects/one-brow/measure_brow.py imported, run fresh on hb2 PRE+POST renders (hb2/measure-aisha/measurements.json + overlays); hb2 PRE render byte-reproduces hb1 PRE (b020e6cf) so PRE D 3.4906 reproduces exactly"
    },
   "G4": {
    "status": "pass",
@@ -79,11 +81,11 @@
     ],
     "verdict": "still passes (rerun POST vs PRE albedo)"
    },
-   "wrinkle": {
-    "albedo_facecore_new_bins": [],
-    "render_forehead_new_bins": [],
-    "verdict": "no new FFT isolated bins either subject/domain"
-   },
+    "wrinkle": {
+     "albedo_facecore_new_bins": [],
+     "render_forehead_new_bins": [],
+     "verdict": "no new FFT isolated bins either subject/domain (hb2: albedo facecore + hb2 render forehead rows 100:450 cols 340:940, 821 bins both, new [])"
+    },
    "tone_a": {
      "brow_excluded": "48/48 no-regression",
      "geometric_flips": [
@@ -96,34 +98,29 @@
     }
   },
    "G5": {
-    "status": "pending_rerender",
-    "note": "hb2 Aisha PRE/POST room-rig renders + crops/sheets in flight under store/skin-brow-form/hb2/; body2 bytes frozen (sha 5f6cee80); hb1 render/sheet/variant shas below superseded for Aisha",
+    "status": "pass",
+    "note": "hb2 Aisha PRE/POST room-rig renders under store/skin-brow-form/hb2/ (same variant/GLB as hb1; PRE byte-reproduces); body2 untouched (albedo sha 5f6cee80, hb1 renders stand)",
     "rig": "ob_triage_room_v1 (productEnvironmentId + rig record in every capture json)",
     "portrait": true,
     "glbs": {
-     "aisha": "face-station-cases/aisha/run2/aisha-lidconform.glb 0fbaf4c6 (latest; never body2/final.glb)",
-     "body2": "face-station-cases/body2/run3/body2-lidconform.glb bdb05193 (card-explicit; never body2/final.glb)"
+     "aisha": "face-station-cases/aisha/run2/aisha-lidconform.glb 0fbaf4c6 (explicit --glb; never body2/final.glb)"
     },
-    "hb1_superseded_renders": {
-     "hb1preaisha-front.png": "b020e6cf (byte-reproduces)",
-     "hb1postaisha-front.png": "c00e3d0b",
-     "hb1prebody2-front.png": "90ef46cf (byte-reproduces)",
-     "hb1postbody2-front.png": "311f0eb6"
+    "renders": {
+     "hb2preaisha-front.png": "b020e6cf (byte-reproduces hb1 PRE)",
+     "hb2postaisha-front.png": "12ed18c1"
     },
    "H1": "PRE/POST pairs differ ONLY in baseColorUrl (normal+roughness input shas identical; eyebrow mesh in inventory all four renders, held constant)",
-   "sheets": {
-    "browcrops-aisha.png": "f5423231f72e3ac51f2bd299091691b2a05e200ede37816152d0f3d53f8535e1",
-    "browcrops-body2.png": "62b2c312ed9fd7d4ac7e7fed9768685b0bba8d17157f9937f049313e5387e83c",
-    "sheet-aisha.png": "564cc09d2262cb38be9788a666b51d2c3556cfa00e43affa6dab96bd9a1ee3a2",
-    "sheet-body2.png": "9c90e083e90f16c4664b5dfe92b8b16b8a15dadd2af79bb51aa9f56b867dc115"
-   },
-   "variants": {
-    "pre-aisha.json": "460cebb79faaa45a61f6cbd4b8ff6f7a4fe0e0d470e746dbcd4388a6805d9da4",
-    "post-aisha.json": "a126632f0596f0bc44c1f2470db5cc7fb2b59900189ecfd530f560465d73ddf1",
-    "pre-body2.json": "3a6c320e1bdb8fa03856ddf52d1ea1e3d9f8acbcd413ff68c465787e9ec535d1",
-    "post-body2.json": "8fb63cc909c85bcc85ed1fac30c0e31640f8011daa0db016ede62438eadae380"
-   },
-   "grade": "numbers above are the lane-manager grade input; sheets carry native hb1 PRE|POST|goal crops + full-face views"
+    "sheets": {
+     "hb2/browcrops-aisha.png": "777d5cdc",
+     "hb2/sheet-aisha.png": "67509f08",
+     "hb1/browcrops-body2.png": "62b2c312ed9fd7d4ac7e7fed9768685b0bba8d17157f9937f049313e5387e83c (body2 frozen)",
+     "hb1/sheet-body2.png": "9c90e083e90f16c4664b5dfe92b8b16b8a15dadd2af79bb51aa9f56b867dc115 (body2 frozen)"
+    },
+    "variants": {
+     "hb2/pre-aisha.json": "6ac50c73199f93f0",
+     "hb2/post-aisha.json": "8ee786389d38c629"
+    },
+    "grade": "numbers above are the lane-manager grade input; sheets carry native hb2 PRE|POST|goal crops + full-face views (Aisha); body2 hb1 sheets stand"
   },
   "G6": {
    "status": "pass",
@@ -187,7 +184,7 @@
  },
   "testEvidence": {
    "red": "hb2: 3 failed pre-fix on hb1 code (G9 ghost fixture ratio 1.548>1.3, G10 real banded 3.06>2, report gates missing); 13/14 other tests green throughout",
-   "post": "16/16 file-green after report update (15/16 before: report-validation pending)"
+   "post": "16/16 file-green; face-replay suite 23 files 173 passed + 2 expected-fail"
   },
  "notTested": [
   "three-quarter/profile views",
