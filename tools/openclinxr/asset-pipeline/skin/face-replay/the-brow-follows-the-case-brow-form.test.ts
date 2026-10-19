@@ -679,6 +679,133 @@ describe("the brow follows the case brow_form: G11 mid-frequency mottle (hb3)", 
   }, 600000);
 });
 
+describe("the brow follows the case brow_form: G12 bright-tail speckle (hb4)", () => {
+  /** G12: the cleared core must keep natural skin's dark-skewed high-pass,
+   * not the symmetric fill the hb3 overlap-average + ~1.6 gain imprints.
+   * Tail = L* minus gaussian-3 high-pass; per side, s = std of the same
+   * high-pass over the eye-excluded ring (eyes dilated 8 px, as G11):
+   * bright = frac(core with hp > +2s) <= 0.0096 (midpoint of known-good max
+   * 0.0027 ring / 0.0017 forehead and known-bad min 0.0165 hb3 core).
+   * Counterweights: dark = frac(core with hp < -2s) >= 0.5 x the ring's
+   * own dark tail (a pore-killing blur that passes G12 fails), and the
+   * eye-excluded G11 ratio stays in 0.65-1.35. dL core-minus-ring is
+   * report only. */
+  const STORE = "/Volumes/files/openclinxr-assets/store";
+  const PRE = `${STORE}/skin-wrinkle-scale/albedo_detail_aisha_post10.png`;
+  const HB3_POST = `${STORE}/skin-brow-form/hb3/albedo_browform_aisha.png`;
+  const DERIV = `${STORE}/face-station-cases/aisha/run2/derive_out`;
+  const G12_BOUND = 0.0096;
+
+  const G12_HEAD = [
+    "import numpy as np, json",
+    "from PIL import Image",
+    "from scipy import ndimage",
+    "from skimage.color import rgb2lab",
+    "def Lstar(p):",
+    " a=np.array(Image.open(p).convert('RGB')).astype(float)/255.0",
+    " return rgb2lab(a)[:,:,0]",
+    "def comps(pre,post):",
+    " Lp=Lstar(pre); Lc=Lstar(post)",
+    " M=np.abs(Lc-Lp)>1e-6",
+    " M=ndimage.binary_closing(M,iterations=3); M=ndimage.binary_fill_holes(M)",
+    " lab,n=ndimage.label(M)",
+    " order=sorted(range(1,n+1),key=lambda i: ndimage.center_of_mass(lab==i)[1])",
+    " cs=[(lab==i) for i in order]",
+    " cs=[c for c in cs if (c& (ndimage.distance_transform_edt(c)>15)).any()]",
+    " return Lp,Lc,cs",
+    "def loadexcl(lpath,rpath,dil):",
+    " el=np.array(Image.open(lpath).convert('L'))>127",
+    " er=np.array(Image.open(rpath).convert('L'))>127",
+    " return ndimage.binary_dilation(el|er,iterations=dil)",
+    "def hp3(L):",
+    " return L-ndimage.gaussian_filter(L,3)",
+    "def g12(Lpre,Lpost,comp,excl):",
+    " core=(comp&(ndimage.distance_transform_edt(comp)>15))&~excl",
+    " ring=((~comp)&(ndimage.distance_transform_edt(~comp)>5)&(ndimage.distance_transform_edt(~comp)<=40))&~excl",
+    " s=float(hp3(Lpre)[ring].std())",
+    " hp=hp3(Lpost); hpre=hp3(Lpre)",
+    " return [float((hp[core]>2*s).mean()),float((hp[core]<-2*s).mean()),float((hpre[ring]>2*s).mean()),float((hpre[ring]<-2*s).mean())]",
+  ];
+
+  function g12Inputs(): boolean {
+    for (const p of [PRE, HB3_POST, `${DERIV}/mask-brows-L.png`, `${DERIV}/mask-brows-R.png`,
+      `${DERIV}/mask-eyes-L.png`, `${DERIV}/mask-eyes-R.png`]) if (!fs.existsSync(p)) return false;
+    return true;
+  }
+
+  function runLiveMesh(tmp: string): string {
+    const out = path.join(tmp, "mesh.png");
+    execFileSync("python3", [SCRIPT, PRE, out,
+      "--brows-mask-L", `${DERIV}/mask-brows-L.png`,
+      "--brows-mask-R", `${DERIV}/mask-brows-R.png`,
+      "--facecore-mask", `${DERIV}/mask-facecore.png`,
+      "--eyes-mask-L", `${DERIV}/mask-eyes-L.png`,
+      "--eyes-mask-R", `${DERIV}/mask-eyes-R.png`,
+      "--brow-form", "mesh"], { encoding: "utf8" });
+    return out;
+  }
+
+  it("G12 calibration: PRE ring + open forehead <= 0.0096, frozen hb3 cores > 0.0096", () => {
+    if (!g12Inputs()) return;
+    const got = JSON.parse(pyMeasure([
+      ...G12_HEAD,
+      `Lp,Lc,cs=comps(${JSON.stringify(PRE)},${JSON.stringify(HB3_POST)})`,
+      `excl=loadexcl(${JSON.stringify(`${DERIV}/mask-eyes-L.png`)},${JSON.stringify(`${DERIV}/mask-eyes-R.png`)},8)`,
+      "tails=[g12(Lp,Lc,c,excl) for c in cs]",
+      "Fh=hp3(Lp)[1700:2500,3170:3300]; Fs=float(Fh.std())",
+      "fore=[float((Fh>2*Fs).mean()),float((Fh<-2*Fs).mean())]",
+      "print(json.dumps({'tails':tails,'fore':fore}))",
+    ])) as { tails: Array<[number, number, number, number]>; fore: [number, number] };
+    expect(got.tails).toHaveLength(2);
+    // Known-good: ring self bright (lane-manager 0.0011-0.0027) + open
+    // forehead 0.0017, all under the bound.
+    for (const [, , ringBright] of got.tails) expect(ringBright).toBeLessThanOrEqual(G12_BOUND);
+    expect(got.fore[0]).toBeLessThanOrEqual(G12_BOUND);
+    // Known-bad: frozen hb3 cores 0.0165/0.0308, both over the bound (RED).
+    const badBright = got.tails.map(([b]) => b).sort((a, b) => a - b);
+    expect(badBright[0]).toBeCloseTo(0.0165, 2);
+    expect(badBright[1]).toBeCloseTo(0.0308, 2);
+    expect(badBright.every((b) => b > G12_BOUND)).toBe(true);
+  }, 300000);
+
+  it("G12 gate: the live mesh output core bright tail <= 0.0096 per side", () => {
+    if (!g12Inputs()) return;
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "brow-g12-"));
+    const out = runLiveMesh(tmp);
+    const got = JSON.parse(pyMeasure([
+      ...G12_HEAD,
+      `Lp,Lc,cs=comps(${JSON.stringify(PRE)},${JSON.stringify(out)})`,
+      `excl=loadexcl(${JSON.stringify(`${DERIV}/mask-eyes-L.png`)},${JSON.stringify(`${DERIV}/mask-eyes-R.png`)},8)`,
+      "print(json.dumps([g12(Lp,Lc,c,excl) for c in cs]))",
+    ])) as Array<[number, number, number, number]>;
+    expect(got).toHaveLength(2);
+    for (const [bright] of got) expect(bright).toBeLessThanOrEqual(G12_BOUND);
+  }, 600000);
+
+  it("G12 counterweights: dark tail >= 0.5x ring dark, G11 eye-excluded in 0.65-1.35", () => {
+    if (!g12Inputs()) return;
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "brow-g12cw-"));
+    const out = runLiveMesh(tmp);
+    const got = JSON.parse(pyMeasure([
+      ...G12_HEAD,
+      `Lp,Lc,cs=comps(${JSON.stringify(PRE)},${JSON.stringify(out)})`,
+      `excl=loadexcl(${JSON.stringify(`${DERIV}/mask-eyes-L.png`)},${JSON.stringify(`${DERIV}/mask-eyes-R.png`)},8)`,
+      "def g11r(L,comp,excl):",
+      " bp=ndimage.gaussian_filter(L,2)-ndimage.gaussian_filter(L,8)",
+      " core=(comp&(ndimage.distance_transform_edt(comp)>15))&~excl",
+      " ring=((~comp)&(ndimage.distance_transform_edt(~comp)>5)&(ndimage.distance_transform_edt(~comp)<=40))&~excl",
+      " return float(bp[core].std()/bp[ring].std()),float(L[core].mean()-L[ring].mean())",
+      "print(json.dumps([{'tails':g12(Lp,Lc,c,excl),'g11':g11r(Lc,c,excl)} for c in cs]))",
+    ])) as Array<{ tails: [number, number, number, number]; g11: [number, number] }>;
+    expect(got).toHaveLength(2);
+    for (const { tails: [, dark, , ringDark], g11: [ratio] } of got) {
+      expect(dark).toBeGreaterThanOrEqual(0.5 * ringDark);
+      expect(ratio).toBeGreaterThanOrEqual(0.65);
+      expect(ratio).toBeLessThanOrEqual(1.35);
+    }
+  }, 600000);
+});
+
 describe("the brow follows the case brow_form: report validates", () => {
   it("brow-form-report.json names the card, per-case values, and gate table", () => {
     const r = loadJson(REPORT) as {

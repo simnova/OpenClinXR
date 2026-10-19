@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Per-case brow form, hb3 (card tsk_b438966217dd814e).
+"""Per-case brow form, hb4 (card tsk_b438966217dd814e).
 
 Last chain stage. The painted brow left in the albedo is either cleared
 (brow form mesh: only the fitted mesh brow shows) or shifted toward the
@@ -165,12 +165,15 @@ def patch_grain(rgb: np.ndarray, union: np.ndarray,
     eyes, below-lower-edge) weight 0, so dark hole paint cannot bleed
     upward through the blur into the source band and return as
     transplanted horizontal streaks. Each patch is demeaned (tiles carry
-    texture, not tone steps) and amplitude-matched to the pool std (a flat
-    texture envelope: no patch-scale amplitude modulation in the row
-    means); dense overlap averaging attenuates variance, so a measured
-    per-channel renormalization matches the transplant's 2-8 px mottle band
-    to the brow-neighborhood surround's same band (deterministic energy
-    match, recorded in stdout). Source
+    texture, not tone steps), winsorized to the pool high-pass [0.5, 99.5]%
+    (hb4: a near-flat patch carrying one outlier pixel would otherwise take
+    the full amplitude-match boost and plant a 1-2 px white speckle), and
+    amplitude-matched to the pool std with clip 2.0 (flat envelope; flat
+    patches stay flat), then overlap-averaged and scalar band-gain matched
+    (hb3 2-8 px energy match: scalars keep the pool's channel correlations,
+    unlike per-channel quantile maps). The cleared interior's L* sigma-3
+    high-pass is quantile-mapped onto the pool's in match_core_hp3 (hb4
+    G12: single channel, skew kept). Source
     origins are valid only when the whole PATCH_MAX patch lies inside
     source_ok in the forehead ABOVE the union (the G9/G10/G11 reference
     rows: paint inside the union is never sampled; validity for the max
@@ -214,6 +217,10 @@ def patch_grain(rgb: np.ndarray, union: np.ndarray,
     yy = np.arange(h)[:, None]
     band = source_ok & (yy <= src_last + pmax)
     pool_std = np.array([hp[band][:, c].std() for c in range(3)])
+    # hb4 winsor bounds: the pool high-pass [0.5, 99.5]% per channel (method
+    # constants of the pools they are measured from, recorded in stdout).
+    pool_lo = np.array([np.quantile(hp[band][:, c], 0.005) for c in range(3)])
+    pool_hi = np.array([np.quantile(hp[band][:, c], 0.995) for c in range(3)])
     ys, xs = np.where(union)
     y0, y1 = int(ys.min()), int(ys.max()) + 1
     x0, x1 = int(xs.min()), int(xs.max()) + 1
@@ -246,34 +253,45 @@ def patch_grain(rgb: np.ndarray, union: np.ndarray,
             continue
         sy, sx = (int(v) for v in cand[int(rng.integers(n_valid))])
         p = hp[sy:sy + (ey - jy), sx:sx + (ex - jx)].copy()
-        # Demean (no tone steps) and amplitude-match (flat envelope) each
-        # patch per channel, guarded so near-flat patches cannot blow up.
+        # Demean (no tone steps), winsorize to the pool high-pass range
+        # (hb4: a near-flat patch carrying one outlier pixel would take the
+        # full pg boost below and plant a 1-2 px white speckle; clipping
+        # patch pixels to the pool's [0.5, 99.5]% keeps only departures
+        # natural skin actually shows), then amplitude-match (flat
+        # envelope) each patch per channel, guarded so near-flat patches
+        # cannot blow up (hb4 clip 2.0: flat patches stay flat).
         p -= p.reshape(-1, 3).mean(axis=0)
+        p = np.clip(p, pool_lo, pool_hi)
         ps = p.reshape(-1, 3).std(axis=0)
         pg = np.clip(pool_std / np.maximum(ps, 0.25 * pool_std),
-                     0.25, 4.0)
+                     0.25, 2.0)
         p *= pg
         ww, ww2 = win2(s)
         grain[jy:ey, jx:ex] += p * ww[:ey - jy, :ex - jx]
         weight[jy:ey, jx:ex] += ww2[:ey - jy, :ex - jx]
     nz = weight > 0
     grain[nz] /= weight[nz][:, None]
-    # Band-matched energy renormalization (measured, not fitted): dense
-    # overlap averaging of correlated source patches tilts the transplant
-    # spectrum low, so total-std matching under-delivers the gated 2-8 px
-    # band on 1/f skin. Scale each channel so the transplant's gauss(2) -
-    # gauss(8) bandpass std over covered union pixels matches the clean
-    # source pool's same bandpass std (hole-excluded blurs throughout, so no
-    # hole paint leaks into either side). The pool is lash-free forehead
-    # skin, matching what the eye-excluded G11 ring measures. Deterministic
-    # given seed + inputs.
+    # Distribution match, hb4 (replaces the hb3 scalar band gain): dense
+    # overlap averaging plus a scalar gain symmetrizes the transplant
+    # (hb3 core bright tail 0.0165/0.0308 vs natural 0.0011-0.0027, while
+    # dark tails match at ~0.03: the pool high-pass is dark-skewed and no
+    # scalar can map a symmetric distribution onto a skewed one, so a
+    # min-error boundary cut would keep the defect). The transplant keeps
+    # the pool's channel correlations (scalar band gain, hb3), and the
+    # final L* high-pass over the cleared interior is quantile-mapped onto
+    # the pool's L* high-pass (single channel: no cross-channel rank
+    # stacking, so no coincident-white speckle is fabricated) in
+    # match_core_hp3 below: the core takes the pool's skew exactly, so the
+    # bright tail falls to the pool level by construction while pores
+    # (dark tail) survive. Deterministic given seed + inputs (sorting
+    # only); band energy follows the scalar gain (G11).
+    cov = union & nz
     bandpass_pool = (hole_excluded_blur(f, wgt, 2.0)
                      - hole_excluded_blur(f, wgt, 8.0))
     pool_band = np.array([bandpass_pool[band][:, c].std() for c in range(3)])
     grow = np.zeros_like(f)
     gain = []
     for c in range(3):
-        cov = union & nz
         gb = (ndimage.gaussian_filter(grain[:, :, c], 2.0)
               - ndimage.gaussian_filter(grain[:, :, c], 8.0))
         gs = float(gb[cov].std()) if cov.any() else 0.0
@@ -281,7 +299,53 @@ def patch_grain(rgb: np.ndarray, union: np.ndarray,
         gain.append(g)
         grow[:, :, c] = grain[:, :, c] * g
     return grow, {"n_splat": n_splat, "n_valid": n_valid,
-                  "gain": [round(g, 4) for g in gain]}
+                  "gain": [round(g, 4) for g in gain],
+                  "winsor": [round(float(pool_lo[c]), 3)
+                             for c in range(3)],
+                  "winsor_hi": [round(float(pool_hi[c]), 3)
+                                for c in range(3)]}
+
+
+def match_core_hp3(out: np.ndarray, f: np.ndarray, paint: np.ndarray,
+                   ref_hp: np.ndarray) -> tuple[np.ndarray, dict]:
+    """Quantile-map the cleared interior's L* sigma-3 high-pass onto the
+    clean source pool's (hb4, G12).
+
+    The pool high-pass is dark-skewed (bright self-tail 0.001-0.003 vs
+    dark ~0.03); the overlap-averaged transplant is near-symmetric, and no
+    scalar gain can map one onto the other (so a min-error boundary cut
+    would keep the defect). L* is a single channel, so unlike a per-channel
+    RGB match no cross-channel rank stacking can fabricate coincident-white
+    speckle. The map is rank-preserving (monotonic), so orientation and
+    structure survive (G9); chroma (a*, b*) is untouched. Writes only
+    inside the eroded paint interior; outside pixels are returned
+    bit-identical (the == 0 outside gate stands).
+    """
+    r = ndimage.binary_erosion(paint, iterations=2)
+    if not r.any() or ref_hp.size < 2:
+        return out, {"hp3_match": "skipped"}
+    lab = rgb2lab(np.clip(out, 0, 255).astype(np.float64) / 255.0)
+    L = lab[:, :, 0]
+    blur = ndimage.gaussian_filter(L, 3.0)
+    hp = L - blur
+    ref = np.sort(ref_hp)
+    v = hp[r]
+    order = np.argsort(v, kind="stable")
+    mapped_sorted = np.interp(np.linspace(0.0, 1.0, v.size),
+                              np.linspace(0.0, 1.0, ref.size), ref)
+    col = np.empty_like(v)
+    col[order] = mapped_sorted
+    L2 = blur + hp
+    L2[r] = blur[r] + col
+    lab2 = lab.copy()
+    lab2[:, :, 0] = L2
+    fixed = np.clip(lab2rgb(lab2) * 255.0, 0, 255)
+    res = out.copy()
+    res[r] = fixed[r]
+    return res, {"hp3_match": "pool-quantile",
+                 "hp3_n": int(r.sum()),
+                 "hp3_ref_n": int(ref.size),
+                 "hp3_ref_std": round(float(ref.std()), 4)}
 
 
 def clear_mesh(rgb: np.ndarray, union: np.ndarray, alpha: np.ndarray,
@@ -331,13 +395,26 @@ def clear_mesh(rgb: np.ndarray, union: np.ndarray, alpha: np.ndarray,
     # writes outside the union stand (beta is 0 outside the paint union).
     b = ap
     out = f * (1.0 - b) + (low + grain) * b
-    return np.clip(out, 0, 255), {
+    out = np.clip(out, 0, 255)
+    # hb4 G12: the pool reference is the input's own L* sigma-3 high-pass
+    # over the clean forehead source pool (same pool the transplant draws
+    # from: natural, lash-free skin).
+    pool_L = rgb2lab(f / 255.0)[:, :, 0]
+    yy = np.arange(f.shape[0])[:, None]
+    urows = np.where(union)[0]
+    top_u = int(urows.min())
+    gap = max(2, (int(urows.max()) - top_u + 1) // 60)
+    pool_band = source_ok & (yy <= top_u - gap)
+    ref_hp = (pool_L - ndimage.gaussian_filter(pool_L, 3.0))[pool_band]
+    out, minfo = match_core_hp3(out, f, paint, ref_hp)
+    return out, {
         "grain_seed": GRAIN_SEED,
         "grain_patch_min": GRAIN_PATCH_MIN,
         "grain_patch_max": GRAIN_PATCH_MAX,
         "grain_sigma": GRAIN_SIGMA,
         "paint_frac": round(float(paint.sum() / union.sum()), 4),
         **ginfo,
+        **minfo,
     }
 
 
