@@ -307,16 +307,17 @@ function renderSelectedCases(input: {
     const glbAbs = plantGlb ?? resolved.inputs.glb;
     // A planted GLB is deliberately NOT the recorded one (that is the whole
     // point of the known-bad arm); every OTHER recorded input is still
-    // re-hashed and refused on mismatch.
+    // re-hashed and refused on mismatch. The GLB itself is proven through the
+    // tool's glb.sha256, not its inputs map (textures only), so provenance
+    // covers the non-GLB record inputs; render.json still records every input.
     const recorded = resolved.inputs.recordShas.filter((r) => plantGlb === null || r.path !== resolved.inputs.glb);
+    const provenanceInputs = recorded.filter((r) => r.path !== resolved.inputs.glb);
     const shaCheck = verifyInputShas({ inputs: recorded, hashFile: sha256File });
     if (!shaCheck.ok) throw new Error(`face-regression: input refused before render (sha mismatch): ${JSON.stringify(shaCheck.mismatches)} missing ${JSON.stringify(shaCheck.missing)}`);
     const outcome = renderCase({
       cwd: process.cwd(), caseId, runId: resolved.runId, runDir: renderDir,
       recordGlbSha256: plantGlb ? sha256File(plantGlb) : resolved.inputs.recordShas.find((r) => r.path === resolved.inputs.glb)?.sha256 ?? "",
-      recordInputs: plantGlb
-        ? [{ path: plantGlb, sha256: sha256File(plantGlb) }, ...recorded]
-        : resolved.inputs.recordShas,
+      recordInputs: provenanceInputs,
       variantPath, glbAbs, albedo: resolved.inputs.albedo, normal: resolved.inputs.normal,
       roughness: resolved.inputs.roughness,
       plantLabel: input.flags["plant-label"] ? String(input.flags["plant-label"]) : undefined,

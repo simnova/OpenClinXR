@@ -214,9 +214,11 @@ function samePath(a: string, b: string): boolean {
 
 /**
  * D9: the capture tool's output JSON must prove the render used the recorded
- * inputs. Every recorded input path must appear in the tool's `inputs` map
- * with the record sha, and `skinOverrideApplied.matchedMaterials` must be
- * non-empty — otherwise the GLB's embedded skin rendered and nothing says so.
+ * inputs. Every recorded NON-GLB input path (the GLB is proven separately
+ * through glb.sha256; the tool's inputs map holds textures only) must appear
+ * in the tool's `inputs` map with the record sha, and
+ * `skinOverrideApplied.matchedMaterials` must be non-empty — otherwise the
+ * GLB's embedded skin rendered and nothing says so.
  */
 export function assertCaptureProvenance(input: {
   capture: CaptureProvenance;
@@ -296,7 +298,7 @@ export function renderCase(input: {
     planted,
     plantLabel: input.plantLabel ?? null,
     recordGlbSha256: input.recordGlbSha256,
-    inputs: input.recordInputs.map((r) => ({ path: r.path, sha256: r.sha256 })),
+    inputs: [{ path: input.glbAbs, sha256: input.recordGlbSha256 }, ...input.recordInputs.map((r) => ({ path: r.path, sha256: r.sha256 }))],
     captureJson: { path: jsonPath, sha256: sha256File(jsonPath) },
     views,
   };
