@@ -29,11 +29,15 @@ import {
   TONE_CHECK_REL,
   TONE_REPORT_REL,
 } from "./shared.js";
+import { resolveRunManifest, runFamilyBaseSubStage, stage3EntryKind } from "./stage3-entry.js";
+import { measureToneAnchor } from "./tone-anchor.js";
 import {
   cfgLeaf,
   cfgLeafSource,
+  cfgPinOrNull,
   cfgValue,
   checkSha,
+  pinGate,
   runBeardSubStage,
   runColourSubStage,
   runComposeSubStage,
@@ -76,7 +80,12 @@ export function runStage1(
   };
   const tone = String(record.cases?.[caseId]?.phenotype_tone ?? "");
   const expectedFamily = caseValue<string>(caseRec, "family");
-  const anchor = toneReport.tone_anchors_Lab?.[tone];
+  const recordedAnchor = toneReport.tone_anchors_Lab?.[tone];
+  // A token with no recorded anchor gets one from the case's own goal_front
+  // image through the calibrated instrument (tone-anchor.py); no goal_front
+  // or an uncalibrated instrument leaves the stage refused.
+  const measured = recordedAnchor === undefined ? measureToneAnchor(caseId, caseRec, recordFile, tone, toneReport.families ?? {}, toneReport.nearest ?? {}) : null;
+  const anchor = recordedAnchor ?? measured?.anchor;
   if (anchor === undefined) {
     throw new Error(`tone report holds no anchor for the case tone (see ${TONE_REPORT_REL})`);
   }
@@ -90,7 +99,8 @@ export function runStage1(
   }
   const pick = Object.entries(distances).sort((a, b) => a[1] - b[1])[0]?.[0] ?? "";
   const nearestPick = toneReport.nearest?.[tone] ?? "";
-  const gatePass = reproduced && pick === expectedFamily && pick === nearestPick;
+  const gatePass =
+    reproduced && pick === expectedFamily && pick === nearestPick && (measured === null || measured.gate.pass);
   const familyAssets = String(toneReport.families?.[pick]?.assets ?? "");
   const familyAbs = path.join(ASSET_STORE_ROOT, familyAssets);
   const pickDoc = {
@@ -101,6 +111,7 @@ export function runStage1(
     family_sha256: existsSync(familyAbs) ? sha256File(familyAbs) : null,
     method: "tone-report min dLab anchor vs family forehead mean (tone-check.py)",
     gate: `pick == tone-report nearest[${tone}]: ${pick === nearestPick ? "PASS" : "FAIL"}`,
+    ...(measured !== null ? { anchor_source: measured.source, anchor_gate: measured.gate } : {}),
   };
   const pickOut = writeStage1Pick(outDir, pickDoc);
   return {
@@ -113,9 +124,11 @@ export function runStage1(
     ran: true,
     gate: {
       pass: gatePass,
-      detail: reproduced
-        ? `tone-check.py reproduced ${TONE_REPORT_REL} byte-identical; pick ${pick} == nearest[${tone}] ${nearestPick}`
-        : `tone-check.py rewrote ${TONE_REPORT_REL} (before ${before.slice(0, 12)} after ${after.slice(0, 12)}); pick ${pick}`,
+      detail:
+        (reproduced
+          ? `tone-check.py reproduced ${TONE_REPORT_REL} byte-identical; pick ${pick} == nearest[${tone}] ${nearestPick}`
+          : `tone-check.py rewrote ${TONE_REPORT_REL} (before ${before.slice(0, 12)} after ${after.slice(0, 12)}); pick ${pick}`) +
+        (measured !== null ? `; anchor measured from goal_front: ${measured.gate.detail}` : ""),
     },
     wallSeconds: (Date.now() - t0) / 1000,
   };
@@ -225,7 +238,8 @@ export function runStage3Chain(options: Stage3ChainOptions): Stage3ChainResult {
     (name) => !plan.ordered.some((stage) => stage.name === name),
   );
   const colourCfg = caseValue<Record<string, unknown>>(caseRec, "stage3_colour");
-  const socketExpected = cfgLeaf(colourCfg, "expected_chain_socket_sha256", "value");
+  const socketPin = cfgPinOrNull(colourCfg, "expected_chain_socket_sha256");
+  const socketExpected = socketPin ?? "";
   const socketExpectedSource = cfgLeafSource(colourCfg, "expected_chain_socket_sha256");
   const records: SubStage[] = [];
   let manifestSha256 = "";
@@ -281,13 +295,7 @@ export function runStage3Chain(options: Stage3ChainOptions): Stage3ChainResult {
           detail: `replay segment ${segmentIndex} ran ${segment.stages.map((entry) => entry.name).join(",")} (no socket gate in this segment)`,
         }
       : (() => {
-          const socketSha = sha256File(socketPng);
-          return socketSha === socketExpected
-            ? { pass: true, detail: `chain socket matches the pinned known-good (${socketSha.slice(0, 12)})` }
-            : {
-                pass: false,
-                detail: `chain socket ${socketSha.slice(0, 12)} vs known-good ${socketExpected.slice(0, 12)}`,
-              };
+          return pinGate("chain socket", sha256File(socketPng), socketPin);
         })();
     const record: SubStage = {
       script: FACE_REALISM_REPLAY_REL,
@@ -354,16 +362,21 @@ export function runStage3(
   const chainSubject = caseValue<string>(caseRec, "chain_subject");
   const skipStages = caseValue<string[]>(caseRec, "stage3_skip_stages");
   const glbAbs = storeAbs(entryString(caseRec, "stage3_glb", "assets", "value"));
-  checkSha(glbAbs, entryString(caseRec, "stage3_glb", "sha256", "value"));
-  const compose = runComposeSubStage(caseRec, outDir);
-  const composeOut = compose.outputs[0]!.path;
-  const colour = runColourSubStage(caseRec, composeOut, outDir);
-  const colourOut = colour.outputs[0]!.path;
+  const glbSha = entryString(caseRec, "stage3_glb", "sha256", "value");
+  checkSha(glbAbs, glbSha);
+  const entryKind = stage3EntryKind(caseRec);
+  const entrySubStages: SubStage[] = [];
+  if (entryKind === "family_base") entrySubStages.push(runFamilyBaseSubStage(caseRec, outDir));
+  else {
+    const compose = runComposeSubStage(caseRec, outDir);
+    entrySubStages.push(compose, runColourSubStage(caseRec, compose.outputs[0]!.path, outDir));
+  }
+  const colourOut = entrySubStages.at(-1)!.outputs[0]!.path;
   const chainFile =
     recordChainManifest !== undefined && recordChainManifest.length > 0
       ? recordChainManifest
       : (caseValue<string>(caseRec, "chain_manifest") as string);
-  const manifestAbs = path.isAbsolute(chainFile) ? chainFile : path.join(repoRoot(), chainFile);
+  let manifestAbs = path.isAbsolute(chainFile) ? chainFile : path.join(repoRoot(), chainFile);
   for (const entry of readdirSync(outDir)) {
     if (
       entry.startsWith("albedo_") ||
@@ -380,7 +393,10 @@ export function runStage3(
       }
     }
   }
-  const manifestDoc = readJsonFile(manifestAbs) as Stage3ManifestDoc;
+  const resolved = resolveRunManifest(readJsonFile(manifestAbs) as Stage3ManifestDoc, manifestAbs, chainSubject, glbSha, outDir);
+  const manifestDoc = resolved.manifestDoc;
+  manifestAbs = resolved.manifestAbs;
+  const manifestGlbOverride = resolved.override;
   const deriveSize = caseValue<number>(caseRec, "derive_size");
   const deriveParams = manifestDoc.stages?.find((stage) => stage.name === "derive")?.parameters;
   if (deriveParams?.["size"] !== deriveSize) {
@@ -408,22 +424,22 @@ export function runStage3(
   const finalAbs = chained.finalAbs;
   const finalSha256 = chained.finalSha256;
   const finalStageName = chained.finalStageName;
-  const subStages = [compose, colour, ...chainRecords];
+  const subStages = [...entrySubStages, ...chainRecords];
   const firstReplay = chainRecords.find((sub) => sub.script === FACE_REALISM_REPLAY_REL);
   const inputs: StageIO[] = [
-    ...compose.inputs,
-    ...colour.inputs,
+    ...entrySubStages.flatMap((sub) => sub.inputs),
     ...chainRecords.flatMap((sub) => sub.inputs),
   ];
   const outputs: StageIO[] = [
-    ...compose.outputs,
-    ...colour.outputs,
+    ...entrySubStages.flatMap((sub) => sub.outputs),
     ...chainRecords.flatMap((sub) => sub.outputs),
   ];
   rec.script = FACE_REALISM_REPLAY_REL;
   rec.argv = firstReplay?.argv ?? [];
   rec.note =
-    "compose -> colour -> manifest segments in order (replay runs interleaved with standalone beard/detail; see extra.subStages and extra.executedChainStages); the final albedo is the last executed manifest stage output";
+    entryKind === "family_base"
+      ? "family base (stage-2 output at the derive size) -> manifest segments in order (replay runs interleaved with standalone beard/detail; see extra.subStages and extra.executedChainStages); no goal-derived donor island or colour solve exists for this case, so compose and colour do not run; the final albedo is the last executed manifest stage output"
+      : "compose -> colour -> manifest segments in order (replay runs interleaved with standalone beard/detail; see extra.subStages and extra.executedChainStages); the final albedo is the last executed manifest stage output";
   rec.inputs = inputs;
   rec.outputs = outputs;
   rec.ran = true;
@@ -433,13 +449,14 @@ export function runStage3(
   // stage with no pin passes through on the sub-stage gates, recorded.
   const finalCfgKey = finalStageName === "detail_bands" ? "stage3_detail" : finalStageName === "beard_shadow" ? "stage3_beard" : null;
   const finalCfg = finalCfgKey !== null ? caseValue<Record<string, unknown>>(caseRec, finalCfgKey) : null;
-  const finalExpected = finalCfg !== null ? cfgLeaf(finalCfg, "expected_out_sha256", "value") : finalSha256;
+  const finalPin = finalCfg !== null ? cfgPinOrNull(finalCfg, "expected_out_sha256") : finalSha256;
+  const finalExpected = finalPin ?? "";
   const finalExpectedSource =
     finalCfg !== null ? cfgLeafSource(finalCfg, "expected_out_sha256") : "no pin for the final stage; sub-stage gates decide";
   rec.gate = {
-    pass: failed.length === 0 && finalSha256 === finalExpected,
+    pass: failed.length === 0 && finalPin !== null && finalSha256 === finalExpected,
     detail:
-      failed.length === 0 && finalSha256 === finalExpected
+      failed.length === 0 && finalPin !== null && finalSha256 === finalExpected
         ? `compose+colour+chain+standalone all match their pinned known-goods; final ${path.basename(finalAbs)} ${finalSha256.slice(0, 12)}`
         : `failing sub-stages: ${failed.map((sub) => `${sub.script.split("/").at(-1)}: ${sub.gate.detail}`).join("; ")}${finalSha256 === finalExpected ? "" : `; final ${path.basename(finalAbs)} ${finalSha256.slice(0, 12)} vs known-good ${finalExpected.slice(0, 12)}`}`,
     knownGood: {
@@ -464,6 +481,8 @@ export function runStage3(
     socketExpectedSource: socketSource,
     socketActual: socketSha,
     finalAlbedo: { file: finalAbs, sha256: finalSha256, stage: finalStageName },
+    ...(entryKind === "family_base" ? { entry: entryKind } : {}),
+    ...(manifestGlbOverride !== null ? { manifestGlbOverride } : {}),
     subStages: subStages.map((sub) => ({
       script: sub.script,
       argv: sub.argv,

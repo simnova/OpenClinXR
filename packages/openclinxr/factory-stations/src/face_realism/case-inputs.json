@@ -602,14 +602,14 @@
      "value": "87aafbcf20698b3f1ad07c408cb34d28775e962f8bb199024d3bfe336c535ffa"
     }
    },
-    "fit_bake": {
-     "value": false,
-     "source": "CARD tsk_2c547dda8753bba0 h1: fit-bake is opt-in; default off (landing safety); no goal-front target exists for the child anyway"
-    },
-    "brow_form": {
-     "value": "texture",
-     "source": "default texture (CARD tsk_27220fbaeb48dab4 STEP 1): the mesh-vs-albedo bake-off cannot be rendered for the child — stage3_compose and stage3_colour are refused_no_goal_derived_inputs (no child goal-derived inputs; skin lane) and lid_ring_source is null (no child pre-conform base bake; eye lane, the card's F5 refusal), so no child stage-4 GLB or chain albedo exists to render on the room rig; revisit when the skin lane derives child goal inputs"
-    },
+   "fit_bake": {
+    "value": false,
+    "source": "CARD tsk_2c547dda8753bba0 h1: fit-bake is opt-in; default off (landing safety); no goal-front target exists for the child anyway"
+   },
+   "brow_form": {
+    "value": "texture",
+    "source": "default texture (CARD tsk_27220fbaeb48dab4 STEP 1): the mesh-vs-albedo bake-off cannot be rendered for the child (CARD tsk_a59e4c0c6c8e6b98: the child now has a completed station run and a stage-4 GLB, but the mesh-vs-albedo brow bake-off has still not been rendered for it; the default stays texture until it is)"
+   },
    "fit_case": {
     "source": "tools/openclinxr/evidence/face-fit/any-subject-targets.json:cases key peds_asthma_parent_anxiety_v1 (child goal-front landmark target generated this card)",
     "value": "peds_asthma_parent_anxiety_v1"
@@ -625,16 +625,16 @@
      "pallor": 0.0
     }
    },
-    "lid_ring_source": {
-     "assets": {
-      "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/child-conform-report.json:bake.baseGlb.path",
-      "value": "lid-conform-child/peds_asthma_parent_anxiety_v1-eyeglobe-base.glb"
-     },
-     "sha256": {
-      "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/child-conform-report.json:bake.baseGlb.sha256",
-      "value": "5196e1aa4ca6974ea6a0faf21717334fe1e9cc06bbf235cca3009fb3c13285b4"
-     }
+   "lid_ring_source": {
+    "assets": {
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/child-conform-report.json:bake.baseGlb.path",
+     "value": "lid-conform-child/peds_asthma_parent_anxiety_v1-eyeglobe-base.glb"
     },
+    "sha256": {
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/child-conform-report.json:bake.baseGlb.sha256",
+     "value": "5196e1aa4ca6974ea6a0faf21717334fe1e9cc06bbf235cca3009fb3c13285b4"
+    }
+   },
    "materializer_argv": {
     "source": "child reference token from tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7547 (--reference peds_patient_child) plus the shared --actor-role/--bake-device/--eye-asset/--eye-cornea tokens every adult case row carries; --output is appended per run by the station",
     "value": [
@@ -677,48 +677,76 @@
       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:stages[beard_shadow].parameters.texels_per_mm"
      },
      "expected_out_sha256": {
-      "value": null,
-       "source": "no pinned child beard albedo exists; the identity expectation (albedo_beard == albedo_socket) is only pinned for aisha (aisha-real-chain-report.json:G3_real_chain)"
-       }
-      }
-     },
-    "stage3_detail": {
-     "source": "no pinned child detail albedo exists; the child never reaches stage 3 (refused at stage 1/3 on missing goal-derived inputs)",
-     "value": {
-      "expected_out_sha256": {
-       "value": null,
-       "source": "no child stage-3 run exists; kept null so stage 3 refuses instead of comparing"
-      }
+      "value": "edb6a7a98f73da4ec6ea5e596a87ce85f80d2f7e22ec6f5fa9cb6e9f77894676",
+      "source": "albedo_beard.png from tsk_a59e4c0c6c8e6b98 run A (family-entry chain probe on the same inputs; run9/run10 verify it); equals the socket sha because the child beard weight is 0.0 (identity per chain-manifest.json stages[beard_shadow].parameter_sources.weight)"
      }
-    },
+    }
+   },
+   "stage3_detail": {
+    "source": "detail_bands.py standalone argv mirrors replay.py run_stage detail_bands; gains from the chain manifest subject overrides (child row carries none, so the manifest base crease_gain 0.0 / pore_gain 0.0 apply)",
+    "value": {
+     "expected_out_sha256": {
+      "value": "edb6a7a98f73da4ec6ea5e596a87ce85f80d2f7e22ec6f5fa9cb6e9f77894676",
+      "source": "albedo_detail.png from tsk_a59e4c0c6c8e6b98 run A (family-entry chain probe on the same inputs; run9/run10 verify it); equals the socket sha because the child's detail_bands gains are the manifest base 0.0/0.0 (identity)"
+     }
+    }
+   },
    "stage3_colour": {
-    "source": "still refused on any child run: face_replay_colour.py needs a goal-derived solve for the subject; the child goal_front exists as of this card but no child solve/params were derived (skin lane); case-inputs keeps the refusing marker so stage 3 refuses instead of substituting another case",
-    "value": "refused_no_goal_derived_inputs"
+    "source": "no goal-derived donor island or colour solve exists for this case: face_replay_compose.py consumes a stored image-model island and face_replay_colour.py a goal-solved parameter file (adult rows: reference-set manifest goal_front -> derive/solve cards), and neither was produced for the child; the station therefore enters the skin chain from this case's own stage-2 output (the tone-picked family atlas at the case layer weights, resampled to derive_size by drivers/stage3_family_base.py) instead of refusing or substituting another case's inputs (tsk_a59e4c0c6c8e6b98)",
+    "value": {
+     "entry": {
+      "value": "stage2-family-output",
+      "source": "no goal-derived donor island or colour solve exists for this case: face_replay_compose.py consumes a stored image-model island and face_replay_colour.py a goal-solved parameter file (adult rows: reference-set manifest goal_front -> derive/solve cards), and neither was produced for the child; the station therefore enters the skin chain from this case's own stage-2 output (the tone-picked family atlas at the case layer weights, resampled to derive_size by drivers/stage3_family_base.py) instead of refusing or substituting another case's inputs (tsk_a59e4c0c6c8e6b98)"
+     },
+     "expected_chain_socket_sha256": {
+      "value": "edb6a7a98f73da4ec6ea5e596a87ce85f80d2f7e22ec6f5fa9cb6e9f77894676",
+      "source": "albedo_socket.png from tsk_a59e4c0c6c8e6b98 run A (family-entry chain probe on the same inputs; run9/run10 verify it); regression pin, not an independent known-good: no goal-derived child chain exists to pin against"
+     }
+    }
    },
    "stage3_compose": {
-    "source": "still refused on any child run: face_replay_compose.py needs a subject base albedo, skin-family island donor and masks; the child goal_front exists as of this card but no child compose inputs were derived (skin lane); case-inputs keeps the refusing marker so stage 3 refuses instead of substituting another case",
-    "value": "refused_no_goal_derived_inputs"
+    "source": "no goal-derived donor island or colour solve exists for this case: face_replay_compose.py consumes a stored image-model island and face_replay_colour.py a goal-solved parameter file (adult rows: reference-set manifest goal_front -> derive/solve cards), and neither was produced for the child; the station therefore enters the skin chain from this case's own stage-2 output (the tone-picked family atlas at the case layer weights, resampled to derive_size by drivers/stage3_family_base.py) instead of refusing or substituting another case's inputs (tsk_a59e4c0c6c8e6b98)",
+    "value": {
+     "entry": {
+      "value": "stage2-family-output",
+      "source": "no goal-derived donor island or colour solve exists for this case: face_replay_compose.py consumes a stored image-model island and face_replay_colour.py a goal-solved parameter file (adult rows: reference-set manifest goal_front -> derive/solve cards), and neither was produced for the child; the station therefore enters the skin chain from this case's own stage-2 output (the tone-picked family atlas at the case layer weights, resampled to derive_size by drivers/stage3_family_base.py) instead of refusing or substituting another case's inputs (tsk_a59e4c0c6c8e6b98)"
+     }
+    }
    },
    "stage3_glb": {
     "assets": {
-     "source": "the only child humanoid GLB is apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (sha256 read from that read-only shipped file; copied byte-identical into the store for the station)",
-     "value": "face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb"
+     "source": "lid-conform-child/peds_asthma_parent_anxiety_v1-eyeglobe-base.glb is the dense (41950-vertex) pre-conform base bake named by tools/openclinxr/asset-pipeline/realism-head/lid-conform/child-conform-report.json:bake.baseGlb.path; the shipped decimated child (mpfb-peds-patient-child.glb, 11075 verts) refuses derive on face-region density 211799 < 400000 faces/m2 (skin/face-replay/child-inputs-report.json:subjects.child_input), and that report routes the child to its denser mesh (route.denser_mesh); this is the same file as lid_ring_source (adult rows name a separate base bake, the child has one)",
+     "value": "lid-conform-child/peds_asthma_parent_anxiety_v1-eyeglobe-base.glb"
     },
     "sha256": {
-     "source": "sha256 of apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (read-only shipped child)",
-     "value": "a969db3ba0a63d43597b5c3007a6e520a85c46bec9e28c97aa88638500ed79b1"
+     "source": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/child-conform-report.json:bake.baseGlb.sha256",
+     "value": "5196e1aa4ca6974ea6a0faf21717334fe1e9cc06bbf235cca3009fb3c13285b4"
     }
    },
-    "stage3_skip_stages": {
-     "source": "beard_shadow and detail_bands skipped in the replay so they run as their own subprocesses in manifest position (same as the adult cases); occlusion is not skipped",
-     "value": [
-      "beard_shadow",
-      "detail_bands"
-     ]
-    },
+   "stage3_skip_stages": {
+    "source": "beard_shadow and detail_bands skipped in the replay so they run as their own subprocesses in manifest position (same as the adult cases); occlusion is not skipped",
+    "value": [
+     "beard_shadow",
+     "detail_bands"
+    ]
+   },
    "tone_anchor_lab": {
-    "source": "tools/openclinxr/asset-pipeline/skin/families/tone-report.json:tone_anchors_Lab has warm_light and warm_medium only (tone-check.py:152-156); the child tone warm_light_child has no anchor row, so stage 1 cannot compute a family distance for it",
-    "value": null
+    "source": "tools/openclinxr/asset-pipeline/skin/families/tone-anchor-report.json:child.anchor_Lab (tone-anchor.py on the reference-set goal_front third-subject/goal-front.png sha 02618d52...; margin over calibration noise 1.67 >= 1; stage 1 re-measures it every run and refuses on mismatch)",
+    "value": [
+     60.81,
+     12.99,
+     20.89
+    ]
+   },
+   "stage4_known_good": {
+    "assets": {
+     "value": "face-station-cases/peds_asthma_parent_anxiety_v1/inputs/peds_asthma_parent_anxiety_v1-lidconform.glb",
+     "source": "byte copy of face-station-cases/peds_asthma_parent_anxiety_v1/run8/peds_asthma_parent_anxiety_v1-lidconform.glb (tsk_a59e4c0c6c8e6b98 run A stage-4 output); the adult rows pin bakes the same way"
+    },
+    "sha256": {
+     "value": "268c8422862dbec1528ed2d72adffa1cfa752a4789815c2c2f6985d8adceab82",
+     "source": "face-station-cases/peds_asthma_parent_anxiety_v1/run8/peds_asthma_parent_anxiety_v1-lidconform.glb (tsk_a59e4c0c6c8e6b98 run A); regression pin, not an independent known-good"
+    }
    }
   }
  },

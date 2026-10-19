@@ -34,6 +34,37 @@ export function cfgLeaf(cfg: Record<string, unknown>, key: string, field: string
   return value;
 }
 
+/**
+ * A pin that is not a string yet (value null) is a bootstrap row: the run
+ * records its actual and the gate FAILS (never passes on a missing pin), so
+ * the pin can be written from that run and the next run verifies it.
+ */
+export function cfgPinOrNull(cfg: Record<string, unknown>, key: string): string | null {
+  const node = cfg[key] as Record<string, unknown> | undefined;
+  const value = node?.["value"];
+  return typeof value === "string" ? value : null;
+}
+
+export function pinGate(
+  what: string,
+  actual: string,
+  expected: string | null,
+): { pass: boolean; detail: string } {
+  if (expected === null) {
+    return {
+      pass: false,
+      detail: `${what} ${actual.slice(0, 12)} has no pinned known-good (value null in case-inputs.json): recorded for pinning, gate fails closed`,
+    };
+  }
+  return {
+    pass: actual === expected,
+    detail:
+      actual === expected
+        ? `${what} matches the pinned known-good (${actual.slice(0, 12)})`
+        : `${what} ${actual.slice(0, 12)} vs known-good ${expected.slice(0, 12)}`,
+  };
+}
+
 export function cfgLeafSource(cfg: Record<string, unknown>, key: string): string {
   return cfgLeaf(cfg, key, "source");
 }
@@ -249,7 +280,7 @@ export function runBeardSubStage(
   ];
   runMisePython([script, ...argv], 600_000);
   const outSha = sha256File(outPng);
-  const expected = cfgLeaf(cfg, "expected_out_sha256", "value");
+  const expected = cfgPinOrNull(cfg, "expected_out_sha256");
   const inputs: StageIO[] = [
     { path: landmarks, sha256: sha256File(landmarks) },
     { path: lipsMask, sha256: sha256File(lipsMask) },
@@ -266,13 +297,7 @@ export function runBeardSubStage(
     inputs,
     outputs: [{ path: outPng, sha256: outSha }],
     ran: true,
-    gate: {
-      pass: outSha === expected,
-      detail:
-        outSha === expected
-          ? `beard output matches the pinned known-good (${outSha.slice(0, 12)})`
-          : `beard output ${outSha.slice(0, 12)} vs known-good ${expected.slice(0, 12)}`,
-    },
+    gate: pinGate("beard output", outSha, expected),
   };
 }
 
@@ -427,7 +452,7 @@ export function runDetailSubStage(
   runMisePython([script, ...argv], 600_000);
   const outSha = sha256File(outFile);
   const detailCfg = caseValue<Record<string, unknown>>(caseRec, "stage3_detail");
-  const expected = cfgLeaf(detailCfg, "expected_out_sha256", "value");
+  const expected = cfgPinOrNull(detailCfg, "expected_out_sha256");
   const inputs: StageIO[] = [
     { path: detailInPng, sha256: sha256File(detailInPng) },
     { path: path.join(deriveOut, "mask-facecore.png"), sha256: sha256File(path.join(deriveOut, "mask-facecore.png")) },
@@ -444,12 +469,6 @@ export function runDetailSubStage(
     inputs,
     outputs,
     ran: true,
-    gate: {
-      pass: outSha === expected,
-      detail:
-        outSha === expected
-          ? `detail output matches the pinned known-good (${outSha.slice(0, 12)})`
-          : `detail output ${outSha.slice(0, 12)} vs known-good ${expected.slice(0, 12)}`,
-    },
+    gate: pinGate("detail output", outSha, expected),
   };
 }
