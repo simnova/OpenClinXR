@@ -31,7 +31,7 @@ const FACE_DIR = "packages/openclinxr/factory-stations/src/face_realism";
 const WRINKLE_REL = "tools/openclinxr/asset-pipeline/skin/face-replay/wrinkle-scale-report.json";
 const STORE_ROOT = "/Volumes/files/openclinxr-assets/store";
 
-type Bands = Record<string, Record<string, { crease: number; pore: number }>>;
+type Bands = Record<string, { crease: number; pore: number; n?: number }>;
 
 function readJson(rel: string): Record<string, unknown> {
   return JSON.parse(readFileSync(join(testRepoRoot(), rel), "utf8")) as Record<string, unknown>;
@@ -73,7 +73,8 @@ describe("the detail-bands report holds", () => {
     const caseFor: Record<string, string> = { body2: "body2", aisha: "aisha" };
     for (const [subject, rows] of Object.entries(subjects)) {
       expect(rows.executedChainStages).toEqual(manifestNames);
-      const skips = new Set(inputs.cases[caseFor[subject]]!.stage3_skip_stages.value);
+      const caseId = caseFor[subject] as string;
+      const skips = new Set(inputs.cases[caseId]!.stage3_skip_stages.value);
       expect(rows.replayExecutedChainStages).toEqual(manifestNames.filter((name) => !skips.has(name)));
     }
   });
@@ -88,9 +89,10 @@ describe("the detail-bands report holds", () => {
     };
     const renderFor: Record<string, string> = { body2: "render_body2", aisha: "render_aisha" };
     for (const [subject, rows] of Object.entries(report.subjects)) {
+      const renderKey = renderFor[subject] as string;
       for (const region of ["forehead"] as const) {
         for (const band of ["crease", "pore"] as const) {
-          const pre = wrinkle.pre[renderFor[subject]]!.bands[region]![band]!;
+          const pre = wrinkle.pre[renderKey]!.bands[region]![band]!;
           const post = wrinkle.post[subject]!.bands[region]![band]!;
           const station = rows.stationBands[region]![band]!;
           const mid = (pre + post) / 2;
