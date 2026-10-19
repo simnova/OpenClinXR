@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Per-case brow form, hb4 (card tsk_b438966217dd814e).
+"""Per-case brow form, hb5 (card tsk_b438966217dd814e).
 
 Last chain stage. The painted brow left in the albedo is either cleared
 (brow form mesh: only the fitted mesh brow shows) or shifted toward the
@@ -14,12 +14,18 @@ case goal brow (brow form texture: one solved Lab pair per case).
            forehead mean before the Telea march, so no lid-crease dark can
            drag up). Unpainted skin keeps its own low frequencies (the
            light band above the lid keeps its tone); only painted texels
-           take Telea fill. Texture by seeded 2D patch transplant: the
-           high-pass of the source skin (rgb minus gaussian-24) is
-           transplanted over the union from random (seeded) S x S source
-           patches, S uniform in [32, 48] px, blended by plain
-           overlap-blend (Hann-weighted splat accumulation normalized by
-           the weight field: overlapping, >= 8 px feathered seams;
+           take the Poisson low + transplant. Low band (hb5): direct sparse
+           Poisson solve of the hole-excluded skin low with the collar ring
+           (paint dilated 6 px, reaching clean skin past the dark 1-2 px
+           paint-edge shadow just outside the union, which stays
+           byte-identical) as Dirichlet boundary, so the fill meets the
+           surrounding skin by construction; the guidance laplacian keeps
+           the natural forehead curvature. Texture by seeded 2D patch
+           transplant: the high-pass of the source skin (rgb minus
+           gaussian-24) is transplanted over the union from random (seeded)
+           S x S source patches, S uniform in [32, 48] px, blended by plain
+           overlap-blend (Hann-weighted splat accumulation normalized by the
+           weight field: overlapping, >= 8 px feathered seams;
            uniform random positions, so no grid stride is imprinted on the
            row means; no row copies). S spans the 4-16 px mid-frequency
            skin mottle the hb2 P=6 splats cannot carry (a demeaned 6 px
@@ -30,14 +36,14 @@ case goal brow (brow form texture: one solved Lab pair per case).
            gaussian, so dark hole paint cannot bleed upward through the
            blur into the source band and return as transplanted
            horizontal streaks.
-   texture: shift each pixel by its brow coverage only: coverage from how
-           far the pixel departs from the local skin underneath
-           (skin estimate = the mesh-case restricted fill;
-           coverage = clip((L_skin - L_px)/(L_skin - L_brow_core),0,1)
-           with L_brow_core the mean of the darkest decile in the union),
-           weight = coverage^power, shift = (dL,dC)*weight*feather.
-           Bare skin inside the mask (coverage < 0.2) barely moves; the
-           per-hair shift exceeds the mean gap by construction.
+    texture: shift each pixel by its brow coverage only: coverage from how
+            far the pixel departs from the local skin underneath
+            (skin estimate = the mesh-case restricted fill;
+            coverage = clip((L_skin - L_px)/(L_skin - L_brow_core),0,1)
+            with L_brow_core the mean of the darkest decile in the union),
+            weight = coverage^power, shift = (dL,dC)*weight*feather.
+            Bare skin inside the mask (coverage < 0.2) barely moves; the
+            per-hair shift exceeds the mean gap by construction.
 
 The mode arrives via --brow-form from the replay driver, which reads it
 from case-inputs.json (chain_subject reverse lookup). This script names
@@ -50,7 +56,8 @@ import sys
 import cv2
 import numpy as np
 from PIL import Image
-from scipy import ndimage
+from scipy import ndimage, sparse
+from scipy.sparse.linalg import spsolve
 from skimage.color import lab2rgb, rgb2lab
 
 
@@ -144,6 +151,60 @@ GRAIN_PATCH_MIN = 32
 GRAIN_PATCH_MAX = 48
 GRAIN_SIGMA = 24
 GRAIN_COVERAGE = 8.0
+
+
+# hb5 Poisson collar: solve-domain dilation of the paint gate (method
+# constant, recorded in stdout). The collar is scaffolding only: it reaches
+# clean skin so the Dirichlet ring samples skin, while the dark 1-2 px
+# paint-edge shadow just outside the union (coverage ~0.45, byte-identical
+# PRE->POST, outside_max_dLab 0.0) stays untouched as interior unknowns that
+# solve to skin and are then discarded (only paint-interior is used).
+POISSON_COLLAR = 6
+
+
+def poisson_low(guidance: np.ndarray, boundary: np.ndarray,
+                domain: np.ndarray) -> np.ndarray:
+    """Laplace/Poisson solve of the low band with the ring as Dirichlet
+    boundary (hb5, mesh branch only).
+
+    Solves, per channel, 4*L[p] - sum(L[nb in domain]) = lap(guidance)[p] +
+    sum(boundary[nb not in domain]) over the domain unknowns, where
+    ``guidance`` is the smooth hole-excluded skin low (its laplacian carries
+    the natural forehead curvature) and ``boundary`` is the raw albedo (clean
+    skin at the collar's outer edge). Direct sparse solve (spsolve):
+    deterministic given identical inputs. Only the caller decides which
+    pixels are kept; pixels outside the paint gate keep the original bytes
+    exactly (the == 0 outside gate stands).
+    """
+    h, w = domain.shape
+    idx = np.full((h, w), -1, np.int64)
+    idx[domain] = np.arange(int(domain.sum()))
+    n = int(domain.sum())
+    ys, xs = np.where(domain)
+    rows = [np.arange(n)]
+    cols = [np.arange(n)]
+    data = [np.full(n, 4.0)]
+    lap = 4.0 * guidance[ys, xs]
+    rhs = np.zeros((n, guidance.shape[2]))
+    for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+        yn = np.clip(ys + dy, 0, h - 1)
+        xn = np.clip(xs + dx, 0, w - 1)
+        nb = domain[yn, xn]
+        lap -= guidance[yn, xn]
+        rows.append(np.arange(n)[nb])
+        cols.append(idx[yn[nb], xn[nb]])
+        data.append(np.full(int(nb.sum()), -1.0))
+        rhs[~nb] += boundary[yn[~nb], xn[~nb]]
+    rhs += lap
+    a = sparse.csr_matrix(
+        (np.concatenate(data), (np.concatenate(rows), np.concatenate(cols))),
+        shape=(n, n),
+    )
+    sol = np.stack([spsolve(a, rhs[:, c]) for c in range(rhs.shape[1])],
+                   axis=1)
+    out = boundary.copy()
+    out[ys, xs] = sol
+    return out
 
 
 def patch_grain(rgb: np.ndarray, union: np.ndarray,
@@ -281,10 +342,12 @@ def patch_grain(rgb: np.ndarray, union: np.ndarray,
     # final L* high-pass over the cleared interior is quantile-mapped onto
     # the pool's L* high-pass (single channel: no cross-channel rank
     # stacking, so no coincident-white speckle is fabricated) in
-    # match_core_hp3 below: the core takes the pool's skew exactly, so the
-    # bright tail falls to the pool level by construction while pores
-    # (dark tail) survive. Deterministic given seed + inputs (sorting
-    # only); band energy follows the scalar gain (G11).
+    # match_core_hp3 below, keyed by the grain's own rank (hb5:
+    # low-independent, so the Poisson low cannot reshuffle texture phases):
+    # the core takes the pool's skew exactly, so the bright tail falls to
+    # the pool level by construction while pores (dark tail) survive.
+    # Deterministic given seed + inputs (sorting only); band energy
+    # follows the scalar gain (G11).
     cov = union & nz
     bandpass_pool = (hole_excluded_blur(f, wgt, 2.0)
                      - hole_excluded_blur(f, wgt, 8.0))
@@ -307,7 +370,8 @@ def patch_grain(rgb: np.ndarray, union: np.ndarray,
 
 
 def match_core_hp3(out: np.ndarray, f: np.ndarray, paint: np.ndarray,
-                   ref_hp: np.ndarray) -> tuple[np.ndarray, dict]:
+                   ref_hp: np.ndarray,
+                   grain: np.ndarray) -> tuple[np.ndarray, dict]:
     """Quantile-map the cleared interior's L* sigma-3 high-pass onto the
     clean source pool's (hb4, G12).
 
@@ -317,9 +381,16 @@ def match_core_hp3(out: np.ndarray, f: np.ndarray, paint: np.ndarray,
     would keep the defect). L* is a single channel, so unlike a per-channel
     RGB match no cross-channel rank stacking can fabricate coincident-white
     speckle. The map is rank-preserving (monotonic), so orientation and
-    structure survive (G9); chroma (a*, b*) is untouched. Writes only
-    inside the eroded paint interior; outside pixels are returned
-    bit-identical (the == 0 outside gate stands).
+    structure survive (G9); chroma (a*, b*) is untouched. ``grain`` ranks
+    the map (hb5): pool values are assigned by rank of the transplant
+    grain's own high-pass (luminance minus gaussian-3), not by rank of the
+    composited output's high-pass. The value set is identical either way
+    (pool quantiles over the same region); grain-rank keying makes the
+    texture assignment independent of the low band, so a low change (hb5
+    Poisson fill) cannot reshuffle texture phases and move the G10
+    row-mean spectrum. Writes only inside the eroded paint interior;
+    outside pixels are returned bit-identical (the == 0 outside gate
+    stands).
     """
     r = ndimage.binary_erosion(paint, iterations=2)
     if not r.any() or ref_hp.size < 2:
@@ -329,7 +400,9 @@ def match_core_hp3(out: np.ndarray, f: np.ndarray, paint: np.ndarray,
     blur = ndimage.gaussian_filter(L, 3.0)
     hp = L - blur
     ref = np.sort(ref_hp)
-    v = hp[r]
+    key = (grain[:, :, 0] * 0.2126 + grain[:, :, 1] * 0.7152
+           + grain[:, :, 2] * 0.0722)
+    v = (key - ndimage.gaussian_filter(key, 3.0))[r]
     order = np.argsort(v, kind="stable")
     mapped_sorted = np.interp(np.linspace(0.0, 1.0, v.size),
                               np.linspace(0.0, 1.0, ref.size), ref)
@@ -360,7 +433,8 @@ def clear_mesh(rgb: np.ndarray, union: np.ndarray, alpha: np.ndarray,
     # in the texture branch; the 0.03 threshold sits at ~1 Lab unit of
     # departure, dilated 2 px to catch stroke edges, feathered inside.
     # Unpainted skin keeps its own low frequencies (so the light band above
-    # the lid keeps its tone: G7) and only painted texels take Telea fill.
+    # the lid keeps its tone: G7) and only painted texels take the Poisson
+    # low (hb5) + transplant.
     skin_L = rgb2lab(filled / 255.0)[:, :, 0]
     lab = rgb2lab(f / 255.0)
     Lp = lab[:, :, 0][union]
@@ -377,13 +451,22 @@ def clear_mesh(rgb: np.ndarray, union: np.ndarray, alpha: np.ndarray,
     # (4096 px albedo into 1280 px renders), so no fringe survives, while
     # tone stays continuous (both sides are skin estimates).
     alpha_p = inside_alpha(paint, 1.0)
-    low_telea = np.stack(
-        [ndimage.gaussian_filter(filled[:, :, c], GRAIN_SIGMA)
-         for c in range(3)], axis=2)
+    # hb5 low: Poisson solve of the hole-excluded skin low with the collar
+    # ring as Dirichlet boundary (poisson_low above). The hb4 Telea-seeded
+    # low sat ~2.4 L* below the local surround (global-median seed +
+    # sigma-24 averaging of distant skin vs the brighter local ring); the
+    # Dirichlet ring pins the fill to the surrounding skin by construction
+    # while the guidance laplacian keeps the natural forehead curvature.
+    # The solve domain is paint dilated by POISSON_COLLAR (scaffolding: the
+    # collar reaches clean skin past the dark 1-2 px paint-edge shadow just
+    # outside the union, which stays byte-identical); only paint-interior
+    # solution pixels are used, so zero writes outside the union stand.
     low_pre = hole_excluded_blur(f, source_ok.astype(np.float64),
-                                   GRAIN_SIGMA)
+                                 GRAIN_SIGMA)
+    domain = ndimage.binary_dilation(paint, iterations=POISSON_COLLAR)
+    low_full = poisson_low(low_pre, f, domain)
+    low = np.where(paint[:, :, None], low_full, f)
     ap = alpha_p[:, :, None]
-    low = low_pre * (1.0 - ap) + low_telea * ap
     grain, ginfo = patch_grain(rgb, union, source_ok)
     # Outer blend follows the ragged paint gate (beta), not the smooth mask
     # edge (alpha): a mask-edge feather would retain a diminishing copy of
@@ -406,12 +489,13 @@ def clear_mesh(rgb: np.ndarray, union: np.ndarray, alpha: np.ndarray,
     gap = max(2, (int(urows.max()) - top_u + 1) // 60)
     pool_band = source_ok & (yy <= top_u - gap)
     ref_hp = (pool_L - ndimage.gaussian_filter(pool_L, 3.0))[pool_band]
-    out, minfo = match_core_hp3(out, f, paint, ref_hp)
+    out, minfo = match_core_hp3(out, f, paint, ref_hp, grain)
     return out, {
         "grain_seed": GRAIN_SEED,
         "grain_patch_min": GRAIN_PATCH_MIN,
         "grain_patch_max": GRAIN_PATCH_MAX,
         "grain_sigma": GRAIN_SIGMA,
+        "poisson_collar": POISSON_COLLAR,
         "paint_frac": round(float(paint.sum() / union.sum()), 4),
         **ginfo,
         **minfo,

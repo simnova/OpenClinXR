@@ -806,6 +806,173 @@ describe("the brow follows the case brow_form: G12 bright-tail speckle (hb4)", (
   }, 600000);
 });
 
+describe("the brow follows the case brow_form: G13 boundary tone step (hb5)", () => {
+  /** G13: the low-frequency fill must meet its boundary. Per component M
+   * (as G11), signed distance sd = +inside depth / -outside distance,
+   * restricted to the forehead side (columns left of the component
+   * centroid column minus 5, eyes dilated 12 px excluded); mean L* in 3-px
+   * bands sd in [-12,-9),..., [12,15); minus the mean of the four outside
+   * bands (-12..0). T = midpoint of the natural max |band| (>= 6
+   * translations, dx -160..-180, dy -60..60, no overlap with the
+   * 40-px-dilated brow union, eyes excluded) and the known-bad hb4 worst
+   * band on the better side. If margin / natural sd < 1 the gate is
+   * report-only. RED: the frozen hb4 file fails the bound. */
+  const STORE = "/Volumes/files/openclinxr-assets/store";
+  const PRE = `${STORE}/skin-wrinkle-scale/albedo_detail_aisha_post10.png`;
+  const HB4_POST = `${STORE}/skin-brow-form/hb4/albedo_browform_aisha.png`;
+  const DERIV = `${STORE}/face-station-cases/aisha/run2/derive_out`;
+  const G13_BOUND_HINT = 1.39; // lane-manager known-bad hb4 worst, better side
+  const G13_EDGES: Array<[number, number]> = [[-12, -9], [-9, -6], [-6, -3], [-3, 0], [0, 3], [3, 6], [6, 9], [9, 12], [12, 15]];
+  const G13_DX = [-160, -170, -180];
+  const G13_DY = [-60, -45, -30, -15, 0, 15, 30, 45, 60];
+
+  const G13_HEAD = [
+    "import numpy as np, json, itertools",
+    "from PIL import Image",
+    "from scipy import ndimage",
+    "from skimage.color import rgb2lab",
+    "def Lstar(p):",
+    " a=np.array(Image.open(p).convert('RGB')).astype(float)/255.0",
+    " return rgb2lab(a)[:,:,0]",
+    "def comps(pre,post):",
+    " Lp=Lstar(pre); Lc=Lstar(post)",
+    " M=np.abs(Lc-Lp)>1e-6",
+    " M=ndimage.binary_closing(M,iterations=3); M=ndimage.binary_fill_holes(M)",
+    " lab,n=ndimage.label(M)",
+    " order=sorted(range(1,n+1),key=lambda i: ndimage.center_of_mass(lab==i)[1])",
+    " cs=[(lab==i) for i in order]",
+    " cs=[c for c in cs if (c&(ndimage.distance_transform_edt(c)>15)).any()]",
+    " return Lp,Lc,cs",
+    "def loadexcl(lpath,rpath,dil):",
+    " el=np.array(Image.open(lpath).convert('L'))>127",
+    " er=np.array(Image.open(rpath).convert('L'))>127",
+    " return ndimage.binary_dilation(el|er,iterations=dil)",
+    "def profile_roi(L,comp,excl):",
+    " ys,xs=np.where(comp)",
+    " y0,y1=max(0,ys.min()-260),min(L.shape[0],ys.max()+260)",
+    " x0,x1=max(0,xs.min()-300),min(L.shape[1],xs.max()+80)",
+    " c=comp[y0:y1,x0:x1]; Lc=L[y0:y1,x0:x1]; ex=excl[y0:y1,x0:x1]",
+    " cy,cx=ndimage.center_of_mass(comp)",
+    " din=ndimage.distance_transform_edt(c); dout=ndimage.distance_transform_edt(~c)",
+    " sd=np.where(c,din,-dout)",
+    " colok=(np.arange(x0,x1)[None,:]<=(int(cx)-5))",
+    " keep=colok&~ex",
+    " bands=[float(Lc[(sd>=lo)&(sd<hi)&keep].mean()) for lo,hi in " + JSON.stringify(G13_EDGES) + "]",
+    " ref=float(np.mean(bands[:4]))",
+    " return [round(v-ref,4) for v in bands]",
+  ];
+
+  function g13Inputs(): boolean {
+    for (const p of [PRE, HB4_POST, `${DERIV}/mask-brows-L.png`, `${DERIV}/mask-brows-R.png`,
+      `${DERIV}/mask-eyes-L.png`, `${DERIV}/mask-eyes-R.png`]) if (!fs.existsSync(p)) return false;
+    return true;
+  }
+
+  function calibrate(): { nat: Array<{ n: number; max: number; sd: number }>; bad: [number, number]; badprof: number[][] } {
+    return JSON.parse(pyMeasure([
+      ...G13_HEAD,
+      `Lp,Lc,cs=comps(${JSON.stringify(PRE)},${JSON.stringify(HB4_POST)})`,
+      `excl=loadexcl(${JSON.stringify(`${DERIV}/mask-eyes-L.png`)},${JSON.stringify(`${DERIV}/mask-eyes-R.png`)},12)`,
+      `mL=np.array(Image.open(${JSON.stringify(`${DERIV}/mask-brows-L.png`)}).convert('L'))>127`,
+      `mR=np.array(Image.open(${JSON.stringify(`${DERIV}/mask-brows-R.png`)}).convert('L'))>127`,
+      "dil40=ndimage.binary_dilation(mL|mR,iterations=40)",
+      "out=[]",
+      `dxs=${JSON.stringify(G13_DX)}; dys=${JSON.stringify(G13_DY)}`,
+      "for comp in cs:",
+      " vals=[]; nn=0",
+      " for dx,dy in itertools.product(dxs,dys):",
+      "  t=np.roll(np.roll(comp,dy,axis=0),dx,axis=1)",
+      "  if (t&dil40).any(): continue",
+      "  nn+=1",
+      "  vals+=profile_roi(Lp,t,excl)",
+      " out.append({'n':nn,'max':round(float(max(abs(v) for v in vals)),4),'sd':round(float(np.std(vals)),4)})",
+      "bad=[round(float(max(abs(v) for v in profile_roi(Lc,c,excl))),4) for c in cs]",
+      "badprof=[profile_roi(Lc,c,excl) for c in cs]",
+      "print(json.dumps({'nat':out,'bad':bad,'badprof':badprof}))",
+    ])) as { nat: Array<{ n: number; max: number; sd: number }>; bad: [number, number]; badprof: number[][] };
+  }
+
+  function liveProfile(tmp: string): { prof: number[][]; outside: number } {
+    const out = path.join(tmp, "mesh.png");
+    const stdout = execFileSync("python3", [SCRIPT, PRE, out,
+      "--brows-mask-L", `${DERIV}/mask-brows-L.png`,
+      "--brows-mask-R", `${DERIV}/mask-brows-R.png`,
+      "--facecore-mask", `${DERIV}/mask-facecore.png`,
+      "--eyes-mask-L", `${DERIV}/mask-eyes-L.png`,
+      "--eyes-mask-R", `${DERIV}/mask-eyes-R.png`,
+      "--brow-form", "mesh"], { encoding: "utf8" });
+    const info = JSON.parse(stdout.match(/\{[\s\S]*\}/)![0]!) as { outside_max_dLab: number };
+    const prof = JSON.parse(pyMeasure([
+      ...G13_HEAD,
+      `Lp,Lc,cs=comps(${JSON.stringify(PRE)},${JSON.stringify(out)})`,
+      `excl=loadexcl(${JSON.stringify(`${DERIV}/mask-eyes-L.png`)},${JSON.stringify(`${DERIV}/mask-eyes-R.png`)},12)`,
+      "print(json.dumps([profile_roi(Lc,c,excl) for c in cs]))",
+    ])) as number[][];
+    return { prof, outside: info.outside_max_dLab };
+  }
+
+  function worst(prof: number[]): number {
+    return Math.max(...prof.map((v) => Math.abs(v)));
+  }
+
+  function worstInterior(prof: number[]): number {
+    // Bands [0,15) only: the four outside bands are byte-identical PRE /
+    // POST by construction (zero writes outside the union), so only the
+    // interior can move. The pre-existing outside rim (-1.39 on comp1)
+    // reproduces exactly in every output.
+    return Math.max(...prof.slice(4).map((v) => Math.abs(v)));
+  }
+
+  it("G13 calibration: natural spread, T, and the frozen hb4 file RED", () => {
+    if (!g13Inputs()) return;
+    const cal = calibrate();
+    expect(cal.nat).toHaveLength(2);
+    for (const n of cal.nat) expect(n.n).toBeGreaterThanOrEqual(6);
+    // Lane-manager numbers, reproduced: natural max 0.93/1.32, hb4 2.95/1.39.
+    const nmax = cal.nat.map((n) => n.max).sort((a, b) => a - b);
+    expect(nmax[0]).toBeCloseTo(0.93, 1);
+    expect(nmax[1]).toBeCloseTo(1.32, 1);
+    const bad = [...cal.bad].sort((a, b) => a - b);
+    expect(bad[0]).toBeCloseTo(G13_BOUND_HINT, 1);
+    expect(bad[1]).toBeCloseTo(2.95, 1);
+    // T = midpoint of the global natural max and the known-bad better side.
+    const naturalMax = Math.max(...cal.nat.map((n) => n.max));
+    const better = Math.min(...cal.bad);
+    const T = (naturalMax + better) / 2;
+    expect(T).toBeGreaterThan(naturalMax);
+    expect(T).toBeLessThan(better + 0.5);
+    // RED: the frozen hb4 file fails the bound on the worse side.
+    expect(Math.max(...cal.bad)).toBeGreaterThan(T);
+    // Margin / natural sd < 1: the bound has no separating power over
+    // natural forehead tone, so hb5 reports G13 instead of enforcing it.
+    const all = cal.nat.flatMap((n, i) => [n.sd]);
+    const sd = Math.max(...all);
+    const margin = T - naturalMax;
+    expect(margin / sd).toBeLessThan(1);
+  }, 300000);
+
+  it("G13 gate (report-only): the live mesh output improves the boundary profile per side, zero writes outside", () => {
+    if (!g13Inputs()) return;
+    const cal = calibrate();
+    const naturalMax = Math.max(...cal.nat.map((n) => n.max));
+    const better = Math.min(...cal.bad);
+    const T = (naturalMax + better) / 2;
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "brow-g13-"));
+    const { prof, outside } = liveProfile(tmp);
+    expect(outside).toBe(0);
+    expect(prof).toHaveLength(2);
+    // Report-only (margin/sd < 1, see calibration): the Dirichlet-pinned
+    // fill strictly improves the worst interior band on both sides (the
+    // outside bands are frozen PRE bytes, excluded from the comparison).
+    const hb4Interior = cal.badprof.map(worstInterior);
+    for (let i = 0; i < 2; i++) {
+      expect(worstInterior(prof[i])).toBeLessThan(hb4Interior[i]);
+    }
+    // Recorded beside hb4 in the report; printed here for the log.
+    console.log(JSON.stringify({ T: Math.round(T * 1000) / 1000, liveInteriorWorst: prof.map(worstInterior), hb4InteriorWorst: hb4Interior }));
+  }, 600000);
+});
+
 describe("the brow follows the case brow_form: report validates", () => {
   it("brow-form-report.json names the card, per-case values, and gate table", () => {
     const r = loadJson(REPORT) as {
@@ -815,7 +982,7 @@ describe("the brow follows the case brow_form: report validates", () => {
     expect(r.card).toBe("tsk_b438966217dd814e");
     expect(r.values?.["aisha"]?.mode).toBe("mesh");
     expect(r.values?.["body2"]?.mode).toBe("texture");
-    for (const g of ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10", "G11", "G12"]) expect(r.gates?.[g], g).toBeDefined();
+    for (const g of ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10", "G11", "G12", "G13"]) expect(r.gates?.[g], g).toBeDefined();
   });
 
   it("report mode values match case-inputs.json brow_form", () => {
