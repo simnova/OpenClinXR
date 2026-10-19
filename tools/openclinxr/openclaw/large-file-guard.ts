@@ -192,7 +192,13 @@ export function formatViolation(v: Violation): string {
 
 function gitShow(ref: string, repoPath: string, cwd: string): string | null {
   try {
-    return execFileSync("git", ["show", `${ref}:${repoPath}`], { cwd, encoding: "utf8" });
+    // Probe: stderr silenced so the expected base-miss (first landing) does not
+    // print git's own "fatal" above the guard's verdict.
+    return execFileSync("git", ["show", `${ref}:${repoPath}`], {
+      cwd,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
   } catch {
     return null;
   }
