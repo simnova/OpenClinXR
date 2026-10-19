@@ -1,6 +1,6 @@
 {
-  "version": "v2-2026-10-19",
-  "versionDir": "/Volumes/files/openclinxr-assets/store/face-regression/golden/v2-2026-10-19",
-  "promotedBy": "tsk_3dc1802d0ca2b36c",
-  "from": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_3dc1802d0ca2b36c/seed-station-skin-2/render"
+  "version": "v3-2026-10-19",
+  "versionDir": "/Volumes/files/openclinxr-assets/store/face-regression/golden/v3-2026-10-19",
+  "promotedBy": "tsk_a59e4c0c6c8e6b98",
+  "from": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_a59e4c0c6c8e6b98/golden-v3-compose/render"
 }
