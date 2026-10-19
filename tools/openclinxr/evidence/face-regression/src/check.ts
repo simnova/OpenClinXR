@@ -244,26 +244,40 @@ export function resolveRunPaths(input: { store: string; card: string; label?: st
 
 type CaseRunReportShape = { store?: string; cases: Record<string, { runs: Record<string, { status: string }> }> };
 
-type PythonRegionMetric = RegionMetric & { bbox: RegionBounds; heatmap: string };
+export type PythonRegionMetric = RegionMetric & { bbox: RegionBounds; heatmap: string };
 
-function measureViaPython(input: { caseId: string; view: number; goldenPng: string; currentPng: string; outDir: string }): { metrics: PythonRegionMetric[]; landmarksPath: string; heatmapDir: string } {
-  const metricsPath = join(input.outDir, `metrics-${input.caseId}-${input.view}.json`);
-  const landmarksPath = join(input.outDir, `landmarks-${input.caseId}-${input.view}.json`);
-  const heatmapDir = join(input.outDir, "heatmaps", `${input.caseId}-${input.view}`);
+export function measureRegions(input: {
+  caseId: string;
+  view: number | string;
+  goldenPng: string;
+  currentPng: string;
+  outDir: string;
+  fileTag: string;
+  extraArgs?: string[];
+}): { metrics: PythonRegionMetric[]; metricsPath: string; landmarksPath: string; heatmapDir: string } {
+  const metricsPath = join(input.outDir, `${input.fileTag}-${input.caseId}-${input.view}.json`);
+  const landmarksPath = join(input.outDir, `landmarks-${input.fileTag}-${input.caseId}-${input.view}.json`);
+  const heatmapDir = join(input.outDir, "heatmaps", `${input.fileTag}-${input.caseId}-${input.view}`);
   const proc = spawnSync(
     "mise",
     ["exec", "-C", "/Volumes/files/src/openclinxr", "--", "python3", REGIONS_PY,
       "--golden", input.goldenPng, "--current", input.currentPng,
       "--out", metricsPath, "--landmarks-out", landmarksPath,
       "--heatmap-dir", heatmapDir,
-      "--case", input.caseId, "--view", String(input.view)],
+      "--case", input.caseId, "--view", String(input.view),
+      ...(input.extraArgs ?? [])],
     { cwd: process.cwd(), encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
   );
   if (proc.status !== 0 || !existsSync(metricsPath)) {
     throw new Error(`face-regression: regions.py refused: ${(proc.stderr || proc.stdout || "").slice(-2000)}`);
   }
   const report = JSON.parse(readFileSync(metricsPath, "utf8")) as { metrics: PythonRegionMetric[] };
-  return { metrics: report.metrics, landmarksPath, heatmapDir };
+  return { metrics: report.metrics, metricsPath, landmarksPath, heatmapDir };
+}
+
+function measureViaPython(input: { caseId: string; view: number; goldenPng: string; currentPng: string; outDir: string }): { metrics: PythonRegionMetric[]; landmarksPath: string; heatmapDir: string } {
+  const { metrics, landmarksPath, heatmapDir } = measureRegions({ ...input, fileTag: "metrics" });
+  return { metrics, landmarksPath, heatmapDir };
 }
 
 function readGoldenPointer(store: string): { version: string; versionDir: string } {

@@ -19,11 +19,12 @@ export {
   goldenPngFor,
   loadExpectedRegions,
   loadThresholdsFrom,
+  measureRegions,
   resolveGoldenSource,
   resolveRunPaths,
   summarizeCheckResults,
 } from "./check.js";
-export type { CaseCheckResult, CheckVerdict, GoldenSource, RegionThreshold, RegionVerdict } from "./check.js";
+export type { CaseCheckResult, CheckVerdict, GoldenSource, PythonRegionMetric, RegionThreshold, RegionVerdict } from "./check.js";
 export { promoteGolden } from "./promote.js";
 export type { PromoteResult } from "./promote.js";
 export {
