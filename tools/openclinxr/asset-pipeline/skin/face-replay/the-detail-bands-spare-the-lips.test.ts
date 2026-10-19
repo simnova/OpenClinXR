@@ -182,6 +182,21 @@ describe("the detail bands spare the lips", () => {
     expect(mean).toBeLessThanOrEqual(1);
   });
 
+  it("(G3 counterweight) an absent --beard-weight keeps the legacy full-crease path", () => {
+    // The station's standalone detail_bands call (packages/openclinxr/factory-stations/src/face_realism/stages-c.ts)
+    // passes no beard weight; it must not inherit the beard-0 spare for a bearded subject (body2 weight 0.9).
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "lips-g3cw-"));
+    const p = makeSynth(tmp);
+    const base = ["--crease-gain", "1", "--pore-gain", "3.0",
+      "--feather-mm", "1", "--lips-hug-mm", "0.5", "--lips-feather-mm", "0.5",
+      "--scalp-fringe-mm", "25"];
+    const absent = runDetail(tmp, p.albedo, p.facecore, p.full, base, "absent.png");
+    const bearded = runDetail(tmp, p.albedo, p.facecore, p.full, [...base, "--beard-weight", "0.9"], "bearded.png");
+    const spared = runDetail(tmp, p.albedo, p.facecore, p.full, [...base, "--beard-weight", "0"], "spared0.png");
+    expect(fs.readFileSync(absent).equals(fs.readFileSync(bearded))).toBe(true);
+    expect(fs.readFileSync(absent).equals(fs.readFileSync(spared))).toBe(false);
+  });
+
   it("(G2) forehead/cheek grain invariant across lips masks", () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "lips-g2-"));
     const p = makeSynth(tmp);

@@ -248,10 +248,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--feather-mm", type=float, default=FEATHER_MM)
     ap.add_argument("--lips-hug-mm", type=float, default=LIPS_HUG_MM)
     ap.add_argument("--lips-feather-mm", type=float, default=LIPS_FEATHER_MM)
-    ap.add_argument("--beard-weight", type=float, default=0.0,
+    ap.add_argument("--beard-weight", type=float, default=None,
                     help="beard_shadow weight carried by replay: at 0 the "
                          "under-lower-lip band is spared the crease removal; "
-                         "positive weights keep the legacy full-crease path")
+                         "positive weights keep the legacy full-crease path. "
+                         "ABSENT = legacy path: a caller that does not know the "
+                         "subject beard weight (the station standalone call, "
+                         "stages-c.ts) must not get the beard-0 spare by default")
     ap.add_argument("--scalp-fringe-mm", type=float, default=SCALP_FRINGE_MM)
     ap.add_argument("--report-out", type=Path, default=None)
     a = ap.parse_args(argv)
@@ -262,8 +265,8 @@ def main(argv: list[str] | None = None) -> int:
         raise RuntimeError("detail_bands refuses: texels-per-mm must be positive")
     if not 0.0 <= g <= 1.0:
         raise RuntimeError("detail_bands refuses: crease-gain must be in [0,1]")
-    w_beard = float(a.beard_weight)
-    if w_beard < 0:
+    w_beard = None if a.beard_weight is None else float(a.beard_weight)
+    if w_beard is not None and w_beard < 0:
         raise RuntimeError("detail_bands refuses: beard-weight must be >= 0")
     hi_mm = float(a.pore_noise_hi_mm)
     if not 0.0 < hi_mm < CREASE_SMOOTH_MM:
@@ -317,7 +320,7 @@ def main(argv: list[str] | None = None) -> int:
     # defect ablation); the pore grain still applies fully. Positive
     # weights keep the legacy path.
     underlip = np.zeros((h, wpx), dtype=bool)
-    if w_beard <= 0.0 and verm.any():
+    if w_beard is not None and w_beard <= 0.0 and verm.any():
         uh = int(round(UNDERLIP_MM * tpm))
         ucols = np.where(verm.any(axis=0))[0]
         uc0, uc1 = int(ucols.min()), int(ucols.max())
