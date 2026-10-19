@@ -42,5 +42,14 @@ export {
 } from "./render.js";
 export type { CaptureProvenance, CaseRenderInputs, CaseRunReport, CaseRunResolution, RenderOutcome, RunRecord, ShaCheck } from "./render.js";
 export { writeRegionSheet } from "./sheets.js";
+export {
+  LARGEST_MOVER_DEFINITION,
+  MARGIN_DEFINITION,
+  MARGIN_REQUIREMENT,
+  rawDERanking,
+  recomputeLargestMover,
+  verifyPhase2Report,
+} from "./report.js";
+export type { LargestMover, RegionReading } from "./report.js";
 export { deriveMaxDE, deriveMinSsimL, thresholdsFromCalibration } from "./thresholds.js";
 export type { Calibration, MetricThreshold } from "./thresholds.js";
