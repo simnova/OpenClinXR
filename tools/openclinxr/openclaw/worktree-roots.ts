@@ -105,16 +105,23 @@ export type ResolveBaseRefOptions = {
   announce?: (message: string) => void;
   /** Fetch cap override (tests). */
   fetchTimeoutMs?: number;
+  /**
+   * Base branch name. Always "main" per card (the base is origin/main, never the main
+   * checkout's current branch — that checkout may sit on any branch). Override is for
+   * tests only.
+   */
+  branch?: string;
 };
 
 /**
- * Resolve the commit a managed worktree must be based on: origin/<branch> after a
- * best-effort fetch — never the main checkout's possibly-stale local HEAD.
+ * Resolve the commit a managed worktree must be based on: origin/main after a
+ * best-effort fetch — never the main checkout's possibly-stale local HEAD, and never the
+ * checkout's current branch (the shared checkout may sit on any branch).
  *
  * Degradation ladder (every rung announced, never silent):
- *  1. fetch ok → origin/<branch>.
- *  2. fetch failed but an origin/<branch> ref exists → that ref (warn: fetch failed).
- *  3. no origin/<branch> ref → local HEAD (warn: fallback; names whether an origin remote exists).
+ *  1. fetch ok → origin/main.
+ *  2. fetch failed but an origin/main ref exists → that ref (warn: fetch failed).
+ *  3. no origin/main ref → local HEAD (warn: fallback; names whether an origin remote exists).
  */
 export function resolveBaseRef(mainRoot: string, options?: ResolveBaseRefOptions): BaseRef {
   const announce =
@@ -123,14 +130,7 @@ export function resolveBaseRef(mainRoot: string, options?: ResolveBaseRefOptions
       process.stderr.write(`${message}\n`);
     });
   const timeoutMs = options?.fetchTimeoutMs ?? ORIGIN_FETCH_TIMEOUT_MS;
-
-  let branch = "main";
-  try {
-    const current = git(mainRoot, ["branch", "--show-current"], timeoutMs);
-    if (current) branch = current;
-  } catch {
-    // detached or unreadable — fall through to "main".
-  }
+  const branch = options?.branch ?? "main";
   const remoteRef = `origin/${branch}`;
 
   const fetch = fetchOriginBranch(mainRoot, branch, timeoutMs);

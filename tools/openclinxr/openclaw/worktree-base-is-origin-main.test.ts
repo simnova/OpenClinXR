@@ -268,4 +268,20 @@ describe("managed worktrees are based on origin/main, never stale local main", (
     managed.push({ repo: C, path: defTarget });
     expect(defTarget).toBe(expectedDefault);
   }, 120_000);
+
+  it("(f) a main checkout sitting on another branch still bases on origin/main", () => {
+    const { origin, A, B } = makeOriginWithAB();
+    const C = cloneMain(origin, `f-side-${process.pid}`);
+    git(C, ["reset", "-q", "--hard", A]);
+    git(C, ["checkout", "-q", "-b", "side"]);
+    expect(git(C, ["rev-parse", "main"])).toBe(A);
+    expect(git(C, ["rev-parse", "origin/main"])).toBe(B);
+    expect(git(C, ["branch", "--show-current"])).toBe("side");
+    const wtRoot = trackRepo(mkdtempSync(join(tmpdir(), "hx-wtroot-f-")));
+    process.env["OPENCLINXR_WT_ROOT"] = wtRoot;
+    const name = `hx-f-${process.pid}`;
+    const target = resolveWorkerWorktree(C, true, name);
+    managed.push({ repo: C, path: target });
+    expect(git(target, ["rev-parse", "HEAD"])).toBe(B);
+  }, 120_000);
 });
