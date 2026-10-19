@@ -21,6 +21,20 @@ export const LARGEST_MOVER_DEFINITION =
 export const MARGIN_DEFINITION = "margin = (that region's dE) - threshold.dE";
 export const MARGIN_REQUIREMENT = "required margin / threshold.dE >= 1";
 
+/**
+ * The arms the phase-2 report must carry. Known-bad A is the stale pink-eyes
+ * GLB: it moves an eye. Known-bad B is the real double-brow regression
+ * (body2 run2, sha prefix below): it moves a brow by >= its threshold. A plant
+ * that renders identically to the seed is NOT a known bad and is recorded
+ * instead under `measuredNulls`.
+ */
+export const KNOWN_BAD_A_REGIONS = ["eye_L", "eye_R"] as const;
+export const KNOWN_BAD_B_REGIONS = ["brow_L", "brow_R"] as const;
+export const KNOWN_BAD_B_PLANT_SHA_PREFIX = "643563fc";
+export const MEASURED_NULL_CLAIM = "aisha run2 plant is a double-brow regression";
+export const MEASURED_NULL_RESULT = "renders byte-identical to the seed; every region dE 0.000";
+export const MEASURED_NULL_CAUSE = "same brow mesh as aisha run4 (mindfront_eyebrows_05)";
+
 export type RegionReading = { region: string; view: number; dE: number; threshold: number };
 
 export type LargestMover = {
@@ -109,6 +123,14 @@ function renderPngs(renderSummaryPath: string): {
   };
 }
 
+type MeasuredArm = {
+  claim?: string;
+  plant?: { glb?: string; sha256?: string };
+  regions?: RegionReading[];
+  largestMover?: LargestMover;
+  ok?: boolean;
+};
+
 export function verifyPhase2Report(report: Record<string, unknown>, calibration: Calibration): string[] {
   const violations: string[] = [];
   const phase2 = (report.phase2 ?? {}) as Record<string, unknown>;
@@ -122,11 +144,10 @@ export function verifyPhase2Report(report: Record<string, unknown>, calibration:
     }
   }
   // Largest mover + margin recompute from the recorded per-region numbers.
-  for (const key of ["knownBadA", "knownBadB"] as const) {
-    const arm = (phase2[key] ?? {}) as { regions?: RegionReading[]; largestMover?: LargestMover; ok?: boolean };
-    if (!arm.regions || !arm.largestMover) {
+  const recomputeArm = (key: string, arm: MeasuredArm | undefined): void => {
+    if (!arm || !arm.regions || !arm.largestMover) {
       violations.push(`${key}: missing regions or largestMover`);
-      continue;
+      return;
     }
     const again = recomputeLargestMover(arm.regions);
     const rec = arm.largestMover;
@@ -135,6 +156,58 @@ export function verifyPhase2Report(report: Record<string, unknown>, calibration:
         violations.push(`${key}: largestMover.${k} recorded ${JSON.stringify(rec[k])} != recomputed ${JSON.stringify(again[k])}`);
       }
     }
+  };
+  recomputeArm("knownBadA", phase2.knownBadA as MeasuredArm);
+  recomputeArm("knownBadB", phase2.knownBadB as MeasuredArm);
+
+  // Known-good must pass; the known-bad arms must fail on their named region
+  // with margin / threshold >= 1.
+  if ((phase2.knownGood as { ok?: boolean } | undefined)?.ok !== true) {
+    violations.push("knownGood: ok must be true");
+  }
+  const expectedRegions: Record<string, readonly string[]> = {
+    knownBadA: KNOWN_BAD_A_REGIONS,
+    knownBadB: KNOWN_BAD_B_REGIONS,
+  };
+  for (const key of ["knownBadA", "knownBadB"] as const) {
+    const arm = phase2[key] as MeasuredArm | undefined;
+    if (!arm) {
+      violations.push(`${key}: missing`);
+      continue;
+    }
+    if (arm.ok !== false) violations.push(`${key}: ok must be false (a known bad must fail)`);
+    const region = arm.largestMover?.region;
+    if (!region || !expectedRegions[key]!.includes(region)) {
+      violations.push(`${key}: largestMover.region ${JSON.stringify(region)} is not in [${expectedRegions[key]!.join(", ")}]`);
+    }
+    const ratio = arm.largestMover?.marginOverThreshold;
+    if (!(typeof ratio === "number" && ratio >= 1)) {
+      violations.push(`${key}: marginOverThreshold ${JSON.stringify(ratio)} must be >= 1`);
+    }
+  }
+  const badB = phase2.knownBadB as MeasuredArm | undefined;
+  if (badB && !String(badB.plant?.sha256 ?? "").startsWith(KNOWN_BAD_B_PLANT_SHA_PREFIX)) {
+    violations.push(`knownBadB: plant sha256 ${JSON.stringify(badB.plant?.sha256)} must start ${KNOWN_BAD_B_PLANT_SHA_PREFIX}`);
+  }
+
+  // A plant that renders identically to the seed is a measured null, never a
+  // known bad: it must be recorded as ok (or with margin/threshold < 1) and
+  // carry the aisha claim the old known-bad-B arm mis-stated.
+  const nulls = phase2.measuredNulls;
+  if (!Array.isArray(nulls) || nulls.length === 0) {
+    violations.push("measuredNulls: missing");
+  } else {
+    let sawAisha = false;
+    for (const entry of nulls as MeasuredArm[]) {
+      const label = `measuredNulls[${String(entry?.claim)}]`;
+      recomputeArm(label, entry);
+      const ratio = entry?.largestMover?.marginOverThreshold;
+      if (!(typeof ratio === "number" && ratio < 1) && entry?.ok !== true) {
+        violations.push(`${label}: neither ok nor marginOverThreshold < 1 (a measured null must not be recorded as a failure)`);
+      }
+      if (typeof entry?.claim === "string" && /aisha/.test(entry.claim)) sawAisha = true;
+    }
+    if (!sawAisha) violations.push("measuredNulls: expected the aisha entry");
   }
   return violations;
 }
@@ -155,7 +228,11 @@ function parseFlags(argv: string[]): Args {
 
 function buildReport(argv: string[]): number {
   const flags = parseFlags(argv);
-  const need = ["base", "out", "calibration", "seed", "known-good", "known-bad-a", "known-bad-b", "plant-a", "plant-b"] as const;
+  const need = [
+    "base", "out", "calibration", "seed",
+    "known-good", "known-bad-a", "known-bad-b", "plant-a", "plant-b",
+    "measured-null-dir", "measured-null-glb",
+  ] as const;
   for (const k of need) {
     if (!flags[k]) throw new Error(`face-regression report: --${k} is required`);
   }
@@ -190,6 +267,23 @@ function buildReport(argv: string[]): number {
   };
 
   const goodRegions = readingsForLabel(goodDir, maxDE);
+  const nullDir = str("measured-null-dir");
+  const nullCheck = JSON.parse(readFileSync(join(nullDir, "check.json"), "utf8")) as CheckFile;
+  const nullRegions = readingsForLabel(nullDir, maxDE);
+  const measuredNulls = [
+    {
+      claim: MEASURED_NULL_CLAIM,
+      plant: { glb: str("measured-null-glb"), sha256: sha256File(str("measured-null-glb")) },
+      result: MEASURED_NULL_RESULT,
+      cause: MEASURED_NULL_CAUSE,
+      checkJson: join(nullDir, "check.json"),
+      ok: nullCheck.ok,
+      failedRegions: [...new Set(failedOf(nullCheck))],
+      regions: nullRegions,
+      rawRanking: rawDERanking(nullRegions),
+      largestMover: recomputeLargestMover(nullRegions),
+    },
+  ];
   const notes: string[] = [];
   if (typeof flags.note === "string" && flags.note.length > 0) notes.push(String(flags.note));
   const phase2 = {
@@ -209,6 +303,7 @@ function buildReport(argv: string[]): number {
     },
     knownBadA: arm(badADir, badACheck, str("plant-a")),
     knownBadB: arm(badBDir, badBCheck, str("plant-b")),
+    measuredNulls,
   };
   const violations = verifyPhase2Report({ ...base, phase2 }, calibration);
   if (violations.length > 0) throw new Error(`face-regression report: self-check failed:\n${violations.join("\n")}`);

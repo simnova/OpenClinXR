@@ -36,6 +36,18 @@ type Phase2Report = {
       largestMover: { region: string; view: number; dE: number; threshold: number; ratio: number; margin: number; marginOverThreshold: number };
     };
     knownBadB: Phase2Report["phase2"]["knownBadA"];
+    measuredNulls: Array<{
+      claim: string;
+      plant: { glb: string; sha256: string };
+      result: string;
+      cause: string;
+      checkJson: string;
+      ok: boolean;
+      failedRegions: string[];
+      regions: Array<{ region: string; view: number; dE: number; threshold: number }>;
+      rawRanking: string[];
+      largestMover: Phase2Report["phase2"]["knownBadA"]["largestMover"];
+    }>;
     calibration: { status: string; seed: number; regions: Calibration["regions"] };
   };
 };
@@ -60,7 +72,7 @@ describe("the phase-2 face-regression report", () => {
     const { report, calibration } = load();
     const violations = verifyPhase2Report(report as unknown as Record<string, unknown>, calibration);
     expect(violations, "hand-edited numbers fail the recompute").toEqual([]);
-    for (const arm of [report.phase2.knownBadA, report.phase2.knownBadB]) {
+    for (const arm of [report.phase2.knownBadA, report.phase2.knownBadB, ...report.phase2.measuredNulls]) {
       const again = recomputeLargestMover(arm.regions);
       expect(arm.largestMover).toEqual(again);
     }
@@ -76,16 +88,28 @@ describe("the phase-2 face-regression report", () => {
     expect(a.rawRanking[0]).toBe(a.largestMover.region);
   });
 
-  it("known-bad B is recorded as measured: the plant renders identically, so the check passes", () => {
+  it("known-bad B is the real double-brow regression (body2 run2), not the aisha plant", () => {
     const { report } = load();
     const b = report.phase2.knownBadB;
-    // Measured: planted run2 GLB renders byte-identical to the run4 seed with
-    // the station final maps (every region dE 0.000), so ok is true and the
-    // zero-ratio tie resolves with margin/threshold -1. The report says so.
-    expect(b.ok).toBe(true);
-    expect(b.largestMover.marginOverThreshold).toBeLessThan(1);
-    expect(b.largestMover.marginOverThreshold).toBe(-1);
-    expect(report.phase2.notes.join(" ")).toMatch(/recorded as measured/);
+    // body2 run2 on top of body2's texture brow: the check fails on both brows
+    // against the promoted golden, largest mover brow_L at margin/threshold 4.74.
+    expect(b.ok).toBe(false);
+    expect(["brow_L", "brow_R"]).toContain(b.largestMover.region);
+    expect(b.largestMover.marginOverThreshold).toBeGreaterThanOrEqual(1);
+    expect(b.plant.sha256.startsWith("643563fc")).toBe(true);
+    expect(b.rawRanking[0]).toBe(b.largestMover.region);
+  });
+
+  it("the aisha run2 plant is recorded as a measured null, never a known bad", () => {
+    const { report } = load();
+    const nulls = report.phase2.measuredNulls;
+    expect(nulls.length).toBeGreaterThan(0);
+    const aisha = nulls.find((n) => /aisha/.test(n.claim));
+    expect(aisha, "the aisha entry is present").toBeTruthy();
+    expect(aisha!.plant.sha256.startsWith("0fbaf4c6")).toBe(true);
+    // A measured null renders identically to the seed: ok true (or a ratio < 1).
+    const ratio = aisha!.largestMover.marginOverThreshold;
+    expect(ratio < 1 || aisha!.ok === true).toBe(true);
   });
 
   it("every calibration region has a non-empty source", () => {
@@ -99,10 +123,12 @@ describe("the phase-2 face-regression report", () => {
 
   it("a planted copy with a known-bad largestMover changed to cheek_L fails the recompute", () => {
     const { report, calibration } = load();
-    const planted = JSON.parse(JSON.stringify(report)) as Phase2Report;
-    planted.phase2.knownBadA.largestMover = { ...planted.phase2.knownBadA.largestMover, region: "cheek_L" };
-    const violations = verifyPhase2Report(planted as unknown as Record<string, unknown>, calibration);
-    expect(violations.length, "the tampered mover is caught").toBeGreaterThan(0);
-    expect(violations.join(" ")).toMatch(/cheek_L|knownBadA/);
+    for (const key of ["knownBadA", "knownBadB"] as const) {
+      const planted = JSON.parse(JSON.stringify(report)) as Phase2Report;
+      planted.phase2[key].largestMover = { ...planted.phase2[key].largestMover, region: "cheek_L" };
+      const violations = verifyPhase2Report(planted as unknown as Record<string, unknown>, calibration);
+      expect(violations.length, `the tampered ${key} mover is caught`).toBeGreaterThan(0);
+      expect(violations.join(" ")).toMatch(/cheek_L/);
+    }
   });
 });

@@ -56,7 +56,7 @@
   },
   "phase2": {
     "notes": [
-      "known-bad B recorded as measured: planted run2 GLB 0fbaf4c6 renders byte-identical to the run4 seed with the station final maps (front PNG sha 561779ab in both; every region dE 0.000), so the check passes and the zero-ratio tie resolves to brow_L@0 with margin/threshold -1. A diagnostic of run2 GLB + run2 skin-normal + run4 albedo differs from seed in 16 pixels at +-1 code value only. The one-brow double-brow defect does not live in the lid-conform GLB geometry as seen through this portrait path."
+      "known-bad B as first briefed (aisha run2 GLB 0fbaf4c6) is a measured null: it carries the same brow mesh as aisha run4 (mindfront_eyebrows_05) and renders byte-identical to the seed (every region dE 0.000), so the check passes; it is recorded under measuredNulls. The real double-brow regression is body2 run2 (643563fc, mesh mindfront_eyebrows_08) on top of body2's texture brow; it is the knownBadB arm against the promoted golden v1-2026-10-18 and fails on brow_L/brow_R."
     ],
     "seed": {
       "renderSummary": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/seed-a/render.json",
@@ -265,7 +265,7 @@
       }
     },
     "knownGood": {
-      "checkJson": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/known-good/check.json",
+      "checkJson": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/known-good2/check.json",
       "ok": true,
       "regions": [
         {
@@ -511,7 +511,7 @@
       ]
     },
     "knownBadA": {
-      "checkJson": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/known-bad-a/check.json",
+      "checkJson": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/known-bad-a2/check.json",
       "plant": {
         "glb": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/final.glb",
         "sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437"
@@ -673,24 +673,27 @@
       ]
     },
     "knownBadB": {
-      "checkJson": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/known-bad-b/check.json",
+      "checkJson": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/known-bad-b2/check.json",
       "plant": {
-        "glb": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
-        "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
+        "glb": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
+        "sha256": "643563fcf7f606e5367a9f97a29d0dfefdf5a61ea49991e1b70f2c71d7c51b13"
       },
-      "ok": true,
-      "failedRegions": [],
+      "ok": false,
+      "failedRegions": [
+        "brow_L",
+        "brow_R"
+      ],
       "regions": [
         {
           "region": "brow_L",
           "view": 0,
-          "dE": 0,
+          "dE": 2.6797334986853523,
           "threshold": 0.6097674475317891
         },
         {
           "region": "brow_R",
           "view": 0,
-          "dE": 0,
+          "dE": 2.7907502256207506,
           "threshold": 0.5928716627672123
         },
         {
@@ -744,13 +747,13 @@
         {
           "region": "brow_L",
           "view": 25,
-          "dE": 0,
+          "dE": 3.4990600240814254,
           "threshold": 0.6097674475317891
         },
         {
           "region": "brow_R",
           "view": 25,
-          "dE": 0,
+          "dE": 2.108465346055937,
           "threshold": 0.5928716627672123
         },
         {
@@ -816,18 +819,175 @@
       ],
       "largestMover": {
         "region": "brow_L",
-        "view": 0,
-        "dE": 0,
+        "view": 25,
+        "dE": 3.4990600240814254,
         "threshold": 0.6097674475317891,
-        "ratio": 0,
-        "margin": -0.6097674475317891,
-        "marginOverThreshold": -1
+        "ratio": 5.73835162609104,
+        "margin": 2.8892925765496362,
+        "marginOverThreshold": 4.73835162609104
       },
       "definitions": [
         "largest mover = region with the largest dE / threshold.dE across both views",
         "margin = (that region's dE) - threshold.dE",
         "required margin / threshold.dE >= 1"
       ]
-    }
+    },
+    "measuredNulls": [
+      {
+        "claim": "aisha run2 plant is a double-brow regression",
+        "plant": {
+          "glb": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+          "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
+        },
+        "result": "renders byte-identical to the seed; every region dE 0.000",
+        "cause": "same brow mesh as aisha run4 (mindfront_eyebrows_05)",
+        "checkJson": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/known-bad-b/check.json",
+        "ok": true,
+        "failedRegions": [],
+        "regions": [
+          {
+            "region": "brow_L",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.6097674475317891
+          },
+          {
+            "region": "brow_R",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.5928716627672123
+          },
+          {
+            "region": "cheek_L",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.6124316520447981
+          },
+          {
+            "region": "cheek_R",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.6126054381261686
+          },
+          {
+            "region": "chin",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.5984394738226669
+          },
+          {
+            "region": "eye_L",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.770143590587219
+          },
+          {
+            "region": "eye_R",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.7785485209983047
+          },
+          {
+            "region": "forehead",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.6720144853284714
+          },
+          {
+            "region": "lips",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.5220517779091742
+          },
+          {
+            "region": "nose",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.5758811871775482
+          },
+          {
+            "region": "brow_L",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.6097674475317891
+          },
+          {
+            "region": "brow_R",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.5928716627672123
+          },
+          {
+            "region": "cheek_L",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.6124316520447981
+          },
+          {
+            "region": "cheek_R",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.6126054381261686
+          },
+          {
+            "region": "chin",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.5984394738226669
+          },
+          {
+            "region": "eye_L",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.770143590587219
+          },
+          {
+            "region": "eye_R",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.7785485209983047
+          },
+          {
+            "region": "forehead",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.6720144853284714
+          },
+          {
+            "region": "lips",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.5220517779091742
+          },
+          {
+            "region": "nose",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.5758811871775482
+          }
+        ],
+        "rawRanking": [
+          "brow_L",
+          "brow_R",
+          "cheek_L",
+          "cheek_R",
+          "chin",
+          "eye_L",
+          "eye_R",
+          "forehead",
+          "lips",
+          "nose"
+        ],
+        "largestMover": {
+          "region": "brow_L",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.6097674475317891,
+          "ratio": 0,
+          "margin": -0.6097674475317891,
+          "marginOverThreshold": -1
+        }
+      }
+    ]
   }
 }
