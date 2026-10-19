@@ -30,31 +30,44 @@
  },
  "instrument": "tools/openclinxr/evidence/face-defects/one-brow/measure_brow.py imported from the station path, not copied; D = |pos-gpos|/0.10 + |thick-gthick|/0.10 + (|dL-gdL|+|dC-gdC|)/10",
  "gates": {
-  "G1": {
-   "status": "pass",
-   "aisha_POST_D": 2.5242,
-   "aisha_PRE_D": 3.4906,
-   "note": "POST < PRE (hb3 2.52; hb2 POST was 2.28; hb1 2.32). Station instrument, hb3 PRE render byte-reproduces hb2 PRE (b020e6cf) so PRE D reproduces exactly",
-   "albedo": {
-    "inmask_L": 58.05,
-    "ring_L": "57.31 +- 11.60",
-    "inmask_C": 20.73,
-    "ring_C": "19.52 +- 3.51",
-    "verdict": "within spread (hb2: 56.75 / 56.55+-9.48, 20.54 / 19.46+-3.17)"
-   },
-   "hb4": {
-    "aisha_POST_D": 2.5968,
+   "G1": {
+    "status": "pass",
+    "aisha_POST_D": 2.5242,
     "aisha_PRE_D": 3.4906,
-    "note": "POST < PRE (hb4 2.60; hb3 2.52; hb2 2.28). Station instrument fresh on hb4 PRE+POST (hb4/measure-aisha/measurements.json); PRE render byte-reproduces hb3 PRE (b020e6cf) so PRE D reproduces exactly",
+    "note": "POST < PRE (hb3 2.52; hb2 POST was 2.28; hb1 2.32). Station instrument, hb3 PRE render byte-reproduces hb2 PRE (b020e6cf) so PRE D reproduces exactly",
     "albedo": {
-     "inmask_L": 57.68,
-     "ring_L": "58.11 +- 11.42",
-     "inmask_C": 20.77,
-     "ring_C": "19.72 +- 3.43",
-     "verdict": "within spread (hb3: 58.05 / 57.31+-11.60, 20.73 / 19.52+-3.51)"
+     "inmask_L": 58.05,
+     "ring_L": "57.31 +- 11.60",
+     "inmask_C": 20.73,
+     "ring_C": "19.52 +- 3.51",
+     "verdict": "within spread (hb2: 56.75 / 56.55+-9.48, 20.54 / 19.46+-3.17)"
+    },
+    "hb4": {
+     "aisha_POST_D": 2.5968,
+     "aisha_PRE_D": 3.4906,
+     "note": "POST < PRE (hb4 2.60; hb3 2.52; hb2 2.28). Station instrument fresh on hb4 PRE+POST (hb4/measure-aisha/measurements.json); PRE render byte-reproduces hb3 PRE (b020e6cf) so PRE D reproduces exactly",
+     "albedo": {
+      "inmask_L": 57.68,
+      "ring_L": "58.11 +- 11.42",
+      "inmask_C": 20.77,
+      "ring_C": "19.72 +- 3.43",
+      "verdict": "within spread (hb3: 58.05 / 57.31+-11.60, 20.73 / 19.52+-3.51)"
+     }
+    },
+    "hb5": {
+     "aisha_POST_D": 2.3131,
+     "aisha_PRE_D": 3.4906,
+     "colour": 1.6101,
+     "note": "POST < PRE, best of the series (hb4 2.60; hb3 2.52; hb2 2.28); the Dirichlet-pinned low moves colour 1.6998 -> 1.6101 toward goal. Station instrument fresh on hb5 PRE+POST (hb5/measure-aisha/measurements.json); PRE render reuses hb2 file (b020e6cf) so PRE D reproduces exactly",
+     "albedo": {
+      "inmask_L": 57.92,
+      "ring_L": "58.11 +- 11.42",
+      "inmask_C": 19.4,
+      "ring_C": "19.72 +- 3.43",
+      "verdict": "within spread (hb4: 57.68 / 58.11+-11.42, 20.77 / 19.72+-3.43)"
+     }
     }
-   }
-  },
+   },
   "G2": {
    "status": "pass",
    "body2_POST_D": 2.4074,
@@ -103,24 +116,42 @@
    "tone_a": {
     "brow_excluded": "48/48 no-regression (stands: mesh hb3 outside-union writes 0 (outside_max_dLab 0.0), so every brow-excluded region is byte-identical; body2 albedo byte-identical to hb1 (sha 5f6cee80))"
    },
-   "hb4": {
-    "halo": {
-     "changed_frac": 0.0,
-     "bound": 0.1,
-     "method": "adapted lm_lipcheck halo: 2..12-texel band outside the brow union (hb4 albedo; hb3: 0.0)"
+    "hb4": {
+     "halo": {
+      "changed_frac": 0.0,
+      "bound": 0.1,
+      "method": "adapted lm_lipcheck halo: 2..12-texel band outside the brow union (hb4 albedo; hb3: 0.0)"
+     },
+     "lm_lipcheck": {
+      "changed": 0.0,
+      "halo": 1.0,
+      "verdict": "still passes (hb4 POST vs PRE albedo; hb3: 0/1.0)"
+     },
+     "wrinkle": {
+      "albedo_facecore_new_bins": [],
+      "render_forehead_new_bins": [],
+      "verdict": "no new 2D-FFT isolated bins either domain under the canonical rule (>3x annulus median AND >2x PRE same-bin; hb3: none either domain)"
+     },
+     "tone_a": "stands: mesh hb4 outside-union writes 0 (outside_max_dLab 0.0), so every brow-excluded region is byte-identical; body2 albedo sha 5f6cee80 reproduces"
     },
-    "lm_lipcheck": {
-     "changed": 0.0,
-     "halo": 1.0,
-     "verdict": "still passes (hb4 POST vs PRE albedo; hb3: 0/1.0)"
-    },
-    "wrinkle": {
-     "albedo_facecore_new_bins": [],
-     "render_forehead_new_bins": [],
-     "verdict": "no new 2D-FFT isolated bins either domain under the canonical rule (>3x annulus median AND >2x PRE same-bin; hb3: none either domain)"
-    },
-    "tone_a": "stands: mesh hb4 outside-union writes 0 (outside_max_dLab 0.0), so every brow-excluded region is byte-identical; body2 albedo sha 5f6cee80 reproduces"
-   }
+    "hb5": {
+     "halo": {
+      "changed_frac": 0.0,
+      "bound": 0.1,
+      "method": "adapted lm_lipcheck halo: 2..12-texel band outside the brow union, hb5 albedo (n 12570; hb4: 0.0)"
+     },
+     "lm_lipcheck": {
+      "changed": 0.0,
+      "halo": 1.0,
+      "verdict": "still passes (S/wrinkle/lm_lipcheck.py on hb5 POST vs PRE albedo: skin_a 10.0 peak 27.5 visible 5028 changed 0; halo 5817/5817; hb4: 0/1.0)"
+     },
+     "wrinkle": {
+      "albedo_facecore_new_bins": [],
+      "render_forehead_new_bins": [],
+      "verdict": "no new 2D-FFT isolated bins either domain under the canonical rule (wrinkle_bands.fft_profile + isolated_bins on the facecore-bbox L* patch and on render forehead rows 100:450 cols 340:940; albedo PRE iso [] POST iso []; render PRE iso [349] POST iso []; hb4: none either domain)"
+     },
+     "tone_a": "stands: mesh hb5 outside-union writes 0 (outside_max_dLab 0.0), so every brow-excluded region is byte-identical; body2 albedo new-code run reproduces sha 5f6cee80"
+    }
   },
   "G5": {
    "status": "pass",
@@ -148,19 +179,31 @@
     "hb3/pre-aisha.json": "hb2preaisha content + id hb3preaisha",
     "hb3/post-aisha.json": "hb2postaisha content + id hb3postaisha + hb3 baseColorUrl"
    },
-   "hb4": {
-    "note": "hb4 Aisha POST room-rig render (same variant/GLB/normal/roughness as hb3, --glb explicit aisha-lidconform.glb 0fbaf4c6); PRE reuses the hb3 PRE file (b020e6cf byte-reproduces); body2 untouched",
-    "renders": {
-     "hb4postaisha-front.png": "edc9c934 (hb3 POST was 3f233e67; hb2 POST 12ed18c1)"
-    },
-    "H1": "POST differs from hb3 POST ONLY in baseColorUrl (normal 493fae43 + roughness f150fec7 + glb 0fbaf4c6 + rig c2de99cb input shas identical)",
-    "sheets": {
-     "hb4/native-render-brows.png": "520x560 native: boxes L(340,560,600,700) R(680,560,940,700) side by side, rows PRE|hb2|hb3|hb4",
-     "hb4/native-albedo-brows.png": "558x692 native: albedo box (3290,1770,3476,2462), columns PRE|hb3|hb4",
-     "hb4/browcrops-aisha.png": "hb2-style grid (2-row L/R x 3-col PRE|hb4 POST|goal, 300x170 native cells + labels): PRE + goal cells byte-identical to hb3 sheet cells (same boxes: render L(327,533) R(657,529), goal edit-0 L(248,370) R(478,371)); POST cells are the hb4 render at the same boxes"
-    }
-   }
-  },
+     "hb4": {
+      "note": "hb4 Aisha POST room-rig render (same variant/GLB/normal/roughness as hb3, --glb explicit aisha-lidconform.glb 0fbaf4c6); PRE reuses the hb3 PRE file (b020e6cf byte-reproduces); body2 untouched",
+      "renders": {
+       "hb4postaisha-front.png": "edc9c934 (hb3 POST was 3f233e67; hb2 POST 12ed18c1)"
+      },
+      "H1": "POST differs from hb3 POST ONLY in baseColorUrl (normal 493fae43 + roughness f150fec7 + glb 0fbaf4c6 + rig c2de99cb input shas identical)",
+      "sheets": {
+       "hb4/native-render-brows.png": "520x560 native: boxes L(340,560,600,700) R(680,560,940,700) side by side, rows PRE|hb2|hb3|hb4",
+       "hb4/native-albedo-brows.png": "558x692 native: albedo box (3290,1770,3476,2462), columns PRE|hb3|hb4",
+       "hb4/browcrops-aisha.png": "hb2-style grid (2-row L/R x 3-col PRE|hb4 POST|goal, 300x170 native cells + labels); PRE + goal cells byte-identical to hb3 sheet cells (same boxes: render L(327,533) R(657,529), goal edit-0 L(248,370) R(478,371)); POST cells are the hb4 render at the same boxes"
+      }
+     },
+     "hb5": {
+      "note": "hb5 Aisha POST room-rig render (same variant/GLB/normal/roughness as hb4, --glb explicit /Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb 0fbaf4c6); PRE reuses the hb2 PRE file (b020e6cf byte-reproduces); body2 untouched (sha 5f6cee80)",
+      "renders": {
+       "hb5postaisha-front.png": "46106b98 (hb4 POST was edc9c934; hb3 POST 3f233e67; hb2 POST 12ed18c1)"
+      },
+      "H1": "POST differs from hb4 POST ONLY in baseColorUrl (hb5 albedo 42cb42dc vs hb4 a37c1889; normal 493fae43 + roughness f150fec7 + glb 0fbaf4c6 + rig c2de99cb input shas identical)",
+      "sheets": {
+       "hb5/native-render-brows.png": "520x420 native: boxes L(340,560,600,700) R(680,560,940,700) side by side, rows PRE|hb4|hb5",
+       "hb5/native-albedo-brows.png": "558x692 native: albedo box (3290,1770,3476,2462), columns PRE|hb4|hb5",
+       "hb5/browcrops-aisha.png": "hb4 sheet layout (940x388, cells at (10,24),(320,24),(630,24),(10,206),(320,206),(630,206)); PRE + goal columns byte-match hb4 sheet cells (0.0 maxdiff); POST cells byte-match the hb5 render at the documented boxes (render L(327,533) R(657,529), 0.0 maxdiff); middle header relabeled hb5 POST"
+       }
+      }
+   },
   "G6": {
    "status": "pass",
    "method": "inside-mask pixels with coverage<0.2: max |dLab| vs PRE (script stdout on hb1 body2 albedo)",
@@ -387,6 +430,6 @@
     "G4_lipcheck": "changed 0.000 halo 1.000 (hb4 0/1.0)",
     "G4_wrinkle_albedo": "no new 2D-FFT isolated bins, facecore bbox patch, canonical rule (Hann, radial 1-cycle bins, >3x annulus median AND >2x PRE same-bin; PRE iso [], POST iso [])"
    },
-   "render": "PENDING"
+   "render": "hb5 room rig, same variant/GLB 0fbaf4c6 explicit/normal 493fae43/roughness f150fec7 (H1 baseColorUrl-only); PRE b020e6cf reused; POST 46106b98 (hb4 POST edc9c934)"
   }
  }
