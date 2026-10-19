@@ -1,6 +1,6 @@
 ---
 name: pixel-grading
-description: "Fires whenever a render, screenshot, capture PNG, contact sheet, or webm ARRIVES for judgment, before writing any visual verdict or appearance claim, and when writing the visual requirements inside a worker brief. Native resolution only (upscaling invents defects); thumbnails prove presence, never absence; structure pass outranks lit pass on structure; prefer the geometric measurement; demand named renderer + subject + input provenance; closed checklists whose cells the suspected defect FAILS; the producer/grader split survives multimodal workers; label MY GRADE vs CONSULTED on every verdict."
+description: "Fires when any render, screenshot, contact sheet, or capture ARRIVES for judgment, before any visual verdict or appearance claim, and when writing visual requirements in a brief. Native resolution only; label MY GRADE vs CONSULTED."
 when-to-use: grade an image, pixel grade, capture, render, still, contact sheet, does it look right, upscale, thumbnail, visual verdict, appearance claim, screenshot evidence
 ---
 

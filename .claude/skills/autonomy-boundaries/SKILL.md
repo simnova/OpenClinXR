@@ -1,6 +1,6 @@
 ---
 name: autonomy-boundaries
-description: "Gate for EVERY question, permission request, or 'may I / should I / which option / am I blocked' impulse, and for install / push / publish / merge impulses - the pre-approved table that means ACT, DO NOT ASK (install tooling, push main, publish, merge verified work - asking again IS the failure), then the escalate-last chain repo -> standing ox advisory thread -> one bundled operator message. Carries the live thread id, --resume invocation, recall verification, and thread-loss recovery. Load at the URGE to compose any operator question, not at the send."
+description: "Gate for EVERY question, permission request, or 'may I / should I / am I blocked' impulse, and for install / push / publish / merge impulses - the pre-approved table that means ACT, DO NOT ASK. Escalate last: repo -> standing thread."
 when-to-use: asking permission, do I need approval, may I, install, pip, pnpm add, clone, push to main, publish, merge to main, what do you need from me, question for operator, escalate, blocked on approval
 ---
 

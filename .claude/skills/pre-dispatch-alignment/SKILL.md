@@ -1,6 +1,6 @@
 ---
 name: pre-dispatch-alignment
-description: "Slice-SELECTION gate answering 'should this slice exist at all', before operationalizing or dispatching - direction currency (cite the current-rail directive; deprecated rail = pin and re-scope), prior art (search the registry URLs before hand-authoring hair/skin/eyes/brows/clothing/viseme/animation/rooms - an operator URL handed you later is a failed search), writer collision (peer handoffs + recent commits on the surface), size (biggest coherent vertical). Write the four answers as labeled Direction - / Prior art - / Collision - / Size - lines in the issue body BEFORE done_when exists. Clause design -> contract-design; dispatch mechanics -> orchestrator-dispatch-loop."
+description: "Slice-selection gate before dispatch: should this slice exist at all - direction currency, prior art search, writer collision, size. Write Direction / Prior art / Collision / Size in the issue body BEFORE done_when exists."
 when-to-use: select a slice, dispatch, operationalize, asset lane, humanoid, anny, mpfb, hair, skin, eyes, eyebrows, clothing, viseme, animation, rooms, build from scratch, another agent is working on, slice too small, bigger effort, stale direction
 ---
 

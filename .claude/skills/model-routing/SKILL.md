@@ -1,6 +1,6 @@
 ---
 name: model-routing
-description: "The operator's model ladders for worker agents and the superagent, with the fallback rule and the probe. Load BEFORE passing `model:` to dispatch(), before spawning any worker or subagent, before opening or resuming a superagent consult, and whenever a dispatch dies on a provider error. LADDER 2026-09-10: DeepSeek HOLD (402). Default worker is muse-spark-1 (contributor, vision OK). Fallback nemotron-ultra is free, text-only. grok-4.6 is escalate. ox-alpha 404-retired."
+description: "Model ladders for worker agents and the superagent, with the fallback rule and the probe. Load BEFORE passing `model:` to dispatch(), spawning a worker or subagent, opening or resuming a superagent consult, or after a provider error."
 when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 bytes, empty response, no_visible_content, stalled, unresponsive, step down a rung, dispatch a worker, pass a model, which model, spawn subagent, resume superagent, ox-alpha, deepseek, muse-spark, nemotron, grok-4.6, provider died, 402, model fell back, escalate model, worker model policy"
 ---
 

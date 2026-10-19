@@ -1,6 +1,6 @@
 ---
 name: contract-design
-description: "Clause-design gate for writing or reviewing any done_when block, planted RED, proof line, threshold, enum, or test fixture - before the brief is sent, not after it fails green. Known-good column, counterweight against the cheapest pass, thresholds derived not fitted (cite the source beside every number), quantity-vs-shape bounding, proof shapes that go green about nothing (it.fails, exists plus min-bytes, vacuous floors), escape values, fixtures that exhibit the defect. Dispatch MECHANICS live in orchestrator-dispatch-loop; slice SELECTION lives in pre-dispatch-alignment."
+description: "Clause-design gate for any done_when block, planted RED, proof line, threshold, enum, or test fixture - before the brief is sent. Known-good column, counterweight against the cheapest pass, thresholds derived not fitted, vacuous proof shapes."
 when-to-use: plant a RED, write a contract, done_when, counterweight, known-good column, threshold, it.fails, destructive probe, vacuous proof, why did a green contract ship a defect
 ---
 
