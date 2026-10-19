@@ -168,6 +168,20 @@ describe("inbox hook", () => {
     expect(readIds(root)).toEqual(["e-high"]);
   }, 120000);
 
+  it("(e2) Stop with hook cwd in a subdirectory still blocks when the cap does not fire", () => {
+    const root = makeInbox([{ id: "e2-high", priority: "high" }]);
+    const subdir = join(REPO_ROOT, "tools");
+    const res = runHook(
+      { ...STOP, cwd: subdir },
+      { OPENCLINXR_LANE: "lane1", OPENCLINXR_CONTEXT_CAP: "999999999" },
+      root,
+    );
+    expect(res.status).toBe(0);
+    expect(JSON.parse(res.stdout).decision).toBe("block");
+    expect(String(JSON.parse(res.stdout).reason)).toContain("e2-high");
+    expect(readIds(root)).toEqual(["e2-high"]);
+  }, 120000);
+
   it("(f) Stop with stop_hook_active stays silent and leaves the batch unread", () => {
     const root = makeInbox([{ id: "f-high", priority: "urgent" }]);
     const res = runHook(

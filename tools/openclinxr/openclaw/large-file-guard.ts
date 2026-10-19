@@ -12,9 +12,12 @@
  *   - R-env / R-bak / R-binary / R-any: operator draft worktree-per-lane-rule.md
  *     section "Commit-time large-file guard" (binary-type files over 1 MB, any
  *     file over 5 MB, plus .env* and *.bak* refusal with a move-to-store fix).
- *   - Allowlist shape, per-glob maxBytes cap, base-ref read, seed entries:
- *     card hx-rules S5 (100,000,000 = GitHub's 100 MB blob limit).
- */
+  *   - Allowlist shape, per-glob maxBytes cap, base-ref read, seed entries:
+  *     card hx-rules S5 (100,000,000 = GitHub's 100 MB blob limit).
+  *
+  * `git rev-list --objects` lists each blob once under its first path, so --push
+  * cannot see a second path carrying identical bytes; --staged is the name check.
+  */
 import { execFileSync, spawnSync } from "node:child_process";
 
 export const DEFAULT_BASE = "origin/main";

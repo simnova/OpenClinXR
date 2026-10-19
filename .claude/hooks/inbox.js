@@ -128,10 +128,15 @@ function main() {
     // off, not act on new items. Non-empty cap output, a non-zero cap exit, a spawn
     // error, or a timeout all mean "cap fires" — print nothing, mark nothing read,
     // and let the next UserPromptSubmit deliver the batch.
+    // The cap probe runs with cwd = scriptRoot (the checkout that contains this
+    // script): the hook-input cwd is the session's CURRENT directory and may be a
+    // subdirectory where the cap script path does not resolve, which would read as
+    // "cap fires" and skip Stop delivery forever. projectDir above stays the
+    // git-common-dir lookup only.
     let capFires = true;
     try {
       const cap = spawnSync("pnpm", ["exec", "tsx", "tools/openclinxr/openclaw/context-cap.ts"], {
-        cwd: projectDir,
+        cwd: scriptRoot,
         input: raw,
         timeout: CONTEXT_CAP_TIMEOUT_MS,
         encoding: "utf8",
