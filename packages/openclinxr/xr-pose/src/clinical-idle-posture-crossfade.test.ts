@@ -27,7 +27,7 @@ function buildTestHumanoid(asBones = false): THREE.Object3D {
   const make = (): THREE.Object3D => (asBones ? new THREE.Bone() : new THREE.Object3D());
   const root = new THREE.Object3D();
   root.name = "humanoid_root";
-  root.userData["openClinXrActorPosture"] = "standing";
+  root.userData.openClinXrActorPosture = "standing";
 
   // Left arm chain (using names that match MPFB_CLINICAL_IDLE_ARM_HANG keys)
   const upperArmL = make();
@@ -89,7 +89,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
         weight: 1, // Legs always full ownership
       },
     ];
-    humanoid.userData["openClinXrOwnedBoneChains"] = ownedChains;
+    humanoid.userData.openClinXrOwnedBoneChains = ownedChains;
 
     // Mixer writes some rotation to the owned bones
     const upperArmL = humanoid.getObjectByName("upper_armL")!;
@@ -131,7 +131,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
         weight: 1,
       },
     ];
-    humanoid.userData["openClinXrOwnedBoneChains"] = ownedChains;
+    humanoid.userData.openClinXrOwnedBoneChains = ownedChains;
 
     const head = humanoid.getObjectByName("head")!;
     const beforeHead = head.rotation.clone();
@@ -158,7 +158,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
         weight: crossfadeWeight,
       },
     ];
-    humanoid.userData["openClinXrOwnedBoneChains"] = ownedChains;
+    humanoid.userData.openClinXrOwnedBoneChains = ownedChains;
 
     const upperArmL = humanoid.getObjectByName("upper_armL")!;
     const lowerArmL = humanoid.getObjectByName("forearmL")!;
@@ -196,7 +196,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
     humanoid.userData.openClinXrHumanoidRail = "mpfb2";
 
     // No ownership (fully faded out)
-    humanoid.userData["openClinXrOwnedBoneChains"] = [];
+    humanoid.userData.openClinXrOwnedBoneChains = [];
 
     const upperArmL = humanoid.getObjectByName("upper_armL")!;
     const lowerArmL = humanoid.getObjectByName("forearmL")!;
@@ -211,7 +211,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
     expect(Math.abs(lowerArmL.rotation.x - (-0.18))).toBeLessThan(0.0087);
 
     // Claims should be cleared
-    expect(humanoid.userData["openClinXrOwnedBoneChains"]).toEqual([]);
+    expect(humanoid.userData.openClinXrOwnedBoneChains).toEqual([]);
   });
 
   it("(e) the lowerarm01 ownership fix: an owned forearmL is not touched by MPFB forearm idle branch", () => {
@@ -228,7 +228,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
         weight: 1,
       },
     ];
-    humanoid.userData["openClinXrOwnedBoneChains"] = ownedChains;
+    humanoid.userData.openClinXrOwnedBoneChains = ownedChains;
 
     // Simulate MPFB rig detection (sanitised names)
     const jointNames = new Set([
@@ -294,7 +294,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
           weight: w,
         },
       ];
-      humanoid.userData["openClinXrOwnedBoneChains"] = ownedChains;
+      humanoid.userData.openClinXrOwnedBoneChains = ownedChains;
 
       // Mixer writes a rotation (simulated clip pose)
       const mixerQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.3, 0.2, 0.1));
@@ -314,7 +314,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
 
     // The frame after the claim clears: the unowned MPFB forearm path takes over. A snap is a jump
     // between the w=0 blended pose and this one.
-    humanoid.userData["openClinXrOwnedBoneChains"] = [];
+    humanoid.userData.openClinXrOwnedBoneChains = [];
     lowerArmL.quaternion.copy(new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.3, 0.2, 0.1)));
     applyGeneratedHumanoidClinicalIdlePosture(humanoid);
     expect(lowerArmL.quaternion.angleTo(rotations[rotations.length - 1]!)).toBeLessThan(0.0175);
