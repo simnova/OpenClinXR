@@ -1,21 +1,22 @@
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
-  REGION_LANDMARKS,
-  buildRegionPolygons,
   evaluateFaceRegression,
-  measureRegions,
   promoteGolden,
+  summarizeCheckResults,
   verifyInputShas,
   type Landmark,
+  type RegionMetric,
 } from "./src/index.js";
 import { encodePngRgb } from "./src/png.js";
 
 /**
- * Whole-face regression RED (card tsk_0e618fa5e9ac3e15 STEP 2).
+ * Whole-face regression contract (card tsk_0e618fa5e9ac3e15).
  *
  * Every prior card graded only its own region in its own render path, so a
  * stale GLB's pink eyes, double brows, a dropped detail_bands pass and an
@@ -23,12 +24,17 @@ import { encodePngRgb } from "./src/png.js";
  * This contract proves the check that re-renders the station's actual face
  * output and compares it with the last accepted state.
  *
- * Synthetic fixtures only: PNGs generated in a temp dir, a fake landmark set,
- * and fake station-record files carrying their real sha256. The check that
- * must exist lives in tools/openclinxr/evidence/face-regression/src/.
- *
- * This test is RED because that module does not exist yet.
+ * Single implementation: regions are measured ONLY by src/regions.py (skimage
+ * CIEDE2000), driven here through the same `mise exec` spawn the `check` CLI
+ * uses, with fixture landmark JSONs skipping detection. The decision goes
+ * through the same `evaluateFaceRegression` the CLI uses. Synthetic fixtures
+ * only: PNGs generated in a temp dir, fixture landmarks, and fake
+ * station-record files carrying their real sha256.
  */
+
+const REGIONS_PY = fileURLToPath(new URL("./src/regions.py", import.meta.url));
+const MISE_ROOT = "/Volumes/files/src/openclinxr";
+const SPAWN_TIMEOUT = 180_000;
 
 const W = 240;
 const H = 240;
@@ -41,16 +47,34 @@ const REGION_CENTRES: Record<string, [number, number]> = {
   brow_L: [80, 78],
   brow_R: [160, 78],
   lips: [120, 152],
-  forehead: [120, 58],
+  nose: [120, 120],
   cheek_L: [70, 130],
   cheek_R: [170, 130],
-  nose: [120, 120],
+  forehead: [120, 58],
   chin: [120, 178],
 };
 
+type RegionTable = { REGION_LANDMARKS: Record<string, number[]>; REGION_ORDER: string[]; PRECEDENCE: string[] };
+
+let cachedTable: RegionTable | null = null;
+
+/** The region table, read from the single implementation (never duplicated). */
+function regionTable(): RegionTable {
+  if (!cachedTable) {
+    const proc = spawnSync("mise", ["exec", "-C", MISE_ROOT, "--", "python3", REGIONS_PY, "--dump-regions"], {
+      encoding: "utf8",
+      timeout: SPAWN_TIMEOUT,
+    });
+    if (proc.status !== 0) throw new Error(`regions.py --dump-regions refused: ${(proc.stderr || proc.stdout || "").slice(-2000)}`);
+    cachedTable = JSON.parse(proc.stdout) as RegionTable;
+  }
+  return cachedTable;
+}
+
 function fakeLandmarks(): Landmark[] {
+  const table = regionTable();
   const lms: Landmark[] = Array.from({ length: 478 }, () => [120, 120] as Landmark);
-  for (const [region, idxs] of Object.entries(REGION_LANDMARKS)) {
+  for (const [region, idxs] of Object.entries(table.REGION_LANDMARKS)) {
     const centre = REGION_CENTRES[region];
     if (!centre) throw new Error(`test has no centre for region ${region}`);
     idxs.forEach((idx, k) => {
@@ -98,11 +122,12 @@ type Fx = {
   golden: string;
   unchanged: string;
   painted: string;
-  landmarks: Landmark[];
+  landmarksPath: string;
   thresholds: Record<string, { dE: number; ssimL: number }>;
 };
 
 function makeFixtures(): Fx {
+  const table = regionTable();
   const dir = mkdtempSync(join(tmpdir(), "face-regression-red-"));
   const golden = join(dir, "golden-front.png");
   const unchanged = join(dir, "unchanged-front.png");
@@ -110,21 +135,53 @@ function makeFixtures(): Fx {
   writeFileSync(golden, encodePngRgb(W, H, facePng()));
   writeFileSync(unchanged, encodePngRgb(W, H, facePng()));
   writeFileSync(painted, encodePngRgb(W, H, facePng(REGION_CENTRES.eye_L!)));
+  const landmarksPath = join(dir, "landmarks.json");
+  writeFileSync(landmarksPath, `${JSON.stringify(fakeLandmarks())}\n`, "utf8");
   const thresholds: Record<string, { dE: number; ssimL: number }> = {};
-  for (const region of Object.keys(REGION_LANDMARKS)) thresholds[region] = { dE: 2.0, ssimL: 0.98 };
-  return { dir, golden, unchanged, painted, landmarks: fakeLandmarks(), thresholds };
+  for (const region of table.REGION_ORDER) thresholds[region] = { dE: 2.0, ssimL: 0.98 };
+  return { dir, golden, unchanged, painted, landmarksPath, thresholds };
+}
+
+type PythonReport = {
+  precedence: string[];
+  heatmapScale: { metric: string; min: number; max: number; mapping: string };
+  heatmapDir: string;
+  metrics: Array<RegionMetric & { bbox: { x0: number; y0: number; x1: number; y1: number }; heatmap: string }>;
+};
+
+/** Measure via the production path: regions.py through mise, fixture landmarks. */
+function measureViaPython(fx: Fx, currentPng: string, tag: string): PythonReport {
+  const outDir = join(fx.dir, tag);
+  mkdirSync(outDir, { recursive: true });
+  const out = join(outDir, "metrics.json");
+  const heatmapDir = join(outDir, "heatmaps");
+  const proc = spawnSync(
+    "mise",
+    ["exec", "-C", MISE_ROOT, "--", "python3", REGIONS_PY,
+      "--golden", fx.golden, "--current", currentPng,
+      "--out", out, "--heatmap-dir", heatmapDir,
+      "--golden-landmarks", fx.landmarksPath, "--current-landmarks", fx.landmarksPath,
+      "--case", "test", "--view", "0"],
+    { encoding: "utf8", timeout: SPAWN_TIMEOUT, maxBuffer: 64 * 1024 * 1024 },
+  );
+  if (proc.status !== 0 || !existsSync(out)) {
+    throw new Error(`regions.py refused: ${(proc.stderr || proc.stdout || "").slice(-2000)}`);
+  }
+  return JSON.parse(readFileSync(out, "utf8")) as PythonReport;
 }
 
 describe("the face-regression check fails on undeclared change", () => {
-  it("(1) unchanged image vs golden passes and every region is within threshold", () => {
+  it("(1) unchanged image vs golden passes and every region is within threshold", { timeout: SPAWN_TIMEOUT }, () => {
     const fx = makeFixtures();
-    const metrics = measureRegions({
-      goldenPng: fx.golden,
-      currentPng: fx.unchanged,
-      goldenLandmarks: fx.landmarks,
-    });
-    expect(Object.keys(REGION_LANDMARKS).every((r) => metrics.some((m) => m.region === r)), "every region measured").toBe(true);
-    const verdict = evaluateFaceRegression({ metrics, thresholds: fx.thresholds });
+    const report = measureViaPython(fx, fx.unchanged, "unchanged");
+    const table = regionTable();
+    expect(report.metrics.map((m) => m.region).sort()).toEqual([...table.REGION_ORDER].sort());
+    expect(report.precedence, "precedence recorded in the metrics JSON").toEqual(table.PRECEDENCE);
+    expect(report.heatmapScale.metric, "fixed heatmap colour scale stated").toMatch(/CIEDE2000/);
+    for (const m of report.metrics) {
+      expect(existsSync(join(report.heatmapDir, m.heatmap)), `${m.region} heatmap PNG written`).toBe(true);
+    }
+    const verdict = evaluateFaceRegression({ metrics: report.metrics, thresholds: fx.thresholds });
     expect(verdict.failed, "unchanged render fails nothing").toEqual([]);
     expect(verdict.ok).toBe(true);
     for (const r of verdict.regions) {
@@ -132,26 +189,29 @@ describe("the face-regression check fails on undeclared change", () => {
     }
   });
 
-  it("(2) a change painted into eye_L but undeclared FAILS and names eye_L", () => {
+  it("(2) a change painted into eye_L but undeclared FAILS and names eye_L", { timeout: SPAWN_TIMEOUT }, () => {
     const fx = makeFixtures();
-    const metrics = measureRegions({
-      goldenPng: fx.golden,
-      currentPng: fx.painted,
-      goldenLandmarks: fx.landmarks,
-    });
-    const verdict = evaluateFaceRegression({ metrics, thresholds: fx.thresholds });
+    const report = measureViaPython(fx, fx.painted, "painted");
+    const verdict = evaluateFaceRegression({ metrics: report.metrics, thresholds: fx.thresholds });
     expect(verdict.ok, "an undeclared regional change is a failure").toBe(false);
     expect(verdict.failed, "the failing region is named").toContain("eye_L");
   });
 
-  it("(3) the same eye_L change with declare eye_L passes", () => {
+  it("(2b) a change painted only inside the eye_L mask fails eye_L and no other region", { timeout: SPAWN_TIMEOUT }, () => {
     const fx = makeFixtures();
-    const metrics = measureRegions({
-      goldenPng: fx.golden,
-      currentPng: fx.painted,
-      goldenLandmarks: fx.landmarks,
-    });
-    const verdict = evaluateFaceRegression({ metrics, thresholds: fx.thresholds, declared: ["eye_L"] });
+    const report = measureViaPython(fx, fx.painted, "single-region");
+    const verdict = evaluateFaceRegression({ metrics: report.metrics, thresholds: fx.thresholds });
+    expect(verdict.failed, "disjoint masks: only the painted region fails").toEqual(["eye_L"]);
+    for (const m of report.metrics) {
+      if (m.region === "eye_L") continue;
+      expect(m.dE, `${m.region} shares no pixel with the eye_L change`).toBe(0);
+    }
+  });
+
+  it("(3) the same eye_L change with declare eye_L passes", { timeout: SPAWN_TIMEOUT }, () => {
+    const fx = makeFixtures();
+    const report = measureViaPython(fx, fx.painted, "declared");
+    const verdict = evaluateFaceRegression({ metrics: report.metrics, thresholds: fx.thresholds, declared: ["eye_L"] });
     expect(verdict.ok, "a declared region may move").toBe(true);
     expect(verdict.failed).toEqual([]);
     const eye = verdict.regions.find((r) => r.region === "eye_L")!;
@@ -190,7 +250,6 @@ describe("the face-regression check fails on undeclared change", () => {
   });
 
   it("(6) a case with no completed run in the record is listed absent with no substitute", async () => {
-    const fx = makeFixtures();
     const mod = await import("./src/index.js");
     const resolved = mod.resolveCaseRun({
       caseId: "ghost_case",
@@ -202,17 +261,32 @@ describe("the face-regression check fails on undeclared change", () => {
     // Guard against a hidden fallback: the module must expose the status union.
     expect(typeof resolved.reason).toBe("string");
   });
+
+  it("(6b) an absent case is listed absent in the summary and does not fail the check", () => {
+    const summary = summarizeCheckResults([{ caseId: "ghost_case", status: "absent", views: [] }]);
+    expect(summary.ok, "no completed run is not a regression").toBe(true);
+    expect(summary.failed).toEqual([]);
+  });
+
+  it("(6c) a present case whose golden PNG is missing still fails", () => {
+    const summary = summarizeCheckResults([
+      { caseId: "ghost_case", status: "absent", views: [] },
+      { caseId: "aisha", status: "ok", views: [{ view: 0, ok: false, failed: ["golden missing /store/golden/v1/aisha/0.png"] }] },
+    ]);
+    expect(summary.ok, "a missing golden for a present case is a failure").toBe(false);
+    expect(summary.failed.join(" "), "the failing case is named").toMatch(/aisha/);
+  });
 });
 
 describe("fixture sanity", () => {
   it("the region table covers the ten named face regions with real landmark indices", () => {
-    expect(Object.keys(REGION_LANDMARKS).sort()).toEqual([
+    const table = regionTable();
+    expect(table.REGION_ORDER.sort()).toEqual([
       "brow_L", "brow_R", "cheek_L", "cheek_R", "chin",
       "eye_L", "eye_R", "forehead", "lips", "nose",
     ]);
-    const polys = buildRegionPolygons(fakeLandmarks());
-    for (const region of Object.keys(REGION_LANDMARKS)) {
-      expect(polys[region]!.length, `${region} polygon points`).toBeGreaterThanOrEqual(3);
+    for (const region of table.REGION_ORDER) {
+      expect(table.REGION_LANDMARKS[region]!.length, `${region} landmark indices`).toBeGreaterThanOrEqual(3);
     }
   });
 

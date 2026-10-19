@@ -7,7 +7,7 @@
  * other region that exceeds is a failure, because the point of the check is
  * that a change made in one card cannot silently move a region no card named.
  */
-import type { RegionMetric } from "./metrics.js";
+import type { RegionBounds, RegionMetric } from "./metrics.js";
 
 export type RegionThreshold = { dE: number; ssimL: number };
 
@@ -22,6 +22,27 @@ export type CheckVerdict = {
   failed: string[];
   regions: RegionVerdict[];
 };
+
+export type CaseCheckResult = {
+  caseId: string;
+  status: string;
+  views: Array<{ view: number; ok: boolean; failed: string[] }>;
+};
+
+/**
+ * A case with no completed run is listed `absent` and does NOT fail the
+ * check (the child station simply has nothing to compare yet). A PRESENT
+ * case whose golden PNG is missing still fails via its non-ok view.
+ */
+export function summarizeCheckResults(results: CaseCheckResult[]): { ok: boolean; failed: string[] } {
+  const failed: string[] = [];
+  for (const r of results) {
+    for (const v of r.views) {
+      if (!v.ok) failed.push(`${r.caseId}@${v.view}: ${v.failed.join(", ")}`);
+    }
+  }
+  return { ok: failed.length === 0, failed };
+}
 
 export function evaluateFaceRegression(input: {
   metrics: RegionMetric[];
@@ -73,12 +94,13 @@ const GOLDEN_POINTER = join(FACE_REGRESSION_DIR, "golden-pointer.json");
 const CALIBRATION = join(FACE_REGRESSION_DIR, "calibration.json");
 const CASE_INPUTS = "packages/openclinxr/factory-stations/src/face_realism/case-inputs.json";
 const RUN_REPORT = "packages/openclinxr/factory-stations/src/face_realism/case-run-report.json";
-// The card names /Volumes/files/src/openclinxr-assets/store/face-regression;
-// the station's own record (case-run-report.json:store) lives at
-// /Volumes/files/openclinxr-assets/store (no /src). Overridable so the right
-// root is used wherever the store is mounted.
+// The brief names /Volumes/files/openclinxr-assets/store/face-regression (no
+// /src): the store lives at /Volumes/files/openclinxr-assets, which is also
+// where the station's own record (case-run-report.json:store) points.
+// Overridable via FACE_REGRESSION_STORE / --store so the right root is used
+// wherever the store is mounted.
 const DEFAULT_STORE = process.env.FACE_REGRESSION_STORE
-  ?? "/Volumes/files/src/openclinxr-assets/store/face-regression";
+  ?? "/Volumes/files/openclinxr-assets/store/face-regression";
 
 type Args = Record<string, string | boolean>;
 
@@ -113,22 +135,26 @@ function loadThresholds(): Record<string, { dE: number; ssimL: number }> {
 
 type CaseRunReportShape = { store?: string; cases: Record<string, { runs: Record<string, { status: string }> }> };
 
-function measureViaPython(input: { caseId: string; view: number; goldenPng: string; currentPng: string; outDir: string }): { metrics: RegionMetric[]; landmarksPath: string } {
+type PythonRegionMetric = RegionMetric & { bbox: RegionBounds; heatmap: string };
+
+function measureViaPython(input: { caseId: string; view: number; goldenPng: string; currentPng: string; outDir: string }): { metrics: PythonRegionMetric[]; landmarksPath: string; heatmapDir: string } {
   const metricsPath = join(input.outDir, `metrics-${input.caseId}-${input.view}.json`);
   const landmarksPath = join(input.outDir, `landmarks-${input.caseId}-${input.view}.json`);
+  const heatmapDir = join(input.outDir, "heatmaps", `${input.caseId}-${input.view}`);
   const proc = spawnSync(
     "mise",
     ["exec", "-C", "/Volumes/files/src/openclinxr", "--", "python3", REGIONS_PY,
       "--golden", input.goldenPng, "--current", input.currentPng,
       "--out", metricsPath, "--landmarks-out", landmarksPath,
+      "--heatmap-dir", heatmapDir,
       "--case", input.caseId, "--view", String(input.view)],
     { cwd: process.cwd(), encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
   );
   if (proc.status !== 0 || !existsSync(metricsPath)) {
     throw new Error(`face-regression: regions.py refused: ${(proc.stderr || proc.stdout || "").slice(-2000)}`);
   }
-  const report = JSON.parse(readFileSync(metricsPath, "utf8")) as { metrics: RegionMetric[] };
-  return { metrics: report.metrics, landmarksPath };
+  const report = JSON.parse(readFileSync(metricsPath, "utf8")) as { metrics: PythonRegionMetric[] };
+  return { metrics: report.metrics, landmarksPath, heatmapDir };
 }
 
 function readGoldenPointer(store: string): { version: string; versionDir: string } {
@@ -160,14 +186,11 @@ function runCheck(argv: string[]): number {
   const thresholds = loadThresholds();
   const declaredRegions = parseDeclared(flags);
 
-  const results: Array<{ caseId: string; status: string; views: Array<{ view: number; ok: boolean; failed: string[] }> }> = [];
-  let anyFailed = false;
-  let anyAbsent = false;
+  const results: CaseCheckResult[] = [];
 
   for (const caseId of cases) {
     const resolved = resolveCaseRenderInputs({ caseId, store: runReport.store ?? store, runReport });
     if (!resolved.ok) {
-      anyAbsent = true;
       results.push({ caseId, status: resolved.status, views: [] });
       continue;
     }
@@ -198,23 +221,30 @@ function runCheck(argv: string[]): number {
     for (const v of renderJson.views ?? []) {
       const goldenPng = join(golden.versionDir, caseId, `${v.yaw}.png`);
       const currentPng = resolve(process.cwd(), v.png);
-      if (!existsSync(goldenPng)) { anyAbsent = true; views.push({ view: v.yaw, ok: false, failed: [`golden missing ${goldenPng}`] }); continue; }
-      const { metrics, landmarksPath } = measureViaPython({ caseId, view: v.yaw, goldenPng, currentPng, outDir: runDir });
+      if (!existsSync(goldenPng)) { views.push({ view: v.yaw, ok: false, failed: [`golden missing ${goldenPng}`] }); continue; }
+      const { metrics, heatmapDir } = measureViaPython({ caseId, view: v.yaw, goldenPng, currentPng, outDir: runDir });
       const verdict = evaluateFaceRegression({ metrics, thresholds, declared: declaredRegions });
-      const lms = JSON.parse(readFileSync(landmarksPath, "utf8")) as { golden: [number, number][] };
+      const bounds: Record<string, RegionBounds> = {};
+      const heatmaps: Record<string, string> = {};
+      for (const m of metrics) {
+        bounds[m.region] = m.bbox;
+        heatmaps[m.region] = join(heatmapDir, m.heatmap);
+      }
       const sheetPath = join(runDir, "sheets", `${caseId}-${v.yaw}.png`);
       mkdirSync(dirname(sheetPath), { recursive: true });
-      writeRegionSheet({ goldenPng, currentPng, goldenLandmarks: lms.golden, outPng: sheetPath, regions: metrics.map((m) => m.region) });
-      if (!verdict.ok) anyFailed = true;
+      writeRegionSheet({ goldenPng, currentPng, outPng: sheetPath, regions: metrics.map((m) => m.region), bounds, heatmaps });
       views.push({ view: v.yaw, ok: verdict.ok, failed: verdict.failed });
     }
     results.push({ caseId, status: "ok", views });
   }
 
+  const summary = summarizeCheckResults(results);
   const report = {
     card, goldenVersion: golden.version, declared: declaredRegions, runDir,
     cases: results,
-    ok: !anyFailed && !anyAbsent,
+    absent: results.filter((r) => r.status === "absent").map((r) => r.caseId),
+    failed: summary.failed,
+    ok: summary.ok,
   };
   writeFileSync(join(runDir, "check.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(join(runDir, "check.json"));

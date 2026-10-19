@@ -6,11 +6,11 @@
   "why": "Every prior card graded only its own region in its own render path: pink eyes from a stale GLB, double brows, a detail_bands pass dropped by the station and an olive lip band each passed their own gate while the whole face regressed. This module re-renders the station's actual output for every case in case-inputs.json and compares it with the last accepted whole-face state.",
   "modules": [
     { "path": "tools/openclinxr/evidence/face-regression/src/render.ts", "role": "resolve each case's latest completed station run; GLB = stage-4 lid-conform output, albedo = stage-3 final, normal+roughness from the same run dir; re-hash every recorded input and refuse on mismatch; spawn skin-realism/runtime-portrait-capture.ts in variant mode with an explicit --glb; assert the tool's output glb.sha256 equals the record sha; record planted renders." },
-    { "path": "tools/openclinxr/evidence/face-regression/src/regions.ts", "role": "the ten named regions as pinned MediaPipe FaceLandmarker indices, convex hulls and scanline raster masks (mask source = the golden render's landmarks)." },
-    { "path": "tools/openclinxr/evidence/face-regression/src/regions.py", "role": "production CLI region metrics via mise exec: imports face_gate_v2.detect_median (median of 3) and face_gate.resolve_model_path against the pinned landmark-model.json; mean CIEDE2000 dE, SSIM on L*, mean landmark displacement in px (reported, not gated)." },
-    { "path": "tools/openclinxr/evidence/face-regression/src/metrics.ts", "role": "the same formulas in TypeScript for the contract test and the per-pixel dE heatmap; mean CIEDE2000 over the golden mask, single-window SSIM on L*." },
-    { "path": "tools/openclinxr/evidence/face-regression/src/check.ts", "role": "pure evaluateFaceRegression decision (undeclared region beyond threshold = failure) plus the `check` and `--promote` CLI; writes runs/<card>/check.json and per case/view sheets." },
-    { "path": "tools/openclinxr/evidence/face-regression/src/sheets.ts", "role": "per case/view sheet: one row per region, cells golden crop | current crop | per-pixel CIEDE2000 heatmap, native pixels, no resampling." },
+    { "path": "tools/openclinxr/evidence/face-regression/src/regions.ts", "role": "Landmark point type only. The index table, masks and colour math live solely in regions.py (single implementation); TypeScript never names landmark indices." },
+    { "path": "tools/openclinxr/evidence/face-regression/src/regions.py", "role": "THE region implementation via mise exec: imports face_gate_v2.detect_median (median of 3) and face_gate.resolve_model_path against the pinned landmark-model.json; disjoint masks by precedence (eyes, brows, lips, nose win; cheeks, forehead, chin keep only unclaimed pixels); mean CIEDE2000 dE, SSIM on L*, mean landmark displacement in px (reported, not gated); --golden-landmarks/--current-landmarks skip detection with fixture landmarks; per-region dE heatmap PNGs (fixed scale stated in the JSON) + bboxes + precedence in the metrics JSON; --dump-regions prints the table." },
+    { "path": "tools/openclinxr/evidence/face-regression/src/metrics.ts", "role": "RegionMetric record shape (+ bbox type) only, so the pure decision and the sheet writer type their inputs. Measured solely by regions.py; no table, no masks, no colour math here." },
+    { "path": "tools/openclinxr/evidence/face-regression/src/check.ts", "role": "pure evaluateFaceRegression decision (undeclared region beyond threshold = failure) plus exported summarizeCheckResults (absent cases listed, never failing; present case with missing golden still fails) plus the `check` and `--promote` CLI; default store /Volumes/files/openclinxr-assets/store/face-regression (brief path, no /src); writes runs/<card>/check.json and per case/view sheets from the regions.py heatmaps." },
+    { "path": "tools/openclinxr/evidence/face-regression/src/sheets.ts", "role": "per case/view sheet: one row per region, cells golden crop | current crop | regions.py per-pixel CIEDE2000 heatmap crop, native pixels, no resampling. Composes the heatmap PNGs + bboxes from the metrics JSON; derives no anatomy, does no colour math." },
     { "path": "tools/openclinxr/evidence/face-regression/src/promote.ts", "role": "immutable golden promotion: writes a NEW version dir, never opens an existing one for write, refuses planted renders." },
     { "path": "tools/openclinxr/evidence/face-regression/src/thresholds.ts", "role": "threshold model threshold = max(noise, floor); no typed numbers." }
   ],
@@ -25,7 +25,7 @@
   "golden_pointer": "tools/openclinxr/evidence/face-regression/golden-pointer.json",
   "tests": {
     "contract": "tools/openclinxr/evidence/face-regression/the-face-regression-check-fails-on-undeclared-change.test.ts",
-    "contract_cases": 8,
+    "contract_cases": 11,
     "step2_red": "fails 8/8 before this module existed; green in STEP 4",
     "second_subject": "tools/openclinxr/evidence/second-subject",
     "second_subject_cases": 31

@@ -1,22 +1,36 @@
 #!/usr/bin/env python3
 """Whole-face regression region metrics (card tsk_0e618fa5e9ac3e15).
 
-Masks come from the GOLDEN render's landmarks and are applied to BOTH images,
-so a region that moved cannot shrink its own mask to hide the move.
+THE single region implementation: the named-region index table lives here
+only. TypeScript (regions.ts / metrics.ts) holds no table, no mask code and
+no colour math; the contract test and the `check` CLI both drive this file
+through `mise exec -C /Volumes/files/src/openclinxr -- python3`.
 
-Per region: mean CIEDE2000 dE, SSIM on L*, and mean landmark displacement in px
-(reported, never gated). The landmark model is the PINNED face-gate model, and
-detection is face_gate_v2.detect_median (median of 3). Neither the detector nor
-the model resolver is copied here: face_gate.py / face_gate_v2.py are imported.
+Masks come from the GOLDEN render's landmarks and are applied to BOTH images,
+so a region that moved cannot shrink its own mask to hide the move. Masks are
+DISJOINT by precedence (eye_L, eye_R, brow_L, brow_R, lips, nose first; cheeks,
+forehead, chin are their hulls minus every earlier mask, and minus each other
+in precedence order), so a declared eye or brow change cannot fail an
+undeclared cheek or forehead that merely shares hull indices.
+
+Per region: mean CIEDE2000 dE (skimage), SSIM on L*, and mean landmark
+displacement in px (reported, never gated). The landmark model is the PINNED
+face-gate model, and detection is face_gate_v2.detect_median (median of 3).
+Neither the detector nor the model resolver is copied here: face_gate.py /
+face_gate_v2.py are imported. `--golden-landmarks/--current-landmarks` skip
+detection with 478 x [x,y] px JSON fixtures (what the contract test uses).
+
+Writes the metrics JSON plus, per region, a full-image per-pixel dE heatmap
+PNG that sheets.ts composes into the check sheet (fixed colour scale, stated
+in the JSON so the sheet never re-derives colour).
 
 Run only through mise so the face-gate python env is on PATH:
 
   mise exec -C /Volumes/files/src/openclinxr -- python3 \
     tools/openclinxr/evidence/face-regression/src/regions.py \
-    --golden <png> --current <png> --out <json> [--case <id>] [--view <n>]
-
-The index table below mirrors src/regions.ts (they are the same anatomy, listed
-once per language so neither silently drifts).
+    --golden <png> --current <png> --out <json> [--case <id>] [--view <n>] \
+    [--golden-landmarks <json> --current-landmarks <json>] \
+    [--heatmap-dir <dir>]
 """
 import argparse
 import json
@@ -32,25 +46,41 @@ _FACE_GATE_DIR = os.path.normpath(
 if _FACE_GATE_DIR not in sys.path:
     sys.path.insert(0, _FACE_GATE_DIR)
 
-import face_gate as v1  # noqa: E402
-import face_gate_v2 as v2  # noqa: E402
-from skimage.color import deltaE_ciede2000  # noqa: E402
 
 # Named face regions as pinned MediaPipe FaceLandmarker indices (478-point).
-# Mirrors tools/openclinxr/evidence/face-regression/src/regions.ts.
+# Single copy: nothing in TypeScript names these indices.
 REGION_LANDMARKS = {
     "eye_L": [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246],
     "eye_R": [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398],
     "brow_L": [70, 63, 105, 66, 107, 46, 53, 52, 65, 55],
     "brow_R": [336, 296, 334, 293, 300, 276, 283, 282, 295, 285],
     "lips": [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185],
-    "forehead": [10, 67, 69, 104, 108, 151, 9, 8, 337, 299, 333, 297, 338],
+    "nose": [168, 6, 197, 195, 5, 4, 1, 2, 98, 327, 129, 358],
     "cheek_L": [145, 61, 129, 101, 234, 50, 118, 117, 123, 147, 187, 205, 206],
     "cheek_R": [374, 291, 358, 330, 454, 280, 346, 347, 352, 376, 411, 425, 426],
-    "nose": [168, 6, 197, 195, 5, 4, 1, 2, 98, 327, 129, 358],
+    "forehead": [10, 67, 69, 104, 108, 151, 9, 8, 337, 299, 333, 297, 338],
     "chin": [17, 152, 172, 397],
 }
-REGION_ORDER = list(REGION_LANDMARKS.keys())
+# Disjoint-mask precedence (H3): eyes, brows, lips, nose win every overlap;
+# cheeks, forehead, chin keep only what no earlier region claimed. Overlaps
+# this resolves: cheek_L/R share lower-lid (145/374) and mouth-corner (61/291)
+# indices with eye_L/R and lips; nose shares 129/358 with both cheeks; the
+# forehead hull can reach the inner brows.
+PRECEDENCE = ["eye_L", "eye_R", "brow_L", "brow_R", "lips", "nose",
+              "cheek_L", "cheek_R", "forehead", "chin"]
+assert list(REGION_LANDMARKS.keys()) == PRECEDENCE, "table order is the precedence order"
+REGION_ORDER = list(PRECEDENCE)
+
+# Fixed heatmap colour scale (stated in every metrics JSON; sheets compose).
+HEATMAP_MAX_DE = 10.0
+HEATMAP_SCALE = {
+    "metric": "CIEDE2000 dE",
+    "min": 0.0,
+    "max": HEATMAP_MAX_DE,
+    "mapping": "linear black -> red, dE >= max clamps to full red (255,0,0)",
+}
+
+REQUIRED_LANDMARKS = 1 + max(i for idxs in REGION_LANDMARKS.values() for i in idxs)
 
 
 def _polygon(points):
@@ -60,17 +90,34 @@ def _polygon(points):
 
 
 def region_masks(landmarks, w, h):
-    """Binary masks from the golden landmarks (convex hull per region)."""
+    """Disjoint binary masks + hull bboxes from the golden landmarks.
+
+    Hulls are built in PRECEDENCE order; each mask is its hull minus the union
+    of every earlier mask, so the ten masks never share a pixel.
+    """
     import cv2
     masks = {}
-    for region, idxs in REGION_LANDMARKS.items():
+    bboxes = {}
+    taken = np.zeros((h, w), dtype=np.uint8)
+    for region in PRECEDENCE:
+        idxs = REGION_LANDMARKS[region]
         pts = np.asarray([landmarks[i] for i in idxs], dtype=np.float64)
         hull = _polygon(pts)
         m = np.zeros((h, w), dtype=np.uint8)
         if len(hull) >= 3:
             cv2.fillPoly(m, [hull], 1)
+        xs = hull[:, 0] if len(hull) else np.array([0])
+        ys = hull[:, 1] if len(hull) else np.array([0])
+        bboxes[region] = {
+            "x0": int(max(0, np.floor(xs.min()))),
+            "y0": int(max(0, np.floor(ys.min()))),
+            "x1": int(min(w, np.ceil(xs.max()))),
+            "y1": int(min(h, np.ceil(ys.max()))),
+        }
+        m = (m & (1 - taken)).astype(np.uint8)
         masks[region] = m
-    return masks
+        taken = (taken | m).astype(np.uint8)
+    return masks, bboxes
 
 
 def _ssim_on_L(L_ref, L_cur, mask):
@@ -94,12 +141,24 @@ def _ssim_on_L(L_ref, L_cur, mask):
     return float(((2 * ma * mb + C1) * (2 * cov + C2)) / den)
 
 
+def heatmap_rgb(dE_field):
+    """Fixed-scale dE heat: 0 -> black, >= HEATMAP_MAX_DE -> red."""
+    t = np.clip(dE_field / HEATMAP_MAX_DE, 0.0, 1.0)
+    rgb = np.zeros(dE_field.shape + (3,), dtype=np.uint8)
+    rgb[:, :, 0] = (255 * t).round().astype(np.uint8)
+    rgb[:, :, 1] = (255 * np.maximum(0.0, t - 0.5) * 2).round().astype(np.uint8)
+    return rgb
+
+
 def measure(golden_rgb, current_rgb, golden_pts, current_pts):
+    import face_gate as v1
+    from skimage.color import deltaE_ciede2000
     h, w = golden_rgb.shape[:2]
     lab_g = v1.rgb_to_lab(golden_rgb)
     lab_c = v1.rgb_to_lab(current_rgb)
     L_g, L_c = lab_g[:, :, 0], lab_c[:, :, 0]
-    masks = region_masks(golden_pts, w, h)
+    dE_field = np.asarray(deltaE_ciede2000(lab_g, lab_c), dtype=np.float64)
+    masks, bboxes = region_masks(golden_pts, w, h)
     out = []
     for region in REGION_ORDER:
         mask = masks[region]
@@ -107,9 +166,10 @@ def measure(golden_rgb, current_rgb, golden_pts, current_pts):
         n = int(sel.sum())
         if n == 0:
             out.append({"region": region, "dE": 0.0, "ssimL": 1.0,
-                        "landmarkDispPx": 0.0, "pixels": 0})
+                        "landmarkDispPx": 0.0, "pixels": 0,
+                        "bbox": bboxes[region]})
             continue
-        de = float(deltaE_ciede2000(lab_g[sel], lab_c[sel]).mean())
+        de = float(dE_field[sel].mean())
         disp = 0.0
         idxs = REGION_LANDMARKS[region]
         for i in idxs:
@@ -123,24 +183,73 @@ def measure(golden_rgb, current_rgb, golden_pts, current_pts):
             "ssimL": _ssim_on_L(L_g, L_c, mask),
             "landmarkDispPx": disp,
             "pixels": n,
+            "bbox": bboxes[region],
         })
-    return out
+    return out, masks, dE_field
+
+
+def load_landmark_override(path):
+    with open(path) as f:
+        pts = json.load(f)
+    if not isinstance(pts, list) or len(pts) < REQUIRED_LANDMARKS:
+        raise SystemExit(
+            "refused: %s holds %s landmarks, need >= %d"
+            % (os.path.basename(path),
+               len(pts) if isinstance(pts, list) else type(pts).__name__,
+               REQUIRED_LANDMARKS))
+    return np.asarray([[float(p[0]), float(p[1])] for p in pts], dtype=np.float64)
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--golden", required=True, help="golden PNG (mask source)")
-    ap.add_argument("--current", required=True, help="current PNG")
-    ap.add_argument("--out", required=True, help="metrics JSON path")
+    ap.add_argument("--golden", required=False, default=None, help="golden PNG (mask source)")
+    ap.add_argument("--current", required=False, default=None, help="current PNG")
+    ap.add_argument("--out", required=False, default=None, help="metrics JSON path")
     ap.add_argument("--model", default=None, help="explicit landmark model path")
     ap.add_argument("--landmarks-out", default=None,
                     help="optional JSON path for golden+current landmarks")
+    ap.add_argument("--golden-landmarks", default=None,
+                    help="fixture landmarks JSON (478 x [x,y] px); skips detection")
+    ap.add_argument("--current-landmarks", default=None,
+                    help="fixture landmarks JSON (478 x [x,y] px); skips detection")
+    ap.add_argument("--heatmap-dir", default=None,
+                    help="per-region dE heatmap PNG dir (default: <out dir>/heatmaps)")
+    ap.add_argument("--dump-regions", action="store_true",
+                    help="print the region table + precedence as JSON and exit")
     ap.add_argument("--case", default=None)
     ap.add_argument("--view", default=None)
     args = ap.parse_args(argv)
 
-    model = v1.resolve_model_path(args.model)
-    landmarker = v1.create_landmarker(model)
+    if args.dump_regions:
+        print(json.dumps({"REGION_LANDMARKS": REGION_LANDMARKS,
+                          "REGION_ORDER": REGION_ORDER,
+                          "PRECEDENCE": PRECEDENCE}))
+        return
+
+    if not args.golden or not args.current or not args.out:
+        raise SystemExit("refused: --golden, --current and --out are required (or use --dump-regions)")
+
+    import face_gate as v1
+
+    if args.golden_landmarks and args.current_landmarks:
+        g_pts = load_landmark_override(args.golden_landmarks)
+        c_pts = load_landmark_override(args.current_landmarks)
+        model_info = {"path": None,
+                      "note": "landmarks overridden; no detection, no model"}
+        detection = {"golden": {"source": "override", "path": args.golden_landmarks},
+                     "current": {"source": "override", "path": args.current_landmarks}}
+    else:
+        import face_gate_v2 as v2
+        model = v1.resolve_model_path(args.model)
+        landmarker = v1.create_landmarker(model)
+        g_pts, g_jit = v2.detect_median(landmarker, Image.open(args.golden))
+        c_pts, c_jit = v2.detect_median(landmarker, Image.open(args.current))
+        if g_pts is None or c_pts is None:
+            raise SystemExit(
+                "refused: no face detected (golden runs_ok=%s current runs_ok=%s)"
+                % (g_jit.get("runs_ok"), c_jit.get("runs_ok")))
+        model_info = {"path": model, "sha256": v1.sha256_of(model)}
+        detection = {"golden": g_jit, "current": c_jit}
 
     golden_rgb = v1.load_rgb(args.golden)
     current_rgb = v1.load_rgb(args.current)
@@ -150,19 +259,26 @@ def main(argv=None):
             % (os.path.basename(args.golden), golden_rgb.shape[:2],
                os.path.basename(args.current), current_rgb.shape[:2]))
 
-    g_pts, g_jit = v2.detect_median(landmarker, Image.open(args.golden))
-    c_pts, c_jit = v2.detect_median(landmarker, Image.open(args.current))
-    if g_pts is None or c_pts is None:
-        raise SystemExit(
-            "refused: no face detected (golden runs_ok=%s current runs_ok=%s)"
-            % (g_jit.get("runs_ok"), c_jit.get("runs_ok")))
+    metrics, masks, dE_field = measure(golden_rgb, current_rgb, g_pts, c_pts)
 
-    metrics = measure(golden_rgb, current_rgb, g_pts, c_pts)
+    heatmap_dir = args.heatmap_dir or os.path.join(
+        os.path.dirname(os.path.abspath(args.out)), "heatmaps")
+    os.makedirs(heatmap_dir, exist_ok=True)
+    for m in metrics:
+        region = m["region"]
+        heat = heatmap_rgb(np.where(masks[region] > 0, dE_field, 0.0))
+        name = "%s.png" % region
+        Image.fromarray(heat, mode="RGB").save(os.path.join(heatmap_dir, name))
+        m["heatmap"] = name
+
     report = {
         "case": args.case,
         "view": args.view,
-        "model": {"path": model, "sha256": v1.sha256_of(model)},
-        "detection": {"golden": g_jit, "current": c_jit},
+        "model": model_info,
+        "detection": detection,
+        "precedence": PRECEDENCE,
+        "heatmapScale": HEATMAP_SCALE,
+        "heatmapDir": heatmap_dir,
         "metrics": metrics,
     }
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)

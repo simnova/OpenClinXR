@@ -5,15 +5,17 @@
  * case-inputs.json and compares it with the last accepted whole-face state, so a
  * change made for one region cannot silently move a region no card named.
  *
+ * Regions are measured ONLY by src/regions.py (single implementation, driven
+ * through mise); the TypeScript surface below is types, the pure decision, the
+ * sheet composer, promotion and the render wiring.
+ *
  * The STEP 2 RED contract imports only from here; the implementations live in
  * the sibling modules and this file is their public surface.
  */
-export { REGION_LANDMARKS, REGION_ORDER, buildRegionPolygons, regionMasks, convexHull, rasterizePolygon } from "./regions.js";
 export type { Landmark } from "./regions.js";
-export { ciede2000, meanDE2000, measureRegions, srgbToLab, ssimL } from "./metrics.js";
-export type { RegionMetric } from "./metrics.js";
-export { evaluateFaceRegression } from "./check.js";
-export type { CheckVerdict, RegionThreshold, RegionVerdict } from "./check.js";
+export type { RegionBounds, RegionMetric } from "./metrics.js";
+export { evaluateFaceRegression, summarizeCheckResults } from "./check.js";
+export type { CaseCheckResult, CheckVerdict, RegionThreshold, RegionVerdict } from "./check.js";
 export { promoteGolden } from "./promote.js";
 export type { PromoteResult } from "./promote.js";
 export {
