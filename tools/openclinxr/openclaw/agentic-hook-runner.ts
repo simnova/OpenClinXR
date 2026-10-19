@@ -835,6 +835,12 @@ function runStep(step: HookStep, index: number, total: number, profile: HookProf
     }
   }
   env = withArchitectureScanLoadEnv(step, env);
+  // Turbo's default concurrency saturates the machine and causes 5 s vitest
+  // timeouts in packages like xr-scene under parallel load. Cap it for the
+  // hook run so the tests pass for real.
+  if (step.label === "Affected package tests") {
+    env.TURBO_CONCURRENCY ??= "2";
+  }
 
   let result: ReturnType<typeof spawnSync> | undefined;
   if (isPathScopedArchitectureStep(step)) {
