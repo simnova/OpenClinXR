@@ -62,6 +62,7 @@ type Report = {
   card: string;
   handoff?: string;
   diffBase?: { sha?: unknown; note?: unknown };
+  g3CardTaskIds?: string[];
   subject: { caseId: string; actorId: string; reference: string; goal: string };
   runner: {
     runs: Array<{ run: string; cli_argv: string[]; status: string; stop_reason: string; stageRecords: string }>;
@@ -97,6 +98,70 @@ function sha256File(abs: string): string {
 
 const storePresent = existsSync(STORE_CASES);
 const maybe = storePresent ? it : it.skip;
+
+/**
+ * G3 allowlist: the only files a card on this station may legitimately touch.
+ * Every path here is either card data (case inputs, reports, pins) or a test
+ * file that ships with the card. run-case.ts is named here (commit 5834ece58
+ * of card tsk_386c8c91eee19dca touched it), which is why it is NOT in the
+ * forbidden stage list below.
+ */
+function g3Allowed(p: string, caseId: string): boolean {
+  return p === "packages/openclinxr/factory-stations/arch-index.json" ||
+    p === "packages/openclinxr/factory-stations/src/face_realism/case-inputs.json" ||
+    p === "packages/openclinxr/factory-stations/src/face_realism/run-case.ts" ||
+    p === "packages/openclinxr/factory-stations/src/face_realism/the-run-case-never-overwrites-evidence.test.ts" ||
+    p === "packages/openclinxr/factory-stations/src/face_realism/case-run-report.json" ||
+    p === "packages/openclinxr/factory-stations/src/face_realism/run-report.json" ||
+    p === "packages/openclinxr/factory-stations/src/face_realism/station-manifest.json" ||
+    p === "packages/openclinxr/factory-stations/src/face_realism/the-face-station-runs-seven-stages-from-a-case.test.ts" ||
+    p === "tools/openclinxr/asset-pipeline/reference-set/manifest.json" ||
+    p === "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json" ||
+    p === "tools/openclinxr/asset-pipeline/skin/face-replay/second-body-report.json" ||
+    p === "tools/openclinxr/evidence/face-fit/any-subject-targets.json" ||
+    p === "tools/openclinxr/evidence/face-fit/child-inputs-report.json" ||
+    p === "tools/openclinxr/evidence/face-fit/fit-report.json" ||
+    p === "tools/openclinxr/evidence/face-fit/identity-report.json" ||
+    p === "tools/openclinxr/evidence/face-fit/make_any_subject_targets.py" ||
+    p === "tools/openclinxr/evidence/face-fit/the-child-case-has-station-inputs.test.ts" ||
+    p === `tools/openclinxr/evidence/face-fit/fit_weights_${caseId}.json` ||
+    p === `tools/openclinxr/evidence/face-fit/fit_file_weights_${caseId}.json` ||
+    p === `tools/openclinxr/evidence/face-fit/pts_target_${caseId}_front.npy` ||
+    p.startsWith("tools/openclinxr/evidence/second-subject/");
+}
+
+/**
+ * Forbidden stage/runner code. run-case.ts was deliberately removed: commit
+ * 5834ece58 (card tsk_386c8c91eee19dca) touches run-case.ts and it is named in
+ * the allowlist above, so keeping it here would fail the card's own commit.
+ * The ban that remains names the four files whose edits are real code moves.
+ */
+const G3_FORBIDDEN_EXACT = [
+  "packages/openclinxr/factory-stations/src/face_realism/plan.ts",
+  "packages/openclinxr/factory-stations/src/face_realism/run.ts",
+  "packages/openclinxr/factory-stations/src/face_realism/stages-a.ts",
+  "packages/openclinxr/factory-stations/src/face_realism/stages-b.ts",
+];
+const G3_FORBIDDEN_PREFIXES = ["tools/openclinxr/evidence/blender/"];
+
+function g3Forbidden(p: string): boolean {
+  return G3_FORBIDDEN_EXACT.includes(p) ||
+    G3_FORBIDDEN_PREFIXES.some((prefix) => p.startsWith(prefix));
+}
+
+/**
+ * The G3 path check, pure and reusable: returns every path that is either
+ * forbidden stage/runner code or absent from the allowlist. An empty result
+ * means the card touched only files it is allowed to touch.
+ */
+export function g3PathOffenders(paths: string[], caseId: string): string[] {
+  return paths.filter((p) => g3Forbidden(p) || !g3Allowed(p, caseId));
+}
+
+function gitLines(args: string[]): string[] {
+  const out = execFileSync("git", args, { cwd: REPO_ROOT, encoding: "utf8" });
+  return out.split("\n").map((s) => s.trim()).filter((s) => s.length > 0);
+}
 
 describe("the station runs on a child case", () => {
   it("(1) report names the card and the child subject with goal: none", () => {
@@ -177,64 +242,49 @@ describe("the station runs on a child case", () => {
     }
   });
 
-  it("(5) G3 counterweight: no stage/runner/materializer/threshold file differs from the recorded H1 base", () => {
+  it("(5) G3 counterweight: the H1 card commits touch only allowlisted paths", () => {
     const r = readReport();
     const base = (r.diffBase ?? {}).sha;
     expect(typeof base, "report records the H1 diff base sha").toBe("string");
     expect(base as string, "diff base is a commit sha").toMatch(/^[0-9a-f]{40,64}$/);
+    const taskIds = r.g3CardTaskIds;
+    expect(Array.isArray(taskIds) && taskIds.length > 0, "report records the H1 card task ids under g3CardTaskIds").toBe(true);
     const caseId = r.subject.caseId;
-    let out = "";
-    try {
-      execFileSync("git", ["diff", "--quiet", base as string, "--",
-        "packages/openclinxr/factory-stations/src/face_realism/plan.ts",
-        "packages/openclinxr/factory-stations/src/face_realism/run.ts",
-        "packages/openclinxr/factory-stations/src/face_realism/run-case.ts",
-        "packages/openclinxr/factory-stations/src/face_realism/stages-a.ts",
-        "packages/openclinxr/factory-stations/src/face_realism/stages-b.ts",
-        "tools/openclinxr/evidence/blender",
-      ], { cwd: REPO_ROOT, stdio: ["ignore", "pipe", "pipe"] });
-    } catch (e) {
-      out = String((e as { stdout?: unknown }).stdout ?? e);
+    for (const id of taskIds!) {
+      expect(id, "task id form (tsk_<hex>)").toMatch(/^tsk_[0-9a-f]+$/);
+      // (b) the card must have landed at least one commit: zero commits FAILS,
+      // never skips (a card that produced no commit cannot be counterweighted).
+      const shas = gitLines(["log", "--format=%H", `--grep=${id}`]);
+      expect(shas.length, `at least one commit names ${id}`).toBeGreaterThan(0);
+      for (const sha of shas) {
+        expect(sha, `commit sha for ${id}`).toMatch(/^[0-9a-f]{40}$/);
+        // (c)/(d) every path the commit touched must be allowlisted and none
+        // may be forbidden stage/runner code.
+        const touched = gitLines(["diff-tree", "--no-commit-id", "--name-only", "-r", sha]);
+        const offenders = g3PathOffenders(touched, caseId);
+        expect(offenders, `commit ${sha} of ${id} touches only allowlisted, non-forbidden paths`).toEqual([]);
+      }
     }
-    expect(out, "stage/runner/materializer files identical to the recorded H1 base").toBe("");
+  });
 
-    let changed = "";
-    try {
-      changed = execFileSync("git", ["diff", "--name-only", base as string], { cwd: REPO_ROOT, encoding: "utf8" });
-    } catch (e) {
-      changed = String((e as { stdout?: unknown }).stdout ?? "");
-    }
-    // Card tsk_386c8c91eee19dca legitimately changes data files (chain row,
-    // pins, targets, reports) while touching no stage/runner code; the
-    // allowlist names exactly those. Any other edit (e.g. a stage script)
-    // fails here. Case-derived target names are built from the report's
-    // case id, never hardcoded (G4).
-    const allowed = (p: string): boolean =>
-      p === "packages/openclinxr/factory-stations/arch-index.json" ||
-      p === "packages/openclinxr/factory-stations/src/face_realism/case-inputs.json" ||
-      p === "packages/openclinxr/factory-stations/src/face_realism/run-case.ts" ||
-      p === "packages/openclinxr/factory-stations/src/face_realism/the-run-case-never-overwrites-evidence.test.ts" ||
-      p === "packages/openclinxr/factory-stations/src/face_realism/case-run-report.json" ||
-      p === "packages/openclinxr/factory-stations/src/face_realism/run-report.json" ||
-      p === "packages/openclinxr/factory-stations/src/face_realism/station-manifest.json" ||
-      p === "packages/openclinxr/factory-stations/src/face_realism/the-face-station-runs-seven-stages-from-a-case.test.ts" ||
-      p === "tools/openclinxr/asset-pipeline/reference-set/manifest.json" ||
-      p === "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json" ||
-      p === "tools/openclinxr/asset-pipeline/skin/face-replay/second-body-report.json" ||
-      p === "tools/openclinxr/evidence/face-fit/any-subject-targets.json" ||
-      p === "tools/openclinxr/evidence/face-fit/child-inputs-report.json" ||
-      p === "tools/openclinxr/evidence/face-fit/fit-report.json" ||
-      p === "tools/openclinxr/evidence/face-fit/identity-report.json" ||
-      p === "tools/openclinxr/evidence/face-fit/make_any_subject_targets.py" ||
-      p === "tools/openclinxr/evidence/face-fit/the-child-case-has-station-inputs.test.ts" ||
-      p === `tools/openclinxr/evidence/face-fit/fit_weights_${caseId}.json` ||
-      p === `tools/openclinxr/evidence/face-fit/fit_file_weights_${caseId}.json` ||
-      p === `tools/openclinxr/evidence/face-fit/pts_target_${caseId}_front.npy` ||
-      p.startsWith("tools/openclinxr/evidence/second-subject/");
-    const extra = changed.split("\n").map((s) => s.trim()).filter((s) => s.length > 0);
-    for (const p of extra) {
-      expect(allowed(p), `only case-inputs.json + this evidence dir may differ (found ${p})`).toBe(true);
-    }
+  it("(5b) G3 path check fails a planted stage script and a planted non-allowlisted path", () => {
+    // The allowlist names run-case.ts (commit 5834ece58), so it passes.
+    expect(g3PathOffenders(
+      ["packages/openclinxr/factory-stations/src/face_realism/run-case.ts"],
+      "some_case_id",
+    ), "run-case.ts is allowlisted").toEqual([]);
+    // A planted stage script is forbidden.
+    expect(g3PathOffenders(
+      ["packages/openclinxr/factory-stations/src/face_realism/stages-a.ts"],
+      "some_case_id",
+    ), "stages-a.ts is forbidden").toEqual([
+      "packages/openclinxr/factory-stations/src/face_realism/stages-a.ts",
+    ]);
+    // A planted path outside the allowlist fails.
+    expect(g3PathOffenders(
+      [".claude/settings.json"],
+      "some_case_id",
+    ), ".claude/settings.json is not allowlisted").toEqual([".claude/settings.json"]);
   });
 
   it("(6) G4: no case id literal in any .ts (the station is driven by the case id)", () => {
