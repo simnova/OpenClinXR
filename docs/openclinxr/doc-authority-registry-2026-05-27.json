@@ -577,6 +577,13 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
+      "path": ".claude/rules/GUARD_SAFETY.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
       "path": ".claude/rules/LEX_AGENTIC.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -1130,6 +1137,13 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
+      "path": ".cursor/rules/GUARD_SAFETY.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
       "path": ".cursor/rules/LEX_AGENTIC.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -1425,6 +1439,13 @@
     },
     {
       "path": ".grok/rules/GUARD_DRIFT.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".grok/rules/GUARD_SAFETY.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -2615,6 +2636,13 @@
     },
     {
       "path": "agents/rules/GUARD_DRIFT.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
+    },
+    {
+      "path": "agents/rules/GUARD_SAFETY.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",

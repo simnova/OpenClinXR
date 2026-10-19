@@ -1,1 +1,0 @@
-../../agents/rules/PROTO_VERIFY_DELEGATION.md

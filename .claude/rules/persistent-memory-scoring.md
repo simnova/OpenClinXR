@@ -1,1 +1,0 @@
-../../agents/rules/persistent-memory-scoring.md
