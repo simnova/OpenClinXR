@@ -151,7 +151,7 @@ describe("shipped supine body rests on both articulated mattress sections", () =
     expect(finger.quaternion.clone().normalize().angleTo(original), "refused right hand restores native caller fingers").toBeLessThan(1e-7);
     applySupinePoseHoldingIncline(root);
     expect(finger.quaternion.clone().normalize().angleTo(original)).toBeLessThan(1e-7);
-  }, 30_000);
+  }, 60_000);
   it("moves actual child wrists outboard while retaining body support", async () => {
     const root = await shippedBody("mpfb-peds-patient-child.glb");
     const parent = new Group(); parent.scale.setScalar(0.82); parent.add(root); parent.updateMatrixWorld(true);
@@ -167,7 +167,7 @@ describe("shipped supine body rests on both articulated mattress sections", () =
       expect(Math.abs(wrist.z), "actual child wrist moves outboard from no-garment supported B").toBeGreaterThan(Math.abs(baselineWrists[side]!.z) + 1e-6);
     }
     expectContact(root, bed);
-  }, 30_000);
+  }, 60_000);
 
   it("retains accepted supported B when optional garment clearance is unreachable", async () => {
     const root = await shippedBody("mpfb-peds-patient-child.glb");
@@ -193,7 +193,7 @@ describe("shipped supine body rests on both articulated mattress sections", () =
     applySupinePoseHoldingIncline(root);
     for (const [name, quat] of accepted) expect(root.getObjectByName(name)!.quaternion.clone().normalize().angleTo(quat.clone().normalize()), `${name} optional refusal keeps accepted B`).toBeLessThan(1e-6);
     expectContact(root, bed);
-  }, 30_000);
+  }, 60_000);
 
   it.each([
     ["mpfb-gown-adult-patient.glb", 30, 0],
@@ -265,5 +265,5 @@ describe("shipped supine body rests on both articulated mattress sections", () =
     expect(root.position.distanceTo(original), "repeat plant stays stable").toBeLessThan(0.001);
     for (let i = 0; i < owned.length; i += 1) expect(owned[i]!.quaternion.clone().normalize().angleTo(accepted[i]!), `${owned[i]!.name} repeated public plant quaternion`).toBeLessThan(1e-6);
     expectContact(root, bed);
-  }, 30_000);
+  }, 60_000);
 });

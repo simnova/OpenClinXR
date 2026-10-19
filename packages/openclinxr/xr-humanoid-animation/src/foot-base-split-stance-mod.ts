@@ -223,7 +223,7 @@ export function runSplitStancePinPass(
           // Diverged: restore the first-solve pose (and its hinge normal
           // and miss, so diagnostics report the kept pose).
           const bones = [chain.hip, chain.upperMid, chain.knee, chain.lowerMid, chain.heel, chain.toe];
-          savedQuats.forEach((quat, i) => bones[i]?.quaternion.copy(quat));
+          savedQuats.forEach((quat, i) => { bones[i]?.quaternion.copy(quat); });
           state.hingeNormal[side] = savedNormal;
           entry.missM = firstMissM;
           slot.updateMatrixWorld(true);

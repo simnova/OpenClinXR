@@ -1,6 +1,5 @@
 import { applyGeneratedHumanoidClinicalIdlePosture, type OwnedChain } from "@openclinxr/xr-pose";
 import * as THREE from "three";
-import { Bone } from "three";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -231,7 +230,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
     humanoid.userData.openClinXrOwnedBoneChains = ownedChains;
 
     // Simulate MPFB rig detection (sanitised names)
-    const jointNames = new Set([
+    const _jointNames = new Set([
       "upper_armL",
       "forearmL",
       "handL",
@@ -271,7 +270,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
     humanoid.userData.openClinXrHumanoidRail = "mpfb2";
 
     // Replace forearmL with lowerarm01.L to match MPFB naming
-    const upperArmL = humanoid.getObjectByName("upper_armL")!;
+    const _upperArmL = humanoid.getObjectByName("upper_armL")!;
     const lowerArmL = humanoid.getObjectByName("forearmL")!;
     lowerArmL.name = "lowerarm01.L";
 

@@ -110,7 +110,7 @@ export const FOOT_BASE_ROUTE_TOLERANCE_M = 0.005;
  * Solved 1.31 m plan scale (planFootsteps: 3 halves, (1.31 - 0.4156) / 1.265):
  * the foothold spacing when no live plan state is captured (flag without plan).
  */
-export const FOOT_BASE_DEFAULT_SCALE = 0.707;
+export const FOOT_BASE_DEFAULT_SCALE = Math.SQRT1_2;
 
 /** State/state-mod, route gate/route-gate-mod (both split out for the zone
  * budget); the gate is re-exported for deep importers. Unchanged. */

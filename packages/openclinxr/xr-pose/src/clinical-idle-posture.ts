@@ -20,9 +20,9 @@
  * notEvidenceFor: clinical posture appropriateness, hand articulation, Quest readiness.
  */
 
-import type { Object3D, SkinnedMesh } from "three";
+import type { Object3D } from "three";
 import { Euler, Quaternion } from "three";
-import { boneIsOwned, boneOwnershipWeight, type OwnedChain } from "./chain-ownership.js";
+import { boneOwnershipWeight, type OwnedChain } from "./chain-ownership.js";
 import {
   applyMpfbUpperArmIdle,
   CLINICAL_IDLE_ARM_HANG,
@@ -30,7 +30,6 @@ import {
   LIBRARY_CLINICAL_IDLE_ARM_HANG,
   MIXAMO_CLINICAL_IDLE_ARM_HANG,
   MPFB_CLINICAL_IDLE_ARM_HANG,
-  MPFB_IDLE_FORELARM_BEND_FRACTION,
   mpfbForearmIdleEuler,
   mpfbUpperArmIdleTarget,
 } from "./clinical-idle-posture-maps.js";
@@ -231,7 +230,7 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
   //
   // The asymmetry is the whole point: a carve-out that stops the pass entirely would keep an owned
   // bone AND freeze its unowned neighbour, which is indistinguishable from a broken posture pass.
-  const ownedClaims = humanoid.userData["openClinXrOwnedBoneChains"];
+  const ownedClaims = humanoid.userData.openClinXrOwnedBoneChains;
   const ownedChains: readonly OwnedChain[] = Array.isArray(ownedClaims)
     ? (ownedClaims as OwnedChain[]).filter((chain) => Array.isArray(chain?.boneNames))
     : [];
@@ -255,9 +254,11 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
 
   // issue-#0: pristine bind rotations captured ONCE at the load-time call (the bone is
   // untouched then — standing posture apply is a no-op, and the mixer has not run).
-  const mpfbForearmBinds: Map<string, BindQuaternion> =
-    humanoid.userData.openClinXrMpfbForearmBinds as Map<string, BindQuaternion> | undefined
-    ?? (humanoid.userData.openClinXrMpfbForearmBinds = new Map<string, BindQuaternion>());
+  let mpfbForearmBinds = humanoid.userData.openClinXrMpfbForearmBinds as Map<string, BindQuaternion> | undefined;
+  if (!mpfbForearmBinds) {
+    mpfbForearmBinds = new Map<string, BindQuaternion>();
+    humanoid.userData.openClinXrMpfbForearmBinds = mpfbForearmBinds;
+  }
 
   // Arms slice (2026-10-19): pristine upper-arm binds for the bind-relative
   // hang (same first-untouched-sight guarantee as the forearms above).
@@ -269,9 +270,11 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
 
   // 2026-09-23: pristine head/neck binds for bind-relative attention (see
   // applyHeadAttentionBindRelative). Same first-untouched-sight guarantee as forearms.
-  const headNeckBinds: Map<string, BindQuaternion> =
-    humanoid.userData.openClinXrHeadNeckBinds as Map<string, BindQuaternion> | undefined
-    ?? (humanoid.userData.openClinXrHeadNeckBinds = new Map<string, BindQuaternion>());
+  let headNeckBinds = humanoid.userData.openClinXrHeadNeckBinds as Map<string, BindQuaternion> | undefined;
+  if (!headNeckBinds) {
+    headNeckBinds = new Map<string, BindQuaternion>();
+    humanoid.userData.openClinXrHeadNeckBinds = headNeckBinds;
+  }
 
   // Head-family rotations are the hangMap's own "head" entry object, reached either by
   // landmark resolution or by the head/neck alias fallback — identity-compared, never inferred.

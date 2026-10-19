@@ -183,7 +183,7 @@ export function applyMpfbUpperArmIdle(
 ): void {
   const sanitised = sanitiseBoneName(object.name);
   let bind = bindStore.get(sanitised);
-  if (!bind && !object.userData["openClinXrClinicalIdlePosture"]) {
+  if (!bind && !object.userData.openClinXrClinicalIdlePosture) {
     bind = {
       x: object.quaternion.x,
       y: object.quaternion.y,
@@ -198,7 +198,7 @@ export function applyMpfbUpperArmIdle(
   _scratchDelta.set(delta.x, delta.y, delta.z, delta.w);
   object.quaternion.copy(_scratchBind.multiply(_scratchDelta));
   object.rotation.setFromQuaternion(object.quaternion);
-  object.userData["openClinXrClinicalIdlePosture"] = "relaxed_arms_scenario_conversation_pose";
+  object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
   if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
 }
 
