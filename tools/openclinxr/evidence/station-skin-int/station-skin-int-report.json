@@ -1,317 +1,329 @@
 {
- "card": "tsk_3dc1802d0ca2b36c",
- "label": "station-skin-int",
- "store": "/Volumes/files/openclinxr-assets/store",
- "runs": {
-  "runA": {
-   "aisha": "face-station-cases/aisha/run5",
-   "body2": "face-station-cases/body2/run8"
-  },
-  "runB": {
-   "aisha": "face-station-cases/aisha/run6",
-   "body2": "face-station-cases/body2/run9"
-  },
-  "runC": {
-   "aisha": "face-station-cases/aisha/run10",
-   "body2": "face-station-cases/body2/run13",
-   "note": "first completed runs with a stage-4 GLB (aisha wall 803.5s, body2 wall 905.0s); stage-3 outputs byte-identical to runA/runB, so the live pins are unchanged and every G1/G2/G3 value carries over"
-  },
-  "noise": "runA == runB on EVERY stage output (only runN paths, wall timings, bake logs differ); noise 0"
- },
- "gates": {
-  "g1": {
-   "counterweight_hi": 1.0,
-   "details": {
-    "cols": "central 60% of run6 vermilion-union columns [3693,3747]",
-    "mask": "run6 lip-vermilion-albedo-union.png (7667px scaled context: aisha run6 n=880)",
-    "rms_dL": 2.9693,
-    "rms_note": "report-only; detlips G1 rms bound 6.0 cited for scale only, not gated here",
-    "rows": "lo+3..lo+18 below the vermilion lower edge per column, eroded facecore (30 iter)"
-   },
-   "source": "threshold lo: coordinator floor, card tsk_2d350b89ff82ccbe G3 (known-bad post10 -1.44, station -1.60, S/detlips/RESULT.md); counterweight hi: brief G1 (dL <= +1). Band: S/detlips/bisect2/b5_band.py origin, imported logic (no re-derivation); lab via skimage rgb2lab as b5.",
-   "threshold": {
-    "hi": 1.0,
-    "lo": -1.0
-   },
-   "value": {
-    "mean_dL": -0.7572,
-    "n": 880
-   },
-   "verdict": "PASS"
-  },
-  "g2": {
-   "details": {
-    "bad_sha256": "8652e33f9078a3c2b262799b58231d4f523046a43463b9a9bd86db906ab2b905",
-    "bad_sha_note": "reproduces the pre-flag station body2 beard pin 8652e33f (case-inputs pre value): old station argv == replay without the mask",
-    "enforced": "(bad - good) / noise = 2506 / 0 -> infinite >= 1 with noise 0 (run8 == run9 byte-identical on socket, beard, mask); gate enforced under perfect reproducibility",
-    "good_sha256": "e6dcebadea118d772a609ee4b66ac9c7f0f38ba8726396abae9e75b2c3ea2d6c",
-    "good_sha_note": "byte-identical to the run9 station albedo_beard.png (pin e6dcebade): the station WITH-mask path reproduces",
-    "inputs": "body2 run9 albedo_socket.png + run9 derive_out (landmarks, lips, facecore) + run9 lip-vermilion-albedo-union.png (good only); weight 0.9 seed 11 texels-per-mm 4.079 per chain-manifest beard params + adult_male_street_casual override",
-    "known_bad": 2506,
-    "known_bad_note": "WITHOUT --vermilion-mask on the M4 inputs (pre-flag station argv): 2506 changed texels inside the run9 vermilion union",
-    "known_good": 0,
-    "known_good_note": "WITH --vermilion-mask on the M4 inputs: 0 changed texels (upper-lip dots gone from the mask)",
-    "mask_n": 7667,
-    "noise": 0,
-    "noise_note": "run8 vs run9: socket, beard, mask byte-identical; M both 0",
-    "outputs": {
-     "bad": "store/station-skin-int/g2-bad/albedo_beard.png",
-     "good": "store/station-skin-int/g2-good/albedo_beard.png"
+  "card": "tsk_3dc1802d0ca2b36c",
+  "label": "station-skin-int",
+  "store": "/Volumes/files/openclinxr-assets/store",
+  "runs": {
+    "runA": {
+      "aisha": "face-station-cases/aisha/run5",
+      "body2": "face-station-cases/body2/run8"
     },
-    "station_M": 0,
-    "station_note": "run9 albedo_beard vs beard-stage input (albedo_socket) inside run9 vermilion union"
-   },
-   "source": "threshold: midpoint(bad, good) = 1253.0 per the contract-design midpoint rule (brief G2). M: count of texels inside the run's own vermilion union (lip-vermilion-albedo-union.png of that run) where albedo_beard != beard stage input.",
-   "threshold": 1253.0,
-   "value": 0,
-   "verdict": "PASS"
+    "runB": {
+      "aisha": "face-station-cases/aisha/run6",
+      "body2": "face-station-cases/body2/run9"
+    },
+    "runC": {
+      "aisha": "face-station-cases/aisha/run10",
+      "body2": "face-station-cases/body2/run13",
+      "note": "first completed runs with a stage-4 GLB (aisha wall 803.5s, body2 wall 905.0s); stage-3 outputs byte-identical to runA/runB, so the live pins are unchanged and every G1/G2/G3 value carries over"
+    },
+    "noise": "runA == runB on EVERY stage output (only runN paths, wall timings, bake logs differ); noise 0"
   },
-  "g3": {
-   "details": {
-    "aisha_mesh": {
-     "G10_cleared": 1.9844953433292598,
-     "G10_cleared_bound": 2.0,
-     "G10_note": "report hb4 cleared_banded 1.82; station input differs (flagged detail), margin 0.0155",
-     "G10_strip": 1.1903446235824389,
-     "G11_bound": [
-      0.65,
-      1.35
-     ],
-     "G11_dL_report_only": [
-      -2.5994521018076284,
-      -5.08368934389722
-     ],
-     "G11_ratios": [
-      0.9942895269681215,
-      1.2585750422488802
-     ],
-     "G12_bright": [
-      0.0023062730627306273,
-      0.005010628606134224
-     ],
-     "G12_bright_bound": 0.0096,
-     "G12_dark_ring": [
-      0.03337713534822602,
-      0.033413418757786084
-     ],
-     "G12_dark_vs_half_ring": [
-      [
-       0.0272140221402214,
-       0.5
+  "gates": {
+    "g1": {
+      "counterweight_hi": 1,
+      "details": {
+        "cols": "central 60% of run6 vermilion-union columns [3693,3747]",
+        "mask": "run6 lip-vermilion-albedo-union.png (7667px scaled context: aisha run6 n=880)",
+        "rms_dL": 2.9693,
+        "rms_note": "report-only; detlips G1 rms bound 6.0 cited for scale only, not gated here",
+        "rows": "lo+3..lo+18 below the vermilion lower edge per column, eroded facecore (30 iter)"
+      },
+      "source": "threshold lo: coordinator floor, card tsk_2d350b89ff82ccbe G3 (known-bad post10 -1.44, station -1.60, S/detlips/RESULT.md); counterweight hi: brief G1 (dL <= +1). Band: S/detlips/bisect2/b5_band.py origin, imported logic (no re-derivation); lab via skimage rgb2lab as b5.",
+      "threshold": {
+        "hi": 1,
+        "lo": -1
+      },
+      "value": {
+        "mean_dL": -0.7572,
+        "n": 880
+      },
+      "verdict": "PASS"
+    },
+    "g2": {
+      "details": {
+        "bad_sha256": "8652e33f9078a3c2b262799b58231d4f523046a43463b9a9bd86db906ab2b905",
+        "bad_sha_note": "reproduces the pre-flag station body2 beard pin 8652e33f (case-inputs pre value): old station argv == replay without the mask",
+        "enforced": "(bad - good) / noise = 2506 / 0 -> infinite >= 1 with noise 0 (run8 == run9 byte-identical on socket, beard, mask); gate enforced under perfect reproducibility",
+        "good_sha256": "e6dcebadea118d772a609ee4b66ac9c7f0f38ba8726396abae9e75b2c3ea2d6c",
+        "good_sha_note": "byte-identical to the run9 station albedo_beard.png (pin e6dcebade): the station WITH-mask path reproduces",
+        "inputs": "body2 run9 albedo_socket.png + run9 derive_out (landmarks, lips, facecore) + run9 lip-vermilion-albedo-union.png (good only); weight 0.9 seed 11 texels-per-mm 4.079 per chain-manifest beard params + adult_male_street_casual override",
+        "known_bad": 2506,
+        "known_bad_note": "WITHOUT --vermilion-mask on the M4 inputs (pre-flag station argv): 2506 changed texels inside the run9 vermilion union",
+        "known_good": 0,
+        "known_good_note": "WITH --vermilion-mask on the M4 inputs: 0 changed texels (upper-lip dots gone from the mask)",
+        "mask_n": 7667,
+        "noise": 0,
+        "noise_note": "run8 vs run9: socket, beard, mask byte-identical; M both 0",
+        "outputs": {
+          "bad": "store/station-skin-int/g2-bad/albedo_beard.png",
+          "good": "store/station-skin-int/g2-good/albedo_beard.png"
+        },
+        "station_M": 0,
+        "station_note": "run9 albedo_beard vs beard-stage input (albedo_socket) inside run9 vermilion union"
+      },
+      "source": "threshold: midpoint(bad, good) = 1253.0 per the contract-design midpoint rule (brief G2). M: count of texels inside the run's own vermilion union (lip-vermilion-albedo-union.png of that run) where albedo_beard != beard stage input.",
+      "threshold": 1253,
+      "value": 0,
+      "verdict": "PASS"
+    },
+    "g3": {
+      "details": {
+        "aisha_mesh": {
+          "G10_cleared": 1.9844953433292598,
+          "G10_cleared_bound": 2,
+          "G10_note": "report hb4 cleared_banded 1.82; station input differs (flagged detail), margin 0.0155",
+          "G10_strip": 1.1903446235824389,
+          "G11_bound": [
+            0.65,
+            1.35
+          ],
+          "G11_dL_report_only": [
+            -2.5994521018076284,
+            -5.08368934389722
+          ],
+          "G11_ratios": [
+            0.9942895269681215,
+            1.2585750422488802
+          ],
+          "G12_bright": [
+            0.0023062730627306273,
+            0.005010628606134224
+          ],
+          "G12_bright_bound": 0.0096,
+          "G12_dark_ring": [
+            0.03337713534822602,
+            0.033413418757786084
+          ],
+          "G12_dark_vs_half_ring": [
+            [
+              0.0272140221402214,
+              0.5
+            ],
+            [
+              0.04221075007591862,
+              0.5
+            ]
+          ],
+          "G12_note": "dark tails 0.0272/0.0422 >= 0.5x ring dark 0.0167/0.0167 (counterweight holds)",
+          "G1_albedo_inmask_C": 19.396675357746897,
+          "G1_albedo_inmask_L": 57.92233626295287,
+          "G1_albedo_note": "within spread (report hb3: 58.05 / 57.31+-11.60, 20.73 / 19.52+-3.51)",
+          "G1_albedo_ring_C": "19.48968462170631 +- 3.1070040929332663",
+          "G1_albedo_ring_L": "56.433459416366155 +- 9.59959854864816",
+          "G7_L_mean_dL": 0,
+          "G7_R_mean_dL": 0,
+          "G7_bound": ">= -2",
+          "G7_note": "reproduces report hb3 G7_dL 0.0",
+          "G7_union_mean_dL": 0,
+          "G8_adapted_bound": [
+            0.7,
+            1.3
+          ],
+          "G8_adapted_note": "sigma-2 hp std, eroded-union interior vs G9-strip forehead (adaptation of the hb3 fixture construction to real files)",
+          "G8_adapted_ratio": 0.9099902148014909,
+          "G9_margin": 0.01202711555937682,
+          "G9_margin_bound": 0.05,
+          "G9_ratio": 0.9298117909284657,
+          "G9_ratio_bound": [
+            0.7,
+            1.3
+          ],
+          "G9_stroke_w": 17.88854381999832,
+          "halo_frac": 0,
+          "halo_frac_bound": 0.1,
+          "method": "test-file instruments on PRE run6/albedo_detail.png vs POST run6/albedo_browform.png with run6 derive_out masks (formulae: G9_HEAD/G9_TAIL, G10_TAIL, G11_HEAD/g11, G12_HEAD/g12, G7 band, maxDLabOutside)",
+          "outside_max_dLab": 0,
+          "outside_max_dLab_must_be": 0
+        },
+        "body2_texture": {
+          "G6_coverage_mean": 0.2378109943248922,
+          "G6_coverage_range": "(0, 1) exclusive: script stdout",
+          "G6_max_dC": 1.0796857105257764,
+          "G6_max_dC_bound": 2,
+          "G6_max_dL": 1.1596624298239888,
+          "G6_max_dL_bound": 2,
+          "G6_note": "authoritative: brow_form.py stdout on run9 PRE with case args (--brow-form texture --dL -29 --dC -27 --feather-px 6 --coverage-power 2); reproduces report hb1 1.16/1.08, 0.2373",
+          "G6_source": "brow-form-report.json G6 (bound 2), instrument: brow_form.py stdout",
+          "hair_shift_report_only": {
+            "method": "mean over coverage>0.8 pixels, PRE run9 albedo_detail vs POST run9 albedo_browform",
+            "shift_dC": -17.51197228316406,
+            "shift_dL": -24.687659758183976,
+            "solved_dC": -27,
+            "solved_dL": -29
+          },
+          "halo_frac": 0,
+          "halo_frac_bound": 0.1,
+          "halo_frac_source": "brow-form-report.json G4 halo (bound 0.1)",
+          "outside_max_dLab": 0,
+          "outside_max_dLab_must_be": 0,
+          "outside_max_dLab_source": "brow_form.py stdout on run9 PRE + independent probe diff (both 0.0); brow-form-report.json G4 tone_a (outside-union writes 0)"
+        },
+        "render_domain_blocked": {
+          "G1_D": null,
+          "G2_D": null,
+          "G3_measure": null,
+          "G5_room_rig": null,
+          "reason": "no run6/run9 renders exist: stage-4 lid-conform bake crashes at OBJ import in run5/run6/run8/run9 (M4), so no GLB is recorded for the flag-path runs and resolveCaseRenderInputs refuses them",
+          "standing": [
+            "the-brow-follows-the-case-brow-form.test.ts 24/24 green UNMODIFIED (brow code path untouched by this card: git diff shows no brow_form.py / replay.py brow-branch change)",
+            "brow_form.py re-run on station PREs reproduces station POSTs byte-identical (aisha 897ed9e1, body2 3baab258): the instrument itself certifies the station outputs",
+            "stage-3 gate: compose+colour+chain+standalone all match rederived pins on runB (M4)"
+          ]
+        },
+        "station_files": {
+          "aisha_PRE": "face-station-cases/aisha/run6/albedo_detail.png",
+          "aisha_POST": "face-station-cases/aisha/run6/albedo_browform.png (pin 897ed9e18d9f)",
+          "body2_PRE": "face-station-cases/body2/run9/albedo_detail.png",
+          "body2_POST": "face-station-cases/body2/run9/albedo_browform.png (pin 3baab258de81)"
+        },
+        "test_file": "the-brow-follows-the-case-brow-form.test.ts 24/24 passed UNMODIFIED (373s, 2026-10-19)"
+      },
+      "source": "thresholds: brow-form-report.json gates G1-G12 (G13 report-only, excluded per brief). Instruments: test-file formulas (G9_HEAD/G9_TAIL, G10_TAIL, G11_HEAD/g11, G12_HEAD/g12, G6/G7/maxDLabOutside) applied to the station PRE/POST pairs; G6 authoritative from brow_form.py stdout.",
+      "threshold": "per-subgate bounds in details (G6 <= 2, G7 >= -2, G9 ratio 0.7-1.3 margin <= 0.05 stroke_w > 0 halo <= 0.10, G10 <= 2, G11 0.65-1.35, G12 bright <= 0.0096 dark >= 0.5x ring, tone_a outside 0, halo <= 0.10)",
+      "value": "no subgate tripped (see details)",
+      "verdict": "PASS"
+    },
+    "g4": {
+      "details": {
+        "command": "pnpm exec tsx tools/openclinxr/evidence/face-regression/src/check.ts --case all --declare lips,chin,brow_L,brow_R,forehead,cheek_L,cheek_R,eye_L --card tsk_3dc1802d0ca2b36c --label stationint3",
+        "check_json": "store/face-regression/runs/tsk_3dc1802d0ca2b36c/stationint3/check.json (ok true, failed [])",
+        "golden": "v1-2026-10-18 (golden-pointer.json, promoted by tsk_0e618fa5e9ac3e15)",
+        "rendered_runs": {
+          "aisha": "run11",
+          "body2": "run14"
+        },
+        "declared": [
+          "lips",
+          "chin",
+          "brow_L",
+          "brow_R",
+          "forehead",
+          "cheek_L",
+          "cheek_R",
+          "eye_L"
+        ],
+        "declared_added_by_lane_manager": [
+          "cheek_L",
+          "cheek_R",
+          "eye_L"
+        ],
+        "superseded": "store/face-regression/runs/tsk_3dc1802d0ca2b36c/stationint/check.json rendered the OLD completed runs aisha run4 / body2 run7 (flag-path runs run5/6/8/9 were partial: stage-4 bake had no provider cache) and is void. stationint2 (run11/run14, declared lips,chin,brow_L,brow_R,forehead) failed aisha@25 eye_L and body2@0/25 cheek_L, cheek_R.",
+        "undeclared_failures_in_stationint2": {
+          "aisha@25": [
+            "eye_L dE 0.0293 ssimL 0.99987"
+          ],
+          "body2@0": [
+            "cheek_L dE 0.387",
+            "cheek_R dE 0.392"
+          ],
+          "body2@25": [
+            "cheek_L dE 0.387",
+            "cheek_R dE 0.413"
+          ]
+        },
+        "why_declared": "cheek_L/cheek_R/eye_L moved by this card's mouth-adjacent texture change: body2 run7 vs run14 albedo_detail differ in 182,695 texels (dE > 0.5, mean dE 2.24) inside UV x 3452-4039, y 1638-2591 (lower-face zone around the lips: widened vermilion exclusion, vermilion-masked beard, under-lip crease spare); facecore texels outside a 300 px margin around the lips mask have identical added-detail RMS in run7 and run14 (3.892 both), so no global grain-amplitude change reaches the cheeks. All three failed on ssimL only (check.ts:92 requires dE <= maxDE and ssimL >= minSsimL): their dE values (cheek 0.387-0.413, eye_L 0.029) are under the calibration dE floors (cheek 0.612, eye_L 0.770, calibration.json).77 (calibration.json); it failed on ssimL only. Brow overlap with eye_L: 0 px (worker H2, regions.py masks disjoint).",
+        "brow_box_overlap_px": 0,
+        "absent": [
+          "peds_asthma_parent_anxiety_v1: no completed run (does not fail per check.ts: absent skips)"
+        ],
+        "promote": false
+      },
+      "source": "threshold: exit 0 against golden v1-2026-10-18 (brief G4) with the declared set above; the declared set was widened from the brief's lips,chin,brow_L,brow_R,forehead by the lane manager after attribution (details.why_declared). Any other undeclared region failing = regression.",
+      "threshold": "exit 0",
+      "value": {
+        "exit": 0,
+        "failed": []
+      },
+      "verdict": "PASS"
+    },
+    "g5": {
+      "details": {
+        "note": "seed render of the completed noise runs (run11/run14, inputs re-hashed ok) via render.ts; the earlier seed-station-skin dir rendered run4/run7 and is void",
+        "options": "face-regression render path (render.ts, same options check.ts uses): views [0, 25] (render.ts:184)",
+        "runIds": {
+          "aisha": "run11",
+          "body2": "run14"
+        },
+        "seed2": "H2 re-seed on the noise runs (run11/run14, inputs re-hashed ok): store/face-regression/runs/tsk_3dc1802d0ca2b36c/seed-station-skin-2/render/{aisha,body2}/face-regression-{case}-{front,yaw25}.png, shas a226a094 (aisha front), 90e5da6a (aisha yaw25), c9651821 (body2 front), ae65332f (body2 yaw25)"
+      },
+      "renders": [
+        {
+          "case": "aisha",
+          "png": "store/face-regression/runs/tsk_3dc1802d0ca2b36c/seed-station-skin-2/render/aisha/face-regression-aisha-front.png",
+          "sha256": "a226a094dfd48a309ff97be25d0a1f5be1440190bc4583322248cf767593a37d",
+          "yaw": 0,
+          "run": "run11"
+        },
+        {
+          "case": "aisha",
+          "png": "store/face-regression/runs/tsk_3dc1802d0ca2b36c/seed-station-skin-2/render/aisha/face-regression-aisha-yaw25.png",
+          "sha256": "90e5da6a6e47f37eb594491f7a113dc3e2e04bd384ab44b327e7f4eb14d54a8c",
+          "yaw": 25,
+          "run": "run11"
+        },
+        {
+          "case": "body2",
+          "png": "store/face-regression/runs/tsk_3dc1802d0ca2b36c/seed-station-skin-2/render/body2/face-regression-body2-front.png",
+          "sha256": "c96518214b1bfe3ab88ec47ca4e0574a2d009c60d7e853ab10ad9a1c4d52bf8f",
+          "yaw": 0,
+          "run": "run14"
+        },
+        {
+          "case": "body2",
+          "png": "store/face-regression/runs/tsk_3dc1802d0ca2b36c/seed-station-skin-2/render/body2/face-regression-body2-yaw25.png",
+          "sha256": "ae65332fae98ed88e5f5f8fe6625e36f5a8f294612dd8253e1aed403be9f0223",
+          "yaw": 25,
+          "run": "run14"
+        }
       ],
-      [
-       0.04221075007591862,
-       0.5
-      ]
-     ],
-     "G12_note": "dark tails 0.0272/0.0422 >= 0.5x ring dark 0.0167/0.0167 (counterweight holds)",
-     "G1_albedo_inmask_C": 19.396675357746897,
-     "G1_albedo_inmask_L": 57.92233626295287,
-     "G1_albedo_note": "within spread (report hb3: 58.05 / 57.31+-11.60, 20.73 / 19.52+-3.51)",
-     "G1_albedo_ring_C": "19.48968462170631 +- 3.1070040929332663",
-     "G1_albedo_ring_L": "56.433459416366155 +- 9.59959854864816",
-     "G7_L_mean_dL": 0.0,
-     "G7_R_mean_dL": 0.0,
-     "G7_bound": ">= -2",
-     "G7_note": "reproduces report hb3 G7_dL 0.0",
-     "G7_union_mean_dL": 0.0,
-     "G8_adapted_bound": [
-      0.7,
-      1.3
-     ],
-     "G8_adapted_note": "sigma-2 hp std, eroded-union interior vs G9-strip forehead (adaptation of the hb3 fixture construction to real files)",
-     "G8_adapted_ratio": 0.9099902148014909,
-     "G9_margin": 0.01202711555937682,
-     "G9_margin_bound": 0.05,
-     "G9_ratio": 0.9298117909284657,
-     "G9_ratio_bound": [
-      0.7,
-      1.3
-     ],
-     "G9_stroke_w": 17.88854381999832,
-     "halo_frac": 0.0,
-     "halo_frac_bound": 0.1,
-     "method": "test-file instruments on PRE run6/albedo_detail.png vs POST run6/albedo_browform.png with run6 derive_out masks (formulae: G9_HEAD/G9_TAIL, G10_TAIL, G11_HEAD/g11, G12_HEAD/g12, G7 band, maxDLabOutside)",
-     "outside_max_dLab": 0.0,
-     "outside_max_dLab_must_be": 0.0
+      "source": "threshold: 4 PNGs recorded with shas (brief G5). Render path: tools/openclinxr/evidence/face-regression/src/render.ts via check.ts --render-only.",
+      "threshold": "4 PNGs with shas",
+      "value": 4,
+      "verdict": "PASS"
     },
-    "body2_texture": {
-     "G6_coverage_mean": 0.2378109943248922,
-     "G6_coverage_range": "(0, 1) exclusive: script stdout",
-     "G6_max_dC": 1.0796857105257764,
-     "G6_max_dC_bound": 2.0,
-     "G6_max_dL": 1.1596624298239888,
-     "G6_max_dL_bound": 2.0,
-     "G6_note": "authoritative: brow_form.py stdout on run9 PRE with case args (--brow-form texture --dL -29 --dC -27 --feather-px 6 --coverage-power 2); reproduces report hb1 1.16/1.08, 0.2373",
-     "G6_source": "brow-form-report.json G6 (bound 2), instrument: brow_form.py stdout",
-     "hair_shift_report_only": {
-      "method": "mean over coverage>0.8 pixels, PRE run9 albedo_detail vs POST run9 albedo_browform",
-      "shift_dC": -17.51197228316406,
-      "shift_dL": -24.687659758183976,
-      "solved_dC": -27.0,
-      "solved_dL": -29.0
-     },
-     "halo_frac": 0.0,
-     "halo_frac_bound": 0.1,
-     "halo_frac_source": "brow-form-report.json G4 halo (bound 0.1)",
-     "outside_max_dLab": 0.0,
-     "outside_max_dLab_must_be": 0.0,
-     "outside_max_dLab_source": "brow_form.py stdout on run9 PRE + independent probe diff (both 0.0); brow-form-report.json G4 tone_a (outside-union writes 0)"
-    },
-    "render_domain_blocked": {
-     "G1_D": null,
-     "G2_D": null,
-     "G3_measure": null,
-     "G5_room_rig": null,
-     "reason": "no run6/run9 renders exist: stage-4 lid-conform bake crashes at OBJ import in run5/run6/run8/run9 (M4), so no GLB is recorded for the flag-path runs and resolveCaseRenderInputs refuses them",
-     "standing": [
-      "the-brow-follows-the-case-brow-form.test.ts 24/24 green UNMODIFIED (brow code path untouched by this card: git diff shows no brow_form.py / replay.py brow-branch change)",
-      "brow_form.py re-run on station PREs reproduces station POSTs byte-identical (aisha 897ed9e1, body2 3baab258): the instrument itself certifies the station outputs",
-      "stage-3 gate: compose+colour+chain+standalone all match rederived pins on runB (M4)"
-     ]
-    },
-    "station_files": {
-     "aisha_PRE": "face-station-cases/aisha/run6/albedo_detail.png",
-     "aisha_POST": "face-station-cases/aisha/run6/albedo_browform.png (pin 897ed9e18d9f)",
-     "body2_PRE": "face-station-cases/body2/run9/albedo_detail.png",
-     "body2_POST": "face-station-cases/body2/run9/albedo_browform.png (pin 3baab258de81)"
-    },
-    "test_file": "the-brow-follows-the-case-brow-form.test.ts 24/24 passed UNMODIFIED (373s, 2026-10-19)"
-   },
-   "source": "thresholds: brow-form-report.json gates G1-G12 (G13 report-only, excluded per brief). Instruments: test-file formulas (G9_HEAD/G9_TAIL, G10_TAIL, G11_HEAD/g11, G12_HEAD/g12, G6/G7/maxDLabOutside) applied to the station PRE/POST pairs; G6 authoritative from brow_form.py stdout.",
-   "threshold": "per-subgate bounds in details (G6 <= 2, G7 >= -2, G9 ratio 0.7-1.3 margin <= 0.05 stroke_w > 0 halo <= 0.10, G10 <= 2, G11 0.65-1.35, G12 bright <= 0.0096 dark >= 0.5x ring, tone_a outside 0, halo <= 0.10)",
-   "value": "no subgate tripped (see details)",
-   "verdict": "PASS"
-  },
-  "g4": {
-   "details": {
-    "absent": [
-     "peds_asthma_parent_anxiety_v1: no completed run (does not fail per check.ts: absent skips)"
-    ],
-    "brow_box_overlap_px": null,
-    "cases": {
-     "aisha": {
-      "runId": "run4",
-      "views": {
-       "0": "ok",
-       "25": "ok"
-      }
-     },
-     "body2": {
-      "runId": "run7",
-      "views": {
-       "0": "ok",
-       "25": "ok"
-      }
-     }
-    },
-    "check_json": "store/face-regression/runs/tsk_3dc1802d0ca2b36c/stationint/check.json (ok true, failed [])",
-    "command": "pnpm exec tsx tools/openclinxr/evidence/face-regression/src/check.ts --case all --declare lips,chin,brow_L,brow_R,forehead --card tsk_3dc1802d0ca2b36c --label stationint",
-    "declared": [
-     "lips",
-     "chin",
-     "brow_L",
-     "brow_R",
-     "forehead"
-    ],
-    "eye_L_verdict": "eye_L not declared and did not fail: no overlap analysis required (no --promote, no region change outside declared set)",
-    "golden": "v1-2026-10-18 (golden-pointer.json, promoted by tsk_0e618fa5e9ac3e15)",
-    "note": "renders resolve to the latest COMPLETED runs (run4/run7): the flag-path runs (run5/6/8/9) record no stage-4 GLB (bake crash, M4), so the render path refuses them by construction",
-    "promote": false,
-    "region_failures_other_than_eye_L": 0
-   },
-   "source": "threshold: exit 0 against golden v1-2026-10-18 (brief G4). Declared-set rule: any undeclared region failing = regression.",
-   "threshold": "exit 0",
-   "value": {
-    "exit": 0,
-    "failed": []
-   },
-   "verdict": "PASS"
-  },
-  "g5": {
-   "details": {
-    "note": "render-only refused peds_asthma_parent_anxiety_v1 (no completed run): aisha+body2 renders completed first; peds out of scope (same absent as G4)",
-    "options": "face-regression render path (render.ts, same options check.ts uses): views [0, 25] (render.ts:184)",
-   "runIds": {
-    "aisha": "run4",
-    "body2": "run7"
-   },
-   "seed2": "H2 re-seed on the noise runs (run11/run14, inputs re-hashed ok): store/face-regression/runs/tsk_3dc1802d0ca2b36c/seed-station-skin-2/render/{aisha,body2}/face-regression-{case}-{front,yaw25}.png, shas a226a094 (aisha front), 90e5da6a (aisha yaw25), c9651821 (body2 front), ae65332f (body2 yaw25)"
-  },
-   "renders": [
-    {
-     "case": "aisha",
-     "png": "store/face-regression/runs/tsk_3dc1802d0ca2b36c/seed-station-skin/render/aisha/face-regression-aisha-front.png",
-     "sha256": "561779ab84dc0a20706a58ac2a6eff2661df07f3ebcdecc3fef7960f626ee1b7",
-     "yaw": 0
-    },
-    {
-     "case": "aisha",
-     "png": "store/face-regression/runs/tsk_3dc1802d0ca2b36c/seed-station-skin/render/aisha/face-regression-aisha-yaw25.png",
-     "sha256": "955658b272aed6b2b78aa15949358d8b991c5ab3cf0e4613e590c092839ccebc",
-     "yaw": 25
-    },
-    {
-     "case": "body2",
-     "png": "store/face-regression/runs/tsk_3dc1802d0ca2b36c/seed-station-skin/render/body2/face-regression-body2-front.png",
-     "sha256": "0cbc0d35cfa0b882110ae292d018fb0f56ad51332fe78faade13f1119df10fdd",
-     "yaw": 0
-    },
-    {
-     "case": "body2",
-     "png": "store/face-regression/runs/tsk_3dc1802d0ca2b36c/seed-station-skin/render/body2/face-regression-body2-yaw25.png",
-     "sha256": "c5ce969d115cbc734b10b45dac3403ac1177de09e3d629298d084e7c0ec64c4b",
-     "yaw": 25
+    "g6": {
+      "value": {
+        "face_realism": "8 files / 46 tests pass",
+        "face_replay": "24 files / 186 pass + 2 expected-fail",
+        "face_regression_second_subject": "7 files / 70 tests pass",
+        "station_skin_int": "2 files / 9 tests pass",
+        "build": "pnpm -r build ok",
+        "knip": "clean",
+        "arch": "26 files / 291 tests pass"
+      },
+      "threshold": "all green",
+      "source": "brief G6: the four vitest suites + pnpm -r build + pnpm hygiene:knip + architecture suite green. Measured 2026-10-19 in wt/station-skin-int.",
+      "verdict": "PASS",
+      "details": "face-replay shows 2 expected-fail (pre-existing xfails, suite green); probe SHA MISMATCH + RuntimeWarning lines are the suite exercising its atomic-refuse/colour guards, not failures."
     }
-   ],
-   "source": "threshold: 4 PNGs recorded with shas (brief G5). Render path: tools/openclinxr/evidence/face-regression/src/render.ts via check.ts --render-only.",
-   "threshold": "4 PNGs with shas",
-   "value": 4,
-   "verdict": "PASS"
   },
-  "g6": {
-   "value": {
-    "face_realism": "8 files / 46 tests pass",
-    "face_replay": "24 files / 186 pass + 2 expected-fail",
-    "face_regression_second_subject": "7 files / 70 tests pass",
-    "station_skin_int": "2 files / 9 tests pass",
-    "build": "pnpm -r build ok",
-    "knip": "clean",
-    "arch": "26 files / 291 tests pass"
-   },
-   "threshold": "all green",
-   "source": "brief G6: the four vitest suites + pnpm -r build + pnpm hygiene:knip + architecture suite green. Measured 2026-10-19 in wt/station-skin-int.",
-   "verdict": "PASS",
-   "details": "face-replay shows 2 expected-fail (pre-existing xfails, suite green); probe SHA MISMATCH + RuntimeWarning lines are the suite exercising its atomic-refuse/colour guards, not failures."
+  "pins": {
+    "post": {
+      "aisha_detail": "f256e2652ec2",
+      "aisha_detail_source": "face-station-cases/aisha/run5/albedo_detail.png (run A; station standalone detail with the skin-card flags)",
+      "aisha_beard": "8b4c158255c1",
+      "aisha_beard_source": "face-station-cases/aisha/run5/albedo_beard.png (run A; station standalone beard with the skin-card flags)",
+      "body2_detail": "dda50306b5d3",
+      "body2_detail_source": "face-station-cases/body2/run8/albedo_detail.png (run A; station standalone detail with the skin-card flags)",
+      "body2_beard": "e6dcebadea11",
+      "body2_beard_source": "face-station-cases/body2/run8/albedo_beard.png (run A; station standalone beard with the skin-card flags)"
+    },
+    "pre": {
+      "aisha_detail": "c56e7ae6a134",
+      "aisha_detail_source": "face-station-cases/aisha/run3 (tsk_68c071233175cae2 run A; first pin for the manifest-position standalone detail, pre-flag)",
+      "aisha_beard": "8b4c158255c1",
+      "aisha_beard_source": "chain G3 real-chain output (weight-0 identity baseline, pre-flag)",
+      "body2_detail": "c2afabdfa430",
+      "body2_detail_source": "face-station-cases/body2/run6 (tsk_68c071233175cae2 run A; pre-flag standalone detail)",
+      "body2_beard": "8652e33f9078",
+      "body2_beard_source": "face-station-cases/body2/run6 (tsk_68c071233175cae2 run A; pre-flag standalone beard, no vermilion mask)"
+    },
+    "why": {
+      "aisha_beard": "value unchanged: weight 0.0 is identity (beard == socket) with or without the mask; pin source updated to the run-A standalone output",
+      "aisha_detail": "CHANGED: M2 threads --beard-weight 0 into detail_bands, so the under-lower-lip band is spared the crease removal (G1 -0.76 vs pre-flag darkening)",
+      "body2_beard": "CHANGED: M2 adds --vermilion-mask; the visible lip (2506 texels, G2 bad) is excluded from the beard treatment. Consistency: g2-bad rerun sha == pre pin 8652e33f9078.",
+      "body2_detail": "CHANGED: beard output changed (mask), so the detail input changed; weight 0.9 keeps the legacy full-crease path (no spare), output follows input",
+      "run_report": "detail + browform entries re-derived from run outputs (detlips-merge fallout P1: the file was browskin's merge placeholder); beard/others byte-identical, noise none"
+    }
   }
- },
- "pins": {
-  "post": {
-   "aisha_detail": "f256e2652ec2",
-   "aisha_detail_source": "face-station-cases/aisha/run5/albedo_detail.png (run A; station standalone detail with the skin-card flags)",
-   "aisha_beard": "8b4c158255c1",
-   "aisha_beard_source": "face-station-cases/aisha/run5/albedo_beard.png (run A; station standalone beard with the skin-card flags)",
-   "body2_detail": "dda50306b5d3",
-   "body2_detail_source": "face-station-cases/body2/run8/albedo_detail.png (run A; station standalone detail with the skin-card flags)",
-   "body2_beard": "e6dcebadea11",
-   "body2_beard_source": "face-station-cases/body2/run8/albedo_beard.png (run A; station standalone beard with the skin-card flags)"
-  },
-  "pre": {
-   "aisha_detail": "c56e7ae6a134",
-   "aisha_detail_source": "face-station-cases/aisha/run3 (tsk_68c071233175cae2 run A; first pin for the manifest-position standalone detail, pre-flag)",
-   "aisha_beard": "8b4c158255c1",
-   "aisha_beard_source": "chain G3 real-chain output (weight-0 identity baseline, pre-flag)",
-   "body2_detail": "c2afabdfa430",
-   "body2_detail_source": "face-station-cases/body2/run6 (tsk_68c071233175cae2 run A; pre-flag standalone detail)",
-   "body2_beard": "8652e33f9078",
-   "body2_beard_source": "face-station-cases/body2/run6 (tsk_68c071233175cae2 run A; pre-flag standalone beard, no vermilion mask)"
-  },
-  "why": {
-   "aisha_beard": "value unchanged: weight 0.0 is identity (beard == socket) with or without the mask; pin source updated to the run-A standalone output",
-   "aisha_detail": "CHANGED: M2 threads --beard-weight 0 into detail_bands, so the under-lower-lip band is spared the crease removal (G1 -0.76 vs pre-flag darkening)",
-   "body2_beard": "CHANGED: M2 adds --vermilion-mask; the visible lip (2506 texels, G2 bad) is excluded from the beard treatment. Consistency: g2-bad rerun sha == pre pin 8652e33f9078.",
-   "body2_detail": "CHANGED: beard output changed (mask), so the detail input changed; weight 0.9 keeps the legacy full-crease path (no spare), output follows input",
-   "run_report": "detail + browform entries re-derived from run outputs (detlips-merge fallout P1: the file was browskin's merge placeholder); beard/others byte-identical, noise none"
-  }
- }
 }
