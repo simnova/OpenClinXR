@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Per-case brow form, hb2 (card tsk_b438966217dd814e).
+"""Per-case brow form, hb3 (card tsk_b438966217dd814e).
 
 Last chain stage. The painted brow left in the albedo is either cleared
 (brow form mesh: only the fitted mesh brow shows) or shifted toward the
@@ -14,13 +14,22 @@ case goal brow (brow form texture: one solved Lab pair per case).
            forehead mean before the Telea march, so no lid-crease dark can
            drag up). Unpainted skin keeps its own low frequencies (the
            light band above the lid keeps its tone); only painted texels
-           take Telea fill. Grain by seeded 2D patch transplant: the
-           high-pass of the source skin (rgb minus gaussian-16) is splatted
-           over the union from random (seeded) P x P source patches blended
-           with a Hann window and normalized by the weight field (seamless;
+           take Telea fill. Texture by seeded 2D patch transplant: the
+           high-pass of the source skin (rgb minus gaussian-24) is
+           transplanted over the union from random (seeded) S x S source
+           patches, S uniform in [32, 48] px, blended by plain
+           overlap-blend (Hann-weighted splat accumulation normalized by
+           the weight field: overlapping, >= 8 px feathered seams;
            uniform random positions, so no grid stride is imprinted on the
-           row means). P spans the forehead grain wavelength. Paint inside
-           the union is never sampled (sources lie in the forehead above).
+           row means; no row copies). S spans the 4-16 px mid-frequency
+           skin mottle the hb2 P=6 splats cannot carry (a demeaned 6 px
+           patch holds ~no content above ~6 px periods, so the cleared
+           region reads as a flat ghost outline). Paint inside the union
+           is never sampled (sources lie in the forehead above). The
+           transplant high-pass uses a hole-excluded (normalized)
+           gaussian, so dark hole paint cannot bleed upward through the
+           blur into the source band and return as transplanted
+           horizontal streaks.
    texture: shift each pixel by its brow coverage only: coverage from how
            far the pixel departs from the local skin underneath
            (skin estimate = the mesh-case restricted fill;
@@ -57,6 +66,25 @@ def load_mask(path: str | None, shape: tuple[int, int]) -> np.ndarray | None:
         m = np.array(Image.open(path).convert("L").resize(
             (shape[1], shape[0]), Image.NEAREST))
     return m > 127
+
+
+def hole_excluded_blur(f: np.ndarray, wgt: np.ndarray,
+                        sigma: float) -> np.ndarray:
+    """Gaussian blur that ignores hole pixels (normalized convolution).
+
+    wgt is 1 on usable skin, 0 on the brow union / eyes / below-lower-edge.
+    Dark hole paint therefore cannot bleed through the blur into surrounding
+    skin (as a plain gaussian would, smearing paint lows up to ~3 sigma
+    outward and imprinting a dark step at the paint-gate boundary).
+    """
+    den = np.maximum(ndimage.gaussian_filter(wgt, sigma), 1e-6)
+    if f.ndim == 3:
+        out = np.stack(
+            [ndimage.gaussian_filter(f[:, :, c] * wgt, sigma)
+             for c in range(f.shape[2])], axis=2) / den[..., None]
+    else:
+        out = (ndimage.gaussian_filter(f * wgt, sigma) / den)
+    return out
 
 
 def inside_alpha(union: np.ndarray, feather_px: float) -> np.ndarray:
@@ -104,87 +132,119 @@ def restricted_fill(rgb: np.ndarray, union: np.ndarray,
     return filled.astype(np.float64), source_ok, brow_h
 
 
-# hb2 grain transplant: seed + patch size are method constants (recorded in
-# stdout and the brow-form report; not per-case solves, so the manifest is
-# untouched). PATCH spans the forehead grain wavelength (4.0 px zero-crossing
-# median of the high-pass on the mesh-case PRE forehead strip, invariant
-# across high-pass sigmas 8/16/32): smaller pieces average more per row, so
-# row means stay flat (G10), while each piece still carries the grain.
-# SIGMA splits tone (Telea low-pass, kept) from texture (transplanted
-# high-pass, periods below ~2x sigma).
+# hb3 mottle transplant: seed + patch sizes + sigma are method constants
+# (recorded in stdout and the brow-form report, not per-case solves, so the
+# manifest is untouched). PATCH_MIN/MAX span the 4-16 px mid-frequency skin
+# mottle the lane manager isolated (hb3 G11): hb2's P=6 splats carry fine
+# grain only, so the cleared region reads as a flat ghost outline. SIGMA
+# splits tone (Telea low-pass, kept) from texture (transplanted high-pass,
+# periods below ~2x sigma).
 GRAIN_SEED = 20261019
-GRAIN_PATCH = 6
-GRAIN_SIGMA = 16
+GRAIN_PATCH_MIN = 32
+GRAIN_PATCH_MAX = 48
+GRAIN_SIGMA = 24
 GRAIN_COVERAGE = 8.0
 
 
 def patch_grain(rgb: np.ndarray, union: np.ndarray,
                 source_ok: np.ndarray, seed: int = GRAIN_SEED,
-                patch: int = GRAIN_PATCH,
+                patch_min: int = GRAIN_PATCH_MIN,
+                patch_max: int = GRAIN_PATCH_MAX,
                 sigma: float = GRAIN_SIGMA,
                 coverage: float = GRAIN_COVERAGE) -> tuple[np.ndarray, dict]:
-    """Forehead grain by seeded gridless patch-splat transplant.
+    """Forehead mottle by seeded 2D patch transplant with overlap-blend.
 
-    The high-pass (rgb minus gaussian(sigma)) of the source skin is splatted
-    over the union bbox from random P x P source patches (seeded RNG,
-    uniform positions: no grid, so no stride period is imprinted on the row
-    means)     blended with a Hann window and normalized by the weight field
-    (seamless). Each patch is demeaned (tiles carry texture, not tone steps)
-    and amplitude-matched to the pool std (a flat texture envelope: no
-    patch-scale amplitude modulation in the row means); dense overlap
-    averaging attenuates variance, so a measured per-channel
-    renormalization matches the grain to the source high-pass std
-    (deterministic energy match, recorded in stdout). Source origins
-    are valid only when the whole patch lies inside source_ok in the
-    forehead ABOVE the union (the G9/G10 reference rows: paint inside the
-    union is never sampled). The low base sets the mean tone. Returns
-    (grain, info dict).
+    The high-pass of the source skin is transplanted over the union bbox
+    from random S x S source patches (seeded RNG, S uniform in
+    [patch_min, patch_max], uniform positions: no grid, so no stride period
+    is imprinted on the row means; no row copies), blended by plain
+    overlap-blend (Hann-weighted splat accumulation normalized by the weight
+    field: overlapping splats, feather ~S/2 >= 8 px, seamless). The
+    high-pass is rgb minus a hole-excluded (normalized-convolution)
+    gaussian: source_ok pixels carry weight 1, everything else (brow union,
+    eyes, below-lower-edge) weight 0, so dark hole paint cannot bleed
+    upward through the blur into the source band and return as
+    transplanted horizontal streaks. Each patch is demeaned (tiles carry
+    texture, not tone steps) and amplitude-matched to the pool std (a flat
+    texture envelope: no patch-scale amplitude modulation in the row
+    means); dense overlap averaging attenuates variance, so a measured
+    per-channel renormalization matches the transplant's 2-8 px mottle band
+    to the brow-neighborhood surround's same band (deterministic energy
+    match, recorded in stdout). Source
+    origins are valid only when the whole PATCH_MAX patch lies inside
+    source_ok in the forehead ABOVE the union (the G9/G10/G11 reference
+    rows: paint inside the union is never sampled; validity for the max
+    size implies validity for every smaller size). The low base sets the
+    mean tone. Returns (grain, info dict).
     """
     h, w = rgb.shape[:2]
     f = rgb.astype(np.float64)
-    hp = np.stack([f[:, :, c] - ndimage.gaussian_filter(f[:, :, c], sigma)
-                   for c in range(3)], axis=2)
+    wgt = source_ok.astype(np.float64)
+    hp = f - hole_excluded_blur(f, wgt, sigma)
     ok = source_ok.astype(np.float64)
     ii = np.zeros((h + 1, w + 1))
     ii[1:, 1:] = np.cumsum(np.cumsum(ok, axis=0), axis=1)
-    full = float(patch * patch)
+    pmax = int(patch_max)
+    full = float(pmax * pmax)
+    # Box sums via the integral image (vectorized): box[y, x] covers
+    # ok[y:y+pmax, x:x+pmax].
+    box = (ii[pmax:, pmax:] - ii[:-pmax, pmax:]
+           - ii[pmax:, :-pmax] + ii[:-pmax, :-pmax])
     ys_u = np.where(union)[0]
     top_u = int(ys_u.min())
     H_u = int(ys_u.max()) - top_u + 1
     # Patch sources live in the forehead ABOVE the union (the same rows as
-    # the G9/G10 reference strip).
-    src_last = top_u - max(2, H_u // 60) - patch
-    valid = []
-    for y in range(0, min(src_last, h - patch) + 1):
-        for x in range(0, w - patch + 1):
-            s = ii[y + patch, x + patch] - ii[y, x + patch] \
-                - ii[y + patch, x] + ii[y, x]
-            if s >= full - 1e-9:
-                valid.append((y, x))
-    grain = np.zeros_like(f)
-    weight = np.zeros((h, w))
-    n_valid = len(valid)
+    # the G9/G10/G11 reference strips), with a gap row so union paint never
+    # leaks into a source patch.
+    src_last = top_u - max(2, H_u // 60) - pmax
+    if src_last < 0:
+        # Tiny fixture geometry with no room for a full-size patch above the
+        # union: no transplant (hb2-compatible silent path; stdout records
+        # n_valid 0). Real data always fits (thousands of valid origins);
+        # a flat real output would still fail the G11 mottle gate.
+        f0 = np.zeros_like(f)
+        return f0, {"n_splat": 0, "n_valid": 0,
+                    "gain": [1.0, 1.0, 1.0]}
+    cand = np.argwhere(box[:src_last + 1, :] >= full - 1e-9)
+    n_valid = int(len(cand))
     if not n_valid:
-        return grain, 0
+        f0 = np.zeros_like(f)
+        return f0, {"n_splat": 0, "n_valid": 0,
+                    "gain": [1.0, 1.0, 1.0]}
+    yy = np.arange(h)[:, None]
+    band = source_ok & (yy <= src_last + pmax)
+    pool_std = np.array([hp[band][:, c].std() for c in range(3)])
     ys, xs = np.where(union)
     y0, y1 = int(ys.min()), int(ys.max()) + 1
     x0, x1 = int(xs.min()), int(xs.max()) + 1
-    win1 = np.hanning(patch)
-    win = (win1[:, None] * win1[None, :])[:, :, None]
-    pool_std = np.array([np.concatenate(
-        [hp[y:y + patch, x:x + patch, c].ravel() for (y, x) in valid]
-    ).std() for c in range(3)])
+    wins: dict[int, np.ndarray] = {}
+    wins_w: dict[int, np.ndarray] = {}
+
+    def win2(s: int) -> tuple[np.ndarray, np.ndarray]:
+        hit = wins.get(s)
+        if hit is None:
+            w1 = np.hanning(s)
+            hit = (w1[:, None] * w1[None, :])[:, :, None]
+            wins[s] = hit
+            wins_w[s] = hit[:, :, 0]
+        return wins[s], wins_w[s]
+
     rng = np.random.default_rng(seed)
-    n_splat = int(coverage * (y1 - y0) * (x1 - x0) / full)
+    mean_s2 = float(sum(s * s for s in range(int(patch_min), pmax + 1))
+                    / (pmax - int(patch_min) + 1))
+    n_splat = int(coverage * (y1 - y0) * (x1 - x0) / mean_s2)
+    grain = np.zeros_like(f)
+    weight = np.zeros((h, w))
     for _ in range(n_splat):
+        s = int(rng.integers(int(patch_min), pmax + 1))
         jy = int(rng.integers(y0, y1))
         jx = int(rng.integers(x0, x1))
-        ey, ex = min(jy + patch, h), min(jx + patch, w)
+        ey, ex = min(jy + s, h), min(jx + s, w)
         if ey - jy < 2 or ex - jx < 2:
             continue
         if not union[jy:ey, jx:ex].any():
             continue
-        sy, sx = valid[int(rng.integers(n_valid))]
+        sy, sx = (int(v) for v in cand[int(rng.integers(n_valid))])
         p = hp[sy:sy + (ey - jy), sx:sx + (ex - jx)].copy()
         # Demean (no tone steps) and amplitude-match (flat envelope) each
         # patch per channel, guarded so near-flat patches cannot blow up.
@@ -193,22 +253,31 @@ def patch_grain(rgb: np.ndarray, union: np.ndarray,
         pg = np.clip(pool_std / np.maximum(ps, 0.25 * pool_std),
                      0.25, 4.0)
         p *= pg
-        g = p * win[:ey - jy, :ex - jx]
-        grain[jy:ey, jx:ex] += g
-        weight[jy:ey, jx:ex] += win[:ey - jy, :ex - jx, 0]
+        ww, ww2 = win2(s)
+        grain[jy:ey, jx:ex] += p * ww[:ey - jy, :ex - jx]
+        weight[jy:ey, jx:ex] += ww2[:ey - jy, :ex - jx]
     nz = weight > 0
     grain[nz] /= weight[nz][:, None]
-    # Energy renormalization (measured, not fitted): dense overlap averaging
-    # attenuates variance by the effective overlap count, so the transplant
-    # reads smoother than the source skin (G8/G9 energy shortfall). Scale each
-    # channel so the grain over covered union pixels matches the source
-    # high-pass std over the valid pool. Deterministic given seed + inputs.
+    # Band-matched energy renormalization (measured, not fitted): dense
+    # overlap averaging of correlated source patches tilts the transplant
+    # spectrum low, so total-std matching under-delivers the gated 2-8 px
+    # band on 1/f skin. Scale each channel so the transplant's gauss(2) -
+    # gauss(8) bandpass std over covered union pixels matches the clean
+    # source pool's same bandpass std (hole-excluded blurs throughout, so no
+    # hole paint leaks into either side). The pool is lash-free forehead
+    # skin, matching what the eye-excluded G11 ring measures. Deterministic
+    # given seed + inputs.
+    bandpass_pool = (hole_excluded_blur(f, wgt, 2.0)
+                     - hole_excluded_blur(f, wgt, 8.0))
+    pool_band = np.array([bandpass_pool[band][:, c].std() for c in range(3)])
     grow = np.zeros_like(f)
     gain = []
     for c in range(3):
         cov = union & nz
-        gs = float(grain[cov][:, c].std()) if cov.any() else 0.0
-        g = (pool_std[c] / gs) if gs > 1e-9 else 1.0
+        gb = (ndimage.gaussian_filter(grain[:, :, c], 2.0)
+              - ndimage.gaussian_filter(grain[:, :, c], 8.0))
+        gs = float(gb[cov].std()) if cov.any() else 0.0
+        g = (pool_band[c] / gs) if gs > 1e-9 else 1.0
         gain.append(g)
         grow[:, :, c] = grain[:, :, c] * g
     return grow, {"n_splat": n_splat, "n_valid": n_valid,
@@ -237,21 +306,35 @@ def clear_mesh(rgb: np.ndarray, union: np.ndarray, alpha: np.ndarray,
     paint = np.zeros_like(union)
     paint[union] = cov > 0.03
     paint = ndimage.binary_dilation(paint, iterations=2) & union
-    alpha_p = inside_alpha(paint, 4.0)
+    # Tight feather (1 px): the transition tracks the ragged gate contour
+    # instead of fringing. A wide feather would retain a diminishing copy
+    # of strong paint along straight paint edges -- a dark frame whose
+    # gradients smear coherence inward (G9). The 1 px ramp is sub-render
+    # (4096 px albedo into 1280 px renders), so no fringe survives, while
+    # tone stays continuous (both sides are skin estimates).
+    alpha_p = inside_alpha(paint, 1.0)
     low_telea = np.stack(
         [ndimage.gaussian_filter(filled[:, :, c], GRAIN_SIGMA)
          for c in range(3)], axis=2)
-    low_pre = np.stack(
-        [ndimage.gaussian_filter(f[:, :, c], GRAIN_SIGMA)
-         for c in range(3)], axis=2)
+    low_pre = hole_excluded_blur(f, source_ok.astype(np.float64),
+                                   GRAIN_SIGMA)
     ap = alpha_p[:, :, None]
     low = low_pre * (1.0 - ap) + low_telea * ap
     grain, ginfo = patch_grain(rgb, union, source_ok)
-    a = alpha[:, :, None]
-    out = f * (1.0 - a) + (low + grain) * a
+    # Outer blend follows the ragged paint gate (beta), not the smooth mask
+    # edge (alpha): a mask-edge feather would retain a diminishing copy of
+    # strong paint wherever paint touches the mask boundary -- a straight
+    # dark frame whose gradients smear coherence inward past the feather.
+    # The gate contour is noise-ragged, so the transition carries no long
+    # straight edge. Bare union skin keeps its original texture (beta is 0
+    # there); only painted texels take the cleared low + transplant. Zero
+    # writes outside the union stand (beta is 0 outside the paint union).
+    b = ap
+    out = f * (1.0 - b) + (low + grain) * b
     return np.clip(out, 0, 255), {
         "grain_seed": GRAIN_SEED,
-        "grain_patch": GRAIN_PATCH,
+        "grain_patch_min": GRAIN_PATCH_MIN,
+        "grain_patch_max": GRAIN_PATCH_MAX,
         "grain_sigma": GRAIN_SIGMA,
         "paint_frac": round(float(paint.sum() / union.sum()), 4),
         **ginfo,

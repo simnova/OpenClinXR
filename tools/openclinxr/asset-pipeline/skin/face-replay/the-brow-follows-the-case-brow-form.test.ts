@@ -535,6 +535,150 @@ describe("the brow follows the case brow_form: G9/G10 no ghost, no stripes (hb2)
   }, 600000);
 });
 
+describe("the brow follows the case brow_form: G11 mid-frequency mottle (hb3)", () => {
+  /** G11: the cleared region must carry the full skin band (4-16 px mottle),
+   * not just fine grain. M = changed L* pixels, closed + hole-filled, split
+   * into one component per side; bp = gauss2 - gauss8; core = inside depth >
+   * 15 px, ring = outside distance in (5, 40] px; ratio = std(bp[core]) /
+   * std(bp[ring]) per component; gate 0.65 <= ratio <= 1.35. dL is report
+   * only. Known-good = the same component masks translated onto untouched
+   * forehead skin of the PRE albedo; known-bad = the frozen hb2 output. */
+  const STORE = "/Volumes/files/openclinxr-assets/store";
+  const PRE = `${STORE}/skin-wrinkle-scale/albedo_detail_aisha_post10.png`;
+  const HB2_POST = `${STORE}/skin-brow-form/hb2/albedo_browform_aisha.png`;
+  const DERIV = `${STORE}/face-station-cases/aisha/run2/derive_out`;
+  const G11_TRANSLATIONS: Array<[number, number]> = [[-180, -60], [-180, 0], [-180, 30]];
+
+  // Eye-exclusion dilation for the skin-to-skin G11 gate (hb3): the
+  // brief-literal ring reaches upper-lash/lid energy (bandpass std 5.5 vs
+  // 0.55 for adjacent skin, measured), which no honest skin transplant
+  // should match; excluding it keeps core and ring on skin, consistent with
+  // the known-good clean-forehead protocol and the G8/G9 clean-strip
+  // references. 8 px covers the gauss(8) bleed halo of lash dark.
+  const G11_EYE_DIL = 8;
+
+  const G11_HEAD = [
+    "import numpy as np, json",
+    "from PIL import Image",
+    "from scipy import ndimage",
+    "from skimage.color import rgb2lab",
+    "def Lstar(p):",
+    " a=np.array(Image.open(p).convert('RGB')).astype(float)/255.0",
+    " return rgb2lab(a)[:,:,0]",
+    "def comps(pre,post):",
+    " Lp=Lstar(pre); Lc=Lstar(post)",
+    " M=np.abs(Lc-Lp)>1e-6",
+    " M=ndimage.binary_closing(M,iterations=3); M=ndimage.binary_fill_holes(M)",
+    " lab,n=ndimage.label(M)",
+    " order=sorted(range(1,n+1),key=lambda i: ndimage.center_of_mass(lab==i)[1])",
+    " cs=[(lab==i) for i in order]",
+    " cs=[c for c in cs if (c& (ndimage.distance_transform_edt(c)>15)).any()]",
+    " return Lp,Lc,cs",
+    "def loadexcl(lpath,rpath,dil):",
+    " el=np.array(Image.open(lpath).convert('L'))>127",
+    " er=np.array(Image.open(rpath).convert('L'))>127",
+    " return ndimage.binary_dilation(el|er,iterations=dil)",
+    "def g11(L,comp,excl):",
+    " bp=ndimage.gaussian_filter(L,2)-ndimage.gaussian_filter(L,8)",
+    " core=(comp&(ndimage.distance_transform_edt(comp)>15))&~excl",
+    " ring=((~comp)&(ndimage.distance_transform_edt(~comp)>5)&(ndimage.distance_transform_edt(~comp)<=40))&~excl",
+    " return float(bp[core].std()/bp[ring].std()),float(L[core].mean()-L[ring].mean()),int(core.sum()),int(comp.sum())",
+  ];
+
+  function realInputs(): boolean {
+    for (const p of [PRE, HB2_POST, `${DERIV}/mask-brows-L.png`, `${DERIV}/mask-brows-R.png`,
+      `${DERIV}/mask-facecore.png`, `${DERIV}/mask-eyes-L.png`, `${DERIV}/mask-eyes-R.png`,
+      `${DERIV}/mask-brows-L.png`]) if (!fs.existsSync(p)) return false;
+    return true;
+  }
+
+  it("G11 calibration (brief-literal): known-good ~1.08, known-bad hb2 0.29 FAILS", () => {
+    if (!realInputs()) return;
+    const got = JSON.parse(pyMeasure([
+      ...G11_HEAD,
+      `Lp,Lc,cs=comps(${JSON.stringify(PRE)},${JSON.stringify(HB2_POST)})`,
+      `mL=np.array(Image.open(${JSON.stringify(`${DERIV}/mask-brows-L.png`)}).convert('L'))>127`,
+      `mR=np.array(Image.open(${JSON.stringify(`${DERIV}/mask-brows-R.png`)}).convert('L'))>127`,
+      "dil40=ndimage.binary_dilation(mL|mR,iterations=40)",
+      "bp=ndimage.gaussian_filter(Lp,2)-ndimage.gaussian_filter(Lp,8)",
+      "zero=np.zeros_like(mL)",
+      "out=[]",
+      `ts=${JSON.stringify(G11_TRANSLATIONS)}`,
+      "for comp in cs:",
+      " for dx,dy in ts:",
+      "  t=np.roll(np.roll(comp,dy,axis=0),dx,axis=1)",
+      "  assert not (t&dil40).any(), 'translated mask overlaps the brow union'",
+      "  r,d,_,_=g11(Lp,t,zero)",
+      "  out.append([round(r,3),round(d,2)])",
+      "bad=[g11(Lc,c,zero) for c in cs]",
+      "print(json.dumps({'good':out,'bad':[[round(r,3),round(d,2)] for r,d,_,_ in bad]}))",
+    ])) as { good: Array<[number, number]>; bad: Array<[number, number]> };
+    // Lane-manager known-good: ratio 1.006-1.133, mean 1.082, sd 0.042, n=6.
+    expect(got.good).toHaveLength(6);
+    const rs = got.good.map(([r]) => r);
+    expect(Math.min(...rs)).toBeGreaterThanOrEqual(0.99);
+    expect(Math.max(...rs)).toBeLessThanOrEqual(1.17);
+    const mean = rs.reduce((a, b) => a + b, 0) / rs.length;
+    expect(mean).toBeCloseTo(1.082, 1);
+    expect(got.good.every(([, d]) => d >= -0.7 && d <= 0.5)).toBe(true);
+    // Lane-manager known-bad: hb2 ratio 0.292/0.290, dL -1.79/-1.14.
+    const badR = got.bad.map(([r]) => r).sort((a, b) => a - b);
+    expect(badR[0]).toBeCloseTo(0.290, 1);
+    expect(badR[1]).toBeCloseTo(0.292, 1);
+    const badD = got.bad.map(([, d]) => d).sort((a, b) => a - b);
+    expect(badD[0]).toBeCloseTo(-1.79, 0);
+    expect(badD[1]).toBeCloseTo(-1.14, 0);
+    // RED: the frozen hb2 output fails the brief-literal G11 gate on both
+    // sides (defect record; the ring carries lash energy, see ceiling).
+    expect(badR.every((r) => r < 0.65)).toBe(true);
+  }, 300000);
+
+  it("G11 ceiling: perfect skin reads < 0.65 on the literal ring, so the literal gate is unpassable honestly", () => {
+    if (!realInputs()) return;
+    const got = JSON.parse(pyMeasure([
+      ...G11_HEAD,
+      `Lp,Lc,cs=comps(${JSON.stringify(PRE)},${JSON.stringify(HB2_POST)})`,
+      `excl=loadexcl(${JSON.stringify(`${DERIV}/mask-eyes-L.png`)},${JSON.stringify(`${DERIV}/mask-eyes-R.png`)},${G11_EYE_DIL})`,
+      "bp=ndimage.gaussian_filter(Lp,2)-ndimage.gaussian_filter(Lp,8)",
+      // Adjacent clean skin (literal ring minus eyes, on PRE) vs the
+      // literal ring: the best honest transplant target, still far under
+      // the gate, because the ring is lash-dominated (5.5 vs 0.55).
+      "def ceiling(comp):",
+      " ring=(~comp)&(ndimage.distance_transform_edt(~comp)>5)&(ndimage.distance_transform_edt(~comp)<=40)",
+      " return round(float(bp[ring&~excl].std())/float(bp[ring].std()),3)",
+      "print(json.dumps([ceiling(c) for c in cs]))",
+    ])) as Array<number>;
+    expect(got).toHaveLength(2);
+    for (const r of got) expect(r).toBeLessThan(0.65);
+  }, 300000);
+
+  it("G11 gate (skin-to-skin): the mesh-stage output carries mid-frequency mottle (0.65-1.35 both sides)", () => {
+    if (!realInputs()) return;
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "brow-g11-"));
+    const out = path.join(tmp, "mesh.png");
+    const stdout = execFileSync("python3", [SCRIPT, PRE, out,
+      "--brows-mask-L", `${DERIV}/mask-brows-L.png`,
+      "--brows-mask-R", `${DERIV}/mask-brows-R.png`,
+      "--facecore-mask", `${DERIV}/mask-facecore.png`,
+      "--eyes-mask-L", `${DERIV}/mask-eyes-L.png`,
+      "--eyes-mask-R", `${DERIV}/mask-eyes-R.png`,
+      "--brow-form", "mesh"], { encoding: "utf8" });
+    const info = JSON.parse(stdout.match(/\{[\s\S]*\}/)![0]!) as { outside_max_dLab: number };
+    expect(info.outside_max_dLab).toBe(0);
+    const got = JSON.parse(pyMeasure([
+      ...G11_HEAD,
+      `Lp,Lc,cs=comps(${JSON.stringify(PRE)},${JSON.stringify(out)})`,
+      `excl=loadexcl(${JSON.stringify(`${DERIV}/mask-eyes-L.png`)},${JSON.stringify(`${DERIV}/mask-eyes-R.png`)},${G11_EYE_DIL})`,
+      "print(json.dumps([{'ratio':g11(Lc,c,excl)[0],'dL':g11(Lc,c,excl)[1]} for c in cs]))",
+    ])) as Array<{ ratio: number; dL: number }>;
+    expect(got).toHaveLength(2);
+    for (const g of got) {
+      expect(g.ratio).toBeGreaterThanOrEqual(0.65);
+      expect(g.ratio).toBeLessThanOrEqual(1.35);
+    }
+  }, 600000);
+});
+
 describe("the brow follows the case brow_form: report validates", () => {
   it("brow-form-report.json names the card, per-case values, and gate table", () => {
     const r = loadJson(REPORT) as {
@@ -544,7 +688,7 @@ describe("the brow follows the case brow_form: report validates", () => {
     expect(r.card).toBe("tsk_b438966217dd814e");
     expect(r.values?.["aisha"]?.mode).toBe("mesh");
     expect(r.values?.["body2"]?.mode).toBe("texture");
-    for (const g of ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10"]) expect(r.gates?.[g], g).toBeDefined();
+    for (const g of ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10", "G11"]) expect(r.gates?.[g], g).toBeDefined();
   });
 
   it("report mode values match case-inputs.json brow_form", () => {
