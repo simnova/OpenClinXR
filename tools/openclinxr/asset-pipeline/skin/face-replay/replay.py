@@ -57,6 +57,31 @@ def verify_sha(path: Path, expected: str, label: str) -> None:
         raise RuntimeError(f"{label} SHA MISMATCH: actual {actual[:16]} != expected {expected[:16]}: refuse")
 
 
+def _case_brow_form(subject: str) -> str:
+    """Brow mode for a chain subject from case-inputs.json (no literals).
+
+    Reverse lookup: the case whose chain_subject value equals the chain
+    subject names its brow_form. Refuses on unknown subject or bad value.
+    """
+    here = Path(__file__).resolve()
+    root = here
+    for _ in range(12):
+        if (root / "pnpm-workspace.yaml").exists():
+            break
+        root = root.parent
+    inputs_path = (root / "packages" / "openclinxr" / "factory-stations"
+                   / "src" / "face_realism" / "case-inputs.json")
+    doc = json.loads(inputs_path.read_text())
+    for _case_id, rec in doc.get("cases", {}).items():
+        chain_subject = (rec.get("chain_subject") or {}).get("value")
+        if chain_subject == subject:
+            mode = (rec.get("brow_form") or {}).get("value")
+            if mode in ("mesh", "texture"):
+                return mode
+            raise RuntimeError(f"brow_form {mode!r} for chain subject {subject}: refuse")
+    raise RuntimeError(f"no case names chain subject {subject}: refuse")
+
+
 def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, overrides: dict, stage_idx: int) -> dict:
     """Run a single stage, return updated inputs with outputs."""
     name = stage["name"]
@@ -245,6 +270,20 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
         cmd += ["--scalp-fringe-mm", str(params["scalp_fringe_mm"])]
         inputs["albedo_detail_png"] = store_dir / output_paths["albedo_detail_png"]
         inputs["albedo_png"] = store_dir / output_paths["albedo_detail_png"]
+    elif name == "brow_form":
+        cmd += [str(resolved["albedo_png"]), str(store_dir / output_paths["albedo_browform_png"])]
+        cmd += ["--brows-mask-L", str(resolved["brows_L_mask"])]
+        cmd += ["--brows-mask-R", str(resolved["brows_R_mask"])]
+        cmd += ["--facecore-mask", str(resolved["facecore_mask"])]
+        cmd += ["--eyes-mask-L", str(resolved["eyes_L_mask"])]
+        cmd += ["--eyes-mask-R", str(resolved["eyes_R_mask"])]
+        cmd += ["--brow-form", _case_brow_form(subject)]
+        cmd += ["--dL", str(params["dL"])]
+        cmd += ["--dC", str(params["dC"])]
+        cmd += ["--feather-px", str(params["feather_px"])]
+        cmd += ["--coverage-power", str(params["coverage_power"])]
+        inputs["albedo_browform_png"] = store_dir / output_paths["albedo_browform_png"]
+        inputs["albedo_png"] = store_dir / output_paths["albedo_browform_png"]
     else:
         raise RuntimeError(f"Unknown stage: {name}")
 

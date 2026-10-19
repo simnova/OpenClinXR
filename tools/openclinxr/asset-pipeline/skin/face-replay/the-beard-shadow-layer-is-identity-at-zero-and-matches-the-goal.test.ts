@@ -180,7 +180,7 @@ describe("the beard-shadow layer is identity at zero and matches the goal", () =
     };
     const names = manifest.stages.map((s) => s.name);
     expect(names.indexOf("beard_shadow")).toBe(names.indexOf("socket") + 1);
-    expect(names[names.length - 1]).toBe("detail_bands");
+    expect(names[names.length - 1]).toBe("brow_form");
     expect(manifest.subjects.aisha.overrides.beard_shadow.weight).toBe(0.0);
     const male = manifest.subjects.adult_male_street_casual;
     expect(male.overrides.beard_shadow.weight).toBeGreaterThan(0);
