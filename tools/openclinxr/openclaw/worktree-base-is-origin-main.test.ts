@@ -19,8 +19,7 @@ import { resolveWorkerWorktree } from "./dispatch-worker.js";
  * test. Tmp fixture repos only; no worker worktree path is hard-coded.
  *
  * True-RED run @4b108ef17 (unchanged source): 6/6 fail — assertion lines in RESULT.md
- * ## RED. Committed as it.fails per repo planted-RED convention so the pre-commit
- * suite stays green; flip to it when the origin/main base lands (S3).
+ * ## RED. S3 flips it.fails to it: green against the origin/main base.
  */
 
 const HOST_PROBE_CWD = import.meta.dirname;
@@ -152,7 +151,7 @@ afterEach(() => {
 });
 
 describe("managed worktrees are based on origin/main, never stale local main", () => {
-  it.fails("(a-U) first use without a fetch still lands on origin/main", () => {
+  it("(a-U) first use without a fetch still lands on origin/main", () => {
     const { origin, seed, A } = makeOriginWithA();
     // Clone BEFORE B exists on the remote: local main = A and no knowledge of B.
     const parent = trackRepo(mkdtempSync(join(tmpdir(), "hx-clone-u-")));
@@ -173,7 +172,7 @@ describe("managed worktrees are based on origin/main, never stale local main", (
     expect(git(target, ["rev-parse", "HEAD"])).toBe(B);
   }, 120_000);
 
-  it.fails("(a-F) first use with a fetched-but-unmerged origin/main lands on origin/main", () => {
+  it("(a-F) first use with a fetched-but-unmerged origin/main lands on origin/main", () => {
     const { origin, A, B } = makeOriginWithAB();
     const C = cloneMain(origin, `f-${process.pid}`);
     git(C, ["reset", "-q", "--hard", A]);
@@ -187,7 +186,7 @@ describe("managed worktrees are based on origin/main, never stale local main", (
     expect(git(target, ["rev-parse", "HEAD"])).toBe(B);
   }, 120_000);
 
-  it.fails("(b) reuse resets a worktree sitting at A to origin/main B, announced", () => {
+  it("(b) reuse resets a worktree sitting at A to origin/main B, announced", () => {
     const { origin, A, B } = makeOriginWithAB();
     const C = cloneMain(origin, `b-${process.pid}`);
     git(C, ["reset", "-q", "--hard", A]);
@@ -212,7 +211,7 @@ describe("managed worktrees are based on origin/main, never stale local main", (
     expect(announced).toMatch(/origin\/main/);
   }, 120_000);
 
-  it.fails("(c) unreachable origin warns and uses the existing origin/main ref, not local main", () => {
+  it("(c) unreachable origin warns and uses the existing origin/main ref, not local main", () => {
     const { origin, A, B } = makeOriginWithAB();
     const C = cloneMain(origin, `c-${process.pid}`);
     expect(git(C, ["rev-parse", "origin/main"])).toBe(B);
@@ -232,7 +231,7 @@ describe("managed worktrees are based on origin/main, never stale local main", (
     expect(cap.text()).toMatch(/origin/i);
   }, 120_000);
 
-  it.fails("(d) a repo with NO origin remote falls back to local HEAD, announced", () => {
+  it("(d) a repo with NO origin remote falls back to local HEAD, announced", () => {
     const N = trackRepo(mkdtempSync(join(tmpdir(), "hx-noorigin-")));
     git(N, ["init", "-q", "-b", "main"]);
     configureIdentity(N);
@@ -253,7 +252,7 @@ describe("managed worktrees are based on origin/main, never stale local main", (
     expect(cap.text()).toMatch(/fallback|no origin/i);
   }, 120_000);
 
-  it.fails("(e) OPENCLINXR_WT_ROOT selects the managed root at call time", () => {
+  it("(e) OPENCLINXR_WT_ROOT selects the managed root at call time", () => {
     const { origin, B } = makeOriginWithAB();
     const C = cloneMain(origin, `e-${process.pid}`);
     expect(git(C, ["rev-parse", "main"])).toBe(B);

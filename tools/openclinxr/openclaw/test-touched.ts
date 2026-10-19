@@ -26,12 +26,16 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 const REPO_ROOT = resolve(join(dirname(fileURLToPath(import.meta.url)), "../../.."));
 
 function gitLines(args: string[]): string[] {
   try {
-    const out = execFileSync("git", args, { cwd: REPO_ROOT, encoding: "utf8" });
+    // OPERATOR-ORDERED hx-paths gate fix: under a pre-commit hook git exports
+    // GIT_DIR/GIT_INDEX_FILE, which override cwd and drove the host repo
+    // (bare flip, 4k staged deletions). Scrub here and in run() below.
+    const out = execFileSync("git", args, { cwd: REPO_ROOT, encoding: "utf8", env: gitEnvWithoutInheritedRepoVars() });
     return out.split("\n").map((l: string) => l.trim()).filter(Boolean);
   } catch {
     return [];
@@ -102,6 +106,9 @@ function run(cmd: string[], opts: { cwd?: string } = {}): number {
     cwd: opts.cwd ?? REPO_ROOT,
     stdio: "inherit",
     shell: false,
+    // OPERATOR-ORDERED hx-paths gate fix: children must not inherit the hook's
+    // GIT_* vars, or every bare `git` spawn in fixture tests drives the host repo.
+    env: gitEnvWithoutInheritedRepoVars(),
   });
   return r.status ?? 1;
 }

@@ -25,37 +25,21 @@
 import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { homedir } from "node:os";
 import { resolveCoordinationRoot } from "./coordination-root.js";
+import {
+  gitEnvWithoutInheritedRepoVars,
+  managedWorktreeRoot,
+  resolveBaseRef,
+} from "./worktree-roots.js";
 
 /**
- * The ambient environment with git's per-invocation repo variables STRIPPED.
- *
- * MEASURED 2026-08-29. `git worktree add` dies as
- * `fatal: .git/index: index file open failed: Not a directory` when it inherits GIT_INDEX_FILE from
- * a git HOOK: git exports that (and often GIT_DIR / GIT_WORK_TREE) pointing at the in-progress
- * commit's temp index, and a child git tries to use it as its own. It reproduces ONLY inside a
- * commit, so this suite passed standalone at 71 files / 645 tests and reddened in pre-commit. That
- * asymmetry cost several cycles misdiagnosed first as flake, then as peer worktree contention —
- * the worktree count was unchanged at 551, so that second hypothesis was measurably wrong.
- *
- * NOT test-only: a dispatch launched from any hook context hits it identically.
- *
- * Stripping is safe because every git call here passes an explicit `cwd`, so repo resolution never
- * depended on the inherited values. Exported so dispatch-worker uses this one copy — the repo's own
- * rule for the run: allow-list applies here too: two copies would drift.
+ * Re-exported from worktree-roots.ts (single copy — two copies drift; see that module for the
+ * MEASURED 2026-08-29 hook-index rationale). Kept here so existing importers keep working.
  */
-export function gitEnvWithoutInheritedRepoVars(): NodeJS.ProcessEnv {
-  const env = { ...process.env };
-  for (const key of ["GIT_INDEX_FILE", "GIT_DIR", "GIT_WORK_TREE", "GIT_OBJECT_DIRECTORY", "GIT_COMMON_DIR"]) {
-    delete env[key];
-  }
-  return env;
-}
+export { gitEnvWithoutInheritedRepoVars };
 
-
-/** Same default root as dispatch-worker WORKTREE_ROOT — kept local to avoid import cycles. */
-export const MANAGED_WORKTREE_ROOT = join(homedir(), ".grok", "worktrees", "src-openclinxr");
+/** Import-time snapshot of the managed root for backward-compat; call sites use managedWorktreeRoot(). */
+export const MANAGED_WORKTREE_ROOT = managedWorktreeRoot();
 
 export type WorktreeBaseFreshnessResult = {
   slice: string;
@@ -120,7 +104,16 @@ export function ensureWorktreeBaseFresh(
     throw new Error(`ensureWorktreeBaseFresh: path does not exist: ${worktreePath}`);
   }
 
-  const mainHead = git(mainRoot, ["rev-parse", "HEAD"]);
+  const announce =
+    options.announce
+    ?? ((message: string) => {
+      process.stderr.write(`${message}\n`);
+    });
+
+  // HX-PATHS: the base is origin/main after a best-effort fetch — never the main checkout's
+  // possibly-stale local HEAD. Degraded rungs announce through the same channel.
+  const base = resolveBaseRef(mainRoot, { announce });
+  const mainHead = base.sha;
   const headBefore = git(worktreePath, ["rev-parse", "HEAD"]);
   const dirtyBefore = dirtyCount(worktreePath);
   const slice =
@@ -130,17 +123,11 @@ export function ensureWorktreeBaseFresh(
 
   const announcement =
     `[openclaw:worktree-base] REUSING managed worktree for slice=${slice} at ${worktreePath}. `
-    + `Resetting git state to main HEAD ${mainHead.slice(0, 12)} `
-    + `(was ${headBefore.slice(0, 12)}, dirtyFiles=${dirtyBefore}). `
+    + `Resetting git state to ${base.ref} ${mainHead.slice(0, 12)} `
+    + `(${base.note}; was ${headBefore.slice(0, 12)}, dirtyFiles=${dirtyBefore}). `
     + `Branch-local commits and untracked non-ignored dirt are discarded; `
     + `gitignored node_modules/dist are preserved (clean -fd, not -fdx). `
     + `If you needed the previous run's on-disk work, abort and resume that session instead of re-dispatching.`;
-
-  const announce =
-    options.announce
-    ?? ((message: string) => {
-      process.stderr.write(`${message}\n`);
-    });
   announce(announcement);
 
   // Move the worktree branch + index + tracked files to main's tip.
@@ -204,8 +191,9 @@ export async function inspectWorktreeBaseFreshness(): Promise<{
   const stamp = `${Date.now()}-${process.pid}`;
   const reuseName = `issue-148-inspect-reuse-${stamp}`;
   const freshName = `issue-148-inspect-fresh-${stamp}`;
-  const reusePath = join(MANAGED_WORKTREE_ROOT, reuseName);
-  const freshPath = join(MANAGED_WORKTREE_ROOT, freshName);
+  const worktreeRoot = managedWorktreeRoot();
+  const reusePath = join(worktreeRoot, reuseName);
+  const freshPath = join(worktreeRoot, freshName);
   const reuseBranch = `wt/${reuseName}`;
   const freshBranch = `wt/${freshName}`;
 
@@ -234,15 +222,17 @@ export async function inspectWorktreeBaseFreshness(): Promise<{
   cleanup(freshPath, freshBranch);
 
   try {
-    mkdirSync(MANAGED_WORKTREE_ROOT, { recursive: true });
+    mkdirSync(worktreeRoot, { recursive: true });
 
     // --- REUSE path: create, commit stale work, dirt, fake node_modules, then ensure ---
-    execFileSync("git", ["worktree", "add", "-b", reuseBranch, reusePath], {
+    // HX-PATHS: the harness base is origin/main (best-effort fetch), matching what dispatch does.
+    const base = resolveBaseRef(mainRoot);
+    const mainHead = base.sha;
+    execFileSync("git", ["worktree", "add", "-b", reuseBranch, reusePath, mainHead], {
       env: gitEnvWithoutInheritedRepoVars(),
       cwd: mainRoot,
       stdio: ["ignore", "pipe", "pipe"],
     });
-    const mainHead = git(mainRoot, ["rev-parse", "HEAD"]);
 
     // Stale commit on the worktree branch (previous run). Built with plumbing so the inspect
     // harness never invokes `git commit` (and never needs a hook bypass): stage → write-tree →
@@ -303,8 +293,8 @@ export async function inspectWorktreeBaseFreshness(): Promise<{
       nodeModulesPresentAfter: resetResult.nodeModulesPresentAfter,
     };
 
-    // --- FRESH CREATE path: git worktree add only (first dispatch), then marker provision ---
-    execFileSync("git", ["worktree", "add", "-b", freshBranch, freshPath], {
+    // --- FRESH CREATE path: git worktree add on the same origin/main base (first dispatch) ---
+    execFileSync("git", ["worktree", "add", "-b", freshBranch, freshPath, mainHead], {
       env: gitEnvWithoutInheritedRepoVars(),
       cwd: mainRoot,
       stdio: ["ignore", "pipe", "pipe"],
