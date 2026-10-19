@@ -1,6 +1,6 @@
 {
-  "version": null,
-  "versionDir": null,
-  "promotedBy": null,
-  "note": "No whole-face golden has been promoted yet. STEP 5 of card tsk_0e618fa5e9ac3e15 seeds the first candidate render for each case and the coordinator approves the seed; the check refuses until a version is promoted. A promoted version dir is immutable and is never opened for write again."
+  "version": "v1-2026-10-18",
+  "versionDir": "/Volumes/files/openclinxr-assets/store/face-regression/golden/v1-2026-10-18",
+  "promotedBy": "tsk_0e618fa5e9ac3e15",
+  "from": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/seed-a/render"
 }
