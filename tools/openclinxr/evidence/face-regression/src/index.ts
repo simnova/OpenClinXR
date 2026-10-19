@@ -14,21 +14,32 @@
  */
 export type { Landmark } from "./regions.js";
 export type { RegionBounds, RegionMetric } from "./metrics.js";
-export { evaluateFaceRegression, summarizeCheckResults } from "./check.js";
-export type { CaseCheckResult, CheckVerdict, RegionThreshold, RegionVerdict } from "./check.js";
+export {
+  evaluateFaceRegression,
+  goldenPngFor,
+  loadExpectedRegions,
+  loadThresholdsFrom,
+  resolveGoldenSource,
+  resolveRunPaths,
+  summarizeCheckResults,
+} from "./check.js";
+export type { CaseCheckResult, CheckVerdict, GoldenSource, RegionThreshold, RegionVerdict } from "./check.js";
 export { promoteGolden } from "./promote.js";
 export type { PromoteResult } from "./promote.js";
 export {
+  assertCaptureProvenance,
   pickLatestCompletedRun,
   renderCase,
   resolveCaseRenderInputs,
   resolveCaseRun,
   sha256File,
+  stageByproducts,
+  stageOutputs,
   verifyInputShas,
   writeCaseVariant,
   CAPTURE_TOOL,
 } from "./render.js";
-export type { CaseRenderInputs, CaseRunReport, CaseRunResolution, RenderOutcome, RunRecord, ShaCheck } from "./render.js";
+export type { CaptureProvenance, CaseRenderInputs, CaseRunReport, CaseRunResolution, RenderOutcome, RunRecord, ShaCheck } from "./render.js";
 export { writeRegionSheet } from "./sheets.js";
 export { deriveMaxDE, deriveMinSsimL, thresholdsFromCalibration } from "./thresholds.js";
 export type { Calibration, MetricThreshold } from "./thresholds.js";

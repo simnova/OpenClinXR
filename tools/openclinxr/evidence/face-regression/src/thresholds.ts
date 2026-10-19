@@ -15,6 +15,7 @@
 export type MetricThreshold = { maxDE: number; minSsimL: number; source: string };
 
 export type Calibration = {
+  status: string;
   perturbation: string;
   seed: number;
   regions: Record<string, {

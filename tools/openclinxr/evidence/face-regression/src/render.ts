@@ -25,7 +25,13 @@ export const CAPTURE_TOOL = "tools/openclinxr/evidence/skin-realism/runtime-port
 
 export type RunRecord = {
   status: string;
-  stages?: Array<{ stage?: number; name?: string; outputs?: Array<{ path?: string; sha256?: string }> }>;
+  stages?: Array<{
+    stage?: number;
+    name?: string;
+    outputs?: Array<{ path?: string; sha256?: string }>;
+    byproducts?: Array<{ path?: string; sha256?: string }>;
+    extra?: { finalAlbedo?: { file?: string; sha256?: string; stage?: string }; [key: string]: unknown };
+  }>;
   outputs?: Array<{ path?: string; sha256?: string }>;
 };
 
@@ -105,26 +111,52 @@ export function stageOutputs(run: RunRecord, stageNumber: number): Array<{ path:
   return rows;
 }
 
+/** Stage byproducts of a run (e.g. the stage-4 skin-normal map). */
+export function stageByproducts(run: RunRecord, stageNumber: number): Array<{ path: string; sha256: string }> {
+  const rows: Array<{ path: string; sha256: string }> = [];
+  for (const stage of run.stages ?? []) {
+    if (stage.stage !== stageNumber) continue;
+    for (const o of stage.byproducts ?? []) {
+      if (typeof o.path === "string" && typeof o.sha256 === "string") rows.push({ path: o.path, sha256: o.sha256 });
+    }
+  }
+  return rows;
+}
+
+function baseName(p: string): string {
+  return p.split("/").pop() ?? p;
+}
+
 export function resolveCaseRenderInputs(input: {
   caseId: string;
   store: string;
   runReport: CaseRunReport;
-}): { ok: true; inputs: CaseRenderInputs } | { ok: false; status: string; reason: string } {
+}): { ok: true; runId: string; inputs: CaseRenderInputs } | { ok: false; status: string; reason: string } {
   const runs = input.runReport.cases?.[input.caseId]?.runs ?? {};
   const picked = pickLatestCompletedRun(runs);
   if (!picked) return { ok: false, status: "absent", reason: `${input.caseId}: no completed run` };
-  const runDir = join(input.store, input.caseId, picked.runId);
-  const glb = stageOutputs(picked.run, 4)[0]?.path ?? null;
-  const albedo = stageOutputs(picked.run, 3).find((o) => /albedo/i.test(o.path))?.path ?? stageOutputs(picked.run, 3)[0]?.path ?? null;
+  // GLB = the stage-4 lid-conform GLB output of the latest completed run.
+  const glb = stageOutputs(picked.run, 4).find((o) => o.path.endsWith(".glb")) ?? stageOutputs(picked.run, 4)[0] ?? null;
   if (!glb) return { ok: false, status: "refused", reason: `${input.caseId}: no stage-4 lid-conform GLB output in ${picked.runId}` };
-  if (!albedo) return { ok: false, status: "refused", reason: `${input.caseId}: no stage-3 final albedo in ${picked.runId}` };
-  const normal = existsSync(join(runDir, "skin-normal.png")) ? join(runDir, "skin-normal.png") : join(runDir, "aisha-lidconform.skin-normal.png");
-  const roughness = join(runDir, "roughness.png");
-  const recordShas = [
-    ...stageOutputs(picked.run, 4),
-    ...stageOutputs(picked.run, 3),
-  ];
-  return { ok: true, inputs: { glb, albedo, normal, roughness, recordShas } };
+  // The station names its final albedo explicitly (stage 3 extra.finalAlbedo):
+  // the first /albedo/ output is albedo_corners.png, and a golden seeded from
+  // it would drop lips/symmetrise/socket/detail_bands — the regression class
+  // this card exists to catch. Refuse when the record does not name one.
+  const finalAlbedo = picked.run.stages?.find((s) => s.stage === 3)?.extra?.finalAlbedo ?? null;
+  if (!finalAlbedo || typeof finalAlbedo.file !== "string" || typeof finalAlbedo.sha256 !== "string") {
+    return { ok: false, status: "refused", reason: `${input.caseId}: no stage-3 extra.finalAlbedo in ${picked.runId}` };
+  }
+  const albedo = { path: finalAlbedo.file, sha256: finalAlbedo.sha256 };
+  // Normal comes from the stage-4 byproducts entry matching skin-normal (never
+  // a hardcoded filename: body2's file is body2-lidconform.skin-normal.png,
+  // not aisha-lidconform.skin-normal.png). Roughness is the stage-3 output
+  // roughness.png. Both join the re-hashed record set.
+  const normal = stageByproducts(picked.run, 4).find((o) => /skin-normal/i.test(o.path)) ?? null;
+  if (!normal) return { ok: false, status: "refused", reason: `${input.caseId}: no stage-4 skin-normal byproduct in ${picked.runId}` };
+  const roughness = stageOutputs(picked.run, 3).find((o) => baseName(o.path) === "roughness.png") ?? null;
+  if (!roughness) return { ok: false, status: "refused", reason: `${input.caseId}: no stage-3 roughness.png output in ${picked.runId}` };
+  const recordShas = [glb, albedo, normal, roughness];
+  return { ok: true, runId: picked.runId, inputs: { glb: glb.path, albedo: albedo.path, normal: normal.path, roughness: roughness.path, recordShas } };
 }
 
 export function writeCaseVariant(input: {
@@ -166,6 +198,45 @@ export type RenderOutcome = {
   refusal?: string;
 };
 
+export type CaptureProvenance = {
+  glb?: { sha256?: string };
+  inputs?: Record<string, { sha256?: string }>;
+  skinOverrideApplied?: { matchedMaterials?: string[] } | null;
+};
+
+function samePath(a: string, b: string): boolean {
+  if (a === b) return true;
+  try {
+    if (resolve(a) === resolve(b)) return true;
+  } catch { /* fall through to basename */ }
+  return baseName(a) === baseName(b);
+}
+
+/**
+ * D9: the capture tool's output JSON must prove the render used the recorded
+ * inputs. Every recorded input path must appear in the tool's `inputs` map
+ * with the record sha, and `skinOverrideApplied.matchedMaterials` must be
+ * non-empty — otherwise the GLB's embedded skin rendered and nothing says so.
+ */
+export function assertCaptureProvenance(input: {
+  capture: CaptureProvenance;
+  recordInputs: Array<{ path: string; sha256: string }>;
+}): { ok: boolean; refusal?: string } {
+  const entries = Object.entries(input.capture.inputs ?? {});
+  for (const rec of input.recordInputs) {
+    const hit = entries.find(([key]) => samePath(key, rec.path));
+    const got = hit?.[1]?.sha256;
+    if (got !== rec.sha256) {
+      return { ok: false, refusal: `capture input ${rec.path}: tool reports sha ${got ?? "<absent>"} != record sha ${rec.sha256}` };
+    }
+  }
+  const matched = input.capture.skinOverrideApplied?.matchedMaterials;
+  if (!Array.isArray(matched) || matched.length === 0) {
+    return { ok: false, refusal: "skinOverrideApplied.matchedMaterials is empty: the GLB's embedded skin rendered, not the override" };
+  }
+  return { ok: true };
+}
+
 /**
  * Spawn the existing capture tool in variant mode with an explicit --glb and
  * assert the tool's output JSON glb.sha256 equals the record sha.
@@ -173,8 +244,10 @@ export type RenderOutcome = {
 export function renderCase(input: {
   cwd: string;
   caseId: string;
+  runId: string;
   runDir: string;
   recordGlbSha256: string;
+  recordInputs: Array<{ path: string; sha256: string }>;
   variantPath: string;
   glbAbs: string;
   albedo: string;
@@ -198,8 +271,7 @@ export function renderCase(input: {
       refusal: `capture refused: ${(proc.stderr || proc.stdout || "").slice(-2000)}`,
     };
   }
-  const record = JSON.parse(readFileSync(jsonPath, "utf8")) as {
-    glb?: { sha256?: string };
+  const record = JSON.parse(readFileSync(jsonPath, "utf8")) as CaptureProvenance & {
     views?: Array<{ yaw: number; png: string; sha256: string }>;
   };
   const glbSha256 = record.glb?.sha256 ?? null;
@@ -209,8 +281,25 @@ export function renderCase(input: {
       refusal: `rendered GLB sha ${glbSha256} != record sha ${input.recordGlbSha256}`,
     };
   }
+  const provenance = assertCaptureProvenance({ capture: record, recordInputs: input.recordInputs });
+  if (!provenance.ok) {
+    return {
+      ok: false, runDir: input.runDir, views: [], glbSha256, planted, plantLabel: input.plantLabel,
+      refusal: provenance.refusal,
+    };
+  }
   const views = (record.views ?? []).map((v) => ({ yaw: v.yaw, png: v.png, sha256: v.sha256 }));
-  const renderJson = { caseId: input.caseId, glbSha256, planted, plantLabel: input.plantLabel ?? null, recordGlbSha256: input.recordGlbSha256, views };
+  const renderJson = {
+    caseId: input.caseId,
+    runId: input.runId,
+    glbSha256,
+    planted,
+    plantLabel: input.plantLabel ?? null,
+    recordGlbSha256: input.recordGlbSha256,
+    inputs: input.recordInputs.map((r) => ({ path: r.path, sha256: r.sha256 })),
+    captureJson: { path: jsonPath, sha256: sha256File(jsonPath) },
+    views,
+  };
   writeFileSync(join(input.runDir, "render.json"), `${JSON.stringify(renderJson, null, 2)}\n`, "utf8");
   return { ok: true, runDir: input.runDir, views, glbSha256, planted, plantLabel: input.plantLabel };
 }

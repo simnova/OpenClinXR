@@ -22,7 +22,12 @@ detection with 478 x [x,y] px JSON fixtures (what the contract test uses).
 
 Writes the metrics JSON plus, per region, a full-image per-pixel dE heatmap
 PNG that sheets.ts composes into the check sheet (fixed colour scale, stated
-in the JSON so the sheet never re-derives colour).
+in the JSON so the sheet never re-derives colour), plus full.png, the
+UNMASKED whole-frame dE heat at the same scale for the sheet's full-face row.
+
+`--perturb-seed <n>` replaces the current image with the golden perturbed by
+a seeded uniform integer in {-1,0,+1} per channel per pixel (clipped): the
+floor arm of the calibration (golden vs golden +-1 8-bit code value).
 
 Run only through mise so the face-gate python env is on PATH:
 
@@ -214,6 +219,8 @@ def main(argv=None):
                     help="fixture landmarks JSON (478 x [x,y] px); skips detection")
     ap.add_argument("--heatmap-dir", default=None,
                     help="per-region dE heatmap PNG dir (default: <out dir>/heatmaps)")
+    ap.add_argument("--perturb-seed", default=None, type=int,
+                    help="floor arm: current = golden perturbed by a seeded uniform int in {-1,0,+1} per channel per pixel, clipped")
     ap.add_argument("--dump-regions", action="store_true",
                     help="print the region table + precedence as JSON and exit")
     ap.add_argument("--case", default=None)
@@ -253,6 +260,11 @@ def main(argv=None):
 
     golden_rgb = v1.load_rgb(args.golden)
     current_rgb = v1.load_rgb(args.current)
+    if args.perturb_seed is not None:
+        rng = np.random.default_rng(args.perturb_seed)
+        delta = rng.integers(-1, 2, size=golden_rgb.shape)
+        current_rgb = np.clip(
+            golden_rgb.astype(np.int16) + delta, 0, 255).astype(np.uint8)
     if golden_rgb.shape[:2] != current_rgb.shape[:2]:
         raise SystemExit(
             "refused: dimension mismatch %s %s vs %s %s"
@@ -270,6 +282,8 @@ def main(argv=None):
         name = "%s.png" % region
         Image.fromarray(heat, mode="RGB").save(os.path.join(heatmap_dir, name))
         m["heatmap"] = name
+    Image.fromarray(heatmap_rgb(dE_field), mode="RGB").save(
+        os.path.join(heatmap_dir, "full.png"))
 
     report = {
         "case": args.case,
@@ -279,6 +293,8 @@ def main(argv=None):
         "precedence": PRECEDENCE,
         "heatmapScale": HEATMAP_SCALE,
         "heatmapDir": heatmap_dir,
+        "fullHeatmap": "full.png",
+        "perturbSeed": args.perturb_seed,
         "metrics": metrics,
     }
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
