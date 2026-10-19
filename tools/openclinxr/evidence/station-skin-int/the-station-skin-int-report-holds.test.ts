@@ -44,14 +44,14 @@ function loadReport(): {
   card: string;
   store: string;
   gates: Record<string, Gate>;
-  runs: { runB: Record<string, string> };
+  runs: { runB: Record<string, string>; runC: Record<string, string> };
 } {
   const root = testRepoRoot();
   const rep = JSON.parse(readFileSync(join(root, REPORT_REL), "utf8")) as {
     card: string;
     store: string;
     gates: Record<string, Gate>;
-    runs: { runB: Record<string, string> };
+    runs: { runB: Record<string, string>; runC: Record<string, string> };
   };
   return rep;
 }
@@ -125,6 +125,31 @@ describe("the station-skin-int report holds", () => {
       const abs = join(rep.store, r.png.replace(/^store\//, ""));
       expect(existsSync(abs), `missing ${r.png}`).toBe(true);
       expect(sha256File(abs)).toBe(r.sha256);
+    }
+  });
+
+  it("runC completed runs reproduce the runB gate inputs byte-identically", () => {
+    const rep = loadReport();
+    const files = [
+      "albedo_socket.png",
+      "albedo_beard.png",
+      "albedo_detail.png",
+      "albedo_browform.png",
+      "lip-vermilion-albedo-union.png",
+    ];
+    for (const kase of ["aisha", "body2"]) {
+      const dirB = join(rep.store, rep.runs.runB[kase] as string);
+      const dirC = join(rep.store, rep.runs.runC[kase] as string);
+      const records = JSON.parse(readFileSync(join(dirC, "stage-records.json"), "utf8")) as {
+        status: string;
+      };
+      expect(records.status, `${rep.runs.runC[kase]} completed`).toBe("completed");
+      for (const f of files) {
+        expect(existsSync(join(dirC, f)), `${rep.runs.runC[kase]}/${f} exists`).toBe(true);
+        expect(sha256File(join(dirC, f)), `${kase} runC ${f} == runB`).toBe(
+          sha256File(join(dirB, f)),
+        );
+      }
     }
   });
 

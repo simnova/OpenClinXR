@@ -11,6 +11,11 @@
    "aisha": "face-station-cases/aisha/run6",
    "body2": "face-station-cases/body2/run9"
   },
+  "runC": {
+   "aisha": "face-station-cases/aisha/run10",
+   "body2": "face-station-cases/body2/run13",
+   "note": "first completed runs with a stage-4 GLB (aisha wall 803.5s, body2 wall 905.0s); stage-3 outputs byte-identical to runA/runB, so the live pins are unchanged and every G1/G2/G3 value carries over"
+  },
   "noise": "runA == runB on EVERY stage output (only runN paths, wall timings, bake logs differ); noise 0"
  },
  "gates": {
