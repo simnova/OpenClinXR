@@ -1,0 +1,1 @@
+../../agents/rules/PROTO_PRIOR_ART_COMPUTE_FIRST.md

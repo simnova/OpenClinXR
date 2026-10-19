@@ -42,6 +42,9 @@ Record FOUND (with licence) or NOT FOUND in the slice record. **If the operator 
 something I was about to hand-author, that is a failed search** - log it so the registry list grows.
 The repo has a curious-researcher rule and it did not bind; a rule without a gate is prose.
 
+For a new card, Step 0 is a ~300-word brief per `agents/rules/PROTO_PRIOR_ART_COMPUTE_FIRST.md`
+(card body or asset store, cited by the `Prior art -` gate line below) - no brief, no dispatch.
+
 ## 3. Collision - is another writer on this surface?
 
 *"The other agent is working on clothing - you should avoid overwriting it's work"*, and *"there was
@@ -140,7 +143,7 @@ would have refuted it. A plausible mechanism you can describe in detail is not e
 One line each, before every dispatch:
 
 1. **Direction** - which current-rail directive does this advance? (cite it)
-2. **Prior art** - which registry was searched, what was found?
+2. **Prior art** - which registry was searched, what was found, and where is the Step-0 brief (`Prior art -` cites it per PROTO_PRIOR_ART_COMPUTE_FIRST.md)?
 3. **Collision** - which handoffs and commits were checked?
 4. **Size** - why is this not two slices?
 5. **Brief text** - if this script was copied, which filenames did I re-check? (§5)

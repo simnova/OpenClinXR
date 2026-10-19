@@ -56,6 +56,7 @@ the coordinator.
 **If you add a file here, add it to `CORE_RULES` in the sync script too, or this list lies again.**
 
 ## Supplemental (grep/spawn on demand)
+- On-demand lane rules: `GUARD_WORKTREE_PER_LANE.md` (one worktree per lane), `GUARD_STANDING_APPROVAL.md` (standing approval for reversible moves), `PROTO_PRIOR_ART_COMPUTE_FIRST.md` (prior art + compute first, with compute-first candidates appendix) - load via skill `delegation-rules`, never the startup tier.
 - On-demand loader skills: `delegation-rules` (PROTO_VERIFY_DELEGATION, PROTO_BOARD_LOOP, PROTO_SUBAGENT, scouting, consults, orchestrator-only-main) and `orchestrator-rules` (glossary, visibility, rehydration, source-of-truth, memory scoring, Grok harness, the stubs)
 - `EXEC_REHYDRATE.md` — LOW_TOKEN rehydration, lease, guards, token saving
 - `TIER_GROK.md`, `grok-harness-usage.md` — Grok harness routing (not in Grok core symlink set)

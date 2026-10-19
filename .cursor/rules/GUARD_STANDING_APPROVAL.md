@@ -1,0 +1,1 @@
+../../agents/rules/GUARD_STANDING_APPROVAL.md

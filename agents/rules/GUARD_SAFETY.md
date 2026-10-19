@@ -1,6 +1,7 @@
 # Safety lines (always loaded, every harness)
 
 Verbatim directives: `agents/rules/PROTO_VERIFY_DELEGATION.md`, table "OPERATOR DIRECTIVES". Protocols load on demand: skill `delegation-rules` (before dispatching or briefing a worker, verifying a delegate, running the board loop, spawning subagents), skill `orchestrator-rules` (orchestrator duties, glossary, rehydration).
+On-demand lane rules (grep/spawn, not startup): `agents/rules/GUARD_WORKTREE_PER_LANE.md` (one worktree per lane), `agents/rules/GUARD_STANDING_APPROVAL.md` (reversible moves), `agents/rules/PROTO_PRIOR_ART_COMPUTE_FIRST.md` (prior art + compute first) — read the named file when its trigger fires.
 
 1. Never commit with `--no-verify`, `OPENCLAW_SKIP_HOOKS`, or a redirected `core.hooksPath`. Never commit in the shared checkout `/Volumes/files/src/openclinxr`; work in a git worktree.
 2. Never set `RUST_LOG` or a grok debug file: grok logs the bearer API token in plaintext.
