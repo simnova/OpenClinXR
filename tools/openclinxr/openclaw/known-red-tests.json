@@ -288,13 +288,13 @@
     },
     {
       "path": "tools/openclinxr/evidence/the-audit-does-not-claim-a-verification-it-never-checked.test.ts",
-      "reason": "OPERATOR-ORDERED hx-paths triage: 2 of 6 fail in any lane worktree without dispatch history. describeDispatchProofs reads the lane-local .openclinxr/openclaw/worker-sessions.jsonl ledger; absent (ENOENT), the message reports UNKNOWN instead of the asserted FAILED text. Fails identically on clean tree; not caused by the change under test.",
-      "card": "unfiled: make the #721 probes hermetic to lane dispatch history or seed the WT-local ledger fixture"
+      "reason": "hx-paths triage (lane manager, measured at base 4b108ef17): 2 of 6 fail in any lane worktree without dispatch history. describeDispatchProofs reads the lane-local .openclinxr/openclaw/worker-sessions.jsonl ledger; absent (ENOENT), the message reports UNKNOWN instead of the asserted FAILED text. Fails identically on clean tree; not caused by the change under test.",
+      "card": "tsk_51e97960788d09fa"
     },
     {
       "path": "tools/openclinxr/evidence/a-dispatch-verdict-comes-from-the-newest-session.test.ts",
-      "reason": "OPERATOR-ORDERED hx-paths triage: 2 of 4 fail in any lane worktree without dispatch history. rowsFor reads the lane-local .openclinxr/openclaw/worker-sessions.jsonl ledger; absent (ENOENT), the known-good column and counterweight read UNKNOWN instead of FAILED. Fails identically on clean tree; not caused by the change under test.",
-      "card": "unfiled: make the #722 probes hermetic to lane dispatch history or seed the WT-local ledger fixture"
+      "reason": "hx-paths triage (lane manager, measured at base 4b108ef17): 2 of 4 fail in any lane worktree without dispatch history. rowsFor reads the lane-local .openclinxr/openclaw/worker-sessions.jsonl ledger; absent (ENOENT), the known-good column and counterweight read UNKNOWN instead of FAILED. Fails identically on clean tree; not caused by the change under test.",
+      "card": "tsk_51e97960788d09fa"
     }
   ]
 }
