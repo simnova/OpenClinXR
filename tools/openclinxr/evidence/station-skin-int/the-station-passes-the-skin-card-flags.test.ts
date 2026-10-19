@@ -23,7 +23,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -51,13 +51,6 @@ export function countChangedTexels(before: number[], after: number[], mask: numb
     if (mask[i] !== 0 && before[i] !== after[i]) n += 1;
   }
   return n;
-}
-
-function misePython(code: string): void {
-  execFileSync("mise", ["exec", "-C", MISE_TRUST_DIR, "--", "python3", "-c", code], {
-    cwd: testRepoRoot(),
-    timeout: 300_000,
-  });
 }
 
 const FIXTURE_PY = `

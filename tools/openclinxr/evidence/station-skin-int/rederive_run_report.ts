@@ -71,8 +71,11 @@ async function main(): Promise<void> {
 
   const runOnce = (): { stageShas: Record<string, string>; executedChainStages: string[]; outDir: string } => {
     const doc = JSON.parse(JSON.stringify(chain)) as typeof chain;
-    doc.stages[0]!.parameters["size"] = 512;
-    doc.subjects["aisha"]!["glb_sha256"] = "PLACEHOLDER_GLB_SHA256";
+    const first = doc.stages[0];
+    const aisha = doc.subjects["aisha"];
+    if (first === undefined || aisha === undefined) throw new Error("manifest missing first stage or aisha: refused");
+    first.parameters["size"] = 512;
+    aisha["glb_sha256"] = "PLACEHOLDER_GLB_SHA256";
     const outDir = join(tmpdir(), `rederive-run-report-${process.pid}-${Math.round(Math.random() * 1e9)}`);
     mkdirSync(outDir, { recursive: true });
     const manifestFile = join(outDir, "man512.json");

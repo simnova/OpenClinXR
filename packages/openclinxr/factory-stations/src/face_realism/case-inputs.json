@@ -227,7 +227,7 @@
       },
       "expected_out_sha256": {
        "value": "8b4c158255c1bf5f87f33c2010047f3f1828dac9a7ad9e4b2d5c3ac6e5134198",
-       "source": "tools/openclinxr/asset-pipeline/skin/face-replay/aisha-real-chain-report.json:G3_real_chain.output_shas_with_beard.albedo_socket.png (== albedo_beard.png)"
+       "source": "face-station-cases/aisha/run5/albedo_beard.png (tsk_3dc1802d0ca2b36c run A; station standalone stage3_beard with the skin-card flags)"
        }
       }
      },
@@ -235,8 +235,8 @@
      "source": "detail_bands.py standalone argv mirrors replay.py run_stage detail_bands (tsk_68c071233175cae2); gains from the chain manifest subject overrides",
      "value": {
       "expected_out_sha256": {
-       "value": "c56e7ae6a134a8af39d3d1efd71c295b2cbcda165bfa59c86233c4f0cb86858d",
-       "source": "face-station-cases/aisha/run3/albedo_detail.png (tsk_68c071233175cae2 run A; first pin for the manifest-position standalone detail)"
+       "value": "f256e2652ec2d314f19132032830ff352af23fb0153b13b7e229713b56734663",
+       "source": "face-station-cases/aisha/run5/albedo_detail.png (tsk_3dc1802d0ca2b36c run A; station standalone stage3_detail with the skin-card flags)"
       }
      }
     },
@@ -474,8 +474,8 @@
        "source": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json:stages[beard_shadow].parameters.texels_per_mm and beard-shadow-report.json:texels_per_mm.value"
       },
        "expected_out_sha256": {
-        "value": "8652e33f9078a3c2b262799b58231d4f523046a43463b9a9bd86db906ab2b905",
-        "source": "face-station-cases/body2/run6/albedo_beard.png (tsk_68c071233175cae2 run A); supersedes the G4 w09 pin 973b4c16 (beard_shadow.py split-mask/lip-hug evolution changed standalone bytes on identical inputs; derive masks identical run3==run6, socket pin holds)"
+        "value": "e6dcebadea118d772a609ee4b66ac9c7f0f38ba8726396abae9e75b2c3ea2d6c",
+        "source": "face-station-cases/body2/run8/albedo_beard.png (tsk_3dc1802d0ca2b36c run A; station standalone stage3_beard with the skin-card flags)"
        }
       }
      },
@@ -483,8 +483,8 @@
      "source": "detail_bands.py standalone argv mirrors replay.py run_stage detail_bands (tsk_68c071233175cae2); gains from the chain manifest subject overrides",
      "value": {
       "expected_out_sha256": {
-       "value": "c2afabdfa430476ee6924db1596cd42f8055d5e62cced22f912747f22f94c3a5",
-       "source": "face-station-cases/body2/run6/albedo_detail.png (tsk_68c071233175cae2 run A; first pin for the manifest-position standalone detail)"
+       "value": "dda50306b5d385d55bedfc8a78a6646b71e7436db517994c9d93023b6a41b5e1",
+       "source": "face-station-cases/body2/run8/albedo_detail.png (tsk_3dc1802d0ca2b36c run A; station standalone stage3_detail with the skin-card flags)"
       }
      }
     },

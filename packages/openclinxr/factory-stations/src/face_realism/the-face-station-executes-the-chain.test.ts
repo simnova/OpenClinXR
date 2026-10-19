@@ -94,20 +94,25 @@ describe("the face station executes the chain", () => {
     writeFileSync(second.manifest512, readFileSync(first.manifest512));
     const resultA = runChainOnce(first.outDir, first.manifest512);
     const resultB = runChainOnce(second.outDir, first.manifest512);
-    const manifestStages = (
-      JSON.parse(readFileSync(join(root, CHAIN), "utf8")) as { stages: Array<{ name: string }> }
-    ).stages.map((stage) => stage.name);
+    const chainDoc = JSON.parse(readFileSync(join(root, CHAIN), "utf8")) as {
+      stages: Array<{ name: string; output_paths: Record<string, string> }>;
+    };
+    const manifestStages = chainDoc.stages.map((stage) => stage.name);
     expect(resultA.executedChainStages).toEqual(manifestStages);
     expect(resultA.executedChainStages).toEqual(report.executedStages);
-    // The final albedo is the LAST executed manifest stage output
-    // (detail_bands -> albedo_detail.png), not the socket file the legacy
-    // finalAlbedo field names. run-report.json itself is untouched (the
-    // store is read-only); the tracked detail sha lives in its stageShas.
-    expect(resultA.finalSha256).toBe(report.stageShas["albedo_detail.png"]);
-    expect(resultB.finalSha256).toBe(report.stageShas["albedo_detail.png"]);
-    const finalFile = join(first.outDir, "albedo_detail.png");
+    // The final albedo is the output of the LAST executed manifest stage:
+    // the file name is derived from that stage's output_paths (no stage
+    // file name literal), and the sha is the tracked pin for it.
+    // run-report.json itself is untouched (the store is read-only).
+    const lastStage = chainDoc.stages[chainDoc.stages.length - 1]!;
+    const lastOutputs = Object.values(lastStage.output_paths ?? {});
+    expect(lastOutputs.length).toBeGreaterThan(0);
+    const finalName = lastOutputs[0] as string;
+    expect(resultA.finalSha256).toBe(report.stageShas[finalName]);
+    expect(resultB.finalSha256).toBe(report.stageShas[finalName]);
+    const finalFile = join(first.outDir, finalName);
     expect(existsSync(finalFile)).toBe(true);
-    expect(shaFile(finalFile)).toBe(report.stageShas["albedo_detail.png"]);
+    expect(shaFile(finalFile)).toBe(report.stageShas[finalName]);
   }, 300_000);
 
   it("(FALSIFIER) two runs are bit-identical per stage output", () => {
