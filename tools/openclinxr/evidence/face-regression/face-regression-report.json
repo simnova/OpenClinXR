@@ -1,0 +1,37 @@
+{
+  "card": "tsk_0e618fa5e9ac3e15",
+  "title": "Whole-face regression sheet for the face station",
+  "phase": 1,
+  "status": "built-not-calibrated",
+  "why": "Every prior card graded only its own region in its own render path: pink eyes from a stale GLB, double brows, a detail_bands pass dropped by the station and an olive lip band each passed their own gate while the whole face regressed. This module re-renders the station's actual output for every case in case-inputs.json and compares it with the last accepted whole-face state.",
+  "modules": [
+    { "path": "tools/openclinxr/evidence/face-regression/src/render.ts", "role": "resolve each case's latest completed station run; GLB = stage-4 lid-conform output, albedo = stage-3 final, normal+roughness from the same run dir; re-hash every recorded input and refuse on mismatch; spawn skin-realism/runtime-portrait-capture.ts in variant mode with an explicit --glb; assert the tool's output glb.sha256 equals the record sha; record planted renders." },
+    { "path": "tools/openclinxr/evidence/face-regression/src/regions.ts", "role": "the ten named regions as pinned MediaPipe FaceLandmarker indices, convex hulls and scanline raster masks (mask source = the golden render's landmarks)." },
+    { "path": "tools/openclinxr/evidence/face-regression/src/regions.py", "role": "production CLI region metrics via mise exec: imports face_gate_v2.detect_median (median of 3) and face_gate.resolve_model_path against the pinned landmark-model.json; mean CIEDE2000 dE, SSIM on L*, mean landmark displacement in px (reported, not gated)." },
+    { "path": "tools/openclinxr/evidence/face-regression/src/metrics.ts", "role": "the same formulas in TypeScript for the contract test and the per-pixel dE heatmap; mean CIEDE2000 over the golden mask, single-window SSIM on L*." },
+    { "path": "tools/openclinxr/evidence/face-regression/src/check.ts", "role": "pure evaluateFaceRegression decision (undeclared region beyond threshold = failure) plus the `check` and `--promote` CLI; writes runs/<card>/check.json and per case/view sheets." },
+    { "path": "tools/openclinxr/evidence/face-regression/src/sheets.ts", "role": "per case/view sheet: one row per region, cells golden crop | current crop | per-pixel CIEDE2000 heatmap, native pixels, no resampling." },
+    { "path": "tools/openclinxr/evidence/face-regression/src/promote.ts", "role": "immutable golden promotion: writes a NEW version dir, never opens an existing one for write, refuses planted renders." },
+    { "path": "tools/openclinxr/evidence/face-regression/src/thresholds.ts", "role": "threshold model threshold = max(noise, floor); no typed numbers." }
+  ],
+  "thresholds": {
+    "model": "per region and metric, threshold = max(noise, floor)",
+    "noise": "max delta between two from-scratch renders of identical inputs (a re-render must not be called a regression)",
+    "floor": "metric between the golden and the golden with a +-1 8-bit code value perturbation, per channel, per pixel, clipped to 0..255",
+    "perturbation_seed": 20261018,
+    "calibration_file": "tools/openclinxr/evidence/face-regression/calibration.json",
+    "state": "uncalibrated: phase 2 (STEP 5/6) records the noise and floor measurement for each region and metric; the report cites that measurement for every threshold."
+  },
+  "golden_pointer": "tools/openclinxr/evidence/face-regression/golden-pointer.json",
+  "tests": {
+    "contract": "tools/openclinxr/evidence/face-regression/the-face-regression-check-fails-on-undeclared-change.test.ts",
+    "contract_cases": 8,
+    "step2_red": "fails 8/8 before this module existed; green in STEP 4",
+    "second_subject": "tools/openclinxr/evidence/second-subject",
+    "second_subject_cases": 31
+  },
+  "phase_2_outstanding": [
+    "STEP 5 seed candidate render dir for aisha + body2 from main's record after card tsk_68c071233175cae2 lands; then noise (two renders) and floors.",
+    "STEP 6 known-good re-render passes; known-bad A body2 with --plant-glb .../face-station-cases/body2/final.glb fails with an eye region the largest mover; known-bad B aisha with --plant-glb .../face-station-cases/aisha/run2/aisha-lidconform.glb fails with a brow region the largest mover; record margin/threshold."
+  ]
+}
