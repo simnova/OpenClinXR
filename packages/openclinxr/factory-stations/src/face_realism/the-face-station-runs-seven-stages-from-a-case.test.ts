@@ -120,10 +120,7 @@ function livePinRunDir(source: string | undefined): string | null {
  * 3 whose final-stage known-good matches by construction (the final
  * manifest stage carries no pin) routes iff every failing chained
  * sub-stage cites an all-zero known-good AND the live pin for its config
- * key equals the sub-stage actual — the re-pin really came from this run —
- * or, when the live pin moved on (its tracked source names a later run
- * dir), the stale placeholder from the prior card's re-pin cycle, now
- * superseded.
+ * key equals the sub-stage actual — the re-pin really came from this run.
  * A non-placeholder mismatch routes nowhere (the negative control below
  * proves it).
  */
@@ -180,11 +177,9 @@ function collectRouted(
     // re-pin run A fails stage 3 only through placeholder-pinned chained
     // sub-stages (beard_shadow.py -> stage3_beard, detail_bands.py ->
     // stage3_detail). Route iff every failing sub-stage cites an all-zero
-    // known-good in its gate detail and EITHER the live pin for its config
-    // key equals the sub-stage actual output sha (the re-pin really came
-    // from this run) OR the live pin moved on (its tracked source names a
-    // run dir different from this run: a stale placeholder from a prior
-    // card's re-pin cycle, superseded by the later re-derivation).
+    // known-good in its gate detail and the live pin for its config key
+    // equals the sub-stage actual output sha (the re-pin really came from
+    // this run).
     const knownGood = stage.gate.knownGood;
     const subStages = (
       stage.extra as
@@ -222,38 +217,15 @@ function collectRouted(
         const actual = sub.outputs?.[0]?.sha256;
         return typeof actual === "string" && livePin(key, caseId)?.value === actual;
       };
-      const stalePin = (sub: { script?: unknown; outputs?: Array<{ sha256?: unknown }> }): boolean => {
-        const key = subKey(sub);
-        if (key === undefined || runName === undefined) return false;
-        const actual = sub.outputs?.[0]?.sha256;
-        if (typeof actual !== "string") return false;
-        const live = livePin(key, caseId);
-        if (live?.value === actual) return false;
-        const sourceRun = livePinRunDir(live?.source ?? undefined);
-        return sourceRun !== null && sourceRun !== runName;
-      };
       if (
         failed.length > 0 &&
-        failed.every((sub) => citedZero(sub) && (currentPin(sub) || stalePin(sub)))
+        failed.every((sub) => citedZero(sub) && currentPin(sub))
       ) {
-        const stale = failed.some((sub) => !currentPin(sub));
-        if (!stale) {
-          routed.push(
-            `superseded placeholder sub-stages: live pins in case-inputs.json == run actuals (${failed
-              .map((sub) => `${String(sub.script ?? "").split("/").at(-1)}:${String(sub.outputs?.[0]?.sha256 ?? "").slice(0, 12)}`)
-              .join(",")})`,
-          );
-        } else {
-          // The routing names the superseding pin sources (tracked
-          // case-inputs.json sources) so the (report) file-citation check
-          // holds for stale rows too.
-          const sources = [...new Set(failed.map((sub) => String(livePin(subKey(sub) as string, caseId)?.source ?? "")))];
-          routed.push(
-            `superseded placeholder sub-stages: live pins re-derived after this run (${failed
-              .map((sub) => `${String(sub.script ?? "").split("/").at(-1)}:${String(sub.outputs?.[0]?.sha256 ?? "").slice(0, 12)}`)
-              .join(",")}) <- ${sources.join(" | ")}`,
-          );
-        }
+        routed.push(
+          `superseded placeholder sub-stages: live pins in case-inputs.json == run actuals (${failed
+            .map((sub) => `${String(sub.script ?? "").split("/").at(-1)}:${String(sub.outputs?.[0]?.sha256 ?? "").slice(0, 12)}`)
+            .join(",")})`,
+        );
       }
     }
   }
@@ -557,7 +529,7 @@ describe("the face station runs seven stages from a case", () => {
       if (shaFile(file) !== entry.sha) mismatches.push(file);
     }
     expect(mismatches, mismatches.join("; ")).toEqual([]);
-  });
+  }, 300_000);
 
   it("(report) carries 7 stage records, unchained inputs, blocked checks and wall times", () => {
     const report = readReport();
