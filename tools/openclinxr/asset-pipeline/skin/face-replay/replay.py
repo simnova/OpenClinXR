@@ -228,6 +228,11 @@ def run_stage(stage: dict, subject: str, store_dir: Path, inputs: dict, override
         cmd += ["--lips-mask", str(_verm_union)]
         cmd += ["--eyes-mask", str(_eyes_union)]
         cmd += ["--brows-mask", str(_brows_union)]
+        # Beard weight carried into detail (handback 8 lineage): at 0 the
+        # under-lower-lip band is spared the crease removal; positive
+        # weights keep the legacy full-crease path.
+        cmd += ["--beard-weight",
+                str(overrides.get(subject, {}).get("beard_shadow", {}).get("weight", 0.0))]
         cmd += ["--texels-per-mm", str(params["texels_per_mm"])]
         cmd += ["--seed", str(params["seed"])]
         cmd += ["--crease-gain", str(params["crease_gain"])]

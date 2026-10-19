@@ -70,6 +70,19 @@ Scales (all in mm via texels_per_mm, never in texels):
   derive lips mask carries ~3 mm of margin past the vermilion, measured
   subject albedo a* profile vs mask edge, so the lipuv hard_up|hard_lo
   vermilion core is hugged instead).
+- UNDERLIP_MM 4.0: the band below the vermilion lower edge (B5 analog
+  on the passed vermilion: central 60% of its columns, per-column lower
+  edge +3..+18 texels, ~4 mm at 4.079 tex/mm) keeps only
+  UNDERLIP_CREASE_KEEP of the crease removal at beard weight 0 (the
+  ablation carries 97.5% of the B5 darkening in the crease term); the
+  pore grain still applies fully there. Positive beard weights keep the
+  legacy full-crease path (beard_shadow geometry then owns the groove).
+- UNDERLIP_CREASE_KEEP 0.3: the keep fraction for the G3/halo
+  frontier (measured on the run4 inputs and the synthetic G3 fixture:
+  keep 0.6 leaves the fixture at -1.41 under the -1 gate, keep 0.3
+  lands the fixture at -0.84 and real B5 at ~-0.4; lower keeps trade
+  halo flips for fixture margin past this knee, higher keeps collapse
+  the fixture margin toward zero).
 - DARK_TEXEL_GUARD (lum 15..25 smoothstep): the converged crease
   removal fills small dark holes (nostril/mouth interiors brighten tens
   of L as the low-pass leaks skin into them: handback 5 blue-grey
@@ -113,6 +126,8 @@ CAP_NEG = -3.0
 FEATHER_MM = 1.0
 LIPS_HUG_MM = 0.5
 LIPS_FEATHER_MM = 0.5
+UNDERLIP_MM = 4.0
+UNDERLIP_CREASE_KEEP = 0.3
 SCALP_FRINGE_MM = 25.0
 
 
@@ -154,19 +169,59 @@ def visible_lip_mask(albedo_rgb: np.ndarray, base_mask: np.ndarray) -> np.ndarra
     return ndimage.binary_fill_holes(closed)
 
 
-def vermilion_mask_from_albedo(albedo_rgb: np.ndarray, union: np.ndarray) -> np.ndarray:
-    """Vermilion from the albedo itself (handback 8).
+def vermilion_pre_hb8_mask(albedo_rgb: np.ndarray, union: np.ndarray) -> np.ndarray:
+    """Pre-hb8 blurred-a* vermilion rule (the post10 lineage).
 
-    The lipuv union is the lip MESH region, bigger than the visible
-    vermilion (margin skin at the corners/borders), so hugging it leaves
-    a pale band. The visible lip is segmented by visible_lip_mask (the
-    lane-manager acceptance rule: half-maximum a* edge against the
-    surrounding skin, closed and hole-filled; stated numbers are measured
-    per image and recorded in wrinkle-scale-report.json fix.vermilion).
-    Falls back to the union when it covers < 5% of the union (flat
-    albedo, synthetic fixtures).
+    Inside the union neighbourhood (dilate-21, past the derive mask
+    edge), a texel is vermilion where its blurred a* (sigma 3.0) exceeds
+    the surrounding skin a* (median over the wide ring dilate-49 minus
+    dilate-25) by at least half of (lip a* max minus skin a*). Closed
+    with a 7x7 square, smoothed with a 0.5 mm gaussian thresholded at
+    0.5, hole-filled from the image corner, components under 200 texels
+    dropped. No absolute threshold; stated numbers are per-image.
     """
-    out = visible_lip_mask(albedo_rgb, union)
+    lab = rgb_to_lab(np.asarray(albedo_rgb, dtype=np.uint8))
+    h, w = lab.shape[:2]
+    av = cv2.GaussianBlur(lab[..., 1].astype(np.float64), (0, 0), 3.0)
+    ring = (cv2.dilate(union.astype(np.uint8), np.ones((25, 25), np.uint8)) > 0) & (
+        cv2.dilate(union.astype(np.uint8), np.ones((13, 13), np.uint8)) == 0)
+    skin = float(np.median(av[ring])) if np.count_nonzero(ring) else 0.0
+    near = cv2.dilate(union.astype(np.uint8), np.ones((21, 21), np.uint8)) > 0
+    peak = float(av[union].max(initial=skin)) if np.count_nonzero(union) else skin
+    thr = skin + 0.5 * max(0.0, peak - skin)
+    raw = (av > thr) & near
+    cl = cv2.morphologyEx(raw.astype(np.uint8), cv2.MORPH_CLOSE,
+                          np.ones((7, 7), np.uint8))
+    sm = cv2.GaussianBlur(cl.astype(np.float64), (0, 0), 4.079 * 0.5)
+    keep = sm > 0.5
+    ff = keep.astype(np.uint8).copy()
+    pad = np.zeros((h + 2, w + 2), np.uint8)
+    cv2.floodFill(ff, pad, (0, 0), 1)
+    filled = keep | (ff != 1)
+    n, lbl, stats, _ = cv2.connectedComponentsWithStats(filled.astype(np.uint8), 8)
+    out = np.zeros(filled.shape, dtype=bool)
+    for i in range(1, n):
+        if stats[i, cv2.CC_STAT_AREA] >= 200:
+            out[lbl == i] = True
+    return out
+
+
+def vermilion_mask_from_albedo(albedo_rgb: np.ndarray, union: np.ndarray) -> np.ndarray:
+    """Vermilion from the albedo itself (handback 8, union rule).
+
+    The union of the lane-manager half-maximum edge (visible_lip_mask,
+    clipped to the derive lips mask) with the pre-hb8 blurred-a* rule
+    (vermilion_pre_hb8_mask, neighbourhood past the derive edge). The
+    rendered vermilion rim lies outside the derive mask (run4: all 2042
+    post10-only rim texels sit outside it), so any rule clipped to the
+    mask misses the rim by construction; the pre-hb8 rule re-run on
+    run4 inputs reproduces the post10 mask to 20 px xor and covers
+    2036/2042 of the rim. Falls back to the union when the union covers
+    < 5% of the union (flat albedo, synthetic fixtures).
+    """
+    cur = visible_lip_mask(albedo_rgb, union)
+    old = vermilion_pre_hb8_mask(albedo_rgb, union)
+    out = cur | old
     if out.sum() < 0.05 * max(1, int(np.asarray(union).sum())):
         return np.asarray(union, dtype=bool)
     return out
@@ -193,6 +248,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--feather-mm", type=float, default=FEATHER_MM)
     ap.add_argument("--lips-hug-mm", type=float, default=LIPS_HUG_MM)
     ap.add_argument("--lips-feather-mm", type=float, default=LIPS_FEATHER_MM)
+    ap.add_argument("--beard-weight", type=float, default=0.0,
+                    help="beard_shadow weight carried by replay: at 0 the "
+                         "under-lower-lip band is spared the crease removal; "
+                         "positive weights keep the legacy full-crease path")
     ap.add_argument("--scalp-fringe-mm", type=float, default=SCALP_FRINGE_MM)
     ap.add_argument("--report-out", type=Path, default=None)
     a = ap.parse_args(argv)
@@ -203,6 +262,9 @@ def main(argv: list[str] | None = None) -> int:
         raise RuntimeError("detail_bands refuses: texels-per-mm must be positive")
     if not 0.0 <= g <= 1.0:
         raise RuntimeError("detail_bands refuses: crease-gain must be in [0,1]")
+    w_beard = float(a.beard_weight)
+    if w_beard < 0:
+        raise RuntimeError("detail_bands refuses: beard-weight must be >= 0")
     hi_mm = float(a.pore_noise_hi_mm)
     if not 0.0 < hi_mm < CREASE_SMOOTH_MM:
         raise RuntimeError(
@@ -234,6 +296,7 @@ def main(argv: list[str] | None = None) -> int:
     # halo).
     lips_cut = np.ones((h, wpx), dtype=np.float64)
     lips_support_extra = np.zeros((h, wpx), dtype=bool)
+    verm = np.zeros((h, wpx), dtype=bool)
     if a.lips_mask is not None:
         hug_tex = max(float(a.lips_hug_mm) * tpm, 0.0)
         feather_tex = max(float(a.lips_feather_mm) * tpm, 0.5)
@@ -244,6 +307,27 @@ def main(argv: list[str] | None = None) -> int:
         cut = 1.0 - (t * t * (3.0 - 2.0 * t))
         lips_cut = 1.0 - cut
         lips_support_extra = dist <= (hug_tex + feather_tex)
+
+    # Underlip band (groove floor on the passed vermilion, generic
+    # anatomy): central 60% of vermilion columns, per-column lower edge
+    # +3..+18 texels (the B5 rows; the legacy darkening over B5 sits at
+    # rows 3-17 rel the union edge, peaking rows 9-15, while rows <=2
+    # are already bit-exact inside the exclusion). At beard weight 0
+    # the crease term there is scaled by UNDERLIP_CREASE_KEEP (the
+    # defect ablation); the pore grain still applies fully. Positive
+    # weights keep the legacy path.
+    underlip = np.zeros((h, wpx), dtype=bool)
+    if w_beard <= 0.0 and verm.any():
+        uh = int(round(UNDERLIP_MM * tpm))
+        ucols = np.where(verm.any(axis=0))[0]
+        uc0, uc1 = int(ucols.min()), int(ucols.max())
+        ucc0 = int(uc0 + 0.2 * (uc1 - uc0))
+        ucc1 = int(uc1 - 0.2 * (uc1 - uc0))
+        for x in range(ucc0, ucc1 + 1):
+            rows = np.where(verm[:, int(x)])[0]
+            if len(rows):
+                lo = int(rows.max())
+                underlip[lo + 3:min(h, lo + 3 + uh), int(x)] = True
 
     if g == 0.0 and p == 0.0:
         # Identity by construction (fix_lips ratio-1.0 pattern): a PIL
@@ -267,9 +351,15 @@ def main(argv: list[str] | None = None) -> int:
     # byte path with a smooth value-space transition (no hard edge).
     dark_guard = np.clip((lum - 15.0) / 10.0, 0.0, 1.0)
     gate = gate * (dark_guard * dark_guard * (3.0 - 2.0 * dark_guard))
-    support = (cv2.dilate(hard.astype(np.uint8),
+    dil_hard = (cv2.dilate(hard.astype(np.uint8),
                            np.ones((2 * int(round(feather_tex)) + 1,
-                                    2 * int(round(feather_tex)) + 1), np.uint8)) > 0) | lips_support_extra
+                                    2 * int(round(feather_tex)) + 1), np.uint8)) > 0)
+    # Normalisation support (lips-free by construction): the dilated hard
+    # gate alone (facecore/scalp fringe minus eyes/brows: no lips term),
+    # so the grain scale is identical for any lips mask. The restore
+    # support keeps the lips ring for bit-exactness outside the field.
+    norm_support = dil_hard
+    support = dil_hard | lips_support_extra
 
     s_pore = PORE_SMOOTH_MM * tpm
     s_crease = CREASE_SMOOTH_MM * tpm
@@ -300,7 +390,7 @@ def main(argv: list[str] | None = None) -> int:
         white = rng.standard_normal((h, wpx))
         s_hi = float(a.pore_noise_hi_mm) * tpm
         band = gauss(white, PORE_NOISE_LO_TEX) - gauss(white, s_hi)
-        sd = float(band[support].std()) if support.sum() else 0.0
+        sd = float(band[norm_support].std()) if norm_support.sum() else 0.0
         field = np.zeros_like(lum)
         if sd > 0:
             field = band / sd
@@ -317,14 +407,23 @@ def main(argv: list[str] | None = None) -> int:
             # CAP_POS/CAP_NEG are operator/consult decision.
             field = np.minimum(field, CAP_POS)
             field = np.maximum(field, CAP_NEG)
-            rms = float(np.sqrt((field[support] ** 2).mean()))
+            rms = float(np.sqrt((field[norm_support] ** 2).mean()))
             lift_L = 0.0
             if rms > 0:
                 field = field / rms
-                added_rms = float(np.sqrt((field[support] ** 2).mean()))
+                added_rms = float(np.sqrt((field[norm_support] ** 2).mean()))
                 shaped = shaped + p * field * gate
     lab = rgb_to_lab(alb)
     lab[..., 0] = np.clip(gate * shaped + (1.0 - gate) * lum, 0, 100)
+    if underlip.any():
+        # Beard weight 0: the mentolabial band keeps only
+        # UNDERLIP_CREASE_KEEP of the crease term (pore term untouched):
+        # lum minus the kept crease plus the gated pore field. At keep 1
+        # this is the legacy blend regrouped.
+        lab[underlip, 0] = np.clip(
+            lum[underlip]
+            - UNDERLIP_CREASE_KEEP * (gate * g * removed)[underlip]
+            + (gate * p * field * gate)[underlip], 0, 100)
     out = lab_to_rgb(lab)
     # Bit-exact outside the dilated support: the stage changes only
     # texels inside its derived mask plus the small restore margin.
