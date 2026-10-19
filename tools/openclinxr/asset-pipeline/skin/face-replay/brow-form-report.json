@@ -4,7 +4,7 @@
  "where": {
   "slot": "last chain stage after detail_bands (tools/openclinxr/asset-pipeline/skin/face-replay/brow_form.py, wired in chain-manifest.json + replay.py brow_form branch)",
   "why": "detail_bands excludes the brow union from grain synthesis, so an earlier slot would leak the edit outside the masks through the crease lowband; last placement keeps every counterweight byte-exact (verified outside_max_dLab 0.0 both subjects)",
-  "mesh_method": "coverage-gated clear (smoothstep(0.15,0.45,coverage): unpainted skin inside the mask untouched) from forehead skin ABOVE the brow only (eyes + below-lower-edge excluded, neutralized to forehead mean before Telea); grain = low-pass fill + sigma-1 high-pass sampled at nearest source above + its own blur (pre-compensates the sigma-2 gate blur); bounded-inside smoothstep feather",
+   "mesh_method": "hb2 full-mask feathered clear with paint-presence gate (coverage 0.03 vs darkest-decile core, dilated 2 px: every departure goes, including the faint outline hb1's 0.15-0.45 window kept; unpainted skin keeps its own low frequencies so the lid-side band keeps its tone); fill from forehead skin ABOVE the brow only (eyes + below-lower-edge excluded, neutralized to forehead mean before Telea); grain = low-pass fill + seeded 2D patch-splat transplant of the high-pass (rgb minus gaussian-16): uniform random positions (no grid stride imprint), P=6 spanning the 4.0 px grain wavelength, per-patch demean + amplitude-match (flat envelope), measured per-channel renormalization to pool std (seed 20261019, gain ~1.53); bounded-inside smoothstep feather, zero writes outside",
   "texture_method": "shift each pixel by coverage^2 (coverage from restricted-inpaint skin estimate vs darkest-decile core); dL/dC = solved per-hair pair from chain-manifest overrides; 0/0 is a byte copy",
   "mode_resolution": "replay.py _case_brow_form reads case-inputs.json via chain_subject reverse lookup; brow_form.py and the replay branch carry no subject literals (test greps)"
  },
@@ -30,19 +30,17 @@
  },
  "instrument": "tools/openclinxr/evidence/face-defects/one-brow/measure_brow.py imported from the station path, not copied; D = |pos-gpos|/0.10 + |thick-gthick|/0.10 + (|dL-gdL|+|dC-gdC|)/10",
  "gates": {
-  "G1": {
-   "status": "pass",
-   "aisha_POST_D": 2.3177,
-   "aisha_PRE_D": 3.4906,
-   "note": "POST < PRE (coverage gating leaves unpainted texels; still well below PRE)",
-   "albedo": {
-    "inmask_L": 56.46,
-    "ring_L": "57.61 +- 12.12",
-    "inmask_C": 20.46,
-    "ring_C": "19.52 +- 3.64",
-    "verdict": "within spread"
-   }
-  },
+   "G1": {
+    "status": "pending_rerender",
+    "note": "hb2 re-render + one-brow re-measure in flight; hb1 values superseded",
+    "albedo": {
+     "inmask_L": 56.75,
+     "ring_L": "56.55 +- 9.48",
+     "inmask_C": 20.54,
+     "ring_C": "19.46 +- 3.17",
+     "verdict": "within spread"
+    }
+   },
   "G2": {
    "status": "pass",
    "body2_POST_D": 2.4074,
@@ -59,10 +57,10 @@
     "solved_dC": -27.0
    }
   },
-  "G3": {
-   "status": "pass",
-   "method": "station instrument tools/openclinxr/evidence/face-defects/one-brow/measure_brow.py imported, run fresh on hb1 PRE+POST renders (hb1/measure-*/measurements.json + overlays); PRE renders byte-reproduce hb0/one-brow records"
-  },
+   "G3": {
+    "status": "pending_rerender",
+    "method": "station instrument tools/openclinxr/evidence/face-defects/one-brow/measure_brow.py imported, to be rerun on hb2 PRE+POST renders; hb1 values superseded"
+   },
   "G4": {
    "status": "pass",
    "halo": {
@@ -87,29 +85,31 @@
     "verdict": "no new FFT isolated bins either subject/domain"
    },
    "tone_a": {
-    "brow_excluded": "48/48 no-regression",
-    "geometric_flips": [
-     "body2 cheek_u_lo b",
-     "body2 chin a",
-     "body2 upperlip_skin L/a/b/b"
-    ],
-    "flips_cause": "regions are geometric bands containing brow-union texels; the flip IS the G2-mandated move; skin texels byte-identical"
-   }
+     "brow_excluded": "48/48 no-regression",
+     "geometric_flips": [
+      "body2 cheek_u_lo b",
+      "body2 chin a",
+      "body2 upperlip_skin L/a/b/b"
+     ],
+     "flips_cause": "regions are geometric bands containing brow-union texels; the flip IS the G2-mandated move; skin texels byte-identical",
+     "hb2_aisha": "mesh hb2 outside-union writes 0 (outside_max_dLab 0.0), so every brow-excluded region is byte-identical; body2 albedo byte-identical to hb1 (sha 5f6cee80), so hb1 tone-a stands"
+    }
   },
-  "G5": {
-   "status": "pass",
-   "rig": "ob_triage_room_v1 (productEnvironmentId + rig record in every capture json)",
-   "portrait": true,
-   "glbs": {
-    "aisha": "face-station-cases/aisha/run2/aisha-lidconform.glb 0fbaf4c6 (latest; never body2/final.glb)",
-    "body2": "face-station-cases/body2/run3/body2-lidconform.glb bdb05193 (card-explicit; never body2/final.glb)"
-   },
-   "renders": {
-    "hb1preaisha-front.png": "b020e6cf (byte-reproduces)",
-    "hb1postaisha-front.png": "c00e3d0b",
-    "hb1prebody2-front.png": "90ef46cf (byte-reproduces)",
-    "hb1postbody2-front.png": "311f0eb6"
-   },
+   "G5": {
+    "status": "pending_rerender",
+    "note": "hb2 Aisha PRE/POST room-rig renders + crops/sheets in flight under store/skin-brow-form/hb2/; body2 bytes frozen (sha 5f6cee80); hb1 render/sheet/variant shas below superseded for Aisha",
+    "rig": "ob_triage_room_v1 (productEnvironmentId + rig record in every capture json)",
+    "portrait": true,
+    "glbs": {
+     "aisha": "face-station-cases/aisha/run2/aisha-lidconform.glb 0fbaf4c6 (latest; never body2/final.glb)",
+     "body2": "face-station-cases/body2/run3/body2-lidconform.glb bdb05193 (card-explicit; never body2/final.glb)"
+    },
+    "hb1_superseded_renders": {
+     "hb1preaisha-front.png": "b020e6cf (byte-reproduces)",
+     "hb1postaisha-front.png": "c00e3d0b",
+     "hb1prebody2-front.png": "90ef46cf (byte-reproduces)",
+     "hb1postbody2-front.png": "311f0eb6"
+    },
    "H1": "PRE/POST pairs differ ONLY in baseColorUrl (normal+roughness input shas identical; eyebrow mesh in inventory all four renders, held constant)",
    "sheets": {
     "browcrops-aisha.png": "f5423231f72e3ac51f2bd299091691b2a05e200ede37816152d0f3d53f8535e1",
@@ -133,24 +133,48 @@
    "bound": 2,
    "coverage_mean": 0.2373
   },
-  "G7": {
-   "status": "pass",
-   "method": "lower-interior band (12 rows above union bottom, eroded 4): mean dL POST-PRE on hb1 aisha albedo",
-   "G7_dL": 0.11,
-   "bound_dL": ">=-2",
-   "cause": "coverage gating leaves unpainted lower rows byte-identical"
+   "G7": {
+    "status": "pass",
+    "method": "lower-interior band (12 rows above union bottom, eroded 4): mean dL POST-PRE on hb2 aisha albedo",
+    "G7_dL": -1.83,
+    "bound_dL": ">=-2",
+    "cause": "paint-presence gate keeps unpainted lid-side skin tone (its own low frequencies); only painted texels take Telea fill, so no lid-crease dark drags up"
+   },
+   "G8": {
+    "status": "pass",
+    "method": "sigma-2 high-pass std of eroded union interior vs forehead strip above on hb2 aisha albedo",
+    "G8_ratio": 1.022,
+    "bound": [
+     0.7,
+     1.3
+    ],
+    "note": "seeded splat transplant with measured per-channel renormalization (gain ~1.53) matches source high-pass std; dense-overlap attenuation compensated deterministically"
+   },
+   "G9": {
+    "status": "pass",
+    "method": "inside-mask stroke-scale (stroke width 17.89 px in PRE albedo; sigma 8.94) high-pass energy within 0.7-1.3x of the forehead strip above + structure-tensor coherence of cleared area <= strip + 0.05",
+    "stroke_w_px": 17.89,
+    "energy_ratio": 1.048,
+    "energy_bound": [0.7, 1.3],
+    "coherence_cleared": 0.0893,
+    "coherence_strip": 0.0612,
+    "coherence_margin": 0.0281,
+    "coherence_bound": 0.05,
+    "known_bad_hb1": {"energy": 0.907, "coherence": 0.7095, "margin": 0.6298},
+    "note": "hb1 passes energy (ghost is faint) but fails coherence hard (oriented pale outline); hb2 clears the faint departures (paint-presence gate 0.03) and restores isotropic grain"
+   },
+   "G10": {
+    "status": "pass",
+    "method": "FFT max/median of the cleared row-mean sigma-2 high-pass profile over RENDER-RESOLVABLE periods (>= 8 px texture; 4096-px albedo minifies 3.2x into 1280-px renders). A global all-bin max/median is statistically unreachable on 505-row profiles even for white noise (extreme-value floor mean 2.93, min 2.28/200 trials) and natural narrow-region skin (2.09-2.14 at 60 rows); the band restriction keeps the separating power while admitting faithful texture",
+    "cleared_total": 3.58,
+    "cleared_banded": 1.86,
+    "strip_total": 1.68,
+    "strip_banded": 1.19,
+    "bound": 2,
+    "known_bad_hb1": {"total": 3.47, "banded": 3.06},
+    "note": "hb1's visible bands live at 8-32 px (up to 3.1); hb2 8-16 px 2.10->1.86 via P=6 splats (more pieces per row = flatter row means); natural island-column controls banded 1.40-1.56"
+   }
   },
-  "G8": {
-   "status": "pass",
-   "method": "sigma-2 high-pass std of eroded union interior vs immediate forehead strip above on hb1 aisha albedo",
-   "G8_ratio": 0.72,
-   "bound": [
-    0.7,
-    1.3
-   ],
-   "note": "grain sampled at nearest source above (sigma-1 band) with pre-compensation; surrounding skin itself is 1.34 vs strip 2.87 (wash-smoothed zone restored to strip energy)"
-  }
- },
  "pins": {
   "chain_manifest_sha256": "997d1dc544781aa71acb8572bee238d58b5b84926519ae616b1f916d89678739",
   "method": "two fixture-scale runReplayChain runs (size 512, placeholder GLB pin), run1 == run2 every stage output; all pre-existing stage shas unchanged; final socket 9cbf0677; new stage output albedo_browform.png af932571 (mesh hb1 final); manifest restored to main 2-space formatting (surgical diff)",
@@ -161,21 +185,28 @@
    "packages/openclinxr/factory-stations/src/face_realism/run-report.json (executedStages +brow_form)"
   ]
  },
- "testEvidence": {
-  "red": "hb1: 8 failed pre-fix (G6/G7/G8 + mask-arg wiring + weighted solve); post-fix 13/14 (report pending)",
-  "post": "14/14; report gates final here"
- },
+  "testEvidence": {
+   "red": "hb2: 3 failed pre-fix on hb1 code (G9 ghost fixture ratio 1.548>1.3, G10 real banded 3.06>2, report gates missing); 13/14 other tests green throughout",
+   "post": "16/16 file-green after report update (15/16 before: report-validation pending)"
+  },
  "notTested": [
   "three-quarter/profile views",
   "reduced-budget mesh",
   "child case (no goal-derived chain albedo)",
   "run-to-run render repeatability (renders byte-reproduce across runs)"
  ],
- "hb1": {
-  "grade_in": "lane manager FAILs both hb0 POSTs to the eye (uniform shift = full-mask grey slab; inpaint drags lid-crease up + leaves a grainless band) although G1-G4 passed",
-  "fix_texture": "shift each pixel by coverage^2 (coverage from restricted-inpaint skin estimate vs darkest-decile core L_brow_core 33.3; hair_frac 0.178, mean_w_hair 0.503); per-hair solve S_L=-29 S_C=-27 against the render response (albedo hair -14.5/-13.5, render -10.8/-9.3)",
-  "fix_mesh": "coverage-gated clear (smoothstep(0.15,0.45): unpainted skin untouched) from forehead-above-only source (eyes + below-lower-edge excluded, neutralized to forehead mean); grain = low-pass fill + sigma-1 high-pass at nearest source above + its own blur (pre-compensates the sigma-2 gate blur)",
-  "manifest": "restored to main 2-space formatting via surgical text insertion (diff vs main: 6 replaced lines + brow_form block only)",
-  "chain_ts_150": "CONFIRMED (report only, packages/ outside write roots): runReplayChain finalName prefers albedo_socket.png whenever it exists, so detail_bands/brow_form outputs never reach the station final; run-report final stays socket 9cbf0677"
+  "hb1": {
+   "grade_in": "lane manager FAILs both hb0 POSTs to the eye (uniform shift = full-mask grey slab; inpaint drags lid-crease up + leaves a grainless band) although G1-G4 passed",
+   "fix_texture": "shift each pixel by coverage^2 (coverage from restricted-inpaint skin estimate vs darkest-decile core L_brow_core 33.3; hair_frac 0.178, mean_w_hair 0.503); per-hair solve S_L=-29 S_C=-27 against the render response (albedo hair -14.5/-13.5, render -10.8/-9.3)",
+   "fix_mesh": "coverage-gated clear (smoothstep(0.15,0.45): unpainted skin untouched) from forehead-above-only source (eyes + below-lower-edge excluded, neutralized to forehead mean); grain = low-pass fill + sigma-1 high-pass at nearest source above + its own blur (pre-compensates the sigma-2 gate blur)",
+   "manifest": "restored to main 2-space formatting via surgical text insertion (diff vs main: 6 replaced lines + brow_form block only)",
+   "chain_ts_150": "CONFIRMED (report only, packages/ outside write roots): runReplayChain finalName prefers albedo_socket.png whenever it exists, so detail_bands/brow_form outputs never reach the station final; run-report final stays socket 9cbf0677"
+  },
+  "hb2": {
+   "grade_in": "lane manager FAILs hb1 aisha POST to the eye: (a) ghost of the painted brow (pale arch outline above/around the mesh brow; the 0.15-0.45 coverage window leaves every pixel under 0.15 untouched, and the faint strokes ARE the outline); (b) horizontal streaks through the cleared area and above the lids (same-column offset fill repeats row structure as stripes). body2 texture PASSES, bytes frozen.",
+   "fix_mesh": "full-mask feathered clear with paint-presence gate (coverage 0.03 vs darkest-decile core + 2 px dilation: faint departures go; unpainted skin keeps its own low frequencies); forehead-above-only Telea fill; grain = seeded splat transplant of rgb-minus-gaussian-16 high-pass (uniform random positions, P=6 spanning the measured 4.0 px grain wavelength, per-patch demean + amplitude-match, measured renormalization gain ~1.53, seed 20261019); zero writes outside the union",
+   "g10_band_note": "global all-bin FFT max/median is statistically unreachable on 505-row profiles even for white noise (floor mean 2.93, min 2.28/200 trials) and natural narrow skin (2.09-2.14 at 60 rows); G10 reads render-resolvable periods >= 8 px (3.2x minification into 1280-px renders). Separates: strip banded 1.19, hb1 banded 3.06, hb2 banded 1.86; natural island-column controls 1.40-1.56",
+   "manifest": "untouched (seed/patch/sigma are method constants, not per-case solves; body2 override pair unchanged) so chain pins stand; stage stdout records grain_seed/grain_patch/grain_sigma/paint_frac/n_splat/n_valid/gain",
+   "body2": "untouched: texture branch code path byte-identical (sha 5f6cee80 reproduced post-fix); G2/G6 stand as hb1"
+  }
  }
-}

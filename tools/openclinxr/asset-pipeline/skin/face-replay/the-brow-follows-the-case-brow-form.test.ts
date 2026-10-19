@@ -360,6 +360,181 @@ describe("the brow follows the case brow_form: G6/G7/G8 counterweights", () => {
   }, 120000);
 });
 
+describe("the brow follows the case brow_form: G9/G10 no ghost, no stripes (hb2)", () => {
+  /** Ghost fixture: strong paint plus a FAINT arch outline (coverage < 0.15,
+   * which the hb1 coverage window leaves untouched) under a full brow mask. */
+  function stageGhostFixture(tmp: string): { albedo: string; maskL: string; maskR: string; facecore: string; eyesL: string; eyesR: string } {
+    const albedo = path.join(tmp, "albedo.png");
+    const maskL = path.join(tmp, "mask-brows-L.png");
+    const maskR = path.join(tmp, "mask-brows-R.png");
+    const facecore = path.join(tmp, "mask-facecore.png");
+    const eyesL = path.join(tmp, "mask-eyes-L.png");
+    const eyesR = path.join(tmp, "mask-eyes-R.png");
+    pyMeasure([
+      "import numpy as np",
+      "from PIL import Image",
+      `S=256`,
+      "rng=np.random.default_rng(11)",
+      `a=(np.ones((S,S,3))*[168,128,110])+rng.normal(0,3.5,size=(S,S,3))`,
+      "a=np.clip(a,0,255)",
+      "a[96:116,60:150]=[150,60,40]",
+      "a[96:116,196:200]=[150,60,40]",
+      "faint=np.zeros((S,S),bool); faint[84:96,60:200]=True; faint[116:132,60:200]=True",
+      "a[faint]=np.clip(a[faint]-[6,3,2],0,255)",
+      "a[150:165,40:220]=[60,40,38]",
+      "a=np.clip(a,0,255).astype(np.uint8)",
+      `Image.fromarray(a).save(${JSON.stringify(albedo)})`,
+      `mL=np.zeros((S,S),np.uint8); mL[84:132,60:200]=255`,
+      `Image.fromarray(mL).save(${JSON.stringify(maskL)})`,
+      `mR=np.zeros((S,S),np.uint8)`,
+      `Image.fromarray(mR).save(${JSON.stringify(maskR)})`,
+      `fc=np.ones((S,S),np.uint8)*255`,
+      `Image.fromarray(fc).save(${JSON.stringify(facecore)})`,
+      `eL=np.zeros((S,S),np.uint8); eL[145:170,40:220]=255`,
+      `Image.fromarray(eL).save(${JSON.stringify(eyesL)})`,
+      `eR=np.zeros((S,S),np.uint8)`,
+      `Image.fromarray(eR).save(${JSON.stringify(eyesR)})`,
+    ]);
+    return { albedo, maskL, maskR, facecore, eyesL, eyesR };
+  }
+
+  const G9_HEAD = [
+    "import numpy as np, json",
+    "from PIL import Image",
+    "from scipy import ndimage",
+    "from skimage.color import rgb2lab",
+  ];
+  const G9_TAIL = [
+    "u=(mL|mR)",
+    "ys,xs=np.where(u); top,bottom=int(ys.min()),int(ys.max()); H=bottom-top+1",
+    // Erosion clears the feather ramp (stage feather is 6 px): the ramp
+    // legitimately keeps diminishing paint, so the ghost/coherence read must
+    // start past it.
+    "erode=max(2,min(8,H//6)); gap=max(2,H//60)",
+    "strip=np.zeros_like(u); s1=max(0,top-gap-H); s0=max(0,top-gap); strip[s1:s0,:]=True",
+    "strip&=fc; strip&=~ndimage.binary_dilation(u,iterations=gap)",
+    "interior=ndimage.binary_erosion(u,iterations=erode)",
+    "Lp=rgb2lab(pre)[:,:,0]; Lc=rgb2lab(post)[:,:,0]",
+    "skin_med=float(np.median(Lp[strip]))",
+    "painted=u&(Lp<skin_med-8.0)",
+    "stroke_w=float(2.0*np.median(ndimage.distance_transform_edt(painted)[painted])) if painted.any() else 0.0",
+    "sig=max(1.5,stroke_w/2.0)",
+    "bp_pre=Lp-ndimage.gaussian_filter(Lp,sig); bp_post=Lc-ndimage.gaussian_filter(Lc,sig)",
+    "ratio=float(bp_post[interior].std()/bp_pre[strip].std())",
+    "def coh(L):",
+    " gx=ndimage.sobel(L,axis=1); gy=ndimage.sobel(L,axis=0)",
+    " Jxx=ndimage.gaussian_filter(gx*gx,sig); Jyy=ndimage.gaussian_filter(gy*gy,sig); Jxy=ndimage.gaussian_filter(gx*gy,sig)",
+    " return np.sqrt((Jxx-Jyy)**2+4*Jxy**2)/(Jxx+Jyy+1e-9)",
+    "margin=float(coh(Lc)[interior].mean()-coh(Lp)[strip].mean())",
+    "print(json.dumps({'stroke_w':stroke_w,'ratio':ratio,'margin':margin,'H':H,'skin_med':skin_med,'paint_frac':float(painted.sum()/u.sum()),'n_interior':int(interior.sum()),'n_strip':int(strip.sum())}))",
+  ];
+
+  function g9Stats(pre: string, post: string, maskL: string, maskR: string, facecore: string): { stroke_w: number; ratio: number; margin: number; H: number; skin_med: number; paint_frac: number; n_interior: number; n_strip: number } {
+    const lines = [
+      ...G9_HEAD,
+      `pre=np.array(Image.open(${JSON.stringify(pre)}).convert('RGB')).astype(float)/255.0`,
+      `post=np.array(Image.open(${JSON.stringify(post)}).convert('RGB')).astype(float)/255.0`,
+      `mL=np.array(Image.open(${JSON.stringify(maskL)}).convert('L'))>127`,
+      `mR=np.array(Image.open(${JSON.stringify(maskR)}).convert('L'))>127`,
+      `fc=np.array(Image.open(${JSON.stringify(facecore)}).convert('L'))>127`,
+      ...G9_TAIL,
+    ];
+    return JSON.parse(pyMeasure(lines)) as { stroke_w: number; ratio: number; margin: number; H: number; skin_med: number; paint_frac: number; n_interior: number; n_strip: number };
+  }
+
+  const G10_TAIL = [
+    "u=(mL|mR)",
+    "ys,xs=np.where(u); top,bottom=int(ys.min()),int(ys.max()); H=bottom-top+1",
+    "erode=max(2,min(8,H//6)); gap=max(2,H//60)",
+    "strip=np.zeros_like(u); s1=max(0,top-gap-H); s0=max(0,top-gap); strip[s1:s0,:]=True",
+    "strip&=fc; strip&=~ndimage.binary_dilation(u,iterations=gap)",
+    "interior=ndimage.binary_erosion(u,iterations=erode)",
+    "Lp=rgb2lab(pre)[:,:,0]; Lc=rgb2lab(post)[:,:,0]",
+    // G10 reads the FFT max over RENDER-RESOLVABLE periods (>= 8 px texture:
+    // the 4096-px albedo minifies 3.2x into 1280-px renders, so finer periods
+    // alias away and the visible stripes live at >= 8 px). A global all-bin
+    // max/median is statistically unreachable on 505-row profiles even for
+    // white noise (extreme-value floor mean 2.93, min 2.28/200 trials) and
+    // for natural narrow-region skin (2.09-2.14 at 60 rows); the band
+    // restriction keeps the gate's separating power (the reference strip
+    // passes, the hb1 output fails) while admitting faithful texture.
+    // Totals print for transparency.
+    "def rowfft(L,region):",
+    " hp=L-ndimage.gaussian_filter(L,2)",
+    " rys=sorted(set(np.where(region)[0]))",
+    " p=np.array([hp[y,region[y]].mean() for y in rys]); p=p-p.mean()",
+    " spec=np.abs(np.fft.rfft(p))[1:]; n=len(p)",
+    " per=n/(np.arange(len(spec))+1)",
+    " vis=per>=8",
+    " return float(spec.max()/np.median(spec)),float(spec[vis].max()/np.median(spec)),int(n)",
+    "tc,vc,nc=rowfft(Lc,interior); ts,vs,ns=rowfft(Lp,strip)",
+    "print(json.dumps({'cleared_total':tc,'cleared':vc,'n_cleared':nc,'strip_total':ts,'strip':vs,'n_strip':ns}))",
+  ];
+
+  function g10Stats(pre: string, post: string, maskL: string, maskR: string, facecore: string): { cleared_total: number; cleared: number; n_cleared: number; strip_total: number; strip: number; n_strip: number } {
+    const lines = [
+      ...G9_HEAD,
+      `pre=np.array(Image.open(${JSON.stringify(pre)}).convert('RGB')).astype(float)/255.0`,
+      `post=np.array(Image.open(${JSON.stringify(post)}).convert('RGB')).astype(float)/255.0`,
+      `mL=np.array(Image.open(${JSON.stringify(maskL)}).convert('L'))>127`,
+      `mR=np.array(Image.open(${JSON.stringify(maskR)}).convert('L'))>127`,
+      `fc=np.array(Image.open(${JSON.stringify(facecore)}).convert('L'))>127`,
+      ...G10_TAIL,
+    ];
+    return JSON.parse(pyMeasure(lines)) as { cleared_total: number; cleared: number; n_cleared: number; strip_total: number; strip: number; n_strip: number };
+  }
+
+  function runMesh(tmp: string, fix: { albedo: string; maskL: string; maskR: string; facecore: string; eyesL: string; eyesR: string }): { out: string; stdout: string } {
+    const out = path.join(tmp, "mesh.png");
+    const stdout = execFileSync("python3", [SCRIPT, fix.albedo, out,
+      "--brows-mask-L", fix.maskL, "--brows-mask-R", fix.maskR,
+      "--facecore-mask", fix.facecore,
+      "--eyes-mask-L", fix.eyesL, "--eyes-mask-R", fix.eyesR,
+      "--brow-form", "mesh"], { encoding: "utf8" });
+    return { out, stdout };
+  }
+
+  it("G9: a faint painted outline under the full mask leaves no ghost", () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "brow-g9-"));
+    const fix = stageGhostFixture(tmp);
+    const { out, stdout } = runMesh(tmp, fix);
+    const info = JSON.parse(stdout.match(/\{[\s\S]*\}/)![0]!) as { outside_max_dLab: number };
+    expect(info.outside_max_dLab).toBe(0);
+    const g9 = g9Stats(fix.albedo, out, fix.maskL, fix.maskR, fix.facecore);
+    expect(g9.stroke_w).toBeGreaterThan(0); // painted strokes present in PRE
+    // Stroke-scale high-pass energy matches the forehead strip (ghost gone).
+    expect(g9.ratio).toBeGreaterThanOrEqual(0.7);
+    expect(g9.ratio).toBeLessThanOrEqual(1.3);
+    // No oriented structure left behind.
+    expect(g9.margin).toBeLessThanOrEqual(0.05);
+    const edge = maxDLabOutside(fix.albedo, out, fix.maskL, fix.maskR);
+    expect(edge.haloFrac).toBeLessThanOrEqual(0.10);
+  }, 120000);
+
+  it("G10: the cleared row-mean profile has no periodic peak at visible periods (real brow inputs)", () => {
+    const store = "/Volumes/files/openclinxr-assets/store";
+    const pre = `${store}/skin-wrinkle-scale/albedo_detail_aisha_post10.png`;
+    const deriv = `${store}/face-station-cases/aisha/run2/derive_out`;
+    const maskL = `${deriv}/mask-brows-L.png`;
+    const maskR = `${deriv}/mask-brows-R.png`;
+    const facecore = `${deriv}/mask-facecore.png`;
+    const eyesL = `${deriv}/mask-eyes-L.png`;
+    const eyesR = `${deriv}/mask-eyes-R.png`;
+    for (const p of [pre, maskL, maskR, facecore, eyesL, eyesR]) {
+      if (!fs.existsSync(p)) return;
+    }
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "brow-g10-"));
+    const { out, stdout } = runMesh(tmp, { albedo: pre, maskL, maskR, facecore, eyesL, eyesR });
+    const info = JSON.parse(stdout.match(/\{[\s\S]*\}/)![0]!) as { outside_max_dLab: number };
+    expect(info.outside_max_dLab).toBe(0);
+    const g10 = g10Stats(pre, out, maskL, maskR, facecore);
+    expect(g10.n_cleared).toBeGreaterThan(30);
+    expect(g10.n_strip).toBeGreaterThan(30);
+    expect(g10.strip).toBeLessThanOrEqual(2); // known-good reference passes
+    expect(g10.cleared).toBeLessThanOrEqual(2); // no visible stripes
+  }, 600000);
+});
+
 describe("the brow follows the case brow_form: report validates", () => {
   it("brow-form-report.json names the card, per-case values, and gate table", () => {
     const r = loadJson(REPORT) as {
@@ -369,7 +544,7 @@ describe("the brow follows the case brow_form: report validates", () => {
     expect(r.card).toBe("tsk_b438966217dd814e");
     expect(r.values?.["aisha"]?.mode).toBe("mesh");
     expect(r.values?.["body2"]?.mode).toBe("texture");
-    for (const g of ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8"]) expect(r.gates?.[g], g).toBeDefined();
+    for (const g of ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8", "G9", "G10"]) expect(r.gates?.[g], g).toBeDefined();
   });
 
   it("report mode values match case-inputs.json brow_form", () => {
