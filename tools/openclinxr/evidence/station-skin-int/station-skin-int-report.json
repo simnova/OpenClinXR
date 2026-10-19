@@ -232,11 +232,12 @@
    "details": {
     "note": "render-only refused peds_asthma_parent_anxiety_v1 (no completed run): aisha+body2 renders completed first; peds out of scope (same absent as G4)",
     "options": "face-regression render path (render.ts, same options check.ts uses): views [0, 25] (render.ts:184)",
-    "runIds": {
-     "aisha": "run4",
-     "body2": "run7"
-    }
+   "runIds": {
+    "aisha": "run4",
+    "body2": "run7"
    },
+   "seed2": "H2 re-seed on the noise runs (run11/run14, inputs re-hashed ok): store/face-regression/runs/tsk_3dc1802d0ca2b36c/seed-station-skin-2/render/{aisha,body2}/face-regression-{case}-{front,yaw25}.png, shas a226a094 (aisha front), 90e5da6a (aisha yaw25), c9651821 (body2 front), ae65332f (body2 yaw25)"
+  },
    "renders": [
     {
      "case": "aisha",
