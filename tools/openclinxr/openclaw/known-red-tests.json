@@ -280,6 +280,11 @@
       "path": "packages/openclinxr/data-mongodb/src/api-persistence-sink.integration.test.ts",
       "reason": "1 of 29 fails on main 4773a5bda (2026-10-08) and earlier on 3bbfe0711 without the shrink-a change: 'replays scenario review decisions after API app recreation' gets GraphQL errors instead of data, the same review-gate authoredContentIdentity refusal recorded for the review-route evidence probes.",
       "card": "unfiled: supply authoredContentIdentity evidence in the review-route probes, or record why the gate refuses them"
+    },
+    {
+      "path": "tools/openclinxr/evidence/face-regression/the-face-regression-check-fails-on-undeclared-change.test.ts",
+      "reason": "Planted RED for card tsk_0e618fa5e9ac3e15 STEP 2: the whole-face regression check is unimplemented. The module under tools/openclinxr/evidence/face-regression/src/ carries throwing stubs so the import resolves (knip rules.unresolved) while the contract fails 8/8. Removed in the STEP 4 GREEN commit that implements the check.",
+      "card": "tsk_0e618fa5e9ac3e15"
     }
   ]
 }
