@@ -63,6 +63,8 @@ const DIST_FILES = [
   "packages/openclinxr/xr-humanoid-animation/dist/stepping-turn-plan-mod.js",
   "packages/openclinxr/xr-humanoid-animation/dist/stepping-turn-execution-mod.js",
   "packages/openclinxr/xr-humanoid-animation/dist/station-bedside-approach-mod.js",
+  "packages/openclinxr/xr-humanoid-animation/dist/foot-base-knee-budget-mod.js",
+  "packages/openclinxr/xr-humanoid-animation/dist/foot-base-stride-retarget-mod.js",
 ];
 const DIST_MARKER = "__openClinXrBedsideApproachEvidence";
 
@@ -165,6 +167,29 @@ type FrameProbe = {
   heelContactR: Vec3 | null;
   /** S2: executor walking-call index (fixed-clock substep datum); null on old builds. */
   walkSimSubsteps: number | null;
+  /**
+   * Heel-strike slice (2026-10-18): foot/toe-bone LOCAL quaternions per frame
+   * for the H6 quaternion-norm gate, read by a SEPARATE evaluate
+   * (FOOT_QUAT_PROBE_SOURCE below) so the verbatim PROBE_SOURCE copy above
+   * never diverges. Null on old captures.
+   */
+  footQuatL: Quat | null;
+  footQuatR: Quat | null;
+  toeQuatL: Quat | null;
+  toeQuatR: Quat | null;
+  /**
+   * Heel-strike slice (2026-10-18): last cap decision mirrored from
+   * heel-strike-cap-mod (calls/fired/ease/pitch), null on old builds.
+   */
+  capDbg: {
+    calls: number;
+    fired: number;
+    ease: number | null;
+    schedEase: number | null;
+    geomEase: number | null;
+    pitch: number | null;
+    toeAboveBandM: number | null;
+  } | null;
   /** S2: knee flexion degrees per side, for the amplitude counterweight; null on old builds. */
   kneeFlexionDeg: { left: number | null; right: number | null } | null;
   /** Walk-start rest toe separation (world m); null on old builds / before the walk. */
@@ -183,6 +208,7 @@ const PROBE_SOURCE = `
   const samples = ev && ev.samples ? ev.samples : [];
   const tail = samples.length ? samples[samples.length - 1] : null;
   const scene = globalThis.__openClinXrDebugScene;
+  if (scene && typeof scene.updateMatrixWorld === "function") scene.updateMatrixWorld();
   let clipTime = null;
   let upperL = null, upperR = null, footYawL = null, footYawR = null;
   let legBones = null, legWorlds = null, headYaw = null;
@@ -332,6 +358,7 @@ function standingPitchProbeSource(actor: CaptureActor): string {
   const none = { heelContactL: null, heelContactR: null };
   const scene = globalThis.__openClinXrDebugScene;
   if (!scene) return none;
+  if (typeof scene.updateMatrixWorld === "function") scene.updateMatrixWorld();
   const ev = globalThis.__openClinXrBedsideApproachEvidence || null;
   const actorId = ev ? ev.physicianActorId : null;
   let physRoot = null;
@@ -427,13 +454,77 @@ async function probe(page: Page, actor: CaptureActor): Promise<FrameProbe> {
   } catch {
     /* contact stays null; the tail still records */
   }
+  // Heel-strike additive read (same discipline: never lose the tail).
+  let quats: {
+    footQuatL: Quat | null;
+    footQuatR: Quat | null;
+    toeQuatL: Quat | null;
+    toeQuatR: Quat | null;
+    capDbg: FrameProbe["capDbg"];
+  } = {
+    footQuatL: null,
+    footQuatR: null,
+    toeQuatL: null,
+    toeQuatR: null,
+    capDbg: null,
+  };
+  try {
+    const read = (await page.evaluate(FOOT_QUAT_PROBE_SOURCE)) as typeof quats;
+    if (read && typeof read === "object") quats = { ...quats, ...read };
+  } catch {
+    /* quats stay null; the tail still records */
+  }
   return {
     ...tail,
     heelContactL: tail.heelContactL ?? heel.heelContactL,
     heelContactR: tail.heelContactR ?? heel.heelContactR,
+    footQuatL: tail.footQuatL ?? quats.footQuatL,
+    footQuatR: tail.footQuatR ?? quats.footQuatR,
+    toeQuatL: tail.toeQuatL ?? quats.toeQuatL,
+    toeQuatR: tail.toeQuatR ?? quats.toeQuatR,
+    capDbg: tail.capDbg ?? quats.capDbg,
     liveActors: Array.isArray(liveActors) ? liveActors : [],
   };
 }
+
+/**
+ * Heel-strike slice (2026-10-18): foot/toe-bone LOCAL quaternions for the H6
+ * norm gate. Separate evaluate (see FrameProbe): local quaternions are what
+ * the bone writers set, so |norm-1| here is the writer contract directly.
+ */
+const FOOT_QUAT_PROBE_SOURCE = `
+(() => {
+  const none = { footQuatL: null, footQuatR: null, toeQuatL: null, toeQuatR: null };
+  const scene = globalThis.__openClinXrDebugScene;
+  if (!scene) return none;
+  const ev = globalThis.__openClinXrBedsideApproachEvidence || null;
+  const actorId = ev ? ev.physicianActorId : null;
+  let physRoot = null;
+  scene.traverse((o) => {
+    if (physRoot) return;
+    const ud = o.userData || {};
+    if (actorId && ud.openClinXrActorId === actorId) {
+      let a = o;
+      while (a.parent && a.parent !== scene) a = a.parent;
+      physRoot = a;
+    }
+  });
+  if (!physRoot) return none;
+  const qOf = (a, b) => {
+    const bone = physRoot.getObjectByName(a) || physRoot.getObjectByName(b);
+    if (!bone) return null;
+    const q = bone.quaternion;
+    return q ? { x: q.x, y: q.y, z: q.z, w: q.w } : null;
+  };
+  return {
+    footQuatL: qOf("footL", "foot.L"),
+    footQuatR: qOf("footR", "foot.R"),
+    toeQuatL: qOf("toe1-1L", "toe1-1.L"),
+    toeQuatR: qOf("toe1-1R", "toe1-1.R"),
+    capDbg: globalThis.__heelStrikeCapDbg ?? null,
+  };
+})()
+`;
 
 type DistProof = Array<{ file: string; sha256: string; markerHits: number }>;
 

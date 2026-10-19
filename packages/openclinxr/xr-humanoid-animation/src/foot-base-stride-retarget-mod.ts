@@ -25,6 +25,7 @@ import {
 } from "./foot-base-state-mod.js";
 import { resolveRigFootGeometry } from "./foot-rig-geometry-mod.js";
 import { FOOTSTEP_START_PHASE_S, planFootsteps } from "./footstep-plan-schedule.js";
+import { applyPostPinHeelStrikeCap, revertHeelStrikeCapForToes } from "./heel-strike-cap-mod.js";
 import {
   findSteppingLegChain,
   heelTargetForToeTargetStable,
@@ -102,7 +103,6 @@ export {
 
 /** This slice's original route length in metres (kept for the 1.31 m record). */
 export const FOOT_BASE_ROUTE_LENGTH_M = 1.31;
-
 /** Legacy route match tolerance in metres (kept; the gate no longer uses it). */
 export const FOOT_BASE_ROUTE_TOLERANCE_M = 0.005;
 
@@ -112,10 +112,8 @@ export const FOOT_BASE_ROUTE_TOLERANCE_M = 0.005;
  */
 export const FOOT_BASE_DEFAULT_SCALE = 0.707;
 
-/** State lives in `./foot-base-state-mod.js` and the route gate in
- * `./foot-base-route-gate-mod.js` (both split out for the 500-line zone
- * budget); the gate is re-exported here so existing deep importers keep
- * working. Behaviour is unchanged. */
+/** State/state-mod, route gate/route-gate-mod (both split out for the zone
+ * budget); the gate is re-exported for deep importers. Unchanged. */
 import { footBaseStepIsActive } from "./foot-base-route-gate-mod.js";
 import { footBaseActiveFor } from "./rig-capability-gate-mod.js";
 
@@ -144,6 +142,7 @@ export function applyFootBaseStep(input: {
   clip: FootBaseClipRead | null;
 }): FootBaseStepSummary | null {
   const { approach, routeLength } = input;
+  revertHeelStrikeCapForToes([approach.leftToe, approach.rightToe]); // heel-strike: restore solver-invariant bones first (mixer re-pose makes this a no-op in production)
   if (!footBaseActiveFor(approach.actorSlot, routeLength)) return null;
   if (approach.execution.phase !== "walking" || routeLength <= 0) return null;
   // The first walking frame still holds the idle pose (the lock skips it and
@@ -472,6 +471,7 @@ export function applyFootBaseStep(input: {
     pinTargetFor, sub, scheduled, stance, pinned, swingMissM,
     unitX, unitZ, floorY,
   });
+  applyPostPinHeelStrikeCap(slot, swing, swingLinear, floorY, approach.contactBandMeters); // heel-strike: post-pin swing pitch cap + late-landing grace, stance exact
   slot.updateMatrixWorld(true);
   return { stanceFoot: stance, phase01, halfIndex, stanceMissM, swingMissM };
 }
