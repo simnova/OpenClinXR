@@ -30,6 +30,11 @@ describe("agentic-hook-runner path-scoped architecture", () => {
     // that short-circuits on a non-land commit ("not an integrate land — gate not applicable"), so
     // its presence does not weaken what this clause is for.
     expect(steps.map((step) => step.label)).toEqual([
+      // ADDED 2026-10-19 (hx-rules) and UNCONDITIONAL, same reason as the asset steps
+      // below: a big binary or .env file can arrive in a commit that does not look
+      // binary-shaped (hair-tgt2 carried 10.6 GB of npz), so the step cannot be
+      // path-scoped and must run before anything else.
+      "Large-file / .env / .bak guard",
       "Integrate gate (land path only)",
       "OpenClaw drift check",
       "Agent coordination alignment",
@@ -199,6 +204,26 @@ describe("agentic-hook-runner path-scoped architecture", () => {
       stepsForProfile("pre-commit", [
         "tools/openclinxr/evidence/scene-closure/proofs/sc-05/runtime-approach-measurement.ts",
       ]).some((s) => s.label === label),
+    ).toBe(false);
+  });
+
+  it("runs the large-file guard first on pre-commit/pre-push/strict, never on local-exam", () => {
+    const label = "Large-file / .env / .bak guard";
+    // NOT path-scoped: present even when the only changed file is PROJECT_STATUS.md.
+    for (const profile of ["pre-commit", "pre-push", "strict"] as const) {
+      const steps = stepsForProfile(profile, ["PROJECT_STATUS.md"]);
+      expect(steps[0]?.label).toBe(label);
+    }
+    const staged = stepsForProfile("pre-commit", ["PROJECT_STATUS.md"])[0]?.command;
+    expect(staged).toContain("--staged");
+    expect(staged).not.toContain("--push");
+    for (const profile of ["pre-push", "strict"] as const) {
+      const cmd = stepsForProfile(profile, ["PROJECT_STATUS.md"])[0]?.command;
+      expect(cmd).toContain("--push");
+      expect(cmd).not.toContain("--staged");
+    }
+    expect(
+      stepsForProfile("local-exam", ["PROJECT_STATUS.md"]).some((s) => s.label === label),
     ).toBe(false);
   });
 });

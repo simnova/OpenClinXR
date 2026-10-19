@@ -1,0 +1,14 @@
+{
+  "entries": [
+    {
+      "glob": "apps/ui-xr/public/generated-humanoids/**",
+      "reason": "runtime-served shipped assets; 91 tracked files, max 40345712 B at 4b108ef17 (git ls-tree -r -l)",
+      "maxBytes": 100000000
+    },
+    {
+      "glob": "apps/ui-xr/public/xr-assets/**",
+      "reason": "runtime-served shipped assets; 112 tracked files, max 19144352 B at 4b108ef17 (git ls-tree -r -l)",
+      "maxBytes": 100000000
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
+import { buildLargeFileGuardCommand } from "./large-file-guard.js";
 
 export type HookProfile = "pre-commit" | "pre-push" | "strict" | "local-exam";
 
@@ -465,7 +466,20 @@ function pnpm(script: string): string[] {
 
 function buildBaseOpenClawSteps(profile: HookProfile, changedFiles: string[]): HookStep[] {
   const steps: HookStep[] = [
-    // FIRST, and only fires for integrate lands (the wrapper's env marker or a wt/* merge parent),
+    // FIRST and UNCONDITIONAL (not path-scoped: a big binary or .env file can arrive
+    // in any commit shape, and the coordinator's worktree-per-lane rule demands the
+    // refusal before anything else runs). Pre-commit scans the staged set; pre-push
+    // and strict scan origin/main..HEAD so an added-then-deleted blob is still refused.
+    // local-exam never reaches this builder, so it pays nothing.
+    {
+      label: "Large-file / .env / .bak guard",
+      command:
+        profile === "pre-commit"
+          ? buildLargeFileGuardCommand("--staged")
+          : buildLargeFileGuardCommand("--push"),
+      reason: "big binaries go to the asset store and secrets/backups never commit — fail closed, allowlist only",
+    },
+    // Formerly FIRST, and only fires for integrate lands (the wrapper's env marker or a wt/* merge parent),
     // so ordinary commits on main are untouched. Keying on "product paths staged" would demand a
     // report for every commit, which is how a gate gets disabled.
     //
