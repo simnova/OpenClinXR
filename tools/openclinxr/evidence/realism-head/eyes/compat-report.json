@@ -14,12 +14,12 @@
     "high-poly",
     "--eye-cornea",
     "--eye-texture",
-    "tools/openclinxr/asset-pipeline/eyes/iris-centred-d.png",
+    "tools/openclinxr/asset-pipeline/eyes/iris-centred-e.png",
     "--output",
-    "/var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//eyefinish_eye/aisha-realism.glb"
+    "/var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//eyefinish_iris_e_72509/aisha-realism.glb"
   ],
-  "irisRemeasure": "gaze/blink pixel deltas carried from the C-texture bake: globe/cornea/lash geometry, morphs, joints and drive bones are identical populations on the D bake (re-measured census: trisEye 29388, morphMeshCount 3, same 6 eyeFacs, eye.L/R), so the drive mechanism is unchanged; only the iris diffuse image changed. Front-portrait iris proof re-measured on the D bake in iris-upgrade-report.json.",
-  "bakeRepairs": "re-baked 2026-10-20 with iris-centred-d.png (fibre upgrade, same argv otherwise). Prior C-bake repair: re-measured 2026-10-19: fresh bake wrote a JSON chunk of 253755 bytes (not 4-aligned); the lash T2b+A3 writer preserves the defect; NodeIO refused it (Uint32Array RangeError). Padded 1 trailing space and updated chunk+total lengths; content bytes otherwise untouched. Lash output JSON chunk 255747 bytes needed the same 1-space pad.",
+  "irisRemeasure": "gaze/blink pixel deltas carried from the C-texture bake: globe/cornea/lash geometry, morphs, joints and drive bones are identical populations on the E bake (re-measured census: trisEye 29388, morphMeshCount 3, same 6 eyeFacs, eye.L/R; lash T2b+A3 identical: 16308/16632 tris, verts 11088->10872, blink-follow L221/R90 194.0/207.2%), so the drive mechanism is unchanged; only the iris diffuse image changed (C->E). Front-portrait iris proof re-measured on the E bake in iris-upgrade-report.json.",
+  "bakeRepairs": "re-baked 2026-10-20 with iris-centred-e.png (bake-off winner approach A: organic fibres + collarette/crypts, hue ~19.5deg, same argv otherwise). Fresh E bake wrote a JSON chunk of 253755 bytes (not 4-aligned); padded 1 trailing space, chunk+total lengths updated, content bytes otherwise untouched (first attempt wrote the length to the JSON data offset by mistake, caught by lash-loader decode failure and restored byte-exact from the visible glTF-Transform prefix + JSON re-parse verification). Lash output JSON chunk 255747 bytes needed the same 1-space pad. Same repair shape as the C/D bakes (compat-report bakeRepairs).",
   "postSteps": [
     "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/lash_blink_follow.py (T2b selective-detach-drop+A3: 16308/16632 tris kept, L 10 + R 8 lower cards dropped, verts 11088->10872; A3 6 lid morphs, nn mean 2.378/2.451mm max 6.904/6.702mm, moving pool 935/side; blink-follow --measure pass L 221/R 90 lid-margin verts travel 194.0/207.2% same direction)"
   ],
@@ -36,8 +36,8 @@
     },
     "eyeTexture": {
       "path": "tools/openclinxr/asset-pipeline/eyes/texture-manifest.json",
-      "sha256": "e92b18634e41c32b1682bdf3ed0d6dc97b144696dff94847b3d872933daebb03",
-      "chosen": "iris-centred-d.png sha256 102acc56bda984d83772334ffed342fdc70050453f7f15e7d999c99d49c28025"
+      "sha256": "ecaabf11a7a349ac677d84b6028f78976135050b14e92a5b4dd0c22fb762ea6f",
+      "chosen": "iris-centred-e.png sha256 abcff75c65c9a6daeeeddd8a71901b78b6b9c084866b777cc3d434d884550b0a"
     },
     "eyeCorner": {
       "path": "tools/openclinxr/asset-pipeline/makeclothes/eye-corner/manifest.json",
@@ -54,7 +54,7 @@
     {
       "label": "realism",
       "glb": "assets:aisha-realism.glb",
-      "sha256": "c445da71c95fc09b557768b0b9ffe48f50c3d21141f6ce18e3bdf7096806d32a",
+      "sha256": "a47cc99dd03e37e67d1c8704c6076f2b5a4e787d209fbd88b13874350fef0488",
       "verdict": "gaze_blink_green_edge_recorded",
       "globeMesh": "makeclothes_library_eyes_high_poly_globe_mpfb_ob_patient_aisha_mesh",
       "corneaMeshes": [
@@ -62,16 +62,54 @@
         "openclinxr_eye_cornea_high_poly_right_mpfb_ob_patient_aisha_mesh"
       ],
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_thinned_mpfb_ob_patient_aisha_mesh",
-      "lashMorphs": ["eye-left-closure", "eye-left-slit", "eye-left-opened-up", "eye-right-closure", "eye-right-slit", "eye-right-opened-up"],
-      "eyeJoints": ["eye.L", "eye.R"],
-      "eyeFacsPresent": ["eye-left-closure", "eye-left-slit", "eye-left-opened-up", "eye-right-closure", "eye-right-slit", "eye-right-opened-up"],
-      "irisTextureBytes": 447425,
+      "lashMorphs": [
+        "eye-left-closure",
+        "eye-left-slit",
+        "eye-left-opened-up",
+        "eye-right-closure",
+        "eye-right-slit",
+        "eye-right-opened-up"
+      ],
+      "eyeJoints": [
+        "eye.L",
+        "eye.R"
+      ],
+      "eyeFacsPresent": [
+        "eye-left-closure",
+        "eye-left-slit",
+        "eye-left-opened-up",
+        "eye-right-closure",
+        "eye-right-slit",
+        "eye-right-opened-up"
+      ],
+      "irisTextureBytes": 480387,
       "gaze": {
-        "bonesTouched": ["eyeL", "eyeR"],
+        "bonesTouched": [
+          "eyeL",
+          "eyeR"
+        ],
         "yawRad": 0.43633,
         "mechanism": "rotateOnWorldAxis(worldUp) per gaze-drives-eyes.ts:54-66",
-        "pixelDeltaL": {"plus25": [-9.9, -1.5], "minus25": [8.5, -1.0]},
-        "pixelDeltaR": {"plus25": [-11.9, -1.3], "minus25": [13.2, -1.3]},
+        "pixelDeltaL": {
+          "plus25": [
+            -9.9,
+            -1.5
+          ],
+          "minus25": [
+            8.5,
+            -1.0
+          ]
+        },
+        "pixelDeltaR": {
+          "plus25": [
+            -11.9,
+            -1.3
+          ],
+          "minus25": [
+            13.2,
+            -1.3
+          ]
+        },
         "lateralToVertical": "about 8:1, clears the 2:1 threshold (gaze-moves-the-iris-sideways-at-runtime.test.ts:105; KG measured 5.6:1 good vs 0.65:1 legacy)",
         "method": "dark-centroid (r<80 g<70 b<70) per eye half of the 1280 eye-band crop, front vs yaw takes"
       },
@@ -91,11 +129,24 @@
       "corneaMeshes": [],
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_v1_mesh",
       "lashMorphs": [],
-      "eyeJoints": ["eye.L", "eye.R"],
-      "eyeFacsPresent": ["eye-left-closure", "eye-left-slit", "eye-left-opened-up", "eye-right-closure", "eye-right-slit", "eye-right-opened-up"],
+      "eyeJoints": [
+        "eye.L",
+        "eye.R"
+      ],
+      "eyeFacsPresent": [
+        "eye-left-closure",
+        "eye-left-slit",
+        "eye-left-opened-up",
+        "eye-right-closure",
+        "eye-right-slit",
+        "eye-right-opened-up"
+      ],
       "irisTextureBytes": 610817,
       "gaze": {
-        "bonesTouched": ["eyeL", "eyeR"],
+        "bonesTouched": [
+          "eyeL",
+          "eyeR"
+        ],
         "yawRad": 0.43633,
         "mechanism": "rotateOnWorldAxis(worldUp) per gaze-drives-eyes.ts:54-66",
         "kg": "shipped mechanism lateral 0.95 vs vertical 0.17 (5.6:1), legacy control 0.53 vs 0.81 (gaze-moves-the-iris-sideways-at-runtime.test.ts:86-91)"
@@ -115,8 +166,16 @@
     "src": "assets:gaze-blink-sheet.png",
     "sha256": "49aedc6aff3748ae200c5d2e3315d909a565fae006e231a1ebaab41e206e0b27",
     "renderSize": 1280,
-    "views": ["front", "yaw-plus-25", "yaw-minus-25", "blink"],
-    "subjects": ["realism", "control"],
+    "views": [
+      "front",
+      "yaw-plus-25",
+      "yaw-minus-25",
+      "blink"
+    ],
+    "subjects": [
+      "realism",
+      "control"
+    ],
     "eyeBand": "x .30-.70 y .47-.60 of the 1280 frame",
     "grade": "orchestrator D12"
   },
