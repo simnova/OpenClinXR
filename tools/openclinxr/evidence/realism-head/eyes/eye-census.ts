@@ -123,7 +123,7 @@ async function main(): Promise<void> {
   const out = {
     schema: "openclinxr.eyes-census.v1",
     control: CONTROL.replace(`${REPO}/`, ""),
-    realismNote: "scratch bake (high-poly+cornea, iris-centred-c) + lash T2+A3; not git-tracked; sha recorded here",
+    realismNote: "scratch bake (high-poly+cornea, iris-centred-d) + lash T2+A3; not git-tracked; sha recorded here",
     shellNote: "shell OFF for this proof (shell-rebind graded not shippable); absence recorded, not hidden",
     cornerNote: "corner-assets terminal not_found (eye-corner manifest 8bba4edd); absence recorded, not hidden",
     rows,
