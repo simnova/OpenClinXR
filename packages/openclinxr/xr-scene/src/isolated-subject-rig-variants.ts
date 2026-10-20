@@ -13,11 +13,14 @@ import {
   AmbientLight,
   DataTexture,
   DirectionalLight,
+  DoubleSide,
   HemisphereLight,
   type Light,
   Mesh,
+  MeshBasicMaterial,
   NeutralToneMapping,
   NoToneMapping,
+  PlaneGeometry,
   PMREMGenerator,
   type Scene,
   Vector3,
@@ -293,6 +296,11 @@ const LIMBUS_WIDTH_UV = 30 / 1024;
  */
 const ROUGH_DISC_INNER = 0.12;
 
+/** h2 catchlight softbox: small HDR-white quad above-front of the eye axis, so the PMREM captures a tight reflector (dot, not sheen). */
+const CATCHLIGHT_QUAD_SIZE = 2.0;
+const CATCHLIGHT_QUAD_INTENSITY = 500;
+const CATCHLIGHT_QUAD_POS: readonly [number, number, number] = [1.0, 5.0, 8.5];
+
 /** Procedural map size (px); the iris disc spans ~2x135/1024 of it. */
 const ROUGH_MAP_SIZE = 256;
 
@@ -388,8 +396,18 @@ export async function applyProductRig(
   // h1: the globe also gets a procedural iris-disc roughnessMap (same
   // traverse): the 0.5 scalar blurs the env to a flat lift, so the disc
   // multiplies down to 0.06 effective while the sclera stays 0.5.
+  // h2: env source is RoomEnvironment PLUS a small HDR quad (softbox,
+  // above-front): the soft room alone leaves a grey veil on the 0.06 disc,
+  // the quad resolves to a crisp dot. Same globe-only envMap scoping.
   const pmrem = new PMREMGenerator(renderer);
-  const globeEnv = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  const globeEnvScene = new RoomEnvironment();
+  const catchQuadMat = new MeshBasicMaterial({ side: DoubleSide });
+  catchQuadMat.color.setRGB(CATCHLIGHT_QUAD_INTENSITY, CATCHLIGHT_QUAD_INTENSITY, CATCHLIGHT_QUAD_INTENSITY);
+  const catchQuad = new Mesh(new PlaneGeometry(CATCHLIGHT_QUAD_SIZE, CATCHLIGHT_QUAD_SIZE), catchQuadMat);
+  catchQuad.position.set(...CATCHLIGHT_QUAD_POS);
+  catchQuad.lookAt(0, 0, 0);
+  globeEnvScene.add(catchQuad);
+  const globeEnv = pmrem.fromScene(globeEnvScene, 0.04).texture;
   pmrem.dispose();
   const globeMatched: string[] = [];
   const roughDisc = buildIrisDiscRoughnessMap();

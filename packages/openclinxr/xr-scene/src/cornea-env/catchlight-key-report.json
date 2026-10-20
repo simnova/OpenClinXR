@@ -1102,5 +1102,10 @@
   },
   "azimuthBasis": "lateral half-vector offset 7.8*sin(az/2)*pxmm (pxmm 4.54-4.61 from the same camera fits) kept <=10px inside the limbus => az/2 <= ~16deg"
  },
- "revertNote": "handback 1: rig-key-globe-env.ts removed unwired; isolated-subject-rig-variants.ts and the cornea gate test and catchlight-report.json restored to origin/main; this report keeps the falsified-run evidence with shas intact"
+ "revertNote": "handback 1: rig-key-globe-env.ts removed unwired; isolated-subject-rig-variants.ts and the cornea gate test and catchlight-report.json restored to origin/main; this report keeps the falsified-run evidence with shas intact",
+ "globeEnvUpdate": {
+  "change": "globe env is now RoomEnvironment + one small high-intensity white quad (softbox, 2.0 units at (1.0,5.0,8.5) above-front, HDR 500); still scoped to the globe via material.envMap, no scene.environment, no rig-key-globe-env rebuild",
+  "record": "packages/openclinxr/xr-scene/src/cornea-env/catchlight-report.json h2",
+  "rigKeyFalsificationStands": true
+ }
 }
