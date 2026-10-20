@@ -14,12 +14,12 @@
     "high-poly",
     "--eye-cornea",
     "--eye-texture",
-    "tools/openclinxr/asset-pipeline/eyes/iris-centred-e.png",
+    "tools/openclinxr/asset-pipeline/eyes/iris-centred-f.png",
     "--output",
-    "/var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//eyefinish_iris_e_72509/aisha-realism.glb"
+    "/var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//eyefinish_iris_f_68898/aisha-realism.glb"
   ],
-  "irisRemeasure": "gaze/blink pixel deltas carried from the C-texture bake: globe/cornea/lash geometry, morphs, joints and drive bones are identical populations on the E bake (re-measured census: trisEye 29388, morphMeshCount 3, same 6 eyeFacs, eye.L/R; lash T2b+A3 identical: 16308/16632 tris, verts 11088->10872, blink-follow L221/R90 194.0/207.2%), so the drive mechanism is unchanged; only the iris diffuse image changed (C->E). Front-portrait iris proof re-measured on the E bake in iris-upgrade-report.json.",
-  "bakeRepairs": "re-baked 2026-10-20 with iris-centred-e.png (bake-off winner approach A: organic fibres + collarette/crypts, hue ~19.5deg, same argv otherwise). Fresh E bake wrote a JSON chunk of 253755 bytes (not 4-aligned); padded 1 trailing space, chunk+total lengths updated, content bytes otherwise untouched (first attempt wrote the length to the JSON data offset by mistake, caught by lash-loader decode failure and restored byte-exact from the visible glTF-Transform prefix + JSON re-parse verification). Lash output JSON chunk 255747 bytes needed the same 1-space pad. Same repair shape as the C/D bakes (compat-report bakeRepairs).",
+  "irisRemeasure": "gaze/blink pixel deltas carried from the C-texture bake: globe/cornea/lash geometry, morphs, joints and drive bones are identical populations on the F bake (re-measured census: trisEye 29388, morphMeshCount 3, same 6 eyeFacs, eye.L/R; lash T2b+A3 identical: 16308/16632 tris, verts 11088->10872, blink-follow L221/R90 194.0/207.2%), so the drive mechanism is unchanged; only the iris diffuse image changed (E->F limbal-edge compress). Front-portrait iris proof re-measured on the F bake in iris-upgrade-report.json.",
+  "bakeRepairs": "re-baked 2026-10-20 with iris-centred-f.png (limbal-edge compress of E: sharp dark-limbus to bright-sclera edge at the same crossing, same argv otherwise). Fresh F bake wrote a JSON chunk of 253755 bytes (not 4-aligned); padded 1 trailing space, chunk+total lengths updated, content bytes otherwise untouched. Lash output JSON chunk 255747 bytes needed the same 1-space pad. Same repair shape as the C/D/E bakes (compat-report bakeRepairs).",
   "postSteps": [
     "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/lash_blink_follow.py (T2b selective-detach-drop+A3: 16308/16632 tris kept, L 10 + R 8 lower cards dropped, verts 11088->10872; A3 6 lid morphs, nn mean 2.378/2.451mm max 6.904/6.702mm, moving pool 935/side; blink-follow --measure pass L 221/R 90 lid-margin verts travel 194.0/207.2% same direction)"
   ],
@@ -36,8 +36,8 @@
     },
     "eyeTexture": {
       "path": "tools/openclinxr/asset-pipeline/eyes/texture-manifest.json",
-      "sha256": "ecaabf11a7a349ac677d84b6028f78976135050b14e92a5b4dd0c22fb762ea6f",
-      "chosen": "iris-centred-e.png sha256 abcff75c65c9a6daeeeddd8a71901b78b6b9c084866b777cc3d434d884550b0a"
+      "sha256": "13d5c7a4c92db12e6dcba4b6cc5b3645b760aca711f504fad95148e60983e99d",
+      "chosen": "iris-centred-f.png sha256 2336581ae66367990012f1ab639b89e1cbee3f965455d0b17bd2509fce19f720"
     },
     "eyeCorner": {
       "path": "tools/openclinxr/asset-pipeline/makeclothes/eye-corner/manifest.json",
@@ -54,7 +54,7 @@
     {
       "label": "realism",
       "glb": "assets:aisha-realism.glb",
-      "sha256": "a47cc99dd03e37e67d1c8704c6076f2b5a4e787d209fbd88b13874350fef0488",
+      "sha256": "5906f48cded6dce8bb398078520ccb7261c3b46d6128a31fb57ef421821ad8f9",
       "verdict": "gaze_blink_green_edge_recorded",
       "globeMesh": "makeclothes_library_eyes_high_poly_globe_mpfb_ob_patient_aisha_mesh",
       "corneaMeshes": [
@@ -82,7 +82,7 @@
         "eye-right-slit",
         "eye-right-opened-up"
       ],
-      "irisTextureBytes": 480387,
+      "irisTextureBytes": 507944,
       "gaze": {
         "bonesTouched": [
           "eyeL",

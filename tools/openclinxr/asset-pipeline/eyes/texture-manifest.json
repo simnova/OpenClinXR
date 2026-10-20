@@ -1,1 +1,78 @@
-{"chosen": "iris-centred-e.png", "generatorArgv": "gen-iris-centred-e.py (Approach A procedural-plus, copied from the iris-A bake-off lane): deterministic hash-seeded per-eye features on iris-centred-c.png; pupil disc r<=38 and limbus/sclera r>=99.5 copied byte-identical (gates frozen: pupil shift 0.00 texels, limbus crossing +0.0%/+0.0% \u2014 r>=99.5 pixels byte-identical so any deterministic re-measure repeats C); annulus 38<r<99.5 regenerated with 180 radial fibres/eye (gain 0.78-1.28 + fine sub-striation), 12 crypt wedges, collarette ridge at rn~0.25, radial tone + soft limbal inner-edge ramp, per-fibre hue jitter 15-25deg, clamp 140 (no baked catchlight, hue ~19.5deg deep-espresso)", "procedure": "S/eyetex/uclock.py disk-match+ECC-affine+phase-refine, measured per eye (L/R): phase-correlation pupil shift texels for centre, halfway-tone limbus crossing relative radius. D carries C values: gate-zone pixels byte-identical so any deterministic re-measure repeats them (verified: pupil centroid shift 0.00/0.00 texels, halfway-tone crossing 133.0->133.0 R, 133.0->133.25 L) E carries C values: gate-zone pixels byte-identical so any deterministic re-measure repeats them (verified: pupil disc diff 0/0 px, true-sclera diff 0 px, annulus maxlum 95 <= 150).", "producerSourceSha256": "0b5d2a0b205699abd6fea68457a6d1b0c96bc8e9b900bee97a9e856d22d9621f", "textures": [{"file": "iris-centred-c.png", "limbus_radius_rel": [0.0004, 0.0001], "pass": true, "pupil_shift_texels": [0.77, 0.63], "sha256": "76c805e58e8c7b451ce4453dd529a073e4d84c48fd4136744484b8b503a7d695", "source": "S/eyetex/eye-cand-c.png (Imagine texture C, deep-espresso soft limbal)"}, {"file": null, "limbus_radius_rel": [0.0021, 0.0018], "pass": false, "pupil_shift_texels": [2.66, 2.4], "sha256": "121f34684e9db5472a14e250e0b0871132912e44ded89d9604372fc78c213e16", "source": "best5/eye-tex-w.png (Imagine texture B sclera x0.50 warm; shipped pick fails centre gate, ecc_ok false identity fallback)"}, {"file": "iris-centred-d.png", "limbus_radius_rel": [0.0004, 0.0001], "pass": true, "pupil_shift_texels": [0.77, 0.63], "sha256": "102acc56bda984d83772334ffed342fdc70050453f7f15e7d999c99d49c28025", "source": "procedural synth_iris_d.py (seeds R=101 L=202): fine radial fibres + collarette + crypts, deep saturated brown hue ~19deg, soft limbal blend; pupil/limbus gate zones byte-identical to iris-centred-c.png"}, {"file": "iris-centred-e.png", "limbus_radius_rel": [0.0004, 0.0001], "pass": true, "pupil_shift_texels": [0.77, 0.63], "sha256": "abcff75c65c9a6daeeeddd8a71901b78b6b9c084866b777cc3d434d884550b0a", "source": "procedural-plus gen-iris-centred-e.py (bake-off approach A, iris-C judge winner grade 4): organic fibres + collarette/crypt relief, hue 19.5 deep-espresso; pupil/limbus gate zones byte-identical to iris-centred-c.png"}]}
+{
+ "chosen": "iris-centred-f.png",
+ "generatorArgv": "gen-iris-centred-f.py (limbal-edge compress on iris-centred-e.png): sharp 8px smoothstep dark-limbus to bright-sclera edge crossing at the SAME halfway radius as E per eye (rc 133.33/133.17, drift 0.02%/0.01% <= 0.2%); r<110 frozen byte-identical incl pupil r<=38 (pupil shift 0.00 texels, drift 0), r>=160 frozen byte-identical (sclera tone/tint unchanged); transition 110<=r<160 luminance-proportional RGB gain (hue preserved, ramp meansat 0.201/0.197 <= E 0.203/0.198), shoulder capped at E sclera max (no overshoot), gain feathered to 1 over r156-160; iris annulus maxlum 61/64 <= 150, no angular term (no lid shadow/catchlight)",
+ "procedure": "S/eyetex/uclock.py disk-match+ECC-affine+phase-refine, measured per eye (L/R): phase-correlation pupil shift texels for centre, halfway-tone limbus crossing relative radius. D carries C values: gate-zone pixels byte-identical so any deterministic re-measure repeats them (verified: pupil centroid shift 0.00/0.00 texels, halfway-tone crossing 133.0->133.0 R, 133.0->133.25 L) E carries C values: gate-zone pixels byte-identical so any deterministic re-measure repeats them (verified: pupil disc diff 0/0 px, true-sclera diff 0 px, annulus maxlum 95 <= 150). F carries E pupil values (pupil disc r<=38 byte-identical, verified diff 0/0 px) and re-measured limbus crossing by the same azimuthal-median halfway method (rc 133.33->133.31 L, 133.17->133.18 R; rel vs nominal 133.0: 0.0023/0.0013, gate <=0.02); ramp width (encoded-lum 15->150 span outward from limbus dark min) 19.9->5.0px both eyes.",
+ "producerSourceSha256": "0b5d2a0b205699abd6fea68457a6d1b0c96bc8e9b900bee97a9e856d22d9621f",
+ "textures": [
+  {
+   "file": "iris-centred-c.png",
+   "limbus_radius_rel": [
+    0.0004,
+    0.0001
+   ],
+   "pass": true,
+   "pupil_shift_texels": [
+    0.77,
+    0.63
+   ],
+   "sha256": "76c805e58e8c7b451ce4453dd529a073e4d84c48fd4136744484b8b503a7d695",
+   "source": "S/eyetex/eye-cand-c.png (Imagine texture C, deep-espresso soft limbal)"
+  },
+  {
+   "file": null,
+   "limbus_radius_rel": [
+    0.0021,
+    0.0018
+   ],
+   "pass": false,
+   "pupil_shift_texels": [
+    2.66,
+    2.4
+   ],
+   "sha256": "121f34684e9db5472a14e250e0b0871132912e44ded89d9604372fc78c213e16",
+   "source": "best5/eye-tex-w.png (Imagine texture B sclera x0.50 warm; shipped pick fails centre gate, ecc_ok false identity fallback)"
+  },
+  {
+   "file": "iris-centred-d.png",
+   "limbus_radius_rel": [
+    0.0004,
+    0.0001
+   ],
+   "pass": true,
+   "pupil_shift_texels": [
+    0.77,
+    0.63
+   ],
+   "sha256": "102acc56bda984d83772334ffed342fdc70050453f7f15e7d999c99d49c28025",
+   "source": "procedural synth_iris_d.py (seeds R=101 L=202): fine radial fibres + collarette + crypts, deep saturated brown hue ~19deg, soft limbal blend; pupil/limbus gate zones byte-identical to iris-centred-c.png"
+  },
+  {
+   "file": "iris-centred-e.png",
+   "limbus_radius_rel": [
+    0.0004,
+    0.0001
+   ],
+   "pass": true,
+   "pupil_shift_texels": [
+    0.77,
+    0.63
+   ],
+   "sha256": "abcff75c65c9a6daeeeddd8a71901b78b6b9c084866b777cc3d434d884550b0a",
+   "source": "procedural-plus gen-iris-centred-e.py (bake-off approach A, iris-C judge winner grade 4): organic fibres + collarette/crypt relief, hue 19.5 deep-espresso; pupil/limbus gate zones byte-identical to iris-centred-c.png"
+  },
+  {
+   "file": "iris-centred-f.png",
+   "limbus_radius_rel": [
+    0.0023,
+    0.0013
+   ],
+   "pass": true,
+   "pupil_shift_texels": [
+    0.77,
+    0.63
+   ],
+   "sha256": "2336581ae66367990012f1ab639b89e1cbee3f965455d0b17bd2509fce19f720",
+   "source": "limbal-edge compress gen-iris-centred-f.py on iris-centred-e.png: 8px dark-limbus to bright-sclera edge at same crossing (drift <=0.02%); r<110 and r>=160 byte-identical to E"
+  }
+ ]
+}

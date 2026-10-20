@@ -51,6 +51,28 @@ describe("the iris texture stays centred on the uv", () => {
     expect(gate(row)).toBe(true);
   });
 
+  it("chosen F row carries E pupil values (pupil disc frozen, 0 drift)", () => {
+    expect(manifest.chosen).toBe("iris-centred-f.png");
+    const f = manifest.textures.find(
+      (r: Row) => r.file === "iris-centred-f.png",
+    ) as Row;
+    const e = manifest.textures.find(
+      (r: Row) => r.file === "iris-centred-e.png",
+    ) as Row;
+    expect(f).toBeDefined();
+    expect(e).toBeDefined();
+    expect(f.pass).toBe(true);
+    // Pupil disc r<=38 is byte-identical E->F, so any deterministic
+    // re-measure repeats E: drift is exactly 0 texels.
+    expect(f.pupil_shift_texels).toEqual(e.pupil_shift_texels);
+    // Same-crossing limbal compress: F rel-vs-nominal stays an order of
+    // magnitude inside the 2% gate (drift vs E <= 0.2% by construction).
+    for (const v of f.limbus_radius_rel) expect(v).toBeLessThanOrEqual(0.005);
+    // E baseline preserved beside F for the eye-band render comparison.
+    expect(existsSync(join(here, "iris-centred-e.png"))).toBe(true);
+    expect(sha256File(join(here, "iris-centred-e.png"))).toBe(e.sha256);
+  });
+
   it("both candidates are recorded, rejected row fails", () => {
     const fails = manifest.textures.filter((r: Row) => !r.pass);
     expect(fails.length).toBeGreaterThanOrEqual(1);
