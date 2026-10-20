@@ -188,12 +188,12 @@ describe("the iris upgrade renders fibre and a dot", () => {
   it("known-bad: a grey-veil meansat fails the band", () => {
     const inBand = (v: number): boolean => v >= 0.3 && v < 0.6;
     expect(inBand(0.12), "grey veil 0.12 must fail the band").toBe(false);
-    expect(inBand(0.4864), "new-iris 0.4864 must pass the band").toBe(true);
+    expect(inBand(0.5369), "new-iris 0.5369 must pass the band").toBe(true);
   });
 
   it("known-bad: a neon-red meansat fails the band", () => {
     const inBand = (v: number): boolean => v >= 0.3 && v < 0.6;
     expect(inBand(0.64), "control neon-red 0.64 must fail the band").toBe(false);
-    expect(inBand(0.4738), "new-iris 0.4738 must pass the band").toBe(true);
+    expect(inBand(0.5213), "new-iris 0.5213 must pass the band").toBe(true);
   });
 });
