@@ -27,6 +27,7 @@ const report = JSON.parse(reportText) as {
   derivation: string;
   moduleSha256: string;
   callSiteSha256: string;
+  globeEnvUpdate: { change: string; record: string; rigKeyFalsificationStands: boolean };
 };
 
 describe("the key catch-light is falsified by rig geometry (catchlight-key record)", () => {
@@ -71,13 +72,17 @@ describe("the key catch-light is falsified by rig geometry (catchlight-key recor
     expect(report.graderVerdict.sheetPaths.length).toBeGreaterThanOrEqual(4);
   });
 
-  it("call site still uses the generic room for the globe", () => {
+  it("call-site globe env change is recorded (room + softbox quad, not the rig key)", () => {
     const src = readFileSync(callSitePath, "utf8");
     const fnIdx = src.indexOf("export async function applyProductRig");
     expect(fnIdx, "applyProductRig present").toBeGreaterThanOrEqual(0);
     const body = src.slice(fnIdx);
-    expect(body, "globe map is the generic-room PMREM until a later card updates this record").toMatch(
-      /pmrem\.fromScene\(new RoomEnvironment\(\), 0\.04\)\.texture/,
-    );
+    expect(body, "room base retained").toMatch(/new RoomEnvironment\(\)/);
+    expect(body, "softbox quad augments the room").toMatch(/globeEnvScene\.add\(catchQuad\)/);
+    expect(body, "still globe-scoped, no scene.environment").not.toMatch(/scene\.environment =/);
+    expect(src, "no rig-key-globe-env rebuild").not.toMatch(/rig-key-globe-env/);
+    expect(report.globeEnvUpdate.rigKeyFalsificationStands, "key falsification stands").toBe(true);
+    expect(report.globeEnvUpdate.record, "h2 record named").toMatch(/catchlight-report\.json h2/);
+    expect(report.globeEnvUpdate.change, "quad change described").toMatch(/quad/);
   });
 });

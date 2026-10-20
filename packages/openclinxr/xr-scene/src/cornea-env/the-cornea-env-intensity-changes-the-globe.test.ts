@@ -21,14 +21,17 @@ import {
   globeSilhouette,
   highlightBlob,
   largestCluster,
+  luminance,
   luminanceLStar,
   luminanceQuantile,
   meanAbsLumaDiff,
   meanLStarOf,
   medianLStarOf,
   rectFromArray,
+  saturation,
   type CropRect,
   type DecodedPng,
+  type Pixel,
 } from "./catchlight-png.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -74,6 +77,24 @@ const report = JSON.parse(readFileSync(reportPath, "utf8")) as {
     storeShas: Record<string, string>;
     spotThresholdDeltaLStar: number;
     irisCoreThresholdLStar: number;
+  };
+  h2: {
+    renders: Record<string, { png: string; sha256: string }>;
+    store: string;
+    cause: string;
+    G2: Record<string, {
+      hot230: number; hotCluster: number; hotCentroid: [number, number];
+      spotMaxLum: number; meansat: number;
+      irisCircle: { cx: number; cy: number; r: number };
+      centroidInDisc: boolean; distFromCentre: number; spotFracOfDisc: number;
+      ringMeanL: number; ringDeltaOld: number;
+    }>;
+    CW1: Record<string, { h206vsPreChanged: number; h206vsPreMeanDL: number }>;
+    counterweight: { oldH106: Record<string, { hot230: number; hotCluster: number }>; note: string };
+    visualGrade: string;
+    thresholdLuminance: number;
+    irisCoreThresholdLStar: number;
+    storeShas: Record<string, string>;
   };
 };
 const sha256File = (p: string): string =>
@@ -338,6 +359,191 @@ describe("h1: the catch-light is a specular spot over the iris disc", () => {
     for (const [key, want] of Object.entries(report.h1.storeShas)) {
       const p = join(H1STORE, report.h1.renders[key]!.png);
       expect(existsSync(p), `h1 store file present`).toBe(true);
+      expect(sha256File(p), `sha of ${key}`).toBe(want);
+    }
+  });
+});
+
+const H2STORE = report.h2.store;
+const h2Exists = existsSync(H2STORE);
+const h2Png = (): string => join(H2STORE, report.h2.renders["h206"]!.png);
+
+/** Pixels inside the iris circle brighter than the 230 threshold. */
+function h2Hot(png: DecodedPng, circle: { cx: number; cy: number; r: number }, rect: CropRect, threshold: number): Pixel[] {
+  const hot: Pixel[] = [];
+  for (let y = rect.y0; y < rect.y1; y += 1) {
+    for (let x = rect.x0; x < rect.x1; x += 1) {
+      if (Math.hypot(x - circle.cx, y - circle.cy) > circle.r) continue;
+      if (luminance(png, x, y) > threshold) hot.push({ x, y });
+    }
+  }
+  return hot;
+}
+
+/** Members of the largest 4-connected cluster inside a pixel set. */
+function largestClusterMembers(pts: Pixel[]): Pixel[] {
+  const set = new Set(pts.map((p) => `${p.x},${p.y}`));
+  const seen = new Set<string>();
+  let best: Pixel[] = [];
+  for (const p of pts) {
+    const k = `${p.x},${p.y}`;
+    if (seen.has(k)) continue;
+    const comp: Pixel[] = [];
+    const q: Pixel[] = [p];
+    seen.add(k);
+    while (q.length > 0) {
+      const a = q.pop()!;
+      comp.push(a);
+      for (const nb of [`${a.x + 1},${a.y}`, `${a.x - 1},${a.y}`, `${a.x},${a.y + 1}`, `${a.x},${a.y - 1}`]) {
+        if (set.has(nb) && !seen.has(nb)) {
+          seen.add(nb);
+          const [x, y] = nb.split(",").map(Number) as [number, number];
+          q.push({ x, y });
+        }
+      }
+    }
+    if (comp.length > best.length) best = comp;
+  }
+  return best;
+}
+
+/** Mean L* of the limbus-side annulus (circle r+1 .. r+7). */
+function h2RingMean(png: DecodedPng, circle: { cx: number; cy: number; r: number }, rect: CropRect): number {
+  let sum = 0;
+  let n = 0;
+  for (let y = rect.y0; y < rect.y1; y += 1) {
+    for (let x = rect.x0; x < rect.x1; x += 1) {
+      const d = Math.hypot(x - circle.cx, y - circle.cy);
+      if (d > circle.r + 1 && d <= circle.r + 7) {
+        sum += luminanceLStar(png, x, y);
+        n += 1;
+      }
+    }
+  }
+  return sum / Math.max(n, 1);
+}
+
+describe("h2: the softbox quad resolves a crisp catchlight dot on the iris disc", () => {
+  it("cause: globe env adds a small intense quad above-front, still globe-scoped", () => {
+    const src = readFileSync(modulePath, "utf8");
+    const fnIdx = src.indexOf("export async function applyProductRig");
+    expect(fnIdx, "applyProductRig present").toBeGreaterThanOrEqual(0);
+    const body = src.slice(fnIdx);
+    expect(body, "h2 RoomEnvironment still the base").toMatch(/new RoomEnvironment\(\)/);
+    expect(body, "quad size pinned").toMatch(/CATCHLIGHT_QUAD_SIZE/);
+    expect(body, "quad intensity pinned").toMatch(/CATCHLIGHT_QUAD_INTENSITY/);
+    expect(body, "quad position pinned").toMatch(/CATCHLIGHT_QUAD_POS/);
+    expect(body, "HDR white quad material").toMatch(/new MeshBasicMaterial/);
+    expect(body, "quad faces the origin").toMatch(/catchQuad\.lookAt\(0, 0, 0\)/);
+    expect(body, "quad joins the env scene, not the lab scene").toMatch(/globeEnvScene\.add\(catchQuad\)/);
+    expect(body, "globe envMap assignment present").toMatch(/\.envMap = globeEnv/);
+    expect(body, "product path must not set scene.environment").not.toMatch(/scene\.environment =/);
+    expect(report.h2.cause, "report names the quad").toMatch(/quad/);
+  });
+
+  it(h2Exists ? "G2: a crisp 230+ cluster sits inside each iris disc" : "h2 store absent — G2 skipped", () => {
+    if (!h2Exists) return;
+    expect(sha256File(h2Png())).toBe(report.h2.renders["h206"]!.sha256);
+    const on = decodePngFile(h2Png());
+    const off = decodePngFile(join(H1STORE, report.h1.renders["h100"]!.png));
+    expect(on.w).toBe(1280);
+    const seeds: Record<string, [number, number]> = { L: [515, 658], R: [775, 650] };
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = report.h2.G2[eye]!;
+      const rect = rectFromArray(report.crops[key as "Leye" | "Reye"]);
+      // Fixed iris circle from the OFF render (same framing for h1/h2).
+      const circle = darkCoreCircle(off, rect, seeds[eye]![0], seeds[eye]![1], report.h2.irisCoreThresholdLStar);
+      expect(circle.cx).toBeCloseTo(g.irisCircle.cx, 1);
+      expect(circle.cy).toBeCloseTo(g.irisCircle.cy, 1);
+      expect(circle.r).toBeCloseTo(g.irisCircle.r, 1);
+      const hot = h2Hot(on, circle, rect, report.h2.thresholdLuminance);
+      expect(hot.length, `${eye} 230+ px in disc`).toBe(g.hot230);
+      const members = largestClusterMembers(hot);
+      expect(members.length, `${eye} dot cluster px`).toBe(g.hotCluster);
+      expect(members.length, `${eye} crisp bar (>= 20 px contiguous)`).toBeGreaterThanOrEqual(20);
+      expect(largestCluster(hot), `${eye} cluster helper agrees`).toBe(g.hotCluster);
+      const c = centroid(members);
+      expect(c.x).toBeCloseTo(g.hotCentroid[0], 1);
+      expect(c.y).toBeCloseTo(g.hotCentroid[1], 1);
+      const d = Math.hypot(c.x - circle.cx, c.y - circle.cy);
+      expect(d, `${eye} dot centroid inside disc`).toBeLessThan(circle.r);
+      expect(d).toBeCloseTo(g.distFromCentre, 1);
+      expect(g.centroidInDisc).toBe(true);
+      let mx = -Infinity;
+      let satSum = 0;
+      let n = 0;
+      for (let y = rect.y0; y < rect.y1; y += 1) {
+        for (let x = rect.x0; x < rect.x1; x += 1) {
+          if (Math.hypot(x - circle.cx, y - circle.cy) > circle.r) continue;
+          mx = Math.max(mx, luminance(on, x, y));
+          satSum += saturation(on, x, y);
+          n += 1;
+        }
+      }
+      expect(Math.round(mx * 10) / 10, `${eye} brightest disc pixel`).toBe(g.spotMaxLum);
+      expect(Math.round((satSum / Math.max(n, 1)) * 10000) / 10000, `${eye} iris meansat`).toBe(g.meansat);
+      const discArea = Math.PI * circle.r * circle.r;
+      expect(members.length / discArea, `${eye} dot <= 15% of disc`).toBeLessThanOrEqual(0.15);
+      expect(Math.round((members.length / discArea) * 10000) / 10000).toBe(g.spotFracOfDisc);
+    }
+  });
+
+  it(h2Exists ? "CW1: cheek and forehead still pixel-identical (scoped env)" : "h2 store absent — CW1 skipped", () => {
+    if (!h2Exists) return;
+    const pre = decodePngFile(join(STORE, "pre-catch-eye00-front.png"));
+    const on = decodePngFile(h2Png());
+    for (const key of ["cheek", "forehead"] as const) {
+      const rect = rectFromArray(report.crops[key]);
+      const c = report.h2.CW1[key]!;
+      expect(countChangedPx(pre, on, rect), `${key} changed px`).toBe(c.h206vsPreChanged);
+      expect(c.h206vsPreChanged, `${key} skin must be pixel-identical`).toBe(0);
+      expect(meanAbsLumaDiff(pre, on, rect)).toBe(c.h206vsPreMeanDL);
+    }
+  });
+
+  it(h2Exists ? "limbus: no new ring — annulus lift over the old env is bounded" : "h2 store absent — limbus skipped", () => {
+    if (!h2Exists) return;
+    const on = decodePngFile(h2Png());
+    const oldOn = decodePngFile(join(H1STORE, report.h1.renders["h106"]!.png));
+    const off = decodePngFile(join(H1STORE, report.h1.renders["h100"]!.png));
+    const seeds: Record<string, [number, number]> = { L: [515, 658], R: [775, 650] };
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = report.h2.G2[eye]!;
+      const rect = rectFromArray(report.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, seeds[eye]![0], seeds[eye]![1], report.h2.irisCoreThresholdLStar);
+      const ring = h2RingMean(on, circle, rect);
+      expect(Math.round(ring * 10) / 10, `${eye} annulus mean L*`).toBe(g.ringMeanL);
+      const ringOld = h2RingMean(oldOn, circle, rect);
+      const delta = ring - ringOld;
+      expect(Math.round(delta * 10) / 10, `${eye} annulus lift over old env`).toBe(g.ringDeltaOld);
+      expect(delta, `${eye} no limbus ring (lift <= 12 L*)`).toBeLessThanOrEqual(12);
+    }
+  });
+
+  it(h2Exists ? "counterweight: the same metric fails on the old soft env" : "h2 store absent — counterweight skipped", () => {
+    if (!h2Exists) return;
+    // A gate that also passes on RoomEnvironment-alone is a fail: the old
+    // h106 render must NOT reach the crisp bar.
+    const oldOn = decodePngFile(join(H1STORE, report.h1.renders["h106"]!.png));
+    const off = decodePngFile(join(H1STORE, report.h1.renders["h100"]!.png));
+    const seeds: Record<string, [number, number]> = { L: [515, 658], R: [775, 650] };
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const rect = rectFromArray(report.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, seeds[eye]![0], seeds[eye]![1], report.h2.irisCoreThresholdLStar);
+      const hot = h2Hot(oldOn, circle, rect, report.h2.thresholdLuminance);
+      const pinned = report.h2.counterweight.oldH106[eye]!;
+      expect(hot.length, `${eye} old-env 230+ px`).toBe(pinned.hot230);
+      expect(largestCluster(hot), `${eye} old env has no crisp dot`).toBeLessThan(20);
+      expect(largestCluster(hot), `${eye} old-env cluster`).toBe(pinned.hotCluster);
+    }
+    expect(report.h2.counterweight.note, "counterweight documented").toMatch(/fails on the old env/);
+  });
+
+  it(h2Exists ? "h2 store shas verify" : "h2 store absent — sha verification skipped", () => {
+    if (!h2Exists) return;
+    for (const [key, want] of Object.entries(report.h2.storeShas)) {
+      const p = join(H2STORE, report.h2.renders[key]!.png);
+      expect(existsSync(p), `h2 store file present`).toBe(true);
       expect(sha256File(p), `sha of ${key}`).toBe(want);
     }
   });
