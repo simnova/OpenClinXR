@@ -548,3 +548,191 @@ describe("h2: the softbox quad resolves a crisp catchlight dot on the iris disc"
     }
   });
 });
+
+const qsReportPath = join(here, "catchlight-pos-report.json");
+const qsReport = JSON.parse(readFileSync(qsReportPath, "utf8")) as {
+  module: string;
+  moduleSha256: string;
+  landed: { shape: string; size: number; intensity: number; pos: [number, number, number]; tag: string };
+  store: string;
+  renders: Record<string, { png: string; sha256: string }>;
+  crops: { Leye: [number, number, number, number]; Reye: [number, number, number, number]; cheek: [number, number, number, number]; forehead: [number, number, number, number] };
+  seeds: { L: [number, number]; R: [number, number] };
+  thresholds: { hot: number; smearLift: number; irisCore: number };
+  rows: Record<string, {
+    shape: string; size: number; intensity: number; pos: [number, number, number];
+    L: { hot230: number; hotCluster: number; coreBbox: [number, number]; roundRatio: number; distFromCentre: number; smearSub230: number; meansat: number; hueDeg: number; spotMaxLum: number; ringMeanL: number; ringLiftOverOff: number };
+    R: { hot230: number; hotCluster: number; coreBbox: [number, number]; roundRatio: number; distFromCentre: number; smearSub230: number; meansat: number; hueDeg: number; spotMaxLum: number; ringMeanL: number; ringLiftOverOff: number };
+    skin: { cheek: number; forehead: number };
+  }>;
+  gates: { coreMinCluster: number; roundRatioMax: number; smearCeiling: number; meansatBand: [number, number]; hueBand: [number, number]; ringLiftLe: number; skinZero: boolean };
+};
+const QSSTORE = qsReport.store;
+const qsExists = existsSync(QSSTORE);
+const qsPng = (key: string): string => join(QSSTORE, qsReport.renders[key]!.png);
+
+/** Quad-attributable wash: in-disc px lifted >=25 L by the env but still sub-230 (the blob/wash, not the dot). */
+function qsSmear(on: DecodedPng, off: DecodedPng, circle: { cx: number; cy: number; r: number }): number {
+  let n = 0;
+  for (let y = 0; y < on.h; y += 1) {
+    for (let x = 0; x < on.w; x += 1) {
+      if (Math.hypot(x - circle.cx, y - circle.cy) > circle.r) continue;
+      const lo = luminance(on, x, y);
+      if (lo < qsReport.thresholds.hot && lo - luminance(off, x, y) >= qsReport.thresholds.smearLift) n += 1;
+    }
+  }
+  return n;
+}
+
+/** Render-space hue (deg) of the mean in-disc RGB — same formula as the iris-upgrade render gate. */
+function qsHueDeg(on: DecodedPng, circle: { cx: number; cy: number; r: number }): number {
+  let rs = 0, gs = 0, bs = 0, n = 0;
+  for (let y = 0; y < on.h; y += 1) {
+    for (let x = 0; x < on.w; x += 1) {
+      if (Math.hypot(x - circle.cx, y - circle.cy) > circle.r) continue;
+      const i = (y * on.w + x) * on.chans;
+      rs += on.data[i]!; gs += on.data[i + 1]!; bs += on.data[i + 2]!;
+      n += 1;
+    }
+  }
+  const r = rs / n, g = gs / n, b = bs / n;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+  if (mx === mn) return 0;
+  const d = mx - mn;
+  let h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  h *= 60;
+  return h < 0 ? h + 360 : h;
+}
+
+describe("catchlight shape+position: a raised quad compacts the dot", () => {
+  it("report module sha matches the landed source", () => {
+    expect(qsReport.module).toBe("packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts");
+    expect(sha256File(modulePath)).toBe(qsReport.moduleSha256);
+  });
+
+  it("landed source: quad 2.0 @500 at (1,8,6) with a shape switch", () => {
+    const src = readFileSync(modulePath, "utf8");
+    const shapeM = src.match(/const CATCHLIGHT_SHAPE[^=]*=\s*"(quad|disc)"/);
+    expect(shapeM?.[1], "shape landed").toBe(qsReport.landed.shape);
+    const sizeM = src.match(/const CATCHLIGHT_QUAD_SIZE = ([0-9.]+);/);
+    expect(Number(sizeM?.[1]), "size landed").toBe(qsReport.landed.size);
+    const intM = src.match(/const CATCHLIGHT_QUAD_INTENSITY = ([0-9.]+);/);
+    expect(Number(intM?.[1]), "intensity landed").toBe(qsReport.landed.intensity);
+    const posM = src.match(/const CATCHLIGHT_QUAD_POS[^=]*=\s*\[([^\]]+)\]/);
+    expect(posM?.[1]?.split(",").map(Number), "position landed").toEqual(qsReport.landed.pos);
+    expect(src, "disc branch present (shape lever kept)").toMatch(/CATCHLIGHT_SHAPE === "disc"/);
+    expect(src, "equal-area disc radius").toMatch(/CATCHLIGHT_QUAD_SIZE \/ Math\.sqrt\(Math\.PI\)/);
+    expect(src, "source still pins the pos identifier").toMatch(/CATCHLIGHT_QUAD_POS/);
+  });
+
+  it(qsExists ? "G2: a round 230+ core sits in each iris disc at the landed position" : "pos store absent — G2 skipped", () => {
+    if (!qsExists) return;
+    expect(sha256File(qsPng(qsReport.landed.tag))).toBe(qsReport.renders[qsReport.landed.tag]!.sha256);
+    const on = decodePngFile(qsPng(qsReport.landed.tag));
+    const off = decodePngFile(qsPng("off"));
+    expect(on.w).toBe(1280);
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = qsReport.rows[qsReport.landed.tag]![eye]!;
+      const rect = rectFromArray(qsReport.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, qsReport.seeds[eye]![0], qsReport.seeds[eye]![1], qsReport.thresholds.irisCore);
+      const hot = h2Hot(on, circle, rect, qsReport.thresholds.hot);
+      expect(hot.length, `${eye} 230+ px in disc`).toBe(g.hot230);
+      const members = largestClusterMembers(hot);
+      expect(members.length, `${eye} dot cluster px`).toBe(g.hotCluster);
+      expect(members.length, `${eye} crisp bar (>= ${qsReport.gates.coreMinCluster} px contiguous)`).toBeGreaterThanOrEqual(qsReport.gates.coreMinCluster);
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+      for (const p of members) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+      const ratio = Math.max(x1 - x0 + 1, y1 - y0 + 1) / Math.max(Math.min(x1 - x0 + 1, y1 - y0 + 1), 1);
+      expect([x1 - x0 + 1, y1 - y0 + 1].sort((a, b) => a - b), `${eye} core bbox`).toEqual([...g.coreBbox].sort((a, b) => a - b));
+      expect(Math.round(ratio * 100) / 100, `${eye} core round (extent ratio <= ${qsReport.gates.roundRatioMax})`).toBeLessThanOrEqual(qsReport.gates.roundRatioMax);
+      expect(Math.round(ratio * 100) / 100).toBeCloseTo(g.roundRatio, 1);
+      const c = centroid(members);
+      expect(Math.hypot(c.x - circle.cx, c.y - circle.cy), `${eye} dot centroid inside disc`).toBeLessThan(circle.r);
+      expect(Math.round(Math.hypot(c.x - circle.cx, c.y - circle.cy) * 10) / 10, `${eye} centroid offset`).toBe(g.distFromCentre);
+      let mx = -Infinity, satSum = 0, n = 0;
+      for (let y = 0; y < on.h; y += 1) {
+        for (let x = 0; x < on.w; x += 1) {
+          if (Math.hypot(x - circle.cx, y - circle.cy) > circle.r) continue;
+          mx = Math.max(mx, luminance(on, x, y));
+          satSum += saturation(on, x, y);
+          n += 1;
+        }
+      }
+      expect(mx, `${eye} core reaches 230+`).toBeGreaterThanOrEqual(qsReport.thresholds.hot);
+      expect(Math.round((satSum / Math.max(n, 1)) * 10000) / 10000, `${eye} iris meansat`).toBe(g.meansat);
+      expect(g.meansat, `${eye} meansat in band`).toBeGreaterThanOrEqual(qsReport.gates.meansatBand[0]);
+      expect(g.meansat, `${eye} meansat below neon`).toBeLessThan(qsReport.gates.meansatBand[1]);
+      expect(Math.round(qsHueDeg(on, circle) * 10) / 10, `${eye} render hue`).toBe(g.hueDeg);
+      expect(g.hueDeg, `${eye} hue in the brown band`).toBeGreaterThanOrEqual(qsReport.gates.hueBand[0]);
+      expect(g.hueDeg, `${eye} hue out of the red`).toBeLessThanOrEqual(qsReport.gates.hueBand[1]);
+    }
+  });
+
+  it(qsExists ? "smear: quad-attributable wash under the ceiling at the landed position" : "pos store absent — smear skipped", () => {
+    if (!qsExists) return;
+    const on = decodePngFile(qsPng(qsReport.landed.tag));
+    const off = decodePngFile(qsPng("off"));
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = qsReport.rows[qsReport.landed.tag]![eye]!;
+      const rect = rectFromArray(qsReport.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, qsReport.seeds[eye]![0], qsReport.seeds[eye]![1], qsReport.thresholds.irisCore);
+      expect(qsSmear(on, off, circle), `${eye} wash px`).toBe(g.smearSub230);
+      expect(g.smearSub230, `${eye} wash <= ceiling ${qsReport.gates.smearCeiling}`).toBeLessThanOrEqual(qsReport.gates.smearCeiling);
+    }
+  });
+
+  it(qsExists ? "counterweight: the old square position fails the new gate" : "pos store absent — counterweight skipped", () => {
+    if (!qsExists) return;
+    // A gate that also passes on the old (1,5,8.5) quad is a fail: the old
+    // render must breach the smear ceiling AND the R roundness floor.
+    const oldOn = decodePngFile(qsPng("quad-old-pos"));
+    const off = decodePngFile(qsPng("off"));
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = qsReport.rows["quad-old-pos"]![eye]!;
+      const rect = rectFromArray(qsReport.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, qsReport.seeds[eye]![0], qsReport.seeds[eye]![1], qsReport.thresholds.irisCore);
+      expect(qsSmear(oldOn, off, circle), `${eye} old-pos wash px`).toBe(g.smearSub230);
+      expect(g.smearSub230, `${eye} old quad fails the smear ceiling`).toBeGreaterThan(qsReport.gates.smearCeiling);
+    }
+    expect(qsReport.rows["quad-old-pos"]!.R.roundRatio, "old R core is a streak").toBeGreaterThan(qsReport.gates.roundRatioMax);
+    const discOld = qsReport.rows["disc-2-i500-1_5_8p5"]!;
+    expect(discOld.L.hotCluster, "disc at old pos also drops the L core").toBeLessThan(qsReport.gates.coreMinCluster);
+  });
+
+  it(qsExists ? "CW1: cheek and forehead still pixel-identical (scoped env)" : "pos store absent — CW1 skipped", () => {
+    if (!qsExists) return;
+    const on = decodePngFile(qsPng(qsReport.landed.tag));
+    const off = decodePngFile(qsPng("off"));
+    for (const key of ["cheek", "forehead"] as const) {
+      const rect = rectFromArray(qsReport.crops[key]);
+      const g = qsReport.rows[qsReport.landed.tag]!.skin[key]!;
+      expect(countChangedPx(off, on, rect), `${key} changed px`).toBe(g);
+      expect(g, `${key} skin must be pixel-identical`).toBe(0);
+    }
+  });
+
+  it(qsExists ? "limbus: annulus lift over OFF is bounded at the landed position" : "pos store absent — limbus skipped", () => {
+    if (!qsExists) return;
+    const on = decodePngFile(qsPng(qsReport.landed.tag));
+    const off = decodePngFile(qsPng("off"));
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = qsReport.rows[qsReport.landed.tag]![eye]!;
+      const rect = rectFromArray(qsReport.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, qsReport.seeds[eye]![0], qsReport.seeds[eye]![1], qsReport.thresholds.irisCore);
+      const ring = h2RingMean(on, circle, rect);
+      expect(Math.round(ring * 10) / 10, `${eye} annulus mean L*`).toBe(g.ringMeanL);
+      const ringOff = h2RingMean(off, circle, rect);
+      expect(Math.round((ring - ringOff) * 10) / 10, `${eye} annulus lift over OFF`).toBe(g.ringLiftOverOff);
+      expect(g.ringLiftOverOff, `${eye} limbus lift <= ${qsReport.gates.ringLiftLe} L*`).toBeLessThanOrEqual(qsReport.gates.ringLiftLe);
+    }
+  });
+
+  it(qsExists ? "pos store shas verify" : "pos store absent — sha verification skipped", () => {
+    if (!qsExists) return;
+    for (const [key, want] of Object.entries(qsReport.renders)) {
+      const p = join(QSSTORE, want.png);
+      expect(existsSync(p), `pos store file present: ${want.png}`).toBe(true);
+      expect(sha256File(p), `sha of ${key}`).toBe(want.sha256);
+    }
+  });
+});

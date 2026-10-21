@@ -11,6 +11,7 @@ import {
   ACESFilmicToneMapping,
   AgXToneMapping,
   AmbientLight,
+  CircleGeometry,
   DataTexture,
   DirectionalLight,
   DoubleSide,
@@ -296,10 +297,11 @@ const LIMBUS_WIDTH_UV = 30 / 1024;
  */
 const ROUGH_DISC_INNER = 0.12;
 
-/** h2 catchlight softbox: small HDR-white quad above-front of the eye axis, so the PMREM captures a tight reflector (dot, not sheen). */
+/** h2 catchlight softbox: small HDR-white source above-front of the eye axis, so the PMREM captures a tight reflector (dot, not sheen). Shape "quad" (square) or "disc" (equal-area circle: r = size/sqrt(pi)); a disc source paints a rounder dot on the curved cornea. Position raised high (1,8,6, ~53deg elevation): compacts the reflection into a round central dot with less smeared tail than the old (1,5,8.5). */
+const CATCHLIGHT_SHAPE: "quad" | "disc" = "quad";
 const CATCHLIGHT_QUAD_SIZE = 2.0;
 const CATCHLIGHT_QUAD_INTENSITY = 500;
-const CATCHLIGHT_QUAD_POS: readonly [number, number, number] = [1.0, 5.0, 8.5];
+const CATCHLIGHT_QUAD_POS: readonly [number, number, number] = [1.0, 8.0, 6.0];
 
 /** Procedural map size (px); the iris disc spans ~2x135/1024 of it. */
 const ROUGH_MAP_SIZE = 256;
@@ -403,7 +405,11 @@ export async function applyProductRig(
   const globeEnvScene = new RoomEnvironment();
   const catchQuadMat = new MeshBasicMaterial({ side: DoubleSide });
   catchQuadMat.color.setRGB(CATCHLIGHT_QUAD_INTENSITY, CATCHLIGHT_QUAD_INTENSITY, CATCHLIGHT_QUAD_INTENSITY);
-  const catchQuad = new Mesh(new PlaneGeometry(CATCHLIGHT_QUAD_SIZE, CATCHLIGHT_QUAD_SIZE), catchQuadMat);
+  const catchQuadGeo =
+    CATCHLIGHT_SHAPE === "disc"
+      ? new CircleGeometry(CATCHLIGHT_QUAD_SIZE / Math.sqrt(Math.PI), 48)
+      : new PlaneGeometry(CATCHLIGHT_QUAD_SIZE, CATCHLIGHT_QUAD_SIZE);
+  const catchQuad = new Mesh(catchQuadGeo, catchQuadMat);
   catchQuad.position.set(...CATCHLIGHT_QUAD_POS);
   catchQuad.lookAt(0, 0, 0);
   globeEnvScene.add(catchQuad);
