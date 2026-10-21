@@ -736,3 +736,300 @@ describe("catchlight shape+position: a raised quad compacts the dot", () => {
     }
   });
 });
+
+const frReportPath = join(here, "catchlight-fresnel-report.json");
+const frReport = JSON.parse(readFileSync(frReportPath, "utf8")) as {
+  module: string;
+  moduleSha256: string;
+  wiring: Record<string, string>;
+  landed: { ior: number; f0: number; gain: number; exponent: number; flat: boolean };
+  subject: { glbSha256: string; spec: Record<string, unknown> };
+  store: string;
+  renders: Record<string, { png: string; sha256: string }>;
+  storeShas: Record<string, string>;
+  crops: { Leye: [number, number, number, number]; Reye: [number, number, number, number]; cheek: [number, number, number, number]; forehead: [number, number, number, number]; yaw25: { Leye: [number, number, number, number]; Reye: [number, number, number, number] }; "yaw-25": { Leye: [number, number, number, number]; Reye: [number, number, number, number] } };
+  seeds: Record<string, Record<string, [number, number]>>;
+  circles: Record<string, Record<string, { cx: number; cy: number; r: number }>>;
+  thresholds: { hot: number; irisCore: number };
+  determinism: { curFrontSha256: string; curFrontRerunSha256: string };
+  rows: {
+    front: {
+      frameChanged: number; cheek: number; forehead: number;
+      maskFloor: Record<string, number>; headLift: Record<string, number>;
+      L: { hot230: number; hotCluster: number; coreBbox: [number, number]; roundRatio: number; centroid: [number, number]; distFromCentre: number; meanL: number };
+      R: { hot230: number; hotCluster: number; coreBbox: [number, number]; roundRatio: number; centroid: [number, number]; distFromCentre: number; meanL: number };
+    };
+    yaw25: {
+      differential: Record<string, number>;
+      L: { hot230: number; hotCluster: number; roundRatio: number; distFromCentre: number; meanL: number; lift: number };
+      R: { hot230: number; hotCluster: number; roundRatio: number; distFromCentre: number; meanL: number; lift: number };
+    };
+    "yaw-25": {
+      differential: Record<string, number>;
+      L: { hot230: number; hotCluster: number; roundRatio: number; distFromCentre: number; meanL: number; lift: number };
+      R: { hot230: number; hotCluster: number; roundRatio: number; distFromCentre: number; meanL: number; lift: number };
+    };
+  };
+  gates: { coreMinCluster: number; roundRatioMax: number; liftMin: number; diffMin: number; skinZero: boolean };
+  counterweight: { flatDifferential: { L: Record<string, number>; R: Record<string, number> } };
+  sweep: { cells: string[]; shas: Record<string, string>; rows: Record<string, Record<string, { lift: number }>> };
+};
+const frHookPath = join(here, "../eye-shader/eye-cornea-fresnel.ts");
+const frLidPath = join(here, "../eye-shader/eye-lid-contact.ts");
+const frRigPath = join(here, "../isolated-subject-rig-variants.ts");
+const frLabPath = join(here, "../isolated-subject-lab.ts");
+const FRSTORE = frReport.store;
+const frExists = existsSync(FRSTORE);
+const frPng = (key: string): string => join(FRSTORE, frReport.renders[key]!.png);
+const frRecord = (key: string): Record<string, unknown> =>
+  JSON.parse(readFileSync(join(FRSTORE, `${key}.json`), "utf8")) as Record<string, unknown>;
+const frRig = (key: string): { eyeShading: { corneaFresnel: { enabled: boolean; matched: string[]; gain: number; exponent: number; flat: boolean } } } =>
+  (frRecord(key).productRig as {
+    eyeShading: { corneaFresnel: { enabled: boolean; matched: string[]; gain: number; exponent: number; flat: boolean } };
+  });
+
+/** Mean L* inside an iris circle. */
+function frDiscMean(png: DecodedPng, circle: { cx: number; cy: number; r: number }): number {
+  let sum = 0;
+  let n = 0;
+  for (let y = 0; y < png.h; y += 1) {
+    for (let x = 0; x < png.w; x += 1) {
+      if (Math.hypot(x - circle.cx, y - circle.cy) > circle.r) continue;
+      sum += luminanceLStar(png, x, y);
+      n += 1;
+    }
+  }
+  return sum / Math.max(n, 1);
+}
+
+/**
+ * Mask-placement floor (probe_noise.py method): |mean(r+1) - mean(r-1)| on
+ * the same render. Where exactly "the cornea" is placed moves the metric;
+ * head-on lift must sit inside that placement uncertainty.
+ */
+function frMaskFloor(png: DecodedPng, circle: { cx: number; cy: number; r: number }): number {
+  return Math.abs(
+    frDiscMean(png, { ...circle, r: circle.r + 1 }) - frDiscMean(png, { ...circle, r: circle.r - 1 }),
+  );
+}
+
+/** Whole-frame changed px (the falsifier counts the same way). */
+function frFrameChanged(a: DecodedPng, b: DecodedPng): number {
+  let total = 0;
+  for (let y = 0; y < a.h; y += 1) {
+    for (let x = 0; x < a.w; x += 1) {
+      for (let ch = 0; ch < 3; ch += 1) {
+        if (Math.abs(a.data[(y * a.w + x) * a.chans + ch]! - b.data[(y * b.w + x) * b.chans + ch]!) > 0) {
+          total += 1;
+          break;
+        }
+      }
+    }
+  }
+  return total;
+}
+
+type FrEye = "L" | "R";
+const frEyeKeys: FrEye[] = ["L", "R"];
+function frRect(yaw: "front" | "yaw25" | "yaw-25", eye: FrEye): CropRect {
+  const box =
+    yaw === "front"
+      ? frReport.crops[eye === "L" ? "Leye" : "Reye"]
+      : frReport.crops[yaw][eye === "L" ? "Leye" : "Reye"];
+  return rectFromArray(box);
+}
+function frCircle(yaw: "front" | "yaw25" | "yaw-25", eye: FrEye): { cx: number; cy: number; r: number } {
+  const c = frReport.circles[yaw]![eye]!;
+  return { cx: c.cx, cy: c.cy, r: c.r };
+}
+
+describe("fresnel: the cornea film is invisible head-on and lifts at grazing", () => {
+  it("report module sha matches the landed hook source", () => {
+    expect(frReport.module).toBe("packages/openclinxr/xr-scene/src/eye-shader/eye-cornea-fresnel.ts");
+    expect(sha256File(frHookPath)).toBe(frReport.moduleSha256);
+    expect(sha256File(frLidPath)).toBe(frReport.wiring["eye-lid-contact.ts"]);
+    expect(sha256File(frRigPath)).toBe(frReport.wiring["isolated-subject-rig-variants.ts"]);
+    expect(sha256File(frLabPath)).toBe(frReport.wiring["isolated-subject-lab.ts"]);
+  });
+
+  it("cause: Schlick weight on the globe iris disc, F0 from Gullstrand IOR, flat ablation", () => {
+    const hook = readFileSync(frHookPath, "utf8");
+    expect(hook, "Gullstrand IOR literal (duplicated, not imported: ceiling 10)").toMatch(/EYE_CORNEA_FRESNEL_IOR = 1\.376/);
+    expect(hook, "F0 from the IOR by formula").toMatch(/\(\(EYE_CORNEA_FRESNEL_IOR - 1\) \/ \(EYE_CORNEA_FRESNEL_IOR \+ 1\)\)/);
+    expect(hook, "landed gain pinned").toMatch(/EYE_CORNEA_FRESNEL_GAIN = 2/);
+    expect(hook, "landed exponent pinned").toMatch(/EYE_CORNEA_FRESNEL_EXPONENT = 1/);
+    expect(hook, "no transmission pass (the EEVEE-ball failure mode)").not.toMatch(/\.transmission\s*=/);
+    expect(hook, "no transmission chunk include").not.toMatch(/#include <transmission/);
+    expect(hook, "no new geometry (the film lives on the globe texels)").not.toMatch(/new Mesh\(/);
+    expect(hook, "flat forces the head-on weight everywhere").toMatch(/uCorneaFlat > 0\.5/);
+    expect(hook, "angular term present when not flat").toMatch(/pow\( 1\.0 - corneaCosT, uCorneaExp \)/);
+    expect(hook, "head-on weight is exactly zero (factor 1.0)").toMatch(/radiance \*= 1\.0 \+ uCorneaGain \* corneaIrisM \* corneaW/);
+    expect(hook, "composes with the sclera hook cache key (no aliasing)").toMatch(/prevKey/);
+    const lid = readFileSync(frLidPath, "utf8");
+    expect(lid, "fresnel installs beside the sclera hook in the product path").toMatch(/applyCorneaFresnel/);
+    const rig = readFileSync(frRigPath, "utf8");
+    expect(rig, "rig threads the fresnel opts").toMatch(/corneaFresnelGain/);
+    const lab = readFileSync(frLabPath, "utf8");
+    expect(lab, "lab spec carries the fresnel keys").toMatch(/eyeCorneaFlat/);
+    expect(frReport.landed.ior).toBe(1.376);
+    expect(frReport.landed.gain).toBe(2);
+    expect(frReport.landed.exponent).toBe(1);
+    expect(frReport.landed.flat).toBe(false);
+  });
+
+  it(frExists ? "readback: the hook landed in the product rig (live scene, not source)" : "fresnel store absent — readback skipped", () => {
+    if (!frExists) return;
+    // Installed + shaping values proved by the live runtime debug readout
+    // (same readback posture as the CW2 globe-envMap gates).
+    for (const key of ["fres-front", "fres-yaw25", "fres-yaw-25"]) {
+      const cf = frRig(key).eyeShading.corneaFresnel;
+      expect(cf.enabled, `${key} fresnel enabled`).toBe(true);
+      expect(cf.matched.length, `${key} one globe slot`).toBe(1);
+      expect(cf.gain, `${key} landed gain`).toBe(2);
+      expect(cf.exponent, `${key} landed exponent`).toBe(1);
+      expect(cf.flat, `${key} not flat`).toBe(false);
+    }
+    for (const key of ["cur-front", "cur-yaw25", "cur-yaw-25"]) {
+      const cf = frRig(key).eyeShading.corneaFresnel;
+      expect(cf.enabled, `${key} current has no hook`).toBe(false);
+      expect(cf.matched, `${key} nothing matched`).toEqual([]);
+    }
+    for (const key of ["flat-front", "flat-yaw25", "flat-yaw-25"]) {
+      const cf = frRig(key).eyeShading.corneaFresnel;
+      expect(cf.enabled, `${key} flat installs the hook`).toBe(true);
+      expect(cf.flat, `${key} flat ablation on`).toBe(true);
+    }
+  });
+
+  it(frExists ? "determinism: same-config re-render is bit-identical (noise floor 0)" : "fresnel store absent — determinism skipped", () => {
+    if (!frExists) return;
+    expect(sha256File(frPng("cur-front-rerun"))).toBe(frReport.renders["cur-front-rerun"]!.sha256);
+    expect(frReport.determinism.curFrontRerunSha256).toBe(frReport.determinism.curFrontSha256);
+    const a = decodePngFile(frPng("cur-front"));
+    const b = decodePngFile(frPng("cur-front-rerun"));
+    expect(frFrameChanged(a, b), "re-render changed px (temporal noise)").toBe(0);
+  });
+
+  it(frExists ? "(a) head-on keeps today's pixels within mask noise; dot preserved (b)" : "fresnel store absent — head-on skipped", () => {
+    if (!frExists) return;
+    expect(sha256File(frPng("fres-front"))).toBe(frReport.renders["fres-front"]!.sha256);
+    const cur = decodePngFile(frPng("cur-front"));
+    const on = decodePngFile(frPng("fres-front"));
+    expect(cur.w).toBe(1280);
+    const g = frReport.rows.front;
+    expect(frFrameChanged(cur, on), "whole-frame changed px").toBe(g.frameChanged);
+    for (const key of ["cheek", "forehead"] as const) {
+      const rect = rectFromArray(frReport.crops[key]);
+      expect(countChangedPx(cur, on, rect), `${key} skin must be pixel-identical`).toBe(0);
+      expect(countChangedPx(cur, on, rect)).toBe(g[key]);
+      expect(meanAbsLumaDiff(cur, on, rect)).toBe(0);
+    }
+    expect(frReport.gates.skinZero).toBe(true);
+    for (const eye of frEyeKeys) {
+      const rect = frRect("front", eye);
+      const seed = frReport.seeds["front"]![eye]!;
+      const circle = darkCoreCircle(cur, rect, seed[0], seed[1], frReport.thresholds.irisCore);
+      const pinned = frCircle("front", eye);
+      expect(circle.cx).toBeCloseTo(pinned.cx, 1);
+      expect(circle.cy).toBeCloseTo(pinned.cy, 1);
+      expect(circle.r).toBeCloseTo(pinned.r, 1);
+      const floor = frMaskFloor(cur, circle);
+      expect(floor).toBeCloseTo(g.maskFloor[eye], 1);
+      const lift = frDiscMean(on, circle) - frDiscMean(cur, circle);
+      expect(lift).toBeCloseTo(g.headLift[eye]!, 1);
+      expect(lift, `${eye} head-on lift sits inside mask-placement noise`).toBeLessThanOrEqual(floor);
+      // (b) the compact catch-light dot survives the film.
+      const hot = h2Hot(on, circle, rect, frReport.thresholds.hot);
+      expect(hot.length, `${eye} 230+ px in disc`).toBe(g[eye].hot230);
+      const members = largestClusterMembers(hot);
+      expect(members.length, `${eye} dot cluster px`).toBe(g[eye].hotCluster);
+      expect(members.length, `${eye} crisp bar (>= ${frReport.gates.coreMinCluster} px contiguous)`).toBeGreaterThanOrEqual(
+        frReport.gates.coreMinCluster,
+      );
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+      for (const p of members) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+      const ratio = Math.max(x1 - x0 + 1, y1 - y0 + 1) / Math.max(Math.min(x1 - x0 + 1, y1 - y0 + 1), 1);
+      expect(Math.round(ratio * 100) / 100, `${eye} core round (extent <= ${frReport.gates.roundRatioMax})`).toBeLessThanOrEqual(
+        frReport.gates.roundRatioMax,
+      );
+      expect(Math.round(ratio * 100) / 100).toBeCloseTo(g[eye].roundRatio, 1);
+      const c = centroid(members);
+      expect(c.x).toBeCloseTo(g[eye].centroid[0], 1);
+      expect(c.y).toBeCloseTo(g[eye].centroid[1], 1);
+      const d = Math.hypot(c.x - circle.cx, c.y - circle.cy);
+      expect(d, `${eye} dot centroid inside disc`).toBeLessThan(circle.r);
+      expect(d).toBeCloseTo(g[eye].distFromCentre, 1);
+      expect(frDiscMean(on, circle)).toBeCloseTo(g[eye].meanL, 1);
+    }
+  });
+
+  it(frExists ? "(c) yaw ±25 shows a smooth reflection lift vs head-on (fresnel proves itself)" : "fresnel store absent — yaw lift skipped", () => {
+    if (!frExists) return;
+    for (const yaw of ["yaw25", "yaw-25"] as const) {
+      expect(sha256File(frPng(`fres-${yaw}`))).toBe(frReport.renders[`fres-${yaw}`]!.sha256);
+      const cur = decodePngFile(frPng(`cur-${yaw}`));
+      const on = decodePngFile(frPng(`fres-${yaw}`));
+      const g = frReport.rows[yaw];
+      const head = frReport.rows.front;
+      for (const eye of frEyeKeys) {
+        const rect = frRect(yaw, eye);
+        const seed = frReport.seeds[yaw]![eye]!;
+        const circle = darkCoreCircle(cur, rect, seed[0], seed[1], frReport.thresholds.irisCore);
+        const pinned = frCircle(yaw, eye);
+        expect(circle.cx).toBeCloseTo(pinned.cx, 1);
+        expect(circle.cy).toBeCloseTo(pinned.cy, 1);
+        expect(circle.r).toBeCloseTo(pinned.r, 1);
+        const lift = frDiscMean(on, circle) - frDiscMean(cur, circle);
+        expect(lift, `${yaw} ${eye} lift pinned`).toBeCloseTo(g[eye].lift, 1);
+        expect(frDiscMean(on, circle)).toBeCloseTo(g[eye].meanL, 1);
+        expect(lift, `${yaw} ${eye} lift clears ${frReport.gates.liftMin} L*`).toBeGreaterThanOrEqual(frReport.gates.liftMin);
+        const headLift = head.headLift[eye]!;
+        const diff = lift - headLift;
+        expect(diff, `${yaw} ${eye} vs-head-on differential pinned`).toBeCloseTo(g.differential[eye]!, 1);
+        expect(diff, `${yaw} ${eye} differential lift above re-render noise`).toBeGreaterThan(frReport.gates.diffMin);
+      }
+    }
+  });
+
+  it(frExists ? "counterweight: the (c) gate fails with the fresnel term forced flat" : "fresnel store absent — counterweight skipped", () => {
+    if (!frExists) return;
+    // A gate that also passes with a constant (angle-free) term is a fail:
+    // flat renders are bit-identical to current at every yaw, so every lift
+    // and every differential is exactly 0 and the (c) bars fail.
+    for (const yaw of ["front", "yaw25", "yaw-25"] as const) {
+      const cur = decodePngFile(frPng(`cur-${yaw}`));
+      const flat = decodePngFile(frPng(`flat-${yaw}`));
+      expect(sha256File(frPng(`flat-${yaw}`))).toBe(frReport.renders[`flat-${yaw}`]!.sha256);
+      expect(frFrameChanged(cur, flat), `flat ${yaw} is current bit-for-bit`).toBe(0);
+      for (const eye of frEyeKeys) {
+        const rect = frRect(yaw, eye);
+        const seed = frReport.seeds[yaw]![eye]!;
+        const circle = darkCoreCircle(cur, rect, seed[0], seed[1], frReport.thresholds.irisCore);
+        const lift = frDiscMean(flat, circle) - frDiscMean(cur, circle);
+        expect(lift, `flat ${yaw} ${eye} lift is zero`).toBe(0);
+        if (yaw !== "front") {
+          const headLift = 0; // flat head-on lift is 0 (proved above)
+          expect(lift - headLift, `flat ${yaw} ${eye} differential fails the (c) bar`).toBeLessThanOrEqual(
+            frReport.gates.diffMin,
+          );
+          const pinned = frReport.counterweight.flatDifferential[eye]![yaw]!;
+          expect(pinned).toBe(0);
+        }
+      }
+    }
+  });
+
+  it(frExists ? "fresnel store shas verify" : "fresnel store absent — sha verification skipped", () => {
+    if (!frExists) return;
+    for (const [key, want] of Object.entries(frReport.storeShas)) {
+      const p = join(FRSTORE, key);
+      expect(existsSync(p), `fresnel store file present: ${key}`).toBe(true);
+      expect(sha256File(p), `sha of ${key}`).toBe(want);
+    }
+    for (const [key, want] of Object.entries(frReport.sweep.shas)) {
+      const p = join(FRSTORE, key);
+      expect(existsSync(p), `sweep store file present: ${key}`).toBe(true);
+      expect(sha256File(p), `sha of ${key}`).toBe(want);
+    }
+  });
+});

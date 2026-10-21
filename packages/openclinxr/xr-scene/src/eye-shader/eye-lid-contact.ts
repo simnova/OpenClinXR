@@ -30,6 +30,10 @@ import {
   EYE_SCLERA_CENTER_R_UV,
   resolveScleraShadeOptions,
 } from "./eye-sclera-shade.js";
+import {
+  applyCorneaFresnel,
+  resolveCorneaFresnelOptions,
+} from "./eye-cornea-fresnel.js";
 
 /**
  * Globe (eye) material filter for the scoped product-path env map. Mirrors
@@ -65,7 +69,7 @@ function emitWorldPositions(mesh: Mesh, emit: (p: Vector3) => void): void {
   if (mesh instanceof SkinnedMesh) {
     const si = mesh.geometry.getAttribute("skinIndex");
     const sw = mesh.geometry.getAttribute("skinWeight");
-    if (!si || !sw || !mesh.skeleton || !mesh.skeleton.boneMatrices) {
+    if (!si || !sw || !mesh.skeleton?.boneMatrices) {
       throw new Error(
         `eyeRuntimeShading skinned mesh ${mesh.name} lacks skinIndex/skinWeight/skeleton — refusing`,
       );
@@ -80,9 +84,9 @@ function emitWorldPositions(mesh: Mesh, emit: (p: Vector3) => void): void {
       const joints = [si.getX(i), si.getY(i), si.getZ(i), si.getW(i)];
       const weights = [sw.getX(i), sw.getY(i), sw.getZ(i), sw.getW(i)];
       for (let k = 0; k < 4; k += 1) {
-        const w = weights[k]!;
+        const w = weights[k] ?? 0;
         if (w === 0) continue;
-        m.fromArray(bm, Math.round(joints[k]!) * 16);
+        m.fromArray(bm, Math.round(joints[k] ?? 0) * 16);
         t.fromBufferAttribute(pos, i).applyMatrix4(m);
         v.addScaledVector(t, w);
       }
@@ -200,6 +204,23 @@ export type EyeShadingFlags = {
   scleraAtten?: number | undefined;
   lidBandM?: number | undefined;
   lidDarken?: number | undefined;
+  /**
+   * Fresnel-weighted cornea film (eye-finish): Schlick env lift on the
+   * globe's iris disc, exactly +0 head-on, ramping at grazing/yaw.
+   * Defaults to following scleraShade (the eyeShading master); explicit
+   * false renders the legacy eye.
+   */
+  corneaFresnel?: boolean | undefined;
+  /** Fresnel lift gain override (fail-closed, finite >= 0). */
+  corneaFresnelGain?: number | undefined;
+  /** Schlick shaping exponent override (fail-closed, finite > 0). */
+  corneaFresnelExponent?: number | undefined;
+  /**
+   * Counterweight ablation: force the fresnel weight to its head-on value
+   * everywhere (constant term, no angular dependence). Head-on response is
+   * unchanged; the yaw lift must vanish.
+   */
+  corneaFresnelFlat?: boolean | undefined;
 };
 
 export type EyeShadingResult = {
@@ -211,11 +232,77 @@ export type EyeShadingResult = {
     darken: number;
     margins: LidMarginRec[];
   } | null;
+  /**
+   * Cornea fresnel readback: which globe materials carry the hook and the
+   * landed shaping values, for the cornea-env gate report.
+   */
+  corneaFresnel: {
+    enabled: boolean;
+    matched: string[];
+    gain: number;
+    exponent: number;
+    flat: boolean;
+  };
+};
+
+export type ProductEyeShadingArgs = {
+  eyeShading: boolean;
+  scleraShade: boolean;
+  lidShadow: boolean;
+  scleraAtten?: number | undefined;
+  lidBandM?: number | undefined;
+  lidDarken?: number | undefined;
+  corneaFresnel?: boolean | undefined;
+  corneaFresnelGain?: number | undefined;
+  corneaFresnelExponent?: number | undefined;
+  corneaFresnelFlat?: boolean | undefined;
 };
 
 /**
- * Install the sclera hook on every globe mesh with live lid margins.
- * Value overrides are fail-closed via resolveScleraShadeOptions.
+ * Product-rig eye-shading application (extracted from
+ * isolated-subject-rig-variants.ts by the file-size budget): resolves the
+ * eyeShading value object for the ProductRigApplied readback. Returns the
+ * legacy disabled shape when the master is off — the traverse/env path is
+ * untouched, so the old h1/h2/pos cells render identically.
+ */
+export function resolveProductEyeShading(
+  scene: Object3D,
+  globeMeshes: Mesh[],
+  args: ProductEyeShadingArgs,
+): {
+  enabled: boolean;
+  scleraEnvAtten: number;
+  scleraMatched: string[];
+  shadowMechanism: "lid-contact" | null;
+  lidContact: EyeShadingResult["lidContact"];
+  corneaFresnel: EyeShadingResult["corneaFresnel"] | null;
+} {
+  const { eyeShading, scleraShade, lidShadow } = args;
+  if (!(eyeShading && (scleraShade || lidShadow || args.corneaFresnel === true))) {
+    return {
+      enabled: eyeShading,
+      scleraEnvAtten: 1,
+      scleraMatched: [],
+      shadowMechanism: null,
+      lidContact: null,
+      corneaFresnel: null,
+    };
+  }
+  const r = applyEyeShading(scene, globeMeshes, args);
+  return {
+    enabled: eyeShading,
+    scleraEnvAtten: r.scleraEnvAtten,
+    scleraMatched: r.scleraMatched,
+    shadowMechanism: r.shadowMechanism,
+    lidContact: r.lidContact,
+    corneaFresnel: r.corneaFresnel,
+  };
+}
+
+/**
+ * Install the sclera hook + the fresnel cornea hook on every globe mesh
+ * with live lid margins. Value overrides are fail-closed via
+ * resolveScleraShadeOptions / resolveCorneaFresnelOptions.
  */
 export function applyEyeShading(
   scene: Object3D,
@@ -229,8 +316,17 @@ export function applyEyeShading(
     bandM: flags.lidBandM,
     darken: flags.lidDarken,
   });
+  const corneaFresnelEnabled = flags.corneaFresnel ?? scleraShade;
+  // Fail-closed even when disabled: a garbage gain/exponent refuses rather
+  // than silently landing a different film later.
+  const corneaResolved = resolveCorneaFresnelOptions({
+    gain: flags.corneaFresnelGain,
+    exponent: flags.corneaFresnelExponent,
+    flat: flags.corneaFresnelFlat,
+  });
   const margins: LidMarginRec[] = [];
   const scleraMatched: string[] = [];
+  const corneaMatched: string[] = [];
   for (const mesh of globeMeshes) {
     // Pupil columns from the iris-disc verts (stray-proof); the margin
     // search below runs on SKINNED body positions (live pose).
@@ -264,6 +360,14 @@ export function applyEyeShading(
         darken: lidShadow ? resolved.darken : 0,
       });
       scleraMatched.push(`${mesh.name}|${m.name}`);
+      if (corneaFresnelEnabled) {
+        applyCorneaFresnel(m as MeshStandardMaterial, {
+          gain: corneaResolved.gain,
+          exponent: corneaResolved.exponent,
+          flat: corneaResolved.flat,
+        });
+        corneaMatched.push(`${mesh.name}|${m.name}`);
+      }
     }
   }
   if (scleraMatched.length === 0) {
@@ -279,6 +383,13 @@ export function applyEyeShading(
       bandM: resolved.bandM,
       darken: lidShadow ? resolved.darken : 0,
       margins,
+    },
+    corneaFresnel: {
+      enabled: corneaFresnelEnabled,
+      matched: corneaMatched,
+      gain: corneaResolved.gain,
+      exponent: corneaResolved.exponent,
+      flat: corneaResolved.flat,
     },
   };
 }

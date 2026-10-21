@@ -1,7 +1,7 @@
 {
   "card": "eye-finish catchlight shape+position (subagent lane)",
   "module": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts",
-  "moduleSha256": "94a0d3bdaaf37c46f39c48ac16fee84db8ebf2f3c0b135d8e45473e9b716a3e8",
+  "moduleSha256": "2228cbb1c71427755e71eb45e262285f88e1fda649447d775386cf144c818ebe",
   "landed": {
     "shape": "quad",
     "size": 2,
