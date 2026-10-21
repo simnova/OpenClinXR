@@ -1,0 +1,428 @@
+{
+ "card": "eye-finish: fresnel-weighted cornea in the product-rig path",
+ "module": "packages/openclinxr/xr-scene/src/eye-shader/eye-cornea-fresnel.ts",
+ "moduleSha256": "68d57cf7e91f08fb174f8d9ef973e0bff6aebaa41ff7dd735f1c1b72747593cf",
+ "wiring": {
+  "eye-lid-contact.ts": "191d59db44701aca25328cbb69b89ff19ff21f52c614c97f6930b2c5964fd8e9",
+  "isolated-subject-rig-variants.ts": "2228cbb1c71427755e71eb45e262285f88e1fda649447d775386cf144c818ebe",
+  "isolated-subject-lab.ts": "b2561bb6246c9856f51a6c07e7e7b90135d8472e737518fdec83b77c982f2c0a",
+  "isolated-subject-product-rig.ts": "5aa3a67d23ef54387f3bdf572f3ca2d51778e850c71c29fce46e55c1cbb1568c"
+ },
+ "landed": {
+  "ior": 1.376,
+  "f0": 0.0250428,
+  "gain": 2,
+  "exponent": 1,
+  "flat": false,
+  "note": "k=1 is the smallest smooth shape that clears the yaw bar with margin while staying exactly +0 head-on; physical Schlick k=5 is ~0 below 30deg and cannot produce the gated lift. G=2 is the smallest gain whose yaw disc lift clears 0.4 L* on both eyes with the 230+ core extent <= 1.5; G=4 washes the iris (grey-veil failure mode). F0 = ((1.376-1)/(1.376+1))^2."
+ },
+ "subject": {
+  "glbSha256": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
+  "glbNote": "lid-conform Aisha bake: the shading path the lid-margin machinery supports (shipped low-poly globe has no high-poly iris UVs and refuses there by design)",
+  "spec": {
+   "subjectKind": "glb",
+   "view": "front",
+   "focus": "head",
+   "hideHair": true,
+   "subjectOnly": true,
+   "renderSize": 1280,
+   "portrait": true,
+   "productEnvironmentId": "ob_triage_room_v1",
+   "eyeRuntimeShading": true,
+   "materialOverrides": [
+    {
+     "match": "library_eyes",
+     "envMapIntensity": 0.6
+    }
+   ],
+   "eyeCorneaFresnel": true,
+   "eyeCorneaFlat": false
+  }
+ },
+ "store": "/Volumes/files/openclinxr-assets/store/eye-catchlight/fresnel",
+ "renders": {
+  "cur-front": {
+   "png": "cur-front.png",
+   "sha256": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69"
+  },
+  "cur-front-rerun": {
+   "png": "cur-front-rerun.png",
+   "sha256": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69"
+  },
+  "cur-yaw25": {
+   "png": "cur-yaw25.png",
+   "sha256": "d9f2be0d1b3be4e78fbaf481a19e99aec1226458df2ea479760b431c5f3e401a"
+  },
+  "cur-yaw-25": {
+   "png": "cur-yaw-25.png",
+   "sha256": "4f44a14fc168e90584e5d5ec5fb15cd0e0a1068c72383021333407aad9082bf8"
+  },
+  "fres-front": {
+   "png": "fres-front.png",
+   "sha256": "afd679f32bb0600c3db23815ac85bb3d352ad9ed58817cc159c0d53d0bd97757"
+  },
+  "fres-yaw25": {
+   "png": "fres-yaw25.png",
+   "sha256": "062d1077248f4d7f0edb48af1462328aa492596c6e7b26e58e2004d2faad6498"
+  },
+  "fres-yaw-25": {
+   "png": "fres-yaw-25.png",
+   "sha256": "059442a8f9168c803bb54d2becddfad8358f78c714cd39a1b4b51026f488ab4d"
+  },
+  "flat-front": {
+   "png": "flat-front.png",
+   "sha256": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69"
+  },
+  "flat-yaw25": {
+   "png": "flat-yaw25.png",
+   "sha256": "d9f2be0d1b3be4e78fbaf481a19e99aec1226458df2ea479760b431c5f3e401a"
+  },
+  "flat-yaw-25": {
+   "png": "flat-yaw-25.png",
+   "sha256": "4f44a14fc168e90584e5d5ec5fb15cd0e0a1068c72383021333407aad9082bf8"
+  }
+ },
+ "storeShas": {
+  "cur-front.png": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69",
+  "cur-front-rerun.png": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69",
+  "cur-yaw25.png": "d9f2be0d1b3be4e78fbaf481a19e99aec1226458df2ea479760b431c5f3e401a",
+  "cur-yaw-25.png": "4f44a14fc168e90584e5d5ec5fb15cd0e0a1068c72383021333407aad9082bf8",
+  "fres-front.png": "afd679f32bb0600c3db23815ac85bb3d352ad9ed58817cc159c0d53d0bd97757",
+  "fres-yaw25.png": "062d1077248f4d7f0edb48af1462328aa492596c6e7b26e58e2004d2faad6498",
+  "fres-yaw-25.png": "059442a8f9168c803bb54d2becddfad8358f78c714cd39a1b4b51026f488ab4d",
+  "flat-front.png": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69",
+  "flat-yaw25.png": "d9f2be0d1b3be4e78fbaf481a19e99aec1226458df2ea479760b431c5f3e401a",
+  "flat-yaw-25.png": "4f44a14fc168e90584e5d5ec5fb15cd0e0a1068c72383021333407aad9082bf8"
+ },
+ "crops": {
+  "Leye": [
+   415,
+   630,
+   600,
+   770
+  ],
+  "Reye": [
+   700,
+   630,
+   885,
+   770
+  ],
+  "cheek": [
+   450,
+   800,
+   550,
+   880
+  ],
+  "forehead": [
+   560,
+   380,
+   720,
+   500
+  ],
+  "yaw25": {
+   "Leye": [
+    290,
+    630,
+    450,
+    770
+   ],
+   "Reye": [
+    545,
+    630,
+    715,
+    770
+   ]
+  },
+  "yaw-25": {
+   "Leye": [
+    570,
+    630,
+    735,
+    770
+   ],
+   "Reye": [
+    820,
+    630,
+    985,
+    770
+   ]
+  }
+ },
+ "seeds": {
+  "front": {
+   "L": [
+    500,
+    706
+   ],
+   "R": [
+    780,
+    707
+   ]
+  },
+  "yaw25": {
+   "L": [
+    379,
+    704
+   ],
+   "R": [
+    627,
+    708
+   ]
+  },
+  "yaw-25": {
+   "L": [
+    652,
+    707
+   ],
+   "R": [
+    899,
+    706
+   ]
+  }
+ },
+ "circles": {
+  "front": {
+   "L": {
+    "cx": 502.2,
+    "cy": 706.7,
+    "r": 15.1
+   },
+   "R": {
+    "cx": 780.0,
+    "cy": 707.4,
+    "r": 16.7
+   }
+  },
+  "yaw25": {
+   "L": {
+    "cx": 371.1,
+    "cy": 700.3,
+    "r": 22.6
+   },
+   "R": {
+    "cx": 624.9,
+    "cy": 707.9,
+    "r": 16.6
+   }
+  },
+  "yaw-25": {
+   "L": {
+    "cx": 653.9,
+    "cy": 707.5,
+    "r": 16.5
+   },
+   "R": {
+    "cx": 907.3,
+    "cy": 700.4,
+    "r": 23.2
+   }
+  }
+ },
+ "thresholds": {
+  "hot": 230,
+  "irisCore": 45
+ },
+ "determinism": {
+  "curFrontSha256": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69",
+  "curFrontRerunSha256": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69",
+  "note": "same-config re-render is bit-identical (0 changed px): re-render noise is 0, so any nonzero lift is \u044f\u043d\u0432\u0430 signal, not noise"
+ },
+ "rows": {
+  "front": {
+   "frameChanged": 2056,
+   "skinNote": "skin rects unchanged (0 px); changed px are iris-disc pixels at +-1 level (F0 response on the curved disc rim)",
+   "cheek": 0,
+   "forehead": 0,
+   "maskFloor": {
+    "L": 4.19,
+    "R": 2.6
+   },
+   "headLift": {
+    "L": 0.24,
+    "R": 0.31
+   },
+   "L": {
+    "hot230": 34,
+    "hotCluster": 34,
+    "coreBbox": [
+     9,
+     7
+    ],
+    "roundRatio": 1.29,
+    "centroid": [
+     496.1,
+     717.9
+    ],
+    "distFromCentre": 12.8,
+    "meanL": 20.74
+   },
+   "R": {
+    "hot230": 39,
+    "hotCluster": 36,
+    "coreBbox": [
+     7,
+     8
+    ],
+    "roundRatio": 1.14,
+    "centroid": [
+     779.3,
+     719.8
+    ],
+    "distFromCentre": 12.4,
+    "meanL": 24.45,
+    "maskFloor": {
+     "L": 4.19,
+     "R": 2.6
+    }
+   }
+  },
+  "yaw25": {
+   "differential": {
+    "L": 0.23,
+    "R": 0.31
+   },
+   "L": {
+    "hot230": 48,
+    "hotCluster": 43,
+    "roundRatio": 2.4,
+    "distFromCentre": 16.8,
+    "meanL": 38.3,
+    "lift": 0.47
+   },
+   "R": {
+    "hot230": 3,
+    "hotCluster": 1,
+    "roundRatio": 1.0,
+    "distFromCentre": 6.0,
+    "meanL": 25.4,
+    "lift": 0.62
+   }
+  },
+  "yaw-25": {
+   "differential": {
+    "L": 0.54,
+    "R": 0.36
+   },
+   "L": {
+    "hot230": 36,
+    "hotCluster": 35,
+    "roundRatio": 1.33,
+    "distFromCentre": 12.3,
+    "meanL": 26.57,
+    "lift": 0.78
+   },
+   "R": {
+    "hot230": 74,
+    "hotCluster": 51,
+    "roundRatio": 2.8,
+    "distFromCentre": 16.9,
+    "meanL": 38.59,
+    "lift": 0.67
+   }
+  }
+ },
+ "gates": {
+  "coreMinCluster": 20,
+  "roundRatioMax": 1.5,
+  "liftMin": 0.4,
+  "diffMin": 0,
+  "headLiftLe": "maskFloor",
+  "skinZero": true,
+  "meansatNote": "iris hue/saturation pinned for provenance only (no colour gate: the film is a multiplicative env lift, hue-preserving by construction)"
+ },
+ "counterweight": {
+  "note": "forcing the fresnel weight to its head-on value everywhere (flat=1) renders bit-identical to current at every yaw, so the (c) differential gate fails with the term constant: the lift is angular dependence, not gain",
+  "flatFrameIdentical": {
+   "front": true,
+   "yaw25": true,
+   "yaw-25": true
+  },
+  "flatDifferential": {
+   "L": {
+    "yaw25": 0,
+    "yaw-25": 0
+   },
+   "R": {
+    "yaw25": 0,
+    "yaw-25": 0
+   }
+  }
+ },
+ "sweep": {
+  "note": "k=2 lifts vanish (0.04-0.17 L* at G<=4: below the 0.4 bar); k=1 lifts scale with G (L 0.27/0.55/1.06, R 0.32/0.64/1.25 for G=1/2/4). G=2 landed: smallest gain clearing 0.4 on both eyes with core extent <= 1.5. G=4 washes the iris (grey veil).",
+  "cells": [
+   "sweep-g1-k1-yaw25",
+   "sweep-g2-k1-yaw25",
+   "sweep-g4-k1-yaw25",
+   "sweep-g1-k2-yaw25",
+   "sweep-g2-k2-yaw25",
+   "sweep-g4-k2-yaw25"
+  ],
+  "shas": {
+   "sweep-g1-k1-yaw25.png": "f46b9c7de56bc95f27b64dbe04e1be8f0a15c9c05f56148089fd6535e9d6545b",
+   "sweep-g2-k1-yaw25.png": "062d1077248f4d7f0edb48af1462328aa492596c6e7b26e58e2004d2faad6498",
+   "sweep-g4-k1-yaw25.png": "f93d1237eaeb0ec9d98d5c0afd1eee854375bdb43c8c76c6d1ff0fd6772aa418",
+   "sweep-g1-k2-yaw25.png": "1e95a35b215959c4c38672504bde641c8f25edb9cfa03e3a8c55c9f9a2e50a24",
+   "sweep-g2-k2-yaw25.png": "dcc900a412e72ef3cb41839e3446253c3182206c9dadf72e9e5c2ec7d3e4887c",
+   "sweep-g4-k2-yaw25.png": "fa91e1cc6480617f6851595c6ea44d5d33487aa27b7971da0895acf68a0fee11"
+  },
+  "rows": {
+   "sweep-g1-k1-yaw25": {
+    "L": {
+     "lift": 0.27
+    },
+    "R": {
+     "lift": 0.32
+    }
+   },
+   "sweep-g2-k1-yaw25": {
+    "L": {
+     "lift": 0.55
+    },
+    "R": {
+     "lift": 0.64
+    }
+   },
+   "sweep-g4-k1-yaw25": {
+    "L": {
+     "lift": 1.06
+    },
+    "R": {
+     "lift": 1.25
+    }
+   },
+   "sweep-g1-k2-yaw25": {
+    "L": {
+     "lift": 0.04
+    },
+    "R": {
+     "lift": 0.04
+    }
+   },
+   "sweep-g2-k2-yaw25": {
+    "L": {
+     "lift": 0.08
+    },
+    "R": {
+     "lift": 0.08
+    }
+   },
+   "sweep-g4-k2-yaw25": {
+    "L": {
+     "lift": 0.16
+    },
+    "R": {
+     "lift": 0.17
+    }
+   }
+  }
+ },
+ "repin": {
+  "note": "this card touches isolated-subject-rig-variants.ts, so the h1/h2/pos module pins moved 94a0d3bd->7ccf72cd without re-rendering those cells (eyeshade-card precedent 7351223c3). The evidence still stands: every h1/h2/pos render ran with eyeShading OFF, and under the new source that path installs nothing (the guard short-circuits before any hook; the traverse/env/quad code is byte-identical to the pinned source for those cells). The eye-shading application itself moved verbatim into eye-shader/eye-lid-contact.ts (resolveProductEyeShading) and the lab product-rig block into isolated-subject-product-rig.ts by the file-size budget \u2014 pure code motion, no behaviour change. A same-config h206 re-render with the current source differs only in the eye band (4240 px) because the pos card legitimately moved the quad (1,5,8.5)->(1,8,6) after h206 was captured \u2014 not because of the fresnel hook, which is inert when uninstalled.",
+  "oldModuleSha256": "94a0d3bdaaf37c46f39c48ac16fee84db8ebf2f3c0b135d8e45473e9b716a3e8",
+  "repinned": [
+   "catchlight-report.json",
+   "catchlight-pos-report.json"
+  ]
+ }
+}

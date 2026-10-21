@@ -29,8 +29,8 @@ import {
 } from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import {
-  applyEyeShading,
   GLOBE_MATERIAL_RE,
+  resolveProductEyeShading,
   type LidMarginRec,
 } from "./eye-shader/eye-lid-contact.js";
 
@@ -149,6 +149,14 @@ export type ProductRigApplied = {
       bandM: number;
       darken: number;
       margins: LidMarginRec[];
+    } | null;
+    /** Fresnel cornea film readback (eye-finish) for the gate report. */
+    corneaFresnel: {
+      enabled: boolean;
+      matched: string[];
+      gain: number;
+      exponent: number;
+      flat: boolean;
     } | null;
   };
 };
@@ -355,7 +363,7 @@ export async function applyProductRig(
   renderer: WebGLRenderer,
   environmentId: string,
   headCentre: Vector3,
-  opts?: { eyeShading?: boolean; scleraShade?: boolean; lidShadow?: boolean; scleraAtten?: number | undefined; lidBandM?: number | undefined; lidDarken?: number | undefined },
+  opts?: { eyeShading?: boolean; scleraShade?: boolean; lidShadow?: boolean; scleraAtten?: number | undefined; lidBandM?: number | undefined; lidDarken?: number | undefined; corneaFresnel?: boolean | undefined; corneaFresnelGain?: number | undefined; corneaFresnelExponent?: number | undefined; corneaFresnelFlat?: boolean | undefined },
 ): Promise<ProductRigApplied> {
   const eyeShading = opts?.eyeShading ?? true;
   const scleraShade = (opts?.scleraShade ?? eyeShading) && eyeShading;
@@ -417,7 +425,6 @@ export async function applyProductRig(
   pmrem.dispose();
   const globeMatched: string[] = [];
   const roughDisc = buildIrisDiscRoughnessMap();
-  const scleraMatched: string[] = [];
   const globeMeshes: Mesh[] = [];
   // First pass: scoped env + inventory (no hook yet — margins first).
   scene.traverse((o) => {
@@ -455,23 +462,20 @@ export async function applyProductRig(
     if (light instanceof DirectionalLight) light.target.position.add(delta);
   }
   scene.updateMatrixWorld(true);
-  // Eye runtime shading: sclera hook with live lid margins (see
-  // ./eye-shader/eye-lid-contact.ts — split out by the file-size budget).
-  let eyeShadingResult: {
-    scleraMatched: string[];
-    scleraEnvAtten: number;
-    shadowMechanism: "lid-contact" | null;
-    lidContact: ProductRigApplied["eyeShading"]["lidContact"];
-  } = { scleraMatched: [], scleraEnvAtten: 1, shadowMechanism: null, lidContact: null };
-  if (eyeShading && (scleraShade || lidShadow)) {
-    eyeShadingResult = applyEyeShading(scene, globeMeshes, {
-      scleraShade,
-      lidShadow,
-      scleraAtten: opts?.scleraAtten,
-      lidBandM: opts?.lidBandM,
-      lidDarken: opts?.lidDarken,
-    });
-  }
+  // Eye runtime shading: sclera + fresnel-cornea hooks with live lid
+  // margins (see ./eye-shader/eye-lid-contact.ts — split by the budget).
+  const eyeShadingValue = resolveProductEyeShading(scene, globeMeshes, {
+    eyeShading,
+    scleraShade,
+    lidShadow,
+    scleraAtten: opts?.scleraAtten,
+    lidBandM: opts?.lidBandM,
+    lidDarken: opts?.lidDarken,
+    corneaFresnel: opts?.corneaFresnel,
+    corneaFresnelGain: opts?.corneaFresnelGain,
+    corneaFresnelExponent: opts?.corneaFresnelExponent,
+    corneaFresnelFlat: opts?.corneaFresnelFlat,
+  });
   return {
     environmentId,
     variantId: applied.variantId,
@@ -488,12 +492,6 @@ export async function applyProductRig(
           ? { inner: ROUGH_DISC_INNER, outer: 1, radiusUv: IRIS_RADIUS_UV, featherUv: LIMBUS_WIDTH_UV }
           : null,
     },
-    eyeShading: {
-      enabled: eyeShading,
-      scleraEnvAtten: eyeShadingResult.scleraEnvAtten,
-      scleraMatched: eyeShadingResult.scleraMatched,
-      shadowMechanism: eyeShadingResult.shadowMechanism,
-      lidContact: eyeShadingResult.lidContact,
-    },
+    eyeShading: eyeShadingValue,
   };
 }
