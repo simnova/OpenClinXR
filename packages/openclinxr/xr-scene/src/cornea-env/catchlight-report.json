@@ -2,7 +2,7 @@
  "card": "tsk_e248d339fd18da20",
  "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/catchlight",
  "module": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts",
- "moduleSha256": "2228cbb1c71427755e71eb45e262285f88e1fda649447d775386cf144c818ebe",
+ "moduleSha256": "4b0eac463990c94e6363ca1945ebbec1899a2c910745f94c0133ad28212e05ed",
  "store": "/Volumes/files/openclinxr-assets/store/eye-catchlight/",
  "subject": {
   "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
@@ -26,7 +26,7 @@
   },
   "post00": {
    "png": "catch-eye00-front.png",
-   "sha256": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818"
+   "sha256": "3c0a1a661cb8cb285ef7e5e4e5ab01677a7b865875c833f2321e89cf4215fd65"
   },
   "post06": {
    "png": "catch-eye06-front.png",
@@ -73,11 +73,11 @@
  "G1": {
   "L": {
    "changedPx": 2358,
-   "meanDL": 1.377
+   "meanDL": 2.46
   },
   "R": {
    "changedPx": 2246,
-   "meanDL": 1.424
+   "meanDL": 2.48
   }
  },
  "G2": {
@@ -86,8 +86,8 @@
    "silBbox": [
     441,
     614,
-    582,
-    693
+    581,
+    692
    ],
    "seed": [
     515,
@@ -100,7 +100,7 @@
     494.6,
     638.9
    ],
-   "blobMeanL00": 221.5,
+   "blobMeanL00": 220.6,
    "blobMeanL06": 233.7
   },
   "R": {
@@ -108,8 +108,8 @@
    "silBbox": [
     697,
     614,
-    838,
-    692
+    837,
+    691
    ],
    "seed": [
     775,
@@ -122,7 +122,7 @@
     778.6,
     638.1
    ],
-   "blobMeanL00": 219.8,
+   "blobMeanL00": 218.9,
    "blobMeanL06": 232.8
   }
  },
@@ -165,7 +165,7 @@
  "storeShas": {
   "pre00": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818",
   "pre06": "753a3ac7f20d636687baa085bd612337e057e964daa6128f8f062701222bd5a3",
-  "post00": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818",
+  "post00": "3c0a1a661cb8cb285ef7e5e4e5ab01677a7b865875c833f2321e89cf4215fd65",
   "post06": "212467d921cede3c822d8c53b82211325d75768353fd4d3073b644ce483cc9db",
   "optA00": "5c7f444e0209e03cd32d13e29363c7435b5843cfdfa95d60a0a5b0616034b4e1"
  },
@@ -173,7 +173,7 @@
   "renders": {
    "h100": {
     "png": "catch-eye00-front.png",
-    "sha256": "f188dffb3a66eca404496b0b702b5d5ad8748f705576572ea9742edb6a123a3c"
+    "sha256": "3c0a1a661cb8cb285ef7e5e4e5ab01677a7b865875c833f2321e89cf4215fd65"
    },
    "h106": {
     "png": "catch-eye06-front.png",
@@ -192,21 +192,21 @@
     "irisCircle": {
      "cx": 512.9,
      "cy": 650.1,
-     "r": 17.8
+     "r": 17.9
     },
     "centroidInDisc": true,
-    "spotFracOfDisc": 0.0879,
-    "scleraPx": 3310,
-    "scleraMedianL00": 84.4,
-    "scleraMeanL00": 83.52,
-    "scleraMeanL06": 85.18,
-    "scleraDelta": 1.65,
-    "eyeCropChanged": 2348
+    "spotFracOfDisc": 0.0878,
+    "scleraPx": 3317,
+    "scleraMedianL00": 84.5,
+    "scleraMeanL00": 83.58,
+    "scleraMeanL06": 85.15,
+    "scleraDelta": 1.57,
+    "eyeCropChanged": 2357
    },
    "R": {
-    "spotPx": 87,
+    "spotPx": 86,
     "spotCentroid": [
-     763.4,
+     763.5,
      644.9
     ],
     "spotMaxL": 89.9,
@@ -216,23 +216,23 @@
      "r": 16.0
     },
     "centroidInDisc": true,
-    "spotFracOfDisc": 0.1084,
-    "scleraPx": 2416,
+    "spotFracOfDisc": 0.107,
+    "scleraPx": 2420,
     "scleraMedianL00": 83.2,
-    "scleraMeanL00": 82.5,
-    "scleraMeanL06": 84.4,
-    "scleraDelta": 1.9,
-    "eyeCropChanged": 2240
+    "scleraMeanL00": 82.56,
+    "scleraMeanL06": 84.37,
+    "scleraDelta": 1.81,
+    "eyeCropChanged": 2245
    }
   },
   "CW1": {
    "cheek": {
     "h100vsPreChanged": 0,
-    "h100vsPreMeanDL": 0.0
+    "h100vsPreMeanDL": 0
    },
    "forehead": {
     "h100vsPreChanged": 0,
-    "h100vsPreMeanDL": 0.0
+    "h100vsPreMeanDL": 0
    }
   },
   "CW2": {
@@ -245,7 +245,17 @@
      "inner": 0.12,
      "outer": 1,
      "radiusUv": 0.1318359375,
-     "featherUv": 0.029296875
+     "featherUv": 0.029296875,
+     "upload": {
+      "length": 262144,
+      "width": 256,
+      "height": 256,
+      "irisGL": 31,
+      "irisGR": 31,
+      "trapL": 255,
+      "trapR": 255
+     },
+     "note": "radii are the fossil h106 render's own construction (135/1024); the fixed source builds 133.5/1024 (cause test pins the source literals). upload is the live fixed-source texture readback: G=31 at the true F-bake iris centres, 255 at the old v-mirrored trap UVs."
     }
    },
    "h106EyeEnvMapIntensity": 0.6,
@@ -256,7 +266,7 @@
   "spotThresholdDeltaLStar": 25,
   "irisCoreThresholdLStar": 45,
   "storeShas": {
-   "h100": "f188dffb3a66eca404496b0b702b5d5ad8748f705576572ea9742edb6a123a3c",
+   "h100": "3c0a1a661cb8cb285ef7e5e4e5ab01677a7b865875c833f2321e89cf4215fd65",
    "h106": "bb42e0ba4db9a479f8895223004b3ef8f312141593161957b9cf822347bb2077"
   }
  },
@@ -264,52 +274,86 @@
   "renders": {
    "h206": {
     "png": "catch-eye06-front.png",
-    "sha256": "105867d7d8147741b03aa1e600e1cb397873366bfad539bdd5f0e04b23f8f2ec"
+    "sha256": "52d69e412ff948f52dc7868c6c88150ce891381df015a5b13ef3c66a1ffb4977"
    }
   },
   "cause": "globe env = RoomEnvironment + one small high-intensity white quad (2.0 units at (1.0,5.0,8.5) above-front, MeshBasicMaterial HDR 500, DoubleSide, lookAt origin) PMREM sigma 0.04; scoped to globe via material.envMap (no scene.environment); iris-disc roughnessMap unchanged (0.06 effective)",
   "G2": {
    "L": {
-    "hot230": 91,
+    "hot230": 93,
     "hotCluster": 70,
-    "hotCentroid": [517.5, 647.4],
-    "spotMaxLum": 254,
-    "meansat": 0.6425,
-    "irisCircle": {"cx": 512.9, "cy": 650.1, "r": 17.8},
+    "hotCentroid": [
+     517.5,
+     647.4
+    ],
+    "spotMaxLum": 254.2,
+    "meansat": 0.6419,
+    "irisCircle": {
+     "cx": 512.9,
+     "cy": 650.1,
+     "r": 17.9
+    },
     "centroidInDisc": true,
     "distFromCentre": 5.4,
-    "spotFracOfDisc": 0.07,
-    "ringMeanL": 65.4,
+    "spotFracOfDisc": 0.0698,
+    "ringMeanL": 65.6,
     "ringDeltaOld": 6.6
    },
    "R": {
-    "hot230": 73,
+    "hot230": 74,
     "hotCluster": 70,
-    "hotCentroid": [766.6, 647.3],
+    "hotCentroid": [
+     766.6,
+     647.3
+    ],
     "spotMaxLum": 255,
-    "meansat": 0.6675,
-    "irisCircle": {"cx": 765.3, "cy": 651.0, "r": 16.0},
+    "meansat": 0.6665,
+    "irisCircle": {
+     "cx": 765.3,
+     "cy": 651.0,
+     "r": 16.0
+    },
     "centroidInDisc": true,
     "distFromCentre": 3.9,
-    "spotFracOfDisc": 0.0872,
-    "ringMeanL": 56.2,
+    "spotFracOfDisc": 0.0871,
+    "ringMeanL": 56.4,
     "ringDeltaOld": 9.8
    }
   },
   "CW1": {
-   "cheek": {"h206vsPreChanged": 0, "h206vsPreMeanDL": 0.0},
-   "forehead": {"h206vsPreChanged": 0, "h206vsPreMeanDL": 0.0}
+   "cheek": {
+    "h206vsPreChanged": 0,
+    "h206vsPreMeanDL": 0
+   },
+   "forehead": {
+    "h206vsPreChanged": 0,
+    "h206vsPreMeanDL": 0
+   }
   },
   "counterweight": {
-   "oldH106": {"L": {"hot230": 5, "hotCluster": 4}, "R": {"hot230": 4, "hotCluster": 3}},
-   "note": "same 230+ in-disc cluster metric on the soft-room h106 render: 4/3 px, no crisp dot — the h2 gate (cluster >= 20, pinned 70/70) fails on the old env"
+   "oldH106": {
+    "L": {
+     "hot230": 5,
+     "hotCluster": 4
+    },
+    "R": {
+     "hot230": 4,
+     "hotCluster": 3
+    }
+   },
+   "note": "same 230+ in-disc cluster metric on the soft-room h106 render: 4/3 px, no crisp dot \u2014 the h2 gate (cluster >= 20, pinned 70/70) fails on the old env"
   },
   "visualGrade": "crisp white dot, upper iris, both eyes; limbus boundary clean (soft halo only, no bright ring); sclera unglazed; background unchanged (quad lives in the PMREM env scene only)",
   "store": "/Volumes/files/openclinxr-assets/store/eye-catchlight/h2/",
   "thresholdLuminance": 230,
   "irisCoreThresholdLStar": 45,
   "storeShas": {
-   "h206": "105867d7d8147741b03aa1e600e1cb397873366bfad539bdd5f0e04b23f8f2ec"
+   "h206": "52d69e412ff948f52dc7868c6c88150ce891381df015a5b13ef3c66a1ffb4977"
   }
+ },
+ "discMap": {
+  "module": "packages/openclinxr/xr-scene/src/eye-shader/iris-disc-roughness-map.ts",
+  "moduleSha256": "0bb03961038add75af541cf35aac0d3e3ea7207d7bde41a64be58825e055ec9b",
+  "note": "budget-split owner of the F-bake iris-disc numerals, the RGBA upload, and the texel readback; pinned alongside the rig module because every gated render samples it"
  }
 }

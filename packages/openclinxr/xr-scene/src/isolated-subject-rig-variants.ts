@@ -12,7 +12,6 @@ import {
   AgXToneMapping,
   AmbientLight,
   CircleGeometry,
-  DataTexture,
   DirectionalLight,
   DoubleSide,
   HemisphereLight,
@@ -28,6 +27,14 @@ import {
   type WebGLRenderer,
 } from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import {
+  type DiscUpload,
+  IRIS_RADIUS_UV,
+  LIMBUS_WIDTH_UV,
+  ROUGH_DISC_INNER,
+  buildIrisDiscRoughnessMap,
+  readDiscUpload,
+} from "./eye-shader/iris-disc-roughness-map.js";
 import {
   GLOBE_MATERIAL_RE,
   resolveProductEyeShading,
@@ -115,12 +122,14 @@ export type ProductRigApplied = {
    * scoped env map, and whether any did. The variant JSON records this, so
    * CW2 (globe envMap non-null) is proved by readback, not by source.
    * roughnessDisc pins the procedural iris-disc roughness map (h1): inner /
-   * outer texels and radii, or null when no globe material matched.
+   * outer texels and radii plus the live-upload readback (buffer length,
+   * G at both true iris centres and at the old v-mirrored trap UVs),
+   * or null when no globe material matched.
    */
   globeEnvMap: {
     matched: string[];
     envMapSet: boolean;
-    roughnessDisc: { inner: number; outer: number; radiusUv: number; featherUv: number } | null;
+    roughnessDisc: { inner: number; outer: number; radiusUv: number; featherUv: number; upload: DiscUpload } | null;
   };
   /**
    * Eye runtime shading (card tsk_e0afe706b7a5f071): sclera-only env
@@ -282,75 +291,17 @@ export function applyRigOverride(
 }
 
 /**
- * h1 iris-disc UV numerals (v=0 at image top, the flipY=false glTF
- * convention — the same numerals eye-parallax.ts samples with).
- * Duplicated here, NOT imported from ./eye-shader/eye-parallax.js: that
- * module is currently entrypoint-unreachable, and importing it from this
- * (reachable) module would promote it — pushing xr-scene testInternalImports
- * 10 -> 11 via its gate test's direct import. Source of truth stays
- * eye-parallax.ts (EYE_IRIS_CENTER_L_UV/R_UV, EYE_IRIS_RADIUS_UV,
- * EYE_LIMBUS_WIDTH_UV); the cornea gate test pins these literals in both
- * files by text.
+ * h1 iris-disc UV numerals and procedural map: see
+ * ./eye-shader/iris-disc-roughness-map.ts (extracted by the file-size
+ * budget, zone 500). The cornea gate test pins the F-bake numerals in
+ * that file by text.
  */
-const IRIS_CENTER_L_UV: readonly [number, number] = [299.55 / 1024, 300.0 / 1024];
-const IRIS_CENTER_R_UV: readonly [number, number] = [724.65 / 1024, 721.28 / 1024];
-const IRIS_RADIUS_UV = 135 / 1024;
-const LIMBUS_WIDTH_UV = 30 / 1024;
-
-/**
- * h1 iris-disc roughness texel inside the disc (effective roughness =
- * globe scalar x texel). The globe scalar stays 0.5 (sclera unchanged);
- * the disc drops to 0.06 so the PMREM env resolves to a specular spot
- * instead of a flat lift.
- */
-const ROUGH_DISC_INNER = 0.12;
 
 /** h2 catchlight softbox: small HDR-white source above-front of the eye axis, so the PMREM captures a tight reflector (dot, not sheen). Shape "quad" (square) or "disc" (equal-area circle: r = size/sqrt(pi)); a disc source paints a rounder dot on the curved cornea. Position raised high (1,8,6, ~53deg elevation): compacts the reflection into a round central dot with less smeared tail than the old (1,5,8.5). */
 const CATCHLIGHT_SHAPE: "quad" | "disc" = "quad";
 const CATCHLIGHT_QUAD_SIZE = 2.0;
 const CATCHLIGHT_QUAD_INTENSITY = 500;
 const CATCHLIGHT_QUAD_POS: readonly [number, number, number] = [1.0, 8.0, 6.0];
-
-/** Procedural map size (px); the iris disc spans ~2x135/1024 of it. */
-const ROUGH_MAP_SIZE = 256;
-
-/**
- * h1: procedural iris-disc roughness map for the scoped globe material.
- * White (1.0) outside the iris keeps the authored scalar (sclera: 0.5);
- * the iris disc multiplies down to glossy (0.06 effective) with a
- * limbus-width smoothstep feather so no ring shows. UV convention follows
- * the glTF colour map (flipY=false, v=0 at image top — the same numerals
- * eye-parallax.ts cites), and the DataTexture keeps the default flipY=false
- * so both maps sample the same texel. Generated in memory: no iris-texture
- * edit, no new mesh, skin untouched. The shipped eye material carries no
- * authored roughnessMap (baseColor only), so nothing is overwritten.
- */
-function buildIrisDiscRoughnessMap(): DataTexture {
-  const S = ROUGH_MAP_SIZE;
-  const data = new Uint8Array(S * S);
-  const centres = [IRIS_CENTER_L_UV, IRIS_CENTER_R_UV];
-  const rFull = IRIS_RADIUS_UV;
-  const rOut = IRIS_RADIUS_UV + LIMBUS_WIDTH_UV;
-  for (let y = 0; y < S; y += 1) {
-    const v = (y + 0.5) / S;
-    for (let x = 0; x < S; x += 1) {
-      const u = (x + 0.5) / S;
-      let g = 1;
-      for (const c of centres) {
-        const r = Math.hypot(u - c[0], v - c[1]);
-        if (r < rOut) {
-          const t = Math.min(Math.max((r - rFull) / Math.max(rOut - rFull, 1e-9), 0), 1);
-          const s = t * t * (3 - 2 * t);
-          g = Math.min(g, ROUGH_DISC_INNER + (1 - ROUGH_DISC_INNER) * s);
-        }
-      }
-      data[y * S + x] = Math.round(g * 255);
-    }
-  }
-  const tex = new DataTexture(data, S, S);
-  tex.needsUpdate = true;
-  return tex;
-}
 
 /**
  * Product rig lighting (variant evaluator): ACES + base + overlay through the
@@ -489,7 +440,7 @@ export async function applyProductRig(
       envMapSet: globeMatched.length > 0,
       roughnessDisc:
         globeMatched.length > 0
-          ? { inner: ROUGH_DISC_INNER, outer: 1, radiusUv: IRIS_RADIUS_UV, featherUv: LIMBUS_WIDTH_UV }
+          ? { inner: ROUGH_DISC_INNER, outer: 1, radiusUv: IRIS_RADIUS_UV, featherUv: LIMBUS_WIDTH_UV, upload: readDiscUpload(roughDisc) }
           : null,
     },
     eyeShading: eyeShadingValue,

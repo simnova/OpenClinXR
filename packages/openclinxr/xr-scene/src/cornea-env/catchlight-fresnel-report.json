@@ -4,9 +4,10 @@
  "moduleSha256": "68d57cf7e91f08fb174f8d9ef973e0bff6aebaa41ff7dd735f1c1b72747593cf",
  "wiring": {
   "eye-lid-contact.ts": "191d59db44701aca25328cbb69b89ff19ff21f52c614c97f6930b2c5964fd8e9",
-  "isolated-subject-rig-variants.ts": "2228cbb1c71427755e71eb45e262285f88e1fda649447d775386cf144c818ebe",
+  "isolated-subject-rig-variants.ts": "4b0eac463990c94e6363ca1945ebbec1899a2c910745f94c0133ad28212e05ed",
   "isolated-subject-lab.ts": "b2561bb6246c9856f51a6c07e7e7b90135d8472e737518fdec83b77c982f2c0a",
-  "isolated-subject-product-rig.ts": "5aa3a67d23ef54387f3bdf572f3ca2d51778e850c71c29fce46e55c1cbb1568c"
+  "isolated-subject-product-rig.ts": "5aa3a67d23ef54387f3bdf572f3ca2d51778e850c71c29fce46e55c1cbb1568c",
+  "iris-disc-roughness-map.ts": "0bb03961038add75af541cf35aac0d3e3ea7207d7bde41a64be58825e055ec9b"
  },
  "landed": {
   "ior": 1.376,
@@ -43,56 +44,56 @@
  "renders": {
   "cur-front": {
    "png": "cur-front.png",
-   "sha256": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69"
+   "sha256": "486c60097df8a2c12b80baa1e80ae527c94dbb7f1ea09fda8f050de176726446"
   },
   "cur-front-rerun": {
    "png": "cur-front-rerun.png",
-   "sha256": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69"
+   "sha256": "486c60097df8a2c12b80baa1e80ae527c94dbb7f1ea09fda8f050de176726446"
   },
   "cur-yaw25": {
    "png": "cur-yaw25.png",
-   "sha256": "d9f2be0d1b3be4e78fbaf481a19e99aec1226458df2ea479760b431c5f3e401a"
+   "sha256": "2078a3678a727f1a459489cafbc43de7260b7ce0e47b90c29a973c06eff41b27"
   },
   "cur-yaw-25": {
    "png": "cur-yaw-25.png",
-   "sha256": "4f44a14fc168e90584e5d5ec5fb15cd0e0a1068c72383021333407aad9082bf8"
+   "sha256": "9a8070241cb69890654bd16ae9d99063017f6387937872fc0d54239300c3bc46"
   },
   "fres-front": {
    "png": "fres-front.png",
-   "sha256": "afd679f32bb0600c3db23815ac85bb3d352ad9ed58817cc159c0d53d0bd97757"
+   "sha256": "71a6ad12bb7933b27d8a38e49e2e3447b7cbc41622ee67b3d6d78ed06e8aceae"
   },
   "fres-yaw25": {
    "png": "fres-yaw25.png",
-   "sha256": "062d1077248f4d7f0edb48af1462328aa492596c6e7b26e58e2004d2faad6498"
+   "sha256": "21514834410eddf20d656e250b7e0ae02319fa6a891f69bfd04e69cca2a7008f"
   },
   "fres-yaw-25": {
    "png": "fres-yaw-25.png",
-   "sha256": "059442a8f9168c803bb54d2becddfad8358f78c714cd39a1b4b51026f488ab4d"
+   "sha256": "fd8ef8c605416f0a8886fcea69fbe3e2d2aadf76b2cf1051c6ce1a194fc9c20d"
   },
   "flat-front": {
    "png": "flat-front.png",
-   "sha256": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69"
+   "sha256": "486c60097df8a2c12b80baa1e80ae527c94dbb7f1ea09fda8f050de176726446"
   },
   "flat-yaw25": {
    "png": "flat-yaw25.png",
-   "sha256": "d9f2be0d1b3be4e78fbaf481a19e99aec1226458df2ea479760b431c5f3e401a"
+   "sha256": "2078a3678a727f1a459489cafbc43de7260b7ce0e47b90c29a973c06eff41b27"
   },
   "flat-yaw-25": {
    "png": "flat-yaw-25.png",
-   "sha256": "4f44a14fc168e90584e5d5ec5fb15cd0e0a1068c72383021333407aad9082bf8"
+   "sha256": "9a8070241cb69890654bd16ae9d99063017f6387937872fc0d54239300c3bc46"
   }
  },
  "storeShas": {
-  "cur-front.png": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69",
-  "cur-front-rerun.png": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69",
-  "cur-yaw25.png": "d9f2be0d1b3be4e78fbaf481a19e99aec1226458df2ea479760b431c5f3e401a",
-  "cur-yaw-25.png": "4f44a14fc168e90584e5d5ec5fb15cd0e0a1068c72383021333407aad9082bf8",
-  "fres-front.png": "afd679f32bb0600c3db23815ac85bb3d352ad9ed58817cc159c0d53d0bd97757",
-  "fres-yaw25.png": "062d1077248f4d7f0edb48af1462328aa492596c6e7b26e58e2004d2faad6498",
-  "fres-yaw-25.png": "059442a8f9168c803bb54d2becddfad8358f78c714cd39a1b4b51026f488ab4d",
-  "flat-front.png": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69",
-  "flat-yaw25.png": "d9f2be0d1b3be4e78fbaf481a19e99aec1226458df2ea479760b431c5f3e401a",
-  "flat-yaw-25.png": "4f44a14fc168e90584e5d5ec5fb15cd0e0a1068c72383021333407aad9082bf8"
+  "cur-front.png": "486c60097df8a2c12b80baa1e80ae527c94dbb7f1ea09fda8f050de176726446",
+  "cur-front-rerun.png": "486c60097df8a2c12b80baa1e80ae527c94dbb7f1ea09fda8f050de176726446",
+  "cur-yaw25.png": "2078a3678a727f1a459489cafbc43de7260b7ce0e47b90c29a973c06eff41b27",
+  "cur-yaw-25.png": "9a8070241cb69890654bd16ae9d99063017f6387937872fc0d54239300c3bc46",
+  "fres-front.png": "71a6ad12bb7933b27d8a38e49e2e3447b7cbc41622ee67b3d6d78ed06e8aceae",
+  "fres-yaw25.png": "21514834410eddf20d656e250b7e0ae02319fa6a891f69bfd04e69cca2a7008f",
+  "fres-yaw-25.png": "fd8ef8c605416f0a8886fcea69fbe3e2d2aadf76b2cf1051c6ce1a194fc9c20d",
+  "flat-front.png": "486c60097df8a2c12b80baa1e80ae527c94dbb7f1ea09fda8f050de176726446",
+  "flat-yaw25.png": "2078a3678a727f1a459489cafbc43de7260b7ce0e47b90c29a973c06eff41b27",
+  "flat-yaw-25.png": "9a8070241cb69890654bd16ae9d99063017f6387937872fc0d54239300c3bc46"
  },
  "crops": {
   "Leye": [
@@ -184,7 +185,7 @@
   "front": {
    "L": {
     "cx": 502.2,
-    "cy": 706.7,
+    "cy": 706.6,
     "r": 15.1
    },
    "R": {
@@ -207,12 +208,12 @@
   },
   "yaw-25": {
    "L": {
-    "cx": 653.9,
+    "cx": 654,
     "cy": 707.5,
     "r": 16.5
    },
    "R": {
-    "cx": 907.3,
+    "cx": 907.4,
     "cy": 700.4,
     "r": 23.2
    }
@@ -223,26 +224,26 @@
   "irisCore": 45
  },
  "determinism": {
-  "curFrontSha256": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69",
-  "curFrontRerunSha256": "622cac777fd11e95baad8524276980d354e6d6fc16a39a638de978fc7f3c4f69",
-  "note": "same-config re-render is bit-identical (0 changed px): re-render noise is 0, so any nonzero lift is \u044f\u043d\u0432\u0430 signal, not noise"
+  "curFrontSha256": "486c60097df8a2c12b80baa1e80ae527c94dbb7f1ea09fda8f050de176726446",
+  "curFrontRerunSha256": "486c60097df8a2c12b80baa1e80ae527c94dbb7f1ea09fda8f050de176726446",
+  "note": "same-config re-render is bit-identical (0 changed px): re-render noise is 0, so any nonzero lift is янва signal, not noise"
  },
  "rows": {
   "front": {
-   "frameChanged": 2056,
+   "frameChanged": 2038,
    "skinNote": "skin rects unchanged (0 px); changed px are iris-disc pixels at +-1 level (F0 response on the curved disc rim)",
    "cheek": 0,
    "forehead": 0,
    "maskFloor": {
-    "L": 4.19,
-    "R": 2.6
+    "L": 4.31,
+    "R": 2.54
    },
    "headLift": {
     "L": 0.24,
-    "R": 0.31
+    "R": 0.3
    },
    "L": {
-    "hot230": 34,
+    "hot230": 35,
     "hotCluster": 34,
     "coreBbox": [
      9,
@@ -253,70 +254,66 @@
      496.1,
      717.9
     ],
-    "distFromCentre": 12.8,
-    "meanL": 20.74
+    "distFromCentre": 12.9,
+    "meanL": 20.96
    },
    "R": {
-    "hot230": 39,
-    "hotCluster": 36,
+    "hot230": 42,
+    "hotCluster": 38,
     "coreBbox": [
-     7,
-     8
+     8,
+     9
     ],
-    "roundRatio": 1.14,
+    "roundRatio": 1.13,
     "centroid": [
-     779.3,
-     719.8
+     779.4,
+     719.7
     ],
     "distFromCentre": 12.4,
-    "meanL": 24.45,
-    "maskFloor": {
-     "L": 4.19,
-     "R": 2.6
-    }
+    "meanL": 24.73
    }
   },
   "yaw25": {
    "differential": {
-    "L": 0.23,
-    "R": 0.31
+    "L": 0.22,
+    "R": 0.32
    },
    "L": {
-    "hot230": 48,
-    "hotCluster": 43,
-    "roundRatio": 2.4,
-    "distFromCentre": 16.8,
-    "meanL": 38.3,
-    "lift": 0.47
+    "hot230": 50,
+    "hotCluster": 45,
+    "roundRatio": 2.6,
+    "distFromCentre": 17,
+    "meanL": 38.61,
+    "lift": 0.46
    },
    "R": {
-    "hot230": 3,
-    "hotCluster": 1,
-    "roundRatio": 1.0,
-    "distFromCentre": 6.0,
-    "meanL": 25.4,
+    "hot230": 4,
+    "hotCluster": 2,
+    "roundRatio": 2,
+    "distFromCentre": 5.5,
+    "meanL": 25.83,
     "lift": 0.62
    }
   },
   "yaw-25": {
    "differential": {
     "L": 0.54,
-    "R": 0.36
+    "R": 0.37
    },
    "L": {
-    "hot230": 36,
-    "hotCluster": 35,
+    "hot230": 38,
+    "hotCluster": 36,
     "roundRatio": 1.33,
-    "distFromCentre": 12.3,
-    "meanL": 26.57,
-    "lift": 0.78
+    "distFromCentre": 12.2,
+    "meanL": 26.76,
+    "lift": 0.79
    },
    "R": {
-    "hot230": 74,
-    "hotCluster": 51,
-    "roundRatio": 2.8,
-    "distFromCentre": 16.9,
-    "meanL": 38.59,
+    "hot230": 76,
+    "hotCluster": 54,
+    "roundRatio": 3,
+    "distFromCentre": 17.1,
+    "meanL": 38.76,
     "lift": 0.67
    }
   }
@@ -359,17 +356,17 @@
    "sweep-g4-k2-yaw25"
   ],
   "shas": {
-   "sweep-g1-k1-yaw25.png": "f46b9c7de56bc95f27b64dbe04e1be8f0a15c9c05f56148089fd6535e9d6545b",
-   "sweep-g2-k1-yaw25.png": "062d1077248f4d7f0edb48af1462328aa492596c6e7b26e58e2004d2faad6498",
-   "sweep-g4-k1-yaw25.png": "f93d1237eaeb0ec9d98d5c0afd1eee854375bdb43c8c76c6d1ff0fd6772aa418",
-   "sweep-g1-k2-yaw25.png": "1e95a35b215959c4c38672504bde641c8f25edb9cfa03e3a8c55c9f9a2e50a24",
-   "sweep-g2-k2-yaw25.png": "dcc900a412e72ef3cb41839e3446253c3182206c9dadf72e9e5c2ec7d3e4887c",
-   "sweep-g4-k2-yaw25.png": "fa91e1cc6480617f6851595c6ea44d5d33487aa27b7971da0895acf68a0fee11"
+   "sweep-g1-k1-yaw25.png": "cb5221d99eb5c756e2a64cde4da87427fc979f07dce93626f818c4e717d411a3",
+   "sweep-g2-k1-yaw25.png": "21514834410eddf20d656e250b7e0ae02319fa6a891f69bfd04e69cca2a7008f",
+   "sweep-g4-k1-yaw25.png": "9107f7e2ffc3889b68b9a856f3a7921bbb2d8a14d9ee0456f679177f0a3b7804",
+   "sweep-g1-k2-yaw25.png": "b8405f490b0722e57456f92866596a1ca185706652ad9ac4953252c41fd98e95",
+   "sweep-g2-k2-yaw25.png": "47ebf12fa9afa28e6da8749598ced038eba0ed44deac563abd3baab36eeb8cd4",
+   "sweep-g4-k2-yaw25.png": "eb5cf3a0fa027e839f23d8c3e9f963ef28d2573975c24d1bb4ea851ce9be7b19"
   },
   "rows": {
    "sweep-g1-k1-yaw25": {
     "L": {
-     "lift": 0.27
+     "lift": 0.23
     },
     "R": {
      "lift": 0.32
@@ -377,18 +374,18 @@
    },
    "sweep-g2-k1-yaw25": {
     "L": {
-     "lift": 0.55
+     "lift": 0.46
     },
     "R": {
-     "lift": 0.64
+     "lift": 0.62
     }
    },
    "sweep-g4-k1-yaw25": {
     "L": {
-     "lift": 1.06
+     "lift": 0.9
     },
     "R": {
-     "lift": 1.25
+     "lift": 1.22
     }
    },
    "sweep-g1-k2-yaw25": {
@@ -401,7 +398,7 @@
    },
    "sweep-g2-k2-yaw25": {
     "L": {
-     "lift": 0.08
+     "lift": 0.07
     },
     "R": {
      "lift": 0.08
@@ -409,16 +406,16 @@
    },
    "sweep-g4-k2-yaw25": {
     "L": {
-     "lift": 0.16
+     "lift": 0.14
     },
     "R": {
-     "lift": 0.17
+     "lift": 0.16
     }
    }
   }
  },
  "repin": {
-  "note": "this card touches isolated-subject-rig-variants.ts, so the h1/h2/pos module pins moved 94a0d3bd->7ccf72cd without re-rendering those cells (eyeshade-card precedent 7351223c3). The evidence still stands: every h1/h2/pos render ran with eyeShading OFF, and under the new source that path installs nothing (the guard short-circuits before any hook; the traverse/env/quad code is byte-identical to the pinned source for those cells). The eye-shading application itself moved verbatim into eye-shader/eye-lid-contact.ts (resolveProductEyeShading) and the lab product-rig block into isolated-subject-product-rig.ts by the file-size budget \u2014 pure code motion, no behaviour change. A same-config h206 re-render with the current source differs only in the eye band (4240 px) because the pos card legitimately moved the quad (1,5,8.5)->(1,8,6) after h206 was captured \u2014 not because of the fresnel hook, which is inert when uninstalled.",
+  "note": "this card touches isolated-subject-rig-variants.ts, so the h1/h2/pos module pins moved 94a0d3bd->7ccf72cd without re-rendering those cells (eyeshade-card precedent 7351223c3). The evidence still stands: every h1/h2/pos render ran with eyeShading OFF, and under the new source that path installs nothing (the guard short-circuits before any hook; the traverse/env/quad code is byte-identical to the pinned source for those cells). The eye-shading application itself moved verbatim into eye-shader/eye-lid-contact.ts (resolveProductEyeShading) and the lab product-rig block into isolated-subject-product-rig.ts by the file-size budget — pure code motion, no behaviour change. A same-config h206 re-render with the current source differs only in the eye band (4240 px) because the pos card legitimately moved the quad (1,5,8.5)->(1,8,6) after h206 was captured — not because of the fresnel hook, which is inert when uninstalled.",
   "oldModuleSha256": "94a0d3bdaaf37c46f39c48ac16fee84db8ebf2f3c0b135d8e45473e9b716a3e8",
   "repinned": [
    "catchlight-report.json",

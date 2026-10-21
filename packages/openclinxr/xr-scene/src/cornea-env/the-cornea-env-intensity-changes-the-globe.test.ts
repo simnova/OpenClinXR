@@ -41,6 +41,7 @@ const modulePath = join(here, moduleRel);
 const report = JSON.parse(readFileSync(reportPath, "utf8")) as {
   module: string;
   moduleSha256: string;
+  discMap: { module: string; moduleSha256: string };
   store: string;
   renders: Record<string, { png: string; sha256: string }>;
   crops: { Leye: [number, number, number, number]; Reye: [number, number, number, number]; cheek: [number, number, number, number]; forehead: [number, number, number, number] };
@@ -69,7 +70,7 @@ const report = JSON.parse(readFileSync(reportPath, "utf8")) as {
     }>;
     CW1: Record<string, { h100vsPreChanged: number; h100vsPreMeanDL: number }>;
     CW2: {
-      h106GlobeEnvMap: { matched: string[]; envMapSet: boolean; roughnessDisc: { inner: number; outer: number; radiusUv: number; featherUv: number } | null };
+      h106GlobeEnvMap: { matched: string[]; envMapSet: boolean; roughnessDisc: { inner: number; outer: number; radiusUv: number; featherUv: number; upload: { length: number; width: number; height: number; irisGL: number; irisGR: number; trapL: number; trapR: number }; note?: string } | null };
       h106EyeEnvMapIntensity: number;
       h100EyeEnvMapIntensity: number;
       h1EyeRoughnessScalar: number;
@@ -115,6 +116,12 @@ describe("the cornea env intensity changes the globe", () => {
     expect(sha256File(modulePath)).toBe(report.moduleSha256);
   });
 
+  it("report disc-map sha matches the shipped disc module", () => {
+    const disc = report.discMap;
+    expect(disc.module).toBe("packages/openclinxr/xr-scene/src/eye-shader/iris-disc-roughness-map.ts");
+    expect(sha256File(join(here, "../eye-shader/iris-disc-roughness-map.ts"))).toBe(disc.moduleSha256);
+  });
+
   it("source sets a scoped globe envMap on the product path (no scene.environment there)", () => {
     const src = readFileSync(modulePath, "utf8");
     const fnIdx = src.indexOf("export async function applyProductRig");
@@ -124,8 +131,9 @@ describe("the cornea env intensity changes the globe", () => {
     expect(body, "globe envMap assignment present").toMatch(/\.envMap = globeEnv/);
     expect(body, "h1 iris-disc roughnessMap present").toMatch(/roughnessMap = roughDisc/);
     expect(body, "disc texel pinned").toMatch(/ROUGH_DISC_INNER/);
-    expect(src, "iris UV numerals duplicated by design (no eye-parallax import)").toMatch(/Duplicated here, NOT imported from \.\/eye-shader\/eye-parallax\.js/);
+    expect(src, "disc map lives in its own budget-split module").toMatch(/iris-disc-roughness-map\.ts \(extracted by the file-size/);
     expect(src, "no eye-parallax import (ceiling 10)").not.toMatch(/from "\.\/eye-shader\/eye-parallax\.js"/);
+    expect(src, "disc map module imported").toMatch(/from "\.\/eye-shader\/iris-disc-roughness-map\.js"/);
     expect(body, "globe readback returned").toMatch(/globeEnvMap: \{/);
     expect(body, "product path must not set scene.environment").not.toMatch(/scene\.environment =/);
   });
@@ -248,31 +256,91 @@ function h1Sclera(opening: DecodedPng, rect: CropRect, seed: [number, number]): 
 
 describe("h1: the catch-light is a specular spot over the iris disc", () => {
   it("cause: scalar roughness unchanged, disc effective roughness lowered by map", () => {
-    // Iris numerals are duplicated (not imported) in the rig module to keep
-    // eye-parallax entrypoint-unreachable (ceiling 10): pin the literals in
-    // both files by text so a drift fails here, not silently in a render.
+    // 2026-10-21 re-pin (reason-recorded): the old rig literals
+    // (299.55,300.0)/(724.65,721.28) were the v-mirror of the true F-bake
+    // iris blobs and sampled uniform sclera — every rendered-map conclusion
+    // to date measured a mis-sampled map (full-disc 0.0-1.0 renders
+    // bit-identical; split-map u<0.5 diagnostic proved mis-sampling). True
+    // numerals measured 2026-10-21 on the extracted iris-centred-f texture
+    // shipped in the F-bake GLB: dark-blob centroids (296.9,723.9)/
+    // (722.7,302.5) px-top, r~133.5 by radial gradient, limbus edge
+    // r=130-137. GLTFLoader sets flipY=false on ALL textures (three 0.184,
+    // verified in source), so the colour map and the procedural DataTexture
+    // (default flipY=false) share v=0-top: no mirror, no opposite origin.
+    // Iris numerals live in the budget-split disc-map module (NOT imported
+    // from eye-parallax, which stays entrypoint-unreachable — ceiling 10):
+    // pin the literals in that file by text so a drift fails here, not
+    // silently in a render.
     const eyeSrc = readFileSync(join(here, "../eye-shader/eye-parallax.ts"), "utf8");
-    const rigSrc = readFileSync(modulePath, "utf8");
-    for (const lit of ["299.55 / 1024", "300.0 / 1024", "724.65 / 1024", "721.28 / 1024", "135 / 1024", "30 / 1024"]) {
-      expect(rigSrc, `rig module cites ${lit}`).toContain(lit);
+    const discMapPath = join(here, "../eye-shader/iris-disc-roughness-map.ts");
+    const discSrc = readFileSync(discMapPath, "utf8");
+    for (const lit of ["296.9 / 1024", "723.9 / 1024", "722.7 / 1024", "302.5 / 1024", "133.5 / 1024", "30 / 1024"]) {
+      expect(discSrc, `disc module cites ${lit}`).toContain(lit);
     }
-    // eye-shader-wire h1 (a010da05f) re-stated eye-parallax's centres in pixels
-    // from the image top (A 724.00, B 302.72). The rig module keeps the opposite
-    // v origin, so the two must be mirrors: 1024 - 300.0 = 724.0 and
-    // 1024 - 721.28 = 302.72. Pin that relation, not shared literals.
+    // The -c-era eye-parallax centres (299.55,724.0)/(724.65,302.72) agree
+    // within ~3px (same UV layout, earlier bake) and share this orientation:
+    // they are NOT mirrors. A v-mirror here would be off by ~420px in v;
+    // pin the closeness (u within 3.5, v within 0.5), not shared literals.
     for (const lit of ["299.55 / 1024", "724.0 / 1024", "724.65 / 1024", "302.72 / 1024", "135 / 1024", "30 / 1024"]) {
       expect(eyeSrc, `eye-parallax cites ${lit}`).toContain(lit);
     }
+    expect(Math.abs(299.55 - 296.9), "L blob u agrees within 3.5px across bakes").toBeLessThan(3.5);
+    expect(Math.abs(724.65 - 722.7), "R blob u agrees within 3.5px across bakes").toBeLessThan(3.5);
+    expect(Math.abs(724.0 - 723.9), "L blob v agrees within 0.5px across bakes").toBeLessThan(0.5);
+    expect(Math.abs(302.72 - 302.5), "R blob v agrees within 0.5px across bakes").toBeLessThan(0.5);
+    // RGBA upload (roughnessMap samples GREEN): S*S*4 buffer, G profile,
+    // LinearFilter both axes, explicit linear handling. A bare S*S buffer
+    // under-uploads RGBA and renders garbage (the old build read back
+    // mirror-flat); Nearest would alias the limbus feather.
+    const fnIdx = discSrc.indexOf("export function buildIrisDiscRoughnessMap");
+    expect(fnIdx, "builder present").toBeGreaterThanOrEqual(0);
+    const builder = discSrc.slice(fnIdx, discSrc.indexOf("export function readDiscUpload"));
+    expect(builder, "RGBA buffer S*S*4").toMatch(/new Uint8Array\(S \* S \* 4\)/);
+    expect(builder, "G channel carries the profile").toMatch(/data\[i \+ 1\] = g255;/);
+    expect(builder, "alpha opaque").toMatch(/data\[i \+ 3\] = 255;/);
+    expect(builder, "linear min+mag, no mipmaps").toMatch(/tex\.magFilter = LinearFilter;[\s\S]*tex\.minFilter = LinearFilter;[\s\S]*tex\.generateMipmaps = false;/);
+    expect(builder, "flipY pinned false").toMatch(/tex\.flipY = false;/);
+    expect(builder, "linear colour space").toMatch(/tex\.colorSpace = NoColorSpace;/);
     expect(report.h1.CW2.h1EyeRoughnessScalar, "globe scalar still 0.5 (sclera untouched)").toBe(0.5);
     const disc = report.h1.CW2.h106GlobeEnvMap.roughnessDisc;
     expect(disc, "procedural disc read back").not.toBeNull();
     expect(disc!.inner).toBe(0.12);
     expect(disc!.outer).toBe(1);
-    expect(disc!.radiusUv).toBeCloseTo(135 / 1024, 8);
+    expect(disc!.radiusUv, "fossil h106 render's own construction (135/1024)").toBeCloseTo(135 / 1024, 8);
     expect(disc!.featherUv).toBeCloseTo(30 / 1024, 8);
+    // Live-upload readback (measured from the fixed-source renders, not
+    // from source text): G=31 (0.12*255) at both true iris centres, 255 at
+    // the old v-mirrored trap UVs. Counterweight: a v-mirrored map swaps
+    // these pairs (iris 255, traps 31), so this pin fails if the mapping is
+    // ever mirrored again.
+    const upload = disc!.upload;
+    expect(upload, "upload readback recorded").not.toBeNull();
+    expect(upload!.length, "RGBA buffer length S*S*4 (catches the old S*S under-upload)").toBe(256 * 256 * 4);
+    expect(upload!.width).toBe(256);
+    expect(upload!.height).toBe(256);
+    expect(upload!.irisGL, "true L iris texel").toBe(31);
+    expect(upload!.irisGR, "true R iris texel").toBe(31);
+    expect(upload!.trapL, "old mirrored L UV is pure sclera").toBe(255);
+    expect(upload!.trapR, "old mirrored R UV is pure sclera").toBe(255);
+    expect(upload!.irisGL, "asymmetric probe: iris differs from the mirror trap").not.toBe(upload!.trapL);
+    expect(upload!.irisGR, "asymmetric probe: iris differs from the mirror trap").not.toBe(upload!.trapR);
     expect(report.h1.CW2.h106GlobeEnvMap.envMapSet).toBe(true);
     expect(report.h1.CW2.h106EyeEnvMapIntensity).toBe(0.6);
     expect(report.h1.CW2.h100EyeEnvMapIntensity).toBe(0);
+  });
+
+  it(h1Exists ? "readback: the h1 store capture record carries the same upload" : "h1 store absent — readback skipped", () => {
+    if (!h1Exists) return;
+    // The report upload values are cross-checked against the live capture
+    // record in the h1 store (fixed source): proved by readback, not by
+    // transcription.
+    const h1Record = JSON.parse(readFileSync(join(H1STORE, "catch-eye00-fixed.json"), "utf8")) as {
+      productRig: { globeEnvMap: { roughnessDisc: { upload: unknown } } };
+    };
+    expect(
+      h1Record.productRig.globeEnvMap.roughnessDisc.upload,
+      "store record readback matches the report pin",
+    ).toEqual(report.h1.CW2.h106GlobeEnvMap.roughnessDisc!.upload);
   });
 
   it(h1Exists ? "G2a: a connected D>=25 L* spot sits in each eye crop" : "h1 store absent — G2a skipped", () => {
@@ -553,6 +621,7 @@ const qsReportPath = join(here, "catchlight-pos-report.json");
 const qsReport = JSON.parse(readFileSync(qsReportPath, "utf8")) as {
   module: string;
   moduleSha256: string;
+  discMap: { module: string; moduleSha256: string };
   landed: { shape: string; size: number; intensity: number; pos: [number, number, number]; tag: string };
   store: string;
   renders: Record<string, { png: string; sha256: string }>;
@@ -608,6 +677,12 @@ describe("catchlight shape+position: a raised quad compacts the dot", () => {
   it("report module sha matches the landed source", () => {
     expect(qsReport.module).toBe("packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts");
     expect(sha256File(modulePath)).toBe(qsReport.moduleSha256);
+  });
+
+  it("report disc-map sha matches the shipped disc module", () => {
+    const disc = qsReport.discMap;
+    expect(disc.module).toBe("packages/openclinxr/xr-scene/src/eye-shader/iris-disc-roughness-map.ts");
+    expect(sha256File(join(here, "../eye-shader/iris-disc-roughness-map.ts"))).toBe(disc.moduleSha256);
   });
 
   it("landed source: quad 2.0 @500 at (1,8,6) with a shape switch", () => {
@@ -850,6 +925,9 @@ describe("fresnel: the cornea film is invisible head-on and lifts at grazing", (
     expect(sha256File(frLidPath)).toBe(frReport.wiring["eye-lid-contact.ts"]);
     expect(sha256File(frRigPath)).toBe(frReport.wiring["isolated-subject-rig-variants.ts"]);
     expect(sha256File(frLabPath)).toBe(frReport.wiring["isolated-subject-lab.ts"]);
+    expect(sha256File(join(here, "../eye-shader/iris-disc-roughness-map.ts"))).toBe(
+      frReport.wiring["iris-disc-roughness-map.ts"],
+    );
   });
 
   it("cause: Schlick weight on the globe iris disc, F0 from Gullstrand IOR, flat ablation", () => {
@@ -934,7 +1012,7 @@ describe("fresnel: the cornea film is invisible head-on and lifts at grazing", (
       expect(circle.cy).toBeCloseTo(pinned.cy, 1);
       expect(circle.r).toBeCloseTo(pinned.r, 1);
       const floor = frMaskFloor(cur, circle);
-      expect(floor).toBeCloseTo(g.maskFloor[eye], 1);
+      expect(floor).toBeCloseTo(g.maskFloor[eye]!, 1);
       const lift = frDiscMean(on, circle) - frDiscMean(cur, circle);
       expect(lift).toBeCloseTo(g.headLift[eye]!, 1);
       expect(lift, `${eye} head-on lift sits inside mask-placement noise`).toBeLessThanOrEqual(floor);

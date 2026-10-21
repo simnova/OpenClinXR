@@ -1,7 +1,7 @@
 {
   "card": "eye-finish catchlight shape+position (subagent lane)",
   "module": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts",
-  "moduleSha256": "2228cbb1c71427755e71eb45e262285f88e1fda649447d775386cf144c818ebe",
+  "moduleSha256": "4b0eac463990c94e6363ca1945ebbec1899a2c910745f94c0133ad28212e05ed",
   "landed": {
     "shape": "quad",
     "size": 2,
@@ -40,27 +40,27 @@
   "renders": {
     "off": {
       "png": "off-front.png",
-      "sha256": "d4b8b565e356fcf32c7b72d248f47c5eb9793aa3d20b1f2d12f6aa7ac1ccdf57"
+      "sha256": "64c628cb0ab32c0ae88fd3a1ed4df53d03c0f990eff8adbd2b3e9cd5a9bf41ec"
     },
     "quad-old-pos": {
       "png": "quad-old-pos-on-front.png",
-      "sha256": "da13fec26dfc11b1d2c7d8222f216e5913265b75a8cd4731a16be367bb8eb23f"
+      "sha256": "a172b98a2d7c6c9a267a8d89ef5b7a2d21cd336dce0bceed64374d9d4fbd21bc"
     },
     "disc-2-i500-1_5_8p5": {
       "png": "disc-2-i500-1_5_8p5-on-front.png",
-      "sha256": "d8dcce491ed523228af64767046f928754c289a4420d265b86d6435b10eb49eb"
+      "sha256": "cf44e617982bea0c3c65eec08291f044c6690ffb27647c4d4084c38ed5e2a162"
     },
     "quad-2-i500-1_8_6": {
       "png": "quad-2-i500-1_8_6-on-front.png",
-      "sha256": "1f823e166f5debdd4c00b3a106c5ae5eb497f0ab28cd325cd2f248d9d7b367cf"
+      "sha256": "de8248fa19b1e5469e8e8d326acfe6d4d05c979788c78befc49db7420e28a907"
     },
     "quad-2-i500-0_6_10": {
       "png": "quad-2-i500-0_6_10-on-front.png",
-      "sha256": "58a3c01ffe4e93a8b30d569c8e6911107fd40e6d51d21c6523f7d31ab4f20977"
+      "sha256": "d1fa46540c0081b015d33d2fd90425b1587cf07b98e7ec8ab44a43515b0c3ba4"
     },
     "disc-2-i500-1_8_6": {
       "png": "disc-2-i500-1_8_6-on-front.png",
-      "sha256": "42aac362261269c2f22910483308435effd180b7bd3f72f38554369066a94e4e"
+      "sha256": "ac6b5a53cf1c91008fa9aee3eefd981e013173519204a6fd7b3da91bfc302502"
     }
   },
   "crops": {
@@ -116,7 +116,7 @@
       ],
       "note": "pre-change record (F store)",
       "L": {
-        "hot230": 51,
+        "hot230": 53,
         "hotCluster": 20,
         "coreBbox": [
           5,
@@ -124,27 +124,27 @@
         ],
         "roundRatio": 1.2,
         "distFromCentre": 3.6,
-        "smearSub230": 681,
-        "meansat": 0.5345,
+        "smearSub230": 674,
+        "meansat": 0.5333,
         "hueDeg": 16.7,
         "spotMaxLum": 255,
-        "ringMeanL": 46.7,
+        "ringMeanL": 47,
         "ringLiftOverOff": 17.7
       },
       "R": {
-        "hot230": 51,
-        "hotCluster": 23,
+        "hot230": 50,
+        "hotCluster": 22,
         "coreBbox": [
           16,
           5
         ],
         "roundRatio": 3.2,
         "distFromCentre": 16.2,
-        "smearSub230": 679,
-        "meansat": 0.5189,
-        "hueDeg": 16.5,
+        "smearSub230": 677,
+        "meansat": 0.5182,
+        "hueDeg": 16.6,
         "spotMaxLum": 254,
-        "ringMeanL": 50.4,
+        "ringMeanL": 50.6,
         "ringLiftOverOff": 19.4
       },
       "skin": {
@@ -163,34 +163,34 @@
       ],
       "L": {
         "hot230": 50,
-        "hotCluster": 17,
+        "hotCluster": 18,
         "coreBbox": [
           5,
-          5
+          6
         ],
-        "roundRatio": 1,
-        "distFromCentre": 3.7,
-        "smearSub230": 678,
-        "meansat": 0.5351,
+        "roundRatio": 1.2,
+        "distFromCentre": 3.6,
+        "smearSub230": 676,
+        "meansat": 0.5339,
         "hueDeg": 16.7,
         "spotMaxLum": 255,
-        "ringMeanL": 46.5,
+        "ringMeanL": 46.7,
         "ringLiftOverOff": 17.5
       },
       "R": {
         "hot230": 51,
-        "hotCluster": 24,
+        "hotCluster": 25,
         "coreBbox": [
-          17,
-          6
+          18,
+          7
         ],
-        "roundRatio": 2.83,
-        "distFromCentre": 16.1,
-        "smearSub230": 675,
-        "meansat": 0.5194,
+        "roundRatio": 2.57,
+        "distFromCentre": 15.9,
+        "smearSub230": 673,
+        "meansat": 0.5188,
         "hueDeg": 16.5,
         "spotMaxLum": 254,
-        "ringMeanL": 50.2,
+        "ringMeanL": 50.4,
         "ringLiftOverOff": 19.2
       },
       "skin": {
@@ -209,7 +209,7 @@
       ],
       "note": "LANDED",
       "L": {
-        "hot230": 54,
+        "hot230": 55,
         "hotCluster": 54,
         "coreBbox": [
           10,
@@ -217,28 +217,28 @@
         ],
         "roundRatio": 1.11,
         "distFromCentre": 11.9,
-        "smearSub230": 635,
-        "meansat": 0.5285,
+        "smearSub230": 632,
+        "meansat": 0.5275,
         "hueDeg": 16.7,
         "spotMaxLum": 255,
-        "ringMeanL": 41,
-        "ringLiftOverOff": 12.1
+        "ringMeanL": 41.2,
+        "ringLiftOverOff": 12
       },
       "R": {
-        "hot230": 38,
-        "hotCluster": 35,
+        "hot230": 40,
+        "hotCluster": 36,
         "coreBbox": [
           7,
           8
         ],
         "roundRatio": 1.14,
-        "distFromCentre": 11.7,
-        "smearSub230": 637,
-        "meansat": 0.5227,
+        "distFromCentre": 11.6,
+        "smearSub230": 631,
+        "meansat": 0.52,
         "hueDeg": 16.5,
         "spotMaxLum": 254,
-        "ringMeanL": 43,
-        "ringLiftOverOff": 12
+        "ringMeanL": 43.3,
+        "ringLiftOverOff": 12.1
       },
       "skin": {
         "cheek": 0,
@@ -256,35 +256,35 @@
       ],
       "L": {
         "hot230": 36,
-        "hotCluster": 15,
+        "hotCluster": 14,
         "coreBbox": [
           9,
           2
         ],
         "roundRatio": 4.5,
         "distFromCentre": 16.8,
-        "smearSub230": 613,
-        "meansat": 0.5494,
+        "smearSub230": 606,
+        "meansat": 0.5482,
         "hueDeg": 16.3,
         "spotMaxLum": 255,
-        "ringMeanL": 41.6,
+        "ringMeanL": 41.9,
         "ringLiftOverOff": 12.7
       },
       "R": {
-        "hot230": 37,
-        "hotCluster": 19,
+        "hot230": 39,
+        "hotCluster": 20,
         "coreBbox": [
-          12,
+          13,
           3
         ],
-        "roundRatio": 4,
-        "distFromCentre": 16.4,
-        "smearSub230": 576,
-        "meansat": 0.5371,
+        "roundRatio": 4.33,
+        "distFromCentre": 16.3,
+        "smearSub230": 571,
+        "meansat": 0.5346,
         "hueDeg": 16.1,
         "spotMaxLum": 254,
-        "ringMeanL": 44,
-        "ringLiftOverOff": 13
+        "ringMeanL": 44.4,
+        "ringLiftOverOff": 13.1
       },
       "skin": {
         "cheek": 0,
@@ -301,7 +301,7 @@
         6
       ],
       "L": {
-        "hot230": 43,
+        "hot230": 44,
         "hotCluster": 43,
         "coreBbox": [
           9,
@@ -309,15 +309,15 @@
         ],
         "roundRatio": 1.29,
         "distFromCentre": 12.1,
-        "smearSub230": 644,
-        "meansat": 0.5298,
+        "smearSub230": 640,
+        "meansat": 0.5289,
         "hueDeg": 16.7,
         "spotMaxLum": 255,
-        "ringMeanL": 41,
+        "ringMeanL": 41.2,
         "ringLiftOverOff": 12
       },
       "R": {
-        "hot230": 36,
+        "hot230": 37,
         "hotCluster": 33,
         "coreBbox": [
           7,
@@ -325,11 +325,11 @@
         ],
         "roundRatio": 1.29,
         "distFromCentre": 11.6,
-        "smearSub230": 637,
-        "meansat": 0.524,
+        "smearSub230": 632,
+        "meansat": 0.5216,
         "hueDeg": 16.5,
         "spotMaxLum": 254,
-        "ringMeanL": 43,
+        "ringMeanL": 43.3,
         "ringLiftOverOff": 12
       },
       "skin": {
@@ -353,5 +353,10 @@
     ],
     "ringLiftLe": 13,
     "skinZero": true
+  },
+  "discMap": {
+    "module": "packages/openclinxr/xr-scene/src/eye-shader/iris-disc-roughness-map.ts",
+    "moduleSha256": "0bb03961038add75af541cf35aac0d3e3ea7207d7bde41a64be58825e055ec9b",
+    "note": "budget-split owner of the F-bake iris-disc numerals, the RGBA upload, and the texel readback; pinned alongside the rig module because every gated render samples it"
   }
 }
