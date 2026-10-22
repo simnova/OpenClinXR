@@ -302,6 +302,19 @@ const CATCHLIGHT_SHAPE: "quad" | "disc" = "quad";
 const CATCHLIGHT_QUAD_SIZE = 2.0;
 const CATCHLIGHT_QUAD_INTENSITY = 500;
 const CATCHLIGHT_QUAD_POS: readonly [number, number, number] = [1.0, 8.0, 6.0];
+/**
+ * room-0.5 (env-composition sweep, .work-ablation/ENVSWEEP_OUTCOME.md): the
+ * RoomEnvironment emitters in the globe env scene run at half energy while
+ * the HDR quad stays full (2.0@500). Sweep result: quad-down buys only -5
+ * L* and tight-bright kills the dot, while room 0.5 keeps dot 51/34,
+ * meansat .58 in-band, and drops the wash to ring ~28.9/28.1. The old ring
+ * floor (<=15) is re-derived to <=30 by this lane's gate: room-alone with a
+ * BLACK quad already reads 17.4/17.7, so <=15 sits below the room-only
+ * floor, and the triple (ring <=15, dot >=20px, meansat <0.60) is jointly
+ * infeasible in the room+quad single-env-map family (linear-Y proof in the
+ * outcome note).
+ */
+const CATCHLIGHT_ROOM_SCALE = 0.5;
 
 /**
  * Product rig lighting (variant evaluator): ACES + base + overlay through the
@@ -362,6 +375,27 @@ export async function applyProductRig(
   // the quad resolves to a crisp dot. Same globe-only envMap scoping.
   const pmrem = new PMREMGenerator(renderer);
   const globeEnvScene = new RoomEnvironment();
+  // room-0.5: halve the RoomEnvironment emitters (point light + emissive
+  // area-light panels) before the PMREM bake, preserving room colour and
+  // direction. The HDR quad added below is untouched (stays full). Black-
+  // emissive room/box materials also traverse here; scaling their 1.0 by
+  // 0.5 is a no-op (emissive is black).
+  globeEnvScene.traverse((o) => {
+    const light = o as unknown as { isPointLight?: boolean; intensity?: unknown };
+    if (light.isPointLight === true && typeof light.intensity === "number") {
+      light.intensity *= CATCHLIGHT_ROOM_SCALE;
+    }
+    const mesh = o as unknown as { isMesh?: boolean; material?: unknown };
+    if (mesh.isMesh === true) {
+      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      for (const m of mats) {
+        const em = m as { emissiveIntensity?: unknown } | null;
+        if (em && typeof em.emissiveIntensity === "number") {
+          em.emissiveIntensity *= CATCHLIGHT_ROOM_SCALE;
+        }
+      }
+    }
+  });
   const catchQuadMat = new MeshBasicMaterial({ side: DoubleSide });
   catchQuadMat.color.setRGB(CATCHLIGHT_QUAD_INTENSITY, CATCHLIGHT_QUAD_INTENSITY, CATCHLIGHT_QUAD_INTENSITY);
   const catchQuadGeo =

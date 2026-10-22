@@ -4,11 +4,12 @@
  "moduleSha256": "68d57cf7e91f08fb174f8d9ef973e0bff6aebaa41ff7dd735f1c1b72747593cf",
  "wiring": {
   "eye-lid-contact.ts": "191d59db44701aca25328cbb69b89ff19ff21f52c614c97f6930b2c5964fd8e9",
-  "isolated-subject-rig-variants.ts": "4b0eac463990c94e6363ca1945ebbec1899a2c910745f94c0133ad28212e05ed",
+  "isolated-subject-rig-variants.ts": "2a926b284186acf884674b33377a03a261ba24c1f8cf3e09d14d668e80de6359",
   "isolated-subject-lab.ts": "b2561bb6246c9856f51a6c07e7e7b90135d8472e737518fdec83b77c982f2c0a",
   "isolated-subject-product-rig.ts": "5aa3a67d23ef54387f3bdf572f3ca2d51778e850c71c29fce46e55c1cbb1568c",
   "iris-disc-roughness-map.ts": "0bb03961038add75af541cf35aac0d3e3ea7207d7bde41a64be58825e055ec9b"
  },
+ "room05RepinNote": "room-0.5 re-pin 2026-10-21: module sha moved with the landed room-scale composition change (CATCHLIGHT_ROOM_SCALE=0.5 halves the RoomEnvironment emitters before the PMREM bake; quad untouched). Historical cells were captured under room1.0 and stand as composition records; the current gate is catchlight-room05-report.json. Reason recorded here per re-pin policy.",
  "landed": {
   "ior": 1.376,
   "f0": 0.0250428,

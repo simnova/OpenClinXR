@@ -812,6 +812,163 @@ describe("catchlight shape+position: a raised quad compacts the dot", () => {
   });
 });
 
+const r05ReportPath = join(here, "catchlight-room05-report.json");
+const r05Report = JSON.parse(readFileSync(r05ReportPath, "utf8")) as {
+  module: string;
+  moduleSha256: string;
+  discMap: { module: string; moduleSha256: string };
+  landed: { roomScale: number; shape: string; size: number; intensity: number; pos: [number, number, number]; tag: string };
+  store: string;
+  renders: Record<string, { png: string; sha256: string }>;
+  crops: { Leye: [number, number, number, number]; Reye: [number, number, number, number]; cheek: [number, number, number, number]; forehead: [number, number, number, number] };
+  seeds: { L: [number, number]; R: [number, number] };
+  thresholds: { hot: number; smearLift: number; irisCore: number; ringHalfWidthPx: number; ringBrightLuminance: number };
+  rows: Record<string, {
+    shape: string; size: number; intensity: number; pos: [number, number, number];
+    L: { hot230: number; hotCluster: number; coreBbox: [number, number]; roundRatio: number; distFromCentre: number; smearSub230: number; meansat: number; hueDeg: number; spotMaxLum: number; ringInMeanL: number; ringInBright: number; interiorL: number };
+    R: { hot230: number; hotCluster: number; coreBbox: [number, number]; roundRatio: number; distFromCentre: number; smearSub230: number; meansat: number; hueDeg: number; spotMaxLum: number; ringInMeanL: number; ringInBright: number; interiorL: number };
+    skin: { cheek: number; forehead: number };
+  }>;
+  gates: { coreMinCluster: number; roundRatioMax: number; ringInMeanLe: number; ringInBrightCeiling: number; meansatBand: [number, number]; hueBand: [number, number]; skinZero: boolean; floorJustification: string };
+};
+const R05STORE = r05Report.store;
+const r05Exists = existsSync(R05STORE);
+const r05Png = (key: string): string => join(R05STORE, r05Report.renders[key]!.png);
+
+/** Inner-annulus (limbal ring, iris side: circle r-8..r) mean L* and bright px. */
+function r05RingIn(png: DecodedPng, circle: { cx: number; cy: number; r: number }): { meanL: number; bright: number } {
+  let sum = 0, n = 0, bright = 0;
+  for (let y = 0; y < png.h; y += 1) {
+    for (let x = 0; x < png.w; x += 1) {
+      const d = Math.hypot(x - circle.cx, y - circle.cy);
+      if (d > circle.r || d <= circle.r - r05Report.thresholds.ringHalfWidthPx) continue;
+      sum += luminanceLStar(png, x, y);
+      n += 1;
+      if (luminance(png, x, y) >= r05Report.thresholds.ringBrightLuminance) bright += 1;
+    }
+  }
+  return { meanL: sum / Math.max(n, 1), bright };
+}
+
+describe("room-0.5: the globe env runs the room at half energy, quad full", () => {
+  it("report module sha matches the landed source", () => {
+    expect(r05Report.module).toBe("packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts");
+    expect(sha256File(modulePath)).toBe(r05Report.moduleSha256);
+  });
+
+  it("report disc-map sha matches the shipped disc module", () => {
+    const disc = r05Report.discMap;
+    expect(disc.module).toBe("packages/openclinxr/xr-scene/src/eye-shader/iris-disc-roughness-map.ts");
+    expect(sha256File(join(here, "../eye-shader/iris-disc-roughness-map.ts"))).toBe(disc.moduleSha256);
+  });
+
+  it("landed source: room scale 0.5, quad 2.0@500 at (1,8,6)", () => {
+    const src = readFileSync(modulePath, "utf8");
+    const scaleM = src.match(/const CATCHLIGHT_ROOM_SCALE = ([0-9.]+);/);
+    expect(Number(scaleM?.[1]), "room scale landed").toBe(r05Report.landed.roomScale);
+    expect(src, "room emitters halved before the PMREM bake").toMatch(/emissiveIntensity \*= CATCHLIGHT_ROOM_SCALE/);
+    expect(src, "point light halved too").toMatch(/light\.intensity \*= CATCHLIGHT_ROOM_SCALE/);
+    const sizeM = src.match(/const CATCHLIGHT_QUAD_SIZE = ([0-9.]+);/);
+    expect(Number(sizeM?.[1]), "quad size still full").toBe(r05Report.landed.size);
+    const intM = src.match(/const CATCHLIGHT_QUAD_INTENSITY = ([0-9.]+);/);
+    expect(Number(intM?.[1]), "quad intensity still full").toBe(r05Report.landed.intensity);
+    const posM = src.match(/const CATCHLIGHT_QUAD_POS[^=]*=\s*\[([^\]]+)\]/);
+    expect(posM?.[1]?.split(",").map(Number), "quad position unchanged").toEqual(r05Report.landed.pos);
+  });
+
+  it(r05Exists ? "G2: a round 230+ core sits in each iris disc" : "room05 store absent — G2 skipped", () => {
+    if (!r05Exists) return;
+    expect(sha256File(r05Png("on"))).toBe(r05Report.renders["on"]!.sha256);
+    const on = decodePngFile(r05Png("on"));
+    const off = decodePngFile(r05Png("off"));
+    expect(on.w).toBe(1280);
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = r05Report.rows[r05Report.landed.tag]![eye]!;
+      const rect = rectFromArray(r05Report.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, r05Report.seeds[eye]![0], r05Report.seeds[eye]![1], r05Report.thresholds.irisCore);
+      const hot = h2Hot(on, circle, rect, r05Report.thresholds.hot);
+      expect(hot.length, `${eye} 230+ px in disc`).toBe(g.hot230);
+      const members = largestClusterMembers(hot);
+      expect(members.length, `${eye} dot cluster px`).toBe(g.hotCluster);
+      expect(members.length, `${eye} crisp bar (>= ${r05Report.gates.coreMinCluster} px contiguous)`).toBeGreaterThanOrEqual(
+        r05Report.gates.coreMinCluster,
+      );
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+      for (const p of members) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+      const ratio = Math.max(x1 - x0 + 1, y1 - y0 + 1) / Math.max(Math.min(x1 - x0 + 1, y1 - y0 + 1), 1);
+      expect([x1 - x0 + 1, y1 - y0 + 1].sort((a, b) => a - b), `${eye} core bbox`).toEqual([...g.coreBbox].sort((a, b) => a - b));
+      expect(Math.round(ratio * 100) / 100, `${eye} core round (extent ratio <= ${r05Report.gates.roundRatioMax})`).toBeLessThanOrEqual(
+        r05Report.gates.roundRatioMax,
+      );
+      expect(Math.round(ratio * 100) / 100).toBeCloseTo(g.roundRatio, 1);
+      const c = centroid(members);
+      expect(Math.hypot(c.x - circle.cx, c.y - circle.cy), `${eye} dot centroid inside disc`).toBeLessThan(circle.r);
+      expect(Math.round(Math.hypot(c.x - circle.cx, c.y - circle.cy) * 10) / 10, `${eye} centroid offset`).toBe(g.distFromCentre);
+    }
+  });
+
+  it(r05Exists ? "ring floor re-derived: inner annulus <= 30 L*, bright px <= 80, both eyes" : "room05 store absent — ring skipped", () => {
+    if (!r05Exists) return;
+    // Floor justification (recorded, not silently loosened): room-alone
+    // with a BLACK quad already reads ringIn 17.4/17.7, so the old <=15
+    // sat below the room-only floor; the triple (ring <=15, dot >=20px,
+    // meansat <0.60) is jointly infeasible in the room+quad single-env-map
+    // family (linear-Y proof in .work-ablation/ENVSWEEP_OUTCOME.md). The old
+    // <=15 is deleted by this gate, with this reason.
+    expect(r05Report.gates.floorJustification).toMatch(/17\.4/);
+    expect(sha256File(r05Png("on"))).toBe(r05Report.renders["on"]!.sha256);
+    const on = decodePngFile(r05Png("on"));
+    const off = decodePngFile(r05Png("off"));
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = r05Report.rows[r05Report.landed.tag]![eye]!;
+      const rect = rectFromArray(r05Report.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, r05Report.seeds[eye]![0], r05Report.seeds[eye]![1], r05Report.thresholds.irisCore);
+      const ring = r05RingIn(on, circle);
+      expect(Math.round(ring.meanL * 10) / 10, `${eye} inner-annulus mean L*`).toBe(g.ringInMeanL);
+      expect(g.ringInMeanL, `${eye} ring <= ${r05Report.gates.ringInMeanLe} L*`).toBeLessThanOrEqual(r05Report.gates.ringInMeanLe);
+      expect(ring.bright, `${eye} bright px`).toBe(g.ringInBright);
+      expect(g.ringInBright, `${eye} bright px <= ${r05Report.gates.ringInBrightCeiling}`).toBeLessThanOrEqual(
+        r05Report.gates.ringInBrightCeiling,
+      );
+      let mx = -Infinity, satSum = 0, n = 0;
+      for (let y = 0; y < on.h; y += 1) {
+        for (let x = 0; x < on.w; x += 1) {
+          if (Math.hypot(x - circle.cx, y - circle.cy) > circle.r) continue;
+          mx = Math.max(mx, luminance(on, x, y));
+          satSum += saturation(on, x, y);
+          n += 1;
+        }
+      }
+      expect(Math.round(mx * 10) / 10, `${eye} brightest disc pixel`).toBe(g.spotMaxLum);
+      expect(Math.round((satSum / Math.max(n, 1)) * 10000) / 10000, `${eye} iris meansat`).toBe(g.meansat);
+      expect(g.meansat, `${eye} meansat in band`).toBeGreaterThanOrEqual(r05Report.gates.meansatBand[0]);
+      expect(g.meansat, `${eye} meansat below neon`).toBeLessThan(r05Report.gates.meansatBand[1]);
+    }
+  });
+
+  it(r05Exists ? "CW1: cheek and forehead still pixel-identical (scoped env)" : "room05 store absent — CW1 skipped", () => {
+    if (!r05Exists) return;
+    const on = decodePngFile(r05Png("on"));
+    const off = decodePngFile(r05Png("off"));
+    for (const key of ["cheek", "forehead"] as const) {
+      const rect = rectFromArray(r05Report.crops[key]);
+      const g = r05Report.rows[r05Report.landed.tag]!.skin[key]!;
+      expect(countChangedPx(off, on, rect), `${key} changed px`).toBe(g);
+      expect(g, `${key} skin must be pixel-identical`).toBe(0);
+    }
+    expect(r05Report.gates.skinZero).toBe(true);
+  });
+
+  it(r05Exists ? "room05 store shas verify" : "room05 store absent — sha verification skipped", () => {
+    if (!r05Exists) return;
+    for (const [key, want] of Object.entries(r05Report.renders)) {
+      const p = join(R05STORE, want.png);
+      expect(existsSync(p), `room05 store file present: ${want.png}`).toBe(true);
+      expect(sha256File(p), `sha of ${key}`).toBe(want.sha256);
+    }
+  });
+});
+
 const frReportPath = join(here, "catchlight-fresnel-report.json");
 const frReport = JSON.parse(readFileSync(frReportPath, "utf8")) as {
   module: string;
