@@ -189,3 +189,43 @@ anterior joints stay identity at the scleral centre).
 
 NOT TESTED: lash re-seat + blinkFollow (G4), gaze/compat re-run (suites run on
 the untouched shipped bake), second subject (G6), Quest.
+
+## G4 — lash re-seat + T2b/A3 re-measure (2026-10-22, worktree `eye-geo`)
+
+Method: bake + G3 refit displacements -> scratch post-refit GLB in $TMPDIR
+(skinning at bind is identity to ~2um, so head-frame DV applies directly to
+body-prim0 bind POSITION; morph-target displacement arrays left
+byte-identical, deltas invariant by construction). Then the real
+`lash_blink_follow.py` (T2b+A3) on the post-refit profile, `--measure`,
+same-frame Blender ortho A/B (200mm, eye height) pre vs post T2b.
+
+- T2b: L keep 461/470 (98.1%), R 446/454 (98.2%) — both >=95%; every kept
+  lower card within its loop MAD bars. R dash-zone [0.028,0.035]: 3 dropped
+  (RED still fires on the new profile). Tris 16632->16326 (-1.8%; thinned,
+  not hidden — counterweight honored, 13 meshes in both renders).
+- A3: nn mean 2.38/2.45mm, max 6.9/6.7mm; moving donor pool 935/935,
+  identical to the baseline bake.
+- blinkFollow GREEN: L 221 verts / 194.0%, R 90 / 207.2% (baseline bake
+  221/203.5, 90/213.0 — same lid-margin counts, travel within ~9pp, >=80).
+- Pixel A/B (committed PNGs): render diff localizes at dropped-card
+  stations (peak x=307px = gltf -0.040 = L droppedCx cluster; R dash-band
+  shading rows 528-564). Dash-box dark 78=78 (attached lash row persists),
+  detached zone (below lid line) 0 dark post, in-frame rowcore 5px <= 46px
+  T2b reference (62px base) — with the recorded caveat that cross-bake px
+  are not commensurable (different bake/framing); the binding gate is the
+  byte-level dash-zone drop. Whole-frame dark -1px (no new marks);
+  eye-band lash dark 216=216 (lashes persist).
+- Seal non-regression: body morph targets + body prims 1-7 POSITION
+  byte-identical input-vs-output; G3 seal numbers re-pinned
+  (closure min -0.029/-0.029, occlusion 1.0). G4 touches the lash mesh only.
+- Gate: geometric-eye-g4-gate.py -> GREEN (23 checks, re-derived from raw
+  bake + refit + committed PNGs).
+
+Rank-1 carried (NOT closed by G4): overlap stays 0.38 post-G3. G4 owns no
+lid/aperture change, so it cannot own lid overlap; the fix needs a
+lid-bias/offset or lid-morph-weight change — a seal tradeoff owned by
+lid-morph/aperture work (G4/G5 scope call in the scope doc), with seal-gated
+bounds (no regression vs the G3 seal numbers above).
+
+NOT TESTED: pixel grade (human-graded store sheet), gaze/compat re-run,
+second subject (G6), Quest.
