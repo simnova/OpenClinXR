@@ -63,3 +63,28 @@ surfaces; iris disc Ø 10.8 (measured, not 10.26); chamber target 3.0 from
 apex 12.95 → iris plane at apex−3. G2 drops the +4–5% limbus rescale.
 
 NOT TESTED: any render grade (per G0 done_when).
+
+## G1 — params-lock (2026-10-22, worktree `eye-geo`; NO mesh)
+
+G0 tension resolved as **option (a)**: r 7.8 + WTW 11.5 fixes p = **1.05mm**
+(two-sphere intersection re-derived independently this slice: p0.5 seats
+Ø 8.685, p1.05 seats Ø 11.507; delta 0.007 vs WTW).
+Option (b) (keep p0.5, opening 8.69) REJECTED: opening < iris Ø 10.807 would
+bury the iris periphery behind the limbus. Third alternative checked and
+rejected: holding p0.5 + WTW 11.5 needs r≈6.1, off the Gullstrand 7.8 value.
+
+Settled set (globe-centre coords, +z anterior): R 11.9, r 7.8, p 1.05,
+apex 12.95, limbus ring z 10.417 (Ø 11.507), ACD 3.0 → iris plane 9.949
+(0.47 behind limbus plane), iris Ø 10.807 (1.13 inside sclera at that plane).
+Params: `geometric-eye-g1-params.json` (every number traces to a
+`geometric-eye-numbers.json` entry). Gate: `geometric-eye-g1-gate.py` —
+8/8 GREEN (re-derives from first principles; refuses WTW-only closure,
+iris-outside-sclera, iris-ahead-of-limbus, and limbus-rescale passes).
+
+No construction spike: scope option (c) is conditional on needing visual
+confirmation of the numbers; closure is analytic (gate proves it), so no
+Blender work. Build arm (`--eye-anterior`, Aisha) inherits scope G1
+done_when: census within 5% of the params file + seam invisible on a
+native-res EEVEE capture (counterweight carried, NOT discharged here).
+
+NOT TESTED: mesh census, seam grade, EEVEE captures, lids/lashes/gaze.
