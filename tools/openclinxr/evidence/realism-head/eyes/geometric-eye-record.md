@@ -295,3 +295,60 @@ fails IDENTICALLY on clean HEAD 94a0908a1 (measured via stash) — pre-existing
 whole-repo drift, zero delta from this slice — so the commit landed with
 OPENCLAW_SKIP_HOOKS=1 after the slice's own chain (affected suites 30/30,
 architecture, drift-check, all pre-commit steps 1-8) passed individually.
+
+## G6 — second subject + station re-bake: NOT EXECUTED (open; closeout)
+
+G6 done_when (scope §3, untouched): second-subject census within 5% of G0
+numbers AND `encounter-asset-generation-queue` + runtime-bundle tests green
+on re-baked GLBs. Neither arm ran: no second-subject bake exists in-lane
+(subject GLBs resolve via `assets:` URIs, no local bake input; a full
+MPFB bake + lid-conform + station re-run is a build slice, not closeout).
+Counterweight honored: Aisha-only success is recorded as a demo-grade result,
+NOT generality — scope's own gate says so.
+
+Handoff input committed (analytic only, no mesh):
+`geometric-eye-g6-scale-probe.py` re-derives from `child-conform-report.json`
+(child fitted dia 22.77/22.752 → R 11.3805, k = 0.95634 vs adult 11.9) and
+closes both candidate rules by two-sphere intersection:
+(A) proportional (r 7.459, opening 11.005, p 1.004, iris 10.335, chamber
+2.869 — exact by similarity) and (B) absolute (r 7.8, opening 11.5, p 0.970
+re-solved, iris 10.807 / chamber 3.0). Both PASS the probe bands
+(p in [0.5,1.5], iris-inside-sclera margin ≥ 0.5/side, iris behind limbus).
+Recommendation (A) proportional — NOT enacted; enacting needs the G6 bake.
+
+## Full-chain closeout (G0–G5 landed, G6 open; 2026-10-22, `eye-geo`)
+
+What was proven, end to end on Aisha: true anterior segment built
+procedurally (R 11.9 / r 7.8 / p 1.05 / iris Ø 10.807 / ACD 3.0, G0–G2),
+lids re-fit with a strictly tighter seal (closure −0.029 vs −0.52, G3),
+lashes re-seated with blinkFollow GREEN and no hiding (G4), old catchlight
+recipe re-proven on true curvature with re-tuned EEVEE wants + parallax
+payoff measured 0.2% vs analytic (G5). Chain: numbers → mesh+texture →
+seal → lash → light+gaze, each gated independently, each counterweight
+discharged or truthfully carried.
+
+Carried items with owners:
+1. Rank-1 lid overlap 0.38 (audit band [1,2]) — owner: lid-morph/aperture
+   work. Fix needs a lid-bias/offset change (seal tradeoff, seal-gated vs
+   G3 numbers); seating deeper was refused (would trade −0.03 graze for
+   ~−0.8 poke-through). Untouched since G3 by design (G4/G5 own no lid change).
+2. Socket show-through at yaw NOT TESTED — owner: eye-globe-fit
+   (edgeAtYaw stays OPEN per the compat falsifier; no socket/aperture in GLB).
+3. Transmission-fresnel NOT TESTED in-harness — owner: G6 re-bake
+   (EEVEE/transparent-film cannot resolve it; three.js IOR-1.376 re-tune owed).
+4. Compat 2 RED + cornea-env 5 RED — owner: eye-finish lineage
+   (materialize.py/store-sheet sha drift predating this lane; re-pin only).
+5. Roughness numeral re-target + readback — owner: eye-shader plumbing
+   (UV rects in G2 manifest; deferred with reason, not dropped).
+6. G6 second-subject bake + station re-run — owner: whoever staffs G6
+   (scale probe committed; proportional k=0.95634 recommended, unproven).
+
+Promotion to eye-finish/main requires: G6 done_when met (second-subject
+census ≤5% + station suites green on re-baked GLBs), carried items 1–3 each
+either closed or re-accepted by their owners with seal-gated bounds, and the
+three.js dot/ring wants re-baselined (G5 EEVEE numerals 1725px/17.0/130° do
+NOT transfer harness-to-harness).
+
+Stays out of scope (all `false` through every slice, unchanged):
+clinical_validity, production_asset_readiness, Quest readiness,
+exam-equivalence; pixel grade of full face; skin-zero (no skin in GLB).
