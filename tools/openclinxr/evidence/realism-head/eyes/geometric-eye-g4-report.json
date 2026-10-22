@@ -1,0 +1,146 @@
+{
+  "slice": "G4-lash-reseat (T2b+A3 on G3 post-refit profile, Aisha)",
+  "bake_sha256": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
+  "refit_applied_rows": 48,
+  "postrefit_position_sha256": "c2b412aefee4f39cacc9c822b718f5e18e3c700f9fac5b1f962814281d9d19e6",
+  "postrefit_sha256": "2736107fe2656dd87ae2b7a4ee4d0338c6f914bcd91fcd3738b943905c075083",
+  "output_sha256": "d6b9cb2fdde98cf95f360a7f53f3a0080a8547febcd327ff7c7106e64c2d716e",
+  "scratch": {
+    "postrefit": "/var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T/g4lash_pe486n15/g4-postrefit.glb",
+    "output": "/var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T/g4lash_pe486n15/g4-lash-t2b.glb",
+    "note": "tmpdir, not committed"
+  },
+  "t2b": {
+    "treatment": "T2b-selective-detach-drop+A3",
+    "trisTotal": 16632,
+    "trisKeep": 16326,
+    "vertsBefore": 11088,
+    "vertsAfter": 10884,
+    "lidMarginLoop": {
+      "bodyPrim": [
+        4,
+        0
+      ],
+      "boundaryEyeVerts": 160,
+      "L": {
+        "loopPts": 9,
+        "loopYRange": [
+          1.54063,
+          1.5434
+        ]
+      },
+      "R": {
+        "loopPts": 9,
+        "loopYRange": [
+          1.54063,
+          1.5434
+        ]
+      }
+    },
+    "sides": {
+      "L": {
+        "cardsBase": 470,
+        "cardsDrop": 9,
+        "cardsKeep": 461,
+        "lowerBase": 90,
+        "tipDropMedMm": 1.951,
+        "tipDropMadMm": 0.471,
+        "tipDropThrMm": 2.893,
+        "lenMedMm": 1.975,
+        "lenMadMm": 0.462,
+        "lenThrMm": 3.13,
+        "maxKeptTipDropMm": 2.873,
+        "maxKeptLenMm": 3.086,
+        "droppedCx": [
+          -0.0401,
+          -0.0398,
+          -0.0396,
+          -0.0396,
+          -0.0358,
+          -0.034,
+          -0.0336,
+          -0.0335,
+          -0.0317
+        ]
+      },
+      "R": {
+        "cardsBase": 454,
+        "cardsDrop": 8,
+        "cardsKeep": 446,
+        "lowerBase": 70,
+        "tipDropMedMm": 1.88,
+        "tipDropMadMm": 0.553,
+        "tipDropThrMm": 2.986,
+        "lenMedMm": 1.952,
+        "lenMadMm": 0.448,
+        "lenThrMm": 3.073,
+        "maxKeptTipDropMm": 2.914,
+        "maxKeptLenMm": 2.997,
+        "droppedCx": [
+          0.0223,
+          0.023,
+          0.0313,
+          0.0317,
+          0.0339,
+          0.0353,
+          0.0398,
+          0.0402
+        ]
+      }
+    },
+    "threshY": 1.546,
+    "kTipDrop": 2.0,
+    "kLen": 2.5
+  },
+  "a3": {
+    "L": {
+      "pool": 3987,
+      "moving": 935,
+      "nn_mean_mm": 2.38,
+      "nn_max_mm": 6.904
+    },
+    "R": {
+      "pool": 3999,
+      "moving": 935,
+      "nn_mean_mm": 2.451,
+      "nn_max_mm": 6.702
+    }
+  },
+  "blinkFollow": {
+    "L": {
+      "lidMarginVerts": 221,
+      "lashMeanDyMm": -3.811,
+      "donorMeanDyMm": -1.964,
+      "travelPct": 194.0,
+      "sameDirection": true,
+      "pass": true
+    },
+    "R": {
+      "lidMarginVerts": 90,
+      "lashMeanDyMm": -4.069,
+      "donorMeanDyMm": -1.964,
+      "travelPct": 207.2,
+      "sameDirection": true,
+      "pass": true
+    }
+  },
+  "blinkFollowPass": true,
+  "lashPrimTargets": 6,
+  "sealInvariance": {
+    "bodyTargetsJsonIdentical": true,
+    "bodyTargetCountSame": true,
+    "bodyPrims17PositionIdentical": true
+  },
+  "notTested": [
+    "pixel grade (human-graded store sheet)",
+    "gaze/compat re-run",
+    "second subject (G6)",
+    "Quest"
+  ],
+  "notEvidenceFor": [
+    "clinical_validity",
+    "production_asset_readiness",
+    "quest_readiness",
+    "exam_equivalence"
+  ]
+}

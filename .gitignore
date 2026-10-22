@@ -58,3 +58,10 @@ docs/openclinxr/stablegen-blender-background-trial-*.json
 tools/openclinxr/asset-pipeline/trellis/*-renders/
 test-results/
 .pnpm-store/
+
+# geometric-eye large binaries live in the asset store, outside git
+# (store/geometric-eye/<name>/ + manifest.json; tracked JSON cites assets: + sha256).
+tools/openclinxr/evidence/realism-head/eyes/geometric-eye-anterior.glb
+tools/openclinxr/evidence/realism-head/eyes/geometric-eye-g6-child-anterior.glb
+tools/openclinxr/evidence/realism-head/eyes/geometric-eye-g6-head.glb
+tools/openclinxr/evidence/realism-head/eyes/geometric-eye-g6-child-head.glb

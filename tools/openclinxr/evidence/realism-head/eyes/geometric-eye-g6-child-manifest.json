@@ -1,0 +1,284 @@
+{
+ "slice": "G6-second-subject (child, proportional anterior x k=0.95634)",
+ "gate": "GREEN 22/22 (geometric-eye-g6-child-gate.py)",
+ "head": {
+  "file": "assets:geometric-eye/geometric-eye-g6-child-head/geometric-eye-g6-child-head.glb",
+  "sha256": "235758e5ba868f6894bcb1ed86120d9db83106ec0d842c9d7bafc726fcb7857f",
+  "bytes": 52315112,
+  "note": "large binary lives in the asset store, outside git; sha recorded here"
+ },
+ "report": {
+  "file": "geometric-eye-g6-child-report.json",
+  "sha256": "2231280477f4cab32b0965696d9d232fd4278e68d0ed49751f44b239e5d8e676"
+ },
+ "renders": {
+  "g6-before-old-front.png": {
+   "file": "g6child-caps/g6-before-old-front.png",
+   "sha256": "ccfa6274f896c33b828c382ed73358ed11396c0ec9a45a5c894588eab38b0593",
+   "bytes": 1884281
+  },
+  "g6-before-old-yaw-plus-25.png": {
+   "file": "g6child-caps/g6-before-old-yaw-plus-25.png",
+   "sha256": "59e4aa10257a17fd0fe65d874da520a2cb2d4dfd295f96f2d2af93d727710f28",
+   "bytes": 1882588
+  },
+  "g6-child-front.png": {
+   "file": "g6child-caps/g6-child-front.png",
+   "sha256": "8eb5b9031459a486155d252ae34ec8e87b1ba1cfeae6708c7904ad2353a0f08e",
+   "bytes": 1808790
+  },
+  "g6-child-yaw-plus-25.png": {
+   "file": "g6child-caps/g6-child-yaw-plus-25.png",
+   "sha256": "10f6dfe93bd1f8f360db8fc313850cc33f39c604fb6129ac7849e6bac6cfbc28",
+   "bytes": 1806977
+  }
+ },
+ "composite": {
+  "file": "geometric-eye-g6-before-after.png",
+  "sha256": "f79477ed81c7e1941dace427cb9a98cea4a5f84d911187152c6ab797d48f6aae"
+ },
+ "census": {
+  "L": {
+   "sclera_fit_c": [
+    -0.0,
+    0.0,
+    0.0
+   ],
+   "sclera_fit_r": 11.3804,
+   "cap_r_mean": 7.4595,
+   "cap_r_maxdev": 0.0,
+   "apex_z": 12.3846,
+   "protrusion": 1.0042,
+   "disc_dia": 10.3352,
+   "disc_plane_z": 9.5156,
+   "rim_coincident_maxdev": 0.0,
+   "seam_angle_deg": 18.616,
+   "verts": {
+    "sclera": 6144,
+    "cap": 3072,
+    "disc": 3585
+   }
+  },
+  "R": {
+   "sclera_fit_c": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sclera_fit_r": 11.3804,
+   "cap_r_mean": 7.4595,
+   "cap_r_maxdev": 0.0,
+   "apex_z": 12.3846,
+   "protrusion": 1.0042,
+   "disc_dia": 10.3352,
+   "disc_plane_z": 9.5156,
+   "rim_coincident_maxdev": 0.0,
+   "seam_angle_deg": 18.616,
+   "verts": {
+    "sclera": 6144,
+    "cap": 3072,
+    "disc": 3585
+   }
+  }
+ },
+ "sealPost": {
+  "L": {
+   "ring_bind_new": [
+    0.5102750417657984,
+    0.8277101429439228
+   ],
+   "band_closure_new": -0.8610509008538502,
+   "band_slit_new": -0.7879219261196952,
+   "band_both_new": -0.8610509008538502
+  },
+  "R": {
+   "ring_bind_new": [
+    0.5103358784917001,
+    0.8277612125320516
+   ],
+   "band_closure_new": -0.8611542068803543,
+   "band_slit_new": -0.788027058663706,
+   "band_both_new": -0.8611542068803543
+  }
+ },
+ "occlusionPost": {
+  "L": {
+   "bind": {
+    "rays": 841,
+    "occluded": 382,
+    "fraction": 0.4542
+   },
+   "eye-left-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   },
+   "eye-left-slit": {
+    "rays": 841,
+    "occluded": 692,
+    "fraction": 0.8228
+   },
+   "eye-both-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   }
+  },
+  "R": {
+   "bind": {
+    "rays": 841,
+    "occluded": 382,
+    "fraction": 0.4542
+   },
+   "eye-right-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   },
+   "eye-right-slit": {
+    "rays": 841,
+    "occluded": 692,
+    "fraction": 0.8228
+   },
+   "eye-both-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   }
+  }
+ },
+ "overlapPostMm": {
+  "L": {
+   "fissureWidthMm": 21.983,
+   "fissureHeightMm": 12.426,
+   "upperEdgeYm": 1.158305,
+   "overlapMm": -0.059,
+   "lowerEdgeYm": 1.146513,
+   "lowerVsLimbusMm": -1.397,
+   "mrd1vsApexMm": 5.227
+  },
+  "R": {
+   "fissureWidthMm": 21.983,
+   "fissureHeightMm": 12.427,
+   "upperEdgeYm": 1.158305,
+   "overlapMm": -0.059,
+   "lowerEdgeYm": 1.146513,
+   "lowerVsLimbusMm": -1.398,
+   "mrd1vsApexMm": 5.227
+  }
+ },
+ "blinkFollow": "NOT-APPLICABLE: lash T2b/A3 tool hardcodes adult eye-height stations (EYE_BOX/LID_WIN/THRESH_Y); owner makeclothes/eye-lash; lashes static-identical to shipped bake",
+ "gradeChild": {
+  "L": {
+   "hotCluster": 18,
+   "irisR_px": 19.0,
+   "hotOffsetRadii": 1.18,
+   "hotOffsetPx": 22.4,
+   "hotRound": 1.2,
+   "ringLift": 91.8,
+   "interiorL": 21.3,
+   "meansat": 0.5102,
+   "parallaxShift": {
+    "yaw-plus-25": {
+     "px": -13.8,
+     "radii": -0.73
+    },
+    "yaw-minus-25": {
+     "px": 12.1,
+     "radii": 0.64
+    }
+   },
+   "cx": 546.2,
+   "cy": 329.1
+  },
+  "R": {
+   "hotCluster": 3,
+   "irisR_px": 19.0,
+   "hotOffsetRadii": 1.11,
+   "hotOffsetPx": 21.1,
+   "hotRound": 1.5,
+   "ringLift": 90.0,
+   "interiorL": 20.9,
+   "meansat": 0.5018,
+   "parallaxShift": {
+    "yaw-plus-25": {
+     "px": -12.1,
+     "radii": -0.64
+    },
+    "yaw-minus-25": {
+     "px": 13.6,
+     "radii": 0.72
+    }
+   },
+   "cx": 732.8,
+   "cy": 329.0
+  },
+  "socketBgFrac": {
+   "front": 0.0038,
+   "yaw-plus-25": 0.0081,
+   "yaw-minus-25": 0.0089
+  }
+ },
+ "gradeBefore": {
+  "L": {
+   "hotCluster": 0,
+   "irisR_px": 22.0,
+   "ringLift": 86.4,
+   "interiorL": 73.1,
+   "meansat": 0.1556,
+   "parallaxShift": {
+    "yaw-plus-25": {
+     "px": -22.5,
+     "radii": -1.02
+    },
+    "yaw-minus-25": {
+     "px": 20.9,
+     "radii": 0.95
+    }
+   },
+   "cx": 526.8,
+   "cy": 424.1
+  },
+  "R": {
+   "hotCluster": 0,
+   "irisR_px": 22.0,
+   "ringLift": 84.8,
+   "interiorL": 73.0,
+   "meansat": 0.1583,
+   "parallaxShift": {
+    "yaw-plus-25": {
+     "px": -20.8,
+     "radii": -0.95
+    },
+    "yaw-minus-25": {
+     "px": 22.0,
+     "radii": 1.0
+    }
+   },
+   "cx": 752.4,
+   "cy": 424.4
+  },
+  "socketBgFrac": {
+   "front": 0.0032,
+   "yaw-plus-25": 0.0056,
+   "yaw-minus-25": 0.005
+  }
+ },
+ "socketProbe": {
+  "child": {
+   "front": 0.0038,
+   "yaw-plus-25": 0.0081,
+   "yaw-minus-25": 0.0089
+  },
+  "before": {
+   "front": 0.0032,
+   "yaw-plus-25": 0.0056,
+   "yaw-minus-25": 0.005
+  }
+ },
+ "notTested": [
+  "transmission-fresnel (owner eye-shader; three.js IOR-1.376 re-tune owed)",
+  "edgeAtYaw formal gate (owner eye-globe-fit; bg-probe supporting evidence only)",
+  "rank-1 overlap on child (new station overlap -0.06; audit rank-1 carries, owner lid-morph/aperture)"
+ ]
+}

@@ -1,0 +1,315 @@
+{
+ "slice": "G3-lid-refit-plus-seal (GLB-space H1-SEAT re-run, no widen)",
+ "bake": {
+  "file": "/Volumes/files/openclinxr-assets/store/lid-conform-child/confirm/peds_asthma_parent_anxiety_v1-lidconform.glb",
+  "body": "mpfb_peds_patient_child_body",
+  "note": "read-only; widen NOT re-applied (already embodied)"
+ },
+ "ringSource": "bake-topological",
+ "oldSurface": {
+  "L": {
+   "globeC_m": [
+    0.025607,
+    1.153078,
+    0.098731
+   ],
+   "globeR_mm": 11.2778,
+   "shellC_m": [
+    0.025662,
+    1.153046,
+    0.09954
+   ],
+   "shellR_mm": 11.5617,
+   "shellForwardOffset_mm": 0.809
+  },
+  "R": {
+   "globeC_m": [
+    -0.025607,
+    1.153078,
+    0.098731
+   ],
+   "globeR_mm": 11.2778,
+   "shellC_m": [
+    -0.025675,
+    1.15305,
+    0.099548
+   ],
+   "shellR_mm": 11.5539,
+   "shellForwardOffset_mm": 0.816
+  }
+ },
+ "newSurface": {
+  "trace": "geometric-eye-g6-child-params.json",
+  "scleralR_mm": 11.3804,
+  "capR_mm": 7.4595,
+  "apex_mm": 12.3846,
+  "protrusion_mm": 1.004,
+  "irisDia_mm": 10.3352,
+  "irisPlane_mm": 9.5146,
+  "limbusHalfAngleDeg": 28.914
+ },
+ "newNeverProudOfOld_maxExcessMm": {
+  "L": 0.10261634743440225,
+  "R": 0.10255204558015478
+ },
+ "auditEdgeFidelityMm": {
+  "L": 1158.41,
+  "R": 1158.41
+ },
+ "edgeThresholdStabilityMm": {
+  "L": {
+   "0.3": 1158.689,
+   "0.5": null,
+   "1.0": null
+  },
+  "R": {
+   "0.3": 1158.688,
+   "0.5": null,
+   "1.0": null
+  }
+ },
+ "preRefit": {
+  "L": {
+   "ring_bind_old": [
+    0.02020345139657452,
+    0.3588632489320743
+   ],
+   "ring_bind_new": [
+    0.653655742656134,
+    1.0097265683654262
+   ],
+   "band_closure_old": -1.1489357133191853,
+   "band_closure_new": -0.8610509008538502,
+   "band_slit_old": -1.240540964536416,
+   "band_slit_new": -0.7879219261196952,
+   "band_both_old": -1.1489357133191853,
+   "band_both_new": -0.8610509008538502
+  },
+  "R": {
+   "ring_bind_old": [
+    0.01765345708438018,
+    0.36075956470819637
+   ],
+   "ring_bind_new": [
+    0.6538212155516708,
+    1.0097744701327547
+   ],
+   "band_closure_old": -1.1521998380641143,
+   "band_closure_new": -0.8611542068803543,
+   "band_slit_old": -1.2439139918994906,
+   "band_slit_new": -0.788027058663706,
+   "band_both_old": -1.1521998380641143,
+   "band_both_new": -0.8611542068803543
+  }
+ },
+ "occlusionPre": {
+  "L": {
+   "bind": {
+    "rays": 841,
+    "occluded": 382,
+    "fraction": 0.4542
+   },
+   "eye-left-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   },
+   "eye-left-slit": {
+    "rays": 841,
+    "occluded": 692,
+    "fraction": 0.8228
+   },
+   "eye-both-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   }
+  },
+  "R": {
+   "bind": {
+    "rays": 841,
+    "occluded": 382,
+    "fraction": 0.4542
+   },
+   "eye-right-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   },
+   "eye-right-slit": {
+    "rays": 841,
+    "occluded": 692,
+    "fraction": 0.8228
+   },
+   "eye-both-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   }
+  }
+ },
+ "seat": {
+  "L": {
+   "seatedVerts": 47,
+   "fleshVerts": 9,
+   "movedVerts": 47,
+   "maxSeatMm": 0.239,
+   "gapMinMm": 0.654,
+   "gapMaxMm": 1.717,
+   "gwMin": 0.0,
+   "gwMax": 0.816
+  },
+  "R": {
+   "seatedVerts": 47,
+   "fleshVerts": 9,
+   "movedVerts": 47,
+   "maxSeatMm": 0.239,
+   "gapMinMm": 0.654,
+   "gapMaxMm": 1.717,
+   "gwMin": 0.0,
+   "gwMax": 0.816
+  }
+ },
+ "postRefit": {
+  "L": {
+   "ring_bind_new": [
+    0.5102750417657984,
+    0.8277101429439228
+   ],
+   "band_closure_new": -0.8610509008538502,
+   "band_slit_new": -0.7879219261196952,
+   "band_both_new": -0.8610509008538502
+  },
+  "R": {
+   "ring_bind_new": [
+    0.5103358784917001,
+    0.8277612125320516
+   ],
+   "band_closure_new": -0.8611542068803543,
+   "band_slit_new": -0.788027058663706,
+   "band_both_new": -0.8611542068803543
+  }
+ },
+ "occlusionPost": {
+  "L": {
+   "bind": {
+    "rays": 841,
+    "occluded": 382,
+    "fraction": 0.4542
+   },
+   "eye-left-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   },
+   "eye-left-slit": {
+    "rays": 841,
+    "occluded": 692,
+    "fraction": 0.8228
+   },
+   "eye-both-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   }
+  },
+  "R": {
+   "bind": {
+    "rays": 841,
+    "occluded": 382,
+    "fraction": 0.4542
+   },
+   "eye-right-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   },
+   "eye-right-slit": {
+    "rays": 841,
+    "occluded": 692,
+    "fraction": 0.8228
+   },
+   "eye-both-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   }
+  }
+ },
+ "morphDeltaInvariantMaxMm": {
+  "L": 0.0,
+  "R": 0.0
+ },
+ "slitTuckDiagnostic": {
+  "L": {
+   "n": 511,
+   "preOldMinMm": -1.931,
+   "preNewMinMm": -1.405,
+   "postNewMinMm": -1.405,
+   "worstBindMm": [
+    26.81,
+    1147.89,
+    108.39
+   ],
+   "worstDispMm": 1.53
+  },
+  "R": {
+   "n": 511,
+   "preOldMinMm": -1.932,
+   "preNewMinMm": -1.405,
+   "postNewMinMm": -1.405,
+   "worstBindMm": [
+    -26.81,
+    1147.89,
+    108.39
+   ],
+   "worstDispMm": 1.53
+  }
+ },
+ "overlapPreMm": {
+  "L": -0.162,
+  "R": -0.162
+ },
+ "lowerVsLimbusPreMm": {
+  "L": -1.526,
+  "R": -1.527
+ },
+ "aperturePost": {
+  "L": {
+   "fissureWidthMm": 21.983,
+   "fissureHeightMm": 12.426,
+   "upperEdgeYm": 1.158305,
+   "overlapMm": -0.059,
+   "lowerEdgeYm": 1.146513,
+   "lowerVsLimbusMm": -1.397,
+   "mrd1vsApexMm": 5.227
+  },
+  "R": {
+   "fissureWidthMm": 21.983,
+   "fissureHeightMm": 12.427,
+   "upperEdgeYm": 1.158305,
+   "overlapMm": -0.059,
+   "lowerEdgeYm": 1.146513,
+   "lowerVsLimbusMm": -1.398,
+   "mrd1vsApexMm": 5.227
+  }
+ },
+ "lash": {
+  "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_p",
+  "hasClosureSlitMorphs": false,
+  "nTargets": 0,
+  "meshTouched": false
+ },
+ "notEvidenceFor": [
+  "clinical_validity",
+  "production_asset_readiness",
+  "quest_readiness",
+  "exam_equivalence"
+ ],
+ "notTested": [
+  "lash re-seat + blinkFollow (G4)",
+  "gaze/compat re-run (suites run on the untouched shipped bake; re-pinned, not re-run)",
+  "second subject (G6)",
+  "Quest"
+ ]
+}

@@ -1,0 +1,72 @@
+{
+ "slice": "G3-lid-refit-plus-seal",
+ "bake": {
+  "file": "aisha-lidconform.glb (store)",
+  "sha256": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76"
+ },
+ "report": {
+  "file": "geometric-eye-g3-report.json",
+  "sha256": "49878b69f2ee4b6d64261267c30c82746230c957ca889810cd9ecc2ee91ffd62"
+ },
+ "refit": {
+  "file": "geometric-eye-g3-refit.json",
+  "sha256": "4f1e89e4dfe3a5c1ab2f12686371c5d8e373c0e19dc9570ccc08858ff4b0388b"
+ },
+ "renders": {
+  "geometric-eye-g3-seal-L-bind.png": {
+   "file": "geometric-eye-g3-seal-L-bind.png",
+   "sha256": "050bb2f048bfbeec9a4cb4d13442a3fe7f7e7d0439070570b7e0f96b30bee6fd"
+  },
+  "geometric-eye-g3-seal-L-closure.png": {
+   "file": "geometric-eye-g3-seal-L-closure.png",
+   "sha256": "e8845ca5607338e03e2ca3b1a6671bc4c6c8c39346e1614bfdecabd058453932"
+  },
+  "geometric-eye-g3-seal-L-slit.png": {
+   "file": "geometric-eye-g3-seal-L-slit.png",
+   "sha256": "c98ef0c5e5ec5b578bf5b3cd9d42785a8d597ac2db7dcc34e5bf60e2271e28d5"
+  },
+  "geometric-eye-g3-seal-R-closure.png": {
+   "file": "geometric-eye-g3-seal-R-closure.png",
+   "sha256": "81add8a8587e238d2c0805a7e343316e4b973056578b908e3b459747176b1e35"
+  },
+  "geometric-eye-g3-section.png": {
+   "file": "geometric-eye-g3-section.png",
+   "sha256": "7875317ced7f55a1c6d900a7b251f62e812ffc9820b104567c0755d53e28217d"
+  },
+  "geometric-eye-g3-sheet.png": {
+   "file": "geometric-eye-g3-sheet.png",
+   "sha256": "246ecf9f1402ff6c410c93e364758968f4050def4d8a8abf469f1e9cff4b6db6"
+  }
+ },
+ "gate": "geometric-eye-g3-gate.py -> GREEN",
+ "seal": {
+  "L": {
+   "closureMinMm": -0.02873619681976504,
+   "slitMinMm": -7.2991300590491415e-06,
+   "occlusionClosure": 1.0
+  },
+  "R": {
+   "closureMinMm": -0.028607017454449282,
+   "slitMinMm": 0.00012344003276834603,
+   "occlusionClosure": 1.0
+  }
+ },
+ "aperture": {
+  "L": {
+   "widthMm": 27.009,
+   "heightMm": 10.871,
+   "overlapMm": 0.377
+  },
+  "R": {
+   "widthMm": 27.009,
+   "heightMm": 10.871,
+   "overlapMm": 0.378
+  }
+ },
+ "notTested": [
+  "lash re-seat + blinkFollow (G4)",
+  "gaze/compat re-run (suites run on the untouched shipped bake; re-pinned, not re-run)",
+  "second subject (G6)",
+  "Quest"
+ ]
+}

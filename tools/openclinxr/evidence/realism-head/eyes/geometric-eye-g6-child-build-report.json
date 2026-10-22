@@ -1,0 +1,78 @@
+{
+ "slice": "G2-build (mesh + texture remap; render grade separate)",
+ "params_trace": "geometric-eye-g6-child-params.json resolved/iris_disc",
+ "base_texture": {
+  "file": "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+  "sha256_prefix": "b0f2715d7d5b0177",
+  "note": "sha matches texture-manifest iris-centred-c (76c805e5...)"
+ },
+ "limbus_stretch": {
+  "arc_span_mm": 3.7713,
+  "chord_span_mm": 3.5801,
+  "total_radial_pct": 5.07,
+  "mid_annulus_dev_mm": 0.0478,
+  "mid_annulus_dev_srcpx": 0.82,
+  "verdict": "PASS",
+  "note": "uniform-arc (old sphere approx) vs uniform-chord (new disc) between identical endpoints; annulus internally linear (zero distortion)"
+ },
+ "annulus_port": {
+  "byte_mismatch_vs_candidateA_max": 0,
+  "verdict": "PASS"
+ },
+ "census": {
+  "L": {
+   "sclera_fit_c": [
+    -0.0,
+    0.0,
+    0.0
+   ],
+   "sclera_fit_r": 11.3804,
+   "cap_r_mean": 7.4595,
+   "cap_r_maxdev": 0.0,
+   "apex_z": 12.3846,
+   "protrusion": 1.0042,
+   "disc_dia": 10.3352,
+   "disc_plane_z": 9.5156,
+   "rim_coincident_maxdev": 0.0,
+   "seam_angle_deg": 18.616,
+   "verts": {
+    "sclera": 6144,
+    "cap": 3072,
+    "disc": 3585
+   }
+  },
+  "R": {
+   "sclera_fit_c": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sclera_fit_r": 11.3804,
+   "cap_r_mean": 7.4595,
+   "cap_r_maxdev": 0.0,
+   "apex_z": 12.3846,
+   "protrusion": 1.0042,
+   "disc_dia": 10.3352,
+   "disc_plane_z": 9.5156,
+   "rim_coincident_maxdev": 0.0,
+   "seam_angle_deg": 18.616,
+   "verts": {
+    "sclera": 6144,
+    "cap": 3072,
+    "disc": 3585
+   }
+  }
+ },
+ "weights": "all verts (1,0,0,0) to own side joint; joints identity at globe centre (gaze pivot bookkeeping: pivot == scleral centre)",
+ "not_evidence_for": [
+  "clinical_validity",
+  "production_asset_readiness",
+  "quest_readiness",
+  "exam_equivalence"
+ ],
+ "not_tested": [
+  "lid interaction",
+  "roughness-map numeral re-target + readback (needs eye-shader plumbing; UV rects documented in manifest)",
+  "gaze/lash/compat suites (G4/G5)"
+ ]
+}

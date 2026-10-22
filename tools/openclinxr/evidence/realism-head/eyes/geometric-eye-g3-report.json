@@ -1,0 +1,317 @@
+{
+ "slice": "G3-lid-refit-plus-seal (GLB-space H1-SEAT re-run, no widen)",
+ "bake": {
+  "file": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-lidconform.glb",
+  "body": "mpfb_ob_patient_aisha_body",
+  "note": "read-only; widen NOT re-applied (already embodied)"
+ },
+ "ringSource": "bake-topological",
+ "oldSurface": {
+  "L": {
+   "globeC_m": [
+    0.030778,
+    1.546155,
+    0.126456
+   ],
+   "globeR_mm": 11.9042,
+   "shellC_m": [
+    0.030777,
+    1.546152,
+    0.127407
+   ],
+   "shellR_mm": 12.2394,
+   "shellForwardOffset_mm": 0.95
+  },
+  "R": {
+   "globeC_m": [
+    -0.030778,
+    1.546156,
+    0.126456
+   ],
+   "globeR_mm": 11.9043,
+   "shellC_m": [
+    -0.030779,
+    1.546153,
+    0.127409
+   ],
+   "shellR_mm": 12.2378,
+   "shellForwardOffset_mm": 0.953
+  }
+ },
+ "newSurface": {
+  "trace": "geometric-eye-g1-params.json",
+  "scleralR_mm": 11.9,
+  "capR_mm": 7.8,
+  "apex_mm": 12.95,
+  "protrusion_mm": 1.05,
+  "irisDia_mm": 10.807,
+  "irisPlane_mm": 9.949,
+  "limbusHalfAngleDeg": 28.913
+ },
+ "newNeverProudOfOld_maxExcessMm": {
+  "L": -0.004227421436445514,
+  "R": -0.004330159557733651
+ },
+ "auditEdgeFidelityMm": {
+  "L": 1551.27,
+  "R": 1551.27
+ },
+ "edgeThresholdStabilityMm": {
+  "L": {
+   "0.3": 1551.269,
+   "0.5": null,
+   "1.0": null
+  },
+  "R": {
+   "0.3": 1551.267,
+   "0.5": null,
+   "1.0": null
+  }
+ },
+ "preRefit": {
+  "L": {
+   "ring_bind_old": [
+    -0.12884980838513171,
+    1.1764586680209563
+   ],
+   "ring_bind_new": [
+    0.7924855591846871,
+    2.0513237852399078
+   ],
+   "band_closure_old": -0.5147571939682836,
+   "band_closure_new": -0.02873619681976504,
+   "band_slit_old": -0.6286843612250941,
+   "band_slit_new": -7.2991300590491415e-06,
+   "band_both_old": -0.5147571939682836,
+   "band_both_new": -0.02873619681976504
+  },
+  "R": {
+   "ring_bind_old": [
+    -0.13186340679865322,
+    1.1765743738588834
+   ],
+   "ring_bind_new": [
+    0.7908020423455838,
+    2.0513494947483246
+   ],
+   "band_closure_old": -0.5159412727006127,
+   "band_closure_new": -0.028607017454449282,
+   "band_slit_old": -0.629921559634818,
+   "band_slit_new": 0.00012344003276834603,
+   "band_both_old": -0.5159412727006127,
+   "band_both_new": -0.028607017454449282
+  }
+ },
+ "occlusionPre": {
+  "L": {
+   "bind": {
+    "rays": 841,
+    "occluded": 390,
+    "fraction": 0.4637
+   },
+   "eye-left-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   },
+   "eye-left-slit": {
+    "rays": 841,
+    "occluded": 696,
+    "fraction": 0.8276
+   },
+   "eye-both-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   }
+  },
+  "R": {
+   "bind": {
+    "rays": 841,
+    "occluded": 390,
+    "fraction": 0.4637
+   },
+   "eye-right-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   },
+   "eye-right-slit": {
+    "rays": 841,
+    "occluded": 696,
+    "fraction": 0.8276
+   },
+   "eye-both-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   }
+  }
+ },
+ "seat": {
+  "L": {
+   "seatedVerts": 24,
+   "fleshVerts": 32,
+   "movedVerts": 24,
+   "maxSeatMm": 0.25,
+   "gapMinMm": 0.792,
+   "gapMaxMm": 3.411,
+   "gwMin": 0.0,
+   "gwMax": 0.708
+  },
+  "R": {
+   "seatedVerts": 24,
+   "fleshVerts": 32,
+   "movedVerts": 24,
+   "maxSeatMm": 0.25,
+   "gapMinMm": 0.791,
+   "gapMaxMm": 3.412,
+   "gwMin": 0.0,
+   "gwMax": 0.709
+  }
+ },
+ "postRefit": {
+  "L": {
+   "ring_bind_new": [
+    0.5855478023314952,
+    1.9557301691322913
+   ],
+   "band_closure_new": -0.02873619681976504,
+   "band_slit_new": -7.2991300590491415e-06,
+   "band_both_new": -0.02873619681976504
+  },
+  "R": {
+   "ring_bind_new": [
+    0.584565827832265,
+    1.9557958985410486
+   ],
+   "band_closure_new": -0.028607017454449282,
+   "band_slit_new": 0.00012344003276834603,
+   "band_both_new": -0.028607017454449282
+  }
+ },
+ "occlusionPost": {
+  "L": {
+   "bind": {
+    "rays": 841,
+    "occluded": 390,
+    "fraction": 0.4637
+   },
+   "eye-left-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   },
+   "eye-left-slit": {
+    "rays": 841,
+    "occluded": 696,
+    "fraction": 0.8276
+   },
+   "eye-both-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   }
+  },
+  "R": {
+   "bind": {
+    "rays": 841,
+    "occluded": 390,
+    "fraction": 0.4637
+   },
+   "eye-right-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   },
+   "eye-right-slit": {
+    "rays": 841,
+    "occluded": 696,
+    "fraction": 0.8276
+   },
+   "eye-both-closure": {
+    "rays": 841,
+    "occluded": 841,
+    "fraction": 1.0
+   }
+  }
+ },
+ "morphDeltaInvariantMaxMm": {
+  "L": 0.0,
+  "R": 0.0
+ },
+ "slitTuckDiagnostic": {
+  "L": {
+   "n": 511,
+   "preOldMinMm": -1.763,
+   "preNewMinMm": -1.328,
+   "postNewMinMm": -1.328,
+   "worstBindMm": [
+    31.16,
+    1542.08,
+    137.56
+   ],
+   "worstDispMm": 1.53
+  },
+  "R": {
+   "n": 511,
+   "preOldMinMm": -1.763,
+   "preNewMinMm": -1.328,
+   "postNewMinMm": -1.328,
+   "worstBindMm": [
+    -31.16,
+    1542.08,
+    137.56
+   ],
+   "worstDispMm": 1.53
+  }
+ },
+ "overlapPreMm": {
+  "L": 0.29,
+  "R": 0.292
+ },
+ "lowerVsLimbusPreMm": {
+  "L": 0.129,
+  "R": 0.129
+ },
+ "aperturePost": {
+  "L": {
+   "fissureWidthMm": 27.009,
+   "fissureHeightMm": 10.871,
+   "upperEdgeYm": 1.551182,
+   "overlapMm": 0.377,
+   "lowerEdgeYm": 1.540965,
+   "lowerVsLimbusMm": 0.213,
+   "mrd1vsApexMm": 5.027
+  },
+  "R": {
+   "fissureWidthMm": 27.009,
+   "fissureHeightMm": 10.871,
+   "upperEdgeYm": 1.551181,
+   "overlapMm": 0.378,
+   "lowerEdgeYm": 1.540965,
+   "lowerVsLimbusMm": 0.213,
+   "mrd1vsApexMm": 5.026
+  }
+ },
+ "lash": {
+  "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_pat",
+  "hasClosureSlitMorphs": false,
+  "nTargets": 0,
+  "meshTouched": false
+ },
+ "notEvidenceFor": [
+  "clinical_validity",
+  "production_asset_readiness",
+  "quest_readiness",
+  "exam_equivalence"
+ ],
+ "notTested": [
+  "lash re-seat + blinkFollow (G4)",
+  "gaze/compat re-run (suites run on the untouched shipped bake; re-pinned, not re-run)",
+  "second subject (G6)",
+  "Quest"
+ ],
+ "bake_sha256": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76",
+ "bake_bytes": 49651269
+}

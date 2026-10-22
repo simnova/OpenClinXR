@@ -1,0 +1,149 @@
+{
+ "before": {
+  "L": {
+   "hotCluster": 0,
+   "irisR_px": 22.0,
+   "ringLift": 86.4,
+   "interiorL": 73.1,
+   "meansat": 0.1556,
+   "parallaxShift": {
+    "yaw-plus-25": {
+     "px": -22.5,
+     "radii": -1.02
+    },
+    "yaw-minus-25": {
+     "px": 20.9,
+     "radii": 0.95
+    }
+   },
+   "cx": 526.8,
+   "cy": 424.1
+  },
+  "R": {
+   "hotCluster": 0,
+   "irisR_px": 22.0,
+   "ringLift": 84.8,
+   "interiorL": 73.0,
+   "meansat": 0.1583,
+   "parallaxShift": {
+    "yaw-plus-25": {
+     "px": -20.8,
+     "radii": -0.95
+    },
+    "yaw-minus-25": {
+     "px": 22.0,
+     "radii": 1.0
+    }
+   },
+   "cx": 752.4,
+   "cy": 424.4
+  },
+  "socketBgFrac": {
+   "front": 0.0032,
+   "yaw-plus-25": 0.0056,
+   "yaw-minus-25": 0.005
+  }
+ },
+ "aisha": {
+  "L": {
+   "hotCluster": 31,
+   "irisR_px": 20.0,
+   "hotOffsetRadii": 1.14,
+   "hotOffsetPx": 22.9,
+   "hotRound": 1.17,
+   "ringLift": 105.2,
+   "interiorL": 21.8,
+   "meansat": 0.5161,
+   "parallaxShift": {
+    "yaw-plus-25": {
+     "px": -20.2,
+     "radii": -1.01
+    },
+    "yaw-minus-25": {
+     "px": 19.7,
+     "radii": 0.99
+    }
+   },
+   "cx": 526.3,
+   "cy": 427.0
+  },
+  "R": {
+   "hotCluster": 14,
+   "irisR_px": 20.0,
+   "hotOffsetRadii": 1.13,
+   "hotOffsetPx": 22.5,
+   "hotRound": 1.5,
+   "ringLift": 103.5,
+   "interiorL": 21.1,
+   "meansat": 0.5054,
+   "parallaxShift": {
+    "yaw-plus-25": {
+     "px": -19.7,
+     "radii": -0.99
+    },
+    "yaw-minus-25": {
+     "px": 20.1,
+     "radii": 1.0
+    }
+   },
+   "cx": 752.8,
+   "cy": 426.9
+  },
+  "socketBgFrac": {
+   "front": 0.0028,
+   "yaw-plus-25": 0.0055,
+   "yaw-minus-25": 0.0065
+  }
+ },
+ "child": {
+  "L": {
+   "hotCluster": 18,
+   "irisR_px": 19.0,
+   "hotOffsetRadii": 1.18,
+   "hotOffsetPx": 22.4,
+   "hotRound": 1.2,
+   "ringLift": 91.8,
+   "interiorL": 21.3,
+   "meansat": 0.5102,
+   "parallaxShift": {
+    "yaw-plus-25": {
+     "px": -13.8,
+     "radii": -0.73
+    },
+    "yaw-minus-25": {
+     "px": 12.1,
+     "radii": 0.64
+    }
+   },
+   "cx": 546.2,
+   "cy": 329.1
+  },
+  "R": {
+   "hotCluster": 3,
+   "irisR_px": 19.0,
+   "hotOffsetRadii": 1.11,
+   "hotOffsetPx": 21.1,
+   "hotRound": 1.5,
+   "ringLift": 90.0,
+   "interiorL": 20.9,
+   "meansat": 0.5018,
+   "parallaxShift": {
+    "yaw-plus-25": {
+     "px": -12.1,
+     "radii": -0.64
+    },
+    "yaw-minus-25": {
+     "px": 13.6,
+     "radii": 0.72
+    }
+   },
+   "cx": 732.8,
+   "cy": 329.0
+  },
+  "socketBgFrac": {
+   "front": 0.0038,
+   "yaw-plus-25": 0.0081,
+   "yaw-minus-25": 0.0089
+  }
+ }
+}
