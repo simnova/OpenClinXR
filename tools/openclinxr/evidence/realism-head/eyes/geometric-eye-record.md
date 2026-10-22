@@ -88,3 +88,46 @@ done_when: census within 5% of the params file + seam invisible on a
 native-res EEVEE capture (counterweight carried, NOT discharged here).
 
 NOT TESTED: mesh census, seam grade, EEVEE captures, lids/lashes/gaze.
+
+## G2 — build + texture remap (2026-10-22, worktree `eye-geo`)
+
+Built, not spiked: `geometric-eye-g2-build.py` authors the full anterior
+segment in eye-local globe-centre coords (+z anterior, mm) — scleral sphere
+R 11.9 with limbus opening, corneal cap r 7.8 (apex 12.95, p 1.05), planar
+iris disc Ø 10.807 at apex−3.0 = 9.949 — weighted eye.L/R (all verts 1.0 on
+own side joint, joints identity at globe centre so the gaze pivot stays at
+the scleral centre). Ring derived from first principles (two-sphere
+intersection), asserted within 0.01 of the params file; rim verts
+bit-coincident (dev 0.0), rim normals shared (dev 0.0) → zero shading seam.
+Gate: `geometric-eye-g2-gate.py` re-derives everything from the shipped
+GLB/PNGs/render (never trusts the build report) — GREEN.
+
+Texture remap: gen-candidate-A annulus (38<r<99.5, frozen pupil/limbus)
+ported onto 207² planar disc PNGs (odd size so texel centres hit source
+pixels exactly). Annulus byte-mismatch vs the independent candidate-A
+artifact: **0** (verbatim port, same seeds/base/grid). Frozen ring vs base:
+byte-exact. Piecewise-linear radial UV (pupil edge 38px↔1.66mm, disc edge
+99.5px↔5.4035mm) → annulus internally linear (zero distortion).
+Limbus-stretch bound (uniform sphere-arc vs uniform disc-chord between
+identical endpoints): mid-annulus dev **0.82 src-px ≤ 1px** — PASS.
+
+Render: EEVEE front ortho (`geometric-eye-g2-sheet.py`; camera-side framing
+— object rotation has no effect on matrix_world in background Blender 5.1,
+recorded). Iris centroid (511.5,511.6) vs frame centre, visible dia 10.752
+vs 10.807 (−0.5%), rim closed (min 76, gap would read 0), sclera smooth
+(max step 1.1). Limbal highlight peak 197 (cap specular at the 18.6° crease
+— physical, carried to the G5 cornea-env re-tune). Sheet
+`geometric-eye-g2-sheet.png` grades the new eye against the prior crop:
+same texels, no seam, no regression (render reads darker — EEVEE shading on
+dark albedo vs unshaded texture; exposure re-tune is G5 scope).
+
+Outputs: `geometric-eye-anterior.glb` (6 meshes, 2 joints, embedded disc
+PNGs), `geometric-eye-iris-disc-{L,R}.png`, `geometric-eye-g2-report.json`,
+`geometric-eye-g2-manifest.json` + vitest
+(`the-geometric-iris-disc-holds-centre-and-limbus.test.ts`, 5/5).
+
+Adapted with reason: roughness numeral re-target + readback deferred
+(needs eye-shader plumbing; UV rects documented in manifest) — recorded in
+report not_tested, NOT silently dropped. Lid/lash/gaze/compat are G3–G5.
+
+NOT TESTED: lid interaction, second subject (G6), Quest.
