@@ -1,7 +1,8 @@
 {
   "card": "eye-finish catchlight shape+position (subagent lane)",
   "module": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts",
-  "moduleSha256": "4b0eac463990c94e6363ca1945ebbec1899a2c910745f94c0133ad28212e05ed",
+  "moduleSha256": "2a926b284186acf884674b33377a03a261ba24c1f8cf3e09d14d668e80de6359",
+  "room05RepinNote": "room-0.5 re-pin 2026-10-21: module sha moved with the landed room-scale composition change (CATCHLIGHT_ROOM_SCALE=0.5 halves the RoomEnvironment emitters before the PMREM bake; quad untouched). Historical cells were captured under room1.0 and stand as composition records; the current gate is catchlight-room05-report.json. Reason recorded here per re-pin policy.",
   "landed": {
     "shape": "quad",
     "size": 2,
