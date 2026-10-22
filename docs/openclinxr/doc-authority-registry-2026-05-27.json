@@ -5734,6 +5734,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Footstep-plan S2 record: stride-amplitude plan behind ?footstepPlan=1, three-build table (control/A/B-rejected/M2), D1-D3 trace finding, per-window slide, S2d gate-fix record, render paths."
+    },
+    {
+      "path": "tools/openclinxr/evidence/realism-head/eyes/geometric-eye-record.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "G0-G6 geometric-eye slice record; G0 numbers lock with re-measured shell-bias and audit corrections."
     }
   ]
 }
