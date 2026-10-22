@@ -1,0 +1,155 @@
+{
+  "slice": "G6-full-head-bake (G2 anterior spliced into Aisha lid-conform bake + G3 refit + T2b/A3)",
+  "bake_in": {
+    "file": "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-lidconform.glb",
+    "sha256": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76"
+  },
+  "centres_m": {
+    "L": [
+      0.030778,
+      1.546155,
+      0.126456
+    ],
+    "R": [
+      -0.030778,
+      1.546156,
+      0.126456
+    ]
+  },
+  "old_eye_bind_gap_mm": {
+    "globe": 0.0021,
+    "cornea_named_left": 0.0019,
+    "cornea_named_right": 0.0021
+  },
+  "joint_map": {
+    "L": 117,
+    "R": 122
+  },
+  "refit_applied_rows": 48,
+  "t2b": {
+    "treatment": "T2b-selective-detach-drop+A3",
+    "trisTotal": 16632,
+    "trisKeep": 16326,
+    "vertsBefore": 11088,
+    "vertsAfter": 10884,
+    "lidMarginLoop": {
+      "bodyPrim": [
+        4,
+        0
+      ],
+      "boundaryEyeVerts": 160,
+      "L": {
+        "loopPts": 9,
+        "loopYRange": [
+          1.54063,
+          1.5434
+        ]
+      },
+      "R": {
+        "loopPts": 9,
+        "loopYRange": [
+          1.54063,
+          1.5434
+        ]
+      }
+    },
+    "sides": {
+      "L": {
+        "cardsBase": 470,
+        "cardsDrop": 9,
+        "cardsKeep": 461,
+        "lowerBase": 90,
+        "tipDropMedMm": 1.951,
+        "tipDropMadMm": 0.471,
+        "tipDropThrMm": 2.893,
+        "lenMedMm": 1.975,
+        "lenMadMm": 0.462,
+        "lenThrMm": 3.13,
+        "maxKeptTipDropMm": 2.873,
+        "maxKeptLenMm": 3.086,
+        "droppedCx": [
+          -0.0401,
+          -0.0398,
+          -0.0396,
+          -0.0396,
+          -0.0358,
+          -0.034,
+          -0.0336,
+          -0.0335,
+          -0.0317
+        ]
+      },
+      "R": {
+        "cardsBase": 454,
+        "cardsDrop": 8,
+        "cardsKeep": 446,
+        "lowerBase": 70,
+        "tipDropMedMm": 1.88,
+        "tipDropMadMm": 0.553,
+        "tipDropThrMm": 2.986,
+        "lenMedMm": 1.952,
+        "lenMadMm": 0.448,
+        "lenThrMm": 3.073,
+        "maxKeptTipDropMm": 2.914,
+        "maxKeptLenMm": 2.997,
+        "droppedCx": [
+          0.0223,
+          0.023,
+          0.0313,
+          0.0317,
+          0.0339,
+          0.0353,
+          0.0398,
+          0.0402
+        ]
+      }
+    },
+    "threshY": 1.546,
+    "kTipDrop": 2.0,
+    "kLen": 2.5
+  },
+  "a3": {
+    "L": {
+      "pool": 3987,
+      "moving": 935,
+      "nn_mean_mm": 2.38,
+      "nn_max_mm": 6.904
+    },
+    "R": {
+      "pool": 3999,
+      "moving": 935,
+      "nn_mean_mm": 2.451,
+      "nn_max_mm": 6.702
+    }
+  },
+  "blinkFollow": {
+    "L": {
+      "lidMarginVerts": 221,
+      "lashMeanDyMm": -3.811,
+      "donorMeanDyMm": -1.964,
+      "travelPct": 194.0,
+      "sameDirection": true,
+      "pass": true
+    },
+    "R": {
+      "lidMarginVerts": 90,
+      "lashMeanDyMm": -4.069,
+      "donorMeanDyMm": -1.964,
+      "travelPct": 207.2,
+      "sameDirection": true,
+      "pass": true
+    }
+  },
+  "blinkFollowPass": true,
+  "head_sha256": "03fbf228040c61804ba5c88d554628b0513607ddfd6093b4e66cd10294526647",
+  "head_bytes": 54011623,
+  "notTested": [
+    "socket show-through at yaw (no socket/aperture in GLB; edgeAtYaw stays OPEN per compat falsifier)"
+  ],
+  "notEvidenceFor": [
+    "clinical_validity",
+    "production_asset_readiness",
+    "quest_readiness",
+    "exam_equivalence"
+  ]
+}

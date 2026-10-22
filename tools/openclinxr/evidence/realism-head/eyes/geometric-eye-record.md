@@ -296,6 +296,53 @@ whole-repo drift, zero delta from this slice — so the commit landed with
 OPENCLAW_SKIP_HOOKS=1 after the slice's own chain (affected suites 30/30,
 architecture, drift-check, all pre-commit steps 1-8) passed individually.
 
+## G6-bake — full-head in-human bake (EXECUTED 2026-10-22, worktree `eye-geo`)
+
+Delegated OPEN-G6-bake: full Aisha head carrying the G2 anterior segment,
+rendered in-human. Method: GLB-space splice (no MPFB re-bake needed —
+`materialize…py` has no `--eye-anterior` flag; the lid-conform store bake is
+the head) + G3 refit + lash-tool T2b/A3 re-run. Script
+`geometric-eye-g6-assemble.py` → `geometric-eye-g6-head.glb` (54MB,
+sha `03fbf228…`) → gate `geometric-eye-g6-gate.py` 19/19 GREEN (census
+sclera 11.9 / cap 7.8 / apex 139.406 head-frame / disc Ø 10.807 at 136.406,
+refit rows ≤0.00006mm, body morphs byte-identical, blinkFollow
+L 221/194.0% R 90/207.2%) → vitest
+(`the-g6-full-head-carries-the-anterior-segment`, 5/5; chain 27/27).
+
+- Splice rule (wired by POSITION, never names): +x side → joint 117 (the
+  joint of the old +x cornea mesh), −x → 122. Bind-gap old meshes ≤0.002mm
+  (mesh-local == head frame). Old mesh slots 10/11/12 repurposed for L,
+  R appended with new nodes.
+- Base-bake defect found (in the SHIPPED bake, not authored here): cornea
+  nodes 148/149 are scene-orphans — the old corneas never rendered in the
+  lid-conform bake. First G6 assembly inherited the orphan slots (L eye
+  invisible in both harnesses, caught by viewing renders, NOT by any
+  numeric check); fixed by linking 148/149 under the rig; gate extended
+  with a no-orphan-mesh-nodes check (passes on the final file).
+- Renders: three.js room-0.5 + quad@(1,8,6) analogue (RoomEnvironment
+  PMREM intensity 0.5 + DirectionalLight 2.4 + ACES, g6_* envMapIntensity
+  0.6; `geometric-eye-g6-sheet-capture.ts`: front, yaw ±25, blink) AND
+  EEVEE neutral (sun 3.0 + fill 60 + world 0.6; portrait + eyeband, bind +
+  closure). Eye-band crops committed for both.
+- In-human verdict: DOT present both eyes (three.js hotCluster 29/13,
+  round 1.17/1.25, offset ~1.2r at the upper limbus, meansat 0.50 in band;
+  R dot smaller — quad-side wash, re-tune owed, not a geometry defect).
+  RING: limbal arc visible at the lid margins in crops (pixel-graded); the
+  numeric ringLift is sclera-contaminated at portrait scale — G5 isolated
+  numerals (peak 17.0 / 130°) carry, NOT re-derived here. SEAL: rest shows
+  no cap poke-through past the lid margins; closure leaves only a lid-
+  margin skin sliver (no pupil/disc structure; EEVEE aperture brown-px
+  6172→0; three.js bright230 94→0 in identical eye boxes). G3 seal numbers
+  carry via gate-verified byte-identical morphs. Look read: brown fibre
+  iris with limbal ring behind a clear cap, lashes seated on refit lids —
+  matches the isolated G5 sheet, now with lids/lashes/face.
+- Carried (unchanged owners): rank-1 overlap 0.38; socket-at-yaw NOT
+  TESTED; scope-G6 second-subject + station re-run still OPEN (this bake
+  is Aisha-only); three.js dot/ring wants still need re-baselining
+  (this slice's EEVEE/three numerals are harness-specific).
+
+NOT TESTED: Quest, clinical validity, production readiness (all `false`).
+
 ## G6 — second subject + station re-bake: NOT EXECUTED (open; closeout)
 
 G6 done_when (scope §3, untouched): second-subject census within 5% of G0

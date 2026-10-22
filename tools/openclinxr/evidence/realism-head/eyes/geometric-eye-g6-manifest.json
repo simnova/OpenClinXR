@@ -1,0 +1,143 @@
+{
+ "slice": "G6-full-head-bake",
+ "gate": "GREEN 19/19 (geometric-eye-g6-gate.py)",
+ "head": {
+  "file": "geometric-eye-g6-head.glb",
+  "sha256": "03fbf228040c61804ba5c88d554628b0513607ddfd6093b4e66cd10294526647",
+  "bytes": 54011623
+ },
+ "report": {
+  "file": "geometric-eye-g6-report.json",
+  "sha256": "e543afc5f56a8b4b5cd53533b5542ee6e9fd1444fd30996ee474e1aeea7b65a2"
+ },
+ "renders": {
+  "g6-threejs-front.png": {
+   "file": "g6-threejs-front.png",
+   "sha256": "4dbf96f9735fff11859cc48b91b5cea844745a6d6d41e1f727719530c8c9e6ad"
+  },
+  "g6-threejs-yaw-plus-25.png": {
+   "file": "g6-threejs-yaw-plus-25.png",
+   "sha256": "3724ed2a0dd6c0303806c8f717dc6578c5ebc46a708730d5e60bf93e774f49f3"
+  },
+  "g6-threejs-yaw-minus-25.png": {
+   "file": "g6-threejs-yaw-minus-25.png",
+   "sha256": "75351b576151e564dcd8941f17bb7dfe950efdebeb6db5045132c58340867cda"
+  },
+  "g6-threejs-blink.png": {
+   "file": "g6-threejs-blink.png",
+   "sha256": "9e190ebaadb3ce0e614231ea8ba88b9a36638721848b31b614dd87c3d901f935"
+  },
+  "geometric-eye-g6-eevee-portrait-bind.png": {
+   "file": "geometric-eye-g6-eevee-portrait-bind.png",
+   "sha256": "9fe5d5cc5bdf1b9b54fa0c3207bfe0ff9adfa156d3e360357a75bd24b28d8844"
+  },
+  "geometric-eye-g6-eevee-eyeband-bind.png": {
+   "file": "geometric-eye-g6-eevee-eyeband-bind.png",
+   "sha256": "a287b1a28597570e1570691c3f38e86fc69d4b5c6aceff3cf78d57539b7fda38"
+  },
+  "geometric-eye-g6-eevee-eyeband-closure.png": {
+   "file": "geometric-eye-g6-eevee-eyeband-closure.png",
+   "sha256": "d03bed6cc9d61680caf238e2fb0b41d81783a7fd0bd95e17ad3f2497565d9567"
+  },
+  "geometric-eye-g6-eevee-portrait-closure.png": {
+   "file": "geometric-eye-g6-eevee-portrait-closure.png",
+   "sha256": "8367b9d4c6e9bbc84cb3c049295d1f8446430858c5ec3faaafbd8801a6c616bc"
+  },
+  "geometric-eye-g6-threejs-eyeband-imgL.png": {
+   "file": "geometric-eye-g6-threejs-eyeband-imgL.png",
+   "sha256": "ca558184b6f933f9c8b93bf02a87878e5b49af57f0f51533c2a733959196b8b6"
+  },
+  "geometric-eye-g6-threejs-eyeband-imgR.png": {
+   "file": "geometric-eye-g6-threejs-eyeband-imgR.png",
+   "sha256": "3d48322128ab21af9e6d20315d9be25ab04476328ad0ba71f0b0d799cadc0021"
+  },
+  "geometric-eye-g6-eevee-eyeband-imgL.png": {
+   "file": "geometric-eye-g6-eevee-eyeband-imgL.png",
+   "sha256": "23cb874eb3d8692251eaa77a6dc01029c3d9bb286f62419d3cd77d38d677cef3"
+  },
+  "geometric-eye-g6-eevee-eyeband-imgR.png": {
+   "file": "geometric-eye-g6-eevee-eyeband-imgR.png",
+   "sha256": "cd97530fdc4a3020035f5be357a92cc9e2dd0ceff393a14e63468707a25d1bbe"
+  }
+ },
+ "blinkFollow": {
+  "L": {
+   "lidMarginVerts": 221,
+   "lashMeanDyMm": -3.811,
+   "donorMeanDyMm": -1.964,
+   "travelPct": 194.0,
+   "sameDirection": true,
+   "pass": true
+  },
+  "R": {
+   "lidMarginVerts": 90,
+   "lashMeanDyMm": -4.069,
+   "donorMeanDyMm": -1.964,
+   "travelPct": 207.2,
+   "sameDirection": true,
+   "pass": true
+  }
+ },
+ "blinkFollowPass": true,
+ "grade": {
+  "threejs": {
+   "imgL": {
+    "hotCluster": 29,
+    "hotCentroid": [
+     506.4,
+     416.0
+    ],
+    "hotOffsetRadii": 1.19,
+    "hotRound": 1.17,
+    "ringLift": 100.0,
+    "interiorL": 21.3,
+    "meansat": 0.5047,
+    "irisCx": 526.2,
+    "irisCy": 428.0,
+    "irisR": 19.5
+   },
+   "imgR": {
+    "hotCluster": 13,
+    "hotCentroid": [
+     732.0,
+     418.6
+    ],
+    "hotOffsetRadii": 1.17,
+    "hotRound": 1.25,
+    "ringLift": 97.3,
+    "interiorL": 21.0,
+    "meansat": 0.4955,
+    "irisCx": 752.9,
+    "irisCy": 428.0,
+    "irisR": 19.5
+   }
+  },
+  "seal": {
+   "threejs-bind": {
+    "bright230": 94,
+    "bright200": 36734,
+    "regionPx": 84800,
+    "box": "x375-905 y330-490"
+   },
+   "threejs-closure": {
+    "bright230": 0,
+    "bright200": 38994,
+    "regionPx": 84800,
+    "box": "x375-905 y330-490"
+   },
+   "eevee-bind": {
+    "bright230": 1004544,
+    "bright200": 1399093,
+    "regionPx": 1638400
+   },
+   "eevee-closure": {
+    "bright230": 1016541,
+    "bright200": 1417292,
+    "regionPx": 1638400
+   }
+  }
+ },
+ "seal": "G3 numbers re-pinned via byte-identical body morphs + refit rows (gate checks refit-rows-match, body-morphs-identical); closure renders show seal with skin sliver, zero bright230 show-through",
+ "overlapMm": "carried 0.38 post-G3 (rank-1 open, lid-morph/aperture owner)",
+ "baseBakeNote": "store aisha-lidconform.glb nodes 148/149 (old corneas) are scene-orphans in the SHIPPED bake; G6 links its repurposed L nodes under the rig"
+}

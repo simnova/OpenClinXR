@@ -1,0 +1,90 @@
+{
+ "threejs": {
+  "imgL": {
+   "hotCluster": 29,
+   "hotCentroid": [
+    506.4,
+    416.0
+   ],
+   "hotOffsetRadii": 1.19,
+   "hotRound": 1.17,
+   "ringLift": 100.0,
+   "interiorL": 21.3,
+   "meansat": 0.5047,
+   "irisCx": 526.2,
+   "irisCy": 428.0,
+   "irisR": 19.5
+  },
+  "imgR": {
+   "hotCluster": 13,
+   "hotCentroid": [
+    732.0,
+    418.6
+   ],
+   "hotOffsetRadii": 1.17,
+   "hotRound": 1.25,
+   "ringLift": 97.3,
+   "interiorL": 21.0,
+   "meansat": 0.4955,
+   "irisCx": 752.9,
+   "irisCy": 428.0,
+   "irisR": 19.5
+  }
+ },
+ "eevee": {
+  "imgL": {
+   "hotCluster": 4239,
+   "hotCentroid": [
+    343.4,
+    652.8
+   ],
+   "hotOffsetRadii": 0.27,
+   "hotRound": 1.1,
+   "ringLift": 95.7,
+   "interiorL": 75.0,
+   "meansat": 0.4627,
+   "irisCx": 337,
+   "irisCy": 640.0,
+   "irisR": 53
+  },
+  "imgR": {
+   "hotCluster": 4280,
+   "hotCentroid": [
+    940.7,
+    653.7
+   ],
+   "hotOffsetRadii": 0.26,
+   "hotRound": 1.13,
+   "ringLift": 76.4,
+   "interiorL": 87.5,
+   "meansat": 0.4438,
+   "irisCx": 943,
+   "irisCy": 640.0,
+   "irisR": 53
+  }
+ },
+ "seal": {
+  "threejs-bind": {
+   "bright230": 94,
+   "bright200": 36734,
+   "regionPx": 84800,
+   "box": "x375-905 y330-490"
+  },
+  "threejs-closure": {
+   "bright230": 0,
+   "bright200": 38994,
+   "regionPx": 84800,
+   "box": "x375-905 y330-490"
+  },
+  "eevee-bind": {
+   "bright230": 1004544,
+   "bright200": 1399093,
+   "regionPx": 1638400
+  },
+  "eevee-closure": {
+   "bright230": 1016541,
+   "bright200": 1417292,
+   "regionPx": 1638400
+  }
+ }
+}
