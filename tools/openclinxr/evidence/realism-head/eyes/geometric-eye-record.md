@@ -131,3 +131,61 @@ Adapted with reason: roughness numeral re-target + readback deferred
 report not_tested, NOT silently dropped. Lid/lash/gaze/compat are G3–G5.
 
 NOT TESTED: lid interaction, second subject (G6), Quest.
+
+## G3 — lid re-fit + seal (2026-10-22, worktree `eye-geo`)
+
+GLB-space H1-SEAT re-run against the G1 profile (Aisha, `aisha-lidconform.glb`
+read-only, sha `96c13f02…`; widen NOT re-applied — already embodied at
+27.009mm, re-widening would double-apply H1). Ring1 derived topologically on
+the bake itself (56 verts/side, matches conform `baseRing1`); no base-GLB
+fallback needed. Scripts: `geometric-eye-g3-seal.py` (measure + refit) →
+`geometric-eye-g3-gate.py` (independent re-derivation, GREEN) → vitest
+(`the-g3-lid-refit-seals-the-new-profile`, 5/5; G2 suite still 5/5).
+
+Old surface re-derived on THIS bake (trusts no carried number): globe
+R 11.9042/11.9043, shell R 12.2394/12.2378 offset +0.950/+0.953 — reproduces
+G0 exactly. New surface never proud of old (dense-sample max excess −0.004mm)
+→ the seal can only tighten; socket show-through cannot increase.
+
+Seat (gap-adaptive, Aisha row 1.5/0.5/0.5): 24/56 verts moved per side
+(32 flesh, gw=0), max 0.25mm. Margin sits near the rim-coincidence circle
+(old≈new there), so travel is small by construction, not by refusal.
+
+Seal (measured, both sides): closure-pose seal-band min gap −0.029mm post
+(50µm tolerance; baseline vs OLD surface −0.52 — strictly better, and the
+closed-lid gap did not float: ring mean 1.96 vs 2.05 pre). Slit-band min
+−0.000/+0.000. Occlusion (rays front→eye vs lid patch): closure 1.00,
+both-closure 1.00, slit 0.83 pre AND post; bind 0.46 (open eye, expected).
+Full near-eye set (≤25mm) no-regression vs old baseline in every pose
+(closure −0.59 vs −1.32, slit −1.33 vs −1.76). Morph deltas bit-invariant
+(max drift 0.0 — same disp on basis + all 47 targets). EEVEE ortho sheet:
+bind (iris/limbus/lashes over new anterior), closure L+R (lids meet, no globe
+shows), slit (pupil band); sagittal midline section old-shell vs new-cap.
+
+Aperture: fissure 27.009 × 10.871 post (baseline 27.009 × 11.067 — width
+exact, height into the ≤11.0 audit band). Lower edge +0.21 above new limbus
+bottom (audit yardstick ±0.3, PASS).
+
+Overlap — rank-1 NOT closed, truthfully carried forward: midline-margin
+station 0.29 → 0.38mm post (edge interpolated at pupil meridian vs true iris
+top C_y+5.4035). The audit's own edge station (1550.30 + true iris top) reads
+1.26 — in [1,2] — so the gate boundary sits INSIDE the station uncertainty
+(±1mm between defensible stations; margin arc descends laterally). Mechanical
+reason: the re-seat preserves the 0.5 tear-film offset, and the margin lives
+at rim coincidence where old≈new (seat ≤0.25mm there). Closing rank-1 needs a
+lid-bias/offset change — a seal tradeoff + blink-rig change (G4/G5 scope, owner
+call) — NOT a deeper H1 seat. Seating to offset 0 would trade the −0.03 graze
+for ~−0.8 poke-through; refused (scope counterweight: no cheapest pass).
+
+Diagnostics carried: slit lower-lid tuck −1.33 (pre-existing morph overshoot,
+old −1.76, improved by geometry; re-authoring is G4+ scope). Lash mesh in THIS
+bake has 0 morph targets (static; T2b/A3 re-seat lives on the eye-finish
+lineage) — mesh untouched, recorded. Compat-eyes suite
+(`the-compat-report-names-the-producer-manifests`, 2 fails) is RED on this
+worktree's HEAD from a materialize.py/store-sheet sha drift predating G3 —
+untouched by this slice (bake sha-verified, no producer source moved); re-pin
+only, not re-run. Gaze pivot bookkeeping unchanged (no joints added; G2
+anterior joints stay identity at the scleral centre).
+
+NOT TESTED: lash re-seat + blinkFollow (G4), gaze/compat re-run (suites run on
+the untouched shipped bake), second subject (G6), Quest.
