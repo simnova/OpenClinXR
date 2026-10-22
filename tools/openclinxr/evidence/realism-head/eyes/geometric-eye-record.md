@@ -399,3 +399,70 @@ NOT transfer harness-to-harness).
 Stays out of scope (all `false` through every slice, unchanged):
 clinical_validity, production_asset_readiness, Quest readiness,
 exam-equivalence; pixel grade of full face; skin-zero (no skin in GLB).
+
+## G6 closeout — second subject (child, proportional) + before/after (2026-10-22, worktree `eye-geo`)
+
+Enacted the scale-probe recommendation (A) proportional x k=0.95634 on the
+child lid-conform bake
+(`lid-conform-child/confirm/peds_asthma_parent_anxiety_v1-lidconform.glb`).
+Scripts (all new, G-series originals untouched):
+`geometric-eye-g6-child-params.py`-equivalent JSON,
+`geometric-eye-g6-child-build.py` (from g2-build; pupil 3.175 pinned x k,
+same candidate-A annulus bytes), `geometric-eye-g6-child-seal.py` (from
+g3-seal; seat row x k = 1.434/0.478/0.478), `geometric-eye-g6-child-assemble.py`
+(from g6-assemble; no 37699 assert, child body name), gate + vitest
+(`the-g6-child-head-carries-the-proportional-anterior`, 8/8) + manifest.
+
+- Census (gate 22/22 GREEN): sclera 11.3804 / cap 7.4595 / protrusion 1.0042
+  / disc dia 10.3352 / plane 108.247 head-mm — exact on params (built that
+  way) and G0-ratios 0.95633-0.95638 (band 2%). G0 absolute numbers fail by
+  design (6% smaller globe) — the adapted done_when (ratio-to-G0) is the
+  gate, reason recorded. Bake-note: Kasa on THIS bake fits globe R 11.2778
+  vs 11.3804 from the conform-report dias (0.9% method delta, inside the 5%
+  band; params trace to the conform-report, recorded).
+- Seal: closure band min -0.861 (baseline old -1.149, strictly tighter),
+  slit -0.788 (old -1.244), occlusion closure/both 1.0, bind 0.45, slit 0.82;
+  refit 47+47 rows, max 0.24mm; morph deltas invariant 0.0. New-vs-old
+  excess +0.10mm worst-direction (Aisha was -0.004): the child cap sits
+  marginally proud at one flank — absorbed by the seat, recorded.
+  Overlap (midline station): -0.06mm (edge just below iris top; no ptosis).
+  Audit rank-1 0.38 (Aisha station) untouched — carries, owner
+  lid-morph/aperture.
+- Children lash T2b/A3 NOT-APPLICABLE (reason-recorded, owner
+  makeclothes/eye-lash): the tool hardcodes adult eye-height stations
+  (EYE_BOX y 1.50-1.60, THRESH_Y 1.546, LID_WIN y 1.535-1.558) while the
+  child eye sits at y~1.153m — donor pool 0 by construction. Lashes stay
+  static, byte-identical to the shipped child bake (gate asserts) — no
+  regression vs baseline. G4-equivalent re-seat is owed to the tool owner,
+  not this lane.
+- Renders: three.js room-0.5+quad recipe, identical pipeline, all three
+  heads re-captured this slice (before-old re-captured, NOT reused).
+  Child eye-band: brown fibre iris, limbal ring 92/90, sat 0.50, iris dark
+  (interiorL 21) behind a broader quad wash (hot 18/3 within disc + scleral
+  spill vs Aisha 31/14 compact) — same recipe, smaller head, closer
+  effective light: cornea-env re-tune owed (owner eye-finish, G5-carried),
+  geometry carries. Gaze +/-25deg: direction-correct rigid motion both
+  subjects (Aisha +/-20px, child +/-13px); rigorous 0.2% proof carries from
+  G5 (harness px-metrology +/-20%, recorded).
+- Socket-at-yaw bg-probe (cheap): bg-frac front->yaw deltas <=0.0008 on all
+  heads — no show-through detected. Formal edgeAtYaw gate stays OPEN, owner
+  eye-globe-fit. Fresnel-in-harness stays carried (owner eye-shader; the
+  promoted eye-finish fresnel path is where it gets proven).
+- Findings: (1) three.js GLTFLoader renames eye.L/eye.R bones to eyeL/eyeR
+  (probed in-browser) — the sheet-capture script's eyeL/eyeR lookups are
+  correct; (2) joints 117/122 ARE the eye bones (node-index confusion
+  resolved: eye.L node 105 -> joint 117) — the splice wires gaze correctly
+  by construction, confirmed by the measured yaw shifts.
+
+Deliverable: `geometric-eye-g6-before-after.png` (before-old / after-Aisha
+/ after-child bands, same-framing scale-normalized crops, labels carry dot
++ ring + sat + parallax px) + `geometric-eye-g6-before-after.json`.
+
+Station (face station, eyeshade stage-5 flag from main): the G6 GLBs do NOT
+flow through the station — the station consumes case bakes via the
+materializer (no --eye-anterior flag exists; G2/G6 are GLB-space splices
+in-lane). Station suites re-run green post-rebase; non-flow recorded with
+owner (whoever staffs the materializer anterior flag).
+
+Stays out of scope (unchanged): clinical_validity,
+production_asset_readiness, Quest readiness, exam-equivalence.

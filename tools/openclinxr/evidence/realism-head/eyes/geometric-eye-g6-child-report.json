@@ -1,0 +1,44 @@
+{
+  "slice": "G6-child-full-head-bake (proportional anterior spliced into child lid-conform bake + child refit; lash SKIPPED with reason)",
+  "bake_in": {
+    "file": "/Volumes/files/openclinxr-assets/store/lid-conform-child/confirm/peds_asthma_parent_anxiety_v1-lidconform.glb",
+    "sha256": "42a4d4cfe3cf0fca8fbaf93f1b89c80a8e561d37c371ea8863da74a2f430facf"
+  },
+  "centres_m": {
+    "L": [
+      0.025607,
+      1.153078,
+      0.098731
+    ],
+    "R": [
+      -0.025607,
+      1.153078,
+      0.098731
+    ]
+  },
+  "old_eye_bind_gap_mm": {
+    "globe": 0.0007,
+    "cornea_named_left": 0.0005,
+    "cornea_named_right": 0.0007
+  },
+  "joint_map": {
+    "L": 117,
+    "R": 122
+  },
+  "refit_applied_rows": 94,
+  "t2b": "SKIPPED-adult-eye-box",
+  "a3": "SKIPPED-adult-eye-box",
+  "blinkFollow": "NOT-APPLICABLE (see reason)",
+  "blinkFollowPass": "NOT-APPLICABLE",
+  "head_sha256": "235758e5ba868f6894bcb1ed86120d9db83106ec0d842c9d7bafc726fcb7857f",
+  "head_bytes": 52315112,
+  "notTested": [
+    "socket show-through at yaw (no socket/aperture in GLB; edgeAtYaw stays OPEN per compat falsifier)"
+  ],
+  "notEvidenceFor": [
+    "clinical_validity",
+    "production_asset_readiness",
+    "quest_readiness",
+    "exam_equivalence"
+  ]
+}
