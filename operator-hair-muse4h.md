@@ -2,13 +2,15 @@
 
 Status: STALLED. Keeper is part-open8. part-stream1 is a regression and is not the parent.
 
-Row 96 skin run, channel-sum above 150, column 512: target 15, part-open8 36, part-guide1 48, part-stream1 50. Decision rows 96, 100, 104, 108, 116, 124, 132, 140 absolute gap error: part-open8 43, part-stream1 55. Thirteen-row absolute error: part-open8 89, part-stream1 92. Row 96 right hair edge: target column 535, part-open8 column 539, part-stream1 column 552.
+Row 96 skin run, channel-sum above 150, column 512: target 15, part-open8 36, part-guide1 48, part-stream1 50, part-sheet1 24. Decision rows 96, 100, 104, 108, 116, 124, 132, 140 absolute gap error: part-open8 43, part-stream1 55, part-sheet1 86. Thirteen-row absolute error: part-open8 89, part-stream1 92. Row 96 right hair edge: target column 535, part-open8 column 539, part-stream1 column 552.
+
+2026-10-23T19:06Z: part-sheet1 STOP. Session 25a52569-cb94-4dc2-bf41-56aab440d4d2, proofsOk true, dispatch exit 0. Parent part-open8. Guides from curves_world_src. In-scope shaft points walked toward own-side |x|=1.5 mm, steps at most 8 mm, endpoint and midpoint sdf at least 1. RESULT GUIDE_PTS 13191, CHILD_SAMPLES 1755825, MM_P50 2.48. Canonical rescore of part-sheet1/studio/front.png (1024 px, skin run threshold 150, column 512): gaps rows 92–172 are 1024, 24, 8, 9, 5, 3, 3, 7, 6, 26, 37, 48, 73. Same scorer on part-open8: 10, 36, 21, 15, 9, 13, 18, 23, 37, 60, 113, 141, 163. Row 92 on part-sheet1 is a 1024 px skin run. Do not parent from part-sheet1. treated.npz is 153066614 bytes on the hillclimb worktree. No part-r45. No part-sheet2.
 
 Groom binaries stay on disk. Each treated.npz is about 146 MB, GitHub rejects a file over 100 MB, and the set is 9.5 GB. Path: `/Users/patrick/.grok/worktrees/src-openclinxr/hair-hillclimb/tools/openclinxr/evidence/hair-muse4h/`.
 
 Parent the next child points from `part-open8/treated.npz`. Guide curves come from `part-guide1/guides.npz` key `curves_world_src` only. `curves_world` in that file is the 2.5 mm snap. Do not parent children from `part-guide1/treated.npz`. Leave `part-r44/treated.npz` untouched. Do not write part-r45.
 
-Already failed, do not repeat: snap wrong-side guide x to ±2.5 mm (part-guide1, row 96 from 36 to 48); walk own-side hooks outward in 8 mm steps (part-stream1, 4487 hook points, row 96 from 36 to 50); root slide; whole-wall z raise; gradient push; even/odd tuft restore (part-open9 stripe); Catmull-Rom (front channel-sum delta max 6).
+Already failed, do not repeat: snap wrong-side guide x to ±2.5 mm (part-guide1, row 96 from 36 to 48); walk own-side hooks outward in 8 mm steps (part-stream1, 4487 hook points, row 96 from 36 to 50); walk shaft points inward onto the |x|=1.5 mm floor (part-sheet1, decision-row absolute error 86); root slide; whole-wall z raise; gradient push; even/odd tuft restore (part-open9 stripe); Catmull-Rom (front channel-sum delta max 6).
 
 Grade rows 96-140. Rows 148-172 are the forehead hairline. A part is two streams leaving a planted root line. Do not empty that line, and do not widen the slot to chase the forehead. Native 1:1 crop wins. Cycles front, cameras-scorer-v3, HAIR_BEAUTY_ONLY=1. Images committed beside this note: `tools/openclinxr/evidence/hair-muse4h/handoff-2026-10-23/`.
 

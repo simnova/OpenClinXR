@@ -16,9 +16,9 @@ parseable_sections: 6
 
 **2026-10-23 | CEO — Aisha part groom stalled. part-open8 stays the keeper.**
 
-part-stream1 widened row 96 from 36 px to 50 px (target 15). part-guide1 widened it to 48 px. Decision-row absolute error 43 on part-open8, 55 on part-stream1. Handoff: operator-hair-muse4h.md. Groom npz stays in the hair-hillclimb worktree (about 146 MB each). No part-r45. Keeper: worktree tools/openclinxr/evidence/hair-muse4h/part-open8/treated.npz.
+part-sheet1 decision-row absolute error is 86 (part-open8 is 43). Row 96 is 24 px on part-sheet1 and 36 px on part-open8 (target 15). Row 92 on part-sheet1 is a 1024 px skin run. Do not parent from part-sheet1. Handoff: operator-hair-muse4h.md. No part-r45. Keeper: hair-hillclimb worktree tools/openclinxr/evidence/hair-muse4h/part-open8/treated.npz.
 
-SWEEP: workers=0 hair-muse4h stalled bothy=NOT DETERMINED
+SWEEP: workers=0 hair-part-sheet1 stop-gate bothy=NOT DETERMINED
 
 <!-- WAKE-BLUF:END -->
 
