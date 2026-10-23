@@ -12,7 +12,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 114
-- archive-candidate: 118
+- archive-candidate: 119
 - current-reference: 195
 - decision-record: 48
 - evidence: 174
@@ -416,6 +416,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/third-party-asset-licence-ledger.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/vibevoice-cpp-cagematch-2026-08-23.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/world-compile-graph-brief-2026-08-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `operator-hair-muse4h.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/skills/openclinxr-openclaw-style/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-licence-ledger-rules-header.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

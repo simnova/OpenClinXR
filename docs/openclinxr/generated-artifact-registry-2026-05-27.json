@@ -22,11 +22,11 @@
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/render-tex-candidates.py",
-      "reason": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard \u2014 a different producer than the seated-clip script."
+      "reason": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
-      "reason": "Texture-resize candidate (JPEG q85 2048\u00b2) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
+      "reason": "Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
@@ -34,9 +34,9 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1946,
+    "keep-evidence": 1950,
     "ignore-local-cache": 2771,
-    "keep-current": 253,
+    "keep-current": 257,
     "keep-template": 13,
     "keep-compatibility-input": 24
   },
@@ -26544,6 +26544,34 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/approach-take-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/fixed-clock-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Fixed-timestep clock admission: admits the accumulator, interpolation, and contact-window reads apps/ui-xr/src/main.ts binds for the fixed-clock actor simulation."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/foot-base-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Foot-base admission: admits the footBase=1 flag parser, schedule constants and roles, and the stride-retarget step/state the slice tests pin through ./foot-base."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/footstep-plan-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Footstep-plan admission: admits the stride-plan, blend, capture, and flag-parser reads the footstep-plan tests pin through the ./footstep-plan subpath."
+    },
+    {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/live-voice-v1.json",
       "authority": "keep-evidence",
       "tracked": true,
@@ -26563,20 +26591,6 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Independently signed room-chain subpath admission bound to the exact source candidate and explicitly activated."
-    },
-    {
-      "path": "docs/openclinxr/package-public-surface-reduction/admissions/walk-symmetry-gate-v1.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
-      "path": "docs/openclinxr/package-public-surface-reduction/admissions/approach-take-v1.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/s1-stop-clip-runtime-v1.json",
@@ -26600,6 +26614,13 @@
       "rationale": "Admits resolveStartupRuntimeCast, which apps/ui-xr/src/main.ts binds to resolve the module-load cast."
     },
     {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/stepping-turn-begin-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Stepping-turn begin admission: admits the beginSteppingTurn execution entry the stepping-turn-execution-mod.test.ts rest gate cases pin through the ./stepping-turn subpath."
+    },
+    {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/stepping-turn-v1.json",
       "authority": "keep-evidence",
       "tracked": true,
@@ -26614,9 +26635,23 @@
       "rationale": "This session re-admits the viseme symbols bound by couple-fitted-teeth-to-lip-viseme.ts, jaw-lip-couple.test.ts, and speech-sync-capture.ts."
     },
     {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/turn-backward-footfalls-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Turn-backward admission: admits the backward footfall planner, consumer, residual, and probe-flag reads the slice tests pin through ./stepping-turn and ./footstep-plan."
+    },
+    {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/viseme-motion-subpaths-v1.json",
       "authority": "keep-evidence",
       "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/walk-symmetry-gate-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
@@ -35042,18 +35077,46 @@
       "rationale": "Hand-authored Blender producer for seated-clip frames, not generated output; tools/ is not a scan root."
     },
     {
+      "path": "tools/openclinxr/evidence/hair-muse4h/handoff-2026-10-23/part-guide1-vs-target-open8-1to1.png",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated-looking artifact retained by conservative default after explicit stale/cache/template rules."
+    },
+    {
+      "path": "tools/openclinxr/evidence/hair-muse4h/handoff-2026-10-23/part-open8-front.png",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated-looking artifact retained by conservative default after explicit stale/cache/template rules."
+    },
+    {
+      "path": "tools/openclinxr/evidence/hair-muse4h/handoff-2026-10-23/part-stream1-front.png",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated-looking artifact retained by conservative default after explicit stale/cache/template rules."
+    },
+    {
+      "path": "tools/openclinxr/evidence/hair-muse4h/handoff-2026-10-23/part-stream1-vs-target-open8-1to1.png",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated-looking artifact retained by conservative default after explicit stale/cache/template rules."
+    },
+    {
       "path": "tools/openclinxr/evidence/humanoid-vetting/render-tex-candidates.py",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard \u2014 a different producer than the seated-clip script."
+      "rationale": "EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "Texture-resize candidate (JPEG q85 2048\u00b2) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
+      "rationale": "Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/."
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
@@ -35082,41 +35145,6 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
-    },
-    {
-      "path": "docs/openclinxr/package-public-surface-reduction/admissions/fixed-clock-v1.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Fixed-timestep clock admission: admits the accumulator, interpolation, and contact-window reads apps/ui-xr/src/main.ts binds for the fixed-clock actor simulation."
-    },
-    {
-      "path": "docs/openclinxr/package-public-surface-reduction/admissions/footstep-plan-v1.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Footstep-plan admission: admits the stride-plan, blend, capture, and flag-parser reads the footstep-plan tests pin through the ./footstep-plan subpath."
-    },
-    {
-      "path": "docs/openclinxr/package-public-surface-reduction/admissions/stepping-turn-begin-v1.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Stepping-turn begin admission: admits the beginSteppingTurn execution entry the stepping-turn-execution-mod.test.ts rest gate cases pin through the ./stepping-turn subpath."
-    },
-    {
-      "path": "docs/openclinxr/package-public-surface-reduction/admissions/turn-backward-footfalls-v1.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Turn-backward admission: admits the backward footfall planner, consumer, residual, and probe-flag reads the slice tests pin through ./stepping-turn and ./footstep-plan."
-    },
-    {
-      "path": "docs/openclinxr/package-public-surface-reduction/admissions/foot-base-v1.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Foot-base admission: admits the footBase=1 flag parser, schedule constants and roles, and the stride-retarget step/state the slice tests pin through ./foot-base."
     }
   ]
 }

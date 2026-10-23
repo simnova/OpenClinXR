@@ -6,7 +6,7 @@
   "counts": {
     "agent-methodology": 114,
     "current-reference": 195,
-    "archive-candidate": 126,
+    "archive-candidate": 127,
     "evidence": 184,
     "temporary": 54,
     "protected-policy": 10,
@@ -5132,6 +5132,13 @@
       "agentInstructionWeight": "low",
       "action": "summarize-before-use",
       "rationale": "Historical planning/synthesis evidence; not active marching orders."
+    },
+    {
+      "path": "operator-hair-muse4h.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "operator-open-questions.md",

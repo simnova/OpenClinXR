@@ -24,8 +24,8 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
-- keep-current: 253
-- keep-evidence: 1943
+- keep-current: 257
+- keep-evidence: 1950
 - keep-template: 13
 
 ## Cleanup Actions
@@ -3075,6 +3075,10 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/wall-plaster.jpg` - keep-current; keep; Ward-finish station input: operator-generated Grok Imagine painted plaster albedo (row-32 provenance, 2026-09-28 working set); staged for the ceiling-wiring follow-up.
 - `tools/openclinxr/asset-pipeline/trellis/equipment-freezes/ecg-cart.freeze.json` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
 - `tools/openclinxr/evidence/blender/render_seated_clip_frames.py` - keep-current; keep; Hand-authored Blender producer for seated-clip frames, not generated output; tools/ is not a scan root.
+- `tools/openclinxr/evidence/hair-muse4h/handoff-2026-10-23/part-guide1-vs-target-open8-1to1.png` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
+- `tools/openclinxr/evidence/hair-muse4h/handoff-2026-10-23/part-open8-front.png` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
+- `tools/openclinxr/evidence/hair-muse4h/handoff-2026-10-23/part-stream1-front.png` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
+- `tools/openclinxr/evidence/hair-muse4h/handoff-2026-10-23/part-stream1-vs-target-open8-1to1.png` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
 - `tools/openclinxr/evidence/humanoid-vetting/render-tex-candidates.py` - keep-current; keep; EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script.
 - `tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg` - keep-current; keep; Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/.
 - `tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md` - keep-current; keep; Dated tightjeans rebake evidence note; .md must not join generatedExtensions (doc-authority collision).
@@ -3834,15 +3838,22 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/mouth-dynamics/viseme-eval/viseme-words/metrics.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/ob-humanoid-source-variants-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/package-public-surface-reduction/admissions/actor-audio-runtime-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
-- `docs/openclinxr/package-public-surface-reduction/admissions/approach-take-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.- `docs/openclinxr/package-public-surface-reduction/admissions/live-voice-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/package-public-surface-reduction/admissions/approach-take-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/package-public-surface-reduction/admissions/fixed-clock-v1.json` - keep-evidence; keep; Fixed-timestep clock admission: admits the accumulator, interpolation, and contact-window reads apps/ui-xr/src/main.ts binds for the fixed-clock actor simulation.
+- `docs/openclinxr/package-public-surface-reduction/admissions/foot-base-v1.json` - keep-evidence; keep; Foot-base admission: admits the footBase=1 flag parser, schedule constants and roles, and the stride-retarget step/state the slice tests pin through ./foot-base.
+- `docs/openclinxr/package-public-surface-reduction/admissions/footstep-plan-v1.json` - keep-evidence; keep; Footstep-plan admission: admits the stride-plan, blend, capture, and flag-parser reads the footstep-plan tests pin through the ./footstep-plan subpath.
+- `docs/openclinxr/package-public-surface-reduction/admissions/live-voice-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/psr-01f.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/room-chain-wiring-v1.json` - keep-evidence; keep; Independently signed room-chain subpath admission bound to the exact source candidate and explicitly activated.
 - `docs/openclinxr/package-public-surface-reduction/admissions/s1-stop-clip-runtime-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/staging-layout-view-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/startup-cast-v1.json` - keep-evidence; keep; Admits resolveStartupRuntimeCast, which apps/ui-xr/src/main.ts binds to resolve the module-load cast.
+- `docs/openclinxr/package-public-surface-reduction/admissions/stepping-turn-begin-v1.json` - keep-evidence; keep; Stepping-turn begin admission: admits the beginSteppingTurn execution entry the stepping-turn-execution-mod.test.ts rest gate cases pin through the ./stepping-turn subpath.
 - `docs/openclinxr/package-public-surface-reduction/admissions/stepping-turn-v1.json` - keep-evidence; keep; Stepping-turn assay seam: admits the plan, hinge, and stance-lock reads the SC-05 assay and bake bind through the xr-humanoid-animation ./stepping-turn subpath.
 - `docs/openclinxr/package-public-surface-reduction/admissions/teeth-viseme-consumers-v1.json` - keep-evidence; keep; This session re-admits the viseme symbols bound by couple-fitted-teeth-to-lip-viseme.ts, jaw-lip-couple.test.ts, and speech-sync-capture.ts.
+- `docs/openclinxr/package-public-surface-reduction/admissions/turn-backward-footfalls-v1.json` - keep-evidence; keep; Turn-backward admission: admits the backward footfall planner, consumer, residual, and probe-flag reads the slice tests pin through ./stepping-turn and ./footstep-plan.
 - `docs/openclinxr/package-public-surface-reduction/admissions/viseme-motion-subpaths-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/package-public-surface-reduction/admissions/walk-symmetry-gate-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/xr-dialogue-consumer-split-v1.json` - keep-evidence; keep; Consumer-driven split of xr-dialogue exports by consumer class (./package-actor-turn, ./package-viseme, ./evidence-viseme new; JAW_TEETH_GAIN added to ./viseme-runtime); reviewedBy PENDING-INDEPENDENT-REVIEW.
 - `docs/openclinxr/package-public-surface-reduction/approvals/psr-01b.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/approvals/psr-01c.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
