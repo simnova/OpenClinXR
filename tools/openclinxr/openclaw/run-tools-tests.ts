@@ -32,15 +32,12 @@ export const ROOT_CONFIG_EXCLUDES: readonly string[] = [
 ];
 
 /**
- * Authoritative project archive excludes. Repo-root archival snapshots and
- * provider caches are not live source. Root-relative so live files in managed
- * worktrees under a ".openclinxr" ancestor stay collected. Owned here because
- * the generic Cellix package must carry no OpenClinXR product semantics.
+ * Authoritative project archive excludes live here for history; the runtime
+ * value is owned by project-test-scope.ts and re-exported unchanged.
  */
-export const PROJECT_ARCHIVE_EXCLUDES: readonly string[] = [
-  ".openclinxr/**",
-  ".openclinxr-local/**",
-];
+import { PROJECT_ARCHIVE_EXCLUDES } from "./project-test-scope.js";
+
+export { PROJECT_ARCHIVE_EXCLUDES };
 
 /** Known shared module. Its import must succeed — no stale embedded copy. */
 export const SHARED_EXCLUDES_MODULE = "packages/cellix/config-vitest/src/worktree-excludes.ts";

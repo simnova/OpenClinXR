@@ -61,6 +61,7 @@ import { createRequire } from "node:module";
 import { builtinModules } from "node:module";
 import { isAbsolute, join, normalize, relative, resolve, sep } from "node:path";
 import * as ts from "typescript";
+import { isProjectArchivedRepoRel, PROJECT_ARCHIVE_EXCLUDES } from "./project-test-scope.js";
 
 export type TestFramework = "vitest" | "node" | "playwright";
 
@@ -561,8 +562,10 @@ export function parseVitestFilesOnly(stdout: string, root: string): string[] {
 /**
  * `vitest list --filesOnly` discovery args. Flags verified against the
  * installed `vitest list --help` (4.1.5): `--filesOnly`, `--exclude`.
+ * Defaults to the exact shared project archive policy so preserved archive
+ * copies never execute as live Node/PW/Vitest.
  */
-export function buildVitestListArgs(excludesRel: readonly string[] = []): string[] {
+export function buildVitestListArgs(excludesRel: readonly string[] = PROJECT_ARCHIVE_EXCLUDES): string[] {
   const args = ["list", "--filesOnly"];
   for (const e of excludesRel) args.push("--exclude", e);
   return args;
@@ -714,9 +717,18 @@ export function routeRelatedGroup(req: RouteRequest, exec: GroupExec): RouteOutc
   const cache = createFileCache();
   let candidatesOwnerRel: string[];
   if (req.candidatesOverride !== undefined) {
-    candidatesOwnerRel = [...req.candidatesOverride];
+    // Test override seam respects the same shared archive policy: archived
+    // preserved copies are never live candidates, even when injected.
+    candidatesOwnerRel = [...req.candidatesOverride].filter((f) => {
+      const repoRel = toRepoRel(f, req.ownerDir);
+      const absLike = isAbsolute(repoRel) ? relative(req.root, repoRel).split(sep).join("/") : repoRel;
+      return !isProjectArchivedRepoRel(absLike);
+    });
   } else {
-    const stdout = exec.listFiles([...req.vitestPrefix, ...buildVitestListArgs()], req.cwd);
+    // Root archive policy is repo-root only: package-scoped discovery must not
+    // exclude live package-local `.openclinxr` candidates.
+    const discoveryExcludes = req.ownerDir === null ? PROJECT_ARCHIVE_EXCLUDES : [];
+    const stdout = exec.listFiles([...req.vitestPrefix, ...buildVitestListArgs(discoveryExcludes)], req.cwd);
     candidatesOwnerRel = parseVitestFilesOnly(stdout, req.ownerDir === null ? req.root : resolve(req.root, req.ownerDir));
   }
   const candidatesRepoRel = candidatesOwnerRel.map((f) => toRepoRel(f, req.ownerDir));

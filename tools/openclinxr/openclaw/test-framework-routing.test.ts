@@ -28,6 +28,7 @@ import {
   type GroupExec,
   type RouteRequest,
 } from "./test-framework-routing.js";
+import { isProjectArchivedRepoRel, PROJECT_ARCHIVE_EXCLUDES } from "./project-test-scope.js";
 
 function facadeEnv(): ClassifyEnv {
   return {
@@ -359,8 +360,27 @@ describe("CLI and file partition (chosen runners, exact flags)", () => {
   });
 
   it("builds the filesOnly discovery invocation", () => {
-    expect(buildVitestListArgs()).toEqual(["list", "--filesOnly"]);
+    expect(buildVitestListArgs()).toEqual([
+      "list",
+      "--filesOnly",
+      "--exclude",
+      ".openclinxr/**",
+      "--exclude",
+      ".openclinxr-local/**",
+    ]);
     expect(buildVitestListArgs(["a.test.ts"])).toEqual(["list", "--filesOnly", "--exclude", "a.test.ts"]);
+  });
+
+  it("reuses the exact shared project archive policy in discovery", () => {
+    expect(buildVitestListArgs()).toEqual(["list", "--filesOnly", "--exclude", ".openclinxr/**", "--exclude", ".openclinxr-local/**"]);
+    expect([...PROJECT_ARCHIVE_EXCLUDES]).toEqual([".openclinxr/**", ".openclinxr-local/**"]);
+  });
+
+  it("drops preserved archive copies from the test override seam", () => {
+    expect(isProjectArchivedRepoRel(".openclinxr/slices/demo/evidence/compose-pilot.test.mjs")).toBe(true);
+      expect(isProjectArchivedRepoRel(".openclinxr-local/provider-cache/x.test.ts")).toBe(true);
+      expect(isProjectArchivedRepoRel("tools/v.test.ts")).toBe(false);
+      expect(isProjectArchivedRepoRel("some/nested/.openclinxr/tools/x.test.ts")).toBe(false);
   });
 
   it("builds the Playwright invocation with positional file filters", () => {
@@ -526,6 +546,50 @@ describe("routeRelatedGroup (one failure never skips the other runners)", () => 
       const out = routeRelatedGroup(req, exec);
       expect(out.code).toBe(0);
       expect(runs).toEqual([]);
+    });
+  });
+
+  it("scopes root archive discovery to the repo root; package-local .openclinxr stays live", () => {
+    withTree(
+      {
+        ...treeForSelection(),
+        "packages/foo/.openclinxr/kept.test.ts": `import { it } from "vitest";\nit("kept", () => {});\n`,
+      },
+      (root) => {
+        // Root owner discovery carries the archive excludes.
+        const rootReq = request({ root, cwd: root, ownerDir: null, candidatesOverride: undefined });
+        const rootSpy = fakeExec("", {});
+        routeRelatedGroup(rootReq, rootSpy.exec);
+        expect(rootSpy.lists[0]).toContain("--exclude");
+        expect(rootSpy.lists[0]).toContain(".openclinxr/**");
+        // Package owner discovery must not exclude live package-local `.openclinxr`.
+        const pkgReq = request({
+          root,
+          cwd: join(root, "packages", "foo"),
+          ownerDir: "packages/foo",
+          candidatesOverride: undefined,
+        });
+        const pkgSpy = fakeExec(".openclinxr/kept.test.ts\n", {});
+        const pkgOut = routeRelatedGroup(pkgReq, pkgSpy.exec);
+        expect(pkgSpy.lists[0]).not.toContain("--exclude");
+        expect(pkgOut.candidates.vitest).toEqual(["packages/foo/.openclinxr/kept.test.ts"]);
+      },
+    );
+  });
+
+  it("filters archived preserved copies from the override seam before partition", () => {
+    withTree(treeForSelection(), (root) => {
+      const req = request({
+        root,
+        cwd: root,
+        candidatesOverride: [
+          "tools/v.test.ts",
+          ".openclinxr/slices/demo/evidence/compose-pilot.test.mjs",
+        ],
+      });
+      const { exec } = fakeExec("", {});
+      const out = routeRelatedGroup(req, exec);
+      expect(out.candidates.vitest).toEqual(["tools/v.test.ts"]);
     });
   });
 });
