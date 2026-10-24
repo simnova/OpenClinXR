@@ -20,6 +20,8 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      TURBO_CACHE_DIR: ${{ github.workspace }}/.turbo/cache
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,13 +38,16 @@ jobs:
       - name: Cache Turbo
         uses: actions/cache@v4
         with:
-          path: .turbo
-          key: turbo-ci-${{ github.sha }}
+          path: ${{ env.TURBO_CACHE_DIR }}
+          key: turbo-v2.9.14-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
           restore-keys: |
-            turbo-ci-
+            turbo-v2.9.14-${{ runner.os }}-${{ runner.arch }}-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Bootstrap workspace builds (cold-safe exports)
+        run: pnpm packages:build
 
       - name: Architecture rules
         run: pnpm architecture
