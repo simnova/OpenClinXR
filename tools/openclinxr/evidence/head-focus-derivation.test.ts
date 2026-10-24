@@ -1,13 +1,15 @@
 import { readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { dirname, join, relative as pathRelative, resolve as pathResolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
-import { beforeAll, describe, expect, it } from "vitest";
 import {
   deriveHeadBoxFromPoints,
   isFittedHairMeshName,
   type Vec3,
 } from "@openclinxr/xr-scene";
+import { beforeAll, describe, expect, it } from "vitest";
 
 /**
  * #358 — the head-focus station must frame the head on EVERY rail, not only MPFB.
@@ -276,14 +278,20 @@ describe("the head-focus station refuses instead of falling back (#358)", () => 
         }>)
       | undefined;
     expect(probe, "probeHeadFocusRefusal disappeared").toBeTypeOf("function");
-    const result = await probe!({});
-    expect(result.subject.rail).toBe("anny");
-    expect(result.subject.focus).toBe("eyes");
-    expect(
-      result.refused,
-      `focus=eyes on the Anny asset did NOT refuse (error: ${result.error ?? "none"}) — the station fell back silently`,
-    ).toBe(true);
-    expect(result.error).toMatch(/refusing rather than falling back/);
+    const outputRoot = await mkdtemp(join(tmpdir(), "openclinxr-head-focus-refusal-"));
+    const producerOutputRoot = pathRelative(REPO_ROOT, outputRoot);
+    try {
+      const result = await probe!({ outputRoot: producerOutputRoot });
+      expect(result.subject.rail).toBe("anny");
+      expect(result.subject.focus).toBe("eyes");
+      expect(
+        result.refused,
+        `focus=eyes on the Anny asset did NOT refuse (error: ${result.error ?? "none"}) — the station fell back silently`,
+      ).toBe(true);
+      expect(result.error).toMatch(/refusing rather than falling back/);
+    } finally {
+      await rm(outputRoot, { recursive: true, force: true });
+    }
   }, 1_800_000);
 
   it("renders matched head crops on BOTH rails and records the framing used", async () => {
@@ -302,22 +310,45 @@ describe("the head-focus station refuses instead of falling back (#358)", () => 
       | undefined;
     expect(render, "renderHeadFocusCrops disappeared").toBeTypeOf("function");
 
-    const run = await render!({});
-    expect(run.crops.length, "expected one crop per rail").toBe(2);
-    for (const crop of run.crops) {
-      expect(["mpfb", "anny"], `unexpected rail ${crop.rail}`).toContain(crop.rail);
-      expect(crop.pngDimensions, `${crop.rail}: crop is not a PNG on disk`).not.toBeNull();
-      expect(crop.pngDimensions!.width, `${crop.rail}: crop too narrow`).toBeGreaterThanOrEqual(512);
-      expect(crop.pngDimensions!.height, `${crop.rail}: crop too short`).toBeGreaterThanOrEqual(512);
-      expect(
-        crop.frameSpanFraction,
-        `${crop.rail}: the head does not fill the frame (span ${crop.frameSpanFraction})`,
-      ).not.toBeNull();
-      expect(crop.frameSpanFraction!).toBeGreaterThan(0.5);
-      expect(
-        crop.focusRegion?.kind,
-        `${crop.rail}: the run did not record head_box framing — the station degraded silently`,
-      ).toBe("head_box");
+    const outputRoot = await mkdtemp(join(tmpdir(), "openclinxr-head-focus-crops-"));
+    const producerOutputRoot = pathRelative(REPO_ROOT, outputRoot);
+    let run: {
+      crops: Array<{
+        rail: string;
+        imagePath: string;
+        pngDimensions: { width: number; height: number } | null;
+        frameSpanFraction: number | null;
+        focusRegion: { kind: string } | null | undefined;
+      }>;
+      summary: { devServerBoots: number; browserLaunches: number };
+    };
+    try {
+      run = await render!({ outputRoot: producerOutputRoot }) as typeof run;
+      expect(run.crops.length, "expected one crop per rail").toBe(2);
+      for (const crop of run.crops) {
+        expect(["mpfb", "anny"], `unexpected rail ${crop.rail}`).toContain(crop.rail);
+        expect(crop.pngDimensions, `${crop.rail}: crop is not a PNG on disk`).not.toBeNull();
+        expect(crop.pngDimensions!.width, `${crop.rail}: crop too narrow`).toBeGreaterThanOrEqual(512);
+        expect(crop.pngDimensions!.height, `${crop.rail}: crop too short`).toBeGreaterThanOrEqual(512);
+        expect(
+          crop.frameSpanFraction,
+          `${crop.rail}: the head does not fill the frame (span ${crop.frameSpanFraction})`,
+        ).not.toBeNull();
+        expect(crop.frameSpanFraction!).toBeGreaterThan(0.5);
+        expect(
+          crop.focusRegion?.kind,
+          `${crop.rail}: the run did not record head_box framing — the station degraded silently`,
+        ).toBe("head_box");
+      }
+      for (const crop of run.crops) {
+        const absPath = pathResolve(REPO_ROOT, crop.imagePath);
+        expect(
+          absPath.startsWith(outputRoot + sep) || absPath === outputRoot,
+          `${crop.rail}: crop landed outside the per-test temp root`,
+        ).toBe(true);
+      }
+    } finally {
+      await rm(outputRoot, { recursive: true, force: true });
     }
   }, 1_800_000);
 

@@ -274,7 +274,7 @@ async function measureActor(actor: string): Promise<PokeRow> {
   };
 }
 
-function writeArtifact(rows: PokeRow[]): void {
+function writeArtifact(rows: PokeRow[], outputRoot?: string): void {
   const artifact = {
     slice: "issue-392",
     title: "torso poke-through calibration — bone-classified, upper garment, bind pose",
@@ -290,13 +290,13 @@ function writeArtifact(rows: PokeRow[]): void {
     },
     actors: rows,
   };
-  const outPath = join(REPO_ROOT, ARTIFACT_REL);
+  const outPath = outputRoot ? join(outputRoot, "torso-poke-through-calibration.json") : join(REPO_ROOT, ARTIFACT_REL);
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(outPath, `${JSON.stringify(artifact, null, 2)}\n`, "utf8");
 }
 
-export async function measureTorsoPokeThrough(): Promise<PokeRow[]> {
+export async function measureTorsoPokeThrough(input?: { outputRoot?: string }): Promise<PokeRow[]> {
   const rows = await Promise.all(MPFB_ACTORS.map(measureActor));
-  writeArtifact(rows);
+  writeArtifact(rows, input?.outputRoot);
   return rows;
 }

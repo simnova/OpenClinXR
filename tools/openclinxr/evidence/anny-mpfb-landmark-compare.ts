@@ -928,8 +928,13 @@ export function loadReferenceObj(meshId: string): string {
 /**
  * Inspect: extract landmarks for all references, write the per-mesh and comparison
  * artifacts, and return the report the contracts assert on.
+ *
+ * `outputRoot` isolates generated artifacts for tests (defaults to the production
+ * evidence dir). Reference reads stay on the tracked canonical paths.
  */
-export async function inspectLandmarkComparison(): Promise<ComparisonReport> {
+export async function inspectLandmarkComparison(
+  options?: { outputRoot?: string },
+): Promise<ComparisonReport> {
   const bodies: LandmarkSet[] = [];
   for (const meshId of ANNY_REFERENCE_ASSETS) {
     const objText = loadReferenceObj(meshId);
@@ -1001,13 +1006,19 @@ export async function inspectLandmarkComparison(): Promise<ComparisonReport> {
     comparisons,
   };
 
-  mkdirSync(LANDMARKS_DIR, { recursive: true });
+  const landmarksDir = options?.outputRoot
+    ? nodePath.join(options.outputRoot, "landmarks")
+    : LANDMARKS_DIR;
+  const comparisonPath = options?.outputRoot
+    ? nodePath.join(options.outputRoot, "landmark-comparison.json")
+    : COMPARISON_ARTIFACT_PATH;
+  mkdirSync(landmarksDir, { recursive: true });
   for (const b of bodies) {
     writeFileSync(
-      nodePath.join(LANDMARKS_DIR, `${b.meshId}.landmarks.json`),
+      nodePath.join(landmarksDir, `${b.meshId}.landmarks.json`),
       JSON.stringify(b, null, 2),
     );
   }
-  writeFileSync(COMPARISON_ARTIFACT_PATH, JSON.stringify(report, null, 2));
+  writeFileSync(comparisonPath, JSON.stringify(report, null, 2));
   return report;
 }

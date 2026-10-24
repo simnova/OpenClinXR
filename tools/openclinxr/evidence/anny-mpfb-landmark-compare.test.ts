@@ -1,6 +1,27 @@
-import { describe, expect, it } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
-import { COMPARISON_ARTIFACT_PATH } from "./anny-mpfb-landmark-compare.js";
+import { describe, expect, it, afterEach } from "vitest";
+import { existsSync, readFileSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+const tempRoots: string[] = [];
+afterEach(() => {
+  while (tempRoots.length) {
+    const dir = tempRoots.pop()!;
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {
+      // best-effort cleanup
+    }
+  }
+});
+
+function freshOutputRoot(): string {
+  const dir = mkdtempSync(join(tmpdir(), "issue-297-"));
+  tempRoots.push(dir);
+  return dir;
+}
+
+type InspectLandmarks = (options?: { outputRoot?: string }) => Promise<ComparisonReport>;
 
 /**
  * PLANTED CONTRACTS (#297). Three REDs + the artifact shape. All four flip.
@@ -137,11 +158,9 @@ type ComparisonReport = {
 describe("MADR 0051 §4 landmark instrument (#297)", () => {
   it("RED (1): separates known-different bodies; every landmark finite", async () => {
     const mod = await load();
-    const inspect = mod["inspectLandmarkComparison"] as
-      | (() => Promise<ComparisonReport>)
-      | undefined;
+    const inspect = mod["inspectLandmarkComparison"] as InspectLandmarks | undefined;
     expect(inspect, "inspectLandmarkComparison must be exported").toBeTypeOf("function");
-    const report = await inspect!();
+    const report = await inspect!({ outputRoot: freshOutputRoot() });
 
     const male = report.bodies.find((b) => b.meshId === "adult_male_street_casual");
     const child = report.bodies.find((b) => b.meshId === "peds_patient_child");
@@ -168,8 +187,8 @@ describe("MADR 0051 §4 landmark instrument (#297)", () => {
 
   it("COUNTERWEIGHT (2): waist girth width < 0.50 m and < shoulder span — the naive slab fails both", async () => {
     const mod = await load();
-    const inspect = mod["inspectLandmarkComparison"] as () => Promise<ComparisonReport>;
-    const report = await inspect!();
+    const inspect = mod["inspectLandmarkComparison"] as InspectLandmarks;
+    const report = await inspect!({ outputRoot: freshOutputRoot() });
     const male = report.bodies.find((b) => b.meshId === "adult_male_street_casual")!;
 
     expect(male.waistGirthWidthMeters).toBeLessThan(0.5);
@@ -183,8 +202,8 @@ describe("MADR 0051 §4 landmark instrument (#297)", () => {
 
   it("REGRESSION NET (3): the two adults differ on stature AND on at least one girth", async () => {
     const mod = await load();
-    const inspect = mod["inspectLandmarkComparison"] as () => Promise<ComparisonReport>;
-    const report = await inspect!();
+    const inspect = mod["inspectLandmarkComparison"] as InspectLandmarks;
+    const report = await inspect!({ outputRoot: freshOutputRoot() });
     const male = report.bodies.find((b) => b.meshId === "adult_male_street_casual")!;
     const spouse = report.bodies.find((b) => b.meshId === "ed_chest_pain_spouse_adult")!;
 
@@ -201,12 +220,17 @@ describe("MADR 0051 §4 landmark instrument (#297)", () => {
   });
 
   it("the comparison artifact carries the §5 bands, their source, and per-row margins", async () => {
+    const mod = await load();
+    const inspect = mod["inspectLandmarkComparison"] as InspectLandmarks;
+    const outputRoot = freshOutputRoot();
+    await inspect({ outputRoot });
+    const comparisonPath = join(outputRoot, "landmark-comparison.json");
     expect(
-      existsSync(COMPARISON_ARTIFACT_PATH),
-      `artifact missing: ${COMPARISON_ARTIFACT_PATH}`,
+      existsSync(comparisonPath),
+      `artifact missing: ${comparisonPath}`,
     ).toBe(true);
     const artifact = JSON.parse(
-      readFileSync(COMPARISON_ARTIFACT_PATH, "utf8"),
+      readFileSync(comparisonPath, "utf8"),
     ) as ComparisonReport;
 
     const bandKeys = new Set(artifact.madr0051Bands.flatMap((b) => b.landmark.split("|")));

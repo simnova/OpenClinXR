@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -75,10 +77,16 @@ describe("Infinigen constraint language capability (#339)", () => {
   it("the inspect module builds the evidence artifact (dry probes + measured runs)", async () => {
     const mod = await load();
     const inspect = mod["inspectInfinigenConstraintLanguage"] as
-      | (() => Promise<Capability>)
+      | ((input?: { outputRoot?: string }) => Promise<Capability>)
       | undefined;
     expect(inspect).toBeTypeOf("function");
-    const r = await inspect!();
+    const tmp = await mkdtemp(path.join(tmpdir(), "openclinxr-constraint-lang-"));
+    let r!: Capability;
+    try {
+      r = await inspect!({ outputRoot: tmp });
+    } finally {
+      await rm(tmp, { recursive: true, force: true });
+    }
     expect(["adopt_generation", "reject_measured", "inconclusive_blocked"]).toContain(
       r.verdict,
     );
@@ -92,8 +100,14 @@ describe("Infinigen constraint language capability (#339)", () => {
 
   it("the dry probes prove the language accepts hard footprint bounds (COUNTERWEIGHT)", async () => {
     const mod = await load();
-    const inspect = mod["inspectInfinigenConstraintLanguage"] as () => Promise<Capability>;
-    const r = await inspect!();
+    const inspect = mod["inspectInfinigenConstraintLanguage"] as (input?: { outputRoot?: string }) => Promise<Capability>;
+    const tmp = await mkdtemp(path.join(tmpdir(), "openclinxr-constraint-lang-"));
+    let r!: Capability;
+    try {
+      r = await inspect!({ outputRoot: tmp });
+    } finally {
+      await rm(tmp, { recursive: true, force: true });
+    }
     const dry = r.footprintExperiment.dryProbes;
     expect(dry.problemBuilds).toBe(true);
     expect(dry.missingNodeImpls).toEqual([]);
@@ -105,9 +119,15 @@ describe("Infinigen constraint language capability (#339)", () => {
 
   it("a distant footprint target is NOT enforced by the room annealer (measured)", async () => {
     const mod = await load();
-    const inspect = mod["inspectInfinigenConstraintLanguage"] as () => Promise<Capability>;
-    const r = await inspect!();
-    if (r.verdict === "inconclusive_blocked") return;
+    const inspect = mod["inspectInfinigenConstraintLanguage"] as (input?: { outputRoot?: string }) => Promise<Capability>;
+    const tmp = await mkdtemp(path.join(tmpdir(), "openclinxr-constraint-lang-"));
+    let r!: Capability;
+    try {
+      r = await inspect!({ outputRoot: tmp });
+    } finally {
+      await rm(tmp, { recursive: true, force: true });
+    }
+    if (r!.verdict === "inconclusive_blocked") return;
     const inf = r.footprintExperiment.infeasibleTarget;
     if (!inf) return; // generation outputs absent in this environment
     expect(inf.annealScoreFrozen).toBe(true);

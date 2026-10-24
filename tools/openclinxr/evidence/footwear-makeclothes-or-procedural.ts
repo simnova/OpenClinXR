@@ -403,12 +403,38 @@ function ensurePreFixExists(): PreFix {
   return JSON.parse(readFileSync(PRE_FIX_PATH, "utf8")) as PreFix;
 }
 
+function resolveInspectPaths(outputRoot?: string): {
+  dir: string;
+  shoeSearchPath: string;
+  postFixPath: string;
+  visualVerdictPath: string;
+  gradePngPath: string;
+  embedHintPath: string;
+} {
+  const dir = outputRoot ?? EVIDENCE_DIR;
+  return {
+    dir,
+    shoeSearchPath: path.join(dir, "shoe-candidates.json"),
+    postFixPath: path.join(dir, "post-fix-attachment.json"),
+    visualVerdictPath: path.join(dir, "in-scope-visual.json"),
+    gradePngPath: path.join(dir, "footwear-grade.png"),
+    embedHintPath: path.join(EVIDENCE_DIR, "work/footwear_lean.json"),
+  };
+}
+
 /**
  * Primary contract inspect. Assumes product work (if any) already ran; re-measures
  * library GLBs and records verdict + shoe search.
+ *
+ * `outputRoot` isolates generated outputs for tests (defaults to the production
+ * evidence dir, preserving existing callers/CLI). The canonical pre-fix golden is
+ * always READ from its committed path — never rewritten here.
  */
-export async function inspectFootwearMakeclothesOrProcedural(): Promise<Measure> {
-  mkdirSync(EVIDENCE_DIR, { recursive: true });
+export async function inspectFootwearMakeclothesOrProcedural(
+  options?: { outputRoot?: string },
+): Promise<Measure> {
+  const paths = resolveInspectPaths(options?.outputRoot);
+  mkdirSync(paths.dir, { recursive: true });
   const pre = ensurePreFixExists();
   if (!pre.rows || pre.rows.length < 2) {
     throw new Error("pre-fix attachment table must have ≥2 library rows");
@@ -416,7 +442,7 @@ export async function inspectFootwearMakeclothesOrProcedural(): Promise<Measure>
 
   const shoeCandidates = examineShoeCandidates(REPO_ROOT);
   writeFileSync(
-    SHOE_SEARCH_PATH,
+    paths.shoeSearchPath,
     JSON.stringify(
       {
         schemaVersion: "openclinxr.shoe-candidates.v1",
@@ -443,7 +469,7 @@ export async function inspectFootwearMakeclothesOrProcedural(): Promise<Measure>
     after.push(await measureAsset(p));
   }
   writeFileSync(
-    POST_FIX_PATH,
+    paths.postFixPath,
     JSON.stringify(
       {
         measuredAt: new Date().toISOString(),
@@ -471,8 +497,8 @@ export async function inspectFootwearMakeclothesOrProcedural(): Promise<Measure>
 
   // Detect foot-vertex revision from embed report if present.
   const embedRevisionHint =
-    existsSync(path.join(EVIDENCE_DIR, "work/footwear_lean.json")) &&
-    readFileSync(path.join(EVIDENCE_DIR, "work/footwear_lean.json"), "utf8").includes(
+    existsSync(paths.embedHintPath) &&
+    readFileSync(paths.embedHintPath, "utf8").includes(
       "foot_vertex",
     );
 
@@ -491,11 +517,11 @@ export async function inspectFootwearMakeclothesOrProcedural(): Promise<Measure>
       : "no",
   };
   writeFileSync(
-    VISUAL_VERDICT_PATH,
+    paths.visualVerdictPath,
     JSON.stringify(
       {
         ...inScopeVisual,
-        gradePng: existsSync(GRADE_PNG_PATH) ? GRADE_PNG_PATH : null,
+        gradePng: existsSync(paths.gradePngPath) ? paths.gradePngPath : null,
         note: "toe/heel/sole from foot-vertex derivation markers; appearance pixel-grade is orchestrator-owned",
       },
       null,
@@ -544,7 +570,7 @@ export async function inspectFootwearMakeclothesOrProcedural(): Promise<Measure>
   }
 
   // Ensure grade exists for product path (regenerate if missing).
-  if (pathUsed !== "none" && !existsSync(GRADE_PNG_PATH)) {
+  if (pathUsed !== "none" && !existsSync(paths.gradePngPath)) {
     try {
       const blender = resolveBlender();
       const gradeScript = path.join(
@@ -558,7 +584,7 @@ export async function inspectFootwearMakeclothesOrProcedural(): Promise<Measure>
       const r = withComputeSlotSync("blender", { label: "footwear-grade", cwd: REPO_ROOT }, () =>
         spawnSync(
           blender,
-          ["--background", "--python", gradeScript, "--", "--out", GRADE_PNG_PATH, "--frame", "feet", ...glbArgs],
+          ["--background", "--python", gradeScript, "--", "--out", paths.gradePngPath, "--frame", "feet", ...glbArgs],
           { encoding: "utf8", cwd: REPO_ROOT, maxBuffer: 20 * 1024 * 1024 },
         ));
       if (r.status !== 0) {

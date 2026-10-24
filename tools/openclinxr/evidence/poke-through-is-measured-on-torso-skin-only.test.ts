@@ -1,7 +1,9 @@
 import { existsSync } from "node:fs";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 /**
  * **Poke-through is unmeasured, and the obvious way to measure it does not work.**
@@ -125,20 +127,29 @@ type PokeRow = {
   worstMm: number;
 };
 
-async function loadReport(): Promise<PokeRow[] | null> {
+async function loadReport(outputRoot: string): Promise<PokeRow[] | null> {
   if (!existsSync(MODULE_PATH)) throw new Error("missing artifact");
   try {
     const mod = (await import(MODULE_SPECIFIER)) as {
-      measureTorsoPokeThrough?: () => Promise<PokeRow[]> | PokeRow[];
+      measureTorsoPokeThrough?: (input?: { outputRoot?: string }) => Promise<PokeRow[]> | PokeRow[];
     };
     if (typeof mod.measureTorsoPokeThrough !== "function") return null;
-    return await mod.measureTorsoPokeThrough();
+    return await mod.measureTorsoPokeThrough({ outputRoot });
   } catch {
     return null;
   }
 }
 
-const rows = await loadReport();
+let rows: PokeRow[] | null = null;
+
+beforeAll(async () => {
+  const tmp = await mkdtemp(join(tmpdir(), "openclinxr-torso-poke-"));
+  try {
+    rows = await loadReport(tmp);
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
 
 /**
  * An empty enumeration must FAIL, never pass vacuously (SS7t). Plain `it` on purpose: an `it.fails`

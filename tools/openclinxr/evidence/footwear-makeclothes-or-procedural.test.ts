@@ -1,5 +1,7 @@
-import { describe, expect, it } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
+import { describe, expect, it, afterEach } from "vitest";
+import { existsSync, readFileSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 /**
  * PLANTED CONTRACTS (#212). Footwear: MakeClothes shoe if licence-clean, else procedural
@@ -62,11 +64,29 @@ type Measure = {
   notEvidenceFor: string[];
 };
 
-type Inspect = () => Promise<Measure>;
+type Inspect = (options?: { outputRoot?: string }) => Promise<Measure>;
 const load = () =>
   import("./footwear-makeclothes-or-procedural.js") as Promise<Record<string, unknown>>;
 
 const PRE = ".openclinxr/evidence/issue-212/pre-fix-attachment.json";
+
+const tempRoots: string[] = [];
+afterEach(() => {
+  while (tempRoots.length) {
+    const dir = tempRoots.pop()!;
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {
+      // best-effort cleanup
+    }
+  }
+});
+
+function freshOutputRoot(): string {
+  const dir = mkdtempSync(join(tmpdir(), "issue-212-"));
+  tempRoots.push(dir);
+  return dir;
+}
 
 describe("footwear MakeClothes or procedural foot-vertex (#212)", () => {
   it("pre-fix attachment table exists before product claims and bake reached a verdict", async () => {
@@ -82,7 +102,8 @@ describe("footwear MakeClothes or procedural foot-vertex (#212)", () => {
     const mod = await load();
     const inspect = mod["inspectFootwearMakeclothesOrProcedural"] as Inspect | undefined;
     expect(inspect).toBeTypeOf("function");
-    const r = await inspect!();
+    const outputRoot = freshOutputRoot();
+    const r = await inspect!({ outputRoot });
     expect([
       "makeclothes_shoe_fitted",
       "procedural_foot_vertex_improved",
@@ -97,7 +118,8 @@ describe("footwear MakeClothes or procedural foot-vertex (#212)", () => {
   it("a claimed shoe path improves attachment or shape vs free AABB blob (COUNTERWEIGHT)", async () => {
     const mod = await load();
     const inspect = mod["inspectFootwearMakeclothesOrProcedural"] as Inspect;
-    const r = await inspect();
+    const outputRoot = freshOutputRoot();
+    const r = await inspect({ outputRoot });
     if (
       r.verdict === "inconclusive_blocked" ||
       r.verdict === "blocked_no_licensed_shoe" ||
@@ -113,6 +135,6 @@ describe("footwear MakeClothes or procedural foot-vertex (#212)", () => {
       (row) => row.sharesVertexPositionWithBody || row.positionMergedComponents >= 1,
     );
     expect(ok, "post product attachment table empty of any continuous/attached signal").toBe(true);
-    expect(existsSync(".openclinxr/evidence/issue-212/footwear-grade.png")).toBe(true);
+    expect(existsSync(join(outputRoot, "footwear-grade.png"))).toBe(true);
   }, 3_600_000);
 });

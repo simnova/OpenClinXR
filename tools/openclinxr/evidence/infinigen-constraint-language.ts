@@ -257,8 +257,9 @@ const RECORDED_ANNEAL_OBSERVATIONS = {
 
 /** Assemble the capability report. Dry probes are re-run live; generation runs
  *  read the install's cached outputs (re-generated only if missing). */
-export async function inspectInfinigenConstraintLanguage(): Promise<ConstraintLanguageCapability> {
-  mkdirSync(EVIDENCE_DIR, { recursive: true });
+export async function inspectInfinigenConstraintLanguage(input?: { outputRoot?: string }): Promise<ConstraintLanguageCapability> {
+  const evidenceDir = input?.outputRoot ?? EVIDENCE_DIR;
+  mkdirSync(evidenceDir, { recursive: true });
   const install = resolveInstall();
   const installPath = install.source ?? TOOLS_ROOT;
   const measuredAt = new Date().toISOString();
@@ -439,6 +440,7 @@ export async function inspectInfinigenConstraintLanguage(): Promise<ConstraintLa
     ],
   };
 
-  writeFileSync(CAPABILITY_PATH, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  const capabilityPath = path.join(evidenceDir, "constraint-language-capability.json");
+  writeFileSync(capabilityPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   return report;
 }
