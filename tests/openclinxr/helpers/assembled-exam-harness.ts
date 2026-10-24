@@ -41,6 +41,9 @@ const API_INDEX_URL = pathToFileURL(
 const SCENARIO_FIXTURES_INDEX_URL = pathToFileURL(
   path.join(HARNESS_REPO_ROOT, "packages", "openclinxr", "scenario-fixtures", "src", "index.ts"),
 ).href;
+const SCENARIO_FIXTURES_PEDS_URL = pathToFileURL(
+  path.join(HARNESS_REPO_ROOT, "packages", "openclinxr", "scenario-fixtures", "src", "pediatric-asthma.ts"),
+).href;
 
 export const FIXTURE_RELATIVE_PATH = path.join(
   "tests",
@@ -74,17 +77,20 @@ export class FileDurableSink {
   readonly actorTurnsDir: string;
   readonly runAggregateDir: string;
   readonly reviewPacketsDir: string;
+  readonly dispositionDir: string;
 
   constructor(private readonly options: { rootDir: string }) {
     this.traceEventsDir = path.join(options.rootDir, "trace-events");
     this.actorTurnsDir = path.join(options.rootDir, "actor-turns");
     this.runAggregateDir = path.join(options.rootDir, "run-aggregates");
     this.reviewPacketsDir = path.join(options.rootDir, "review-packets");
+    this.dispositionDir = path.join(options.rootDir, "dispositions");
     for (const dir of [
       this.traceEventsDir,
       this.actorTurnsDir,
       this.runAggregateDir,
       this.reviewPacketsDir,
+      this.dispositionDir,
     ]) {
       mkdirSync(dir, { recursive: true });
     }
@@ -104,6 +110,14 @@ export class FileDurableSink {
 
   getAssembledExamReviewPacket(examRunId: string): JsonRecord | undefined {
     return readJsonFile(path.join(this.reviewPacketsDir, `${safeSegment(examRunId)}.json`));
+  }
+
+  saveAssembledExamDisposition(examRunId: string, record: JsonRecord): void {
+    writeJsonFile(path.join(this.dispositionDir, `${safeSegment(examRunId)}.json`), record);
+  }
+
+  getAssembledExamDisposition(examRunId: string): JsonRecord | undefined {
+    return readJsonFile(path.join(this.dispositionDir, `${safeSegment(examRunId)}.json`));
   }
 
   saveTraceEvents(stationRunId: string, events: JsonRecord[]): void {
@@ -452,10 +466,14 @@ async function loadAllFixtureSeeds(): Promise<FixtureSeed[]> {
   if (seedCache) {
     return seedCache;
   }
-  const module = (await import(SCENARIO_FIXTURES_INDEX_URL)) as Record<string, unknown>;
+  const indexModule = (await import(SCENARIO_FIXTURES_INDEX_URL)) as Record<string, unknown>;
+  const pedsModule = (await import(SCENARIO_FIXTURES_PEDS_URL)) as Record<string, unknown>;
   const seeds: FixtureSeed[] = [];
-  for (const exportName of ["edChestPainDialogueSeeds", "pediatricAsthmaDialogueSeeds"]) {
-    const value = module[exportName];
+  for (const [source, exportName] of [
+    [indexModule, "edChestPainDialogueSeeds"],
+    [pedsModule, "pediatricAsthmaDialogueSeeds"],
+  ] as const) {
+    const value = (source as Record<string, unknown>)[exportName];
     if (Array.isArray(value)) {
       for (const seed of value) {
         if (typeof seed === "object" && seed !== null) {

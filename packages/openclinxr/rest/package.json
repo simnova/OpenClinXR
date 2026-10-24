@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./route-catalog": {
+      "types": "./dist/route-catalog-entry.d.ts",
+      "default": "./dist/route-catalog-entry.js"
     }
   },
   "scripts": {

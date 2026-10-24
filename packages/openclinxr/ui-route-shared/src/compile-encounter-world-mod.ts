@@ -1,7 +1,7 @@
 import {
   FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH as PROMOTION_PATH,
   FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH as PROMOTION_PREVIEW_PATH,
-} from "@openclinxr/rest";
+} from "@openclinxr/rest/route-catalog";
 import type {
   AdminControlPlaneClientOptions,
   FacultyEncounterBundlePromotionSelection,

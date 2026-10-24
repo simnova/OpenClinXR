@@ -13,9 +13,12 @@ import {
   registerGeneratedRuntimeAssetReference,
   resolveRuntimeAssetStoreConfig,
 } from "@openclinxr/asset-registry/runtime-bundles";
+import {
+  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH,
+  FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH,
+} from "../../route-catalog.js";
 
-export const FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH = "/faculty/encounter-bundle-promotion";
-export const FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH = "/faculty/encounter-bundle-promotion/preview";
+export { FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH, FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH };
 
 export const facultyEncounterBundlePromotionClaimScope =
   "faculty_encounter_bundle_promotion_not_production_readiness" as const;

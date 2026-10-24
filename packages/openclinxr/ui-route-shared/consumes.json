@@ -179,11 +179,15 @@
   },
   {
     "provider": "@openclinxr/rest",
-    "entrypoint": ".",
+    "entrypoint": "./route-catalog",
     "names": [
       {
         "name": "buildSessionRoutePath",
         "kind": "runtime"
+      },
+      {
+        "name": "buildSessionRoutePath",
+        "kind": "type"
       },
       {
         "name": "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH",
@@ -196,6 +200,10 @@
       {
         "name": "routeById",
         "kind": "runtime"
+      },
+      {
+        "name": "routeById",
+        "kind": "type"
       }
     ]
   },

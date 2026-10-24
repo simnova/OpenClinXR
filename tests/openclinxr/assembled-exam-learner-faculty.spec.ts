@@ -23,7 +23,7 @@
  */
 
 import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -174,26 +174,6 @@ async function spawnNodeChild(scriptPath: string, env: Record<string, string>, c
     },
     stdio: ["ignore", "pipe", "pipe"],
   });
-}
-
-function patchBrowserUtilPromisify(assetsDir: string): void {
-  const polyfill =
-    "function __openclinxrPromisify(fn){return function(){var args=[].slice.call(arguments);return new Promise(function(resolve,reject){args.push(function(err,result){if(err)reject(err);else resolve(result)});var maybe=fn.apply(this,args);if(maybe&&typeof maybe.then==='function')maybe.then(resolve,reject);});};}";
-  for (const name of readdirSync(assetsDir)) {
-    if (!name.endsWith(".js")) {
-      continue;
-    }
-    const file = path.join(assetsDir, name);
-    const original = readFileSync(file, "utf8");
-    if (!original.includes("promisify")) {
-      continue;
-    }
-    const patched = `${polyfill};${original.replaceAll(
-      /([A-Za-z0-9_$]+)\.promisify\b/g,
-      "($1.promisify||__openclinxrPromisify)",
-    )}`;
-    writeFileSync(file, patched, "utf8");
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -567,7 +547,6 @@ test("faculty adjudication workspace renders the immutable packet over the live 
   expect(existsSync(path.join(uiDist, "index.html")), `vite index.html missing in ${uiDist}`).toBe(true);
   const builtAssets = path.join(uiDist, "assets");
   expect(existsSync(builtAssets), `vite assets missing in ${uiDist}`).toBe(true);
-  patchBrowserUtilPromisify(builtAssets);
 
   // Boot the API over the same durable sink, then the UI behind a same-origin proxy.
   const durableDir = path.join(path.dirname(evidenceFile), "durable");
@@ -603,6 +582,24 @@ test("faculty adjudication workspace renders the immutable packet over the live 
       if (message.type() === "error") {
         consoleErrors.push(`console: ${message.text()}`);
       }
+    });
+    // Capture the real live GraphQL disposition trail (packet digest source of truth).
+    let graphqlDigest = "";
+    page.on("response", (response) => {
+      if (!response.url().includes("/admin/graphql")) {
+        return;
+      }
+      void response
+        .json()
+        .then((body) => {
+          const trail = (body as JsonRecord)?.["data"] as JsonRecord | undefined;
+          const disposition = trail?.["assembledExamFacultyDisposition"] as JsonRecord | undefined;
+          const digest = disposition?.["packetDigest"];
+          if (typeof digest === "string" && digest.length > 0) {
+            graphqlDigest = digest;
+          }
+        })
+        .catch(() => undefined);
     });
     await page.goto(`http://127.0.0.1:${uiPort}/reviews?examRunId=${encodeURIComponent(examRunId)}`, {
       waitUntil: "domcontentloaded",
@@ -692,12 +689,44 @@ test("faculty adjudication workspace renders the immutable packet over the live 
       }
     }
 
-    // Faculty disposition controls are present and record a local disposition (gates stay false).
-    await expect(page.getByRole("button", { name: /hold_for_debrief/i })).toBeVisible();
-    await page.getByRole("button", { name: /hold_for_debrief/i }).click();
-    await expect(page.getByLabel("Recorded faculty disposition")).toContainText("hold_for_debrief");
-    await expect(page.getByLabel("Recorded faculty disposition")).toContainText("scoringValidityClaimed false");
-    await expect(page.getByLabel("Recorded faculty disposition")).toContainText("examEquivalenceGate false");
+    // Faculty disposition controls persist a held draft through live GraphQL (gates stay false).
+    // examRunId is the in-scope test identity; the packet digest comes from the live GraphQL trail.
+    const reviewerId = `faculty-reviewer-${examRunId}`;
+    const rationale = `Hold for debrief review ${examRunId}`;
+    const reviewScope = page.getByRole("region", { name: "Faculty review disposition" });
+    await expect(reviewScope.getByLabel("Visible packet digest")).not.toBeEmpty();
+    const renderedDigest = (await reviewScope.getByLabel("Visible packet digest").innerText()).trim();
+    expect(renderedDigest.length).toBeGreaterThan(0);
+    expect(renderedDigest).toMatch(/^[0-9a-f]{64}$/);
+    expect(graphqlDigest.length).toBeGreaterThan(0);
+    expect(graphqlDigest).toMatch(/^[0-9a-f]{64}$/);
+    expect(renderedDigest).toBe(graphqlDigest);
+    await reviewScope.getByLabel("Faculty reviewer identity").fill(reviewerId);
+    await reviewScope.getByLabel("Faculty disposition rationale").fill(rationale);
+    await reviewScope.getByRole("button", { name: /choose disposition hold/i }).click();
+    await reviewScope.getByRole("button", { name: /save disposition draft/i }).click();
+    await expect(reviewScope.getByLabel("Recorded faculty disposition")).toContainText("hold");
+    await expect(reviewScope.getByLabel("Recorded faculty disposition")).toContainText("draft");
+    await expect(reviewScope.getByLabel(`Disposition decision 1`)).toContainText(reviewerId);
+    await expect(reviewScope.getByLabel("Recorded faculty disposition")).toContainText("scoringValidityClaimed false");
+    await expect(reviewScope.getByLabel("Recorded faculty disposition")).toContainText("examEquivalenceGate false");
+    await expect(reviewScope.getByLabel("Recorded faculty disposition")).toContainText("clinicalValidityClaimed false");
+    await expect(reviewScope.getByLabel("Visible packet digest")).toHaveText(renderedDigest);
+    await expect(reviewScope.getByLabel("Faculty disposition packet digest")).toHaveValue(renderedDigest);
+    await expect(reviewScope.getByLabel(`Disposition decision 1`)).toContainText(renderedDigest);
+    await expect(reviewScope.getByLabel(`Disposition decision 1`)).toContainText(rationale);
+    await page.reload();
+    const reviewScopeAfterReload = page.getByRole("region", { name: "Faculty review disposition" });
+    await expect(reviewScopeAfterReload.getByLabel("Visible packet digest")).toHaveText(renderedDigest);
+    await expect(reviewScopeAfterReload.getByLabel("Faculty disposition packet digest")).toHaveValue(renderedDigest);
+    await expect(reviewScopeAfterReload.getByLabel("Recorded faculty disposition")).toContainText("hold");
+    await expect(reviewScopeAfterReload.getByLabel(`Disposition decision 1`)).toContainText(reviewerId);
+    await expect(reviewScopeAfterReload.getByLabel(`Disposition decision 1`)).toContainText(rationale);
+    await expect(reviewScopeAfterReload.getByLabel(`Disposition decision 1`)).toContainText(renderedDigest);
+    await expect(reviewScopeAfterReload.getByLabel("Recorded faculty disposition")).toContainText("draft");
+    await expect(reviewScopeAfterReload.getByLabel("Recorded faculty disposition")).toContainText("scoringValidityClaimed false");
+    await expect(reviewScopeAfterReload.getByLabel("Recorded faculty disposition")).toContainText("examEquivalenceGate false");
+    await expect(reviewScopeAfterReload.getByLabel("Recorded faculty disposition")).toContainText("clinicalValidityClaimed false");
   } finally {
     await browser.close();
   }

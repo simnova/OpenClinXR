@@ -83,17 +83,22 @@ export function createDeterministicAssetGenerationAdapter(
 
 /** Writes a referenced artifact to disk (repo-root relative) so no job claims an unwritten file. */
 function writeTextArtifact(relativeArtifactPath: string, content: string): void {
-  const absolutePath = resolvePath(REPOSITORY_ROOT, relativeArtifactPath);
+  const absolutePath = resolvePath(repositoryRoot(), relativeArtifactPath);
   mkdirSync(dirname(absolutePath), { recursive: true });
   writeFileSync(absolutePath, content, "utf8");
 }
 
 /** Resolves a repo-root-relative artifact reference to an absolute filesystem path. */
 export function resolveRepositoryArtifactPath(relativeArtifactPath: string): string {
-  return resolvePath(REPOSITORY_ROOT, relativeArtifactPath);
+  return resolvePath(repositoryRoot(), relativeArtifactPath);
 }
 
-const REPOSITORY_ROOT = resolveRepositoryRoot();
+let cachedRepositoryRoot: string | undefined;
+
+function repositoryRoot(): string {
+  cachedRepositoryRoot ??= resolveRepositoryRoot();
+  return cachedRepositoryRoot;
+}
 
 function resolveRepositoryRoot(): string {
   let currentDirectory = process.cwd();

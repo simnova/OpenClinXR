@@ -183,11 +183,34 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function slotAbortError(signal: AbortSignal | undefined): Error {
+  const reason = signal?.reason;
+  return reason instanceof Error ? reason : new Error("Compute slot acquisition aborted");
+}
+
+function abortableDelay(ms: number, signal: AbortSignal | undefined): Promise<void> {
+  if (signal === undefined) return delay(ms);
+  if (signal.aborted) return Promise.reject(slotAbortError(signal));
+  return new Promise<void>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
+    const onAbort = (): void => {
+      clearTimeout(timer);
+      reject(slotAbortError(signal));
+    };
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
+}
+
 export async function withComputeSlot<T>(
   pool: string,
-  meta: ComputeSlotMeta,
+  meta: ComputeSlotMeta & { signal?: AbortSignal },
   fn: (lease: ComputeSlotLease) => Promise<T> | T,
 ): Promise<T> {
+  const signal = meta.signal;
+  if (signal?.aborted) throw slotAbortError(signal);
   const inherited = heldPools.getStore()?.get(pool);
   if (inherited) {
     inherited.count += 1;
@@ -218,6 +241,7 @@ export async function withComputeSlot<T>(
   let claim: Awaited<ReturnType<typeof tryClaim>> = null;
   try {
     for (;;) {
+      if (signal?.aborted) throw slotAbortError(signal);
       const tickets = await orderedTickets(queueDir);
       if (tickets[0] === ticketPath) claim = await tryClaim(pool, poolSize(pool), normalizedMeta);
       if (claim) break;
@@ -226,7 +250,7 @@ export async function withComputeSlot<T>(
         waitLogged = true;
       }
       const ceiling = Math.min(2_000, 250 + attempt * 125);
-      await delay(250 + Math.floor(Math.random() * Math.max(1, ceiling - 249)));
+      await abortableDelay(250 + Math.floor(Math.random() * Math.max(1, ceiling - 249)), signal);
       attempt += 1;
     }
   } finally {
@@ -234,6 +258,13 @@ export async function withComputeSlot<T>(
     await unlink(ticketPath).catch((error: NodeJS.ErrnoException) => {
       if (error.code !== "ENOENT") throw error;
     });
+  }
+
+  // The queue may have released us in the same instant the deadline expired:
+  // never invoke the launch after expiry, and release the claim we just took.
+  if (signal?.aborted) {
+    await releaseClaim(claim.file, claim.token);
+    throw slotAbortError(signal);
   }
 
   const waitedMs = Date.now() - startedWaitingAt;

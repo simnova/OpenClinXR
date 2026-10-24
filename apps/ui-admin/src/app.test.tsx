@@ -2,7 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { findUnsafeClaimLanguage } from "@openclinxr/domain/claim-language";
 import type { FacultyCompileLockClient } from "@openclinxr/ui-route-admin/faculty-compile-lock-types";
 import type { AdminControlPlaneClient } from "@openclinxr/ui-route-shared";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { AdminApp } from "./app.js";
 
@@ -216,7 +216,10 @@ describe("AdminApp", () => {
     const { rerender } = render(<AdminApp initialPath="/exam-forms" controlPlaneClient={client} />);
     const panel = await screen.findByLabelText("Encounter bundle promotion");
     expect(previewFacultyEncounterBundlePromotion).toHaveBeenCalledOnce();
-    expect(within(panel).getByLabelText("Promotion blockers")).toHaveTextContent("humanoid:patient_humanoid_v1:stale");
+    expect(await within(panel).findByText("humanoid:patient_humanoid_v1:stale")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(within(panel).getByLabelText("Promotion blockers")).toHaveTextContent("humanoid:patient_humanoid_v1:stale");
+    });
     expect(within(panel).getByRole("button", { name: "Promote encounter bundle" })).toBeDisabled();
     fireEvent.click(within(panel).getByRole("button", { name: "Promote encounter bundle" }));
     expect(promoteFacultyEncounterBundle).not.toHaveBeenCalled();

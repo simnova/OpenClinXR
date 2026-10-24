@@ -244,6 +244,10 @@ async function measureLivePropIntersection(input: {
           await page.goto(url, { waitUntil: "load", timeout: 180_000 });
           await waitForStationShell(page, 180_000);
           await waitForFrames(page, 8, 120_000);
+          // #183 samples only after EVERY recorded asset settles to loaded|failed —
+          // same settled-readiness gate as #281, never at register time.
+          await waitForRecordedAssetsSettled(page, 180_000);
+          await assertRecordedAssetsSettled(page);
           await page.waitForTimeout(900);
           const live = await readLivePropIntersectionFromPage(page);
           const sid = live.scenarioId || scenarioId;
@@ -925,6 +929,35 @@ async function waitForRecordedAssetsSettled(page: Page, timeoutMs: number): Prom
     { timeout: timeoutMs },
   ).catch(() => undefined);
   await page.waitForTimeout(300);
+}
+
+/**
+ * Fail-closed settled gate for #183: same existing budgets, no new bar.
+ * waitForRecordedAssetsSettled swallows its timeout; this re-reads the same
+ * evidence object and throws when assets never reached loaded|failed, so the
+ * sweep never samples register-time geometry as settled.
+ */
+async function assertRecordedAssetsSettled(page: Page): Promise<void> {
+  const state = await page.evaluate(() => {
+    const evidence = (globalThis as unknown as {
+      __openClinXrSceneAssetEvidence?: {
+        pendingCount?: number;
+        loadedCount?: number;
+        failedCount?: number;
+      };
+    }).__openClinXrSceneAssetEvidence;
+    return {
+      loaded: evidence?.loadedCount ?? 0,
+      pending: evidence?.pendingCount ?? -1,
+      failed: evidence?.failedCount ?? 0,
+    };
+  });
+  if (state.loaded <= 0 || state.pending !== 0) {
+    throw new Error(
+      `actor-prop-intersection: assets never settled `
+      + `(loaded=${state.loaded} pending=${state.pending} failed=${state.failed})`,
+    );
+  }
 }
 
 type LiveEquipmentActorStation = EquipmentActorOverlapStation;

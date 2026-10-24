@@ -389,6 +389,32 @@
   },
   {
     "provider": "@openclinxr/rest",
+    "entrypoint": "./route-catalog",
+    "names": [
+      {
+        "name": "buildSessionRoutePath",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "routeById",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/rest",
     "entrypoint": ".",
     "names": [
       {
@@ -436,6 +462,16 @@
       },
       {
         "name": "authoredScenarioContentIdentity",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH",
         "kind": "runtime",
         "via": "own-test"
       },

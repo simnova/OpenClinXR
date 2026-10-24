@@ -1009,7 +1009,7 @@ describe("workspace architecture rules", () => {
   });
 
   it("keeps internal capability job route ids present in the REST route catalog", () => {
-    const restRouteCatalog = readFileSync(join(workspaceRoot, "packages/openclinxr/rest/src/index.ts"), "utf8");
+    const restRouteCatalog = readFileSync(join(workspaceRoot, "packages/openclinxr/rest/src/route-catalog.ts"), "utf8");
 
     expect(restRouteCatalog).toContain(
       'route("submit-internal-capability-job", "POST", "/internal/capabilities/:capabilityId/jobs", "control-plane")',
@@ -1464,12 +1464,12 @@ describe("workspace architecture rules", () => {
     const catalogVersion = (_dep: string, fallback: string) =>
       expect.stringMatching(new RegExp(`^(?:${fallback.replace(/\./g, "\\.")}|catalog:)$`));
     expect(manifest.dependencies).toMatchObject({
-      "@iwsdk/core": "0.5.3",
-      "@iwsdk/xr-input": "0.5.3",
+      "@iwsdk/core": "0.4.2",
+      "@iwsdk/xr-input": "0.4.2",
       "three": catalogVersion("three", "0.184.0"),
     });
     expect(manifest.devDependencies).toMatchObject({
-      "@iwsdk/vite-plugin-dev": "0.5.1",
+      "@iwsdk/vite-plugin-dev": "0.3.1",
       "@iwsdk/vite-plugin-uikitml": "0.4.2",
       "@types/three": catalogVersion("@types/three", "0.184.0"),
       "typescript": catalogVersion("typescript", "6.0.3"),
@@ -1478,7 +1478,8 @@ describe("workspace architecture rules", () => {
     });
     expect(manifest.devDependencies?.["vite"]).toMatch(/^(?:8\.|catalog:)/);
     expect(manifest.dependencies?.["@iwsdk/vite-plugin-dev"]).toBeUndefined();
-    // IWSDK 0.5.x vite-plugin-dev pulls scene-composition; allow direct pin for resolver stability.
+    // Licensed IWSDK 0.4.2/0.3.1 route: scene-composition is not installed (genuinely
+    // unused, publishes no 0.4-line); allow-list entry kept for resolver stability.
     expect(Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }).filter((dependency) =>
       dependency.startsWith("@iwsdk/")
       && ![

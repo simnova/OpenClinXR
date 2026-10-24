@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 54 roots and 136 declared entrypoints", () => {
+  it("(1) the live tree discovers 55 roots and 152 declared entrypoints", () => {
     const report = measureSurface();
     // 2026-10-07 mouth-station pilot (MADR 0060/0061, integration branch station-mouth): the
     // objective package @openclinxr/station-mouth-objective adds one root (49 -> 50); its surface
@@ -123,7 +123,8 @@ describe("compiler-resolved surface meter", () => {
     // (@openclinxr/station-mouth-verifier) packages add one root each (50 -> 52); the executor (@openclinxr/station-mouth-executor) adds one more (52 -> 53), pending the
     // psr-c6-mouth review at the station-mouth final land.
     // 2026-10-07 mouth-station registry (@openclinxr/station-mouth-registry) adds one root (53 -> 54), pending the psr-c6-mouth review at the station-mouth final land.
-    expect(report.totals.roots).toBe(54);
+    // 2026-10-15 xr-capacity evidence package (@openclinxr/xr-capacity) adds one root (54 -> 55); its surface is the reviewed capacity evidence seam.
+    expect(report.totals.roots).toBe(55);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -158,7 +159,14 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-14 foot-base seam: xr-humanoid-animation adds one reviewed ./foot-base
     // subpath (foot-base-v1 admission) so the foot-base tests pin the schedule and
     // stride-retarget reads without relative src reaches (139 -> 140).
-    expect(report.totals.entrypoints).toBe(140);
+    // 2026-10-15 xr-capacity evidence package (@openclinxr/xr-capacity) publishes twelve
+    // declared entrypoints (., ./browser, ./browser/bootstrap, ./audio-frame-tags,
+    // ./controller, ./stage0, ./stage1, ./stage1-witnessed, ./stage2, ./stage1/grading,
+    // ./stage1-witnessed/grading, ./browser/probes), re-derived by counting `exports`
+    // keys in its package.json (140 -> 152); no other package.json `exports` map changes.
+    // 2026-10-21 rest browser-safe ./route-catalog subpath adds one declared entrypoint
+    // (152 -> 153); roots unchanged at 55. Discovery count, not a numerical budget.
+    expect(report.totals.entrypoints).toBe(153);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -186,7 +194,8 @@ describe("compiler-resolved surface meter", () => {
     }
     const report = measureSurface();
     // 2026-10-07 mouth-station registry adds one root (53 -> 54), pending the psr-c6-mouth review at the station-mouth final land.
-    expect(report.packages.length).toBe(54);
+    // 2026-10-15 xr-capacity evidence package adds one root (54 -> 55).
+    expect(report.packages.length).toBe(55);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {

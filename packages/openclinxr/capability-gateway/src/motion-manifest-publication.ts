@@ -299,7 +299,7 @@ type AuthoredTouchRow = {
 };
 
 function resolveRepositoryGlb(actorGlbPath: string): string {
-  const absolute = resolvePath(REPOSITORY_ROOT, actorGlbPath);
+  const absolute = resolvePath(repositoryRoot(), actorGlbPath);
   if (existsSync(absolute)) return absolute;
   throw new Error(`publishRealTouchMotion: actor GLB ${actorGlbPath} is not on disk — missing profile refuses`);
 }
@@ -462,7 +462,8 @@ function writeRealTouchSidecar(input: {
   };
 }
 
-const REPOSITORY_ROOT = resolveRepositoryRoot();
+let cachedRepositoryRoot: string | undefined;
+function repositoryRoot(): string { cachedRepositoryRoot ??= resolveRepositoryRoot(); return cachedRepositoryRoot; }
 
 function resolveRepositoryRoot(): string {
   let current = process.cwd();

@@ -95,6 +95,12 @@
       "routeById",
       "toAdminGraphqlScenario",
       "writePreFixArtifact"
+    ],
+    "./route-catalog": [
+      "buildSessionRoutePath",
+      "routeById",
+      "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PATH",
+      "FACULTY_ENCOUNTER_BUNDLE_PROMOTION_PREVIEW_PATH"
     ]
   }
 }

@@ -29,7 +29,7 @@ import {
   type SubmitScenarioReviewMutation,
   type SubmitScenarioReviewMutationVariables,
 } from "@openclinxr/graphql/client";
-import { buildSessionRoutePath, routeById } from "@openclinxr/rest";
+import type { buildSessionRoutePath, routeById } from "@openclinxr/rest/route-catalog";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import type {
   AdminNoReadinessEvidenceClaim,
