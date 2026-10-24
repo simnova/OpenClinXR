@@ -22,9 +22,15 @@
  * silently skip the gate.
  */
 
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
+import {
+  realGroupExec,
+  routeRelatedGroup,
+  type KnownRedEntry,
+  type RouteRequest,
+} from "./test-framework-routing.js";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -155,14 +161,34 @@ export function planTests(files: string[], root: string = REPO_ROOT): TestPlan {
   return { kind: "run", rootFiles, byPackage };
 }
 
-function run(cmd: string[], opts: { cwd?: string } = {}): number {
-  const r = spawnSync(cmd[0]!, cmd.slice(1), {
-    cwd: opts.cwd ?? REPO_ROOT,
-    stdio: "inherit",
-    shell: false,
-    env: gitEnvWithoutInheritedRepoVars(),
-  });
-  return r.status ?? 1;
+function redCardFor(red: readonly KnownRedEntry[], path: string): string {
+  return red.find((t) => t.path === path)?.card ?? "unknown";
+}
+
+function logRoutedOutcome(label: string, outcome: {
+  candidates: { vitest: string[]; node: string[]; playwright: string[] };
+  selectedNode: string[];
+  selectedPlaywright: string[];
+  redExcludedFromRouted: string[];
+  ranVitest: boolean;
+  ranNode: boolean;
+  ranPlaywright: boolean;
+  vitestCode: number;
+  nodeCode: number;
+  playwrightCode: number;
+}, red: readonly KnownRedEntry[]): void {
+  const total = outcome.candidates.vitest.length + outcome.candidates.node.length + outcome.candidates.playwright.length;
+  console.log(
+    `test:touched: routing ${label}: ${total} candidate(s) ` +
+    `(vitest ${outcome.candidates.vitest.length}, node ${outcome.candidates.node.length}, ` +
+    `playwright ${outcome.candidates.playwright.length}); selected node ${outcome.selectedNode.length}, ` +
+    `playwright ${outcome.selectedPlaywright.length}; ran vitest=${outcome.ranVitest ? "yes" : "no"} ` +
+    `(exit ${outcome.vitestCode}) node=${outcome.ranNode ? "yes" : "no"} (exit ${outcome.nodeCode}) ` +
+    `playwright=${outcome.ranPlaywright ? "yes" : "no"} (exit ${outcome.playwrightCode})`,
+  );
+  for (const f of outcome.redExcludedFromRouted) {
+    console.log(`test:touched: excluding known RED ${f} from routed runner (${redCardFor(red, f)})`);
+  }
 }
 
 /**
@@ -170,6 +196,8 @@ function run(cmd: string[], opts: { cwd?: string } = {}): number {
  * would block every commit whose related set reaches them. They are listed in
  * known-red-tests.json with the reason and the card that turns them green, and
  * are excluded here; the list is printed so the exclusion is never silent.
+ * The same JSON entries filter node/playwright selection verbatim (no
+ * additions, no removals) via the framework router.
  */
 export function knownRedTests(): { path: string; reason: string; card: string }[] {
   const file = join(REPO_ROOT, "tools/openclinxr/openclaw/known-red-tests.json");
@@ -205,30 +233,77 @@ function main(): void {
   let code = 0;
   const red = knownRedTests();
   for (const t of red) console.log(`test:touched: excluding known RED ${t.path} (${t.card})`);
-  const redExcludes = red.flatMap((t) => ["--exclude", t.path]);
-  if (plan.rootFiles.length > 0) {
-    code = run(["pnpm", "exec", "vitest", "related", "--run", "--passWithNoTests", ...redExcludes, ...plan.rootFiles]) || code;
-  }
-  for (const [pkg, group] of plan.byPackage) {
-    // Known-RED paths are repo-relative; only those under this owner apply here.
-    const redArgs = red
-      .filter((t) => t.path === group.dir || t.path.startsWith(`${group.dir}/`))
-      .flatMap((t) => ["--exclude", relative(group.dir, t.path)]);
-    const unitFiles = group.files.filter((f) => !f.startsWith("src/archunit-tests/"));
-    const archFiles = group.files.filter((f) => f.startsWith("src/archunit-tests/"));
-    if (unitFiles.length > 0) {
-      code = run(["pnpm", "--filter", pkg, "exec", "vitest", "related", "--run", "--passWithNoTests", ...redArgs, ...unitFiles]) || code;
+  const redExcludes = red.map((t) => t.path);
+  const exec = realGroupExec(gitEnvWithoutInheritedRepoVars());
+  const route = (req: RouteRequest): void => {
+    const outcome = routeRelatedGroup(req, exec);
+    logRoutedOutcome(req.label, outcome, red);
+    code = outcome.code || code;
+  };
+  try {
+    if (plan.rootFiles.length > 0) {
+      // Root group: `vitest related` keeps its exact flags; non-Vitest
+      // candidates are excluded from it and run under their own runner.
+      // touchedRel carries the FULL touched set so cross-boundary static
+      // edges (e.g. a test importing a tools/ file) still select.
+      route({
+        root: REPO_ROOT,
+        cwd: REPO_ROOT,
+        label: "root",
+        vitestPrefix: ["pnpm", "exec", "vitest"],
+        sources: plan.rootFiles,
+        redExcludes,
+        redEntries: red,
+        touchedRel: files,
+        ownerDir: null,
+      });
     }
-    if (archFiles.length > 0) {
-      // The default package config excludes src/archunit-tests/** (nodeConfig);
-      // those suites run under vitest.arch.config.ts (archConfig: globals, node
-      // env, include src/archunit-tests/**). Without this the filter matches no
-      // files and --passWithNoTests would silently skip the gate.
-      const archConfigArgs = existsSync(join(REPO_ROOT, group.dir, "vitest.arch.config.ts"))
-        ? ["--config", "vitest.arch.config.ts"]
-        : [];
-      code = run(["pnpm", "--filter", pkg, "exec", "vitest", ...archConfigArgs, "related", "--run", "--passWithNoTests", ...redArgs, ...archFiles]) || code;
+    for (const [pkg, group] of plan.byPackage) {
+      // Known-RED paths are repo-relative; only those under this owner apply here.
+      const ownerReds = red.filter((t) => t.path === group.dir || t.path.startsWith(`${group.dir}/`));
+      const redArgs = ownerReds.map((t) => relative(group.dir, t.path));
+      const unitFiles = group.files.filter((f) => !f.startsWith("src/archunit-tests/"));
+      const archFiles = group.files.filter((f) => f.startsWith("src/archunit-tests/"));
+      if (unitFiles.length > 0) {
+        route({
+          root: REPO_ROOT,
+          cwd: REPO_ROOT,
+          label: pkg,
+          vitestPrefix: ["pnpm", "--filter", pkg, "exec", "vitest"],
+          sources: unitFiles,
+          redExcludes: redArgs,
+          redEntries: ownerReds,
+          touchedRel: files,
+          ownerDir: group.dir,
+        });
+      }
+      if (archFiles.length > 0) {
+        // The default package config excludes src/archunit-tests/** (nodeConfig);
+        // those suites run under vitest.arch.config.ts (archConfig: globals, node
+        // env, include src/archunit-tests/**). Without this the filter matches no
+        // files and --passWithNoTests would silently skip the gate.
+        const archConfigArgs = existsSync(join(REPO_ROOT, group.dir, "vitest.arch.config.ts"))
+          ? ["--config", "vitest.arch.config.ts"]
+          : [];
+        route({
+          root: REPO_ROOT,
+          cwd: REPO_ROOT,
+          label: `${pkg}[arch]`,
+          vitestPrefix: ["pnpm", "--filter", pkg, "exec", "vitest", ...archConfigArgs],
+          sources: archFiles,
+          redExcludes: redArgs,
+          redEntries: ownerReds,
+          touchedRel: files,
+          ownerDir: group.dir,
+        });
+      }
     }
+  } catch (error) {
+    // Discovery failure is fail closed: never fall back to an unrouted run
+    // that would execute Playwright specs under Vitest.
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+    return;
   }
   console.log(
     `test:touched: ${files.length} touched file(s) in ${((Date.now() - start) / 1000).toFixed(1)}s${commitMode ? " (explicit commit file set)" : ""}`,

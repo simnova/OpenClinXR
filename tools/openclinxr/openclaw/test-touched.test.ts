@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -12,6 +12,12 @@ import {
   planTests,
   touchedSourceFiles,
 } from "./test-touched.js";
+import {
+  buildVitestRelatedArgs,
+  classifyTestFile,
+  combineGroupCodes,
+  partitionByFramework,
+} from "./test-framework-routing.js";
 
 /** Short unique scratch root (long TMPDIR breaks tsx IPC). */
 function scratch(): string {
@@ -135,5 +141,66 @@ describe("test:touched explicit commit file set (ph114)", () => {
       rootFiles: ["tools/openclinxr/openclaw/test-touched.ts"],
       byPackage: new Map(),
     });
+  });
+});
+
+describe("test:touched framework routing composition (ph195)", () => {
+  it("explicit commit sources keep their owner partition into the routed vitest invocation", () => {
+    const explicit = decodeCommitFileSet(
+      encodeCommitFileSet(["tools/openclinxr/evidence/lib/slotted-playwright.ts", "notes.md"]),
+    );
+    const sources = explicit.filter((f) => f.endsWith(".ts") || f.endsWith(".tsx"));
+    const plan = planTests(sources);
+    expect(plan).toEqual({
+      kind: "run",
+      rootFiles: ["tools/openclinxr/evidence/lib/slotted-playwright.ts"],
+      byPackage: new Map(),
+    });
+    if (plan.kind !== "run") throw new Error("expected a runnable plan");
+    const args = buildVitestRelatedArgs(plan.rootFiles, ["tools/known-red.test.ts"]);
+    expect(args.slice(0, 3)).toEqual(["related", "--run", "--passWithNoTests"]);
+    expect(args).toContain("tools/openclinxr/evidence/lib/slotted-playwright.ts");
+  });
+
+  it("a related Playwright spec classifies to playwright via the canonical facade", () => {
+    const dir = scratch();
+    try {
+      const facadeDir = join(dir, "tools/openclinxr/evidence/lib");
+      const specDir = join(dir, "tests/openclinxr");
+      mkdirSync(facadeDir, { recursive: true });
+      mkdirSync(specDir, { recursive: true });
+      writeFileSync(
+        join(facadeDir, "slotted-playwright-test.ts"),
+        `import { chromium } from "@playwright/test";\nexport * from "@playwright/test";\nvoid chromium;\n`,
+      );
+      writeFileSync(
+        join(specDir, "assembled-exam-learner-faculty.spec.ts"),
+        `import { test } from "../../tools/openclinxr/evidence/lib/slotted-playwright-test.js";\nvoid test;\n`,
+      );
+      expect(classifyTestFile(join(specDir, "assembled-exam-learner-faculty.spec.ts"), dir)).toBe("playwright");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("partitioned candidates stay disjoint across frameworks", () => {
+    const dir = scratch();
+    try {
+      writeFileSync(`${dir}/n.test.ts`, `import test from "node:test";\ntest("n", () => {});\n`);
+      writeFileSync(`${dir}/v.test.ts`, `import { it } from "vitest";\nit("v", () => {});\n`);
+      const part = partitionByFramework(["n.test.ts", "v.test.ts"], dir);
+      expect(part.node).toEqual(["n.test.ts"]);
+      expect(part.vitest).toEqual(["v.test.ts"]);
+      expect(part.playwright).toEqual([]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("group exits combine with first-nonzero-wins (no runner skipped)", () => {
+    expect(combineGroupCodes([0, 0, 0])).toBe(0);
+    expect(combineGroupCodes([1, 0, 0])).toBe(1);
+    expect(combineGroupCodes([0, 1, 0])).toBe(1);
+    expect(combineGroupCodes([0, 0, 3])).toBe(3);
   });
 });
