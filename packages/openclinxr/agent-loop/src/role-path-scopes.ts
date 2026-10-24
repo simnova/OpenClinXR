@@ -44,6 +44,9 @@ export const rolePathScopes: Record<string, RolePathScope> = {
       ".grok/roles/**",
       "agents/**/charter.md",
       "agents/**/memory.md",
+      // Verified unowned 2026-10-20 (live-ci-repair slice-verify): HRBP owned charters and
+      // memory but not its own roster index, which chief-coordinator touched red. Exact file only.
+      "agents/coordinator/hrbp/index.json",
     ],
     readRoots: [],
     forbidden: ["apps/**", "packages/openclinxr/**"],
@@ -129,6 +132,12 @@ export const rolePathScopes: Record<string, RolePathScope> = {
       "docs/openclinxr/**",
       ".openclinxr/**",
       "agents/adversarial/openclaw-drift-police/**",
+      // Future semantic ownership per HRBP ACCEPT_BOUNDED (final-role-owner-review):
+      // narrow doc-authority-registry instrumentation only; prior violations NOT retrocompliant.
+      // Exact literals only — no tools/** wildcard.
+      "tools/agent-factory/build-doc-authority-registry.ts",
+      "tools/agent-factory/doc-authority-registry/append.ts",
+      "tools/agent-factory/doc-authority-registry/append.test.ts",
     ],
     readRoots: [],
     forbidden: ["apps/**", "packages/**"],
@@ -181,6 +190,8 @@ export const rolePathScopes: Record<string, RolePathScope> = {
       "packages/openclinxr/ui-shared/**",
       // agent-loop holds the harness policy that tools/openclinxr/** consumes, and this role
       // already owns tools/openclinxr/**. Splitting a policy from its only consumers had no owner.
+      // NOTE: role-harness-policy.ts itself stays under the HRBP path-scope-policy sole-author
+      // lock — PL edits there require HRBP review; this root grants no lock bypass.
       "packages/openclinxr/agent-loop/**",
       "packages/openclinxr/factory-stations/**",
     ],
@@ -207,6 +218,34 @@ export const rolePathScopes: Record<string, RolePathScope> = {
       "docs/agent-ops/COMPOSITION-ROOTS.md",
       "docs/madr/**",
       "agents/core/architect/**",
+      // Verified unowned 2026-10-20 (live-ci-repair slice-verify): no role owned the
+      // compute-facade implementation packages or the dependency lockfile. Exact roots only —
+      // no packages/** or apps/** widening; feature/factory/capacity stays refused.
+      "packages/openclinxr/compute-slots/**",
+      "packages/openclinxr/service-local-compute/**",
+      "pnpm-lock.yaml",
+      // Verified unowned 2026-10-20 (root-package-role slice-verify): no role owned root
+      // package.json (composition/test root for //#test:tools wiring). Exact file only -
+      // no pnpm-workspace.yaml/vitest.config.ts/apps/packages broadening.
+      "package.json",
+      // Prospective 2026-10-21 (workspace-yaml-owner HRBP review): no role owns root
+      // pnpm-workspace.yaml (verified unowned across ALL 18 roles; the 2026-10-20
+      // package.json/pnpm-lock.yaml admission above was narrow root composition files
+      // ONLY, explicitly no YAML). Architect is the composition/dependency owner
+      // (package.json + pnpm-lock.yaml), so this exact literal belongs here
+      // prospectively — no *.yaml/*.yml wildcard, no vitest.config.ts/other root
+      // yaml broadening. HELD: no adoption until this policy is Main-adopted +
+      // architect actual adoption review + user 1.4 consent.
+      "pnpm-workspace.yaml",
+      // Prospective 2026-10-24 (ci-config-ownership slice-verify): verified unowned
+      // across ALL 18 roles — cold-CI repair needs .github/workflows/ci.yml +
+      // turbo.json but no role owned either; knip.json also unowned. Architect is
+      // the composition/dependency owner (package.json + pnpm-lock.yaml +
+      // pnpm-workspace.yaml), so these 3 exact literals belong here prospectively —
+      // no .github/** or *.json wildcard, no other root json/yml broadening.
+      ".github/workflows/ci.yml",
+      "turbo.json",
+      "knip.json",
     ],
     readRoots: [],
     forbidden: [
@@ -219,7 +258,9 @@ export const rolePathScopes: Record<string, RolePathScope> = {
     ],
     outputRoots: [".openclinxr/slices/**/handoffs/architect.json"],
     preferredCli: [
-      "pnpm --filter @openclinxr/architecture-rules",
+      // 2026-10-21: `-F` is the pnpm filter alias (verified identical help/filter
+      // behavior); saves prompt chars vs `--filter` under the hard 4500 guard.
+      "pnpm -F @openclinxr/architecture-rules",
       "pnpm boundaries",
     ],
   },
@@ -270,6 +311,9 @@ export const rolePathScopes: Record<string, RolePathScope> = {
       // packages/openclinxr/xr/ has never existed; every package this role makes is xr-<name>.
       "packages/openclinxr/xr-*/**",
       "tools/openclinxr/evidence/**",
+      // Verified unowned 2026-10-20 (live-ci-repair slice-verify): stations/mouth-verifier
+      // had no owner (XR touched it red). Exact package root only.
+      "packages/openclinxr/stations/mouth-verifier/**",
     ],
     readRoots: [],
     forbidden: ["apps/api/**", "packages/data-mongodb/**"],

@@ -1,0 +1,93 @@
+{
+  "task": "tsk_410970c7f338eb33",
+  "utc": "2026-10-24T13:00:58Z",
+  "targets": [
+    ".github/workflows/ci.yml",
+    "turbo.json",
+    "knip.json"
+  ],
+  "owner_before": {
+    "count": 0,
+    "measured": "python glob-match over pre-edit writeRoots of all 18 roles in role-path-scopes.ts: zero matches for all 3 targets; broad tools/** (license-provenance-specialist) covers only tools/ subtree, not repo-root paths"
+  },
+  "owner_after": {
+    "architect_only": true,
+    "measured": "role-config-ownership.test.ts architect-only test: all 17 other roles refuse all 3 targets; architect allows all 3"
+  },
+  "sole_locks": "no lock in soleAuthorLocks covers any target; path-scope-policy lock intact (non-owner touch of role-harness-policy.ts still violates; role-path-scopes.ts not lock-covered, PL may author)",
+  "forbidden_unchanged": "architect forbidden still [apps/**, packages/openclinxr/domain/**, packages/openclinxr/scenario-runtime/**, packages/openclinxr/data-mongodb/**, packages/openclinxr/ui-shared/**, tools/openclinxr/asset-pipeline/**]; none match targets",
+  "no_wildcard": "no .github/**, *.json, *.yml, **/*.json, turbo.*, knip.* admitted",
+  "no_retroactive_knip": "prior knip scoped-human exception retained as record only; no compliance relabel",
+  "tests": {
+    "command": "pnpm --filter @openclinxr/agent-loop exec vitest run src/role-config-ownership.test.ts src/role-harness-policy.test.ts",
+    "new_file": "5 passed (5)",
+    "combined": "68 passed, 1 failed (69); files 1 passed 1 failed (2)",
+    "failure": "role-harness-policy.test.ts > spawn prompt is shorter than 4500 chars: architect prompt 4554 > 4500. Pre-worker baseline passed; mandated +3 exact literals add 59 prompt chars. No compliant lever inside the 3 write-roots (preferredCli pinned by existing test; literals mandated exact; tables/spawn/locked files out of scope). NEEDS-DECISION: harness owner grants prompt-budget headroom.",
+    "typecheck": "pnpm --filter @openclinxr/agent-loop typecheck exit 0"
+  },
+  "source_hashes_pre": {
+    "packages/openclinxr/agent-loop/src/role-path-scopes.ts": "19c4e0a3c235c01e40855e9f8ce94eef1b50d54d70346f5e27e2540364cf96c1",
+    "packages/openclinxr/agent-loop/src/role-config-ownership.test.ts": "ABSENT (new file, created by this patch)",
+    "tools/openclinxr/evidence/ci-config-ownership/report.json": "ABSENT (new file, created by this patch)"
+  },
+  "source_hashes_post": {
+    "packages/openclinxr/agent-loop/src/role-path-scopes.ts": "0c31b83552b97e3aa875ccefc3d2cdd38c8ff6f3e06f5ff840deea6b992b2672",
+    "packages/openclinxr/agent-loop/src/role-config-ownership.test.ts": "df8e938d7e5386db6d038c42ec2fa7cd9a04a4298e12e43b48d67c46539d79b4",
+    "tools/openclinxr/evidence/ci-config-ownership/report.json": "(this file)"
+  },
+  "out_of_scope_respected": [
+    "no role-harness-policy.ts/lock/forbidden/budget edits",
+    "no package.json/root CI graph changes",
+    "no apps/**/packages/** admission",
+    "no paid/network provider exec",
+    "no git mutation/board/delegation",
+    "no test exclusions/timeouts/waivers"
+  ],
+  "not_tested": "Ownership assignment alone does not fix cold CI nor prove full suite green. Prospective only; full suite/architecture gates not run per scope.",
+  "ph143_followup": {
+    "utc": "2026-10-24T13:06:37Z",
+    "architect_prompt_before": 4495,
+    "architect_prompt_after": 4554,
+    "ceiling": 4500,
+    "over_by": 54,
+    "mandated_literal_cost": 59,
+    "preferredCli_reduction_allowed": false,
+    "blocking_assertion": "packages/openclinxr/agent-loop/src/role-harness-policy.test.ts:189-191 expect(policy?.pathScope.preferredCli).toEqual(expect.arrayContaining([\"pnpm -F @openclinxr/architecture-rules\", \"pnpm boundaries\"])) \u2014 both hint strings pinned verbatim; removal/shortening breaks this assertion and test edits are out of scope",
+    "decision": "NO source change (all write/read/forbidden/output roots, locks, ceiling, tests unchanged); preferredCli retained. NEEDS-DECISION: harness owner trims static prompt text or grants headroom.",
+    "checks": {
+      "vitest_combined": "68 passed 1 failed (69) \u2014 same single 4500 guard",
+      "new_file": "5 passed (5)",
+      "typecheck": "exit 0"
+    }
+  },
+  "supersedes": "tsk_82e5a4c70fb2ac09 (3-root contract could not fund 4500 budget; preferredCli pinned)",
+  "timeline": [
+    "ph142: 68 passed 1 failed (architect 4554>4500); mandated +59 chars",
+    "ph143: no compliant lever in 3 roots; preferredCli pinned by test:189-191; no source change",
+    "ph145: spawn-module rehydrate/default/RESUME compaction -84 chars; ALL GREEN"
+  ],
+  "ph145_followup": {
+    "utc": "2026-10-24T13:21:25Z",
+    "compaction": {
+      "rehydrate": -43,
+      "default_task": -7,
+      "resume_from": -34,
+      "total": -84
+    },
+    "architect_prompt_before": 4554,
+    "architect_prompt_after": 4470,
+    "all_6_roles_under_4500": {
+      "chief-coordinator": 3071,
+      "asset-pipeline-lead": 4091,
+      "xr-systems-architect": 4072,
+      "hrbp": 3894,
+      "openclaw-drift-police": 2932,
+      "architect": 4470
+    },
+    "preserved": "3 architect literals, all old permissions/forbidden/outputRoots/preferredCli byte-exact, workerEnvBlock untouched, ceiling 4500, all assertions",
+    "checks": {
+      "vitest_3_files": "96 passed (96)",
+      "typecheck": "exit 0"
+    }
+  }
+}

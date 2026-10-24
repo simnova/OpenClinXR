@@ -211,7 +211,7 @@ export function buildRepoAgentSpawnPrompt(input: {
       : "";
   const harnessSkills = [
     skillNote,
-    isWriter || largeTask ? `Harness skills: ${LARGE_TASK_ORCHESTRATION_SKILL}; ${OPENCLINXR_WORKER_ENV.skill}; ${OPENCLINXR_JOB_TMP_CONVENTION.skill}.` : "",
+    isWriter || largeTask ? `Harness: ${LARGE_TASK_ORCHESTRATION_SKILL}; ${OPENCLINXR_WORKER_ENV.skill}; ${OPENCLINXR_JOB_TMP_CONVENTION.skill}.` : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -226,29 +226,31 @@ export function buildRepoAgentSpawnPrompt(input: {
       ? "COMPOSITION-ROOTS: feature→packages; apps compose/boot only; tools CLI. Residual topology/DI/seedwork → architect. See docs/agent-ops/COMPOSITION-ROOTS.md."
       : "";
   // Headless/--yolo workers: OPENCLINXR_WORKER=1 (hooks NO-OP) + GROK_SUBAGENTS=1 (spawn_subagent in -p).
+  // Compact worker-env block: every clause is normative (mandate, NO-OP scope, temp pattern,
+  // forbid example, unshared ports). Do not trim into meaninglessness to fit the prompt budget.
   const workerEnvBlock = isWriter
     ? [
-        `WORKER ENV: headless/--yolo launches MUST use ${OPENCLINXR_WORKER_ENV.headlessPrefix} ${GROK_SUBAGENTS_ENV.headlessPrefix}.`,
-        "When OPENCLINXR_WORKER=1, SessionStart docs hygiene + CEO coord hooks NO-OP; do NOT edit PROJECT_STATUS.md, docs/openclinxr/*registry*, docs/_archive/**, AGENTS.md.",
-        "When GROK_SUBAGENTS=1, headless grok -p exposes spawn_subagent.",
-        `TEMP: export ${OPENCLINXR_JOB_TMP_CONVENTION.envVar}=${OPENCLINXR_JOB_TMP_CONVENTION.pattern}; files as ${OPENCLINXR_JOB_TMP_CONVENTION.filePattern}; FORBID fixed ${OPENCLINXR_JOB_TMP_CONVENTION.forbidExample}.`,
-        "PORTS: distinct portless/dev ports per job (never share one fixed port).",
+        `WORKER ENV: headless/--yolo MUST use ${OPENCLINXR_WORKER_ENV.headlessPrefix} ${GROK_SUBAGENTS_ENV.headlessPrefix} (exposes spawn_subagent in grok -p).`,
+        "With OPENCLINXR_WORKER=1, SessionStart hygiene + CEO coord hooks NO-OP; do NOT edit PROJECT_STATUS.md, docs/openclinxr/*registry*, docs/_archive/**, AGENTS.md.",
+        `TEMP: export ${OPENCLINXR_JOB_TMP_CONVENTION.envVar}=${OPENCLINXR_JOB_TMP_CONVENTION.pattern}; files: ${OPENCLINXR_JOB_TMP_CONVENTION.filePattern}; FORBID fixed ${OPENCLINXR_JOB_TMP_CONVENTION.forbidExample}.`,
+        "PORTS: unique ports per job; never share one fixed port.",
       ].join(" ")
     : "";
+  // Fan-out: the worktree/temp/ports mechanics restate WORKER ENV above, so the short branch
+  // keeps only the decomposition instruction. Large-task branch keeps its required tokens.
   const fanOutBlock = largeTask || isWriter
     ? largeTask
-      ? `LARGE-TASK FAN-OUT (required): decompose into N≥2 disjoint file-scoped workstreams; each gets worktree isolation + unique ${OPENCLINXR_JOB_TMP_CONVENTION.envVar} + distinct ports; prefer muse-spark-1 workers over solo frontier. See ${LARGE_TASK_ORCHESTRATION_SKILL}.`
-      : `If task spans multiple packages/meshes/files: self-decompose into disjoint workstreams (worktree + unique temp + ports).`
+      ? `LARGE-TASK FAN-OUT (required): N≥2 disjoint file-scoped workstreams, each worktree-isolated with unique ${OPENCLINXR_JOB_TMP_CONVENTION.envVar} + distinct ports; prefer muse-spark-1 workers over solo frontier. See ${LARGE_TASK_ORCHESTRATION_SKILL}.`
+      : `Multi-file tasks: self-decompose into disjoint workstreams.`
     : "";
   return [
     WORKER_TONE_DIRECTIVE,
     WORKER_OUTPUT_BUDGET_DIRECTIVE,
     WORKER_STATUS_REPORTING_DIRECTIVE,
     WORKER_PLANTED_CONTRACT_DIRECTIVE,
-    `Role \`${input.roleId}\` @ /Volumes/files/src/openclinxr. OpenClaw file-backed (not external runtime).`,
-    "Rehydrate: pathScope (below) + charter Persona + memory (tight) + PROJECT_STATUS snapshot header as needed; no full AGENTS.md/LEX unless UNABLE. " +
-    `Read ${input.roleDir}/charter.md + memory.md.`,
-    "MANDATE_VISIBILITY: agents/rules/MANDATE_VISIBILITY.md + LEX (pointer only).",
+    `Role \`${input.roleId}\` @ /Volumes/files/src/openclinxr (OpenClaw file-backed, not external runtime).`,
+    `Rehydrate: pathScope+${input.roleDir}/charter.md+memory.md+PROJECT_STATUS header; full AGENTS.md/LEX only if UNABLE.`,
+    "MANDATE_VISIBILITY: agents/rules/MANDATE_VISIBILITY.md + LEX.",
     compositionPointer,
     `Tier: ${input.policy.policyTier}; model: ${effectiveModel}${multimodalNote ? " (multimodal)" : ""}; task: ${input.policy.taskType}.`,
     input.policy.writeScopeNote,
@@ -257,11 +259,11 @@ export function buildRepoAgentSpawnPrompt(input: {
     fanOutBlock,
     formatPathScopeBlock(input.policy.pathScope),
     `ESCALATION: emit "UNABLE:" + reason + recommended helper ${escalateLadder}. Coordinator spawns via spawn-spec.`,
-    input.task ?? "Return findings, blockers, recommended next slice, file paths. Q1/Q4/Q5.",
+    input.task ?? "Findings, blockers, next slice, file paths. Q1/Q4/Q5.",
     input.policy.sandboxMode === "read-only"
       ? "Read-only unless assigned non-overlapping write scope."
       : "Bounded write only; no coordination files unless slice owns them. Parent/CEO owns PROJECT_STATUS + registries + post-slice.",
-    "RESUME_FROM: if continuation, short deltas only; still update the same handoff JSON (status/evidence/touched/blockers/recommended_next).",
+    "RESUME_FROM: short delta only; update handoff (status/evidence/touched/blockers/recommended_next).",
   ]
     .filter(Boolean)
     .join(" ");
