@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "openclinxr.startup-placement-publish.v1",
+  "sliceId": "startup-placement-publish-20261022",
+  "status": "verified-final",
+  "sourceAuthor": "Actual Muse XR ph42 startup implementation; independent Muse architect ph45 review; actual Muse XR ph46 comment-only budget cleanup; actual Muse ph51 final metadata only (no source change); actual Muse ph54 canonical-helper narrowing metadata note (no startup source change); actual Muse ph55 producer/test metadata alignment note (POSTURE_SOURCE + meta unit now bind public scenarioBank intent; startup source still untouched)",
+  "claimScope": "initial local-fallback startup path publishes the real current bundle/slots via the existing public helper before first staging; later generated/API path unchanged",
+  "method": {
+    "bundle": "existing PUBLIC @openclinxr/asset-registry/runtime-bundles createEdChestPainRuntimeSceneManifest + resolveScenarioActorCast (no new mapper, no new public API, no copied mapper)",
+    "publish": "existing public @openclinxr/xr-runtime-state ensureAndPublishActorPlacementSsot + existing public @openclinxr/xr-capture-evidence resolveRuntimeSlotAssignment, same helper and same (bundle, resolve(bundle)) args in both paths",
+    "facade": "public mapper experiment fully withdrawn; packages/openclinxr/asset-registry/src/case-actor-placements.ts byte-exact keep-only re-export in Main and W2; added prototype test removed in both trees (absent)",
+    "history": "rejected attempts retained as history only: ph41/ph43 private-routing prototypes archived out of tree; blanket no-layout-change claim REJECTED per ph45 F4 (helper re-anchors wrong slotKind position/scale by design, preserves heading0/posture/provenance/offsets); no runtime-13 claim"
+  },
+  "fix": {
+    "file": "apps/ui-xr/src/main.ts",
+    "helper": "ensureAndPublishActorPlacementSsot (existing public import line 194, unchanged; no new exports)",
+    "lines": "776-779 top-level initial fallback (insert only); later path 673 unchanged",
+    "args": [
+      "encounterRuntimeAssetBundle",
+      "resolveRuntimeSlotAssignment(encounterRuntimeAssetBundle)"
+    ],
+    "order": "bundle let 649, cast 653, cache 658, resolver def 760-770 all before call 776; first stageStationActors 3099 after; no TDZ (explicit-arg resolve primes cache)",
+    "fileLines": 4794,
+    "appTotalLines": 5993,
+    "appBudgetChanged": false,
+    "commentTrim": "8 redundant non-directive comment lines removed (404-405,650-654,3007); zero code delta; AST normalized sha equal per ph46 manifest; pragmas 0->0",
+    "mainSha256": "c6e432946af44bca997647e2188dd0f2072fdcd3329aa1dff88b9d752c496161"
+  },
+  "boundedUnit": {
+    "file": "tools/openclinxr/evidence/startup-placement-publish/startup-placement-publish.test.ts",
+    "sha256": "9bf24bac240d8cec5ab6e1afef172227d34d676f22f50f4ed9f3237239df6ac6",
+    "result": "2 passed (2) via joint Main 61/61 proof (no separate rerun claimed here)",
+    "guards": "top-level publish count 1 and later-path 1 in BOTH Main and W2 (old 0-vs-1 asymmetry closed by parent merge); same real bundle/slots args; existing-import reuse asserted; TDZ and staging-order asserted"
+  },
+  "realProof": {
+    "probe": "/Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph45-startup-review/probe-private-comparison.json",
+    "probeSha256": "1b40d099380764ecdbb8a97048ff2cd2d6b42339086c99c6a0c19ce5f496c736",
+    "result": "all 3 real cases published=true, orphans=[], worldXZDeltaMeters=0 for all 9 actors (telehealth 2, knee 3, ward 4); verified=true",
+    "rawBefore": "/Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph40-canonical-review/probe-live-result.json",
+    "rawBeforeSha256": "4a7cc948a593dfdbd17f13ab0dc3117b9f6710a4c7713858307b46ffd846ba67",
+    "rawAfter": "/Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph45-startup-review/probe-private-live-result.json",
+    "rawAfterSha256": "e1113caf43329867fcc035f938ba832621644c96bc9e2ff0856825c3d198d53b"
+  },
+  "jointProof": {
+    "path": "/Volumes/files/src/openclinxr/.openclinxr/slices/canonical-staging-contracts-20261022/evidence/verify-main-lbxwwy2q/result.json",
+    "verified": true,
+    "totalTests": 61,
+    "passedTests": 61,
+    "failedTests": 0,
+    "exactFiles": 10,
+    "seconds": 568.116,
+    "beforeFingerprints": 5564,
+    "note": "source-frozen pre-ph54 canonical-helper narrowing (historical scoped proof); startup source unchanged by ph54; post-narrow helper 8-unit rerun + full CI pending parent-side, not green-claimed"
+  },
+  "integrationReceipt": {
+    "path": "/Volumes/files/src/openclinxr/.openclinxr/slices/startup-placement-publish-20261022/integration.json",
+    "sha256": "f06c7caeeb730e3c2f849232aaec2fe0ff0db82a0614638513de5ccdc8dcce06",
+    "beforeMainSha256": "6b01922eba8f251931d8c2fceb0f2c11d3741e749a8df08af914fcfca8f01e4f",
+    "afterMainSha256": "c6e432946af44bca997647e2188dd0f2072fdcd3329aa1dff88b9d752c496161",
+    "worldXZDeltaMetersAll9Actors": 0,
+    "privatePassed": 15,
+    "runtimeAstUnchangedByCommentTrim": true,
+    "review": "/Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph45-startup-review/acceptance.json",
+    "reviewSha256": "181a904c1525a5fc09c6b607ce65045a41305d3f7c85b6ad6a7535f073cc33a8",
+    "commentTrimReview": "/Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph48-final-contract-review/acceptance.json",
+    "commentTrimReviewSha256": "6ab9c2d3025c5c451f60e346136be2d114fbef20c38e553721747c4ff65ab459"
+  },
+  "redHistory": {
+    "probe": "/Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph40-canonical-review/probe-live-result.json",
+    "symptom": "actorPlacementSsot null original+settled for ALL 3 cases; telehealth 2 orphans, knee 3 orphans, ward 0 only static fallback (closed by ph42 fix, confirmed by realProof above)"
+  },
+  "notEvidenceFor": [
+    "clinical_validity",
+    "quest_readiness",
+    "headset_claims",
+    "speed_claim",
+    "whole_ci_green",
+    "benchmarks",
+    "untested_cases_beyond_joint61_plus_3case_probe"
+  ],
+  "notTested": "Only tested cases claimed: joint 61/61 files + real 3-case probe (9 actors delta0) + startup 2/2 unit guards. No headset, no clinical, no browser/heavy re-run here.",
+  "scopeNotes": "Metadata-only write: no functional source/config/policy edits; Main readonly; W2 phase41 files untouched; no new deps/exports/package/API/case/asset/provenance/test-policy edits; no commits/push.; ph54: canonical expected-posture helper narrowed (authoredCasePlacements import removed, direct scenarioBank intent; startup path untouched) \u2014 joint61 now historical scoped proof, rerun pending.; ph55: producer POSTURE_SOURCE + canonical meta unit aligned to the same public scenarioBank intent (retired binding no longer named/required); no runtime change; final 8-unit + full CI pending parent-side, not green-claimed.",
+  "evidencePaths": [
+    "tools/openclinxr/evidence/startup-placement-publish/startup-placement-publish.test.ts",
+    "apps/ui-xr/src/main.ts"
+  ],
+  "provenance": {
+    "facadeSha256": "50d97a17bf957a8d97524cb0a984893ea1fc9f3db48f9ba23f3e75849c669445",
+    "startupTestSha256": "9bf24bac240d8cec5ab6e1afef172227d34d676f22f50f4ed9f3237239df6ac6",
+    "mainSha256": "c6e432946af44bca997647e2188dd0f2072fdcd3329aa1dff88b9d752c496161",
+    "ph46ManifestSha256": "28547d242c3e2a440a8fdb711eeacea76fc53d0c00c5dc08252502f8e8978ce5",
+    "ph47ManifestSha256": "025c5a7ed13f8b4ef2e64065dae38fbc3aa9a9065658d6f8f8abb1db83249657"
+  }
+}

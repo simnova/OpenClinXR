@@ -706,6 +706,16 @@
     ]
   },
   {
+    "provider": "@openclinxr/xr-capture-evidence",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "resolveRuntimeSlotAssignment",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-dialogue",
     "entrypoint": ".",
     "names": [
@@ -976,6 +986,10 @@
       },
       {
         "name": "deriveScenarioTraceActionTags",
+        "kind": "runtime"
+      },
+      {
+        "name": "ensureAndPublishActorPlacementSsot",
         "kind": "runtime"
       },
       {

@@ -401,8 +401,6 @@ import {
 import { isPedsAsthmaScenario, learnerVisiblePedsDialogueForTraceTag } from "./peds-authored-turn-surface.js";
 import "./styles.css";
 
-// Physics clinical-touch realbind R3 (AD-3): precomputed bone transforms — see physics-touch/.
-// PRE-PRODUCTION FENCE: opt-in capture only; default session path does not apply.
 import { applyPhysicsBoneTransforms as applyPhysicsBoneTransformsImpl } from "./physics-touch/apply-physics-bone-transforms.js";
 
 /** Pre-production fence: physics bone apply is opt-in capture only. Default session path does NOT apply physics transforms. */
@@ -647,11 +645,6 @@ function recordBootPhase(phase: string, error?: unknown): void {
 }
 
 const runtimeEquipmentSlotsByAssetId = new Map<string, Group>();
-// The bundle follows the SELECTED scenario, and the boot bindings resolve by ROLE. Both used to
-// be ED literals, so every other case staged the ED cast while the runtime merely recorded a
-// scenario_mismatch (:705-715) — measured on the loaded humanoid, which made the authored clinic
-// placement unreachable and the brief's §7 step 2 impossible to exercise. The station rides the
-// same selection through the case's frozen-plan binding rather than restamping the default.
 const selectedSceneClosureStationId = stationIdForSceneClosureScenario(selectedScenarioId());
 let encounterRuntimeAssetBundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
   scenarioId: selectedScenarioId(),
@@ -776,6 +769,14 @@ function resolveRuntimeSlotAssignment(
   }
   return assignment;
 }
+
+// The startup fallback bundle above never enters useEncounterRuntimeAssetBundle, so no
+// placement SSOT was published before the first frame — publish the real current
+// bundle/slots here with the same helper the later path uses (authored fields retained).
+ensureAndPublishActorPlacementSsot(
+  encounterRuntimeAssetBundle,
+  resolveRuntimeSlotAssignment(encounterRuntimeAssetBundle),
+);
 
 // #122 unique slot accessors — empty string means unfilled (never clone).
 function runtimePatientActorId(): string {
@@ -2996,7 +2997,6 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     roomDepthMeters: stationEnvironment.userData.roomDepthMeters,
     environmentFallbackActive: stationEnvironment.userData.environmentFallbackActive,
   };
-  // Store glTF container for later access
   window.__openClinXrGltfEnvContainer = gltfEnvContainer;
   // Store reusable exterior anteroom for scenario panel
   window.__openClinXrReusableExteriorAnteroom = reusableExteriorAnteroom;
