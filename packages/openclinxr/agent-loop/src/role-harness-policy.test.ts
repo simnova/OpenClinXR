@@ -187,7 +187,7 @@ describe("role-harness-policy", () => {
         ]),
       );
       expect(policy?.pathScope.preferredCli).toEqual(
-        expect.arrayContaining(["pnpm --filter @openclinxr/architecture-rules", "pnpm boundaries"]),
+        expect.arrayContaining(["pnpm -F @openclinxr/architecture-rules", "pnpm boundaries"]),
       );
       const tools = disallowedToolsForRole("architect", policy!);
       expect(tools).toEqual(
@@ -660,6 +660,396 @@ describe("role-harness-policy", () => {
         "tools/openclinxr/asset-pipeline/generate.ts",
       ]);
       expect(violations).toEqual([]);
+    });
+  });
+
+  describe("coverage-gap admissions (ci-closure-20261020, minimal exact roots)", () => {
+    it("architect admits verified-unowned compute infrastructure + lockfile, nothing broad", () => {
+      const scope = getRolePathScope("architect");
+      expect(scope.writeRoots).toEqual(
+        expect.arrayContaining([
+          "packages/openclinxr/compute-slots/**",
+          "packages/openclinxr/service-local-compute/**",
+          "pnpm-lock.yaml",
+        ]),
+      );
+      const admitted = assertTouchedWithinWriteRoots(
+        [
+          "packages/openclinxr/compute-slots/src/slots.ts",
+          "packages/openclinxr/compute-slots/src/slots.test.ts",
+          "packages/openclinxr/service-local-compute/src/local.ts",
+          "packages/openclinxr/service-local-compute/src/local-compute.test.ts",
+          "pnpm-lock.yaml",
+        ],
+        scope,
+      );
+      expect(admitted.ok).toBe(true);
+      // No broad widening: feature/factory/capacity/apps roots still refused.
+      const refused = assertTouchedWithinWriteRoots(
+        [
+          "packages/openclinxr/factory-stations/src/index.ts",
+          "packages/openclinxr/xr-capacity/src/index.ts",
+          "tools/openclinxr/dark-factory/multi-case-runner.ts",
+          "tools/openclinxr/evidence/quest-capacity/browser-check.ts",
+          "apps/ui-xr/src/static-assets.test.ts",
+        ],
+        scope,
+      );
+      expect(refused.ok).toBe(false);
+      expect(refused.violations.sort()).toEqual(
+        [
+          "packages/openclinxr/factory-stations/src/index.ts",
+          "packages/openclinxr/xr-capacity/src/index.ts",
+          "tools/openclinxr/dark-factory/multi-case-runner.ts",
+          "tools/openclinxr/evidence/quest-capacity/browser-check.ts",
+          "apps/ui-xr/src/static-assets.test.ts",
+        ].sort(),
+      );
+      expect(scope.writeRoots).not.toContain("packages/**");
+      expect(scope.writeRoots).not.toContain("apps/**");
+    });
+
+    it("architect admits verified-unowned root package.json, nothing broad", () => {
+      const scope = getRolePathScope("architect");
+      expect(scope.writeRoots).toContain("package.json");
+      const admitted = assertTouchedWithinWriteRoots(["package.json"], scope);
+      expect(admitted.ok).toBe(true);
+      // Negative (updated 2026-10-21 prospective: pnpm-workspace.yaml is now its own
+      // exact-literal admission below, so this control covers the remaining refusals).
+      const refused = assertTouchedWithinWriteRoots(
+        ["vitest.config.ts", "apps/api/src/index.ts"],
+        scope,
+      );
+      expect(refused.ok).toBe(false);
+      expect(refused.violations.sort()).toEqual(
+        ["vitest.config.ts", "apps/api/src/index.ts"].sort(),
+      );
+      expect(scope.writeRoots).not.toContain("packages/**");
+      expect(scope.writeRoots).not.toContain("apps/**");
+    });
+
+    it("architect admits prospective exact root pnpm-workspace.yaml, nothing broad", () => {
+      const scope = getRolePathScope("architect");
+      expect(scope.writeRoots).toContain("pnpm-workspace.yaml");
+      // Positive: the exact workspace root only.
+      expect(
+        assertTouchedWithinWriteRoots(["pnpm-workspace.yaml"], scope).ok,
+      ).toBe(true);
+      // Negative: vitest config, other root yaml/json, apps, domain stay refused.
+      const refused = assertTouchedWithinWriteRoots(
+        [
+          "vitest.config.ts",
+          "pnpm-workspace.yaml.orig",
+          "tsconfig.json",
+          ".npmrc",
+          "apps/api/src/index.ts",
+          "apps/ui-xr/src/static-assets.test.ts",
+          "packages/openclinxr/domain/patient.ts",
+        ],
+        scope,
+      );
+      expect(refused.ok).toBe(false);
+      expect(refused.violations.sort()).toEqual(
+        [
+          "vitest.config.ts",
+          "pnpm-workspace.yaml.orig",
+          "tsconfig.json",
+          ".npmrc",
+          "apps/api/src/index.ts",
+          "apps/ui-xr/src/static-assets.test.ts",
+          "packages/openclinxr/domain/patient.ts",
+        ].sort(),
+      );
+      // No wildcard broadening: exact literal only.
+      expect(scope.writeRoots).not.toContain("*.yaml");
+      expect(scope.writeRoots).not.toContain("*.yml");
+      expect(scope.writeRoots).not.toContain("pnpm-workspace.*");
+      expect(scope.writeRoots).not.toContain("**/*.yaml");
+      expect(scope.writeRoots).not.toContain("vitest.config.ts");
+      expect(scope.writeRoots).not.toContain("packages/**");
+      expect(scope.writeRoots).not.toContain("apps/**");
+    });
+
+    it("xr-systems-architect admits mouth-verifier but still refuses the openclaw hook", () => {
+      const scope = getRolePathScope("xr-systems-architect");
+      expect(scope.writeRoots).toContain("packages/openclinxr/stations/mouth-verifier/**");
+      const admitted = assertTouchedWithinWriteRoots(
+        [
+          "packages/openclinxr/stations/mouth-verifier/src/evaluator.ts",
+          "packages/openclinxr/stations/mouth-verifier/src/headless-scene.ts",
+          "packages/openclinxr/stations/mouth-verifier/tsconfig.json",
+        ],
+        scope,
+      );
+      expect(admitted.ok).toBe(true);
+      const refused = assertTouchedWithinWriteRoots(
+        ["tools/openclinxr/openclaw/known-red-tests.json", "apps/api/server.ts"],
+        scope,
+      );
+      expect(refused.ok).toBe(false);
+      expect(refused.violations).toEqual([
+        "tools/openclinxr/openclaw/known-red-tests.json",
+        "apps/api/server.ts",
+      ]);
+    });
+
+    it("hrbp admits its own roster index but still refuses product packages", () => {
+      const scope = getRolePathScope("hrbp");
+      expect(scope.writeRoots).toContain("agents/coordinator/hrbp/index.json");
+      expect(
+        assertTouchedWithinWriteRoots(
+          ["agents/coordinator/hrbp/index.json", "agents/coordinator/hrbp/charter.md"],
+          scope,
+        ).ok,
+      ).toBe(true);
+      const refused = assertTouchedWithinWriteRoots(
+        ["packages/openclinxr/compute-slots/src/slots.ts", "apps/ui-xr/src/static-assets.test.ts"],
+        scope,
+      );
+      expect(refused.ok).toBe(false);
+    });
+
+    it("reassigned factory/evidence/capacity paths resolve to existing rightful owners", () => {
+      expect(
+        assertTouchedWithinWriteRoots(
+          [
+            "packages/openclinxr/factory-stations/src/lip_sync/run.ts",
+            "packages/openclinxr/factory-stations/consumes.json",
+            "tools/openclinxr/dark-factory/multi-case-runner.ts",
+            "packages/openclinxr/factory-stations/arch-index.json",
+          ],
+          getRolePathScope("implementation-planning-lead"),
+        ).ok,
+      ).toBe(true);
+      expect(
+        assertTouchedWithinWriteRoots(
+          [
+            "packages/openclinxr/xr-capacity/src/index.ts",
+            "packages/openclinxr/xr-capacity/arch-index.json",
+            "tools/openclinxr/evidence/quest-capacity/browser-check.ts",
+            "tools/openclinxr/evidence/consumes.json",
+            "apps/ui-xr/src/static-assets.test.ts",
+          ],
+          getRolePathScope("xr-systems-architect"),
+        ).ok,
+      ).toBe(true);
+      expect(
+        assertTouchedWithinWriteRoots(
+          ["tools/openclinxr/evidence/room-ward-finish-chain/sync-static-ward-pin.ts"],
+          getRolePathScope("asset-pipeline-lead"),
+        ).ok,
+      ).toBe(true);
+      expect(
+        assertTouchedWithinWriteRoots(
+          ["tools/openclinxr/openclaw/known-red-tests.json"],
+          getRolePathScope("chief-coordinator"),
+        ).ok,
+      ).toBe(true);
+      expect(
+        assertTouchedWithinWriteRoots(
+          ["tools/openclinxr/evidence/check-license-policy.ts"],
+          getRolePathScope("license-provenance-specialist"),
+        ).ok,
+      ).toBe(true);
+      expect(
+        assertTouchedWithinWriteRoots(
+          ["agents/coordinator/pmo/score-history.json"],
+          getRolePathScope("pmo"),
+        ).ok,
+      ).toBe(true);
+      expect(
+        assertTouchedWithinWriteRoots(
+          ["agents/coordinator/archivist/index.json"],
+          getRolePathScope("archivist"),
+        ).ok,
+      ).toBe(true);
+      expect(
+        assertTouchedWithinWriteRoots(
+          ["agents/adversarial/openclaw-drift-police/index.json"],
+          getRolePathScope("openclaw-drift-police"),
+        ).ok,
+      ).toBe(true);
+    });
+
+    it("path-scope-policy sole-author lock is intact: PL needs HRBP review, no bypass added", () => {
+      // Lock logic untouched: non-owner touching role-harness-policy.ts still violates.
+      const plViolations = findSoleAuthorLockViolations("implementation-planning-lead", [
+        "packages/openclinxr/agent-loop/src/role-harness-policy.ts",
+      ]);
+      expect(
+        plViolations.some((v) => v.lockId === "path-scope-policy" && v.ownerRoleId === "hrbp"),
+      ).toBe(true);
+      // Lock owner itself stays clean.
+      expect(
+        findSoleAuthorLockViolations("hrbp", [
+          "packages/openclinxr/agent-loop/src/role-harness-policy.ts",
+        ]),
+      ).toEqual([]);
+      // role-path-scopes.ts (this table) is not lock-covered: PL may author it.
+      expect(
+        findSoleAuthorLockViolations("implementation-planning-lead", [
+          "packages/openclinxr/agent-loop/src/role-path-scopes.ts",
+        ]),
+      ).toEqual([]);
+    });
+
+    it("chief still refused protected registries, license tools and foreign agent indexes", () => {
+      const scope = getRolePathScope("chief-coordinator");
+      const refused = assertTouchedWithinWriteRoots(
+        [
+          "docs/openclinxr/doc-authority-registry-2026-05-27.json",
+          "tools/openclinxr/evidence/check-license-policy.ts",
+          "agents/coordinator/hrbp/index.json",
+          "agents/coordinator/pmo/score-history.json",
+        ],
+        scope,
+      );
+      expect(refused.ok).toBe(false);
+      expect(refused.violations.length).toBe(4);
+    });
+
+    it("openclaw-drift-police admits exactly 3 doc-authority-registry literals, nothing broad", () => {
+      const scope = getRolePathScope("openclaw-drift-police");
+      // Positive: all 3 HRBP-approved exact literals admitted.
+      expect(scope.writeRoots).toEqual(
+        expect.arrayContaining([
+          "tools/agent-factory/build-doc-authority-registry.ts",
+          "tools/agent-factory/doc-authority-registry/append.ts",
+          "tools/agent-factory/doc-authority-registry/append.test.ts",
+        ]),
+      );
+      const admitted = assertTouchedWithinWriteRoots(
+        [
+          "tools/agent-factory/build-doc-authority-registry.ts",
+          "tools/agent-factory/doc-authority-registry/append.ts",
+          "tools/agent-factory/doc-authority-registry/append.test.ts",
+        ],
+        scope,
+      );
+      expect(admitted.ok).toBe(true);
+      // Forbidden unchanged: apps/packages still refused.
+      expect(scope.forbidden).toEqual(expect.arrayContaining(["apps/**", "packages/**"]));
+      // Negative: agent siblings, unrelated tools, forbidden apps/packages all refused.
+      const refused = assertTouchedWithinWriteRoots(
+        [
+          "agents/adversarial/clinical-safety-critic/index.json",
+          "agents/coordinator/hrbp/index.json",
+          "tools/openclinxr/evidence/check-license-policy.ts",
+          "tools/agent-factory/other-tool.ts",
+          "tools/openclinxr/openclaw/known-red-tests.json",
+          "apps/ui-xr/src/static-assets.test.ts",
+          "packages/openclinxr/factory-stations/src/index.ts",
+        ],
+        scope,
+      );
+      expect(refused.ok).toBe(false);
+      expect(refused.violations.sort()).toEqual(
+        [
+          "agents/adversarial/clinical-safety-critic/index.json",
+          "agents/coordinator/hrbp/index.json",
+          "tools/openclinxr/evidence/check-license-policy.ts",
+          "tools/agent-factory/other-tool.ts",
+          "tools/openclinxr/openclaw/known-red-tests.json",
+          "apps/ui-xr/src/static-assets.test.ts",
+          "packages/openclinxr/factory-stations/src/index.ts",
+        ].sort(),
+      );
+      // No broad widening: tools/** wildcard and parent dir glob must not exist.
+      expect(scope.writeRoots).not.toContain("tools/**");
+      expect(scope.writeRoots).not.toContain("tools/agent-factory/**");
+      expect(scope.writeRoots).not.toContain("apps/**");
+      expect(scope.writeRoots).not.toContain("packages/**");
+    });
+  });
+
+  describe("role-config-ownership (consolidated; standalone file removed to keep testInternalImports at ceiling)", () => {
+    const TARGETS = [".github/workflows/ci.yml", "turbo.json", "knip.json"];
+
+    it("architect allows the exact 3 CI config literals", () => {
+      const scope = getRolePathScope("architect");
+      for (const t of TARGETS) expect(scope.writeRoots).toContain(t);
+      expect(assertTouchedWithinWriteRoots(TARGETS, scope).ok).toBe(true);
+    });
+
+    it("architect still refuses neighboring roots and broad globs", () => {
+      const scope = getRolePathScope("architect");
+      const refused = assertTouchedWithinWriteRoots(
+        [
+          ".github/workflows/other.yml",
+          ".github/CODEOWNERS",
+          "turbo.json.orig",
+          "knip.json.bak",
+          "vitest.config.ts",
+          "tsconfig.json",
+          "apps/api/src/index.ts",
+          "packages/openclinxr/domain/patient.ts",
+        ],
+        scope,
+      );
+      expect(refused.ok).toBe(false);
+      expect(refused.violations.length).toBe(8);
+    });
+
+    it("admits exact literals only, no wildcard widening", () => {
+      const scope = getRolePathScope("architect");
+      for (const broad of [
+        ".github/**",
+        "*.json",
+        "*.yml",
+        "**/*.json",
+        "turbo.*",
+        "knip.*",
+        "packages/**",
+        "apps/**",
+      ])
+        expect(scope.writeRoots).not.toContain(broad);
+    });
+
+    it("exact 3 are architect-only: every other role still refuses", () => {
+      // Consolidated without the standalone file's role-path-scopes.js import:
+      // repoRoleHarnessPolicies is already imported above and is built from the
+      // same 18-role table; the "covers all documented active repo roles" test
+      // pins that 18-list, so enumerating it here keeps the 17-other check exact.
+      const others = repoRoleHarnessPolicies
+        .map((p) => p.roleId)
+        .filter((r) => r !== "architect");
+      expect(repoRoleHarnessPolicies.length).toBe(18);
+      expect(others.length).toBe(17);
+      for (const role of others) {
+        const res = assertTouchedWithinWriteRoots(TARGETS, getRolePathScope(role));
+        expect(res.ok).toBe(false);
+        expect(res.violations.sort()).toEqual([...TARGETS].sort());
+      }
+      // Pre-existing broad tools/** owner (license-provenance-specialist) still
+      // does not cover these repo-root paths.
+      expect(
+        assertTouchedWithinWriteRoots(TARGETS, getRolePathScope("license-provenance-specialist"))
+          .ok,
+      ).toBe(false);
+    });
+
+    it("no sole-author lock covers the 3; path-scope-policy lock stays intact", () => {
+      for (const lock of soleAuthorLocks)
+        for (const p of lock.paths)
+          expect(TARGETS).not.toContain(p);
+      expect(
+        findSoleAuthorLockViolations("architect", TARGETS),
+      ).toEqual([]);
+      // Unchanged behavior: non-owner touching the policy file still violates.
+      expect(
+        findSoleAuthorLockViolations("implementation-planning-lead", [
+          "packages/openclinxr/agent-loop/src/role-harness-policy.ts",
+        ]).some((v) => v.lockId === "path-scope-policy"),
+      ).toBe(true);
+      // Architect forbidden range unchanged: product/xr roots still refused.
+      const scope = getRolePathScope("architect");
+      expect(scope.forbidden).toEqual(
+        expect.arrayContaining([
+          "apps/**",
+          "packages/openclinxr/domain/**",
+          "packages/openclinxr/scenario-runtime/**",
+        ]),
+      );
     });
   });
 });
