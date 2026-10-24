@@ -1,0 +1,152 @@
+{
+  "claimScope": "staging posture + support-path count for recumbent inpatient stations; sanitised left/right heel/toe matrices under case-owned bedside approach with clip identity bound to case-frozen clipRevision",
+  "evidencePaths": [
+    "tools/openclinxr/evidence/canonical-staging-contracts/expected-posture.ts",
+    "tools/openclinxr/evidence/canonical-staging-contracts/expected-foot-identity.ts",
+    "tools/openclinxr/evidence/canonical-staging-contracts/canonical-staging-contracts.test.ts"
+  ],
+  "expectedFootIdentity": {
+    "assetBytes": 9618436,
+    "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+    "assetSha256": "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
+    "clipRevision": "openclinxr_retarget_walk_source",
+    "frozenPlan": "packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts:101-107",
+    "provenance": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.provenance.json motionClips[0] + outputSha256/outputBytes; retiredMotionClips formal_cc0 removed 2026-09-23"
+  },
+  "falsifiers": {
+    "a": "each six declared postures resolves from case intent via PUBLIC runtime-bundles createEdChestPainRuntimeSceneManifest+resolveScenarioActorCast actorPlacements[patientId].posture: PASS (8/8 routed units; 6-case public-ctor probe seated/supine/supine/supine/supine/seated matches declared)",
+    "b": "undeclared nonstanding must RED: PASS (fake undeclared supine flagged)",
+    "c": "declared posture wrong actual must RED: PASS (6/6 mismatches flagged; all-correct passes)",
+    "d": "asset hash mismatch and clip mismatch must still reject/not gradeable: PASS (stale formal_cc0 + 63a4 rejected; gradeReport clip-identity problem kept)",
+    "e": "frozen plan + provenance bind expected machine pins 921d/9618436/walk_source: PASS"
+  },
+  "generatedAt": "2026-10-23T01:01:30.000000+00:00",
+  "notEvidenceFor": [
+    "clinical_validity",
+    "quest_readiness",
+    "gait_realism",
+    "full_room_occlusion"
+  ],
+  "postureSource": "public @openclinxr/asset-registry/runtime-bundles createEdChestPainRuntimeSceneManifest sceneManifest.actorPlacements[primaryPatientActorId].posture + resolveScenarioActorCast patient identity + public @openclinxr/asset-registry/actor-posture resolveActorPosture (env/scenario markers prefer env/scenario over declared standing) + case-authored placement.supportSurface intent read DIRECTLY from public @openclinxr/scenario-fixtures/scenario-bank patient placement (ph54 narrowing; no case-actor-placements import)",
+  "privateUnits": {
+    "suite": "tools/openclinxr/evidence/canonical-staging-contracts/canonical-staging-contracts.test.ts",
+    "result": "8 passed / 8 at source-freeze (Main joint61 scoped proof); ph54 helper narrowing + ph55 metadata alignment (producer POSTURE_SOURCE + meta unit now bind public scenarioBank patient placement.supportSurface intent, retired case-actor-placements binding removed); helper 8-unit rerun + full CI pending parent-side, not claimed",
+    "config": "ph47 existing-public-contract normal-public-imports (read, not rerun here); suite also included in Main joint61 VERIFIED run",
+    "routing": "existing PUBLIC runtime-bundles createEdChestPainRuntimeSceneManifest+resolveScenarioActorCast; no new mapper/public API; no postureForSupportSurface in product POSTURE_SOURCE"
+  },
+  "realProof": "Main joint61 VERIFIED 61/61 (source-frozen, pre-ph54 helper-only narrowing): .openclinxr/slices/canonical-staging-contracts-20261022/evidence/verify-main-lbxwwy2q/result.json. Historical scoped proof only; post-narrow helper 8-unit rerun + full CI pending (parent validates Main 8 + architecture next + full suite), not full-CI-green.",
+  "retiredFootIdentity": {
+    "bytes": 9457652,
+    "clipRevision": "openclinxr_retarget_walk_formal_cc0",
+    "era": "2026-09-16",
+    "sha256": "63a4c9dec2065aae38d0e3336fc4a46be2de647354848cebe8269564c01d4b13",
+    "status": "retired-superseded-2026-09-23"
+  },
+  "schemaVersion": "openclinxr.canonical-staging-contracts.v1",
+  "sixCanonicalDeclarations": [
+    {
+      "caseSource": "packages/openclinxr/scenario-fixtures/src/psychiatric-safety.ts:42",
+      "expectedPosture": "seated",
+      "primarySupportSurface": "chair",
+      "scenarioId": "psych_suicidal_ideation_safety_v1"
+    },
+    {
+      "caseSource": "packages/openclinxr/scenario-fixtures/src/stroke-alert.ts:28-29",
+      "expectedPosture": "supine",
+      "primarySupportSurface": "stretcher",
+      "scenarioId": "ed_stroke_alert_handoff_v1"
+    },
+    {
+      "caseSource": "packages/openclinxr/scenario-fixtures/src/primary-care-dyslipidemia.ts:28",
+      "expectedPosture": "supine",
+      "primarySupportSurface": "exam_table",
+      "scenarioId": "primary_care_dyslipidemia_joint_pain_v1"
+    },
+    {
+      "caseSource": "packages/openclinxr/scenario-fixtures/src/adult-abdominal-pain.ts:51-52",
+      "expectedPosture": "supine",
+      "primarySupportSurface": "stretcher",
+      "scenarioId": "adult_abdominal_pain_v1"
+    },
+    {
+      "caseSource": "packages/openclinxr/scenario-fixtures/src/peds-fever.ts:51-52",
+      "expectedPosture": "supine",
+      "primarySupportSurface": "stretcher",
+      "scenarioId": "peds_fever_v1"
+    },
+    {
+      "caseSource": "packages/openclinxr/scenario-fixtures/src/clinic-knee-pain.ts:51-52",
+      "expectedPosture": "seated",
+      "primarySupportSurface": "chair",
+      "scenarioId": "clinic_knee_pain_return_to_play_v1"
+    }
+  ],
+  "sliceId": "canonical-staging-contracts-20261022",
+  "status": "helper-narrowed-pending-rerun-historical-main61-scoped-proof",
+  "routing": {
+    "method": "existing PUBLIC @openclinxr/asset-registry/runtime-bundles createEdChestPainRuntimeSceneManifest + resolveScenarioActorCast; direct public scenarioBank patient placement.supportSurface intent (ph54 narrowing); no new mapper/public API",
+    "sourceAuthor": "Actual Muse XR ph38 bodies retained; ph41/ph43 private-routing prototypes REJECTED/WITHDRAWN (see history); qualified asset-pipeline-lead ph44 independently reviewed/reproduced/adopted; ph47 existing reviewed public factory routing",
+    "imports": [
+      "@openclinxr/asset-registry/runtime-bundles",
+      "@openclinxr/scenario-fixtures/scenario-bank",
+      "@openclinxr/asset-registry/actor-posture",
+      "@openclinxr/asset-registry/case-frozen-scene-plans"
+    ],
+    "newRelativeCrossPackageSrcReaches": 0,
+    "newMapperPublicApi": false,
+    "facadeSha256": "50d97a17bf957a8d97524cb0a984893ea1fc9f3db48f9ba23f3e75849c669445",
+    "facadeBytes": 175,
+    "facadeByteExactOriginal": true,
+    "prototypeTestAbsent": true,
+    "expectedPostureSha256": "54dfbce5345cbb42e451d730cbf908bf56ebb4dca453f3e90de87a5f94b6553b",
+    "canonicalTestSha256": "04a80a51831a11b4a63606496dc9e12b753e795f95cb8924b079dad4fc7c34d5",
+    "expectedFootSha256": "95c4400cec397ec535595799177b96125b98d9f6db63b9b7aa891335763cd5c1",
+    "inpatientStagingSha256": "f5734d82f87dcb4f634c40e47d49f2a70d08b2a08ee35cc4d3c9051620e17a25"
+  },
+  "verification": {
+    "mainJoint61": {
+      "resultPath": ".openclinxr/slices/canonical-staging-contracts-20261022/evidence/verify-main-lbxwwy2q/result.json",
+      "resultSha256": "e5533124c9682ebad0dcbdb87b4f47662d20e6afcff5c82742bc7562538586b9",
+      "verified": true,
+      "passedTests": 61,
+      "totalTests": 61,
+      "exactFiles": 10,
+      "seconds": 568.116,
+      "beforeFingerprints": 5564,
+      "note": "loaded correctness only, no speed claim; source-frozen pre-ph54 helper-only change (historical scoped proof); post-narrow helper 8-unit rerun + full CI pending, not green-claimed"
+    },
+    "integrationReceipt": {
+      "path": ".openclinxr/slices/canonical-staging-contracts-20261022/integration.json",
+      "sha256": "c996e5f9e9eeedf446fec37c2846e9c0f0c2344dc5d6f4fe97282505150d2db3"
+    },
+    "startup": {
+      "method": "existing ensureAndPublishActorPlacementSsot now initial fallback top-level (apps/ui-xr/src/main.ts)",
+      "mainTsSha256": "c6e432946af44bca997647e2188dd0f2072fdcd3329aa1dff88b9d752c496161",
+      "probePath": "/Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph45-startup-review/probe-private-comparison.json",
+      "probeSha256": "1b40d099380764ecdbb8a97048ff2cd2d6b42339086c99c6a0c19ce5f496c736",
+      "cases": 3,
+      "actorsPublished": 9,
+      "worldXZDeltaMetersAll9": 0,
+      "integrationPath": ".openclinxr/slices/startup-placement-publish-20261022/integration.json",
+      "integrationSha256": "f06c7caeeb730e3c2f849232aaec2fe0ff0db82a0614638513de5ccdc8dcce06",
+      "appTotalLines": 5993,
+      "commentTrimLines": 8,
+      "runtimeAstUnchangedByCommentTrim": true
+    },
+    "reviews": {
+      "ph47ExistingPublicContract": "/Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph47-existing-public-contract/manifest.json",
+      "ph48FinalContractReview": "/Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph48-final-contract-review/acceptance.json"
+    }
+  },
+  "history": {
+    "rejectedAttempts": [
+      "ph41 copied-mapper draft REJECTED, not reintroduced (ph44 owner review)",
+      "ph43 facade newapi + public-api prototype test WITHDRAWN; W facade restored byte-exact to guarded snapshot; prototypes archived OUT with matching hashes; added prototype test removed/absent in Main and W (ph47/ph48)",
+      "ph41 isolated vitest.min.mjs candidate config superseded by ph47 existing-public-contract normal-public-imports"
+    ],
+    "originalAuthorship": "XR ph38 canonical bodies (inpatient-supine-staging, canonical test/foot, capture) retained; XR ph37 adversarial correction over ph36 for six declarations; qualified AssetPipe ph44 adoption + ph47 final routing (no relabel of past prototypes as compliant)",
+    "ph54Narrowing": "asset-pipeline-lead ph54: removed newly introduced authoredCasePlacements dependency (mixed entrypoint 16>ceiling15); primarySupportSurfaceForScenario now reads placement.supportSurface directly from public scenarioBank patient placement (6/6 goldens MATCH former helper output; unknown/no-patient/non-string still null; no supportSurface->posture mapper copy); expectedPostureFromCaseIntent runtime factory/cast function byte-exact; consumes delta vs pre-ph49 snapshot now 2 added/0 removed; helper 8-unit rerun + full CI pending parent-side",
+    "ph55MetadataAlignment": "asset-pipeline-lead ph55 (this job): honest metadata/test guard alignment only, no runtime change. Producer POSTURE_SOURCE string now names public @openclinxr/scenario-fixtures/scenario-bank scenarioBank patient placement.supportSurface intent instead of the retired authoredCasePlacements binding; meta unit no longer imports case-actor-placements and instead verifies all six current bank placements + asserts the retired name/path absent from POSTURE_SOURCE. All 8 tests kept; golden/lineage/grade/provenance/negative guards untouched; expected-posture.ts factory byte-identical (fn sha 5f17fdc2cea5753caa6ec91685b698a7454d6001ca2855ea36e0adb33ec3a20f). Final 8-unit rerun + full CI pending parent-side."
+  },
+  "notes": "Only tested cases; no headset/Quest-readiness and no clinical-validity claims. No benchmarks and no whole-CI-green claims. ph54: helper-only narrowing; Main61 proof is historical scoped (pre-narrow); helper rerun + full CI pending. ph55: additive metadata alignment only (producer POSTURE_SOURCE + meta unit now truthfully bind public scenarioBank intent); no functional/product/policy change; final 8-unit + full CI pending parent-side."
+}

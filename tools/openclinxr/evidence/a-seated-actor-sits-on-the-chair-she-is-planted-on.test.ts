@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 /**
  * **OBSERVABLE: a seated actor is over the seat of the chair the environment authored for her.**
@@ -109,22 +109,66 @@ type SeatedPlacementRow = {
 };
 
 async function loadInspect(): Promise<
-  ((opts: { scenarioId: string }) => Promise<SeatedPlacementRow[]>) | undefined
+  ((opts: { scenarioId: string; signal?: AbortSignal }) => Promise<SeatedPlacementRow[]>) | undefined
 > {
   const mod = (await import("./seated-actor-seat-placement.js").catch(() => undefined)) as
-    | { inspectSeatedActorSeatPlacement?: (o: { scenarioId: string }) => Promise<SeatedPlacementRow[]> }
+    | { inspectSeatedActorSeatPlacement?: (o: { scenarioId: string; signal?: AbortSignal }) => Promise<SeatedPlacementRow[]> }
     | undefined;
   return mod?.inspectSeatedActorSeatPlacement;
 }
 
 describe("a seated actor sits on the chair she is planted on", () => {
+  // Single shared capture-setup lifecycle: the live capture runs once in
+  // beforeAll (outside assertion clocks); the four assertions below are
+  // pure 5 s reads of the shared rows. The setup owns a REAL cancellation
+  // caller: its AbortController is passed to inspect (slot-queue wait,
+  // 180 s portless boot race, and every post-launch page wait all observe
+  // it). If vitest abandons this hook at its 60 s budget, the controller
+  // fires so owned browser/page/dev-server cleanup runs promptly instead
+  // of outliving the hook by up to 120 s; afterAll aborts when unsettled.
+  let inspectFn: ((opts: { scenarioId: string; signal?: AbortSignal }) => Promise<SeatedPlacementRow[]>) | undefined;
+  let rows: SeatedPlacementRow[] = [];
+  let setupController: AbortController | undefined;
+  let setupSettled = false;
+  let setupTimer: ReturnType<typeof setTimeout> | undefined;
+
+  beforeAll(async () => {
+    inspectFn = await loadInspect();
+    expect(
+      typeof inspectFn,
+      "seated-actor-seat-placement must export inspectSeatedActorSeatPlacement",
+    ).toBe("function");
+    setupController = new AbortController();
+    setupTimer = setTimeout(() => {
+      setupController?.abort(new Error("seated capture setup abandoned after 60s beforeAll budget"));
+    }, 60_000);
+    setupTimer.unref?.();
+    try {
+      rows = await inspectFn!({ scenarioId: SCENARIO, signal: setupController.signal });
+      setupSettled = true;
+    } catch (error) {
+      setupSettled = true;
+      throw error;
+    } finally {
+      clearTimeout(setupTimer);
+    }
+  }, 60_000);
+
+  afterAll(() => {
+    // Cleanup when abandoned: if the hook never settled (timeout), abort
+    // the in-flight capture so the producer's finallies close the owned
+    // browser/page/dev-server and free the compute slot. No-op on success.
+    if (!setupSettled) {
+      setupController?.abort(new Error("seated capture setup abandoned (afterAll cleanup)"));
+    }
+    setupController = undefined;
+    if (setupTimer !== undefined) clearTimeout(setupTimer);
+  });
+
   it("(1) the measurement exists and reports pelvis + chair world placement", async () => {
     // Today there is no module that reports pelvis Y or chair XZ, so the two candidate causes
     // cannot be separated at all. This clause fails on absence, which is the honest first defect.
-    const inspect = await loadInspect();
-    expect(typeof inspect, "seated-actor-seat-placement must export inspectSeatedActorSeatPlacement")
-      .toBe("function");
-    const rows = await inspect!({ scenarioId: SCENARIO });
+    expect(typeof inspectFn).toBe("function");
     const row = rows.find((r) => r.actorId === SEATED_ACTOR);
     expect(row, `${SEATED_ACTOR} must appear in the placement report`).toBeTruthy();
     expect(row!.chairWorldX, "the chair the actor is planted on must be located, not null").not.toBeNull();
@@ -134,18 +178,12 @@ describe("a seated actor sits on the chair she is planted on", () => {
   it("(2) her pelvis is not BELOW the authored seat top", async () => {
     // Refuses the cheap fix on (3): translating the actor down until her feet touch the floor
     // satisfies a naive foot-contact check while sinking her pelvis through the seat.
-    const inspect = await loadInspect();
-    expect(typeof inspect).toBe("function");
-    const rows = await inspect!({ scenarioId: SCENARIO });
     const row = rows.find((r) => r.actorId === SEATED_ACTOR)!;
     expect(row.pelvisWorldY, `pelvis ${row?.pelvisWorldY} is below the ${SEAT_TOP_METERS} m seat top`)
       .toBeGreaterThanOrEqual(SEAT_TOP_METERS);
   });
 
   it("(3) she is over the seat, not merely near the chair", async () => {
-    const inspect = await loadInspect();
-    expect(typeof inspect).toBe("function");
-    const rows = await inspect!({ scenarioId: SCENARIO });
     const row = rows.find((r) => r.actorId === SEATED_ACTOR)!;
     const dx = Math.abs(row.actorWorldX - (row.chairWorldX ?? Number.NaN));
     const dz = Math.abs(row.actorWorldZ - (row.chairWorldZ ?? Number.NaN));
@@ -158,9 +196,6 @@ describe("a seated actor sits on the chair she is planted on", () => {
   it("(4) COUNTERWEIGHT: the standing actors in the same station stay on the floor", async () => {
     // Refuses a global Y translation that seats the parent by lifting or sinking everyone, and
     // pins the KNOWN-GOOD COLUMN: these two measured 0.010 and 0.013 before any change.
-    const inspect = await loadInspect();
-    expect(typeof inspect).toBe("function");
-    const rows = await inspect!({ scenarioId: SCENARIO });
     const standing = rows.filter((r) => r.declaredPosture === "standing");
     expect(standing.length, "both standing actors must still be reported").toBeGreaterThanOrEqual(2);
     for (const r of standing) {

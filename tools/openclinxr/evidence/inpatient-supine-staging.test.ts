@@ -1,4 +1,10 @@
 import { describe, expect, it } from "vitest";
+import {
+  DECLARED_NONSTANDING_SCENARIO_IDS,
+  SIX_CANONICAL_DECLARATIONS,
+  evaluateStagingCounterweight,
+  expectedPostureFromCaseIntent,
+} from "./canonical-staging-contracts/expected-posture.js";
 
 /**
  * PLANTED CONTRACTS (#179). Three inpatient stations render a standing patient beside a bed.
@@ -224,9 +230,13 @@ describe("inpatient stations stage their patient on a bed (#179)", () => {
     }
   }, 900_000);
 
-  it("standing and seated stations are untouched (COUNTERWEIGHT)", async () => {
-    // ## FIXED (#179)
+  it("undeclared stations stay standing; declared nonstanding matches case intent (COUNTERWEIGHT)", async () => {
+    // ## FIXED (#179 + canonical-staging-contracts)
     // Scenario-id markers only — ambulatory stations remain standing; telehealth seated.
+    // Retuned from "all non-targets standing" (stale: fails 6 explicit canonical
+    // case-intent declarations) to "all UNDECLARED standing", with EXPECTED
+    // postures derived from canonical case intent via postureForSupportSurface,
+    // independently of observed rows. Normative undeclared-standing guard kept.
     // The cheap way to satisfy contract (1) is to make everyone supine. Ambulatory patients in clinic
     // and urgent care belong on their feet, telehealth belongs in a chair, and ED already works.
     // Supine is a STAGING choice per station, never a default.
@@ -245,15 +255,45 @@ describe("inpatient stations stage their patient on a bed (#179)", () => {
     expect(report.rows.find((r) => r.scenarioId === ED_CHEST_PAIN)?.posture).toBe("supine");
     expect(report.rows.find((r) => r.scenarioId === TELEHEALTH)?.posture).toBe("seated");
 
-    // Everything not declared inpatient, not ED and not telehealth must still be standing.
-    const wronglyRecumbent = report.rows
-      .filter((r) => r.scenarioId !== ED_CHEST_PAIN && r.scenarioId !== TELEHEALTH)
-      .filter((r) => !declared.has(r.scenarioId))
-      .filter((r) => r.posture !== "standing")
-      .map((r) => `${r.scenarioId}: ${r.posture}`);
+    // Prove the six canonical case-intent declarations resolve independently
+    // of observed rows before using them as expectations.
+    for (const decl of SIX_CANONICAL_DECLARATIONS) {
+      expect(
+        expectedPostureFromCaseIntent(decl.scenarioId),
+        `${decl.scenarioId} case intent should resolve ${decl.expectedPosture} (see ${decl.caseSource})`,
+      ).toBe(decl.expectedPosture);
+    }
+
+    // EXPECTED postures from canonical intent; undeclared defaults to standing.
+    const expectedByScenarioId: Record<string, string> = {};
+    for (const row of report.rows) {
+      if (row.scenarioId === ED_CHEST_PAIN) {
+        expectedByScenarioId[row.scenarioId] = "supine";
+      } else if (row.scenarioId === TELEHEALTH) {
+        expectedByScenarioId[row.scenarioId] = "seated";
+      } else {
+        expectedByScenarioId[row.scenarioId] =
+          expectedPostureFromCaseIntent(row.scenarioId) ?? "standing";
+      }
+    }
+    // Inpatient targets are declared supine even where the bank carries no
+    // authored patient placement for the intent helper to read.
+    for (const scenarioId of TARGETS) {
+      expectedByScenarioId[scenarioId] = "supine";
+    }
+    const { undeclaredNonstanding, mismatchedDeclared } =
+      evaluateStagingCounterweight(
+        report.rows,
+        expectedByScenarioId,
+        DECLARED_NONSTANDING_SCENARIO_IDS,
+      );
     expect(
-      wronglyRecumbent,
-      `stations laid down without being declared inpatient:\n${wronglyRecumbent.join("\n")}`,
+      mismatchedDeclared,
+      `declared stations resolved against canonical intent:\n${mismatchedDeclared.join("\n")}`,
+    ).toHaveLength(0);
+    expect(
+      undeclaredNonstanding,
+      `undeclared stations laid down without a canonical declaration:\n${undeclaredNonstanding.join("\n")}`,
     ).toHaveLength(0);
 
     expect(report.notEvidenceFor.join(" ").toLowerCase()).toContain("clinical");

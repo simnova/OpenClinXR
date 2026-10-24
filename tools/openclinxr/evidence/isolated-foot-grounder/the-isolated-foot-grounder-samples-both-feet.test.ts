@@ -2,6 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import { captureIsolatedFootGrounder, gradeReport } from "./capture.js";
+import { getExpectedFootGrounderIdentity } from "../canonical-staging-contracts/expected-foot-identity.js";
 
 function sha256Hex(bytes: Buffer): string {
   return createHash("sha256").update(bytes).digest("hex");
@@ -21,18 +22,19 @@ describe("isolated-foot-grounder capture", () => {
     expect(report.generatedAt).toBeDefined();
     expect(report.headSha).toBeDefined();
 
-    // Verify asset identity (positive counterweight)
-    expect(report.assetIdentity.assetPath).toBe(
-      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb"
-    );
-    expect(report.assetIdentity.sha256).toBe(
-      "63a4c9dec2065aae38d0e3336fc4a46be2de647354848cebe8269564c01d4b13"
-    );
-    expect(report.assetIdentity.bytes).toBeGreaterThan(0);
+    // Verify asset identity (positive counterweight) against the canonical
+    // frozen plan + provenance lineage (NOT disk hash, NOT the retired Sep-16
+    // snapshot). Retired: sha 63a4…/formal_cc0 (era 2026-09-16, formal retired
+    // 2026-09-23); bytes UNKNOWN, preserved as retired metadata only.
+    const expectedFoot = getExpectedFootGrounderIdentity();
+    expect(report.assetIdentity.assetPath).toBe(expectedFoot.assetPath);
+    expect(report.assetIdentity.sha256).toBe(expectedFoot.expectedAssetSha256);
+    expect(report.assetIdentity.bytes).toBe(expectedFoot.expectedBytes);
 
-    // Verify clip identity (positive counterweight)
+    // Verify clip identity (positive counterweight) against the canonical
+    // frozen-plan clipRevision (walk_source; formal_cc0 retired 2026-09-23).
     expect(report.clipIdentity.caseFrozenClipRevision).toBe(
-      "openclinxr_retarget_walk_formal_cc0"
+      expectedFoot.expectedClipRevision,
     );
     expect(report.clipIdentity.liveClipStamp).toBeDefined();
     expect(report.clipIdentity.match).toBe(true);

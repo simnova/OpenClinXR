@@ -35,6 +35,7 @@ import {
   stationCapturePageDiagnosticsOf,
 } from "./station-capture/page-diagnostics.js";
 import { refineCameraForOcclusionAndContainment } from "./station-capture/refine-camera-for-occlusion-and-containment.js";
+import { readPositionAttribute } from "./room-camera/read-position.js";
 
 export {
   attachStationCapturePageDiagnostics,
@@ -821,6 +822,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
 export async function reframeCameraForRoom(page: Page, environmentId: string): Promise<string> {
   // NOTE: string IIFE — keep free of TypeScript syntax so tsx/esbuild cannot inject `__name`.
   const derived = (await page.evaluate(`(() => {
+    const readPositionAttribute = ${readPositionAttribute.toString()};
     const scene = globalThis.__openClinXrDebugScene;
     if (!scene || typeof scene.traverse !== "function") return null;
     scene.updateMatrixWorld(true);
@@ -1023,17 +1025,19 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
       const pos = geom && geom.attributes && geom.attributes.position;
       const e = o.matrixWorld && o.matrixWorld.elements;
       if (!pos || !e) return;
-      const arr = pos.array;
       const index = geom.index ? geom.index.array : null;
       const triCount = index ? Math.floor(index.length / 3) : Math.floor(pos.count / 3);
       for (let t = 0; t < triCount; t++) {
         const i0 = index ? index[t * 3] : t * 3;
         const i1 = index ? index[t * 3 + 1] : t * 3 + 1;
         const i2 = index ? index[t * 3 + 2] : t * 3 + 2;
+        const p0 = readPositionAttribute(pos, i0);
+        const p1 = readPositionAttribute(pos, i1);
+        const p2 = readPositionAttribute(pos, i2);
         surfaceTris.push([
-          worldOfLocal(e, arr[i0 * 3], arr[i0 * 3 + 1], arr[i0 * 3 + 2]),
-          worldOfLocal(e, arr[i1 * 3], arr[i1 * 3 + 1], arr[i1 * 3 + 2]),
-          worldOfLocal(e, arr[i2 * 3], arr[i2 * 3 + 1], arr[i2 * 3 + 2])
+          worldOfLocal(e, p0[0], p0[1], p0[2]),
+          worldOfLocal(e, p1[0], p1[1], p1[2]),
+          worldOfLocal(e, p2[0], p2[1], p2[2])
         ]);
       }
     });
@@ -1157,6 +1161,9 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
       eye: eye, look: look, wallThickness: wallThickness,
       nearestActorMeters: bestScore,
       rejectedCandidates: rejectedCandidates,
+      candidateTotal: candidates.length,
+      acceptedCount: accepted.length,
+      derivationWitness: performance.timeOrigin + ":" + performance.now().toFixed(3),
       interiorMin: interior.min, interiorMax: interior.max,
       actorMin: actors.min, actorMax: actors.max
     };
@@ -1166,6 +1173,9 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
     wallThickness: number;
     nearestActorMeters: number;
     rejectedCandidates: Array<[number, number]>;
+    candidateTotal: number;
+    acceptedCount: number;
+    derivationWitness: string;
     interiorMin: [number, number, number];
     interiorMax: [number, number, number];
   } | null;
@@ -1222,7 +1232,7 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
           (p) => `${p[0].toFixed(1)}/${p[1].toFixed(1)}`,
         );
       }
-      return `roomCam(derived)=${d.eye.map((v) => v.toFixed(2)).join(",")} look=${d.look.map((v) => v.toFixed(2)).join(",")} nearestActor=${d.nearestActorMeters.toFixed(2)}m rejected=${d.rejectedCandidates.map((p) => p[0].toFixed(1) + "/" + p[1].toFixed(1)).join(" ")} interiorMaxZ=${d.interiorMax[2].toFixed(2)} wallThickness=${d.wallThickness.toFixed(3)}`;
+      return `roomCam(derived)=${d.eye.map((v) => v.toFixed(2)).join(",")} look=${d.look.map((v) => v.toFixed(2)).join(",")} nearestActor=${d.nearestActorMeters.toFixed(2)}m rejected=${d.rejectedCandidates.map((p) => p[0].toFixed(1) + "/" + p[1].toFixed(1)).join(" ")} interiorMaxZ=${d.interiorMax[2].toFixed(2)} wallThickness=${d.wallThickness.toFixed(3)} census=${d.candidateTotal}/${d.acceptedCount}/${d.rejectedCandidates.length} witness=${d.derivationWitness}`;
     }, derived);
     const refineNote = await refineCameraForOcclusionAndContainment(page);
     return `${note} ${refineNote}`;

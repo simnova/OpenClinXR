@@ -24,7 +24,7 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "./lib/slotted-playwright.js";
+import { chromium, type Browser, type Page } from "./lib/slotted-playwright.js";
 import {
   FAMILY_CHAIR,
   resolveFixtureSlotPosition,
@@ -110,6 +110,75 @@ type ArtifactPayload = SeatedSeatPlacementReport;
 /** In-process cache so the four contract clauses share one Vite boot. */
 const cachedByScenario = new Map<string, SeatedSeatPlacementReport>();
 const inFlightByScenario = new Map<string, Promise<SeatedSeatPlacementReport>>();
+const inFlightOwnershipByScenario = new Map<string, SharedCaptureOwnership>();
+
+/**
+ * Refcounted abort fan-out for the shared capture cache. The shared run
+ * aborts only when every attached caller has aborted or detached, so one
+ * caller abandoning its wait never cancels another legitimate caller's
+ * capture. Unit-tested with fakes in seated-actor-seat-placement.unit.test.ts.
+ */
+export class SharedCaptureOwnership {
+  private readonly controller = new AbortController();
+  private live = 0;
+  readonly signal: AbortSignal = this.controller.signal;
+  attach(caller?: AbortSignal): { release: () => void } {
+    if (caller?.aborted) {
+      throw caller.reason instanceof Error ? caller.reason : new Error("Compute slot acquisition aborted");
+    }
+    this.live += 1;
+    let done = false;
+    const onAbort = (): void => {
+      release();
+    };
+    const release = (): void => {
+      if (done) return;
+      done = true;
+      caller?.removeEventListener("abort", onAbort);
+      this.live -= 1;
+      if (this.live === 0) {
+        this.controller.abort(new Error("Compute slot acquisition aborted"));
+      }
+    };
+    caller?.addEventListener("abort", onAbort, { once: true });
+    return { release };
+  }
+}
+
+/**
+ * Throw the caller's abort reason (or a generic Error) when the signal is
+ * already aborted. Checked before each lifecycle stage so abandoned setup
+ * never starts new browser/page/server work.
+ */
+export function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    throw signal.reason instanceof Error ? signal.reason : new Error("Seated capture setup aborted");
+  }
+}
+
+function abortReason(signal: AbortSignal): Error {
+  return signal.reason instanceof Error ? signal.reason : new Error("Seated capture setup aborted");
+}
+
+/**
+ * Race async work against a caller's AbortSignal without cancelling the
+ * underlying work for other callers. Rejects promptly on abort so owned
+ * browser/page/server cleanup in `finally` runs instead of waiting out
+ * 180 s boot/page timeouts. The slotted chromium launch covers slot-queue
+ * wait + mid-launch close only; every later page wait relies on this race.
+ */
+export function raceWithSignal<T>(work: Promise<T>, signal?: AbortSignal): Promise<T> {
+  if (signal === undefined) return work;
+  if (signal.aborted) return Promise.reject(abortReason(signal));
+  let onAbort!: () => void;
+  const aborted = new Promise<never>((_, reject) => {
+    onAbort = () => reject(abortReason(signal));
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
+  return Promise.race([work, aborted]).finally(() => {
+    signal.removeEventListener("abort", onAbort);
+  });
+}
 
 function artifactPath(scenarioId: string): string {
   return path.join(SEATED_SEAT_PLACEMENT_DIR, `${scenarioId}.json`);
@@ -120,14 +189,34 @@ export async function inspectSeatedActorSeatPlacement(input: {
   baseUrl?: string;
   force?: boolean;
   label?: string;
+  signal?: AbortSignal;
 }): Promise<SeatedSeatPlacementReport["rows"]> {
   const scenarioId = input.scenarioId;
   if (!input.force && cachedByScenario.has(scenarioId)) {
     return cachedByScenario.get(scenarioId)!.rows;
   }
   const existing = inFlightByScenario.get(scenarioId);
-  if (!input.force && existing) return existing.then((r) => r.rows);
+  if (!input.force && existing) {
+    if (input.signal === undefined) return existing.then((r) => r.rows);
+    // Attach to the shared run with refcounted ownership: our own abort only
+    // detaches us; the shared run aborts only when nobody remains attached.
+    const ownership = inFlightOwnershipByScenario.get(scenarioId);
+    if (!ownership) return existing.then((r) => r.rows);
+    const { release } = ownership.attach(input.signal);
+    try {
+      // Our own abort rejects OUR wait promptly; the shared run continues
+      // for remaining callers (it aborts internally only when live hits 0).
+      const report = await (input.signal === undefined
+        ? existing
+        : raceWithSignal(existing, input.signal));
+      return report.rows;
+    } finally {
+      release();
+    }
+  }
 
+  const ownership = new SharedCaptureOwnership();
+  const callerAttach = input.signal === undefined ? undefined : ownership.attach(input.signal);
   const run = (async () => {
     if (!input.force) {
       const fromDisk = await tryReadStampedArtifact(artifactPath(scenarioId), (parsed) => {
@@ -143,6 +232,7 @@ export async function inspectSeatedActorSeatPlacement(input: {
       scenarioId,
       ...(input.baseUrl ? { baseUrl: input.baseUrl } : {}),
       ...(input.label ? { label: input.label } : {}),
+      signal: ownership.signal,
     });
     await writeSeatedSeatPlacementDump(report);
     cachedByScenario.set(scenarioId, report);
@@ -150,10 +240,27 @@ export async function inspectSeatedActorSeatPlacement(input: {
   })();
 
   inFlightByScenario.set(scenarioId, run);
+  inFlightOwnershipByScenario.set(scenarioId, ownership);
   try {
-    return (await run).rows;
+    // Race our own wait against our own signal (same as joiners): our abort
+    // rejects OUR wait promptly with OUR reason even while the shared run
+    // continues for remaining callers. Single-caller abandon therefore settles
+    // at once instead of waiting out the run; release() is idempotent.
+    const report = await (input.signal === undefined ? run : raceWithSignal(run, input.signal));
+    return report.rows;
   } finally {
-    inFlightByScenario.delete(scenarioId);
+    callerAttach?.release();
+    // Identity-safe: a forced re-run for the same scenario overwrites these
+    // entries with its own run/ownership. An older run settling late must not
+    // delete the newer run's entries (that would orphan the new run: later
+    // joiners would start duplicate captures and ownership bookkeeping would
+    // split across two live runs for one scenario).
+    if (inFlightByScenario.get(scenarioId) === run) {
+      inFlightByScenario.delete(scenarioId);
+    }
+    if (inFlightOwnershipByScenario.get(scenarioId) === ownership) {
+      inFlightOwnershipByScenario.delete(scenarioId);
+    }
   }
 }
 
@@ -169,135 +276,162 @@ async function measureLiveSeatedSeatPlacement(input: {
   scenarioId: string;
   baseUrl?: string;
   label?: string;
+  signal?: AbortSignal;
 }): Promise<SeatedSeatPlacementReport> {
   let server: PortlessDevServer | undefined;
   let ownedServer = false;
+  let browser: Browser | undefined;
+  let page: Page | undefined;
+  const signal = input.signal;
   try {
+    throwIfAborted(signal);
     const baseUrl =
       input.baseUrl
       ?? (await (async () => {
         ownedServer = true;
-        server = await spawnPortlessDevServer({
+        // NOTE: spawnPortlessDevServer
+        // (tools/openclinxr/evidence/lib/portless-server.ts) accepts NO
+        // AbortSignal — out-of-scope root, not changed here. Race the 180 s
+        // boot against the caller's signal so a 60 s beforeAll abandon stops
+        // WAITING promptly. Residual: the real boot is NOT cancelled — it may
+        // outlive the hook until its own 180 s ready deadline; a late-resolving
+        // boot is stopped after the fact (eventual cleanup, not immediate
+        // termination). beforeAll 60 s vs readyTimeout 180 s is bounded for
+        // the waiting caller, not for the orphaned boot itself.
+        const spawn = spawnPortlessDevServer({
           filter: "@openclinxr/ui-xr",
           readyTimeoutMs: 180_000,
         });
+        void spawn.then(
+          (late) => {
+            if (signal?.aborted && server !== late) {
+              stopPortlessDevServer(late.proc).catch(() => undefined);
+            }
+          },
+          () => undefined,
+        );
+        server = await (signal === undefined ? spawn : raceWithSignal(spawn, signal));
         return server.url;
       })());
 
-    const browser = await chromium.launch({ headless: true });
+    throwIfAborted(signal);
+    // Slotted launch: signal covers slot-queue wait + mid-launch close only.
+    browser = await chromium.launch({ headless: true, ...(signal ? { signal } : {}) });
+    throwIfAborted(signal);
+    page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     try {
-      const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-      try {
-        process.stdout.write(`seated-seat-placement: goto ${input.scenarioId}\n`);
-        const url = buildRoomCaptureUrl(baseUrl, input.scenarioId, ROOM_CAPTURE_MODE);
-        await page.goto(url, { waitUntil: "load", timeout: 180_000 });
-        await waitForStationShell(page, 180_000);
-        await waitForHumanoidsAndFrames(page, 8, 180_000);
-        // Same sampling-instant guard as #105/#446 — never sample a mid-load scaffold.
-        await waitForSceneAssetsSettled(page, 60_000);
-        await page.waitForTimeout(900);
+      process.stdout.write(`seated-seat-placement: goto ${input.scenarioId}\n`);
+      const url = buildRoomCaptureUrl(baseUrl, input.scenarioId, ROOM_CAPTURE_MODE);
+      // Every post-launch wait is raced: abort closes owned page/browser/
+      // server promptly via the finallies instead of timing out at 180 s.
+      await raceWithSignal(page.goto(url, { waitUntil: "load", timeout: 180_000 }), signal);
+      await raceWithSignal(waitForStationShell(page, 180_000), signal);
+      await raceWithSignal(waitForHumanoidsAndFrames(page, 8, 180_000), signal);
+      // Same sampling-instant guard as #105/#446 — never sample a mid-load scaffold.
+      await raceWithSignal(waitForSceneAssetsSettled(page, 60_000), signal);
+      await raceWithSignal(page.waitForTimeout(900), signal);
 
-        const live = await readLivePostureGeometryFromPage(page);
-        const seatFacts = await readSeatedSeatFactsFromPage(page);
-        const sid = live.scenarioId || input.scenarioId;
+      const live = await raceWithSignal(readLivePostureGeometryFromPage(page), signal);
+      const seatFacts = await raceWithSignal(readSeatedSeatFactsFromPage(page), signal);
+      const sid = live.scenarioId || input.scenarioId;
 
-        const rows: SeatedSeatPlacementRow[] = [];
-        for (const actor of seatFacts.actors) {
-          const postureRow = live.actors.find((a) => a.actorId === actor.actorId);
-          rows.push({
-            scenarioId: sid,
-            actorId: actor.actorId,
-            declaredPosture: String(postureRow?.declaredPosture ?? actor.postureTag ?? "unknown"),
-            pelvisWorldY: actor.pelvisWorldY,
-            pelvisBoneName: actor.pelvisBoneName,
-            actorWorldX: actor.slotWorldX,
-            actorWorldZ: actor.slotWorldZ,
-            actorSlotLocalY: actor.slotLocalY,
-            slotKind: actor.slotKind,
-            encounterStaging: actor.encounterStaging,
-            dynamicScenePolicy: actor.dynamicScenePolicy,
-            floorStandingFrame: actor.floorStandingFrame,
-            chairWorldX: seatFacts.chair ? seatFacts.chair.worldX : null,
-            chairWorldZ: seatFacts.chair ? seatFacts.chair.worldZ : null,
-            chairSlotId: seatFacts.chair ? seatFacts.chair.slotId : null,
-            chairSeatTopY: seatFacts.chair ? seatFacts.chair.seatTopWorldY : null,
-            chairSeatHeightMeters: seatFacts.chair ? seatFacts.chair.seatHeightMeters : null,
-            lowestSupportBoneWorldY: actor.lowestSupportBoneWorldY,
-            footClearanceAboveFloor: actor.lowestSupportBoneWorldY === null
-              ? null
-              : actor.lowestSupportBoneWorldY - 0,
-            lowestVertexY: postureRow?.lowestVertexY ?? Number.NaN,
-            framesAdvanced: postureRow?.framesAdvanced ?? seatFacts.framesAdvanced,
-          });
-        }
-
-        // Node-side static comparison of the TWO resolveFixtureSlotPosition call sites.
-        const resolved = resolveEnvironmentShellDescriptor(seatFacts.environmentId);
-        const dims = {
-          widthMeters: resolved.descriptor.roomWidthMeters,
-          depthMeters: resolved.descriptor.roomDepthMeters,
-          heightMeters: resolved.descriptor.roomHeightMeters,
-        };
-        const familyChairSlot = resolved.descriptor.fixtureSlots.find(
-          (slot) => slot.slotId === FAMILY_CHAIR.slotId,
-        );
-        // main.ts:998 path — raw descriptor slot through resolveFixtureSlotPosition.
-        const mainCallSite = familyChairSlot
-          ? resolveFixtureSlotPosition(familyChairSlot, dims, dims)
-          : null;
-        // station-environment.ts:203 path — resolveFixtureSlotsForRoom at shipped dimensions
-        // is the identity mapping (room == authoredFor), i.e. the builder's slot.position.
-        const builderCallSite = familyChairSlot
-          ? resolveFixtureSlotPosition(familyChairSlot, dims, dims)
-          : null;
-        const epsilon = 1e-6;
-        const mainMatchesLive =
-          mainCallSite !== null && seatFacts.chair
-            ? Math.abs(mainCallSite.x - seatFacts.chair.worldX) < 1e-3
-              && Math.abs(mainCallSite.z - seatFacts.chair.worldZ) < 1e-3
-            : null;
-        const mainMatchesBuilder =
-          mainCallSite !== null && builderCallSite !== null
-            ? Math.abs(mainCallSite.x - builderCallSite.x) < epsilon
-              && Math.abs(mainCallSite.z - builderCallSite.z) < epsilon
-            : null;
-
-        return withTreeStamp({
-          schemaVersion: "openclinxr.seated-actor-seat-placement.v1" as const,
-          kind: "seated_actor_seat_placement" as const,
-          label: input.label ?? "measurement",
-          generatedAt: new Date().toISOString(),
+      const rows: SeatedSeatPlacementRow[] = [];
+      for (const actor of seatFacts.actors) {
+        const postureRow = live.actors.find((a) => a.actorId === actor.actorId);
+        rows.push({
           scenarioId: sid,
-          environmentId: seatFacts.environmentId,
-          claimScope: [
-            "seated_actor_pelvis_and_slot_xz_vs_authored_chair_seat_live",
-            "chair_seat_top_measured_from_live_seat_mesh_aabb",
-          ],
-          notEvidenceFor: [
-            "pose_naturalness",
-            "seat_height_appropriateness",
-            "garment_contrast",
-            "other_stations",
-            "clinical_plausibility",
-          ],
-          staticVsLive: {
-            mainCallSiteX: mainCallSite ? mainCallSite.x : null,
-            mainCallSiteZ: mainCallSite ? mainCallSite.z : null,
-            builderCallSiteX: builderCallSite ? builderCallSite.x : null,
-            builderCallSiteZ: builderCallSite ? builderCallSite.z : null,
-            liveChairX: seatFacts.chair ? seatFacts.chair.worldX : null,
-            liveChairZ: seatFacts.chair ? seatFacts.chair.worldZ : null,
-            mainMatchesBuilder,
-            mainMatchesLive,
-          },
-          rows,
-        }) satisfies ArtifactPayload;
-      } finally {
-        await page.close().catch(() => undefined);
+          actorId: actor.actorId,
+          declaredPosture: String(postureRow?.declaredPosture ?? actor.postureTag ?? "unknown"),
+          pelvisWorldY: actor.pelvisWorldY,
+          pelvisBoneName: actor.pelvisBoneName,
+          actorWorldX: actor.slotWorldX,
+          actorWorldZ: actor.slotWorldZ,
+          actorSlotLocalY: actor.slotLocalY,
+          slotKind: actor.slotKind,
+          encounterStaging: actor.encounterStaging,
+          dynamicScenePolicy: actor.dynamicScenePolicy,
+          floorStandingFrame: actor.floorStandingFrame,
+          chairWorldX: seatFacts.chair ? seatFacts.chair.worldX : null,
+          chairWorldZ: seatFacts.chair ? seatFacts.chair.worldZ : null,
+          chairSlotId: seatFacts.chair ? seatFacts.chair.slotId : null,
+          chairSeatTopY: seatFacts.chair ? seatFacts.chair.seatTopWorldY : null,
+          chairSeatHeightMeters: seatFacts.chair ? seatFacts.chair.seatHeightMeters : null,
+          lowestSupportBoneWorldY: actor.lowestSupportBoneWorldY,
+          footClearanceAboveFloor: actor.lowestSupportBoneWorldY === null
+            ? null
+            : actor.lowestSupportBoneWorldY - 0,
+          lowestVertexY: postureRow?.lowestVertexY ?? Number.NaN,
+          framesAdvanced: postureRow?.framesAdvanced ?? seatFacts.framesAdvanced,
+        });
       }
-    } finally {
-      await browser.close().catch(() => undefined);
-    }
+
+      // Node-side static comparison of the TWO resolveFixtureSlotPosition call sites.
+      const resolved = resolveEnvironmentShellDescriptor(seatFacts.environmentId);
+      const dims = {
+        widthMeters: resolved.descriptor.roomWidthMeters,
+        depthMeters: resolved.descriptor.roomDepthMeters,
+        heightMeters: resolved.descriptor.roomHeightMeters,
+      };
+      const familyChairSlot = resolved.descriptor.fixtureSlots.find(
+        (slot) => slot.slotId === FAMILY_CHAIR.slotId,
+      );
+      // main.ts:998 path — raw descriptor slot through resolveFixtureSlotPosition.
+      const mainCallSite = familyChairSlot
+        ? resolveFixtureSlotPosition(familyChairSlot, dims, dims)
+        : null;
+      // station-environment.ts:203 path — resolveFixtureSlotsForRoom at shipped dimensions
+      // is the identity mapping (room == authoredFor), i.e. the builder's slot.position.
+      const builderCallSite = familyChairSlot
+        ? resolveFixtureSlotPosition(familyChairSlot, dims, dims)
+        : null;
+      const epsilon = 1e-6;
+      const mainMatchesLive =
+        mainCallSite !== null && seatFacts.chair
+          ? Math.abs(mainCallSite.x - seatFacts.chair.worldX) < 1e-3
+            && Math.abs(mainCallSite.z - seatFacts.chair.worldZ) < 1e-3
+          : null;
+      const mainMatchesBuilder =
+        mainCallSite !== null && builderCallSite !== null
+          ? Math.abs(mainCallSite.x - builderCallSite.x) < epsilon
+            && Math.abs(mainCallSite.z - builderCallSite.z) < epsilon
+          : null;
+
+      return withTreeStamp({
+        schemaVersion: "openclinxr.seated-actor-seat-placement.v1" as const,
+        kind: "seated_actor_seat_placement" as const,
+        label: input.label ?? "measurement",
+        generatedAt: new Date().toISOString(),
+        scenarioId: sid,
+        environmentId: seatFacts.environmentId,
+        claimScope: [
+          "seated_actor_pelvis_and_slot_xz_vs_authored_chair_seat_live",
+          "chair_seat_top_measured_from_live_seat_mesh_aabb",
+        ],
+        notEvidenceFor: [
+          "pose_naturalness",
+          "seat_height_appropriateness",
+          "garment_contrast",
+          "other_stations",
+          "clinical_plausibility",
+        ],
+        staticVsLive: {
+          mainCallSiteX: mainCallSite ? mainCallSite.x : null,
+          mainCallSiteZ: mainCallSite ? mainCallSite.z : null,
+          builderCallSiteX: builderCallSite ? builderCallSite.x : null,
+          builderCallSiteZ: builderCallSite ? builderCallSite.z : null,
+          liveChairX: seatFacts.chair ? seatFacts.chair.worldX : null,
+          liveChairZ: seatFacts.chair ? seatFacts.chair.worldZ : null,
+          mainMatchesBuilder,
+          mainMatchesLive,
+        },
+        rows,
+      }) satisfies ArtifactPayload;
+      } finally {
+        await page?.close().catch(() => undefined);
+        page = undefined;
+        await browser?.close().catch(() => undefined);
+        browser = undefined;
+      }
   } finally {
     if (ownedServer && server) {
       try {

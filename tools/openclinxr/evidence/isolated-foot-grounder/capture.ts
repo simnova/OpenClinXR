@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "../lib/slotted-playwright.js";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "../../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
+import { CASE_FROZEN_SCENE_PLANS } from "../../../../packages/openclinxr/asset-registry/src/case-frozen-scene-plans.js";
 import { sceneClosureCaseDocument } from "../../../../tools/openclinxr/factory/scene-closure-case-source.js";
 import { newEvidencePage } from "../lib/evidence-page.js";
 import {
@@ -42,7 +43,18 @@ const CASE_ID = "scene_closure_supine_bedside_v1"; // This scenario has the phys
 const CASE_STATION_ID = "scene_closure_supine_bedside_station_v1";
 const CASE_ENVIRONMENT_ID = "inpatient_ward_room_v1";
 const REQUIRED_DRIVE_SOURCE = "case_owned_bedside_approach";
-const REQUIRED_CLIP_NAME = "openclinxr_retarget_walk_formal_cc0";
+// Canonical frozen-plan pin (case-frozen-scene-plans.ts:101-107
+// revisions.clipRevision) + independent provenance lineage
+// (mpfb-clinical-physician-adult.provenance.json motionClips[0].clipName).
+// Retired: openclinxr_retarget_walk_formal_cc0 (removed 2026-09-23,
+// preserved as retired metadata only; bytes UNKNOWN).
+const FROZEN_CLIP_REVISION = (CASE_FROZEN_SCENE_PLANS as unknown as Record<string, { revisions?: { clipRevision?: string } }>)[
+  CASE_ID
+]?.revisions?.clipRevision;
+const REQUIRED_CLIP_NAME: string =
+  typeof FROZEN_CLIP_REVISION === "string" && FROZEN_CLIP_REVISION.length > 0
+    ? FROZEN_CLIP_REVISION
+    : "openclinxr_retarget_walk_source";
 const EXPECTED_CLIP_NAME = REQUIRED_CLIP_NAME;
 const FLOOR_FRAME_NAME = "openclinxr.station-environment.floor";
 const FRAMES_TO_SAMPLE = 120; // ~2 seconds at 60 Hz
@@ -538,8 +550,14 @@ export async function captureIsolatedFootGrounder(
   // Get head SHA
   const headSha = await getHeadSha();
 
-  // Case-frozen clip revision (from scene-plan-freeze-mod.ts and provenance)
-  const caseFrozenClipRevision = "openclinxr_retarget_walk_formal_cc0";
+  // Case-frozen clip revision from the canonical frozen plan (NOT a stale
+  // literal): case-frozen-scene-plans.ts revisions.clipRevision, cross-checked
+  // against provenance motionClips[0].clipName (walk_source; formal_cc0 retired
+  // 2026-09-23).
+  const caseFrozenClipRevision: string =
+    (CASE_FROZEN_SCENE_PLANS as unknown as Record<string, { revisions?: { clipRevision?: string } }>)[
+      CASE_ID
+    ]?.revisions?.clipRevision ?? REQUIRED_CLIP_NAME;
 
   let server: PortlessDevServer | null = null;
   const samples: HeelToeSample[] = [];
@@ -570,13 +588,13 @@ export async function captureIsolatedFootGrounder(
     try {
       // Serve the learner runtime bundle from memory (same pattern as SC-05)
       // Include the frozen scene plan so the runtime can admit it
-      const { CASE_FROZEN_SCENE_PLANS } = await import(
+      const { CASE_FROZEN_SCENE_PLANS: lateCaseFrozenScenePlans } = await import(
         "../../../../packages/openclinxr/asset-registry/src/case-frozen-scene-plans.js"
       );
       const { createEdChestPainRuntimeSceneManifest } = await import(
         "../../../../packages/openclinxr/asset-registry/src/runtime-bundles.js"
       );
-      const frozenPlan = CASE_FROZEN_SCENE_PLANS[CASE_ID];
+      const frozenPlan = lateCaseFrozenScenePlans[CASE_ID];
 
       const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle({
         scenarioId: CASE_ID,

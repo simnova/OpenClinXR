@@ -1,0 +1,35 @@
+{
+  "bootResidual": "EXPLICIT RESIDUAL: spawnPortlessDevServer accepts NO AbortSignal (out-of-scope lib/portless-server.ts, unchanged). The 60s beforeAll abort stops the CALLER from waiting promptly (race), but the real boot is NOT cancelled and MAY OUTLIVE the 60s hook until its own 180s ready deadline. A late-resolving boot is stopped after the fact (lateReady-then-stop, proven by mocked G3) \u2014 that is EVENTUAL cleanup, NOT immediate termination. Do not claim fully prompt boot termination.",
+  "budget": {
+    "assertionClockMs": 5000,
+    "beforeAllSetupBudgetMs": 60000,
+    "justification": "setup budget reuses existing 60s scene-settle class of waits already in helper (waitForSceneAssetsSettled 60s); the beforeAll abort timer fires at the same 60s hook budget; no per-test timeout inflation, all four its keep default 5s clocks"
+  },
+  "fakeUnit": {
+    "config": "OUTPUT/tmp/vitest.own.config.mjs (own cacheDir, no Main writes; include covers relocated seated-capture-clock unit + acceptance file, sandbox runs filter to relocated unit file only)",
+    "exit": 0,
+    "gap1": "G1-G4 invoke the REAL inspectSeatedActorSeatPlacement with vi.mocked portless/slotted-browser leaves: G1 abort-during-goto closes real page/browser/server, caches nothing, retry works + success cache served without new spawn; G2 one aborter does not kill the legit waiter; G3 deferred boot + abort then late ready stops the late owned server without killing retry; G4 force-overwrite identity-safe finally (older run never deletes newer run entries)",
+    "log": "OUTPUT/tmp/fake-unit.log",
+    "note": "no real Chrome, no dev server; mocked leaves only. 8 original assertions preserved untouched.",
+    "tests": "12 passed (4 original ownership + 4 F-falsifiers + 4 G-producer)"
+  },
+  "gateBlocked": true,
+  "gateFile": "/Volumes/files/src/openclinxr/.openclinxr/slices/seated-capture-clock-20261022/verification-cleared.json",
+  "gateNote": "Main heavy gate cleared during this lane, but real browser NEVER runs inside the agent OS sandbox (orphan sweep blocked); real proof is parent normal-CLI job only via OUTPUT/verify-seated.py",
+  "invalidation": "aborted captures never cached (cachedByScenario set on success path only; G1 proves retry re-measures then caches); inFlight + ownership maps deleted in finally ONLY when still holding this run (identity-safe, G4); forced re-run takes fresh ownership, settled ownership never reused; source/asset stamp move refuses stale disk artifact via tryReadStampedArtifact, forcing re-measure (F4). Valid SUCCESS rows may be cached and served (G1 retry proves); never conflate that with reusing a settled ownership promise or an aborted capture.",
+  "method": "single beforeAll inspectSeatedActorSeatPlacement call outside 5s assertion clocks; beforeAll owns a REAL AbortController passed to inspect with same-budget 60s abort timer + afterAll abort-if-unsettled; creator and joiner waits both race their own signal (creator promptness fixed this lane); shared in-flight run carries refcounted SharedCaptureOwnership (one caller abort detaches only that caller, G2; shared run aborts internally only when live hits 0); slotted chromium launch receives the SHARED ownership signal (slot-queue wait + mid-launch close, G1 asserts shared-not-caller signal observed-aborted); 180s portless boot raced with late-server stop (see bootResidual); EVERY post-launch page wait raced via exported raceWithSignal so owned page/browser/server close promptly in the real finallies",
+  "outOfScopeHelpersUnchanged": [
+    "tools/openclinxr/evidence/lib/portless-server.ts: spawnPortlessDevServer accepts NO AbortSignal (exact critical path) - NOT edited; producer races the boot and stops a late-resolving server",
+    "tools/openclinxr/evidence/lib/slotted-playwright.ts: launch signal covers slot-queue wait + mid-launch close only - NOT edited; later page work covered by producer-side raceWithSignal"
+  ],
+  "results": {
+    "after": null,
+    "before": "3 timeouts / 1 pass, 20.941s; shared 19.3s live capture inside 5s timers [meas:ci-browser-scheduling20261022]",
+    "realAcceptanceRun": "NOT executed under agent sandbox (gate cleared at Main during lane; OS sandbox blocks orphan sweep in real browser). Parent to run OUTPUT/verify-seated.py outside sandbox with explicit approval."
+  },
+  "status": "candidate-continued-gap1-closed-fakeunits-green",
+  "unknowns": [
+    "real browser proof pending parent normal-CLI run (verification-cleared.json now present at Main; runner ready)",
+    "cold-boot 60s-beforeAll vs 180s-readyTimeout race unmeasured live; bounded for the waiter by abort+late-stop (see bootResidual)"
+  ]
+}

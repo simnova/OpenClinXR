@@ -34,7 +34,8 @@ export const MEASURE_NAME = "inpatient-supine-staging.json";
 
 /**
  * Stations this slice declares should stage a recumbent patient.
- * Keep in lockstep with INPATIENT_RECUMBENT_SCENARIO_MARKERS in actor-posture.ts.
+ * Keep in lockstep with the inpatient recumbent markers in the
+ * asset-registry actor-posture module.
  */
 export const DECLARED_INPATIENT_SCENARIO_IDS = [
   "ward_delirium_med_rec_v1",
@@ -48,11 +49,28 @@ function isDeclaredInpatient(scenarioId: string): boolean {
   return DECLARED_SET.has(scenarioId);
 }
 
-/** Mirrors actor-posture POSTURE_SOURCE_DESCRIPTION for evidence reports. */
-const POSTURE_SOURCE =
-  "packages/openclinxr/asset-registry/src/actor-posture.ts defaultPostureForEnvironmentSlot "
-  + "(scenario-id markers: telehealth seated, ed_chest_pain + INPATIENT_RECUMBENT_SCENARIO_MARKERS supine; "
-  + "else standing). resolveActorPosture prefers env/scenario over declared standing.";
+/**
+ * Canonical posture source for evidence reports. Describes the PUBLIC seams
+ * reports rely on: createEdChestPainRuntimeSceneManifest +
+ * resolveScenarioActorCast from @openclinxr/asset-registry/runtime-bundles
+ * (reviewed public factory sceneManifest.actorPlacements[primaryPatientActorId]
+ * .posture) plus resolveActorPosture from
+ * @openclinxr/asset-registry/actor-posture (env/scenario markers prefer
+ * env/scenario over declared standing) plus case-authored
+ * placement.supportSurface intent read DIRECTLY from public
+ * @openclinxr/scenario-fixtures/scenario-bank patient placement
+ * (scenarioBank patient actor's own placement.supportSurface; ph54
+ * narrowing removed the redundant case-actor-placements entrypoint,
+ * so the retired authoredCasePlacements binding is no longer named).
+ */
+export const POSTURE_SOURCE: string =
+  "public @openclinxr/asset-registry/runtime-bundles createEdChestPainRuntimeSceneManifest "
+  + "sceneManifest.actorPlacements[primaryPatientActorId].posture + "
+  + "resolveScenarioActorCast patient identity + "
+  + "public @openclinxr/asset-registry/actor-posture resolveActorPosture "
+  + "(env/scenario markers prefer env/scenario over declared standing) + "
+  + "public @openclinxr/scenario-fixtures/scenario-bank scenarioBank "
+  + "patient placement.supportSurface case-authored intent";
 
 export type StationStagingRow = {
   scenarioId: string;
