@@ -194,6 +194,13 @@ export const rolePathScopes: Record<string, RolePathScope> = {
       // lock — PL edits there require HRBP review; this root grants no lock bypass.
       "packages/openclinxr/agent-loop/**",
       "packages/openclinxr/factory-stations/**",
+      // Prospective 2026-10-24 (ph207 HRBP ACCEPT_BOUNDED): verified unowned across
+      // ALL 18 roles — the assembled-exam API harness has no owner, and this role
+      // already owns its consumer lane (apps/api, rest, exam-assembly, runtime).
+      // Exact literal only — no tests/** wildcard; the optional second harness
+      // test stays unadmitted. HELD: no harness-source edits until Main adopts
+      // this policy + PL actual author review.
+      "tests/openclinxr/helpers/assembled-exam-harness.ts",
     ],
     readRoots: [".openclinxr/slices/**/handoffs/**", "packages/openclinxr/**", "apps/api/**", "apps/ui-admin/**"],
     forbidden: [
