@@ -201,6 +201,13 @@ export const rolePathScopes: Record<string, RolePathScope> = {
       // test stays unadmitted. HELD: no harness-source edits until Main adopts
       // this policy + PL actual author review.
       "tests/openclinxr/helpers/assembled-exam-harness.ts",
+      // Prospective 2026-10-24 (ph226 HRBP ACCEPT_BOUNDED): verified unowned across
+      // ALL 18 roles — capability-gateway is the provider-gating/product-integration
+      // seam for this role's product-API lane (apps/api, rest, exam-assembly, runtime).
+      // ONE whole-package root only; provider execution unchanged (source ownership,
+      // not provider-execution authorization). HELD: no gateway-source edits until
+      // this policy is Main-adopted + PL actual-author review.
+      "packages/openclinxr/capability-gateway/**",
     ],
     readRoots: [".openclinxr/slices/**/handoffs/**", "packages/openclinxr/**", "apps/api/**", "apps/ui-admin/**"],
     forbidden: [

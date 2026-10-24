@@ -1100,4 +1100,66 @@ describe("role-harness-policy", () => {
       ).toBe(true);
     });
   });
+
+  describe("capability-owner admission (ph228 HRBP ACCEPT_BOUNDED, prospective whole-package root)", () => {
+    const TARGETS = [
+      "packages/openclinxr/capability-gateway/src/index.ts",
+      "packages/openclinxr/capability-gateway/src/deterministic-asset-adapter.ts",
+    ];
+
+    it("implementation-planning-lead admits the capability-gateway package root", () => {
+      const scope = getRolePathScope("implementation-planning-lead");
+      expect(scope.writeRoots).toContain("packages/openclinxr/capability-gateway/**");
+      expect(assertTouchedWithinWriteRoots(TARGETS, scope).ok).toBe(true);
+    });
+
+    it("every other role still refuses gateway files; no packages/** grant; neighbors refused", () => {
+      const others = repoRoleHarnessPolicies
+        .map((p) => p.roleId)
+        .filter((r) => r !== "implementation-planning-lead");
+      expect(repoRoleHarnessPolicies.length).toBe(18);
+      expect(others.length).toBe(17);
+      for (const role of others) {
+        const res = assertTouchedWithinWriteRoots(TARGETS, getRolePathScope(role));
+        expect(res.ok).toBe(false);
+        expect(res.violations.sort()).toEqual([...TARGETS].sort());
+      }
+      const pl = getRolePathScope("implementation-planning-lead");
+      expect(pl.writeRoots).not.toContain("packages/**");
+      // Adjacent unowned packages stay refused by the positive write-root check;
+      // the asset-pipeline tool is covered by the forbidden layer (PL owns
+      // tools/openclinxr/** but forbids tools/openclinxr/asset-pipeline/**).
+      const refused = assertTouchedWithinWriteRoots(
+        [
+          "packages/openclinxr/data-mongodb/src/index.ts",
+          "packages/openclinxr/service-local-compute/src/local.ts",
+        ],
+        pl,
+      );
+      expect(refused.ok).toBe(false);
+      expect(refused.violations.sort()).toEqual(
+        [
+          "packages/openclinxr/data-mongodb/src/index.ts",
+          "packages/openclinxr/service-local-compute/src/local.ts",
+        ].sort(),
+      );
+      expect(
+        pathMatchesAnyGlob("tools/openclinxr/asset-pipeline/generate.ts", pl.forbidden),
+      ).toBe(true);
+      // Existing exact harness literal still admitted alongside the new root.
+      expect(pl.writeRoots).toContain("tests/openclinxr/helpers/assembled-exam-harness.ts");
+      expect(
+        assertTouchedWithinWriteRoots(
+          ["tests/openclinxr/helpers/assembled-exam-harness.ts"],
+          pl,
+        ).ok,
+      ).toBe(true);
+      // HRBP sole-author lock unchanged: PL touching role-harness-policy.ts violates.
+      expect(
+        findSoleAuthorLockViolations("implementation-planning-lead", [
+          "packages/openclinxr/agent-loop/src/role-harness-policy.ts",
+        ]).some((v) => v.lockId === "path-scope-policy" && v.ownerRoleId === "hrbp"),
+      ).toBe(true);
+    });
+  });
 });
