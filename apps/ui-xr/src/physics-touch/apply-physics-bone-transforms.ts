@@ -157,7 +157,7 @@ export function applyPhysicsBoneTransforms(input: {
       scenarioId: artifact.scenarioId,
       bonesAffected: artifact.bones,
       currentTick: tick,
-      spineDz: frame.boneDeltas.spine?.position.z ?? 0,
+      spineDz: frame.boneDeltas["spine"]?.position.z ?? 0,
       guardingAngle: frame.boneDeltas["upper_arm.L"]?.rotation.x ?? 0,
       runtimePromotionAllowed: false,
       notEvidenceFor: [

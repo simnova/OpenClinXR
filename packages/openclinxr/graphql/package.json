@@ -23,9 +23,9 @@
     "generate": "tsx scripts/generate-static-artifacts.ts && pnpm run codegen",
     "generate:check": "tsx scripts/generate-static-artifacts.ts --check && pnpm run codegen:check",
     "lint": "biome lint --no-errors-on-unmatched .",
-    "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
+    "typecheck": "cellix-tsc --noEmit -p tsconfig.vitest.json",
     "test": "pnpm run generate:check && vitest run --root .",
-    "build": "tsgo --build",
+    "build": "cellix-tsc --build",
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {

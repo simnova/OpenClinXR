@@ -11,6 +11,7 @@ import {
   voiceIdForActor,
   type SpeechProvenance,
 } from "./speech-synth.js";
+import { isMissingLipSyncAudioError, resolveLipSyncWavPathAllowingDeterministicPcm } from "./wav-input.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -29,12 +30,25 @@ export function planLipSync(input: unknown): StationPlanResult {
 export type LipSyncRunOptions = {
   utterance: string;
   outDir: string;
-  wavPath: string;
   /**
-   * Build-time speech source (Kokoro-82M, Apache-2.0). When wavPath is empty
-   * and speech is present, runLipSync synthesises the utterance to the shared
-   * content cache and bakes visemes from it. Without either, it throws and
-   * names the speech-synth step. Provided wavPath always wins.
+   * Provided baker audio (e.g. Grok unary TTS bytes). Optional: when omitted
+   * the producer resolves fixtureWavPath, a single recorded *.wav already in
+   * outDir, or the explicit deterministic PCM stand-in. A non-blank wavPath
+   * always wins over every other source, including speech. An explicitly
+   * blank wavPath is rejected unless a speech source is present (it then
+   * synthesises, preserving the speech-synth flow).
+   */
+  wavPath?: string;
+  /**
+   * Explicit fixture audio. Supported without enabling fixture synthesis;
+   * loses to a non-blank wavPath.
+   */
+  fixtureWavPath?: string;
+  /**
+   * Build-time speech source (Kokoro-82M, Apache-2.0). When no provided audio
+   * resolves and speech is present, runLipSync synthesises the utterance to
+   * the shared content cache and bakes visemes from it. Without any source it
+   * throws and names the speech-synth step. Provided wavPath always wins.
    */
   speech?: LipSyncSpeechSource;
 };
@@ -54,6 +68,8 @@ export type LipSyncCue = { start: number; end: number; value: string };
 
 export type LipSyncRunResult = Record<string, unknown> & {
   cueArtifactPath: string;
+  /** Real manifest artifact path already written alongside the cues. */
+  manifestArtifactPath: string;
   cues: LipSyncCue[];
   tool: string;
   binary: string;
@@ -73,9 +89,56 @@ export async function runLipSync(input: unknown, options: LipSyncRunOptions): Pr
     throw new Error(planned.issues.map((issue) => issue.message).join("; "));
   }
   const { utterance, outDir } = options;
-  let { wavPath } = options;
+  let wavPath: string | undefined;
   let speech: SpeechProvenance | undefined;
-  if (!wavPath || wavPath.trim().length === 0) {
+  const explicitWav = options.wavPath;
+  if (explicitWav !== undefined) {
+    if (explicitWav.trim().length === 0) {
+      if (!options.speech) {
+        throw new Error(
+          "lip_sync wavPath is required (explicit blank wavPath); provide wavPath audio, fixtureWavPath, a single recorded *.wav in outDir, or a speech source for the build-time speech-synth (kokoro) step",
+        );
+      }
+      // Explicit blank wavPath plus a speech source: synthesise below.
+      wavPath = undefined;
+    } else {
+      // Provided wavPath always wins over fixture, recorded, and speech sources.
+      wavPath = explicitWav;
+    }
+  } else if (options.fixtureWavPath !== undefined) {
+    if (options.fixtureWavPath.trim().length === 0) {
+      throw new Error(
+        "lip_sync wavPath is required (explicit blank fixtureWavPath); provide wavPath audio, a fixtureWavPath, a single recorded *.wav in outDir, or a speech source for the build-time speech-synth (kokoro) step",
+      );
+    }
+    wavPath = options.fixtureWavPath;
+  } else {
+    // No explicit audio: the wav resolver stays the first producer (a
+    // fixture/recorded/deterministic wav still wins over speech), but a
+    // missing/ambiguous resolution falls through to the explicit speech
+    // source below instead of throwing. Without speech it rethrows, so
+    // missing/ambiguous audio is never silently replaced. An explicit
+    // fixture-flag request still throws: production runLipSync never shells
+    // fixture TTS itself (runLipSyncStation bakes it behind the flag).
+    let resolved: ReturnType<typeof resolveLipSyncWavPathAllowingDeterministicPcm> | undefined;
+    try {
+      resolved = resolveLipSyncWavPathAllowingDeterministicPcm({ utterance, outDir });
+    } catch (resolveErr) {
+      // Only typed missing-audio falls through to the explicit speech source
+      // below. Unexpected I/O failures propagate even when speech is present.
+      if (!isMissingLipSyncAudioError(resolveErr)) throw resolveErr;
+      if (!options.speech) throw resolveErr;
+    }
+    if (resolved !== undefined) {
+      if (resolved.kind === "fixture-flag") {
+        throw new Error(
+          "lip_sync needs wavPath; fixture bake lives in writeLipSyncFixtureWav (run with OPENCLINXR_LIP_SYNC_FIXTURE=1 via runLipSyncStation) or pass fixtureWavPath explicitly",
+        );
+      }
+      wavPath = resolved.wavPath;
+    }
+  }
+  if (wavPath === undefined || wavPath.trim().length === 0) {
     if (!options.speech) {
       throw new Error(
         "lip_sync needs wavPath, or a speech source for the build-time speech-synth (kokoro) step; fixture TTS lives in writeLipSyncFixtureWav",
@@ -107,9 +170,10 @@ export async function runLipSync(input: unknown, options: LipSyncRunOptions): Pr
     metadata?: { duration?: number };
     mouthCues?: Array<{ start: number; end: number; value: string }>;
   };
+  const manifestArtifactPath = path.join(outDir, "lip-sync-manifest.json");
   await writeFile(
-    path.join(outDir, "lip-sync-manifest.json"),
-    `${JSON.stringify({ stationId: "lip_sync", tool: "rhubarb", binary, utterance, wavPath, cueCount: (raw.mouthCues ?? []).length, modelRevision: SPEECH_SYNTH_MODEL_REVISION, speech }, null, 2)}\n`,
+    manifestArtifactPath,
+    `${JSON.stringify({ stationId: "lip_sync", tool: "rhubarb", binary, utterance, actorId: planned.plan["actorId"], wavPath, cueCount: (raw.mouthCues ?? []).length, modelRevision: SPEECH_SYNTH_MODEL_REVISION, speech }, null, 2)}\n`,
   );
   return {
     ...planned.plan,
@@ -117,6 +181,7 @@ export async function runLipSync(input: unknown, options: LipSyncRunOptions): Pr
     tool: "rhubarb",
     binary,
     cueArtifactPath,
+    manifestArtifactPath,
     audioDurationSeconds: raw.metadata?.duration ?? 0,
     cues: raw.mouthCues ?? [],
     speech,

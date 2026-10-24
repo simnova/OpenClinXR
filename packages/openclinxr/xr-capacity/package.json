@@ -1,0 +1,76 @@
+{
+  "name": "@openclinxr/xr-capacity",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./browser": {
+      "types": "./dist/browser/index.d.ts",
+      "default": "./dist/browser/index.js"
+    },
+    "./browser/bootstrap": {
+      "types": "./dist/browser/bootstrap.d.ts",
+      "default": "./dist/browser/bootstrap.js"
+    },
+    "./audio-frame-tags": {
+      "types": "./dist/entrypoints/audio-frame-tags.d.ts",
+      "default": "./dist/entrypoints/audio-frame-tags.js"
+    },
+    "./controller": {
+      "types": "./dist/entrypoints/controller.d.ts",
+      "default": "./dist/entrypoints/controller.js"
+    },
+    "./stage0": {
+      "types": "./dist/entrypoints/stage0.d.ts",
+      "default": "./dist/entrypoints/stage0.js"
+    },
+    "./stage1": {
+      "types": "./dist/entrypoints/stage1.d.ts",
+      "default": "./dist/entrypoints/stage1.js"
+    },
+    "./stage1-witnessed": {
+      "types": "./dist/entrypoints/stage1-witnessed.d.ts",
+      "default": "./dist/entrypoints/stage1-witnessed.js"
+    },
+    "./stage2": {
+      "types": "./dist/entrypoints/stage2.d.ts",
+      "default": "./dist/entrypoints/stage2.js"
+    },
+    "./stage1/grading": {
+      "types": "./dist/stage1/grading/index.d.ts",
+      "default": "./dist/stage1/grading/index.js"
+    },
+    "./stage1-witnessed/grading": {
+      "types": "./dist/stage1-witnessed/grading/index.d.ts",
+      "default": "./dist/stage1-witnessed/grading/index.js"
+    },
+    "./browser/probes": {
+      "types": "./dist/entrypoints/browser-probes.d.ts",
+      "default": "./dist/entrypoints/browser-probes.js"
+    }
+  },
+  "scripts": {
+    "lint": "biome lint --no-errors-on-unmatched .",
+    "typecheck": "cellix-tsc --noEmit -p tsconfig.vitest.json",
+    "test": "vitest run --root .",
+    "build": "cellix-tsc --build",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
+    "@types/three": "catalog:"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "three": "catalog:"
+  }
+}

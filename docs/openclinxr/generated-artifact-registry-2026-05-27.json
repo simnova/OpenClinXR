@@ -34,7 +34,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1951,
+    "keep-evidence": 1952,
     "ignore-local-cache": 2771,
     "keep-current": 253,
     "keep-template": 13,
@@ -26820,6 +26820,13 @@
       "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-08-residual.json",
       "authority": "keep-evidence",
       "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-ci-closure-20261020.json",
+      "authority": "keep-evidence",
+      "tracked": false,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },

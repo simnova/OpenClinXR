@@ -22,27 +22,29 @@
 
 import type { Object3D, SkinnedMesh } from "three";
 import { Euler, Quaternion } from "three";
-import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
-import { isMpfb2Rig } from "./seated-pose-mpfb2.js";
 import { boneIsOwned, boneOwnershipWeight, type OwnedChain } from "./chain-ownership.js";
 import {
+  applyMpfbUpperArmIdle,
   CLINICAL_IDLE_ARM_HANG,
+  type EulerPartial,
   LIBRARY_CLINICAL_IDLE_ARM_HANG,
   MIXAMO_CLINICAL_IDLE_ARM_HANG,
   MPFB_CLINICAL_IDLE_ARM_HANG,
   MPFB_IDLE_FORELARM_BEND_FRACTION,
   mpfbForearmIdleEuler,
-  type EulerPartial,
+  mpfbUpperArmIdleTarget,
 } from "./clinical-idle-posture-maps.js";
+import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
+import { isMpfb2Rig } from "./seated-pose-mpfb2.js";
 
 export {
   CLINICAL_IDLE_ARM_HANG,
+  type EulerPartial,
   LIBRARY_CLINICAL_IDLE_ARM_HANG,
   MIXAMO_CLINICAL_IDLE_ARM_HANG,
   MPFB_CLINICAL_IDLE_ARM_HANG,
   MPFB_IDLE_FORELARM_BEND_FRACTION,
   mpfbForearmIdleEuler,
-  type EulerPartial,
 } from "./clinical-idle-posture-maps.js";
 
 // Module-level scratch objects for crossfade (finding 2: avoid per-bone per-frame allocation)
@@ -83,12 +85,12 @@ function normalizeBoneToken(name: string): string {
 }
 
 function isLibraryHumanoidRail(humanoid: Object3D): boolean {
-  const rail = humanoid.userData?.openClinXrHumanoidRail;
+  const rail = humanoid.userData?.["openClinXrHumanoidRail"];
   if (rail === "library" || rail === "body_param_library") return true;
   // Walk parents in case the tag was set on the actor slot / outer root.
   let cur: Object3D | null = humanoid.parent;
   while (cur) {
-    const r = cur.userData?.openClinXrHumanoidRail;
+    const r = cur.userData?.["openClinXrHumanoidRail"];
     if (r === "library" || r === "body_param_library") return true;
     cur = cur.parent;
   }
@@ -133,7 +135,7 @@ function applyHeadAttentionBindRelative(
 ): void {
   const sanitised = sanitiseBoneName(object.name);
   let bind = bindStore.get(sanitised);
-  if (!bind && !object.userData.openClinXrClinicalIdlePosture) {
+  if (!bind && !object.userData["openClinXrClinicalIdlePosture"]) {
     // Capture bind from rest pose (skeleton's bind pose via boneInverses if available),
     // not live quaternion which may have been modified by mixer.
     // The first posture pass runs at load (generated-loaders.ts:231) before any mixer.update,
@@ -158,7 +160,7 @@ function applyHeadAttentionBindRelative(
   );
   object.quaternion.copy(_scratchBindQuat.multiply(_scratchQuat));
   object.rotation.setFromQuaternion(object.quaternion);
-  object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
+  object.userData["openClinXrClinicalIdlePosture"] = "relaxed_arms_scenario_conversation_pose";
   if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
 }
 
@@ -197,7 +199,7 @@ function applyMpfbForearmIdle(
 ): void {
   const sanitised = sanitiseBoneName(object.name);
   let bind = bindStore.get(sanitised);
-  if (!bind && !object.userData.openClinXrClinicalIdlePosture) {
+  if (!bind && !object.userData["openClinXrClinicalIdlePosture"]) {
     // Capture bind from rest pose at load time (generated-loaders.ts:231 runs before mixer.update)
     bind = {
       x: object.quaternion.x,
@@ -209,7 +211,7 @@ function applyMpfbForearmIdle(
   }
   if (!bind) return;
   applyBoneEuler(object, mpfbForearmIdleEuler(bind));
-  object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
+  object.userData["openClinXrClinicalIdlePosture"] = "relaxed_arms_scenario_conversation_pose";
   if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
 }
 
@@ -254,14 +256,22 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
   // issue-#0: pristine bind rotations captured ONCE at the load-time call (the bone is
   // untouched then — standing posture apply is a no-op, and the mixer has not run).
   const mpfbForearmBinds: Map<string, BindQuaternion> =
-    humanoid.userData.openClinXrMpfbForearmBinds as Map<string, BindQuaternion> | undefined
-    ?? (humanoid.userData.openClinXrMpfbForearmBinds = new Map<string, BindQuaternion>());
+    humanoid.userData["openClinXrMpfbForearmBinds"] as Map<string, BindQuaternion> | undefined
+    ?? (humanoid.userData["openClinXrMpfbForearmBinds"] = new Map<string, BindQuaternion>());
+
+  // Arms slice (2026-10-19): pristine upper-arm binds for the bind-relative
+  // hang (same first-untouched-sight guarantee as the forearms above).
+  let mpfbUpperArmBinds = humanoid.userData["openClinXrMpfbUpperArmBinds"] as Map<string, BindQuaternion> | undefined;
+  if (!mpfbUpperArmBinds) {
+    mpfbUpperArmBinds = new Map<string, BindQuaternion>();
+    humanoid.userData["openClinXrMpfbUpperArmBinds"] = mpfbUpperArmBinds;
+  }
 
   // 2026-09-23: pristine head/neck binds for bind-relative attention (see
   // applyHeadAttentionBindRelative). Same first-untouched-sight guarantee as forearms.
   const headNeckBinds: Map<string, BindQuaternion> =
-    humanoid.userData.openClinXrHeadNeckBinds as Map<string, BindQuaternion> | undefined
-    ?? (humanoid.userData.openClinXrHeadNeckBinds = new Map<string, BindQuaternion>());
+    humanoid.userData["openClinXrHeadNeckBinds"] as Map<string, BindQuaternion> | undefined
+    ?? (humanoid.userData["openClinXrHeadNeckBinds"] = new Map<string, BindQuaternion>());
 
   // Head-family rotations are the hangMap's own "head" entry object, reached either by
   // landmark resolution or by the head/neck alias fallback — identity-compared, never inferred.
@@ -286,7 +296,9 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
       // then slerp toward it by (1 - w). For bones with no idle target at all, leave to mixer.
       const idleRotation = resolvedHangMap.get(sanitised) ?? resolveIdleRotation(object.name, hangMap);
       
-      // For MPFB forearm (lowerarm01), compute bind-relative idle target if no hangMap entry
+      // For MPFB forearm (lowerarm01) and upper arm (upperarm01), compute the
+      // bind-relative idle target if no hangMap entry (both are DELIBERATELY
+      // absent from the MPFB map; see clinical-idle-posture-maps.ts).
       let targetQuat: Quaternion | null = null;
       if (!idleRotation && isMpfbRig && sanitised.startsWith("lowerarm01")) {
         // This bone has no hangMap entry; compute its idle target as the unowned path would
@@ -302,6 +314,9 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
             ),
           );
         }
+      } else if (!idleRotation && isMpfbRig && sanitised.startsWith("upperarm01")) {
+        // Bind-relative hang delta (arms slice): the unowned path's target.
+        targetQuat = mpfbUpperArmIdleTarget(object, mpfbUpperArmBinds);
       } else if (idleRotation) {
         const boundTarget = isHeadFamily(idleRotation)
           ? headAttentionTargetQuat(object, headNeckBinds, idleRotation)
@@ -324,9 +339,15 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
         object.quaternion.slerp(targetQuat, 1 - ownershipWeight);
         // Sync rotation from quaternion so Euler accessors work
         object.rotation.setFromQuaternion(object.quaternion);
-        object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose_crossfade";
+        object.userData["openClinXrClinicalIdlePosture"] = "relaxed_arms_scenario_conversation_pose_crossfade";
       }
       if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
+      return;
+    }
+
+    // MPFB upper-arm bind-relative idle (only if not owned; arms slice)
+    if (isMpfbRig && sanitised.startsWith("upperarm01")) {
+      applyMpfbUpperArmIdle(object, mpfbUpperArmBinds, bonesTouched);
       return;
     }
 
@@ -344,7 +365,7 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
       return;
     }
     applyBoneEuler(object, rotation);
-    object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
+    object.userData["openClinXrClinicalIdlePosture"] = "relaxed_arms_scenario_conversation_pose";
     if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
   };
 
@@ -378,7 +399,7 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     skinned.skeleton.update?.();
   });
 
-  humanoid.userData.openClinXrClinicalIdlePostureCueIds = [
+  humanoid.userData["openClinXrClinicalIdlePostureCueIds"] = [
     "relaxed_upper_arm_pose_cue",
     "bent_forearm_conversation_pose_cue",
     "head_attention_posture_cue",
@@ -393,15 +414,15 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
       ? ["library_mixamorig_upper_arm_swing_axis_cue"]
       : []),
   ];
-  humanoid.userData.openClinXrClinicalIdleBonesTouched = bonesTouched;
+  humanoid.userData["openClinXrClinicalIdleBonesTouched"] = bonesTouched;
   if (hangMap === MPFB_CLINICAL_IDLE_ARM_HANG) {
-    humanoid.userData.openClinXrClinicalIdleHangMap = "mpfb_forearm_bind_relative";
+    humanoid.userData["openClinXrClinicalIdleHangMap"] = "mpfb_forearm_bind_relative";
   }
   if (hangMap === LIBRARY_CLINICAL_IDLE_ARM_HANG) {
-    humanoid.userData.openClinXrClinicalIdleHangMap = "library_hm08_z_flip";
+    humanoid.userData["openClinXrClinicalIdleHangMap"] = "library_hm08_z_flip";
   }
   if (hangMap === MIXAMO_CLINICAL_IDLE_ARM_HANG) {
-    humanoid.userData.openClinXrClinicalIdleHangMap = "library_mixamorig_swing";
+    humanoid.userData["openClinXrClinicalIdleHangMap"] = "library_mixamorig_swing";
   }
 }
 
@@ -420,7 +441,7 @@ export function applyHumanoidJointRotationsByAlias(
   // 2026-09-23: head-family role entries compose onto the pristine bind captured by the
   // idle pass (same store). Without a bind this is the old absolute write, not a guess.
   const roleHeadBinds =
-    (humanoid.userData.openClinXrHeadNeckBinds as Map<string, BindQuaternion> | undefined) ?? null;
+    (humanoid.userData["openClinXrHeadNeckBinds"] as Map<string, BindQuaternion> | undefined) ?? null;
   const applyRoleHead = (object: Object3D, rotation: EulerPartial): boolean => {
     if (roleHeadBinds === null) return false;
     const bind = roleHeadBinds.get(sanitiseBoneName(object.name));
@@ -439,7 +460,7 @@ export function applyHumanoidJointRotationsByAlias(
       if (!(headEntry !== undefined && resolved === headEntry && applyRoleHead(object, resolved))) {
         applyBoneEuler(object, { ...resolved, absolute: resolved.absolute ?? true });
       }
-      object.userData.openClinXrRoleSpecificPose = poseId;
+      object.userData["openClinXrRoleSpecificPose"] = poseId;
       return;
     }
     const normalizedName = normalizeBoneToken(object.name);
@@ -452,16 +473,16 @@ export function applyHumanoidJointRotationsByAlias(
       if (!(jointId === "head" && applyRoleHead(object, rotation))) {
         applyBoneEuler(object, { ...rotation, absolute: rotation.absolute ?? true });
       }
-      object.userData.openClinXrRoleSpecificPose = poseId;
+      object.userData["openClinXrRoleSpecificPose"] = poseId;
       break;
     }
     // Exact name match for undotted keys not covered by alias include (e.g. head).
     const exact = rotations.get(object.name);
-    if (exact && !object.userData.openClinXrRoleSpecificPose) {
+    if (exact && !object.userData["openClinXrRoleSpecificPose"]) {
       if (!(object.name === "head" && applyRoleHead(object, exact))) {
         applyBoneEuler(object, { ...exact, absolute: exact.absolute ?? true });
       }
-      object.userData.openClinXrRoleSpecificPose = poseId;
+      object.userData["openClinXrRoleSpecificPose"] = poseId;
     }
   });
 }

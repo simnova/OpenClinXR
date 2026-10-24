@@ -236,8 +236,9 @@ describe("The factory resolves actor placement from the case, not from the actor
     const report = buildEncounterMaterializationEvidenceReport({ bundleReport: evidenceBundleReport });
 
     // Resolve the case descriptor for clinic-knee-pain to get authored placements
-    const { findScenarioFixtureById } = await import("../../../packages/openclinxr/scenario-fixtures/src/index.js");
-    const caseDescriptor = findScenarioFixtureById(clinicKneePainScenarioId) as Loose;
+    // PUBLIC: scenarioBank is the admitted export; .find is the exact equivalent lookup.
+    const { scenarioBank } = await import("@openclinxr/scenario-fixtures");
+    const caseDescriptor = scenarioBank.find((s: Loose) => s.scenarioId === clinicKneePainScenarioId) as Loose;
 
     const nodes = emitCompileNodes(report, [], caseDescriptor);
     const placementNodes = nodes.filter((n: Loose) => n.family === "Placement");

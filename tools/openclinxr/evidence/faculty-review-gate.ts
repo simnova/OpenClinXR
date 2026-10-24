@@ -22,6 +22,11 @@ import {
   createStep2CsStyleSeedBlueprint,
 } from "../../../packages/openclinxr/exam-assembly/src/index.js";
 import { adminGraphqlDocumentByOperationName } from "../../../packages/openclinxr/graphql/src/documents.js";
+import {
+  AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
+  authoredScenarioContentIdentity,
+  toAdminGraphqlScenario,
+} from "@openclinxr/rest";
 import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "../../../packages/openclinxr/rest/src/api-types.js";
 import { buildExamAssemblyScenarioPool } from "../../../packages/openclinxr/rest/src/exam-assembly-pool.js";
 import {
@@ -184,6 +189,20 @@ async function applyFourGateApprovals(app: HonoLikeApp): Promise<ReviewDimension
   const submit = adminGraphqlDocumentByOperationName("SubmitScenarioReview");
   const submitted: ReviewDimension[] = [];
   for (const reviewerRole of ALL_DIMENSIONS) {
+    // Bind to the ACTUALLY PERSISTED clone (seeded above via POST with the marker title).
+    // A bank-fixture hash would be stale here — the marker title is authored content.
+    const persistedRes = await app.request(
+      `/scenarios/${encodeURIComponent(ISSUE176_CLONE_SCENARIO_ID)}`,
+    );
+    if (persistedRes.status !== 200) {
+      throw new Error(`identity read GET /scenarios/${ISSUE176_CLONE_SCENARIO_ID} failed: ${persistedRes.status}`);
+    }
+    const persistedEnvelope = (await persistedRes.json()) as { scenario?: Scenario };
+    if (!persistedEnvelope.scenario) {
+      throw new Error(`identity read GET /scenarios/${ISSUE176_CLONE_SCENARIO_ID} returned no scenario`);
+    }
+    const identityRef =
+      `${AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX}${authoredScenarioContentIdentity(toAdminGraphqlScenario(persistedEnvelope.scenario))}`;
     const res = await app.request("/admin/graphql", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -200,7 +219,7 @@ async function applyFourGateApprovals(app: HonoLikeApp): Promise<ReviewDimension
             comments:
               `${reviewerRole} rationale for #176 faculty-review-gate seam proof `
               + `(local formative only — not clinical validity).`,
-            evidenceRefs: [`evidence:issue176:${ISSUE176_CLONE_SCENARIO_ID}:${reviewerRole}`],
+            evidenceRefs: [`evidence:issue176:${ISSUE176_CLONE_SCENARIO_ID}:${reviewerRole}`, identityRef],
           },
         },
       }),
@@ -226,6 +245,16 @@ async function submitOneGate(
   version: number,
   reviewerRole: ReviewDimension,
 ): Promise<void> {
+  // Clone-on-first-review probe: the bank fixture is NOT pre-seeded, so no persisted doc
+  // exists yet and the gate binds against the listed bank fixture. The identity therefore
+  // comes from the bank fixture itself (scenario-promotion-io pattern) — all listing
+  // dresses are in the gate's candidate set, so this stays current, never stale.
+  const bankFixture = scenarioBank.find((s) => s.scenarioId === scenarioId && s.version === version);
+  if (!bankFixture) {
+    throw new Error(`identity bind refused: bank fixture missing for ${scenarioId} v${version}`);
+  }
+  const identityRef =
+    `${AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX}${authoredScenarioContentIdentity(toAdminGraphqlScenario(bankFixture))}`;
   const submit = adminGraphqlDocumentByOperationName("SubmitScenarioReview");
   const res = await app.request("/admin/graphql", {
     method: "POST",
@@ -241,7 +270,7 @@ async function submitOneGate(
           reviewerId: `issue176_${reviewerRole}`,
           decision: "APPROVED",
           comments: `${reviewerRole} rationale for #176 bank-fixture clone-on-first-review proof.`,
-          evidenceRefs: [`evidence:issue176:${scenarioId}:${reviewerRole}`],
+          evidenceRefs: [`evidence:issue176:${scenarioId}:${reviewerRole}`, identityRef],
         },
       },
     }),

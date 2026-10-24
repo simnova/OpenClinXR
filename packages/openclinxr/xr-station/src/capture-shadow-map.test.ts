@@ -51,7 +51,7 @@ describe("capture-shadow-map (#249)", () => {
     expect(body.castShadow).toBe(false);
     markActorCastShadow(root);
     expect(body.castShadow).toBe(true);
-    expect(body.userData.openClinXrCaptureShadowPolicy).toBe(
+    expect(body.userData["openClinXrCaptureShadowPolicy"]).toBe(
       "cast_shadow_for_capture_path_contact_shadows",
     );
   });

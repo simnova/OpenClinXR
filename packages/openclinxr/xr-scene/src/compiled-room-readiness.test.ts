@@ -61,7 +61,7 @@ function hasParametricFloor(root: Group): boolean {
 
 function mockLoadGltfFrom(scene: Group): (url: string) => Promise<Group> {
   return async (url: string) => {
-    scene.userData.mockSourceUrl = url;
+    scene.userData["mockSourceUrl"] = url;
     return scene;
   };
 }
@@ -92,7 +92,7 @@ function mountCompiled(input: {
 }): Promise<Group> {
   const scene = input.scene ?? compiledSceneWithAnchors();
   if (input.metadata !== undefined) {
-    scene.userData.openClinXrCompiledRoomMetadata = input.metadata;
+    scene.userData["openClinXrCompiledRoomMetadata"] = input.metadata;
   }
   return mountStationEnvironmentForRuntime({
     environmentId: ED_BAY,
@@ -181,24 +181,24 @@ describe("mountStationEnvironmentForRuntime readiness composition", () => {
   it("keeps the compiled GLB when authored metadata and unique anchors are ready", async () => {
     const mounted = await mountCompiled({ metadata: VALID_METADATA });
     expect(mounted.name).toBe("openclinxr.compiled-room-shell");
-    expect(mounted.userData.openClinXrCompiledRoom).toBe(true);
-    expect(mounted.userData.openClinXrCompiledRoomReadiness).toBe("ready");
-    expect(mounted.userData.openClinXrCompiledRoomCollisionBounds).toEqual(
+    expect(mounted.userData["openClinXrCompiledRoom"]).toBe(true);
+    expect(mounted.userData["openClinXrCompiledRoomReadiness"]).toBe("ready");
+    expect(mounted.userData["openClinXrCompiledRoomCollisionBounds"]).toEqual(
       VALID_METADATA.collisionBounds,
     );
-    expect(mounted.userData.openClinXrCompiledRoomWalkableBounds).toEqual(
+    expect(mounted.userData["openClinXrCompiledRoomWalkableBounds"]).toEqual(
       VALID_METADATA.walkableBounds,
     );
-    expect(mounted.userData.openClinXrCompiledRoomResolvedAnchors).toHaveLength(3);
+    expect(mounted.userData["openClinXrCompiledRoomResolvedAnchors"]).toHaveLength(3);
     expect(hasParametricFloor(mounted)).toBe(false);
   });
 
   it("falls back to the primitive room on malformed metadata with typed diagnostics", async () => {
     const mounted = await mountCompiled({ metadata: { actorAnchors: "nope" } });
     expect(mounted.name).toBe("openclinxr.station-environment-shell");
-    expect(mounted.userData.openClinXrCompiledRoom).not.toBe(true);
-    expect(mounted.userData.openClinXrCompiledRoomFallback).toBe(true);
-    expect(mounted.userData.openClinXrCompiledRoomDiagnostics).toEqual([
+    expect(mounted.userData["openClinXrCompiledRoom"]).not.toBe(true);
+    expect(mounted.userData["openClinXrCompiledRoomFallback"]).toBe(true);
+    expect(mounted.userData["openClinXrCompiledRoomDiagnostics"]).toEqual([
       expect.objectContaining({ code: "malformed_metadata" }),
     ]);
     expect(hasParametricFloor(mounted)).toBe(true);
@@ -214,7 +214,7 @@ describe("mountStationEnvironmentForRuntime readiness composition", () => {
       },
     });
     expect(mounted.name).toBe("openclinxr.station-environment-shell");
-    expect(mounted.userData.openClinXrCompiledRoomDiagnostics).toEqual([
+    expect(mounted.userData["openClinXrCompiledRoomDiagnostics"]).toEqual([
       expect.objectContaining({
         code: "missing_anchor",
         anchorId: "missing_kit",
@@ -229,7 +229,7 @@ describe("mountStationEnvironmentForRuntime readiness composition", () => {
     scene.add(namedEmpty("openclinxr.anchor.actor.patient", 0, 0));
     const mounted = await mountCompiled({ scene, metadata: VALID_METADATA });
     expect(mounted.name).toBe("openclinxr.station-environment-shell");
-    expect(mounted.userData.openClinXrCompiledRoomDiagnostics).toEqual(
+    expect(mounted.userData["openClinXrCompiledRoomDiagnostics"]).toEqual(
       expect.arrayContaining([expect.objectContaining({ code: "duplicate_anchor" })]),
     );
     expect(hasParametricFloor(mounted)).toBe(true);
@@ -242,21 +242,21 @@ describe("mountStationEnvironmentForRuntime readiness composition", () => {
       },
     });
     expect(mounted.name).toBe("openclinxr.station-environment-shell");
-    expect(mounted.userData.openClinXrCompiledRoomLoadFailed).toBe(true);
-    expect(mounted.userData.compileNodeIdAttempted).toBe("room:ed_exam_bay_v1");
-    expect(mounted.userData.openClinXrCompiledRoomDiagnostics).toEqual([
+    expect(mounted.userData["openClinXrCompiledRoomLoadFailed"]).toBe(true);
+    expect(mounted.userData["compileNodeIdAttempted"]).toBe("room:ed_exam_bay_v1");
+    expect(mounted.userData["openClinXrCompiledRoomDiagnostics"]).toEqual([
       expect.objectContaining({ code: "load_failure", message: "gltf 404" }),
     ]);
-    expect(mounted.userData.openClinXrCompiledRoom).not.toBe(true);
+    expect(mounted.userData["openClinXrCompiledRoom"]).not.toBe(true);
     expect(hasParametricFloor(mounted)).toBe(true);
   });
 
   it("preserves PR #789 compiled mount when authored metadata is absent", async () => {
     const mounted = await mountCompiled({ scene: new Group() });
     expect(mounted.name).toBe("openclinxr.compiled-room-shell");
-    expect(mounted.userData.openClinXrCompiledRoom).toBe(true);
-    expect(mounted.userData.openClinXrCompiledRoomReadiness).toBeUndefined();
-    expect(mounted.userData.openClinXrCompiledRoomFallback).toBeUndefined();
+    expect(mounted.userData["openClinXrCompiledRoom"]).toBe(true);
+    expect(mounted.userData["openClinXrCompiledRoomReadiness"]).toBeUndefined();
+    expect(mounted.userData["openClinXrCompiledRoomFallback"]).toBeUndefined();
     expect(hasParametricFloor(mounted)).toBe(false);
   });
 });

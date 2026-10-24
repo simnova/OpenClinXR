@@ -97,10 +97,10 @@ export function applyJawOpenToRoot(root: MorphRootLike, jawOpenRadians: number):
     if (touched.has(bone)) return;
     touched.add(bone);
     const ud = (bone.userData ??= {});
-    if (typeof ud.openClinXrJawRestRotationX !== "number") {
-      ud.openClinXrJawRestRotationX = bone.rotation.x;
+    if (typeof ud["openClinXrJawRestRotationX"] !== "number") {
+      ud["openClinXrJawRestRotationX"] = bone.rotation.x;
     }
-    bone.rotation.x = (ud.openClinXrJawRestRotationX as number) + open;
+    bone.rotation.x = (ud["openClinXrJawRestRotationX"] as number) + open;
   };
 
   root.traverse((object) => {
@@ -238,7 +238,7 @@ export function applyDialogueVisemeTimelineToRoot(
   };
 
   if (root.userData) {
-    root.userData.openClinXrNamedVisemeDrive = {
+    root.userData["openClinXrNamedVisemeDrive"] = {
       ...result,
       claimScope: "mouth",
       notEvidenceFor: [

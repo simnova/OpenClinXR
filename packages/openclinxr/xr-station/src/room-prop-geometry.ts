@@ -101,9 +101,9 @@ export function buildRoomPropGroup(input: BuildRoomPropInput): Group | null {
   const group = new Group();
   group.name = `${input.namePrefix}.${input.propId}`;
   group.position.set(input.position.x, input.position.y, input.position.z);
-  group.userData.openClinXrBaseY = input.position.y;
-  group.userData.openClinXrRoomPropClass = classified.classification;
-  group.userData.openClinXrRoomPropClassificationReason = classified.classificationReason;
+  group.userData["openClinXrBaseY"] = input.position.y;
+  group.userData["openClinXrRoomPropClass"] = classified.classification;
+  group.userData["openClinXrRoomPropClassificationReason"] = classified.classificationReason;
 
   let markerY = input.scale.y + 0.08;
   let labelY = input.scale.y + 0.18;
@@ -112,11 +112,11 @@ export function buildRoomPropGroup(input: BuildRoomPropInput): Group | null {
     // Affordance-only channel: no unit-box furniture body, no giant nameplate slab.
     // Do NOT set openClinXrEquipmentId — cues are not declared equipment mounts (#209).
     // Affordance tags still reach the scene for the #223 counterweight.
-    group.userData.openClinXrRoomPropId = input.propId;
-    group.userData.openClinXrEquipmentSource = "cue_overlay";
-    group.userData.openClinXrRoomPropFulfillsDeclaredEquipment = false;
-    group.userData.openClinXrRoomPropUsedBuilder = false;
-    group.userData.openClinXrRoomPropCueOverlay = true;
+    group.userData["openClinXrRoomPropId"] = input.propId;
+    group.userData["openClinXrEquipmentSource"] = "cue_overlay";
+    group.userData["openClinXrRoomPropFulfillsDeclaredEquipment"] = false;
+    group.userData["openClinXrRoomPropUsedBuilder"] = false;
+    group.userData["openClinXrRoomPropCueOverlay"] = true;
     markerY = 0.12;
     labelY = 0.22;
   } else if (builderId !== null) {
@@ -125,21 +125,21 @@ export function buildRoomPropGroup(input: BuildRoomPropInput): Group | null {
     geometry.name = `${group.name}.builder`;
     // Collapse equipment identity onto the room-prop root only — nested builder tags would
     // register as a second openClinXrEquipmentId root (XOR false dual).
-    if (typeof geometry.userData.openClinXrEquipmentFamily === "string") {
-      group.userData.openClinXrEquipmentFamily = geometry.userData.openClinXrEquipmentFamily;
+    if (typeof geometry.userData["openClinXrEquipmentFamily"] === "string") {
+      group.userData["openClinXrEquipmentFamily"] = geometry.userData["openClinXrEquipmentFamily"];
     }
-    delete geometry.userData.openClinXrEquipmentId;
-    delete geometry.userData.openClinXrRuntimeEquipmentAssetId;
-    delete geometry.userData.openClinXrEquipmentSource;
+    delete geometry.userData["openClinXrEquipmentId"];
+    delete geometry.userData["openClinXrRuntimeEquipmentAssetId"];
+    delete geometry.userData["openClinXrEquipmentSource"];
     group.add(geometry);
     // Tag the room-prop ROOT so exclusive-mount / #209 inspectors key one surface.
     // Keep manifest propId as openClinXrEquipmentId (declared id identity).
-    group.userData.openClinXrEquipmentSource = "parametric";
-    group.userData.openClinXrEquipmentId = input.propId;
-    group.userData.openClinXrRuntimeEquipmentAssetId = input.propId;
-    group.userData.openClinXrRoomPropBuilderEquipmentId = builderId;
-    group.userData.openClinXrRoomPropFulfillsDeclaredEquipment = true;
-    group.userData.openClinXrRoomPropUsedBuilder = true;
+    group.userData["openClinXrEquipmentSource"] = "parametric";
+    group.userData["openClinXrEquipmentId"] = input.propId;
+    group.userData["openClinXrRuntimeEquipmentAssetId"] = input.propId;
+    group.userData["openClinXrRoomPropBuilderEquipmentId"] = builderId;
+    group.userData["openClinXrRoomPropFulfillsDeclaredEquipment"] = true;
+    group.userData["openClinXrRoomPropUsedBuilder"] = true;
 
     group.updateMatrixWorld(true);
     const aabb = new Box3().setFromObject(group);
@@ -150,7 +150,7 @@ export function buildRoomPropGroup(input: BuildRoomPropInput): Group | null {
       const localTop = aabb.max.y - group.position.y;
       markerY = localTop + 0.08;
       labelY = localTop + 0.18;
-      group.userData.openClinXrBuilderAabbHeight = size.y;
+      group.userData["openClinXrBuilderAabbHeight"] = size.y;
     }
   } else {
     const body = new Mesh(
@@ -168,11 +168,11 @@ export function buildRoomPropGroup(input: BuildRoomPropInput): Group | null {
       input.color,
       input.accentColor,
     );
-    group.userData.openClinXrEquipmentId = input.propId;
-    group.userData.openClinXrRuntimeEquipmentAssetId = input.propId;
-    group.userData.openClinXrEquipmentSource = "fallback";
-    group.userData.openClinXrRoomPropFulfillsDeclaredEquipment = true;
-    group.userData.openClinXrRoomPropUsedBuilder = false;
+    group.userData["openClinXrEquipmentId"] = input.propId;
+    group.userData["openClinXrRuntimeEquipmentAssetId"] = input.propId;
+    group.userData["openClinXrEquipmentSource"] = "fallback";
+    group.userData["openClinXrRoomPropFulfillsDeclaredEquipment"] = true;
+    group.userData["openClinXrRoomPropUsedBuilder"] = false;
   }
 
   const cueId = input.affordanceCueIds[0] ?? `${input.propId}:visual_context`;
@@ -196,15 +196,15 @@ export function buildRoomPropGroup(input: BuildRoomPropInput): Group | null {
     group.add(labelPlate);
   }
 
-  group.userData.openClinXrAffordances = isCue
+  group.userData["openClinXrAffordances"] = isCue
     ? ["room_context_cue", "runtime_scene_manifest_prop", "affordance_cue_overlay"]
     : [
       "room_context_cue",
       "clinical_environment_reference",
       "runtime_scene_manifest_prop",
     ];
-  group.userData.openClinXrRuntimeSceneManifestAffordanceCueIds = input.affordanceCueIds;
-  group.userData.openClinXrDynamicEncounterAssetPolicy =
+  group.userData["openClinXrRuntimeSceneManifestAffordanceCueIds"] = input.affordanceCueIds;
+  group.userData["openClinXrDynamicEncounterAssetPolicy"] =
     "room_prop_rendered_from_active_encounter_scene_manifest_not_hardcoded_shared_world";
 
   return group;

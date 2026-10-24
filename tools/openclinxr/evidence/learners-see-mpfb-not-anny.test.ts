@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { ADULT_POOL_GLBS, ED_ADULT_CAST_GLB } from "../../../packages/openclinxr/asset-registry/src/cast-asset-constants.js";
+import { MPFB_GOWN_ADULT_PATIENT_GLB } from "@openclinxr/asset-registry/cast-asset-constants";
+import { resolveScenarioActorCast } from "@openclinxr/asset-registry/runtime-bundles";
+import { listShippedCastScenarioIds } from "@openclinxr/asset-registry";
 import {
   environmentIdForScenario,
-  listShippedCastScenarioIds,
   patientWardrobeClassForEnvironment,
-  resolveScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+
+type CaseScenarioSource = NonNullable<Parameters<typeof resolveScenarioActorCast>[1]>;
 
 /**
  * OPERATOR DIRECTION 2026-08-20: "MPFB only for learners, this is correct."
@@ -79,6 +81,19 @@ import {
  * `MPFB_GOWN_ADULT_PATIENT_GLB` in both resolvers, so clause (2)'s "at least one gowned patient
  * must still be Anny" P1 pin is now the opposite — no gowned patient is Anny. The Anny FILE stays
  * on disk and in the pools as deep fallback; L7 retires it.
+ *
+ * ## PUBLIC-BEHAVIOR RECAST
+ *
+ * The cast-asset-constants split narrowed the admitted surface to keep-only re-exports, so the
+ * old pool/Anny filename constants are no longer importable from an admitted specifier — and the
+ * freeze ("a new specifier fails until the reach is removed") refuses a drop+add migration to the
+ * private `-mod` file. Clauses (3)–(5) therefore assert the same properties through the admitted
+ * resolver (`resolveScenarioActorCast`, admitted via `@openclinxr/asset-registry/runtime-bundles`)
+ * with an injected caller-owned crowd: the interpreter role is adult-banded (declareAgeBand) and
+ * falls through to the role-agnostic pool (pickAdultGlb else-branch), so N interpreters drain N
+ * pool bodies and the remainder take the fallback. #491/#652 retired the Anny tails and lifted
+ * the gown freeze with the gowned MPFB body as the exhausted-pool default, so clause (4) pins
+ * the admitted fallback constant instead of the retired Anny names.
  */
 
 const ANNY_GLBS = [
@@ -126,20 +141,46 @@ describe("learners are cast on MPFB bodies, not Anny", () => {
   });
 
   it("(3) the exhausted-pool fallback is not 100% Anny", () => {
-    // Refuses the cheap fix. Stripping the four preference tails while ADULT_POOL_GLBS stays
-    // all-Anny moves the same outcome one step later: actor-casting.ts:290 walks this pool.
-    // The length guard lives in clause (5), NOT here: probe D4 (2026-08-20) emptied the pool and this
-    // clause still read as expected-fail, because an it.fails is satisfied by ANY failure including
-    // the guard's own throw. A vacuity guard cannot live inside the clause it guards.
-    const pool = [...ADULT_POOL_GLBS] as string[];
-    expect(pool.some((g) => !isAnny(g)), `ADULT_POOL_GLBS is ${pool.length} entries and every one is Anny`).toBe(true);
+    // Public-behavior drain proof: no private pool import. The interpreter role is
+    // adult-banded (declareAgeBand) and falls through to the role-agnostic pool (pickAdultGlb
+    // else-branch), so a crowd of interpreters drains pool bodies through the admitted
+    // resolver. Crowd size derives from public data — distinct shipped adult assetPaths + 1 —
+    // never a copied pool size or golden list.
+    const adultPaths = new Set<string>();
+    for (const scenarioId of listShippedCastScenarioIds()) {
+      for (const cast of resolveScenarioActorCast(scenarioId)) {
+        if (cast.declaredAgeBand === "adult") adultPaths.add(cast.assetPath);
+      }
+    }
+    expect(adultPaths.size, "the shipped bank must cast adult bodies for the drain to mean something").toBeGreaterThan(0);
+    const size = adultPaths.size + 1;
+    const actors = Array.from({ length: size }, (_, i) => ({
+      actorId: `pool_exhaustion_probe_interpreter_${i}_v1`,
+      role: "interpreter",
+    }));
+    const source: CaseScenarioSource = { scenarioId: "pool-exhaustion-probe", actors };
+    const casts = resolveScenarioActorCast("pool-exhaustion-probe", source);
+    expect(casts.length, "one cast per crowded actor").toBe(size);
+    expect(casts.every((c) => c.declaredAgeBand === "adult"), "the crowd is adult-banded").toBe(true);
+    expect(
+      (casts[0]?.assetPath ?? "").endsWith(MPFB_GOWN_ADULT_PATIENT_GLB),
+      "the first cast takes a pool body, proving the pool is nonempty — an emptied pool fails here, never passes",
+    ).toBe(false);
+    const gowned = casts.filter((c) => (c.assetPath ?? "").endsWith(MPFB_GOWN_ADULT_PATIENT_GLB));
+    expect(gowned.length, "an exhausted pool falls back to the admitted gowned MPFB body (#652)").toBeGreaterThan(0);
+    const offenders = casts
+      .filter(({ assetPath }) => isAnny(assetPath ?? ""))
+      .map(({ actorId, assetPath }) => `${actorId}=${assetPath}`);
+    expect(offenders, "no exhausted-pool cast lands on a 23-joint Anny body").toEqual([]);
   });
 
-  it("(4) NET: the Anny constants still exist", () => {
-    // Refuses deletion. The gowned patient, the child band and the ED patient still need them;
-    // merge-kill also refuses deleted-test, and the same logic applies to the constants they assert on.
-    expect(typeof ED_ADULT_CAST_GLB, "ED_ADULT_CAST_GLB must remain exported").toBe("string");
-    expect(ED_ADULT_CAST_GLB.endsWith(".glb"), "and still name a GLB").toBe(true);
+  it("(4) NET: the admitted exhausted-pool fallback constant still exists", () => {
+    // #491 L6 recast the gowned patients onto MPFB_GOWN_ADULT_PATIENT_GLB and #652 retired
+    // the Anny rail from casting with this body as the exhausted-pool default (pickAdultGlb
+    // tail). The Anny filename constants left the admitted surface in the constants split,
+    // so this pins the fallback the pool actually drains to — still a deletion refusal.
+    expect(typeof MPFB_GOWN_ADULT_PATIENT_GLB, "MPFB_GOWN_ADULT_PATIENT_GLB must remain exported from the admitted constants").toBe("string");
+    expect(MPFB_GOWN_ADULT_PATIENT_GLB.endsWith(".glb"), "and still name a GLB").toBe(true);
   });
 
   it("(5) VACUITY GUARD: the enumeration is real and covers in-scope roles", () => {
@@ -149,7 +190,15 @@ describe("learners are cast on MPFB bodies, not Anny", () => {
       "clause (1) is meaningless if no in-scope role is ever cast").toBe(true);
     expect(all.every(({ cast }) => typeof cast.assetPath === "string" && cast.assetPath.length > 0),
       "every cast must name an assetPath, or the offender filter silently passes").toBe(true);
-    // Guards clause (3) from outside: emptying ADULT_POOL_GLBS must not read as a fix.
-    expect([...ADULT_POOL_GLBS].length, "ADULT_POOL_GLBS must not be emptied to satisfy clause (3)").toBeGreaterThan(0);
+    // Guards clause (3) from outside without a private pool import: the drain proof sizes its
+    // crowd from distinct shipped adult bodies, so an empty adult bank must fail here rather
+    // than let clause (3) pass over a crowd of one.
+    const adultPaths = new Set<string>();
+    for (const scenarioId of listShippedCastScenarioIds()) {
+      for (const cast of resolveScenarioActorCast(scenarioId)) {
+        if (cast.declaredAgeBand === "adult") adultPaths.add(cast.assetPath);
+      }
+    }
+    expect(adultPaths.size, "clause (3) needs shipped adult bodies to size its drain crowd").toBeGreaterThan(0);
   });
 });

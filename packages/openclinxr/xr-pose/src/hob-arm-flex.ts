@@ -112,7 +112,7 @@ function spreadWristBesideTorso(input: {
 
 /** Restore the exact plant-time arm solution after an animation frame rewrites the bind pose. */
 export function reapplyStoredSupineArmFlex(humanoidRoot: Object3D): void {
-  const stored = humanoidRoot.userData.openClinXrSupineArmFlexBones as StoredArmBone[] | undefined;
+  const stored = humanoidRoot.userData["openClinXrSupineArmFlexBones"] as StoredArmBone[] | undefined;
   if (!stored?.length) return;
   for (const entry of stored) {
     const bone = findSupineBone(humanoidRoot, entry.name, entry.name);
@@ -149,8 +149,8 @@ export function flexSupineArmsOntoDeck(
     const upper = findSupineBone(humanoidRoot, `upper_arm${side}`, `upper_arm.${side}`);
     const hand = findSupineBone(humanoidRoot, `hand${side}`, `hand.${side}`);
     if (!upper || !hand) {
-      humanoidRoot.userData.openClinXrSupineArmFlexMissing = [
-        ...(humanoidRoot.userData.openClinXrSupineArmFlexMissing ?? []),
+      humanoidRoot.userData["openClinXrSupineArmFlexMissing"] = [
+        ...(humanoidRoot.userData["openClinXrSupineArmFlexMissing"] ?? []),
         `${side}:upper=${Boolean(upper)} hand=${Boolean(hand)}`,
       ];
       continue;
@@ -217,9 +217,9 @@ export function flexSupineArmsOntoDeck(
     for (const [name, spec] of Object.entries(sideDeltas)) {
       deltas[name] = spec;
     }
-    humanoidRoot.userData.openClinXrSupineArmFlexDeltas = { ...deltas };
-    humanoidRoot.userData.openClinXrSupineArmFlexRad = result.appliedRad;
-    humanoidRoot.userData.openClinXrSupineArmFlexLastStep = { axis: axisApplied, sign: signApplied };
+    humanoidRoot.userData["openClinXrSupineArmFlexDeltas"] = { ...deltas };
+    humanoidRoot.userData["openClinXrSupineArmFlexRad"] = result.appliedRad;
+    humanoidRoot.userData["openClinXrSupineArmFlexLastStep"] = { axis: axisApplied, sign: signApplied };
   }
 
   const pelvis = readBoneWorld(findSupineBone(humanoidRoot, "pelvis", "Pelvis"));
@@ -235,7 +235,7 @@ export function flexSupineArmsOntoDeck(
     }
   }
 
-  humanoidRoot.userData.openClinXrSupineArmHeadZRef = headZ;
+  humanoidRoot.userData["openClinXrSupineArmHeadZRef"] = headZ;
   const stored: StoredArmBone[] = [];
   for (const side of ["L", "R"] as const) {
     for (const name of [`upper_arm${side}`, `forearm${side}`]) {
@@ -252,7 +252,7 @@ export function flexSupineArmsOntoDeck(
       });
     }
   }
-  humanoidRoot.userData.openClinXrSupineArmFlexBones = stored;
+  humanoidRoot.userData["openClinXrSupineArmFlexBones"] = stored;
   humanoidRoot.updateMatrixWorld?.(true);
   return result;
 }

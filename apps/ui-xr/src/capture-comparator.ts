@@ -70,7 +70,7 @@ export function applyEdBayVisibleComparatorCameraPose(
   camera.fov = 50;
   camera.position.set(-0.35, 1.0, 2.45);
   camera.lookAt(-0.95, 0.7, -0.25);
-  camera.userData.openClinXrCameraFraming = ED_BAY_VISIBLE_COMPARATOR_CAMERA_FRAMING;
+  camera.userData["openClinXrCameraFraming"] = ED_BAY_VISIBLE_COMPARATOR_CAMERA_FRAMING;
   return true;
 }
 
@@ -103,9 +103,9 @@ export function frameComparatorCaptureOnNamedActor(options: {
   if (!Number.isFinite(bounds.min.x) || !Number.isFinite(bounds.max.x)) return;
   const center = bounds.getCenter(new Vector3());
   const frameSpanFraction = frameCamera(cam, bounds, "front");
-  cam.userData.openClinXrCameraFraming =
+  cam.userData["openClinXrCameraFraming"] =
     `clean_${comparator}_source_comparator_fit_to_bounds_named_actor_${namedActorId}_no_authored_numbers`;
-  cam.userData.openClinXrComparatorFrameSpanFraction = frameSpanFraction;
+  cam.userData["openClinXrComparatorFrameSpanFraction"] = frameSpanFraction;
   window.__openClinXrComparatorCameraTargetActorId = modelAssetId;
   // #315 follow-up: recorded framing dump — NDC projection of the framed subject's
   // world center plus every actor slot's visibility/NDC, so a framing miss is a
@@ -159,8 +159,8 @@ export function recordEdBayVisibleCameraPose(): void {
   const cam = comparatorCaptureCamera;
   if (!cam) return;
   window.__openClinXrEdBayVisibleCameraPose = {
-    framing: typeof cam.userData.openClinXrCameraFraming === "string"
-      ? (cam.userData.openClinXrCameraFraming as string)
+    framing: typeof cam.userData["openClinXrCameraFraming"] === "string"
+      ? (cam.userData["openClinXrCameraFraming"] as string)
       : null,
     position: {
       x: cam.position.x,

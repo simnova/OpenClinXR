@@ -68,7 +68,7 @@ export function applyMpfb2SeatedFold(humanoidRoot: Object3D, bonesTouched: strin
     const newWorldQ = delta.multiply(worldQ);
     const parentQ = bone.parent ? worldQuat(bone.parent) : new Quaternion();
     bone.quaternion.copy(parentQ.invert().multiply(newWorldQ)).normalize();
-    bone.userData.openClinXrSeatedPose = SEATED_CLIP_NAME;
+    bone.userData["openClinXrSeatedPose"] = SEATED_CLIP_NAME;
     if (!bonesTouched.includes(bone.name)) bonesTouched.push(bone.name);
   };
 

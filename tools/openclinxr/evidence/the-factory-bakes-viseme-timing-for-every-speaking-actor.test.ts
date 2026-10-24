@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { writeLipSyncFixtureWav } from "@openclinxr/factory-stations";
 import * as runner from "../../../tools/openclinxr/dark-factory/multi-case-runner.js";
 
 /**
@@ -69,7 +73,7 @@ describe("the factory bakes viseme timing for every speaking actor", () => {
     // network call or a model. Named explicitly so the seam is not invented: the export must be
     // `runLipSyncStation({ utterance, outDir })` returning `{ cues: Cue[]; tool: string }`.
     const fn = (runner as unknown as {
-      runLipSyncStation?: (o: { utterance: string; outDir: string }) => Promise<{ cues: Cue[]; tool: string }>;
+      runLipSyncStation?: (o: { utterance: string; outDir: string; wavPath: string }) => Promise<{ cues: Cue[]; tool: string; manifestArtifactPath: string }>;
     }).runLipSyncStation;
     expect(typeof fn, "export runLipSyncStation({ utterance, outDir }) from the chain runner")
       .toBe("function");
@@ -88,21 +92,28 @@ describe("the factory bakes viseme timing for every speaking actor", () => {
     // 22 cues, 8 distinct shapes. The bar here is deliberately far below that so it pins the
     // FAILURE MODE (empty / single-shape / unordered), not my observation.
     const fn = (runner as unknown as {
-      runLipSyncStation?: (o: { utterance: string; outDir: string }) => Promise<{ cues: Cue[]; tool: string }>;
+      runLipSyncStation?: (o: { utterance: string; outDir: string; wavPath: string }) => Promise<{ cues: Cue[]; tool: string; manifestArtifactPath: string }>;
     }).runLipSyncStation;
     if (typeof fn !== "function") return; // clause (2) owns the missing-seam failure
 
     expect(existsSync(RHUBARB), `the offline tool must be resolved explicitly; it is NOT on PATH (${RHUBARB})`)
       .toBe(true);
 
-    const out = await fn({
-      utterance: "It feels heavy, like someone is sitting on my chest.",
-      outDir: `${process.env.TMPDIR ?? "/tmp"}/openclinxr-lipsync-contract`,
-    });
-    expect(out.cues.length, "an empty cue list is not lip-sync").toBeGreaterThan(1);
-    expect(new Set(out.cues.map((c) => c.value)).size, "one flat shape is not lip-sync").toBeGreaterThan(1);
-    const starts = out.cues.map((c) => c.start);
-    expect([...starts].sort((a, b) => a - b)).toEqual(starts);
+    const outDir = await mkdtemp(join(tmpdir(), "openclinxr-lipsync-contract-"));
+    try {
+      const utterance = "It feels heavy, like someone is sitting on my chest.";
+      // Explicit local test audio: production station consumes supplied WAV bytes;
+      // fixture synthesis is requested by this test, without a global fixture flag.
+      const wavPath = await writeLipSyncFixtureWav(utterance, outDir);
+      const out = await fn({ utterance, outDir, wavPath });
+      expect(JSON.parse(readFileSync(out.manifestArtifactPath, "utf8"))).toMatchObject({ actorId: "lip_sync", wavPath });
+      expect(out.cues.length, "an empty cue list is not lip-sync").toBeGreaterThan(1);
+      expect(new Set(out.cues.map((c) => c.value)).size, "one flat shape is not lip-sync").toBeGreaterThan(1);
+      const starts = out.cues.map((c) => c.start);
+      expect([...starts].sort((a, b) => a - b)).toEqual(starts);
+    } finally {
+      await rm(outDir, { recursive: true, force: true });
+    }
   }, 120000);
 });
 

@@ -31,11 +31,11 @@ export function tagCompiledRoomUserData(
   input: Pick<CompiledRoomLoadInput, "environmentId" | "compiledRoomAssetUrl" | "compileNodeId">,
 ): Group {
   root.name = "openclinxr.compiled-room-shell";
-  root.userData.openClinXrCompiledRoom = true;
-  root.userData.environmentId = input.environmentId;
-  root.userData.compileNodeId = input.compileNodeId;
-  root.userData.compiledRoomAssetUrl = input.compiledRoomAssetUrl;
-  root.userData.openClinXrEnvironmentPolicy =
+  root.userData["openClinXrCompiledRoom"] = true;
+  root.userData["environmentId"] = input.environmentId;
+  root.userData["compileNodeId"] = input.compileNodeId;
+  root.userData["compiledRoomAssetUrl"] = input.compiledRoomAssetUrl;
+  root.userData["openClinXrEnvironmentPolicy"] =
     "compiled_room_glb_from_encounter_materialization_compile_node";
   return root;
 }

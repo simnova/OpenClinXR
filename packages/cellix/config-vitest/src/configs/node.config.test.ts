@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { worktreeExcludePatterns } from "../worktree-excludes.js";
-import { defaultTestIncludePatterns } from "./base.config.js";
+import { defaultTestIncludePatterns, nativeCompilerPath } from "./base.config.js";
 import { nodeConfig } from "./node.config.js";
 
 describe("node Vitest config", () => {
@@ -15,7 +15,7 @@ describe("node Vitest config", () => {
         testTimeout: 5000,
         typecheck: {
           enabled: false,
-          checker: "tsgo",
+          checker: nativeCompilerPath,
           tsconfig: "tsconfig.vitest.json",
         },
         coverage: {

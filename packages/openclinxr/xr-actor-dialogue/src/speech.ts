@@ -132,7 +132,7 @@ export function triggerHumanoidDialogue(
   };
   startPackageHumanoidEmotionTransition(slot, emotion, deps.nowMs());
   attachBakedCuesToSpeech(slot, text, deps.selectedScenarioIdValue());
-  slot.root.userData.openClinXrDialoguePhonemeMapping = {
+  slot.root.userData["openClinXrDialoguePhonemeMapping"] = {
     actorId,
     phonemeSequence,
     visemeSequence,

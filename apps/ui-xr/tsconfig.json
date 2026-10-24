@@ -1,13 +1,12 @@
 {
   "extends": "@cellix/config-typescript/base",
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": ".",
     "lib": [
       "ES2022",
       "DOM",
       "DOM.Iterable"
     ],
-    "noPropertyAccessFromIndexSignature": false,
     "composite": true
   },
   "include": [
@@ -71,6 +70,9 @@
     },
     {
       "path": "../../packages/openclinxr/xr-trace-readiness"
+    },
+    {
+      "path": "../../packages/openclinxr/xr-capacity"
     }
   ]
 }

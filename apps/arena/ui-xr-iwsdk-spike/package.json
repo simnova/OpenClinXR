@@ -9,19 +9,18 @@
     "build": "vite build",
     "probe:iwsdk": "node scripts/probe-iwsdk.mjs",
     "lint": "biome lint --no-errors-on-unmatched .",
-    "typecheck": "tsgo --noEmit -p tsconfig.json",
+    "typecheck": "cellix-tsc --noEmit -p tsconfig.json",
     "test": "vitest run --root ."
   },
   "dependencies": {
-    "@iwsdk/core": "0.5.3",
-    "@iwsdk/xr-input": "0.5.3",
+    "@iwsdk/core": "0.4.2",
+    "@iwsdk/xr-input": "0.4.2",
     "@openclinxr/iwsdk-spike": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
-    "three": "catalog:",
-    "@iwsdk/scene-composition": "0.5.3"
+    "three": "catalog:"
   },
   "devDependencies": {
-    "@iwsdk/vite-plugin-dev": "0.5.1",
+    "@iwsdk/vite-plugin-dev": "0.3.1",
     "@iwsdk/vite-plugin-uikitml": "0.4.2",
     "@pmndrs/uikit": "1.0.74",
     "@pmndrs/uikitml": "0.1.12",

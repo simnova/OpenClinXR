@@ -18,7 +18,7 @@
     "package:azure": "pnpm run build:azure && pnpm run prepare:deploy",
     "smoke:azure": "pnpm run package:azure && tsx scripts/smoke-azure-bundle.ts",
     "lint": "biome lint --no-errors-on-unmatched .",
-    "typecheck": "tsgo --noEmit -p tsconfig.json",
+    "typecheck": "cellix-tsc --noEmit -p tsconfig.json",
     "test": "vitest run --root ."
   },
   "dependencies": {

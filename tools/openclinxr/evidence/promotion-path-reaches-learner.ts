@@ -25,6 +25,11 @@
 import { resolveLearnerExamScenarios } from "@openclinxr/xr-scene";
 import { createApiApp } from "../../../apps/api/src/index.js";
 import { adminGraphqlDocumentByOperationName } from "../../../packages/openclinxr/graphql/src/documents.js";
+import {
+  AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
+  authoredScenarioContentIdentity,
+  toAdminGraphqlScenario,
+} from "@openclinxr/rest";
 import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "../../../packages/openclinxr/rest/src/api-types.js";
 import {
   pediatricAsthmaScenario,
@@ -306,6 +311,33 @@ async function seedUnpromotedCloneThroughRealRoute(
 }
 
 /**
+ * Identity the server gate binds a review to: canonical hash of the ACTUALLY PERSISTED
+ * clone read back through GET /scenarios/:id — never the local draft, never the bank
+ * fixture (the distinguishing title alone would stale a fixture-derived hash). Re-read
+ * per gate (persisted-scene pattern). Missing/stale rejection stays server-side, unchanged.
+ */
+async function persistedAuthoredIdentityRef(
+  app: HonoLikeApp,
+  requestedPaths: string[],
+  scenarioId: string,
+): Promise<string> {
+  const res = await requestApp(
+    app,
+    `/scenarios/${encodeURIComponent(scenarioId)}`,
+    undefined,
+    requestedPaths,
+  );
+  if (res.status !== 200) {
+    throw new Error(`identity read GET /scenarios/${scenarioId} failed: ${res.status}`);
+  }
+  const envelope = (await res.json()) as { scenario?: Scenario };
+  if (!envelope.scenario) {
+    throw new Error(`identity read GET /scenarios/${scenarioId} returned no scenario`);
+  }
+  return `${AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX}${authoredScenarioContentIdentity(toAdminGraphqlScenario(envelope.scenario))}`;
+}
+
+/**
  * Drive all four review gates through the real admin GraphQL submit path.
  * Stage_0 → stage_1 is a side effect of persistAuthoredScenarioReviewPromotion when status becomes
  * approved and four approved decision records exist — not a separate route.
@@ -316,6 +348,7 @@ async function applyFourGateApprovalsThroughRealRoutes(
 ): Promise<void> {
   const submit = adminGraphqlDocumentByOperationName("SubmitScenarioReview");
   for (const reviewerRole of REVIEW_GATES) {
+    const identityRef = await persistedAuthoredIdentityRef(app, requestedPaths, PROMOTED_SCENARIO_ID);
     const res = await requestApp(
       app,
       "/admin/graphql",
@@ -335,7 +368,7 @@ async function applyFourGateApprovalsThroughRealRoutes(
               comments:
                 `${reviewerRole} gate approved for #167 promotion-path-reaches-learner seam proof `
                 + `(local formative only — not clinical validity).`,
-              evidenceRefs: [`evidence:issue167:${PROMOTED_SCENARIO_ID}:${reviewerRole}`],
+              evidenceRefs: [`evidence:issue167:${PROMOTED_SCENARIO_ID}:${reviewerRole}`, identityRef],
             },
           },
         }),

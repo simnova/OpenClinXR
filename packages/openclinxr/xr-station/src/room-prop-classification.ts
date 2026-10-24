@@ -377,11 +377,11 @@ export function stampRoomPropAliasesOnEquipmentRoot(
 ): void {
   const propIds = roomPropIdsAliasedToEquipment(equipmentId);
   if (propIds.length === 0) return;
-  const aliases = Array.isArray(root.userData.openClinXrEquipmentIdAliases)
-    ? (root.userData.openClinXrEquipmentIdAliases as string[])
+  const aliases = Array.isArray(root.userData["openClinXrEquipmentIdAliases"])
+    ? (root.userData["openClinXrEquipmentIdAliases"] as string[])
     : [];
   for (const propId of propIds) {
     if (!aliases.includes(propId)) aliases.push(propId);
   }
-  root.userData.openClinXrEquipmentIdAliases = aliases;
+  root.userData["openClinXrEquipmentIdAliases"] = aliases;
 }

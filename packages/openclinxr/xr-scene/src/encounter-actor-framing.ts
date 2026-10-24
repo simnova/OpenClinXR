@@ -38,7 +38,7 @@ type FramingOverrideRecord = { x: number; y: number; z: number };
  * is a discarded declared placement, not a framing touch.
  */
 function recordPlacementOverride(actor: Group): void {
-  actor.userData.openClinXrFramingOverrodePlacement = {
+  actor.userData["openClinXrFramingOverrodePlacement"] = {
     x: actor.position.x,
     y: actor.position.y,
     z: actor.position.z,
@@ -69,9 +69,9 @@ export function applyCleanEncounterVisualReviewActorFraming(
       actor.position.set(-0.72, 0, 0.08);
       actor.rotation.y = 0.16;
       actor.scale.setScalar(0.88);
-      actor.userData.openClinXrEncounterStaging =
+      actor.userData["openClinXrEncounterStaging"] =
         "ob_patient_standing_beside_offset_stretcher_clear_of_deck_and_work_surface";
-      actor.userData.openClinXrFloorStandingFrame = true;
+      actor.userData["openClinXrFloorStandingFrame"] = true;
       onWardrobeCue?.(actor, "patient");
       return;
     }
@@ -86,7 +86,7 @@ export function applyCleanEncounterVisualReviewActorFraming(
       actor.position.set(-0.22, 0.42, -0.04);
       actor.rotation.y = -0.24;
       actor.scale.setScalar(0.5);
-      actor.userData.openClinXrEncounterStaging = "ob_nurse_bedside_escalation_plan_position";
+      actor.userData["openClinXrEncounterStaging"] = "ob_nurse_bedside_escalation_plan_position";
       onWardrobeCue?.(actor, "clinical");
       return;
     }
@@ -96,7 +96,7 @@ export function applyCleanEncounterVisualReviewActorFraming(
       actor.position.set(0.26, 0.42, -0.2);
       actor.rotation.y = -0.34;
       actor.scale.setScalar(0.46);
-      actor.userData.openClinXrEncounterStaging =
+      actor.userData["openClinXrEncounterStaging"] =
         "ob_partner_peripheral_observer_without_occluding_patient";
       onWardrobeCue?.(actor, "family");
       return;
@@ -113,17 +113,17 @@ export function applyCleanEncounterVisualReviewActorFraming(
     );
     actor.rotation.y = 0.12;
     actor.scale.setScalar(0.88);
-    actor.userData.openClinXrEncounterStaging = "telehealth_patient_seated_on_patient_chair";
-    actor.userData.openClinXrFloorStandingFrame = false;
-    actor.userData.openClinXrActorPosture = "seated";
+    actor.userData["openClinXrEncounterStaging"] = "telehealth_patient_seated_on_patient_chair";
+    actor.userData["openClinXrFloorStandingFrame"] = false;
+    actor.userData["openClinXrActorPosture"] = "seated";
     onWardrobeCue?.(actor, "patient");
     return;
   }
 
   // Slot-kind first (#123): second clinical in additional_cast must not share clinical_team XZ.
   const slotKind =
-    typeof actor.userData.openClinXrSlotKind === "string"
-      ? actor.userData.openClinXrSlotKind
+    typeof actor.userData["openClinXrSlotKind"] === "string"
+      ? actor.userData["openClinXrSlotKind"]
       : "";
 
   // #591: a SEATED actor's XZ is owned by her authored seat anchor (runtimeActorPlacement
@@ -137,11 +137,11 @@ export function applyCleanEncounterVisualReviewActorFraming(
   // PINNED HERE ON PURPOSE. This guard stays at this position in the function; hoisting it above
   // the OB/telehealth branches would skip the telehealth chair plant, which was checked against
   // the tree rather than assumed.
-  const declaredPosture = (actor.userData.openClinXrActorPosture ?? input.posture ?? "") as string;
+  const declaredPosture = (actor.userData["openClinXrActorPosture"] ?? input.posture ?? "") as string;
   if (declaredPosture === "seated" || declaredPosture === "supine") {
     actor.rotation.y = -0.26;
     actor.scale.setScalar(0.82);
-    actor.userData.openClinXrEncounterStaging =
+    actor.userData["openClinXrEncounterStaging"] =
       declaredPosture === "supine"
         ? "supine_actor_keeps_authored_deck_anchor_framed_in_place"
         : "seated_actor_keeps_authored_seat_anchor_framed_in_place";
@@ -151,11 +151,11 @@ export function applyCleanEncounterVisualReviewActorFraming(
   // A generated case placement with a patient-facing heading is a complete staging decision:
   // preserve its XZ and let the heading consumer apply its authored yaw after this pass. The
   // legacy floor-standing frames remain the fallback for bundles without that case data.
-  if (declaredPosture === "standing" && actor.userData.openClinXrPreserveResolvedPlacement === true) {
+  if (declaredPosture === "standing" && actor.userData["openClinXrPreserveResolvedPlacement"] === true) {
     actor.scale.setScalar(0.86);
-    actor.userData.openClinXrEncounterStaging =
+    actor.userData["openClinXrEncounterStaging"] =
       "standing_actor_keeps_case_authored_bedside_position_and_heading";
-    actor.userData.openClinXrFloorStandingFrame = Math.abs(actor.position.y) < 0.2;
+    actor.userData["openClinXrFloorStandingFrame"] = Math.abs(actor.position.y) < 0.2;
     return;
   }
 
@@ -177,7 +177,7 @@ export function applyCleanEncounterVisualReviewActorFraming(
     actor.position.set(ADDITIONAL_CAST_FRAMING_XZ.x, 0, ADDITIONAL_CAST_FRAMING_XZ.z);
     actor.rotation.y = -0.12;
     actor.scale.setScalar(0.86);
-    actor.userData.openClinXrEncounterStaging =
+    actor.userData["openClinXrEncounterStaging"] =
       "additional_cast_team_adjacent_secondary_not_doorway";
   } else if (slotKind === "family_or_observer" || role.includes("family") || role.includes("parent") || role.includes("spouse")) {
     recordPlacementOverride(actor);
@@ -203,17 +203,17 @@ export function applyCleanEncounterVisualReviewActorFraming(
     actor.scale.setScalar(0.86);
   }
 
-  actor.userData.openClinXrEncounterStaging ??=
+  actor.userData["openClinXrEncounterStaging"] ??=
     "deterministic_clean_encounter_review_framing_keeps_case_defined_actors_visible_without_cropping";
   // Floor-standing frame: slot y=0. Pair with resolveEffectiveVerticalOffsetMeters at load.
-  actor.userData.openClinXrFloorStandingFrame = Math.abs(actor.position.y) < 0.2;
+  actor.userData["openClinXrFloorStandingFrame"] = Math.abs(actor.position.y) < 0.2;
 }
 
 export function addGeneratedHumanoidRoleContinuityWardrobeCue(
   actor: Group,
   roleCue: "patient" | "clinical" | "family",
 ): void {
-  actor.userData.openClinXrDynamicWardrobeCuePolicy =
+  actor.userData["openClinXrDynamicWardrobeCuePolicy"] =
     "suppressed_in_default_runtime_after_visual_evidence_showed_overlay_artifacts_reduce_realism";
-  actor.userData.openClinXrDynamicWardrobeCueRole = roleCue;
+  actor.userData["openClinXrDynamicWardrobeCueRole"] = roleCue;
 }

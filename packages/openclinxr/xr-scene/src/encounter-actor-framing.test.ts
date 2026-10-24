@@ -51,7 +51,7 @@ const OB = "ob_headache_preeclampsia_triage_v1";
 function actorWithDeclaredPlacement(): Group {
   const g = new Group();
   g.position.set(1.234, 0, 5.678);
-  g.userData.openClinXrActorRole = "patient";
+  g.userData["openClinXrActorRole"] = "patient";
   return g;
 }
 
@@ -104,8 +104,8 @@ describe("the visual-review framing pass does not silently discard a declared pl
 
   it("(4) keeps a complete case-authored standing placement instead of replacing it with a review slot", () => {
     const actor = actorWithDeclaredPlacement();
-    actor.userData.openClinXrActorPosture = "standing";
-    actor.userData.openClinXrPreserveResolvedPlacement = true;
+    actor.userData["openClinXrActorPosture"] = "standing";
+    actor.userData["openClinXrPreserveResolvedPlacement"] = true;
     applyCleanEncounterVisualReviewActorFraming({
       actor,
       actorId: "nurse_x",
@@ -115,8 +115,8 @@ describe("the visual-review framing pass does not silently discard a declared pl
       skipFraming: false,
     });
     expect(actor.position.toArray()).toEqual([1.234, 0, 5.678]);
-    expect(actor.userData.openClinXrFramingOverrodePlacement).toBeUndefined();
-    expect(actor.userData.openClinXrEncounterStaging).toBe(
+    expect(actor.userData["openClinXrFramingOverrodePlacement"]).toBeUndefined();
+    expect(actor.userData["openClinXrEncounterStaging"]).toBe(
       "standing_actor_keeps_case_authored_bedside_position_and_heading",
     );
   });

@@ -31,8 +31,7 @@
       },
       {
         "name": "bedsideClearanceViolations",
-        "kind": "runtime",
-        "via": "specifier"
+        "kind": "runtime"
       },
       {
         "name": "bedsideTargetForClinician",
@@ -78,6 +77,10 @@
         "name": "headingRadiansToward",
         "kind": "runtime",
         "via": "path-reach"
+      },
+      {
+        "name": "listShippedCastScenarioIds",
+        "kind": "runtime"
       },
       {
         "name": "ScenarioAssetBudget",
@@ -200,6 +203,10 @@
     "names": [
       {
         "name": "MPFB_GOWN_ADULT_PATIENT_GLB",
+        "kind": "runtime"
+      },
+      {
+        "name": "MPFB_GOWN_ADULT_PATIENT_GLB",
         "kind": "runtime",
         "via": "path-reach"
       }
@@ -250,6 +257,10 @@
         "name": "createEdChestPainRuntimeSceneManifest",
         "kind": "runtime",
         "via": "path-reach"
+      },
+      {
+        "name": "resolveScenarioActorCast",
+        "kind": "runtime"
       },
       {
         "name": "resolveScenarioActorCast",
@@ -359,15 +370,11 @@
     "entrypoint": ".",
     "names": [
       {
-        "name": "ROOM_ALBEDO_REL",
+        "name": "evaluateWalkSymmetry",
         "kind": "runtime"
       },
       {
-        "name": "ROOM_OCCLUSION_REL",
-        "kind": "runtime"
-      },
-      {
-        "name": "runRoomGenerate",
+        "name": "GATE_BARS",
         "kind": "runtime"
       },
       {
@@ -379,28 +386,36 @@
         "kind": "runtime"
       },
       {
+        "name": "ROOM_ALBEDO_REL",
+        "kind": "runtime"
+      },
+      {
+        "name": "ROOM_OCCLUSION_REL",
+        "kind": "runtime"
+      },
+      {
         "name": "runMotionRetarget",
         "kind": "runtime"
       },
       {
-        "name": "WalkGateReport",
-        "kind": "type"
+        "name": "runRoomGenerate",
+        "kind": "runtime"
       },
       {
         "name": "sampleWalkClip",
         "kind": "runtime"
       },
       {
-        "name": "evaluateWalkSymmetry",
-        "kind": "runtime"
-      },
-      {
-        "name": "GATE_BARS",
-        "kind": "runtime"
-      },
-      {
         "name": "WalkGateJoints",
         "kind": "type"
+      },
+      {
+        "name": "WalkGateReport",
+        "kind": "type"
+      },
+      {
+        "name": "writeLipSyncFixtureWav",
+        "kind": "runtime"
       }
     ]
   },
@@ -515,6 +530,18 @@
         "name": "ApiScenarioReviewDecisionRecord",
         "kind": "type",
         "via": "path-reach"
+      },
+      {
+        "name": "AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX",
+        "kind": "runtime"
+      },
+      {
+        "name": "authoredScenarioContentIdentity",
+        "kind": "runtime"
+      },
+      {
+        "name": "toAdminGraphqlScenario",
+        "kind": "runtime"
       }
     ]
   },
@@ -544,6 +571,10 @@
         "name": "pediatricAsthmaScenario",
         "kind": "runtime",
         "via": "path-reach"
+      },
+      {
+        "name": "scenarioBank",
+        "kind": "runtime"
       },
       {
         "name": "scenarioBank",
@@ -706,6 +737,344 @@
     ]
   },
   {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "CapacityMetric",
+        "kind": "type"
+      },
+      {
+        "name": "CapacityRun",
+        "kind": "type"
+      },
+      {
+        "name": "compareRuns",
+        "kind": "runtime"
+      },
+      {
+        "name": "evaluateRun",
+        "kind": "runtime"
+      },
+      {
+        "name": "HOST_LIMITS",
+        "kind": "runtime"
+      },
+      {
+        "name": "makeMetric",
+        "kind": "runtime"
+      },
+      {
+        "name": "makeRun",
+        "kind": "runtime"
+      },
+      {
+        "name": "parseRunRecord",
+        "kind": "runtime"
+      },
+      {
+        "name": "planCampaign",
+        "kind": "runtime"
+      },
+      {
+        "name": "runFixtureCampaign",
+        "kind": "runtime"
+      },
+      {
+        "name": "runHostWorkloads",
+        "kind": "runtime"
+      },
+      {
+        "name": "summarizeMetric",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./audio-frame-tags",
+    "names": [
+      {
+        "name": "classify",
+        "kind": "runtime"
+      },
+      {
+        "name": "closeGraph",
+        "kind": "runtime"
+      },
+      {
+        "name": "CONFIG",
+        "kind": "runtime"
+      },
+      {
+        "name": "countMetadataScalars",
+        "kind": "runtime"
+      },
+      {
+        "name": "deadlineStep",
+        "kind": "runtime"
+      },
+      {
+        "name": "decodeNodes",
+        "kind": "runtime"
+      },
+      {
+        "name": "encodeNodes",
+        "kind": "runtime"
+      },
+      {
+        "name": "NodeRecord",
+        "kind": "type"
+      },
+      {
+        "name": "NUMERIC_BOUNDS",
+        "kind": "runtime"
+      },
+      {
+        "name": "OperationState",
+        "kind": "type"
+      },
+      {
+        "name": "ownedCloseConfirmed",
+        "kind": "runtime"
+      },
+      {
+        "name": "requireBrowserCommandIdentity",
+        "kind": "runtime"
+      },
+      {
+        "name": "Role",
+        "kind": "type"
+      },
+      {
+        "name": "WORKLET_SOURCE",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./controller",
+    "names": [
+      {
+        "name": "CLARIFICATIONS_SHA256",
+        "kind": "runtime"
+      },
+      {
+        "name": "ControllerMetadata",
+        "kind": "type"
+      },
+      {
+        "name": "ControllerRecord",
+        "kind": "type"
+      },
+      {
+        "name": "ControllerRelease",
+        "kind": "type"
+      },
+      {
+        "name": "gradeControllerCohort",
+        "kind": "runtime"
+      },
+      {
+        "name": "gradeControllerRun",
+        "kind": "runtime"
+      },
+      {
+        "name": "INVENTORY",
+        "kind": "runtime"
+      },
+      {
+        "name": "PLAN_SHA256",
+        "kind": "runtime"
+      },
+      {
+        "name": "PROTOCOL_SHA256",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./stage0",
+    "names": [
+      {
+        "name": "createRecord",
+        "kind": "runtime"
+      },
+      {
+        "name": "gradeCohort",
+        "kind": "runtime"
+      },
+      {
+        "name": "gradeRun",
+        "kind": "runtime"
+      },
+      {
+        "name": "initializeSession",
+        "kind": "runtime"
+      },
+      {
+        "name": "RENDER_OPTIONS",
+        "kind": "runtime"
+      },
+      {
+        "name": "SCENE_MANIFEST",
+        "kind": "runtime"
+      },
+      {
+        "name": "Stage0Profile",
+        "kind": "type"
+      },
+      {
+        "name": "Stage0Record",
+        "kind": "type"
+      },
+      {
+        "name": "xrPixelProof",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./stage1",
+    "names": [
+      {
+        "name": "attachBoundaries",
+        "kind": "runtime"
+      },
+      {
+        "name": "AudioPreparationError",
+        "kind": "runtime"
+      },
+      {
+        "name": "AudioWindowRecorder",
+        "kind": "runtime"
+      },
+      {
+        "name": "createStage1",
+        "kind": "type"
+      },
+      {
+        "name": "DUPLEX_AUDIO_CONFIG",
+        "kind": "runtime"
+      },
+      {
+        "name": "DUPLEX_WORKLET_SOURCE",
+        "kind": "runtime"
+      },
+      {
+        "name": "prepareDuplexAudio",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./stage1-witnessed",
+    "names": [
+      {
+        "name": "createWitnessedStage1",
+        "kind": "runtime"
+      },
+      {
+        "name": "prepareWitnessedDuplexAudio",
+        "kind": "runtime"
+      },
+      {
+        "name": "WITNESS_WORKLET_SOURCE",
+        "kind": "runtime"
+      },
+      {
+        "name": "WITNESSED_AUDIO_CONFIG",
+        "kind": "runtime"
+      },
+      {
+        "name": "WitnessedAudioHandle",
+        "kind": "type"
+      },
+      {
+        "name": "WitnessedAudioPreparationError",
+        "kind": "runtime"
+      },
+      {
+        "name": "WitnessedStage1Metadata",
+        "kind": "type"
+      },
+      {
+        "name": "WitnessRecorder",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./stage2",
+    "names": [
+      {
+        "name": "gradeStage2Run",
+        "kind": "runtime"
+      },
+      {
+        "name": "ReservationAudit",
+        "kind": "type"
+      },
+      {
+        "name": "runStage2Media",
+        "kind": "runtime"
+      },
+      {
+        "name": "STAGE2_CONFIG",
+        "kind": "runtime"
+      },
+      {
+        "name": "STAGE2_PROTOCOL_SHA256",
+        "kind": "runtime"
+      },
+      {
+        "name": "STAGE2_WORKLET_SOURCE",
+        "kind": "runtime"
+      },
+      {
+        "name": "Stage2Budget",
+        "kind": "runtime"
+      },
+      {
+        "name": "Stage2Control",
+        "kind": "runtime"
+      },
+      {
+        "name": "Stage2Environment",
+        "kind": "type"
+      },
+      {
+        "name": "Stage2Identity",
+        "kind": "type"
+      },
+      {
+        "name": "Stage2Mode",
+        "kind": "type"
+      },
+      {
+        "name": "Stage2Observer",
+        "kind": "runtime"
+      },
+      {
+        "name": "Stage2OwnerTransfer",
+        "kind": "runtime"
+      },
+      {
+        "name": "Stage2RunRecord",
+        "kind": "type"
+      },
+      {
+        "name": "Stage2RunRelease",
+        "kind": "type"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-capture-evidence",
     "entrypoint": ".",
     "names": [
@@ -805,13 +1174,44 @@
         "via": "path-reach"
       },
       {
+        "name": "STOP_CROSSFADE_SECONDS",
+        "kind": "runtime"
+      },
+      {
         "name": "updateGeneratedHumanoidAnimations",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./case-owned-approach-runtime",
+    "names": [
+      {
+        "name": "advanceCaseOwnedBedsideApproach",
         "kind": "runtime",
         "via": "path-reach"
       },
       {
-        "name": "STOP_CROSSFADE_SECONDS",
-        "kind": "runtime"
+        "name": "applyCaseOwnedStanceLock",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "CaseOwnedApproachFrame",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "createCaseOwnedBedsideApproach",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "measureStanceGroundAdvance",
+        "kind": "runtime",
+        "via": "path-reach"
       }
     ]
   },
@@ -842,6 +1242,27 @@
       {
         "name": "footBaseScheduleStance",
         "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./locomotion-clip-playback",
+    "names": [
+      {
+        "name": "playLocomotionClip",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./mounted-approach-geometry",
+    "names": [
+      {
+        "name": "observeMountedApproachGeometry",
+        "kind": "runtime",
+        "via": "path-reach"
       }
     ]
   },
@@ -888,58 +1309,6 @@
       {
         "name": "worldXyz",
         "kind": "runtime"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/xr-humanoid-animation",
-    "entrypoint": "./case-owned-approach-runtime",
-    "names": [
-      {
-        "name": "advanceCaseOwnedBedsideApproach",
-        "kind": "runtime",
-        "via": "path-reach"
-      },
-      {
-        "name": "applyCaseOwnedStanceLock",
-        "kind": "runtime",
-        "via": "path-reach"
-      },
-      {
-        "name": "CaseOwnedApproachFrame",
-        "kind": "type",
-        "via": "path-reach"
-      },
-      {
-        "name": "createCaseOwnedBedsideApproach",
-        "kind": "runtime",
-        "via": "path-reach"
-      },
-      {
-        "name": "measureStanceGroundAdvance",
-        "kind": "runtime",
-        "via": "path-reach"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/xr-humanoid-animation",
-    "entrypoint": "./locomotion-clip-playback",
-    "names": [
-      {
-        "name": "playLocomotionClip",
-        "kind": "runtime"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/xr-humanoid-animation",
-    "entrypoint": "./mounted-approach-geometry",
-    "names": [
-      {
-        "name": "observeMountedApproachGeometry",
-        "kind": "runtime",
-        "via": "path-reach"
       }
     ]
   },

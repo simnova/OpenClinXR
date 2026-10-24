@@ -46,7 +46,7 @@ function excludedFromLayoutBounds(mesh: Mesh): boolean {
   let current: Object3D | null = mesh;
   while (current) {
     if (!current.visible) return true;
-    if (current.userData.openClinXrPortalInteriorReviewAffordance === true) return true;
+    if (current.userData["openClinXrPortalInteriorReviewAffordance"] === true) return true;
     current = current.parent;
   }
   return false;
@@ -134,7 +134,7 @@ export function installStationLayoutView(scene: Scene, canvas: HTMLCanvasElement
       hold.far = Math.max(40, hold.position.y - covered.min.y + 2);
       hold.updateProjectionMatrix();
       hold.name = "openclinxr.layout-overhead";
-      hold.userData.openClinXrLayoutView = {
+      hold.userData["openClinXrLayoutView"] = {
         mode,
         eyeAboveSceneMaxMeters: 1,
         coveredBounds: {

@@ -68,9 +68,9 @@ function recordPlantStep(
     seatClearanceMeters: measureSeatClearanceMeters(humanoidRoot, deckTopY),
     headPillow: measureHeadPillowGapMeters(humanoidRoot, pillow),
   };
-  const steps = (humanoidRoot.userData.openClinXrPlantSteps as PlantStepMetrics[] | undefined) ?? [];
+  const steps = (humanoidRoot.userData["openClinXrPlantSteps"] as PlantStepMetrics[] | undefined) ?? [];
   steps.push(metrics);
-  humanoidRoot.userData.openClinXrPlantSteps = steps;
+  humanoidRoot.userData["openClinXrPlantSteps"] = steps;
   return metrics;
 }
 
@@ -87,7 +87,7 @@ export function applySupinePoseHoldingIncline(humanoidRoot: Object3D): ApplySupi
   reapplyStoredSupineArmFlex(humanoidRoot);
   reapplyStoredSupineFootFlex(humanoidRoot);
   reapplySupineArticulatedContact(humanoidRoot);
-  const stored = humanoidRoot.userData?.openClinXrSupineRootQuat as
+  const stored = humanoidRoot.userData?.["openClinXrSupineRootQuat"] as
     | { x: number; y: number; z: number; w: number }
     | undefined;
   if (
@@ -101,7 +101,7 @@ export function applySupinePoseHoldingIncline(humanoidRoot: Object3D): ApplySupi
     humanoidRoot.rotation.setFromQuaternion(humanoidRoot.quaternion, humanoidRoot.rotation.order);
     return result;
   }
-  const raw = humanoidRoot.userData?.openClinXrSupineInclineDegrees;
+  const raw = humanoidRoot.userData?.["openClinXrSupineInclineDegrees"];
   const incline = typeof raw === "number" && Number.isFinite(raw) ? raw : 0;
   if (Math.abs(incline) >= 1e-3) {
     applySupineInclineRotationOnly(humanoidRoot, incline);
@@ -120,15 +120,15 @@ export function applySupineInclineRotationOnly(
   inclineDegrees: number,
 ): void {
   if (!Number.isFinite(inclineDegrees) || Math.abs(inclineDegrees) < 1e-6) {
-    humanoidRoot.userData.openClinXrSupineInclineDegrees = 0;
+    humanoidRoot.userData["openClinXrSupineInclineDegrees"] = 0;
     return;
   }
   const rad = (-inclineDegrees * Math.PI) / 180;
   const worldTip = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), rad);
   humanoidRoot.quaternion.premultiply(worldTip);
   humanoidRoot.rotation.setFromQuaternion(humanoidRoot.quaternion, humanoidRoot.rotation.order);
-  humanoidRoot.userData.openClinXrSupineInclineDegrees = inclineDegrees;
-  humanoidRoot.userData.openClinXrSupineInclineSource = "deck_leads_body_follows_world_z_rotation_only";
+  humanoidRoot.userData["openClinXrSupineInclineDegrees"] = inclineDegrees;
+  humanoidRoot.userData["openClinXrSupineInclineSource"] = "deck_leads_body_follows_world_z_rotation_only";
 }
 
 /**
@@ -269,7 +269,7 @@ export function applySupineInclineMatchingDeck(
   hingeWorld?: { x: number; y: number; z: number },
 ): void {
   if (!Number.isFinite(inclineDegrees) || Math.abs(inclineDegrees) < 1e-6) {
-    humanoidRoot.userData.openClinXrSupineInclineDegrees = 0;
+    humanoidRoot.userData["openClinXrSupineInclineDegrees"] = 0;
     return;
   }
   const rad = (-inclineDegrees * Math.PI) / 180;
@@ -289,7 +289,7 @@ export function applySupineInclineMatchingDeck(
     humanoidRoot.quaternion.premultiply(worldTip);
     humanoidRoot.rotation.setFromQuaternion(humanoidRoot.quaternion, humanoidRoot.rotation.order);
     humanoidRoot.updateMatrixWorld?.(true);
-    humanoidRoot.userData.openClinXrSupineInclineSource = "deck_leads_body_follows_hob_hinge";
+    humanoidRoot.userData["openClinXrSupineInclineSource"] = "deck_leads_body_follows_hob_hinge";
   } else {
     // Harness / no stretcher: tip about pelvis (pre-#171 behaviour).
     const before = readPelvisWorld(humanoidRoot);
@@ -303,9 +303,9 @@ export function applySupineInclineMatchingDeck(
       humanoidRoot.position.z += before.z - after.z;
       humanoidRoot.updateMatrixWorld?.(true);
     }
-    humanoidRoot.userData.openClinXrSupineInclineSource = "deck_leads_body_follows_world_z";
+    humanoidRoot.userData["openClinXrSupineInclineSource"] = "deck_leads_body_follows_world_z";
   }
-  humanoidRoot.userData.openClinXrSupineInclineDegrees = inclineDegrees;
+  humanoidRoot.userData["openClinXrSupineInclineDegrees"] = inclineDegrees;
 }
 
 /**
@@ -391,12 +391,12 @@ export function applyAndPlantSupineOnDeck(
     incline = readStretcherInclineDegrees(input.stretcher);
     // Cross-check live back plane (cannot desync if setStretcherInclineDegrees owns both).
     const liveBack = readStretcherBackSectionWorldDeg(input.stretcher);
-    humanoidRoot.userData.openClinXrDeckBackSectionWorldDeg = liveBack;
+    humanoidRoot.userData["openClinXrDeckBackSectionWorldDeg"] = liveBack;
   } else if (typeof input.inclineDegrees === "number" && Number.isFinite(input.inclineDegrees)) {
     incline = Math.max(0, Math.min(45, input.inclineDegrees));
   }
   const inclined = Math.abs(incline) >= 1e-3;
-  delete humanoidRoot.userData.openClinXrSupinePillowWorld;
+  delete humanoidRoot.userData["openClinXrSupinePillowWorld"];
   const contactMode: SupinePlantContactMode = inclined ? "pelvis_seat" : "all_torso";
 
   /**
@@ -405,7 +405,7 @@ export function applyAndPlantSupineOnDeck(
    * #171 adds only: step metrics, stored tip quat, live pillow XZ, and a *bounded* seat
    * lift that cannot push back gap past 0.05 (or is skipped when already floating).
    */
-  humanoidRoot.userData.openClinXrPlantSteps = [];
+  humanoidRoot.userData["openClinXrPlantSteps"] = [];
   const poseResult = applySupinePose(humanoidRoot, input.applyJointEulers === false ? { applyJointEulers: false } : {});
   if (isMpfb2Rig(collectJointNames(humanoidRoot)) && input.stretcher) {
     const bedRotation = input.stretcher.getWorldQuaternion(new Quaternion());
@@ -434,7 +434,7 @@ export function applyAndPlantSupineOnDeck(
   } else if (inclined && input.stretcher) {
     // Keep the pelvis and lower body on the flat seat. Articulate the spine against the raised
     // back instead of tipping the whole person, which lifts both hips and feet into the air.
-    humanoidRoot.userData.openClinXrSupinePillowWorld = livePillow ? { ...livePillow } : undefined;
+    humanoidRoot.userData["openClinXrSupinePillowWorld"] = livePillow ? { ...livePillow } : undefined;
   } else {
     plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness, { contactMode: "all_torso" });
     liftSupineBodyAboveDeck(humanoidRoot, input.deckTopWorldY, -0.02);
@@ -446,20 +446,20 @@ export function applyAndPlantSupineOnDeck(
   // Rest wrists after planting on the MPFB rail, whose absolute joint map is skipped.
   if (poseResult.bonesTouched.length === 0) {
     const armFlex = flexSupineArmsOntoDeck(humanoidRoot, input.deckTopWorldY);
-    humanoidRoot.userData.openClinXrSupineArmFlex = armFlex;
+    humanoidRoot.userData["openClinXrSupineArmFlex"] = armFlex;
   }
   if (isMpfb2Rig(collectJointNames(humanoidRoot)) && input.stretcher) solveSupineArticulatedContact(humanoidRoot, makeSupineSupportPlanes(input.stretcher, input.deckTopWorldY, true), input.stretcher);
   if (isMpfb2Rig(collectJointNames(humanoidRoot)) && input.stretcher) {
-    humanoidRoot.userData.openClinXrSupineArmFlex = flexSupineArmsOntoDeck(humanoidRoot, input.deckTopWorldY, { targetAboveDeck: 0.065, floorAboveDeck: 0.035 });
+    humanoidRoot.userData["openClinXrSupineArmFlex"] = flexSupineArmsOntoDeck(humanoidRoot, input.deckTopWorldY, { targetAboveDeck: 0.065, floorAboveDeck: 0.035 });
     applyContactAwareSupineArms(humanoidRoot, input.stretcher);
   }
-  humanoidRoot.userData.openClinXrSupinePlantDeltaY = plant.deltaY;
-  humanoidRoot.userData.openClinXrSupinePlantBodyMinBefore = plant.bodyMinYBefore;
-  humanoidRoot.userData.openClinXrSupineCenterDelta = center;
-  humanoidRoot.userData.openClinXrSupineHeadAlignDeltaX = headAlignDeltaX;
-  humanoidRoot.userData.openClinXrSupineInclineDegrees = incline;
+  humanoidRoot.userData["openClinXrSupinePlantDeltaY"] = plant.deltaY;
+  humanoidRoot.userData["openClinXrSupinePlantBodyMinBefore"] = plant.bodyMinYBefore;
+  humanoidRoot.userData["openClinXrSupineCenterDelta"] = center;
+  humanoidRoot.userData["openClinXrSupineHeadAlignDeltaX"] = headAlignDeltaX;
+  humanoidRoot.userData["openClinXrSupineInclineDegrees"] = incline;
   // Per-frame restores this exact tip (hinge plant) instead of re-deriving rotation-only.
-  humanoidRoot.userData.openClinXrSupineRootQuat = {
+  humanoidRoot.userData["openClinXrSupineRootQuat"] = {
     x: humanoidRoot.quaternion.x,
     y: humanoidRoot.quaternion.y,
     z: humanoidRoot.quaternion.z,

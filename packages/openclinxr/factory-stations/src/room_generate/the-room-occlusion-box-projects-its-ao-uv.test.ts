@@ -53,8 +53,8 @@ const execFileAsync = promisify(execFile);
 const SRC = path.dirname(fileURLToPath(import.meta.url));
 const BAKE_PY = path.join(SRC, "room-occlusion-bake.py");
 const REPO = path.resolve(SRC, "../../../../..");
-const WARD_GLB = process.env.WARD_PROPERTY_GLB
-  ? path.resolve(REPO, process.env.WARD_PROPERTY_GLB)
+const WARD_GLB = process.env["WARD_PROPERTY_GLB"]
+  ? path.resolve(REPO, process.env["WARD_PROPERTY_GLB"])
   : path.join(REPO, "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb");
 
 const DRIVER = `

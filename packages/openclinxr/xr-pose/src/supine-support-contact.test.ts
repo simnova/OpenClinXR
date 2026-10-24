@@ -137,7 +137,7 @@ describe("shipped supine body rests on both articulated mattress sections", () =
     const untouched = bedless.getObjectByName("finger2-2R")!;
     const native = untouched.quaternion.clone().normalize();
     applyAndPlantSupineOnDeck(bedless, { deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
-    expect(bedless.userData.openClinXrSupineHandCandidate).toBeUndefined();
+    expect(bedless.userData["openClinXrSupineHandCandidate"]).toBeUndefined();
     expect(untouched.quaternion.clone().normalize().angleTo(native)).toBeLessThan(1e-7);
     const root = await shippedBody();
     root.getObjectByName("lowerarm01R")!.name = "missing_canonical_forearm";
@@ -146,7 +146,7 @@ describe("shipped supine body rests on both articulated mattress sections", () =
     const bed = buildPatientStretcher({ slotId: "refusal", position: { x: 0, y: 0, z: 0 }, trimColor: 0, inclineDegrees: 30 });
     const parent = new Group(); parent.scale.setScalar(0.82); parent.add(root);
     applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
-    const right = (root.userData.openClinXrSupineHandCandidate as Array<{ side: string; unresolved: string | null }>).find((row) => row.side === "R")!;
+    const right = (root.userData["openClinXrSupineHandCandidate"] as Array<{ side: string; unresolved: string | null }>).find((row) => row.side === "R")!;
     expect(right.unresolved).toBe("missing real chain or anatomical hand surface");
     expect(finger.quaternion.clone().normalize().angleTo(original), "refused right hand restores native caller fingers").toBeLessThan(1e-7);
     applySupinePoseHoldingIncline(root);
@@ -176,14 +176,14 @@ describe("shipped supine body rests on both articulated mattress sections", () =
     const garments: Array<{ mesh: Mesh; visible: boolean }> = [];
     root.traverse((object) => { const mesh = object as Mesh; if (mesh.isMesh && /garment|shirt|pants|gown|trouser/iu.test(mesh.name)) { garments.push({ mesh, visible: mesh.visible }); mesh.visible = false; } });
     applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
-    const saved = root.userData.openClinXrSupineArmFlexBones as Array<{ name: string; quaternion: { x: number; y: number; z: number; w: number } }>;
+    const saved = root.userData["openClinXrSupineArmFlexBones"] as Array<{ name: string; quaternion: { x: number; y: number; z: number; w: number } }>;
     const accepted = new Map(saved.map((row) => [row.name, new Quaternion(row.quaternion.x, row.quaternion.y, row.quaternion.z, row.quaternion.w)]));
     const impossibleCloth = new Mesh(new BoxGeometry(10, 10, 10), new MeshBasicMaterial());
     impossibleCloth.name = "diagnostic_trousers";
     root.add(impossibleCloth);
     for (const garment of garments) garment.mesh.visible = garment.visible;
     applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
-    for (const candidate of root.userData.openClinXrSupineHandCandidate) {
+    for (const candidate of root.userData["openClinXrSupineHandCandidate"]) {
       expect(candidate.accepted).toBe(true);
       expect(candidate.garmentLane.status).toBe("infeasible-retained-contact");
       expect(candidate.garmentLane.refusal).toBeTruthy();
@@ -208,7 +208,7 @@ describe("shipped supine body rests on both articulated mattress sections", () =
     const nativePips = pips.map((bone) => bone.quaternion.clone().normalize());
     applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
     for (let i = 0; i < pips.length; i += 1) expect(pips[i]!.quaternion.clone().normalize().angleTo(nativePips[i]!), `${pips[i]!.name} public plant selected soft curl`).toBeCloseTo(0.4, 5);
-    const candidates = root.userData.openClinXrSupineHandCandidate as Array<{ side: string; accepted: boolean; unresolved: string | null; hand: { samples: number; outside: number; minGap: number; contactGap: number }; forearm: { samples: number; outside: number; minGap: number; contactGap: number }; garmentLane: { status: string; before: { separation: number }; after: { separation: number; shift: number } } }>;
+    const candidates = root.userData["openClinXrSupineHandCandidate"] as Array<{ side: string; accepted: boolean; unresolved: string | null; hand: { samples: number; outside: number; minGap: number; contactGap: number }; forearm: { samples: number; outside: number; minGap: number; contactGap: number }; garmentLane: { status: string; before: { separation: number }; after: { separation: number; shift: number } } }>;
     expect(candidates.map((row) => row.side).sort()).toEqual(["L", "R"]);
     for (const row of candidates) {
       expect(row.accepted, `${row.side} production candidate`).toBe(true);
@@ -232,7 +232,7 @@ describe("shipped supine body rests on both articulated mattress sections", () =
     const mixer = new AnimationMixer(root);
     mixer.clipAction(new AnimationClip("real arm wrist finger overwrite", 1, owned.map((bone) => new QuaternionKeyframeTrack(`${bone.name}.quaternion`, [0, 1], [...overwrite, ...overwrite])))).play();
     expectContact(root, bed);
-    expect(root.userData.openClinXrSupineArticulatedSupportResolved).toBe(true);
+    expect(root.userData["openClinXrSupineArticulatedSupportResolved"]).toBe(true);
     const base = { ...root.position, scaleX: root.scale.x, scaleY: root.scale.y, scaleZ: root.scale.z };
     for (let frame = 0; frame < 120; frame += 1) {
       mixer.update(1 / 60);
@@ -265,5 +265,7 @@ describe("shipped supine body rests on both articulated mattress sections", () =
     expect(root.position.distanceTo(original), "repeat plant stays stable").toBeLessThan(0.001);
     for (let i = 0; i < owned.length; i += 1) expect(owned[i]!.quaternion.clone().normalize().angleTo(accepted[i]!), `${owned[i]!.name} repeated public plant quaternion`).toBeLessThan(1e-6);
     expectContact(root, bed);
-  }, 30_000);
+  // Heavy 60k-vertex real-GLB fixture + 120 hold frames under parallel CI needs operational
+  // headroom: offline watchdog only, not a frame/quality budget. Cases/frames/assertions unchanged.
+  }, 60_000);
 });

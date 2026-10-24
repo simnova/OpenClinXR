@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { baseConfig, createDefaultTypecheckConfig, defaultTestIncludePatterns } from "./base.config.js";
+import { baseConfig, createDefaultTypecheckConfig, defaultTestIncludePatterns, nativeCompilerPath } from "./base.config.js";
 
 describe("base Vitest config", () => {
-  it("uses Cellix tsgo typechecking defaults", () => {
+  it("uses pinned native compiler typechecking defaults", () => {
     expect(createDefaultTypecheckConfig()).toEqual({
       enabled: true,
-      checker: "tsgo",
+      checker: nativeCompilerPath,
       tsconfig: "tsconfig.vitest.json",
       include: defaultTestIncludePatterns,
       exclude: ["**/node_modules/**", "src/archunit-tests/**", "**/dist/**", "**/coverage/**"],

@@ -87,7 +87,7 @@ function driveTrackAt(cues: Cue[], mediaS: number, durationMs: number) {
     activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs, bakedCues: cues },
     mediaPositionSeconds: () => mediaS,
   });
-  const tag = root.userData.openClinXrNamedVisemeDrive as
+  const tag = root.userData["openClinXrNamedVisemeDrive"] as
     | { weights?: Record<string, number>; jawFraction?: number }
     | undefined;
   return { weights: { ...(tag?.weights ?? {}) }, jawFraction: tag?.jawFraction ?? NaN };
@@ -115,9 +115,9 @@ describe("pp seal neighbour suppression (headless weight proxy for the 0.5mm lip
     expect(inside.length).toBeGreaterThan(0);
     for (const n of inside) {
       const driven = driveAt(frameMediaS(n));
-      expect(driven.weights.viseme_PP ?? NaN, `frame ${n} PP`).toBe(1);
-      expect(driven.weights.viseme_E ?? NaN, `frame ${n} E`).toBe(0);
-      expect(driven.weights.viseme_DD ?? NaN, `frame ${n} DD`).toBe(0);
+      expect(driven.weights["viseme_PP"] ?? NaN, `frame ${n} PP`).toBe(1);
+      expect(driven.weights["viseme_E"] ?? NaN, `frame ${n} E`).toBe(0);
+      expect(driven.weights["viseme_DD"] ?? NaN, `frame ${n} DD`).toBe(0);
       expect(driven.jawFraction, `frame ${n} jaw`).toBe(0);
     }
   });
@@ -126,9 +126,9 @@ describe("pp seal neighbour suppression (headless weight proxy for the 0.5mm lip
     const pp = step3Cue("PP");
     const centreS = pp.atSecond + (pp.durationSeconds ?? 0) / 2;
     const driven = driveAt(centreS);
-    expect(driven.weights.viseme_PP ?? NaN).toBe(1);
-    expect(driven.weights.viseme_E ?? NaN).toBe(0);
-    expect(driven.weights.viseme_DD ?? NaN).toBe(0);
+    expect(driven.weights["viseme_PP"] ?? NaN).toBe(1);
+    expect(driven.weights["viseme_E"] ?? NaN).toBe(0);
+    expect(driven.weights["viseme_DD"] ?? NaN).toBe(0);
     expect(driven.jawFraction).toBe(0);
   });
 
@@ -167,7 +167,7 @@ describe("pp seal neighbour suppression (headless weight proxy for the 0.5mm lip
     const thSeries = Array.from({ length: 62 }, (_, n) => driveTrackAt(thCues, frameMediaS(n), 2130));
     let maxTh = 0;
     for (let n = 1; n < thSeries.length; n += 1) {
-      maxTh = Math.max(maxTh, Math.abs((thSeries[n]?.weights.viseme_TH ?? 0) - (thSeries[n - 1]?.weights.viseme_TH ?? 0)));
+      maxTh = Math.max(maxTh, Math.abs((thSeries[n]?.weights["viseme_TH"] ?? 0) - (thSeries[n - 1]?.weights["viseme_TH"] ?? 0)));
     }
     expect(maxTh).toBeLessThanOrEqual(0.25);
   });
@@ -182,8 +182,8 @@ describe("pp seal neighbour suppression (headless weight proxy for the 0.5mm lip
     const ff = ffCues.find((entry) => entry.phoneme === "FF");
     if (!ff) throw new Error("synthetic track has no FF cue");
     const driven = driveTrackAt(ffCues, ff.atSecond + (ff.durationSeconds ?? 0) / 2, 2130);
-    expect(driven.weights.viseme_PP ?? NaN).toBe(0);
-    expect(driven.weights.viseme_FF ?? NaN).toBeCloseTo(1, 5);
+    expect(driven.weights["viseme_PP"] ?? NaN).toBe(0);
+    expect(driven.weights["viseme_FF"] ?? NaN).toBeCloseTo(1, 5);
   });
 
   it("drives pure FF at K = 0: PP stays 0 through the cue, FF uncapped", () => {
@@ -191,10 +191,10 @@ describe("pp seal neighbour suppression (headless weight proxy for the 0.5mm lip
     if (!ff) throw new Error("synthetic track has no FF cue");
     const centreS = ff.atSecond + (ff.durationSeconds ?? 0) / 2;
     const driven = driveTrackAt(ffCues, centreS, 2130);
-    expect(driven.weights.viseme_PP ?? NaN).toBe(0);
-    expect(driven.weights.viseme_FF ?? NaN).toBeCloseTo(1, 5);
-    expect(driven.weights.viseme_E ?? NaN).toBe(0);
-    expect(driven.weights.viseme_DD ?? NaN).toBe(0);
+    expect(driven.weights["viseme_PP"] ?? NaN).toBe(0);
+    expect(driven.weights["viseme_FF"] ?? NaN).toBeCloseTo(1, 5);
+    expect(driven.weights["viseme_E"] ?? NaN).toBe(0);
+    expect(driven.weights["viseme_DD"] ?? NaN).toBe(0);
   });
 
   it("keeps the FF pair bounded and jaw shut across the FF cue (U1: FF carries, PP stays out)", () => {
@@ -212,8 +212,8 @@ describe("pp seal neighbour suppression (headless weight proxy for the 0.5mm lip
     expect(inside.length).toBeGreaterThan(0);
     for (const n of inside) {
       const driven = driveTrackAt(ffCues, frameMediaS(n), 2130);
-      const pp = driven.weights.viseme_PP ?? NaN;
-      const ffc = driven.weights.viseme_FF ?? NaN;
+      const pp = driven.weights["viseme_PP"] ?? NaN;
+      const ffc = driven.weights["viseme_FF"] ?? NaN;
       expect(pp).toBe(0);
       expect(pp + ffc).toBeLessThanOrEqual(1 + 1e-9);
       expect(driven.jawFraction, `frame ${n} jaw`).toBe(0);
@@ -228,8 +228,8 @@ describe("pp seal neighbour suppression (headless weight proxy for the 0.5mm lip
       expect(second(frame).jawFraction, `frame ${frame} jaw`).toBe(first(frame).jawFraction);
     }
     expect(first(16).jawFraction).toBe(0.5186163779985098);
-    expect(first(40).weights.viseme_PP ?? 0).toBe(0);
-    expect(first(40).weights.viseme_FF ?? 0).toBe(0);
-    expect(first(40).weights.viseme_TH ?? 0).toBe(0);
+    expect(first(40).weights["viseme_PP"] ?? 0).toBe(0);
+    expect(first(40).weights["viseme_FF"] ?? 0).toBe(0);
+    expect(first(40).weights["viseme_TH"] ?? 0).toBe(0);
   });
 });

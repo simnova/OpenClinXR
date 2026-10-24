@@ -94,7 +94,7 @@ export function markActorCastShadow(root: Object3D): void {
   root.traverse((object) => {
     if (object instanceof Mesh) {
       object.castShadow = true;
-      object.userData.openClinXrCaptureShadowPolicy =
+      object.userData["openClinXrCaptureShadowPolicy"] =
         "cast_shadow_for_capture_path_contact_shadows";
     }
   });

@@ -43,6 +43,7 @@ import {
   buildSideRailsEquipment,
   buildStretcherEquipment,
 } from "./station-equipment-support-surfaces.js";
+import { buildOrthopedicKitFamilyEquipment } from "./station-equipment-orthopedic-kit.js";
 import {
   buildCurtainTrackEquipment,
   buildHandGelDispenserEquipment,
@@ -115,11 +116,11 @@ function tagEquipmentRoot(
   source: EquipmentMountSource,
   family?: EquipmentFamily,
 ): Group {
-  root.userData.openClinXrEquipmentId = equipmentId;
-  root.userData.openClinXrEquipmentSource = source;
-  root.userData.openClinXrRuntimeEquipmentAssetId = equipmentId;
-  root.userData.openClinXrAffordances = ["selectable_equipment_reference", "clinical_workflow_cue"];
-  if (family) root.userData.openClinXrEquipmentFamily = family;
+  root.userData["openClinXrEquipmentId"] = equipmentId;
+  root.userData["openClinXrEquipmentSource"] = source;
+  root.userData["openClinXrRuntimeEquipmentAssetId"] = equipmentId;
+  root.userData["openClinXrAffordances"] = ["selectable_equipment_reference", "clinical_workflow_cue"];
+  if (family) root.userData["openClinXrEquipmentFamily"] = family;
   return root;
 }
 
@@ -243,6 +244,14 @@ export function buildDeclaredEquipmentGeometry(equipmentId: string): Group {
       return buildWallOutletPlateEquipment(equipmentId);
     case "light_switch_equipment":
       return buildLightSwitchEquipment(equipmentId);
+    // #785 knee-clinic orthopedic kit — one shared family builder, distinct
+    // silhouettes per kind (never the generic fallback pole).
+    case "crutches_equipment":
+      return buildOrthopedicKitFamilyEquipment(equipmentId, "crutches");
+    case "goniometer_equipment":
+      return buildOrthopedicKitFamilyEquipment(equipmentId, "goniometer");
+    case "ice_pack_equipment":
+      return buildOrthopedicKitFamilyEquipment(equipmentId, "ice_pack");
     case "hand_gel_dispenser_equipment":
       return buildHandGelDispenserEquipment(equipmentId);
     case "curtain_track_equipment":

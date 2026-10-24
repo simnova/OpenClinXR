@@ -1820,11 +1820,11 @@ export function remoteActorTurnForTraceTag(tag: string, scenarioId?: string): Re
 }
 
 export function actorResponseTextFromApiResult(result: unknown): string | undefined {
-  if (!isRecord(result) || !isRecord(result.response) || typeof result.response.text !== "string") {
+  if (!isRecord(result) || !isRecord(result["response"]) || typeof result["response"]["text"] !== "string") {
     return undefined;
   }
 
-  const text = result.response.text.trim();
+  const text = result["response"]["text"].trim();
   return text ? text : undefined;
 }
 

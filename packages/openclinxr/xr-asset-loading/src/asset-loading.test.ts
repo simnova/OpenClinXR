@@ -207,7 +207,7 @@ function buildHeadLockedTeeth(): { root: Group; mesh: SkinnedMesh } {
   head.add(jaw);
   const mesh = new SkinnedMesh(new BoxGeometry(1, 1, 1), new MeshStandardMaterial());
   mesh.name = "teeth_mesh";
-  const pos = mesh.geometry.attributes.position;
+  const pos = mesh.geometry.attributes["position"];
   if (!pos) throw new Error("box has no position");
   pos.setY(0, 1);
   pos.setY(1, 0.5);
@@ -230,8 +230,8 @@ function buildHeadLockedTeeth(): { root: Group; mesh: SkinnedMesh } {
 }
 
 function strongestJoint(mesh: SkinnedMesh, v: number): number {
-  const si = mesh.geometry.attributes.skinIndex;
-  const sw = mesh.geometry.attributes.skinWeight;
+  const si = mesh.geometry.attributes["skinIndex"];
+  const sw = mesh.geometry.attributes["skinWeight"];
   if (!si || !sw) throw new Error("missing skin attributes");
   let bi = si.getX(v);
   let bw = sw.getX(v);
@@ -244,7 +244,7 @@ function strongestJoint(mesh: SkinnedMesh, v: number): number {
 describe("rebindHeadLockedTeeth", () => {
   it("moves the lower half onto the jaw and keeps the upper on head", () => {
     const { root, mesh } = buildHeadLockedTeeth();
-    const pos = mesh.geometry.attributes.position;
+    const pos = mesh.geometry.attributes["position"];
     if (!pos) throw new Error("box has no position");
     const ys = [...Array(pos.count).keys()].map((v) => pos.getY(v)).sort((a, b) => a - b);
     const median = ys[Math.floor(pos.count / 2)] ?? 0;

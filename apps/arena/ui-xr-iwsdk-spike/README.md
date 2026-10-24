@@ -8,9 +8,9 @@
 
 **Production relationship:** this sidecar may prove IWSDK capability, MCP/tooling, scene hierarchy, bundle, and Quest behavior. It is not the production learner runtime. `apps/ui-xr` remains the production XR shell until a MADR update or successor MADR explicitly promotes IWSDK behind stable runtime contracts.
 
-**Current IWSDK pin:** `@iwsdk/core@0.5.1`, `@iwsdk/xr-input@0.5.1`, `@iwsdk/vite-plugin-dev@0.5.1`, and `@iwsdk/vite-plugin-uikitml@0.4.2`. The IWSDK Vite plugins still declare `vite: ^7.0.0`; OpenClinXR keeps this as a sidecar validation exception while the repo remains on Vite `8.0.16`.
+**Current IWSDK pin (licensed MIT chain):** `@iwsdk/core@0.4.2`, `@iwsdk/xr-input@0.4.2`, `@iwsdk/vite-plugin-dev@0.3.1`, and `@iwsdk/vite-plugin-uikitml@0.4.2`. Core 0.4.2 depends on MIT `@pmndrs/uikitml@^0.1.12` (no `@drawcall` dependency) and dev-plugin 0.3.1 depends on `sharp@^0.33.0` (approved libvips path). `@iwsdk/scene-composition` is intentionally not installed: no sidecar source imports it and it publishes no 0.4-line. The IWSDK Vite plugins still declare `vite: ^7.0.0`; OpenClinXR keeps this as a sidecar validation exception while the repo remains on Vite `8.0.16`.
 
-**Portless / Quest USB:** `dev:portless` serves **HTTP** on `127.0.0.1` (IWSDK plugin `https: false`) so Quest Browser can load via `adb reverse` without a self-signed cert privacy wall. Localhost remains a secure context for WebXR. The Vite HMR error overlay is disabled (`server.hmr.overlay: false`) so non-fatal dynamic-import failures on Quest (e.g. `@pmndrs/uikitml`) do not inject `<vite-error-overlay>` and block the `shellLoaded` CDP smoke gate.
+**Portless / Quest USB:** `dev:portless` serves **HTTP** on `127.0.0.1` (Vite omits `server.https` and the 0.3.1 plugin never generates certificates) so Quest Browser can load via `adb reverse` without a self-signed cert privacy wall. Localhost remains a secure context for WebXR. The Vite HMR error overlay is disabled (`server.hmr.overlay: false`) so non-fatal dynamic-import failures on Quest (e.g. `@pmndrs/uikitml`) do not inject `<vite-error-overlay>` and block the `shellLoaded` CDP smoke gate.
 
 ```bash
 # Mac

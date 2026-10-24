@@ -69,7 +69,11 @@ describe("root bone location frame conversion", () => {
     const location = mulVec(inverse(CHILD_REST), travel);
     const achieved = mulVec(CHILD_REST, location);
     for (let i = 0; i < 3; i++) {
-      expect(Math.abs(achieved[i] - travel[i])).toBeLessThan(1e-9);
+      const actual = achieved[i];
+      const wanted = travel[i];
+      expect(actual).toBeDefined();
+      expect(wanted).toBeDefined();
+      expect(Math.abs((actual as number) - (wanted as number))).toBeLessThan(1e-9);
     }
   });
 

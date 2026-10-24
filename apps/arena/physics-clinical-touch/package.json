@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npx tsx src/main.ts",
     "cagematch": "npx tsx src/main.ts",
-    "typecheck": "tsgo --noEmit -p tsconfig.json",
+    "typecheck": "cellix-tsc --noEmit -p tsconfig.json",
     "test": "vitest run --root . --passWithNoTests"
   },
   "dependencies": {

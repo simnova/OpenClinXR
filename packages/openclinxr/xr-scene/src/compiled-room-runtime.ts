@@ -36,12 +36,12 @@ export async function fallbackPrimitiveStationShell(input: {
     metadata: null,
   };
   stampCompiledRoomReadinessUserData(root, notReady);
-  root.userData.openClinXrCompiledRoomFallback = true;
+  root.userData["openClinXrCompiledRoomFallback"] = true;
   if (input.compileNodeIdAttempted) {
-    root.userData.compileNodeIdAttempted = input.compileNodeIdAttempted;
+    root.userData["compileNodeIdAttempted"] = input.compileNodeIdAttempted;
   }
   if (input.loadFailed) {
-    root.userData.openClinXrCompiledRoomLoadFailed = true;
+    root.userData["openClinXrCompiledRoomLoadFailed"] = true;
   }
   return root;
 }
@@ -55,7 +55,7 @@ export async function applyCompiledRoomReadinessOrFallback(input: {
   environmentId: string;
   compileNodeId: string;
 }): Promise<Group> {
-  const metadata = input.compiled.userData.openClinXrCompiledRoomMetadata;
+  const metadata = input.compiled.userData["openClinXrCompiledRoomMetadata"];
   if (metadata === undefined || metadata === null) {
     return input.compiled;
   }
@@ -65,7 +65,7 @@ export async function applyCompiledRoomReadinessOrFallback(input: {
   });
   if (readiness.ready) {
     stampCompiledRoomReadinessUserData(input.compiled, readiness);
-    input.compiled.userData.openClinXrCompiledRoomFallback = false;
+    input.compiled.userData["openClinXrCompiledRoomFallback"] = false;
     return input.compiled;
   }
   return fallbackPrimitiveStationShell({

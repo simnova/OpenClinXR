@@ -107,7 +107,7 @@ export function assignMissingRoomPrimitiveMaterials(roomRoot: Object3D): Assigne
     if (isGltfMissingAuthoredMaterial(obj.material)) bare.push(obj);
   });
   if (bare.length === 0) {
-    roomRoot.userData.openClinXrAssignedRoomPrimitiveMaterials = [];
+    roomRoot.userData["openClinXrAssignedRoomPrimitiveMaterials"] = [];
     return [];
   }
 
@@ -131,18 +131,18 @@ export function assignMissingRoomPrimitiveMaterials(roomRoot: Object3D): Assigne
       side: DoubleSide,
       // Derived dielectric only — do not copy maps (wall mesh UV layout ≠ plaster donor).
     });
-    derived.userData.openClinXrMaterialSource = sourceName;
-    derived.userData.openClinXrAssignedAtLoad = true;
+    derived.userData["openClinXrMaterialSource"] = sourceName;
+    derived.userData["openClinXrAssignedAtLoad"] = true;
 
     obj.material = derived;
     obj.visible = true;
-    obj.userData.openClinXrAssignedMaterialAtLoad = true;
-    obj.userData.openClinXrMaterialSource = sourceName;
+    obj.userData["openClinXrAssignedMaterialAtLoad"] = true;
+    obj.userData["openClinXrMaterialSource"] = sourceName;
 
     const extent = worldExtentOf(obj);
     assigned.push({ meshName: obj.name || "(unnamed)", materialSource: sourceName, worldExtent: extent });
   }
 
-  roomRoot.userData.openClinXrAssignedRoomPrimitiveMaterials = assigned;
+  roomRoot.userData["openClinXrAssignedRoomPrimitiveMaterials"] = assigned;
   return assigned;
 }

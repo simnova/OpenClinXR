@@ -113,7 +113,7 @@ function applyEuler(
   const z = rotation.z !== undefined ? rotation.z : (rotation.absolute ? 0 : object.rotation.z);
   object.rotation.set(x, y, z, object.rotation.order);
   object.quaternion.setFromEuler(object.rotation);
-  object.userData.openClinXrSupinePose = SUPINE_CLIP_NAME;
+  object.userData["openClinXrSupinePose"] = SUPINE_CLIP_NAME;
   if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
 }
 
@@ -127,14 +127,14 @@ export function applySupinePose(humanoidRoot: Object3D, options: ApplySupinePose
   // MPFB2 recast they are the crumple (#495), so that rail skips them by default.
   const applyJointEulers = options.applyJointEulers ?? !isMpfb2Rig(jointNames);
   const binding = clipBindingForPosture("supine");
-  humanoidRoot.userData.openClinXrActorPosture = "supine";
-  humanoidRoot.userData.openClinXrPostureClipName = binding.clipName;
-  humanoidRoot.userData.openClinXrPostureClipSource = binding.source;
-  humanoidRoot.userData.openClinXrSupineHeightOwner = "plantSupineBodyOnDeck_and_deckTopYMeters";
-  humanoidRoot.userData.openClinXrClipRootTranslation = "stripped_not_applied";
-  humanoidRoot.userData.openClinXrSupineHeadEnd = "negative_x";
-  humanoidRoot.userData.openClinXrSupineLengthAxis = "x";
-  humanoidRoot.userData.openClinXrSupineRootBasis = "head_neg_x_left_neg_z_face_pos_y";
+  humanoidRoot.userData["openClinXrActorPosture"] = "supine";
+  humanoidRoot.userData["openClinXrPostureClipName"] = binding.clipName;
+  humanoidRoot.userData["openClinXrPostureClipSource"] = binding.source;
+  humanoidRoot.userData["openClinXrSupineHeightOwner"] = "plantSupineBodyOnDeck_and_deckTopYMeters";
+  humanoidRoot.userData["openClinXrClipRootTranslation"] = "stripped_not_applied";
+  humanoidRoot.userData["openClinXrSupineHeadEnd"] = "negative_x";
+  humanoidRoot.userData["openClinXrSupineLengthAxis"] = "x";
+  humanoidRoot.userData["openClinXrSupineRootBasis"] = "head_neg_x_left_neg_z_face_pos_y";
 
   // On-back root (proper rotation, det=+1): head → −X, left → −Z, face → +Y.
   humanoidRoot.quaternion.copy(SUPINE_ROOT_QUAT);
@@ -168,21 +168,21 @@ export function applySupinePose(humanoidRoot: Object3D, options: ApplySupinePose
     });
   }
 
-  humanoidRoot.userData.openClinXrSupinePoseBones = bonesTouched;
+  humanoidRoot.userData["openClinXrSupinePoseBones"] = bonesTouched;
   // Staging marker for #153 contracts: neck last written by the supine map.
   // #306: the neck landmark may resolve to `neck01` on the MPFB2 rig, so compare resolved names.
   const resolvedNeck = resolvePoseBone("neck", jointNames);
-  humanoidRoot.userData.openClinXrNeckPoseSource = resolvedNeck !== null && bonesTouched.includes(resolvedNeck)
+  humanoidRoot.userData["openClinXrNeckPoseSource"] = resolvedNeck !== null && bonesTouched.includes(resolvedNeck)
     ? "supine_map"
     : "supine_map_missing_neck";
   humanoidRoot.traverse((object) => {
     if (object.name === "neck" || object.name === "Neck"
       || (resolvedNeck !== null && sanitiseBoneName(object.name) === resolvedNeck)) {
-      object.userData.openClinXrNeckPoseSource = "supine_map";
-      object.userData.openClinXrSupinePose = SUPINE_CLIP_NAME;
+      object.userData["openClinXrNeckPoseSource"] = "supine_map";
+      object.userData["openClinXrSupinePose"] = SUPINE_CLIP_NAME;
     }
   });
-  humanoidRoot.userData.openClinXrActiveRoleAnimationClipName = SUPINE_CLIP_NAME;
+  humanoidRoot.userData["openClinXrActiveRoleAnimationClipName"] = SUPINE_CLIP_NAME;
   humanoidRoot.updateMatrixWorld?.(true);
 
   return {

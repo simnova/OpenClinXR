@@ -3,19 +3,25 @@ import { type DevPluginOptions, iwsdkDev } from "@iwsdk/vite-plugin-dev";
 import { type CompileUIKitOptions, compileUIKit } from "@iwsdk/vite-plugin-uikitml";
 import { defineConfig } from "vitest/config";
 
-type OpenClinXrIwsdkSpikeDevPluginOptions = DevPluginOptions & {
-  ai?: NonNullable<DevPluginOptions["ai"]> & {
-    tools?: string[];
-  };
-};
+/**
+ * IWSDK 0.3.1 (licensed MIT pin) natively types `ai.tools` (`AiTool` includes
+ * `'codex'`), so the local `tools?: string[]` extension required by 0.5.x —
+ * which dropped `tools` from `AiOptions` — is removed. 0.3.1 has no
+ * `workspace` or `https` options: `ai.mode: 'agent'` already implies a
+ * headless managed Playwright runtime, and the plugin never generates TLS
+ * certificates, so plain HTTP holds without an opt-out flag.
+ */
+type OpenClinXrIwsdkSpikeDevPluginOptions = DevPluginOptions;
 
 /**
  * Quest-friendly portless defaults:
- * - `https: false` so Quest Browser via `adb reverse` can load `http://localhost:<port>`
- *   without a self-signed-cert "Privacy error" (localhost is a secure context for WebXR).
- * - IWSDK 0.5.x defaults https:true for self-signed certs; that works for managed
- *   Playwright (auto-accepts cert) but blocks Quest Browser shell smoke.
- * - `workspace.open: false` avoids auto-launching a desktop browser on every portless start.
+ * - Plain HTTP (Vite `server` omits `https`; the 0.3.1 plugin has no `https`
+ *   option and never issues self-signed certs) so Quest Browser via
+ *   `adb reverse` can load `http://localhost:<port>` without a
+ *   self-signed-cert "Privacy error" (localhost is a secure context for WebXR).
+ * - No `workspace` block: 0.3.1 predates the managed-workspace option.
+ *   `ai.mode: 'agent'` keeps the Playwright runtime headless with a fixed
+ *   viewport; nothing auto-launches a desktop browser.
  */
 export const openClinXrIwsdkSpikeDevPluginOptions = Object.freeze({
   emulator: {
@@ -32,12 +38,6 @@ export const openClinXrIwsdkSpikeDevPluginOptions = Object.freeze({
       height: 500,
     },
   },
-  workspace: {
-    open: false,
-    headless: true,
-  },
-  /** Prefer HTTP for Quest USB reverse + CDP smoke; override via Vite server.https if needed. */
-  https: false,
   verbose: true,
 } satisfies OpenClinXrIwsdkSpikeDevPluginOptions);
 
@@ -89,8 +89,9 @@ export function createOpenClinXrIwsdkSpikePlugins() {
 export default defineConfig({
   plugins: createOpenClinXrIwsdkSpikePlugins(),
   // HTTP for Quest adb reverse. Vite 8 `server.https` is HttpsServerOptions only
-  // (boolean false removed); omit `https` → plain HTTP. IWSDK plugin still has
-  // `https: false` above to opt out of self-signed cert generation.
+  // (boolean false removed); omit `https` → plain HTTP. The 0.3.1 IWSDK plugin
+  // has no `https` option and never generates self-signed certs, so omitting
+  // here is sufficient for cert-free HTTP.
   server: {
     host: "127.0.0.1",
     // package.json dev:portless uses --strictPort=false + PORT:-0 for parallel worktrees;

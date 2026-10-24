@@ -51,8 +51,8 @@ describe("station-interior-lighting (#525)", () => {
       keyCastShadow: false,
     });
     const roles = scene.children
-      .filter((c) => c.userData?.openClinXrStationInteriorLighting === true)
-      .map((c) => c.userData.openClinXrStationInteriorLightingRole);
+      .filter((c) => c.userData?.["openClinXrStationInteriorLighting"] === true)
+      .map((c) => c.userData["openClinXrStationInteriorLightingRole"]);
     expect(roles).toEqual(expect.arrayContaining(["ambient", "key", "fill"]));
   });
 });

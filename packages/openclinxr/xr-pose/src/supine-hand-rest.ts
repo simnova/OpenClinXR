@@ -18,7 +18,7 @@ const handBones = (root: Object3D): Object3D[] => {
 function storeCandidate(root: Object3D): void {
   const bones = [...handBones(root), ...["upper_armL", "upper_armR", "forearmL", "forearmR"]
     .map((name) => findSupineBone(root, name)).filter((bone): bone is Object3D => bone !== null)];
-  root.userData.openClinXrSupineArmFlexBones = bones.map((bone) => ({
+  root.userData["openClinXrSupineArmFlexBones"] = bones.map((bone) => ({
     name: bone.name,
     quaternion: { x: bone.quaternion.x, y: bone.quaternion.y, z: bone.quaternion.z, w: bone.quaternion.w },
   }));
@@ -127,7 +127,7 @@ type SupineArmCandidateResult = {
 export function applyContactAwareSupineArms(root: Object3D, bed: Object3D): SupineArmCandidateResult[] {
   const callerBones = [...handBones(root), ...["upper_armL", "upper_armR", "forearmL", "forearmR"].map((name) => findSupineBone(root, name)).filter((bone): bone is Object3D => bone !== null)];
   const callerQuats = new Map(callerBones.map((bone) => [bone, bone.quaternion.clone()]));
-  const callerCache = root.userData.openClinXrSupineArmFlexBones;
+  const callerCache = root.userData["openClinXrSupineArmFlexBones"];
   const rollbackSide = (side: string): void => {
     for (const [bone, quat] of callerQuats) if (bone.name.replaceAll(".", "").endsWith(side)) bone.quaternion.copy(quat);
     root.updateMatrixWorld(true);
@@ -377,8 +377,8 @@ export function applyContactAwareSupineArms(root: Object3D, bed: Object3D): Supi
       if (row.garmentLane.status === "clear" && row.garmentLane.after.shift > 1e-5) row.garmentLane.status = "overlap-retained-contact";
     }
   }
-  if (result.every((row) => row.unresolved !== null)) root.userData.openClinXrSupineArmFlexBones = callerCache;
+  if (result.every((row) => row.unresolved !== null)) root.userData["openClinXrSupineArmFlexBones"] = callerCache;
   else storeCandidate(root);
-  root.userData.openClinXrSupineHandCandidate = result;
+  root.userData["openClinXrSupineHandCandidate"] = result;
   return result;
 }

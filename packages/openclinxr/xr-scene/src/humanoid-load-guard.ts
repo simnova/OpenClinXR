@@ -93,9 +93,9 @@ export function rebindHeadLockedTeeth(root: Object3D): void {
     if (!skeleton) continue;
     const jawIndex = skeleton.bones.findIndex((b) => /^jaw$/i.test(b.name ?? ""));
     if (jawIndex < 0) continue;
-    const skinIndex = mesh.geometry.attributes.skinIndex;
-    const skinWeight = mesh.geometry.attributes.skinWeight;
-    const position = mesh.geometry.attributes.position;
+    const skinIndex = mesh.geometry.attributes["skinIndex"];
+    const skinWeight = mesh.geometry.attributes["skinWeight"];
+    const position = mesh.geometry.attributes["position"];
     if (!skinIndex || !skinWeight || !position) continue;
     let alreadyJaw = false;
     for (let v = 0; v < position.count; v++) {

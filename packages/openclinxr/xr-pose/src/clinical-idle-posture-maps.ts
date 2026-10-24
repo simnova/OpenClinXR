@@ -4,7 +4,18 @@
  * maps, same values, only the module boundary moved.
  */
 
+import type { Object3D } from "three";
+import { Quaternion } from "three";
+import { sanitiseBoneName } from "./pose-bone-runtime.js";
+
 export type EulerPartial = { x?: number; y?: number; z?: number; absolute?: boolean };
+
+/** Pristine bind quaternion captured at the load-time call (see clinical-idle-posture.ts). */
+export type MpfbBindQuaternion = { x: number; y: number; z: number; w: number };
+
+// Module-local scratch (same discipline as clinical-idle-posture.ts: no per-frame allocation).
+const _scratchBind = new Quaternion();
+const _scratchDelta = new Quaternion();
 
 /**
  * Standing idle arm hang — world-space goals (#91 hang + #117 abduction ceiling):
@@ -96,14 +107,16 @@ export const MIXAMO_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
  * erase the per-actor bind differences (six distinct `lowerarm01.L` binds among the
  * shipped GLBs); instead the idle bend is a FRACTION of the rig's own bind bend, so the
  * SIGN always matches the bind (clause (1)) and the magnitude scales with the actor
- * (clause (2): 0.6 x smallest shipped bind 36.0 deg = 21.7 deg, above the clause floor
+ * (clause (2): 0.55 x smallest shipped bind 36.0 deg = 19.8 deg, above the clause floor
  * of half the smallest bind).
  *
- * The fraction is derived, not fitted: 0.6 is the largest k that keeps the idle bend a
- * visibly relaxed relaxation of the A-pose bind (21.7-29.2 deg across the population)
- * while every shipped bind clears the half-smallest-bind floor with ~3.6 deg margin.
+ * The fraction is derived, not fitted: 0.55 is the largest k that keeps every
+ * shipped bind's idle bend inside the rest-elbow 5-25 deg window the arms slice
+ * bands (physician 26.9 x 0.55/0.6 = 24.6, child 27.1 -> 24.8, nurse 23.6 ->
+ * 21.6; measured 2026-10-19 off SC-05 arrived frames) while every shipped bind
+ * clears the half-smallest-bind floor.
  */
-export const MPFB_IDLE_FORELARM_BEND_FRACTION = 0.6;
+export const MPFB_IDLE_FORELARM_BEND_FRACTION = 0.55;
 
 /** MPFB2 idle forearm euler for a given bind — absolute X bend in the bind's own direction. */
 export function mpfbForearmIdleEuler(
@@ -114,19 +127,97 @@ export function mpfbForearmIdleEuler(
 }
 
 /**
- * issue-#0 — MPFB2 rail. Upper arm / hand / head reuse the Anny eulers (they are what
+ * Bind-relative MPFB2 upper-arm idle deltas (arms slice, 2026-10-19).
+ *
+ * The old absolute map euler (`upper_arm z = -+1.12`) hung the physician at
+ * +10 deg but the child at -8 deg abduction: the two rigs' `upperarm01`
+ * binds diverge (physician local (4.8, -1.1, -21.0) deg vs child
+ * (8.0, 21.2, -1.0) deg, measured off the shipped bytes), so one absolute
+ * write cannot hang both. These deltas compose ONTO the pristine bind
+ * (`local = bind * delta`, same store/guarantee as the forearms), so every
+ * A-pose bind lowers to the same hang: offline FK on the shipped bytes
+ * reads rest abduction 13.7 (physician) / 14.6 (nurse) / 11.7 (child).
+ *
+ * Each delta = physicianBind^-1 * desiredAbsolute, with desiredAbsolute the
+ * old map euler eased out to z = -+1.05 (x = -0.22, y = +-0.06 kept): +3-4
+ * deg over the old hang, the minimum that clears the garment capsule with
+ * +0.01 m at the elbow (arms-meter, dressed).
+ */
+export const MPFB_UPPER_ARM_IDLE_DELTA_L = { x: -0.140001, y: -0.068845, z: -0.334197, w: 0.929501 };
+export const MPFB_UPPER_ARM_IDLE_DELTA_R = { x: -0.140001, y: 0.068845, z: 0.334197, w: 0.929501 };
+
+function upperArmDeltaFor(sanitised: string): MpfbBindQuaternion {
+  return sanitised.endsWith("R") ? MPFB_UPPER_ARM_IDLE_DELTA_R : MPFB_UPPER_ARM_IDLE_DELTA_L;
+}
+
+/**
+ * Target local quaternion for an MPFB2 upper-arm bone under ownership blend
+ * (arms slice): `bind * delta`. Null when the bind was never captured (the
+ * caller leaves the bone to the mixer, same as the forearm path).
+ */
+export function mpfbUpperArmIdleTarget(
+  object: Object3D,
+  bindStore: Map<string, MpfbBindQuaternion>,
+): Quaternion | null {
+  const sanitised = sanitiseBoneName(object.name);
+  const bind = bindStore.get(sanitised);
+  if (!bind) return null;
+  const delta = upperArmDeltaFor(sanitised);
+  return new Quaternion(bind.x, bind.y, bind.z, bind.w).multiply(
+    new Quaternion(delta.x, delta.y, delta.z, delta.w),
+  );
+}
+
+/**
+ * Apply bind-relative idle hang to an MPFB2 upper-arm bone (arms slice).
+ *
+ * Same pristine-bind store and first-untouched-sight guarantee as the
+ * forearm helper above (the load-time call runs before mixer.update).
+ * Writes `bind * delta` as the local quaternion directly (an euler
+ * decompose would reintroduce the order/bind ambiguity the delta removes).
+ */
+export function applyMpfbUpperArmIdle(
+  object: Object3D,
+  bindStore: Map<string, MpfbBindQuaternion>,
+  bonesTouched: string[],
+): void {
+  const sanitised = sanitiseBoneName(object.name);
+  let bind = bindStore.get(sanitised);
+  if (!bind && !object.userData["openClinXrClinicalIdlePosture"]) {
+    bind = {
+      x: object.quaternion.x,
+      y: object.quaternion.y,
+      z: object.quaternion.z,
+      w: object.quaternion.w,
+    };
+    bindStore.set(sanitised, bind);
+  }
+  if (!bind) return;
+  const delta = upperArmDeltaFor(sanitised);
+  _scratchBind.set(bind.x, bind.y, bind.z, bind.w);
+  _scratchDelta.set(delta.x, delta.y, delta.z, delta.w);
+  object.quaternion.copy(_scratchBind.multiply(_scratchDelta));
+  object.rotation.setFromQuaternion(object.quaternion);
+  object.userData["openClinXrClinicalIdlePosture"] = "relaxed_arms_scenario_conversation_pose";
+  if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
+}
+
+/**
+ * issue-#0 — MPFB2 rail. Hand / head reuse the Anny eulers (they are what
  * ships today and clear the hang contracts); the forearm entries are DELIBERATELY
  * absent — MPFB2 forearms are bind-relative (`mpfbForearmIdleEuler`), applied from the
- * bone's pristine bind rotation captured at the load-time call.
+ * bone's pristine bind rotation captured at the load-time call. The upper-arm
+ * entries are DELIBERATELY absent for the same reason (arms slice, 2026-10-19):
+ * the old absolute `z = -+1.12` hung the physician at +10 deg but the child at
+ * -8 deg abduction off divergent binds (measured offline FK on the shipped
+ * bytes); MPFB2 upper arms are bind-relative deltas
+ * (`MPFB_UPPER_ARM_IDLE_DELTA_L/R` below) applied from the
+ * same pristine-bind store.
  */
 export const MPFB_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
-  ["upper_armL", { x: -0.22, y: 0.06, z: -1.12, absolute: true }],
   ["handL", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
-  ["upper_armR", { x: -0.22, y: -0.06, z: 1.12, absolute: true }],
   ["handR", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
   ["head", { x: -0.04, absolute: true }],
-  ["upper_arm.L", { x: -0.22, y: 0.06, z: -1.12, absolute: true }],
   ["hand.L", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
-  ["upper_arm.R", { x: -0.22, y: -0.06, z: 1.12, absolute: true }],
   ["hand.R", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
 ]);

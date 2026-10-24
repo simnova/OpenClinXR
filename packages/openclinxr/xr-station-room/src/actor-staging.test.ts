@@ -185,9 +185,9 @@ describe("stageStationActors", () => {
     stageStationActors(buildCtx({
       applyActorFraming: (actor, actorId) => {
         if (actorId === SLOT_ACTORS.clinical_team) {
-          seen.posture = actor.userData["openClinXrActorPosture"];
-          seen.intent = actor.userData["openClinXrPreserveResolvedPlacement"];
-          seen.slot = actor.userData["openClinXrSlotKind"];
+          seen["posture"] = actor.userData["openClinXrActorPosture"];
+          seen["intent"] = actor.userData["openClinXrPreserveResolvedPlacement"];
+          seen["slot"] = actor.userData["openClinXrSlotKind"];
         }
       },
     }), new Scene());

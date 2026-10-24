@@ -124,13 +124,13 @@ export type DeclaredEquipmentEvidenceItem = {
 export function collectDeclaredEquipmentEvidenceFromScene(scene: Object3D): DeclaredEquipmentEvidenceItem[] {
   const byId = new Map<string, DeclaredEquipmentEvidenceItem>();
   scene.traverse((object) => {
-    const equipmentId = object.userData?.openClinXrEquipmentId;
+    const equipmentId = object.userData?.["openClinXrEquipmentId"];
     if (typeof equipmentId !== "string" || equipmentId.length === 0) return;
     let ancestorTagged = false;
     let parent = object.parent;
     let depth = 0;
     while (parent && depth < 8) {
-      if (typeof parent.userData?.openClinXrEquipmentId === "string" && parent.userData.openClinXrEquipmentId.length > 0) {
+      if (typeof parent.userData?.["openClinXrEquipmentId"] === "string" && parent.userData["openClinXrEquipmentId"].length > 0) {
         ancestorTagged = true;
         break;
       }
@@ -139,7 +139,7 @@ export function collectDeclaredEquipmentEvidenceFromScene(scene: Object3D): Decl
     }
     if (ancestorTagged) return;
     const counts = countEquipmentGeometry(object);
-    const sourceRaw = object.userData.openClinXrEquipmentSource;
+    const sourceRaw = object.userData["openClinXrEquipmentSource"];
     const source: EquipmentMountSource | "none" =
       sourceRaw === "gltf" || sourceRaw === "parametric" || sourceRaw === "fallback"
         ? sourceRaw
@@ -264,7 +264,7 @@ export function applyGltfEquipmentFootprintFit(equipment: Group, equipmentId: st
   equipment.scale.x = (equipment.scale.x ?? 1) * scale;
   equipment.scale.y = (equipment.scale.y ?? 1) * scale;
   equipment.scale.z = (equipment.scale.z ?? 1) * scale;
-  equipment.userData.openClinXrEquipmentFootprintFit = {
+  equipment.userData["openClinXrEquipmentFootprintFit"] = {
     scale: round3(scale),
     envelopeWidthM: round3(envelopeWidth),
     envelopeDepthM: round3(envelopeDepth),
@@ -305,8 +305,8 @@ export function normalizeGltfEquipmentMount(
 ): Group {
   const isFloor = Math.abs(mountSlot.position.y) < EQUIPMENT_FLOOR_PLACEMENT_EPSILON_M;
   const equipmentId =
-    typeof mountSlot.userData?.openClinXrEquipmentId === "string"
-      ? mountSlot.userData.openClinXrEquipmentId
+    typeof mountSlot.userData?.["openClinXrEquipmentId"] === "string"
+      ? mountSlot.userData["openClinXrEquipmentId"]
       : null;
   // #266 — fit a unit-normalized GLB's footprint to its declared placement
   // envelope (floor placements only; the wall-clock control is elevated and

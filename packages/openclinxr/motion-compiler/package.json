@@ -13,7 +13,7 @@
   },
   "scripts": {
     "test": "vitest run --root .",
-    "typecheck": "tsgo --noEmit -p tsconfig.json",
+    "typecheck": "cellix-tsc --noEmit -p tsconfig.json",
     "probe:reds": "tsx probe-planted-reds.mts"
   },
   "devDependencies": {

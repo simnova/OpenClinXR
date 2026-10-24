@@ -62,9 +62,9 @@ export function applyStationInteriorLighting(input: {
 
   const lights: Light[] = [];
   const tag = (light: Light, role: string): Light => {
-    light.userData.openClinXrStationInteriorLighting = true;
-    light.userData.openClinXrStationInteriorLightingVariant = input.variantId;
-    light.userData.openClinXrStationInteriorLightingRole = role;
+    light.userData["openClinXrStationInteriorLighting"] = true;
+    light.userData["openClinXrStationInteriorLightingVariant"] = input.variantId;
+    light.userData["openClinXrStationInteriorLightingRole"] = role;
     lights.push(light);
     return light;
   };
@@ -163,7 +163,7 @@ export function applyStationInteriorLighting(input: {
   const envScene = new RoomEnvironment();
   const envMap = pmrem.fromScene(envScene, 0.04).texture;
   input.scene.environment = envMap;
-  input.scene.userData.openClinXrStationInteriorLighting = {
+  input.scene.userData["openClinXrStationInteriorLighting"] = {
     variantId: input.variantId,
     hasEnvironmentMap: true,
   };
@@ -175,7 +175,7 @@ function clearStationInteriorLighting(scene: Scene): void {
   const remove: Light[] = [];
   scene.traverse((obj) => {
     const light = obj as Light;
-    if (light.isLight === true && light.userData?.openClinXrStationInteriorLighting === true) {
+    if (light.isLight === true && light.userData?.["openClinXrStationInteriorLighting"] === true) {
       remove.push(light);
     }
   });
@@ -186,7 +186,7 @@ function clearStationInteriorLighting(scene: Scene): void {
     scene.environment.dispose();
     scene.environment = null;
   }
-  if (scene.userData.openClinXrStationInteriorLighting) {
-    delete scene.userData.openClinXrStationInteriorLighting;
+  if (scene.userData["openClinXrStationInteriorLighting"]) {
+    delete scene.userData["openClinXrStationInteriorLighting"];
   }
 }

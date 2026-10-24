@@ -28,7 +28,7 @@ async function loadHumanoid(bodyGlb: string): Promise<Object3D> {
   const gltf = await loader.loadAsync(url);
   const root = gltf.scene; rebindHeadLockedTeeth(root);
   root.name = "isolated_subject_humanoid";
-  root.userData.openClinXrIsolatedSubject = true;
+  root.userData["openClinXrIsolatedSubject"] = true;
   return root;
 }
 

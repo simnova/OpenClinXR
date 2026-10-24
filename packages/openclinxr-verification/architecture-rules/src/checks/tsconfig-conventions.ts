@@ -46,6 +46,26 @@ export const TSCONFIG_EXEMPTIONS: Record<
     reason:
       "rolldown.config.ts + tsdown.config.ts + scripts/*.ts live outside src/; rootDir '.' is correct",
   },
+  "apps/arena/model-vetting-studio/tsconfig.json": {
+    rules: ["rootDir"],
+    reason:
+      "Vite app extending @cellix/config-typescript/base (TypeScript native 7.0.2 noEmit inherited); vite.config.ts lives at the app root outside src/ alongside src/**/*.ts(x), so rootDir '.' is correct for mixed-root includes",
+  },
+  "apps/arena/ui-xr-iwsdk-spike/tsconfig.json": {
+    rules: ["rootDir"],
+    reason:
+      "Vite app extending @cellix/config-typescript/base (TypeScript native 7.0.2 noEmit inherited); vite.config.ts lives at the app root outside src/ alongside src/**/*.ts, so rootDir '.' is correct for mixed-root includes",
+  },
+  "apps/ui-admin/tsconfig.json": {
+    rules: ["rootDir"],
+    reason:
+      "Vite app extending @cellix/config-typescript/base (TypeScript native 7.0.2 noEmit inherited); vite.config.ts + vite.config.test.ts live at the app root outside src/ alongside src, so rootDir '.' is correct for mixed-root includes",
+  },
+  "apps/ui-xr/tsconfig.json": {
+    rules: ["rootDir"],
+    reason:
+      "Vite app extending @cellix/config-typescript/base (TypeScript native 7.0.2 noEmit inherited); vite.config.ts lives at the app root outside src/ alongside src/**/*.ts, so rootDir '.' is correct for mixed-root includes",
+  },
 };
 
 // -- Config type -------------------------------------------------------------
@@ -109,6 +129,137 @@ function listTsconfigs(root: string): string[] {
   return out.sort();
 }
 
+// -- Effective-option resolution (extends-chain aware) ------------------------
+
+const CELLIX_TS_SPECIFIER = "@cellix/config-typescript/";
+const CELLIX_TS_LEAVES = new Set(["base", "node", "vitest"]);
+
+/**
+ * Resolve an `extends` specifier to an absolute file path, or undefined when it
+ * cannot be resolved from this tree. Handles the workspace's
+ * `@cellix/config-typescript/<leaf>` specifiers (mapped to
+ * packages/cellix/config-typescript/tsconfig.<leaf>.json, with a node_modules
+ * fallback for linked installs) and relative specifiers (for example
+ * ./tsconfig.base.json inside the config-typescript package itself). Other bare
+ * specifiers are not resolved -- the extends allowlist gate already rejects them.
+ */
+function resolveExtendsFile(
+  root: string,
+  fromRel: string,
+  spec: string,
+): string | undefined {
+  if (spec.startsWith(CELLIX_TS_SPECIFIER)) {
+    const leaf = spec.slice(CELLIX_TS_SPECIFIER.length);
+    if (!CELLIX_TS_LEAVES.has(leaf)) return undefined;
+    const workspaceCandidate = join(
+      root,
+      "packages/cellix/config-typescript",
+      `tsconfig.${leaf}.json`,
+    );
+    try {
+      readFileSync(workspaceCandidate, "utf8");
+      return workspaceCandidate;
+    } catch {
+      const linked = join(
+        root,
+        "node_modules/@cellix/config-typescript",
+        `tsconfig.${leaf}.json`,
+      );
+      try {
+        readFileSync(linked, "utf8");
+        return linked;
+      } catch {
+        return undefined;
+      }
+    }
+  }
+  if (spec.startsWith(".")) {
+    return join(dirname(join(root, fromRel)), spec);
+  }
+  return undefined;
+}
+
+function readJsonObject(full: string): Record<string, unknown> | undefined {
+  try {
+    return JSON.parse(readFileSync(full, "utf8")) as Record<string, unknown>;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Effective `noEmit` for a tsconfig, resolved through its `extends` chain. The
+ * file's own explicit boolean wins; otherwise the chain is consulted (later
+ * `extends` entries override earlier ones), yielding undefined when nothing in
+ * the chain states it. An unreadable link ends that branch rather than failing
+ * the whole check -- the extends allowlist gate reports unresolvable files.
+ */
+function effectiveNoEmit(
+  root: string,
+  fromRel: string,
+  seen: Set<string>,
+): boolean | undefined {
+  if (seen.has(fromRel)) return undefined;
+  seen.add(fromRel);
+  const json = readJsonObject(join(root, fromRel));
+  if (json === undefined) return undefined;
+  const co = json["compilerOptions"] as Record<string, unknown> | undefined;
+  if (co !== undefined && typeof co["noEmit"] === "boolean") {
+    return co["noEmit"];
+  }
+  const extendsField = json["extends"];
+  const specs =
+    typeof extendsField === "string"
+      ? [extendsField]
+      : Array.isArray(extendsField)
+        ? extendsField.filter(
+            (entry): entry is string => typeof entry === "string",
+          )
+        : [];
+  for (let index = specs.length - 1; index >= 0; index -= 1) {
+    const target = resolveExtendsFile(root, fromRel, specs[index] as string);
+    if (target === undefined) continue;
+    const targetRel = relative(root, target);
+    if (targetRel.startsWith("..")) continue;
+    const inherited = effectiveNoEmit(root, targetRel, seen);
+    if (inherited !== undefined) return inherited;
+  }
+  return undefined;
+}
+
+/**
+ * Narrow Vite-app exception for Rule 5 (rootDir).
+ *
+ * WHY: Vite apps co-locate vite.config.ts at the app root outside src/ while
+ * extending the shared noEmit base (TypeScript native 7.0.2: base sets
+ * noEmit:true; nothing is emitted, so rootDir "." cannot corrupt an output
+ * tree). For those apps rootDir "." is correct for mixed-root includes.
+ *
+ * ALL of these must hold; each rejected unit case breaks exactly one:
+ *  - workspace path under apps/ (packages stay src-rooted even when noEmit)
+ *  - local rootDir is "." (or "./")
+ *  - include covers the root vite config (vite.config.ts at the app root)
+ *  - effective noEmit through the extends chain is true (a local emitting
+ *    override or an emitting Node base rejects)
+ */
+function isViteNoEmitAppException(
+  root: string,
+  rel: string,
+  json: Record<string, unknown>,
+  co: Record<string, unknown>,
+): boolean {
+  if (!rel.startsWith("apps/")) return false;
+  const rootDir = co["rootDir"];
+  if (rootDir !== "." && rootDir !== "./") return false;
+  const include = json["include"];
+  if (!Array.isArray(include)) return false;
+  const coversViteConfig = (include as unknown[]).some(
+    (entry) => entry === "vite.config.ts" || entry === "./vite.config.ts",
+  );
+  if (!coversViteConfig) return false;
+  return effectiveNoEmit(root, rel, new Set()) === true;
+}
+
 // -- Public check function (pure -- no vitest) -------------------------------
 
 /**
@@ -120,7 +271,9 @@ function listTsconfigs(root: string): string[] {
  *  3. if `compilerOptions.types` is present it must NOT be an empty array (TS 7 defaults to [] -- an empty
  *     array disables ALL ambient types, which is almost never intended)
  *  4. if `compilerOptions.outDir` is set it must be "dist" or "./dist"
- *  5. if `compilerOptions.rootDir` is set it must be "src" or "./src"
+ *  5. if `compilerOptions.rootDir` is set it must be "src" or "./src" (narrow
+ *     Vite-app noEmit exception: apps/ + rootDir "." + root vite.config.ts
+ *     include + effective inherited noEmit true)
  *  6. `extends` must be `@cellix/config-typescript/node` | `base` | `vitest`
  *     (CellixJS apps/packages compose this way; never extend the repo-root stub tsconfig.json)
  *
@@ -207,12 +360,13 @@ export function checkTsconfigConventions(
       );
     }
 
-    // Rule 5: rootDir must be "src" or "./src"
+    // Rule 5: rootDir must be "src" or "./src" (or the Vite-app noEmit exception)
     if (
       !skip("rootDir") &&
       "rootDir" in co &&
       co["rootDir"] !== "src" &&
-      co["rootDir"] !== "./src"
+      co["rootDir"] !== "./src" &&
+      !isViteNoEmitAppException(root, rel, json, co)
     ) {
       violations.push(
         `${rel}: compilerOptions.rootDir is ${JSON.stringify(co["rootDir"])} -- must be "src" or "./src"`,

@@ -1,6 +1,7 @@
 {
   "extends": "@cellix/config-typescript/base",
   "compilerOptions": {
+    "rootDir": ".",
     "jsx": "react-jsx",
     "lib": [
       "ES2023",

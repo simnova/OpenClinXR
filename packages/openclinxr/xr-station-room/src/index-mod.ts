@@ -122,7 +122,7 @@ export async function buildStationRoomShell(
   });
 
   // Floor mesh from environment or fallback procedural box
-  const floor = (stationEnvironment.userData.floorMesh as Mesh | undefined)
+  const floor = (stationEnvironment.userData["floorMesh"] as Mesh | undefined)
     ?? new Mesh(
       new BoxGeometry(7, 0.08, 3.45),
       new MeshStandardMaterial({ color: theme.floorColor, roughness: 0.8 }),
@@ -134,21 +134,21 @@ export async function buildStationRoomShell(
     markFloorReceiveShadow(floor);
   }
 
-  floor.userData.openClinXrSceneNecessityPolicy = "dynamic_encounter_world_floor_from_environment_descriptor";
-  floor.userData.openClinXrEncounterSpecificRuntimeTheme = "floor_color_derived_from_environmentId_descriptor";
-  floor.userData.openClinXrPortalBoundaryPolicy = "belongs_to_dynamic_world_on_encounter_side_of_doorway";
+  floor.userData["openClinXrSceneNecessityPolicy"] = "dynamic_encounter_world_floor_from_environment_descriptor";
+  floor.userData["openClinXrEncounterSpecificRuntimeTheme"] = "floor_color_derived_from_environmentId_descriptor";
+  floor.userData["openClinXrPortalBoundaryPolicy"] = "belongs_to_dynamic_world_on_encounter_side_of_doorway";
 
   if (hideRoomForCleanCapture()) {
     stationEnvironment.visible = false;
     floor.visible = false;
-    floor.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    floor.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (edBayVisibleCapture()) {
-    floor.userData.openClinXrComparatorVisibilityPolicy = "kept_visible_for_ed_bay_visible_comparator_capture";
+    floor.userData["openClinXrComparatorVisibilityPolicy"] = "kept_visible_for_ed_bay_visible_comparator_capture";
   }
 
   // Case-env glTF handoff (factory caseDerivedVirtualEnvironment -> player load).
   // #85 + #189: NEVER load a humanoid/candidate GLB as "environment".
-  floor.userData.caseDerivedVirtualEnvGltfHandoff = {
+  floor.userData["caseDerivedVirtualEnvGltfHandoff"] = {
     gltfAssetUrl: null,
     policy: "gltf handoff reserved for factory-produced ROOM shells only; humanoid candidates are actors via loadGeneratedHumanoidIntoActorSlot, never environment",
     source: "factory case spec derivation + tech vet",
@@ -165,21 +165,21 @@ export async function buildStationRoomShell(
   };
 
   scene.add(stationEnvironment);
-  scene.userData.openClinXrStationEnvironment = {
+  scene.userData["openClinXrStationEnvironment"] = {
     environmentId: envId,
-    floorColor: stationEnvironment.userData.floorColor,
-    roomDepthMeters: stationEnvironment.userData.roomDepthMeters,
-    environmentFallbackActive: stationEnvironment.userData.environmentFallbackActive,
+    floorColor: stationEnvironment.userData["floorColor"],
+    roomDepthMeters: stationEnvironment.userData["roomDepthMeters"],
+    environmentFallbackActive: stationEnvironment.userData["environmentFallbackActive"],
   };
 
   // #336: generated Infinigen room selected by environmentId; procedural box stays as fallback.
-  if (!hideRoomForCleanCapture() && stationEnvironment.userData.openClinXrCompiledRoom !== true) {
+  if (!hideRoomForCleanCapture() && stationEnvironment.userData["openClinXrCompiledRoom"] !== true) {
     loadInfinigenEnvironmentIntoStation({
       scene,
       environmentId: envId,
       stationEnvironment,
       onStatus: (status) => {
-        stationEnvironment.userData.openClinXrInfinigenEnvironmentStatus = status;
+        stationEnvironment.userData["openClinXrInfinigenEnvironmentStatus"] = status;
       },
     });
   }
@@ -187,22 +187,22 @@ export async function buildStationRoomShell(
   // Env glTF container for factory-produced world assets.
   const gltfEnvContainer = new Group();
   gltfEnvContainer.name = `${prefix}.case-env-gltf-container`;
-  gltfEnvContainer.userData.openClinXrGltfEnvHandoff = floor.userData.caseDerivedVirtualEnvGltfHandoff;
-  gltfEnvContainer.userData.producedManifestPath = floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedManifestPath;
-  gltfEnvContainer.userData.producedGltfUrl = floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedGltfUrl;
-  gltfEnvContainer.userData.openClinXrLaunchTestPolicy =
+  gltfEnvContainer.userData["openClinXrGltfEnvHandoff"] = floor.userData["caseDerivedVirtualEnvGltfHandoff"];
+  gltfEnvContainer.userData["producedManifestPath"] = floor.userData["caseDerivedVirtualEnvGltfHandoff"]?.producedManifestPath;
+  gltfEnvContainer.userData["producedGltfUrl"] = floor.userData["caseDerivedVirtualEnvGltfHandoff"]?.producedGltfUrl;
+  gltfEnvContainer.userData["openClinXrLaunchTestPolicy"] =
     "virtual env world launched in player (props + gltf handoff + authoring vet from case); experience via dev server + station select";
 
   if (hideRoomForCleanCapture()) {
     gltfEnvContainer.visible = false;
-    gltfEnvContainer.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    gltfEnvContainer.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_for_clean_humanoid_source_comparator_capture";
   }
   scene.add(gltfEnvContainer);
 
   // Load produced/stub env glTF into the container when available.
   const gltfUrlForActualLoad =
-    floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedGltfUrl ||
-    floor.userData.caseDerivedVirtualEnvGltfHandoff?.gltfAssetUrl;
+    floor.userData["caseDerivedVirtualEnvGltfHandoff"]?.producedGltfUrl ||
+    floor.userData["caseDerivedVirtualEnvGltfHandoff"]?.gltfAssetUrl;
 
   if (gltfUrlForActualLoad && !hideRoomForCleanCapture()) {
     try {
@@ -211,8 +211,8 @@ export async function buildStationRoomShell(
         gltfUrlForActualLoad,
         (gltf: GLTF) => {
           gltfEnvContainer.add(gltf.scene);
-          gltf.scene.userData.loadedFromFactoryCaseEnv = true;
-          gltf.scene.userData.cuesFromGenDrive = "emotionTimeline / runtimeExecutionHints from case spec";
+          gltf.scene.userData["loadedFromFactoryCaseEnv"] = true;
+          gltf.scene.userData["cuesFromGenDrive"] = "emotionTimeline / runtimeExecutionHints from case spec";
 
           // Deeper visual cue from drive (tint/scale on env gltf or props from emotion in launched player world).
           try {
@@ -234,7 +234,7 @@ export async function buildStationRoomShell(
                   }
                 }
               });
-              gltf.scene.userData.deeperVisualCueApplied = { cue, atLoad: true, source: "drive fromEmotion" };
+              gltf.scene.userData["deeperVisualCueApplied"] = { cue, atLoad: true, source: "drive fromEmotion" };
             }
           } catch {
             // Non-fatal visual cue.
@@ -242,12 +242,12 @@ export async function buildStationRoomShell(
         },
         undefined,
         (err: unknown) => {
-          gltfEnvContainer.userData.actualGltfLoadError = err instanceof Error ? err.message : String(err);
+          gltfEnvContainer.userData["actualGltfLoadError"] = err instanceof Error ? err.message : String(err);
           // world remains valid via the three props (exam_table etc) + container
         },
       );
     } catch (e) {
-      gltfEnvContainer.userData.actualGltfLoadSetupError = String(e);
+      gltfEnvContainer.userData["actualGltfLoadSetupError"] = String(e);
     }
   }
 
@@ -280,7 +280,7 @@ export async function buildStationRoomShell(
       },
     );
     mismatchPanel.mesh.position.set(0, 1.55, -1.25);
-    mismatchPanel.mesh.userData.openClinXrScenarioMismatchPolicy =
+    mismatchPanel.mesh.userData["openClinXrScenarioMismatchPolicy"] =
       "selected_scenario_specific_3d_pending_ed_fallback_hidden_to_prevent_false_realism_evidence";
     scene.add(mismatchPanel.mesh);
   } else if (!hideRoomForCleanCapture()) {
@@ -293,7 +293,7 @@ export async function buildStationRoomShell(
 
   if (selectedScenarioRuntimeMismatch()) {
     environmentShell.visible = false;
-    environmentShell.userData.openClinXrDynamicScenePolicy = "hidden_because_selected_scenario_specific_3d_bundle_missing";
+    environmentShell.userData["openClinXrDynamicScenePolicy"] = "hidden_because_selected_scenario_specific_3d_bundle_missing";
   } else if (shouldPackageSuppressGeneratedEnvironmentShell(bundle.environment, (asset: EncounterRuntimeAsset) => {
       // Inline the placeholder check logic from the app
       const scenarioSlug = bundle.scenarioId.replaceAll("_", "-");
@@ -305,10 +305,10 @@ export async function buildStationRoomShell(
       return false;
     })) {
     environmentShell.visible = false;
-    environmentShell.userData.openClinXrDynamicScenePolicy = "suppressed_mismatched_placeholder_environment_for_case_defined_scene_manifest";
+    environmentShell.userData["openClinXrDynamicScenePolicy"] = "suppressed_mismatched_placeholder_environment_for_case_defined_scene_manifest";
   } else if (hideRoomForCleanCapture()) {
     environmentShell.visible = false;
-    environmentShell.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    environmentShell.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_for_clean_humanoid_source_comparator_capture";
   }
   // actorPoseReviewCapture not in scope for this phase
   scene.add(environmentShell);
@@ -329,13 +329,13 @@ export async function buildStationRoomShell(
 
   if (selectedScenarioRuntimeMismatch()) {
     bed.visible = false;
-    bed.userData.openClinXrDynamicScenePolicy = "hidden_because_selected_scenario_specific_3d_bundle_missing";
+    bed.userData["openClinXrDynamicScenePolicy"] = "hidden_because_selected_scenario_specific_3d_bundle_missing";
   } else if (isDynamicGeneratedEncounterSceneMode()) {
     bed.visible = false;
-    bed.userData.openClinXrDynamicScenePolicy = "hidden_when_scene_manifest_and_generated_environment_supply_encounter_context";
+    bed.userData["openClinXrDynamicScenePolicy"] = "hidden_when_scene_manifest_and_generated_environment_supply_encounter_context";
   } else if (hideRoomForCleanCapture()) {
     bed.visible = false;
-    bed.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    bed.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_for_clean_humanoid_source_comparator_capture";
   }
   // actorPoseReviewCapture not in scope for this phase
   scene.add(bed);
@@ -350,20 +350,20 @@ export async function buildStationRoomShell(
 
   if (selectedScenarioRuntimeMismatch()) {
     monitor.visible = false;
-    monitor.userData.openClinXrDynamicScenePolicy = "hidden_because_selected_scenario_specific_3d_bundle_missing";
+    monitor.userData["openClinXrDynamicScenePolicy"] = "hidden_because_selected_scenario_specific_3d_bundle_missing";
   } else if (isDynamicGeneratedEncounterSceneMode()) {
     monitor.visible = false;
-    monitor.userData.openClinXrDynamicScenePolicy = "hidden_when_scene_manifest_and_generated_environment_supply_encounter_context";
+    monitor.userData["openClinXrDynamicScenePolicy"] = "hidden_when_scene_manifest_and_generated_environment_supply_encounter_context";
   } else if (hideRoomForCleanCapture()) {
     monitor.visible = false;
-    monitor.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    monitor.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_for_clean_humanoid_source_comparator_capture";
   }
   // actorPoseReviewCapture not in scope for this phase
   scene.add(monitor);
 
   // #186 — roles owned by shell fixtures suppress dual roomProp / equipment meshes.
-  const fixtureOwnedRoles = Array.isArray(stationEnvironment.userData.fixtureOwnedRoles)
-    ? (stationEnvironment.userData.fixtureOwnedRoles as string[])
+  const fixtureOwnedRoles = Array.isArray(stationEnvironment.userData["fixtureOwnedRoles"])
+    ? (stationEnvironment.userData["fixtureOwnedRoles"] as string[])
     : [];
 
   return {

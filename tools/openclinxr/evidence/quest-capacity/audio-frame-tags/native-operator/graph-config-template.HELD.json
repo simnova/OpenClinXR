@@ -1,0 +1,41 @@
+{
+  "_held": "TEMPLATE ONLY - HELD till fresh actual human readiness (after ALL preparation) + independent operator release + separate root ONE graph GO. Never executed with placeholder shas: bound() fails closed. Root issues actual values.",
+  "schema": "quest-audio-tags-native-graph-config.v1",
+  "serial": "2G0YC5ZGB5000J",
+  "origin": "http://localhost:54245",
+  "nonce": "fa298a26-f127-4b8e-a331-2e0599e965f2",
+  "output": "/Volumes/files/src/openclinxr/.openclinxr/slices/quest3-stage1-duplex-immersive-baseline/evidence/audio-frame-tags/native-01/graph-actual-01",
+  "parentOutput": "/Volumes/files/src/openclinxr/.openclinxr/slices/quest3-stage1-duplex-immersive-baseline/evidence/audio-frame-tags/native-01/graph-control-actual-01",
+  "rootGo": {
+    "path": "HELD-TO-BE-ISSUED-BY-ROOT",
+    "sha256": "HELD-TO-BE-ISSUED-BY-ROOT"
+  },
+  "independentRelease": {
+    "path": "HELD-TO-BE-ISSUED-BY-ROOT",
+    "sha256": "HELD-TO-BE-ISSUED-BY-ROOT"
+  },
+  "plan": {
+    "path": "/Volumes/files/src/openclinxr/.openclinxr/slices/quest3-stage1-duplex-immersive-baseline/evidence/audio-frame-tags/native-01/target-operator/two-phase-plan.json",
+    "sha256": "600ff4f383a80a65a6a24fbc8653c44f01ae4bb390c2ba0f6711f47e103b7b26"
+  },
+  "operatorManifest": {
+    "path": "HELD-TO-BE-ISSUED-BY-ROOT",
+    "sha256": "HELD-TO-BE-ISSUED-BY-ROOT"
+  },
+  "sourceManifest": {
+    "path": "HELD-TO-BE-ISSUED-BY-ROOT",
+    "sha256": "HELD-TO-BE-ISSUED-BY-ROOT"
+  },
+  "observedProfile": {
+    "path": "/Volumes/files/src/openclinxr/.openclinxr/slices/quest3-stage1-duplex-immersive-baseline/evidence/audio-frame-tags/native-01/review/profile-actual-01/observed-native-profile.json",
+    "sha256": "HELD-TO-BE-ISSUED-BY-ROOT"
+  },
+  "rawProfile": {
+    "path": "/Volumes/files/src/openclinxr/.openclinxr/slices/quest3-stage1-duplex-immersive-baseline/evidence/audio-frame-tags/native-01/profile-actual-01/profile-observation.json",
+    "sha256": "4e3e4ec976b322385fb8500260311ed1989398dcc5941159a8fe9eda5deb2bdd"
+  },
+  "humanReadiness": {
+    "path": "HELD-TO-BE-ISSUED-BY-ROOT-AFTER-ALL-PREPARATION",
+    "sha256": "HELD-TO-BE-ISSUED-BY-ROOT-AFTER-ALL-PREPARATION"
+  }
+}

@@ -28,6 +28,9 @@ describe("IWSDK sidecar Vite config", () => {
   });
 
   it("enables approved IWER Quest 3 agent-mode emulation only in the sidecar Vite app", () => {
+    // Pinned to the 0.3.1 licensed surface: `emulator` + `ai` (with native
+    // `tools`) + `verbose`. 0.3.1 has no `workspace`/`https` keys — agent mode
+    // implies headless Playwright and the plugin never issues TLS certs.
     expect(openClinXrIwsdkSpikeDevPluginOptions).toMatchObject({
       emulator: {
         device: "metaQuest3",
@@ -42,13 +45,10 @@ describe("IWSDK sidecar Vite config", () => {
           height: 500,
         },
       },
-      workspace: {
-        open: false,
-        headless: true,
-      },
-      https: false,
       verbose: true,
     });
+    expect(openClinXrIwsdkSpikeDevPluginOptions).not.toHaveProperty("workspace");
+    expect(openClinXrIwsdkSpikeDevPluginOptions).not.toHaveProperty("https");
     expect(openClinXrIwsdkSpikeDevPluginOptions.emulator?.userAgentException).toBeInstanceOf(RegExp);
     const plugins = createOpenClinXrIwsdkSpikePlugins();
     expect(plugins.some((plugin) => plugin.name.includes("iwsdk"))).toBe(true);
@@ -67,7 +67,9 @@ describe("IWSDK sidecar Vite config", () => {
     // would give Quest Browser a self-signed cert privacy interstitial over adb reverse.
     expect(resolved.server?.https ?? false, "server.https must not enable TLS").toBe(false);
     expect(resolved.server?.hmr).toMatchObject({ overlay: false });
-    expect(openClinXrIwsdkSpikeDevPluginOptions.https).toBe(false);
+    // The 0.3.1 plugin exposes no `https` option and never generates certs, so
+    // omitting Vite `server.https` alone guarantees cert-free HTTP for adb reverse.
+    expect("https" in openClinXrIwsdkSpikeDevPluginOptions).toBe(false);
   });
 
   it("disables Vite HMR error overlay so non-fatal dynamic-import failures on Quest do not block shellLoaded CDP gate", async () => {

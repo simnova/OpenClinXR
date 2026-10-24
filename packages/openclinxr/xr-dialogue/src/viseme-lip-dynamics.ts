@@ -152,7 +152,7 @@ export function applyPreparedLipDynamics<T extends Result>(result: T, root: Root
   const shapedSample = { ...sample, weights };
   root.traverse((object) => { const mesh = object as MorphTargetLike & { name?: string }; if (mesh.morphTargetDictionary && mesh.morphTargetInfluences?.length) applyVisemeWeights(mesh, lipVisemeWeights(mesh, shapedSample.weights)); });
   const next = { ...result, weights };
-  if (root.userData?.openClinXrNamedVisemeDrive && typeof root.userData.openClinXrNamedVisemeDrive === "object") root.userData.openClinXrNamedVisemeDrive = { ...root.userData.openClinXrNamedVisemeDrive, ...next, lipDynamics: "canonical_ovr_fixed_step_critical_follower", lipDynamicsSample: shapedSample };
+  if (root.userData?.["openClinXrNamedVisemeDrive"] && typeof root.userData["openClinXrNamedVisemeDrive"] === "object") root.userData["openClinXrNamedVisemeDrive"] = { ...root.userData["openClinXrNamedVisemeDrive"], ...next, lipDynamics: "canonical_ovr_fixed_step_critical_follower", lipDynamicsSample: shapedSample };
   return next;
 }
 

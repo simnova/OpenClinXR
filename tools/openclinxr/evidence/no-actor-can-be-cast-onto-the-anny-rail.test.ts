@@ -1,7 +1,9 @@
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
-import { ADULT_POOL_GLBS } from "../../../packages/openclinxr/asset-registry/src/cast-asset-constants.js";
+import { listShippedCastScenarioIds } from "@openclinxr/asset-registry";
+import { resolveScenarioActorCast } from "@openclinxr/asset-registry/runtime-bundles";
+import { MPFB_GOWN_ADULT_PATIENT_GLB } from "@openclinxr/asset-registry/cast-asset-constants";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 
 /**
@@ -137,14 +139,32 @@ describe("no actor can be cast onto the anny rail", () => {
   it("(2) the exhausted-pool last resort is not an Anny asset", () => {
     // actor-casting.ts:298 says "prefer gown body ... for clinical safety of default" and returns
     // ED_ADULT_CAST_GLB = ed_chest_pain_adult_cast.glb, which is Anny. The gown body is MPFB.
-    const roster: Roster = Array.from({ length: ADULT_POOL_GLBS.length + 3 }, (_, i) => ({
-      actorId: `overflow_actor_${i + 1}_v1`, role: "nurse",
+    // PUBLIC drain sizing (ADULT_POOL_GLBS retired): distinct adult assetPaths of the real public
+    // casts, +3 overflow mirroring the original pool+3 shape. The shipped-bank cast list is a
+    // public upper bound on the pool, so this roster still drains it; only the retired
+    // ADULT_POOL_GLBS.length size expression is replaced.
+    const adultPaths = new Set<string>();
+    for (const scenarioId of listShippedCastScenarioIds()) {
+      for (const cast of resolveScenarioActorCast(scenarioId)) {
+        if (cast.declaredAgeBand === "adult") adultPaths.add(cast.assetPath);
+      }
+    }
+    expect(adultPaths.size, "the shipped bank must cast adult bodies for the drain to mean something").toBeGreaterThan(0);
+    // Zero-padded so lexicographic actorId sort (used for pool assignment) matches
+    // roster order; .at(-1) is then genuinely the deepest assignment — the one that
+    // must sit on the gown last resort once the five-member MPFB pool is drained.
+    const roster: Roster = Array.from({ length: adultPaths.size + 3 }, (_, i) => ({
+      actorId: `overflow_actor_${String(i + 1).padStart(2, "0")}_v1`, role: "nurse",
     }));
     const last = resolveAll("stepdown_sepsis_nurse_escalation_v1", roster).at(-1);
     expect(
       last === undefined ? "NO RESOLUTION" : stemOf(last.path),
       "past the end of the pool the resolver must not fall back to an Anny body",
     ).not.toBeOneOf([...ANNY_STEMS]);
+    expect(
+      last === undefined ? "NO RESOLUTION" : stemOf(last.path),
+      "the derived crowd must really exhaust the pool and reach the gown last resort",
+    ).toBe(MPFB_GOWN_ADULT_PATIENT_GLB.replace(/\.glb$/u, ""));
   });
 
   it("(3) KNOWN-GOOD: every bank actor still resolves, to a file that EXISTS, and none is Anny", () => {

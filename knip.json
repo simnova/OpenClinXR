@@ -9,6 +9,11 @@
     "apps/**/src/isolated-*.ts",
     "apps/**/scripts/**/*.{ts,mjs,cjs}",
     "packages/**/src/cli/**/*.{ts,mts,mjs}",
+    "packages/openclinxr/xr-capacity/src/controller/entry.ts",
+    "packages/openclinxr/xr-capacity/src/stage0/entry.ts",
+    "packages/openclinxr/xr-capacity/src/stage1/shell/entry.ts",
+    "packages/openclinxr/xr-capacity/src/stage1-witnessed/shell/entry.ts",
+    "packages/openclinxr/xr-capacity/src/stage1/audio/host-sanity.mjs",
     "**/vitest.config.ts",
     "**/vitest.arch.config.ts"
   ],
@@ -18,6 +23,43 @@
     "packages/**/*.{ts,tsx,js,jsx,mjs,cjs}",
     "tools/**/*.{ts,tsx,js,jsx,mjs,cjs}"
   ],
+  "workspaces": {
+    ".": {
+      "entry": [
+        "package.json",
+        "tools/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts}",
+        "apps/**/src/{main,index}.{ts,tsx}",
+        "apps/**/src/*-shot-main.tsx",
+        "apps/**/src/*-measure.ts",
+        "apps/**/src/isolated-*.ts",
+        "apps/**/scripts/**/*.{ts,mjs,cjs}",
+        "packages/**/src/cli/**/*.{ts,mts,mjs}",
+        "**/vitest.config.ts",
+        "**/vitest.arch.config.ts"
+      ],
+      "project": [
+        "vitest.config.ts",
+        "tools/**/*.{ts,tsx,js,jsx,mjs,cjs}"
+      ]
+    },
+    "apps/ui-xr": {
+      "ignoreDependencies": ["@openclinxr/xr-capacity"]
+    },
+    "packages/openclinxr/xr-capacity": {
+      "entry": [
+        "src/controller/entry.ts",
+        "src/stage0/entry.ts",
+        "src/stage1/shell/entry.ts",
+        "src/stage1-witnessed/shell/entry.ts",
+        "src/stage1/audio/host-sanity.mjs"
+      ]
+    },
+    "packages/openclinxr/xr-humanoid-animation": {
+      "entry": [
+        "src/fixed-clock-query-flag-mod.ts"
+      ]
+    }
+  },
   "ignore": [
     ".claude/**",
     "**/generated/**",

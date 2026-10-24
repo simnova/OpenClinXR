@@ -426,7 +426,7 @@ export async function applyProductRig(
   const castThree = new Vector3(patient.position[0], patient.position[2], -patient.position[1]);
   const delta = new Vector3().subVectors(headCentre, castThree);
   for (const light of applied.lights) {
-    if (light.userData?.openClinXrLightingRig !== true) continue;
+    if (light.userData?.["openClinXrLightingRig"] !== true) continue;
     light.position.add(delta);
     if (light instanceof DirectionalLight) light.target.position.add(delta);
   }

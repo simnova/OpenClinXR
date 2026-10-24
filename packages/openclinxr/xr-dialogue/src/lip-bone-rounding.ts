@@ -174,11 +174,11 @@ export function applyLipBoneRoundingToRoot(
   for (const bone of bones) {
     const ud = (bone.userData ??= {});
     if (!bone.position) continue;
-    const rest = ud.openClinXrLipRest as { x: number; y: number; z: number } | undefined;
+    const rest = ud["openClinXrLipRest"] as { x: number; y: number; z: number } | undefined;
     if (!rest || typeof rest.x !== "number" || typeof rest.y !== "number" || typeof rest.z !== "number") {
-      ud.openClinXrLipRest = { x: bone.position.x, y: bone.position.y, z: bone.position.z };
+      ud["openClinXrLipRest"] = { x: bone.position.x, y: bone.position.y, z: bone.position.z };
     }
-    const cached = ud.openClinXrLipRest as { x: number; y: number; z: number };
+    const cached = ud["openClinXrLipRest"] as { x: number; y: number; z: number };
     const offset = byBone.get(sanitisedBoneName(bone.name ?? ""));
     bone.position.x = cached.x + (offset?.x ?? 0) / 1000;
     bone.position.z = cached.z + (offset?.z ?? 0) / 1000;

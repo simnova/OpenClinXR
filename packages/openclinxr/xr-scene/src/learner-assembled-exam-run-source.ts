@@ -100,8 +100,8 @@ export async function fetchLearnerAssembledExamRunAggregate(input: {
   if (response.status === 404) return { found: false };
   if (response.status === 409) {
     const body = await readJsonBody(response);
-    const reason = isRecord(body) && typeof body.reason === "string" && body.reason.length > 0
-      ? body.reason
+    const reason = isRecord(body) && typeof body["reason"] === "string" && body["reason"].length > 0
+      ? body["reason"]
       : "stale_identity";
     throw new BlockedLearnerExamResumeError(reason);
   }
@@ -120,46 +120,46 @@ export function parseLearnerAssembledExamRunAggregate(
   expectedExamRunId: string,
 ): LearnerAssembledExamRunAggregate {
   if (!isRecord(body)) throw new BlockedLearnerExamResumeError("exam_run_payload_malformed");
-  if (body.examEquivalenceGate !== false) throw new BlockedLearnerExamResumeError("exam_equivalence_gate");
-  const examRunId = requiredString(body.examRunId, "examRunId");
+  if (body["examEquivalenceGate"] !== false) throw new BlockedLearnerExamResumeError("exam_equivalence_gate");
+  const examRunId = requiredString(body["examRunId"], "examRunId");
   if (examRunId !== expectedExamRunId) throw new BlockedLearnerExamResumeError("exam_run_mismatch");
-  const action = body.action;
+  const action = body["action"];
   if (typeof action !== "string" || !(LEARNER_ASSEMBLED_EXAM_RUN_ACTIONS as readonly string[]).includes(action)) {
     throw new BlockedLearnerExamResumeError("exam_run_payload_malformed");
   }
-  const stationRunId = body.stationRunId === null || body.stationRunId === undefined
+  const stationRunId = body["stationRunId"] === null || body["stationRunId"] === undefined
     ? null
-    : requiredString(body.stationRunId, "stationRunId");
-  const currentStation = parseCurrentStation(body.currentStation, examRunId);
+    : requiredString(body["stationRunId"], "stationRunId");
+  const currentStation = parseCurrentStation(body["currentStation"], examRunId);
   if (action !== "exam_complete" && currentStation === null) {
     throw new BlockedLearnerExamResumeError("current_station_missing");
   }
   if ((currentStation && currentStation.stationRunId !== stationRunId) || (!currentStation && stationRunId !== null)) {
     throw new BlockedLearnerExamResumeError("station_run_mismatch");
   }
-  const orderedStations = parseOrderedStations(body.orderedStations);
-  const admittedPhaseEvents = parseAdmittedPhaseEvents(body.admittedPhaseEvents, examRunId, orderedStations);
+  const orderedStations = parseOrderedStations(body["orderedStations"]);
+  const admittedPhaseEvents = parseAdmittedPhaseEvents(body["admittedPhaseEvents"], examRunId, orderedStations);
   validateAggregateProgress(action as LearnerAssembledExamRunAction, currentStation, orderedStations, admittedPhaseEvents);
-  const durableEventRefs = requiredStringArray(body.durableEventRefs, "durableEventRefs");
+  const durableEventRefs = requiredStringArray(body["durableEventRefs"], "durableEventRefs");
   if (durableEventRefs.join("\0") !== admittedPhaseEvents.map((event) => event.durableEventRef).join("\0")) {
     throw new BlockedLearnerExamResumeError("durable_reference_mismatch");
   }
-  const notEvidenceFor = requiredStringArray(body.notEvidenceFor, "notEvidenceFor");
+  const notEvidenceFor = requiredStringArray(body["notEvidenceFor"], "notEvidenceFor");
   if (!notEvidenceFor.includes("exam_equivalence")) {
     throw new BlockedLearnerExamResumeError("exam_equivalence_claim_boundary");
   }
   return {
     examRunId,
     stationRunId,
-    examFormId: requiredString(body.examFormId, "examFormId"),
-    blueprintId: requiredString(body.blueprintId, "blueprintId"),
+    examFormId: requiredString(body["examFormId"], "examFormId"),
+    blueprintId: requiredString(body["blueprintId"], "blueprintId"),
     action: action as LearnerAssembledExamRunAction,
     currentStation,
     orderedStations,
     admittedPhaseEvents,
     durableEventRefs,
-    omissions: Array.isArray(body.omissions) ? body.omissions : [],
-    claimBoundary: requiredString(body.claimBoundary, "claimBoundary"),
+    omissions: Array.isArray(body["omissions"]) ? body["omissions"] : [],
+    claimBoundary: requiredString(body["claimBoundary"], "claimBoundary"),
     notEvidenceFor,
     examEquivalenceGate: false,
   };
@@ -183,11 +183,11 @@ function parseOrderedStations(value: unknown): LearnerAssembledExamStationBindin
   const stations = value.map((item) => {
     if (!isRecord(item)) throw new BlockedLearnerExamResumeError("ordered_station_malformed");
     return {
-      stationOrder: requiredPositiveInt(item.stationOrder, "orderedStation.stationOrder"),
-      slotId: requiredString(item.slotId, "orderedStation.slotId"),
-      stationRunId: requiredString(item.stationRunId, "orderedStation.stationRunId"),
-      scenarioId: requiredString(item.scenarioId, "orderedStation.scenarioId"),
-      scenarioVersion: requiredPositiveInt(item.scenarioVersion, "orderedStation.scenarioVersion"),
+      stationOrder: requiredPositiveInt(item["stationOrder"], "orderedStation.stationOrder"),
+      slotId: requiredString(item["slotId"], "orderedStation.slotId"),
+      stationRunId: requiredString(item["stationRunId"], "orderedStation.stationRunId"),
+      scenarioId: requiredString(item["scenarioId"], "orderedStation.scenarioId"),
+      scenarioVersion: requiredPositiveInt(item["scenarioVersion"], "orderedStation.scenarioVersion"),
     };
   });
   const seenOrders = new Set<number>();
@@ -217,30 +217,30 @@ function parseAdmittedPhaseEvents(
   const events: LearnerAssembledExamAdmittedPhaseEvent[] = [];
   for (const item of value) {
     if (!isRecord(item)) throw new BlockedLearnerExamResumeError("admitted_phase_event_malformed");
-    const eventType = requiredString(item.eventType, "admittedPhaseEvent.eventType");
+    const eventType = requiredString(item["eventType"], "admittedPhaseEvent.eventType");
     if (!(LEARNER_CANONICAL_PHASE_TYPES as readonly string[]).includes(eventType)) {
       throw new BlockedLearnerExamResumeError("admitted_phase_event_type_mismatch");
     }
     const typedEventType = eventType as LearnerAssembledExamAdmittedPhaseEvent["eventType"];
-    const stationRunId = requiredString(item.stationRunId, "admittedPhaseEvent.stationRunId");
-    const stationOrder = requiredPositiveInt(item.stationOrder, "admittedPhaseEvent.stationOrder");
-    const scenarioId = requiredString(item.scenarioId, "admittedPhaseEvent.scenarioId");
+    const stationRunId = requiredString(item["stationRunId"], "admittedPhaseEvent.stationRunId");
+    const stationOrder = requiredPositiveInt(item["stationOrder"], "admittedPhaseEvent.stationOrder");
+    const scenarioId = requiredString(item["scenarioId"], "admittedPhaseEvent.scenarioId");
     const station = stationByRun.get(stationRunId);
     if (!station || station.stationOrder !== stationOrder || station.scenarioId !== scenarioId) {
       throw new BlockedLearnerExamResumeError("admitted_phase_event_identity_mismatch");
     }
-    const sequence = requiredNonnegativeInt(item.sequence, "admittedPhaseEvent.sequence");
-    const atSecond = requiredNonnegativeInt(item.atSecond, "admittedPhaseEvent.atSecond");
-    const formAtSecond = requiredNonnegativeInt(item.formAtSecond, "admittedPhaseEvent.formAtSecond");
-    const durableEventRef = requiredString(item.durableEventRef, "admittedPhaseEvent.durableEventRef");
+    const sequence = requiredNonnegativeInt(item["sequence"], "admittedPhaseEvent.sequence");
+    const atSecond = requiredNonnegativeInt(item["atSecond"], "admittedPhaseEvent.atSecond");
+    const formAtSecond = requiredNonnegativeInt(item["formAtSecond"], "admittedPhaseEvent.formAtSecond");
+    const durableEventRef = requiredString(item["durableEventRef"], "admittedPhaseEvent.durableEventRef");
     if (durableEventRef !== `durable://station-runs/${stationRunId}/events/${sequence}`) {
       throw new BlockedLearnerExamResumeError("durable_reference_mismatch");
     }
-    const phase = requiredString(item.phase, "admittedPhaseEvent.phase");
+    const phase = requiredString(item["phase"], "admittedPhaseEvent.phase");
     if (phase !== PHASE_BY_EVENT_TYPE[typedEventType]) {
       throw new BlockedLearnerExamResumeError("admitted_phase_event_phase_mismatch");
     }
-    const recordedAtIso = requiredString(item.recordedAtIso, "admittedPhaseEvent.recordedAtIso");
+    const recordedAtIso = requiredString(item["recordedAtIso"], "admittedPhaseEvent.recordedAtIso");
     if (!Number.isFinite(Date.parse(recordedAtIso))) {
       throw new BlockedLearnerExamResumeError("admitted_phase_event_timestamp_malformed");
     }
@@ -251,13 +251,13 @@ function parseAdmittedPhaseEvents(
         || formAtSecond < previous.formAtSecond || Date.parse(recordedAtIso) < Date.parse(previous.recordedAtIso)))) {
       throw new BlockedLearnerExamResumeError("sequence_mismatch");
     }
-    const advanceReason = item.advanceReason;
+    const advanceReason = item["advanceReason"];
     if ((typedEventType === "station.advanced" && (typeof advanceReason !== "string" || !advanceReason.trim()))
       || (typedEventType !== "station.advanced" && advanceReason !== undefined)) {
       throw new BlockedLearnerExamResumeError("advance_reason_mismatch");
     }
     const event: LearnerAssembledExamAdmittedPhaseEvent = {
-      examRunId: requiredString(item.examRunId, "admittedPhaseEvent.examRunId"),
+      examRunId: requiredString(item["examRunId"], "admittedPhaseEvent.examRunId"),
       stationRunId,
       sequence,
       eventType: typedEventType,
@@ -267,7 +267,7 @@ function parseAdmittedPhaseEvents(
       stationOrder,
       durableEventRef,
       phase: phase as LearnerAssembledExamAdmittedPhaseEvent["phase"],
-      source: requiredString(item.source, "admittedPhaseEvent.source"),
+      source: requiredString(item["source"], "admittedPhaseEvent.source"),
       recordedAtIso,
       ...(typeof advanceReason === "string" ? { advanceReason: advanceReason.trim() } : {}),
     };
@@ -327,22 +327,22 @@ function validateAggregateProgress(
 function parseCurrentStation(value: unknown, examRunId: string): LearnerAssembledExamCurrentStation | null {
   if (value === null || value === undefined) return null;
   if (!isRecord(value)) throw new BlockedLearnerExamResumeError("current_station_malformed");
-  const lifecycle = value.lifecycle;
+  const lifecycle = value["lifecycle"];
   if (!isRecord(lifecycle)) throw new BlockedLearnerExamResumeError("lifecycle_missing");
-  const assembledStation = parseAssembledStation(value.assembledStation, examRunId);
+  const assembledStation = parseAssembledStation(value["assembledStation"], examRunId);
   return {
-    stationOrder: requiredPositiveInt(value.stationOrder, "stationOrder"),
-    scenarioId: requiredString(value.scenarioId, "scenarioId"),
-    stationRunId: requiredString(value.stationRunId, "stationRunId"),
-    slotId: requiredString(value.slotId, "slotId"),
+    stationOrder: requiredPositiveInt(value["stationOrder"], "stationOrder"),
+    scenarioId: requiredString(value["scenarioId"], "scenarioId"),
+    stationRunId: requiredString(value["stationRunId"], "stationRunId"),
+    slotId: requiredString(value["slotId"], "slotId"),
     assembledStation,
     lifecycle: {
-      lastAdmittedEventType: typeof lifecycle.lastAdmittedEventType === "string" ? lifecycle.lastAdmittedEventType : null,
-      nextExpectedEventType: typeof lifecycle.nextExpectedEventType === "string" ? lifecycle.nextExpectedEventType : null,
-      admittedEventTypes: requiredStringArray(lifecycle.admittedEventTypes, "lifecycle.admittedEventTypes"),
-      durableEventRefs: requiredStringArray(lifecycle.durableEventRefs, "lifecycle.durableEventRefs"),
-      noteSubmitted: lifecycle.noteSubmitted === true,
-      phase: requiredString(lifecycle.phase, "lifecycle.phase"),
+      lastAdmittedEventType: typeof lifecycle["lastAdmittedEventType"] === "string" ? lifecycle["lastAdmittedEventType"] : null,
+      nextExpectedEventType: typeof lifecycle["nextExpectedEventType"] === "string" ? lifecycle["nextExpectedEventType"] : null,
+      admittedEventTypes: requiredStringArray(lifecycle["admittedEventTypes"], "lifecycle.admittedEventTypes"),
+      durableEventRefs: requiredStringArray(lifecycle["durableEventRefs"], "lifecycle.durableEventRefs"),
+      noteSubmitted: lifecycle["noteSubmitted"] === true,
+      phase: requiredString(lifecycle["phase"], "lifecycle.phase"),
     },
   };
 }
@@ -352,27 +352,27 @@ function parseAssembledStation(
   examRunId: string,
 ): LearnerAssembledExamCurrentStation["assembledStation"] {
   if (!isRecord(value)) throw new BlockedLearnerExamResumeError("assembled_station_missing");
-  const parsedExamRunId = requiredString(value.examRunId, "assembledStation.examRunId");
+  const parsedExamRunId = requiredString(value["examRunId"], "assembledStation.examRunId");
   if (parsedExamRunId !== examRunId) throw new BlockedLearnerExamResumeError("exam_run_mismatch");
-  const formTiming = value.formTiming;
-  if (!isRecord(formTiming) || !isRecord(formTiming.encounter) || !isRecord(formTiming.note)) {
+  const formTiming = value["formTiming"];
+  if (!isRecord(formTiming) || !isRecord(formTiming["encounter"]) || !isRecord(formTiming["note"])) {
     throw new BlockedLearnerExamResumeError("form_timing_malformed");
   }
   return {
     examRunId: parsedExamRunId,
-    scenarioId: requiredString(value.scenarioId, "assembledStation.scenarioId"),
-    stationOrder: requiredPositiveInt(value.stationOrder, "assembledStation.stationOrder"),
+    scenarioId: requiredString(value["scenarioId"], "assembledStation.scenarioId"),
+    stationOrder: requiredPositiveInt(value["stationOrder"], "assembledStation.stationOrder"),
     formTiming: {
-      ...(isRecord(formTiming.doorway) ? { doorway: parseWindow(formTiming.doorway, "doorway") } : {}),
-      encounter: parseWindow(formTiming.encounter, "encounter"),
-      note: parseWindow(formTiming.note, "note"),
+      ...(isRecord(formTiming["doorway"]) ? { doorway: parseWindow(formTiming["doorway"], "doorway") } : {}),
+      encounter: parseWindow(formTiming["encounter"], "encounter"),
+      note: parseWindow(formTiming["note"], "note"),
     },
   };
 }
 
 function parseWindow(value: Record<string, unknown>, label: string): FormWindow {
-  const start = value.startsAtSecond;
-  const end = value.endsAtSecond;
+  const start = value["startsAtSecond"];
+  const end = value["endsAtSecond"];
   if (!Number.isInteger(start) || !Number.isInteger(end) || (start as number) < 0 || (end as number) < (start as number)) {
     throw new BlockedLearnerExamResumeError(`form_timing_malformed:${label}`);
   }

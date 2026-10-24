@@ -714,7 +714,7 @@ describe("the normal encounter physician approaches and stops", () => {
     expect(mainSource).toContain("createStationBedsideApproachState()");
     // The producer's output is what the frame loop's own drive read consumes, so the dead branch
     // it used to fall through becomes live rather than being bypassed.
-    expect(mainSource).toContain("floor.userData.genDrive = approachFrame");
+    expect(mainSource).toContain('floor.userData["genDrive"] = approachFrame');
     observe("no-recorder-globals-or-direct-executor-call", "driveSourcesObserved", "id", {
       driveSources: [...new Set(run.frames.map((frame) => frame.driveSource))],
       recorderGlobalPresent: false,

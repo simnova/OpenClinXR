@@ -107,7 +107,7 @@ export function dumpSupineJointState(
     meshCount,
     jointCount: jointNames.size,
     ranSupineCall: true,
-    appliedJointEulers: ((humanoid.userData.openClinXrSupinePoseBones as string[] | undefined) ?? []).length > 0,
+    appliedJointEulers: ((humanoid.userData["openClinXrSupinePoseBones"] as string[] | undefined) ?? []).length > 0,
   };
 }
 

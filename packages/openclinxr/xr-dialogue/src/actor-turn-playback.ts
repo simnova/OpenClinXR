@@ -137,8 +137,8 @@ export function cleanupActorTurnLiveSlot(
 ): void {
   slot.activeSpeech = undefined;
   slot.emotionExpression.targetEmotion = restEmotion;
-  slot.root.userData.openClinXrActorTurnVisemePhoneme = "sil";
-  slot.root.userData.openClinXrActorTurnPlaybackCancelled = true;
+  slot.root.userData["openClinXrActorTurnVisemePhoneme"] = "sil";
+  slot.root.userData["openClinXrActorTurnPlaybackCancelled"] = true;
 }
 
 export function playFrozenActorTurn(
@@ -316,8 +316,8 @@ export function playFrozenActorTurnOnSlot(
         if (!host.speak(ctx)) return false;
         const live = host.getSlot(ctx.actorId);
         if (!live?.activeSpeech || live.activeSpeech.text !== ctx.spokenText) return false;
-        live.root.userData.openClinXrActorTurnVoiceId = ctx.voiceId;
-        live.root.userData.openClinXrActorTurnPerformancePlanId = ctx.performancePlanId;
+        live.root.userData["openClinXrActorTurnVoiceId"] = ctx.voiceId;
+        live.root.userData["openClinXrActorTurnPerformancePlanId"] = ctx.performancePlanId;
         voiceAccepted = live.activeSpeech.actorId === ctx.actorId;
         if (voiceAccepted) acceptedSpeech = live.activeSpeech;
         return voiceAccepted;
@@ -332,7 +332,7 @@ export function playFrozenActorTurnOnSlot(
       startGazePosture: (ctx) => {
         const live = host.getSlot(ctx.actorId);
         if (!live || !voiceAccepted) return false;
-        live.root.userData.openClinXrActorTurnPosePresetId = ctx.posePresetId;
+        live.root.userData["openClinXrActorTurnPosePresetId"] = ctx.posePresetId;
         return true;
       },
       startMotion: (ctx) => voiceAccepted && host.playClip(ctx.actorId, ctx.clipId),

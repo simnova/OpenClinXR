@@ -54,8 +54,8 @@ export function createVirtualDeviceActorAffordance(input: {
   labelPlate.position.set(0, 0.38, 0);
   labelPlate.scale.set(0.42, 0.42, 0.42);
   group.add(labelPlate);
-  group.userData.openClinXrVirtualDeviceActor = actorId;
-  group.userData.openClinXrAffordances = ["virtual_device_dialogue_target", "remote_actor_presence_cue"];
+  group.userData["openClinXrVirtualDeviceActor"] = actorId;
+  group.userData["openClinXrAffordances"] = ["virtual_device_dialogue_target", "remote_actor_presence_cue"];
   input.registerSlot(actorId, group);
   return group;
 }

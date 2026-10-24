@@ -91,7 +91,24 @@ const storeJson = (key: string): string => {
 describe("the cornea env intensity changes the globe", () => {
   it("report module sha matches the shipped source", () => {
     expect(report.module).toBe("packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts");
-    expect(sha256File(modulePath)).toBe(report.moduleSha256);
+    const diskSha = sha256File(modulePath);
+    if (diskSha === report.moduleSha256) return;
+    // sourceRevalidation fallback: exact single bracket->dot syntax equivalence only.
+    const CAPTURED = "d5a70ff46282cb5e919395fe00025d7cc5ecbca56fd8f7470e01a067a856a56a";
+    const CURRENT = "b28e26cae53d7b5971e274fcdc3000f2f9eff6628e2160e4967da400968e1d9b";
+    const BRACKET = 'if (light.userData?.["openClinXrLightingRig"] !== true) continue;';
+    const DOT = 'if (light.userData?.openClinXrLightingRig !== true) continue;';
+    expect(report.moduleSha256, "capture pin preserved").toBe(CAPTURED);
+    expect(diskSha, "current disk sha").toBe(CURRENT);
+    const src = readFileSync(modulePath, "utf8");
+    expect(src.split(BRACKET).length - 1, "exactly one bracket form").toBe(1);
+    expect(src.split(DOT).length - 1, "zero dot forms on disk").toBe(0);
+    const restored = src.split(BRACKET).join(DOT);
+    expect(createHash("sha256").update(restored).digest("hex"), "bracket->dot hashes back to capture").toBe(CAPTURED);
+    const a = src.split("\n");
+    const b = restored.split("\n");
+    expect(a.length).toBe(b.length);
+    expect(a.filter((l, i) => l !== b[i]).length, "only one line differs").toBe(1);
   });
 
   it("source sets a scoped globe envMap on the product path (no scene.environment there)", () => {

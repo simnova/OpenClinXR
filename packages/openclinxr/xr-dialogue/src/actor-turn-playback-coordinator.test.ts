@@ -219,9 +219,9 @@ describe("actor turn playback coordinator", () => {
     expect(atOrigin.gazeTargetKind).toBe("learner_camera");
     expect(atOrigin.posturePresetId).toBe("pose_upright_child");
     expect(atOrigin.emotion).toBe("neutral");
-    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("sil");
-    expect(slot.root.userData.openClinXrActorTurnGazeTargetKind).toBe("learner_camera");
-    expect(slot.root.userData.openClinXrActorTurnPosePresetId).toBe("pose_upright_child");
+    expect(slot.root.userData["openClinXrActorTurnVisemePhoneme"]).toBe("sil");
+    expect(slot.root.userData["openClinXrActorTurnGazeTargetKind"]).toBe("learner_camera");
+    expect(slot.root.userData["openClinXrActorTurnPosePresetId"]).toBe("pose_upright_child");
     expect(slot.emotionExpression.targetEmotion).toBe("neutral");
     expect(adapters.visemes.at(-1)).toBe("sil");
     expect(adapters.gazes.at(-1)).toBe("learner_camera");
@@ -235,7 +235,7 @@ describe("actor turn playback coordinator", () => {
     const atPp = coordinator.tick();
     // Old pin (A->AA) encoded the misread Rhubarb table; README A is closed lips (PP).
     expect(atPp.visemePhoneme).toBe("PP");
-    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("PP");
+    expect(slot.root.userData["openClinXrActorTurnVisemePhoneme"]).toBe("PP");
     expect(adapters.visemes.at(-1)).toBe("PP");
 
     clock.setCurrentTimeSeconds(AUDIO_DURATION_MS / 1000);
@@ -290,7 +290,7 @@ describe("actor turn playback coordinator", () => {
     // Old pins (A->AA, B->E) encoded the misread Rhubarb table; README A=PP, B=SS.
     expect(paused.visemePhoneme).toBe("PP");
     expect(paused.audioTimeMs).toBe(120);
-    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("PP");
+    expect(slot.root.userData["openClinXrActorTurnVisemePhoneme"]).toBe("PP");
 
     coordinator.resume();
     expect(clock.paused).toBe(false);
@@ -298,7 +298,7 @@ describe("actor turn playback coordinator", () => {
     const resumed = coordinator.tick();
     expect(resumed.visemePhoneme).toBe("SS");
     expect(adapters.visemes.at(-1)).toBe("SS");
-    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("SS");
+    expect(slot.root.userData["openClinXrActorTurnVisemePhoneme"]).toBe("SS");
 
     coordinator.interrupt("truncated");
     expect(coordinator.status).toBe("interrupted");
@@ -308,8 +308,8 @@ describe("actor turn playback coordinator", () => {
     expect(coordinator.tick().emotion).toBe("neutral");
     expect(slot.activeSpeech).toBeUndefined();
     expect(slot.emotionExpression.targetEmotion).toBe("neutral");
-    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("sil");
-    expect(slot.root.userData.openClinXrActorTurnPlaybackCancelled).toBe(true);
+    expect(slot.root.userData["openClinXrActorTurnVisemePhoneme"]).toBe("sil");
+    expect(slot.root.userData["openClinXrActorTurnPlaybackCancelled"]).toBe(true);
     expect(coordinator.evidence.events.some((event) => event.cancelled)).toBe(true);
   });
 
@@ -334,8 +334,8 @@ describe("actor turn playback coordinator", () => {
     expect(missingAudio.fallbackVisible).toBe(true);
     expect(missingAudio.status).toBe("fallback");
     expect(missingAudio.frozenPlayback?.spokenText).toBe(SPOKEN);
-    expect(slot.root.userData.openClinXrActorTurnPlaybackFallback).toBe(true);
-    expect(slot.root.userData.openClinXrActorTurnPlaybackFallbackReason).toBe("missing_audio");
+    expect(slot.root.userData["openClinXrActorTurnPlaybackFallback"]).toBe(true);
+    expect(slot.root.userData["openClinXrActorTurnPlaybackFallbackReason"]).toBe("missing_audio");
 
     const missingCues = coordinateActorTurnPlayback(
       samplePlan({ turnId: "turn_maya_wob_002", planId: "plan_maya_wob_002" }),
@@ -362,7 +362,7 @@ describe("actor turn playback coordinator", () => {
     clock.setCurrentTimeSeconds(0.12);
     // Old pin (A->AA) encoded the misread Rhubarb table; README A is closed lips (PP).
     expect(first.tick().visemePhoneme).toBe("PP");
-    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("PP");
+    expect(slot.root.userData["openClinXrActorTurnVisemePhoneme"]).toBe("PP");
 
     const secondPlan = samplePlan({ turnId: "turn_maya_wob_002", planId: "plan_maya_wob_002" });
     const secondClock = syntheticAudioClock(0);
@@ -374,7 +374,7 @@ describe("actor turn playback coordinator", () => {
     );
     expect(first.tick().visemePhoneme).toBe("sil");
     expect(firstAdapters.visemes.at(-1)).toBe("sil");
-    expect(slot.root.userData.openClinXrActorTurnPlaybackCancelled).toBe(true);
+    expect(slot.root.userData["openClinXrActorTurnPlaybackCancelled"]).toBe(true);
 
     secondClock.setCurrentTimeSeconds(0.12);
     expect(second.tick().visemePhoneme).toBe("PP");
@@ -388,7 +388,7 @@ describe("actor turn playback coordinator", () => {
       { audioClock: restartClock, liveSlot: slot, modalityAdapters: restartAdapters },
     );
     expect(second.tick().visemePhoneme).toBe("sil");
-    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("sil");
+    expect(slot.root.userData["openClinXrActorTurnVisemePhoneme"]).toBe("sil");
     restartClock.setCurrentTimeSeconds(0);
     expect(restart.tick().visemePhoneme).toBe("sil");
     expect(restart.turnId).toBe(second.turnId);
@@ -406,7 +406,7 @@ describe("actor turn playback coordinator", () => {
     const slot = liveSlot();
     cleanupActorTurnLiveSlot(slot, "neutral");
     expect(slot.activeSpeech).toBeUndefined();
-    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("sil");
+    expect(slot.root.userData["openClinXrActorTurnVisemePhoneme"]).toBe("sil");
   });
 
   it("(7) truncated execution cancels leftover cues at start", () => {
@@ -442,7 +442,7 @@ describe("actor turn playback coordinator", () => {
     expect(snap.emotion).toBe("neutral");
     expect(adapters.visemes.at(-1)).toBe("PP");
     expect(adapters.emotions.at(-1)).toBe("neutral");
-    expect(slot.root.userData.openClinXrActorTurnVisemePhoneme).toBe("PP");
+    expect(slot.root.userData["openClinXrActorTurnVisemePhoneme"]).toBe("PP");
     expect(slot.emotionExpression.targetEmotion).toBe("neutral");
     expect(snap.clockKind).toBe("synthetic_audio_time");
     expect(snap.headsetAudioLatencyUnmeasured).toBe(true);

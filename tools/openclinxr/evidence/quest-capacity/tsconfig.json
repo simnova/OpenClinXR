@@ -1,0 +1,6 @@
+{
+  "extends": "../../../../packages/cellix/config-typescript/tsconfig.node.json",
+  "compilerOptions": { "noEmit": true },
+  "include": ["./**/*.ts"],
+  "exclude": ["../../../../packages/openclinxr/xr-capacity/src/**/*.test.ts", "../../../../packages/openclinxr/xr-capacity/src/browser/**"]
+}

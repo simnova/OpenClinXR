@@ -147,7 +147,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
     const humanoid = buildTestHumanoid();
 
     // Simulate MPFB rig detection so correct idle map is used
-    humanoid.userData.openClinXrHumanoidRail = "mpfb2";
+    humanoid.userData["openClinXrHumanoidRail"] = "mpfb2";
 
     // Crossfade in progress: weight = 0.5 (halfway through 0.3s fade at 0.15s)
     const crossfadeWeight = 0.5;
@@ -193,7 +193,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
     const humanoid = buildTestHumanoid();
 
     // Simulate MPFB rig detection so correct idle map is used
-    humanoid.userData.openClinXrHumanoidRail = "mpfb2";
+    humanoid.userData["openClinXrHumanoidRail"] = "mpfb2";
 
     // No ownership (fully faded out)
     humanoid.userData["openClinXrOwnedBoneChains"] = [];
@@ -218,7 +218,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
     const humanoid = buildTestHumanoid();
 
     // Simulate MPFB rig detection
-    humanoid.userData.openClinXrHumanoidRail = "mpfb2";
+    humanoid.userData["openClinXrHumanoidRail"] = "mpfb2";
 
     // MPFB rig with owned forearmL (crossfade weight = 1)
     const ownedChains: OwnedChain[] = [
@@ -241,7 +241,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
       "head",
       "spine03",
     ]);
-    humanoid.userData.openClinXrMpfbForearmBinds = new Map();
+    humanoid.userData["openClinXrMpfbForearmBinds"] = new Map();
 
     const lowerArmL = humanoid.getObjectByName("forearmL")!;
     // Set some mixer rotation
@@ -268,7 +268,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
     upperLegR.name = "upperleg01.R";
 
     // Simulate MPFB rig detection
-    humanoid.userData.openClinXrHumanoidRail = "mpfb2";
+    humanoid.userData["openClinXrHumanoidRail"] = "mpfb2";
 
     // Replace forearmL with lowerarm01.L to match MPFB naming
     const upperArmL = humanoid.getObjectByName("upper_armL")!;
@@ -278,7 +278,7 @@ describe("locomotion crossfade with clinical idle posture", () => {
     // Add MPFB bind for lowerarm01.L (A-pose bind with elbow flexed ~40 deg on X)
     // Key must be sanitised (dots removed, case preserved): "lowerarm01.L" -> "lowerarm01L"
     const bind = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.7, 0, 0)); // ~40 deg X bend
-    humanoid.userData.openClinXrMpfbForearmBinds = new Map([
+    humanoid.userData["openClinXrMpfbForearmBinds"] = new Map([
       ["lowerarm01L", { x: bind.x, y: bind.y, z: bind.z, w: bind.w }],
     ]);
 
@@ -305,10 +305,11 @@ describe("locomotion crossfade with clinical idle posture", () => {
       rotations.push(lowerArmL.quaternion.clone());
     }
 
-    // The idle target for MPFB lowerarm01 is bind-relative: 0.6 * bindBend
+    // The idle target for MPFB lowerarm01 is bind-relative:
+    // MPFB_IDLE_FORELARM_BEND_FRACTION * bindBend (arms slice: 0.55)
     // bindBend = 2 * atan2(bind.x, bind.w)
     const bindBend = 2 * Math.atan2(bind.x, bind.w);
-    const idleBend = 0.6 * bindBend; // MPFB_IDLE_FORELARM_BEND_FRACTION = 0.6
+    const idleBend = 0.55 * bindBend; // MPFB_IDLE_FORELARM_BEND_FRACTION = 0.55
     const idleQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(idleBend, 0, 0));
 
     // The frame after the claim clears: the unowned MPFB forearm path takes over. A snap is a jump

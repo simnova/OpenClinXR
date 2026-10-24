@@ -28,11 +28,11 @@ function tagEquipmentRoot(
   source: EquipmentMountSource,
   family?: EquipmentFamily,
 ): Group {
-  root.userData.openClinXrEquipmentId = equipmentId;
-  root.userData.openClinXrEquipmentSource = source;
-  root.userData.openClinXrRuntimeEquipmentAssetId = equipmentId;
-  root.userData.openClinXrAffordances = ["selectable_equipment_reference", "clinical_workflow_cue"];
-  if (family) root.userData.openClinXrEquipmentFamily = family;
+  root.userData["openClinXrEquipmentId"] = equipmentId;
+  root.userData["openClinXrEquipmentSource"] = source;
+  root.userData["openClinXrRuntimeEquipmentAssetId"] = equipmentId;
+  root.userData["openClinXrAffordances"] = ["selectable_equipment_reference", "clinical_workflow_cue"];
+  if (family) root.userData["openClinXrEquipmentFamily"] = family;
   return root;
 }
 
@@ -69,7 +69,7 @@ export function buildWallClockEquipment(equipmentId: string): Group {
   minute.position.set(-0.03, 0.03, 0.036);
   minute.rotation.z = 0.9;
   root.add(housing, face, hour, minute);
-  root.userData.openClinXrEquipmentLocalYPolicy = "origin_centered_mount_height_from_placement_root";
+  root.userData["openClinXrEquipmentLocalYPolicy"] = "origin_centered_mount_height_from_placement_root";
   return tagEquipmentRoot(root, equipmentId, "parametric", "own_geometry");
 }
 
@@ -200,8 +200,8 @@ export function buildExamTableEquipment(equipmentId: string): Group {
   rail.position.set(0, 0.62, 0.36);
   root.add(base, mattress, pillow, rail);
   // Mattress top ≈ 0.55 m — not box.maxY (rail tip). Clearance detectors need the deck.
-  root.userData.deckTopYMeters = 0.55;
-  root.userData.seatHeightMeters = 0.55;
+  root.userData["deckTopYMeters"] = 0.55;
+  root.userData["seatHeightMeters"] = 0.55;
   return tagEquipmentRoot(root, equipmentId, "parametric", "exam_table");
 }
 
@@ -324,8 +324,8 @@ export function buildSimpleChairEquipment(equipmentId: string, variant: ChairVar
     root.add(seat, back, leg);
   }
   // Seat top — not box.maxY (backrest). Clearance detectors need the deck, not the back tip.
-  root.userData.seatHeightMeters = 0.45;
-  root.userData.deckTopYMeters = 0.45;
+  root.userData["seatHeightMeters"] = 0.45;
+  root.userData["deckTopYMeters"] = 0.45;
   return tagEquipmentRoot(root, equipmentId, "parametric", "chair");
 }
 
@@ -381,7 +381,7 @@ export function buildHandheldDeviceOnStand(equipmentId: string, kind: HandheldKi
     gauge.position.set(0, 0.08, 0.02);
     gauge.name = `${root.name}.gauge`;
     root.add(plate, outlet, gauge);
-    root.userData.openClinXrEquipmentLocalYPolicy = "origin_centered_mount_height_from_placement_root";
+    root.userData["openClinXrEquipmentLocalYPolicy"] = "origin_centered_mount_height_from_placement_root";
   }
   return tagEquipmentRoot(root, equipmentId, "parametric", "handheld_device");
 }

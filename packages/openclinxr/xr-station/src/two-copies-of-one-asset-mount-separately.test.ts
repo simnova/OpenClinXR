@@ -322,7 +322,7 @@ describe("Two copies of one equipment asset are representable in a room", () => 
     // silently overwritten. The report must NAME the collapse, in the shape
     // assignRuntimeActorSlots uses at xr-runtime-state/src/runtime-actor-slots.ts:130-135
     // (notStaged.push({ actorId, reason })). Nothing reports it today.
-    const report = (bundle as Record<string, unknown>).equipmentPlacementReport as
+    const report = (bundle as Record<string, unknown>)["equipmentPlacementReport"] as
       undefined | { collapsed?: Array<{ assetId: string; reason: string }> };
     expect(report).toBeDefined();
     expect(Array.isArray(report!.collapsed)).toBe(true);

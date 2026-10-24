@@ -46,7 +46,7 @@ export function buildObservationStationEquipment(equipmentId: string): Group {
   keyboard.name = `${root.name}.keyboard`;
   keyboard.position.set(0.1, 0.79, 0.1);
   root.add(desk, legL, legR, bezel, screen, keyboard);
-  root.userData.deckTopYMeters = 0.75;
+  root.userData["deckTopYMeters"] = 0.75;
   return tagEquipmentRoot(root, equipmentId, "parametric", "observation_station");
 }
 
@@ -221,8 +221,8 @@ export function buildPediatricStretcherEquipment(equipmentId: string): Group {
   col.position.set(0, (deckTop - 0.12) / 2, 0);
 
   root.add(frame, mattress, leftRail, rightRail, pushBar, col);
-  root.userData.deckTopYMeters = deckTop;
-  root.userData.seatHeightMeters = deckTop;
+  root.userData["deckTopYMeters"] = deckTop;
+  root.userData["seatHeightMeters"] = deckTop;
   return tagEquipmentRoot(root, equipmentId, "parametric", "stretcher");
 }
 
@@ -246,11 +246,11 @@ export function buildPostOpBedEquipment(
   tableBase.name = `${root.name}.overbed_base`;
   tableBase.position.set(0.35, 0.02, 0.55);
   root.add(tableTop, tableLeg, tableBase);
-  root.userData.openClinXrEquipmentFamily = "hospital_bed";
+  root.userData["openClinXrEquipmentFamily"] = "hospital_bed";
   // Supine plant tags (from prior post_op_bed exam-table path).
-  root.userData.openClinXrStretcherKind = "procedural_patient_stretcher";
-  root.userData.openClinXrStretcherInclineDegrees = 0;
-  root.userData.openClinXrInclineSource = "equipment_post_op_bed_flat_ssot";
-  root.userData.openClinXrPatientSupportSource = "equipment";
+  root.userData["openClinXrStretcherKind"] = "procedural_patient_stretcher";
+  root.userData["openClinXrStretcherInclineDegrees"] = 0;
+  root.userData["openClinXrInclineSource"] = "equipment_post_op_bed_flat_ssot";
+  root.userData["openClinXrPatientSupportSource"] = "equipment";
   return root;
 }

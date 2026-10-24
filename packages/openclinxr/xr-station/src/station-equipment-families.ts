@@ -54,6 +54,7 @@ export type EquipmentFamily =
   | "drain"
   | "incentive_spirometer"
   | "blood_culture_kit"
+  | "orthopedic_kit"
   | "scale_props";
 
 function mat(color: ColorRepresentation, roughness = 0.55, metalness = 0.12): MeshStandardMaterial {
@@ -66,11 +67,11 @@ function tagEquipmentRoot(
   source: EquipmentMountSource,
   family: EquipmentFamily,
 ): Group {
-  root.userData.openClinXrEquipmentId = equipmentId;
-  root.userData.openClinXrEquipmentSource = source;
-  root.userData.openClinXrRuntimeEquipmentAssetId = equipmentId;
-  root.userData.openClinXrEquipmentFamily = family;
-  root.userData.openClinXrAffordances = ["selectable_equipment_reference", "clinical_workflow_cue"];
+  root.userData["openClinXrEquipmentId"] = equipmentId;
+  root.userData["openClinXrEquipmentSource"] = source;
+  root.userData["openClinXrRuntimeEquipmentAssetId"] = equipmentId;
+  root.userData["openClinXrEquipmentFamily"] = family;
+  root.userData["openClinXrAffordances"] = ["selectable_equipment_reference", "clinical_workflow_cue"];
   return root;
 }
 

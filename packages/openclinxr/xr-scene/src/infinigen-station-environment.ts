@@ -91,7 +91,7 @@ export function hideProceduralShellMeshes(stationEnvironment: Group): number {
   const hide = (obj: Object3D): void => {
     if (obj.visible === false) return;
     obj.visible = false;
-    obj.userData.openClinXrInfinigenPolicy =
+    obj.userData["openClinXrInfinigenPolicy"] =
       "hidden_generated_infinigen_room_owns_shell_procedural_box_is_fallback";
     hidden += 1;
   };
@@ -112,7 +112,7 @@ export function hideProceduralShellMeshes(stationEnvironment: Group): number {
   // the procedural floor stayed VISIBLE at y=0 spanning z -2.5..0.95 on top of the generated
   // room's own floor plane. The generated room's floor is the replacement for this surface —
   // it is only hidden on the same success path that adds that replacement.
-  const floorMesh = stationEnvironment.userData.floorMesh;
+  const floorMesh = stationEnvironment.userData["floorMesh"];
   if (floorMesh instanceof Mesh) {
     hide(floorMesh);
   }
@@ -163,13 +163,13 @@ export function positionInfinigenRoom(
   }
 
   const floorCenterZ =
-    stationEnvironment.userData.floorMesh instanceof Object
-      ? ((stationEnvironment.userData.floorMesh as Mesh).position.z ?? 0)
+    stationEnvironment.userData["floorMesh"] instanceof Object
+      ? ((stationEnvironment.userData["floorMesh"] as Mesh).position.z ?? 0)
       : 0;
   roomRoot.position.x -= center.x;
   roomRoot.position.y -= floorTopY;
   roomRoot.position.z = floorCenterZ - center.z;
-  roomRoot.userData.openClinXrInfinigenRoom = {
+  roomRoot.userData["openClinXrInfinigenRoom"] = {
     boundsMin: [box.min.x, box.min.y, box.min.z],
     boundsMax: [box.max.x, box.max.y, box.max.z],
     sizeMeters: [size.x, size.y, size.z],
@@ -327,12 +327,12 @@ export function reanchorWallFixturesToRoom(input: {
 
   const roots: Object3D[] = [];
   input.stationEnvironment.traverse((obj: Object3D) => {
-    const anchor = obj.userData?.openClinXrWallAnchor;
+    const anchor = obj.userData?.["openClinXrWallAnchor"];
     if (anchor && typeof anchor.wall === "string") roots.push(obj);
   });
 
   for (const root of roots) {
-    const anchor = root.userData.openClinXrWallAnchor as {
+    const anchor = root.userData["openClinXrWallAnchor"] as {
       wall: NamedShellWall;
       insetMeters: number;
     };
@@ -344,13 +344,13 @@ export function reanchorWallFixturesToRoom(input: {
       planeCoordinate: plane.planeCoordinate,
       insetMeters: anchor.insetMeters,
     });
-    root.userData.openClinXrWallAnchorReanchored = {
+    root.userData["openClinXrWallAnchorReanchored"] = {
       planeCoordinate: plane.planeCoordinate,
       method: plane.method,
       movedMeters: delta,
     };
     moved.push({
-      slotId: String(root.userData.fixtureSlotId ?? ""),
+      slotId: String(root.userData["fixtureSlotId"] ?? ""),
       wall: anchor.wall,
       movedMeters: delta,
       method: plane.method,
@@ -396,17 +396,17 @@ export function loadInfinigenEnvironmentIntoStation(input: {
       (gltf) => {
         const roomRoot = gltf.scene;
         roomRoot.name = "openclinxr.station-environment.infinigen-room";
-        roomRoot.userData.openClinXrEnvironmentSource = "infinigen-generated-room";
-        roomRoot.userData.openClinXrEnvironmentId = input.environmentId;
-        roomRoot.userData.openClinXrInfinigenPolicy =
+        roomRoot.userData["openClinXrEnvironmentSource"] = "infinigen-generated-room";
+        roomRoot.userData["openClinXrEnvironmentId"] = input.environmentId;
+        roomRoot.userData["openClinXrInfinigenPolicy"] =
           "generated_room_loaded_by_environmentId_procedural_box_is_fallback";
         // #534 — material-less wall prims → black void; assign plaster-derived dielectric at load.
         const assignedMaterials = assignMissingRoomPrimitiveMaterials(roomRoot);
-        roomRoot.userData.openClinXrAssignedRoomPrimitiveMaterials = assignedMaterials;
+        roomRoot.userData["openClinXrAssignedRoomPrimitiveMaterials"] = assignedMaterials;
         const placement = positionInfinigenRoom(roomRoot, input.stationEnvironment);
         const hiddenShellMeshes = hideProceduralShellMeshes(input.stationEnvironment);
-        roomRoot.userData.openClinXrInfinigenPlacement = placement;
-        roomRoot.userData.openClinXrHiddenShellMeshes = hiddenShellMeshes;
+        roomRoot.userData["openClinXrInfinigenPlacement"] = placement;
+        roomRoot.userData["openClinXrHiddenShellMeshes"] = hiddenShellMeshes;
         input.stationEnvironment.add(roomRoot);
         // #342c — the fixtures were anchored to the PARAMETRIC box's walls at build time,
         // synchronously, before this GLB existed. Those walls have just been hidden, so
@@ -417,7 +417,7 @@ export function loadInfinigenEnvironmentIntoStation(input: {
           stationEnvironment: input.stationEnvironment,
           roomRoot,
         });
-        roomRoot.userData.openClinXrReanchoredFixtures = reanchored;
+        roomRoot.userData["openClinXrReanchoredFixtures"] = reanchored;
         const loaded: InfinigenEnvironmentStatus = {
           environmentId: input.environmentId,
           state: "loaded",

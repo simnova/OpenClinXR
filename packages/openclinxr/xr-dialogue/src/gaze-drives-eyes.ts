@@ -66,7 +66,7 @@ export function applyGazeToHumanoid(root: Object3D, gaze: number): void {
     }
     touched.push(resolved);
   }
-  root.userData.openClinXrGazeBoneDrive = {
+  root.userData["openClinXrGazeBoneDrive"] = {
     gaze,
     yaw: Number(yaw.toFixed(4)),
     bonesTouched: touched,

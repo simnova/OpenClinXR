@@ -10,7 +10,8 @@
     "@openclinxr/compute-slots"
   ],
   "tests": [
-    "src/local-compute.test.ts"
+    "src/local-compute.test.ts",
+    "src/process-cancellation.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/service-local-compute test",

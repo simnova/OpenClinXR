@@ -84,7 +84,7 @@ describe("A staged transform survives slot repair, framing and the frame loop", 
     expect(actor.scale.x).toBe(0.82);
     expect(actor.scale.y).toBe(0.82);
     expect(actor.scale.z).toBe(0.82);
-    expect(actor.userData.openClinXrEncounterStaging).toBe("seated_actor_keeps_authored_seat_anchor_framed_in_place");
+    expect(actor.userData["openClinXrEncounterStaging"]).toBe("seated_actor_keeps_authored_seat_anchor_framed_in_place");
   });
 
   it("(2) SUPINE keeps its XZ through framing", () => {
@@ -112,7 +112,7 @@ describe("A staged transform survives slot repair, framing and the frame loop", 
     expect(actor.scale.x).toBe(0.82);
     expect(actor.scale.y).toBe(0.82);
     expect(actor.scale.z).toBe(0.82);
-    expect(actor.userData.openClinXrEncounterStaging).toContain("supine");
+    expect(actor.userData["openClinXrEncounterStaging"]).toContain("supine");
   });
 
   it("(3) An UNKNOWN posture is refused explicitly rather than defaulting to floor-standing", () => {

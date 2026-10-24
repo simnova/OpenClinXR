@@ -1,7 +1,7 @@
 {
   "extends": "@cellix/config-typescript/base",
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": ".",
     "lib": [
       "ES2022",
       "DOM",

@@ -67,7 +67,7 @@ export function liftSupineBodyAboveDeck(
   const delta = target - box.min.y;
   humanoidRoot.position.y += delta;
   humanoidRoot.updateMatrixWorld?.(true);
-  humanoidRoot.userData.openClinXrSupineSinkLiftMeters = delta;
+  humanoidRoot.userData["openClinXrSupineSinkLiftMeters"] = delta;
   return delta;
 }
 
@@ -94,7 +94,7 @@ export function lowerSupineBodyOntoDeck(
   const delta = target - minY;
   humanoidRoot.position.y += delta;
   humanoidRoot.updateMatrixWorld?.(true);
-  humanoidRoot.userData.openClinXrSupineFloatSettleMeters = delta;
+  humanoidRoot.userData["openClinXrSupineFloatSettleMeters"] = delta;
   return delta;
 }
 
@@ -117,7 +117,7 @@ export function settleSupineFloatOntoDeck(
   if (!Number.isFinite(excess) || excess <= 1e-4) return 0;
   humanoidRoot.position.y -= excess;
   humanoidRoot.updateMatrixWorld?.(true);
-  humanoidRoot.userData.openClinXrSupineFloatSettleSkinnedMeters = excess;
+  humanoidRoot.userData["openClinXrSupineFloatSettleSkinnedMeters"] = excess;
   return excess;
 }
 
@@ -207,11 +207,11 @@ export function holdSupinePlantFrame(
   base: { x: number; y: number; z: number; scaleX: number; scaleY: number; scaleZ: number },
   breathing: number,
 ): void {
-  root.position.y = root.userData.openClinXrSupineArticulatedSupport ? base.y : base.y + breathing * 0.006;
+  root.position.y = root.userData["openClinXrSupineArticulatedSupport"] ? base.y : base.y + breathing * 0.006;
   root.position.x = base.x;
   root.position.z = base.z;
   root.scale.x = base.scaleX;
-  root.scale.y = root.userData.openClinXrSupineArticulatedSupport ? base.scaleY : base.scaleY + breathing * 0.006;
+  root.scale.y = root.userData["openClinXrSupineArticulatedSupport"] ? base.scaleY : base.scaleY + breathing * 0.006;
   root.scale.z = base.scaleZ;
 }
 
@@ -305,20 +305,20 @@ function applyWorldDisplacement(root: Object3D, delta: Vector3): boolean {
 }
 
 export function clearSupineRestHeadReference(root: Object3D): void {
-  delete root.userData.openClinXrSupineRestHeadRoot;
+  delete root.userData["openClinXrSupineRestHeadRoot"];
 }
 
 export function captureSupineRestHeadReference(root: Object3D): void {
   const head = readHeadWorld(root);
-  const incline = root.userData.openClinXrSupineInclineDegrees;
-  const quaternion: unknown = root.userData.openClinXrSupineRootQuat;
+  const incline = root.userData["openClinXrSupineInclineDegrees"];
+  const quaternion: unknown = root.userData["openClinXrSupineRootQuat"];
   root.updateWorldMatrix(true, false);
   const determinant = root.matrixWorld.determinant();
   if (!head || !finitePoint(head) || !Number.isFinite(incline) || !finiteQuaternion(quaternion)
     || !Number.isFinite(determinant) || Math.abs(determinant) < 1e-12) return;
   const point = root.worldToLocal(new Vector3(head.x, head.y, head.z));
   if (!finitePoint(point)) return;
-  root.userData.openClinXrSupineRestHeadRoot = {
+  root.userData["openClinXrSupineRestHeadRoot"] = {
     point: { x: point.x, y: point.y, z: point.z }, incline, quaternion: { ...quaternion },
   } satisfies SupineRestHead;
 }
@@ -326,12 +326,12 @@ export function captureSupineRestHeadReference(root: Object3D): void {
 export function reapplySupineRestHeadToStoredPillow(root: Object3D): void {
   // Articulated contact owns the accepted head/hips relationship; whole-root XZ replant would
   // move those support patches back off their finite mattress sections after every hold.
-  if (root.userData.openClinXrSupineArticulatedSupport) return;
-  const cache = root.userData.openClinXrSupineRestHeadRoot as SupineRestHead | undefined;
-  const pillow = root.userData.openClinXrSupinePillowWorld as { x?: unknown; z?: unknown } | undefined;
-  const quaternion: unknown = root.userData.openClinXrSupineRootQuat;
+  if (root.userData["openClinXrSupineArticulatedSupport"]) return;
+  const cache = root.userData["openClinXrSupineRestHeadRoot"] as SupineRestHead | undefined;
+  const pillow = root.userData["openClinXrSupinePillowWorld"] as { x?: unknown; z?: unknown } | undefined;
+  const quaternion: unknown = root.userData["openClinXrSupineRootQuat"];
   if (!cache || !finitePoint(cache.point) || !finiteQuaternion(cache.quaternion)
-    || !Number.isFinite(cache.incline) || cache.incline !== root.userData.openClinXrSupineInclineDegrees
+    || !Number.isFinite(cache.incline) || cache.incline !== root.userData["openClinXrSupineInclineDegrees"]
     || !finiteQuaternion(quaternion) || !pillow
     || typeof pillow.x !== "number" || !Number.isFinite(pillow.x)
     || typeof pillow.z !== "number" || !Number.isFinite(pillow.z)) return;

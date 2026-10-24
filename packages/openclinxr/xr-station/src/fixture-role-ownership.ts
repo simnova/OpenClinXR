@@ -234,9 +234,9 @@ export function stampFixtureFulfillingDeclaredEquipmentId(
   const candidates: { child: FixtureChild; slotId: string; score: number }[] = [];
   const children = Array.isArray(shell.children) ? shell.children : [];
   for (const child of children as FixtureChild[]) {
-    const slotId = child?.userData?.fixtureSlotId;
+    const slotId = child?.userData?.["fixtureSlotId"];
     if (typeof slotId !== "string" || !slotId) continue;
-    if (child.userData?.isMarkerCube === true) continue;
+    if (child.userData?.["isMarkerCube"] === true) continue;
     const fixtureRole = roleClassFromFixtureSlotId(slotId);
     const matches =
       fixtureRole === role
@@ -254,21 +254,21 @@ export function stampFixtureFulfillingDeclaredEquipmentId(
   const target = candidates[0]!.child;
   const ud = target.userData ?? (target.userData = {});
   // Keep first declared id if already stamped; record aliases for multi-declare.
-  if (typeof ud.openClinXrEquipmentId !== "string" || !ud.openClinXrEquipmentId) {
-    ud.openClinXrEquipmentId = declaredId;
+  if (typeof ud["openClinXrEquipmentId"] !== "string" || !ud["openClinXrEquipmentId"]) {
+    ud["openClinXrEquipmentId"] = declaredId;
   }
-  const aliases = Array.isArray(ud.openClinXrEquipmentIdAliases)
-    ? (ud.openClinXrEquipmentIdAliases as string[])
+  const aliases = Array.isArray(ud["openClinXrEquipmentIdAliases"])
+    ? (ud["openClinXrEquipmentIdAliases"] as string[])
     : [];
   if (!aliases.includes(declaredId)) aliases.push(declaredId);
-  ud.openClinXrEquipmentIdAliases = aliases;
+  ud["openClinXrEquipmentIdAliases"] = aliases;
   // Secondary id field the equipment inspector already accepts via runtime asset id.
-  if (typeof ud.openClinXrRuntimeEquipmentAssetId !== "string" || !ud.openClinXrRuntimeEquipmentAssetId) {
-    ud.openClinXrRuntimeEquipmentAssetId = declaredId;
+  if (typeof ud["openClinXrRuntimeEquipmentAssetId"] !== "string" || !ud["openClinXrRuntimeEquipmentAssetId"]) {
+    ud["openClinXrRuntimeEquipmentAssetId"] = declaredId;
   }
-  if (typeof ud.openClinXrEquipmentSource !== "string") {
-    ud.openClinXrEquipmentSource = "parametric";
+  if (typeof ud["openClinXrEquipmentSource"] !== "string") {
+    ud["openClinXrEquipmentSource"] = "parametric";
   }
-  ud.openClinXrFixtureFulfillsDeclaredEquipmentId = declaredId;
+  ud["openClinXrFixtureFulfillsDeclaredEquipmentId"] = declaredId;
   return true;
 }

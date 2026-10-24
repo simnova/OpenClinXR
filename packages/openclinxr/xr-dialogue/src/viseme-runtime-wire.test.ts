@@ -146,7 +146,7 @@ function driveTrackAt(cues: Step3Cue[], mediaS: number, durationMs: number): Ste
     activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs, bakedCues: cues },
     mediaPositionSeconds: () => mediaS,
   });
-  const tag = root.userData.openClinXrNamedVisemeDrive as
+  const tag = root.userData["openClinXrNamedVisemeDrive"] as
     | { weights?: Record<string, number>; jawFraction?: number; jawOpenRadians?: number }
     | undefined;
   return {
@@ -387,12 +387,12 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
       const cueFrame = Math.floor(pp.atSecond * 30);
       let onset = -1;
       for (let n = cueFrame - 10; n <= cueFrame + 10; n += 1) {
-        if ((driveAt(frameMediaS(n)).weights.viseme_PP ?? 0) >= 0.9) { onset = n; break; }
+        if ((driveAt(frameMediaS(n)).weights["viseme_PP"] ?? 0) >= 0.9) { onset = n; break; }
       }
       expect(onset).toBeGreaterThanOrEqual(0);
       expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
-      expect(driveAt(frameMediaS(cueFrame - 1)).weights.viseme_PP ?? 0).toBeLessThan(0.9);
-      expect(driveAt((pp.atSecond + pp.atSecond + (pp.durationSeconds ?? 0)) / 2).weights.viseme_PP ?? 0).toBeGreaterThanOrEqual(0.9);
+      expect(driveAt(frameMediaS(cueFrame - 1)).weights["viseme_PP"] ?? 0).toBeLessThan(0.9);
+      expect(driveAt((pp.atSecond + pp.atSecond + (pp.durationSeconds ?? 0)) / 2).weights["viseme_PP"] ?? 0).toBeGreaterThanOrEqual(0.9);
     });
 
     it("per-channel cue leads put FF drive onset within one frame of its cue", () => {
@@ -407,13 +407,13 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
       const reached = 0.9;
       let onset = -1;
       for (let n = cueFrame - 10; n <= cueFrame + 10; n += 1) {
-        if ((drive(frameMediaS(n)).weights.viseme_FF ?? 0) >= reached) { onset = n; break; }
+        if ((drive(frameMediaS(n)).weights["viseme_FF"] ?? 0) >= reached) { onset = n; break; }
       }
       expect(onset).toBeGreaterThanOrEqual(0);
       expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
-      expect(drive(frameMediaS(cueFrame - 1)).weights.viseme_FF ?? 0).toBeLessThan(reached);
+      expect(drive(frameMediaS(cueFrame - 1)).weights["viseme_FF"] ?? 0).toBeLessThan(reached);
       const centreS = ff.atSecond + (ff.durationSeconds ?? 0) / 2;
-      expect(drive(centreS).weights.viseme_FF ?? 0).toBeCloseTo(1, 5);
+      expect(drive(centreS).weights["viseme_FF"] ?? 0).toBeCloseTo(1, 5);
     });
 
     it("per-channel cue leads open the jaw within one frame of the first vowel after PP", () => {
@@ -506,8 +506,8 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
       const { cueFrame, onset } = contactOnset((mediaS) => driveAt(mediaS), "viseme_PP", pp.atSecond);
       expect(onset).toBeGreaterThanOrEqual(0);
       expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
-      expect(driveAt(frameMediaS(cueFrame - 1)).weights.viseme_PP ?? 0).toBeLessThan(CONTACT_REACHED);
-      expect(driveAt((pp.atSecond + pp.atSecond + (pp.durationSeconds ?? 0)) / 2).weights.viseme_PP ?? 0).toBeGreaterThanOrEqual(CONTACT_REACHED);
+      expect(driveAt(frameMediaS(cueFrame - 1)).weights["viseme_PP"] ?? 0).toBeLessThan(CONTACT_REACHED);
+      expect(driveAt((pp.atSecond + pp.atSecond + (pp.durationSeconds ?? 0)) / 2).weights["viseme_PP"] ?? 0).toBeGreaterThanOrEqual(CONTACT_REACHED);
     });
 
     it("drives pure FF with the pair bounded at K = 0 (synthetic)", () => {
@@ -524,9 +524,9 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
       expect(onset).toBeGreaterThanOrEqual(0);
       expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
       const centre = driveTrackAt(ffCues, ff.atSecond + (ff.durationSeconds ?? 0) / 2, 2130);
-      expect(centre.weights.viseme_PP ?? 0).toBe(0);
-      expect(centre.weights.viseme_FF ?? 0).toBeCloseTo(1, 5);
-      expect((centre.weights.viseme_PP ?? 0) + (centre.weights.viseme_FF ?? 0)).toBeLessThanOrEqual(1 + 1e-9);
+      expect(centre.weights["viseme_PP"] ?? 0).toBe(0);
+      expect(centre.weights["viseme_FF"] ?? 0).toBeCloseTo(1, 5);
+      expect((centre.weights["viseme_PP"] ?? 0) + (centre.weights["viseme_FF"] ?? 0)).toBeLessThanOrEqual(1 + 1e-9);
     });
 
     it("reaches TH >= 0.9 within one frame of cue onset (synthetic)", () => {
@@ -540,7 +540,7 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
       expect(onset).toBeGreaterThanOrEqual(0);
       expect(Math.abs(onset - cueFrame)).toBeLessThanOrEqual(1);
       const centreS = th.atSecond + (th.durationSeconds ?? 0) / 2;
-      expect(driveTrackAt(thCues, centreS, 2130).weights.viseme_TH ?? 0).toBeGreaterThanOrEqual(CONTACT_REACHED);
+      expect(driveTrackAt(thCues, centreS, 2130).weights["viseme_TH"] ?? 0).toBeGreaterThanOrEqual(CONTACT_REACHED);
     });
 
     it("releases PP and FF within the per-frame bound", () => {

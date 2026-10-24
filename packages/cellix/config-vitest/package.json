@@ -23,14 +23,13 @@
   },
   "scripts": {
     "lint": "biome lint --no-errors-on-unmatched .",
-    "typecheck": "tsgo --noEmit -p tsconfig.json",
+    "typecheck": "cellix-tsc --noEmit -p tsconfig.json",
     "test": "vitest run --root ."
   },
   "dependencies": {
     "@cellix/config-typescript": "workspace:*"
   },
   "devDependencies": {
-    "@typescript/native-preview": "catalog:",
     "@vitest/coverage-v8": "4.1.5",
     "typescript": "catalog:",
     "vitest": "catalog:"

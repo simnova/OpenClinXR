@@ -20,7 +20,7 @@ describe("station layout views", () => {
 
     const reviewPanel = new Mesh(new BoxGeometry(0.2, 20, 0.2), new MeshBasicMaterial());
     reviewPanel.position.y = 10;
-    reviewPanel.userData.openClinXrPortalInteriorReviewAffordance = true;
+    reviewPanel.userData["openClinXrPortalInteriorReviewAffordance"] = true;
     scene.add(reviewPanel);
 
     const hiddenParent = new Group();
@@ -39,7 +39,7 @@ describe("station layout views", () => {
       expect(hold?.type).toBe("OrthographicCamera");
       expect(hold?.position.y).toBeGreaterThan(3.6);
       expect(hold?.position.y).toBeLessThan(10);
-      expect(hold?.userData.openClinXrLayoutView).toMatchObject({ mode: "overhead" });
+      expect(hold?.userData["openClinXrLayoutView"]).toMatchObject({ mode: "overhead" });
     } finally {
       Object.defineProperty(globalThis, "window", { value: previousWindow, configurable: true, writable: true });
     }

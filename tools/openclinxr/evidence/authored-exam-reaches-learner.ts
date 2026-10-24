@@ -18,6 +18,11 @@
 import { resolveLearnerExamScenarios } from "@openclinxr/xr-scene";
 import { createApiApp } from "../../../apps/api/src/index.js";
 import { adminGraphqlDocumentByOperationName } from "../../../packages/openclinxr/graphql/src/documents.js";
+import {
+  AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX,
+  authoredScenarioContentIdentity,
+  toAdminGraphqlScenario,
+} from "@openclinxr/rest";
 import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "../../../packages/openclinxr/rest/src/api-types.js";
 import { edChestPainScenario } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 import type { Scenario } from "../../../packages/openclinxr/shared-schemas/src/index.js";
@@ -123,6 +128,27 @@ function extractDistinguishingValue(record: Record<string, unknown>): string | n
   return null;
 }
 
+/**
+ * Identity the server gate binds a review to: canonical hash of the ACTUALLY PERSISTED
+ * scenario read back through GET /scenarios/:id — never the local draft object, never a
+ * hand-picked field subset. Without this ref the gate rejects with
+ * MISSING_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR; a hash of any other document rejects
+ * with STALE_AUTHORED_SCENARIO_REVIEW_IDENTITY_ERROR. Both controls stay server-side,
+ * unchanged. Re-read per gate (persisted-scene pattern) so server normalization can never
+ * silently stale the binding.
+ */
+async function persistedAuthoredIdentityRef(app: HonoLikeApp, scenarioId: string): Promise<string> {
+  const res = await app.request(`/scenarios/${encodeURIComponent(scenarioId)}`);
+  if (res.status !== 200) {
+    throw new Error(`identity read GET /scenarios/${scenarioId} failed: ${res.status}`);
+  }
+  const envelope = (await res.json()) as { scenario?: Scenario };
+  if (!envelope.scenario) {
+    throw new Error(`identity read GET /scenarios/${scenarioId} returned no scenario`);
+  }
+  return `${AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX}${authoredScenarioContentIdentity(toAdminGraphqlScenario(envelope.scenario))}`;
+}
+
 async function seedAuthoredExamThroughRealRoutes(app: HonoLikeApp): Promise<void> {
   // Draft write — client cannot self-approve (coerce demotes). Review path alone promotes.
   const draft: Scenario = {
@@ -151,6 +177,7 @@ async function seedAuthoredExamThroughRealRoutes(app: HonoLikeApp): Promise<void
 
   const submit = adminGraphqlDocumentByOperationName("SubmitScenarioReview");
   for (const reviewerRole of ["clinical", "psychometric", "legal", "simulationQa"] as const) {
+    const identityRef = await persistedAuthoredIdentityRef(app, draft.scenarioId);
     const res = await app.request("/admin/graphql", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -165,7 +192,7 @@ async function seedAuthoredExamThroughRealRoutes(app: HonoLikeApp): Promise<void
             reviewerId: `issue165_${reviewerRole}`,
             decision: "APPROVED",
             comments: `${reviewerRole} gate approved for #165 authored-exam-reaches-learner seam proof (local formative only).`,
-            evidenceRefs: [`evidence:issue165:${draft.scenarioId}:${reviewerRole}`],
+            evidenceRefs: [`evidence:issue165:${draft.scenarioId}:${reviewerRole}`, identityRef],
           },
         },
       }),

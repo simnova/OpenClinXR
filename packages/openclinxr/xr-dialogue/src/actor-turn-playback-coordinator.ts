@@ -179,8 +179,8 @@ export function coordinateActorTurnPlayback(
     : null;
 
   if (fallbackVisible && options.liveSlot) {
-    options.liveSlot.root.userData.openClinXrActorTurnPlaybackFallback = true;
-    options.liveSlot.root.userData.openClinXrActorTurnPlaybackFallbackReason = player.reason;
+    options.liveSlot.root.userData["openClinXrActorTurnPlaybackFallback"] = true;
+    options.liveSlot.root.userData["openClinXrActorTurnPlaybackFallbackReason"] = player.reason;
   }
 
   const events = fallbackVisible ? scheduleFallback(plan, frozenPlayback) : scheduleFromPlayer(plan, player);
@@ -408,7 +408,7 @@ function restFace(
   adapters?.applyEmotion?.(plan.dialogueEmotionFrom, audioTimeMs);
   if (slot) {
     cleanupActorTurnLiveSlot(slot, plan.dialogueEmotionFrom);
-    slot.root.userData.openClinXrActorTurnGazeTargetKind = null;
+    slot.root.userData["openClinXrActorTurnGazeTargetKind"] = null;
   }
 }
 

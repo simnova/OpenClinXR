@@ -19,9 +19,9 @@
   },
   "scripts": {
     "lint": "biome lint --no-errors-on-unmatched .",
-    "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
+    "typecheck": "cellix-tsc --noEmit -p tsconfig.vitest.json",
     "test": "vitest run --root .",
-    "build": "tsgo --build",
+    "build": "cellix-tsc --build",
     "emit:walk-contact-phases": "tsx src/motion_retarget/emit-walk-contact-phases.ts",
     "clean": "rm -rf dist *.tsbuildinfo"
   },

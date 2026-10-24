@@ -141,7 +141,10 @@ for img in bpy.data.images:
 function extractImageHashes(output: string): Map<string, string> {
   const out = new Map<string, string>();
   for (const match of output.matchAll(/IMG (\S+) sha256=([0-9a-f]{64})/g)) {
-    out.set(match[1], match[2]);
+    const imageName = match[1];
+    const imageHash = match[2];
+    if (imageName === undefined || imageHash === undefined) throw new Error(`unparsed image hash line: ${match[0]}`);
+    out.set(imageName, imageHash);
   }
   return out;
 }

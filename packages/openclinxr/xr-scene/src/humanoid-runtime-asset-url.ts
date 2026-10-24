@@ -434,10 +434,10 @@ export function resolveHumanoidVariantOrCastPath(input: {
     const byActor = ED_RUNTIME_CAST_BY_ACTOR[input.actorId];
     if (byActor) return byActor;
     const role = input.role.toLowerCase();
-    if (role === "patient") return ED_RUNTIME_CAST_BY_ACTOR.patient_robert_hayes_v1!;
-    if (role === "nurse") return ED_RUNTIME_CAST_BY_ACTOR.nurse_maria_alvarez_v1!;
+    if (role === "patient") return ED_RUNTIME_CAST_BY_ACTOR["patient_robert_hayes_v1"]!;
+    if (role === "nurse") return ED_RUNTIME_CAST_BY_ACTOR["nurse_maria_alvarez_v1"]!;
     if (role === "family" || role === "family_member" || role === "spouse" || role === "parent") {
-      return ED_RUNTIME_CAST_BY_ACTOR.spouse_anna_hayes_v1!;
+      return ED_RUNTIME_CAST_BY_ACTOR["spouse_anna_hayes_v1"]!;
     }
     return ED_ADULT_CAST_RUNTIME_PATH;
   }
@@ -446,10 +446,10 @@ export function resolveHumanoidVariantOrCastPath(input: {
     const byActor = PEDS_RUNTIME_CAST_BY_ACTOR[input.actorId];
     if (byActor) return byActor;
     const role = input.role.toLowerCase();
-    if (role === "patient") return PEDS_RUNTIME_CAST_BY_ACTOR.patient_maya_johnson_v1!;
-    if (role === "nurse") return PEDS_RUNTIME_CAST_BY_ACTOR.nurse_kevin_lee_v1!;
+    if (role === "patient") return PEDS_RUNTIME_CAST_BY_ACTOR["patient_maya_johnson_v1"]!;
+    if (role === "nurse") return PEDS_RUNTIME_CAST_BY_ACTOR["nurse_kevin_lee_v1"]!;
     if (role === "family" || role === "family_member" || role === "parent") {
-      return PEDS_RUNTIME_CAST_BY_ACTOR.parent_tara_johnson_v1!;
+      return PEDS_RUNTIME_CAST_BY_ACTOR["parent_tara_johnson_v1"]!;
     }
   }
 
@@ -458,12 +458,12 @@ export function resolveHumanoidVariantOrCastPath(input: {
     const byActor = OB_RUNTIME_CAST_BY_ACTOR[input.actorId];
     if (byActor) return byActor;
     const role = input.role.toLowerCase();
-    if (role === "patient") return OB_RUNTIME_CAST_BY_ACTOR.patient_aisha_khan_v1!;
-    if (role === "nurse") return OB_RUNTIME_CAST_BY_ACTOR.ob_nurse_williams_v1!;
+    if (role === "patient") return OB_RUNTIME_CAST_BY_ACTOR["patient_aisha_khan_v1"]!;
+    if (role === "nurse") return OB_RUNTIME_CAST_BY_ACTOR["ob_nurse_williams_v1"]!;
     if (role === "family" || role === "family_member" || role === "spouse" || role === "parent") {
-      return OB_RUNTIME_CAST_BY_ACTOR.partner_omar_khan_v1!;
+      return OB_RUNTIME_CAST_BY_ACTOR["partner_omar_khan_v1"]!;
     }
-    return OB_RUNTIME_CAST_BY_ACTOR.patient_aisha_khan_v1!;
+    return OB_RUNTIME_CAST_BY_ACTOR["patient_aisha_khan_v1"]!;
   }
 
   // #102: all other shipped stations — pool assignment with bank siblings (or explicit).

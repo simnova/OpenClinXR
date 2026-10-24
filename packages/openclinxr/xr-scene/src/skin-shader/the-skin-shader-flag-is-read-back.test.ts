@@ -91,7 +91,7 @@ async function portraitMaterialWithFlag(
   const root = new Group();
   root.add(mesh);
   const override: Record<string, unknown> = { match: "mpfb_skin", skinShade };
-  if (curvatureUrl !== null) override.skinShadeCurvatureUrl = curvatureUrl;
+  if (curvatureUrl !== null) override["skinShadeCurvatureUrl"] = curvatureUrl;
   const applied = await applyMaterialOverrides(root, [override as never]);
   return { mat, readback: (applied[0]?.readback[0] ?? {}) as Record<string, unknown> };
 }
@@ -100,10 +100,10 @@ describe("the skin shader flag is read back", () => {
   it("G1: the portrait material runs the shader when the flag is on (hook readback, not JSON)", async () => {
     await withCurvatureTexture(async (fake) => {
       const { mat, readback } = await portraitMaterialWithFlag({ tZoneStrength: 1 });
-      expect(readback.skinShade, "readback skinShade must be true (hook-installed, not a JSON field)").toBe(true);
-      expect(readback.skinShadeCurvature, "live record must show the curvature map bound").toBe(true);
+      expect(readback["skinShade"], "readback skinShade must be true (hook-installed, not a JSON field)").toBe(true);
+      expect(readback["skinShadeCurvature"], "live record must show the curvature map bound").toBe(true);
       expect(mat.type).toBe("MeshStandardMaterial");
-      expect((mat as unknown as Record<string, unknown>).transmission, "no transmission pass").toBeUndefined();
+      expect((mat as unknown as Record<string, unknown>)["transmission"], "no transmission pass").toBeUndefined();
       let chained = false;
       const prevHook = mat.onBeforeCompile;
       mat.onBeforeCompile = ((...args: never[]) => {

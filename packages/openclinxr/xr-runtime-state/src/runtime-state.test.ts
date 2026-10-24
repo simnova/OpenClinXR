@@ -3209,11 +3209,11 @@ describe("XR runtime state", () => {
     const freshQuestDetails = fresh.lanes.find((lane) => lane.id === "quest_foreground")?.details;
     const staleQuestDetails = stale.lanes.find((lane) => lane.id === "quest_foreground")?.details;
 
-    expect(freshQuestDetails?.runtimeInteractionEvidenceAtMs).toBe(4800);
-    expect(staleQuestDetails?.runtimeInteractionEvidenceAtMs).toBeNull();
-    expect(staleQuestDetails?.runtimeInteractionLocomotionSource).toBeNull();
-    expect(staleQuestDetails?.runtimeInteractionHandSelectStatus).toBeNull();
-    expect(staleQuestDetails?.runtimeInteractionHumanoidEmotionState).toBeNull();
+    expect(freshQuestDetails?.["runtimeInteractionEvidenceAtMs"]).toBe(4800);
+    expect(staleQuestDetails?.["runtimeInteractionEvidenceAtMs"]).toBeNull();
+    expect(staleQuestDetails?.["runtimeInteractionLocomotionSource"]).toBeNull();
+    expect(staleQuestDetails?.["runtimeInteractionHandSelectStatus"]).toBeNull();
+    expect(staleQuestDetails?.["runtimeInteractionHumanoidEmotionState"]).toBeNull();
   });
 });
 

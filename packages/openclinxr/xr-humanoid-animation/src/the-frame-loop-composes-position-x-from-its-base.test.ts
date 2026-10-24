@@ -103,7 +103,7 @@ describe("The frame loop composes position.x from its base", () => {
         // The framing RED learned the same thing about scale.setScalar.
         const g = new THREE.Group();
         g.position.set(0.5, 1.0, -0.2); // baseX = 0.5, NONZERO
-        g.userData.openClinXrActorPosture = "standing";
+        g.userData["openClinXrActorPosture"] = "standing";
         return g;
       })(),
       actorSlot: new THREE.Group(),

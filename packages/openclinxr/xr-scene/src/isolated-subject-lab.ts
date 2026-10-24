@@ -351,7 +351,7 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = 0;
     ground.name = "isolated_neutral_ground";
-    ground.userData.openClinXrNeutralGround = true;
+    ground.userData["openClinXrNeutralGround"] = true;
     scene.add(ground);
   }
 

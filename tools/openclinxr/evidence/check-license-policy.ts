@@ -116,6 +116,28 @@ const licenseOverrides: LicenseOverride[] = [
     ],
   },
   {
+    name: "@pmndrs/handle",
+    versions: ["6.6.30"],
+    reportedLicense: "Unknown",
+    effectiveLicense: "MIT",
+    reason: "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE and upstream pmndrs/xr LICENSE are MIT text. Same mechanism as the pinned 6.6.29 entry; version bump only.",
+    evidence: [
+      "node_modules/.pnpm/@pmndrs+handle@6.6.30_@types+react@19.2.14_react@19.2.8/node_modules/@pmndrs/handle/LICENSE",
+      "https://github.com/pmndrs/xr/blob/main/LICENSE",
+    ],
+  },
+  {
+    name: "@pmndrs/pointer-events",
+    versions: ["6.6.30"],
+    reportedLicense: "Unknown",
+    effectiveLicense: "MIT",
+    reason: "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE and upstream pmndrs/xr LICENSE are MIT text. Same mechanism as the pinned 6.6.29 entry; version bump only.",
+    evidence: [
+      "node_modules/.pnpm/@pmndrs+pointer-events@6.6.30/node_modules/@pmndrs/pointer-events/LICENSE",
+      "https://github.com/pmndrs/xr/blob/main/LICENSE",
+    ],
+  },
+  {
     name: "@pmndrs/uikit",
     versions: ["1.0.64"],
     reportedLicense: "Unknown",
@@ -139,13 +161,42 @@ const licenseOverrides: LicenseOverride[] = [
     ],
   },
   {
+    name: "@pmndrs/uikit",
+    versions: ["1.0.74"],
+    reportedLicense: "Unknown",
+    effectiveLicense: "MIT",
+    reason: "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE and upstream pmndrs/uikit LICENSE are MIT text. Same mechanism as the pinned 1.0.64/1.0.66 entries; version bump only.",
+    evidence: [
+      "node_modules/.pnpm/@pmndrs+uikit@1.0.74_three@0.184.0/node_modules/@pmndrs/uikit/LICENSE",
+      "https://github.com/pmndrs/uikit/blob/main/LICENSE",
+    ],
+  },
+  {
+    name: "@pmndrs/uikit-lucide",
+    versions: ["1.0.74"],
+    reportedLicense: "Unknown",
+    effectiveLicense: "MIT",
+    reason: "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE is MIT text (Copyright 2024 Bela Bohlender) and the package repository/homepage is pmndrs/uikit. Same mechanism as the @pmndrs/uikit entries; no new license ruling.",
+    evidence: [
+      "node_modules/.pnpm/@pmndrs+uikit-lucide@1.0.74_three@0.184.0/node_modules/@pmndrs/uikit-lucide/LICENSE",
+      "https://github.com/pmndrs/uikit/blob/main/LICENSE",
+    ],
+  },
+  {
+    // Approved 2026-10-20 extension: libvips 1.3.0 only, inside the pre-existing
+    // 2026-05-04 sidecar-only gate. No other version, license, or scope changed.
+    // Approved 2026-10-21 extension: libvips 1.3.4 only, same gate and scope.
+    // Human replied "Approve dev-only libvips 1.3.4 exception" to the sharp@0.35.5
+    // proposal. No other version, license, or scope changed.
     name: "@img/sharp-libvips-*",
-    versions: ["1.0.4", "1.0.5", "1.2.4"],
+    versions: ["1.0.4", "1.0.5", "1.2.4", "1.3.0", "1.3.4"],
     reportedLicense: "LGPL-3.0-or-later",
     effectiveLicense: "APPROVED-SIDECAR-EXCEPTION",
-    reason: "Patrick Gidich approved an IWSDK Phase 2 sidecar-only devDependency exception on 2026-05-04 for @img/sharp-libvips-* packages pulled by exact sharp@0.33.5 through @iwsdk/vite-plugin-dev@0.3.1. The same native libvips package family is also pulled by dev-only GLTF Transform CLI/tooling through sharp@0.34.x for local asset processing. The exception is never for production use and must stay scoped to sidecar/dev tooling.",
+    reason: "Patrick Gidich approved an IWSDK Phase 2 sidecar-only devDependency exception on 2026-05-04 for @img/sharp-libvips-* packages pulled by exact sharp@0.33.5 through @iwsdk/vite-plugin-dev@0.3.1. The same native libvips package family is also pulled by dev-only GLTF Transform CLI/tooling through sharp@0.34.x for local asset processing. On 2026-10-20 Patrick explicitly approved extending this exception to @img/sharp-libvips-*@1.3.0 (same LGPL-3.0-or-later family, same sidecar/dev-only scope), replying \"Approve dev-only libvips 1.3.0 exception\", because the security-mandated sharp@0.35.0 root override (libvips advisory floor) resolves all sharp consumers onto libvips 1.3.0. The exception is never for production use and must stay scoped to sidecar/dev tooling. On 2026-10-21 Patrick explicitly approved extending this exception to @img/sharp-libvips-*@1.3.4 (same LGPL-3.0-or-later family, same sidecar/dev-only scope), replying \"Approve dev-only libvips 1.3.4 exception\", because the sharp@0.35.5 security bump (two HIGH sharp advisories patched at >=0.35.4 and >=0.35.5) resolves all sharp consumers onto libvips 1.3.4.",
     evidence: [
       "proposals/approved/proposal-iwsdk-phase2-sharp-libvips-exception.md",
+      "docs/openclinxr/license/sharp-libvips-1.3.0-exception-2026-10-20.md",
+      "docs/openclinxr/license/sharp-libvips-1.3.4-exception-2026-10-21.md",
       "apps/arena/ui-xr-iwsdk-spike/package.json",
       "package.json devDependencies @gltf-transform/cli",
     ],
@@ -312,7 +363,7 @@ function findApprovedIwsdkSharpLibvipsException(
   if (!dependency.name.startsWith("@img/sharp-libvips-")) {
     return undefined;
   }
-  if (reportedLicense !== "LGPL-3.0-or-later" || !dependency.versions.every((version) => version === "1.0.4" || version === "1.0.5" || version === "1.2.4")) {
+  if (reportedLicense !== "LGPL-3.0-or-later" || !dependency.versions.every((version) => version === "1.0.4" || version === "1.0.5" || version === "1.2.4" || version === "1.3.0" || version === "1.3.4")) {
     return undefined;
   }
 

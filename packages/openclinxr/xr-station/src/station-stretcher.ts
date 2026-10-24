@@ -91,7 +91,7 @@ export function buildPatientStretcher(input: BuildPatientStretcherInput): Group 
   // --- Seat section (flat, foot end +X) ---
   const seat = new Group();
   seat.name = `${stretcher.name}.deck.${SEAT_SECTION_NAME}`;
-  seat.userData.openClinXrDeckSection = SEAT_SECTION_NAME;
+  seat.userData["openClinXrDeckSection"] = SEAT_SECTION_NAME;
   const seatMesh = new Mesh(
     new BoxGeometry(seatLen, MATTRESS_THICKNESS, STRETCHER_WIDTH_METERS),
     mattressMat,
@@ -105,8 +105,8 @@ export function buildPatientStretcher(input: BuildPatientStretcherInput): Group 
   // --- Back section pivot at hip line / deck top (single HOB hinge) ---
   const backPivot = new Group();
   backPivot.name = `${stretcher.name}.deck.${BACK_SECTION_NAME}`;
-  backPivot.userData.openClinXrDeckSection = BACK_SECTION_NAME;
-  backPivot.userData.openClinXrHobHinge = true;
+  backPivot.userData["openClinXrDeckSection"] = BACK_SECTION_NAME;
+  backPivot.userData["openClinXrHobHinge"] = true;
   // Pivot origin on the top surface at the hinge so rotation raises the head end.
   backPivot.position.set(STRETCHER_HOB_HINGE_LOCAL_X, STRETCHER_DECK_TOP_METERS, 0);
   const backMesh = new Mesh(
@@ -186,17 +186,17 @@ export function buildPatientStretcher(input: BuildPatientStretcherInput): Group 
     stretcher.add(leg);
   }
 
-  stretcher.userData.fixtureSlotId = input.slotId;
-  stretcher.userData.fixtureSlotPurpose = input.purpose ?? "ED stretcher / bedside";
-  stretcher.userData.deckTopYMeters = STRETCHER_DECK_TOP_METERS;
-  stretcher.userData.seatHeightMeters = STRETCHER_DECK_TOP_METERS;
-  stretcher.userData.isMarkerCube = false;
-  stretcher.userData.openClinXrStretcherKind = "procedural_patient_stretcher";
-  stretcher.userData.openClinXrDynamicScenePolicy =
+  stretcher.userData["fixtureSlotId"] = input.slotId;
+  stretcher.userData["fixtureSlotPurpose"] = input.purpose ?? "ED stretcher / bedside";
+  stretcher.userData["deckTopYMeters"] = STRETCHER_DECK_TOP_METERS;
+  stretcher.userData["seatHeightMeters"] = STRETCHER_DECK_TOP_METERS;
+  stretcher.userData["isMarkerCube"] = false;
+  stretcher.userData["openClinXrStretcherKind"] = "procedural_patient_stretcher";
+  stretcher.userData["openClinXrDynamicScenePolicy"] =
     "stretcher_real_geometry_with_deck_height_suppresses_shell_slab";
-  stretcher.userData.openClinXrDeckSections = [SEAT_SECTION_NAME, BACK_SECTION_NAME];
-  stretcher.userData.openClinXrHobHingeLocalX = STRETCHER_HOB_HINGE_LOCAL_X;
-  stretcher.userData.openClinXrHobModel = "single_hinge_head_of_bed";
+  stretcher.userData["openClinXrDeckSections"] = [SEAT_SECTION_NAME, BACK_SECTION_NAME];
+  stretcher.userData["openClinXrHobHingeLocalX"] = STRETCHER_HOB_HINGE_LOCAL_X;
+  stretcher.userData["openClinXrHobModel"] = "single_hinge_head_of_bed";
   // Incline SSOT lives on the stretcher; pose must read it (deck leads).
   setStretcherInclineDegrees(stretcher, input.inclineDegrees ?? 0);
 
@@ -207,7 +207,7 @@ function findBackPivot(stretcher: Object3D): Object3D | null {
   let found: Object3D | null = null;
   stretcher.traverse((obj) => {
     if (found) return;
-    if (obj.userData?.openClinXrDeckSection === BACK_SECTION_NAME) found = obj;
+    if (obj.userData?.["openClinXrDeckSection"] === BACK_SECTION_NAME) found = obj;
   });
   return found;
 }
@@ -224,14 +224,14 @@ export function setStretcherInclineDegrees(stretcher: Object3D, degrees: number)
     back.rotation.z = (-deg * Math.PI) / 180;
     back.updateMatrixWorld?.(true);
   }
-  stretcher.userData.openClinXrStretcherInclineDegrees = deg;
-  stretcher.userData.openClinXrInclineSource = "stretcher_userData_ssot";
+  stretcher.userData["openClinXrStretcherInclineDegrees"] = deg;
+  stretcher.userData["openClinXrInclineSource"] = "stretcher_userData_ssot";
   stretcher.updateMatrixWorld?.(true);
 }
 
 /** Read the incline SSOT from stretcher userData (deck leads). */
 export function readStretcherInclineDegrees(stretcher: Object3D): number {
-  const raw = stretcher.userData?.openClinXrStretcherInclineDegrees;
+  const raw = stretcher.userData?.["openClinXrStretcherInclineDegrees"];
   return typeof raw === "number" && Number.isFinite(raw) ? clampIncline(raw) : 0;
 }
 
@@ -255,13 +255,13 @@ export function readStretcherBackSectionWorldDeg(stretcher: Object3D): number {
 }
 
 export function readStretcherDeckSectionNames(stretcher: Object3D): string[] {
-  const names = stretcher.userData?.openClinXrDeckSections;
+  const names = stretcher.userData?.["openClinXrDeckSections"];
   if (Array.isArray(names) && names.every((n) => typeof n === "string")) {
     return names as string[];
   }
   const found: string[] = [];
   stretcher.traverse((obj) => {
-    const s = obj.userData?.openClinXrDeckSection;
+    const s = obj.userData?.["openClinXrDeckSection"];
     if (typeof s === "string" && !found.includes(s)) found.push(s);
   });
   return found;
@@ -272,7 +272,7 @@ export function findProceduralStretcher(root: Object3D): Object3D | null {
   let found: Object3D | null = null;
   root.traverse((obj) => {
     if (found) return;
-    if (obj.userData?.openClinXrStretcherKind === "procedural_patient_stretcher") {
+    if (obj.userData?.["openClinXrStretcherKind"] === "procedural_patient_stretcher") {
       found = obj;
     }
   });
@@ -358,7 +358,7 @@ export function suppressShellStretcherNodes(root: Object3D): number {
       /cube\.0(1[89]|2[0-3])/i.test(name);
     if (!hit) return;
     obj.visible = false;
-    obj.userData.openClinXrStretcherPolicy =
+    obj.userData["openClinXrStretcherPolicy"] =
       "hidden_axis_broken_shell_stretcher_procedural_slot_owns_bed";
     hidden += 1;
   });
@@ -377,7 +377,7 @@ export function prepareLoadedEnvironmentShell(root: Object3D): {
 } {
   const stretcherNodesHidden = suppressShellStretcherNodes(root);
   root.visible = false;
-  root.userData.openClinXrShellPolicy =
+  root.userData["openClinXrShellPolicy"] =
     "hidden_axis_broken_shell_glb_parametric_shell_and_procedural_stretcher_own_room";
   return { repaired: 0, stretcherNodesHidden };
 }

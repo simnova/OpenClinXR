@@ -4,7 +4,6 @@
     "rootDir": "src",
     "outDir": "dist",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "noPropertyAccessFromIndexSignature": false,
     "types": [
       "node",
       "vitest"

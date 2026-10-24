@@ -55,19 +55,19 @@ export function plantLegacySupineIncline(
       if (appliedLift > 1e-4) {
         humanoidRoot.position.y += appliedLift;
         humanoidRoot.updateMatrixWorld?.(true);
-        humanoidRoot.userData.openClinXrSupineSinkLiftMeters = appliedLift;
+        humanoidRoot.userData["openClinXrSupineSinkLiftMeters"] = appliedLift;
       }
-      humanoidRoot.userData.openClinXrSupineSeatLiftCapped = needLift > appliedLift + 1e-4;
-      humanoidRoot.userData.openClinXrSupineSeatClearanceAfter =
+      humanoidRoot.userData["openClinXrSupineSeatLiftCapped"] = needLift > appliedLift + 1e-4;
+      humanoidRoot.userData["openClinXrSupineSeatClearanceAfter"] =
         measureSeatClearanceMeters(humanoidRoot, input.deckTopWorldY);
-      humanoidRoot.userData.openClinXrSupineBackGapAfter =
+      humanoidRoot.userData["openClinXrSupineBackGapAfter"] =
         measureBackToDeckGap(humanoidRoot, input.stretcher);
-      humanoidRoot.userData.openClinXrSupineRigidTrade = {
+      humanoidRoot.userData["openClinXrSupineRigidTrade"] = {
         needLift,
         maxLift,
         appliedLift,
-        clearanceAfter: humanoidRoot.userData.openClinXrSupineSeatClearanceAfter,
-        backGapAfter: humanoidRoot.userData.openClinXrSupineBackGapAfter,
+        clearanceAfter: humanoidRoot.userData["openClinXrSupineSeatClearanceAfter"],
+        backGapAfter: humanoidRoot.userData["openClinXrSupineBackGapAfter"],
         note:
           needLift > appliedLift + 1e-3
             ? "rigid_body_cannot_clear_seat_without_reopening_back_gap_or_spine_flex"
@@ -75,7 +75,7 @@ export function plantLegacySupineIncline(
       };
       const pillowAfter = readStretcherPillowWorld(input.stretcher);
       if (pillowAfter) {
-        humanoidRoot.userData.openClinXrSupinePillowWorld = { ...pillowAfter };
+        humanoidRoot.userData["openClinXrSupinePillowWorld"] = { ...pillowAfter };
       }
       recordPlantStep(humanoidRoot, "bounded_seat_lift", incline, input.stretcher, input.deckTopWorldY);
     }

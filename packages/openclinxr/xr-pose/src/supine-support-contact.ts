@@ -38,8 +38,8 @@ export function makeSupineSupportPlanes(
   let back: Object3D | null = null;
   let seat: Object3D | null = null;
   stretcher.traverse((object) => {
-    if (!back && object.userData?.openClinXrDeckSection === "back") back = object;
-    if (!seat && object.userData?.openClinXrDeckSection === "seat") seat = object;
+    if (!back && object.userData?.["openClinXrDeckSection"] === "back") back = object;
+    if (!seat && object.userData?.["openClinXrDeckSection"] === "seat") seat = object;
   });
   if (seat) {
     const mesh = (seat as Object3D).children.find((child) => (child as SkinnedLike).geometry);
@@ -259,6 +259,6 @@ export function settleSupineSupportRegions(
   if (delta <= 1e-4) return 0;
   humanoid.position.y -= delta;
   humanoid.updateMatrixWorld?.(true);
-  humanoid.userData.openClinXrSupineRegionalSettleMeters = delta;
+  humanoid.userData["openClinXrSupineRegionalSettleMeters"] = delta;
   return delta;
 }

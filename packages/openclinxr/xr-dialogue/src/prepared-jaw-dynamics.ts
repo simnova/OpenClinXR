@@ -85,7 +85,7 @@ export function applyPreparedJawDynamics<T extends JawResult>(
   const aperture = steered * (1 - ppClosureEnvelope(timeS, cues ?? []));
   const jawOpenRadians = aperture * clearRadians * teethGain;
   const next = { ...result, jawOpenRadians, jawFraction: aperture, jawBonesTouched: applyJaw(root, jawOpenRadians) };
-  const prior = root.userData?.openClinXrNamedVisemeDrive;
-  if (root.userData && prior && typeof prior === "object") root.userData.openClinXrNamedVisemeDrive = { ...prior, ...next, jawDynamics: "canonical_ovr_fixed_step_critical_spring", jawDynamicsSample: { ...sample } };
+  const prior = root.userData?.["openClinXrNamedVisemeDrive"];
+  if (root.userData && prior && typeof prior === "object") root.userData["openClinXrNamedVisemeDrive"] = { ...prior, ...next, jawDynamics: "canonical_ovr_fixed_step_critical_spring", jawDynamicsSample: { ...sample } };
   return next;
 }

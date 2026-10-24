@@ -1,0 +1,18 @@
+import {clockResolution} from '../stage0/recorder.js';
+import {createControllerStore} from './recorder.js';
+import type {ControllerMetadata,ControllerRecord,ControllerMode} from './types.js';
+export function createRecord(metadata:ControllerMetadata,purpose:ControllerRecord['purpose'],mode:ControllerMode,slot:number|null) {
+  const store = createControllerStore();
+  const record:ControllerRecord = {
+    schema:'quest-controller-record.v1', identity:{bundleSha256:metadata.bundleSha256,protocolSha256:metadata.protocolSha256,semanticClarificationsSha256:metadata.semanticClarificationsSha256,planSha256:metadata.planSha256,inventorySha256:metadata.inventorySha256,nonce:metadata.nonce},purpose,mode,slot,sourceFiles:{...metadata.sourceFiles},dependencyFiles:{...metadata.dependencyFiles},nativeSession:false,environment:{userAgent:globalThis.navigator?.userAgent??'unavailable',platform:globalThis.navigator?.platform??'unavailable',rendererVersion:metadata.rendererVersion,secureContext:globalThis.isSecureContext===true},telemetry:{recorderTypedBytes:store.info().preallocatedBytes,inputTypedBytes:0,loopScratchTypedBytes:0,heapMeasured:false},entryPending:false,inventory:metadata.inventory,input:{enabled:mode==='ON',descriptors:[],first:[],last:[],sourceChanges:0,listeners:0},inputEvents:[],
+    phase: 'ready', status: 'ready', releaseId: null, profile: null, requestedAt: null, admittedAt: null, watchdogDeadline: null,
+    warmupStart: null, sampleStart: null, sampleEnd: null, endedAt: null, frames: [], events: [], failureReasons: [],
+    resources: { emptyBefore: null, roomWarm: null, emptyAfter: null, ownerBefore:0,ownerAfter:0,controllerOwnerBefore:0,controllerOwnerAfter:0,controllerObjectsBefore:0,controllerObjectsAfter:0 }, proofs: { preview: null, afterSample: null },
+    cleanup: { sessionEnded: false, rendererDisposed: false, workloadListeners: 0, workloadTimers: 0, controlListeners: 0, controlTimers: 0, animationCallbacks: 0, queries: 0, layerStable: true, roomResourcesDisposed: false },
+    clock:{timeOriginMs:performance.timeOrigin, primary: 'performance.now at user animation callback entry', secondary: 'XR supplied rAF timestamp; not receipt or presentation authority', ...clockResolution(), cpuZerosAreQuantized: true }, storage: store.info(),
+    gpu: { enabled: false, available: false, elapsedMs: null, reason: 'not-enabled-in-this-low-observer-profile', samples: [], discarded: 0, pending: 0 },
+    limitations: ['Recorder overhead is unknown.', 'JS heap bytes, allocation rates and garbage collection are uncollected/unknown; typed-buffer bytes are not total JavaScript memory.', 'Primary receipts enter the user callback after Three internal XR camera preparation; CPU spans exclude that prior library work.', 'Collector span ends after raw store copy; observed body ends there and excludes tail validation and phase-boundary work.', 'Renderer memory fields are counts, not bytes; native/GPU resident bytes are unavailable.', 'Submission spans are JavaScript wall time, not native CPU or GPU execution.', 'No compositor FPS, motion-to-photon, maximum capacity or readiness claim.', 'The fixed report buffers remain owned until page release; they are not workload graphics resources.','Controller dispatch-to-submit is browser software timing; raw event.timeStamp is separate and never treated as a physical clock.','Native controller pose/visibility checks do not calibrate spatial accuracy.'],
+  };
+  const event = (type: string, detail = '') => { if (record.events.length >= 128) throw new Error('Event bound exceeded'); record.events.push({ at: performance.now(), type, detail }); };
+  return { record, store, event };
+}

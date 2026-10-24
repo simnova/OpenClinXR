@@ -71,7 +71,7 @@ export function applyBlinkClosureToRoot(
 
   const targetNames = [...found].sort();
   if (root.userData) {
-    root.userData.openClinXrBlinkClosureRuntimeCue = {
+    root.userData["openClinXrBlinkClosureRuntimeCue"] = {
       blinkIntensity: Number(clamped.toFixed(3)),
       influence: Number(clamped.toFixed(3)),
       appliedTargetCount,

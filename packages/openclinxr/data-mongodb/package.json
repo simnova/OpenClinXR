@@ -11,10 +11,10 @@
   },
   "scripts": {
     "lint": "biome lint --no-errors-on-unmatched .",
-    "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
+    "typecheck": "cellix-tsc --noEmit -p tsconfig.vitest.json",
     "test": "vitest run --root . --exclude '**/*.integration.test.ts' --passWithNoTests",
     "test:integration": "vitest run --root . integration.test",
-    "build": "tsgo --build",
+    "build": "cellix-tsc --build",
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {

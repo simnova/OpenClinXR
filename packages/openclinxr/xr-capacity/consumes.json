@@ -1,0 +1,570 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "CAPACITY_LIMITS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "CapacityRun",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "compareRuns",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateRun",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "evaluateStopRules",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "EvaluationContext",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "HOST_LIMITS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "makeFixtureCampaign",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "makeMetric",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "makeRun",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "parseRunRecord",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "planCampaign",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "runFixtureCampaign",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "runHostWorkloads",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "summarizeMetric",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "validateRunRecord",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./audio-frame-tags",
+    "names": [
+      {
+        "name": "classify",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "closeGraph",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "CONFIG",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "deadlineStep",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "decodeNodes",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "encodeNodes",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "NodeRecord",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "NUMERIC_BOUNDS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ownedCloseConfirmed",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "requireBrowserCommandIdentity",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "Role",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "WORKLET_SOURCE",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./browser",
+    "names": [
+      {
+        "name": "campaignOverlap",
+        "kind": "runtime"
+      },
+      {
+        "name": "collectCapabilities",
+        "kind": "runtime"
+      },
+      {
+        "name": "importCampaignJson",
+        "kind": "runtime"
+      },
+      {
+        "name": "importRunJson",
+        "kind": "runtime"
+      },
+      {
+        "name": "MAX_IMPORT_BYTES",
+        "kind": "runtime"
+      },
+      {
+        "name": "runBrowserProbe",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./browser/probes",
+    "names": [
+      {
+        "name": "startAudioStress",
+        "kind": "runtime"
+      },
+      {
+        "name": "startCampaignScene",
+        "kind": "runtime"
+      },
+      {
+        "name": "startTransportProbe",
+        "kind": "runtime"
+      },
+      {
+        "name": "TransportProbeOptions",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./controller",
+    "names": [
+      {
+        "name": "CLARIFICATIONS_SHA256",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ControllerDescriptor",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ControllerEvent",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ControllerFrame",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ControllerMetadata",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ControllerMode",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ControllerRecord",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "ControllerRelease",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "gradeControllerCohort",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "gradeControllerRun",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "INVENTORY",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "PLAN_SHA256",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "PROTOCOL_SHA256",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./stage0",
+    "names": [
+      {
+        "name": "createRecord",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "gradeCohort",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "gradeRun",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "initializeSession",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "Stage0Frame",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "Stage0Metadata",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "Stage0Profile",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "Stage0Record",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "Stage0Release",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "xrPixelProof",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./stage1",
+    "names": [
+      {
+        "name": "attachBoundaries",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "AudioPreparationError",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "AudioWindowRecorder",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createStage1",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "DUPLEX_WORKLET_SOURCE",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "DuplexAudioHandle",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "DuplexAudioRecord",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "prepareDuplexAudio",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "PrepareDuplexAudioOptions",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "Stage1Metadata",
+        "kind": "type",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./stage1-witnessed",
+    "names": [
+      {
+        "name": "AudioCounters",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "createWitnessedStage1",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "PrepareWitnessedAudioOptions",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "prepareWitnessedDuplexAudio",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "WITNESS_WORKLET_SOURCE",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "WitnessCounters",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "WitnessedAudioHandle",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "WitnessedAudioPreparationError",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "WitnessedAudioRecord",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "WitnessedStage1Metadata",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "WitnessRecorder",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./stage1-witnessed/grading",
+    "names": [
+      {
+        "name": "gradeWitnessedCohort",
+        "kind": "runtime"
+      },
+      {
+        "name": "gradeWitnessedRun",
+        "kind": "runtime"
+      },
+      {
+        "name": "parseWitnessedStage1Record",
+        "kind": "runtime"
+      },
+      {
+        "name": "WitnessedStage1Record",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./stage1/grading",
+    "names": [
+      {
+        "name": "gradeStage1Cohort",
+        "kind": "runtime"
+      },
+      {
+        "name": "gradeStage1Run",
+        "kind": "runtime"
+      },
+      {
+        "name": "normalizeAudioSettings",
+        "kind": "runtime"
+      },
+      {
+        "name": "parseStage1Record",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./stage2",
+    "names": [
+      {
+        "name": "gradeStage2Run",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ReservationAudit",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "runStage2Media",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "STAGE2_CONFIG",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "STAGE2_PROTOCOL_SHA256",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "STAGE2_WORKLET_SOURCE",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "Stage2Budget",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "Stage2Control",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "Stage2Mode",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "Stage2Observer",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "Stage2OwnerTransfer",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "Stage2RunRecord",
+        "kind": "type",
+        "via": "own-test"
+      }
+    ]
+  }
+]

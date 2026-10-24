@@ -6,8 +6,8 @@
   "counts": {
     "agent-methodology": 112,
     "current-reference": 214,
-    "archive-candidate": 126,
-    "evidence": 184,
+    "evidence": 185,
+    "archive-candidate": 134,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -136,14 +136,14 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
-      "path": ".agents/skills/openclinxr-openclaw/SKILL.md",
+      "path": ".agents/skills/movement-acceptance/SKILL.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
-      "path": ".agents/skills/openclinxr-slice/SKILL.md",
+      "path": ".agents/skills/openclinxr-openclaw/SKILL.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -179,6 +179,13 @@
     },
     {
       "path": ".agents/skills/openclinxr-slice/rubric.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
+      "path": ".agents/skills/openclinxr-slice/SKILL.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -234,21 +241,7 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
-      "path": ".agents/skills/turborepo/SKILL.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
-    },
-    {
       "path": ".agents/skills/turborepo/command/turborepo.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
-    },
-    {
-      "path": ".agents/skills/turborepo/references/best-practices/RULE.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -269,6 +262,13 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
+      "path": ".agents/skills/turborepo/references/best-practices/RULE.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
       "path": ".agents/skills/turborepo/references/best-practices/structure.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
@@ -277,13 +277,6 @@
     },
     {
       "path": ".agents/skills/turborepo/references/boundaries/RULE.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
-    },
-    {
-      "path": ".agents/skills/turborepo/references/caching/RULE.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -304,7 +297,7 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
-      "path": ".agents/skills/turborepo/references/ci/RULE.md",
+      "path": ".agents/skills/turborepo/references/caching/RULE.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -325,14 +318,14 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
-      "path": ".agents/skills/turborepo/references/ci/vercel.md",
+      "path": ".agents/skills/turborepo/references/ci/RULE.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
-      "path": ".agents/skills/turborepo/references/cli/RULE.md",
+      "path": ".agents/skills/turborepo/references/ci/vercel.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -346,7 +339,7 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
-      "path": ".agents/skills/turborepo/references/configuration/RULE.md",
+      "path": ".agents/skills/turborepo/references/cli/RULE.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -367,14 +360,14 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
-      "path": ".agents/skills/turborepo/references/configuration/tasks.md",
+      "path": ".agents/skills/turborepo/references/configuration/RULE.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
-      "path": ".agents/skills/turborepo/references/environment/RULE.md",
+      "path": ".agents/skills/turborepo/references/configuration/tasks.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -395,7 +388,7 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
-      "path": ".agents/skills/turborepo/references/filtering/RULE.md",
+      "path": ".agents/skills/turborepo/references/environment/RULE.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -409,7 +402,21 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
+      "path": ".agents/skills/turborepo/references/filtering/RULE.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
       "path": ".agents/skills/turborepo/references/watch/RULE.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
+      "path": ".agents/skills/turborepo/SKILL.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -421,13 +428,6 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
-    },
-    {
-      "path": ".claude/agents/README.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
     },
     {
       "path": ".claude/agents/architect.md",
@@ -521,6 +521,13 @@
       "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
     },
     {
+      "path": ".claude/agents/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
       "path": ".claude/agents/rigging-animation-specialist.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -549,6 +556,13 @@
       "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
     },
     {
+      "path": ".claude/rules/agent-consult.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
       "path": ".claude/rules/EXEC_AUTONOMY.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -557,6 +571,13 @@
     },
     {
       "path": ".claude/rules/EXEC_REHYDRATE.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".claude/rules/grok-harness-usage.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -577,6 +598,13 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
+      "path": ".claude/rules/hyper-token-efficient-long-run-practices.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
       "path": ".claude/rules/LEX_AGENTIC.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -584,7 +612,35 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
+      "path": ".claude/rules/long-running-autonomy.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
       "path": ".claude/rules/MANDATE_VISIBILITY.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".claude/rules/orchestrator-only-main.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".claude/rules/persistent-memory-scoring.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".claude/rules/platform-autonomy-override.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -626,62 +682,6 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
-      "path": ".claude/rules/TIER_GROK.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".claude/rules/agent-consult.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".claude/rules/grok-harness-usage.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".claude/rules/hyper-token-efficient-long-run-practices.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".claude/rules/long-running-autonomy.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".claude/rules/orchestrator-only-main.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".claude/rules/persistent-memory-scoring.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".claude/rules/platform-autonomy-override.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
       "path": ".claude/rules/rehydration-low-token.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -697,6 +697,13 @@
     },
     {
       "path": ".claude/rules/source-of-truth.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".claude/rules/TIER_GROK.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -808,6 +815,13 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
+      "path": ".claude/skills/movement-acceptance/SKILL.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
       "path": ".claude/skills/operator-prose/SKILL.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
@@ -848,13 +862,6 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
-    },
-    {
-      "path": ".codex/agents/README.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
     },
     {
       "path": ".codex/agents/architect.md",
@@ -948,6 +955,13 @@
       "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
     },
     {
+      "path": ".codex/agents/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
       "path": ".codex/agents/rigging-animation-specialist.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -970,13 +984,6 @@
     },
     {
       "path": ".codex/agents/xr-systems-architect.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
-    },
-    {
-      "path": ".cursor/agents/README.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -1074,6 +1081,13 @@
       "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
     },
     {
+      "path": ".cursor/agents/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
       "path": ".cursor/agents/rigging-animation-specialist.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -1102,6 +1116,13 @@
       "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
     },
     {
+      "path": ".cursor/rules/agent-consult.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
       "path": ".cursor/rules/EXEC_AUTONOMY.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -1110,6 +1131,13 @@
     },
     {
       "path": ".cursor/rules/EXEC_REHYDRATE.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".cursor/rules/grok-harness-usage.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -1130,6 +1158,13 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
+      "path": ".cursor/rules/hyper-token-efficient-long-run-practices.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
       "path": ".cursor/rules/LEX_AGENTIC.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -1137,7 +1172,35 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
+      "path": ".cursor/rules/long-running-autonomy.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
       "path": ".cursor/rules/MANDATE_VISIBILITY.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".cursor/rules/orchestrator-only-main.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".cursor/rules/persistent-memory-scoring.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".cursor/rules/platform-autonomy-override.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -1179,62 +1242,6 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
-      "path": ".cursor/rules/TIER_GROK.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".cursor/rules/agent-consult.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".cursor/rules/grok-harness-usage.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".cursor/rules/hyper-token-efficient-long-run-practices.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".cursor/rules/long-running-autonomy.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".cursor/rules/orchestrator-only-main.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".cursor/rules/persistent-memory-scoring.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
-      "path": ".cursor/rules/platform-autonomy-override.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
       "path": ".cursor/rules/rehydration-low-token.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -1256,11 +1263,11 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
-      "path": ".grok/agents/README.md",
+      "path": ".cursor/rules/TIER_GROK.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
-      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
       "path": ".grok/agents/architect.md",
@@ -1368,6 +1375,13 @@
       "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
     },
     {
+      "path": ".grok/agents/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
       "path": ".grok/agents/rigging-animation-specialist.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -1452,13 +1466,6 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
-      "path": ".openclinxr/README.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
       "path": ".openclinxr/delegation/scorecard.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
@@ -1466,14 +1473,14 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": ".openclinxr/evidence/agentic-export/README.md",
+      "path": ".openclinxr/evidence/agentic-export/board-triage-2026-08-23.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": ".openclinxr/evidence/agentic-export/board-triage-2026-08-23.md",
+      "path": ".openclinxr/evidence/agentic-export/README.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
@@ -2012,6 +2019,13 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
+      "path": ".openclinxr/README.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
       "path": ".openclinxr/scene-layout-reds/RED-AUTHORING-CONTRACT.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
@@ -2208,14 +2222,14 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
-      "path": ".openclinxr/slices/trellis-escape-hatch/LOOP.md",
+      "path": ".openclinxr/slices/trellis-escape-hatch/log.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
-      "path": ".openclinxr/slices/trellis-escape-hatch/log.md",
+      "path": ".openclinxr/slices/trellis-escape-hatch/LOOP.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
@@ -2318,41 +2332,6 @@
       "agentInstructionWeight": "highest",
       "action": "protect",
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
-    },
-    {
-      "path": "CLAUDE.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "LICENSE-CLASHES.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "PROJECT_COORDINATION_INDEX.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "PROJECT_STATUS.md",
-      "authority": "protected-policy",
-      "agentInstructionWeight": "highest",
-      "action": "protect",
-      "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
-    },
-    {
-      "path": "README.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "agents/adversarial/clinical-safety-critic/charter.md",
@@ -2593,6 +2572,13 @@
       "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
     },
     {
+      "path": "agents/rules/agent-consult.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
+    },
+    {
       "path": "agents/rules/EXEC_AUTONOMY.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
@@ -2601,6 +2587,13 @@
     },
     {
       "path": "agents/rules/EXEC_REHYDRATE.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
+    },
+    {
+      "path": "agents/rules/grok-harness-usage.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -2621,6 +2614,13 @@
       "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
     },
     {
+      "path": "agents/rules/hyper-token-efficient-long-run-practices.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
+    },
+    {
       "path": "agents/rules/LEX_AGENTIC.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
@@ -2628,7 +2628,35 @@
       "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
     },
     {
+      "path": "agents/rules/long-running-autonomy.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
+    },
+    {
       "path": "agents/rules/MANDATE_VISIBILITY.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
+    },
+    {
+      "path": "agents/rules/orchestrator-only-main.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
+    },
+    {
+      "path": "agents/rules/persistent-memory-scoring.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
+    },
+    {
+      "path": "agents/rules/platform-autonomy-override.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -2670,62 +2698,6 @@
       "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
     },
     {
-      "path": "agents/rules/TIER_GROK.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
-    },
-    {
-      "path": "agents/rules/agent-consult.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
-    },
-    {
-      "path": "agents/rules/grok-harness-usage.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
-    },
-    {
-      "path": "agents/rules/hyper-token-efficient-long-run-practices.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
-    },
-    {
-      "path": "agents/rules/long-running-autonomy.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
-    },
-    {
-      "path": "agents/rules/orchestrator-only-main.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
-    },
-    {
-      "path": "agents/rules/persistent-memory-scoring.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
-    },
-    {
-      "path": "agents/rules/platform-autonomy-override.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
-    },
-    {
       "path": "agents/rules/rehydration-low-token.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
@@ -2747,18 +2719,11 @@
       "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
     },
     {
-      "path": "apps/README.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
+      "path": "agents/rules/TIER_GROK.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
       "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
-    },
-    {
-      "path": "apps/arena/README.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
+      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
     },
     {
       "path": "apps/arena/api-python-backend/README.md",
@@ -2769,13 +2734,6 @@
     },
     {
       "path": "apps/arena/mock-realtime-voice-server/README.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
-    },
-    {
-      "path": "apps/arena/model-vetting-studio/README.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -2796,20 +2754,6 @@
       "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
-      "path": "apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-B8Wv7Cdq.md",
-      "authority": "generated-evidence",
-      "agentInstructionWeight": "none",
-      "action": "treat-as-evidence",
-      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
-    },
-    {
-      "path": "apps/arena/model-vetting-studio/dist/assets/README-BqcQEmXT.md",
-      "authority": "generated-evidence",
-      "agentInstructionWeight": "none",
-      "action": "treat-as-evidence",
-      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
-    },
-    {
       "path": "apps/arena/model-vetting-studio/dist/assets/operator-open-questions-9EYZHnfr.md",
       "authority": "generated-evidence",
       "agentInstructionWeight": "none",
@@ -2824,7 +2768,35 @@
       "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
     },
     {
+      "path": "apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-B8Wv7Cdq.md",
+      "authority": "generated-evidence",
+      "agentInstructionWeight": "none",
+      "action": "treat-as-evidence",
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+    },
+    {
+      "path": "apps/arena/model-vetting-studio/dist/assets/README-BqcQEmXT.md",
+      "authority": "generated-evidence",
+      "agentInstructionWeight": "none",
+      "action": "treat-as-evidence",
+      "rationale": "Build output — a content-hashed copy of a source document. Never an authority surface; read the source, not the artifact."
+    },
+    {
+      "path": "apps/arena/model-vetting-studio/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
       "path": "apps/arena/physics-clinical-touch/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
+      "path": "apps/arena/README.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -2885,6 +2857,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Arena viseme-audio-clock bake-off decision record (wav2arkit_cpu vs MFA, reject); evidence for the card decision, not an instruction surface."
+    },
+    {
+      "path": "apps/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
     },
     {
       "path": "apps/ui-xr/dist/xr-assets/environment/PROVENANCE.md",
@@ -2964,14 +2943,14 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
-      "path": "benchmarks/glb-optimization/README.md",
+      "path": "benchmarks/glb-optimization/latest-report.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": "benchmarks/glb-optimization/latest-report.md",
+      "path": "benchmarks/glb-optimization/README.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
@@ -2985,18 +2964,11 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
-      "path": "docs/TOOLING.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "high",
-      "action": "use-as-current",
-      "rationale": "Hot agent-ops / CLI-first tooling SSOT; living reference for barrier removal and roster index."
-    },
-    {
-      "path": "docs/_archive/README.md",
-      "authority": "historical-synthesis",
+      "path": "CLAUDE.md",
+      "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/_archive/agent-ops/2026-09/2026-08-02-temporal-review-grok-tokens.md",
@@ -3069,6 +3041,13 @@
       "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
+      "path": "docs/_archive/README.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
       "path": "docs/_archive/wiki/index.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
@@ -3104,13 +3083,6 @@
       "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
-      "path": "docs/agent-factory/README.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "OpenClaw-style methodology and agent-factory operating manual; applies when planning or realigning agents."
-    },
-    {
       "path": "docs/agent-factory/agentex-openclaw-full-autonomy-gaps.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
@@ -3140,6 +3112,13 @@
     },
     {
       "path": "docs/agent-factory/operating-loop.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "OpenClaw-style methodology and agent-factory operating manual; applies when planning or realigning agents."
+    },
+    {
+      "path": "docs/agent-factory/README.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -3181,6 +3160,20 @@
       "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
     },
     {
+      "path": "docs/agent-ops/capability-requests/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Agent capability request queue/template (warm); not a dated freeze candidate."
+    },
+    {
+      "path": "docs/agent-ops/capability-requests/TEMPLATE.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Agent capability request queue/template (warm); not a dated freeze candidate."
+    },
+    {
       "path": "docs/agent-ops/CEO-VOICE.md",
       "authority": "current-reference",
       "agentInstructionWeight": "high",
@@ -3203,6 +3196,13 @@
     },
     {
       "path": "docs/agent-ops/DELEGATION-OPTIMIZATION-PLAN.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails."
+    },
+    {
+      "path": "docs/agent-ops/delegation-scorecard.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -3293,42 +3293,14 @@
       "rationale": "Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails."
     },
     {
-      "path": "docs/agent-ops/TOOLING-TOPOLOGY.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails."
-    },
-    {
-      "path": "docs/agent-ops/WORKTREE-PROMOTE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "high",
-      "action": "use-as-current",
-      "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
-    },
-    {
-      "path": "docs/agent-ops/capability-requests/README.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Agent capability request queue/template (warm); not a dated freeze candidate."
-    },
-    {
-      "path": "docs/agent-ops/capability-requests/TEMPLATE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Agent capability request queue/template (warm); not a dated freeze candidate."
-    },
-    {
-      "path": "docs/agent-ops/delegation-scorecard.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails."
-    },
-    {
       "path": "docs/agent-ops/temporal-review-queue.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails."
+    },
+    {
+      "path": "docs/agent-ops/TOOLING-TOPOLOGY.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -3340,6 +3312,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Worker session time-split (2026-09-29): model vs tool vs rate-limit wall-clock for five Muse Spark sessions, per-session table and aggregate."
+    },
+    {
+      "path": "docs/agent-ops/WORKTREE-PROMOTE.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
     },
     {
       "path": "docs/madr/0011-step2cs-inspired-sequential-exam.md",
@@ -3678,13 +3657,6 @@
       "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     },
     {
-      "path": "docs/openclinxr/README.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
-    },
-    {
       "path": "docs/openclinxr/admin-ux-and-testing-brief.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
@@ -3706,18 +3678,18 @@
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
-      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/REPORT.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "ECG-cart image-to-3dlab cagematch measurements, grade inputs, provenance boundaries, and Round 4 TRELLIS.2 optimizer diagnosis/treatments; coordinator re-grade pending."
-    },
-    {
       "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/factory-wiring/GRADE.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Coordinator native-pixel grade of the factory-wired R5-BEST ECG cart against the adopted round-5b cart: checklist, connector-row defects, adoption as runtime cart."
+    },
+    {
+      "path": "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/REPORT.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "ECG-cart image-to-3dlab cagematch measurements, grade inputs, provenance boundaries, and Round 4 TRELLIS.2 optimizer diagnosis/treatments; coordinator re-grade pending."
     },
     {
       "path": "docs/openclinxr/asset-generation-pipeline.md",
@@ -3979,13 +3951,6 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
-      "path": "docs/openclinxr/humanoid-motion-ENTRYPOINT.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
       "path": "docs/openclinxr/humanoid-motion-architecture-brief-2026-09-02.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
@@ -4005,6 +3970,13 @@
       "agentInstructionWeight": "none",
       "action": "treat-as-evidence",
       "rationale": "Completed delegation handoff retained as historical evidence; not an active instruction."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-motion-ENTRYPOINT.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/humanoid-motion-full-design-2026-09-02.md",
@@ -4168,11 +4140,32 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
+      "path": "docs/openclinxr/kimodo-stop-oneshot-cagematch-2026-10-09.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
       "path": "docs/openclinxr/knowledge-graph-and-indexing.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/license/sharp-libvips-1.3.0-exception-2026-10-20.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/license/sharp-libvips-1.3.4-exception-2026-10-21.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/lipsync-speech/README.md",
@@ -4196,14 +4189,14 @@
       "rationale": "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation."
     },
     {
-      "path": "docs/openclinxr/kimodo-stop-oneshot-cagematch-2026-10-09.md",
+      "path": "docs/openclinxr/locomotion/approach-take-2026-10-11.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
-      "path": "docs/openclinxr/locomotion/approach-take-2026-10-11.md",
+      "path": "docs/openclinxr/locomotion/arm-settle-2026-10-11.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
@@ -4217,11 +4210,25 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
-      "path": "docs/openclinxr/locomotion/pinned-turn-cagematch-2026-10-11.md",
+      "path": "docs/openclinxr/locomotion/arrival-turn-stability-2026-10-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/ccd-stance-lock-2026-10-11.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/fixed-timestep-clock-2026-10-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "docs/openclinxr/locomotion/foot-inertialize-evaluation-2026-10-09.md",
@@ -4229,6 +4236,125 @@
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/footstep-plan-s1-2026-10-13.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Footstep-plan S1 record: closed-loop opt-in, slide-meter known-good column, D2 cause split, build-time contact phases for the S2 planner."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/footstep-plan-s2-2026-10-13.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Footstep-plan S2 record: stride-amplitude plan behind ?footstepPlan=1, three-build table (control/A/B-rejected/M2), D1-D3 trace finding, per-window slide, S2d gate-fix record, render paths."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/inertialize-cagematch-2026-10-11.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/loco-proving-ground-2026-10-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/pinned-turn-cagematch-2026-10-11.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/rootmotion-bind-fix-2026-10-09.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/s1-stop-clip-runtime-2026-10-10.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/slide-phase-baseline-2026-10-13.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/stepping-turn-2026-10-11.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/stop-take-selection-2026-10-11.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/transition-table-cagematch-2026-10-11.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/turn-leg-quaternion-norm-2026-10-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/walk-accounting-2026-10-11.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/walk-clip-census-2026-10-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/walk-playback-blend-2026-10-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/walk-slide-browser-2026-10-11.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/locomotion/walk-transitions-2026-10-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "docs/openclinxr/model-provider-and-voice-routing.md",
@@ -4273,20 +4399,6 @@
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
     },
     {
-      "path": "docs/openclinxr/owner-memory/PROTOCOL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/owner-memory/PULSE-PROTOCOL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
       "path": "docs/openclinxr/owner-memory/calibration.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
@@ -4302,6 +4414,20 @@
     },
     {
       "path": "docs/openclinxr/owner-memory/measurements.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/owner-memory/PROTOCOL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/owner-memory/PULSE-PROTOCOL.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
@@ -4532,6 +4658,13 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
+      "path": "docs/openclinxr/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
       "path": "docs/openclinxr/research/2026-08-06-step2cs-and-digital-native-primitives.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
@@ -4575,13 +4708,6 @@
     },
     {
       "path": "docs/openclinxr/room-realism-dual90-ideation-plan-2026-09-25.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/room-realism/DUAL90-FINDINGS.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
@@ -4635,6 +4761,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Ward door casing, glass, veneer, learner-runtime measurement, budget, and producer audit."
+    },
+    {
+      "path": "docs/openclinxr/room-realism/DUAL90-FINDINGS.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/room-realism/floor-cast/READER-AUDIT.md",
@@ -5176,11 +5309,25 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
+      "path": "docs/TOOLING.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Hot agent-ops / CLI-first tooling SSOT; living reference for barrier removal and roster index."
+    },
+    {
       "path": "iterations/README.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "low",
       "action": "summarize-before-use",
       "rationale": "Historical planning/synthesis evidence; not active marching orders."
+    },
+    {
+      "path": "LICENSE-CLASHES.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "operator-open-questions.md",
@@ -5195,13 +5342,6 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "packages/cellix/README.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
     },
     {
       "path": "packages/cellix/config-typescript/CHANGELOG.md",
@@ -5225,6 +5365,13 @@
       "rationale": "Package/app-local README or provenance reference; local to its module."
     },
     {
+      "path": "packages/cellix/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
       "path": "packages/cellix/server-mongodb-memory-mock/CHANGELOG.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -5233,20 +5380,6 @@
     },
     {
       "path": "packages/cellix/trace-ledger/CHANGELOG.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
-    },
-    {
-      "path": "packages/openclinxr/README.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
-    },
-    {
-      "path": "packages/openclinxr/arena/README.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -5281,6 +5414,13 @@
       "rationale": "Package/app-local README or provenance reference; local to its module."
     },
     {
+      "path": "packages/openclinxr/arena/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
       "path": "packages/openclinxr/factory-stations/src/room_chain/README.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -5309,6 +5449,13 @@
       "rationale": "Package/app-local README or provenance reference; local to its module."
     },
     {
+      "path": "packages/openclinxr/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
       "path": "plugins/openclinxr-openclaw-style/README.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
@@ -5321,6 +5468,27 @@
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "PROJECT_COORDINATION_INDEX.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "PROJECT_STATUS.md",
+      "authority": "protected-policy",
+      "agentInstructionWeight": "highest",
+      "action": "protect",
+      "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
+    },
+    {
+      "path": "README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "templates/decision-record.md",
@@ -5477,6 +5645,13 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
+      "path": "tools/openclinxr/evidence/parent-neck-support-2026-10-08/retained/README.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
       "path": "tools/openclinxr/evidence/primary-care-zero-median-2026-09-12.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
@@ -5485,6 +5660,13 @@
     },
     {
       "path": "tools/openclinxr/evidence/provider-cache-root-is-worktree-independent-2026-09-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/evidence/quest-capacity/controller/README.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
@@ -5573,167 +5755,6 @@
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "tools/openclinxr/evidence/parent-neck-support-2026-10-08/retained/README.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/rootmotion-bind-fix-2026-10-09.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/s1-stop-clip-runtime-2026-10-10.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/stop-take-selection-2026-10-11.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/inertialize-cagematch-2026-10-11.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/transition-table-cagematch-2026-10-11.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/stepping-turn-2026-10-11.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/ccd-stance-lock-2026-10-11.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/walk-slide-browser-2026-10-11.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/walk-accounting-2026-10-11.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/arm-settle-2026-10-11.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/loco-proving-ground-2026-10-12.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/walk-playback-blend-2026-10-12.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/walk-transitions-2026-10-12.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/arrival-turn-stability-2026-10-12.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/turn-leg-quaternion-norm-2026-10-12.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/slide-phase-baseline-2026-10-13.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/walk-clip-census-2026-10-12.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".agents/skills/movement-acceptance/SKILL.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
-    },
-    {
-      "path": ".claude/skills/movement-acceptance/SKILL.md",
-      "authority": "agent-methodology",
-      "agentInstructionWeight": "medium",
-      "action": "use-as-current",
-      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/fixed-timestep-clock-2026-10-12.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/footstep-plan-s1-2026-10-13.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Footstep-plan S1 record: closed-loop opt-in, slide-meter known-good column, D2 cause split, build-time contact phases for the S2 planner."
-    },
-    {
-      "path": "docs/openclinxr/locomotion/footstep-plan-s2-2026-10-13.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Footstep-plan S2 record: stride-amplitude plan behind ?footstepPlan=1, three-build table (control/A/B-rejected/M2), D1-D3 trace finding, per-window slide, S2d gate-fix record, render paths."
     }
   ]
 }

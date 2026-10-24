@@ -70,7 +70,7 @@ export function removeFittedHair(root: Object3D): string[] {
   const targets: Object3D[] = [];
   root.traverse((o) => {
     if (!(o instanceof Mesh)) return;
-    const nodeName = typeof (o.userData?.name) === "string" ? String(o.userData.name) : "";
+    const nodeName = typeof (o.userData?.["name"]) === "string" ? String(o.userData["name"]) : "";
     const geoName = o.geometry?.name ?? "";
     if (isFittedHairMeshName(o.name) || (nodeName && isFittedHairMeshName(nodeName)) || (geoName && isFittedHairMeshName(geoName))) {
       targets.push(o);

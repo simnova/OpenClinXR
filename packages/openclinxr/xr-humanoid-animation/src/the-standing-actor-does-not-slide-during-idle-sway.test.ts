@@ -97,7 +97,7 @@ function buildStandingSlotContext(): { ctx: HumanoidAnimationRuntimeContext; slo
 
   const root = new THREE.Group();
   root.position.set(0, 0, 0); // baseX = 0: the loader zeroes the humanoid child (generated-loaders.ts:112)
-  root.userData.openClinXrActorPosture = "standing";
+  root.userData["openClinXrActorPosture"] = "standing";
 
   // SC-05's decoded rest-frame toe offset relative to slot.root (runtime-approach-measurement.ts).
   const toe = new THREE.Object3D();

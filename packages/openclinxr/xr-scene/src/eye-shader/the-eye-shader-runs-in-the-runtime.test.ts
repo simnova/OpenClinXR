@@ -80,7 +80,7 @@ describe("the eye shader runs in the runtime", () => {
     root.add(mesh);
     const applied = await applyMaterialOverrides(root, [{ match: "makeclothes_library_eyes", eyeShade: true }]);
     const readback = applied[0]?.readback[0] as Record<string, unknown> | undefined;
-    expect(readback?.eyeShade, "readback eyeShade must be true (hook-installed, not a JSON field)").toBe(true);
+    expect(readback?.["eyeShade"], "readback eyeShade must be true (hook-installed, not a JSON field)").toBe(true);
     expect(tex.repeat.y, "landed orientation presents the iris unwired: no UV flip").toBe(1);
     expect(tex.offset.y).toBe(0);
     let chained = false;
@@ -139,7 +139,7 @@ describe("the eye shader runs in the runtime", () => {
     const applied = await applyMaterialOverrides(root, [
       { match: "makeclothes_library_eyes", eyeShade: { pupilScale: 1, limbusStrength: 0 } },
     ]);
-    expect((applied[0]?.readback[0] as Record<string, unknown>)?.eyeShade).toBe(true);
+    expect((applied[0]?.readback[0] as Record<string, unknown>)?.["eyeShade"]).toBe(true);
     const shader = stubShader();
     mat.onBeforeCompile(shader as never, {} as never);
     expect(shader.uniforms["uPupilScale"]?.value).toBe(1);
@@ -163,7 +163,7 @@ describe("the eye shader runs in the runtime", () => {
     root.add(mesh);
     const freshKey = mat.customProgramCacheKey();
     const applied = await applyMaterialOverrides(root, [{ match: "makeclothes_library_eyes" }]);
-    expect((applied[0]?.readback[0] as Record<string, unknown>)?.eyeShade).toBe(false);
+    expect((applied[0]?.readback[0] as Record<string, unknown>)?.["eyeShade"]).toBe(false);
     const shader = stubShader();
     const beforeFrag = shader.fragmentShader;
     mat.onBeforeCompile(shader as never, {} as never);

@@ -74,6 +74,8 @@ const EXPECTED_SUBJECT_ACTOR_ID = "parent_tara_johnson_v1";
 /** #726: the producer path the artifact records among its sources — the freshness gate's contract. */
 const PRODUCER_REPO_PATH = "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts";
 
+/** ph339: readiness gate lives in the producer — no separate helper file. */
+
 /**
  * #710 learner-transcript speak fixture: the deterministic transcript the fixture drives, the
  * trace action it maps to (the runtime's learner-utterance path), the expected speaking actor,
@@ -866,14 +868,66 @@ async function waitForParentVisemeMesh(page: Page, expectedActorId: string = EXP
   );
 }
 
-async function retriggerParentDialogue(page: Page): Promise<void> {
+export const EXPECTED_PARENT_SPEAKER_ID = "parent_tara_johnson_v1";
+
+export type ParentSpeakerAttempt = { clicked: boolean; buttonCount: number; speakerReady: boolean; activeActorId: string | null };
+
+export function isParentSpeakerAttemptReady(attempt: Omit<ParentSpeakerAttempt, "speakerReady">): boolean {
+  if (!attempt.clicked) return false;
+  if (attempt.buttonCount === 0) return false;
+  return attempt.activeActorId === EXPECTED_PARENT_SPEAKER_ID;
+}
+
+export async function retriggerParentDialogue(page: Page): Promise<{ clicked: boolean; buttonCount: number; speakerReady: boolean; activeActorId: string | null }> {
   // Click the parent-communication trace to make the PARENT speak (its turn is authored on
   // `parent_communication`, actor `parent_tara_johnson_v1`), so the sampling window covers a
-  // full parent utterance from t≈0.
+  // full parent utterance from t≈0. Fail-closed: a missing button or failed click must NOT
+  // silently sample the expired tail (ph336: that tail is only viseme_sil).
   const button = page.getByRole("button", { name: /parent communication/i });
-  if (await button.count()) {
-    await button.first().click({ timeout: 5_000 }).catch(() => undefined);
+  const buttonCount = await button.count();
+  let clicked = false;
+  if (buttonCount > 0) {
+    try {
+      await button.first().click({ timeout: 5_000 });
+      clicked = true;
+    } catch {
+      clicked = false;
+    }
   }
+  // Speaker-readiness acknowledgement (ph338): the runtime's own speech evidence must
+  // name the parent as the active speaker shortly after the click. This does NOT prove
+  // utterance epoch t≈0 when the same actor was already active — the ≥2 distinct
+  // rendered viseme_* gate (unchanged) remains the required evidence of real drive.
+  // A stale/expired utterance keeps the old actor (or none) and the caller refuses it.
+  let activeActorId: string | null = null;
+  let speakerReady = false;
+  for (let i = 0; i < 10; i += 1) {
+    activeActorId = await page.evaluate(`(() => {
+      const speech = window.__openClinXrHumanoidSpeechEvidence;
+      return (speech && typeof speech.activeActorId === "string") ? speech.activeActorId : null;
+    })()`);
+    if (isParentSpeakerAttemptReady({ clicked, buttonCount, activeActorId })) {
+      speakerReady = true;
+      break;
+    }
+    await page.waitForTimeout(150);
+  }
+  return { clicked, buttonCount, speakerReady, activeActorId };
+}
+
+export async function requireParentSpeakerReady(page: Page, where: string): Promise<void> {
+  const attempt = await retriggerParentDialogue(page);
+  if (!isParentSpeakerAttemptReady(attempt) || !attempt.speakerReady) {
+    throw new Error(
+      `parent speaker readiness NOT acknowledged at ${where}: `
+      + `clicked=${attempt.clicked} buttonCount=${attempt.buttonCount} `
+      + `speakerReady=${attempt.speakerReady} activeActorId=${attempt.activeActorId ?? "null"} — `
+      + `refusing to sample without the parent acknowledged as speaker`,
+    );
+  }
+  process.stdout.write(
+    `retrigger: ${where} parent speaker acknowledged (activeActorId=${attempt.activeActorId})\n`,
+  );
 }
 
 type PortalTransitionSnapshot = {
@@ -980,7 +1034,8 @@ export async function runVisemeCapture(): Promise<void> {
       process.stdout.write(`camera: ${reframeOutcomeSummary(initialReframe)}\n`);
       await page.waitForTimeout(600);
       // Restart the parent's dialogue so the sampling window covers a full utterance from t≈0.
-      await retriggerParentDialogue(page);
+      // ph336: fail closed when no fresh parent playback can be proven.
+      await requireParentSpeakerReady(page, "dense-pass-start");
       await page.waitForTimeout(120);
 
       const liveSamples: Array<{
@@ -1060,7 +1115,7 @@ export async function runVisemeCapture(): Promise<void> {
       // If one utterance's samples did not cover five distinct viseme shapes, replay the
       // dialogue and keep sampling (the retrigger restarts the phoneme timeline).
       if (distinctStrong().size < 5) {
-        await retriggerParentDialogue(page);
+        await requireParentSpeakerReady(page, "dense-pass-retry");
         await page.waitForTimeout(120);
         await denseStatesPass();
       }
@@ -1068,7 +1123,7 @@ export async function runVisemeCapture(): Promise<void> {
       // Frame pass — sparse screenshots for the orchestrator's pixel grade, labelled with the
       // live dominant value sampled at the same instant. Each frame also records its dominant
       // viseme so strong instants can be attributed to a frame (#465's second defect).
-      await retriggerParentDialogue(page);
+      await requireParentSpeakerReady(page, "frame-pass-start");
       await page.waitForTimeout(120);
       const FRAME_STEP_MS = 250;
       const FRAME_COUNT = 8;

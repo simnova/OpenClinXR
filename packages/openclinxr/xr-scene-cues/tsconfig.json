@@ -8,7 +8,6 @@
       "DOM",
       "DOM.Iterable"
     ],
-    "noPropertyAccessFromIndexSignature": false,
     "types": [
       "node",
       "vitest"

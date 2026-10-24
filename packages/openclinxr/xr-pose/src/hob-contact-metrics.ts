@@ -234,7 +234,7 @@ export function settleSupineOntoBackSectionPreservingSeat(
     totalDx += clamped;
     humanoidRoot.updateMatrixWorld?.(true);
   }
-  humanoidRoot.userData.openClinXrSupineBackSettleDx = totalDx;
+  humanoidRoot.userData["openClinXrSupineBackSettleDx"] = totalDx;
   return measureBackToDeckGap(humanoidRoot, stretcher);
 }
 
@@ -285,7 +285,7 @@ export function readBackSectionPlane(stretcher: Object3D): {
   stretcher.updateMatrixWorld(true);
   const found: Object3D[] = [];
   stretcher.traverse((obj) => {
-    if (obj.userData?.openClinXrDeckSection === "back") found.push(obj);
+    if (obj.userData?.["openClinXrDeckSection"] === "back") found.push(obj);
   });
   const backPivot = found[0];
   if (!backPivot) {
@@ -323,6 +323,6 @@ export function settleSupineOntoBackSection(
     humanoidRoot.updateMatrixWorld?.(true);
     total += delta;
   }
-  humanoidRoot.userData.openClinXrSupineBackSettleMeters = total;
+  humanoidRoot.userData["openClinXrSupineBackSettleMeters"] = total;
   return total;
 }

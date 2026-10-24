@@ -1,0 +1,5 @@
+import {BoxGeometry,BufferGeometry,Float32BufferAttribute,Line,LineBasicMaterial,Mesh,MeshBasicMaterial,type Scene} from 'three';
+export function createControllerVisuals(scene:Scene){
+ const boxGeometry=new BoxGeometry(.05,.04,.10),rayGeometry=new BufferGeometry();rayGeometry.setAttribute('position',new Float32BufferAttribute([0,0,0,0,0,-1],3));const materials=[new MeshBasicMaterial({color:0xa56eff}),new MeshBasicMaterial({color:0x48aaff})],rayMaterial=new LineBasicMaterial({color:0xffdc55});const boxes=[new Mesh(boxGeometry,materials[0]),new Mesh(boxGeometry,materials[1])],rays=[new Line(rayGeometry,rayMaterial),new Line(rayGeometry,rayMaterial)];for(const object of [...boxes,...rays]){object.frustumCulled=false;object.matrixAutoUpdate=false;object.visible=false;scene.add(object);}
+ let disposed=false;return {boxes,rays,materials,dispose(){if(disposed)return;disposed=true;for(const object of [...boxes,...rays])scene.remove(object);boxGeometry.dispose();rayGeometry.dispose();for(const material of materials)material.dispose();rayMaterial.dispose();}};
+}

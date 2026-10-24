@@ -171,12 +171,12 @@ export function buildFixtureLayoutProp(input: {
     root.add(body, top);
   }
 
-  root.userData.fixtureSlotId = input.slotId;
-  root.userData.fixtureSlotPurpose = input.purpose ?? "layout prop";
-  root.userData.isMarkerCube = false;
-  root.userData.openClinXrFixtureKind = "procedural_layout_prop";
-  root.userData.openClinXrLayoutPropKind = kind;
-  root.userData.openClinXrDynamicScenePolicy = "non_support_fixture_slot_builds_layout_prop_not_marker";
+  root.userData["fixtureSlotId"] = input.slotId;
+  root.userData["fixtureSlotPurpose"] = input.purpose ?? "layout prop";
+  root.userData["isMarkerCube"] = false;
+  root.userData["openClinXrFixtureKind"] = "procedural_layout_prop";
+  root.userData["openClinXrLayoutPropKind"] = kind;
+  root.userData["openClinXrDynamicScenePolicy"] = "non_support_fixture_slot_builds_layout_prop_not_marker";
   return root;
 }
 
@@ -222,15 +222,15 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
 
   const shell = new Group();
   shell.name = "openclinxr.station-environment-shell";
-  shell.userData.environmentId = input.environmentId;
-  shell.userData.environmentDescriptorId = d.environmentId;
-  shell.userData.floorColor = d.floorColor;
-  shell.userData.roomDepthMeters = depth;
-  shell.userData.roomWidthMeters = width;
-  shell.userData.roomHeightMeters = height;
-  shell.userData.dimensionOverridesActive = dimensionOverridesActive;
-  shell.userData.wallColor = d.wallColor;
-  shell.userData.wallTrimColor = d.wallTrimColor;
+  shell.userData["environmentId"] = input.environmentId;
+  shell.userData["environmentDescriptorId"] = d.environmentId;
+  shell.userData["floorColor"] = d.floorColor;
+  shell.userData["roomDepthMeters"] = depth;
+  shell.userData["roomWidthMeters"] = width;
+  shell.userData["roomHeightMeters"] = height;
+  shell.userData["dimensionOverridesActive"] = dimensionOverridesActive;
+  shell.userData["wallColor"] = d.wallColor;
+  shell.userData["wallTrimColor"] = d.wallTrimColor;
   // #196: authored slot metres are relative to the descriptor plan; re-resolve so
   // door/board/furniture track shell width/depth under harness overrides (and stay
   // byte-identical at shipped dimensions — identity scale).
@@ -243,17 +243,17 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
       heightMeters: d.roomHeightMeters,
     },
   );
-  shell.userData.fixtureSlots = resolvedSlots.map((slot) => ({
+  shell.userData["fixtureSlots"] = resolvedSlots.map((slot) => ({
     ...slot,
     position: { ...slot.position },
   }));
   // #203: per-slot rules — wall_anchor for door/board, fraction for furniture, absolute learner.
-  shell.userData.fixtureLayoutDerivation = "per_slot:wall_anchor|fraction|absolute";
-  shell.userData.environmentFallbackActive = resolved.environmentFallbackActive;
-  shell.userData.environmentFallbackReason = resolved.environmentFallbackReason ?? "";
-  shell.userData.openClinXrEnvironmentPolicy =
+  shell.userData["fixtureLayoutDerivation"] = "per_slot:wall_anchor|fraction|absolute";
+  shell.userData["environmentFallbackActive"] = resolved.environmentFallbackActive;
+  shell.userData["environmentFallbackReason"] = resolved.environmentFallbackReason ?? "";
+  shell.userData["openClinXrEnvironmentPolicy"] =
     "parametric_shell_from_shared_environment_descriptor_kitbash_slot";
-  shell.userData.hasCeiling = true;
+  shell.userData["hasCeiling"] = true;
   // Place room so doorway (z≈0.9 exterior) opens into negative-Z encounter space.
   const floorZ = parametricShellFloorCenterZ(depth);
 
@@ -263,11 +263,11 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
   );
   floor.name = "openclinxr.station-environment.floor";
   floor.position.set(0, -0.04, floorZ);
-  floor.userData.openClinXrSceneNecessityPolicy =
+  floor.userData["openClinXrSceneNecessityPolicy"] =
     "dynamic_encounter_world_floor_from_environment_descriptor";
-  floor.userData.environmentId = input.environmentId;
+  floor.userData["environmentId"] = input.environmentId;
   shell.add(floor);
-  shell.userData.floorMesh = floor;
+  shell.userData["floorMesh"] = floor;
 
   const wallMaterial = new MeshStandardMaterial({
     color: d.wallColor,
@@ -287,19 +287,19 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
   const backWall = new Mesh(new BoxGeometry(width, height, 0.08), wallMaterial.clone());
   backWall.name = "openclinxr.station-environment.back-wall";
   backWall.position.set(0, height / 2 - 0.04, backZ);
-  backWall.userData.openClinXrDynamicScenePolicy = "environmentId_driven_room_shell";
+  backWall.userData["openClinXrDynamicScenePolicy"] = "environmentId_driven_room_shell";
   shell.add(backWall);
 
   const leftWall = new Mesh(new BoxGeometry(0.08, height, depth), wallMaterial.clone());
   leftWall.name = "openclinxr.station-environment.left-wall";
   leftWall.position.set(-halfW, height / 2 - 0.04, sideZ);
-  leftWall.userData.openClinXrDynamicScenePolicy = "environmentId_driven_room_shell";
+  leftWall.userData["openClinXrDynamicScenePolicy"] = "environmentId_driven_room_shell";
   shell.add(leftWall);
 
   const rightWall = new Mesh(new BoxGeometry(0.08, height, depth), wallMaterial.clone());
   rightWall.name = "openclinxr.station-environment.right-wall";
   rightWall.position.set(halfW, height / 2 - 0.04, sideZ);
-  rightWall.userData.openClinXrDynamicScenePolicy = "environmentId_driven_room_shell";
+  rightWall.userData["openClinXrDynamicScenePolicy"] = "environmentId_driven_room_shell";
   shell.add(rightWall);
 
   // #133 — ceiling closes the open top (capture camera at y=2.05 inside a ~2.65 m room).
@@ -315,15 +315,15 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
   const ceiling = new Mesh(new BoxGeometry(width, 0.06, depth), ceilingMat);
   ceiling.name = "openclinxr.station-environment.ceiling";
   ceiling.position.set(0, height - 0.03, floorZ);
-  ceiling.userData.openClinXrDynamicScenePolicy = "environmentId_driven_room_ceiling_closes_open_top";
-  ceiling.userData.isCeiling = true;
+  ceiling.userData["openClinXrDynamicScenePolicy"] = "environmentId_driven_room_ceiling_closes_open_top";
+  ceiling.userData["isCeiling"] = true;
   shell.add(ceiling);
-  shell.userData.ceilingMesh = ceiling;
+  shell.userData["ceilingMesh"] = ceiling;
 
   const wallTrim = new Mesh(new BoxGeometry(width - 0.3, 0.06, 0.035), trimMaterial);
   wallTrim.name = "openclinxr.station-environment.wall-trim";
   wallTrim.position.set(0, 1.02, backZ + 0.06);
-  wallTrim.userData.openClinXrDynamicScenePolicy = "environmentId_driven_wall_trim";
+  wallTrim.userData["openClinXrDynamicScenePolicy"] = "environmentId_driven_wall_trim";
   shell.add(wallTrim);
 
   // Fixtures: architecture (door/board/surface) / stretcher / chair / layout;
@@ -331,7 +331,7 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
   // Positions come from resolveFixtureSlotsForRoom (tracks shell under #196).
   // #186 / #209: family_seating also claims seating ownership so parent_chair /
   // chairs_equipment do not dual-mount beside FAMILY_CHAIR.
-  shell.userData.fixtureOwnedRoles = [...ownedRolesFromFixtureSlots(resolvedSlots)];
+  shell.userData["fixtureOwnedRoles"] = [...ownedRolesFromFixtureSlots(resolvedSlots)];
 
   for (const slot of resolvedSlots) {
     const arch = tryBuildArchitectureFixture({
@@ -360,7 +360,7 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
         });
         // #342c: carry the anchor contract on the fixture so a generated room loading LATER
         // can re-anchor it to ITS measured walls without re-deriving intent from the id.
-        arch.userData.openClinXrWallAnchor = { wall: slot.wall, insetMeters };
+        arch.userData["openClinXrWallAnchor"] = { wall: slot.wall, insetMeters };
       }
       shell.add(arch);
       continue;
@@ -372,7 +372,7 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
         position: slot.position,
         trimColor: d.wallTrimColor,
       });
-      chair.userData.openClinXrFixtureRole = roleClassFromFixtureSlotId(slot.slotId);
+      chair.userData["openClinXrFixtureRole"] = roleClassFromFixtureSlotId(slot.slotId);
       shell.add(chair);
       continue;
     }
@@ -385,7 +385,7 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
         // Descriptor-driven HOB incline (#171) — slot carries position + angle together.
         ...(typeof slot.inclineDegrees === "number" ? { inclineDegrees: slot.inclineDegrees } : {}),
       });
-      stretcher.userData.openClinXrFixtureRole = roleClassFromFixtureSlotId(slot.slotId);
+      stretcher.userData["openClinXrFixtureRole"] = roleClassFromFixtureSlotId(slot.slotId);
       shell.add(stretcher);
       continue;
     }
@@ -401,10 +401,10 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
       );
       marker.name = `openclinxr.station-environment.fixture-slot.${slot.slotId}`;
       marker.position.set(slot.position.x, Math.max(0.03, slot.position.y), slot.position.z);
-      marker.userData.fixtureSlotId = slot.slotId;
-      marker.userData.fixtureSlotPurpose = slot.purpose;
-      marker.userData.isMarkerCube = true;
-      marker.userData.openClinXrFixtureRole = "learner_start";
+      marker.userData["fixtureSlotId"] = slot.slotId;
+      marker.userData["fixtureSlotPurpose"] = slot.purpose;
+      marker.userData["isMarkerCube"] = true;
+      marker.userData["openClinXrFixtureRole"] = "learner_start";
       // The node remains in the scene graph as the authoritative spawn anchor. It is metadata,
       // not room equipment, so do not render the coloured debug cube to learners or captures.
       marker.visible = false;
@@ -418,7 +418,7 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
       position: slot.position,
       trimColor: d.wallTrimColor,
     });
-    layout.userData.openClinXrFixtureRole = roleClassFromFixtureSlotId(slot.slotId);
+    layout.userData["openClinXrFixtureRole"] = roleClassFromFixtureSlotId(slot.slotId);
     shell.add(layout);
   }
 

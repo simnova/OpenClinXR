@@ -58,15 +58,15 @@ function tagArchitectureRoot(
   input: BuildArchitectureFixtureInput,
   kind: ArchitectureFixtureKind,
 ): void {
-  root.userData.fixtureSlotId = input.slotId;
-  root.userData.fixtureSlotPurpose = input.purpose ?? kind;
-  root.userData.isMarkerCube = false;
-  root.userData.openClinXrFixtureKind = kind;
-  root.userData.openClinXrFixtureRole = roleClassFromFixtureSlotId(input.slotId);
-  root.userData.openClinXrDynamicScenePolicy = "architecture_fixture_multi_mesh_identity";
+  root.userData["fixtureSlotId"] = input.slotId;
+  root.userData["fixtureSlotPurpose"] = input.purpose ?? kind;
+  root.userData["isMarkerCube"] = false;
+  root.userData["openClinXrFixtureKind"] = kind;
+  root.userData["openClinXrFixtureRole"] = roleClassFromFixtureSlotId(input.slotId);
+  root.userData["openClinXrDynamicScenePolicy"] = "architecture_fixture_multi_mesh_identity";
   if (typeof input.rotationY === "number" && Number.isFinite(input.rotationY)) {
     root.rotation.y = input.rotationY;
-    root.userData.openClinXrWallFacingYaw = input.rotationY;
+    root.userData["openClinXrWallFacingYaw"] = input.rotationY;
   }
 }
 
@@ -197,7 +197,7 @@ export function buildWorkSurfaceFixture(input: BuildArchitectureFixtureInput): G
 
   root.add(legs, top, backsplash, drawer);
   tagArchitectureRoot(root, input, "work_surface");
-  root.userData.workSurfaceHeightMeters = 0.8;
+  root.userData["workSurfaceHeightMeters"] = 0.8;
   return root;
 }
 
@@ -222,7 +222,7 @@ export function buildOverbedSurfaceFixture(input: BuildArchitectureFixtureInput)
 
   root.add(column, base, top);
   tagArchitectureRoot(root, input, "overbed_surface");
-  root.userData.workSurfaceHeightMeters = 0.98;
+  root.userData["workSurfaceHeightMeters"] = 0.98;
   return root;
 }
 
@@ -270,11 +270,11 @@ export function buildExamSurfaceFixture(input: BuildArchitectureFixtureInput): G
   root.add(base, mattress, pillow, rail, legHead, legFoot);
   tagArchitectureRoot(root, input, "exam_surface");
   // Deck top for any future plant/clearance reader — mattress top ≈ 0.55 m.
-  root.userData.deckTopYMeters = 0.55;
-  root.userData.workSurfaceHeightMeters = 0.55;
-  root.userData.openClinXrExamSurface = true;
-  root.userData.openClinXrExamTableLengthM = EXAM_TABLE_LENGTH_M;
-  root.userData.openClinXrExamTableLongAxis = "z";
+  root.userData["deckTopYMeters"] = 0.55;
+  root.userData["workSurfaceHeightMeters"] = 0.55;
+  root.userData["openClinXrExamSurface"] = true;
+  root.userData["openClinXrExamTableLengthM"] = EXAM_TABLE_LENGTH_M;
+  root.userData["openClinXrExamTableLongAxis"] = "z";
   return root;
 }
 

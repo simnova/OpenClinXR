@@ -12,6 +12,11 @@ export type DirectComputeLaunchSite = {
 
 const LOCAL_COMPUTE_ROOT = "packages/openclinxr/service-local-compute/";
 const PROCESS_LAUNCHERS = new Set(["spawn", "spawnSync", "exec", "execFile"]);
+// Exact infrastructure artifact/worktree containers at the workspace root. Only
+// these prefixes are skipped: genuine dot-dirs holding real tools/tests (if any)
+// are still traversed. `.claude/worktrees` holds nested Git checkouts (copied
+// launchers); `.openclinxr` holds generated candidate artifacts.
+const EXCLUDED_ROOT_CONTAINERS = [".claude/worktrees", ".openclinxr"] as const;
 
 function workspaceRoot(): string {
   let dir = dirname(fileURLToPath(import.meta.url));
@@ -20,6 +25,10 @@ function workspaceRoot(): string {
     dir = dirname(dir);
   }
   throw new Error("workspace root (pnpm-workspace.yaml) not found");
+}
+
+function isExcludedContainer(rel: string): boolean {
+  return EXCLUDED_ROOT_CONTAINERS.some((prefix) => rel === prefix || rel.startsWith(`${prefix}/`));
 }
 
 function isMlPythonMarker(text: string): boolean {
@@ -70,15 +79,22 @@ export function countDirectComputeLaunchesInSource(source: string, file = "fixtu
 export function measureDirectComputeLaunches(root = workspaceRoot()): DirectComputeLaunchSite[] {
   const sites: DirectComputeLaunchSite[] = [];
   const walk = (dir: string): void => {
+    const relDir = relative(root, dir).replaceAll("\\", "/");
+    if (relDir !== "" && isExcludedContainer(relDir)) return;
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       if (entry.name === "node_modules" || entry.name === ".git" || entry.name === "dist") continue;
       const full = join(dir, entry.name);
+      const rel = relative(root, full).replaceAll("\\", "/");
+      if (isExcludedContainer(rel)) continue;
       if (entry.isDirectory()) {
+        // Boundary: a nested Git checkout (worktree copy) is its own repo, not
+        // workspace source. Skipping the subtree keeps copied launchers out
+        // without blanket-skipping hidden dirs that hold genuine tools/tests.
+        if (existsSync(join(full, ".git"))) continue;
         walk(full);
         continue;
       }
       if (!entry.isFile() || !entry.name.endsWith(".ts") || entry.name.endsWith(".d.ts")) continue;
-      const rel = relative(root, full).replaceAll("\\", "/");
       if (rel.startsWith(LOCAL_COMPUTE_ROOT)) continue;
       sites.push(...countDirectComputeLaunchesInSource(readFileSync(full, "utf8"), rel));
     }

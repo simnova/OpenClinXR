@@ -86,16 +86,16 @@ function isFiniteNumber(value: unknown): value is number {
 
 function parseVec3(value: unknown): CompiledRoomVec3 | null {
   if (!isRecord(value)) return null;
-  if (!isFiniteNumber(value.x) || !isFiniteNumber(value.y) || !isFiniteNumber(value.z)) {
+  if (!isFiniteNumber(value["x"]) || !isFiniteNumber(value["y"]) || !isFiniteNumber(value["z"])) {
     return null;
   }
-  return { x: value.x, y: value.y, z: value.z };
+  return { x: value["x"], y: value["y"], z: value["z"] };
 }
 
 function parseBounds(value: unknown): CompiledRoomBounds | null {
   if (!isRecord(value)) return null;
-  const min = parseVec3(value.min);
-  const max = parseVec3(value.max);
+  const min = parseVec3(value["min"]);
+  const max = parseVec3(value["max"]);
   if (!min || !max) return null;
   if (min.x >= max.x || min.y >= max.y || min.z >= max.z) return null;
   return { min, max };
@@ -106,9 +106,9 @@ function parseAnchor(
   expectedKind: CompiledRoomAnchorKind,
 ): CompiledRoomAnchorDeclaration | null {
   if (!isRecord(value)) return null;
-  const id = typeof value.id === "string" ? value.id.trim() : "";
-  const nodeName = typeof value.nodeName === "string" ? value.nodeName.trim() : "";
-  const kind = value.kind;
+  const id = typeof value["id"] === "string" ? value["id"].trim() : "";
+  const nodeName = typeof value["nodeName"] === "string" ? value["nodeName"].trim() : "";
+  const kind = value["kind"];
   if (!id || !nodeName) return null;
   if (kind !== expectedKind) return null;
   return { id, kind: expectedKind, nodeName };
@@ -139,8 +139,8 @@ export function parseCompiledRoomAuthoredMetadata(
       }],
     };
   }
-  const actorAnchors = parseAnchorList(value.actorAnchors, "actor");
-  const equipmentAnchors = parseAnchorList(value.equipmentAnchors, "equipment");
+  const actorAnchors = parseAnchorList(value["actorAnchors"], "actor");
+  const equipmentAnchors = parseAnchorList(value["equipmentAnchors"], "equipment");
   if (!actorAnchors || !equipmentAnchors) {
     return {
       diagnostics: [{
@@ -149,8 +149,8 @@ export function parseCompiledRoomAuthoredMetadata(
       }],
     };
   }
-  const collisionBounds = parseBounds(value.collisionBounds);
-  const walkableBounds = parseBounds(value.walkableBounds);
+  const collisionBounds = parseBounds(value["collisionBounds"]);
+  const walkableBounds = parseBounds(value["walkableBounds"]);
   if (!collisionBounds || !walkableBounds) {
     return {
       diagnostics: [{
@@ -308,9 +308,9 @@ export function stampCompiledRoomReadinessUserData(
   root: Object3D,
   result: CompiledRoomReadinessResult,
 ): void {
-  root.userData.openClinXrCompiledRoomReadiness = result.ready ? "ready" : "fallback";
-  root.userData.openClinXrCompiledRoomDiagnostics = result.diagnostics;
-  root.userData.openClinXrCompiledRoomResolvedAnchors = result.resolvedAnchors;
-  root.userData.openClinXrCompiledRoomCollisionBounds = result.collisionBounds;
-  root.userData.openClinXrCompiledRoomWalkableBounds = result.walkableBounds;
+  root.userData["openClinXrCompiledRoomReadiness"] = result.ready ? "ready" : "fallback";
+  root.userData["openClinXrCompiledRoomDiagnostics"] = result.diagnostics;
+  root.userData["openClinXrCompiledRoomResolvedAnchors"] = result.resolvedAnchors;
+  root.userData["openClinXrCompiledRoomCollisionBounds"] = result.collisionBounds;
+  root.userData["openClinXrCompiledRoomWalkableBounds"] = result.walkableBounds;
 }

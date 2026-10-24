@@ -1,0 +1,139 @@
+{
+  "entrypoints": {
+    ".": [
+      "CAPACITY_LIMITS",
+      "CapacityMetric",
+      "CapacityRun",
+      "EvaluationContext",
+      "HOST_LIMITS",
+      "compareRuns",
+      "evaluateRun",
+      "evaluateStopRules",
+      "makeFixtureCampaign",
+      "makeMetric",
+      "makeRun",
+      "parseRunRecord",
+      "planCampaign",
+      "runFixtureCampaign",
+      "runHostWorkloads",
+      "summarizeMetric",
+      "validateRunRecord"
+    ],
+    "./browser": [
+      "MAX_IMPORT_BYTES",
+      "campaignOverlap",
+      "collectCapabilities",
+      "importCampaignJson",
+      "importRunJson",
+      "runBrowserProbe"
+    ],
+    "./browser/bootstrap": [],
+    "./audio-frame-tags": [
+      "CONFIG",
+      "NUMERIC_BOUNDS",
+      "NodeRecord",
+      "OperationState",
+      "Role",
+      "WORKLET_SOURCE",
+      "classify",
+      "closeGraph",
+      "countMetadataScalars",
+      "deadlineStep",
+      "decodeNodes",
+      "encodeNodes",
+      "ownedCloseConfirmed",
+      "requireBrowserCommandIdentity"
+    ],
+    "./controller": [
+      "CLARIFICATIONS_SHA256",
+      "ControllerDescriptor",
+      "ControllerEvent",
+      "ControllerFrame",
+      "ControllerMetadata",
+      "ControllerMode",
+      "ControllerRecord",
+      "ControllerRelease",
+      "INVENTORY",
+      "PLAN_SHA256",
+      "PROTOCOL_SHA256",
+      "gradeControllerCohort",
+      "gradeControllerRun"
+    ],
+    "./stage0": [
+      "RENDER_OPTIONS",
+      "SCENE_MANIFEST",
+      "Stage0Frame",
+      "Stage0Metadata",
+      "Stage0Profile",
+      "Stage0Record",
+      "Stage0Release",
+      "createRecord",
+      "gradeCohort",
+      "gradeRun",
+      "initializeSession",
+      "xrPixelProof"
+    ],
+    "./stage1": [
+      "AudioPreparationError",
+      "AudioWindowRecorder",
+      "DUPLEX_AUDIO_CONFIG",
+      "DUPLEX_WORKLET_SOURCE",
+      "DuplexAudioHandle",
+      "DuplexAudioRecord",
+      "PrepareDuplexAudioOptions",
+      "Stage1Metadata",
+      "attachBoundaries",
+      "createStage1",
+      "prepareDuplexAudio"
+    ],
+    "./stage1-witnessed": [
+      "AudioCounters",
+      "PrepareWitnessedAudioOptions",
+      "WITNESSED_AUDIO_CONFIG",
+      "WITNESS_WORKLET_SOURCE",
+      "WitnessCounters",
+      "WitnessRecorder",
+      "WitnessedAudioHandle",
+      "WitnessedAudioPreparationError",
+      "WitnessedAudioRecord",
+      "WitnessedStage1Metadata",
+      "createWitnessedStage1",
+      "prepareWitnessedDuplexAudio"
+    ],
+    "./stage2": [
+      "ReservationAudit",
+      "STAGE2_CONFIG",
+      "STAGE2_PROTOCOL_SHA256",
+      "STAGE2_WORKLET_SOURCE",
+      "Stage2Budget",
+      "Stage2Control",
+      "Stage2Environment",
+      "Stage2Identity",
+      "Stage2Mode",
+      "Stage2Observer",
+      "Stage2OwnerTransfer",
+      "Stage2RunRecord",
+      "Stage2RunRelease",
+      "gradeStage2Run",
+      "runStage2Media"
+    ],
+    "./stage1/grading": [
+      "gradeStage1Cohort",
+      "gradeStage1Run",
+      "normalizeAudioSettings",
+      "parseStage1Record"
+    ],
+    "./stage1-witnessed/grading": [
+      "WitnessedStage1Record",
+      "gradeWitnessedCohort",
+      "gradeWitnessedRun",
+      "parseWitnessedStage1Record"
+    ],
+    "./browser/probes": [
+      "TransportProbeOptions",
+      "startAudioStress",
+      "startCampaignScene",
+      "startTransportProbe"
+    ]
+  }
+}

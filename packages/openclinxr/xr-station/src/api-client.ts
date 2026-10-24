@@ -323,7 +323,7 @@ async function request<TResponse>(
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    const errorCode = isRecord(errorBody) && typeof errorBody.error === "string" ? errorBody.error : "unknown_error";
+    const errorCode = isRecord(errorBody) && typeof errorBody["error"] === "string" ? errorBody["error"] : "unknown_error";
     throw new Error(`OpenClinXR API request failed: POST ${url} ${response.status} ${errorCode}`);
   }
 
@@ -344,7 +344,7 @@ async function get<TResponse>(
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    const errorCode = isRecord(errorBody) && typeof errorBody.error === "string" ? errorBody.error : "unknown_error";
+    const errorCode = isRecord(errorBody) && typeof errorBody["error"] === "string" ? errorBody["error"] : "unknown_error";
     throw new Error(`OpenClinXR API request failed: GET ${url} ${response.status} ${errorCode}`);
   }
 

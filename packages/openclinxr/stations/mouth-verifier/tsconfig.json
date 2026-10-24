@@ -9,7 +9,6 @@
     "types": [
       "node"
     ],
-    "noPropertyAccessFromIndexSignature": false,
     "outDir": "dist"
   },
   "include": [

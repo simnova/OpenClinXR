@@ -255,7 +255,7 @@ export async function evaluate(
     const timeS = frame / track.frameRate;
     fakeContext.currentTime = timeS;
     runtime.syncPreparedActorAudio(timeS * 1000);
-    const drive = scene.root.userData.openClinXrNamedVisemeDrive as
+    const drive = scene.root.userData["openClinXrNamedVisemeDrive"] as
       | { activeTargetName?: unknown; jawOpenRadians?: unknown; appliedMeshCount?: unknown }
       | undefined;
     if (drive?.appliedMeshCount === 0) {

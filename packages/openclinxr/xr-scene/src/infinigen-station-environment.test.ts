@@ -103,7 +103,7 @@ describe("Infinigen station environment by environmentId (#336)", () => {
     const shellFloor = new Mesh(new BoxGeometry(7, 0.08, 3.45), new MeshStandardMaterial());
     shellFloor.name = "openclinxr.station-environment.floor";
     shellFloor.position.set(0, -0.04, -0.775); // ED bay floorZ
-    shell.userData.floorMesh = shellFloor;
+    shell.userData["floorMesh"] = shellFloor;
 
     roomRoot.updateMatrixWorld(true);
     const result = position!(roomRoot, shell) as { floorTopY: number };
@@ -191,7 +191,7 @@ describe("Infinigen room placement against the SHIPPED bake's names (#342)", () 
     const shellFloor = new Mesh(new BoxGeometry(7, 0.08, 3.45), new MeshStandardMaterial());
     shellFloor.name = "openclinxr.station-environment.floor";
     shellFloor.position.set(0, -0.04, -0.775);
-    shell.userData.floorMesh = shellFloor;
+    shell.userData["floorMesh"] = shellFloor;
 
     roomRoot.updateMatrixWorld(true);
     const result = position!(roomRoot, shell);
@@ -221,7 +221,7 @@ describe("Infinigen room placement against the SHIPPED bake's names (#342)", () 
     const stretcher = new Mesh(new BoxGeometry(0.9, 0.9, 1.9), new MeshStandardMaterial());
     stretcher.name = "openclinxr.station-environment.fixture-slot.stretcher";
     shell.add(floor, wall, stretcher);
-    shell.userData.floorMesh = floor;
+    shell.userData["floorMesh"] = floor;
 
     const hidden = hide!(shell);
 
@@ -239,7 +239,7 @@ describe("Infinigen room placement against the SHIPPED bake's names (#342)", () 
     const floor = new Mesh(new BoxGeometry(7, 0.08, 3.45), new MeshStandardMaterial());
     floor.name = "openclinxr.station-environment.floor";
     shell.add(floor);
-    shell.userData.floorMesh = floor;
+    shell.userData["floorMesh"] = floor;
     expect(hide!(shell)).toBe(1);
     expect(floor.visible).toBe(false);
   });
@@ -622,7 +622,7 @@ describe("#342c wall fixtures re-anchor onto the generated room", () => {
 
   it("measures each inner wall face by insetting the hull, not from the AABB", async () => {
     const mod = await load();
-    const measure = mod.measureRoomInteriorPlanes as (r: Group) => Array<{
+    const measure = mod["measureRoomInteriorPlanes"] as (r: Group) => Array<{
       wall: string;
       planeCoordinate: number;
       method: string;
@@ -640,7 +640,7 @@ describe("#342c wall fixtures re-anchor onto the generated room", () => {
 
   it("says aabb_fallback rather than inventing a plane when there is no hull to inset", async () => {
     const mod = await load();
-    const measure = mod.measureRoomInteriorPlanes as (r: Group) => Array<{
+    const measure = mod["measureRoomInteriorPlanes"] as (r: Group) => Array<{
       wall: string;
       method: string;
     }>;
@@ -657,7 +657,7 @@ describe("#342c wall fixtures re-anchor onto the generated room", () => {
 
   it("pulls a board anchored to the 7 m box inside a 5.5 m generated room", async () => {
     const mod = await load();
-    const reanchor = mod.reanchorWallFixturesToRoom as (i: {
+    const reanchor = mod["reanchorWallFixturesToRoom"] as (i: {
       stationEnvironment: Group;
       roomRoot: Group;
     }) => Array<{ slotId: string; movedMeters: number }>;
@@ -666,7 +666,7 @@ describe("#342c wall fixtures re-anchor onto the generated room", () => {
     const shell = buildStationEnvironment({ environmentId: "ed_exam_bay_v1" });
     let board: Mesh | Group | null = null;
     shell.traverse((o) => {
-      if (o.userData?.fixtureSlotId === "wall_board" && o.userData?.isMarkerCube === false) {
+      if (o.userData?.["fixtureSlotId"] === "wall_board" && o.userData?.["isMarkerCube"] === false) {
         board = o as Group;
       }
     });
@@ -688,7 +688,7 @@ describe("#342c wall fixtures re-anchor onto the generated room", () => {
 
   it("leaves fraction-placed furniture and the learner marker where they are", async () => {
     const mod = await load();
-    const reanchor = mod.reanchorWallFixturesToRoom as (i: {
+    const reanchor = mod["reanchorWallFixturesToRoom"] as (i: {
       stationEnvironment: Group;
       roomRoot: Group;
     }) => unknown;
@@ -697,7 +697,7 @@ describe("#342c wall fixtures re-anchor onto the generated room", () => {
     const sample = (id: string): Vector3 | null => {
       let hit: Vector3 | null = null;
       shell.traverse((o) => {
-        if (o.userData?.fixtureSlotId === id) hit = o.position.clone();
+        if (o.userData?.["fixtureSlotId"] === id) hit = o.position.clone();
       });
       return hit;
     };

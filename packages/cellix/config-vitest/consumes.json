@@ -28,6 +28,11 @@
         "name": "defaultTestIncludePatterns",
         "kind": "runtime",
         "via": "own-test"
+      },
+      {
+        "name": "nativeCompilerPath",
+        "kind": "runtime",
+        "via": "own-test"
       }
     ]
   },

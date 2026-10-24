@@ -7,14 +7,23 @@
     "tsconfig.base.json",
     "tsconfig.node.json",
     "tsconfig.vitest.json",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "bin"
   ],
   "exports": {
     "./base": "./tsconfig.base.json",
     "./node": "./tsconfig.node.json",
-    "./vitest": "./tsconfig.vitest.json"
+    "./vitest": "./tsconfig.vitest.json",
+    "./compiler": "./bin/cellix-tsc.cjs"
   },
   "scripts": {
-    "lint": "biome lint --no-errors-on-unmatched ."
+    "lint": "biome lint --no-errors-on-unmatched .",
+    "test": "node --test bin/*.test.cjs"
+  },
+  "bin": {
+    "cellix-tsc": "./bin/cellix-tsc.cjs"
+  },
+  "dependencies": {
+    "typescript-native": "npm:typescript@7.0.2"
   }
 }

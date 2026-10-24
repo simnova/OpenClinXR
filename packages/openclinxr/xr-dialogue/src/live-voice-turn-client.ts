@@ -142,28 +142,28 @@ function collectLiveVoiceTurn(
       } catch {
         return;
       }
-      if (frame.requestId !== undefined && frame.requestId !== requestId) return;
-      const type = String(frame.type ?? "");
+      if (frame["requestId"] !== undefined && frame["requestId"] !== requestId) return;
+      const type = String(frame["type"] ?? "");
       if (type === "audio.chunk") {
-        chunkCount = Number(frame.chunkCount ?? chunkCount);
+        chunkCount = Number(frame["chunkCount"] ?? chunkCount);
         return;
       }
       if (type === "transcript.partial") {
         words.push({
-          word: String(frame.word ?? ""),
-          start: Number(frame.startS ?? 0),
-          end: Number(frame.endS ?? 0),
+          word: String(frame["word"] ?? ""),
+          start: Number(frame["startS"] ?? 0),
+          end: Number(frame["endS"] ?? 0),
         });
         return;
       }
       if (type === "transcript.final") {
-        if (typeof frame.text === "string" && frame.text.length > 0) {
-          transcript = frame.text;
+        if (typeof frame["text"] === "string" && frame["text"].length > 0) {
+          transcript = frame["text"];
         }
         return;
       }
       if (type === "voice.started") {
-        if (typeof frame.chunkCount === "number") chunkCount = frame.chunkCount;
+        if (typeof frame["chunkCount"] === "number") chunkCount = frame["chunkCount"];
         return;
       }
       if (type === "voice.stopped") {
@@ -171,15 +171,15 @@ function collectLiveVoiceTurn(
           audioBytes: concatBytes(chunks),
           sttWords: [...words].sort((a, b) => a.start - b.start),
           transcript,
-          audioSha256: typeof frame.audioSha256 === "string" ? frame.audioSha256 : undefined,
+          audioSha256: typeof frame["audioSha256"] === "string" ? frame["audioSha256"] : undefined,
           chunkCount,
         });
         return;
       }
       if (type === "voice.error") {
         fail(
-          Object.assign(new Error(`live-voice-error:${String(frame.code ?? "voice_replay_failed")}`), {
-            code: String(frame.code ?? "voice_replay_failed"),
+          Object.assign(new Error(`live-voice-error:${String(frame["code"] ?? "voice_replay_failed")}`), {
+            code: String(frame["code"] ?? "voice_replay_failed"),
           }),
         );
       }

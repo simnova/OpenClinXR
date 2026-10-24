@@ -271,7 +271,7 @@ describe("carved FF runtime drive", () => {
       activeSpeech: { phonemeSequence: ["sil"], startedAtMs: 0, durationMs: 4130, bakedCues: cues },
       mediaPositionSeconds: () => mediaS,
     });
-    const tag = root.userData.openClinXrNamedVisemeDrive as
+    const tag = root.userData["openClinXrNamedVisemeDrive"] as
       | { weights?: Record<string, number>; jawFraction?: number }
       | undefined;
     return { weights: { ...(tag?.weights ?? {}) }, jawFraction: tag?.jawFraction ?? NaN };
@@ -301,8 +301,8 @@ describe("carved FF runtime drive", () => {
       // the FF morph is capped at 1-PP so the pair stays bounded.
       // K = 0 (FF_PP_BLEND_K in viseme-lip-dynamics.ts, package-private):
       // PP rides at 0 and FF carries uncapped at 1 through the cue.
-      expect(driven.weights.viseme_PP ?? NaN, `frame ${n} PP`).toBeCloseTo(0, 5);
-      expect(driven.weights.viseme_FF ?? NaN, `frame ${n} FF`).toBeCloseTo(1, 5);
+      expect(driven.weights["viseme_PP"] ?? NaN, `frame ${n} PP`).toBeCloseTo(0, 5);
+      expect(driven.weights["viseme_FF"] ?? NaN, `frame ${n} FF`).toBeCloseTo(1, 5);
       expect(driven.jawFraction, `frame ${n} jaw`).toBe(0);
     }
   });
@@ -311,7 +311,7 @@ describe("carved FF runtime drive", () => {
     let maxFf = 0;
     let maxJaw = 0;
     for (let n = 1; n < series.length; n += 1) {
-      maxFf = Math.max(maxFf, Math.abs((series[n]?.weights.viseme_FF ?? 0) - (series[n - 1]?.weights.viseme_FF ?? 0)));
+      maxFf = Math.max(maxFf, Math.abs((series[n]?.weights["viseme_FF"] ?? 0) - (series[n - 1]?.weights["viseme_FF"] ?? 0)));
       maxJaw = Math.max(maxJaw, Math.abs((series[n]?.jawFraction ?? 0) - (series[n - 1]?.jawFraction ?? 0)));
     }
     expect(maxFf).toBeLessThanOrEqual(0.25);
@@ -351,12 +351,12 @@ const lipCues = [{ phoneme: "aa", atSecond: 0, durationSeconds: 0.2 }, { phoneme
 const lipFrames = lipCues.map((cue) => ({ ...cue, weights: { viseme_aa: cue.phoneme === "aa" ? 1 : 0, viseme_DD: cue.phoneme === "DD" ? 1 : 0, viseme_PP: cue.phoneme === "PP" ? 1 : 0 } }));
 describe("canonical lip follower", () => {
   it("is deterministic", () => {
-    const run = () => Array.from({ length: 30 }, (_, index) => createLipDynamicsSampler(lipCues, lipFrames).sample(index / 60).weights.viseme_aa ?? 0);
+    const run = () => Array.from({ length: 30 }, (_, index) => createLipDynamicsSampler(lipCues, lipFrames).sample(index / 60).weights["viseme_aa"] ?? 0);
     expect(new Uint8Array(new Float64Array(run()).buffer)).toEqual(new Uint8Array(new Float64Array(run()).buffer));
   });
   it("is frame-rate independent within one fixed substep", () => {
     const at30 = createLipDynamicsSampler(lipCues, lipFrames); const at60 = createLipDynamicsSampler(lipCues, lipFrames);
-    for (let frame = 0; frame <= 14; frame += 1) expect(Math.abs((at30.sample(frame / 30).weights.viseme_DD ?? 0) - (at60.sample(frame / 30).weights.viseme_DD ?? 0))).toBeLessThanOrEqual(lipDynamicsConstants.fixedStepS + 1e-9);
+    for (let frame = 0; frame <= 14; frame += 1) expect(Math.abs((at30.sample(frame / 30).weights["viseme_DD"] ?? 0) - (at60.sample(frame / 30).weights["viseme_DD"] ?? 0))).toBeLessThanOrEqual(lipDynamicsConstants.fixedStepS + 1e-9);
   });
   it("leaves PP closure to the envelope layer: the raw follower never snaps", () => {
     // hardClosure still marks a bilabial cue past its midpoint; the applied
@@ -364,8 +364,8 @@ describe("canonical lip follower", () => {
     // raw mid-cue weight stays inside one bounded frame step of its neighbours.
     const at = (timeS: number) => createLipDynamicsSampler(lipCues, lipFrames).sample(timeS);
     expect(at(0.45).hardClosure).toBe(true);
-    expect(at(0.45).weights.viseme_PP ?? NaN).toBeLessThanOrEqual(0.25);
-    const step = Math.abs((at(0.45).weights.viseme_PP ?? 0) - (at(0.45 - 1 / 30).weights.viseme_PP ?? 0));
+    expect(at(0.45).weights["viseme_PP"] ?? NaN).toBeLessThanOrEqual(0.25);
+    const step = Math.abs((at(0.45).weights["viseme_PP"] ?? 0) - (at(0.45 - 1 / 30).weights["viseme_PP"] ?? 0));
     expect(step).toBeLessThanOrEqual(0.25);
   });
   it("has no single-frame weight change above 0.25 at 30 fps, contacts included", () => {
@@ -399,8 +399,8 @@ function contactSampler(phoneme: string, durationS: number, intensity: number) {
 
 describe("contact viseme envelope dynamics", () => {
   it("drives faint and full FF identically through the follower; the envelope sets the peak", () => {
-    const faint = contactSampler("FF", 0.07, 0.05).sample(0.335).weights.viseme_FF ?? NaN;
-    const full = contactSampler("FF", 0.07, 1).sample(0.335).weights.viseme_FF ?? NaN;
+    const faint = contactSampler("FF", 0.07, 0.05).sample(0.335).weights["viseme_FF"] ?? NaN;
+    const full = contactSampler("FF", 0.07, 1).sample(0.335).weights["viseme_FF"] ?? NaN;
     expect(faint).toBe(full);
   });
   // Envelope hold (contactEnvelope = 1 through [s, e], package-private) is
@@ -416,13 +416,13 @@ describe("contact viseme envelope dynamics", () => {
       { phoneme: "E", atSecond: 0.2, durationSeconds: 0.06, intensity: 1 },
       { phoneme: "DD", atSecond: 0.26, durationSeconds: 0.2, intensity: 1 },
     ];
-    expect(createLipDynamicsSampler(cues, stepFrames(cues)).sample(0.23).weights.viseme_E).toBeCloseTo(0.048505, 6);
+    expect(createLipDynamicsSampler(cues, stepFrames(cues)).sample(0.23).weights["viseme_E"]).toBeCloseTo(0.048505, 6);
   });
   it("brings faint short PP onto the envelope within one frame of cue onset", () => {
     // The raw follower stays bounded; the applied peak (>= 0.9 within one
     // frame of onset) is pinned on the prepared path in viseme-runtime-wire.
     const sample = contactSampler("PP", 0.06, 0.09).sample(0.33);
-    expect(sample.weights.viseme_PP ?? NaN).toBeLessThanOrEqual(0.25);
+    expect(sample.weights["viseme_PP"] ?? NaN).toBeLessThanOrEqual(0.25);
     expect(sample.hardClosure).toBe(true);
   });
 });

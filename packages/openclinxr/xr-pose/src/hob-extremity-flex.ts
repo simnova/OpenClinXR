@@ -60,7 +60,7 @@ export function raiseSupineFeetOntoSeat(humanoidRoot: Object3D, deckTopY: number
     thighL: findSupineBone(humanoidRoot, "thighL", "thigh.L"),
     thighR: findSupineBone(humanoidRoot, "thighR", "thigh.R"),
   };
-  humanoidRoot.userData.openClinXrSupineFootBonesFound = Object.fromEntries(
+  humanoidRoot.userData["openClinXrSupineFootBonesFound"] = Object.fromEntries(
     Object.entries(bones).map(([k, v]) => [k, Boolean(v)]),
   );
 
@@ -87,8 +87,8 @@ export function raiseSupineFeetOntoSeat(humanoidRoot: Object3D, deckTopY: number
   let bestSign = -1;
   let bestClear = measureSeatClearanceMeters(humanoidRoot, deckTopY);
   if (bestClear >= -0.04) {
-    humanoidRoot.userData.openClinXrSupineFootFlexRad = 0;
-    humanoidRoot.userData.openClinXrSupineFootFlexDeltas = {};
+    humanoidRoot.userData["openClinXrSupineFootFlexRad"] = 0;
+    humanoidRoot.userData["openClinXrSupineFootFlexDeltas"] = {};
     return 0;
   }
   const probe = 0.2;
@@ -127,7 +127,7 @@ export function raiseSupineFeetOntoSeat(humanoidRoot: Object3D, deckTopY: number
     totalFlex += Math.abs(delta);
     if (after - before < 1e-4) break;
   }
-  humanoidRoot.userData.openClinXrSupineFootFlexDeltas = {
+  humanoidRoot.userData["openClinXrSupineFootFlexDeltas"] = {
     shinL: { axis: bestAxis, delta: shinTotal },
     shinR: { axis: bestAxis, delta: shinTotal },
     thighL: { axis: bestAxis, delta: thighTotal },
@@ -139,14 +139,14 @@ export function raiseSupineFeetOntoSeat(humanoidRoot: Object3D, deckTopY: number
     const delta = name.startsWith("shin") ? shinTotal : thighTotal;
     appliedFootFlex.set(bone, { axis: bestAxis, delta, value: bone.rotation[bestAxis] });
   }
-  humanoidRoot.userData.openClinXrSupineFootFlexRad = totalFlex;
-  humanoidRoot.userData.openClinXrSupineFootFlexAxis = `${bestSign < 0 ? "-" : "+"}${bestAxis}`;
+  humanoidRoot.userData["openClinXrSupineFootFlexRad"] = totalFlex;
+  humanoidRoot.userData["openClinXrSupineFootFlexAxis"] = `${bestSign < 0 ? "-" : "+"}${bestAxis}`;
   return totalFlex;
 }
 
 /** Restore plant-time extremity flex after applySupinePose resets absolute eulers. */
 export function reapplyStoredSupineFootFlex(humanoidRoot: Object3D): void {
-  const stored = humanoidRoot.userData?.openClinXrSupineFootFlexDeltas as
+  const stored = humanoidRoot.userData?.["openClinXrSupineFootFlexDeltas"] as
     | Record<string, { axis: "x" | "y" | "z"; delta: number }>
     | undefined;
   if (!stored) return;

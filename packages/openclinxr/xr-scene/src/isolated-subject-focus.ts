@@ -101,7 +101,7 @@ function deriveEyeFocusBounds(root: Object3D): {
       : [object.material.name];
     const names = [
       object.name,
-      typeof object.userData?.name === "string" ? object.userData.name : "",
+      typeof object.userData?.["name"] === "string" ? object.userData["name"] : "",
       ...materialNames,
     ];
     if (!names.some((n) => EYE_MESH_RE.test(n))) return;
@@ -152,7 +152,7 @@ function deriveHeadFocusBounds(root: Object3D): {
     // GLTFLoader overrides mesh.name with the NODE name and keeps the glTF MESH
     // name on geometry.name — check both layers (same shape as the #354 eye path).
     const isHair = isFittedHairMeshName(object.name)
-      || (typeof object.userData?.name === "string" && isFittedHairMeshName(object.userData.name))
+      || (typeof object.userData?.["name"] === "string" && isFittedHairMeshName(object.userData["name"]))
       || isFittedHairMeshName(object.geometry.name);
     for (let i = 0; i < position.count; i += 1) {
       point.fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld);

@@ -156,8 +156,8 @@ function acceptHttpScenarioBody(body: unknown): LearnerExamScenarioRecord | null
   if (!isRecord(body)) {
     return null;
   }
-  const candidate = isRecord(body.scenario) ? body.scenario : body;
-  if (!isRecord(candidate) || typeof candidate.scenarioId !== "string" || candidate.scenarioId.length === 0) {
+  const candidate = isRecord(body["scenario"]) ? body["scenario"] : body;
+  if (!isRecord(candidate) || typeof candidate["scenarioId"] !== "string" || candidate["scenarioId"].length === 0) {
     return null;
   }
 
@@ -169,9 +169,9 @@ function acceptHttpScenarioBody(body: unknown): LearnerExamScenarioRecord | null
   const keys = Object.keys(candidate);
   const onlyIdentity = keys.every((key) => key === "scenarioId" || key === "status");
   if (onlyIdentity) {
-    const record: LearnerExamScenarioRecord = { scenarioId: candidate.scenarioId };
-    if (typeof candidate.status === "string") {
-      record.status = candidate.status;
+    const record: LearnerExamScenarioRecord = { scenarioId: candidate["scenarioId"] };
+    if (typeof candidate["status"] === "string") {
+      record.status = candidate["status"];
     }
     return record;
   }

@@ -1297,14 +1297,14 @@ const humanoidAnimationContext: PackageHumanoidAnimationRuntimeContext = {
   selectedHumanoidSourceComparator: () => selectedHumanoidSourceComparator(),
   scenarioIdForEvidence: () => encounterRuntimeAssetBundle.scenarioId,
   comparatorScenarioId: (comparator: string) => comparator === "ed_anny_real_garment_patient" ? "ed_chest_pain_priority_v2" : "peds_asthma_parent_anxiety_v1",
-  assetPathForSlot: (slot: PackageGeneratedHumanoidAnimationSlot) => typeof slot.root.userData.openClinXrAssetPath === "string" ? slot.root.userData.openClinXrAssetPath : "",
-  animationPlaybackForSlot: (slot: PackageGeneratedHumanoidAnimationSlot) => typeof slot.root.userData.openClinXrAnimationPlayback === "string" ? slot.root.userData.openClinXrAnimationPlayback : undefined,
+  assetPathForSlot: (slot: PackageGeneratedHumanoidAnimationSlot) => typeof slot.root.userData["openClinXrAssetPath"] === "string" ? slot.root.userData["openClinXrAssetPath"] : "",
+  animationPlaybackForSlot: (slot: PackageGeneratedHumanoidAnimationSlot) => typeof slot.root.userData["openClinXrAnimationPlayback"] === "string" ? slot.root.userData["openClinXrAnimationPlayback"] : undefined,
   morphTargetAppliedTargetCount: (slot: PackageGeneratedHumanoidAnimationSlot) => {
-    const cue = slot.root.userData.openClinXrMorphTargetRuntimeCue as { appliedTargetCount?: number } | undefined;
+    const cue = slot.root.userData["openClinXrMorphTargetRuntimeCue"] as { appliedTargetCount?: number } | undefined;
     return cue?.appliedTargetCount ?? 0;
   },
-  visemeTimelineComparatorEvidencePresent: (slot: PackageGeneratedHumanoidAnimationSlot) => Boolean(slot.root.userData.openClinXrVisemeTimelineComparatorEvidence),
-  emotionTransitionCuePresent: (slot: PackageGeneratedHumanoidAnimationSlot) => Boolean(slot.root.userData.openClinXrEmotionExpressionTransitionCue),
+  visemeTimelineComparatorEvidencePresent: (slot: PackageGeneratedHumanoidAnimationSlot) => Boolean(slot.root.userData["openClinXrVisemeTimelineComparatorEvidence"]),
+  emotionTransitionCuePresent: (slot: PackageGeneratedHumanoidAnimationSlot) => Boolean(slot.root.userData["openClinXrEmotionExpressionTransitionCue"]),
   currentSpeechEvidence: () => window.__openClinXrHumanoidSpeechEvidence ?? undefined,
   recordActingCueEvidence: (actorCues: PackageHumanoidActingCueRecord[]) => {
     window.__openClinXrRuntimeHumanoidActingCueEvidence = {
@@ -1479,7 +1479,7 @@ let conversationHistoryCoverage: HistoryTakingCoverageState = initialHistoryTaki
   }),
 );
 let traceActionHandoffActions: XrTraceActionHandoffAction[] = [];
-const configuredApiBaseUrl = typeof import.meta.env.VITE_OPENCLINXR_API_BASE_URL === "string" ? import.meta.env.VITE_OPENCLINXR_API_BASE_URL : "";
+const configuredApiBaseUrl = typeof import.meta.env["VITE_OPENCLINXR_API_BASE_URL"] === "string" ? import.meta.env["VITE_OPENCLINXR_API_BASE_URL"] : "";
 const stationApi = configuredApiBaseUrl ? createStationApiClient({ baseUrl: configuredApiBaseUrl }) : undefined;
 window.__openClinXrRuntimeSceneManifestEvidence = buildAppRuntimeSceneManifestEvidence(encounterRuntimeAssetBundle);
 let remoteStationRunId: string | undefined;
@@ -1715,7 +1715,7 @@ function refreshStationContextFromRuntimeBundle(): void {
   if (vitalsLabel) vitalsLabel.textContent = selectedStationContext.vitalsEhrRowLabel;
   const vitalsRow = document.querySelector<HTMLElement>("[data-ehr-vitals-charted]");
   if (vitalsRow) {
-    vitalsRow.dataset.ehrVitalsCharted = selectedStationContext.presentedAsChartedVitals ? "true" : "false";
+    vitalsRow.dataset["ehrVitalsCharted"] = selectedStationContext.presentedAsChartedVitals ? "true" : "false";
   }
   const dialogue = document.querySelector<HTMLElement>("#dialogue-line");
   if (dialogue) dialogue.textContent = initialDialogueText;
@@ -2099,7 +2099,7 @@ function completeTraceActionFromInput(
     encounterRuntimeAssetBundle.scenarioId,
   );
   // Clinical-touch already fires case-driven dialogue in handleClinicalTouch; skip generic dialogue overwrite.
-  const skipGenericDialogue = Boolean(payload?.clinicalTouch);
+  const skipGenericDialogue = Boolean(payload?.["clinicalTouch"]);
   const dialogueText = liveTurn?.caption ?? dialogueFor(tag);
   if (!skipGenericDialogue) {
     dialogueLine.textContent = dialogueText;
@@ -2113,8 +2113,8 @@ function completeTraceActionFromInput(
   renderControls();
   updateReadiness();
   const selectLatencyMs = recordTraceSelectLatency(traceSelectStartedAtMs, tag, source);
-  const region = typeof payload?.region === "string" ? payload.region : undefined;
-  const actorIdFromPayload = typeof payload?.actorId === "string" ? payload.actorId : undefined;
+  const region = typeof payload?.["region"] === "string" ? payload["region"] : undefined;
+  const actorIdFromPayload = typeof payload?.["actorId"] === "string" ? payload["actorId"] : undefined;
   traceActionHandoffActions = [
     ...traceActionHandoffActions,
     {
@@ -2365,7 +2365,7 @@ async function recordRemoteTraceAction(
   const atSecond = state.elapsedSecond;
   try {
     const actorId =
-      (typeof payload?.actorId === "string" ? payload.actorId : undefined) ?? actorIdForTraceTag(tag, state.scenarioId);
+      (typeof payload?.["actorId"] === "string" ? payload["actorId"] : undefined) ?? actorIdForTraceTag(tag, state.scenarioId);
     await stationApi.recordTraceAction(remoteStationRunId, {
       eventType: eventTypeForTraceTag(tag),
       atSecond,
@@ -2374,10 +2374,10 @@ async function recordRemoteTraceAction(
       ...(payload
         ? {
             payload: {
-              region: payload.region,
-              responseKind: payload.responseKind,
-              dialogueLine: payload.dialogueLine,
-              notEvidenceFor: payload.notEvidenceFor,
+              region: payload["region"],
+              responseKind: payload["responseKind"],
+              dialogueLine: payload["dialogueLine"],
+              notEvidenceFor: payload["notEvidenceFor"],
             },
           }
         : {}),
@@ -2865,7 +2865,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   window.__openClinXrDebugScene = scene;
   setComparatorCaptureSceneRoot(scene);
   scene.background = new Color(doorwayTheme.backgroundColor);
-  scene.userData.openClinXrEncounterDoorwayTheme = {
+  scene.userData["openClinXrEncounterDoorwayTheme"] = {
     scenarioId: encounterRuntimeAssetBundle.scenarioId,
     backgroundColor: doorwayTheme.backgroundColor,
     floorColor: doorwayTheme.floorColor,
@@ -2897,55 +2897,55 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   if (faceDetailCapture) {
     camera.position.set(-0.72, 1.54, 3.25);
     camera.lookAt(-0.72, 1.44, -0.12);
-    camera.userData.openClinXrCameraFraming = "runtime_patient_humanoid_face_lip_eye_detail_capture";
+    camera.userData["openClinXrCameraFraming"] = "runtime_patient_humanoid_face_lip_eye_detail_capture";
   } else if (generatedSceneOverviewCapture) {
     camera.position.set(0.18, 1.32, 4.35);
     camera.lookAt(0.02, 1.02, -0.08);
-    camera.userData.openClinXrCameraFraming = "generated_scene_overview_multi_actor_dynamic_encounter_capture_clinical_focus";
+    camera.userData["openClinXrCameraFraming"] = "generated_scene_overview_multi_actor_dynamic_encounter_capture_clinical_focus";
   } else if (cleanHumanoidSourceComparatorCapture) {
     if (selectedHumanoidSourceComparator() === "peds_anny_mpfb2_eye_rig_patient") {
       camera.fov = 58;
       camera.position.set(-0.88, 0.72, 3.55);
       camera.lookAt(-0.88, 0.02, 0.12);
-      camera.userData.openClinXrCameraFraming = "clean_peds_anny_mpfb2_source_comparator_full_body_candidate_capture";
+      camera.userData["openClinXrCameraFraming"] = "clean_peds_anny_mpfb2_source_comparator_full_body_candidate_capture";
     } else if (selectedHumanoidSourceComparator() === "peds_anny_real_garment_patient") {
       camera.fov = 48;
       camera.position.set(-0.08, 0.86, 3.45);
       camera.lookAt(-0.08, 0.82, -0.96);
-      camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_source_comparator_full_body_candidate_capture";
+      camera.userData["openClinXrCameraFraming"] = "clean_peds_anny_real_garment_source_comparator_full_body_candidate_capture";
     } else if (selectedHumanoidSourceComparator() === "peds_anny_real_garment_parent") {
       // bindfix re-capture: center primary humanoid (x≈0) closer so torso/sleeve cyan fills frame (≥100kB PNG)
       camera.fov = 42;
       camera.position.set(0.0, 1.05, 2.55);
       camera.lookAt(0.0, 0.95, 0.0);
-      camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_parent_source_comparator_full_body_candidate_capture";
+      camera.userData["openClinXrCameraFraming"] = "clean_peds_anny_real_garment_parent_source_comparator_full_body_candidate_capture";
     } else if (selectedHumanoidSourceComparator() === "peds_anny_real_garment_nurse") {
       // bindfix re-capture: same patient-primary centering for nurse scrub sleeveDeform volume
       camera.fov = 42;
       camera.position.set(0.0, 1.05, 2.55);
       camera.lookAt(0.0, 0.95, 0.0);
-      camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_nurse_source_comparator_full_body_candidate_capture";
+      camera.userData["openClinXrCameraFraming"] = "clean_peds_anny_real_garment_nurse_source_comparator_full_body_candidate_capture";
     } else if (selectedHumanoidSourceComparator() === "ed_anny_real_garment_patient") {
       applyEdBayVisibleComparatorCameraPose(camera, selectedHumanoidSourceComparator());
     } else {
       camera.fov = 48;
       camera.position.set(-0.08, 0.86, 3.45);
       camera.lookAt(-0.08, 0.82, -0.96);
-      camera.userData.openClinXrCameraFraming = "clean_humanoid_source_comparator_full_body_candidate_capture";
+      camera.userData["openClinXrCameraFraming"] = "clean_humanoid_source_comparator_full_body_candidate_capture";
     }
   } else if (actorPoseReviewCapture) {
     camera.position.set(-0.12, 1.22, 4.05);
     camera.lookAt(-0.18, 1.05, -0.18);
-    camera.userData.openClinXrCameraFraming = "actor_pose_review_full_body_deoccluded_capture";
+    camera.userData["openClinXrCameraFraming"] = "actor_pose_review_full_body_deoccluded_capture";
   } else if (actorCloseCapture) {
     camera.position.set(-0.08, 1.36, 3.18);
     camera.lookAt(0, 1.12, -0.24);
-    camera.userData.openClinXrCameraFraming = "actor_close_realism_review_face_torso_posture_capture";
+    camera.userData["openClinXrCameraFraming"] = "actor_close_realism_review_face_torso_posture_capture";
   } else {
     camera.fov = 55;
     camera.position.set(0, 1.48, 5.35);
     camera.lookAt(0, 1.04, -0.18);
-    camera.userData.openClinXrCameraFraming = "wide_clean_dynamic_encounter_room_review_three_actor_context";
+    camera.userData["openClinXrCameraFraming"] = "wide_clean_dynamic_encounter_room_review_three_actor_context";
     usesAuthoredWideDefaultFraming = true;
   }
   locomotionRig.add(camera);
@@ -2991,11 +2991,11 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   const stagedScene = assembleStationScene(scene).room(() => stationRoomResult);
   // Store references for later use (e.g., gltfEnvContainer for glTF loading, reusableExteriorAnteroom for scenario panel)
   const fixturesAssembly = stagedScene.fixtures(() => {
-  scene.userData.openClinXrStationEnvironment = {
+  scene.userData["openClinXrStationEnvironment"] = {
     environmentId: resolveActiveEnvironmentId(),
-    floorColor: stationEnvironment.userData.floorColor,
-    roomDepthMeters: stationEnvironment.userData.roomDepthMeters,
-    environmentFallbackActive: stationEnvironment.userData.environmentFallbackActive,
+    floorColor: stationEnvironment.userData["floorColor"],
+    roomDepthMeters: stationEnvironment.userData["roomDepthMeters"],
+    environmentFallbackActive: stationEnvironment.userData["environmentFallbackActive"],
   };
   window.__openClinXrGltfEnvContainer = gltfEnvContainer;
   // Store reusable exterior anteroom for scenario panel
@@ -3019,15 +3019,15 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   )) {
     if (selectedScenarioRuntimeMismatch) {
       prop.visible = false;
-      prop.userData.openClinXrDynamicScenePolicy = "hidden_because_selected_scenario_specific_3d_bundle_missing";
+      prop.userData["openClinXrDynamicScenePolicy"] = "hidden_because_selected_scenario_specific_3d_bundle_missing";
     } else if (hideRoomForCleanCapture || actorPoseReviewCapture) {
       prop.visible = false;
-      prop.userData.openClinXrCaptureDeclutterPolicy = hideRoomForCleanCapture
+      prop.userData["openClinXrCaptureDeclutterPolicy"] = hideRoomForCleanCapture
         ? "hidden_for_clean_humanoid_source_comparator_capture"
         : "hidden_for_actor_pose_review_only";
     } else if (encounterRuntimeAssetBundle.scenarioId === "ob_headache_preeclampsia_triage_v1") {
       prop.visible = false;
-      prop.userData.openClinXrObVisualReviewPolicy = "hidden_when_ob_specific_set_dressing_supplies_required_context_without_generic_prop_artifacts";
+      prop.userData["openClinXrObVisualReviewPolicy"] = "hidden_when_ob_specific_set_dressing_supplies_required_context_without_generic_prop_artifacts";
     }
     scene.add(prop);
   }
@@ -3051,11 +3051,11 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     slot.visible = !selectedScenarioRuntimeMismatch;
     if (hideRoomForCleanCapture) {
       slot.visible = false;
-      slot.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+      slot.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_for_clean_humanoid_source_comparator_capture";
     }
-    slot.userData.openClinXrRuntimeEquipmentPlacementCueIds = item.interactionCueIds;
-    slot.userData.openClinXrDynamicEncounterEquipmentSlot = "manifest_declared_equipment_mount";
-    slot.userData.openClinXrEquipmentDeclared = item.declared;
+    slot.userData["openClinXrRuntimeEquipmentPlacementCueIds"] = item.interactionCueIds;
+    slot.userData["openClinXrDynamicEncounterEquipmentSlot"] = "manifest_declared_equipment_mount";
+    slot.userData["openClinXrEquipmentDeclared"] = item.declared;
     // #223: roomProp ids that alias to this builder (telehealth-tablet-stand → tablet_visit…)
     // so declared-equipment inspectors match the prop declaration without dual geometry.
     stampRoomPropAliasesOnEquipmentRoot(slot, item.equipmentId);
@@ -3143,19 +3143,19 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   clockMesh.position.set(0.9, 3.35, -1.2);
   if (cleanHumanoidSourceComparatorCapture) {
     clockMesh.visible = false;
-    clockMesh.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    clockMesh.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (!shouldShowPrimitiveAssetFallbacks()) {
     clockMesh.visible = false;
-    clockMesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_fallback_debug_capture";
+    clockMesh.userData["openClinXrDynamicScenePolicy"] = "hidden_in_generated_encounter_scene_unless_fallback_debug_capture";
   }
   scene.add(clockMesh);
   const clinicalPanel = createClinicalPanel();
   if (cleanHumanoidSourceComparatorCapture) {
     clinicalPanel.mesh.visible = false;
-    clinicalPanel.mesh.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    clinicalPanel.mesh.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (!shouldShowInSceneEvidencePanels()) {
     clinicalPanel.mesh.visible = false;
-    clinicalPanel.mesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
+    clinicalPanel.mesh.userData["openClinXrDynamicScenePolicy"] = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
   }
   scene.add(clinicalPanel.mesh);
   const dialoguePanel = createReadableVrTextPanel({
@@ -3171,10 +3171,10 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   dialoguePanel.mesh.rotation.y = -0.28;
   if (cleanHumanoidSourceComparatorCapture) {
     dialoguePanel.mesh.visible = false;
-    dialoguePanel.mesh.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    dialoguePanel.mesh.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (!shouldShowInSceneEvidencePanels()) {
     dialoguePanel.mesh.visible = false;
-    dialoguePanel.mesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
+    dialoguePanel.mesh.userData["openClinXrDynamicScenePolicy"] = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
   }
   scene.add(dialoguePanel.mesh);
   const actorRealismPanel = createReadableVrTextPanel({
@@ -3188,11 +3188,11 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   });
   actorRealismPanel.mesh.position.set(-1.1, 2.38, -1.34);
   actorRealismPanel.mesh.rotation.y = 0.2;
-  actorRealismPanel.mesh.userData.openClinXrCaseDefinitionRuntimeRequirementPanel =
+  actorRealismPanel.mesh.userData["openClinXrCaseDefinitionRuntimeRequirementPanel"] =
     "active_dialogue_actor_realism_requirements_visible_for_adversarial_review";
   if (!shouldShowActorRealismRequirementPanel()) {
     actorRealismPanel.mesh.visible = false;
-    actorRealismPanel.mesh.userData.openClinXrDynamicScenePolicy = "active_actor_realism_panel_hidden_until_trace_selected";
+    actorRealismPanel.mesh.userData["openClinXrDynamicScenePolicy"] = "active_actor_realism_panel_hidden_until_trace_selected";
   }
   scene.add(actorRealismPanel.mesh);
   const inputPanel = createReadableVrTextPanel({
@@ -3212,10 +3212,10 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   inputPanel.mesh.rotation.y = -0.42;
   if (cleanHumanoidSourceComparatorCapture) {
     inputPanel.mesh.visible = false;
-    inputPanel.mesh.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    inputPanel.mesh.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (!shouldShowInSceneEvidencePanels()) {
     inputPanel.mesh.visible = false;
-    inputPanel.mesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
+    inputPanel.mesh.userData["openClinXrDynamicScenePolicy"] = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
   }
   if (actorCloseCapture) {
     clinicalPanel.mesh.position.set(-2.05, 2.86, -1.72);
@@ -3224,10 +3224,10 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     dialoguePanel.mesh.scale.setScalar(0.72);
     actorRealismPanel.mesh.position.set(-1.62, 0.92, -1.24);
     actorRealismPanel.mesh.scale.setScalar(0.62);
-    actorRealismPanel.mesh.userData.openClinXrCaptureDeclutterPolicy = "actor_close_realism_review_panel_scaled_away_from_face_torso";
+    actorRealismPanel.mesh.userData["openClinXrCaptureDeclutterPolicy"] = "actor_close_realism_review_panel_scaled_away_from_face_torso";
     inputPanel.mesh.position.set(1.95, 0.92, -1.26);
     inputPanel.mesh.scale.setScalar(0.62);
-    inputPanel.mesh.userData.openClinXrCaptureDeclutterPolicy = "actor_close_realism_review_panels_scaled_away_from_face_torso";
+    inputPanel.mesh.userData["openClinXrCaptureDeclutterPolicy"] = "actor_close_realism_review_panels_scaled_away_from_face_torso";
   }
   scene.add(inputPanel.mesh);
   // Conversation / history-taking HUD (deterministic local policy; traced domains, not scored).
@@ -3243,14 +3243,14 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   });
   conversationPanel.mesh.position.set(-1.55, 1.28, -1.12);
   conversationPanel.mesh.rotation.y = 0.38;
-  conversationPanel.mesh.userData.openClinXrConversationToolingPanel =
+  conversationPanel.mesh.userData["openClinXrConversationToolingPanel"] =
     "turn_taking_history_coverage_barge_in_hud_traced_not_scored";
   if (cleanHumanoidSourceComparatorCapture) {
     conversationPanel.mesh.visible = false;
-    conversationPanel.mesh.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    conversationPanel.mesh.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (!shouldShowInSceneEvidencePanels()) {
     conversationPanel.mesh.visible = false;
-    conversationPanel.mesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
+    conversationPanel.mesh.userData["openClinXrDynamicScenePolicy"] = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
   }
   scene.add(conversationPanel.mesh);
   return { clinicalPanel, dialoguePanel, actorRealismPanel, inputPanel, conversationPanel };
@@ -3349,9 +3349,9 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     locomotionRig.updateMatrixWorld(true);
     locomotionRig.worldToLocal(camera.position);
     camera.lookAt(derived.lookAt);
-    camera.userData.openClinXrCameraFraming =
+    camera.userData["openClinXrCameraFraming"] =
       "product_default_interior_view_derived_from_generated_room_and_actor_bounds";
-    camera.userData.openClinXrInteriorPreviewCamera = {
+    camera.userData["openClinXrInteriorPreviewCamera"] = {
       eyeWorld: [derived.eye.x, derived.eye.y, derived.eye.z],
       lookAtWorld: [derived.lookAt.x, derived.lookAt.y, derived.lookAt.z],
       interiorMin: [derived.interiorMin.x, derived.interiorMin.y, derived.interiorMin.z],
@@ -3489,10 +3489,10 @@ async function createStationScene(): Promise<StationSceneRuntime> {
           placements: encounterRuntimeAssetBundle.sceneManifest.actorPlacements ?? {}, runId: remoteStationRunId ?? "local_station_run", animationSlot: generatedHumanoidAnimationSlotsByActorId.get(runtimeWalkingActorId()),
           // `!== false`: an ABSENT slot is not a revoked one, and `?? false` collapsed the two. Measured
           // in a browser: the walk stopped with "support acceptance was lost" when the room GLB landed.
-          supportAccepted: generatedHumanoidActorSlotsByActorId.get(runtimePatientActorId())?.userData?.openClinXrPlacementAccepted !== false,
+          supportAccepted: generatedHumanoidActorSlotsByActorId.get(runtimePatientActorId())?.userData?.["openClinXrPlacementAccepted"] !== false,
         }, { nowMs: now, deltaSeconds }) : null;
-      floor.userData.genDrive = approachFrame ? { actorId: runtimeWalkingActorId() /* HumanoidRuntimeDrive.actorId */, locomotion: approachFrame.locomotion, locomotionTimeScaleFactor: approachFrame.locomotionTimeScaleFactor, locomotionLegWeight: approachFrame.locomotionLegWeight, driveSource: approachFrame.driveSource } : floor.userData.genDrive;
-      const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
+      floor.userData["genDrive"] = approachFrame ? { actorId: runtimeWalkingActorId() /* HumanoidRuntimeDrive.actorId */, locomotion: approachFrame.locomotion, locomotionTimeScaleFactor: approachFrame.locomotionTimeScaleFactor, locomotionLegWeight: approachFrame.locomotionLegWeight, driveSource: approachFrame.driveSource } : floor.userData["genDrive"];
+      const floorDrive = floor.userData["genDrive"] ?? floor.userData["pedsRuntimeDrive"];
       const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);
       updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid, bundleLocomotionOrders());
       applyStationBedsideStanceLock(caseOwnedBedsideApproach, deltaSeconds); // AFTER the pose: a lock reading last frame's pose cancels nothing.
@@ -3814,11 +3814,11 @@ function addScenarioExpectationPanel(scene: Scene, stationContext: ReturnType<ty
   });
   scenarioPanel.mesh.position.set(-1.08, 1.72, -1.46);
   scenarioPanel.mesh.rotation.y = 0.12;
-  scenarioPanel.mesh.userData.openClinXrMultimodalReviewCue =
+  scenarioPanel.mesh.userData["openClinXrMultimodalReviewCue"] =
     "scenario_expectations_visible_inside_3d_scene_for_adversarial_visual_comparison";
   // Review affordance belongs to the reusable pre-encounter volume, not the learner exam volume;
   // the portal hider hides it on entry by this group-membership marker, not its name (#468).
-  scenarioPanel.mesh.userData.openClinXrPortalInteriorReviewAffordance = true;
+  scenarioPanel.mesh.userData["openClinXrPortalInteriorReviewAffordance"] = true;
   if (reusableExteriorAnteroom) {
     reusableExteriorAnteroom.add(scenarioPanel.mesh);
   } else {
@@ -3897,16 +3897,16 @@ function addControllerAffordances(
     controller.add(ray);
     if (hideControllersForCleanCapture) {
       controller.visible = false;
-      controller.userData.openClinXrComparatorVisibilityPolicy = "hidden_xr_controller_for_clean_humanoid_garment_capture";
+      controller.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_xr_controller_for_clean_humanoid_garment_capture";
     }
     scene.add(controller);
     const controllerGrip = renderer.xr.getControllerGrip(index);
-    controllerGrip.userData.openClinXrIwsdkStableObjectName = gripNames[index] ?? null;
+    controllerGrip.userData["openClinXrIwsdkStableObjectName"] = gripNames[index] ?? null;
     controllerGrip.name = `${runtimeSceneObjectPrefix()}.controller-grip-${index + 1}`;
     controllerGrip.add(controllerModelFactory.createControllerModel(controllerGrip));
     if (hideControllersForCleanCapture) {
       controllerGrip.visible = false;
-      controllerGrip.userData.openClinXrComparatorVisibilityPolicy = "hidden_xr_controller_grip_for_clean_humanoid_garment_capture";
+      controllerGrip.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_xr_controller_grip_for_clean_humanoid_garment_capture";
     }
     scene.add(controllerGrip);
   }
@@ -3937,7 +3937,7 @@ function addHandModels(renderer: WebGLRenderer, scene: Scene, input: {
     hand.addEventListener("connected", (event) => {
       const data = "data" in event ? event.data as { handedness?: string } : undefined;
       if (data?.handedness) {
-        hand.userData.openClinXrHandedness = data.handedness;
+        hand.userData["openClinXrHandedness"] = data.handedness;
       }
     });
     const meshHandModel = handModelFactory.createHandModel(hand, meshHandModelProfile);
@@ -4048,7 +4048,7 @@ function registerClinicalTouchRegions(actorId: string, humanoid: Group, response
   if (responses.length === 0) return;
   const group = new Group();
   group.name = `${runtimeSceneObjectPrefix()}.clinical-touch-regions.${actorId}`;
-  group.userData.openClinXrClinicalTouchRegionHost = "examinee_touch_hit_targets_invisible_raycastable";
+  group.userData["openClinXrClinicalTouchRegionHost"] = "examinee_touch_hit_targets_invisible_raycastable";
   for (const cfg of responses) {
     // Touch-response routing: a guarding touch resolves its clip FROM THE REGION, so six distinct
     // regions cannot collapse onto one produced RLQ clip the way shipped rows once did. The row's
@@ -4065,9 +4065,9 @@ function registerClinicalTouchRegions(actorId: string, humanoid: Group, response
     box.position.set(layout.x, layout.y, layout.z);
     box.visible = true; // must stay visible to be raycastable; invisible via opacity 0
     box.frustumCulled = false;
-    box.userData.openClinXrTouchRegionId = cfg.region;
-    box.userData.openClinXrTouchRegionActorId = actorId;
-    box.userData.openClinXrTouchRegionResponseKind = cfg.responseKind;
+    box.userData["openClinXrTouchRegionId"] = cfg.region;
+    box.userData["openClinXrTouchRegionActorId"] = actorId;
+    box.userData["openClinXrTouchRegionResponseKind"] = cfg.responseKind;
     group.add(box);
     clinicalTouchRegionTargets.push(box);
     clinicalTouchConfigByActorRegion.set(`${actorId}:${cfg.region}`, { actorId, config });
@@ -4084,8 +4084,8 @@ function resolveClinicalTouchTarget(): { actorId: string; regionId: string } | n
   if (clinicalTouchRegionTargets.length === 0) return null;
   const hit = clinicalTouchRaycaster.intersectObjects(clinicalTouchRegionTargets, false)[0];
   if (!hit) return null;
-  const regionId = hit.object.userData.openClinXrTouchRegionId as string | undefined;
-  const actorId = hit.object.userData.openClinXrTouchRegionActorId as string | undefined;
+  const regionId = hit.object.userData["openClinXrTouchRegionId"] as string | undefined;
+  const actorId = hit.object.userData["openClinXrTouchRegionActorId"] as string | undefined;
   if (!regionId || !actorId) return null;
   return { actorId, regionId };
 }
@@ -4129,7 +4129,7 @@ function tryClinicalTouchFromHandPose(
   source: OpenClinXrTraceLatencyEvidence["source"],
 ): boolean {
   const hand = renderer.xr.getHand(1) as PackageXrHandGroup;
-  const wrist = hand?.joints?.wrist;
+  const wrist = hand?.joints?.["wrist"];
   const indexTip = hand?.joints?.["index-finger-tip"];
   if (!wrist?.visible || !indexTip?.visible) return false;
   wrist.updateWorldMatrix(true, false);
@@ -4346,7 +4346,7 @@ function gazeProbeAnimationClipNamesFromGltf(animationClips: unknown[]): string[
 }
 function seatedRoleClipAutoLoopActive(humanoidRoot: Object3D, actorId: string): boolean {
   void actorId;
-  const carveout = humanoidRoot.userData.openClinXrSeatedRoleClipCarveout as
+  const carveout = humanoidRoot.userData["openClinXrSeatedRoleClipCarveout"] as
     | { admitted?: boolean }
     | undefined;
   return carveout?.admitted === true;

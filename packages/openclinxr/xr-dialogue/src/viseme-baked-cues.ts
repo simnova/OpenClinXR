@@ -210,7 +210,7 @@ export function attachBakedCuesToSpeech(
     requested.durationMs = bakedCuesDurationMs(loaded.cues);
     const rootUserData = slot.root.userData ?? {};
     slot.root.userData = rootUserData;
-    rootUserData.openClinXrBakedVisemeTimeline = {
+    rootUserData["openClinXrBakedVisemeTimeline"] = {
       scenarioId,
       utteranceId: loaded.utteranceId,
       cueCount: loaded.cues.length,
@@ -304,7 +304,7 @@ function attachRecachedCuesToSpeech(slot: BakedSpeechSlotLike, recachedCues: rea
   requested.durationMs = bakedCuesDurationMs(cues);
   const rootUserData = slot.root.userData ?? {};
   slot.root.userData = rootUserData;
-  rootUserData.openClinXrRecachedVisemeTimeline = {
+  rootUserData["openClinXrRecachedVisemeTimeline"] = {
     cueCount: cues.length,
     durationMs: requested.durationMs,
     speechStartedAtMs: requested.startedAtMs,

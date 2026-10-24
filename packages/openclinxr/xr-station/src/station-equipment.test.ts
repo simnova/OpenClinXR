@@ -70,7 +70,7 @@ describe("gltf equipment hybrid stand mount (#260)", () => {
     // stand (MADR 0050 step 10) and mounts the body's base on the stand top.
     const slot = new Group();
     slot.position.set(0.95, 0, 0.98);
-    slot.userData.openClinXrEquipmentId = "bedside_monitor_equipment";
+    slot.userData["openClinXrEquipmentId"] = "bedside_monitor_equipment";
 
     const equipment = new Group();
     const box = new Mesh(new BoxGeometry(1, 0.8, 1)); // object-centered: local y∈[-0.4, +0.4]
@@ -106,7 +106,7 @@ describe("gltf equipment hybrid stand mount (#260)", () => {
     // Elevated placement (wall-clock convention): origin-centered, no stand added.
     const elevatedSlot = new Group();
     elevatedSlot.position.set(-2.4, 1.55, -1.15);
-    elevatedSlot.userData.openClinXrEquipmentId = "bedside_monitor_equipment";
+    elevatedSlot.userData["openClinXrEquipmentId"] = "bedside_monitor_equipment";
     const elevatedEquipment = new Group();
     const elevatedBox = new Mesh(new BoxGeometry(1, 0.8, 1));
     elevatedEquipment.add(elevatedBox);
@@ -119,7 +119,7 @@ describe("gltf equipment hybrid stand mount (#260)", () => {
     // Floor placement of an id WITHOUT a stand (ECG cart): grounding unchanged.
     const plainSlot = new Group();
     plainSlot.position.set(0, 0, 0);
-    plainSlot.userData.openClinXrEquipmentId = "ecg_cart_equipment";
+    plainSlot.userData["openClinXrEquipmentId"] = "ecg_cart_equipment";
     const plainEquipment = new Group();
     const plainBox = new Mesh(new BoxGeometry(1, 0.8, 1));
     plainEquipment.add(plainBox);
@@ -144,7 +144,7 @@ describe("gltf equipment footprint fit (#266 / #268)", () => {
     // deviation. Uniform fit: 0.22 on every axis, aspect 1.25 before and after.
     const slot = new Group();
     slot.position.set(0.95, 0, 0.98);
-    slot.userData.openClinXrEquipmentId = "bedside_monitor_equipment";
+    slot.userData["openClinXrEquipmentId"] = "bedside_monitor_equipment";
 
     const equipment = new Group();
     const box = new Mesh(new BoxGeometry(1, 0.8, 1)); // unit-normalized x/z span 1.0
@@ -165,7 +165,7 @@ describe("gltf equipment footprint fit (#266 / #268)", () => {
     const worldH = 0.8 * box.matrixWorld.elements[5];
     expect(worldW / worldH).toBeCloseTo(1.0 / 0.8, 5);
     // The #268 fit userData records a single scale factor, not per-axis ones.
-    const fit = equipment.userData.openClinXrEquipmentFootprintFit as
+    const fit = equipment.userData["openClinXrEquipmentFootprintFit"] as
       { scale?: number; scaleX?: number; scaleZ?: number };
     expect(fit.scale).toBeCloseTo(UNIFORM, 3);
     expect(fit.scaleX).toBeUndefined();
@@ -182,7 +182,7 @@ describe("gltf equipment footprint fit (#266 / #268)", () => {
   it("leaves the elevated wall-clock control untouched (no footprint to fit)", () => {
     const slot = new Group();
     slot.position.set(-2.4, 1.55, -1.15);
-    slot.userData.openClinXrEquipmentId = "wall_clock_equipment";
+    slot.userData["openClinXrEquipmentId"] = "wall_clock_equipment";
 
     const equipment = new Group();
     const box = new Mesh(new BoxGeometry(1, 0.8, 1));
@@ -200,7 +200,7 @@ describe("gltf equipment footprint fit (#266 / #268)", () => {
   it("leaves ids without a dedicated composite envelope untouched (ED bay library GLBs)", () => {
     const slot = new Group();
     slot.position.set(0, 0, 0);
-    slot.userData.openClinXrEquipmentId = "ecg_cart_equipment";
+    slot.userData["openClinXrEquipmentId"] = "ecg_cart_equipment";
 
     const equipment = new Group();
     const box = new Mesh(new BoxGeometry(1, 0.8, 1));
@@ -219,7 +219,7 @@ describe("gltf equipment footprint fit (#266 / #268)", () => {
     // A GLB already within its envelope must be left alone (shrink-only fit).
     const slot = new Group();
     slot.position.set(0.95, 0, 0.98);
-    slot.userData.openClinXrEquipmentId = "bedside_monitor_equipment";
+    slot.userData["openClinXrEquipmentId"] = "bedside_monitor_equipment";
 
     const equipment = new Group();
     const box = new Mesh(new BoxGeometry(0.2, 0.8, 0.1)); // already within 0.38×0.22
@@ -247,7 +247,7 @@ describe("gltf equipment footprint fit (#266 / #268)", () => {
 
 describe("wall clock TRELLIS equipment wiring (#244)", () => {
   it("declares wall_clock_equipment in the real equipment GLB library", () => {
-    expect(REAL_EQUIPMENT_GLTF_BY_ID.wall_clock_equipment).toBe("wall-clock-analog.glb");
+    expect(REAL_EQUIPMENT_GLTF_BY_ID["wall_clock_equipment"]).toBe("wall-clock-analog.glb");
   });
 
   it("resolves wall_clock_equipment with source gltf, not parametric", () => {
@@ -268,7 +268,7 @@ describe("wall clock TRELLIS equipment wiring (#244)", () => {
 
 describe("bedside monitor TRELLIS equipment wiring (#253)", () => {
   it("declares bedside_monitor_equipment in the real equipment GLB library", () => {
-    expect(REAL_EQUIPMENT_GLTF_BY_ID.bedside_monitor_equipment).toBe("bedside-monitor-generated.glb");
+    expect(REAL_EQUIPMENT_GLTF_BY_ID["bedside_monitor_equipment"]).toBe("bedside-monitor-generated.glb");
   });
 
   it("resolves bedside_monitor_equipment with source gltf, not parametric", () => {
@@ -289,10 +289,10 @@ describe("bedside monitor TRELLIS equipment wiring (#253)", () => {
 
 describe("Sketchfab CC-BY bank support-surface wiring (2026-08-12)", () => {
   it("declares hospital_bed, stretcher, exam_table, privacy_curtain in REAL_EQUIPMENT_GLTF_BY_ID", () => {
-    expect(REAL_EQUIPMENT_GLTF_BY_ID.hospital_bed_equipment).toBe("hospital-bed-sketchfab-ccby.glb");
-    expect(REAL_EQUIPMENT_GLTF_BY_ID.stretcher_equipment).toBe("stretcher-sketchfab-ccby.glb");
-    expect(REAL_EQUIPMENT_GLTF_BY_ID.exam_table_equipment).toBe("exam-table-sketchfab-ccby.glb");
-    expect(REAL_EQUIPMENT_GLTF_BY_ID.privacy_curtain_equipment).toBe(
+    expect(REAL_EQUIPMENT_GLTF_BY_ID["hospital_bed_equipment"]).toBe("hospital-bed-sketchfab-ccby.glb");
+    expect(REAL_EQUIPMENT_GLTF_BY_ID["stretcher_equipment"]).toBe("stretcher-sketchfab-ccby.glb");
+    expect(REAL_EQUIPMENT_GLTF_BY_ID["exam_table_equipment"]).toBe("exam-table-sketchfab-ccby.glb");
+    expect(REAL_EQUIPMENT_GLTF_BY_ID["privacy_curtain_equipment"]).toBe(
       "privacy-curtain-monitor-sketchfab-ccby.glb",
     );
   });

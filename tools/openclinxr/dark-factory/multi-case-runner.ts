@@ -56,9 +56,6 @@ import {
   type AssetLoadingContext,
 } from "@openclinxr/xr-asset-loading";
 import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
-import {
-  writeDeterministicLipSyncWav,
-} from "../../../packages/openclinxr/factory-stations/src/lip_sync/fixture-wav.js";
 import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { generatedActorPlacement } from "../../../packages/openclinxr/asset-registry/src/actor-placement.js";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
@@ -74,6 +71,7 @@ import {
 import { captureStationEnvironmentRooms } from "../evidence/ui-xr-environment-room-capture.js";
 import { classifyRenderCapture } from "./render-capture-classification.js";
 import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "../evidence/lib/portless-server.js";
+import { runBlenderExec } from "./process-helpers.js";
 import {
   compileEncounterMaterialization,
   type CompilePlanNode,
@@ -314,12 +312,14 @@ export type RunCaseChainOptions = {
   evidenceDir?: string;
   /** Shared portless dev-server URL for the render station (one server per batch). */
   renderServerUrl?: string;
+  signal?: AbortSignal;
 };
 
 export type RunMultiCaseChainOptions = {
   evidenceDir?: string;
   /** Override the population enumeration (defaults to shipped bundles). */
   population?: string[];
+  signal?: AbortSignal;
 };
 
 /** IMPLEMENTATION lines (same adopted implementation #286 recorded). */
@@ -389,11 +389,8 @@ export async function enumerateCasePopulation(repoRoot: string = REPO_ROOT): Pro
 /* Python subprocess helpers                                           */
 /* ------------------------------------------------------------------ */
 
-async function runPython(script: string, args: string[], cwd: string): Promise<string> {
-  const { stdout } = await execFileAsync("python3", [script, ...args], {
-    cwd,
-    maxBuffer: 64 * 1024 * 1024,
-  });
+async function runPython(script: string, args: string[], cwd: string, signal?: AbortSignal): Promise<string> {
+  signal?.throwIfAborted(); const { stdout } = await execFileAsync("python3", [script, ...args], { cwd, maxBuffer: 64 * 1024 * 1024, signal });
   return stdout;
 }
 
@@ -406,7 +403,7 @@ async function runPython(script: string, args: string[], cwd: string): Promise<s
  * neither. Same fixture-first order as the generator seam; the runner no
  * longer inverts it (issue #0).
  */
-async function dumpCasePresets(caseId: string, cwd: string): Promise<Record<string, PresetEntry>> {
+async function dumpCasePresets(caseId: string, cwd: string, signal?: AbortSignal): Promise<Record<string, PresetEntry>> {
   const snippet = [
     "import sys, json",
     "sys.path.insert(0, 'tools/openclinxr/asset-pipeline/anny')",
@@ -431,7 +428,7 @@ async function dumpCasePresets(caseId: string, cwd: string): Promise<Record<stri
     "    out[preset_id] = {'case_id': cid, 'actor_id': actor_id, 'actor_role': actor_role, 'output_name': output_name, 'params': params}",
     "print(json.dumps(out, default=str))",
   ].join("\n");
-  const stdout = await runPython("-c", [snippet, caseId], cwd);
+  const stdout = await runPython("-c", [snippet, caseId], cwd, signal);
   const parsed = JSON.parse(stdout) as Record<string, PresetEntry>;
   return parsed;
 }
@@ -578,8 +575,9 @@ async function runBodyStage(
   caseId: string,
   stageDir: string,
   cwd: string,
+  signal?: AbortSignal,
 ): Promise<StationRun> {
-  const presets = await dumpCasePresets(caseId, cwd);
+  const presets = await dumpCasePresets(caseId, cwd, signal);
   if (Object.keys(presets).length === 0) {
     return {
       row: makeRow("body", "not_run", [], [
@@ -597,12 +595,7 @@ async function runBodyStage(
     const manifestPath = path.join(stageDir, `${base}-manifest.json`);
     try {
       const paramsJson = JSON.stringify(preset.params);
-      await execFileAsync("python3", [
-        GENERATE_MESH,
-        "--params", paramsJson,
-        "--output", objPath,
-        "--manifest", manifestPath,
-      ], { cwd, maxBuffer: 64 * 1024 * 1024 });
+      await runBlenderExec(`dark-factory body ${presetId}`, [GENERATE_MESH, "--params", paramsJson, "--output", objPath, "--manifest", manifestPath], cwd, signal);
       // Verify the outputs actually landed — never trust the exit code alone.
       const objExists = await existsPath(objPath);
       const manifestExists = await existsPath(manifestPath);
@@ -708,8 +701,9 @@ async function runRiggingStage(
   caseId: string,
   stageDir: string,
   cwd: string,
+  signal?: AbortSignal,
 ): Promise<StationRun> {
-  const presets = await dumpCasePresets(caseId, cwd);
+  const presets = await dumpCasePresets(caseId, cwd, signal);
   if (Object.keys(presets).length === 0) {
     return {
       row: makeRow("rigging", "not_run", [], [
@@ -726,11 +720,7 @@ async function runRiggingStage(
     const base = preset.output_name.replace(/\.glb$/u, "");
     const reportPath = path.join(stageDir, `${base}_rigging_report.json`);
     try {
-      await execFileAsync("python3", [
-        ORCHESTRATE,
-        "--case-actor-preset", presetId,
-        "--output-glb", glbPath,
-      ], { cwd, maxBuffer: 64 * 1024 * 1024 });
+      await runBlenderExec(`dark-factory rigging ${presetId}`, [ORCHESTRATE, "--case-actor-preset", presetId, "--output-glb", glbPath], cwd, signal);
       // orchestrate_character.py exits 0 even when the Blender stage fails to
       // write the GLB (measured: parent_tara_johnson_v1 open_cardigan shell too
       // sparse → RuntimeError inside automate_blender, swallowed, no GLB). The
@@ -783,7 +773,9 @@ export function roomChainSeedForScenario(scenario: Scenario, defaultSeed: number
 
 /** Station 5: registered room chain, with an explicit parametric fallback. */
 type RoomStageDependencies = {
-  runChain?: typeof runRoomChain;
+  readonly runChain?: typeof runRoomChain;
+  /** Recipe registry lookup. Defaults to the actual ROOM_CHAIN_RECIPES; tests inject an absent registry to exercise the parametric fallback without provider work. */
+  readonly recipes?: Readonly<Partial<typeof ROOM_CHAIN_RECIPES>>;
 };
 
 export async function runRoomStage(
@@ -801,7 +793,8 @@ export async function runRoomStage(
     };
   }
   await mkdir(stageDir, { recursive: true });
-  const recipe = ROOM_CHAIN_RECIPES[environmentId as keyof typeof ROOM_CHAIN_RECIPES];
+  const registry: Readonly<Partial<typeof ROOM_CHAIN_RECIPES>> = dependencies.recipes ?? ROOM_CHAIN_RECIPES;
+  const recipe = registry[environmentId as keyof typeof ROOM_CHAIN_RECIPES];
   if (recipe !== undefined && scenario !== undefined) {
     const seed = roomChainSeedForScenario(scenario, recipe.defaultSeed);
     const chain = await (dependencies.runChain ?? runRoomChain)({ environmentId, seed, outDir: stageDir });
@@ -1186,7 +1179,7 @@ export function resolveLipSyncWavPathAllowingDeterministicPcm(
     return resolveLipSyncWavPath(options);
   } catch (resolveErr) {
     if (process.env["OPENCLINXR_LIP_SYNC_DETERMINISTIC_PCM"] !== "1") throw resolveErr;
-    const wavPath = writeDeterministicLipSyncWav(options.utterance, options.outDir);
+    const wavPath = writeLipSyncFixtureWav(options.utterance, options.outDir, { mode: "deterministic-pcm" });
     return { kind: "provided", wavPath };
   }
 }
@@ -1416,6 +1409,7 @@ export async function runChainWorldCompileBaker(
     bakeOutDir: string;
     invocationOutDir: string;
     equipmentGenerateRun?: (payload: Record<string, unknown>) => Record<string, unknown> | Promise<Record<string, unknown>>;
+    signal?: AbortSignal;
   },
 ): Promise<void> {
   const { node, artifactPath } = input;
@@ -1463,10 +1457,7 @@ export async function runChainWorldCompileBaker(
       const presetId = `${node.spec.scenarioId}:${node.spec.actorId}`;
       const base = path.basename(artifactPath).replace(/\.glb$/i, "");
       const glbOut = path.join(input.bakeOutDir, `${base}.glb`);
-      await execFileAsync("python3", [ORCHESTRATE, "--case-actor-preset", presetId, "--output-glb", glbOut], {
-        cwd: REPO_ROOT,
-        maxBuffer: 64 * 1024 * 1024,
-      });
+      await runBlenderExec(`dark-factory world-compile bake ${presetId}`, [ORCHESTRATE, "--case-actor-preset", presetId, "--output-glb", glbOut], REPO_ROOT, input.signal);
       // orchestrate_character.py exits 0 even when the Blender stage fails to
       // write the GLB (measured in the rigging station); the file is the evidence.
       if (!(await existsPath(glbOut))) {
@@ -1502,6 +1493,7 @@ async function runWorldCompileStage(
   caseId: string,
   stageDir: string,
   caseDir: string,
+  signal?: AbortSignal,
 ): Promise<StationRun> {
   const priorPath = await resolvePriorEvidencePathForScenario(caseId);
   if (!priorPath) {
@@ -1532,6 +1524,7 @@ async function runWorldCompileStage(
           ...input,
           bakeOutDir,
           invocationOutDir,
+          signal,
         }),
       {
         artifactPathsByNodeId,
@@ -1642,18 +1635,18 @@ export async function runCaseChain(
   const evidenceDir = options.evidenceDir ?? DEFAULT_EVIDENCE_DIR;
   const caseDir = path.join(evidenceDir, "cases", scenarioId);
   const cwd = REPO_ROOT;
-
+  const signal = options.signal; signal?.throwIfAborted();
   const stations: StationRow[] = [];
-  stations.push((await runCaseToActorParams(scenarioId, path.join(caseDir, "stage-case-params"), cwd)).row);
-  stations.push((await runBodyStage(scenarioId, path.join(caseDir, "stage-body"), cwd)).row);
-  stations.push((await runClothingStage(scenarioId, path.join(caseDir, "stage-clothing"))).row);
-  stations.push((await runRiggingStage(scenarioId, path.join(caseDir, "stage-rig"), cwd)).row);
-  stations.push((await runRoomStage(scenarioId, path.join(caseDir, "stage-room"))).row);
-  stations.push((await runEquipmentStage(scenarioId, path.join(caseDir, "stage-equipment"))).row);
-  stations.push((await runPlacementStage(scenarioId, path.join(caseDir, "stage-placement"))).row);
-  stations.push((await runRenderStage(scenarioId, path.join(caseDir, "stage-render"), { serverUrl: options.renderServerUrl })).row);
-  stations.push((await runLipSyncStage(scenarioId, path.join(caseDir, "stage-lip-sync"))).row);
-  stations.push((await runWorldCompileStage(scenarioId, path.join(caseDir, "stage-world-compile"), caseDir)).row);
+  stations.push((await runCaseToActorParams(scenarioId, path.join(caseDir, "stage-case-params"), cwd)).row); signal?.throwIfAborted();
+  stations.push((await runBodyStage(scenarioId, path.join(caseDir, "stage-body"), cwd, signal)).row); signal?.throwIfAborted();
+  stations.push((await runClothingStage(scenarioId, path.join(caseDir, "stage-clothing"))).row); signal?.throwIfAborted();
+  stations.push((await runRiggingStage(scenarioId, path.join(caseDir, "stage-rig"), cwd, signal)).row); signal?.throwIfAborted();
+  stations.push((await runRoomStage(scenarioId, path.join(caseDir, "stage-room"))).row); signal?.throwIfAborted();
+  stations.push((await runEquipmentStage(scenarioId, path.join(caseDir, "stage-equipment"))).row); signal?.throwIfAborted();
+  stations.push((await runPlacementStage(scenarioId, path.join(caseDir, "stage-placement"))).row); signal?.throwIfAborted();
+  stations.push((await runRenderStage(scenarioId, path.join(caseDir, "stage-render"), { serverUrl: options.renderServerUrl })).row); signal?.throwIfAborted();
+  stations.push((await runLipSyncStage(scenarioId, path.join(caseDir, "stage-lip-sync"))).row); signal?.throwIfAborted();
+  stations.push((await runWorldCompileStage(scenarioId, path.join(caseDir, "stage-world-compile"), caseDir, signal)).row); signal?.throwIfAborted();
 
   const table: PipelineStationTable = {
     schemaVersion: "openclinxr.dark-factory-station-table.v1",
@@ -1742,6 +1735,7 @@ export function isCaseFullyDeterministic(
 export async function runMultiCaseChain(options: RunMultiCaseChainOptions = {}): Promise<MultiCaseRollup> {
   const evidenceDir = options.evidenceDir ?? DEFAULT_EVIDENCE_DIR;
   const population = options.population ?? (await enumerateCasePopulation());
+  const signal = options.signal; signal?.throwIfAborted();
   // The digests of the tree THIS run measures, taken before any station runs: the rollup's
   // numbers are only about this tree, and the hashes are how a later reader can tell.
   const measuredInputs = currentInputDigests();
@@ -1753,9 +1747,10 @@ export async function runMultiCaseChain(options: RunMultiCaseChainOptions = {}):
       filter: "@openclinxr/ui-xr",
       readyTimeoutMs: 180_000,
     });
+    signal?.throwIfAborted(); // abort during boot: finally stops the server, batch never runs
     const tables: PipelineStationTable[] = [];
-    for (const caseId of population) {
-      const table = await runCaseChain(caseId, { evidenceDir, renderServerUrl: server.url });
+    for (const caseId of population) { signal?.throwIfAborted();
+      const table = await runCaseChain(caseId, { evidenceDir, renderServerUrl: server.url, signal });
       tables.push(table);
     }
 
@@ -1862,6 +1857,8 @@ export async function refreshRollupStaleness(options: { evidenceDir?: string } =
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const caseIndex = args.indexOf("--case");
+  const dirIndex = args.indexOf("--evidence-dir");
+  const evidenceDir = (dirIndex >= 0 && args[dirIndex + 1]) || process.env["OPENCLINXR_EVIDENCE_DIR"] || undefined;
   const all = args.includes("--all");
   if (args.includes("--refresh-stale")) {
     const marked = await refreshRollupStaleness();
@@ -1869,18 +1866,18 @@ async function main(): Promise<void> {
     return;
   }
   if (caseIndex >= 0 && args[caseIndex + 1]) {
-    const table = await runCaseChain(args[caseIndex + 1]);
+    const table = await runCaseChain(args[caseIndex + 1], { evidenceDir });
     console.log(`CASE_DONE ${table.caseId} stations=${table.stations.length}`);
     console.log(JSON.stringify(table.stations.map((s) => ({ id: s.stationId, classification: s.classification, artifacts: s.artifactPaths.length })), null, 2));
     return;
   }
   if (all) {
-    const rollup = await runMultiCaseChain();
+    const rollup = await runMultiCaseChain({ evidenceDir });
     console.log(`MULTI_CASE_DONE cases=${rollup.summary.casesAttempted} fullyDeterministic=${rollup.summary.casesFullyDeterministic}`);
     console.log(JSON.stringify({ frontierCounts: rollup.summary.frontierCounts, deterministicTotals: rollup.summary.deterministicStationTotals }, null, 2));
     return;
   }
-  console.error("usage: multi-case-runner.ts --case <scenarioId> | --all | --refresh-stale");
+  console.error("usage: multi-case-runner.ts --case <scenarioId> [--evidence-dir <dir>] | --all [--evidence-dir <dir>] | --refresh-stale");
   process.exit(1);
 }
 

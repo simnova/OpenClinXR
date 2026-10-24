@@ -62,6 +62,16 @@
     ]
   },
   {
+    "provider": "@openclinxr/service-local-compute",
+    "entrypoint": "./local",
+    "names": [
+      {
+        "name": "createLocalComputeServices",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/shared-schemas",
     "entrypoint": ".",
     "names": [

@@ -13,7 +13,7 @@ export function resetSupineArticulatedContact(root: Object3D): void {
     baselineRotations.set(root, bones.map((bone) => ({ bone, rotation: [bone.rotation.x, bone.rotation.y, bone.rotation.z] })));
   }
   for (const row of baselineRotations.get(root) ?? []) row.bone.rotation.set(...row.rotation);
-  delete root.userData.openClinXrSupineArticulatedSupport;
+  delete root.userData["openClinXrSupineArticulatedSupport"];
 }
 
 const axes = ["x", "y", "z"] as const;
@@ -61,7 +61,7 @@ export function solveSupineArticulatedContact(
   const originals = bones.map((bone) => bone.rotation.clone());
   const rootPosition = root.position.clone();
   const required = regions;
-  const pillow = root.userData.openClinXrSupinePillowWorld as { x: number; y: number; z: number } | undefined;
+  const pillow = root.userData["openClinXrSupinePillowWorld"] as { x: number; y: number; z: number } | undefined;
   const head = findSupineBone(root, "head");
   const loss = () => {
     const metrics = measureSupineSupportRegions(root, planes);
@@ -129,12 +129,12 @@ export function solveSupineArticulatedContact(
       pillowObject.position.copy(pillowObject.parent!.worldToLocal(surface));
       pillowObject.updateMatrixWorld(true);
       const pillowWorld = pillowObject.getWorldPosition(new Vector3());
-      root.userData.openClinXrSupinePillowWorld = { x: pillowWorld.x, y: pillowWorld.y, z: pillowWorld.z };
+      root.userData["openClinXrSupinePillowWorld"] = { x: pillowWorld.x, y: pillowWorld.y, z: pillowWorld.z };
     }
   }
   const finalMetrics = bed ? measureSupineSupportRegions(root, makeSupineSupportPlanes(bed, planes.pelvis.origin.y)) : metrics;
-  root.userData.openClinXrSupineArticulatedSupport = finalMetrics;
-  root.userData.openClinXrSupineArticulatedSupportResolved = regions.every((region) => {
+  root.userData["openClinXrSupineArticulatedSupport"] = finalMetrics;
+  root.userData["openClinXrSupineArticulatedSupportResolved"] = regions.every((region) => {
     const row = finalMetrics[region];
     return row.samples >= 4 && row.contactGapMeters !== null && row.contactGapMeters <= 0.025
       && row.minGapMeters !== null && row.minGapMeters >= -0.02;

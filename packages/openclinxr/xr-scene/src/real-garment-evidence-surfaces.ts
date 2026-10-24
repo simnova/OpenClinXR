@@ -115,7 +115,7 @@ export function applyRealGarmentEvidenceSurfaces(
   const spawnStaticRealGarmentEvidence = (object: Mesh, host: Group): Mesh | null => {
     const nm = object.name || "";
     if (!realGarmentNameRe.test(nm)) return null;
-    if (object.userData.openClinXrGarmentYUpOrientApplied) {
+    if (object.userData["openClinXrGarmentYUpOrientApplied"]) {
       const existingName = `${nm}:y_up_capture_evidence`;
       const existing = host.getObjectByName(existingName);
       return existing instanceof Mesh ? existing : null;
@@ -174,8 +174,8 @@ export function applyRealGarmentEvidenceSurfaces(
     const existing = host.getObjectByName(evidenceName);
     if (existing instanceof Mesh) {
       object.visible = false;
-      object.userData.openClinXrGarmentYUpOrientApplied = "skinned_original_hidden_after_static_y_up_evidence_spawn";
-      object.userData.openClinXrComparatorVisibilityPolicy = "hidden_misoriented_skinned_phenotype_garment_superseded_by_y_up_evidence";
+      object.userData["openClinXrGarmentYUpOrientApplied"] = "skinned_original_hidden_after_static_y_up_evidence_spawn";
+      object.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_misoriented_skinned_phenotype_garment_superseded_by_y_up_evidence";
       return existing;
     }
     const evidence = new Mesh(working as never, cyanMat);
@@ -201,23 +201,23 @@ export function applyRealGarmentEvidenceSurfaces(
     } else {
       evidence.position.set(0, 0.35, 0.08);
     }
-    evidence.userData.openClinXrExposedSeparateGeometry = "real_garment_mesh_from_phenotype_garmentLayers";
-    evidence.userData.openClinXrGarmentEvidenceSurface = needsZUpBake
+    evidence.userData["openClinXrExposedSeparateGeometry"] = "real_garment_mesh_from_phenotype_garmentLayers";
+    evidence.userData["openClinXrGarmentEvidenceSurface"] = needsZUpBake
       ? "phenotype_embedded_sleeve_torso_y_up_oriented"
       : "phenotype_embedded_sleeve_torso_static_bind_shape_for_capture";
-    evidence.userData.openClinXrSleeveDeformEvidence = sleeveDeformEvidenceForMesh(nm);
-    evidence.userData.openClinXrGarmentYUpOrientApplied = needsZUpBake
+    evidence.userData["openClinXrSleeveDeformEvidence"] = sleeveDeformEvidenceForMesh(nm);
+    evidence.userData["openClinXrGarmentYUpOrientApplied"] = needsZUpBake
       ? "baked_neg_x_90_static_reparent_for_sleeve_deform_capture"
       : "static_bind_shape_reparent_for_sleeve_deform_capture_no_axis_bake";
-    evidence.userData.openClinXrGarmentSkinDetachedForCapture =
+    evidence.userData["openClinXrGarmentSkinDetachedForCapture"] =
       "phenotype_garment_static_evidence_mesh_on_humanoid_root_for_capture_noticeability";
     host.add(evidence);
 
     object.visible = false;
     object.frustumCulled = true;
-    object.userData.openClinXrGarmentYUpOrientApplied = "skinned_original_hidden_after_static_y_up_evidence_spawn";
-    object.userData.openClinXrComparatorVisibilityPolicy = "hidden_misoriented_skinned_phenotype_garment_superseded_by_y_up_evidence";
-    object.userData.openClinXrSleeveDeformEvidence = sleeveDeformEvidenceForMesh(nm);
+    object.userData["openClinXrGarmentYUpOrientApplied"] = "skinned_original_hidden_after_static_y_up_evidence_spawn";
+    object.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_misoriented_skinned_phenotype_garment_superseded_by_y_up_evidence";
+    object.userData["openClinXrSleeveDeformEvidence"] = sleeveDeformEvidenceForMesh(nm);
     // #314: do NOT detach here — the caller is iterating the scene graph (root.traverse)
     // and mutating the current node's children array mid-iteration throws undefined.traverse.
     // The object is hidden immediately; physical detachment runs after the traverse.
@@ -252,17 +252,17 @@ export function applyRealGarmentEvidenceSurfaces(
 
   const tagGarment = (object: Mesh): Mesh => {
     // Do not resurrect skinned originals already superseded by static evidence (second pass)
-    if (object.userData?.openClinXrComparatorVisibilityPolicy === "hidden_misoriented_skinned_phenotype_garment_superseded_by_y_up_evidence") {
+    if (object.userData?.["openClinXrComparatorVisibilityPolicy"] === "hidden_misoriented_skinned_phenotype_garment_superseded_by_y_up_evidence") {
       object.visible = false;
-      object.userData.openClinXrSleeveDeformEvidence = sleeveDeformEvidenceForMesh(object.name || "");
+      object.userData["openClinXrSleeveDeformEvidence"] = sleeveDeformEvidenceForMesh(object.name || "");
       return object;
     }
     object.visible = true;
     object.frustumCulled = false;
     object.renderOrder = 2;
-    object.userData.openClinXrExposedSeparateGeometry = "real_garment_mesh_from_phenotype_garmentLayers";
-    object.userData.openClinXrGarmentEvidenceSurface = "phenotype_embedded_sleeve_torso";
-    object.userData.openClinXrSleeveDeformEvidence = sleeveDeformEvidenceForMesh(object.name || "");
+    object.userData["openClinXrExposedSeparateGeometry"] = "real_garment_mesh_from_phenotype_garmentLayers";
+    object.userData["openClinXrGarmentEvidenceSurface"] = "phenotype_embedded_sleeve_torso";
+    object.userData["openClinXrSleeveDeformEvidence"] = sleeveDeformEvidenceForMesh(object.name || "");
     const staticEvidence = spawnStaticRealGarmentEvidence(object, root);
     if (staticEvidence) {
       return staticEvidence;
@@ -280,8 +280,8 @@ export function applyRealGarmentEvidenceSurfaces(
   root.traverse((object) => {
     if (!(object instanceof Mesh)) return;
     // Skip already-spawned static evidence so we do not double-tag
-    if (object.userData?.openClinXrGarmentYUpOrientApplied === "baked_neg_x_90_static_reparent_for_sleeve_deform_capture"
-      || object.userData?.openClinXrGarmentYUpOrientApplied === "static_bind_shape_reparent_for_sleeve_deform_capture_no_axis_bake") {
+    if (object.userData?.["openClinXrGarmentYUpOrientApplied"] === "baked_neg_x_90_static_reparent_for_sleeve_deform_capture"
+      || object.userData?.["openClinXrGarmentYUpOrientApplied"] === "static_bind_shape_reparent_for_sleeve_deform_capture_no_axis_bake") {
       if (!firstTagged) firstTagged = object;
       return;
     }
@@ -293,13 +293,13 @@ export function applyRealGarmentEvidenceSurfaces(
     }
     // Explicitly leave role clothing multi-prim slots alone (no cyan / no sleeveDeform tags)
     if (hasRoleClothingMaterial(object)) {
-      object.userData.openClinXrRoleClothingSlot =
+      object.userData["openClinXrRoleClothingSlot"] =
         "anny_base_role_clothing_material_not_real_garment_evidence_surface";
       return;
     }
     if (bodyNameRe.test(nm.toLowerCase())) {
       object.visible = true;
-      object.userData.openClinXrBodyEvidenceSurface = true;
+      object.userData["openClinXrBodyEvidenceSurface"] = true;
     }
   });
 
@@ -316,7 +316,7 @@ export function applyRealGarmentEvidenceSurfaces(
     (c): c is Mesh =>
       c instanceof Mesh
       && realGarmentNameRe.test(c.name || "")
-      && Boolean(c.userData?.openClinXrGarmentSkinDetachedForCapture),
+      && Boolean(c.userData?.["openClinXrGarmentSkinDetachedForCapture"]),
   );
   if (evidenceOnRoot) {
     firstTagged = evidenceOnRoot;

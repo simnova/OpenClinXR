@@ -27,7 +27,7 @@ export function stampSupportSurfaceDeckMetadata(
   if (!equipmentId) return;
   const deck = SUPPORT_SURFACE_DECK_TOP_BY_EQUIPMENT_ID[equipmentId];
   if (typeof deck !== "number") return;
-  equipment.userData.deckTopYMeters = deck;
-  equipment.userData.seatHeightMeters = deck;
-  equipment.userData.openClinXrSupportSurfaceDeckSource = "bank_glb_ssot_stamp";
+  equipment.userData["deckTopYMeters"] = deck;
+  equipment.userData["seatHeightMeters"] = deck;
+  equipment.userData["openClinXrSupportSurfaceDeckSource"] = "bank_glb_ssot_stamp";
 }

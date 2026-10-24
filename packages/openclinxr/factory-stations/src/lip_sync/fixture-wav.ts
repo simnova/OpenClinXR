@@ -43,8 +43,37 @@ export function sayFixtureArgv(
 /**
  * Offline fixture TTS for local macOS. Production `runLipSync` takes a wav path
  * and never shells the system speech synthesizer.
+ *
+ * Explicit deterministic-PCM mode (`{ mode: "deterministic-pcm" }`) returns the
+ * offline sine stand-in synchronously via the private deterministic helper;
+ * every other call keeps the historical async system-speech path.
  */
-export async function writeLipSyncFixtureWav(
+export function writeLipSyncFixtureWav(
+  utterance: string,
+  outDir: string,
+  options: LipSyncFixtureWavOptions & { mode: "deterministic-pcm" },
+): string;
+export function writeLipSyncFixtureWav(
+  utterance: string,
+  outDir: string,
+  options?: LipSyncFixtureWavOptions & { mode?: undefined },
+): Promise<string>;
+export function writeLipSyncFixtureWav(
+  utterance: string,
+  outDir: string,
+  options: LipSyncFixtureWavOptions & { mode?: "deterministic-pcm" | undefined },
+): string | Promise<string>;
+export function writeLipSyncFixtureWav(
+  utterance: string,
+  outDir: string,
+  options: LipSyncFixtureWavOptions & { mode?: "deterministic-pcm" | undefined } = {},
+): string | Promise<string> {
+  if (options.mode === "deterministic-pcm") return writeDeterministicLipSyncWav(utterance, outDir);
+  return writeSystemSpeechFixtureWav(utterance, outDir, options);
+}
+
+/** Historical system-speech fixture path: `say` then `afconvert`, unchanged. */
+async function writeSystemSpeechFixtureWav(
   utterance: string,
   outDir: string,
   options: LipSyncFixtureWavOptions = {},

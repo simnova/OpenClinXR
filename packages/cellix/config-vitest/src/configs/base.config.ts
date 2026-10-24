@@ -1,4 +1,7 @@
+import { createRequire } from "node:module";
 import { defineConfig } from "vitest/config";
+
+export const nativeCompilerPath = createRequire(import.meta.url).resolve("@cellix/config-typescript/compiler");
 
 export const defaultTestIncludePatterns = [
   "**/*.{test,spec}.?(c|m)[jt]s?(x)",
@@ -8,7 +11,7 @@ export const defaultTestIncludePatterns = [
 export function createDefaultTypecheckConfig() {
   return {
     enabled: true,
-    checker: "tsgo" as const,
+    checker: nativeCompilerPath,
     tsconfig: "tsconfig.vitest.json",
     include: [...defaultTestIncludePatterns],
     exclude: ["**/node_modules/**", "src/archunit-tests/**", "**/dist/**", "**/coverage/**"],

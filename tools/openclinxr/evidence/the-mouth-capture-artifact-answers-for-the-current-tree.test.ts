@@ -1,6 +1,83 @@
-import { existsSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
-import { findStaleMeasuredGeometry } from "../../../packages/openclinxr/asset-registry/src/measured-station-geometry-freshness.js";
+
+import {
+  EXPECTED_PARENT_SPEAKER_ID,
+  retriggerParentDialogue,
+} from "./ui-xr-viseme-drive-capture.js";
+
+type FakePage = Parameters<typeof retriggerParentDialogue>[0];
+
+/**
+ * ph341 — counterweights call the ACTUAL production poller. Missing button /
+ * click reject / wrong actor refuse; Maya-then-Tara waits and acknowledges.
+ */
+describe("real parent speaker gate (ph341)", () => {
+  function fakePage(opts: { count: number; clickRejects: boolean; actors: (string | null)[] }): FakePage {
+    let calls = 0;
+    let waits = 0;
+    return {
+      getByRole: () => ({
+        count: async () => opts.count,
+        first: () => ({
+          click: async () => {
+            if (opts.clickRejects) throw new Error("click failed");
+          },
+        }),
+      }),
+      evaluate: async () => {
+        const a = opts.actors[Math.min(calls, opts.actors.length - 1)];
+        calls += 1;
+        return a;
+      },
+      waitForTimeout: async () => {
+        waits += 1;
+      },
+    } as unknown as FakePage;
+  }
+
+  it("a missing parent-communication button refuses", async () => {
+    const r = await retriggerParentDialogue(fakePage({ count: 0, clickRejects: false, actors: [null] }));
+    expect(r.buttonCount).toBe(0);
+    expect(r.speakerReady).toBe(false);
+  });
+
+  it("a rejected click refuses", async () => {
+    const r = await retriggerParentDialogue(
+      fakePage({ count: 1, clickRejects: true, actors: [EXPECTED_PARENT_SPEAKER_ID] }),
+    );
+    expect(r.clicked).toBe(false);
+    expect(r.speakerReady).toBe(false);
+  });
+
+  it("a wrong actor never qualifies", async () => {
+    const r = await retriggerParentDialogue(
+      fakePage({ count: 1, clickRejects: false, actors: ["patient_maya_johnson_v1", "patient_maya_johnson_v1"] }),
+    );
+    expect(r.speakerReady).toBe(false);
+  });
+
+  it("Maya-then-Tara waits and acknowledges", async () => {
+    let waits = 0;
+    const page = fakePage({
+      count: 1,
+      clickRejects: false,
+      actors: ["patient_maya_johnson_v1", EXPECTED_PARENT_SPEAKER_ID],
+    });
+    const origWait = (page as unknown as { waitForTimeout: () => Promise<void> }).waitForTimeout;
+    (page as unknown as { waitForTimeout: () => Promise<void> }).waitForTimeout = async () => {
+      waits += 1;
+      await origWait();
+    };
+    const r = await retriggerParentDialogue(page);
+    expect(r.speakerReady).toBe(true);
+    expect(r.activeActorId).toBe(EXPECTED_PARENT_SPEAKER_ID);
+    expect(waits).toBeGreaterThan(0);
+  });
+});
 
 /**
  * #726 / xr-systems-architect.
@@ -98,6 +175,55 @@ function mouth(): Doc {
   return JSON.parse(readFileSync(MOUTH, "utf8")) as Doc;
 }
 
+type GeometryFingerprint = {
+  bytes?: number;
+  sha256?: string;
+};
+
+/**
+ * Test-local QA oracle for measured-geometry freshness. Same fail-closed semantics as the
+ * production gate: returns the assetIds in `doc.sources` whose recorded fingerprint disagrees
+ * with the file on disk — missing/bad path, missing file, read failure, absent/empty
+ * fingerprint, byte mismatch, or hash mismatch => stale; full match => fresh.
+ *
+ * Local on purpose: the production helper is not published from the admitted surface (and the
+ * freeze refuses a new private specifier to reach it), while its own package unit tests cover
+ * it. This gate is about artifact truth, so an independent node:fs/node:crypto oracle is
+ * stronger than relying on the production helper. No triangle-count API is touched.
+ */
+function staleMeasuredSources(doc: unknown, repoRoot: string): string[] {
+  const sources = (doc as { sources?: Record<string, unknown> } | undefined)?.sources ?? {};
+  const fingerprints = (doc as { fingerprints?: Record<string, GeometryFingerprint> } | undefined)
+    ?.fingerprints ?? {};
+  const stale: string[] = [];
+  for (const [assetId, rel] of Object.entries(sources)) {
+    if (typeof rel !== "string" || rel.length === 0) {
+      stale.push(assetId);
+      continue;
+    }
+    const fp = fingerprints[assetId];
+    if (!fp || typeof fp !== "object" || (fp.bytes === undefined && fp.sha256 === undefined)) {
+      stale.push(assetId);
+      continue;
+    }
+    let bytes: Buffer;
+    try {
+      bytes = readFileSync(join(repoRoot, rel));
+    } catch {
+      stale.push(assetId);
+      continue;
+    }
+    if (fp.bytes !== undefined && fp.bytes !== bytes.length) {
+      stale.push(assetId);
+      continue;
+    }
+    if (fp.sha256 !== undefined && fp.sha256 !== createHash("sha256").update(bytes).digest("hex")) {
+      stale.push(assetId);
+    }
+  }
+  return stale;
+}
+
 describe("the mouth capture artifact answers for the current tree (#726)", () => {
   /**
    * RED. The artifact records nothing about its inputs today, so this cannot pass without the
@@ -123,7 +249,7 @@ describe("the mouth capture artifact answers for the current tree (#726)", () =>
       "at least one subject GLB must be recorded: a rebake changes what the camera sees",
     ).toBe(true);
     expect(
-      findStaleMeasuredGeometry(doc, REPO),
+      staleMeasuredSources(doc, REPO),
       "every recorded source must still match its fingerprint on disk; re-run the capture rather than editing the record",
     ).toEqual([]);
   });
@@ -172,7 +298,7 @@ describe("the mouth capture artifact answers for the current tree (#726)", () =>
     expect(Object.keys(doc.sources ?? {}), "the known-good records its sources").toHaveLength(3);
     expect(Object.keys(doc.fingerprints ?? {}), "the known-good records a fingerprint per source").toHaveLength(3);
     expect(
-      findStaleMeasuredGeometry(doc, REPO),
+      staleMeasuredSources(doc, REPO),
       "if this reports stale, the instrument is broken and clause (1) proves nothing",
     ).toEqual([]);
   });
@@ -187,6 +313,47 @@ describe("the mouth capture artifact answers for the current tree (#726)", () =>
     const src = readFileSync(OLDER_CONTRACT, "utf8");
     expect(src, "its subjectVisible assertion is what this card makes live").toContain("subjectVisible");
     expect(src, "its anchor-vs-apex comparison must survive").toContain("crownApexWorldY");
+  });
+
+  /**
+   * NEGATIVE CONTROLS for the local oracle. Temp files only, removed afterwards — no fake
+   * fingerprint is persisted and the real receipt is untouched.
+   */
+  it("(6) the oracle passes a correct fingerprint and fails bitflip/absent/missing", () => {
+    const dir = mkdtempSync(join(tmpdir(), "mouth-oracle-"));
+    try {
+      const rel = (p: string) => relative(REPO, p);
+      const goodPath = join(dir, "good.bin");
+      const goodBytes = Buffer.from([1, 2, 3, 4, 5, 6, 7, 8]);
+      writeFileSync(goodPath, goodBytes);
+      const fp = { bytes: goodBytes.length, sha256: createHash("sha256").update(goodBytes).digest("hex") };
+      expect(
+        staleMeasuredSources({ sources: { a: rel(goodPath) }, fingerprints: { a: fp } }, REPO),
+        "a correct fingerprint is fresh",
+      ).toEqual([]);
+      const flipped = Buffer.from(goodBytes);
+      flipped[0] ^= 0xff;
+      writeFileSync(goodPath, flipped);
+      expect(
+        staleMeasuredSources({ sources: { a: rel(goodPath) }, fingerprints: { a: fp } }, REPO),
+        "a same-size bitflip must fail the hash check, not pass on bytes alone",
+      ).toEqual(["a"]);
+      writeFileSync(goodPath, goodBytes);
+      expect(
+        staleMeasuredSources({ sources: { a: rel(goodPath) }, fingerprints: {} }, REPO),
+        "an absent fingerprint is stale",
+      ).toEqual(["a"]);
+      expect(
+        staleMeasuredSources({ sources: { a: rel(join(dir, "missing.bin")) }, fingerprints: { a: fp } }, REPO),
+        "a missing file is stale",
+      ).toEqual(["a"]);
+      expect(
+        staleMeasuredSources({ sources: { a: "" }, fingerprints: { a: fp } }, REPO),
+        "an empty path is stale",
+      ).toEqual(["a"]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
 

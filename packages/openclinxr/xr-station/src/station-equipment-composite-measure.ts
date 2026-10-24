@@ -79,9 +79,9 @@ export function measureParametricComposite(equipmentId: string): ParametricCompo
   return {
     equipmentId,
     source:
-      root.userData.openClinXrEquipmentSource === "parametric"
+      root.userData["openClinXrEquipmentSource"] === "parametric"
         ? "parametric"
-        : root.userData.openClinXrEquipmentSource === "gltf"
+        : root.userData["openClinXrEquipmentSource"] === "gltf"
           ? "gltf"
           : "fallback",
     meshCount: meshes.length,

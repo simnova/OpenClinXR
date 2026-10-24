@@ -250,7 +250,7 @@ export function playPedsActorPlayerRuntimeTurn(
   }
   const activeSlot = deps.animationSlotForActor(turn.actorId);
   if (activeSlot) {
-    delete activeSlot.root.userData.openClinXrSequenceListeningCue;
+    delete activeSlot.root.userData["openClinXrSequenceListeningCue"];
   }
   const nowMs = deps.nowMs();
   const listenerCue = applyPedsActorPlayerSequenceListenerCues(deps, turn, input.latestSequence, nowMs);

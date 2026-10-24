@@ -1,0 +1,17 @@
+import { WebGLRenderer } from 'three';
+import { createRoom, previewCamera, RENDER_OPTIONS } from '../../stage0/scene.js';
+import { prepareWitnessedDuplexAudio } from '../audio/index.js';
+import { createWitnessedStage1 } from './controller.js';
+import type { WitnessedStage1Metadata } from './types.js';
+const metadataNode = document.querySelector('#stage1-witnessed-metadata'); if (!metadataNode?.textContent) throw new Error('Missing reviewed metadata');
+const metadata = JSON.parse(metadataNode.textContent) as WitnessedStage1Metadata; const query = new URLSearchParams(location.search); const purpose = query.get('purpose'); const nonce = query.get('nonce');
+if ((purpose !== 'readiness' && purpose !== 'cohort') || !nonce || !/^[a-zA-Z0-9-]{16,128}$/.test(nonce)) throw new Error('Explicit purpose and externally bound nonce required'); metadata.nonce = nonce;
+const canvas = document.querySelector<HTMLCanvasElement>('#stage1-canvas')!; const image = document.querySelector<HTMLImageElement>('#stage1-proof')!; const status = document.querySelector<HTMLElement>('#stage1-status')!; const media = document.querySelector<HTMLButtonElement>('#stage1-prepare')!; const start = document.querySelector<HTMLButtonElement>('#stage1-start')!; const stop = document.querySelector<HTMLButtonElement>('#stage1-stop')!;
+const preview = new WebGLRenderer({ ...RENDER_OPTIONS, canvas }); preview.setSize(960, 540, false); const room = createRoom(); preview.render(room.scene, previewCamera()); image.src = canvas.toDataURL('image/png'); room.dispose(); preview.dispose(); preview.forceContextLoss();
+const xrCanvas = document.createElement('canvas'); xrCanvas.id = 'stage1-xr-canvas'; xrCanvas.hidden = true; canvas.replaceWith(xrCanvas);
+const api = createWitnessedStage1(metadata, purpose, xrCanvas, prepareWitnessedDuplexAudio, () => { const report = api.snapshot(); status.textContent = `${report.mode}: ${report.xr.status}. Resources released. ${report.xr.failureReasons.join('; ')}`; media.disabled = true; start.disabled = true; stop.disabled = true; const proof = report.xr.proofs.afterSample ?? report.xr.proofs.preview; if (proof?.image) image.src = proof.image; document.querySelector<HTMLButtonElement>('#stage1-export')!.disabled = false; });
+Object.defineProperty(window, 'stage1Witnessed', { value: api, writable: false }); status.textContent = `${purpose} · configure the reviewed OFF or duplex slot before preparation · ${metadata.inputClass}`;
+media.onclick = () => { media.disabled = true; stop.disabled = false; status.textContent = 'Preparing configured media outside XR…'; void api.prepare().then(result => { if (result.accepted) { start.disabled = false; status.textContent = `${result.mode} ready. Enter XR within the fixed readiness deadline.`; } }); };
+start.onclick = () => { start.disabled = true; status.textContent = 'Entering actual immersive XR…'; void api.start(); };
+stop.onclick = () => { void api.stop(); };
+document.querySelector<HTMLButtonElement>('#stage1-export')!.onclick = () => { const url = URL.createObjectURL(new Blob([JSON.stringify(api.snapshot(), null, 2)], { type: 'application/json' })); const link = document.createElement('a'); link.href = url; link.download = `stage1-${purpose}-${nonce}.json`; link.click(); URL.revokeObjectURL(url); };

@@ -143,7 +143,7 @@ export async function loadHeadlessScene(glbPath: string): Promise<HeadlessScene>
     // GLTFLoader names the mesh after its node; the lab focus and the viseme
     // gain switch (teeth vs lip) both read this layer.
     skinned.name = node.getName();
-    skinned.userData.name = node.getName();
+    skinned.userData["name"] = node.getName();
     skinned.morphTargetDictionary = Object.fromEntries(targetNames.map((name, index) => [name, index]));
     skinned.morphTargetInfluences = targetNames.map(() => 0);
     skinned.bind(skeleton, new Matrix4());
@@ -185,7 +185,7 @@ export async function loadHeadlessScene(glbPath: string): Promise<HeadlessScene>
     geometry.name = mesh.getName();
     const proxy = new Mesh(geometry);
     proxy.name = node.getName();
-    proxy.userData.name = node.getName();
+    proxy.userData["name"] = node.getName();
     (nodeObjects.get(node) ?? root).add(proxy);
   }
 

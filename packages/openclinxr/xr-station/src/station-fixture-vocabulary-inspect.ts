@@ -71,7 +71,7 @@ export async function inspectStationFixtureVocabulary(input?: {
   for (const [environmentId, descriptor] of Object.entries(ENVIRONMENT_SHELL_DESCRIPTORS)) {
     const shell = buildStationEnvironment({ environmentId });
     const fixtureSlotIds = descriptor.fixtureSlots.map((s) => s.slotId);
-    const ownedRoles = (shell.userData.fixtureOwnedRoles as string[] | undefined) ?? [];
+    const ownedRoles = (shell.userData["fixtureOwnedRoles"] as string[] | undefined) ?? [];
     const ownedSet = new Set(ownedRoles);
 
     const meshesPerRole: Record<string, number> = {};
@@ -79,18 +79,18 @@ export async function inspectStationFixtureVocabulary(input?: {
     const undifferentiatedPropIds: string[] = [];
 
     for (const child of shell.children) {
-      const slotId = child.userData?.fixtureSlotId as string | undefined;
+      const slotId = child.userData?.["fixtureSlotId"] as string | undefined;
       if (typeof slotId !== "string" || slotId.length === 0) continue;
-      if (child.userData?.isMarkerCube === true) continue;
+      if (child.userData?.["isMarkerCube"] === true) continue;
 
       const role =
-        (child.userData?.openClinXrFixtureRole as string | undefined)
+        (child.userData?.["openClinXrFixtureRole"] as string | undefined)
         ?? roleClassFromFixtureSlotId(slotId);
       meshesPerRole[role] = (meshesPerRole[role] ?? 0) + 1;
 
-      const kind = (child.userData?.openClinXrFixtureKind as string | undefined)
-        ?? (child.userData?.openClinXrChairKind as string | undefined)
-        ?? (typeof child.userData?.deckTopYMeters === "number" ? "procedural_stretcher" : "layout");
+      const kind = (child.userData?.["openClinXrFixtureKind"] as string | undefined)
+        ?? (child.userData?.["openClinXrChairKind"] as string | undefined)
+        ?? (typeof child.userData?.["deckTopYMeters"] === "number" ? "procedural_stretcher" : "layout");
       builtFixtureKinds.push(kind);
       kindVocab.add(kind);
 

@@ -196,11 +196,11 @@ export function applyPosturePose(
   posture: ActorPosture,
 ): ApplySeatedPoseResult {
   const binding = clipBindingForPosture(posture);
-  humanoidRoot.userData.openClinXrActorPosture = posture;
-  humanoidRoot.userData.openClinXrPostureClipName = binding.clipName;
-  humanoidRoot.userData.openClinXrPostureClipSource = binding.source;
-  humanoidRoot.userData.openClinXrSeatedHeightOwner = "verticalOffsetMeters_and_chair_seatHeightMeters";
-  humanoidRoot.userData.openClinXrClipRootTranslation = "stripped_not_applied";
+  humanoidRoot.userData["openClinXrActorPosture"] = posture;
+  humanoidRoot.userData["openClinXrPostureClipName"] = binding.clipName;
+  humanoidRoot.userData["openClinXrPostureClipSource"] = binding.source;
+  humanoidRoot.userData["openClinXrSeatedHeightOwner"] = "verticalOffsetMeters_and_chair_seatHeightMeters";
+  humanoidRoot.userData["openClinXrClipRootTranslation"] = "stripped_not_applied";
 
   if (posture !== "seated") {
     return {
@@ -236,7 +236,7 @@ export function applyPosturePose(
       const z = rotation.z !== undefined ? rotation.z : (rotation.absolute ? 0 : object.rotation.z);
       object.rotation.set(x, y, z, object.rotation.order);
       object.quaternion.setFromEuler(object.rotation);
-      object.userData.openClinXrSeatedPose = SEATED_CLIP_NAME;
+      object.userData["openClinXrSeatedPose"] = SEATED_CLIP_NAME;
       if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
     };
 
@@ -271,7 +271,7 @@ export function applyPosturePose(
     for (const name of handRest.bonesTouched) {
       if (!bonesTouched.includes(name)) bonesTouched.push(name);
     }
-    humanoidRoot.userData.openClinXrSeatedHandRest = {
+    humanoidRoot.userData["openClinXrSeatedHandRest"] = {
       iterations: handRest.iterations,
       sides: handRest.sides,
       claimScope: "wrist_to_thigh_iterative_rest",
@@ -279,8 +279,8 @@ export function applyPosturePose(
     };
   }
 
-  humanoidRoot.userData.openClinXrSeatedPoseBones = bonesTouched;
-  humanoidRoot.userData.openClinXrActiveRoleAnimationClipName = SEATED_CLIP_NAME;
+  humanoidRoot.userData["openClinXrSeatedPoseBones"] = bonesTouched;
+  humanoidRoot.userData["openClinXrActiveRoleAnimationClipName"] = SEATED_CLIP_NAME;
   humanoidRoot.updateMatrixWorld?.(true);
 
   let lowestSupportBoneWorldY: number | null = null;

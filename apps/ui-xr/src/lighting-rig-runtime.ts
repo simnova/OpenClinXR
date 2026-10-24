@@ -99,8 +99,8 @@ export function applyLightingRigOverlay(input: {
 }
 
 function tagRigLight(light: Light, role: string): void {
-  light.userData.openClinXrLightingRig = true;
-  light.userData.openClinXrLightingRigRole = role;
+  light.userData["openClinXrLightingRig"] = true;
+  light.userData["openClinXrLightingRigRole"] = role;
 }
 
 export type FetchLike = (url: string, init?: Record<string, unknown>) => Promise<{

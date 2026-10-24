@@ -33,7 +33,7 @@ function findHumanoid(root: Object3D): Object3D | null {
   let found: Object3D | null = null;
   root.traverse((obj) => {
     if (found) return;
-    if (obj.userData?.openClinXrIsolatedSubject === true || obj.name === "isolated_subject_humanoid") {
+    if (obj.userData?.["openClinXrIsolatedSubject"] === true || obj.name === "isolated_subject_humanoid") {
       found = obj;
     }
   });

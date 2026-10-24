@@ -72,12 +72,12 @@ export function buildPatientChair(input: BuildPatientChairInput): Group {
     chair.add(leg);
   }
 
-  chair.userData.fixtureSlotId = input.slotId;
-  chair.userData.fixtureSlotPurpose = input.purpose ?? "patient seating";
-  chair.userData.seatHeightMeters = PATIENT_CHAIR_SEAT_HEIGHT_METERS;
-  chair.userData.isMarkerCube = false;
-  chair.userData.openClinXrChairKind = "procedural_patient_chair";
-  chair.userData.openClinXrDynamicScenePolicy = "patient_chair_real_geometry_with_seat_height";
+  chair.userData["fixtureSlotId"] = input.slotId;
+  chair.userData["fixtureSlotPurpose"] = input.purpose ?? "patient seating";
+  chair.userData["seatHeightMeters"] = PATIENT_CHAIR_SEAT_HEIGHT_METERS;
+  chair.userData["isMarkerCube"] = false;
+  chair.userData["openClinXrChairKind"] = "procedural_patient_chair";
+  chair.userData["openClinXrDynamicScenePolicy"] = "patient_chair_real_geometry_with_seat_height";
 
   return chair;
 }

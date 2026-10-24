@@ -111,19 +111,19 @@ function stampSupportAcceptance(slot: Group, placement: EncounterRuntimeActorPla
   const acceptance = placement.supportAcceptance;
   if (!acceptance) {
     // Nobody observed. That is distinct from `not_required`, and it must not read as accepted.
-    slot.userData.openClinXrSupportReadiness = "unobserved";
-    slot.userData.openClinXrPlacementAccepted = false;
-    slot.userData.openClinXrDependentMotionAllowed = false;
+    slot.userData["openClinXrSupportReadiness"] = "unobserved";
+    slot.userData["openClinXrPlacementAccepted"] = false;
+    slot.userData["openClinXrDependentMotionAllowed"] = false;
     return;
   }
-  slot.userData.openClinXrRequiredSupportInstanceId = acceptance.requiredSupportInstanceId;
-  slot.userData.openClinXrObservedSupportInstanceIds = [...acceptance.observedSupportInstanceIds];
-  slot.userData.openClinXrSupportReadiness = acceptance.readiness;
-  slot.userData.openClinXrPlacementAccepted = acceptance.accepted;
-  slot.userData.openClinXrDependentMotionAllowed = acceptance.accepted;
-  slot.userData.openClinXrSupportRequirementObservation = acceptance.observation;
+  slot.userData["openClinXrRequiredSupportInstanceId"] = acceptance.requiredSupportInstanceId;
+  slot.userData["openClinXrObservedSupportInstanceIds"] = [...acceptance.observedSupportInstanceIds];
+  slot.userData["openClinXrSupportReadiness"] = acceptance.readiness;
+  slot.userData["openClinXrPlacementAccepted"] = acceptance.accepted;
+  slot.userData["openClinXrDependentMotionAllowed"] = acceptance.accepted;
+  slot.userData["openClinXrSupportRequirementObservation"] = acceptance.observation;
   if (acceptance.refusalReason) {
-    slot.userData.openClinXrPlacementRefusalReason = acceptance.refusalReason;
+    slot.userData["openClinXrPlacementRefusalReason"] = acceptance.refusalReason;
   }
 }
 
@@ -139,15 +139,15 @@ function stampSupportAcceptance(slot: Group, placement: EncounterRuntimeActorPla
 function consumeAuthoredHeading(slot: Group, placement: EncounterRuntimeActorPlacement, actorId: string): void {
   if (actorId && typeof placement.headingRadians === "number") {
     slot.rotation.y = placement.headingRadians;
-    slot.userData.openClinXrConsumedHeadingRadians = placement.headingRadians;
+    slot.userData["openClinXrConsumedHeadingRadians"] = placement.headingRadians;
   }
   // The PERSISTENT heading, stamped after everything that writes rotation.y at staging time. The
   // frame loop composes its idle sway onto this instead of assigning over it.
-  slot.userData.openClinXrBaseHeadingRadians = slot.rotation.y;
+  slot.userData["openClinXrBaseHeadingRadians"] = slot.rotation.y;
 }
 
 function stampAuthoredFramingIntent(slot: Group, placement: EncounterRuntimeActorPlacement): void {
-  slot.userData.openClinXrPreserveResolvedPlacement =
+  slot.userData["openClinXrPreserveResolvedPlacement"] =
     placement.placementProvenance === "authored_intent";
 }
 
@@ -177,7 +177,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
     // #315 follow-up: only the comparator's named subject renders; the patient is the
     // subject for the _patient comparators but NOT for _parent/_nurse (those name family/clinical).
     patient.visible = comparatorCaptureSubjectActorId(ctx.assetLoadingContext()) === patientActorId;
-    patient.userData.openClinXrComparatorVisibilityPolicy = patient.visible
+    patient.userData["openClinXrComparatorVisibilityPolicy"] = patient.visible
       ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
       : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
   }
@@ -194,7 +194,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   // Measured 2026-09-09 on the loaded humanoid: runtimeActorPlacement composed x=0 with the
   // authored 0.4 m offset and x=-0.4 without it — a correct 0.4 m difference — and BOTH passes
   // sampled the patient at x=-0.9. The composition was right and its result was discarded here.
-  patient.userData.openClinXrActorPosture = patientPlacement.posture ?? "standing";
+  patient.userData["openClinXrActorPosture"] = patientPlacement.posture ?? "standing";
   stampAuthoredFramingIntent(patient, patientPlacement);
   if (patientActorId) ctx.applyActorFraming(patient, patientActorId);
   if (patientActorId) {
@@ -202,12 +202,12 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   }
   scene.add(patient);
   // #83/#136: canonical slot kind on the root BEFORE load (never placement.slotKind — stale family tags collide).
-  patient.userData.openClinXrSlotKind = "primary_patient";
+  patient.userData["openClinXrSlotKind"] = "primary_patient";
   // The placement AS RESOLVED, stamped beside the posture it came with, so an instrument can read
   // what the runtime computed instead of inferring it from a transform. Measured 2026-09-09: the
   // patient slot sat at the manifest's raw x=-0.9 while its posture read `seated`, and a transform
   // alone cannot say whether the seated composition was never called or was called and overwritten.
-  patient.userData.openClinXrResolvedPlacement = {
+  patient.userData["openClinXrResolvedPlacement"] = {
     position: { ...patientPlacement.position },
     posture: patientPlacement.posture ?? "standing",
     slotKind: patientPlacement.slotKind,
@@ -217,7 +217,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
     provenance:
       (patientPlacement as { placementProvenance?: string }).placementProvenance ?? "resolved_default",
   };
-  patient.userData.openClinXrActorId = patientActorId;
+  patient.userData["openClinXrActorId"] = patientActorId;
   stampSupportAcceptance(patient, patientPlacement);
   consumeAuthoredHeading(patient, patientPlacement, patientActorId);
   if (patientActorId) {
@@ -232,7 +232,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
       posture: patientPlacement.posture ?? "standing",
     });
   } else {
-    patient.userData.openClinXrSlotUnfilledReason = "no_unique_patient_humanoid_for_station";
+    patient.userData["openClinXrSlotUnfilledReason"] = "no_unique_patient_humanoid_for_station";
   }
 
   const clinicalActorId = ctx.actorIdForSlot("clinical_team");
@@ -251,7 +251,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   if (ctx.cleanComparatorCapture()) {
     // #315 follow-up: the nurse comparator's named subject is the clinical actor — show it.
     nurse.visible = comparatorCaptureSubjectActorId(ctx.assetLoadingContext()) === clinicalActorId;
-    nurse.userData.openClinXrComparatorVisibilityPolicy = nurse.visible
+    nurse.userData["openClinXrComparatorVisibilityPolicy"] = nurse.visible
       ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
       : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
   } else if (!clinicalActorId) {
@@ -261,9 +261,9 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   // Framing must see both values.  Without these stamps it sees an empty posture
   // and no authored-intent marker, then replaces the authored bedside root with
   // the visual-review fallback (0.64, 0, 0.3) before heading consumption runs.
-  nurse.userData.openClinXrSlotKind = "clinical_team";
-  nurse.userData.openClinXrActorPosture = nursePlacement.posture ?? "standing";
-  nurse.userData.openClinXrActorId = clinicalActorId;
+  nurse.userData["openClinXrSlotKind"] = "clinical_team";
+  nurse.userData["openClinXrActorPosture"] = nursePlacement.posture ?? "standing";
+  nurse.userData["openClinXrActorId"] = clinicalActorId;
   stampAuthoredFramingIntent(nurse, nursePlacement);
   if (clinicalActorId) ctx.applyActorFraming(nurse, clinicalActorId);
   if (clinicalActorId) {
@@ -284,7 +284,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
       posture: nursePlacement.posture ?? "standing",
     });
   } else {
-    nurse.userData.openClinXrSlotUnfilledReason = "no_unique_clinical_humanoid_for_station";
+    nurse.userData["openClinXrSlotUnfilledReason"] = "no_unique_clinical_humanoid_for_station";
   }
 
   const familyActorId = ctx.actorIdForSlot("family_or_observer");
@@ -303,7 +303,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   if (ctx.cleanComparatorCapture()) {
     // #315 follow-up: the parent comparator's named subject is the family actor — show it.
     spouse.visible = comparatorCaptureSubjectActorId(ctx.assetLoadingContext()) === familyActorId;
-    spouse.userData.openClinXrComparatorVisibilityPolicy = spouse.visible
+    spouse.userData["openClinXrComparatorVisibilityPolicy"] = spouse.visible
       ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
       : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
   } else if (!familyActorId) {
@@ -315,20 +315,20 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
     // feet 0.256 m above the floor). Standing parents keep the three-actor review reframe.
     if (spousePlacement.posture === "seated") {
       spouse.rotation.y = -0.26;
-      spouse.userData.openClinXrDynamicScenePolicy =
+      spouse.userData["openClinXrDynamicScenePolicy"] =
         "parent_seated_on_authored_family_chair_anchor_for_visible_three_actor_review";
     } else {
       spouse.position.x = Math.max(spouse.position.x, -1.42);
       spouse.position.z = 0.42;
       spouse.rotation.y = -0.26;
-      spouse.userData.openClinXrDynamicScenePolicy = "parent_actor_reframed_from_case_defined_parent_chair_zone_for_visible_three_actor_review";
+      spouse.userData["openClinXrDynamicScenePolicy"] = "parent_actor_reframed_from_case_defined_parent_chair_zone_for_visible_three_actor_review";
     }
   }
   // #591: stamp slot identity BEFORE framing — the framing's seated guard reads these, and
   // they were previously written only after applyCleanEncounterVisualReviewActorFraming ran.
-  spouse.userData.openClinXrSlotKind = "family_or_observer";
-  spouse.userData.openClinXrActorPosture = spousePlacement.posture ?? "standing";
-  spouse.userData.openClinXrActorId = familyActorId;
+  spouse.userData["openClinXrSlotKind"] = "family_or_observer";
+  spouse.userData["openClinXrActorPosture"] = spousePlacement.posture ?? "standing";
+  spouse.userData["openClinXrActorId"] = familyActorId;
   spouse.scale.set(spousePlacement.scale.x, spousePlacement.scale.y, spousePlacement.scale.z);
   stampAuthoredFramingIntent(spouse, spousePlacement);
   if (familyActorId) ctx.applyActorFraming(spouse, familyActorId);
@@ -350,7 +350,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
       posture: spousePlacement.posture ?? "standing",
     });
   } else {
-    spouse.userData.openClinXrSlotUnfilledReason = "no_unique_family_humanoid_for_station";
+    spouse.userData["openClinXrSlotUnfilledReason"] = "no_unique_family_humanoid_for_station";
   }
 
   // #122/#123 fourth slot — placement SSOT (team-adjacent secondary), not doorway hardcode.
@@ -368,7 +368,7 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   if (ctx.cleanComparatorCapture() || !additionalActorId) {
     additional.visible = false;
     if (ctx.cleanComparatorCapture()) {
-      additional.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+      additional.userData["openClinXrComparatorVisibilityPolicy"] = "hidden_for_clean_humanoid_source_comparator_capture";
     }
   }
   additional.scale.set(additionalPlacement.scale.x, additionalPlacement.scale.y, additionalPlacement.scale.z);
@@ -377,11 +377,11 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   // composition. Its approach executor owns the root path and stance lock; preserving the start
   // through the static framing pass changes the measured foot-contact solution before walking.
   if (ctx.encounterBundle().scenarioId === "scene_closure_supine_bedside_v1") {
-    additional.userData.openClinXrPreserveResolvedPlacement = false;
+    additional.userData["openClinXrPreserveResolvedPlacement"] = false;
   }
-  additional.userData.openClinXrSlotKind = "additional_cast";
-  additional.userData.openClinXrActorPosture = additionalPlacement.posture ?? "standing";
-  additional.userData.openClinXrActorId = additionalActorId;
+  additional.userData["openClinXrSlotKind"] = "additional_cast";
+  additional.userData["openClinXrActorPosture"] = additionalPlacement.posture ?? "standing";
+  additional.userData["openClinXrActorId"] = additionalActorId;
   if (additionalActorId) ctx.applyActorFraming(additional, additionalActorId);
   // THE AUTHORED HEADING IS CONSUMED HERE, and it is applied AFTER framing on purpose. This slot
   // was the only one that consumed it; `consumeAuthoredHeading` now serves patient and clinical
@@ -404,12 +404,12 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
       posture: additionalPlacement.posture ?? "standing",
     });
   } else {
-    additional.userData.openClinXrSlotUnfilledReason = "no_remaining_unique_humanoid_for_additional_slot";
+    additional.userData["openClinXrSlotUnfilledReason"] = "no_remaining_unique_humanoid_for_additional_slot";
   }
   const slotEvidence = ctx.readActorSlotAssignment();
   if (slotEvidence) {
-    scene.userData.openClinXrNotStagedActorIds = slotEvidence.notStagedActorIds;
-    scene.userData.openClinXrActorSlotAssignment = slotEvidence;
+    scene.userData["openClinXrNotStagedActorIds"] = slotEvidence.notStagedActorIds;
+    scene.userData["openClinXrActorSlotAssignment"] = slotEvidence;
   }
 
   return { patient, nurse };

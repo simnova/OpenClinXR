@@ -227,9 +227,28 @@ function programFor(sources: string[]): ts.Program {
   });
 }
 
-/** Compiler-resolved surface for every declared entrypoint in scope. */
-export function measureSurface(root: string = findWorkspaceRoot()): SurfaceReport {
-  const scope = discoverScopePackages(root);
+/** Compiler-resolved surface for every declared entrypoint in scope.
+ * An optional inline `options` scopes the real compiler program to the exact
+ * canonical `packageDir` values listed in `packageDirs`, filtered before
+ * declared entrypoints are resolved. Undefined (or missing `packageDirs`)
+ * preserves the exact default full-workspace scan; an explicit empty set or
+ * any unknown dir fails closed instead of emitting a vacuous report. */
+export function measureSurface(
+  root: string = findWorkspaceRoot(),
+  options?: { packageDirs?: readonly string[] },
+): SurfaceReport {
+  const discovered = discoverScopePackages(root);
+  const requested = options?.packageDirs;
+  if (requested !== undefined && requested.length === 0) {
+    throw new Error("measureSurface: packageDirs must not be empty (refusing vacuous report)");
+  }
+  if (requested !== undefined) {
+    const known = new Set(discovered.map((pkg) => pkg.packageDir));
+    for (const dir of requested) {
+      if (!known.has(dir)) throw new Error(`measureSurface: unknown packageDir "${dir}" (fail-closed)`);
+    }
+  }
+  const scope = requested === undefined ? discovered : discovered.filter((pkg) => requested.includes(pkg.packageDir));
   const byPackage = new Map<string, { name: string; entries: DeclaredEntrypoint[] }>();
   for (const pkg of scope) {
     byPackage.set(pkg.packageDir, { name: pkg.name, entries: declaredEntrypoints(root, pkg.packageDir, pkg.name) });
