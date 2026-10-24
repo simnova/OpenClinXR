@@ -1,4 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
 
 import {
   ARCHITECTURE_GLOBAL_SUITE_FILES,
@@ -7,10 +11,16 @@ import {
   buildBiomeStep,
   buildE18eStep,
   buildKnipStep,
+  buildTestTouchedStep,
+  changedFilesForProfile,
   classifyArchitectureInvocation,
+  commitScopedGitEnv,
   matchesAnyPath,
+  stagedFilesForPreCommit,
   stepsForProfile,
+  testTouchedScope,
 } from "./agentic-hook-runner.js";
+import { decodeCommitFileSet } from "./test-touched.js";
 
 describe("agentic-hook-runner path-scoped architecture", () => {
   it("omits architecture when staged files cannot introduce architecture violations", () => {
@@ -200,5 +210,121 @@ describe("agentic-hook-runner path-scoped architecture", () => {
         "tools/openclinxr/evidence/scene-closure/proofs/sc-05/runtime-approach-measurement.ts",
       ]).some((s) => s.label === label),
     ).toBe(false);
+  });
+});
+
+describe("agentic-hook-runner commit-index routing (ph114)", () => {
+  const savedIndex = process.env.GIT_INDEX_FILE;
+  afterEach(() => {
+    if (savedIndex === undefined) delete process.env.GIT_INDEX_FILE;
+    else process.env.GIT_INDEX_FILE = savedIndex;
+  });
+
+  function git(cwd: string, args: string[], env?: NodeJS.ProcessEnv): void {
+    execFileSync("git", args, {
+      cwd,
+      env: env ?? cleanFixtureEnv(),
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  }
+
+  /**
+   * Fixture env (ph117): temp-repo git setup must never inherit the caller's
+   * foreign repo vars (hook/acceptance GIT_INDEX_FILE, GIT_DIR, GIT_WORK_TREE
+   * point at trees whose blobs are absent in the fresh temp repo and break
+   * fixture creation before any source assertion). Explicit per-fixture
+   * overrides (e.g. a private alternate index) pass via `extra` and win.
+   */
+  function cleanFixtureEnv(extra?: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+    const env = { ...process.env };
+    delete env.GIT_INDEX_FILE;
+    delete env.GIT_DIR;
+    delete env.GIT_WORK_TREE;
+    return { ...env, GIT_CONFIG_NOSYSTEM: "1", ...extra };
+  }
+
+  /**
+   * Real index A (unrelated staged work) vs private index B (the approved
+   * commit set only). B simulates the git hook's GIT_INDEX_FILE temp index.
+   */
+  function indexAvsB(): { dir: string; indexB: string } {
+    const dir = mkdtempSync(join("/tmp", `ph114-hook-${process.pid}-`));
+    git(dir, ["init", "-b", "main"]);
+    git(dir, ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "--allow-empty", "-m", "base"]);
+    writeFileSync(join(dir, "unrelated.ts"), "export const u = 1;\n");
+    writeFileSync(join(dir, "intended.ts"), "export const ok = 1;\n");
+    git(dir, ["add", "unrelated.ts"]); // real index A: unrelated work only
+    const indexB = join(dir, ".git", "indexB");
+    const bEnv = cleanFixtureEnv({ GIT_INDEX_FILE: indexB });
+    git(dir, ["read-tree", "HEAD"], bEnv);
+    git(dir, ["add", "intended.ts"], bEnv); // private index B: commit set only
+    return { dir, indexB };
+  }
+
+  it("commitScopedGitEnv keeps a live GIT_INDEX_FILE but still strips GIT_DIR/GIT_WORK_TREE", () => {
+    const base = {
+      ...process.env,
+      GIT_INDEX_FILE: "/tmp/ph114-definitely-missing-index",
+      GIT_DIR: "/tmp/evil.git",
+      GIT_WORK_TREE: "/tmp/evil",
+    };
+    const env = commitScopedGitEnv(base);
+    expect(env.GIT_INDEX_FILE).toBeUndefined(); // missing file: fail safe, strip it
+    expect(env.GIT_DIR).toBeUndefined();
+    expect(env.GIT_WORK_TREE).toBeUndefined();
+  });
+
+  it("commitScopedGitEnv with no inherited index matches the plain sanitized env", () => {
+    delete process.env.GIT_INDEX_FILE;
+    expect(commitScopedGitEnv().GIT_INDEX_FILE).toBeUndefined();
+  });
+
+  it("staged query under commit context reads private index B, not real index A", () => {
+    const { dir, indexB } = indexAvsB();
+    const commitEnv = commitScopedGitEnv({ ...process.env, GIT_INDEX_FILE: indexB });
+    expect(commitEnv.GIT_INDEX_FILE).toBe(indexB); // live temp index honored
+    expect(stagedFilesForPreCommit({ cwd: dir, env: commitEnv })).toEqual(["intended.ts"]);
+  });
+
+  it("staged query without commit context still reads real index A (no behavior change)", () => {
+    const { dir } = indexAvsB();
+    delete process.env.GIT_INDEX_FILE;
+    expect(stagedFilesForPreCommit({ cwd: dir })).toEqual(["unrelated.ts"]);
+  });
+
+  it("changedFilesForProfile(pre-commit) sees the commit set under the caller index", () => {
+    const { dir, indexB } = indexAvsB();
+    const commitEnv = commitScopedGitEnv({ ...process.env, GIT_INDEX_FILE: indexB });
+    expect(changedFilesForProfile("pre-commit", { cwd: dir, env: commitEnv })).toEqual(["intended.ts"]);
+  });
+
+  it("buildTestTouchedStep passes the EXACT staged list as a structured arg (round-trip incl. spaces)", () => {
+    const files = ["tools/openclinxr/openclaw/test-touched.ts", "apps/api/src/odd name.ts"];
+    const step = buildTestTouchedStep(files);
+    expect(step.label).toBe("Touched related tests (pre-commit full gate)");
+    expect(step.command.slice(0, 3)).toEqual(["pnpm", "test:touched", "--commit-files-b64"]);
+    expect(decodeCommitFileSet(step.command[3]!)).toEqual([...files].sort());
+  });
+
+  it("testTouchedScope prefers the explicit commit set over the classification set", () => {
+    expect(testTouchedScope(["a.ts"], ["b.ts"])).toEqual(["b.ts"]);
+    expect(testTouchedScope(["a.ts"])).toEqual(["a.ts"]);
+  });
+
+  it("pre-commit Touched step consumes the explicit commit set, excluding unrelated staged work", () => {
+    const unrelatedStaged = ["apps/api/src/server.ts", "packages/openclinxr/domain/src/stale.ts"];
+    const commitFiles = ["tools/openclinxr/openclaw/test-touched.ts"];
+    const steps = stepsForProfile("pre-commit", unrelatedStaged, commitFiles);
+    const touched = steps.find((s) => s.label === "Touched related tests (pre-commit full gate)");
+    expect(touched).toBeDefined();
+    expect(decodeCommitFileSet(touched!.command[3]!)).toEqual(commitFiles);
+  });
+
+  it("pre-commit Touched step without an explicit set keeps prior behavior (classification set)", () => {
+    const staged = ["tools/openclinxr/openclaw/test-touched.ts"];
+    const steps = stepsForProfile("pre-commit", staged);
+    const touched = steps.find((s) => s.label === "Touched related tests (pre-commit full gate)");
+    expect(touched).toBeDefined();
+    expect(decodeCommitFileSet(touched!.command[3]!)).toEqual(staged);
   });
 });

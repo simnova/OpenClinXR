@@ -24,14 +24,19 @@
 
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const REPO_ROOT = resolve(join(dirname(fileURLToPath(import.meta.url)), "../../.."));
 
-function gitLines(args: string[]): string[] {
+function gitLines(args: string[], opts: { cwd?: string; env?: NodeJS.ProcessEnv } = {}): string[] {
   try {
-    const out = execFileSync("git", args, { cwd: REPO_ROOT, encoding: "utf8" });
+    const out = execFileSync("git", args, {
+      cwd: opts.cwd ?? REPO_ROOT,
+      encoding: "utf8",
+      env: opts.env ?? gitEnvWithoutInheritedRepoVars(),
+    });
     return out.split("\n").map((l: string) => l.trim()).filter(Boolean);
   } catch {
     return [];
@@ -39,15 +44,68 @@ function gitLines(args: string[]): string[] {
 }
 
 /** Repo-relative .ts/.tsx paths changed vs HEAD: staged + unstaged + untracked. */
-export function touchedSourceFiles(): string[] {
-  const staged = gitLines(["diff", "--name-only", "--cached", "HEAD"]);
-  const unstaged = gitLines(["diff", "--name-only"]);
-  const untracked = gitLines(["ls-files", "--others", "--exclude-standard"]);
+export function touchedSourceFiles(opts: { cwd?: string; env?: NodeJS.ProcessEnv } = {}): string[] {
+  const staged = gitLines(["diff", "--name-only", "--cached", "HEAD"], opts);
+  const unstaged = gitLines(["diff", "--name-only"], opts);
+  const untracked = gitLines(["ls-files", "--others", "--exclude-standard"], opts);
   const seen = new Set<string>();
   for (const f of [...staged, ...unstaged, ...untracked]) {
     if ((f.endsWith(".ts") || f.endsWith(".tsx")) && !seen.has(f)) seen.add(f);
   }
   return [...seen].sort();
+}
+
+/**
+ * Explicit commit file set (ph114): the pre-commit hook resolves the staged set
+ * once — under the caller's commit index — and passes it here as a structured
+ * CLI arg (`--commit-files-b64 <base64(JSON string[])>`). Commit mode consumes
+ * that list EXCLUSIVELY: it never re-queries staged/unstaged/untracked/real
+ * index, so unrelated working changes cannot leak into the commit gate.
+ * Default interactive behavior (no flag) is unchanged.
+ */
+export const COMMIT_FILES_B64_FLAG = "--commit-files-b64";
+
+/** Base64(JSON string[]) encoding shared with agentic-hook-runner.ts. */
+export function encodeCommitFileSet(files: string[]): string {
+  return Buffer.from(JSON.stringify([...files]), "utf8").toString("base64");
+}
+
+/**
+ * Decode + validate an explicit commit file set. THROWS on malformed input
+ * (fail closed: the caller must refuse the gate, never fall back to a
+ * re-queried working set).
+ */
+export function decodeCommitFileSet(b64: string): string[] {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(Buffer.from(b64, "base64").toString("utf8"));
+  } catch {
+    throw new Error("test:touched: malformed --commit-files-b64 payload (not base64 JSON)");
+  }
+  if (!Array.isArray(parsed) || parsed.some((f) => typeof f !== "string" || f.length === 0)) {
+    throw new Error("test:touched: malformed --commit-files-b64 payload (expected JSON array of non-empty strings)");
+  }
+  for (const f of parsed as string[]) {
+    if (f.startsWith("/") || f.includes("\\") || f.split("/").includes("..") || f.includes("\0")) {
+      throw new Error(`test:touched: malformed --commit-files-b64 payload (unsafe path: ${f})`);
+    }
+  }
+  return [...new Set(parsed as string[])].sort();
+}
+
+/**
+ * Returns the explicit commit file set when `--commit-files-b64` is present,
+ * or null for default interactive mode (staged+unstaged+untracked vs HEAD).
+ * THROWS on malformed payload (fail closed).
+ */
+export function commitFileSetFromArgs(argv: string[]): string[] | null {
+  const at = argv.indexOf(COMMIT_FILES_B64_FLAG);
+  if (at === -1) return null;
+  const b64 = argv[at + 1];
+  if (b64 === undefined) {
+    throw new Error("test:touched: --commit-files-b64 requires a value");
+  }
+  return decodeCommitFileSet(b64);
 }
 
 export type TestPlan =
@@ -102,6 +160,7 @@ function run(cmd: string[], opts: { cwd?: string } = {}): number {
     cwd: opts.cwd ?? REPO_ROOT,
     stdio: "inherit",
     shell: false,
+    env: gitEnvWithoutInheritedRepoVars(),
   });
   return r.status ?? 1;
 }
@@ -120,7 +179,24 @@ export function knownRedTests(): { path: string; reason: string; card: string }[
 
 function main(): void {
   const start = Date.now();
-  const files = touchedSourceFiles();
+  let files: string[];
+  let commitMode = false;
+  try {
+    const explicit = commitFileSetFromArgs(process.argv.slice(2));
+    if (explicit !== null) {
+      // Commit mode: the hook's exact staged list. Same .ts/.tsx filter as the
+      // interactive set, but NEVER re-query git (no staged/unstaged/untracked
+      // merge, no real-index read under a commit temp index).
+      commitMode = true;
+      files = explicit.filter((f) => f.endsWith(".ts") || f.endsWith(".tsx"));
+    } else {
+      files = touchedSourceFiles();
+    }
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+    return;
+  }
   const plan = planTests(files);
   if (plan.kind === "none") {
     console.log("no related tests");
@@ -154,7 +230,9 @@ function main(): void {
       code = run(["pnpm", "--filter", pkg, "exec", "vitest", ...archConfigArgs, "related", "--run", "--passWithNoTests", ...redArgs, ...archFiles]) || code;
     }
   }
-  console.log(`test:touched: ${files.length} touched file(s) in ${((Date.now() - start) / 1000).toFixed(1)}s`);
+  console.log(
+    `test:touched: ${files.length} touched file(s) in ${((Date.now() - start) / 1000).toFixed(1)}s${commitMode ? " (explicit commit file set)" : ""}`,
+  );
   process.exit(code);
 }
 

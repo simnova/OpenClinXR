@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
+import { encodeCommitFileSet } from "./test-touched.js";
 
 export type HookProfile = "pre-commit" | "pre-push" | "strict" | "local-exam";
 
@@ -89,11 +90,12 @@ export function normalizeProfile(args: string[]): HookProfile {
   return rawProfile as HookProfile;
 }
 
-function runGit(args: string[]): string[] {
+function runGit(args: string[], opts: { cwd?: string; env?: NodeJS.ProcessEnv } = {}): string[] {
   try {
     return execFileSync("git", args, {
+      cwd: opts.cwd,
       encoding: "utf8",
-      env: gitEnvWithoutInheritedRepoVars(),
+      env: opts.env ?? commitScopedGitEnv(),
     })
       .split(/\r?\n/u)
       .map((line) => line.trim())
@@ -103,18 +105,56 @@ function runGit(args: string[]): string[] {
   }
 }
 
-export function changedFilesForProfile(profile: HookProfile): string[] {
+/**
+ * Commit-index-scoped git env (ph114). `gitEnvWithoutInheritedRepoVars` strips
+ * GIT_INDEX_FILE so `git worktree add` never inherits a hook's temp index —
+ * that sanitization stays the default everywhere else. But read-only staged
+ * queries during pre-commit NEED the caller's temp index: git exports
+ * GIT_INDEX_FILE pointing at the approved private commit index, and a fully
+ * stripped query reads the real .git/index instead (measured: 38 unrelated
+ * staged paths instead of the 5-path commit).
+ *
+ * This restores ONLY GIT_INDEX_FILE, and only when it names an existing file
+ * (a live commit temp index). GIT_DIR / GIT_WORK_TREE / GIT_OBJECT_DIRECTORY
+ * / GIT_COMMON_DIR stay stripped — repo resolution comes from `cwd`, never
+ * from inherited vars — and every worktree-mutating path keeps the fully
+ * stripped env. No global weakening of the freshness helper (untouched).
+ */
+export function commitScopedGitEnv(base: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
+  const env = { ...base };
+  for (const key of ["GIT_DIR", "GIT_WORK_TREE", "GIT_OBJECT_DIRECTORY", "GIT_COMMON_DIR"]) {
+    delete env[key];
+  }
+  const indexFile = base.GIT_INDEX_FILE;
+  let keep = false;
+  if (typeof indexFile === "string" && indexFile.length > 0) {
+    try {
+      keep = statSync(indexFile).isFile();
+    } catch {
+      keep = false;
+    }
+  }
+  if (!keep) {
+    delete env.GIT_INDEX_FILE;
+  }
+  return env;
+}
+
+export function changedFilesForProfile(
+  profile: HookProfile,
+  opts: { cwd?: string; env?: NodeJS.ProcessEnv } = {},
+): string[] {
   if (profile === "pre-commit") {
-    const staged = runGit(["diff", "--cached", "--name-only", "--diff-filter=ACMRTUXB"]);
-    return staged.length > 0 ? staged : runGit(["diff", "--name-only", "--diff-filter=ACMRTUXB"]);
+    const staged = runGit(["diff", "--cached", "--name-only", "--diff-filter=ACMRTUXB"], opts);
+    return staged.length > 0 ? staged : runGit(["diff", "--name-only", "--diff-filter=ACMRTUXB"], opts);
   }
 
   if (profile === "pre-push") {
-    const upstream = runGit(["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"])[0];
+    const upstream = runGit(["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"], opts)[0];
     if (upstream) {
-      return runGit(["diff", "--name-only", "--diff-filter=ACMRTUXB", `${upstream}...HEAD`]);
+      return runGit(["diff", "--name-only", "--diff-filter=ACMRTUXB", `${upstream}...HEAD`], opts);
     }
-    return runGit(["diff", "--name-only", "--diff-filter=ACMRTUXB", "HEAD"]);
+    return runGit(["diff", "--name-only", "--diff-filter=ACMRTUXB", "HEAD"], opts);
   }
 
   return [];
@@ -126,8 +166,8 @@ export function changedFilesForProfile(profile: HookProfile): string[] {
  * to what THIS commit actually contains; an empty staged set must keep the sweep
  * global, never re-scope it to somebody else's uncommitted WIP (#361).
  */
-export function stagedFilesForPreCommit(): string[] {
-  return runGit(["diff", "--cached", "--name-only", "--diff-filter=ACMRTUXB"]);
+export function stagedFilesForPreCommit(opts: { cwd?: string; env?: NodeJS.ProcessEnv } = {}): string[] {
+  return runGit(["diff", "--cached", "--name-only", "--diff-filter=ACMRTUXB"], opts);
 }
 
 export function matchesAnyPath(files: string[], patterns: RegExp[]): boolean {
@@ -576,7 +616,35 @@ function buildBaseOpenClawSteps(profile: HookProfile, changedFiles: string[]): H
   return steps;
 }
 
-function buildPathAwareSteps(profile: HookProfile, changedFiles: string[]): HookStep[] {
+/**
+ * Exact staged scope for the Touched gate (ph114). When the hook resolved an
+ * explicit commit file set (staged-only, under the caller's commit index),
+ * that set IS the scope; otherwise fall back to the classification set so
+ * unit callers (`stepsForProfile(profile, staged)`) keep prior behavior.
+ */
+export function testTouchedScope(changedFiles: string[], commitFiles?: string[]): string[] {
+  return commitFiles ?? changedFiles;
+}
+
+/**
+ * The commit gate's related-test step. The EXACT staged file list travels as a
+ * structured CLI arg (`--commit-files-b64 <base64(JSON string[])>`); commit
+ * mode in test-touched.ts consumes that list exclusively and never re-queries
+ * unstaged/untracked/real index. Array-form spawn: no shell, no escaping loss.
+ */
+export function buildTestTouchedStep(commitFiles: string[]): HookStep {
+  return {
+    label: "Touched related tests (pre-commit full gate)",
+    command: ["pnpm", "test:touched", COMMIT_FILES_B64_ARG, encodeCommitFileSet(commitFiles)],
+    reason:
+      "the commit is the full gate — workers iterate with pnpm test:touched and never hand-run full suites (explicit commit file set; never re-queries working changes)",
+  };
+}
+
+/** CLI flag test-touched.ts consumes for the explicit commit file set. */
+export const COMMIT_FILES_B64_ARG = "--commit-files-b64";
+
+function buildPathAwareSteps(profile: HookProfile, changedFiles: string[], commitFiles?: string[]): HookStep[] {
   const publicAssetChanged = matchesAnyPath(changedFiles, [
     /^README\.md$/u,
     /^docs\/(?:index\.html|styles\.css|assets\/)/u,
@@ -666,13 +734,8 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[]): Hook
   // The worker brief's Test loop names the commit as the full gate, so the gate must exist:
   // related tests for every staged .ts/.tsx file run here, which is exactly what
   // `pnpm test:touched` resolves to at commit time (staged vs HEAD is its input set).
-  if (profile === "pre-commit" && changedFiles.some((f) => /\.tsx?$/u.test(f))) {
-    steps.push({
-      label: "Touched related tests (pre-commit full gate)",
-      command: pnpm("test:touched"),
-      reason:
-        "the commit is the full gate — workers iterate with pnpm test:touched and never hand-run full suites",
-    });
+  if (profile === "pre-commit" && testTouchedScope(changedFiles, commitFiles).some((f) => /\.tsx?$/u.test(f))) {
+    steps.push(buildTestTouchedStep(testTouchedScope(changedFiles, commitFiles)));
   }
 
   if (profile === "pre-push" && productCodeChanged) {
@@ -726,7 +789,7 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[]): Hook
   return steps;
 }
 
-export function stepsForProfile(profile: HookProfile, changedFiles?: string[]): HookStep[] {
+export function stepsForProfile(profile: HookProfile, changedFiles?: string[], commitFiles?: string[]): HookStep[] {
   if (profile === "local-exam") {
     return [
       {
@@ -759,7 +822,7 @@ export function stepsForProfile(profile: HookProfile, changedFiles?: string[]): 
   }
 
   const files = changedFiles ?? changedFilesForProfile(profile);
-  return [...buildBaseOpenClawSteps(profile, files), ...buildPathAwareSteps(profile, files)];
+  return [...buildBaseOpenClawSteps(profile, files), ...buildPathAwareSteps(profile, files, commitFiles)];
 }
 
 function formatCommand(command: string[]): string {
@@ -878,7 +941,11 @@ function printSummary(profile: HookProfile, results: HookRunResult[]): void {
 
 export async function runAgenticHookProfile(profile: HookProfile): Promise<number> {
   const changedFiles = changedFilesForProfile(profile);
-  const steps = stepsForProfile(profile, changedFiles);
+  // Exact staged-only set under the CALLER's commit index (ph114): honored via
+  // commitScopedGitEnv inside stagedFilesForPreCommit, then passed explicitly
+  // to the Touched step so test:touched never re-queries working git state.
+  const commitFiles = profile === "pre-commit" ? stagedFilesForPreCommit() : undefined;
+  const steps = stepsForProfile(profile, changedFiles, commitFiles);
   const results: HookRunResult[] = [];
 
   console.log(`OpenClaw agentic hook runner: ${profile}`);
