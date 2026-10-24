@@ -1,7 +1,7 @@
 ---
 name: model-routing
-description: "The operator's model ladders for worker agents and the superagent, with the fallback rule and the probe. Load BEFORE passing `model:` to dispatch(), before spawning any worker or subagent, before opening or resuming a superagent consult, and whenever a dispatch dies on a provider error. LADDER 2026-09-10: DeepSeek HOLD (402). Default worker is muse-spark-1 (contributor, vision OK). Fallback nemotron-ultra is free, text-only. grok-4.6 is escalate. ox-alpha 404-retired."
-when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 bytes, empty response, no_visible_content, stalled, unresponsive, step down a rung, dispatch a worker, pass a model, which model, spawn subagent, resume superagent, ox-alpha, deepseek, muse-spark, nemotron, grok-4.6, provider died, 402, model fell back, escalate model, worker model policy"
+description: "The operator's model ladders for worker agents and the superagent, with the fallback rule and the probe. Load BEFORE passing `model:` to dispatch(), before spawning any worker or subagent, before opening or resuming a superagent consult, and whenever a dispatch dies on a provider error. LADDER 2026-09-10: DeepSeek HOLD (402). Default worker is muse-spark-1 (contributor, vision OK). Fallback nemotron-ultra is free, text-only. grok-4.7 is escalate. grok-4.6 is retired. ox-alpha 404-retired."
+when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 bytes, empty response, no_visible_content, stalled, unresponsive, step down a rung, dispatch a worker, pass a model, which model, spawn subagent, resume superagent, ox-alpha, deepseek, muse-spark, nemotron, grok-4.7, grok-4.6, provider died, 402, model fell back, escalate model, worker model policy"
 ---
 
 # Model routing
@@ -12,7 +12,7 @@ when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 byte
 > |---|---|---|
 > | **default** | `muse-spark-1` → `meta/muse-spark-1.3-contributor` | workers, scouts, plan, execute, vision (image OK) |
 > | **fallback** | `nemotron-ultra` | free, **text-only**. Needs `modelDowngradeReason` on write roles |
-> | **escalate** | `grok-4.6` | measured Muse failure / UNABLE |
+> | **escalate** | `grok-4.7` | measured Muse failure / UNABLE. Do not pass `grok-4.6`. |
 > | **HOLD** | all `deepseek-*` | 402 Insufficient Balance. Do not dispatch |
 >
 > Enforced in `GROK_WORKER_MODEL` / `GROK_WORKER_FALLBACK_MODEL`, `MODEL_RANK`,
@@ -32,7 +32,8 @@ when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 byte
 > |---|---|
 > | `deepseek-v4-flash-vision-exp` | **HAS VISION.** It is the vision rung. |
 > | `grok-4.5` | **DEPRECATED.** Do not route to it. |
-> | `grok-4.6` | its successor, and the rung-2 escalation |
+> | `grok-4.6` | **retired.** Do not pass it. |
+> | `grok-4.7` | current escalate alias |
 > | `ox-alpha` | retired, HTTP 404 since 2026-08-26 |
 >
 > **This corrects a claim still live in other surfaces of this repo.** Measured 2026-08-29,
@@ -60,7 +61,7 @@ when-to-use: "ox is down, ox not working, model is broken, dispatch died, 0 byte
 > | **0** | `muse-spark-1.3-contributor` | **OPTIONAL cheapest worker/actor alias** — see the rung-0 note below. 403 until 18+ confirmed. NOT the default. |
 > | **1** | `deepseek-v4-flash` | **cheapest default for workers, scouts, scheduled wakes, superagent** |
 > | **1v** | `deepseek-v4-flash-vision-exp` | **when the slice genuinely needs the worker to read an image** — sideways, not a step down. This model HAS VISION (operator, 2026-08-29), contradicting the older tables named above. |
-> | **2** | `grok-4.6` | **strong/smart** — escalate when flash is not enough (hard slice, UNABLE, measured flash failure). Successor to the DEPRECATED grok-4.5; never route to 4.5. |
+> | **2** | `grok-4.7` | **strong/smart** — escalate when flash is not enough (hard slice, UNABLE, measured flash failure). Successor to retired grok-4.6 and DEPRECATED grok-4.5; never route to 4.5 or 4.6. |
 > | ~~ox-alpha~~ | retired | HTTP 404 as of 2026-08-26. Do not pass `model: ox-alpha`. |
 >
 > **Rung 0 (2026-09-02, optional):** alias `muse-spark-1.3-contributor` → wire
@@ -180,7 +181,7 @@ ledger (1,277 rows), counting only rows carrying a terminal phase:
 | **ox-alpha** | 97 | **21.6%** | 6,630 | **3.17** |
 | deepseek-v4-flash | 87 | 2.3% | 6,273 | 0.32 |
 | deepseek-v4-pro | 84 | 2.4% | 3,964 | 0.50 |
-| grok-4.5 *(DEPRECATED 2026-08-29 — historical row, do not route here; 4.6 is the successor)* | 47 | 0.0% | 1,229 | 0.00 |
+| grok-4.5 *(DEPRECATED 2026-08-29 — historical row, do not route here; escalate is grok-4.7)* | 47 | 0.0% | 1,229 | 0.00 |
 
 **Normalised by TURNS on purpose.** Ox runs the longest sessions (median 65, max 250), so more
 exposure could have explained more deaths. It does not: ox still dies ~10x more per unit of work,
@@ -217,7 +218,7 @@ pushed is not preservation.
 | 1 | `ox-alpha` | free |
 | 2 | `deepseek-v4-flash` | cheap |
 | 3 | `deepseek-v4-flash-vision-exp` | cheap, with vision |
-| 4 | `grok-4.6` | not cheap, last resort |
+| 4 | `grok-4.7` | not cheap, last resort |
 
 > **RUNG 3 IS CONDITIONAL, NOT SEQUENTIAL.** Take `deepseek-v4-flash-vision-exp` ONLY when the slice
 > genuinely needs the worker to read an image AND `ox-alpha` is unavailable. `ox-alpha` is itself
@@ -232,7 +233,7 @@ pushed is not preservation.
 | rung | model | cost |
 |---|---|---|
 | 1 | `ox-alpha` | free |
-| 2 | `grok-4.6` | not cheap, last resort |
+| 2 | `grok-4.7` | not cheap, last resort |
 
 No DeepSeek rung on the superagent. Its work is judgment, direction and verdicts, and the cheap
 tier is not a substitute for that.
@@ -246,7 +247,7 @@ Aliases are defined in `~/.grok/config.toml`. Use the ALIAS, never the wire mode
 | `ox-alpha` | `stealth/ox-alpha` | `openrouter.ai/api/v1`, `chat_completions` | `OPENROUTER_API_KEY` | 1,048,576 |
 | `deepseek-v4-flash` | `deepseek-v4-flash` | `api.deepseek.com`, `chat_completions` | `DEEPSEEK_API_KEY` | 1,000,000 |
 | `deepseek-v4-flash-vision-exp` | `deepseek-v4-flash-vision-exp` | `api.deepseek.com`, `chat_completions` | `DEEPSEEK_API_KEY` | 1,000,000 |
-| `grok-4.6` | built-in, no `[model.*]` block | native | bundled auth | `[models] default` |
+| `grok-4.7` | built-in, no `[model.*]` block | native | bundled auth | `[models] default` |
 
 ### A worker slice — always through `dispatch()`, never raw
 
@@ -290,7 +291,7 @@ only accepts what its own menu advertises.
 
 ## DIAGNOSED 2026-08-24 at the fourth death — two mechanisms, and the ladder is the real cost
 
-Write-up + grok-4.6 consult + the discriminating grep, per the rule below. **This replaces every
+Write-up + grok-4.7 consult + the discriminating grep, per the rule below. **This replaces every
 earlier theory in this file.** Ox deaths are bimodal and the split is two distinct mechanisms:
 
 **FAST (13–29 s) — the dispatch parent has no `OPENROUTER_API_KEY`.** `dispatch()` spawns with the
@@ -641,7 +642,7 @@ truth of 43, identical prompt, `--max-turns 4`:
 | `ox-alpha` | 0 | 34 s | `43` | 218 |
 | `deepseek-v4-flash` | 0 | 13 s | `43` | 135 |
 | `deepseek-v4-flash-vision-exp` | 0 | 18 s | `43` | 730 |
-| `grok-4.6` | 0 | 24 s | `43` | 157 |
+| `grok-4.6` (retired; this row is the 2026-08-23 probe, not a route) | 0 | 24 s | `43` | 157 |
 
 Every rung is LIVE. **The `402 Insufficient Balance` on DeepSeek recorded in `PROJECT_STATUS.md` no
 longer reproduces** — both DeepSeek rungs answered here. Treat that 402 as a historical incident, and
@@ -650,7 +651,7 @@ re-probe rather than assuming it when a dispatch fails.
 `ox-alpha` also held a 50+ minute worker (issue-576, session `ef42e49d`, 572 session lines) without
 dying, so rung 1 is proven under sustained load and not only on a cold probe.
 
-`grok-4.6` was the only rung that did not follow "reply with exactly" literally — it prefixed a
+`grok-4.6` (retired) was the only rung that did not follow "reply with exactly" literally — it prefixed a
 sentence of narration before the required string. It answered correctly. Worth knowing if you parse
 a rung-4 reply with a strict matcher.
 

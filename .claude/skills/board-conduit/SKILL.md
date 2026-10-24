@@ -75,7 +75,7 @@ serial integrate, captures, WAKE re-arm, TICK reports.
 
 ## Failure posture
 
-Free-tier termination risk: test grok-4.6 fallback routing once before running
+Free-tier termination risk: test grok-4.7 fallback routing once before running
 hot. Two consecutive integrate refusals => land nothing further, page owner
 thread. Weekly worktree prune (~1.3 GB each). Owner-thread decay: consults kept
 small; proactive re-open before ox-alpha context ceiling.
