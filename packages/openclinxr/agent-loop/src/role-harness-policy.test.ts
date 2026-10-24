@@ -1162,4 +1162,51 @@ describe("role-harness-policy", () => {
       ).toBe(true);
     });
   });
+
+  describe("assembled-spec admission (ph251 HRBP ACCEPT_BOUNDED, prospective exact literal)", () => {
+    const TARGET = "tests/openclinxr/assembled-exam-learner-faculty.spec.ts";
+
+    it("implementation-planning-lead admits the exact assembled spec literal", () => {
+      const scope = getRolePathScope("implementation-planning-lead");
+      expect(scope.writeRoots).toContain(TARGET);
+      expect(assertTouchedWithinWriteRoots([TARGET], scope).ok).toBe(true);
+    });
+
+    it("every other role still refuses the spec literal; no tests/** grant", () => {
+      const others = repoRoleHarnessPolicies
+        .map((p) => p.roleId)
+        .filter((r) => r !== "implementation-planning-lead");
+      expect(repoRoleHarnessPolicies.length).toBe(18);
+      expect(others.length).toBe(17);
+      for (const role of others) {
+        const res = assertTouchedWithinWriteRoots([TARGET], getRolePathScope(role));
+        expect(res.ok).toBe(false);
+        expect(res.violations).toEqual([TARGET]);
+      }
+      const pl = getRolePathScope("implementation-planning-lead");
+      expect(pl.writeRoots).not.toContain("tests/**");
+      // Adjacent specs stay unadmitted.
+      expect(pl.writeRoots).not.toContain("tests/openclinxr/assembled-exam-admin.spec.ts");
+      expect(
+        assertTouchedWithinWriteRoots(
+          ["tests/openclinxr/assembled-exam-admin.spec.ts"],
+          pl,
+        ).ok,
+      ).toBe(false);
+    });
+
+    it("no sole-author lock covers the spec; path-scope-policy lock stays intact", () => {
+      for (const lock of soleAuthorLocks)
+        for (const p of lock.paths)
+          expect(p).not.toBe(TARGET);
+      expect(
+        findSoleAuthorLockViolations("implementation-planning-lead", [TARGET]),
+      ).toEqual([]);
+      expect(
+        findSoleAuthorLockViolations("implementation-planning-lead", [
+          "packages/openclinxr/agent-loop/src/role-harness-policy.ts",
+        ]).some((v) => v.lockId === "path-scope-policy"),
+      ).toBe(true);
+    });
+  });
 });

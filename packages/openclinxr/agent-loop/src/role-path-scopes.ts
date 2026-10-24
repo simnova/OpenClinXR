@@ -207,6 +207,12 @@ export const rolePathScopes: Record<string, RolePathScope> = {
       // ONE whole-package root only; provider execution unchanged (source ownership,
       // not provider-execution authorization). HELD: no gateway-source edits until
       // this policy is Main-adopted + PL actual-author review.
+      // Prospective 2026-10-24 (ph251 HRBP ACCEPT_BOUNDED): exact spec-owned literal —
+      // the assembled-exam learner/faculty acceptance spec has no owner; this role
+      // already owns its consumer lane (apps/api, rest, exam-assembly, runtime).
+      // ONE exact literal only — no tests/** wildcard. Prospective only: no spec
+      // edit until policy Main adoption + PL actual-author change.
+      "tests/openclinxr/assembled-exam-learner-faculty.spec.ts",
       "packages/openclinxr/capability-gateway/**",
     ],
     readRoots: [".openclinxr/slices/**/handoffs/**", "packages/openclinxr/**", "apps/api/**", "apps/ui-admin/**"],
