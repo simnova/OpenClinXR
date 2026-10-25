@@ -152,8 +152,9 @@ describe("room-chain stage cache keys", () => {
   });
 
   it("lighting key is outDir-independent: same GLB name, different dir, same key", () => {
-    const cold = { ...LIGHT_INPUT, roomGlbPath: "/repo/.openclinxr/evidence/red-cold/ward-chain.work.glb" };
-    const warm = { ...LIGHT_INPUT, roomGlbPath: "/repo/.openclinxr/evidence/red-warm/ward-chain.work.glb" };
+    const root = makeTempRoot();
+    const cold = { ...LIGHT_INPUT, roomGlbPath: path.join(root, "red-cold", "ward-chain.work.glb") };
+    const warm = { ...LIGHT_INPUT, roomGlbPath: path.join(root, "red-warm", "ward-chain.work.glb") };
     const keyOf = (input: Record<string, unknown>): string => {
       const collected = collectStageKeyInputs("lighting_design", {
         input: scrubLightingKeyInput(input),
@@ -163,7 +164,7 @@ describe("room-chain stage cache keys", () => {
           fileSha256: (absPath: string) =>
             absPath.endsWith("ward-chain.work.glb") ? sha256Hex("glb-bytes") : fakeFileSha256(absPath),
         },
-        workGlbPath: "/tmp/ward-chain.work.glb",
+        workGlbPath: path.join(root, "ward-chain.work.glb"),
       });
       expect(collected.ok).toBe(true);
       if (!collected.ok) throw new Error("unreachable");
@@ -174,7 +175,7 @@ describe("room-chain stage cache keys", () => {
       input: scrubLightingKeyInput(cold),
       upstreamKey: "finish-key",
       overrides: { ...PROBE_OVERRIDES, fileSha256: fakeFileSha256 },
-      workGlbPath: "/tmp/ward-chain.work.glb",
+      workGlbPath: path.join(root, "ward-chain.work.glb"),
     });
     expect(sameDir.ok).toBe(true);
     expect(keyOf(cold)).toBe(keyOf(warm));
