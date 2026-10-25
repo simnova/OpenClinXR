@@ -1,12 +1,23 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { factoryStationSchemas, PRODUCTION_STATION_IDS } from "../index.js";
 import { stationRunners } from "../station-runners.js";
 import { planFaceRealism } from "./plan.js";
-import { faceRealismModelCallCount, planFaceRealismStation, runFaceRealism } from "./run.js";
+import {
+  EYE_SHADE_ATTEN,
+  EYE_SHADE_BAND_M,
+  EYE_SHADE_DARKEN,
+  EYE_SHADE_REPORT_REL,
+  faceRealismModelCallCount,
+  planFaceRealismStation,
+  replayEyeShade,
+  runFaceRealism,
+  runStage5,
+} from "./run.js";
 
 /**
  * Local repo-root walk: repo-root.js is reachable from the package entrypoint,
@@ -67,6 +78,7 @@ describe("the face station replays a stored record", () => {
       "socket",
       "beard_shadow",
       "detail_bands",
+      "brow_form",
     ]);
     expect(result.plan["shellDefault"]).toBe("off");
   });
@@ -117,5 +129,83 @@ describe("the face station replays a stored record", () => {
     expect(createHash("sha256").update(readFileSync(join(root, String(manifest["chainManifest"])))).digest("hex")).toBe(
       manifest["chainManifestSha"],
     );
+  });
+
+  it("(9) the eyeshade stage flag replays the stored record with pinned values", () => {
+    const shade = replayEyeShade();
+    expect(EYE_SHADE_ATTEN).toBe(0.35);
+    expect(EYE_SHADE_BAND_M).toBe(0.007);
+    expect(EYE_SHADE_DARKEN).toBe(0.85);
+    expect(shade.atten).toBe(0.35);
+    expect(shade.bandM).toBe(0.007);
+    expect(shade.darken).toBe(0.85);
+    expect(shade.report).toBe(EYE_SHADE_REPORT_REL);
+    const root = testRepoRoot();
+    expect(shade.reportSha256).toBe(
+      createHash("sha256").update(readFileSync(join(root, shade.report))).digest("hex"),
+    );
+    expect(shade.gate.pass).toBe(true);
+  });
+
+  it("(10) the stored eyeshade report and shader source carry the same constants (recomputed, not restated)", () => {
+    const root = testRepoRoot();
+    const report = JSON.parse(readFileSync(join(root, EYE_SHADE_REPORT_REL), "utf8")) as {
+      constants: { scleraEnvAtten: unknown; lidBandM: unknown; lidDarken: unknown };
+    };
+    expect(report.constants.scleraEnvAtten).toBe(0.35);
+    expect(report.constants.lidBandM).toBe(0.007);
+    expect(report.constants.lidDarken).toBe(0.85);
+    const src = readFileSync(
+      join(root, "packages/openclinxr/xr-scene/src/eye-shader/eye-sclera-shade.ts"),
+      "utf8",
+    );
+    expect(src).toContain("EYE_SCLERA_ENV_ATTEN = 0.35");
+    expect(src).toContain("EYE_LID_BAND_M = 0.007");
+    expect(src).toContain("EYE_LID_DARKEN = 0.85");
+  });
+
+  it("(11) stage 5 (eye_flags) carries the eyeshade replay in extra with a passing gate", () => {
+    const outDir = mkdtempSync(join(tmpdir(), `face-station-eyeshade-${String(process.pid)}-`));
+    const caseRec = {
+      eye_flags: {
+        asset: { value: "high-poly" },
+        cornea: { value: true },
+        texture: { value: true },
+        shell: { value: "off" },
+      },
+      materializer_argv: { value: [] as string[] },
+    } as unknown as Record<string, unknown>;
+    const stage = runStage5(caseRec, outDir);
+    expect(stage.ran).toBe(true);
+    expect(stage.gate.pass).toBe(true);
+    const eyeshade = (stage.extra as
+      | {
+          eyeshade?: {
+            atten?: unknown;
+            bandM?: unknown;
+            darken?: unknown;
+            reportSha256?: unknown;
+            gate?: { pass?: unknown };
+          };
+        }
+      | undefined)?.eyeshade;
+    expect(eyeshade?.atten).toBe(0.35);
+    expect(eyeshade?.bandM).toBe(0.007);
+    expect(eyeshade?.darken).toBe(0.85);
+    const root = testRepoRoot();
+    expect(eyeshade?.reportSha256).toBe(
+      createHash("sha256").update(readFileSync(join(root, EYE_SHADE_REPORT_REL))).digest("hex"),
+    );
+    expect(eyeshade?.gate?.pass).toBe(true);
+  });
+
+  it("(12) COUNTERWEIGHT: the eyeshade replay path calls no model", () => {
+    const dir = dirname(fileURLToPath(import.meta.url));
+    for (const file of ["run.ts", "plan.ts", "stages-d.ts"]) {
+      const src = readFileSync(join(dir, file), "utf8");
+      for (const marker of ["fetch(", "XMLHttpRequest", "image_gen", "image_edit", "https://"]) {
+        expect(src, `${file} contains ${marker}`).not.toContain(marker);
+      }
+    }
   });
 });

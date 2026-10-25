@@ -1,6 +1,6 @@
 ---
 name: trellis-baking
-description: "Bake a 3D asset from a conditioning image through TRELLIS on this machine. Load BEFORE running any bake, choosing sampler parameters, or diagnosing a bad TRELLIS output - carries the measured 15-knob parameter surface, which knobs the repo can and cannot set, the stage-to-defect mapping, and the cost of a variant."
+description: "Bake a 3D asset from a conditioning image through TRELLIS on this machine. Load BEFORE running any bake, choosing sampler parameters, or diagnosing a bad TRELLIS output - the measured 15-knob surface and stage-to-defect mapping."
 ---
 
 # TRELLIS baking

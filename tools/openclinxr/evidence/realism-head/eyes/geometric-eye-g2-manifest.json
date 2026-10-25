@@ -1,0 +1,43 @@
+{
+ "slice": "G2-build",
+ "params": "geometric-eye-g1-params.json",
+ "glb": {
+  "file": "assets:geometric-eye/geometric-eye-anterior/geometric-eye-anterior.glb",
+  "sha256": "1cdf369078074c7c53d547f59a51861f862c4e9d0cb18ae8b2da505aa54f7911",
+  "bytes": 2144084,
+  "note": "large binary lives in the asset store, outside git; sha recorded here"
+ },
+ "textures": {
+  "L": {
+   "file": "geometric-eye-iris-disc-L.png",
+   "sha256": "c083abd841574d370fa3307cc270084143996788d3d6af07c9690b9a30e60da0"
+  },
+  "R": {
+   "file": "geometric-eye-iris-disc-R.png",
+   "sha256": "7936b80a306a08f072cbb8be51af9307843ec86ee1198ff18423c6007abbe16d"
+  }
+ },
+ "render": {
+  "file": "geometric-eye-g2-render.png",
+  "sha256": "553bdbdfd55f7356ae7ad9664a2692ff40482ae0c375afdf942bffea5ee870f3"
+ },
+ "gate": "geometric-eye-g2-gate.py -> GREEN",
+ "limbus_stretch_srcpx": 0.82,
+ "annulus_mismatch_vs_candidateA": 0,
+ "census": {
+  "L": {
+   "r": 11.9,
+   "cap_r": 7.8,
+   "apex": 12.95,
+   "disc_dia": 10.807,
+   "disc_z": 9.95
+  },
+  "R": {
+   "r": 11.9,
+   "cap_r": 7.8,
+   "apex": 12.95,
+   "disc_dia": 10.807,
+   "disc_z": 9.95
+  }
+ }
+}

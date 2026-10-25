@@ -63,6 +63,8 @@ const DIST_FILES = [
   "packages/openclinxr/xr-humanoid-animation/dist/stepping-turn-plan-mod.js",
   "packages/openclinxr/xr-humanoid-animation/dist/stepping-turn-execution-mod.js",
   "packages/openclinxr/xr-humanoid-animation/dist/station-bedside-approach-mod.js",
+  "packages/openclinxr/xr-humanoid-animation/dist/foot-base-knee-budget-mod.js",
+  "packages/openclinxr/xr-humanoid-animation/dist/foot-base-stride-retarget-mod.js",
 ];
 const DIST_MARKER = "__openClinXrBedsideApproachEvidence";
 
@@ -163,8 +165,38 @@ type FrameProbe = {
    */
   heelContactL: Vec3 | null;
   heelContactR: Vec3 | null;
+  /**
+   * Upper-body slice (2026-10-18): pelvis/spine/arm/head world positions
+   * plus the pelvis.L world matrix, read by a SEPARATE evaluate
+   * (UPPER_BODY_PROBE_SOURCE below) so the verbatim PROBE_SOURCE copy
+   * above never diverges. Null on old captures / pre-spawn frames.
+   */
+  upperBody: UpperBodyProbe | null;
   /** S2: executor walking-call index (fixed-clock substep datum); null on old builds. */
   walkSimSubsteps: number | null;
+  /**
+   * Heel-strike slice (2026-10-18): foot/toe-bone LOCAL quaternions per frame
+   * for the H6 quaternion-norm gate, read by a SEPARATE evaluate
+   * (FOOT_QUAT_PROBE_SOURCE below) so the verbatim PROBE_SOURCE copy above
+   * never diverges. Null on old captures.
+   */
+  footQuatL: Quat | null;
+  footQuatR: Quat | null;
+  toeQuatL: Quat | null;
+  toeQuatR: Quat | null;
+  /**
+   * Heel-strike slice (2026-10-18): last cap decision mirrored from
+   * heel-strike-cap-mod (calls/fired/ease/pitch), null on old builds.
+   */
+  capDbg: {
+    calls: number;
+    fired: number;
+    ease: number | null;
+    schedEase: number | null;
+    geomEase: number | null;
+    pitch: number | null;
+    toeAboveBandM: number | null;
+  } | null;
   /** S2: knee flexion degrees per side, for the amplitude counterweight; null on old builds. */
   kneeFlexionDeg: { left: number | null; right: number | null } | null;
   /** Walk-start rest toe separation (world m); null on old builds / before the walk. */
@@ -183,6 +215,7 @@ const PROBE_SOURCE = `
   const samples = ev && ev.samples ? ev.samples : [];
   const tail = samples.length ? samples[samples.length - 1] : null;
   const scene = globalThis.__openClinXrDebugScene;
+  if (scene && typeof scene.updateMatrixWorld === "function") scene.updateMatrixWorld();
   let clipTime = null;
   let upperL = null, upperR = null, footYawL = null, footYawR = null;
   let legBones = null, legWorlds = null, headYaw = null;
@@ -332,6 +365,7 @@ function standingPitchProbeSource(actor: CaptureActor): string {
   const none = { heelContactL: null, heelContactR: null };
   const scene = globalThis.__openClinXrDebugScene;
   if (!scene) return none;
+  if (typeof scene.updateMatrixWorld === "function") scene.updateMatrixWorld();
   const ev = globalThis.__openClinXrBedsideApproachEvidence || null;
   const actorId = ev ? ev.physicianActorId : null;
   let physRoot = null;
@@ -363,6 +397,83 @@ function standingPitchProbeSource(actor: CaptureActor): string {
 })()
 `;
 }
+
+/** Upper-body world snapshot for one frame (see FrameProbe.upperBody). */
+export type UpperBodyProbe = {
+  pelvisL: Vec3 | null;
+  pelvisR: Vec3 | null;
+  /** pelvis.L world matrix, column-major 16 elements (three.js layout); null off-rig. */
+  pelvisMatrix: number[] | null;
+  spineBase: Vec3 | null;
+  spineTop: Vec3 | null;
+  shoulderL: Vec3 | null;
+  shoulderR: Vec3 | null;
+  elbowL: Vec3 | null;
+  elbowR: Vec3 | null;
+  wristL: Vec3 | null;
+  wristR: Vec3 | null;
+  head: Vec3 | null;
+};
+
+/**
+ * Upper-body slice (2026-10-18): pelvis/spine/arm/head worlds for the
+ * upper-body meter. Separate evaluate (same pattern as the standing-pitch
+ * probe): positions only, no angles — the meter derives every quantity, so
+ * the probe stays dumb and testable. Bone spellings mirror PROBE_SOURCE
+ * (sanitised first, dotted fallback); a rig matching neither yields nulls.
+ */
+const UPPER_BODY_PROBE_SOURCE = `
+(() => {
+  const none = {
+    pelvisL: null, pelvisR: null, pelvisMatrix: null,
+    spineBase: null, spineTop: null,
+    shoulderL: null, shoulderR: null, elbowL: null, elbowR: null,
+    wristL: null, wristR: null, head: null,
+  };
+  const scene = globalThis.__openClinXrDebugScene;
+  if (!scene) return none;
+  const ev = globalThis.__openClinXrBedsideApproachEvidence || null;
+  const actorId = ev ? ev.physicianActorId : null;
+  let physRoot = null;
+  scene.traverse((o) => {
+    if (physRoot) return;
+    const ud = o.userData || {};
+    if (actorId && ud.openClinXrActorId === actorId) {
+      let a = o;
+      while (a.parent && a.parent !== scene) a = a.parent;
+      physRoot = a;
+    }
+  });
+  if (!physRoot) return none;
+  const wOf = (a, b) => {
+    const bone = physRoot.getObjectByName(a) || physRoot.getObjectByName(b);
+    if (!bone) return null;
+    if (typeof bone.updateWorldMatrix === "function") bone.updateWorldMatrix(true, false);
+    const e = bone.matrixWorld.elements;
+    return { x: e[12], y: e[13], z: e[14] };
+  };
+  const mOf = (a, b) => {
+    const bone = physRoot.getObjectByName(a) || physRoot.getObjectByName(b);
+    if (!bone) return null;
+    if (typeof bone.updateWorldMatrix === "function") bone.updateWorldMatrix(true, false);
+    return Array.from(bone.matrixWorld.elements);
+  };
+  return {
+    pelvisL: wOf("pelvisL", "pelvis.L"),
+    pelvisR: wOf("pelvisR", "pelvis.R"),
+    pelvisMatrix: mOf("pelvisL", "pelvis.L"),
+    spineBase: wOf("spine05", "spine05"),
+    spineTop: wOf("spine01", "spine01"),
+    shoulderL: wOf("shoulder01L", "shoulder01.L"),
+    shoulderR: wOf("shoulder01R", "shoulder01.R"),
+    elbowL: wOf("lowerarm01L", "lowerarm01.L"),
+    elbowR: wOf("lowerarm01R", "lowerarm01.R"),
+    wristL: wOf("wristL", "wrist.L"),
+    wristR: wOf("wristR", "wrist.R"),
+    head: wOf("head", "head"),
+  };
+})()
+`;
 
 /** COPIED VERBATIM from settle-entry-capture.ts LABELS_SOURCE (see file header). */
 const LABELS_SOURCE = `
@@ -427,13 +538,86 @@ async function probe(page: Page, actor: CaptureActor): Promise<FrameProbe> {
   } catch {
     /* contact stays null; the tail still records */
   }
+  // Heel-strike additive read (same discipline: never lose the tail).
+  let quats: {
+    footQuatL: Quat | null;
+    footQuatR: Quat | null;
+    toeQuatL: Quat | null;
+    toeQuatR: Quat | null;
+    capDbg: FrameProbe["capDbg"];
+  } = {
+    footQuatL: null,
+    footQuatR: null,
+    toeQuatL: null,
+    toeQuatR: null,
+    capDbg: null,
+  };
+  try {
+    const read = (await page.evaluate(FOOT_QUAT_PROBE_SOURCE)) as typeof quats;
+    if (read && typeof read === "object") quats = { ...quats, ...read };
+  } catch {
+    /* quats stay null; the tail still records */
+  }
+  // Upper-body additive read; a failing evaluate must never lose the tail.
+  let upperBody: UpperBodyProbe | null = null;
+  try {
+    const read = (await page.evaluate(UPPER_BODY_PROBE_SOURCE)) as UpperBodyProbe | null;
+    if (read && typeof read === "object") upperBody = read;
+  } catch {
+    /* upper-body stays null; the tail still records */
+  }
   return {
     ...tail,
     heelContactL: tail.heelContactL ?? heel.heelContactL,
     heelContactR: tail.heelContactR ?? heel.heelContactR,
+    footQuatL: tail.footQuatL ?? quats.footQuatL,
+    footQuatR: tail.footQuatR ?? quats.footQuatR,
+    toeQuatL: tail.toeQuatL ?? quats.toeQuatL,
+    toeQuatR: tail.toeQuatR ?? quats.toeQuatR,
+    capDbg: tail.capDbg ?? quats.capDbg,
+    upperBody: tail.upperBody ?? upperBody,
     liveActors: Array.isArray(liveActors) ? liveActors : [],
   };
 }
+
+/**
+ * Heel-strike slice (2026-10-18): foot/toe-bone LOCAL quaternions for the H6
+ * norm gate. Separate evaluate (see FrameProbe): local quaternions are what
+ * the bone writers set, so |norm-1| here is the writer contract directly.
+ */
+const FOOT_QUAT_PROBE_SOURCE = `
+(() => {
+  const none = { footQuatL: null, footQuatR: null, toeQuatL: null, toeQuatR: null };
+  const scene = globalThis.__openClinXrDebugScene;
+  if (!scene) return none;
+  const ev = globalThis.__openClinXrBedsideApproachEvidence || null;
+  const actorId = ev ? ev.physicianActorId : null;
+  let physRoot = null;
+  scene.traverse((o) => {
+    if (physRoot) return;
+    const ud = o.userData || {};
+    if (actorId && ud.openClinXrActorId === actorId) {
+      let a = o;
+      while (a.parent && a.parent !== scene) a = a.parent;
+      physRoot = a;
+    }
+  });
+  if (!physRoot) return none;
+  const qOf = (a, b) => {
+    const bone = physRoot.getObjectByName(a) || physRoot.getObjectByName(b);
+    if (!bone) return null;
+    const q = bone.quaternion;
+    return q ? { x: q.x, y: q.y, z: q.z, w: q.w } : null;
+  };
+  return {
+    footQuatL: qOf("footL", "foot.L"),
+    footQuatR: qOf("footR", "foot.R"),
+    toeQuatL: qOf("toe1-1L", "toe1-1.L"),
+    toeQuatR: qOf("toe1-1R", "toe1-1.R"),
+    capDbg: globalThis.__heelStrikeCapDbg ?? null,
+  };
+})()
+`;
 
 type DistProof = Array<{ file: string; sha256: string; markerHits: number }>;
 
@@ -623,6 +807,27 @@ async function runOnce(
       ),
     );
     process.stdout.write(`[${tag}] tapRecords=${tapRecords.length}\n`);
+    // TEMP SPLIT-STANCE TAP drain (measurement only): per-substep foot-base
+    // pin mechanics, absent (empty) on runs where foot-base never steps.
+    const footBaseTap = (await page.evaluate(
+      `(() => Array.isArray(globalThis.__openClinXrFootBaseTap) ? globalThis.__openClinXrFootBaseTap : [])()`,
+    )) as unknown[];
+    await writeFile(
+      path.join(outDir, `footbase-tap-${tag}.json`),
+      JSON.stringify(
+        {
+          schemaVersion: "openclinxr.footbase-tap.v1",
+          measuredAt: new Date().toISOString(),
+          vehicle,
+          runIndex,
+          urlQuery: fullQuery,
+          records: footBaseTap,
+        },
+        null,
+        2,
+      ),
+    );
+    process.stdout.write(`[${tag}] footBaseTap=${footBaseTap.length}\n`);
     await writeFile(
       path.join(outDir, `${tag}.json`),
       JSON.stringify(

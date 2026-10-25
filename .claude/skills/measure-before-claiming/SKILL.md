@@ -1,6 +1,6 @@
 ---
 name: measure-before-claiming
-description: "Required before - opening or updating an issue, naming any cause or mechanism, attributing a stall/failure/red to a worker or a landing, trusting a suspiciously fast or cached gate result, closing a card, or accepting a peer/worker/superagent claim. Symptoms constrain a cause, never name it; liveness = state + git-history + tree probe; name matches are marker checks - read counts, bytes, hashes; measure through the loader the runtime uses; every proof ends with a literal NOT TESTED line. Appearance and visual claims route to pixel-grading."
+description: "Required before opening an issue, naming a cause, attributing a stall to a worker, or accepting a peer claim. Symptoms constrain a cause, never name it; liveness = state + git-history + tree probe; every proof ends with a NOT TESTED line."
 when-to-use: file an issue, diagnose a failure, is this card still live, premise, withdraw a claim, attribute a stall, verify a worker report, peer consult, marker check, why did my measurement lie
 ---
 

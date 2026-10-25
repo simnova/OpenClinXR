@@ -12,6 +12,11 @@
             "type": "command",
             "command": "cd \"$CLAUDE_PROJECT_DIR\" && pnpm exec tsx tools/openclinxr/openclaw/context-cap.ts",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/inbox.js\"",
+            "timeout": 5
           }
         ]
       }
@@ -23,6 +28,11 @@
             "type": "command",
             "command": "cd \"$CLAUDE_PROJECT_DIR\" && pnpm exec tsx tools/openclinxr/openclaw/context-cap.ts",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/inbox.js\"",
+            "timeout": 25
           }
         ]
       }

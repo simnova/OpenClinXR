@@ -1,0 +1,1 @@
+../../agents/rules/GUARD_WORKTREE_PER_LANE.md

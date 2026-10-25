@@ -1,1 +1,0 @@
-../../agents/rules/PROTO_CURIOUS_RESEARCHER.md

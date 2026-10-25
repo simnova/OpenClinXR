@@ -124,13 +124,15 @@ type WorkerFacts = { pid: string; cwd: string; worktree: string };
 
 /**
  * Worker processes matched against the LISTED worktree paths only (cmdline
- * or cwd): lane worktrees live under ~/.grok/worktrees, so matching the main
- * repo path finds none and matching all ~300 worktrees buries the lane.
+ * or cwd): lane worktrees live under the managed root (OPENCLINXR_WT_ROOT or
+ * the ~/.grok/worktrees/src-openclinxr default — see managedWorktreeRoot),
+ * so matching the main repo path finds none and matching every worktree
+ * buries the lane.
  */
 /**
  * A worker is an `opencode run` or a `grok` EXECUTABLE. Matching the text
  * "grok" anywhere also caught every process whose arguments name a path under
- * ~/.grok/worktrees, including this script's own pnpm/tsx chain.
+ * the managed worktree root, including this script's own pnpm/tsx chain.
  */
 export function isWorkerCommand(argv: string[]): boolean {
   const exe = (argv[0] ?? "").split("/").at(-1) ?? "";

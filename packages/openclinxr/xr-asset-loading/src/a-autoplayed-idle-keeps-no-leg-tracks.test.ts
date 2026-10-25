@@ -29,6 +29,9 @@ function idleClipWithLegs(): AnimationClip {
     legTrack("upperleg01.L"),
     legTrack("foot.R"),
     new VectorKeyframeTrack("upperarm01.L.position", [0, 1], [0, 0, 0, 0, 0.01, 0]),
+    // Shoulder01 is never posture-written: its idle tracks stay (rest pose
+    // source), unlike upperarm01/lowerarm01/wrist (posture-owned at rest).
+    new VectorKeyframeTrack("shoulder01.L.position", [0, 1], [0, 0, 0, 0, 0.01, 0]),
   ]);
   return clip;
 }
@@ -93,7 +96,7 @@ function registerStandingActor(clips: readonly AnimationClip[]): {
 }
 
 describe("autoplayed idle clips keep no locomotion leg tracks", () => {
-  it("(1) the played idle action has no leg-bone tracks but keeps its arm tracks", () => {
+  it("(1) the played idle action has no leg-bone tracks and no posture-owned arm tracks, but keeps the rest", () => {
     const idle = idleClipWithLegs();
     const walk = walkClipWithLegs();
     const { slot } = registerStandingActor([idle, walk]);
@@ -102,7 +105,11 @@ describe("autoplayed idle clips keep no locomotion leg tracks", () => {
     const names = (action?.getClip()?.tracks ?? []).map((track) => track.name);
     expect(names.some((name) => name.startsWith("upperleg01.L"))).toBe(false);
     expect(names.some((name) => name.startsWith("foot.R"))).toBe(false);
-    expect(names.some((name) => name.startsWith("upperarm01.L"))).toBe(true);
+    // Arms slice: upperarm01/lowerarm01/wrist idle tracks are redundant with
+    // the posture pass at rest and halved the walking swing, so they strip.
+    expect(names.some((name) => name.startsWith("upperarm01.L"))).toBe(false);
+    // shoulder01 is never posture-written, so its idle track stays.
+    expect(names.some((name) => name.startsWith("shoulder01.L"))).toBe(true);
   });
 
   it("(2) the walk clip keeps every track for the locomotion consumers", () => {
@@ -125,7 +132,7 @@ describe("autoplayed idle clips keep no locomotion leg tracks", () => {
     expect(stamp?.find((row) => row.clip === "ClinicalIdleConversation")).toEqual({
       clip: "ClinicalIdleConversation",
       removed: 2,
-      kept: 1,
+      kept: 2,
     });
   });
 
@@ -135,6 +142,6 @@ describe("autoplayed idle clips keep no locomotion leg tracks", () => {
     registerStandingActor([idle, walk]);
     const { slot } = registerStandingActor([idle, walk]);
     const names = (slot.mixer?.existingAction(idle)?.getClip()?.tracks ?? []).map((track) => track.name);
-    expect(names).toEqual(["upperarm01.L.position"]);
+    expect(names).toEqual(["shoulder01.L.position"]);
   });
 });

@@ -1,6 +1,6 @@
 ---
 name: pre-dispatch-alignment
-description: "Slice-SELECTION gate answering 'should this slice exist at all', before operationalizing or dispatching - direction currency (cite the current-rail directive; deprecated rail = pin and re-scope), prior art (search the registry URLs before hand-authoring hair/skin/eyes/brows/clothing/viseme/animation/rooms - an operator URL handed you later is a failed search), writer collision (peer handoffs + recent commits on the surface), size (biggest coherent vertical). Write the four answers as labeled Direction - / Prior art - / Collision - / Size - lines in the issue body BEFORE done_when exists. Clause design -> contract-design; dispatch mechanics -> orchestrator-dispatch-loop."
+description: "Slice-selection gate before dispatch: should this slice exist at all - direction currency, prior art search, writer collision, size. Write Direction / Prior art / Collision / Size in the issue body BEFORE done_when exists."
 when-to-use: select a slice, dispatch, operationalize, asset lane, humanoid, anny, mpfb, hair, skin, eyes, eyebrows, clothing, viseme, animation, rooms, build from scratch, another agent is working on, slice too small, bigger effort, stale direction
 ---
 
@@ -41,6 +41,9 @@ capability:
 Record FOUND (with licence) or NOT FOUND in the slice record. **If the operator hands me a URL for
 something I was about to hand-author, that is a failed search** - log it so the registry list grows.
 The repo has a curious-researcher rule and it did not bind; a rule without a gate is prose.
+
+For a new card, Step 0 is a ~300-word brief per `agents/rules/PROTO_PRIOR_ART_COMPUTE_FIRST.md`
+(card body or asset store, cited by the `Prior art -` gate line below) - no brief, no dispatch.
 
 ## 3. Collision - is another writer on this surface?
 
@@ -140,7 +143,7 @@ would have refuted it. A plausible mechanism you can describe in detail is not e
 One line each, before every dispatch:
 
 1. **Direction** - which current-rail directive does this advance? (cite it)
-2. **Prior art** - which registry was searched, what was found?
+2. **Prior art** - which registry was searched, what was found, and where is the Step-0 brief (`Prior art -` cites it per PROTO_PRIOR_ART_COMPUTE_FIRST.md)?
 3. **Collision** - which handoffs and commits were checked?
 4. **Size** - why is this not two slices?
 5. **Brief text** - if this script was copied, which filenames did I re-check? (§5)

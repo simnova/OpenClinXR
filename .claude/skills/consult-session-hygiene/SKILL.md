@@ -1,6 +1,6 @@
 ---
 name: consult-session-hygiene
-description: "Running long-lived superagent/peer consult threads without losing them. Token-per-call retirement budget, the no_visible_content fire alarm, why resume pricing is regressive, and the restore-stall signature. Load before resuming any consult thread or when a consult goes quiet."
+description: "Running long-lived superagent/peer consult threads without losing them. Token-per-call retirement budget, the no_visible_content fire alarm, why resume pricing is regressive, and the restore-stall signature. Load before resuming any consult thread."
 ---
 
 # Consult session hygiene

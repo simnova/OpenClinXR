@@ -1,1 +1,0 @@
-../../agents/rules/orchestrator-only-main.md

@@ -44,11 +44,10 @@ import {
 } from "./isolated-subject-material-variants.js";
 import {
   type ProductLightingRigFns,
-  type ProductRigApplied,
   type RigOverride,
-  applyProductRig,
   applyRigOverride,
 } from "./isolated-subject-rig-variants.js";
+import { applyLabProductRig } from "./isolated-subject-product-rig.js";
 import {
   type SupineJointDump,
   collectRuntimeDebug,
@@ -153,6 +152,22 @@ export type IsolatedSubjectSpec = {
   eyeScleraAtten?: number;
   eyeLidBandM?: number;
   eyeLidDarken?: number;
+  /**
+   * Fresnel-weighted cornea film (eye-finish): Schlick env lift on the
+   * globe's iris disc, +0 head-on, ramping at grazing/yaw. Defaults to
+   * following eyeScleraShade (shipped ON); explicit false renders legacy.
+   * corneaFlat forces the head-on weight everywhere (counterweight: no
+   * angular dependence, yaw lift must vanish).
+   */
+  eyeCorneaFresnel?: boolean;
+  eyeCorneaFlat?: boolean;
+  /**
+   * Fresnel shaping overrides for the yaw sweep (default: the landed
+   * constants). Fail closed via resolveCorneaFresnelOptions (gain >= 0,
+   * exponent > 0); garbage refuses.
+   */
+  eyeCorneaFresnelGain?: number;
+  eyeCorneaFresnelExponent?: number;
   label?: string;
 };
 
@@ -213,7 +228,6 @@ const WIDTH_LEGACY = 1280;
 const HEIGHT_LEGACY = 960;
 /** Reference-pack captures are square, matching the #232 pack shape (1024×1024). */
 const PACK_WIDTH = 1024;
-const PACK_HEIGHT = 1024;
 const BG = "#18211d";
 
 function parseSpec(): IsolatedSubjectSpec {
@@ -274,9 +288,9 @@ function measureCanvasCoverage(renderer: WebGLRenderer): number {
   gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
   let nonBg = 0;
   for (let i = 0; i < pixels.length; i += 4) {
-    const r = pixels[i]!;
-    const g = pixels[i + 1]!;
-    const b = pixels[i + 2]!;
+    const r = pixels[i] ?? 0;
+    const g = pixels[i + 1] ?? 0;
+    const b = pixels[i + 2] ?? 0;
     if (Math.abs(r - 0x18) + Math.abs(g - 0x21) + Math.abs(b - 0x1d) > 36) nonBg += 1;
   }
   return nonBg / (w * h);
@@ -441,28 +455,14 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
     applyRigOverride(scene, renderer, spec.rigOverride, frameBounds.getCenter(new Vector3()));
   }
 
-  // Product rig: base + overlay through the PRODUCT functions, overlay
-  // re-anchored so the rig's patient locus sits on the framed head centre.
-  // Eye runtime shading defaults ON only for the portrait lab with a
-  // product rig; explicit false renders the legacy eye (PRE).
-  const eyeRuntimeShading = spec.eyeRuntimeShading ?? (spec.portrait === true && spec.productEnvironmentId != null);
-  const eyeScleraShade = spec.eyeScleraShade ?? eyeRuntimeShading;
-  const eyeLidShadow = spec.eyeLidShadow ?? eyeRuntimeShading;
-  if (eyeRuntimeShading && spec.productEnvironmentId == null) {
-    throw new Error(
-      "eyeRuntimeShading needs a productEnvironmentId (the globe envMap + lid margins live on the product rig) — refusing rather than shading a different rig",
-    );
-  }
-  let productRig: ProductRigApplied | null = null;
-  if (spec.productEnvironmentId) {
-    productRig = await applyProductRig(
-      scene,
-      renderer,
-      spec.productEnvironmentId,
-      frameBounds.getCenter(new Vector3()),
-      { eyeShading: eyeRuntimeShading, scleraShade: eyeScleraShade, lidShadow: eyeLidShadow, scleraAtten: spec.eyeScleraAtten, lidBandM: spec.eyeLidBandM, lidDarken: spec.eyeLidDarken },
-    );
-  }
+  // Product rig through the PRODUCT functions (see
+  // ./isolated-subject-product-rig.ts — split by the file-size budget).
+  const { productRig, eyeRuntimeShading } = await applyLabProductRig(
+    scene,
+    renderer,
+    spec,
+    frameBounds.getCenter(new Vector3()),
+  );
 
   // ACES guard (card tsk_e0afe706b7a5f071): the shaded eye is graded under
   // ACESFilmic (the bisect measured toneMapping=None as blowout, M2b +9.0).

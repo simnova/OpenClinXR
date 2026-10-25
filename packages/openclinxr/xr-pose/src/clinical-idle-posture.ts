@@ -20,9 +20,9 @@
  * notEvidenceFor: clinical posture appropriateness, hand articulation, Quest readiness.
  */
 
-import type { Object3D, SkinnedMesh } from "three";
+import type { Object3D } from "three";
 import { Euler, Quaternion } from "three";
-import { boneIsOwned, boneOwnershipWeight, type OwnedChain } from "./chain-ownership.js";
+import { boneOwnershipWeight, type OwnedChain } from "./chain-ownership.js";
 import {
   applyMpfbUpperArmIdle,
   CLINICAL_IDLE_ARM_HANG,
@@ -30,7 +30,6 @@ import {
   LIBRARY_CLINICAL_IDLE_ARM_HANG,
   MIXAMO_CLINICAL_IDLE_ARM_HANG,
   MPFB_CLINICAL_IDLE_ARM_HANG,
-  MPFB_IDLE_FORELARM_BEND_FRACTION,
   mpfbForearmIdleEuler,
   mpfbUpperArmIdleTarget,
 } from "./clinical-idle-posture-maps.js";

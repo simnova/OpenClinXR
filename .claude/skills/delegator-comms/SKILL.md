@@ -1,6 +1,6 @@
 ---
 name: delegator-comms
-description: "MANDATORY wire format for EVERY report to the product owner (ox standing thread): the TICK template, the five signals BLOCKED / NEEDS-DECISION / CONTRADICTED / UNABLE / DONE, VERBATIM RELAY of operator steering messages (uncut block first, REFUSE otherwise), numbers-inline + paths-for-everything-else evidence policy, and the never-send list. Load BEFORE composing any message to the product owner, including tick reports, consults carrying operator steering, and harvest summaries."
+description: "MANDATORY wire format for EVERY report to the product owner: the TICK template, the five signals BLOCKED / NEEDS-DECISION / CONTRADICTED / UNABLE / DONE, verbatim relay of operator steering, numbers-inline evidence policy."
 when-to-use: status report, tick report, report to product owner, report to ox, harvest summary, blocked, needs decision, contradicted, unable, done, what do I send, progress update, operator verbatim, relay operator message, consult about operator steering
 ---
 

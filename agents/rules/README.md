@@ -4,7 +4,7 @@ authority: agent-methodology
 
 # Agent Rules (Modular Project Instructions)
 
-Canonical source: `agents/rules/`. Grok loads **core tier only** via `.grok/rules/` (see `scripts/sync-harness-agent-files.sh`). Claude/Cursor receive all rules.
+Canonical source: `agents/rules/`. Grok loads **core tier only** via `.grok/rules/`; Claude loads `CLAUDE_CORE_RULES` (four files, ~12 KB) from `.claude/rules/`; Cursor links all rules. The rest of `agents/rules/` loads on demand through skills `delegation-rules` and `orchestrator-rules` (see `scripts/sync-harness-agent-files.sh`).
 
 ## Layering — baseline first, harness needs on top
 
@@ -27,13 +27,14 @@ Promote only when the need is genuinely shared **and** no harness already has it
 
 ## Grok core tier (every session)
 
-Measured 2026-09-13: `.grok/rules/` holds exactly these SIX symlinks, and
-`scripts/sync-harness-agent-files.sh:12-19` (`CORE_RULES`) is the source of truth. This list
-previously named ten; four of them were never linked, and that was correct rather than an oversight.
+Measured 2026-09-13: `.grok/rules/` holds exactly these SEVEN symlinks, and
+`scripts/sync-harness-agent-files.sh` (`CORE_RULES`) is the source of truth. This list
+previously named more; the extras were never linked, and that was correct rather than an oversight.
 
 - `LEX_AGENTIC.md` — authoritative glossary + orchestrator protocol
 - `GUARD_BLUEPRINT.md` — protected files + Q1/Q4/Q5 gate
 - `GUARD_DRIFT.md` — anti-toil + model-work guard
+- `GUARD_SAFETY.md` — always-loaded safety lines + operator directives D1–D14
 - `MANDATE_VISIBILITY.md` — sizable collaborative vertical slices + noticeability
 - `PROTO_SUBAGENT.md` — coordinator-first delegation
 - `EXEC_AUTONOMY.md` — platform override, stop conditions, post-slice loop
@@ -43,8 +44,9 @@ previously named ten; four of them were never linked, and that was correct rathe
 These are ORCHESTRATOR-facing and reach a dispatched worker only as harm or noise. A worker runs one
 carded slice inside its own worktree; it does not dequeue, delegate, verify delegates or scout.
 `orchestrator-only-main.md` in particular tells its reader "you are a CEO, not an IC, do not write
-product code" — the opposite of a worker's job. Claude and Cursor still receive all rules
-(`.claude/rules/`, `.cursor/rules/` link every file), so nothing is lost to the coordinator.
+product code" — the opposite of a worker's job. Cursor still links every rule and Claude reaches the
+rest on demand through the skills `delegation-rules` and `orchestrator-rules`, so nothing is lost to
+the coordinator.
 
 - `PROTO_VERIFY_DELEGATION.md` — trusting what a delegate returns; probes, claims, retros
 - `PROTO_CURIOUS_RESEARCHER.md` — standing background scout
@@ -54,6 +56,8 @@ product code" — the opposite of a worker's job. Claude and Cursor still receiv
 **If you add a file here, add it to `CORE_RULES` in the sync script too, or this list lies again.**
 
 ## Supplemental (grep/spawn on demand)
+- On-demand lane rules: `GUARD_WORKTREE_PER_LANE.md` (one worktree per lane), `GUARD_STANDING_APPROVAL.md` (standing approval for reversible moves), `PROTO_PRIOR_ART_COMPUTE_FIRST.md` (prior art + compute first, with compute-first candidates appendix) - load via skill `delegation-rules`, never the startup tier.
+- On-demand loader skills: `delegation-rules` (PROTO_VERIFY_DELEGATION, PROTO_BOARD_LOOP, PROTO_SUBAGENT, scouting, consults, orchestrator-only-main) and `orchestrator-rules` (glossary, visibility, rehydration, source-of-truth, memory scoring, Grok harness, the stubs)
 - `EXEC_REHYDRATE.md` — LOW_TOKEN rehydration, lease, guards, token saving
 - `TIER_GROK.md`, `grok-harness-usage.md` — Grok harness routing (not in Grok core symlink set)
 - `agent-consult.md`, `source-of-truth.md`, `persistent-memory-scoring.md`, `repo-defined-agents-worker-roles.md`

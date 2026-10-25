@@ -1,6 +1,6 @@
 ---
 name: "context-handoff"
-description: "Write a mechanical lane handoff when the context-cap hook fires, before a long wait, or before a session limit - handoff.ts gathers worktrees, workers, RESULT lines and cards; the model fills Decisions, Gates, Store paths, Next action. Load when the cap message appears, when a lane must pause, or when resuming a lane from its handoff file."
+description: "Write a mechanical lane handoff when the context-cap hook fires, before a long wait, or before a session limit. handoff.ts gathers worktrees, workers, RESULT lines, cards; you fill Decisions, Gates, Store paths. Load when resuming a lane."
 when-to-use: "context cap message, write handoff, session limit approaching, long wait before resume, resuming a lane, handoff file, context warning, over the cap"
 ---
 

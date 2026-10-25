@@ -15,7 +15,7 @@
  * Reads hook JSON on stdin. Below or equal to cap, or transcript
  * missing/unreadable: prints nothing, exit 0. Never writes any file.
  */
-import { existsSync, openSync, readFileSync, readSync, readdirSync, statSync, closeSync } from "node:fs";
+import { closeSync, existsSync, openSync, readdirSync, readFileSync, readSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -155,6 +155,21 @@ export function decideClaude(opts: ClaudeDecision): string | null {
 export type GrokDecision =
   | { json: string; text?: undefined }
   | { text: string; json?: undefined };
+
+/**
+ * Over-cap probe for the inbox hook's Stop gate (see `.claude/hooks/inbox.js`).
+ * Unlike decideClaude/decideGrok, this ignores handoff recency and
+ * stop_hook_active: the inbox gate asks "is context over cap" (deliver later),
+ * not "would the cap hook block" (suppressed after a fresh handoff). A
+ * suppressed-but-over-cap probe previously read as "under cap" whenever the
+ * checkout held a recent `.openclinxr/handoffs` entry, so Stop delivery fired
+ * exactly when it had to hand off instead. Returns the stdout payload, or null
+ * when at/under cap or when the token count is unknown.
+ */
+export function overCapReport(tokens: number | null, cap: number): string | null {
+  if (tokens === null || tokens <= cap) return null;
+  return JSON.stringify({ overCap: true, tokens, cap });
+}
 
 export function decideGrok(opts: {
   tokens: number | null;
@@ -333,6 +348,11 @@ function main(): void {
   const tokens = transcriptPath
     ? tokensFromTranscriptFile(transcriptPath, contextTokensFromClaudeTranscript)
     : null;
+  if (argv.includes("--probe-over-cap")) {
+    const probe = overCapReport(tokens, cap);
+    if (probe !== null) process.stdout.write(`${probe}\n`);
+    process.exit(0);
+  }
   const hookEvent = str("hook_event_name") ?? str("hookEventName") ?? "UserPromptSubmit";
   const stopHookActive =
     input.stop_hook_active === true || input.stopHookActive === true;

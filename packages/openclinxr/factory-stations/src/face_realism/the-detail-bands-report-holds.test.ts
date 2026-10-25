@@ -60,22 +60,48 @@ describe("the detail-bands report holds", () => {
   it("(G1) executed stage lists equal the manifest order and the manifest minus skips", () => {
     const root = testRepoRoot();
     const manifest = readJson("tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json") as {
-      stages: Array<{ name: string }>;
+      stages: Array<{ name: string; output_paths: Record<string, string> }>;
     };
-    const manifestNames = manifest.stages.map((stage) => stage.name);
     const inputs = readJson(join(FACE_DIR, "case-inputs.json")) as {
       cases: Record<string, { stage3_skip_stages: { value: string[] } }>;
     };
     const report = readJson(join(FACE_DIR, "detail-bands-report.json")) as unknown as {
-      subjects: Record<string, { executedChainStages: string[]; replayExecutedChainStages: string[]; runA: string; runB: string }>;
+      subjects: Record<string, { executedChainStages: string[]; replayExecutedChainStages: string[]; runA: string; runB: string; finalAlbedo: { file: string; sha256: string; stage: string } }>;
     };
     const subjects = report.subjects;
     const caseFor: Record<string, string> = { body2: "body2", aisha: "aisha" };
     for (const [subject, rows] of Object.entries(subjects)) {
-      expect(rows.executedChainStages).toEqual(manifestNames);
+      // The report predates stages appended after its final stage, so the
+      // expectation is scoped to what its run executed: the recorded final
+      // is the output of the run's own last executed stage, whose file name
+      // is derived from that stage's manifest output_paths (no stage file
+      // name literal), and the replay list is the executed list minus the
+      // case skips.
+      const executed = rows.executedChainStages;
+      expect(executed.length).toBeGreaterThan(0);
+      const finalStage = rows.finalAlbedo.stage;
+      expect(executed[executed.length - 1]).toBe(finalStage);
+      const def = manifest.stages.find((stage) => stage.name === finalStage);
+      expect(def, `${subject} final stage ${finalStage} is a manifest stage`).toBeDefined();
+      const fileName = rows.finalAlbedo.file.split("/").at(-1) as string;
+      expect(Object.values(def!.output_paths ?? {}), `${subject} final file is that stage's manifest output`).toContain(
+        fileName,
+      );
       const caseId = caseFor[subject] as string;
       const skips = new Set(inputs.cases[caseId]!.stage3_skip_stages.value);
-      expect(rows.replayExecutedChainStages).toEqual(manifestNames.filter((name) => !skips.has(name)));
+      expect(rows.replayExecutedChainStages).toEqual(executed.filter((name) => !skips.has(name)));
+      if (!existsSync(STORE_ROOT)) continue;
+      // Against the real run the report was recorded from: the recorded
+      // lists equal the run's own stage-records lists.
+      const records = JSON.parse(
+        readFileSync(join(STORE_ROOT, rows.runB, "stage-records.json"), "utf8"),
+      ) as { stages?: Array<{ name: string; extra?: { executedChainStages?: unknown; replayExecutedChainStages?: unknown } }> };
+      const skinChain = (records.stages ?? []).find((stage) => Array.isArray(stage.extra?.executedChainStages));
+      const runExecuted = skinChain?.extra?.executedChainStages as string[] | undefined;
+      const runReplay = skinChain?.extra?.replayExecutedChainStages as string[] | undefined;
+      expect(runExecuted, `${subject} ${rows.runB} records its executed stages`).toBeDefined();
+      expect(rows.executedChainStages).toEqual(runExecuted);
+      expect(rows.replayExecutedChainStages).toEqual(runReplay);
     }
   });
 

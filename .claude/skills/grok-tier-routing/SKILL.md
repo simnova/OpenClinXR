@@ -1,6 +1,6 @@
 ---
 name: grok-tier-routing
-description: Grok-harness-only model tier ladder, spawn surfaces, and per-slice token introspection. Load before spawning a Grok subagent, choosing explore/plan/general-purpose, running pnpm grok:tier:* commands, or debugging headless -p behaviour (personas, capability_mode, Stop hooks, subagent model routing). Does NOT apply to Codex, Cursor, or Claude harnesses.
+description: "Grok-harness-only model tier ladder, spawn surfaces, and per-slice token introspection. Load before spawning a Grok subagent, choosing explore/plan/general-purpose, running pnpm grok:tier:* commands, or debugging headless -p behaviour."
 ---
 
 ---

@@ -1,0 +1,157 @@
+{
+ "analytic_shift_mm": 4.205,
+ "cells": {
+  "cap-room05": {
+   "dot": {
+    "px": 1725,
+    "centroid_px": [
+     528.5,
+     377.1
+    ],
+    "bbox": [
+     504,
+     358,
+     50,
+     39
+    ],
+    "round_ratio": 1.28,
+    "dist_from_disc_centre_radii": 0.72
+   },
+   "n_clusters": 3,
+   "ring": {
+    "peak_L": 14.6,
+    "interior_L": 4.1,
+    "arc": {
+     "peak_L": 17.0,
+     "peak_deg": 82,
+     "median_L": 8.2,
+     "fwhm_deg": 130
+    }
+   },
+   "veil_sat": {
+    "roomonly_floor_L": 0.8,
+    "room05_interior_L": 5.5,
+    "quad_smear_lift_L": 4.7,
+    "disc_meansat": 0.6147,
+    "meansat_note": "0.61 lands just above the three.js [0.30,0.60] band; band NOT enforced (EEVEE vs ACES tone mapping differs) \u2014 recorded as the new-harness want for the G6 three.js re-tune"
+   }
+  },
+  "shell-room05": {
+   "dot": {
+    "px": 509,
+    "centroid_px": [
+     533.9,
+     330.6
+    ],
+    "bbox": [
+     494,
+     325,
+     85,
+     13
+    ],
+    "round_ratio": 6.54
+   },
+   "n_clusters": 1,
+   "ring": {
+    "peak_L": 20.5,
+    "interior_L": 1.4,
+    "arc": {
+     "peak_L": 100.0,
+     "peak_deg": 89,
+     "median_L": 8.2,
+     "fwhm_deg": 23
+    }
+   }
+  }
+ },
+ "disc_centroid_px": [
+  515.1,
+  509.3
+ ],
+ "frame_hot": {
+  "true_cap": 90912,
+  "smooth_shell": 89553,
+  "note": "same quad energy; curvature redistributes (concentrated vs spread), totals ~equal by construction"
+ },
+ "wants": {
+  "ring_peak_L_true_cap": 14.6,
+  "ring_arc_true_cap": {
+   "peak_L": 17.0,
+   "peak_deg": 82,
+   "median_L": 8.2,
+   "fwhm_deg": 130
+  },
+  "ring_arc_smooth_shell": {
+   "peak_L": 100.0,
+   "peak_deg": 89,
+   "median_L": 8.2,
+   "fwhm_deg": 23
+  },
+  "ring_note": "new EEVEE-harness wants; the three.js 28.9/28.1 is NOT inherited"
+ },
+ "fresnel_compare": {
+  "true_cap": null,
+  "smooth_shell": null,
+  "note": "transmission-fresnel not resolvable in EEVEE/transparent-film; morphology comparison carries the curvature response"
+ },
+ "parallax": {
+  "p25": {
+   "dx_px": 143.3,
+   "dx_mm": 4.197,
+   "rel_err_vs_analytic": 0.002
+  },
+  "m25": {
+   "dx_px": -143.7,
+   "dx_mm": -4.211,
+   "rel_err_vs_analytic": 0.002
+  }
+ },
+ "checks": [
+  {
+   "name": "disc centred",
+   "pass": true
+  },
+  {
+   "name": "true-cap dot core present >=20px (carried coreMinCluster)",
+   "pass": true
+  },
+  {
+   "name": "true-cap dot core round (ratio<=1.5 carried)",
+   "pass": true
+  },
+  {
+   "name": "dot core in-disc (<=1 radius)",
+   "pass": true
+  },
+  {
+   "name": "curvature morphology delta: smooth-shell core is a smear (ratio>2), true cap a dot",
+   "pass": true
+  },
+  {
+   "name": "limbal ring resolves above interior on true cap",
+   "pass": true
+  },
+  {
+   "name": "limbal arc present on true cap (peak above ring median +5)",
+   "pass": true
+  },
+  {
+   "name": "room adds light over the quad-off floor (cells not mislabeled)",
+   "pass": true
+  },
+  {
+   "name": "gaze p25: |shift| within 15% of analytic 4.205mm",
+   "pass": true
+  },
+  {
+   "name": "gaze m25: |shift| within 15% of analytic 4.205mm",
+   "pass": true
+  }
+ ],
+ "verdict": "GREEN",
+ "not_tested": {
+  "socket_showthrough_at_yaw": "no socket/lid aperture in this GLB; edgeAtYaw stays OPEN under eye-globe-fit (compat falsifier, recorded)",
+  "skin_zero": "no skin in this GLB; three.js scoped-env skin-zero re-tune belongs to the station re-bake (G6)",
+  "cornea_env_intensity_retune": "EEVEE wants recorded here; product-rig constants untouched (different harness)"
+ }
+}

@@ -1,6 +1,6 @@
 ---
 name: loop-continuation
-description: "Fires at TURN END - especially notification-driven turns (a worker finished, a background command completed - these FEEL like endings and are not) - and at every scheduled wake - re-arm the next wake as the last action, publish the dated status BLUF to SSOT first, audit and kill stale background jobs (verify the spawner died), recover after sleep gaps, land visible wins publicly the same cycle. Also fires on 'why did you stop' / 'progress update' / 'what is running' / 'keep going' - each such operator ask is a defect report against this skill."
+description: "Fires at TURN END - including notification-driven turns that FEEL like endings - and at every scheduled wake: re-arm the next wake last, publish the dated status first, kill stale background jobs. Each 'why did you stop?' is a defect report."
 when-to-use: end of turn, task-notification, loop lapsed, keep going, why did you stop, ScheduleWakeup, re-arm, progress update, what is running, check your shells, orphan process, machine slept, website update, publish wins
 ---
 

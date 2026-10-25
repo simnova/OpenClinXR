@@ -1,0 +1,122 @@
+{
+  "operator-prose": [
+    "operator",
+    "prose",
+    "report",
+    "numeric"
+  ],
+  "pre-dispatch-alignment": [
+    "slice",
+    "dispatch",
+    "prior art",
+    "collision"
+  ],
+  "pixel-grading": [
+    "render",
+    "screenshot",
+    "verdict",
+    "resolution"
+  ],
+  "contract-design": [
+    "done_when",
+    "counterweight",
+    "threshold",
+    "fixture"
+  ],
+  "autonomy-boundaries": [
+    "permission",
+    "install",
+    "publish",
+    "escalate"
+  ],
+  "loop-continuation": [
+    "TURN END",
+    "wake",
+    "background",
+    "stop"
+  ],
+  "measure-before-claiming": [
+    "issue",
+    "cause",
+    "claim",
+    "proof"
+  ],
+  "shared-checkout-discipline": [
+    "worktree",
+    "monitor",
+    "SHARED",
+    "probe"
+  ],
+  "idle-tick-first-principles": [
+    "tick",
+    "noop",
+    "RED",
+    "principles"
+  ],
+  "delegator-comms": [
+    "TICK template",
+    "BLOCKED",
+    "verbatim",
+    "product owner"
+  ],
+  "model-routing": [
+    "model",
+    "dispatch",
+    "superagent",
+    "fallback"
+  ],
+  "board-conduit": [
+    "project 7",
+    "cards",
+    "concurrency",
+    "lane"
+  ],
+  "grok-tier-routing": [
+    "Grok",
+    "tier",
+    "subagent",
+    "headless"
+  ],
+  "dense-agent-protocol": [
+    "brief",
+    "handback",
+    "KEY::value",
+    "records"
+  ],
+  "context-handoff": [
+    "handoff",
+    "context-cap",
+    "lane",
+    "resuming"
+  ],
+  "mouth-tuning": [
+    "mouth",
+    "visemes",
+    "lip-sync",
+    "headless evaluator"
+  ],
+  "trellis-baking": [
+    "TRELLIS",
+    "bake",
+    "sampler",
+    "defect"
+  ],
+  "consult-session-hygiene": [
+    "consult",
+    "no_visible_content",
+    "resume",
+    "restore-stall"
+  ],
+  "bothy-board": [
+    "BothyBoard",
+    "fail-closed",
+    "proofs.set",
+    "worktree"
+  ],
+  "finish-before-done": [
+    "completeness gate",
+    "still needs",
+    "blocker",
+    "DESCRIBE work"
+  ]
+}

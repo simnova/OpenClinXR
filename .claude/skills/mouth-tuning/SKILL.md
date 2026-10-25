@@ -1,6 +1,6 @@
 ---
 name: mouth-tuning
-description: "Gate for any request that changes how a humanoid's mouth looks or moves: lips, jaw, teeth, tongue, visemes, lip-sync timing, mouth realism vs the Oculus references. Measure with the headless evaluator, verify the design premise with a one-minute probe, then dispatch with evaluator gates; never iterate on browser captures."
+description: "Gate for any request that changes how a humanoid's mouth looks or moves: lips, jaw, teeth, tongue, visemes, lip-sync timing. Measure with the headless evaluator, verify the premise with a one-minute probe, then dispatch with evaluator gates."
 when-to-use: mouth, lips, jaw, teeth, tongue, viseme, lip-sync, mouth realism, teeth gap, creepy mouth, Oculus viseme comparison, teeth coupling producer
 ---
 

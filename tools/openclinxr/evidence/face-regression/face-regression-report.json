@@ -1,0 +1,993 @@
+{
+  "card": "tsk_0e618fa5e9ac3e15",
+  "title": "Whole-face regression sheet for the face station",
+  "phase": 2,
+  "status": "calibrated-with-known-bads",
+  "why": "Every prior card graded only its own region in its own render path: pink eyes from a stale GLB, double brows, a detail_bands pass dropped by the station and an olive lip band each passed their own gate while the whole face regressed. This module re-renders the station's actual output for every case in case-inputs.json and compares it with the last accepted whole-face state.",
+  "modules": [
+    {
+      "path": "tools/openclinxr/evidence/face-regression/src/render.ts",
+      "role": "resolve each case's latest completed station run; GLB = stage-4 lid-conform output, albedo = stage-3 final, normal+roughness from the same run dir; re-hash every recorded input and refuse on mismatch; spawn skin-realism/runtime-portrait-capture.ts in variant mode with an explicit --glb; assert the tool's output glb.sha256 equals the record sha; record planted renders."
+    },
+    {
+      "path": "tools/openclinxr/evidence/face-regression/src/regions.ts",
+      "role": "Landmark point type only. The index table, masks and colour math live solely in regions.py (single implementation); TypeScript never names landmark indices."
+    },
+    {
+      "path": "tools/openclinxr/evidence/face-regression/src/regions.py",
+      "role": "THE region implementation via mise exec: imports face_gate_v2.detect_median (median of 3) and face_gate.resolve_model_path against the pinned landmark-model.json; disjoint masks by precedence (eyes, brows, lips, nose win; cheeks, forehead, chin keep only unclaimed pixels); mean CIEDE2000 dE, SSIM on L*, mean landmark displacement in px (reported, not gated); --golden-landmarks/--current-landmarks skip detection with fixture landmarks; per-region dE heatmap PNGs (fixed scale stated in the JSON) + bboxes + precedence in the metrics JSON; --dump-regions prints the table."
+    },
+    {
+      "path": "tools/openclinxr/evidence/face-regression/src/metrics.ts",
+      "role": "RegionMetric record shape (+ bbox type) only, so the pure decision and the sheet writer type their inputs. Measured solely by regions.py; no table, no masks, no colour math here."
+    },
+    {
+      "path": "tools/openclinxr/evidence/face-regression/src/check.ts",
+      "role": "pure evaluateFaceRegression decision (undeclared region beyond threshold = failure) plus exported summarizeCheckResults (absent cases listed, never failing; present case with missing golden still fails) plus the `check` and `--promote` CLI; default store /Volumes/files/openclinxr-assets/store/face-regression (brief path, no /src); writes runs/<card>/check.json and per case/view sheets from the regions.py heatmaps."
+    },
+    {
+      "path": "tools/openclinxr/evidence/face-regression/src/sheets.ts",
+      "role": "per case/view sheet: one row per region, cells golden crop | current crop | regions.py per-pixel CIEDE2000 heatmap crop, native pixels, no resampling. Composes the heatmap PNGs + bboxes from the metrics JSON; derives no anatomy, does no colour math."
+    },
+    {
+      "path": "tools/openclinxr/evidence/face-regression/src/promote.ts",
+      "role": "immutable golden promotion: writes a NEW version dir, never opens an existing one for write, refuses planted renders."
+    },
+    {
+      "path": "tools/openclinxr/evidence/face-regression/src/thresholds.ts",
+      "role": "threshold model threshold = max(noise, floor); no typed numbers."
+    }
+  ],
+  "thresholds": {
+    "model": "per region and metric, threshold = max(noise, floor)",
+    "noise": "max delta between two from-scratch renders of identical inputs (a re-render must not be called a regression)",
+    "floor": "metric between the golden and the golden with a +-1 8-bit code value perturbation, per channel, per pixel, clipped to 0..255",
+    "perturbation_seed": 20261018,
+    "calibration_file": "tools/openclinxr/evidence/face-regression/calibration.json",
+    "state": "uncalibrated: phase 2 (STEP 5/6) records the noise and floor measurement for each region and metric; the report cites that measurement for every threshold."
+  },
+  "golden_pointer": "tools/openclinxr/evidence/face-regression/golden-pointer.json",
+  "tests": {
+    "contract": "tools/openclinxr/evidence/face-regression/the-face-regression-check-fails-on-undeclared-change.test.ts",
+    "contract_cases": 11,
+    "step2_red": "fails 8/8 before this module existed; green in STEP 4",
+    "second_subject": "tools/openclinxr/evidence/second-subject",
+    "second_subject_cases": 31
+  },
+  "phase2": {
+    "notes": [
+      "known-bad B as first briefed (aisha run2 GLB 0fbaf4c6) is a measured null: it carries the same brow mesh as aisha run4 (mindfront_eyebrows_05) and renders byte-identical to the seed (every region dE 0.000), so the check passes; it is recorded under measuredNulls. The real double-brow regression is body2 run2 (643563fc, mesh mindfront_eyebrows_08) on top of body2's texture brow; it is the knownBadB arm against the promoted golden v1-2026-10-18 and fails on brow_L/brow_R."
+    ],
+    "seed": {
+      "renderSummary": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/seed-a/render.json",
+      "cases": [
+        {
+          "caseId": "aisha",
+          "runId": "run4",
+          "views": [
+            {
+              "yaw": 0,
+              "png": "../../../../../../Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/seed-a/render/aisha/face-regression-aisha-front.png",
+              "sha256": "561779ab84dc0a20706a58ac2a6eff2661df07f3ebcdecc3fef7960f626ee1b7"
+            },
+            {
+              "yaw": 25,
+              "png": "../../../../../../Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/seed-a/render/aisha/face-regression-aisha-yaw25.png",
+              "sha256": "955658b272aed6b2b78aa15949358d8b991c5ab3cf0e4613e590c092839ccebc"
+            }
+          ]
+        },
+        {
+          "caseId": "body2",
+          "runId": "run7",
+          "views": [
+            {
+              "yaw": 0,
+              "png": "../../../../../../Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/seed-a/render/body2/face-regression-body2-front.png",
+              "sha256": "0cbc0d35cfa0b882110ae292d018fb0f56ad51332fe78faade13f1119df10fdd"
+            },
+            {
+              "yaw": 25,
+              "png": "../../../../../../Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/seed-a/render/body2/face-regression-body2-yaw25.png",
+              "sha256": "c5ce969d115cbc734b10b45dac3403ac1177de09e3d629298d084e7c0ec64c4b"
+            }
+          ]
+        }
+      ]
+    },
+    "calibration": {
+      "status": "calibrated",
+      "seed": 20261018,
+      "perturbation": "seed 20261018; every 8-bit channel of the golden is offset by a seeded uniform integer in {-1,0,+1} (per-channel, per-pixel), clipped to 0..255",
+      "regions": {
+        "eye_L": {
+          "dE": {
+            "noise": 0,
+            "floor": 0.770143590587219,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          },
+          "ssimL": {
+            "noiseDrop": 0,
+            "floorDrop": 0.00003296510511940909,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          }
+        },
+        "eye_R": {
+          "dE": {
+            "noise": 0,
+            "floor": 0.7785485209983047,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          },
+          "ssimL": {
+            "noiseDrop": 0,
+            "floorDrop": 0.000034634187795146154,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          }
+        },
+        "brow_L": {
+          "dE": {
+            "noise": 0,
+            "floor": 0.6097674475317891,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          },
+          "ssimL": {
+            "noiseDrop": 0,
+            "floorDrop": 0.0003021466747045176,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          }
+        },
+        "brow_R": {
+          "dE": {
+            "noise": 0,
+            "floor": 0.5928716627672123,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          },
+          "ssimL": {
+            "noiseDrop": 0,
+            "floorDrop": 0.0003258945950415093,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          }
+        },
+        "lips": {
+          "dE": {
+            "noise": 0,
+            "floor": 0.5220517779091742,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          },
+          "ssimL": {
+            "noiseDrop": 0,
+            "floorDrop": 0.00009739602425462568,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          }
+        },
+        "nose": {
+          "dE": {
+            "noise": 0,
+            "floor": 0.5758811871775482,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          },
+          "ssimL": {
+            "noiseDrop": 0,
+            "floorDrop": 0.00013617729432413572,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          }
+        },
+        "cheek_L": {
+          "dE": {
+            "noise": 0,
+            "floor": 0.6124316520447981,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          },
+          "ssimL": {
+            "noiseDrop": 0,
+            "floorDrop": 0.0011273755572112076,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          }
+        },
+        "cheek_R": {
+          "dE": {
+            "noise": 0,
+            "floor": 0.6126054381261686,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          },
+          "ssimL": {
+            "noiseDrop": 0,
+            "floorDrop": 0.0006845662842790423,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          }
+        },
+        "forehead": {
+          "dE": {
+            "noise": 0,
+            "floor": 0.6720144853284714,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          },
+          "ssimL": {
+            "noiseDrop": 0,
+            "floorDrop": 0.0016108849379361523,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          }
+        },
+        "chin": {
+          "dE": {
+            "noise": 0,
+            "floor": 0.5984394738226669,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          },
+          "ssimL": {
+            "noiseDrop": 0,
+            "floorDrop": 0.0004166947117499875,
+            "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+          }
+        }
+      }
+    },
+    "thresholds": {
+      "eye_L": {
+        "maxDE": 0.770143590587219,
+        "minSsimL": 0.9999670348948806
+      },
+      "eye_R": {
+        "maxDE": 0.7785485209983047,
+        "minSsimL": 0.9999653658122049
+      },
+      "brow_L": {
+        "maxDE": 0.6097674475317891,
+        "minSsimL": 0.9996978533252955
+      },
+      "brow_R": {
+        "maxDE": 0.5928716627672123,
+        "minSsimL": 0.9996741054049585
+      },
+      "lips": {
+        "maxDE": 0.5220517779091742,
+        "minSsimL": 0.9999026039757454
+      },
+      "nose": {
+        "maxDE": 0.5758811871775482,
+        "minSsimL": 0.9998638227056759
+      },
+      "cheek_L": {
+        "maxDE": 0.6124316520447981,
+        "minSsimL": 0.9988726244427888
+      },
+      "cheek_R": {
+        "maxDE": 0.6126054381261686,
+        "minSsimL": 0.999315433715721
+      },
+      "forehead": {
+        "maxDE": 0.6720144853284714,
+        "minSsimL": 0.9983891150620638
+      },
+      "chin": {
+        "maxDE": 0.5984394738226669,
+        "minSsimL": 0.99958330528825
+      }
+    },
+    "knownGood": {
+      "checkJson": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/known-good2/check.json",
+      "ok": true,
+      "regions": [
+        {
+          "region": "brow_L",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.6097674475317891
+        },
+        {
+          "region": "brow_L",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.6097674475317891
+        },
+        {
+          "region": "brow_R",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.5928716627672123
+        },
+        {
+          "region": "brow_R",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.5928716627672123
+        },
+        {
+          "region": "cheek_L",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.6124316520447981
+        },
+        {
+          "region": "cheek_L",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.6124316520447981
+        },
+        {
+          "region": "cheek_R",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.6126054381261686
+        },
+        {
+          "region": "cheek_R",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.6126054381261686
+        },
+        {
+          "region": "chin",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.5984394738226669
+        },
+        {
+          "region": "chin",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.5984394738226669
+        },
+        {
+          "region": "eye_L",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.770143590587219
+        },
+        {
+          "region": "eye_L",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.770143590587219
+        },
+        {
+          "region": "eye_R",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.7785485209983047
+        },
+        {
+          "region": "eye_R",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.7785485209983047
+        },
+        {
+          "region": "forehead",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.6720144853284714
+        },
+        {
+          "region": "forehead",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.6720144853284714
+        },
+        {
+          "region": "lips",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.5220517779091742
+        },
+        {
+          "region": "lips",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.5220517779091742
+        },
+        {
+          "region": "nose",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.5758811871775482
+        },
+        {
+          "region": "nose",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.5758811871775482
+        },
+        {
+          "region": "brow_L",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.6097674475317891
+        },
+        {
+          "region": "brow_L",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.6097674475317891
+        },
+        {
+          "region": "brow_R",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.5928716627672123
+        },
+        {
+          "region": "brow_R",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.5928716627672123
+        },
+        {
+          "region": "cheek_L",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.6124316520447981
+        },
+        {
+          "region": "cheek_L",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.6124316520447981
+        },
+        {
+          "region": "cheek_R",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.6126054381261686
+        },
+        {
+          "region": "cheek_R",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.6126054381261686
+        },
+        {
+          "region": "chin",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.5984394738226669
+        },
+        {
+          "region": "chin",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.5984394738226669
+        },
+        {
+          "region": "eye_L",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.770143590587219
+        },
+        {
+          "region": "eye_L",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.770143590587219
+        },
+        {
+          "region": "eye_R",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.7785485209983047
+        },
+        {
+          "region": "eye_R",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.7785485209983047
+        },
+        {
+          "region": "forehead",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.6720144853284714
+        },
+        {
+          "region": "forehead",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.6720144853284714
+        },
+        {
+          "region": "lips",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.5220517779091742
+        },
+        {
+          "region": "lips",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.5220517779091742
+        },
+        {
+          "region": "nose",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.5758811871775482
+        },
+        {
+          "region": "nose",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.5758811871775482
+        }
+      ]
+    },
+    "knownBadA": {
+      "checkJson": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/known-bad-a2/check.json",
+      "plant": {
+        "glb": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/final.glb",
+        "sha256": "94a9ca6c81d47fe06561a3cfa6914b909eb936d7cf74387d0975a1a0027bc437"
+      },
+      "ok": false,
+      "failedRegions": [
+        "eye_L",
+        "eye_R",
+        "brow_L",
+        "brow_R"
+      ],
+      "regions": [
+        {
+          "region": "brow_L",
+          "view": 0,
+          "dE": 5.005515784482296,
+          "threshold": 0.6097674475317891
+        },
+        {
+          "region": "brow_R",
+          "view": 0,
+          "dE": 5.31754251184026,
+          "threshold": 0.5928716627672123
+        },
+        {
+          "region": "cheek_L",
+          "view": 0,
+          "dE": 0.001488872686785967,
+          "threshold": 0.6124316520447981
+        },
+        {
+          "region": "cheek_R",
+          "view": 0,
+          "dE": 0.0018790307121487665,
+          "threshold": 0.6126054381261686
+        },
+        {
+          "region": "chin",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.5984394738226669
+        },
+        {
+          "region": "eye_L",
+          "view": 0,
+          "dE": 19.715776354850412,
+          "threshold": 0.770143590587219
+        },
+        {
+          "region": "eye_R",
+          "view": 0,
+          "dE": 20.342918855664447,
+          "threshold": 0.7785485209983047
+        },
+        {
+          "region": "forehead",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.6720144853284714
+        },
+        {
+          "region": "lips",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.5220517779091742
+        },
+        {
+          "region": "nose",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.5758811871775482
+        },
+        {
+          "region": "brow_L",
+          "view": 25,
+          "dE": 5.850326304999643,
+          "threshold": 0.6097674475317891
+        },
+        {
+          "region": "brow_R",
+          "view": 25,
+          "dE": 4.1619291994429135,
+          "threshold": 0.5928716627672123
+        },
+        {
+          "region": "cheek_L",
+          "view": 25,
+          "dE": 0.0005908316291532551,
+          "threshold": 0.6124316520447981
+        },
+        {
+          "region": "cheek_R",
+          "view": 25,
+          "dE": 0.0008580666256466557,
+          "threshold": 0.6126054381261686
+        },
+        {
+          "region": "chin",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.5984394738226669
+        },
+        {
+          "region": "eye_L",
+          "view": 25,
+          "dE": 18.752804417498073,
+          "threshold": 0.770143590587219
+        },
+        {
+          "region": "eye_R",
+          "view": 25,
+          "dE": 19.198982589691788,
+          "threshold": 0.7785485209983047
+        },
+        {
+          "region": "forehead",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.6720144853284714
+        },
+        {
+          "region": "lips",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.5220517779091742
+        },
+        {
+          "region": "nose",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.5758811871775482
+        }
+      ],
+      "rawRanking": [
+        "eye_R",
+        "eye_L",
+        "brow_L",
+        "brow_R",
+        "cheek_R",
+        "cheek_L",
+        "chin",
+        "forehead",
+        "lips",
+        "nose"
+      ],
+      "largestMover": {
+        "region": "eye_R",
+        "view": 0,
+        "dE": 20.342918855664447,
+        "threshold": 0.7785485209983047,
+        "ratio": 26.129288421972024,
+        "margin": 19.564370334666144,
+        "marginOverThreshold": 25.129288421972024
+      },
+      "definitions": [
+        "largest mover = region with the largest dE / threshold.dE across both views",
+        "margin = (that region's dE) - threshold.dE",
+        "required margin / threshold.dE >= 1"
+      ]
+    },
+    "knownBadB": {
+      "checkJson": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/known-bad-b2/check.json",
+      "plant": {
+        "glb": "/Volumes/files/openclinxr-assets/store/face-station-cases/body2/run2/body2-lidconform.glb",
+        "sha256": "643563fcf7f606e5367a9f97a29d0dfefdf5a61ea49991e1b70f2c71d7c51b13"
+      },
+      "ok": false,
+      "failedRegions": [
+        "brow_L",
+        "brow_R"
+      ],
+      "regions": [
+        {
+          "region": "brow_L",
+          "view": 0,
+          "dE": 2.6797334986853523,
+          "threshold": 0.6097674475317891
+        },
+        {
+          "region": "brow_R",
+          "view": 0,
+          "dE": 2.7907502256207506,
+          "threshold": 0.5928716627672123
+        },
+        {
+          "region": "cheek_L",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.6124316520447981
+        },
+        {
+          "region": "cheek_R",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.6126054381261686
+        },
+        {
+          "region": "chin",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.5984394738226669
+        },
+        {
+          "region": "eye_L",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.770143590587219
+        },
+        {
+          "region": "eye_R",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.7785485209983047
+        },
+        {
+          "region": "forehead",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.6720144853284714
+        },
+        {
+          "region": "lips",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.5220517779091742
+        },
+        {
+          "region": "nose",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.5758811871775482
+        },
+        {
+          "region": "brow_L",
+          "view": 25,
+          "dE": 3.4990600240814254,
+          "threshold": 0.6097674475317891
+        },
+        {
+          "region": "brow_R",
+          "view": 25,
+          "dE": 2.108465346055937,
+          "threshold": 0.5928716627672123
+        },
+        {
+          "region": "cheek_L",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.6124316520447981
+        },
+        {
+          "region": "cheek_R",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.6126054381261686
+        },
+        {
+          "region": "chin",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.5984394738226669
+        },
+        {
+          "region": "eye_L",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.770143590587219
+        },
+        {
+          "region": "eye_R",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.7785485209983047
+        },
+        {
+          "region": "forehead",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.6720144853284714
+        },
+        {
+          "region": "lips",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.5220517779091742
+        },
+        {
+          "region": "nose",
+          "view": 25,
+          "dE": 0,
+          "threshold": 0.5758811871775482
+        }
+      ],
+      "rawRanking": [
+        "brow_L",
+        "brow_R",
+        "cheek_L",
+        "cheek_R",
+        "chin",
+        "eye_L",
+        "eye_R",
+        "forehead",
+        "lips",
+        "nose"
+      ],
+      "largestMover": {
+        "region": "brow_L",
+        "view": 25,
+        "dE": 3.4990600240814254,
+        "threshold": 0.6097674475317891,
+        "ratio": 5.73835162609104,
+        "margin": 2.8892925765496362,
+        "marginOverThreshold": 4.73835162609104
+      },
+      "definitions": [
+        "largest mover = region with the largest dE / threshold.dE across both views",
+        "margin = (that region's dE) - threshold.dE",
+        "required margin / threshold.dE >= 1"
+      ]
+    },
+    "measuredNulls": [
+      {
+        "claim": "aisha run2 plant is a double-brow regression",
+        "plant": {
+          "glb": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run2/aisha-lidconform.glb",
+          "sha256": "0fbaf4c69c689197be180fff237a53d6df3f9813d21e548dd0cad004b73c4a2d"
+        },
+        "result": "renders byte-identical to the seed; every region dE 0.000",
+        "cause": "same brow mesh as aisha run4 (mindfront_eyebrows_05)",
+        "checkJson": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/known-bad-b/check.json",
+        "ok": true,
+        "failedRegions": [],
+        "regions": [
+          {
+            "region": "brow_L",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.6097674475317891
+          },
+          {
+            "region": "brow_R",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.5928716627672123
+          },
+          {
+            "region": "cheek_L",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.6124316520447981
+          },
+          {
+            "region": "cheek_R",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.6126054381261686
+          },
+          {
+            "region": "chin",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.5984394738226669
+          },
+          {
+            "region": "eye_L",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.770143590587219
+          },
+          {
+            "region": "eye_R",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.7785485209983047
+          },
+          {
+            "region": "forehead",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.6720144853284714
+          },
+          {
+            "region": "lips",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.5220517779091742
+          },
+          {
+            "region": "nose",
+            "view": 0,
+            "dE": 0,
+            "threshold": 0.5758811871775482
+          },
+          {
+            "region": "brow_L",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.6097674475317891
+          },
+          {
+            "region": "brow_R",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.5928716627672123
+          },
+          {
+            "region": "cheek_L",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.6124316520447981
+          },
+          {
+            "region": "cheek_R",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.6126054381261686
+          },
+          {
+            "region": "chin",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.5984394738226669
+          },
+          {
+            "region": "eye_L",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.770143590587219
+          },
+          {
+            "region": "eye_R",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.7785485209983047
+          },
+          {
+            "region": "forehead",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.6720144853284714
+          },
+          {
+            "region": "lips",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.5220517779091742
+          },
+          {
+            "region": "nose",
+            "view": 25,
+            "dE": 0,
+            "threshold": 0.5758811871775482
+          }
+        ],
+        "rawRanking": [
+          "brow_L",
+          "brow_R",
+          "cheek_L",
+          "cheek_R",
+          "chin",
+          "eye_L",
+          "eye_R",
+          "forehead",
+          "lips",
+          "nose"
+        ],
+        "largestMover": {
+          "region": "brow_L",
+          "view": 0,
+          "dE": 0,
+          "threshold": 0.6097674475317891,
+          "ratio": 0,
+          "margin": -0.6097674475317891,
+          "marginOverThreshold": -1
+        }
+      }
+    ]
+  }
+}

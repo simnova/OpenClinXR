@@ -1,6 +1,6 @@
 ---
 name: shared-checkout-discipline
-description: "Load BEFORE authoring a file, editing a test, running a destructive probe, staging, committing, or arming a background monitor in this repo. /Volumes/files/src/openclinxr is a SHARED checkout with several agents in it at once — author and probe in your own git worktree and touch shared main only to commit a verified change. Also carries why a monitor must fetch and never pull, why it must not repair shared state, and the failure where a broken probe reads as progress. Every rule here is a measured incident, not a preference."
+description: "Load BEFORE authoring a file, editing a test, running a destructive probe, staging, committing, or arming a background monitor. /Volumes/files/src/openclinxr is SHARED: work in your own git worktree, touch shared main to commit a verified change."
 when-to-use: about to write a file, about to edit a test, destructive probe, break something to prove a contract, git add, git commit, arm a monitor, background watch, core.bare, my commit went missing, another agent's files, fresh worktree
 ---
 

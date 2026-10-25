@@ -33,7 +33,7 @@ const LASH_MANIFEST = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makecloth
 const MATERIALIZE = join(REPO_ROOT, "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py");
 const STORE_ROOT = "/Volumes/files/openclinxr-assets/store/";
 const SCRATCH_REALISM =
-  "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/compateyes/aisha-realism.glb";
+  "/var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//eyefinish_eye/aisha-realism.lash.glb";
 
 const EYE_FACS = [
   "eye-left-closure",

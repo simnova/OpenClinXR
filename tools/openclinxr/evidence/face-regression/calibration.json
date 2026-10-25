@@ -1,0 +1,137 @@
+{
+  "card": "tsk_0e618fa5e9ac3e15",
+  "status": "calibrated",
+  "perturbation": "seed 20261018; every 8-bit channel of the golden is offset by a seeded uniform integer in {-1,0,+1} (per-channel, per-pixel), clipped to 0..255",
+  "seed": 20261018,
+  "baseline": {
+    "label": "seed-a",
+    "dir": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/seed-a"
+  },
+  "noise": {
+    "label": "seed-b",
+    "dir": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/seed-b"
+  },
+  "metricsDir": "/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration",
+  "regions": {
+    "eye_L": {
+      "dE": {
+        "noise": 0,
+        "floor": 0.770143590587219,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      },
+      "ssimL": {
+        "noiseDrop": 0,
+        "floorDrop": 0.00003296510511940909,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      }
+    },
+    "eye_R": {
+      "dE": {
+        "noise": 0,
+        "floor": 0.7785485209983047,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      },
+      "ssimL": {
+        "noiseDrop": 0,
+        "floorDrop": 0.000034634187795146154,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      }
+    },
+    "brow_L": {
+      "dE": {
+        "noise": 0,
+        "floor": 0.6097674475317891,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      },
+      "ssimL": {
+        "noiseDrop": 0,
+        "floorDrop": 0.0003021466747045176,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      }
+    },
+    "brow_R": {
+      "dE": {
+        "noise": 0,
+        "floor": 0.5928716627672123,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      },
+      "ssimL": {
+        "noiseDrop": 0,
+        "floorDrop": 0.0003258945950415093,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      }
+    },
+    "lips": {
+      "dE": {
+        "noise": 0,
+        "floor": 0.5220517779091742,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      },
+      "ssimL": {
+        "noiseDrop": 0,
+        "floorDrop": 0.00009739602425462568,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      }
+    },
+    "nose": {
+      "dE": {
+        "noise": 0,
+        "floor": 0.5758811871775482,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      },
+      "ssimL": {
+        "noiseDrop": 0,
+        "floorDrop": 0.00013617729432413572,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      }
+    },
+    "cheek_L": {
+      "dE": {
+        "noise": 0,
+        "floor": 0.6124316520447981,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      },
+      "ssimL": {
+        "noiseDrop": 0,
+        "floorDrop": 0.0011273755572112076,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      }
+    },
+    "cheek_R": {
+      "dE": {
+        "noise": 0,
+        "floor": 0.6126054381261686,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      },
+      "ssimL": {
+        "noiseDrop": 0,
+        "floorDrop": 0.0006845662842790423,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      }
+    },
+    "forehead": {
+      "dE": {
+        "noise": 0,
+        "floor": 0.6720144853284714,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      },
+      "ssimL": {
+        "noiseDrop": 0,
+        "floorDrop": 0.0016108849379361523,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      }
+    },
+    "chin": {
+      "dE": {
+        "noise": 0,
+        "floor": 0.5984394738226669,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      },
+      "ssimL": {
+        "noiseDrop": 0,
+        "floorDrop": 0.0004166947117499875,
+        "source": "noise /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/noise-body2-25.json; floor /Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-aisha-25.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-0.json,/Volumes/files/openclinxr-assets/store/face-regression/runs/tsk_0e618fa5e9ac3e15/calibration/floor-body2-25.json"
+      }
+    }
+  }
+}

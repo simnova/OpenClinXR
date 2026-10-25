@@ -280,6 +280,21 @@
       "path": "packages/openclinxr/data-mongodb/src/api-persistence-sink.integration.test.ts",
       "reason": "1 of 29 fails on main 4773a5bda (2026-10-08) and earlier on 3bbfe0711 without the shrink-a change: 'replays scenario review decisions after API app recreation' gets GraphQL errors instead of data, the same review-gate authoredContentIdentity refusal recorded for the review-route evidence probes.",
       "card": "unfiled: supply authoredContentIdentity evidence in the review-route probes, or record why the gate refuses them"
+    },
+    {
+      "path": "tools/openclinxr/evidence/face-regression/the-face-regression-check-fails-on-undeclared-change.test.ts",
+      "reason": "Planted RED for card tsk_0e618fa5e9ac3e15 STEP 2: the whole-face regression check is unimplemented. The module under tools/openclinxr/evidence/face-regression/src/ carries throwing stubs so the import resolves (knip rules.unresolved) while the contract fails 8/8. Removed in the STEP 4 GREEN commit that implements the check.",
+      "card": "tsk_0e618fa5e9ac3e15"
+    },
+    {
+      "path": "tools/openclinxr/evidence/the-audit-does-not-claim-a-verification-it-never-checked.test.ts",
+      "reason": "hx-paths triage (lane manager, measured at base 4b108ef17): 2 of 6 fail in any lane worktree without dispatch history. describeDispatchProofs reads the lane-local .openclinxr/openclaw/worker-sessions.jsonl ledger; absent (ENOENT), the message reports UNKNOWN instead of the asserted FAILED text. Fails identically on clean tree; not caused by the change under test.",
+      "card": "tsk_51e97960788d09fa"
+    },
+    {
+      "path": "tools/openclinxr/evidence/a-dispatch-verdict-comes-from-the-newest-session.test.ts",
+      "reason": "hx-paths triage (lane manager, measured at base 4b108ef17): 2 of 4 fail in any lane worktree without dispatch history. rowsFor reads the lane-local .openclinxr/openclaw/worker-sessions.jsonl ledger; absent (ENOENT), the known-good column and counterweight read UNKNOWN instead of FAILED. Fails identically on clean tree; not caused by the change under test.",
+      "card": "tsk_51e97960788d09fa"
     }
   ]
 }

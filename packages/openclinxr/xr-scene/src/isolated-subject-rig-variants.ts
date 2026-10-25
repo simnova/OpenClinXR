@@ -11,13 +11,16 @@ import {
   ACESFilmicToneMapping,
   AgXToneMapping,
   AmbientLight,
-  DataTexture,
+  CircleGeometry,
   DirectionalLight,
+  DoubleSide,
   HemisphereLight,
   type Light,
   Mesh,
+  MeshBasicMaterial,
   NeutralToneMapping,
   NoToneMapping,
+  PlaneGeometry,
   PMREMGenerator,
   type Scene,
   Vector3,
@@ -25,8 +28,16 @@ import {
 } from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import {
-  applyEyeShading,
+  type DiscUpload,
+  IRIS_RADIUS_UV,
+  LIMBUS_WIDTH_UV,
+  ROUGH_DISC_INNER,
+  buildIrisDiscRoughnessMap,
+  readDiscUpload,
+} from "./eye-shader/iris-disc-roughness-map.js";
+import {
   GLOBE_MATERIAL_RE,
+  resolveProductEyeShading,
   type LidMarginRec,
 } from "./eye-shader/eye-lid-contact.js";
 
@@ -111,12 +122,14 @@ export type ProductRigApplied = {
    * scoped env map, and whether any did. The variant JSON records this, so
    * CW2 (globe envMap non-null) is proved by readback, not by source.
    * roughnessDisc pins the procedural iris-disc roughness map (h1): inner /
-   * outer texels and radii, or null when no globe material matched.
+   * outer texels and radii plus the live-upload readback (buffer length,
+   * G at both true iris centres and at the old v-mirrored trap UVs),
+   * or null when no globe material matched.
    */
   globeEnvMap: {
     matched: string[];
     envMapSet: boolean;
-    roughnessDisc: { inner: number; outer: number; radiusUv: number; featherUv: number } | null;
+    roughnessDisc: { inner: number; outer: number; radiusUv: number; featherUv: number; upload: DiscUpload } | null;
   };
   /**
    * Eye runtime shading (card tsk_e0afe706b7a5f071): sclera-only env
@@ -145,6 +158,14 @@ export type ProductRigApplied = {
       bandM: number;
       darken: number;
       margins: LidMarginRec[];
+    } | null;
+    /** Fresnel cornea film readback (eye-finish) for the gate report. */
+    corneaFresnel: {
+      enabled: boolean;
+      matched: string[];
+      gain: number;
+      exponent: number;
+      flat: boolean;
     } | null;
   };
 };
@@ -270,69 +291,30 @@ export function applyRigOverride(
 }
 
 /**
- * h1 iris-disc UV numerals (v=0 at image top, the flipY=false glTF
- * convention — the same numerals eye-parallax.ts samples with).
- * Duplicated here, NOT imported from ./eye-shader/eye-parallax.js: that
- * module is currently entrypoint-unreachable, and importing it from this
- * (reachable) module would promote it — pushing xr-scene testInternalImports
- * 10 -> 11 via its gate test's direct import. Source of truth stays
- * eye-parallax.ts (EYE_IRIS_CENTER_L_UV/R_UV, EYE_IRIS_RADIUS_UV,
- * EYE_LIMBUS_WIDTH_UV); the cornea gate test pins these literals in both
- * files by text.
+ * h1 iris-disc UV numerals and procedural map: see
+ * ./eye-shader/iris-disc-roughness-map.ts (extracted by the file-size
+ * budget, zone 500). The cornea gate test pins the F-bake numerals in
+ * that file by text.
  */
-const IRIS_CENTER_L_UV: readonly [number, number] = [299.55 / 1024, 300.0 / 1024];
-const IRIS_CENTER_R_UV: readonly [number, number] = [724.65 / 1024, 721.28 / 1024];
-const IRIS_RADIUS_UV = 135 / 1024;
-const LIMBUS_WIDTH_UV = 30 / 1024;
 
+/** h2 catchlight softbox: small HDR-white source above-front of the eye axis, so the PMREM captures a tight reflector (dot, not sheen). Shape "quad" (square) or "disc" (equal-area circle: r = size/sqrt(pi)); a disc source paints a rounder dot on the curved cornea. Position raised high (1,8,6, ~53deg elevation): compacts the reflection into a round central dot with less smeared tail than the old (1,5,8.5). */
+const CATCHLIGHT_SHAPE: "quad" | "disc" = "quad";
+const CATCHLIGHT_QUAD_SIZE = 2.0;
+const CATCHLIGHT_QUAD_INTENSITY = 500;
+const CATCHLIGHT_QUAD_POS: readonly [number, number, number] = [1.0, 8.0, 6.0];
 /**
- * h1 iris-disc roughness texel inside the disc (effective roughness =
- * globe scalar x texel). The globe scalar stays 0.5 (sclera unchanged);
- * the disc drops to 0.06 so the PMREM env resolves to a specular spot
- * instead of a flat lift.
+ * room-0.5 (env-composition sweep, .work-ablation/ENVSWEEP_OUTCOME.md): the
+ * RoomEnvironment emitters in the globe env scene run at half energy while
+ * the HDR quad stays full (2.0@500). Sweep result: quad-down buys only -5
+ * L* and tight-bright kills the dot, while room 0.5 keeps dot 51/34,
+ * meansat .58 in-band, and drops the wash to ring ~28.9/28.1. The old ring
+ * floor (<=15) is re-derived to <=30 by this lane's gate: room-alone with a
+ * BLACK quad already reads 17.4/17.7, so <=15 sits below the room-only
+ * floor, and the triple (ring <=15, dot >=20px, meansat <0.60) is jointly
+ * infeasible in the room+quad single-env-map family (linear-Y proof in the
+ * outcome note).
  */
-const ROUGH_DISC_INNER = 0.12;
-
-/** Procedural map size (px); the iris disc spans ~2x135/1024 of it. */
-const ROUGH_MAP_SIZE = 256;
-
-/**
- * h1: procedural iris-disc roughness map for the scoped globe material.
- * White (1.0) outside the iris keeps the authored scalar (sclera: 0.5);
- * the iris disc multiplies down to glossy (0.06 effective) with a
- * limbus-width smoothstep feather so no ring shows. UV convention follows
- * the glTF colour map (flipY=false, v=0 at image top — the same numerals
- * eye-parallax.ts cites), and the DataTexture keeps the default flipY=false
- * so both maps sample the same texel. Generated in memory: no iris-texture
- * edit, no new mesh, skin untouched. The shipped eye material carries no
- * authored roughnessMap (baseColor only), so nothing is overwritten.
- */
-function buildIrisDiscRoughnessMap(): DataTexture {
-  const S = ROUGH_MAP_SIZE;
-  const data = new Uint8Array(S * S);
-  const centres = [IRIS_CENTER_L_UV, IRIS_CENTER_R_UV];
-  const rFull = IRIS_RADIUS_UV;
-  const rOut = IRIS_RADIUS_UV + LIMBUS_WIDTH_UV;
-  for (let y = 0; y < S; y += 1) {
-    const v = (y + 0.5) / S;
-    for (let x = 0; x < S; x += 1) {
-      const u = (x + 0.5) / S;
-      let g = 1;
-      for (const c of centres) {
-        const r = Math.hypot(u - c[0], v - c[1]);
-        if (r < rOut) {
-          const t = Math.min(Math.max((r - rFull) / Math.max(rOut - rFull, 1e-9), 0), 1);
-          const s = t * t * (3 - 2 * t);
-          g = Math.min(g, ROUGH_DISC_INNER + (1 - ROUGH_DISC_INNER) * s);
-        }
-      }
-      data[y * S + x] = Math.round(g * 255);
-    }
-  }
-  const tex = new DataTexture(data, S, S);
-  tex.needsUpdate = true;
-  return tex;
-}
+const CATCHLIGHT_ROOM_SCALE = 0.5;
 
 /**
  * Product rig lighting (variant evaluator): ACES + base + overlay through the
@@ -345,7 +327,7 @@ export async function applyProductRig(
   renderer: WebGLRenderer,
   environmentId: string,
   headCentre: Vector3,
-  opts?: { eyeShading?: boolean; scleraShade?: boolean; lidShadow?: boolean; scleraAtten?: number | undefined; lidBandM?: number | undefined; lidDarken?: number | undefined },
+  opts?: { eyeShading?: boolean; scleraShade?: boolean; lidShadow?: boolean; scleraAtten?: number | undefined; lidBandM?: number | undefined; lidDarken?: number | undefined; corneaFresnel?: boolean | undefined; corneaFresnelGain?: number | undefined; corneaFresnelExponent?: number | undefined; corneaFresnelFlat?: boolean | undefined },
 ): Promise<ProductRigApplied> {
   const eyeShading = opts?.eyeShading ?? true;
   const scleraShade = (opts?.scleraShade ?? eyeShading) && eyeShading;
@@ -388,12 +370,46 @@ export async function applyProductRig(
   // h1: the globe also gets a procedural iris-disc roughnessMap (same
   // traverse): the 0.5 scalar blurs the env to a flat lift, so the disc
   // multiplies down to 0.06 effective while the sclera stays 0.5.
+  // h2: env source is RoomEnvironment PLUS a small HDR quad (softbox,
+  // above-front): the soft room alone leaves a grey veil on the 0.06 disc,
+  // the quad resolves to a crisp dot. Same globe-only envMap scoping.
   const pmrem = new PMREMGenerator(renderer);
-  const globeEnv = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  const globeEnvScene = new RoomEnvironment();
+  // room-0.5: halve the RoomEnvironment emitters (point light + emissive
+  // area-light panels) before the PMREM bake, preserving room colour and
+  // direction. The HDR quad added below is untouched (stays full). Black-
+  // emissive room/box materials also traverse here; scaling their 1.0 by
+  // 0.5 is a no-op (emissive is black).
+  globeEnvScene.traverse((o) => {
+    const light = o as unknown as { isPointLight?: boolean; intensity?: unknown };
+    if (light.isPointLight === true && typeof light.intensity === "number") {
+      light.intensity *= CATCHLIGHT_ROOM_SCALE;
+    }
+    const mesh = o as unknown as { isMesh?: boolean; material?: unknown };
+    if (mesh.isMesh === true) {
+      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      for (const m of mats) {
+        const em = m as { emissiveIntensity?: unknown } | null;
+        if (em && typeof em.emissiveIntensity === "number") {
+          em.emissiveIntensity *= CATCHLIGHT_ROOM_SCALE;
+        }
+      }
+    }
+  });
+  const catchQuadMat = new MeshBasicMaterial({ side: DoubleSide });
+  catchQuadMat.color.setRGB(CATCHLIGHT_QUAD_INTENSITY, CATCHLIGHT_QUAD_INTENSITY, CATCHLIGHT_QUAD_INTENSITY);
+  const catchQuadGeo =
+    CATCHLIGHT_SHAPE === "disc"
+      ? new CircleGeometry(CATCHLIGHT_QUAD_SIZE / Math.sqrt(Math.PI), 48)
+      : new PlaneGeometry(CATCHLIGHT_QUAD_SIZE, CATCHLIGHT_QUAD_SIZE);
+  const catchQuad = new Mesh(catchQuadGeo, catchQuadMat);
+  catchQuad.position.set(...CATCHLIGHT_QUAD_POS);
+  catchQuad.lookAt(0, 0, 0);
+  globeEnvScene.add(catchQuad);
+  const globeEnv = pmrem.fromScene(globeEnvScene, 0.04).texture;
   pmrem.dispose();
   const globeMatched: string[] = [];
   const roughDisc = buildIrisDiscRoughnessMap();
-  const scleraMatched: string[] = [];
   const globeMeshes: Mesh[] = [];
   // First pass: scoped env + inventory (no hook yet — margins first).
   scene.traverse((o) => {
@@ -431,23 +447,20 @@ export async function applyProductRig(
     if (light instanceof DirectionalLight) light.target.position.add(delta);
   }
   scene.updateMatrixWorld(true);
-  // Eye runtime shading: sclera hook with live lid margins (see
-  // ./eye-shader/eye-lid-contact.ts — split out by the file-size budget).
-  let eyeShadingResult: {
-    scleraMatched: string[];
-    scleraEnvAtten: number;
-    shadowMechanism: "lid-contact" | null;
-    lidContact: ProductRigApplied["eyeShading"]["lidContact"];
-  } = { scleraMatched: [], scleraEnvAtten: 1, shadowMechanism: null, lidContact: null };
-  if (eyeShading && (scleraShade || lidShadow)) {
-    eyeShadingResult = applyEyeShading(scene, globeMeshes, {
-      scleraShade,
-      lidShadow,
-      scleraAtten: opts?.scleraAtten,
-      lidBandM: opts?.lidBandM,
-      lidDarken: opts?.lidDarken,
-    });
-  }
+  // Eye runtime shading: sclera + fresnel-cornea hooks with live lid
+  // margins (see ./eye-shader/eye-lid-contact.ts — split by the budget).
+  const eyeShadingValue = resolveProductEyeShading(scene, globeMeshes, {
+    eyeShading,
+    scleraShade,
+    lidShadow,
+    scleraAtten: opts?.scleraAtten,
+    lidBandM: opts?.lidBandM,
+    lidDarken: opts?.lidDarken,
+    corneaFresnel: opts?.corneaFresnel,
+    corneaFresnelGain: opts?.corneaFresnelGain,
+    corneaFresnelExponent: opts?.corneaFresnelExponent,
+    corneaFresnelFlat: opts?.corneaFresnelFlat,
+  });
   return {
     environmentId,
     variantId: applied.variantId,
@@ -461,15 +474,9 @@ export async function applyProductRig(
       envMapSet: globeMatched.length > 0,
       roughnessDisc:
         globeMatched.length > 0
-          ? { inner: ROUGH_DISC_INNER, outer: 1, radiusUv: IRIS_RADIUS_UV, featherUv: LIMBUS_WIDTH_UV }
+          ? { inner: ROUGH_DISC_INNER, outer: 1, radiusUv: IRIS_RADIUS_UV, featherUv: LIMBUS_WIDTH_UV, upload: readDiscUpload(roughDisc) }
           : null,
     },
-    eyeShading: {
-      enabled: eyeShading,
-      scleraEnvAtten: eyeShadingResult.scleraEnvAtten,
-      scleraMatched: eyeShadingResult.scleraMatched,
-      shadowMechanism: eyeShadingResult.shadowMechanism,
-      lidContact: eyeShadingResult.lidContact,
-    },
+    eyeShading: eyeShadingValue,
   };
 }

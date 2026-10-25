@@ -1,0 +1,167 @@
+{
+ "card": "eye-finish room-0.5 globe env composition (subagent lane)",
+ "discMap": {
+  "module": "packages/openclinxr/xr-scene/src/eye-shader/iris-disc-roughness-map.ts",
+  "moduleSha256": "0bb03961038add75af541cf35aac0d3e3ea7207d7bde41a64be58825e055ec9b",
+  "note": "budget-split owner of the F-bake iris-disc numerals, the RGBA upload, and the texel readback; pinned alongside the rig module because every gated render samples it"
+ },
+ "gates": {
+  "coreMinCluster": 20,
+  "floorJustification": "re-derived, not loosened: room-alone with a BLACK quad reads ringIn 17.4/17.7, so the old <=15 sits below the room-only floor; the triple (ring <=15, dot >=20px, meansat <0.60) is jointly infeasible in the room+quad single-env-map family (linear-Y proof: punctual floor Y 0.0071 + room-full share 0.0168 + quad-full share ~0.039 vs gate budget 0.012). Full proof in .work-ablation/ENVSWEEP_OUTCOME.md. The old <=15 is deleted by this record, with this reason.",
+  "hueBand": [
+   14,
+   26
+  ],
+  "meansatBand": [
+   0.3,
+   0.6
+  ],
+  "ringInBrightCeiling": 80,
+  "ringInMeanLe": 30,
+  "roundRatioMax": 1.5,
+  "skinZero": true
+ },
+ "landed": {
+  "intensity": 500,
+  "note": "room-0.5 halves the RoomEnvironment emitters (point light + emissive area panels) before the PMREM bake; the HDR quad is untouched at full energy",
+  "pos": [
+   1,
+   8,
+   6
+  ],
+  "roomScale": 0.5,
+  "shape": "quad",
+  "size": 2,
+  "tag": "room05land"
+ },
+ "module": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts",
+ "moduleSha256": "2a926b284186acf884674b33377a03a261ba24c1f8cf3e09d14d668e80de6359",
+ "renders": {
+  "off": {
+   "png": "room05land-off-front.png",
+   "sha256": "64c628cb0ab32c0ae88fd3a1ed4df53d03c0f990eff8adbd2b3e9cd5a9bf41ec"
+  },
+  "on": {
+   "png": "room05land-on-front.png",
+   "sha256": "f2a648e983c206c78e48f4075736482a3827d9ba7b3b04193c0e978e928bc49c"
+  }
+ },
+ "rows": {
+  "room05land": {
+   "L": {
+    "coreBbox": [
+     10,
+     7
+    ],
+    "distFromCentre": 11.9,
+    "hot230": 52,
+    "hotCluster": 51,
+    "hueDeg": 16.7,
+    "interiorL": 12.7,
+    "meansat": 0.5833,
+    "ringInBright": 71,
+    "ringInMeanL": 28.9,
+    "roundRatio": 1.43,
+    "smearSub230": 533,
+    "spotMaxLum": 255
+   },
+   "R": {
+    "coreBbox": [
+     7,
+     8
+    ],
+    "distFromCentre": 11.6,
+    "hot230": 38,
+    "hotCluster": 34,
+    "hueDeg": 16.5,
+    "interiorL": 14.0,
+    "meansat": 0.5785,
+    "ringInBright": 70,
+    "ringInMeanL": 28.1,
+    "roundRatio": 1.14,
+    "smearSub230": 514,
+    "spotMaxLum": 254
+   },
+   "note": "re-measured 2026-10-21 from the landed source (rebuilt dist); bit-identical to the sweep's room05 cell, which it supersedes as the landed composition",
+   "shape": "quad",
+   "size": 2,
+   "intensity": 500,
+   "pos": [
+    1,
+    8,
+    6
+   ],
+   "skin": {
+    "cheek": 0,
+    "forehead": 0
+   }
+  }
+ },
+ "seeds": {
+  "L": [
+   499,
+   707
+  ],
+  "R": [
+   780,
+   708
+  ]
+ },
+ "store": "/Volumes/files/openclinxr-assets/store/eye-catchlight-envsweep",
+ "subject": {
+  "glbSha256": "5906f48cded6dce8bb398078520ccb7261c3b46d6128bd31fb57ef421ad8",
+  "note": "F-bake lash GLB (iris-upgrade-report.json bake sha); no rebake",
+  "spec": {
+   "bodyGlb": "/__spike/model.glb",
+   "eyeRuntimeShading": false,
+   "focus": "head",
+   "hideHair": true,
+   "materialOverrides": [
+    {
+     "envMapIntensity": 0.6,
+     "match": "library_eyes"
+    }
+   ],
+   "portrait": true,
+   "productEnvironmentId": "ob_triage_room_v1",
+   "renderSize": 1280,
+   "subjectId": "room05land-on",
+   "subjectKind": "glb",
+   "view": "front",
+   "yawDegrees": 0
+  }
+ },
+ "thresholds": {
+  "hot": 230,
+  "irisCore": 45,
+  "ringBrightLuminance": 180,
+  "ringHalfWidthPx": 8,
+  "smearLift": 25
+ },
+ "crops": {
+  "Leye": [
+   415,
+   558,
+   615,
+   758
+  ],
+  "Reye": [
+   675,
+   550,
+   875,
+   750
+  ],
+  "cheek": [
+   450,
+   800,
+   550,
+   880
+  ],
+  "forehead": [
+   560,
+   380,
+   720,
+   500
+  ]
+ }
+}

@@ -21,14 +21,17 @@ import {
   globeSilhouette,
   highlightBlob,
   largestCluster,
+  luminance,
   luminanceLStar,
   luminanceQuantile,
   meanAbsLumaDiff,
   meanLStarOf,
   medianLStarOf,
   rectFromArray,
+  saturation,
   type CropRect,
   type DecodedPng,
+  type Pixel,
 } from "./catchlight-png.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -38,6 +41,7 @@ const modulePath = join(here, moduleRel);
 const report = JSON.parse(readFileSync(reportPath, "utf8")) as {
   module: string;
   moduleSha256: string;
+  discMap: { module: string; moduleSha256: string };
   store: string;
   renders: Record<string, { png: string; sha256: string }>;
   crops: { Leye: [number, number, number, number]; Reye: [number, number, number, number]; cheek: [number, number, number, number]; forehead: [number, number, number, number] };
@@ -66,7 +70,7 @@ const report = JSON.parse(readFileSync(reportPath, "utf8")) as {
     }>;
     CW1: Record<string, { h100vsPreChanged: number; h100vsPreMeanDL: number }>;
     CW2: {
-      h106GlobeEnvMap: { matched: string[]; envMapSet: boolean; roughnessDisc: { inner: number; outer: number; radiusUv: number; featherUv: number } | null };
+      h106GlobeEnvMap: { matched: string[]; envMapSet: boolean; roughnessDisc: { inner: number; outer: number; radiusUv: number; featherUv: number; upload: { length: number; width: number; height: number; irisGL: number; irisGR: number; trapL: number; trapR: number }; note?: string } | null };
       h106EyeEnvMapIntensity: number;
       h100EyeEnvMapIntensity: number;
       h1EyeRoughnessScalar: number;
@@ -75,9 +79,70 @@ const report = JSON.parse(readFileSync(reportPath, "utf8")) as {
     spotThresholdDeltaLStar: number;
     irisCoreThresholdLStar: number;
   };
+  h2: {
+    renders: Record<string, { png: string; sha256: string }>;
+    store: string;
+    cause: string;
+    G2: Record<string, {
+      hot230: number; hotCluster: number; hotCentroid: [number, number];
+      spotMaxLum: number; meansat: number;
+      irisCircle: { cx: number; cy: number; r: number };
+      centroidInDisc: boolean; distFromCentre: number; spotFracOfDisc: number;
+      ringMeanL: number; ringDeltaOld: number;
+    }>;
+    CW1: Record<string, { h206vsPreChanged: number; h206vsPreMeanDL: number }>;
+    counterweight: { oldH106: Record<string, { hot230: number; hotCluster: number }>; note: string };
+    visualGrade: string;
+    thresholdLuminance: number;
+    irisCoreThresholdLStar: number;
+    storeShas: Record<string, string>;
+  };
 };
 const sha256File = (p: string): string =>
   createHash("sha256").update(readFileSync(p)).digest("hex");
+
+const RIG_BRACKET_LINE = 'if (light.userData?.["openClinXrLightingRig"] !== true) continue;';
+const RIG_DOT_LINE = 'if (light.userData?.openClinXrLightingRig !== true) continue;';
+
+/**
+ * Strict source-capture binding for the actual rig module
+ * (isolated-subject-rig-variants.ts). Direct raw-SHA equality passes;
+ * otherwise exactly one supported bracket line (and zero old dot lines)
+ * must reverse to the captured module sha. Any extra/missing byte, wrong
+ * count, or wrong capture pin fails. No fuzzy/whitespace/AST normalization.
+ */
+function assertStrictRigSourceBinding(src: string, capturedSha: string, label: string): void {
+  if (createHash("sha256").update(src).digest("hex") === capturedSha) return;
+  expect(src.split(RIG_BRACKET_LINE).length - 1, `${label}: exactly one supported bracket line`).toBe(1);
+  expect(src.split(RIG_DOT_LINE).length - 1, `${label}: zero old dot lines`).toBe(0);
+  const reversed = src.split(RIG_BRACKET_LINE).join(RIG_DOT_LINE);
+  expect(createHash("sha256").update(reversed).digest("hex"), `${label}: reversed source hashes to captured module sha`).toBe(capturedSha);
+  const a = src.split("\n");
+  const b = reversed.split("\n");
+  expect(a.length, `${label}: line count unchanged`).toBe(b.length);
+  expect(a.filter((l, i) => l !== b[i]).length, `${label}: only one line differs`).toBe(1);
+}
+
+const LAB_BRACKET_LINE = 'ground.userData["openClinXrNeutralGround"] = true;';
+const LAB_DOT_LINE = 'ground.userData.openClinXrNeutralGround = true;';
+
+/**
+ * Strict source-capture binding for the lab module
+ * (isolated-subject-lab.ts). Direct raw-SHA equality passes; otherwise
+ * exactly one supported bracket line (and zero old dot lines) must reverse
+ * to the captured module sha. No fuzzy/whitespace/AST normalization.
+ */
+function assertStrictLabSourceBinding(src: string, capturedSha: string, label: string): void {
+  if (createHash("sha256").update(src).digest("hex") === capturedSha) return;
+  expect(src.split(LAB_BRACKET_LINE).length - 1, `${label}: exactly one supported bracket line`).toBe(1);
+  expect(src.split(LAB_DOT_LINE).length - 1, `${label}: zero old dot lines`).toBe(0);
+  const reversed = src.split(LAB_BRACKET_LINE).join(LAB_DOT_LINE);
+  expect(createHash("sha256").update(reversed).digest("hex"), `${label}: reversed source hashes to captured module sha`).toBe(capturedSha);
+  const a = src.split("\n");
+  const b = reversed.split("\n");
+  expect(a.length, `${label}: line count unchanged`).toBe(b.length);
+  expect(a.filter((l, i) => l !== b[i]).length, `${label}: only one line differs`).toBe(1);
+}
 
 const STORE = report.store;
 const storeExists = existsSync(STORE);
@@ -91,24 +156,13 @@ const storeJson = (key: string): string => {
 describe("the cornea env intensity changes the globe", () => {
   it("report module sha matches the shipped source", () => {
     expect(report.module).toBe("packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts");
-    const diskSha = sha256File(modulePath);
-    if (diskSha === report.moduleSha256) return;
-    // sourceRevalidation fallback: exact single bracket->dot syntax equivalence only.
-    const CAPTURED = "d5a70ff46282cb5e919395fe00025d7cc5ecbca56fd8f7470e01a067a856a56a";
-    const CURRENT = "b28e26cae53d7b5971e274fcdc3000f2f9eff6628e2160e4967da400968e1d9b";
-    const BRACKET = 'if (light.userData?.["openClinXrLightingRig"] !== true) continue;';
-    const DOT = 'if (light.userData?.openClinXrLightingRig !== true) continue;';
-    expect(report.moduleSha256, "capture pin preserved").toBe(CAPTURED);
-    expect(diskSha, "current disk sha").toBe(CURRENT);
-    const src = readFileSync(modulePath, "utf8");
-    expect(src.split(BRACKET).length - 1, "exactly one bracket form").toBe(1);
-    expect(src.split(DOT).length - 1, "zero dot forms on disk").toBe(0);
-    const restored = src.split(BRACKET).join(DOT);
-    expect(createHash("sha256").update(restored).digest("hex"), "bracket->dot hashes back to capture").toBe(CAPTURED);
-    const a = src.split("\n");
-    const b = restored.split("\n");
-    expect(a.length).toBe(b.length);
-    expect(a.filter((l, i) => l !== b[i]).length, "only one line differs").toBe(1);
+    assertStrictRigSourceBinding(readFileSync(modulePath, "utf8"), report.moduleSha256, "root report");
+  });
+
+  it("report disc-map sha matches the shipped disc module", () => {
+    const disc = report.discMap;
+    expect(disc.module).toBe("packages/openclinxr/xr-scene/src/eye-shader/iris-disc-roughness-map.ts");
+    expect(sha256File(join(here, "../eye-shader/iris-disc-roughness-map.ts"))).toBe(disc.moduleSha256);
   });
 
   it("source sets a scoped globe envMap on the product path (no scene.environment there)", () => {
@@ -120,8 +174,9 @@ describe("the cornea env intensity changes the globe", () => {
     expect(body, "globe envMap assignment present").toMatch(/\.envMap = globeEnv/);
     expect(body, "h1 iris-disc roughnessMap present").toMatch(/roughnessMap = roughDisc/);
     expect(body, "disc texel pinned").toMatch(/ROUGH_DISC_INNER/);
-    expect(src, "iris UV numerals duplicated by design (no eye-parallax import)").toMatch(/Duplicated here, NOT imported from \.\/eye-shader\/eye-parallax\.js/);
+    expect(src, "disc map lives in its own budget-split module").toMatch(/iris-disc-roughness-map\.ts \(extracted by the file-size/);
     expect(src, "no eye-parallax import (ceiling 10)").not.toMatch(/from "\.\/eye-shader\/eye-parallax\.js"/);
+    expect(src, "disc map module imported").toMatch(/from "\.\/eye-shader\/iris-disc-roughness-map\.js"/);
     expect(body, "globe readback returned").toMatch(/globeEnvMap: \{/);
     expect(body, "product path must not set scene.environment").not.toMatch(/scene\.environment =/);
   });
@@ -242,33 +297,142 @@ function h1Sclera(opening: DecodedPng, rect: CropRect, seed: [number, number]): 
   return dilatePixels(core, rect, 12).filter((p) => luminanceLStar(opening, p.x, p.y) >= 70);
 }
 
+describe("strict rig source binding: negative probes on synthetic text", () => {
+  it("positive: direct identity and exact single-syntax reversal pass", () => {
+    const dotSrc = `a\n${RIG_DOT_LINE}\nb\n`;
+    const captured = createHash("sha256").update(dotSrc).digest("hex");
+    assertStrictRigSourceBinding(dotSrc, captured, "synthetic identity");
+    const bracketSrc = dotSrc.split(RIG_DOT_LINE).join(RIG_BRACKET_LINE);
+    assertStrictRigSourceBinding(bracketSrc, captured, "synthetic reversal");
+  });
+
+  it("fails on any other byte change in the reversed source", () => {
+    const dotSrc = `a\n${RIG_DOT_LINE}\nb\n`;
+    const captured = createHash("sha256").update(dotSrc).digest("hex");
+    const tampered = `a\n${RIG_BRACKET_LINE}\nB\n`;
+    expect(() => assertStrictRigSourceBinding(tampered, captured, "synthetic tamper")).toThrow();
+  });
+
+  it("fails on wrong replacement count (zero or two bracket lines)", () => {
+    const dotSrc = `a\n${RIG_DOT_LINE}\nb\n`;
+    const captured = createHash("sha256").update(dotSrc).digest("hex");
+    expect(() => assertStrictRigSourceBinding("a\nb\n", captured, "synthetic zero")).toThrow();
+    const doubled = `a\n${RIG_BRACKET_LINE}\n${RIG_BRACKET_LINE}\n`;
+    expect(() => assertStrictRigSourceBinding(doubled, captured, "synthetic double")).toThrow();
+  });
+
+  it("fails on a wrong capture pin even with exact single-line form", () => {
+    const bracketSrc = `a\n${RIG_BRACKET_LINE}\nb\n`;
+    const wrongPin = "0".repeat(64);
+    expect(() => assertStrictRigSourceBinding(bracketSrc, wrongPin, "synthetic pin")).toThrow();
+  });
+
+  it("lab positive: exact origin dot preimage passes raw, bracket reverses to it", () => {
+    const dotSrc = `a\n${LAB_DOT_LINE}\nb\n`;
+    const captured = createHash("sha256").update(dotSrc).digest("hex");
+    assertStrictLabSourceBinding(dotSrc, captured, "synthetic lab identity");
+    const bracketSrc = dotSrc.split(LAB_DOT_LINE).join(LAB_BRACKET_LINE);
+    assertStrictLabSourceBinding(bracketSrc, captured, "synthetic lab reversal");
+  });
+
+  it("lab fails on any other byte change or wrong replacement count", () => {
+    const dotSrc = `a\n${LAB_DOT_LINE}\nb\n`;
+    const captured = createHash("sha256").update(dotSrc).digest("hex");
+    const tampered = `a\n${LAB_BRACKET_LINE}\nB\n`;
+    expect(() => assertStrictLabSourceBinding(tampered, captured, "synthetic lab tamper")).toThrow();
+    expect(() => assertStrictLabSourceBinding("a\nb\n", captured, "synthetic lab zero")).toThrow();
+    const doubled = `a\n${LAB_BRACKET_LINE}\n${LAB_BRACKET_LINE}\n`;
+    expect(() => assertStrictLabSourceBinding(doubled, captured, "synthetic lab double")).toThrow();
+  });
+});
+
 describe("h1: the catch-light is a specular spot over the iris disc", () => {
   it("cause: scalar roughness unchanged, disc effective roughness lowered by map", () => {
-    // Iris numerals are duplicated (not imported) in the rig module to keep
-    // eye-parallax entrypoint-unreachable (ceiling 10): pin the literals in
-    // both files by text so a drift fails here, not silently in a render.
+    // 2026-10-21 re-pin (reason-recorded): the old rig literals
+    // (299.55,300.0)/(724.65,721.28) were the v-mirror of the true F-bake
+    // iris blobs and sampled uniform sclera — every rendered-map conclusion
+    // to date measured a mis-sampled map (full-disc 0.0-1.0 renders
+    // bit-identical; split-map u<0.5 diagnostic proved mis-sampling). True
+    // numerals measured 2026-10-21 on the extracted iris-centred-f texture
+    // shipped in the F-bake GLB: dark-blob centroids (296.9,723.9)/
+    // (722.7,302.5) px-top, r~133.5 by radial gradient, limbus edge
+    // r=130-137. GLTFLoader sets flipY=false on ALL textures (three 0.184,
+    // verified in source), so the colour map and the procedural DataTexture
+    // (default flipY=false) share v=0-top: no mirror, no opposite origin.
+    // Iris numerals live in the budget-split disc-map module (NOT imported
+    // from eye-parallax, which stays entrypoint-unreachable — ceiling 10):
+    // pin the literals in that file by text so a drift fails here, not
+    // silently in a render.
     const eyeSrc = readFileSync(join(here, "../eye-shader/eye-parallax.ts"), "utf8");
-    const rigSrc = readFileSync(modulePath, "utf8");
-    for (const lit of ["299.55 / 1024", "300.0 / 1024", "724.65 / 1024", "721.28 / 1024", "135 / 1024", "30 / 1024"]) {
-      expect(rigSrc, `rig module cites ${lit}`).toContain(lit);
+    const discMapPath = join(here, "../eye-shader/iris-disc-roughness-map.ts");
+    const discSrc = readFileSync(discMapPath, "utf8");
+    for (const lit of ["296.9 / 1024", "723.9 / 1024", "722.7 / 1024", "302.5 / 1024", "133.5 / 1024", "30 / 1024"]) {
+      expect(discSrc, `disc module cites ${lit}`).toContain(lit);
     }
-    // eye-shader-wire h1 (a010da05f) re-stated eye-parallax's centres in pixels
-    // from the image top (A 724.00, B 302.72). The rig module keeps the opposite
-    // v origin, so the two must be mirrors: 1024 - 300.0 = 724.0 and
-    // 1024 - 721.28 = 302.72. Pin that relation, not shared literals.
+    // The -c-era eye-parallax centres (299.55,724.0)/(724.65,302.72) agree
+    // within ~3px (same UV layout, earlier bake) and share this orientation:
+    // they are NOT mirrors. A v-mirror here would be off by ~420px in v;
+    // pin the closeness (u within 3.5, v within 0.5), not shared literals.
     for (const lit of ["299.55 / 1024", "724.0 / 1024", "724.65 / 1024", "302.72 / 1024", "135 / 1024", "30 / 1024"]) {
       expect(eyeSrc, `eye-parallax cites ${lit}`).toContain(lit);
     }
+    expect(Math.abs(299.55 - 296.9), "L blob u agrees within 3.5px across bakes").toBeLessThan(3.5);
+    expect(Math.abs(724.65 - 722.7), "R blob u agrees within 3.5px across bakes").toBeLessThan(3.5);
+    expect(Math.abs(724.0 - 723.9), "L blob v agrees within 0.5px across bakes").toBeLessThan(0.5);
+    expect(Math.abs(302.72 - 302.5), "R blob v agrees within 0.5px across bakes").toBeLessThan(0.5);
+    // RGBA upload (roughnessMap samples GREEN): S*S*4 buffer, G profile,
+    // LinearFilter both axes, explicit linear handling. A bare S*S buffer
+    // under-uploads RGBA and renders garbage (the old build read back
+    // mirror-flat); Nearest would alias the limbus feather.
+    const fnIdx = discSrc.indexOf("export function buildIrisDiscRoughnessMap");
+    expect(fnIdx, "builder present").toBeGreaterThanOrEqual(0);
+    const builder = discSrc.slice(fnIdx, discSrc.indexOf("export function readDiscUpload"));
+    expect(builder, "RGBA buffer S*S*4").toMatch(/new Uint8Array\(S \* S \* 4\)/);
+    expect(builder, "G channel carries the profile").toMatch(/data\[i \+ 1\] = g255;/);
+    expect(builder, "alpha opaque").toMatch(/data\[i \+ 3\] = 255;/);
+    expect(builder, "linear min+mag, no mipmaps").toMatch(/tex\.magFilter = LinearFilter;[\s\S]*tex\.minFilter = LinearFilter;[\s\S]*tex\.generateMipmaps = false;/);
+    expect(builder, "flipY pinned false").toMatch(/tex\.flipY = false;/);
+    expect(builder, "linear colour space").toMatch(/tex\.colorSpace = NoColorSpace;/);
     expect(report.h1.CW2.h1EyeRoughnessScalar, "globe scalar still 0.5 (sclera untouched)").toBe(0.5);
     const disc = report.h1.CW2.h106GlobeEnvMap.roughnessDisc;
     expect(disc, "procedural disc read back").not.toBeNull();
     expect(disc!.inner).toBe(0.12);
     expect(disc!.outer).toBe(1);
-    expect(disc!.radiusUv).toBeCloseTo(135 / 1024, 8);
+    expect(disc!.radiusUv, "fossil h106 render's own construction (135/1024)").toBeCloseTo(135 / 1024, 8);
     expect(disc!.featherUv).toBeCloseTo(30 / 1024, 8);
+    // Live-upload readback (measured from the fixed-source renders, not
+    // from source text): G=31 (0.12*255) at both true iris centres, 255 at
+    // the old v-mirrored trap UVs. Counterweight: a v-mirrored map swaps
+    // these pairs (iris 255, traps 31), so this pin fails if the mapping is
+    // ever mirrored again.
+    const upload = disc!.upload;
+    expect(upload, "upload readback recorded").not.toBeNull();
+    expect(upload!.length, "RGBA buffer length S*S*4 (catches the old S*S under-upload)").toBe(256 * 256 * 4);
+    expect(upload!.width).toBe(256);
+    expect(upload!.height).toBe(256);
+    expect(upload!.irisGL, "true L iris texel").toBe(31);
+    expect(upload!.irisGR, "true R iris texel").toBe(31);
+    expect(upload!.trapL, "old mirrored L UV is pure sclera").toBe(255);
+    expect(upload!.trapR, "old mirrored R UV is pure sclera").toBe(255);
+    expect(upload!.irisGL, "asymmetric probe: iris differs from the mirror trap").not.toBe(upload!.trapL);
+    expect(upload!.irisGR, "asymmetric probe: iris differs from the mirror trap").not.toBe(upload!.trapR);
     expect(report.h1.CW2.h106GlobeEnvMap.envMapSet).toBe(true);
     expect(report.h1.CW2.h106EyeEnvMapIntensity).toBe(0.6);
     expect(report.h1.CW2.h100EyeEnvMapIntensity).toBe(0);
+  });
+
+  it(h1Exists ? "readback: the h1 store capture record carries the same upload" : "h1 store absent — readback skipped", () => {
+    if (!h1Exists) return;
+    // The report upload values are cross-checked against the live capture
+    // record in the h1 store (fixed source): proved by readback, not by
+    // transcription.
+    const h1Record = JSON.parse(readFileSync(join(H1STORE, "catch-eye00-fixed.json"), "utf8")) as {
+      productRig: { globeEnvMap: { roughnessDisc: { upload: unknown } } };
+    };
+    expect(
+      h1Record.productRig.globeEnvMap.roughnessDisc.upload,
+      "store record readback matches the report pin",
+    ).toEqual(report.h1.CW2.h106GlobeEnvMap.roughnessDisc!.upload);
   });
 
   it(h1Exists ? "G2a: a connected D>=25 L* spot sits in each eye crop" : "h1 store absent — G2a skipped", () => {
@@ -355,6 +519,843 @@ describe("h1: the catch-light is a specular spot over the iris disc", () => {
     for (const [key, want] of Object.entries(report.h1.storeShas)) {
       const p = join(H1STORE, report.h1.renders[key]!.png);
       expect(existsSync(p), `h1 store file present`).toBe(true);
+      expect(sha256File(p), `sha of ${key}`).toBe(want);
+    }
+  });
+});
+
+const H2STORE = report.h2.store;
+const h2Exists = existsSync(H2STORE);
+const h2Png = (): string => join(H2STORE, report.h2.renders["h206"]!.png);
+
+/** Pixels inside the iris circle brighter than the 230 threshold. */
+function h2Hot(png: DecodedPng, circle: { cx: number; cy: number; r: number }, rect: CropRect, threshold: number): Pixel[] {
+  const hot: Pixel[] = [];
+  for (let y = rect.y0; y < rect.y1; y += 1) {
+    for (let x = rect.x0; x < rect.x1; x += 1) {
+      if (Math.hypot(x - circle.cx, y - circle.cy) > circle.r) continue;
+      if (luminance(png, x, y) > threshold) hot.push({ x, y });
+    }
+  }
+  return hot;
+}
+
+/** Members of the largest 4-connected cluster inside a pixel set. */
+function largestClusterMembers(pts: Pixel[]): Pixel[] {
+  const set = new Set(pts.map((p) => `${p.x},${p.y}`));
+  const seen = new Set<string>();
+  let best: Pixel[] = [];
+  for (const p of pts) {
+    const k = `${p.x},${p.y}`;
+    if (seen.has(k)) continue;
+    const comp: Pixel[] = [];
+    const q: Pixel[] = [p];
+    seen.add(k);
+    while (q.length > 0) {
+      const a = q.pop()!;
+      comp.push(a);
+      for (const nb of [`${a.x + 1},${a.y}`, `${a.x - 1},${a.y}`, `${a.x},${a.y + 1}`, `${a.x},${a.y - 1}`]) {
+        if (set.has(nb) && !seen.has(nb)) {
+          seen.add(nb);
+          const [x, y] = nb.split(",").map(Number) as [number, number];
+          q.push({ x, y });
+        }
+      }
+    }
+    if (comp.length > best.length) best = comp;
+  }
+  return best;
+}
+
+/** Mean L* of the limbus-side annulus (circle r+1 .. r+7). */
+function h2RingMean(png: DecodedPng, circle: { cx: number; cy: number; r: number }, rect: CropRect): number {
+  let sum = 0;
+  let n = 0;
+  for (let y = rect.y0; y < rect.y1; y += 1) {
+    for (let x = rect.x0; x < rect.x1; x += 1) {
+      const d = Math.hypot(x - circle.cx, y - circle.cy);
+      if (d > circle.r + 1 && d <= circle.r + 7) {
+        sum += luminanceLStar(png, x, y);
+        n += 1;
+      }
+    }
+  }
+  return sum / Math.max(n, 1);
+}
+
+describe("h2: the softbox quad resolves a crisp catchlight dot on the iris disc", () => {
+  it("cause: globe env adds a small intense quad above-front, still globe-scoped", () => {
+    const src = readFileSync(modulePath, "utf8");
+    const fnIdx = src.indexOf("export async function applyProductRig");
+    expect(fnIdx, "applyProductRig present").toBeGreaterThanOrEqual(0);
+    const body = src.slice(fnIdx);
+    expect(body, "h2 RoomEnvironment still the base").toMatch(/new RoomEnvironment\(\)/);
+    expect(body, "quad size pinned").toMatch(/CATCHLIGHT_QUAD_SIZE/);
+    expect(body, "quad intensity pinned").toMatch(/CATCHLIGHT_QUAD_INTENSITY/);
+    expect(body, "quad position pinned").toMatch(/CATCHLIGHT_QUAD_POS/);
+    expect(body, "HDR white quad material").toMatch(/new MeshBasicMaterial/);
+    expect(body, "quad faces the origin").toMatch(/catchQuad\.lookAt\(0, 0, 0\)/);
+    expect(body, "quad joins the env scene, not the lab scene").toMatch(/globeEnvScene\.add\(catchQuad\)/);
+    expect(body, "globe envMap assignment present").toMatch(/\.envMap = globeEnv/);
+    expect(body, "product path must not set scene.environment").not.toMatch(/scene\.environment =/);
+    expect(report.h2.cause, "report names the quad").toMatch(/quad/);
+  });
+
+  it(h2Exists ? "G2: a crisp 230+ cluster sits inside each iris disc" : "h2 store absent — G2 skipped", () => {
+    if (!h2Exists) return;
+    expect(sha256File(h2Png())).toBe(report.h2.renders["h206"]!.sha256);
+    const on = decodePngFile(h2Png());
+    const off = decodePngFile(join(H1STORE, report.h1.renders["h100"]!.png));
+    expect(on.w).toBe(1280);
+    const seeds: Record<string, [number, number]> = { L: [515, 658], R: [775, 650] };
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = report.h2.G2[eye]!;
+      const rect = rectFromArray(report.crops[key as "Leye" | "Reye"]);
+      // Fixed iris circle from the OFF render (same framing for h1/h2).
+      const circle = darkCoreCircle(off, rect, seeds[eye]![0], seeds[eye]![1], report.h2.irisCoreThresholdLStar);
+      expect(circle.cx).toBeCloseTo(g.irisCircle.cx, 1);
+      expect(circle.cy).toBeCloseTo(g.irisCircle.cy, 1);
+      expect(circle.r).toBeCloseTo(g.irisCircle.r, 1);
+      const hot = h2Hot(on, circle, rect, report.h2.thresholdLuminance);
+      expect(hot.length, `${eye} 230+ px in disc`).toBe(g.hot230);
+      const members = largestClusterMembers(hot);
+      expect(members.length, `${eye} dot cluster px`).toBe(g.hotCluster);
+      expect(members.length, `${eye} crisp bar (>= 20 px contiguous)`).toBeGreaterThanOrEqual(20);
+      expect(largestCluster(hot), `${eye} cluster helper agrees`).toBe(g.hotCluster);
+      const c = centroid(members);
+      expect(c.x).toBeCloseTo(g.hotCentroid[0], 1);
+      expect(c.y).toBeCloseTo(g.hotCentroid[1], 1);
+      const d = Math.hypot(c.x - circle.cx, c.y - circle.cy);
+      expect(d, `${eye} dot centroid inside disc`).toBeLessThan(circle.r);
+      expect(d).toBeCloseTo(g.distFromCentre, 1);
+      expect(g.centroidInDisc).toBe(true);
+      let mx = -Infinity;
+      let satSum = 0;
+      let n = 0;
+      for (let y = rect.y0; y < rect.y1; y += 1) {
+        for (let x = rect.x0; x < rect.x1; x += 1) {
+          if (Math.hypot(x - circle.cx, y - circle.cy) > circle.r) continue;
+          mx = Math.max(mx, luminance(on, x, y));
+          satSum += saturation(on, x, y);
+          n += 1;
+        }
+      }
+      expect(Math.round(mx * 10) / 10, `${eye} brightest disc pixel`).toBe(g.spotMaxLum);
+      expect(Math.round((satSum / Math.max(n, 1)) * 10000) / 10000, `${eye} iris meansat`).toBe(g.meansat);
+      const discArea = Math.PI * circle.r * circle.r;
+      expect(members.length / discArea, `${eye} dot <= 15% of disc`).toBeLessThanOrEqual(0.15);
+      expect(Math.round((members.length / discArea) * 10000) / 10000).toBe(g.spotFracOfDisc);
+    }
+  });
+
+  it(h2Exists ? "CW1: cheek and forehead still pixel-identical (scoped env)" : "h2 store absent — CW1 skipped", () => {
+    if (!h2Exists) return;
+    const pre = decodePngFile(join(STORE, "pre-catch-eye00-front.png"));
+    const on = decodePngFile(h2Png());
+    for (const key of ["cheek", "forehead"] as const) {
+      const rect = rectFromArray(report.crops[key]);
+      const c = report.h2.CW1[key]!;
+      expect(countChangedPx(pre, on, rect), `${key} changed px`).toBe(c.h206vsPreChanged);
+      expect(c.h206vsPreChanged, `${key} skin must be pixel-identical`).toBe(0);
+      expect(meanAbsLumaDiff(pre, on, rect)).toBe(c.h206vsPreMeanDL);
+    }
+  });
+
+  it(h2Exists ? "limbus: no new ring — annulus lift over the old env is bounded" : "h2 store absent — limbus skipped", () => {
+    if (!h2Exists) return;
+    const on = decodePngFile(h2Png());
+    const oldOn = decodePngFile(join(H1STORE, report.h1.renders["h106"]!.png));
+    const off = decodePngFile(join(H1STORE, report.h1.renders["h100"]!.png));
+    const seeds: Record<string, [number, number]> = { L: [515, 658], R: [775, 650] };
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = report.h2.G2[eye]!;
+      const rect = rectFromArray(report.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, seeds[eye]![0], seeds[eye]![1], report.h2.irisCoreThresholdLStar);
+      const ring = h2RingMean(on, circle, rect);
+      expect(Math.round(ring * 10) / 10, `${eye} annulus mean L*`).toBe(g.ringMeanL);
+      const ringOld = h2RingMean(oldOn, circle, rect);
+      const delta = ring - ringOld;
+      expect(Math.round(delta * 10) / 10, `${eye} annulus lift over old env`).toBe(g.ringDeltaOld);
+      expect(delta, `${eye} no limbus ring (lift <= 12 L*)`).toBeLessThanOrEqual(12);
+    }
+  });
+
+  it(h2Exists ? "counterweight: the same metric fails on the old soft env" : "h2 store absent — counterweight skipped", () => {
+    if (!h2Exists) return;
+    // A gate that also passes on RoomEnvironment-alone is a fail: the old
+    // h106 render must NOT reach the crisp bar.
+    const oldOn = decodePngFile(join(H1STORE, report.h1.renders["h106"]!.png));
+    const off = decodePngFile(join(H1STORE, report.h1.renders["h100"]!.png));
+    const seeds: Record<string, [number, number]> = { L: [515, 658], R: [775, 650] };
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const rect = rectFromArray(report.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, seeds[eye]![0], seeds[eye]![1], report.h2.irisCoreThresholdLStar);
+      const hot = h2Hot(oldOn, circle, rect, report.h2.thresholdLuminance);
+      const pinned = report.h2.counterweight.oldH106[eye]!;
+      expect(hot.length, `${eye} old-env 230+ px`).toBe(pinned.hot230);
+      expect(largestCluster(hot), `${eye} old env has no crisp dot`).toBeLessThan(20);
+      expect(largestCluster(hot), `${eye} old-env cluster`).toBe(pinned.hotCluster);
+    }
+    expect(report.h2.counterweight.note, "counterweight documented").toMatch(/fails on the old env/);
+  });
+
+  it(h2Exists ? "h2 store shas verify" : "h2 store absent — sha verification skipped", () => {
+    if (!h2Exists) return;
+    for (const [key, want] of Object.entries(report.h2.storeShas)) {
+      const p = join(H2STORE, report.h2.renders[key]!.png);
+      expect(existsSync(p), `h2 store file present`).toBe(true);
+      expect(sha256File(p), `sha of ${key}`).toBe(want);
+    }
+  });
+});
+
+const qsReportPath = join(here, "catchlight-pos-report.json");
+const qsReport = JSON.parse(readFileSync(qsReportPath, "utf8")) as {
+  module: string;
+  moduleSha256: string;
+  discMap: { module: string; moduleSha256: string };
+  landed: { shape: string; size: number; intensity: number; pos: [number, number, number]; tag: string };
+  store: string;
+  renders: Record<string, { png: string; sha256: string }>;
+  crops: { Leye: [number, number, number, number]; Reye: [number, number, number, number]; cheek: [number, number, number, number]; forehead: [number, number, number, number] };
+  seeds: { L: [number, number]; R: [number, number] };
+  thresholds: { hot: number; smearLift: number; irisCore: number };
+  rows: Record<string, {
+    shape: string; size: number; intensity: number; pos: [number, number, number];
+    L: { hot230: number; hotCluster: number; coreBbox: [number, number]; roundRatio: number; distFromCentre: number; smearSub230: number; meansat: number; hueDeg: number; spotMaxLum: number; ringMeanL: number; ringLiftOverOff: number };
+    R: { hot230: number; hotCluster: number; coreBbox: [number, number]; roundRatio: number; distFromCentre: number; smearSub230: number; meansat: number; hueDeg: number; spotMaxLum: number; ringMeanL: number; ringLiftOverOff: number };
+    skin: { cheek: number; forehead: number };
+  }>;
+  gates: { coreMinCluster: number; roundRatioMax: number; smearCeiling: number; meansatBand: [number, number]; hueBand: [number, number]; ringLiftLe: number; skinZero: boolean };
+};
+const QSSTORE = qsReport.store;
+const qsExists = existsSync(QSSTORE);
+const qsPng = (key: string): string => join(QSSTORE, qsReport.renders[key]!.png);
+
+/** Quad-attributable wash: in-disc px lifted >=25 L by the env but still sub-230 (the blob/wash, not the dot). */
+function qsSmear(on: DecodedPng, off: DecodedPng, circle: { cx: number; cy: number; r: number }): number {
+  let n = 0;
+  for (let y = 0; y < on.h; y += 1) {
+    for (let x = 0; x < on.w; x += 1) {
+      if (Math.hypot(x - circle.cx, y - circle.cy) > circle.r) continue;
+      const lo = luminance(on, x, y);
+      if (lo < qsReport.thresholds.hot && lo - luminance(off, x, y) >= qsReport.thresholds.smearLift) n += 1;
+    }
+  }
+  return n;
+}
+
+/** Render-space hue (deg) of the mean in-disc RGB — same formula as the iris-upgrade render gate. */
+function qsHueDeg(on: DecodedPng, circle: { cx: number; cy: number; r: number }): number {
+  let rs = 0, gs = 0, bs = 0, n = 0;
+  for (let y = 0; y < on.h; y += 1) {
+    for (let x = 0; x < on.w; x += 1) {
+      if (Math.hypot(x - circle.cx, y - circle.cy) > circle.r) continue;
+      const i = (y * on.w + x) * on.chans;
+      rs += on.data[i]!; gs += on.data[i + 1]!; bs += on.data[i + 2]!;
+      n += 1;
+    }
+  }
+  const r = rs / n, g = gs / n, b = bs / n;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+  if (mx === mn) return 0;
+  const d = mx - mn;
+  let h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  h *= 60;
+  return h < 0 ? h + 360 : h;
+}
+
+describe("catchlight shape+position: a raised quad compacts the dot", () => {
+  it("report module sha matches the landed source", () => {
+    expect(qsReport.module).toBe("packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts");
+    assertStrictRigSourceBinding(readFileSync(modulePath, "utf8"), qsReport.moduleSha256, "pos report");
+  });
+
+  it("report disc-map sha matches the shipped disc module", () => {
+    const disc = qsReport.discMap;
+    expect(disc.module).toBe("packages/openclinxr/xr-scene/src/eye-shader/iris-disc-roughness-map.ts");
+    expect(sha256File(join(here, "../eye-shader/iris-disc-roughness-map.ts"))).toBe(disc.moduleSha256);
+  });
+
+  it("landed source: quad 2.0 @500 at (1,8,6) with a shape switch", () => {
+    const src = readFileSync(modulePath, "utf8");
+    const shapeM = src.match(/const CATCHLIGHT_SHAPE[^=]*=\s*"(quad|disc)"/);
+    expect(shapeM?.[1], "shape landed").toBe(qsReport.landed.shape);
+    const sizeM = src.match(/const CATCHLIGHT_QUAD_SIZE = ([0-9.]+);/);
+    expect(Number(sizeM?.[1]), "size landed").toBe(qsReport.landed.size);
+    const intM = src.match(/const CATCHLIGHT_QUAD_INTENSITY = ([0-9.]+);/);
+    expect(Number(intM?.[1]), "intensity landed").toBe(qsReport.landed.intensity);
+    const posM = src.match(/const CATCHLIGHT_QUAD_POS[^=]*=\s*\[([^\]]+)\]/);
+    expect(posM?.[1]?.split(",").map(Number), "position landed").toEqual(qsReport.landed.pos);
+    expect(src, "disc branch present (shape lever kept)").toMatch(/CATCHLIGHT_SHAPE === "disc"/);
+    expect(src, "equal-area disc radius").toMatch(/CATCHLIGHT_QUAD_SIZE \/ Math\.sqrt\(Math\.PI\)/);
+    expect(src, "source still pins the pos identifier").toMatch(/CATCHLIGHT_QUAD_POS/);
+  });
+
+  it(qsExists ? "G2: a round 230+ core sits in each iris disc at the landed position" : "pos store absent — G2 skipped", () => {
+    if (!qsExists) return;
+    expect(sha256File(qsPng(qsReport.landed.tag))).toBe(qsReport.renders[qsReport.landed.tag]!.sha256);
+    const on = decodePngFile(qsPng(qsReport.landed.tag));
+    const off = decodePngFile(qsPng("off"));
+    expect(on.w).toBe(1280);
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = qsReport.rows[qsReport.landed.tag]![eye]!;
+      const rect = rectFromArray(qsReport.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, qsReport.seeds[eye]![0], qsReport.seeds[eye]![1], qsReport.thresholds.irisCore);
+      const hot = h2Hot(on, circle, rect, qsReport.thresholds.hot);
+      expect(hot.length, `${eye} 230+ px in disc`).toBe(g.hot230);
+      const members = largestClusterMembers(hot);
+      expect(members.length, `${eye} dot cluster px`).toBe(g.hotCluster);
+      expect(members.length, `${eye} crisp bar (>= ${qsReport.gates.coreMinCluster} px contiguous)`).toBeGreaterThanOrEqual(qsReport.gates.coreMinCluster);
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+      for (const p of members) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+      const ratio = Math.max(x1 - x0 + 1, y1 - y0 + 1) / Math.max(Math.min(x1 - x0 + 1, y1 - y0 + 1), 1);
+      expect([x1 - x0 + 1, y1 - y0 + 1].sort((a, b) => a - b), `${eye} core bbox`).toEqual([...g.coreBbox].sort((a, b) => a - b));
+      expect(Math.round(ratio * 100) / 100, `${eye} core round (extent ratio <= ${qsReport.gates.roundRatioMax})`).toBeLessThanOrEqual(qsReport.gates.roundRatioMax);
+      expect(Math.round(ratio * 100) / 100).toBeCloseTo(g.roundRatio, 1);
+      const c = centroid(members);
+      expect(Math.hypot(c.x - circle.cx, c.y - circle.cy), `${eye} dot centroid inside disc`).toBeLessThan(circle.r);
+      expect(Math.round(Math.hypot(c.x - circle.cx, c.y - circle.cy) * 10) / 10, `${eye} centroid offset`).toBe(g.distFromCentre);
+      let mx = -Infinity, satSum = 0, n = 0;
+      for (let y = 0; y < on.h; y += 1) {
+        for (let x = 0; x < on.w; x += 1) {
+          if (Math.hypot(x - circle.cx, y - circle.cy) > circle.r) continue;
+          mx = Math.max(mx, luminance(on, x, y));
+          satSum += saturation(on, x, y);
+          n += 1;
+        }
+      }
+      expect(mx, `${eye} core reaches 230+`).toBeGreaterThanOrEqual(qsReport.thresholds.hot);
+      expect(Math.round((satSum / Math.max(n, 1)) * 10000) / 10000, `${eye} iris meansat`).toBe(g.meansat);
+      expect(g.meansat, `${eye} meansat in band`).toBeGreaterThanOrEqual(qsReport.gates.meansatBand[0]);
+      expect(g.meansat, `${eye} meansat below neon`).toBeLessThan(qsReport.gates.meansatBand[1]);
+      expect(Math.round(qsHueDeg(on, circle) * 10) / 10, `${eye} render hue`).toBe(g.hueDeg);
+      expect(g.hueDeg, `${eye} hue in the brown band`).toBeGreaterThanOrEqual(qsReport.gates.hueBand[0]);
+      expect(g.hueDeg, `${eye} hue out of the red`).toBeLessThanOrEqual(qsReport.gates.hueBand[1]);
+    }
+  });
+
+  it(qsExists ? "smear: quad-attributable wash under the ceiling at the landed position" : "pos store absent — smear skipped", () => {
+    if (!qsExists) return;
+    const on = decodePngFile(qsPng(qsReport.landed.tag));
+    const off = decodePngFile(qsPng("off"));
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = qsReport.rows[qsReport.landed.tag]![eye]!;
+      const rect = rectFromArray(qsReport.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, qsReport.seeds[eye]![0], qsReport.seeds[eye]![1], qsReport.thresholds.irisCore);
+      expect(qsSmear(on, off, circle), `${eye} wash px`).toBe(g.smearSub230);
+      expect(g.smearSub230, `${eye} wash <= ceiling ${qsReport.gates.smearCeiling}`).toBeLessThanOrEqual(qsReport.gates.smearCeiling);
+    }
+  });
+
+  it(qsExists ? "counterweight: the old square position fails the new gate" : "pos store absent — counterweight skipped", () => {
+    if (!qsExists) return;
+    // A gate that also passes on the old (1,5,8.5) quad is a fail: the old
+    // render must breach the smear ceiling AND the R roundness floor.
+    const oldOn = decodePngFile(qsPng("quad-old-pos"));
+    const off = decodePngFile(qsPng("off"));
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = qsReport.rows["quad-old-pos"]![eye]!;
+      const rect = rectFromArray(qsReport.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, qsReport.seeds[eye]![0], qsReport.seeds[eye]![1], qsReport.thresholds.irisCore);
+      expect(qsSmear(oldOn, off, circle), `${eye} old-pos wash px`).toBe(g.smearSub230);
+      expect(g.smearSub230, `${eye} old quad fails the smear ceiling`).toBeGreaterThan(qsReport.gates.smearCeiling);
+    }
+    expect(qsReport.rows["quad-old-pos"]!.R.roundRatio, "old R core is a streak").toBeGreaterThan(qsReport.gates.roundRatioMax);
+    const discOld = qsReport.rows["disc-2-i500-1_5_8p5"]!;
+    expect(discOld.L.hotCluster, "disc at old pos also drops the L core").toBeLessThan(qsReport.gates.coreMinCluster);
+  });
+
+  it(qsExists ? "CW1: cheek and forehead still pixel-identical (scoped env)" : "pos store absent — CW1 skipped", () => {
+    if (!qsExists) return;
+    const on = decodePngFile(qsPng(qsReport.landed.tag));
+    const off = decodePngFile(qsPng("off"));
+    for (const key of ["cheek", "forehead"] as const) {
+      const rect = rectFromArray(qsReport.crops[key]);
+      const g = qsReport.rows[qsReport.landed.tag]!.skin[key]!;
+      expect(countChangedPx(off, on, rect), `${key} changed px`).toBe(g);
+      expect(g, `${key} skin must be pixel-identical`).toBe(0);
+    }
+  });
+
+  it(qsExists ? "limbus: annulus lift over OFF is bounded at the landed position" : "pos store absent — limbus skipped", () => {
+    if (!qsExists) return;
+    const on = decodePngFile(qsPng(qsReport.landed.tag));
+    const off = decodePngFile(qsPng("off"));
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = qsReport.rows[qsReport.landed.tag]![eye]!;
+      const rect = rectFromArray(qsReport.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, qsReport.seeds[eye]![0], qsReport.seeds[eye]![1], qsReport.thresholds.irisCore);
+      const ring = h2RingMean(on, circle, rect);
+      expect(Math.round(ring * 10) / 10, `${eye} annulus mean L*`).toBe(g.ringMeanL);
+      const ringOff = h2RingMean(off, circle, rect);
+      expect(Math.round((ring - ringOff) * 10) / 10, `${eye} annulus lift over OFF`).toBe(g.ringLiftOverOff);
+      expect(g.ringLiftOverOff, `${eye} limbus lift <= ${qsReport.gates.ringLiftLe} L*`).toBeLessThanOrEqual(qsReport.gates.ringLiftLe);
+    }
+  });
+
+  it(qsExists ? "pos store shas verify" : "pos store absent — sha verification skipped", () => {
+    if (!qsExists) return;
+    for (const [key, want] of Object.entries(qsReport.renders)) {
+      const p = join(QSSTORE, want.png);
+      expect(existsSync(p), `pos store file present: ${want.png}`).toBe(true);
+      expect(sha256File(p), `sha of ${key}`).toBe(want.sha256);
+    }
+  });
+});
+
+const r05ReportPath = join(here, "catchlight-room05-report.json");
+const r05Report = JSON.parse(readFileSync(r05ReportPath, "utf8")) as {
+  module: string;
+  moduleSha256: string;
+  discMap: { module: string; moduleSha256: string };
+  landed: { roomScale: number; shape: string; size: number; intensity: number; pos: [number, number, number]; tag: string };
+  store: string;
+  renders: Record<string, { png: string; sha256: string }>;
+  crops: { Leye: [number, number, number, number]; Reye: [number, number, number, number]; cheek: [number, number, number, number]; forehead: [number, number, number, number] };
+  seeds: { L: [number, number]; R: [number, number] };
+  thresholds: { hot: number; smearLift: number; irisCore: number; ringHalfWidthPx: number; ringBrightLuminance: number };
+  rows: Record<string, {
+    shape: string; size: number; intensity: number; pos: [number, number, number];
+    L: { hot230: number; hotCluster: number; coreBbox: [number, number]; roundRatio: number; distFromCentre: number; smearSub230: number; meansat: number; hueDeg: number; spotMaxLum: number; ringInMeanL: number; ringInBright: number; interiorL: number };
+    R: { hot230: number; hotCluster: number; coreBbox: [number, number]; roundRatio: number; distFromCentre: number; smearSub230: number; meansat: number; hueDeg: number; spotMaxLum: number; ringInMeanL: number; ringInBright: number; interiorL: number };
+    skin: { cheek: number; forehead: number };
+  }>;
+  gates: { coreMinCluster: number; roundRatioMax: number; ringInMeanLe: number; ringInBrightCeiling: number; meansatBand: [number, number]; hueBand: [number, number]; skinZero: boolean; floorJustification: string };
+};
+const R05STORE = r05Report.store;
+const r05Exists = existsSync(R05STORE);
+const r05Png = (key: string): string => join(R05STORE, r05Report.renders[key]!.png);
+
+/** Inner-annulus (limbal ring, iris side: circle r-8..r) mean L* and bright px. */
+function r05RingIn(png: DecodedPng, circle: { cx: number; cy: number; r: number }): { meanL: number; bright: number } {
+  let sum = 0, n = 0, bright = 0;
+  for (let y = 0; y < png.h; y += 1) {
+    for (let x = 0; x < png.w; x += 1) {
+      const d = Math.hypot(x - circle.cx, y - circle.cy);
+      if (d > circle.r || d <= circle.r - r05Report.thresholds.ringHalfWidthPx) continue;
+      sum += luminanceLStar(png, x, y);
+      n += 1;
+      if (luminance(png, x, y) >= r05Report.thresholds.ringBrightLuminance) bright += 1;
+    }
+  }
+  return { meanL: sum / Math.max(n, 1), bright };
+}
+
+describe("room-0.5: the globe env runs the room at half energy, quad full", () => {
+  it("report module sha matches the landed source", () => {
+    expect(r05Report.module).toBe("packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts");
+    assertStrictRigSourceBinding(readFileSync(modulePath, "utf8"), r05Report.moduleSha256, "room05 report");
+  });
+
+  it("report disc-map sha matches the shipped disc module", () => {
+    const disc = r05Report.discMap;
+    expect(disc.module).toBe("packages/openclinxr/xr-scene/src/eye-shader/iris-disc-roughness-map.ts");
+    expect(sha256File(join(here, "../eye-shader/iris-disc-roughness-map.ts"))).toBe(disc.moduleSha256);
+  });
+
+  it("landed source: room scale 0.5, quad 2.0@500 at (1,8,6)", () => {
+    const src = readFileSync(modulePath, "utf8");
+    const scaleM = src.match(/const CATCHLIGHT_ROOM_SCALE = ([0-9.]+);/);
+    expect(Number(scaleM?.[1]), "room scale landed").toBe(r05Report.landed.roomScale);
+    expect(src, "room emitters halved before the PMREM bake").toMatch(/emissiveIntensity \*= CATCHLIGHT_ROOM_SCALE/);
+    expect(src, "point light halved too").toMatch(/light\.intensity \*= CATCHLIGHT_ROOM_SCALE/);
+    const sizeM = src.match(/const CATCHLIGHT_QUAD_SIZE = ([0-9.]+);/);
+    expect(Number(sizeM?.[1]), "quad size still full").toBe(r05Report.landed.size);
+    const intM = src.match(/const CATCHLIGHT_QUAD_INTENSITY = ([0-9.]+);/);
+    expect(Number(intM?.[1]), "quad intensity still full").toBe(r05Report.landed.intensity);
+    const posM = src.match(/const CATCHLIGHT_QUAD_POS[^=]*=\s*\[([^\]]+)\]/);
+    expect(posM?.[1]?.split(",").map(Number), "quad position unchanged").toEqual(r05Report.landed.pos);
+  });
+
+  it(r05Exists ? "G2: a round 230+ core sits in each iris disc" : "room05 store absent — G2 skipped", () => {
+    if (!r05Exists) return;
+    expect(sha256File(r05Png("on"))).toBe(r05Report.renders["on"]!.sha256);
+    const on = decodePngFile(r05Png("on"));
+    const off = decodePngFile(r05Png("off"));
+    expect(on.w).toBe(1280);
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = r05Report.rows[r05Report.landed.tag]![eye]!;
+      const rect = rectFromArray(r05Report.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, r05Report.seeds[eye]![0], r05Report.seeds[eye]![1], r05Report.thresholds.irisCore);
+      const hot = h2Hot(on, circle, rect, r05Report.thresholds.hot);
+      expect(hot.length, `${eye} 230+ px in disc`).toBe(g.hot230);
+      const members = largestClusterMembers(hot);
+      expect(members.length, `${eye} dot cluster px`).toBe(g.hotCluster);
+      expect(members.length, `${eye} crisp bar (>= ${r05Report.gates.coreMinCluster} px contiguous)`).toBeGreaterThanOrEqual(
+        r05Report.gates.coreMinCluster,
+      );
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+      for (const p of members) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+      const ratio = Math.max(x1 - x0 + 1, y1 - y0 + 1) / Math.max(Math.min(x1 - x0 + 1, y1 - y0 + 1), 1);
+      expect([x1 - x0 + 1, y1 - y0 + 1].sort((a, b) => a - b), `${eye} core bbox`).toEqual([...g.coreBbox].sort((a, b) => a - b));
+      expect(Math.round(ratio * 100) / 100, `${eye} core round (extent ratio <= ${r05Report.gates.roundRatioMax})`).toBeLessThanOrEqual(
+        r05Report.gates.roundRatioMax,
+      );
+      expect(Math.round(ratio * 100) / 100).toBeCloseTo(g.roundRatio, 1);
+      const c = centroid(members);
+      expect(Math.hypot(c.x - circle.cx, c.y - circle.cy), `${eye} dot centroid inside disc`).toBeLessThan(circle.r);
+      expect(Math.round(Math.hypot(c.x - circle.cx, c.y - circle.cy) * 10) / 10, `${eye} centroid offset`).toBe(g.distFromCentre);
+    }
+  });
+
+  it(r05Exists ? "ring floor re-derived: inner annulus <= 30 L*, bright px <= 80, both eyes" : "room05 store absent — ring skipped", () => {
+    if (!r05Exists) return;
+    // Floor justification (recorded, not silently loosened): room-alone
+    // with a BLACK quad already reads ringIn 17.4/17.7, so the old <=15
+    // sat below the room-only floor; the triple (ring <=15, dot >=20px,
+    // meansat <0.60) is jointly infeasible in the room+quad single-env-map
+    // family (linear-Y proof in .work-ablation/ENVSWEEP_OUTCOME.md). The old
+    // <=15 is deleted by this gate, with this reason.
+    expect(r05Report.gates.floorJustification).toMatch(/17\.4/);
+    expect(sha256File(r05Png("on"))).toBe(r05Report.renders["on"]!.sha256);
+    const on = decodePngFile(r05Png("on"));
+    const off = decodePngFile(r05Png("off"));
+    for (const [eye, key] of [["L", "Leye"], ["R", "Reye"]] as const) {
+      const g = r05Report.rows[r05Report.landed.tag]![eye]!;
+      const rect = rectFromArray(r05Report.crops[key as "Leye" | "Reye"]);
+      const circle = darkCoreCircle(off, rect, r05Report.seeds[eye]![0], r05Report.seeds[eye]![1], r05Report.thresholds.irisCore);
+      const ring = r05RingIn(on, circle);
+      expect(Math.round(ring.meanL * 10) / 10, `${eye} inner-annulus mean L*`).toBe(g.ringInMeanL);
+      expect(g.ringInMeanL, `${eye} ring <= ${r05Report.gates.ringInMeanLe} L*`).toBeLessThanOrEqual(r05Report.gates.ringInMeanLe);
+      expect(ring.bright, `${eye} bright px`).toBe(g.ringInBright);
+      expect(g.ringInBright, `${eye} bright px <= ${r05Report.gates.ringInBrightCeiling}`).toBeLessThanOrEqual(
+        r05Report.gates.ringInBrightCeiling,
+      );
+      let mx = -Infinity, satSum = 0, n = 0;
+      for (let y = 0; y < on.h; y += 1) {
+        for (let x = 0; x < on.w; x += 1) {
+          if (Math.hypot(x - circle.cx, y - circle.cy) > circle.r) continue;
+          mx = Math.max(mx, luminance(on, x, y));
+          satSum += saturation(on, x, y);
+          n += 1;
+        }
+      }
+      expect(Math.round(mx * 10) / 10, `${eye} brightest disc pixel`).toBe(g.spotMaxLum);
+      expect(Math.round((satSum / Math.max(n, 1)) * 10000) / 10000, `${eye} iris meansat`).toBe(g.meansat);
+      expect(g.meansat, `${eye} meansat in band`).toBeGreaterThanOrEqual(r05Report.gates.meansatBand[0]);
+      expect(g.meansat, `${eye} meansat below neon`).toBeLessThan(r05Report.gates.meansatBand[1]);
+    }
+  });
+
+  it(r05Exists ? "CW1: cheek and forehead still pixel-identical (scoped env)" : "room05 store absent — CW1 skipped", () => {
+    if (!r05Exists) return;
+    const on = decodePngFile(r05Png("on"));
+    const off = decodePngFile(r05Png("off"));
+    for (const key of ["cheek", "forehead"] as const) {
+      const rect = rectFromArray(r05Report.crops[key]);
+      const g = r05Report.rows[r05Report.landed.tag]!.skin[key]!;
+      expect(countChangedPx(off, on, rect), `${key} changed px`).toBe(g);
+      expect(g, `${key} skin must be pixel-identical`).toBe(0);
+    }
+    expect(r05Report.gates.skinZero).toBe(true);
+  });
+
+  it(r05Exists ? "room05 store shas verify" : "room05 store absent — sha verification skipped", () => {
+    if (!r05Exists) return;
+    for (const [key, want] of Object.entries(r05Report.renders)) {
+      const p = join(R05STORE, want.png);
+      expect(existsSync(p), `room05 store file present: ${want.png}`).toBe(true);
+      expect(sha256File(p), `sha of ${key}`).toBe(want.sha256);
+    }
+  });
+});
+
+const frReportPath = join(here, "catchlight-fresnel-report.json");
+const frReport = JSON.parse(readFileSync(frReportPath, "utf8")) as {
+  module: string;
+  moduleSha256: string;
+  wiring: Record<string, string>;
+  landed: { ior: number; f0: number; gain: number; exponent: number; flat: boolean };
+  subject: { glbSha256: string; spec: Record<string, unknown> };
+  store: string;
+  renders: Record<string, { png: string; sha256: string }>;
+  storeShas: Record<string, string>;
+  crops: { Leye: [number, number, number, number]; Reye: [number, number, number, number]; cheek: [number, number, number, number]; forehead: [number, number, number, number]; yaw25: { Leye: [number, number, number, number]; Reye: [number, number, number, number] }; "yaw-25": { Leye: [number, number, number, number]; Reye: [number, number, number, number] } };
+  seeds: Record<string, Record<string, [number, number]>>;
+  circles: Record<string, Record<string, { cx: number; cy: number; r: number }>>;
+  thresholds: { hot: number; irisCore: number };
+  determinism: { curFrontSha256: string; curFrontRerunSha256: string };
+  rows: {
+    front: {
+      frameChanged: number; cheek: number; forehead: number;
+      maskFloor: Record<string, number>; headLift: Record<string, number>;
+      L: { hot230: number; hotCluster: number; coreBbox: [number, number]; roundRatio: number; centroid: [number, number]; distFromCentre: number; meanL: number };
+      R: { hot230: number; hotCluster: number; coreBbox: [number, number]; roundRatio: number; centroid: [number, number]; distFromCentre: number; meanL: number };
+    };
+    yaw25: {
+      differential: Record<string, number>;
+      L: { hot230: number; hotCluster: number; roundRatio: number; distFromCentre: number; meanL: number; lift: number };
+      R: { hot230: number; hotCluster: number; roundRatio: number; distFromCentre: number; meanL: number; lift: number };
+    };
+    "yaw-25": {
+      differential: Record<string, number>;
+      L: { hot230: number; hotCluster: number; roundRatio: number; distFromCentre: number; meanL: number; lift: number };
+      R: { hot230: number; hotCluster: number; roundRatio: number; distFromCentre: number; meanL: number; lift: number };
+    };
+  };
+  gates: { coreMinCluster: number; roundRatioMax: number; liftMin: number; diffMin: number; skinZero: boolean };
+  counterweight: { flatDifferential: { L: Record<string, number>; R: Record<string, number> } };
+  sweep: { cells: string[]; shas: Record<string, string>; rows: Record<string, Record<string, { lift: number }>> };
+};
+const frHookPath = join(here, "../eye-shader/eye-cornea-fresnel.ts");
+const frLidPath = join(here, "../eye-shader/eye-lid-contact.ts");
+const frRigPath = join(here, "../isolated-subject-rig-variants.ts");
+const frLabPath = join(here, "../isolated-subject-lab.ts");
+const FRSTORE = frReport.store;
+const frExists = existsSync(FRSTORE);
+const frPng = (key: string): string => join(FRSTORE, frReport.renders[key]!.png);
+const frRecord = (key: string): Record<string, unknown> =>
+  JSON.parse(readFileSync(join(FRSTORE, `${key}.json`), "utf8")) as Record<string, unknown>;
+const frRig = (key: string): { eyeShading: { corneaFresnel: { enabled: boolean; matched: string[]; gain: number; exponent: number; flat: boolean } } } =>
+  (frRecord(key)["productRig"] as {
+    eyeShading: { corneaFresnel: { enabled: boolean; matched: string[]; gain: number; exponent: number; flat: boolean } };
+  });
+
+/** Mean L* inside an iris circle. */
+function frDiscMean(png: DecodedPng, circle: { cx: number; cy: number; r: number }): number {
+  let sum = 0;
+  let n = 0;
+  for (let y = 0; y < png.h; y += 1) {
+    for (let x = 0; x < png.w; x += 1) {
+      if (Math.hypot(x - circle.cx, y - circle.cy) > circle.r) continue;
+      sum += luminanceLStar(png, x, y);
+      n += 1;
+    }
+  }
+  return sum / Math.max(n, 1);
+}
+
+/**
+ * Mask-placement floor (probe_noise.py method): |mean(r+1) - mean(r-1)| on
+ * the same render. Where exactly "the cornea" is placed moves the metric;
+ * head-on lift must sit inside that placement uncertainty.
+ */
+function frMaskFloor(png: DecodedPng, circle: { cx: number; cy: number; r: number }): number {
+  return Math.abs(
+    frDiscMean(png, { ...circle, r: circle.r + 1 }) - frDiscMean(png, { ...circle, r: circle.r - 1 }),
+  );
+}
+
+/** Whole-frame changed px (the falsifier counts the same way). */
+function frFrameChanged(a: DecodedPng, b: DecodedPng): number {
+  let total = 0;
+  for (let y = 0; y < a.h; y += 1) {
+    for (let x = 0; x < a.w; x += 1) {
+      for (let ch = 0; ch < 3; ch += 1) {
+        if (Math.abs(a.data[(y * a.w + x) * a.chans + ch]! - b.data[(y * b.w + x) * b.chans + ch]!) > 0) {
+          total += 1;
+          break;
+        }
+      }
+    }
+  }
+  return total;
+}
+
+type FrEye = "L" | "R";
+const frEyeKeys: FrEye[] = ["L", "R"];
+function frRect(yaw: "front" | "yaw25" | "yaw-25", eye: FrEye): CropRect {
+  const box =
+    yaw === "front"
+      ? frReport.crops[eye === "L" ? "Leye" : "Reye"]
+      : frReport.crops[yaw][eye === "L" ? "Leye" : "Reye"];
+  return rectFromArray(box);
+}
+function frCircle(yaw: "front" | "yaw25" | "yaw-25", eye: FrEye): { cx: number; cy: number; r: number } {
+  const c = frReport.circles[yaw]![eye]!;
+  return { cx: c.cx, cy: c.cy, r: c.r };
+}
+
+describe("fresnel: the cornea film is invisible head-on and lifts at grazing", () => {
+  it("report module sha matches the landed hook source", () => {
+    expect(frReport.module).toBe("packages/openclinxr/xr-scene/src/eye-shader/eye-cornea-fresnel.ts");
+    expect(sha256File(frHookPath)).toBe(frReport.moduleSha256);
+    expect(sha256File(frLidPath)).toBe(frReport.wiring["eye-lid-contact.ts"]);
+    assertStrictRigSourceBinding(readFileSync(frRigPath, "utf8"), frReport.wiring["isolated-subject-rig-variants.ts"]!, "fresnel rig wiring");
+    assertStrictLabSourceBinding(readFileSync(frLabPath, "utf8"), frReport.wiring["isolated-subject-lab.ts"]!, "fresnel lab wiring");
+    expect(sha256File(join(here, "../eye-shader/iris-disc-roughness-map.ts"))).toBe(
+      frReport.wiring["iris-disc-roughness-map.ts"],
+    );
+  });
+
+  it("cause: Schlick weight on the globe iris disc, F0 from Gullstrand IOR, flat ablation", () => {
+    const hook = readFileSync(frHookPath, "utf8");
+    expect(hook, "Gullstrand IOR literal (duplicated, not imported: ceiling 10)").toMatch(/EYE_CORNEA_FRESNEL_IOR = 1\.376/);
+    expect(hook, "F0 from the IOR by formula").toMatch(/\(\(EYE_CORNEA_FRESNEL_IOR - 1\) \/ \(EYE_CORNEA_FRESNEL_IOR \+ 1\)\)/);
+    expect(hook, "landed gain pinned").toMatch(/EYE_CORNEA_FRESNEL_GAIN = 2/);
+    expect(hook, "landed exponent pinned").toMatch(/EYE_CORNEA_FRESNEL_EXPONENT = 1/);
+    expect(hook, "no transmission pass (the EEVEE-ball failure mode)").not.toMatch(/\.transmission\s*=/);
+    expect(hook, "no transmission chunk include").not.toMatch(/#include <transmission/);
+    expect(hook, "no new geometry (the film lives on the globe texels)").not.toMatch(/new Mesh\(/);
+    expect(hook, "flat forces the head-on weight everywhere").toMatch(/uCorneaFlat > 0\.5/);
+    expect(hook, "angular term present when not flat").toMatch(/pow\( 1\.0 - corneaCosT, uCorneaExp \)/);
+    expect(hook, "head-on weight is exactly zero (factor 1.0)").toMatch(/radiance \*= 1\.0 \+ uCorneaGain \* corneaIrisM \* corneaW/);
+    expect(hook, "composes with the sclera hook cache key (no aliasing)").toMatch(/prevKey/);
+    const lid = readFileSync(frLidPath, "utf8");
+    expect(lid, "fresnel installs beside the sclera hook in the product path").toMatch(/applyCorneaFresnel/);
+    const rig = readFileSync(frRigPath, "utf8");
+    expect(rig, "rig threads the fresnel opts").toMatch(/corneaFresnelGain/);
+    const lab = readFileSync(frLabPath, "utf8");
+    expect(lab, "lab spec carries the fresnel keys").toMatch(/eyeCorneaFlat/);
+    expect(frReport.landed.ior).toBe(1.376);
+    expect(frReport.landed.gain).toBe(2);
+    expect(frReport.landed.exponent).toBe(1);
+    expect(frReport.landed.flat).toBe(false);
+  });
+
+  it(frExists ? "readback: the hook landed in the product rig (live scene, not source)" : "fresnel store absent — readback skipped", () => {
+    if (!frExists) return;
+    // Installed + shaping values proved by the live runtime debug readout
+    // (same readback posture as the CW2 globe-envMap gates).
+    for (const key of ["fres-front", "fres-yaw25", "fres-yaw-25"]) {
+      const cf = frRig(key).eyeShading.corneaFresnel;
+      expect(cf.enabled, `${key} fresnel enabled`).toBe(true);
+      expect(cf.matched.length, `${key} one globe slot`).toBe(1);
+      expect(cf.gain, `${key} landed gain`).toBe(2);
+      expect(cf.exponent, `${key} landed exponent`).toBe(1);
+      expect(cf.flat, `${key} not flat`).toBe(false);
+    }
+    for (const key of ["cur-front", "cur-yaw25", "cur-yaw-25"]) {
+      const cf = frRig(key).eyeShading.corneaFresnel;
+      expect(cf.enabled, `${key} current has no hook`).toBe(false);
+      expect(cf.matched, `${key} nothing matched`).toEqual([]);
+    }
+    for (const key of ["flat-front", "flat-yaw25", "flat-yaw-25"]) {
+      const cf = frRig(key).eyeShading.corneaFresnel;
+      expect(cf.enabled, `${key} flat installs the hook`).toBe(true);
+      expect(cf.flat, `${key} flat ablation on`).toBe(true);
+    }
+  });
+
+  it(frExists ? "determinism: same-config re-render is bit-identical (noise floor 0)" : "fresnel store absent — determinism skipped", () => {
+    if (!frExists) return;
+    expect(sha256File(frPng("cur-front-rerun"))).toBe(frReport.renders["cur-front-rerun"]!.sha256);
+    expect(frReport.determinism.curFrontRerunSha256).toBe(frReport.determinism.curFrontSha256);
+    const a = decodePngFile(frPng("cur-front"));
+    const b = decodePngFile(frPng("cur-front-rerun"));
+    expect(frFrameChanged(a, b), "re-render changed px (temporal noise)").toBe(0);
+  });
+
+  it(frExists ? "(a) head-on keeps today's pixels within mask noise; dot preserved (b)" : "fresnel store absent — head-on skipped", () => {
+    if (!frExists) return;
+    expect(sha256File(frPng("fres-front"))).toBe(frReport.renders["fres-front"]!.sha256);
+    const cur = decodePngFile(frPng("cur-front"));
+    const on = decodePngFile(frPng("fres-front"));
+    expect(cur.w).toBe(1280);
+    const g = frReport.rows.front;
+    expect(frFrameChanged(cur, on), "whole-frame changed px").toBe(g.frameChanged);
+    for (const key of ["cheek", "forehead"] as const) {
+      const rect = rectFromArray(frReport.crops[key]);
+      expect(countChangedPx(cur, on, rect), `${key} skin must be pixel-identical`).toBe(0);
+      expect(countChangedPx(cur, on, rect)).toBe(g[key]);
+      expect(meanAbsLumaDiff(cur, on, rect)).toBe(0);
+    }
+    expect(frReport.gates.skinZero).toBe(true);
+    for (const eye of frEyeKeys) {
+      const rect = frRect("front", eye);
+      const seed = frReport.seeds["front"]![eye]!;
+      const circle = darkCoreCircle(cur, rect, seed[0], seed[1], frReport.thresholds.irisCore);
+      const pinned = frCircle("front", eye);
+      expect(circle.cx).toBeCloseTo(pinned.cx, 1);
+      expect(circle.cy).toBeCloseTo(pinned.cy, 1);
+      expect(circle.r).toBeCloseTo(pinned.r, 1);
+      const floor = frMaskFloor(cur, circle);
+      expect(floor).toBeCloseTo(g.maskFloor[eye]!, 1);
+      const lift = frDiscMean(on, circle) - frDiscMean(cur, circle);
+      expect(lift).toBeCloseTo(g.headLift[eye]!, 1);
+      expect(lift, `${eye} head-on lift sits inside mask-placement noise`).toBeLessThanOrEqual(floor);
+      // (b) the compact catch-light dot survives the film.
+      const hot = h2Hot(on, circle, rect, frReport.thresholds.hot);
+      expect(hot.length, `${eye} 230+ px in disc`).toBe(g[eye].hot230);
+      const members = largestClusterMembers(hot);
+      expect(members.length, `${eye} dot cluster px`).toBe(g[eye].hotCluster);
+      expect(members.length, `${eye} crisp bar (>= ${frReport.gates.coreMinCluster} px contiguous)`).toBeGreaterThanOrEqual(
+        frReport.gates.coreMinCluster,
+      );
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+      for (const p of members) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+      const ratio = Math.max(x1 - x0 + 1, y1 - y0 + 1) / Math.max(Math.min(x1 - x0 + 1, y1 - y0 + 1), 1);
+      expect(Math.round(ratio * 100) / 100, `${eye} core round (extent <= ${frReport.gates.roundRatioMax})`).toBeLessThanOrEqual(
+        frReport.gates.roundRatioMax,
+      );
+      expect(Math.round(ratio * 100) / 100).toBeCloseTo(g[eye].roundRatio, 1);
+      const c = centroid(members);
+      expect(c.x).toBeCloseTo(g[eye].centroid[0], 1);
+      expect(c.y).toBeCloseTo(g[eye].centroid[1], 1);
+      const d = Math.hypot(c.x - circle.cx, c.y - circle.cy);
+      expect(d, `${eye} dot centroid inside disc`).toBeLessThan(circle.r);
+      expect(d).toBeCloseTo(g[eye].distFromCentre, 1);
+      expect(frDiscMean(on, circle)).toBeCloseTo(g[eye].meanL, 1);
+    }
+  });
+
+  it(frExists ? "(c) yaw ±25 shows a smooth reflection lift vs head-on (fresnel proves itself)" : "fresnel store absent — yaw lift skipped", () => {
+    if (!frExists) return;
+    for (const yaw of ["yaw25", "yaw-25"] as const) {
+      expect(sha256File(frPng(`fres-${yaw}`))).toBe(frReport.renders[`fres-${yaw}`]!.sha256);
+      const cur = decodePngFile(frPng(`cur-${yaw}`));
+      const on = decodePngFile(frPng(`fres-${yaw}`));
+      const g = frReport.rows[yaw];
+      const head = frReport.rows.front;
+      for (const eye of frEyeKeys) {
+        const rect = frRect(yaw, eye);
+        const seed = frReport.seeds[yaw]![eye]!;
+        const circle = darkCoreCircle(cur, rect, seed[0], seed[1], frReport.thresholds.irisCore);
+        const pinned = frCircle(yaw, eye);
+        expect(circle.cx).toBeCloseTo(pinned.cx, 1);
+        expect(circle.cy).toBeCloseTo(pinned.cy, 1);
+        expect(circle.r).toBeCloseTo(pinned.r, 1);
+        const lift = frDiscMean(on, circle) - frDiscMean(cur, circle);
+        expect(lift, `${yaw} ${eye} lift pinned`).toBeCloseTo(g[eye].lift, 1);
+        expect(frDiscMean(on, circle)).toBeCloseTo(g[eye].meanL, 1);
+        expect(lift, `${yaw} ${eye} lift clears ${frReport.gates.liftMin} L*`).toBeGreaterThanOrEqual(frReport.gates.liftMin);
+        const headLift = head.headLift[eye]!;
+        const diff = lift - headLift;
+        expect(diff, `${yaw} ${eye} vs-head-on differential pinned`).toBeCloseTo(g.differential[eye]!, 1);
+        expect(diff, `${yaw} ${eye} differential lift above re-render noise`).toBeGreaterThan(frReport.gates.diffMin);
+      }
+    }
+  });
+
+  it(frExists ? "counterweight: the (c) gate fails with the fresnel term forced flat" : "fresnel store absent — counterweight skipped", () => {
+    if (!frExists) return;
+    // A gate that also passes with a constant (angle-free) term is a fail:
+    // flat renders are bit-identical to current at every yaw, so every lift
+    // and every differential is exactly 0 and the (c) bars fail.
+    for (const yaw of ["front", "yaw25", "yaw-25"] as const) {
+      const cur = decodePngFile(frPng(`cur-${yaw}`));
+      const flat = decodePngFile(frPng(`flat-${yaw}`));
+      expect(sha256File(frPng(`flat-${yaw}`))).toBe(frReport.renders[`flat-${yaw}`]!.sha256);
+      expect(frFrameChanged(cur, flat), `flat ${yaw} is current bit-for-bit`).toBe(0);
+      for (const eye of frEyeKeys) {
+        const rect = frRect(yaw, eye);
+        const seed = frReport.seeds[yaw]![eye]!;
+        const circle = darkCoreCircle(cur, rect, seed[0], seed[1], frReport.thresholds.irisCore);
+        const lift = frDiscMean(flat, circle) - frDiscMean(cur, circle);
+        expect(lift, `flat ${yaw} ${eye} lift is zero`).toBe(0);
+        if (yaw !== "front") {
+          const headLift = 0; // flat head-on lift is 0 (proved above)
+          expect(lift - headLift, `flat ${yaw} ${eye} differential fails the (c) bar`).toBeLessThanOrEqual(
+            frReport.gates.diffMin,
+          );
+          const pinned = frReport.counterweight.flatDifferential[eye]![yaw]!;
+          expect(pinned).toBe(0);
+        }
+      }
+    }
+  });
+
+  it(frExists ? "fresnel store shas verify" : "fresnel store absent — sha verification skipped", () => {
+    if (!frExists) return;
+    for (const [key, want] of Object.entries(frReport.storeShas)) {
+      const p = join(FRSTORE, key);
+      expect(existsSync(p), `fresnel store file present: ${key}`).toBe(true);
+      expect(sha256File(p), `sha of ${key}`).toBe(want);
+    }
+    for (const [key, want] of Object.entries(frReport.sweep.shas)) {
+      const p = join(FRSTORE, key);
+      expect(existsSync(p), `sweep store file present: ${key}`).toBe(true);
       expect(sha256File(p), `sha of ${key}`).toBe(want);
     }
   });

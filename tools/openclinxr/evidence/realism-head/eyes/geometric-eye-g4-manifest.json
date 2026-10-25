@@ -1,0 +1,38 @@
+{
+  "slice": "G4-lash-reseat",
+  "bake": {
+    "file": "aisha-lidconform.glb (store)",
+    "sha256": "96c13f02d262b093eb53b4c8c2d493d57668f352cf406ad31a25dbac35d1ed76"
+  },
+  "report": {
+    "file": "geometric-eye-g4-report.json",
+    "sha256": "c6dbb6e5c2298a482a8bf711e4bd90e5bef878efad820027ca5493a8bd9b0b14"
+  },
+  "renders": {
+    "geometric-eye-g4-tick-pre.png": {
+      "file": "geometric-eye-g4-tick-pre.png",
+      "sha256": "30da5a868371ab605e641bfdb24d5425ec544ba3d93f20cccef0726642b0635f"
+    },
+    "geometric-eye-g4-tick-post.png": {
+      "file": "geometric-eye-g4-tick-post.png",
+      "sha256": "2f4f0d64a2ff80542c63ad01bf865be39a9f2779ea0a31099f5e1f53a625b881"
+    }
+  },
+  "gate": "geometric-eye-g4-gate.py -> GREEN",
+  "blinkFollow": {
+    "L": {"lidMarginVerts": 221, "travelPct": 194.0, "sameDirection": true},
+    "R": {"lidMarginVerts": 90, "travelPct": 207.2, "sameDirection": true}
+  },
+  "t2b": {
+    "L": {"keep": "461/470", "ratio": 0.9809},
+    "R": {"keep": "446/454", "ratio": 0.9824, "dashZoneDropped": 3}
+  },
+  "seal": "re-pinned from G3 (closure min -0.029/-0.029, occlusion 1.0); body morphs byte-identical input-vs-output",
+  "overlapMm": "0.38 post-G3 carried (rank-1 NOT closed by G4: no lid/aperture change; owner is lid-morph/aperture work)",
+  "notTested": [
+    "pixel grade (human-graded store sheet)",
+    "gaze/compat re-run",
+    "second subject (G6)",
+    "Quest"
+  ]
+}

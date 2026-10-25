@@ -23,8 +23,12 @@ def load_skin(glb_path: Path) -> tuple[np.ndarray, np.ndarray]:
     best = None
     for node in sc.graph.nodes_geometry:
         T, name = sc.graph[node]
-        # Skin mesh: the largest mesh whose name holds the body marker.
-        if "body.001" in name.lower():
+        # Skin mesh: the largest mesh whose name holds the body marker. The
+        # marker is "body", not "body.001": Blender adds the .001 suffix only
+        # when a duplicate name existed at bake time, so a case baked without
+        # one (the child, mpfb_peds_patient_child_body) names its skin without
+        # it. Largest wins, so a ".001" adult resolves to the same mesh.
+        if "body" in name.lower():
             g = sc.geometry[name]
             if best is None or len(g.vertices) > len(best[0]):
                 V = trimesh.transform_points(np.asarray(g.vertices, np.float64), T)

@@ -26,6 +26,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
+import { managedWorktreeRoot } from "./worktree-roots.js";
 import {
   getRepoRoleHarnessPolicy,
   pathMatchesAnyGlob,
@@ -147,7 +148,9 @@ export function parseGitStatusShort(output: string): {
 }
 
 export function defaultGrokWorktreesRoot(homeDir: string = homedir()): string {
-  return path.join(homeDir, ".grok", "worktrees");
+  // HX-PATHS: the managed root owns the default (OPENCLINXR_WT_ROOT or the homedir layout);
+  // promote scans its parent. homeDir keeps its existing meaning for callers/tests.
+  return path.dirname(managedWorktreeRoot(process.env, homeDir));
 }
 
 /** Repo basename match: openclinxr, src-openclinxr, *openclinxr*. */
@@ -351,7 +354,7 @@ function printHelp(): void {
       "",
       "Promote rules:",
       "  - Only paths matching role pathScope.writeRoots OR role handoff JSON under slices",
-      "  - Discovery: --worktree-path | OPENCLINXR_WORKTREE | newest ~/.grok/worktrees match with handoff",
+      "  - Discovery: --worktree-path | OPENCLINXR_WORKTREE | newest managed-root match with handoff",
       "  - Report: .openclinxr/openclaw/worktree-promote-SLICE-ROLE.json",
       "  - Does not delete worktrees (no cleanup without future --force)",
       "",

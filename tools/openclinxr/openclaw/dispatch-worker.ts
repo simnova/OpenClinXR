@@ -50,6 +50,7 @@ import { setFactoryField } from "./board-cli.js";
 import { evaluateProofTargetsBeforeDispatch } from "./proof-target-preflight.js";
 import { provisionWorktreeAssetsSync } from "./worktree-asset-provisioning.js";
 import { ensureWorktreeBaseFresh, gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
+import { managedWorktreeRoot, resolveBaseRef } from "./worktree-roots.js";
 import {
   announceBothyClaimPresence as announceBothyDispatchPresence,
   startBothyClaimRenewal,
@@ -858,7 +859,7 @@ function writePromptFile(options: DispatchOptions): string {
 }
 
 /** Worktrees live OUTSIDE the main checkout so the main-tree deny cannot block them. */
-export const WORKTREE_ROOT = join(homedir(), ".grok", "worktrees", "src-openclinxr");
+export const WORKTREE_ROOT: string = managedWorktreeRoot();
 
 /**
  * The hard write boundary.
@@ -957,11 +958,15 @@ export function resolveWorkerWorktree(
     if (existsSync(worktree)) prepareWorktreeForWorker(worktree, prepareOpts);
     return worktree;
   }
-  const target = join(WORKTREE_ROOT, name);
+  const worktreeRoot = managedWorktreeRoot();
+  const target = join(worktreeRoot, name);
   const managedBranch = branch ?? `wt/${name}`;
   if (!existsSync(target)) {
-    mkdirSync(WORKTREE_ROOT, { recursive: true });
-    execFileSync("git", ["worktree", "add", "-b", managedBranch, target], {
+    mkdirSync(worktreeRoot, { recursive: true });
+    // HX-PATHS: base first-use on origin/main (best-effort fetch) — a bare `git worktree add`
+    // would default to the main checkout's possibly-stale local HEAD.
+    const base = resolveBaseRef(mainRoot);
+    execFileSync("git", ["worktree", "add", "-b", managedBranch, target, base.sha], {
       cwd: mainRoot,
       stdio: ["ignore", "pipe", "pipe"],
       env: gitEnvWithoutInheritedRepoVars(),

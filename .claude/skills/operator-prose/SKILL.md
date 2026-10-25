@@ -1,6 +1,6 @@
 ---
 name: "operator-prose"
-description: "Style contract for OPERATOR-FACING prose only - plain declarative reporting with hard numeric limits: max 2 bold spans per message (identifiers/numbers only), max 1 em-dash, no 'not X but Y' reframes, no setup-payoff reveals, no verdict-fragment openers, error reports as fact-action-correction without self-drama, tables only at 3 rows x 2 columns minimum, and every count must name its own set rather than chaining cardinals the reader has to repartition. Load BEFORE writing any report, summary, or message addressed to the human operator. NOT for product-owner wire reports (delegator-comms governs those), worker briefs, issue bodies, or code - scope is stated in the body."
+description: "Style contract for OPERATOR-FACING prose: declarative reporting under hard numeric limits, no 'not X but Y' reframes, no verdict-fragment openers; errors as fact-action-correction. Load BEFORE writing any report to the human operator."
 when-to-use: "operator report, cardinal chaining, numbers in prose, write to operator, status summary for human, message to patrick, prose report, clickbait feedback, style feedback, before sending a report"
 ---
 

@@ -1,0 +1,42 @@
+{
+ "renderer": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+ "renderSize": 1280,
+ "yawRad": 0.43633,
+ "recipe": "RoomEnvironment PMREM environmentIntensity 0.5 + quad DirectionalLight 2.4 from (1,8,6)*3 + ACES, g6_* envMapIntensity 0.6",
+ "views": [
+  {
+   "id": "front",
+   "writes": {
+    "bonesTouched": [],
+    "yawRad": 0
+   }
+  },
+  {
+   "id": "yaw-plus-25",
+   "writes": {
+    "bonesTouched": [
+     "eyeL",
+     "eyeR"
+    ],
+    "yawRad": 0.43633
+   }
+  },
+  {
+   "id": "yaw-minus-25",
+   "writes": {
+    "bonesTouched": [
+     "eyeL",
+     "eyeR"
+    ],
+    "yawRad": -0.43633
+   }
+  },
+  {
+   "id": "blink",
+   "writes": {
+    "closureMeshes": 18,
+    "slitMeshes": 18
+   }
+  }
+ ]
+}

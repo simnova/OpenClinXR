@@ -82,12 +82,12 @@ export const BROKEN_REFERENCE_FREEZE: Record<string, number> = {
   ".agents/skills/openclinxr-slice/fixtures/scaffold-boilerplate/slice-record.md": 1,
   ".agents/skills/turborepo/command/turborepo.md": 12,
   ".agents/skills/worker-scoped-session/SKILL.md": 1,
-  ".claude/rules/EXEC_REHYDRATE.md": 1,
+  // .claude/rules no longer mirrors every rule: only GUARD_DRIFT.md of the frozen set is still
+  // linked there (CLAUDE_CORE_RULES), so the other .claude/rules ceilings were removed, not raised.
   ".claude/rules/GUARD_DRIFT.md": 3,
-  ".claude/rules/LEX_AGENTIC.md": 5,
   // RELOCATED, NOT RAISED — 2026-08-29 moved TIER_GROK.md's body verbatim into a lazy skill
   // (that file now says so in as many words: "Nothing was changed or deleted — the content is
-  // verbatim in the skill"). Its four dangling references travelled with the text. The three
+  // verbatim in the skill"). Its four dangling references travelled with the text. The remaining
   // TIER_GROK.md stubs therefore measure 0 now, and the skill measures 4.
   //
   // Net repo total is UNCHANGED at 4, which is why this is a relocation rather than a ceiling
@@ -97,11 +97,7 @@ export const BROKEN_REFERENCE_FREEZE: Record<string, number> = {
   // The four targets (docs/findings/*.md, agentic-eval/docs/CONFIDENCE.md) do not exist in this
   // repo. Repointing them needs someone who knows where that content went; until then the ceiling
   // holds the line at 4 and cannot silently widen.
-  ".claude/rules/TIER_GROK.md": 0,
   ".claude/skills/grok-tier-routing/SKILL.md": 4,
-  ".claude/rules/agent-consult.md": 1,
-  ".claude/rules/grok-harness-usage.md": 1,
-  ".claude/rules/source-of-truth.md": 1,
   ".cursor/rules/EXEC_REHYDRATE.md": 1,
   ".cursor/rules/GUARD_DRIFT.md": 3,
   ".cursor/rules/LEX_AGENTIC.md": 5,

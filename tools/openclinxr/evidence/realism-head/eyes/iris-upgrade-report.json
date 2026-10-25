@@ -1,0 +1,213 @@
+{
+  "card": "eye-finish iris upgrade (subagent lane)",
+  "texture": {
+    "file": "iris-centred-f.png",
+    "sha256": "2336581ae66367990012f1ab639b89e1cbee3f965455d0b17bd2509fce19f720"
+  },
+  "gates": {
+    "dotClusterGe20": true,
+    "meansatInBand": true,
+    "hueInBrownBand": true,
+    "limbusLiftLe12": true,
+    "skinIdentical": true
+  },
+  "bake": {
+    "bakeArgv": [
+      "--eye-colour-reference",
+      "ob_patient_aisha",
+      "--actor-role",
+      "patient",
+      "bake-device",
+      "metal",
+      "--eye-asset",
+      "high-poly",
+      "--eye-cornea",
+      "--eye-texture",
+      "tools/openclinxr/asset-pipeline/eyes/iris-centred-f.png",
+      "--output",
+      "/var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//eyefinish_iris_f_68898/aisha-realism.glb"
+    ],
+    "method": "blender --background materialize_mpfb_humanoid_candidate.py per compat-report bakeArgv with only --eye-texture swapped E->F; lash_blink_follow.py T2b+A3 post-step; per-job temp output, never committed. Capture through the product rig (isolated-subject lab, quad env ob_triage_room_v1, eyeRuntimeShading false, materialOverrides envMapIntensity 0.0 off / 0.6 on).",
+    "bakeRepairs": "fresh F bake wrote a JSON chunk of 253755 bytes (not 4-aligned); padded 1 trailing space, chunk+total lengths updated, content bytes otherwise untouched. Lash output JSON chunk 255747 bytes needed the same 1-space pad. Same repair shape as the C/D/E bakes.",
+    "eyeImage": {
+      "byteLength": 507944,
+      "name": "iris-centred-f",
+      "sha256": "2336581ae66367990012f1ab639b89e1cbee3f965455d0b17bd2509fce19f720"
+    },
+    "glbSha256": "5906f48cded6dce8bb398078520ccb7261c3b46d6128a31fb57ef421821ad8f9",
+    "lash": {
+      "treatment": "T2b-selective-detach-drop+A3",
+      "trisKeep": "16308/16632",
+      "verts": "11088->10872",
+      "pass": true,
+      "a3_nn_mm": {
+        "L": "2.378/6.904",
+        "R": "2.451/6.702"
+      },
+      "blinkFollow": {
+        "L": {
+          "lidMarginVerts": 221,
+          "sameDirection": true,
+          "travelPct": 194.0
+        },
+        "R": {
+          "lidMarginVerts": 90,
+          "sameDirection": true,
+          "travelPct": 207.2
+        }
+      }
+    }
+  },
+  "renders": {
+    "store": "/Volumes/files/openclinxr-assets/store/eye-iris-upgrade-f/",
+    "renderSize": 1280,
+    "method": "isolated-subject lab portrait through applyProductRig (quad env ob_triage_room_v1, current tree): subjectKind glb, view front, focus head, hideHair, subjectOnly, renderSize 1280, portrait, productEnvironmentId ob_triage_room_v1, eyeRuntimeShading false, materialOverrides [{envMapIntensity 0.6 on | 0.0 off, match library_eyes}]. Base (C-texture) PNGs copied byte-identical from the E proof store (shas verify).",
+    "crops": {
+      "Leye": [
+        415,
+        558,
+        615,
+        758
+      ],
+      "Reye": [
+        675,
+        550,
+        875,
+        750
+      ],
+      "cheek": [
+        450,
+        800,
+        550,
+        880
+      ],
+      "forehead": [
+        560,
+        380,
+        720,
+        500
+      ]
+    },
+    "seeds": "auto (darkest pixel per eye-half rect on the OFF render): L (499,707), R (780,708); control seeds (515,658)/(775,650) do not land on the realism pupil (different framing)",
+    "irisCoreThresholdLStar": 45,
+    "thresholdLuminance": 230,
+    "storeShas": {
+      "iris-base-off-front.png": "c5e34bd48e7a7e8b82dd811cc0e81e131607efc901d7c42c42bf998677f072da",
+      "iris-base-on-front.png": "3e09bc61c485f1defd689309267399aaba46e6558c37e97dcd55f1d8faca3350",
+      "iris-new-off-front.png": "d4b8b565e356fcf32c7b72d248f47c5eb9793aa3d20b1f2d12f6aa7ac1ccdf57",
+      "iris-new-on-front.png": "da13fec26dfc11b1d2c7d8222f216e5913265b75a8cd4731a16be367bb8eb23f"
+    }
+  },
+  "rows": {
+    "base": {
+      "G2": {
+        "L": {
+          "hot230": 50,
+          "hotCluster": 20,
+          "hotCentroid": [
+            496.4,
+            710.5
+          ],
+          "spotMaxLum": 255.0,
+          "meansat": 0.5224,
+          "hueDeg": 17.0,
+          "irisCircle": {
+            "cx": 498.7,
+            "cy": 707.6,
+            "r": 17.6
+          },
+          "ringMeanL": 51.4
+        },
+        "R": {
+          "hot230": 49,
+          "hotCluster": 22,
+          "hotCentroid": [
+            776.0,
+            723.8
+          ],
+          "spotMaxLum": 254.0,
+          "meansat": 0.5048,
+          "hueDeg": 16.8,
+          "irisCircle": {
+            "cx": 780.2,
+            "cy": 708.3,
+            "r": 17.5
+          },
+          "ringMeanL": 54.6
+        }
+      },
+      "eyecropMeansat": {
+        "L": 0.1418,
+        "R": 0.1487
+      },
+      "ringRG": {
+        "L": 28.6,
+        "R": 28.0
+      }
+    },
+    "new": {
+      "G2": {
+        "L": {
+          "hot230": 51,
+          "hotCluster": 20,
+          "hotCentroid": [
+            493.1,
+            716.6
+          ],
+          "spotMaxLum": 255.0,
+          "meansat": 0.5345,
+          "hueDeg": 16.7,
+          "irisCircle": {
+            "cx": 498.54,
+            "cy": 707.58,
+            "r": 17.61
+          },
+          "ringMeanL": 46.7,
+          "spotFracOfDisc": 0.0205
+        },
+        "R": {
+          "hot230": 51,
+          "hotCluster": 23,
+          "hotCentroid": [
+            776.3,
+            718.3
+          ],
+          "spotMaxLum": 254.0,
+          "meansat": 0.5189,
+          "hueDeg": 16.5,
+          "irisCircle": {
+            "cx": 779.78,
+            "cy": 708.2,
+            "r": 17.52
+          },
+          "ringMeanL": 50.4,
+          "spotFracOfDisc": 0.0239
+        }
+      },
+      "CW1": {
+        "cheekChangedVsBase": 0,
+        "foreheadChangedVsBase": 0,
+        "fullFrameChangedVsBase": 3218,
+        "fullFrameChangedBBox": "x[470,808] y[688,727] (iris only, 0.20% of frame)"
+      },
+      "eyecropMeansat": {
+        "L": 0.1421,
+        "R": 0.149
+      },
+      "limbus": {
+        "ringDeltaVsBase": {
+          "L": -4.8,
+          "R": -4.3
+        }
+      },
+      "ringRG": {
+        "L": 31.9,
+        "R": 29.0
+      }
+    }
+  },
+  "discrepancy": {
+    "greyVeilClaim": 0.12,
+    "detail": "The task premise cites an old grey-veil meansat of 12 (0.12). Re-measured on the realism head under the quad env with the repo's own catchlight-png.ts saturation: the C-texture disc meansat is 0.5224/0.5048, not 0.12. The 0.12-0.14 figure reproduces only as the eye-crop (sclera-dominated) meansat: C 0.1418/0.1487, D 0.1409/0.1478 \u2014 no brown iris moves that metric without going neon. The gate below therefore bars the disc metric: [0.30,0.60] beats any grey-veil reading (0.12-0.15) by 2x+ and stays below the control neon-red 0.64. Both C and D pass it; the upgrade is carried by fibre detail (2x texture angular contrast at r55/70) and hue (17->19.4deg deeper brown), stated honestly. E addendum: render-space hue (HSV hue of mean in-disc RGB, the same formula that reads C as 17.0/16.8) reads E as 16.7/16.5 - the rig lighting compresses texture hue, so the hue ~19deg win lives at texture level (E annulus mean-per-pixel HSV hue 19.3/19.2; bake-off identical-harness verdict 19.5). The render gate only requires the brown band [14,26], which 16.7/16.5 clears with margin; ringRG here is mean(R-G) over in-disc pixels. F addendum: texture-profile ramp (encoded-lum 15->150 span outward from limbus dark min) narrows 19.9->5.0px L / 19.7->5.0px R at the same halfway crossing (drift 0.02%/0.01%); render annulus ring darkens -4.8/-4.3 L* vs the C base (dark limbus reads darker, no pale ring \u2014 see eye-band crops E vs F); dot cluster 20/23px, meansat 0.5345/0.5189, hue 16.7/16.5, skin pixel-identical (cheek/forehead 0 changed, eyecrop meansat 0.1421/0.1490)."
+  }
+}

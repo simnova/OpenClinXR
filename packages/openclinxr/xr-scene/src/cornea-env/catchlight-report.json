@@ -1,6 +1,43 @@
 {
- "_candidateNote": "CANDIDATE for MAIN packages/openclinxr/xr-scene/src/cornea-env/catchlight-report.json. Genuine CURRENT requalification from ACTUAL fresh paired captures (captures-both-v2). NOT a reproduction of old hashes: post00/post06 are the new h100/h106 dataset (GLB 7632, legacy PRE eyeRuntimeShading:false). Old pre-envmap PNG pair retained byte-exact as NEGATIVE falsifier control; old G1/h1 report archived byte-exact at history/15733cd45c227d407e9978a79d54f2a1b573cc25dc159950eafba83c4b8a274a-catchlight-report.json.",
  "card": "tsk_e248d339fd18da20",
+ "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/catchlight",
+ "module": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts",
+ "moduleSha256": "2a926b284186acf884674b33377a03a261ba24c1f8cf3e09d14d668e80de6359",
+ "room05RepinNote": "room-0.5 re-pin 2026-10-21: module sha moved with the landed room-scale composition change (CATCHLIGHT_ROOM_SCALE=0.5 halves the RoomEnvironment emitters before the PMREM bake; quad untouched). Historical cells were captured under room1.0 and stand as composition records; the current gate is catchlight-room05-report.json. Reason recorded here per re-pin policy.",
+ "store": "/Volumes/files/openclinxr-assets/store/eye-catchlight/",
+ "subject": {
+  "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+  "productEnvironmentId": "ob_triage_room_v1",
+  "view": "front",
+  "portrait": true,
+  "renderSize": 1280,
+  "eyeMatch": "library_eyes",
+  "eyeMaterial": "mat_makeclothes_library_eyes_ob_patient_aisha_v1"
+ },
+ "envSource": "PMREM of three RoomEnvironment (same mechanism + sigma 0.04 as the studio path), scoped to the globe via material.envMap (no scene.environment)",
+ "envSourceWhy": "three r184 refreshes the envMapIntensity shader uniform only when material.envMap is set (WebGLMaterials.js refreshUniformsStandard + Lambert/Phong refreshers); scene.environment alone leaves globe intensity stuck at 1.0. scene.environment would also light all skin (measured optA).",
+ "renders": {
+  "pre00": {
+   "png": "pre-catch-eye00-front.png",
+   "sha256": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818"
+  },
+  "pre06": {
+   "png": "pre-catch-eye06-front.png",
+   "sha256": "753a3ac7f20d636687baa085bd612337e057e964daa6128f8f062701222bd5a3"
+  },
+  "post00": {
+   "png": "catch-eye00-front.png",
+   "sha256": "3c0a1a661cb8cb285ef7e5e4e5ab01677a7b865875c833f2321e89cf4215fd65"
+  },
+  "post06": {
+   "png": "catch-eye06-front.png",
+   "sha256": "212467d921cede3c822d8c53b82211325d75768353fd4d3073b644ce483cc9db"
+  },
+  "optA00": {
+   "png": "optA-unscoped/catch-eye00-front.png",
+   "sha256": "5c7f444e0209e03cd32d13e29363c7435b5843cfdfa95d60a0a5b0616034b4e1"
+  }
+ },
  "crops": {
   "Leye": [
    415,
@@ -27,35 +64,68 @@
    500
   ]
  },
- "currentRun": {
-  "notEvidenceFor": "This report is NOT evidence for the current default new eye-shader, Quest, or clinical readiness. It validates ONLY the pinned legacy PRE component (eyeRuntimeShading:false, documented app spec) env-response + specialized spot quality. Current production new-shading default is UNCHANGED and NOT validated here.",
-  "priorReportSha256": "15733cd45c227d407e9978a79d54f2a1b573cc25dc159950eafba83c4b8a274a",
-  "dataset": "cornea-legacy-recapture-fix/captures-both-v2: ONE shared Main Aisha 7632 buffer, one browser lease, pinned legacy PRE component, eyeRuntimeShading:false",
-  "datasetKind": "genuine-current-requalification-NOT-old-hash-reproduction",
-  "falsifierInput": "historic falsifier = ORIGINAL pre-envmap pair (8807 framework era), archived byte-exact; verdict premise_holds preserved",
-  "glbSha256": "763214e8661554ef380a0905aba8edcd76b2045fdeaa6f0fcd48d20f94537a56",
-  "inputs": {
-   "newH100Json": "8f07ceb0121dec3fe2c4921a884714c2b2385bd144e3f47ade0110d3fe0c875a",
-   "newH100Png": "d1fe7fdcb584634d384a964bf2ad8dc46b49d6618e8a0d79b83e0f3a9bd248df",
-   "newH106Json": "f543f68ce5e7a54aad5bd6d0742e877e8d2eb76f84992c50a24bdaf64e815c36",
-   "newH106Png": "16dbb922cd9129296b7de4cb42492e34d25c09f38688773dc4638abf236f689e",
-   "oldPre00Png": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818",
-   "oldPre06Png": "753a3ac7f20d636687baa085bd612337e057e964daa6128f8f062701222bd5a3"
+ "faceCrop": [
+  326,
+  220,
+  953,
+  1059
+ ],
+ "faceP99": 231.48,
+ "G1": {
+  "L": {
+   "changedPx": 2358,
+   "meanDL": 2.46
   },
-  "landedChecks": [
-   "threeRevision=184",
-   "toneMapping=4",
-   "exposure=0.9 (rig file)",
-   "rigApplied=true variant=raised_hemisphere_ground",
-   "globeMatched=mpfb_ob_patient_aisha_v1_body_meshlow-poly|mat_makeclothes_library_eyes_ob_patient_aisha_v1",
-   "disc=0.12/1/0.1318359375/0.029296875",
-   "eyeShading.enabled=false (legacy PRE)",
-   "library_eyes envMapIntensity=0 (h100) / 0.6 (h106)",
-   "spec.eyeRuntimeShading=false pinned"
-  ],
-  "measureProducer": "OWN measure-cornea-current.mts",
-  "measureProducerSha256": "53802dba0f541f7445db668ea5c4c5fd6efc77c0cae90496ba922c03fb95a753",
-  "postInput": "current post-integrated input = SAME new h100/h106 pair for top-level G1/G2/CW1/CW2 AND h1 (stage: current-integrated-h1), GLB 7632 derivative, truthfully scoped, never relabelled as old geometry"
+  "R": {
+   "changedPx": 2246,
+   "meanDL": 2.48
+  }
+ },
+ "G2": {
+  "L": {
+   "silPx": 6683,
+   "silBbox": [
+    441,
+    614,
+    581,
+    692
+   ],
+   "seed": [
+    515,
+    658
+   ],
+   "threshold": 200,
+   "dilation": 8,
+   "blobCount": 57,
+   "blobCentroid": [
+    494.6,
+    638.9
+   ],
+   "blobMeanL00": 220.6,
+   "blobMeanL06": 233.7
+  },
+  "R": {
+   "silPx": 6746,
+   "silBbox": [
+    697,
+    614,
+    837,
+    691
+   ],
+   "seed": [
+    775,
+    650
+   ],
+   "threshold": 200,
+   "dilation": 8,
+   "blobCount": 14,
+   "blobCentroid": [
+    778.6,
+    638.1
+   ],
+   "blobMeanL00": 218.9,
+   "blobMeanL06": 232.8
+  }
  },
  "CW1": {
   "cheek": {
@@ -76,239 +146,552 @@
   }
  },
  "CW2": {
-  "post00EnvironmentMap": false,
-  "post00EyeEnvMapIntensity": 0,
-  "post06EnvironmentMap": false,
-  "post06EyeEnvMapIntensity": 0.6,
   "post06GlobeEnvMap": {
-   "envMapSet": true,
    "matched": [
     "mpfb_ob_patient_aisha_v1_body_meshlow-poly|mat_makeclothes_library_eyes_ob_patient_aisha_v1"
-   ]
+   ],
+   "envMapSet": true
   },
+  "post06EyeEnvMapIntensity": 0.6,
+  "post00EyeEnvMapIntensity": 0,
+  "post06EnvironmentMap": false,
+  "post00EnvironmentMap": false,
   "preEnvironmentMap": false
  },
- "envSource": "PMREM of three RoomEnvironment (same mechanism + sigma 0.04 as the studio path), scoped to the globe via material.envMap (no scene.environment)",
- "envSourceWhy": "three r184 refreshes the envMapIntensity shader uniform only when material.envMap is set (WebGLMaterials.js refreshUniformsStandard + Lambert/Phong refreshers); scene.environment alone leaves globe intensity stuck at 1.0. scene.environment would also light all skin (measured optA, archived in prior report).",
- "faceCrop": [
-  326,
-  220,
-  953,
-  1059
- ],
- "faceP99": 231.48,
- "faceP99Note": "231.48 preserved: recomputed from OLD pre00 AND new h106 face crops both give 231.4762 (skin counterweights hold pixel-identical); NOT loosened from any blown-out post.",
  "falsifier": {
   "pre00vsPre06ChangedTotal": 16,
   "pre00vsPre06EyeBandChanged": 0,
   "verdict": "premise_holds"
  },
- "G1": {
-  "L": {
-   "changedPx": 2348,
-   "meanDL": 1.355
-  },
-  "R": {
-   "changedPx": 2240,
-   "meanDL": 1.378
-  }
+ "storeShas": {
+  "pre00": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818",
+  "pre06": "753a3ac7f20d636687baa085bd612337e057e964daa6128f8f062701222bd5a3",
+  "post00": "3c0a1a661cb8cb285ef7e5e4e5ab01677a7b865875c833f2321e89cf4215fd65",
+  "post06": "212467d921cede3c822d8c53b82211325d75768353fd4d3073b644ce483cc9db",
+  "optA00": "5c7f444e0209e03cd32d13e29363c7435b5843cfdfa95d60a0a5b0616034b4e1"
  },
- "G1Note": "Recomputed CURRENT from new SAME h100/h106 pair (old values were L 2358/1.377, R 2246/1.424 from the spiked old dataset - never repainted). Fixed crops/seeds/thresholds unchanged, no parameter fishing.",
- "G2": {
-  "L": {
-   "blobCentroid": [
-    495.0,
-    638.7
-   ],
-   "blobCount": 44,
-   "blobMeanL00": 221.1,
-   "blobMeanL06": 235.5,
-   "dilation": 8,
-   "seed": [
-    515,
-    658
-   ],
-   "silBbox": [
-    441,
-    614,
-    582,
-    693
-   ],
-   "silPx": 6683,
-   "threshold": 200
-  },
-  "R": {
-   "blobCentroid": [
-    786.6,
-    637.4
-   ],
-   "blobCount": 11,
-   "blobMeanL00": 217.1,
-   "blobMeanL06": 232.6,
-   "dilation": 8,
-   "seed": [
-    775,
-    650
-   ],
-   "silBbox": [
-    697,
-    614,
-    838,
-    692
-   ],
-   "silPx": 6746,
-   "threshold": 200
-  }
- },
- "G2Note": "Recomputed CURRENT from new pair: silhouettes identical (6683/6746), blobs present + contiguous (L largest-cluster 42/44, R 8/11 >= 80% floor). Counts/centroids updated to actuals; quality clauses unchanged (blob>0, connected, near-white vs sclera median, see h1).",
  "h1": {
-  "CW1": {
-   "cheek": {
-    "h100vsPreChanged": 0,
-    "h100vsPreMeanDL": 0.0
+  "renders": {
+   "h100": {
+    "png": "catch-eye00-front.png",
+    "sha256": "3c0a1a661cb8cb285ef7e5e4e5ab01677a7b865875c833f2321e89cf4215fd65"
    },
-   "forehead": {
-    "h100vsPreChanged": 0,
-    "h100vsPreMeanDL": 0.0
+   "h106": {
+    "png": "catch-eye06-front.png",
+    "sha256": "bb42e0ba4db9a479f8895223004b3ef8f312141593161957b9cf822347bb2077"
    }
   },
-  "CW2": {
-   "h100EyeEnvMapIntensity": 0,
-   "h106EyeEnvMapIntensity": 0.6,
-   "h106GlobeEnvMap": {
-    "envMapSet": true,
-    "matched": [
-     "mpfb_ob_patient_aisha_v1_body_meshlow-poly|mat_makeclothes_library_eyes_ob_patient_aisha_v1"
-    ],
-    "roughnessDisc": {
-     "featherUv": 0.029296875,
-     "inner": 0.12,
-     "outer": 1,
-     "radiusUv": 0.1318359375
-    }
-   },
-   "h1EyeRoughnessScalar": 0.5
-  },
+  "cause": "globe roughness scalar 0.5 (readback, unchanged); effective iris-disc roughness 0.5 -> 0.06 via procedural roughnessMap texel 0.12 (productRig.roughnessDisc readback); no cornea mesh in 16-slot material inventory (1 eye slot, 0 cornea)",
   "G2": {
    "L": {
-    "centroidInDisc": true,
-    "eyeCropChanged": 2348,
-    "irisCircle": {
-     "cx": 512.9,
-     "cy": 650.1,
-     "r": 17.8
-    },
-    "scleraDelta": 1.65,
-    "scleraMeanL00": 83.52,
-    "scleraMeanL06": 85.18,
-    "scleraMedianL00": 84.4,
-    "scleraPx": 3310,
+    "spotPx": 88,
     "spotCentroid": [
      514.2,
      644.9
     ],
-    "spotFracOfDisc": 0.0879,
     "spotMaxL": 89.9,
-    "spotPx": 88
+    "irisCircle": {
+     "cx": 512.9,
+     "cy": 650.1,
+     "r": 17.9
+    },
+    "centroidInDisc": true,
+    "spotFracOfDisc": 0.0878,
+    "scleraPx": 3317,
+    "scleraMedianL00": 84.5,
+    "scleraMeanL00": 83.58,
+    "scleraMeanL06": 85.15,
+    "scleraDelta": 1.57,
+    "eyeCropChanged": 2357
    },
    "R": {
-    "centroidInDisc": true,
-    "eyeCropChanged": 2240,
+    "spotPx": 86,
+    "spotCentroid": [
+     763.5,
+     644.9
+    ],
+    "spotMaxL": 89.9,
     "irisCircle": {
      "cx": 765.3,
      "cy": 651.0,
      "r": 16.0
     },
-    "scleraDelta": 1.9,
-    "scleraMeanL00": 82.5,
-    "scleraMeanL06": 84.4,
+    "centroidInDisc": true,
+    "spotFracOfDisc": 0.107,
+    "scleraPx": 2420,
     "scleraMedianL00": 83.2,
-    "scleraPx": 2416,
-    "spotCentroid": [
-     763.4,
-     644.9
-    ],
-    "spotFracOfDisc": 0.1084,
-    "spotMaxL": 89.9,
-    "spotPx": 87
+    "scleraMeanL00": 82.56,
+    "scleraMeanL06": 84.37,
+    "scleraDelta": 1.81,
+    "eyeCropChanged": 2245
    }
   },
-  "cause": "globe roughness scalar 0.5 (readback, unchanged); effective iris-disc roughness 0.5 -> 0.06 via procedural roughnessMap texel 0.12 (productRig.roughnessDisc readback); no cornea mesh in 16-slot material inventory (1 eye slot, 0 cornea)",
-  "renders": {
-   "h100": {
-    "png": "h100-legacy-d1fe7fdc-front.png",
-    "sha256": "d1fe7fdcb584634d384a964bf2ad8dc46b49d6618e8a0d79b83e0f3a9bd248df"
+  "CW1": {
+   "cheek": {
+    "h100vsPreChanged": 0,
+    "h100vsPreMeanDL": 0
    },
-   "h106": {
-    "png": "h106-legacy-16dbb922-front.png",
-    "sha256": "16dbb922cd9129296b7de4cb42492e34d25c09f38688773dc4638abf236f689e"
+   "forehead": {
+    "h100vsPreChanged": 0,
+    "h100vsPreMeanDL": 0
    }
   },
-  "stage": "current-integrated-h1 (SAME new h100/h106 copies as top-level post00/post06; intent both scoped env-response + specialized spot quality)",
-  "store": "/Volumes/files/openclinxr-assets/store/eye-catchlight/ci-closure-20261021-d1fe7fdc-16dbb922",
-  "storeShas": {
-   "h100": "d1fe7fdcb584634d384a964bf2ad8dc46b49d6618e8a0d79b83e0f3a9bd248df",
-   "h106": "16dbb922cd9129296b7de4cb42492e34d25c09f38688773dc4638abf236f689e"
+  "CW2": {
+   "h106GlobeEnvMap": {
+    "matched": [
+     "mpfb_ob_patient_aisha_v1_body_meshlow-poly|mat_makeclothes_library_eyes_ob_patient_aisha_v1"
+    ],
+    "envMapSet": true,
+    "roughnessDisc": {
+     "inner": 0.12,
+     "outer": 1,
+     "radiusUv": 0.1318359375,
+     "featherUv": 0.029296875,
+     "upload": {
+      "length": 262144,
+      "width": 256,
+      "height": 256,
+      "irisGL": 31,
+      "irisGR": 31,
+      "trapL": 255,
+      "trapR": 255
+     },
+     "note": "radii are the fossil h106 render's own construction (135/1024); the fixed source builds 133.5/1024 (cause test pins the source literals). upload is the live fixed-source texture readback: G=31 at the true F-bake iris centres, 255 at the old v-mirrored trap UVs."
+    }
+   },
+   "h106EyeEnvMapIntensity": 0.6,
+   "h100EyeEnvMapIntensity": 0,
+   "h1EyeRoughnessScalar": 0.5
   },
+  "store": "/Volumes/files/openclinxr-assets/store/eye-catchlight/h1/",
   "spotThresholdDeltaLStar": 25,
-  "irisCoreThresholdLStar": 45
- },
- "module": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts",
- "moduleSha256": "d5a70ff46282cb5e919395fe00025d7cc5ecbca56fd8f7470e01a067a856a56a",
- "renders": {
-  "post00": {
-   "png": "h100-legacy-d1fe7fdc-front.png",
-   "sha256": "d1fe7fdcb584634d384a964bf2ad8dc46b49d6618e8a0d79b83e0f3a9bd248df"
-  },
-  "post06": {
-   "png": "h106-legacy-16dbb922-front.png",
-   "sha256": "16dbb922cd9129296b7de4cb42492e34d25c09f38688773dc4638abf236f689e"
-  },
-  "pre00": {
-   "png": "pre-catch-eye00-front.png",
-   "sha256": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818"
-  },
-  "pre06": {
-   "png": "pre-catch-eye06-front.png",
-   "sha256": "753a3ac7f20d636687baa085bd612337e057e964daa6128f8f062701222bd5a3"
-  },
-  "optA00": {
-   "png": "optA-unscoped-catch-eye00-front.png",
-   "sha256": "5c7f444e0209e03cd32d13e29363c7435b5843cfdfa95d60a0a5b0616034b4e1"
+  "irisCoreThresholdLStar": 45,
+  "storeShas": {
+   "h100": "3c0a1a661cb8cb285ef7e5e4e5ab01677a7b865875c833f2321e89cf4215fd65",
+   "h106": "bb42e0ba4db9a479f8895223004b3ef8f312141593161957b9cf822347bb2077"
   }
  },
- "rendersNote": "post00 = ACTUAL h100 capture bytes (renamed alias, pixels unedited) + its SAME capture JSON as catch-eye00.json; post06 = ACTUAL h106 likewise. No counterfeit post00 record. Old corrupt off-PNGs (3c0a spike) never repainted, not referenced.",
- "sourceRevalidation": {
-  "capturedSourceSHA": "d5a70ff46282cb5e919395fe00025d7cc5ecbca56fd8f7470e01a067a856a56a",
-  "currentSourceSHA": "b28e26cae53d7b5971e274fcdc3000f2f9eff6628e2160e4967da400968e1d9b",
-  "exactSinglePropertyAccessSyntaxReplacement": {
-   "bracketFormCurrent": "if (light.userData?.[\"openClinXrLightingRig\"] !== true) continue;",
-   "dotFormCaptured": "if (light.userData?.openClinXrLightingRig !== true) continue;",
-   "reversibleCheck": "sha256(currentDiskSource with EXACTLY ONE bracket->dot replacement) must equal capturedSourceSHA; any other count or inexact replacement must fail",
-   "scope": "exactly one line; no other bytes differ per git diff --numstat 1 1"
+ "h2": {
+  "renders": {
+   "h206": {
+    "png": "catch-eye06-front.png",
+    "sha256": "52d69e412ff948f52dc7868c6c88150ce891381df015a5b13ef3c66a1ffb4977"
+   }
   },
-  "moduleSha256PreservedAsCapture": true,
-  "noRecaptureClaim": true,
-  "provenance": "worker-verified 20261021: disk sha256 == currentSourceSHA (b28e26ca...), exactly 1 bracket form + 0 dot forms (grep), capture pin preserved. No pixel re-run claimed."
+  "cause": "globe env = RoomEnvironment + one small high-intensity white quad (2.0 units at (1.0,5.0,8.5) above-front, MeshBasicMaterial HDR 500, DoubleSide, lookAt origin) PMREM sigma 0.04; scoped to globe via material.envMap (no scene.environment); iris-disc roughnessMap unchanged (0.06 effective)",
+  "G2": {
+   "L": {
+    "hot230": 93,
+    "hotCluster": 70,
+    "hotCentroid": [
+     517.5,
+     647.4
+    ],
+    "spotMaxLum": 254.2,
+    "meansat": 0.6419,
+    "irisCircle": {
+     "cx": 512.9,
+     "cy": 650.1,
+     "r": 17.9
+    },
+    "centroidInDisc": true,
+    "distFromCentre": 5.4,
+    "spotFracOfDisc": 0.0698,
+    "ringMeanL": 65.6,
+    "ringDeltaOld": 6.6
+   },
+   "R": {
+    "hot230": 74,
+    "hotCluster": 70,
+    "hotCentroid": [
+     766.6,
+     647.3
+    ],
+    "spotMaxLum": 255,
+    "meansat": 0.6665,
+    "irisCircle": {
+     "cx": 765.3,
+     "cy": 651.0,
+     "r": 16.0
+    },
+    "centroidInDisc": true,
+    "distFromCentre": 3.9,
+    "spotFracOfDisc": 0.0871,
+    "ringMeanL": 56.4,
+    "ringDeltaOld": 9.8
+   }
+  },
+  "CW1": {
+   "cheek": {
+    "h206vsPreChanged": 0,
+    "h206vsPreMeanDL": 0
+   },
+   "forehead": {
+    "h206vsPreChanged": 0,
+    "h206vsPreMeanDL": 0
+   }
+  },
+  "counterweight": {
+   "oldH106": {
+    "L": {
+     "hot230": 5,
+     "hotCluster": 4
+    },
+    "R": {
+     "hot230": 4,
+     "hotCluster": 3
+    }
+   },
+   "note": "same 230+ in-disc cluster metric on the soft-room h106 render: 4/3 px, no crisp dot \u2014 the h2 gate (cluster >= 20, pinned 70/70) fails on the old env"
+  },
+  "visualGrade": "crisp white dot, upper iris, both eyes; limbus boundary clean (soft halo only, no bright ring); sclera unglazed; background unchanged (quad lives in the PMREM env scene only)",
+  "store": "/Volumes/files/openclinxr-assets/store/eye-catchlight/h2/",
+  "thresholdLuminance": 230,
+  "irisCoreThresholdLStar": 45,
+  "storeShas": {
+   "h206": "52d69e412ff948f52dc7868c6c88150ce891381df015a5b13ef3c66a1ffb4977"
+  }
  },
- "store": "/Volumes/files/openclinxr-assets/store/eye-catchlight/ci-closure-20261021-d1fe7fdc-16dbb922",
- "storeNote": "Unique content-labelled dir; preserves all old/spike files (nothing overwritten). Old pre pair copied byte-exact (SHAs verify). New PNGs are rename-aliases (pixels unedited); actual JSON record bytes copied unchanged under test-expected names (catch-eye00.json/catch-eye06.json) AND source-stem names for suffix-convention loaders.",
- "storeShas": {
-  "post00": "d1fe7fdcb584634d384a964bf2ad8dc46b49d6618e8a0d79b83e0f3a9bd248df",
-  "post06": "16dbb922cd9129296b7de4cb42492e34d25c09f38688773dc4638abf236f689e",
-  "pre00": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818",
-  "pre06": "753a3ac7f20d636687baa085bd612337e057e964daa6128f8f062701222bd5a3",
-  "optA00": "5c7f444e0209e03cd32d13e29363c7435b5843cfdfa95d60a0a5b0616034b4e1"
+ "discMap": {
+  "module": "packages/openclinxr/xr-scene/src/eye-shader/iris-disc-roughness-map.ts",
+  "moduleSha256": "0bb03961038add75af541cf35aac0d3e3ea7207d7bde41a64be58825e055ec9b",
+  "note": "budget-split owner of the F-bake iris-disc numerals, the RGBA upload, and the texel readback; pinned alongside the rig module because every gated render samples it"
  },
- "subject": {
-  "eyeMaterial": "mat_makeclothes_library_eyes_ob_patient_aisha_v1",
-  "eyeMatch": "library_eyes",
-  "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-  "portrait": true,
-  "productEnvironmentId": "ob_triage_room_v1",
-  "renderSize": 1280,
-  "view": "front"
+ "moduleSha256PreservedAsCapture": true,
+ "noRecaptureClaim": true,
+ "sourceRevalidation": {
+  "capturedSourceSHA": "2a926b284186acf884674b33377a03a261ba24c1f8cf3e09d14d668e80de6359",
+  "currentSourceSHA": "e203139de2fa1aaf0ec2149e1471d4fe487dedbadfcaaea3b0cdc37eb20439f2",
+  "exactSinglePropertyAccessSyntaxReplacement": {
+   "bracketLine": 1,
+   "dotLine": 0,
+   "fullReversalCount": 1,
+   "reversalYieldMismatches": 0,
+   "noOtherBytesDiffer": true
+  },
+  "note": "Merged renderer differs from captured producer by exactly one semantics-identical bracket-vs-dot property-access line; full reversal yields captured bytes with zero other differences per parent proof. Origin root measurements (h1/h2/discMap/room05/G1/G2/CW) remain valid under the equivalent producer. No new capture claimed."
  },
- "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/catchlight",
- "optAScope": "Historic 8807 alternative-global-env (scene.environment) negative control: optA lit all skin (cheek 8000px/19.434, forehead 19200px/13.74). Values byte-carried from archived report; optA PNG copied byte-exact from old store under unique name, NOT relabelled as fresh capture, NOT re-measured."
+ "historicalRequalifications": [
+  {
+   "originalSerializedSHA256": "51094ef24e97c9c469981a00f23ed43e380f3b79466d1a357f88b6a6b12ca45d",
+   "snapshotCommit": "427b87e0c7d52bbfe5fbc7ab4a471b327610b741",
+   "epoch": "older-premerge-producer/geometry",
+   "historicalOnly": true,
+   "notEvidenceFor": "merged/current renderer",
+   "report": {
+    "_candidateNote": "CANDIDATE for MAIN packages/openclinxr/xr-scene/src/cornea-env/catchlight-report.json. Genuine CURRENT requalification from ACTUAL fresh paired captures (captures-both-v2). NOT a reproduction of old hashes: post00/post06 are the new h100/h106 dataset (GLB 7632, legacy PRE eyeRuntimeShading:false). Old pre-envmap PNG pair retained byte-exact as NEGATIVE falsifier control; old G1/h1 report archived byte-exact at history/15733cd45c227d407e9978a79d54f2a1b573cc25dc159950eafba83c4b8a274a-catchlight-report.json.",
+    "card": "tsk_e248d339fd18da20",
+    "crops": {
+     "Leye": [
+      415,
+      558,
+      615,
+      758
+     ],
+     "Reye": [
+      675,
+      550,
+      875,
+      750
+     ],
+     "cheek": [
+      450,
+      800,
+      550,
+      880
+     ],
+     "forehead": [
+      560,
+      380,
+      720,
+      500
+     ]
+    },
+    "currentRun": {
+     "notEvidenceFor": "This report is NOT evidence for the current default new eye-shader, Quest, or clinical readiness. It validates ONLY the pinned legacy PRE component (eyeRuntimeShading:false, documented app spec) env-response + specialized spot quality. Current production new-shading default is UNCHANGED and NOT validated here.",
+     "priorReportSha256": "15733cd45c227d407e9978a79d54f2a1b573cc25dc159950eafba83c4b8a274a",
+     "dataset": "cornea-legacy-recapture-fix/captures-both-v2: ONE shared Main Aisha 7632 buffer, one browser lease, pinned legacy PRE component, eyeRuntimeShading:false",
+     "datasetKind": "genuine-current-requalification-NOT-old-hash-reproduction",
+     "falsifierInput": "historic falsifier = ORIGINAL pre-envmap pair (8807 framework era), archived byte-exact; verdict premise_holds preserved",
+     "glbSha256": "763214e8661554ef380a0905aba8edcd76b2045fdeaa6f0fcd48d20f94537a56",
+     "inputs": {
+      "newH100Json": "8f07ceb0121dec3fe2c4921a884714c2b2385bd144e3f47ade0110d3fe0c875a",
+      "newH100Png": "d1fe7fdcb584634d384a964bf2ad8dc46b49d6618e8a0d79b83e0f3a9bd248df",
+      "newH106Json": "f543f68ce5e7a54aad5bd6d0742e877e8d2eb76f84992c50a24bdaf64e815c36",
+      "newH106Png": "16dbb922cd9129296b7de4cb42492e34d25c09f38688773dc4638abf236f689e",
+      "oldPre00Png": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818",
+      "oldPre06Png": "753a3ac7f20d636687baa085bd612337e057e964daa6128f8f062701222bd5a3"
+     },
+     "landedChecks": [
+      "threeRevision=184",
+      "toneMapping=4",
+      "exposure=0.9 (rig file)",
+      "rigApplied=true variant=raised_hemisphere_ground",
+      "globeMatched=mpfb_ob_patient_aisha_v1_body_meshlow-poly|mat_makeclothes_library_eyes_ob_patient_aisha_v1",
+      "disc=0.12/1/0.1318359375/0.029296875",
+      "eyeShading.enabled=false (legacy PRE)",
+      "library_eyes envMapIntensity=0 (h100) / 0.6 (h106)",
+      "spec.eyeRuntimeShading=false pinned"
+     ],
+     "measureProducer": "OWN measure-cornea-current.mts",
+     "measureProducerSha256": "53802dba0f541f7445db668ea5c4c5fd6efc77c0cae90496ba922c03fb95a753",
+     "postInput": "current post-integrated input = SAME new h100/h106 pair for top-level G1/G2/CW1/CW2 AND h1 (stage: current-integrated-h1), GLB 7632 derivative, truthfully scoped, never relabelled as old geometry"
+    },
+    "CW1": {
+     "cheek": {
+      "post00Changed": 0,
+      "post00MeanDL": 0.0,
+      "post06Changed": 0,
+      "post06MeanDL": 0.0,
+      "optAChanged": 8000,
+      "optAMeanDL": 19.434
+     },
+     "forehead": {
+      "post00Changed": 0,
+      "post00MeanDL": 0.0,
+      "post06Changed": 0,
+      "post06MeanDL": 0.0,
+      "optAChanged": 19200,
+      "optAMeanDL": 13.74
+     }
+    },
+    "CW2": {
+     "post00EnvironmentMap": false,
+     "post00EyeEnvMapIntensity": 0,
+     "post06EnvironmentMap": false,
+     "post06EyeEnvMapIntensity": 0.6,
+     "post06GlobeEnvMap": {
+      "envMapSet": true,
+      "matched": [
+       "mpfb_ob_patient_aisha_v1_body_meshlow-poly|mat_makeclothes_library_eyes_ob_patient_aisha_v1"
+      ]
+     },
+     "preEnvironmentMap": false
+    },
+    "envSource": "PMREM of three RoomEnvironment (same mechanism + sigma 0.04 as the studio path), scoped to the globe via material.envMap (no scene.environment)",
+    "envSourceWhy": "three r184 refreshes the envMapIntensity shader uniform only when material.envMap is set (WebGLMaterials.js refreshUniformsStandard + Lambert/Phong refreshers); scene.environment alone leaves globe intensity stuck at 1.0. scene.environment would also light all skin (measured optA, archived in prior report).",
+    "faceCrop": [
+     326,
+     220,
+     953,
+     1059
+    ],
+    "faceP99": 231.48,
+    "faceP99Note": "231.48 preserved: recomputed from OLD pre00 AND new h106 face crops both give 231.4762 (skin counterweights hold pixel-identical); NOT loosened from any blown-out post.",
+    "falsifier": {
+     "pre00vsPre06ChangedTotal": 16,
+     "pre00vsPre06EyeBandChanged": 0,
+     "verdict": "premise_holds"
+    },
+    "G1": {
+     "L": {
+      "changedPx": 2348,
+      "meanDL": 1.355
+     },
+     "R": {
+      "changedPx": 2240,
+      "meanDL": 1.378
+     }
+    },
+    "G1Note": "Recomputed CURRENT from new SAME h100/h106 pair (old values were L 2358/1.377, R 2246/1.424 from the spiked old dataset - never repainted). Fixed crops/seeds/thresholds unchanged, no parameter fishing.",
+    "G2": {
+     "L": {
+      "blobCentroid": [
+       495.0,
+       638.7
+      ],
+      "blobCount": 44,
+      "blobMeanL00": 221.1,
+      "blobMeanL06": 235.5,
+      "dilation": 8,
+      "seed": [
+       515,
+       658
+      ],
+      "silBbox": [
+       441,
+       614,
+       582,
+       693
+      ],
+      "silPx": 6683,
+      "threshold": 200
+     },
+     "R": {
+      "blobCentroid": [
+       786.6,
+       637.4
+      ],
+      "blobCount": 11,
+      "blobMeanL00": 217.1,
+      "blobMeanL06": 232.6,
+      "dilation": 8,
+      "seed": [
+       775,
+       650
+      ],
+      "silBbox": [
+       697,
+       614,
+       838,
+       692
+      ],
+      "silPx": 6746,
+      "threshold": 200
+     }
+    },
+    "G2Note": "Recomputed CURRENT from new pair: silhouettes identical (6683/6746), blobs present + contiguous (L largest-cluster 42/44, R 8/11 >= 80% floor). Counts/centroids updated to actuals; quality clauses unchanged (blob>0, connected, near-white vs sclera median, see h1).",
+    "h1": {
+     "CW1": {
+      "cheek": {
+       "h100vsPreChanged": 0,
+       "h100vsPreMeanDL": 0.0
+      },
+      "forehead": {
+       "h100vsPreChanged": 0,
+       "h100vsPreMeanDL": 0.0
+      }
+     },
+     "CW2": {
+      "h100EyeEnvMapIntensity": 0,
+      "h106EyeEnvMapIntensity": 0.6,
+      "h106GlobeEnvMap": {
+       "envMapSet": true,
+       "matched": [
+        "mpfb_ob_patient_aisha_v1_body_meshlow-poly|mat_makeclothes_library_eyes_ob_patient_aisha_v1"
+       ],
+       "roughnessDisc": {
+        "featherUv": 0.029296875,
+        "inner": 0.12,
+        "outer": 1,
+        "radiusUv": 0.1318359375
+       }
+      },
+      "h1EyeRoughnessScalar": 0.5
+     },
+     "G2": {
+      "L": {
+       "centroidInDisc": true,
+       "eyeCropChanged": 2348,
+       "irisCircle": {
+        "cx": 512.9,
+        "cy": 650.1,
+        "r": 17.8
+       },
+       "scleraDelta": 1.65,
+       "scleraMeanL00": 83.52,
+       "scleraMeanL06": 85.18,
+       "scleraMedianL00": 84.4,
+       "scleraPx": 3310,
+       "spotCentroid": [
+        514.2,
+        644.9
+       ],
+       "spotFracOfDisc": 0.0879,
+       "spotMaxL": 89.9,
+       "spotPx": 88
+      },
+      "R": {
+       "centroidInDisc": true,
+       "eyeCropChanged": 2240,
+       "irisCircle": {
+        "cx": 765.3,
+        "cy": 651.0,
+        "r": 16.0
+       },
+       "scleraDelta": 1.9,
+       "scleraMeanL00": 82.5,
+       "scleraMeanL06": 84.4,
+       "scleraMedianL00": 83.2,
+       "scleraPx": 2416,
+       "spotCentroid": [
+        763.4,
+        644.9
+       ],
+       "spotFracOfDisc": 0.1084,
+       "spotMaxL": 89.9,
+       "spotPx": 87
+      }
+     },
+     "cause": "globe roughness scalar 0.5 (readback, unchanged); effective iris-disc roughness 0.5 -> 0.06 via procedural roughnessMap texel 0.12 (productRig.roughnessDisc readback); no cornea mesh in 16-slot material inventory (1 eye slot, 0 cornea)",
+     "renders": {
+      "h100": {
+       "png": "h100-legacy-d1fe7fdc-front.png",
+       "sha256": "d1fe7fdcb584634d384a964bf2ad8dc46b49d6618e8a0d79b83e0f3a9bd248df"
+      },
+      "h106": {
+       "png": "h106-legacy-16dbb922-front.png",
+       "sha256": "16dbb922cd9129296b7de4cb42492e34d25c09f38688773dc4638abf236f689e"
+      }
+     },
+     "stage": "current-integrated-h1 (SAME new h100/h106 copies as top-level post00/post06; intent both scoped env-response + specialized spot quality)",
+     "store": "/Volumes/files/openclinxr-assets/store/eye-catchlight/ci-closure-20261021-d1fe7fdc-16dbb922",
+     "storeShas": {
+      "h100": "d1fe7fdcb584634d384a964bf2ad8dc46b49d6618e8a0d79b83e0f3a9bd248df",
+      "h106": "16dbb922cd9129296b7de4cb42492e34d25c09f38688773dc4638abf236f689e"
+     },
+     "spotThresholdDeltaLStar": 25,
+     "irisCoreThresholdLStar": 45
+    },
+    "module": "packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts",
+    "moduleSha256": "d5a70ff46282cb5e919395fe00025d7cc5ecbca56fd8f7470e01a067a856a56a",
+    "renders": {
+     "post00": {
+      "png": "h100-legacy-d1fe7fdc-front.png",
+      "sha256": "d1fe7fdcb584634d384a964bf2ad8dc46b49d6618e8a0d79b83e0f3a9bd248df"
+     },
+     "post06": {
+      "png": "h106-legacy-16dbb922-front.png",
+      "sha256": "16dbb922cd9129296b7de4cb42492e34d25c09f38688773dc4638abf236f689e"
+     },
+     "pre00": {
+      "png": "pre-catch-eye00-front.png",
+      "sha256": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818"
+     },
+     "pre06": {
+      "png": "pre-catch-eye06-front.png",
+      "sha256": "753a3ac7f20d636687baa085bd612337e057e964daa6128f8f062701222bd5a3"
+     },
+     "optA00": {
+      "png": "optA-unscoped-catch-eye00-front.png",
+      "sha256": "5c7f444e0209e03cd32d13e29363c7435b5843cfdfa95d60a0a5b0616034b4e1"
+     }
+    },
+    "rendersNote": "post00 = ACTUAL h100 capture bytes (renamed alias, pixels unedited) + its SAME capture JSON as catch-eye00.json; post06 = ACTUAL h106 likewise. No counterfeit post00 record. Old corrupt off-PNGs (3c0a spike) never repainted, not referenced.",
+    "sourceRevalidation": {
+     "capturedSourceSHA": "d5a70ff46282cb5e919395fe00025d7cc5ecbca56fd8f7470e01a067a856a56a",
+     "currentSourceSHA": "b28e26cae53d7b5971e274fcdc3000f2f9eff6628e2160e4967da400968e1d9b",
+     "exactSinglePropertyAccessSyntaxReplacement": {
+      "bracketFormCurrent": "if (light.userData?.[\"openClinXrLightingRig\"] !== true) continue;",
+      "dotFormCaptured": "if (light.userData?.openClinXrLightingRig !== true) continue;",
+      "reversibleCheck": "sha256(currentDiskSource with EXACTLY ONE bracket->dot replacement) must equal capturedSourceSHA; any other count or inexact replacement must fail",
+      "scope": "exactly one line; no other bytes differ per git diff --numstat 1 1"
+     },
+     "moduleSha256PreservedAsCapture": true,
+     "noRecaptureClaim": true,
+     "provenance": "worker-verified 20261021: disk sha256 == currentSourceSHA (b28e26ca...), exactly 1 bracket form + 0 dot forms (grep), capture pin preserved. No pixel re-run claimed."
+    },
+    "store": "/Volumes/files/openclinxr-assets/store/eye-catchlight/ci-closure-20261021-d1fe7fdc-16dbb922",
+    "storeNote": "Unique content-labelled dir; preserves all old/spike files (nothing overwritten). Old pre pair copied byte-exact (SHAs verify). New PNGs are rename-aliases (pixels unedited); actual JSON record bytes copied unchanged under test-expected names (catch-eye00.json/catch-eye06.json) AND source-stem names for suffix-convention loaders.",
+    "storeShas": {
+     "post00": "d1fe7fdcb584634d384a964bf2ad8dc46b49d6618e8a0d79b83e0f3a9bd248df",
+     "post06": "16dbb922cd9129296b7de4cb42492e34d25c09f38688773dc4638abf236f689e",
+     "pre00": "961906d2d2993fb119d6124961aae8b982eb1195cec4bc02916c273b453c9818",
+     "pre06": "753a3ac7f20d636687baa085bd612337e057e964daa6128f8f062701222bd5a3",
+     "optA00": "5c7f444e0209e03cd32d13e29363c7435b5843cfdfa95d60a0a5b0616034b4e1"
+    },
+    "subject": {
+     "eyeMaterial": "mat_makeclothes_library_eyes_ob_patient_aisha_v1",
+     "eyeMatch": "library_eyes",
+     "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+     "portrait": true,
+     "productEnvironmentId": "ob_triage_room_v1",
+     "renderSize": 1280,
+     "view": "front"
+    },
+    "worktree": "/Users/patrick/.grok/worktrees/src-openclinxr/catchlight",
+    "optAScope": "Historic 8807 alternative-global-env (scene.environment) negative control: optA lit all skin (cheek 8000px/19.434, forehead 19200px/13.74). Values byte-carried from archived report; optA PNG copied byte-exact from old store under unique name, NOT relabelled as fresh capture, NOT re-measured."
+   }
+  }
+ ]
 }

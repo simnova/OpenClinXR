@@ -13,6 +13,7 @@ import {
   footBaseRowAt,
   footBaseScheduleStance,
 } from "./foot-base-schedule-mod.js";
+import { finishSplitStancePin, splitStanceHoldBandM } from "./foot-base-split-stance-mod.js";
 import {
   type FootBaseApproachState,
   type FootBaseClipRead,
@@ -20,11 +21,11 @@ import {
   getOrCreateFootBaseState,
   heelWorldNow,
   noteFirstHandoverPlant,
-  seedFirstPlantAtTouchdown,
   toeWorldNow,
 } from "./foot-base-state-mod.js";
 import { resolveRigFootGeometry } from "./foot-rig-geometry-mod.js";
 import { FOOTSTEP_START_PHASE_S, planFootsteps } from "./footstep-plan-schedule.js";
+import { applyPostPinHeelStrikeCap, revertHeelStrikeCapForToes } from "./heel-strike-cap-mod.js";
 import {
   findSteppingLegChain,
   heelTargetForToeTargetStable,
@@ -102,7 +103,6 @@ export {
 
 /** This slice's original route length in metres (kept for the 1.31 m record). */
 export const FOOT_BASE_ROUTE_LENGTH_M = 1.31;
-
 /** Legacy route match tolerance in metres (kept; the gate no longer uses it). */
 export const FOOT_BASE_ROUTE_TOLERANCE_M = 0.005;
 
@@ -110,12 +110,10 @@ export const FOOT_BASE_ROUTE_TOLERANCE_M = 0.005;
  * Solved 1.31 m plan scale (planFootsteps: 3 halves, (1.31 - 0.4156) / 1.265):
  * the foothold spacing when no live plan state is captured (flag without plan).
  */
-export const FOOT_BASE_DEFAULT_SCALE = 0.707;
+export const FOOT_BASE_DEFAULT_SCALE = Math.SQRT1_2;
 
-/** State lives in `./foot-base-state-mod.js` and the route gate in
- * `./foot-base-route-gate-mod.js` (both split out for the 500-line zone
- * budget); the gate is re-exported here so existing deep importers keep
- * working. Behaviour is unchanged. */
+/** State/state-mod, route gate/route-gate-mod (both split out for the zone
+ * budget); the gate is re-exported for deep importers. Unchanged. */
 import { footBaseStepIsActive } from "./foot-base-route-gate-mod.js";
 import { footBaseActiveFor } from "./rig-capability-gate-mod.js";
 
@@ -144,6 +142,7 @@ export function applyFootBaseStep(input: {
   clip: FootBaseClipRead | null;
 }): FootBaseStepSummary | null {
   const { approach, routeLength } = input;
+  revertHeelStrikeCapForToes([approach.leftToe, approach.rightToe]); // heel-strike: restore solver-invariant bones first (mixer re-pose makes this a no-op in production)
   if (!footBaseActiveFor(approach.actorSlot, routeLength)) return null;
   if (approach.execution.phase !== "walking" || routeLength <= 0) return null;
   // The first walking frame still holds the idle pose (the lock skips it and
@@ -291,7 +290,7 @@ export function applyFootBaseStep(input: {
     phase01,
     lastToeY: state.lastToeY,
     floorY,
-    bandM: approach.contactBandMeters,
+    bandM: splitStanceHoldBandM(approach.contactBandMeters, steps),
   })
     .filter((side) => !scheduledPin.includes(side))
     // Knee-budget hold exemption (see `prevClamped`): a foot the budget
@@ -463,37 +462,16 @@ export function applyFootBaseStep(input: {
   // foot fighting the mixer's swing pose, or a fresh landing, can carry a cm
   // miss while the settled foot's is mm). Single support is one pin either
   // way; all-single-miss ties keep role order (stable sort).
-  pinQueue.sort((a, b) => b.missM - a.missM);
-  for (const { side } of pinQueue) {
-    // THE SLOT PIN: exact rigid translate of the pinned toe onto its
-    // foothold.
-    const toeNow = toeWorldNow(side === "left" ? approach.leftToe : approach.rightToe);
-    const anchor = state.foothold[side];
-    if (toeNow !== null) {
-      slot.position.x += anchor.x - toeNow.x;
-      slot.position.z += anchor.z - toeNow.z;
-      slot.updateMatrixWorld(true);
-    }
-  }
-  // First-plant seed (handover slice): snap the provisional grid plant to the
-  // actual touchdown once (gated at 1 mm; the miss is re-anchored next plant).
-  seedFirstPlantAtTouchdown({
-    state,
-    stance,
-    leftToe: approach.leftToe,
-    rightToe: approach.rightToe,
-    startX: approach.start.x,
-    startZ: approach.start.z,
-    unitX,
-    unitZ,
-    floorY,
-    bandM: approach.contactBandMeters,
+  // Split-stance pins live in `./foot-base-split-stance-mod.js` (2-half only);
+  // the whole post-solve pin-phase tail (pin pass, first-plant seed,
+  // band-hold signal, TEMP tap record) lives there too, to hold this file's
+  // 500-line zone budget. Order inside is unchanged.
+  finishSplitStancePin({
+    slot, state, approach, pinQueue, steps,
+    pinTargetFor, sub, scheduled, stance, pinned, swingMissM,
+    unitX, unitZ, floorY,
   });
-  // Band-hold signal for the next substep (consumed one frame later).
-  for (const side of ["left", "right"] as const) {
-    const toe = toeWorldNow(side === "left" ? approach.leftToe : approach.rightToe);
-    state.lastToeY[side] = toe?.y ?? null;
-  }
+  applyPostPinHeelStrikeCap(slot, swing, swingLinear, floorY, approach.contactBandMeters); // heel-strike: post-pin swing pitch cap + late-landing grace, stance exact
   slot.updateMatrixWorld(true);
   return { stanceFoot: stance, phase01, halfIndex, stanceMissM, swingMissM };
 }

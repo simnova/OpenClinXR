@@ -38,6 +38,9 @@ const REPO_ROOT = resolve(join(dirname(fileURLToPath(import.meta.url)), "../../.
 
 function gitLines(args: string[], opts: { cwd?: string; env?: NodeJS.ProcessEnv } = {}): string[] {
   try {
+    // hx-paths gate fix: under a pre-commit hook git exports
+    // GIT_DIR/GIT_INDEX_FILE, which override cwd and drove the host repo
+    // (bare flip, 4k staged deletions). Scrub here and in routed exec below.
     const out = execFileSync("git", args, {
       cwd: opts.cwd ?? REPO_ROOT,
       encoding: "utf8",

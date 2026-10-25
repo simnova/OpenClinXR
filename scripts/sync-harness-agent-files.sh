@@ -2,7 +2,9 @@
 # Sync script for agentic files (rules + hooks) to harness-specific directories for multi-harness standardization.
 # Run from repo root.
 # Grok loads only CORE rules from .grok/rules/ (~40% token savings vs full ruleset).
-# Claude/Cursor still receive all agents/rules/*.md for compat.
+# Claude loads only CLAUDE_CORE_RULES (~12 KB) from .claude/rules/; Cursor links all
+# agents/rules/*.md. The rest of agents/rules loads on demand through skills
+# `delegation-rules` and `orchestrator-rules`.
 
 set -euo pipefail
 
@@ -13,9 +15,17 @@ CORE_RULES=(
   LEX_AGENTIC.md
   GUARD_BLUEPRINT.md
   GUARD_DRIFT.md
+  GUARD_SAFETY.md
   MANDATE_VISIBILITY.md
   PROTO_SUBAGENT.md
   EXEC_AUTONOMY.md
+)
+
+CLAUDE_CORE_RULES=(
+  GUARD_BLUEPRINT.md
+  GUARD_DRIFT.md
+  EXEC_AUTONOMY.md
+  GUARD_SAFETY.md
 )
 
 echo "Syncing agentic files for multi-harness support."
@@ -48,12 +58,18 @@ for rule in "${CORE_RULES[@]}"; do
   fi
 done
 
+for rule in "${CLAUDE_CORE_RULES[@]}"; do
+  if [ -f "agents/rules/$rule" ]; then
+    ln -sfn "../../agents/rules/$rule" ".claude/rules/$rule"
+    echo "  Claude core rule: $rule"
+  fi
+done
+
 for rule in agents/rules/*.md; do
   [ -f "$rule" ] || continue
   name=$(basename "$rule")
-  ln -sfn "../../$rule" ".claude/rules/$name"
   ln -sfn "../../$rule" ".cursor/rules/$name"
-  echo "  Claude/Cursor rule: $name"
+  echo "  Cursor rule: $name"
 done
 
 pnpm agent:harness:sync

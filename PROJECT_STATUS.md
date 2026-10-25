@@ -22,11 +22,11 @@ Archive1455 immutable entries, all hashes verified;9 differing current variants 
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-09-25 | Grok 4.6 CEO — inner mouth decent: card r=0.016, probes/band removed (all 0 px). Open aa shows teeth + narrow shadow slit + pink fill; closed clean.**
+**2026-10-23 | CEO — Aisha part groom stalled. part-open8 stays the keeper.**
 
-lipfaces51 vs47=20 px, pink 119, PP/sil 0, no smear. Upper-zone spheres all occluded (probes y-0.014..+0.002 @z=0.058: 0 px). HEAD_Z_PUSH=0. Bulk clones skipped.
+part-sheet1 decision-row absolute error is 86 (part-open8 is 43). Row 96 is 24 px on part-sheet1 and 36 px on part-open8 (target 15). Row 92 on part-sheet1 is a 1024 px skin run. Do not parent from part-sheet1. Handoff: operator-hair-muse4h.md. No part-r45. Keeper: hair-hillclimb worktree tools/openclinxr/evidence/hair-muse4h/part-open8/treated.npz.
 
-SWEEP: workers=0 blender=0 bothy=null origin=`e80220a90` dirty=drive.ts+tests+pulse
+SWEEP: workers=0 hair-part-sheet1 stop-gate bothy=NOT DETERMINED
 
 <!-- WAKE-BLUF:END -->
 

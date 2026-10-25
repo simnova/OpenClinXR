@@ -1,0 +1,31 @@
+{
+  "role": "archivist",
+  "taskId": "tsk_bdf661251c4528ff",
+  "verdict": "done",
+  "touched": [
+    "/Users/patrick/.codex/worktrees/reconcile-origin-registries-20261025/openclinxr/docs/openclinxr/doc-authority-registry-2026-05-27.json",
+    "/Users/patrick/.codex/worktrees/reconcile-origin-registries-20261025/openclinxr/docs/openclinxr/doc-authority-registry-2026-05-27.md",
+    "/Users/patrick/.codex/worktrees/reconcile-origin-registries-20261025/openclinxr/docs/openclinxr/generated-artifact-registry-2026-05-27.json",
+    "/Users/patrick/.codex/worktrees/reconcile-origin-registries-20261025/openclinxr/docs/openclinxr/generated-artifact-registry-2026-05-27.md",
+    "/Users/patrick/.codex/worktrees/reconcile-origin-registries-20261025/openclinxr/packages/openclinxr/xr-scene/src/cornea-env/catchlight-report.json"
+  ],
+  "resolutionPerPath": {
+    "/Users/patrick/.codex/worktrees/reconcile-origin-registries-20261025/openclinxr/docs/openclinxr/doc-authority-registry-2026-05-27.json": "adopted resume2 merge (doc816, zero conflicts)",
+    "/Users/patrick/.codex/worktrees/reconcile-origin-registries-20261025/openclinxr/docs/openclinxr/doc-authority-registry-2026-05-27.md": "adopted resume3 navigation (nav211 ALL protected/current)",
+    "/Users/patrick/.codex/worktrees/reconcile-origin-registries-20261025/openclinxr/docs/openclinxr/generated-artifact-registry-2026-05-27.json": "adopted resume2 merge (gen5021, preserved9, zero conflicts)",
+    "/Users/patrick/.codex/worktrees/reconcile-origin-registries-20261025/openclinxr/docs/openclinxr/generated-artifact-registry-2026-05-27.md": "adopted resume2 renderer-faithful output",
+    "/Users/patrick/.codex/worktrees/reconcile-origin-registries-20261025/openclinxr/packages/openclinxr/xr-scene/src/cornea-env/catchlight-report.json": "origin root preserved whole (moduleSha256 capture pin, all measurements, no re-pin); sourceRevalidation added from parent proof (noOtherBytesDiffer, 1/0 bracket/dot); whole local report retained under historicalRequalifications only"
+  },
+  "independentReview": "/Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph614-eye-evidence-reconciliation/resume1/output/review.json",
+  "parentProof": "/Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph614-eye-evidence-reconciliation/parent-source-equivalence.json",
+  "testsRun": [],
+  "notTested": [
+    "parent eye tests/gates (eye 616 successor implements strict preimage verification + negative probes); full suite/build/types/architecture/policy/licenses/docs run by parent after integrating all groups"
+  ],
+  "streamGeneration": "none; no capture/acceptance claims added",
+  "blockers": [],
+  "notes": [
+    "no numeral mixing: local currentRun nested only",
+    "both original JSON raw bytes remain in inputs/Git history; parent archives both"
+  ]
+}

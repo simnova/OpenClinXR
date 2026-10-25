@@ -1,6 +1,6 @@
 ---
 name: board-conduit
-description: "Board-as-conduit protocol: GitHub project 7 cards are the owner-authored instruction SSOT consumed unaltered via briefFromIssue - card anatomy, lane definitions (A learner/XR, B API/admin), parent/child decomposition, concurrency N-gate criteria, worker staging limits (<300 turns), and the delegator/owner division of every dispatch step. Load BEFORE creating any project-7 issue/card, dispatching any worker, or changing concurrency."
+description: "Board-as-conduit: GitHub project 7 cards are the owner-authored instruction SSOT. Card anatomy, lane definitions, parent/child decomposition, concurrency N-gate, worker staging limits. Load BEFORE creating a card or changing concurrency."
 when-to-use: "board card, project 7, create issue, briefFromIssue, dispatch plan, lane A, lane B, concurrency, parallel workers, factory field, planted dispatched landed graded, parent card, decompose task"
 ---
 

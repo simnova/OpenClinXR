@@ -1,13 +1,13 @@
 {
   "schema": "openclinxr.eyes-census.v1",
   "control": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-  "realismNote": "scratch bake (high-poly+cornea, iris-centred-c) + lash T2+A3; not git-tracked; sha recorded here",
+  "realismNote": "scratch bake (high-poly+cornea, iris-centred-f) + lash T2+A3; not git-tracked; sha recorded here",
   "shellNote": "shell OFF for this proof (shell-rebind graded not shippable); absence recorded, not hidden",
   "cornerNote": "corner-assets terminal not_found (eye-corner manifest 8bba4edd); absence recorded, not hidden",
   "rows": [
     {
       "label": "realism",
-      "sha256": "9135b4a48d8d2fd0e40702ebfef8154fc469d371962b6e274b75f7c9e9d95975",
+      "sha256": "5906f48cded6dce8bb398078520ccb7261c3b46d6128a31fb57ef421821ad8f9",
       "eyeMeshes": [
         "makeclothes_library_eyes_high_poly_mpfb_ob_patient_aisha_mesh",
         "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
@@ -59,8 +59,8 @@
         "eye-right-slit",
         "eye-right-opened-up"
       ],
-      "irisTextureBytes": 594900,
-      "trisEye": 26832,
+      "irisTextureBytes": 507944,
+      "trisEye": 29388,
       "morphMeshCount": 3
     },
     {

@@ -108,6 +108,15 @@ export function luminanceLStar(png: DecodedPng, x: number, y: number): number {
   return labLStar(png.data[i]!, png.data[i + 1]!, png.data[i + 2]!);
 }
 
+/** HSV-style saturation (0..1) of a decoded pixel: (max-min)/max. */
+export function saturation(png: DecodedPng, x: number, y: number): number {
+  const i = (y * png.w + x) * png.chans;
+  const mx = Math.max(png.data[i]!, png.data[i + 1]!, png.data[i + 2]!);
+  if (mx === 0) return 0;
+  const mn = Math.min(png.data[i]!, png.data[i + 1]!, png.data[i + 2]!);
+  return (mx - mn) / mx;
+}
+
 /** Mean L* over a rect. */
 export function meanLStar(png: DecodedPng, rect: CropRect): number {
   let sum = 0;

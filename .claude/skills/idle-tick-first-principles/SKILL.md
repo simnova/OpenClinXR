@@ -1,6 +1,6 @@
 ---
 name: idle-tick-first-principles
-description: "Load when a loop tick finds NOTHING to do — no card to unblock, no work in flight, nothing unpushed. Instead of a noop, take on a hard part of the project from first principles: read the direction out of the briefs rather than inventing one, decompose it, SEARCH for proven open-source work and for research published after the training cutoff, and land a card with a RED rather than prose. Carries the idle test that must be measured not assumed, and the guards that stop this becoming speculative drift."
+description: "Load when a loop tick finds NOTHING to do. Instead of a noop, take on a hard part from first principles: read direction from the briefs, decompose, SEARCH for prior art, land a card with a RED rather than prose."
 when-to-use: nothing to unblock, quiet tick, noop, idle loop, what should I work on, no ready cards, take on something hard, first principles, decompose, is there prior art, new research
 ---
 

@@ -1,1 +1,0 @@
-../../agents/rules/PROTO_SUBAGENT.md

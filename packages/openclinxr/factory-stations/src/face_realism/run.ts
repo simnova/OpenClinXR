@@ -43,6 +43,16 @@ import {
 } from "./stages-a.js";
 import { runStage4, runStage7 } from "./stages-b.js";
 import { runStage5, runStage6 } from "./stages-d.js";
+export {
+  EYE_SCLERA_SHADE_REL,
+  EYE_SHADE_ATTEN,
+  EYE_SHADE_BAND_M,
+  EYE_SHADE_DARKEN,
+  EYE_SHADE_REPORT_REL,
+  replayEyeShade,
+  runStage5,
+} from "./stages-d.js";
+export type { EyeShadeReplay } from "./stages-d.js";
 
 export {
   assertNoModelStage,

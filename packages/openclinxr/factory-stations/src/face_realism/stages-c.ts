@@ -34,6 +34,37 @@ export function cfgLeaf(cfg: Record<string, unknown>, key: string, field: string
   return value;
 }
 
+/**
+ * A pin that is not a string yet (value null) is a bootstrap row: the run
+ * records its actual and the gate FAILS (never passes on a missing pin), so
+ * the pin can be written from that run and the next run verifies it.
+ */
+export function cfgPinOrNull(cfg: Record<string, unknown>, key: string): string | null {
+  const node = cfg[key] as Record<string, unknown> | undefined;
+  const value = node?.["value"];
+  return typeof value === "string" ? value : null;
+}
+
+export function pinGate(
+  what: string,
+  actual: string,
+  expected: string | null,
+): { pass: boolean; detail: string } {
+  if (expected === null) {
+    return {
+      pass: false,
+      detail: `${what} ${actual.slice(0, 12)} has no pinned known-good (value null in case-inputs.json): recorded for pinning, gate fails closed`,
+    };
+  }
+  return {
+    pass: actual === expected,
+    detail:
+      actual === expected
+        ? `${what} matches the pinned known-good (${actual.slice(0, 12)})`
+        : `${what} ${actual.slice(0, 12)} vs known-good ${expected.slice(0, 12)}`,
+  };
+}
+
 export function cfgLeafSource(cfg: Record<string, unknown>, key: string): string {
   return cfgLeaf(cfg, key, "source");
 }
@@ -221,6 +252,12 @@ export function runBeardSubStage(
   for (const file of [landmarks, lipsMask, facecoreMask, socketPng]) {
     if (!existsSync(file)) throw new Error(`beard input missing at ${file}: refused`);
   }
+  // Vermilion from the lips-stage albedo (replay.py beard_shadow branch):
+  // the SAME union mask detail hugs, so grain and beard meet it with no
+  // seam. The derive lips mask stays as --lips-mask (treatment geometry).
+  const lipsStageAlbedo = path.join(outDir, "albedo_lips.png");
+  const lipsAlbedo = existsSync(lipsStageAlbedo) ? lipsStageAlbedo : socketPng;
+  const vermilionMask = buildVermilionUnion(outDir, lipsAlbedo, deriveOut);
   const script = path.join(repoRoot(), BEARD_REL);
   const outPng = outFile;
   const argv = [
@@ -228,6 +265,8 @@ export function runBeardSubStage(
     landmarks,
     "--lips-mask",
     lipsMask,
+    "--vermilion-mask",
+    vermilionMask,
     "--facecore-mask",
     facecoreMask,
     "--weight",
@@ -241,26 +280,66 @@ export function runBeardSubStage(
   ];
   runMisePython([script, ...argv], 600_000);
   const outSha = sha256File(outPng);
-  const expected = cfgLeaf(cfg, "expected_out_sha256", "value");
+  const expected = cfgPinOrNull(cfg, "expected_out_sha256");
+  const inputs: StageIO[] = [
+    { path: landmarks, sha256: sha256File(landmarks) },
+    { path: lipsMask, sha256: sha256File(lipsMask) },
+    { path: vermilionMask, sha256: sha256File(vermilionMask) },
+    { path: facecoreMask, sha256: sha256File(facecoreMask) },
+    { path: socketPng, sha256: sha256File(socketPng) },
+  ];
+  if (lipsAlbedo !== socketPng) {
+    inputs.push({ path: lipsAlbedo, sha256: sha256File(lipsAlbedo) });
+  }
   return {
     script: BEARD_REL,
     argv,
-    inputs: [
-      { path: landmarks, sha256: sha256File(landmarks) },
-      { path: lipsMask, sha256: sha256File(lipsMask) },
-      { path: facecoreMask, sha256: sha256File(facecoreMask) },
-      { path: socketPng, sha256: sha256File(socketPng) },
-    ],
+    inputs,
     outputs: [{ path: outPng, sha256: outSha }],
     ran: true,
-    gate: {
-      pass: outSha === expected,
-      detail:
-        outSha === expected
-          ? `beard output matches the pinned known-good (${outSha.slice(0, 12)})`
-          : `beard output ${outSha.slice(0, 12)} vs known-good ${expected.slice(0, 12)}`,
-    },
+    gate: pinGate("beard output", outSha, expected),
   };
+}
+
+/**
+ * Visible-lip union shared by beard + detail (replay.py _vermilion_union).
+ * Segmented from the lips-stage albedo with the derive lips mask as the
+ * base region (same inputs as replay.py run_stage beard_shadow branch);
+ * saved under the stage out dir for provenance. Deterministic on fixed
+ * inputs (morphology + percentiles, no RNG), so re-runs agree byte for
+ * byte. Spawns the tracked function; never a copy.
+ */
+export function buildVermilionUnion(storeDir: string, albedoPng: string, deriveOut: string): string {
+  const faceReplayDir = path.join(repoRoot(), FACE_REPLAY_DIR_REL);
+  const code = [
+    "import sys",
+    `sys.path.insert(0, ${JSON.stringify(faceReplayDir)})`,
+    "from pathlib import Path",
+    "from replay import _vermilion_union",
+    `out = _vermilion_union(Path(${JSON.stringify(storeDir)}), Path(${JSON.stringify(albedoPng)}), Path(${JSON.stringify(deriveOut)}))`,
+    "print(str(out))",
+  ].join("\n");
+  const stdout = runMisePython(["-c", code], 600_000);
+  const lines = stdout
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  const unionAbs = lines.length > 0 ? (lines[lines.length - 1] as string) : path.join(storeDir, "lip-vermilion-albedo-union.png");
+  if (!existsSync(unionAbs)) throw new Error(`vermilion union missing at ${unionAbs}: refused`);
+  return unionAbs;
+}
+
+/**
+ * Beard weight carried into detail (replay.py detail_bands branch): at 0
+ * the under-lower-lip band is spared the crease removal; positive weights
+ * keep the legacy full-crease path. A case record without stage3_beard
+ * carries no flag (the script default), never a throw.
+ */
+export function detailBeardWeightArgv(caseRec: Record<string, unknown>): string[] {
+  const entry = caseRec["stage3_beard"];
+  if (entry === null || typeof entry !== "object" || !("value" in entry)) return [];
+  const cfg = caseValue<Record<string, unknown>>(caseRec, "stage3_beard");
+  return ["--beard-weight", String(cfgValue<number>(cfg, "weight"))];
 }
 
 // Detail-band stage: argv mirrors the tracked replay.py run_stage
@@ -346,6 +425,7 @@ export function runDetailSubStage(
     eyesMask,
     "--brows-mask",
     browsMask,
+    ...detailBeardWeightArgv(caseRec),
     "--texels-per-mm",
     detailParam(params, "texels_per_mm"),
     "--seed",
@@ -372,7 +452,7 @@ export function runDetailSubStage(
   runMisePython([script, ...argv], 600_000);
   const outSha = sha256File(outFile);
   const detailCfg = caseValue<Record<string, unknown>>(caseRec, "stage3_detail");
-  const expected = cfgLeaf(detailCfg, "expected_out_sha256", "value");
+  const expected = cfgPinOrNull(detailCfg, "expected_out_sha256");
   const inputs: StageIO[] = [
     { path: detailInPng, sha256: sha256File(detailInPng) },
     { path: path.join(deriveOut, "mask-facecore.png"), sha256: sha256File(path.join(deriveOut, "mask-facecore.png")) },
@@ -389,12 +469,6 @@ export function runDetailSubStage(
     inputs,
     outputs,
     ran: true,
-    gate: {
-      pass: outSha === expected,
-      detail:
-        outSha === expected
-          ? `detail output matches the pinned known-good (${outSha.slice(0, 12)})`
-          : `detail output ${outSha.slice(0, 12)} vs known-good ${expected.slice(0, 12)}`,
-    },
+    gate: pinGate("detail output", outSha, expected),
   };
 }

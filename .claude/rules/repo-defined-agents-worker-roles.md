@@ -1,1 +1,0 @@
-../../agents/rules/repo-defined-agents-worker-roles.md
