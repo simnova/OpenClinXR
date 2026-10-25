@@ -2,6 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { ModelGateway, MockModelProviderAdapter } from "../../packages/openclinxr/model-gateway/dist/index.js";
 import {
   mapActorTurnsToRefs,
   mapActorTurnsToTimeline,
@@ -260,6 +261,10 @@ describe("admin-replay-from-emission mapper", () => {
       inputPath,
       outputPath,
       generateIfMissing: true,
+      modelGateway: new ModelGateway({
+        routeId: "test-offline-mock",
+        adapters: [new MockModelProviderAdapter()],
+      }),
     });
 
     expect(generatedEmission).toBe(true);

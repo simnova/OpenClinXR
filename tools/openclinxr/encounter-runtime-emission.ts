@@ -20,6 +20,7 @@ import {
   type DurableStorePersistenceHooks,
   type ScenarioRuntimeActorTurn,
 } from "../../packages/openclinxr/scenario-runtime/src/index.js";
+import type { ModelGateway } from "../../packages/openclinxr/model-gateway/dist/index.js";
 import type { ReviewPacket } from "../../packages/openclinxr/shared-schemas/src/index.js";
 
 export type EncounterRuntimeEmissionReviewPacketSummary = {
@@ -83,6 +84,7 @@ export type RunEncounterRuntimeEmissionInput = {
   learnerId?: string;
   outputPath?: string;
   generatedAt?: string;
+  modelGateway?: ModelGateway;
 };
 
 export type RunEncounterRuntimeEmissionResult = {
@@ -208,7 +210,10 @@ export async function runEncounterRuntimeEmission(
   const outputPath = path.resolve(input.outputPath ?? DEFAULT_OUTPUT_PATH);
 
   const { hooks, actorTurns, reviewPackets, counts } = createInMemoryEmissionSink();
-  const runtime = createScenarioRuntimeWithPersistenceHooks(hooks);
+  const runtime = createScenarioRuntimeWithPersistenceHooks(
+    hooks,
+    input.modelGateway ? { modelGateway: input.modelGateway } : undefined,
+  );
 
   const session = await runtime.startSession({ learnerId, consentAccepted: true });
   runtime.startEncounter(session.stationRunId, { atSecond: 60 });

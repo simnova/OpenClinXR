@@ -23,6 +23,7 @@ import {
   type EncounterRuntimeEmissionClinicalTouchEvent,
   type EncounterRuntimeEmissionReviewPacketSummary,
 } from "./encounter-runtime-emission.js";
+import type { ModelGateway } from "../../packages/openclinxr/model-gateway/dist/index.js";
 
 /** Minimal actor-turn shape accepted from emission (real durable-store turns). */
 export type EmissionActorTurn = {
@@ -101,6 +102,8 @@ export type RunAdminReplayFromEmissionInput = {
   generatedAt?: string;
   /** When emission file missing, generate via runEncounterRuntimeEmission. Default true. */
   generateIfMissing?: boolean;
+  /** Optional offline gateway forwarded when emission must be generated. */
+  modelGateway?: ModelGateway;
 };
 
 export type RunAdminReplayFromEmissionResult = {
@@ -380,7 +383,11 @@ export async function runAdminReplayFromEmission(
     if (!generateIfMissing) {
       throw new Error(`Emission artifact not found: ${inputPath}`);
     }
-    await runEncounterRuntimeEmission({ outputPath: inputPath, generatedAt });
+    await runEncounterRuntimeEmission({
+      outputPath: inputPath,
+      generatedAt,
+      ...(input.modelGateway ? { modelGateway: input.modelGateway } : {}),
+    });
     generatedEmission = true;
   }
 

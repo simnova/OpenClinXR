@@ -2,6 +2,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
+import { ModelGateway, MockModelProviderAdapter } from "../../packages/openclinxr/model-gateway/dist/index.js";
 import {
   runEncounterRuntimeEmission,
   summarizeReviewPacket,
@@ -68,10 +69,15 @@ describe("encounter-runtime-emission", () => {
     tempDirs.push(dir);
     const outputPath = path.join(dir, "encounter-runtime-emission-latest.json");
 
+    const modelGateway = new ModelGateway({
+      routeId: "test-offline-mock",
+      adapters: [new MockModelProviderAdapter()],
+    });
     const { artifact, outputPath: writtenPath } = await runEncounterRuntimeEmission({
       outputPath,
       generatedAt: "2026-08-02T12:00:00.000Z",
       learnerId: "test_emission_learner",
+      modelGateway,
     });
 
     expect(writtenPath).toBe(path.resolve(outputPath));

@@ -62,8 +62,10 @@ export function createDefaultScenarioRuntime(
  */
 export function createScenarioRuntimeWithPersistenceHooks(
   hooks: DurableStorePersistenceHooks,
+  options?: Pick<CreateDefaultScenarioRuntimeOptions, "modelGateway">,
 ): ScenarioRuntime {
   return createDefaultScenarioRuntime({
+    ...(options?.modelGateway ? { modelGateway: options.modelGateway } : {}),
     durableStore: createDurableStoreFromPersistenceHooks(hooks),
   });
 }
