@@ -93,7 +93,7 @@ function runSmoothingAgainstFixture(matchBody: boolean): { log: string; normals:
     .map((n) => extractFunction(src, n))
     .join("\n\n");
   writeFileSync(probePath, `import json, math, re, struct\n\n${needed}\n`);
-  const out = execFileSync("/usr/bin/python3", ["-c", py], { encoding: "utf8" });
+  const out = execFileSync("python3", ["-c", py], { encoding: "utf8" });
   const parsed = JSON.parse(out.trim().split("\n").pop()!) as { normals: number[][] };
   return { log: out, normals: parsed.normals };
 }
