@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-case-params.v1",
+  "station": "case_to_actor_params",
+  "caseId": "peds_fever_v1",
+  "presets": {
+    "peds_fever_v1:nurse_aisha_brooks_v1": {
+      "case_id": "peds_fever_v1",
+      "actor_id": "nurse_aisha_brooks_v1",
+      "actor_role": "nurse",
+      "output_name": "peds_fever_v1:nurse_aisha_brooks_v1.glb"
+    },
+    "peds_fever_v1:parent_mei_chen_v1": {
+      "case_id": "peds_fever_v1",
+      "actor_id": "parent_mei_chen_v1",
+      "actor_role": "family",
+      "output_name": "peds_fever_v1:parent_mei_chen_v1.glb"
+    },
+    "peds_fever_v1:patient_noah_chen_v1": {
+      "case_id": "peds_fever_v1",
+      "actor_id": "patient_noah_chen_v1",
+      "actor_role": "patient",
+      "output_name": "peds_fever_v1:patient_noah_chen_v1.glb"
+    }
+  }
+}

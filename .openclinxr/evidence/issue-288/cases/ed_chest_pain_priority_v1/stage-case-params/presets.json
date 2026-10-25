@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-case-params.v1",
+  "station": "case_to_actor_params",
+  "caseId": "ed_chest_pain_priority_v1",
+  "presets": {
+    "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1": {
+      "case_id": "ed_chest_pain_priority_v1",
+      "actor_id": "nurse_maria_alvarez_v1",
+      "actor_role": "nurse",
+      "output_name": "ed_chest_pain_priority_v1:nurse_maria_alvarez_v1.glb"
+    },
+    "ed_chest_pain_priority_v1:patient_robert_hayes_v1": {
+      "case_id": "ed_chest_pain_priority_v1",
+      "actor_id": "patient_robert_hayes_v1",
+      "actor_role": "patient",
+      "output_name": "ed_chest_pain_priority_v1:patient_robert_hayes_v1.glb"
+    },
+    "ed_chest_pain_priority_v1:spouse_anna_hayes_v1": {
+      "case_id": "ed_chest_pain_priority_v1",
+      "actor_id": "spouse_anna_hayes_v1",
+      "actor_role": "family",
+      "output_name": "ed_chest_pain_priority_v1:spouse_anna_hayes_v1.glb"
+    }
+  }
+}

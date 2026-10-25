@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-case-params.v1",
+  "station": "case_to_actor_params",
+  "caseId": "ob_headache_preeclampsia_triage_v1",
+  "resolvedActorCount": 2,
+  "actorIds": [
+    "partner_omar_khan_v1",
+    "patient_aisha_khan_v1"
+  ],
+  "notes": [
+    "Resolved case-actor params in-process via the #601 seam (resolve_case_actor_params_with_source): case-definition phenotype export when the case authors the actor, else the legacy preset row (issue-650). The gauge no longer reads CASE_ACTOR_PRESETS as the source of truth."
+  ]
+}

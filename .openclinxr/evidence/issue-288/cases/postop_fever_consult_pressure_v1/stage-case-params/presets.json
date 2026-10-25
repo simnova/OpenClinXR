@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-case-params.v1",
+  "station": "case_to_actor_params",
+  "caseId": "postop_fever_consult_pressure_v1",
+  "presets": {
+    "postop_fever_consult_pressure_v1:floor_nurse_bennett_v1": {
+      "case_id": "postop_fever_consult_pressure_v1",
+      "actor_id": "floor_nurse_bennett_v1",
+      "actor_role": "nurse",
+      "output_name": "postop_fever_consult_pressure_v1:floor_nurse_bennett_v1.glb"
+    },
+    "postop_fever_consult_pressure_v1:patient_priya_shah_v1": {
+      "case_id": "postop_fever_consult_pressure_v1",
+      "actor_id": "patient_priya_shah_v1",
+      "actor_role": "patient",
+      "output_name": "postop_fever_consult_pressure_v1:patient_priya_shah_v1.glb"
+    }
+  }
+}

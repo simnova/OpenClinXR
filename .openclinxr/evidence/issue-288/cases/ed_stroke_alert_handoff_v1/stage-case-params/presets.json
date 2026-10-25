@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-case-params.v1",
+  "station": "case_to_actor_params",
+  "caseId": "ed_stroke_alert_handoff_v1",
+  "presets": {
+    "ed_stroke_alert_handoff_v1:patient_samuel_brooks_v1": {
+      "case_id": "ed_stroke_alert_handoff_v1",
+      "actor_id": "patient_samuel_brooks_v1",
+      "actor_role": "patient",
+      "output_name": "ed_stroke_alert_handoff_v1:patient_samuel_brooks_v1.glb"
+    },
+    "ed_stroke_alert_handoff_v1:son_eric_brooks_v1": {
+      "case_id": "ed_stroke_alert_handoff_v1",
+      "actor_id": "son_eric_brooks_v1",
+      "actor_role": "family",
+      "output_name": "ed_stroke_alert_handoff_v1:son_eric_brooks_v1.glb"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-case-params.v1",
+  "station": "case_to_actor_params",
+  "caseId": "stepdown_sepsis_nurse_escalation_v1",
+  "presets": {
+    "stepdown_sepsis_nurse_escalation_v1:patient_helen_carter_v1": {
+      "case_id": "stepdown_sepsis_nurse_escalation_v1",
+      "actor_id": "patient_helen_carter_v1",
+      "actor_role": "patient",
+      "output_name": "stepdown_sepsis_nurse_escalation_v1:patient_helen_carter_v1.glb"
+    },
+    "stepdown_sepsis_nurse_escalation_v1:stepdown_nurse_rivera_v1": {
+      "case_id": "stepdown_sepsis_nurse_escalation_v1",
+      "actor_id": "stepdown_nurse_rivera_v1",
+      "actor_role": "nurse",
+      "output_name": "stepdown_sepsis_nurse_escalation_v1:stepdown_nurse_rivera_v1.glb"
+    }
+  }
+}

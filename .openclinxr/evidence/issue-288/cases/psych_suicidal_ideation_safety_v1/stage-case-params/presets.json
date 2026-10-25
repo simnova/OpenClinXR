@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-case-params.v1",
+  "station": "case_to_actor_params",
+  "caseId": "psych_suicidal_ideation_safety_v1",
+  "presets": {
+    "psych_suicidal_ideation_safety_v1:patient_jordan_reed_v1": {
+      "case_id": "psych_suicidal_ideation_safety_v1",
+      "actor_id": "patient_jordan_reed_v1",
+      "actor_role": "patient",
+      "output_name": "psych_suicidal_ideation_safety_v1:patient_jordan_reed_v1.glb"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-case-params.v1",
+  "station": "case_to_actor_params",
+  "caseId": "primary_care_dyslipidemia_joint_pain_v1",
+  "presets": {
+    "primary_care_dyslipidemia_joint_pain_v1:patient_mario_guzman_v1": {
+      "case_id": "primary_care_dyslipidemia_joint_pain_v1",
+      "actor_id": "patient_mario_guzman_v1",
+      "actor_role": "patient",
+      "output_name": "primary_care_dyslipidemia_joint_pain_v1:patient_mario_guzman_v1.glb"
+    }
+  }
+}

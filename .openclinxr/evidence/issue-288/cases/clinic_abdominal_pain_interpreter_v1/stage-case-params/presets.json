@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-case-params.v1",
+  "station": "case_to_actor_params",
+  "caseId": "clinic_abdominal_pain_interpreter_v1",
+  "presets": {
+    "clinic_abdominal_pain_interpreter_v1:father_carlos_morales_v1": {
+      "case_id": "clinic_abdominal_pain_interpreter_v1",
+      "actor_id": "father_carlos_morales_v1",
+      "actor_role": "family",
+      "output_name": "clinic_abdominal_pain_interpreter_v1:father_carlos_morales_v1.glb"
+    },
+    "clinic_abdominal_pain_interpreter_v1:patient_lucia_morales_v1": {
+      "case_id": "clinic_abdominal_pain_interpreter_v1",
+      "actor_id": "patient_lucia_morales_v1",
+      "actor_role": "patient",
+      "output_name": "clinic_abdominal_pain_interpreter_v1:patient_lucia_morales_v1.glb"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-case-params.v1",
+  "station": "case_to_actor_params",
+  "caseId": "telehealth_diabetes_health_literacy_v1",
+  "presets": {
+    "telehealth_diabetes_health_literacy_v1:patient_luis_martinez_v1": {
+      "case_id": "telehealth_diabetes_health_literacy_v1",
+      "actor_id": "patient_luis_martinez_v1",
+      "actor_role": "patient",
+      "output_name": "telehealth_diabetes_health_literacy_v1:patient_luis_martinez_v1.glb"
+    }
+  }
+}

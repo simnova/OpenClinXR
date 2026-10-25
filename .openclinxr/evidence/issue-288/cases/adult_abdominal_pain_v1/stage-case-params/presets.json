@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-case-params.v1",
+  "station": "case_to_actor_params",
+  "caseId": "adult_abdominal_pain_v1",
+  "presets": {
+    "adult_abdominal_pain_v1:nurse_priya_nair_v1": {
+      "case_id": "adult_abdominal_pain_v1",
+      "actor_id": "nurse_priya_nair_v1",
+      "actor_role": "nurse",
+      "output_name": "adult_abdominal_pain_v1:nurse_priya_nair_v1.glb"
+    },
+    "adult_abdominal_pain_v1:partner_diego_vasquez_v1": {
+      "case_id": "adult_abdominal_pain_v1",
+      "actor_id": "partner_diego_vasquez_v1",
+      "actor_role": "family",
+      "output_name": "adult_abdominal_pain_v1:partner_diego_vasquez_v1.glb"
+    },
+    "adult_abdominal_pain_v1:patient_elena_vasquez_v1": {
+      "case_id": "adult_abdominal_pain_v1",
+      "actor_id": "patient_elena_vasquez_v1",
+      "actor_role": "patient",
+      "output_name": "adult_abdominal_pain_v1:patient_elena_vasquez_v1.glb"
+    }
+  }
+}

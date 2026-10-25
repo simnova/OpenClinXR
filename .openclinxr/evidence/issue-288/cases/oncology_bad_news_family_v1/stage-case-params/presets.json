@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-case-params.v1",
+  "station": "case_to_actor_params",
+  "caseId": "oncology_bad_news_family_v1",
+  "presets": {
+    "oncology_bad_news_family_v1:patient_david_miller_v1": {
+      "case_id": "oncology_bad_news_family_v1",
+      "actor_id": "patient_david_miller_v1",
+      "actor_role": "patient",
+      "output_name": "oncology_bad_news_family_v1:patient_david_miller_v1.glb"
+    },
+    "oncology_bad_news_family_v1:sister_rachel_miller_v1": {
+      "case_id": "oncology_bad_news_family_v1",
+      "actor_id": "sister_rachel_miller_v1",
+      "actor_role": "family",
+      "output_name": "oncology_bad_news_family_v1:sister_rachel_miller_v1.glb"
+    }
+  }
+}

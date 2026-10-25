@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-case-params.v1",
+  "station": "case_to_actor_params",
+  "caseId": "peds_fever_v1",
+  "resolvedActorCount": 3,
+  "actorIds": [
+    "nurse_aisha_brooks_v1",
+    "parent_mei_chen_v1",
+    "patient_noah_chen_v1"
+  ],
+  "notes": [
+    "Resolved case-actor params in-process via the #601 seam (resolve_case_actor_params_with_source): case-definition phenotype export when the case authors the actor, else the legacy preset row (issue-650). The gauge no longer reads CASE_ACTOR_PRESETS as the source of truth."
+  ]
+}

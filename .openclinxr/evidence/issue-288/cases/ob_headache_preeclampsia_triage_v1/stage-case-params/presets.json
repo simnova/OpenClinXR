@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-case-params.v1",
+  "station": "case_to_actor_params",
+  "caseId": "ob_headache_preeclampsia_triage_v1",
+  "presets": {
+    "ob_headache_preeclampsia_triage_v1:partner_omar_khan_v1": {
+      "case_id": "ob_headache_preeclampsia_triage_v1",
+      "actor_id": "partner_omar_khan_v1",
+      "actor_role": "family",
+      "output_name": "ob_headache_preeclampsia_triage_v1:partner_omar_khan_v1.glb"
+    },
+    "ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1": {
+      "case_id": "ob_headache_preeclampsia_triage_v1",
+      "actor_id": "patient_aisha_khan_v1",
+      "actor_role": "patient",
+      "output_name": "ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1.glb"
+    }
+  }
+}
