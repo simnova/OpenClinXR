@@ -141,3 +141,9 @@ No Mixamo target swap. No NC datasets. No LLM-authored `bpy`.
 `openclinxr_retarget_*` appears in the mixer, or running Animato "just to see" and treating a baked GLB
 as a factory win.
 
+<!-- CI-CLOSURE-20261023-FINAL -->
+**2026-10-25 | Verified source c7ac54c869 | Local normal-hook commits complete for seven reviewed packets; no push.**
+Full forced package graph555 passes196/196 tasks with zero cache hits and source/runtime/control guards. Final cast-reader repair567 passes12 tests in Main and W3; types/architecture/lint/Knip/docs and normal hooks pass. ED cast/registry and albedo replay fixes are committed; public API and guardrails unchanged. Current package evidence does not establish whole-root CI or visual readiness.
+Fresh citation568 remains RED:262 path tokens unchanged. Original83 genuine historical inventory files are a different scope and remain absent. Last full-root473 failed125files/192assertions before latest repairs; no refreshed aggregate implied. Asset placement/whole-actor acceptance, rejected gait, and OB lineage gaps remain; W3/W4 owners retained. Do not fabricate historical evidence, move actors arbitrarily, waive thresholds or promote pending candidates. Muse image transport lacks required capability.
+Archive569 contains1214 immutable entries, all hashes verified. No approval pending; no code freeze. Exact resume: /Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph570-current-cleanup-checkpoint/current.json.
+<!-- CI-CLOSURE-20261023-FINAL:END -->

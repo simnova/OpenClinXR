@@ -11,6 +11,15 @@ last_measured: 2026-08-10
 parseable_sections: 6
 ---
 
+<!-- DIRECT-BROWSER-REPAIR:BEGIN -->
+**2026-10-25 | Q1/Q5 CI cleanup | Verified source c7ac54c869; package freeze lifted.**
+Seven normal-hook local commits: Python launcher4b191252f; role contractd53e083da; coherent albedoceabb545e; exact ED producers73526ce3a; mouth replaybbf042a5a; ED cast/registry69f2c7075; cast readersc7ac54c86. Actual Muse contributors authored repairs. No push or new waivers.
+Fresh forced full package graph555: 196/196 tasks PASS, cache0, 252.221s; 5147 source/runtime inputs and23 genuine controls unchanged. Includes current parent86 and EDbc84 assets. Source subsequently committed unchanged; final root-reader repair separately passes12 tests in W3/Main plus types, architecture, lint, Knip and docs. Policy/licenses and normal hooks pass. Public API, test ceiling, metrics, deadlines and provenance unchanged.
+Whole CI remains RED. Fresh committed-tree citation568 still reports262 path tokens, no additions/removals; original83 genuine missing-file inventory is a different scope and remains unresolved. Last whole-root473:125 failed files/192 assertions on0c3, predating these repairs; no new aggregate count inferred. Current generated outputs do not establish historical recovery.
+ED11 committed with canonical registry5015->5017, old rows exact; unrelated working5019 preserved. Pending visual/root-full-suite promotion flag remains exact. Limited phase22 normal/head/forearm evidence is not whole-actor acceptance. Albedo independent4.2M pixel error0; no visual/Quest/clinical/production claim. Monitor standing1 and lead raw3 overlaps remain red; ward/stroke case-only probe ineffective. Muse image transport unsupported. Preserve W3 palette/trousers and W4 Core/case/gait ownership; rejected gait and OB historical lineage gaps are unresolved.
+Immutable archive569: 1214 entries, all hashes verified; original failures and committed bytes retained. Other-owner WAKE untouched. No approvals pending, no active source freeze. LOW_TOKEN: /Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph570-current-cleanup-checkpoint/current.json.
+<!-- DIRECT-BROWSER-REPAIR:END -->
+
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
