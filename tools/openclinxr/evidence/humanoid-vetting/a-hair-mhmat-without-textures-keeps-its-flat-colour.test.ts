@@ -1,7 +1,8 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { mainWorktreeRoot } from "../provider-cache/main-worktree-root.js";
 import { describe, expect, it } from "vitest";
 import { withComputeSlotSync } from "@openclinxr/compute-slots/slots";
 
@@ -19,12 +20,12 @@ import { withComputeSlotSync } from "@openclinxr/compute-slots/slots";
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../../..");
+const CACHE_ROOT = mainWorktreeRoot(HERE);
 const FIXTURE_DIR = join(HERE, "fixtures/hair-mhmat-no-texture");
 const FIXTURE_MHCLO = join(FIXTURE_DIR, "notex_hair.mhclo");
 const PROBE = join(FIXTURE_DIR, "probe_hair_material.py");
 const BLENDER = "/Applications/Blender.app/Contents/MacOS/Blender";
-const HAIR_DIR = join(REPO_ROOT, ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_blunt_bob");
+const HAIR_DIR = join(CACHE_ROOT, ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_blunt_bob");
 
 function realBobMhclo(): string {
   expect(existsSync(HAIR_DIR), `hair provider-cache directory missing: ${HAIR_DIR}`).toBe(true);

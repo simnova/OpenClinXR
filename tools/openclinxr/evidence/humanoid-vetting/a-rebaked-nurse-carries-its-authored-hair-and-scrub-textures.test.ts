@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { mainWorktreeRoot } from "../provider-cache/main-worktree-root.js";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import { type DecodedPng, decodePng8 } from "../../asset-pipeline/trellis/bake-humanoid-albedo.js";
@@ -25,8 +26,8 @@ import { type DecodedPng, decodePng8 } from "../../asset-pipeline/trellis/bake-h
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../../..");
-const CACHE = join(REPO_ROOT, ".openclinxr-local/provider-cache");
+const CACHE_ROOT = mainWorktreeRoot(HERE);
+const CACHE = join(CACHE_ROOT, ".openclinxr-local/provider-cache");
 const GLB = process.env.OPENCLINXR_REBAKED_NURSE_GLB ?? "";
 
 const glbExists = GLB !== "" && existsSync(GLB);
