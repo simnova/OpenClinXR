@@ -1,0 +1,16 @@
+{
+  "id": "row-44-mcgill-llm2vec-mntp-supervised",
+  "section": "Acquired",
+  "rowIndex": 44,
+  "cells": [
+    " `McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp` + `-mntp-supervised` (HF, text encoder for the official stack)",
+    "**MIT \u2014 verified 2026-09-26** from each repo's own `cardData.license` and README. **NOT gated** (`\"gated\": false` on both, via HF API). These are PEFT adapters loaded via `nv-tlabs/kimodo`'s `TEXT_ENCODER_PRESETS[\"llm2vec\"]`; their `adapter_config.json` `base_model_name_or_path` chain ultimately resolves to `meta-llama/Meta-Llama-3-8B-Instruct` (gated). Run with `HF_HOME` pointed at the now-authenticated cache (`hf auth whoami` = `simnova-llc`) to cover that resolution regardless of whether the MIT-licensed adapter alone would have sufficed.",
+    "LLM2Vec bidirectional-attention LoRA adapters over Llama-3-8B, used only as the official stack's text encoder",
+    "2026-09-26, `~/.cache/huggingface/hub` (~33 GB combined with the base weights; outside repo)",
+    "Build-time-only text encoding for the round-2 `nv-tlabs/kimodo` timing run. Not consumed by any shipped asset.",
+    "**Tool-cache only.** Distinct from `LocalAI-io/Llama-3-Kimodo-GGML` (the ungated GGUF conversion used for kimodo-mlx) \u2014 this is the HF-native PEFT path the official CUDA-first stack expects. "
+  ],
+  "reconciledFrom": "MAIN current ledger row verbatim (## Acquired)",
+  "reconciledReason": "Missing from records; added with source MAIN row identity, no new grant",
+  "sourceSha256": "52af0670a96eedf77677b6c279982df58c942336042fcbe957eeebf0c78bcdb7"
+}

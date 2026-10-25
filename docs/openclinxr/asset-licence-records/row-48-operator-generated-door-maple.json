@@ -1,0 +1,16 @@
+{
+  "id": "row-48-operator-generated-door-maple",
+  "section": "Acquired",
+  "rowIndex": 48,
+  "cells": [
+    " Operator-generated Grok Imagine `door-maple.jpg` (image_gen session `01a0e84c-516a-79a0-ba8b-3dd958c2e1ea`, `5.jpg`, kept attempt 2, md5 `f26ca3e8e0d124c05e8f3bda9f203f3d`; attempt 1 `4.jpg` REJECTED for mirrored cathedral arches, kept only as `textures/rejected/door-maple-rejected-attempt1.jpg`)",
+    "**OPERATOR-GENERATED \u2014 not third-party.** First-party operator asset on the row-30/row-31 precedent: no external licence applies, no attribution obligation. Grok Imagine platform rights terms were not independently re-verified beyond that precedent.",
+    "1024x1024 honey-maple veneer albedo (fine straight vertical grain, no mirrored arches), filed bytes-unchanged at `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/door-maple.jpg`, plus `-tileable.jpg` (md5 `94539386eb802d050ecd826fe5f81c13`), `-normal.png`, `-roughness.png` derivatives and a `preview-2x2-*.jpg` grading preview (row-32 record)",
+    "2026-09-28",
+    "`room_clinic_finish/compose.py` loads `door-maple.jpg` (now these bytes); `-tileable`/`-normal`/`-roughness` wiring is the follow-up job. Previous row-30-era bytes (md5 `defa9611aa2afb55987bd30b8a59b357`) remain in git history",
+    "**Keep.** Operator-owned source. Replace only if the operator supplies a new approved set. "
+  ],
+  "reconciledFrom": "MAIN current ledger row verbatim (## Acquired)",
+  "reconciledReason": "Missing from records; added with source MAIN row identity, no new grant",
+  "sourceSha256": "d0fab5008e8b2e96145e2a848b31177747c6c942053a61df57f316aca8a75ff9"
+}

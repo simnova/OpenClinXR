@@ -1,0 +1,16 @@
+{
+  "id": "row-41-localai-llama-3-kimodo-ggml-text-encoder",
+  "section": "Acquired",
+  "rowIndex": 41,
+  "cells": [
+    " `LocalAI-io/Llama-3-Kimodo-GGML` (HF, converted text encoder)",
+    "**Meta Llama 3 Community License** (the underlying weights) \u2014 `LICENSE-META-LLAMA-3.txt` and `NOTICE` ship inside this HF repo verbatim; \"Built with Meta Llama 3\" satisfied. Converted from `meta-llama/Meta-Llama-3-8B-Instruct` + MIT-licensed McGill LLM2Vec adapters, per the repo's own README/MANIFEST.json. **NOT gated** (measured: `gated: false`, unauthenticated download succeeded) \u2014 this is a compliant redistribution under the Llama 3 licence's own redistribution terms (retains the licence text + NOTICE + attribution), so it does not require accepting the gate on `meta-llama/Meta-Llama-3-8B-Instruct` directly. **Operator update 2026-09-26: the gate is separately open too** \u2014 `hf auth whoami` = `simnova-llc`, `meta-llama/Meta-Llama-3-8B-Instruct` now returns 200 authenticated; not used here since the ungated conversion already satisfies the exact same encoder.",
+    "`generated/llm2vec-text-bundle/*.gguf` only (embedding + final-norm + 32 layers + tokenizer, ~14 GB); the monolithic BF16/Q4-Q8 quant files at the repo root were NOT downloaded (not needed by kimodo-mlx, which reads the per-layer bundle)",
+    "2026-09-26, `~/.openclinxr-tools/kimodo/kimodo-mlx/models/llm2vec-text-bundle-repo` (outside repo)",
+    "Build-time-only text encoding for the cagematch generation. Not consumed by any shipped asset; never reaches the learner runtime (D9).",
+    "**Tool-cache only.** LICENSE-META-LLAMA-3.txt + NOTICE retained beside the weights, satisfying the redistribution terms. "
+  ],
+  "reconciledFrom": "MAIN current ledger row verbatim (## Acquired)",
+  "reconciledReason": "Missing from records; added with source MAIN row identity, no new grant",
+  "sourceSha256": "d3542f7851bf10fd473fae2e6937a4929a7435425bb82a40ef587199cd4a3fe1"
+}

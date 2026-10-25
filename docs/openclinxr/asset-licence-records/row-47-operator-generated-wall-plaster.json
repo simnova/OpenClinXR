@@ -1,0 +1,16 @@
+{
+  "id": "row-47-operator-generated-wall-plaster",
+  "section": "Acquired",
+  "rowIndex": 47,
+  "cells": [
+    " Operator-generated Grok Imagine `wall-plaster.jpg` (image_gen session `01a0e84c-516a-79a0-ba8b-3dd958c2e1ea`, `3.jpg`, kept attempt 1, md5 `734fe96c282446a18bba7d1e1527b35e`)",
+    "**OPERATOR-GENERATED \u2014 not third-party.** First-party operator asset on the row-30/row-31 precedent: no external licence applies, no attribution obligation. Grok Imagine platform rights terms were not independently re-verified beyond that precedent.",
+    "1024x1024 warm off-white plaster albedo (subtle stipple, no cracks), filed bytes-unchanged at `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/wall-plaster.jpg`, plus `-tileable.jpg` (md5 `43b23b4e7d2a3b00b80175dc67e0d7b2`), `-normal.png`, `-roughness.png` derivatives and a `preview-2x2-*.jpg` grading preview (row-32 record)",
+    "2026-09-28",
+    "Staged, not yet consumed (wiring is the follow-up ceiling-wiring job)",
+    "**Keep.** Operator-owned source. Replace only if the operator supplies a new approved set. "
+  ],
+  "reconciledFrom": "MAIN current ledger row verbatim (## Acquired)",
+  "reconciledReason": "Missing from records; added with source MAIN row identity, no new grant",
+  "sourceSha256": "bb018921bb4080a849410a280dfea6dd28a20b6d8230f17fff30cf0c9ab1c587"
+}

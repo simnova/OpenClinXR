@@ -4,7 +4,7 @@
   "rowIndex": 14,
   "cells": [
     " `makehuman-community-mhair02` ([clothes page](http://www.makehumancommunity.org/clothes/mhair02.html), uuid `f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4`)",
-    "**PAGE CC0 / HEADER AGPL3 \u2014 operator override this uuid only, 2026-08-14.** Patrick pointed at the community page as CC0. The downloaded `.mhclo` header still says `# license AGPL3` (`# author MHteam`). Same class as `visemes02`: assume the page grant, record the header contradiction, allow **this asset only**. `read_hair_mhclo_licence` is unchanged \u2014 AGPL is still a hard refusal there. The bake path checks `HAIR_PAGE_CC0_OVERRIDE` after the header read. Sibling `male_short_hair` (same page/header lie, not named) stays refused. 0 helper-vertex refs \u2265 13,380 (maxRef 12,367). `mhair02.mhmat` declares `diffuseTexture mhair02.png`; the page listed no diffuse and the PNG is absent \u2014 bake uses the existing role/vertex-color material path and does **not** invent a texture.",
+    "**PAGE CC0 / HEADER AGPL3 \u2014 operator override this uuid only, 2026-08-14; EXTENDED TO PUBLIC RENDER 2026-09-10.** The header contradiction is unchanged and is not resolved; the 2026-09-10 ruling widened the SCOPE of the accepted assumption from shipping to a published render, for this uuid only. Patrick pointed at the community page as CC0. The downloaded `.mhclo` header still says `# license AGPL3` (`# author MHteam`). Same class as `visemes02`: assume the page grant, record the header contradiction, allow **this asset only**. `read_hair_mhclo_licence` is unchanged \u2014 AGPL is still a hard refusal there. The bake path checks `HAIR_PAGE_CC0_OVERRIDE` after the header read. Sibling `male_short_hair` (same page/header lie, not named) stays refused. 0 helper-vertex refs \u2265 13,380 (maxRef 12,367). `mhair02.mhmat` declares `diffuseTexture mhair02.png`; the page listed no diffuse and the PNG is absent \u2014 bake uses the existing role/vertex-color material path and does **not** invent a texture.",
     "2026-08-14",
     "Short male cut (`.mhclo` + `.obj` + `.mhmat` + `.thumb`; 2,314 obj verts / 1,730 faces). Cached at `.openclinxr-local/provider-cache/hair/sources/makehuman-community-male/mhair02/`.",
     "**Consumed by the kevin bake** (`materialize_mpfb_humanoid_candidate.py` `HAIR_STYLE_BY_REFERENCE[\"peds_nurse_kevin\"] = \"mhair02\"`). Revisit if the author says the header is the real grant \u2014 then every derived asset must be re-baked without it.",
@@ -18,5 +18,21 @@
     "whatDidNotChange": "The page-versus-header contradiction is unresolved and is not called resolved. The community clothes page still grants CC0 and the downloaded .mhclo header still says AGPL3. What changed is the SCOPE of the accepted assumption, not the evidence.",
     "scope": "mhair02, uuid f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4 only. Not a permit for any other AGPL-headered asset.",
     "reversibility": "If the author confirms the header is the real grant, every derived asset is re-baked without it and any published render carrying it is withdrawn."
-  }
+  },
+  "history": {
+    "supersededCells": [
+      " `makehuman-community-mhair02` ([clothes page](http://www.makehumancommunity.org/clothes/mhair02.html), uuid `f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4`)",
+      "**PAGE CC0 / HEADER AGPL3 \u2014 operator override this uuid only, 2026-08-14.** Patrick pointed at the community page as CC0. The downloaded `.mhclo` header still says `# license AGPL3` (`# author MHteam`). Same class as `visemes02`: assume the page grant, record the header contradiction, allow **this asset only**. `read_hair_mhclo_licence` is unchanged \u2014 AGPL is still a hard refusal there. The bake path checks `HAIR_PAGE_CC0_OVERRIDE` after the header read. Sibling `male_short_hair` (same page/header lie, not named) stays refused. 0 helper-vertex refs \u2265 13,380 (maxRef 12,367). `mhair02.mhmat` declares `diffuseTexture mhair02.png`; the page listed no diffuse and the PNG is absent \u2014 bake uses the existing role/vertex-color material path and does **not** invent a texture.",
+      "2026-08-14",
+      "Short male cut (`.mhclo` + `.obj` + `.mhmat` + `.thumb`; 2,314 obj verts / 1,730 faces). Cached at `.openclinxr-local/provider-cache/hair/sources/makehuman-community-male/mhair02/`.",
+      "**Consumed by the kevin bake** (`materialize_mpfb_humanoid_candidate.py` `HAIR_STYLE_BY_REFERENCE[\"peds_nurse_kevin\"] = \"mhair02\"`). Revisit if the author says the header is the real grant \u2014 then every derived asset must be re-baked without it.",
+      "**Keep under the recorded assumption.** Not a relicence of the header; not a permit for other AGPL hair. "
+    ],
+    "supersededNote": "Pre-2026-09-17 refusal-era wording retained here; current MAIN row shows legitimate Sept-17 operator sanction and is now canonical.",
+    "source": "MAIN docs/openclinxr/third-party-asset-licence-ledger.md current row, same source identity",
+    "sourceSha256": "e290a1ba06506475929800bb5de6a7819e33f65a38d91c26e046c2ed73f6d92b"
+  },
+  "note": "Reconciled 2026-10-20 to MAIN current operator ruling verbatim (Sept-17 sanction); old refusal retained in history. sourceSha256=e290a1ba06506475",
+  "reconciledFrom": "MAIN current ledger row, same source identity, verbatim cells",
+  "reconciledReason": "Stale record regressed Sept-17 ruling; updated to standing operator ruling without new grant"
 }

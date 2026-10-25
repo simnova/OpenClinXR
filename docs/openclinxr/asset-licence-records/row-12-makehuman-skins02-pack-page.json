@@ -4,10 +4,26 @@
   "rowIndex": 12,
   "cells": [
     " `makehuman-skins02` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/skins02.html))",
-    "**REFUSED on the header — page says CC0, the FILES do not clear. MEASURED 2026-08-21 (#510) by reading all 13 `.mhmat` headers inside the archive:** **1 × explicit AGPLv3 header** — `rehmanpolanski_skin_viking_tattoos` (verbatim `# This file is licensed AGPLv3`, MakeHuman template header) — **copyleft, hard refusal**; **12 × no licence line at all** — unspecified is a refusal (#497 class). `packs/skins02.json` declares `\"license\": \"CC0\"` on all entries — **packager claim, not a grant** (#430 class). PNG metadata chunks: **0** licence chunks. **Fourth page-CC0 ≠ file mismatch on this site** (with skins01, mhair02, hair01, #497).",
-    "13 skins, 72.6 MB (archive bytes verified vs Content-Length). All male — complements skins01's female bias. Authors: jartur69, ken1138, Mindfront, OnlyTheGhosts, RehmanPolanski, MargaretToigo. Every `.mhmat` declares a `diffuseTexture` that resolves on disk; the two Mindfront skins also declare `normalmapTexture` + `specularTexture`. **Resolution ABSENT. Target base mesh ABSENT.**",
-    "**Acquired + MEASURED 2026-08-21 (#510), NOT consumed** — extracted at `.openclinxr-local/provider-cache/skins/sources/skins02/`",
+    "**2026-09-17: ALL 13 SANCTIONED \u2014 catalogue CC0 is MORE PERMISSIVE than the 1 explicit AGPLv3 header and the 12 silent files, so the catalogue governs (OPERATOR RULING 2026-09-17, refined the same day to the more-permissive comparison).** **SPLIT 2026-09-10 under the amended ruling: 12 of 13 SANCTIONED, 1 STILL REFUSED.** The 12 with no licence line are shape 1 (file SILENT) and the pack page's CC0 governs them. `rehmanpolanski_skin_viking_tattoos` carries an explicit AGPLv3 notice, is shape 3, and needs a named per-asset override nobody has granted \u2014 it stays refused. PREVIOUSLY: REFUSED on the header \u2014 page says CC0, the FILES do not clear. MEASURED 2026-08-21 (#510) by reading all 13 `.mhmat` headers inside the archive:** **1 \u00d7 explicit AGPLv3 header** \u2014 `rehmanpolanski_skin_viking_tattoos` (verbatim `# This file is licensed AGPLv3`, MakeHuman template header) \u2014 **copyleft, hard refusal**; **12 \u00d7 no licence line at all** \u2014 unspecified is a refusal (#497 class). `packs/skins02.json` declares `\"license\": \"CC0\"` on all entries \u2014 **packager claim, not a grant** (#430 class). PNG metadata chunks: **0** licence chunks. **Fourth page-CC0 \u2260 file mismatch on this site** (with skins01, mhair02, hair01, #497).",
+    "13 skins, 72.6 MB (archive bytes verified vs Content-Length). All male \u2014 complements skins01's female bias. Authors: jartur69, ken1138, Mindfront, OnlyTheGhosts, RehmanPolanski, MargaretToigo. Every `.mhmat` declares a `diffuseTexture` that resolves on disk; the two Mindfront skins also declare `normalmapTexture` + `specularTexture`. **Resolution ABSENT. Target base mesh ABSENT.**",
+    "**Acquired + MEASURED 2026-08-21 (#510), NOT consumed** \u2014 extracted at `.openclinxr-local/provider-cache/skins/sources/skins02/`",
     "nothing",
-    "**`reject_measured` — do not wire.** Same standing as skins01: no skin in either pack clears its own header licence, so today every MPFB body keeps the one shared baked skin. "
-  ]
+    "**2026-09-17: licence no longer blocks; still NOT consumed (no skin consumer exists).** **`reject_measured` \u2014 do not wire.** Same standing as skins01: no skin in either pack clears its own header licence, so today every MPFB body keeps the one shared baked skin. "
+  ],
+  "history": {
+    "supersededCells": [
+      " `makehuman-skins02` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/skins02.html))",
+      "**REFUSED on the header \u2014 page says CC0, the FILES do not clear. MEASURED 2026-08-21 (#510) by reading all 13 `.mhmat` headers inside the archive:** **1 \u00d7 explicit AGPLv3 header** \u2014 `rehmanpolanski_skin_viking_tattoos` (verbatim `# This file is licensed AGPLv3`, MakeHuman template header) \u2014 **copyleft, hard refusal**; **12 \u00d7 no licence line at all** \u2014 unspecified is a refusal (#497 class). `packs/skins02.json` declares `\"license\": \"CC0\"` on all entries \u2014 **packager claim, not a grant** (#430 class). PNG metadata chunks: **0** licence chunks. **Fourth page-CC0 \u2260 file mismatch on this site** (with skins01, mhair02, hair01, #497).",
+      "13 skins, 72.6 MB (archive bytes verified vs Content-Length). All male \u2014 complements skins01's female bias. Authors: jartur69, ken1138, Mindfront, OnlyTheGhosts, RehmanPolanski, MargaretToigo. Every `.mhmat` declares a `diffuseTexture` that resolves on disk; the two Mindfront skins also declare `normalmapTexture` + `specularTexture`. **Resolution ABSENT. Target base mesh ABSENT.**",
+      "**Acquired + MEASURED 2026-08-21 (#510), NOT consumed** \u2014 extracted at `.openclinxr-local/provider-cache/skins/sources/skins02/`",
+      "nothing",
+      "**`reject_measured` \u2014 do not wire.** Same standing as skins01: no skin in either pack clears its own header licence, so today every MPFB body keeps the one shared baked skin. "
+    ],
+    "supersededNote": "Pre-2026-09-17 refusal-era wording retained here; current MAIN row shows legitimate Sept-17 operator sanction and is now canonical.",
+    "source": "MAIN docs/openclinxr/third-party-asset-licence-ledger.md current row, same source identity",
+    "sourceSha256": "313c02ae514ebe5507055de3f5db7c2c8ff88623fb9bd76abd6e20585bce0965"
+  },
+  "note": "Reconciled 2026-10-20 to MAIN current operator ruling verbatim (Sept-17 sanction); old refusal retained in history. sourceSha256=313c02ae514ebe55",
+  "reconciledFrom": "MAIN current ledger row, same source identity, verbatim cells",
+  "reconciledReason": "Stale record regressed Sept-17 ruling; updated to standing operator ruling without new grant"
 }

@@ -1,0 +1,16 @@
+{
+  "id": "row-04-mfa-english-us-arpa-acoustic-model",
+  "section": "Cleared-not-acquired",
+  "rowIndex": 4,
+  "cells": [
+    " **MFA english_us_arpa acoustic model** ([model page](https://mfa-models.readthedocs.io/en/latest/acoustic/English/English%20%28US%29%20ARPA%20acoustic%20model%20v2_0_0.html), `mfa-models` repo)",
+    "**CC BY 4.0 \u2014 VERIFIED** (model index lists \"CC BY 4.0\"; repo `LICENSE` is the full CC-BY-4.0 text, fetched 2026-10-06). Attribution: Montreal Corpus Tools MFA pretrained models (McAuliffe et al., Interspeech 2017/2026).",
+    "**CLEARS the bar** \u2014 CC-BY is allowed with attribution surviving. Acquired 2026-10-06 via `mfa model download acoustic english_us_arpa` \u2192 `~/Documents/MFA/pretrained_models/acoustic/english_us_arpa.zip` (88 MB, out-of-repo; NOT committed). GMM-HMM triphone, trained 2024-02-10.",
+    "2026-10-06",
+    "MFA alignment of the step3 + labial-dense clips (phone timings only; no weights committed)",
+    "**Keep with attribution.** Re-record only if the model version changes. "
+  ],
+  "reconciledFrom": "MAIN current ledger row verbatim (## Cleared but NOT acquired \u2014 G2P pronunciation data (2026-08-13, #375))",
+  "reconciledReason": "Missing from records; added with source MAIN row identity, no new grant",
+  "sourceSha256": "d1bf354f03874d2a5f13f3b3880a25800d3440414d4a65fafe8e7fe70bb13d12"
+}

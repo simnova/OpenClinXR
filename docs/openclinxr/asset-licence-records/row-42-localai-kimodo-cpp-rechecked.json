@@ -1,0 +1,16 @@
+{
+  "id": "row-42-localai-kimodo-cpp-rechecked",
+  "section": "Acquired",
+  "rowIndex": 42,
+  "cells": [
+    " `localai-org/kimodo.cpp` (code, re-checked)",
+    "**CORRECTS the 2026-08-23 cagematch finding of \"no licence file.\"** Measured 2026-09-26: the repo now ships an **Apache-2.0 `LICENSE`** (`gh api repos/localai-org/kimodo.cpp --jq .license` = `apache-2.0`), added between 2026-08-23 and 2026-09-17 (`pushed_at`). Not re-evaluated for build/Vulkan issues; not used by this cagematch (kimodo-mlx was used instead, per the operator's runbook preference for this machine).",
+    "\u2014",
+    "2026-09-26 (finding only, nothing acquired)",
+    "Not consumed.",
+    "Correct `docs/openclinxr/kimodo-cpp-cagematch-2026-08-23.md`'s licence table if that C++ path is ever revisited \u2014 the licence refusal no longer holds, though the Apple-Silicon Vulkan build failure and the `Kimodo-SMPLX-RP-v1` weight restriction (still R&D-only) are unaffected. "
+  ],
+  "reconciledFrom": "MAIN current ledger row verbatim (## Acquired)",
+  "reconciledReason": "Missing from records; added with source MAIN row identity, no new grant",
+  "sourceSha256": "cbf10622484f84330826af4a410605159aa59e1245724d6177405d70cd7bb462"
+}

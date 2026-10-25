@@ -1,0 +1,16 @@
+{
+  "id": "row-40-nvidia-kimodo-soma-rp-v1-1-weights",
+  "section": "Acquired",
+  "rowIndex": 40,
+  "cells": [
+    " `nvidia/Kimodo-SOMA-RP-v1.1` (weights, HF)",
+    "**NVIDIA Open Model License \u2014 verified 2026-09-26** from the model card (`license_name: nvidia-open-model-license`) and the repo's own `LICENSE` file; card states \"This model is ready for commercial use.\" **NOT gated** \u2014 `hf download` succeeded with no token and no auth header (measured: an unauthenticated GET on its resolve/main/README.md path returns 200).",
+    "30-joint SOMA skeleton motion diffusion checkpoint, 282M params, 1.1 GB (`model.safetensors` sha256 `ef0a0ca4\u2026`)",
+    "2026-09-26, `~/.openclinxr-tools/kimodo/kimodo-mlx/models/nvidia-soma-rp-v1.1` (outside repo)",
+    "Build-time-only motion generation for the cagematch (3 seeds of a bedside-approach prompt). Not consumed by any shipped asset.",
+    "**Definitively resolves the 2026-09-09 cagematch's `reject_measured` (77 vs 30 joint contradiction).** `config.yaml` names `kimodo.skeleton.SOMASkeleton30` explicitly, and its 30-name `bone_order_names_with_parents` (read from `nv-tlabs/kimodo` `kimodo/skeleton/definitions.py`, Apache-2.0) matches `kimodo_mlx/motion.py`'s `SOMA_PARENTS` tuple index-for-index. The README's \"77-joint SOMA\" language names a DIFFERENT class (`SOMASkeleton77`) used by other/future checkpoints, not a contradiction about this one. "
+  ],
+  "reconciledFrom": "MAIN current ledger row verbatim (## Acquired)",
+  "reconciledReason": "Missing from records; added with source MAIN row identity, no new grant",
+  "sourceSha256": "122267b8537d9db554d96ced89132707bf956681e28b4acf7c1c37982ff4f910"
+}

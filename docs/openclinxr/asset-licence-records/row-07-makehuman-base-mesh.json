@@ -4,8 +4,8 @@
   "rowIndex": 7,
   "cells": [
     " MakeHuman base mesh",
-    "A stale 2016 README in the org's own tree asserts **AGPL** against a 2020 `LICENSE.md` saying **CC0**. No dated relicensing announcement found.",
-    "This is the mesh under every body we generate. The contradiction is upstream, not ours, but it is the single most load-bearing licence in the pipeline. "
+    "**RESOLVED 2026-09-10 by operator ruling: the 2020 `LICENSE.md` SUPERSEDES the stale 2016 README, so hm08 is CC0.** The contradiction was real and is recorded in `row-07-makehuman-base-mesh.json` with the reasoning, the scope and the reversal condition. Public RENDER is cleared by this ruling.",
+    "This is the mesh under every body we generate, and it was the single most load-bearing open licence in the pipeline. The ruling does **not** reach `mhair02` (row-14) or `cortu_cargo_pants` (row-15): those are page-versus-header conflicts, a different question, and both still block a published render. If an upstream owner states the README is the real grant, every derived asset is re-baked without it. "
   ],
   "operatorRuling2026_09_10": {
     "decidedBy": "repository operator (patrick@simnova.com)",
@@ -19,5 +19,18 @@
       "row-15 cortu_cargo_pants index-CC0 vs silent .mhclo"
     ],
     "reversibility": "If an upstream owner states the README is the real grant, every derived asset is re-baked without hm08 and this ruling is withdrawn in place."
-  }
+  },
+  "history": {
+    "supersededCells": [
+      " MakeHuman base mesh",
+      "A stale 2016 README in the org's own tree asserts **AGPL** against a 2020 `LICENSE.md` saying **CC0**. No dated relicensing announcement found.",
+      "This is the mesh under every body we generate. The contradiction is upstream, not ours, but it is the single most load-bearing licence in the pipeline. "
+    ],
+    "supersededNote": "Pre-2026-09-17 refusal-era wording retained here; current MAIN row shows legitimate Sept-17 operator sanction and is now canonical.",
+    "source": "MAIN docs/openclinxr/third-party-asset-licence-ledger.md current row, same source identity",
+    "sourceSha256": "5f27633f2a67dca1db316e6fea6291ec548d92b1ee32039367fb4289a375778a"
+  },
+  "note": "Reconciled 2026-10-20 to MAIN current operator ruling verbatim (Sept-17 sanction); old refusal retained in history. sourceSha256=5f27633f2a67dca1",
+  "reconciledFrom": "MAIN current ledger row, same source identity, verbatim cells",
+  "reconciledReason": "Stale record regressed Sept-17 ruling; updated to standing operator ruling without new grant"
 }

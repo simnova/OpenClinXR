@@ -1,0 +1,16 @@
+{
+  "id": "row-00-operator-generated-grok-imagine-stepdown-door-reference-2026-10-01",
+  "section": "Acquired",
+  "rowIndex": 0,
+  "cells": [
+    " Operator-generated Grok Imagine step-down door reference (`docs/openclinxr/room-realism/stepdown-door-ideas/reference-door.jpg`, selected Option A; SHA-256 `46540510508348d694de765e015b2d8cc3878964fc03ccbdf24665a8cee1acdc`)",
+    "**OPERATOR-GENERATED \u2014 not third-party.** Produced via Grok Imagine on 2026-10-01; no external licence or attribution obligation applies. The exact shared scene and Option A prompt remain in `prompts.md`.",
+    "One 1280\u00d7720 JPEG reference: flush maple hospital door, leaf-height painted hollow-metal casing, stainless kick plate, and painted wall continuous above the door with no panel edge. The unselected B/C/D concepts and contact grid were deleted because they are not evidence.",
+    "2026-10-01",
+    "Visual target and pixel-grade input for the recipe-driven `stepdown_room_v1` door finish only; not a runtime texture.",
+    "**Keep.** Operator-selected target reference; replace only on explicit operator direction. "
+  ],
+  "reconciledFrom": "MAIN current ledger row verbatim (## Acquired)",
+  "reconciledReason": "Missing from records; added with source MAIN row identity, no new grant",
+  "sourceSha256": "bf6c2a9f61fc3b8995cbcdecc54401a8503a7c44af5759bff17a8acd1f464cef"
+}

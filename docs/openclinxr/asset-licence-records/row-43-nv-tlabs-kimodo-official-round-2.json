@@ -1,0 +1,16 @@
+{
+  "id": "row-43-nv-tlabs-kimodo-official-round-2",
+  "section": "Acquired",
+  "rowIndex": 43,
+  "cells": [
+    " `nv-tlabs/kimodo` (official code, round 2)",
+    "**Apache-2.0 \u2014 re-verified 2026-09-26** from the clone's `LICENSE`. Installed with `SKIP_MOTION_CORRECTION_IN_SETUP=1` (the repo's own documented escape hatch \u2014 the native `MotionCorrection` C++ extension's CMake build hardcodes x86 SIMD flags, `-msse4.1`/`-mavx`, and fails to compile on arm64; skipping it drops optional foot-skate post-processing, not generation). Build-time tool only.",
+    "Official CUDA-first generation CLI (`kimodo_gen` / `kimodo/scripts/generate.py`); confirmed to expose a real `Root2DConstraintSet` (root x/z trajectory + heading constraints, `kimodo/constraints.py`) and native `--bvh` export \u2014 materially more capable than `kimodo-mlx`",
+    "2026-09-26, `~/.openclinxr-tools/kimodo/kimodo` (outside repo)",
+    "Not consumed by any shipped asset; installed and run for API/timing verification only",
+    "**Tool only.** More capable than kimodo-mlx (constraints + native BVH) but CPU-only on this machine (no CUDA; MPS crashes on a float64 buffer in `Kimodo.__init__`'s `.to(device)` \u2014 not patched further). Keep as the reference for constraint semantics; kimodo-mlx remains the faster local path for unconstrained text-prompt generation. "
+  ],
+  "reconciledFrom": "MAIN current ledger row verbatim (## Acquired)",
+  "reconciledReason": "Missing from records; added with source MAIN row identity, no new grant",
+  "sourceSha256": "d682b01d20a4d5e05b876041e8f2db37e06ae1800a4f8d586efdd1dcc4b65555"
+}

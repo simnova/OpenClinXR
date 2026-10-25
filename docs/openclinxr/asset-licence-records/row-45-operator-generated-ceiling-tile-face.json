@@ -1,0 +1,16 @@
+{
+  "id": "row-45-operator-generated-ceiling-tile-face",
+  "section": "Acquired",
+  "rowIndex": 45,
+  "cells": [
+    " Operator-generated Grok Imagine `ceiling-tile-face.jpg` (image_gen session `01a0e84c-516a-79a0-ba8b-3dd958c2e1ea`, `1.jpg`, kept attempt 1, md5 `bf3bfc4326f3b775fd24260587094d39`)",
+    "**OPERATOR-GENERATED \u2014 not third-party.** First-party operator asset on the row-30/row-31 precedent: no external licence applies, no attribution obligation. Grok Imagine platform rights terms were not independently re-verified beyond that precedent.",
+    "1024x1024 seamless acoustic ceiling tile-face albedo (fine fissures + pinholes, matte off-white), filed bytes-unchanged at `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-tile-face.jpg`, plus `-tileable.jpg` (md5 `15d6a1254d756b3467d15c815bad6317`), `-normal.png`, `-roughness.png` derivatives and a `preview-2x2-*.jpg` grading preview (row-32 record)",
+    "2026-09-28",
+    "Staged, not yet consumed (wiring is the follow-up ceiling-wiring job)",
+    "**Keep.** Operator-owned source. Replace only if the operator supplies a new approved set. "
+  ],
+  "reconciledFrom": "MAIN current ledger row verbatim (## Acquired)",
+  "reconciledReason": "Missing from records; added with source MAIN row identity, no new grant",
+  "sourceSha256": "bb05408f1253d54de8ecbe82aa5a2bef3ee9c484014ec86bf75476538417115f"
+}
