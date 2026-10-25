@@ -3,7 +3,8 @@
  *
  * Texel arithmetic, not a render: for each HB-00-cleared material carrying both
  * a baseColorTexture and a non-white baseColorFactor, every texel becomes
- * round(clamp(texel * factor)) at the texture's own resolution (no resample),
+ * linear-correct sRGB transfer (glTF 2.0 PBR): decode texel to linear,
+ * multiply by LINEAR baseColorFactor, re-encode to sRGB, at the texture's own resolution (no resample),
  * and the factor is reset to white so a renderer cannot double-apply it.
  * Materials without a texture are untouched — an untextured factor IS the albedo.
  * openclinxr_hidden_* cover shells ([0,0,0,0], alphaMode MASK) are dropped from
@@ -16,6 +17,8 @@
 import { crc32, inflateSync, deflateSync } from "node:zlib";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { buildAlbedoLut, bakeAlphaByte } from "./albedo-linear/colour-transfer.js";
+import { textureFailReason } from "./albedo-linear/image-clone.js";
 
 const RUNG_ID = "bake-resolution-ladder.res2048";
 const RUNG_SOURCE = "tools/openclinxr/asset-pipeline/trellis/bake-resolution-ladder.json";
@@ -205,6 +208,8 @@ export function bakeGlbAlbedo(input: string, output: string): BakedBodyRow {
   const nodeCountBefore = listOf(json, "nodes").length;
   const byteLengthBefore = readFileSync(input).byteLength;
   const materialsOut: BakedMaterialRow[] = [];
+  const pristine: Uint8Array[] = viewBytes.map((b) => b.slice());
+  const cloneFor = new Map<string, number>();
 
   for (const mat of materials) {
     const name = mat["name"] as string;
@@ -251,21 +256,61 @@ export function bakeGlbAlbedo(input: string, output: string): BakedBodyRow {
       continue;
     }
     const factor3 = (factor as number[]).slice(0, 3);
-    const tex = textures[texRef["index"] as number] as JsonObj;
+    const tex = textures[texRef["index"] as number] as JsonObj | undefined;
+    const img0 = (tex ? images[tex["source"] as number] : undefined) as JsonObj | undefined;
+    const failReason = textureFailReason(tex, img0);
+    if (!tex || !img0 || failReason !== null) {
+      materialsOut.push({
+        material: name,
+        decision: `unsupported: ${failReason}, left untouched (fail-closed, factor retained for runtime)`,
+        sourceResolution: "n/a",
+        bakedResolution: "n/a",
+        ladderRungId: "n/a",
+        texelBudget: 0,
+        factorBefore: [...factor3],
+        factorAfter: [...factor3],
+        samples: [],
+      });
+      continue;
+    }
     const imgIndex = tex["source"] as number;
     const img = images[imgIndex] as JsonObj;
     const bvIndex = img["bufferView"] as number;
-    const decoded = decodePng8(viewBytes[bvIndex]!);
+    const decoded = decodePng8(pristine[bvIndex]!);
+    const factorA = Array.isArray(factor) && typeof (factor as number[])[3] === "number" ? (factor as number[])[3]! : 1;
+    const lut = buildAlbedoLut([factor3[0]!, factor3[1]!, factor3[2]!]);
     const out = new Uint8Array(decoded.px.length);
     for (let i = 0; i < decoded.w * decoded.h; i += 1) {
       for (let c = 0; c < 3; c += 1) {
-        const v = Math.round(decoded.px[i * decoded.chans + c]! * factor3[c]!);
+        const v = lut[c]![decoded.px[i * decoded.chans + c]!]!;
         out[i * decoded.chans + c] = Math.min(255, Math.max(0, v));
       }
-      if (decoded.chans === 4) out[i * 4 + 3] = decoded.px[i * 4 + 3]!;
+      if (decoded.chans === 4) out[i * 4 + 3] = bakeAlphaByte(decoded.px[i * 4 + 3]!, factorA);
     }
-    viewBytes[bvIndex] = new Uint8Array(encodePng8({ w: decoded.w, h: decoded.h, chans: decoded.chans, px: out }));
-    if (pbr !== undefined) pbr["baseColorFactor"] = [1, 1, 1, 1];
+    const fresh = new Uint8Array(encodePng8({ w: decoded.w, h: decoded.h, chans: decoded.chans, px: out }));
+    const samplerKey = JSON.stringify(tex["sampler"] ?? null);
+    const foldKey = `${imgIndex}|${samplerKey}|${decoded.chans}|${factor3.join(",")}|${factorA}`;
+    let decision =
+      "baked: per-texel texture x factor folded into an independent cloned image, original retained pristine";
+    let budget = decoded.w * decoded.h;
+    const hit = cloneFor.get(foldKey);
+    if (hit === undefined) {
+      viewBytes.push(fresh);
+      const newBvIndex = bufferViews.length;
+      bufferViews.push({ buffer: 0, byteOffset: 0, byteLength: fresh.length });
+      const newImgIndex = images.length;
+      images.push({ ...img, bufferView: newBvIndex });
+      const newTexIndex = textures.length;
+      textures.push({ ...tex, source: newImgIndex });
+      texRef["index"] = newTexIndex;
+      cloneFor.set(foldKey, newTexIndex);
+      if (pbr !== undefined) pbr["baseColorFactor"] = decoded.chans === 4 ? [1, 1, 1, 1] : [1, 1, 1, factorA];
+    } else {
+      texRef["index"] = hit;
+      decision = "shared: identical image+factor+sampler, reused clone (no double-fold)";
+      budget = 0;
+      if (pbr !== undefined) pbr["baseColorFactor"] = decoded.chans === 4 ? [1, 1, 1, 1] : [1, 1, 1, factorA];
+    }
     const samples: BakedSample[] = [];
     for (let s = 0; s < 32; s += 1) {
       const x = (s * 401 + 7) % decoded.w;
@@ -280,16 +325,20 @@ export function bakeGlbAlbedo(input: string, output: string): BakedBodyRow {
     }
     materialsOut.push({
       material: name,
-      decision: "baked: per-texel texture x factor folded into the texture, factor reset to white",
+      decision,
       sourceResolution: `${decoded.w}x${decoded.h}`,
       bakedResolution: `${decoded.w}x${decoded.h}`,
       ladderRungId: RUNG_ID,
-      texelBudget: decoded.w * decoded.h,
+      texelBudget: budget,
       factorBefore: factor3,
       factorAfter: [1, 1, 1],
       samples,
     });
   }
+
+  // No orphan pruning: transformed materials were redirected to clones, so any
+  // unreferenced original image/bufferView is intentionally RETAINED (valid glTF,
+  // reclaimed later by a dedicated schema-aware pruner stage).
 
   const outBinParts: Uint8Array[] = [];
   let cursor = 0;
@@ -354,8 +403,8 @@ function main(): void {
     report,
     `${JSON.stringify(
       {
-        schemaVersion: "openclinxr.humanoid-albedo-bake.v1",
-        generated: "2026-09-11",
+        schemaVersion: "openclinxr.humanoid-albedo-bake.v2",
+        generated: new Date().toISOString(),
         precondition: "HB-00 (3c2f2fbf): every factor cleared before baking",
         audit: HB00_AUDIT,
         ladder: RUNG_SOURCE,
@@ -372,6 +421,7 @@ function main(): void {
         texelBudgetTotal: texelTotal,
         bodies,
         claimScope: ["per-texel baseColorFactor x baseColorTexture folded into one albedo per cleared material"],
+        colourTransform: "v2 linear-correct sRGB: decode texel to linear, multiply LINEAR factor RGB, re-encode sRGB; alpha linear (texA x factorA); RGB-only textures preserve factor alpha",
         notEvidenceFor: [
           "decimation or packing (HB-03)",
           "any lighting change to finished_figure_grade.py",

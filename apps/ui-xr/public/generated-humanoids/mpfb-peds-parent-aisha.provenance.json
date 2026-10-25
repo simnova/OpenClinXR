@@ -20,7 +20,7 @@
     "materializedFrom": "same default-macro adult-female body as mpfb-ob-patient-aisha (no --reference); dedicated family-palette variant so peds parent and OB patient are not one GLB",
     "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
     "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "derivationNote": "Issue #388 (2026-08-14): second aisha-body variant for peds parent_tara_johnson_v1. Recolouring mpfb-ob-patient-aisha.glb would collide with Omar (muted rose already on ed_chest_pain_spouse_adult) and the OB patient must stay cream. Bake: blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb --actor-role parent (no --reference \u2014 the aisha default-macro path). garment_shell_color maps closed_casual + role=parent to muted_rose_and_neutral; exported upper+lower baseColorFactor (0.42, 0.36, 0.40). Fitted hair is the same toigo_blunt_bob_with_bangs CC0 bob #381 proved on aisha. Iris was family green via eye_iris_colour until #519 rebake selected case brown via --eye-colour-reference peds_anxious_parent. Anatomical eye target 24.0 mm (same adult as aisha). Placeholder scalp paint retired. Child cream, kevin teal, OB aisha cream unchanged."
+    "derivationNote": "Issue #388 (2026-08-14): second aisha-body variant for peds parent_tara_johnson_v1. Recolouring mpfb-ob-patient-aisha.glb would collide with Omar (muted rose already on ed_chest_pain_spouse_adult) and the OB patient must stay cream. Bake: blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb --actor-role parent (no --reference — the aisha default-macro path). garment_shell_color maps closed_casual + role=parent to muted_rose_and_neutral; exported upper+lower baseColorFactor (0.42, 0.36, 0.40). Fitted hair is the same toigo_blunt_bob_with_bangs CC0 bob #381 proved on aisha. Iris was family green via eye_iris_colour until #519 rebake selected case brown via --eye-colour-reference peds_anxious_parent. Anatomical eye target 24.0 mm (same adult as aisha). Placeholder scalp paint retired. Child cream, kevin teal, OB aisha cream unchanged."
   },
   "licenseChain": {
     "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
@@ -63,7 +63,7 @@
   "sourceNotes": [
     "Issue #388: dedicated peds-parent variant. Same adult-female default-macro body as OB aisha; --actor-role parent so shirt and cargo take muted_rose_and_neutral. Do not recolour mpfb-ob-patient-aisha.glb. Do not gown anyone. Do not runtime-recolour. Do not orchestrate_character.",
     "Issue #519 (2026-08-21): rebaked via materialize_mpfb_humanoid_candidate.py --actor-role parent --eye-colour-reference peds_anxious_parent so eye_iris_colour selects case brown (not family green). Colour came through the #518 selector, not a hand-swapped iris. Maya unrebaked. Garment .mhmat+diffuse (Shoe.png, T-shirt_basic.png) must be staged or footwear/t-shirt textures drop.",
-    "Issue #576 (2026-08-23): REBAKED with the case-authored numeric identity reaching the macros. Same invocation (--actor-role parent --eye-colour-reference peds_anxious_parent, no --reference) but materialize now reads the manifest's numeric block (height_cm 166, bmi 24.0, build average_parent, gender_presentation adult_female_parent, age 34) through phenotype_numeric_block + the proven #329 mapping (body_param_stage.derive_macro_dict_from_authored_phenotype): gender 0.0, age 0.6191, weight 0.5024, muscle 0.5; height solved against the DECLARED 1.66 m by the bake-measure-interpolate solver (tol 0.005, every return probe-verified). Measured on the shipped body: stature 1.6527 m (7.3 mm under declared \u2014 the footwear grounding lift; the top vertex is the solved 1.6599). Body differs from OB aisha on the profile signature (band-10 delta 0.405 vs the 0.006 floor). Eye stays case brown via the #519 seam; fitted hair/scalp/visemes/FACS unchanged. body_profile remains authored data (maps to no macro).",
+    "Issue #576 (2026-08-23): REBAKED with the case-authored numeric identity reaching the macros. Same invocation (--actor-role parent --eye-colour-reference peds_anxious_parent, no --reference) but materialize now reads the manifest's numeric block (height_cm 166, bmi 24.0, build average_parent, gender_presentation adult_female_parent, age 34) through phenotype_numeric_block + the proven #329 mapping (body_param_stage.derive_macro_dict_from_authored_phenotype): gender 0.0, age 0.6191, weight 0.5024, muscle 0.5; height solved against the DECLARED 1.66 m by the bake-measure-interpolate solver (tol 0.005, every return probe-verified). Measured on the shipped body: stature 1.6527 m (7.3 mm under declared — the footwear grounding lift; the top vertex is the solved 1.6599). Body differs from OB aisha on the profile signature (band-10 delta 0.405 vs the 0.006 floor). Eye stays case brown via the #519 seam; fitted hair/scalp/visemes/FACS unchanged. body_profile remains authored data (maps to no macro).",
     "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-peds-parent-aisha.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed).",
     "2026-09-20: garment-provenance-stamp extras on remaining garments. Geometry unchanged. outputSha256/outputBytes re-recorded.",
     "2026-09-30 parent-mouth-realism iter1: re-aimed tongue offset in posed frame (jaw-confirmed -Y forward, 6mm) + shape-preserving rigid floor clamp (1mm below teeth floor). TONGUE_REAIM clamped=226, tongue Y extent 27mm, gap +0.007965, cap margin +0.0005. Teeth 7120 tris unchanged, body 26756.",
@@ -87,8 +87,8 @@
   ],
   "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
   "promotionGates": false,
-  "outputSha256": "2e2561a721f4dde840d1ee58b4d512ea8d485975408096120ec8f9ffa285dadf",
-  "outputBytes": 40321196,
+  "outputSha256": "86b0f17dccaa09ff4f75fbe32ad74c7bcc8fd56cd8e264e056f46473288aec4b",
+  "outputBytes": 40911888,
   "fitTimeLower": {
     "garment": "punkduck_female_tight_jeans",
     "sourceObjFaces": 2108,
@@ -184,5 +184,650 @@
     "appearanceCaveat": "Existing lower gum detail remains in the model and becomes visible at the corrected seating. Before/after teeth-only comparison shows the same detail; this correction makes no appearance or readiness clearance claim.",
     "sourceContributor": "actual external OpenCode Muse Spark 1.3 contributor, rigging-animation-specialist",
     "metadataIntegrator": "Codex orchestrator; preserves source authorship and prior whole-file provenance"
+  },
+  "albedoRepair": {
+    "tool": "tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts: bakeGlbAlbedo",
+    "producerSha256": "8daa14443da9e8a80afb99767aa3a99145c36dff653c71a6930a2bab15d7a16e",
+    "helperSha256": {
+      "tools/openclinxr/asset-pipeline/trellis/albedo-linear/colour-transfer.ts": "a2e567479c6a70e395efc7693b6eb8a56b148ce288e56c7b8e5d7079dd08bc6b",
+      "tools/openclinxr/asset-pipeline/trellis/albedo-linear/image-clone.ts": "c4070a8afe6627c4f0abf959709423bcc0ed59355aecbc1eaad42c2aa35ed1dd"
+    },
+    "inputSha256": "2e2561a721f4dde840d1ee58b4d512ea8d485975408096120ec8f9ffa285dadf",
+    "inputBytes": 40321196,
+    "outputSha256": "86b0f17dccaa09ff4f75fbe32ad74c7bcc8fd56cd8e264e056f46473288aec4b",
+    "outputBytes": 40911888,
+    "byteGrowth": 590692,
+    "meshCountBefore": 10,
+    "meshCountAfter": 10,
+    "nodeCountBefore": 148,
+    "nodeCountAfter": 148,
+    "skinCountBefore": 1,
+    "skinCountAfter": 1,
+    "animationCountBefore": 2,
+    "animationCountAfter": 2,
+    "originalBufferViewsCompared": 42,
+    "claimScope": [
+      "material fold only: shirt baseColorFactor folded into cloned texture and reset to white"
+    ],
+    "notEvidenceFor": [
+      "rendered appearance acceptance",
+      "whole-actor acceptance",
+      "production readiness",
+      "Quest readiness",
+      "clinical validity"
+    ],
+    "appliedAt": "2026-10-25T07:47:45.126Z",
+    "bakedBodyRow": {
+      "body": "mpfb-peds-parent-aisha.glb",
+      "meshCountBefore": 10,
+      "meshCountAfter": 10,
+      "nodeCountBefore": 148,
+      "nodeCountAfter": 148,
+      "byteLengthBefore": 40321196,
+      "byteLengthAfter": 40911888,
+      "materials": [
+        {
+          "material": "mat_makeclothes_library_female_tight_jeans_pants",
+          "decision": "skipped: factor already white, texture carries the look",
+          "sourceResolution": "2048x2048",
+          "bakedResolution": "2048x2048",
+          "ladderRungId": "n/a",
+          "texelBudget": 0,
+          "factorBefore": [
+            1,
+            1,
+            1
+          ],
+          "factorAfter": [
+            1,
+            1,
+            1
+          ],
+          "samples": []
+        },
+        {
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "decision": "skipped: factor already white, texture carries the look",
+          "sourceResolution": "2048x2048",
+          "bakedResolution": "2048x2048",
+          "ladderRungId": "n/a",
+          "texelBudget": 0,
+          "factorBefore": [
+            1,
+            1,
+            1
+          ],
+          "factorAfter": [
+            1,
+            1,
+            1
+          ],
+          "samples": []
+        },
+        {
+          "material": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mat",
+          "decision": "skipped: factor already white, texture carries the look",
+          "sourceResolution": "3600x3600",
+          "bakedResolution": "3600x3600",
+          "ladderRungId": "n/a",
+          "texelBudget": 0,
+          "factorBefore": [
+            1,
+            1,
+            1
+          ],
+          "factorAfter": [
+            1,
+            1,
+            1
+          ],
+          "samples": []
+        },
+        {
+          "material": "mat_makeclothes_library_toigo_t_shirt",
+          "decision": "baked: per-texel texture x factor folded into an independent cloned image, original retained pristine",
+          "sourceResolution": "2048x2048",
+          "bakedResolution": "2048x2048",
+          "ladderRungId": "bake-resolution-ladder.res2048",
+          "texelBudget": 4194304,
+          "factorBefore": [
+            0.62,
+            0.28,
+            0.38
+          ],
+          "factorAfter": [
+            1,
+            1,
+            1
+          ],
+          "samples": [
+            {
+              "x": 7,
+              "y": 13,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 408,
+              "y": 746,
+              "before": [
+                179,
+                179,
+                179
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 809,
+              "y": 1479,
+              "before": [
+                170,
+                170,
+                170
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1210,
+              "y": 164,
+              "before": [
+                183,
+                183,
+                183
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1611,
+              "y": 897,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 2012,
+              "y": 1630,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 365,
+              "y": 315,
+              "before": [
+                191,
+                191,
+                191
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 766,
+              "y": 1048,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1167,
+              "y": 1781,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1568,
+              "y": 466,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1969,
+              "y": 1199,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 322,
+              "y": 1932,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 723,
+              "y": 617,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1124,
+              "y": 1350,
+              "before": [
+                183,
+                183,
+                183
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1525,
+              "y": 35,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1926,
+              "y": 768,
+              "before": [
+                154,
+                154,
+                154
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 279,
+              "y": 1501,
+              "before": [
+                205,
+                205,
+                205
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 680,
+              "y": 186,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1081,
+              "y": 919,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1482,
+              "y": 1652,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1883,
+              "y": 337,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 236,
+              "y": 1070,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 637,
+              "y": 1803,
+              "before": [
+                207,
+                207,
+                207
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1038,
+              "y": 488,
+              "before": [
+                199,
+                199,
+                199
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1439,
+              "y": 1221,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1840,
+              "y": 1954,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 193,
+              "y": 639,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 594,
+              "y": 1372,
+              "before": [
+                207,
+                207,
+                207
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 995,
+              "y": 57,
+              "before": [
+                252,
+                252,
+                252
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1396,
+              "y": 790,
+              "before": [
+                255,
+                255,
+                255
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 1797,
+              "y": 1523,
+              "before": [
+                192,
+                192,
+                192
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            },
+            {
+              "x": 150,
+              "y": 208,
+              "before": [
+                182,
+                182,
+                182
+              ],
+              "factor": [
+                0.62,
+                0.28,
+                0.38
+              ]
+            }
+          ]
+        },
+        {
+          "material": "mpfb_skin_peds_anxious_parent",
+          "decision": "skipped: factor already white, texture carries the look",
+          "sourceResolution": "1024x1024",
+          "bakedResolution": "1024x1024",
+          "ladderRungId": "n/a",
+          "texelBudget": 0,
+          "factorBefore": [
+            1,
+            1,
+            1
+          ],
+          "factorAfter": [
+            1,
+            1,
+            1
+          ],
+          "samples": []
+        },
+        {
+          "material": "mat_makeclothes_library_eyes_peds_anxious_parent",
+          "decision": "skipped: factor already white, texture carries the look",
+          "sourceResolution": "1024x1024",
+          "bakedResolution": "1024x1024",
+          "ladderRungId": "n/a",
+          "texelBudget": 0,
+          "factorBefore": [
+            1,
+            1,
+            1
+          ],
+          "factorAfter": [
+            1,
+            1,
+            1
+          ],
+          "samples": []
+        },
+        {
+          "material": "mat_openclinxr_fitted_teeth_mpfb_peds_anxious_parent_mesh",
+          "decision": "skipped: factor already white, texture carries the look",
+          "sourceResolution": "2048x2048",
+          "bakedResolution": "2048x2048",
+          "ladderRungId": "n/a",
+          "texelBudget": 0,
+          "factorBefore": [
+            1,
+            1,
+            1
+          ],
+          "factorAfter": [
+            1,
+            1,
+            1
+          ],
+          "samples": []
+        },
+        {
+          "material": "mat_openclinxr_fitted_tongue_mpfb_peds_anxious_parent_mesh",
+          "decision": "skipped: factor already white, texture carries the look",
+          "sourceResolution": "1024x1024",
+          "bakedResolution": "1024x1024",
+          "ladderRungId": "n/a",
+          "texelBudget": 0,
+          "factorBefore": [
+            1,
+            1,
+            1
+          ],
+          "factorAfter": [
+            1,
+            1,
+            1
+          ],
+          "samples": []
+        }
+      ]
+    }
   }
 }

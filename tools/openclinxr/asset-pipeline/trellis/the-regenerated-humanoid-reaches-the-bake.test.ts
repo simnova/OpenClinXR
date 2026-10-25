@@ -125,6 +125,9 @@ function namedTexturedFactor(glb: string, materialName: string): number[] | unde
   const pbr = mat?.pbrMetallicRoughness;
   if (pbr?.baseColorTexture === undefined) return undefined;
   const f = pbr.baseColorFactor;
+  // FIXED: glTF spec default for omitted baseColorFactor is [1,1,1,1] (linear multiplier);
+  // fail-closed on malformed/missing cases preserved below.
+  if (f === undefined) return [1, 1, 1];
   return Array.isArray(f) ? (f as number[]).slice(0, 3) : undefined;
 }
 
