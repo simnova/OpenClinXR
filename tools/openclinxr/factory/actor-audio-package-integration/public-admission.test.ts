@@ -146,7 +146,7 @@ function fixture(run: (root: string) => void) {
   });
 }
 it("production allowlist admits precisely the existing reviewed group and new runtime overlay", () => {
-  expect(ADMISSION_GROUPS).toEqual(["psr-01f", ID]);
+  expect(ADMISSION_GROUPS).toEqual(["psr-01f", "rest-route-catalog-v1", ID, "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1"]);
 });
 it("a new root factory is refused without admission and accepted by the exact independently reviewed overlay", () => {
   fixture(root => {
