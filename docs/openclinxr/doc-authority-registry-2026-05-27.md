@@ -12,7 +12,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 112
-- archive-candidate: 134
+- archive-candidate: 135
 - current-reference: 214
 - decision-record: 48
 - evidence: 185
@@ -438,5 +438,6 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/asset-licence-ledger-rules-header.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-GUIDE-2026-08-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/asset-pipeline/skin/coherent-normal/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/openclaw/fixtures/superagent-loop-prompt.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

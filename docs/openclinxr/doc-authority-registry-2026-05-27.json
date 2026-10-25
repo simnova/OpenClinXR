@@ -7,7 +7,7 @@
     "agent-methodology": 112,
     "current-reference": 214,
     "evidence": 185,
-    "archive-candidate": 134,
+    "archive-candidate": 135,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5527,6 +5527,13 @@
     },
     {
       "path": "tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/asset-pipeline/skin/coherent-normal/README.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
