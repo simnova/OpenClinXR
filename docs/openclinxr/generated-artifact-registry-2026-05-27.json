@@ -36,7 +36,7 @@
   "counts": {
     "keep-evidence": 1952,
     "ignore-local-cache": 2771,
-    "keep-current": 254,
+    "keep-current": 255,
     "keep-template": 13,
     "keep-compatibility-input": 24
   },
@@ -35131,6 +35131,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Ward-finish-chain part 3 pose inputs: verbatim copy of the sibling wt/infinigen-room hand-placed poses (stage2-camera-fit), read-only source untouched."
+    },
+    {
+      "path": "tools/openclinxr/evidence/secure-provider-tracking/report.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated-looking artifact retained by conservative default after explicit stale/cache/template rules."
     },
     {
       "path": "tools/openclinxr/mouth-solver/solved-teeth-gap.json",
