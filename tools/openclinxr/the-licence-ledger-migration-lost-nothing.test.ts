@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,14 +17,21 @@ import { describe, expect, it } from "vitest";
  * which is the outcome the ledger exists to prevent. So refusals are asserted by source name,
  * not by count.
  *
- * The reference is the pre-migration file read from git by BLOB SHA, not a checked-in copy.
- * A copy is one more thing that can drift, and it would need its own doc-registry entry; the
- * committed blob cannot drift by definition. It is a frozen reference on purpose: deriving the
+ * The reference is the frozen pre-migration bytes checked in beside this test, not a live
+ * `git cat-file` read. The bytes are verified per run against the frozen blob id below
+ * (`git hash-object <fixture> == 1181caa4896a1b875142d7f65a3a12de920dc1f3`,
+ * commit 15214830 `docs/openclinxr/third-party-asset-licence-ledger.md`, 76541 bytes /
+ * sha256 f9752d087263c1943f2c5d35100b08b463d28e322b9c63a0135248f94cec302c; see
+ * `licence-ledger-migration-fixtures/pre-migration-1181caa.provenance.json`). A live git read
+ * fails on shallow CI checkouts that lack the historic object; the fixture keeps the same
+ * frozen reference portable, and the per-run hash guard below keeps a quietly edited fixture
+ * from passing as the oracle. It is still a frozen reference on purpose: deriving the
  * expectation from the same records the generator reads would pass by construction.
  */
 const HERE = dirname(fileURLToPath(import.meta.url));
 /** The ledger exactly as it stood before the migration, at commit 15214830. */
 const PRE_MIGRATION_BLOB = "1181caa4896a1b875142d7f65a3a12de920dc1f3";
+const FIXTURE = join(HERE, "licence-ledger-migration-fixtures", "pre-migration-1181caa.fixture.txt");
 const GENERATED = join(HERE, "..", "..", "docs", "openclinxr", "third-party-asset-licence-ledger.md");
 
 /** A ledger row's first cell is the source it names; that is the identity worth comparing. */
@@ -40,12 +47,17 @@ function sourceCells(markdown: string): Set<string> {
 }
 
 describe("the licence ledger migration lost nothing", () => {
-  const before = execFileSync("git", ["cat-file", "-p", PRE_MIGRATION_BLOB], {
-    cwd: join(HERE, "..", ".."),
-    encoding: "utf8",
-    maxBuffer: 8 * 1024 * 1024,
-  });
+  const beforeRaw = readFileSync(FIXTURE);
+  const before = beforeRaw.toString("utf8");
   const after = readFileSync(GENERATED, "utf8");
+
+  it("(0) the frozen fixture is still the 1181caa blob", () => {
+    // Per-run integrity of the oracle itself: recompute the git blob id from raw bytes so a
+    // quietly edited fixture cannot pass as the frozen reference. Pure crypto/fs, no git.
+    const header = Buffer.from(`blob ${beforeRaw.length}\0`, "utf8");
+    const actual = createHash("sha1").update(header).update(beforeRaw).digest("hex");
+    expect(actual).toBe(PRE_MIGRATION_BLOB);
+  });
 
   it("(1) every source named before the migration is still named after it", () => {
     const missing = [...sourceCells(before)].filter((source) => !sourceCells(after).has(source));

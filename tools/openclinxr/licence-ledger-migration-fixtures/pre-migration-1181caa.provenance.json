@@ -1,0 +1,12 @@
+{
+  "fixture": "pre-migration-1181caa.fixture.txt",
+  "role": "frozen pre-migration reference for the-licence-ledger-migration-lost-nothing.test.ts; identical oracle input bytes, fs load replaces git cat-file for shallow CI",
+  "blobId": "1181caa4896a1b875142d7f65a3a12de920dc1f3",
+  "sourceCommit": "152148302539ef6b551125497f0491f0cf5d2878",
+  "sourcePath": "docs/openclinxr/third-party-asset-licence-ledger.md",
+  "sourceCommitSubject": "docs(ledger): rhubarb is on PATH — the 2026-08-22 install was never symlinked",
+  "sha256": "f9752d087263c1943f2c5d35100b08b463d28e322b9c63a0135248f94cec302c",
+  "bytes": 76541,
+  "lines": 402,
+  "verify": "git hash-object pre-migration-1181caa.fixture.txt == 1181caa4896a1b875142d7f65a3a12de920dc1f3"
+}

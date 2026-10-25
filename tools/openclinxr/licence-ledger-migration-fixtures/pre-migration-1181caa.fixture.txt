@@ -1,0 +1,402 @@
+# Third-party asset licence ledger
+
+**What this is.** One row per third-party asset source acquired into this repo or its provider cache,
+with the licence, where it came from, what consumes it, and whether we intend to replace it.
+
+**Why it exists.** #193 records that CC-BY garments are allowed but "the compliance surface they are
+conditional on does not exist". This is that surface. Operator direction 2026-08-11, approving hair
+acquisition: *"keep track of these as we'll eventually look for replacements where possible."* So every
+row carries a **replacement posture**, not just a licence.
+
+**Rules.**
+- **CC0 and CC-BY only** unless the operator approves otherwise in writing. No AGPL/copyleft, no paid,
+  no unspecified.
+- **An unspecified licence is a refusal, not a maybe.** If the source page does not state a licence, it
+  does not get acquired — record it in the REFUSED table instead so nobody re-litigates it.
+- CC-BY sources require attribution to survive into anything shipped. Record the attribution string
+  here at acquisition time, not later.
+- A row is added when the asset is acquired, not when it is first used.
+- **OPERATOR RULING 2026-08-24 — the asset-pack INDEX overrides the `.mhclo`, and ONLY when it is MORE
+  PERMISSIVE.** The comparison is [the MakeHuman asset-pack index](https://static.makehumancommunity.org/assets/assetpacks/index.html)
+  **versus the asset's `.mhclo` header** — not versus the `.obj`, not versus the `.mhmat`. Where the index
+  lists a more permissive licence than the `.mhclo` declares, **use the asset and assume the index is
+  correct**; the operator contacts the pack owner to have the header corrected. Record the contradiction
+  in the row; do not re-litigate it per slice.
+  - It is an **override, not a tiebreak**. If the `.mhclo` already clears (CC0/CC-BY), the index changes
+    nothing and no override is invoked — the row stands on its own header.
+  - It runs **one direction only**. An index that is silent, or less permissive than the `.mhclo`, does
+    not soften the `.mhclo`.
+  - It **narrows and does not repeal** the four "page is not the licence" findings below (`mhair02`,
+    `hair01`, `skins01/02`, `laying-on-bed`). Those are this same direction — page claiming more than the
+    file — and are now sanctioned rather than refused.
+- **DELIVERY MODEL: this product REDISTRIBUTES raw asset files. It does not embed them.**
+  Assets live in `apps/ui-xr/public/xr-assets/**` — Vite's public directory, served at the site root —
+  so every `.glb` is a URL any browser can fetch and save. That is materially different from a
+  compiled game binary, and it is the reason this ledger's bar is stricter than a game studio's.
+  - **A licence permitting "use in your project" but forbidding redistribution of the raw file does
+    not clear here, at any price.** The Mixamo row below already refuses on exactly that ground
+    (*"no redistribution of raw animation files... free commercial use only when embedded"*), and the
+    CMU row notes *"you may not resell this data directly, even in converted form"*. Those are not
+    edge cases; they are the common shape of marketplace EULAs.
+  - This is why CC0 and CC-BY are the bar rather than a preference: both explicitly permit
+    redistribution. Most marketplace licences (Epic/Fab Standard, Sketchfab Standard, Unity/Unreal
+    store terms) permit *use* while restricting *redistribution*, which this delivery model performs
+    by construction.
+  - **Ask of any candidate: may a stranger download this file from our site and keep it?** If the
+    licence does not permit that, the asset cannot ship here however the page describes its price.
+- **OPERATOR APPROVAL 2026-08-24 — CC-BY 3D assets are approved for PRODUCT use, with attribution
+  served from a licences page.** Verbatim: *"yes allow CC-BY for 3d assets - and we'll incorporate into
+  product - as the product starts from a webpage in VR (webxr) we can likely make linkable from that
+  intial webpage to be compliant (a licenses page on that website)."*
+  - This is the **compliance surface #193 said did not exist**. CC-BY 4.0 §3(a)(2) permits satisfying
+    attribution *"by providing a URI or hyperlink to a resource that includes the required
+    information"*, so a licences page reachable from the WebXR entry page is the licence's own named
+    mechanism, not a workaround.
+  - **The approval is conditional on the page actually existing.** Shipping a CC-BY asset before the
+    page is live recreates #193 exactly — allowed in principle, uncompliant in fact. Until it lands,
+    CC-BY 3D assets may be ACQUIRED and STAGED but not shipped to a learner.
+  - Each row carries a ready-to-publish attribution string: title, author, licence. Recorded at
+    acquisition, per the rule above.
+- **The index page is a standing RESOURCE, not only a licence check.** Operator, 2026-08-24: revisit
+  <https://static.makehumancommunity.org/assets/assetpacks/index.html> whenever MakeHuman work is
+  undertaken, to see what can be leveraged. It is the first place to look before hand-authoring or
+  acquiring elsewhere (D1: wire the proven asset). Record what it offers even when nothing is taken, so
+  the next cycle does not re-search the same ground.
+- **The `.mhclo` is the asset's licence surface; a contradicting `.obj` is BOILERPLATE, not evidence.**
+  Measured 2026-08-24 (#540): `male_boots.obj:3` and `cargo_pants.obj:3` both carry
+  `# license AGPL3 (see also .../external_tools_license.html)` — the MakeHuman *template* header this
+  ledger already identifies as template text in the skins01/skins02 rows. Meanwhile
+  `culturalibre_male_boots.mhclo` declares `CC-0` and `cargo_pants.mhclo` declares **nothing at all**.
+  **Read the `.mhclo` first and judge on it.** Note an `.obj` disagreement in the row so nobody
+  re-discovers it, but do not treat it as the grant.
+
+## Acquired
+
+| source | licence | what | acquired | consumed by | replacement posture |
+|---|---|---|---|---|---|
+| **`makehuman-community-laying-on-bed-001/002`** ([pose 001](http://www.makehumancommunity.org/content/laying_on_bed_001.html), [002](http://www.makehumancommunity.org/content/laying_on_bed_002.html), [index](http://www.makehumancommunity.org/poses.html)) | **REFUSED on the header — page says CC0, FILE SAYS NOTHING.** **MEASURED 2026-08-20 (#497):** all **1016 lines** of `Laying on Back 0001.bvh` grepped for `license|licence|CC0|CC-0|CC BY|AGPL|GPL|author|copyright|public domain|creative commons` — **zero matches.** Bare `HIERARCHY` block, no comment or author stanza, Frames: 1. Per the standing rule that **unspecified is a refusal**, this does not clear on its own header. My earlier row guessed the page-vs-header trap "may not apply the same way" to a `.bvh`; it applies, just as silence rather than contradiction. **Three for three on this site** that the page is not the licence (`mhair02` page-CC0/AGPL3 header, `hair01` page-CC0/MIXED, this page-CC0/silent). | `Laying on Back 0001.bvh` / `0002.bvh`. 001: *"laying on bed with arms to the sides, head & neck tilted up to rest on pillow"*; 002 also raises/spreads the knees. **hm08-native.** **CORRECTED 2026-08-20 by the superagent:** that is true for the LIBRARY rail, NOT automatically for the learner MPFB rig. `retarget-drives-the-library-rig.test.ts` measured the Mixamo target map at **52/52 on hm08 and 0/52 on the MPFB 137-bone rig**. Whether a MakeHuman source map binds on MPFB is **the first measurement**, not an assumption. My original row asserted "no retarget required" and overstated it. | **Acquired and MEASURED 2026-08-20 (#497), NOT consumed** | **`reject_measured`.** Target side WORKS — identified as `MPFB2 default_no_toes`, so the committed map binds and the "0/52 on MPFB" figure was the **stock Mixamo** map, not this one. **SOURCE side is the blocker:** `retarget_bvh` auto-identification raises *"Shoulder breast.R has no children"* (`armature.py:215`) on the BVH's `breast.L`/`breast.R` **leaf** joints, so `action=None` and `drivenBoneCount: 0`. Supine today is 17 hand-authored eulers tuned against the 23-bone Anny rig — **`#495`'s ablation proved those eulers ARE the crumple** on the MPFB rail. | **SUPERSEDES the planned hand-authored MPFB euler table.** D1: wire the proven asset, do not hand-author. This is exactly the curious-researcher case — a VERIFIED CC0 asset that replaces planned bespoke work, found before the work started. Consumer already exists: `retarget_bvh` + `motion_bind_stage` (headless), proven once with a CMU walk. |
+| **`sketchfab-loxfear-hospital-bed`** ([model](https://sketchfab.com/3d-models/hospital-bed-f8c13a19e84343e7b644c19f7b9488d3)) | **CC-BY 4.0 — VERIFIED via Sketchfab API** (`license.label = "CC Attribution"`, `isDownloadable: true`, queried 2026-08-24). Attribution: *"Hospital Bed" by loxfear — CC-BY 4.0*. | Hospital bed, 3,988 tris — low-poly game-ready mid-band, not photoreal CAD | **NOT YET.** Row landed FIRST per `equipment-oss-candidates.md:4-5` ("do not acquire until a row lands"). Gate now open. | nothing yet; equipment priority gap #1 — *"Hospital bed / post-op bed — currently thin parametric boxes"* | Replace with parametric equipment if that lane reaches parity. Low urgency — bed geometry is stable and unlikely to need case-driven variation. |
+| **`sketchfab-mouch-iv-pole`** ([model](https://sketchfab.com/3d-models/iv-pole-76521e2f71704b1986cf5ac54368b14f)) | **CC-BY 4.0 — VERIFIED via Sketchfab API** (same method and date). Attribution: *"IV Pole" by Mouch — CC-BY 4.0*. | IV pole, 1,736 tris | **NOT YET** — gate open, as above | nothing yet; equipment priority gap #3 — *"IV pole / pump — partial GLB `iv-pole-with-pump`, may need cleaner mid-band"* | **Compare against the existing `iv-pole-with-pump` before acquiring.** If that asset is adequate this row may be withdrawn unused — acquiring a duplicate adds a compliance obligation for nothing. |
+| **`sketchfab-gunnarcorrea-hospital-stretcher`** ([model](https://sketchfab.com/3d-models/hospital-stretcher-a74239ec0dfe454a906c339071855d87)) | **CC-BY 4.0 — VERIFIED via Sketchfab API** (same method and date). Attribution: *"Hospital Stretcher" by Gunnar Correa — CC-BY 4.0*. | Stretcher, 3,600 tris | **NOT YET** — gate open, as above | nothing yet; equipment priority gap #2 — *"Stretcher / pediatric stretcher — high learner visibility"* | As above. A **pediatric** stretcher is a separate need this does not cover. |
+| `mesh2motion` clip library — **LEDGER CORRECTION** | **CC0 — VERIFIED.** The existing row says *"repo ships no LICENSE file"*; that is **STALE**. The local clone at `~/.openclinxr-tools/mesh2motion-app` carries BOTH `LICENSE-MIT.MD` (code) and `LICENSE-CC0.MD` (*"All 3d models, blend files, rigs, animations / CC0 1.0 Universal"*). | 87 + 75 human clips. Lying-adjacent: **`Sleeping`, `LayToIdle`, `Rest Pose`** — VERIFIED present. No clip named supine/hospital/bed-rest/Fowler; whether `Sleeping` is back-flat or side-sleep is **NOT graded**. | already on disk, outside the git tree | **Second choice behind the hm08-native BVH.** Its rig is a 66-joint Mixamo-adjacent skeleton (`spine_01..03`, `thigh_l`), NOT MakeHuman naming — a 66→138 retarget is required, which the hm08 BVH does not need. **Also correct `PROTO_VERIFY_DELEGATION`**, which still calls Mesh2Motion *"approved, preferred and unused (#70)"*: MADR 0036/0052 already declined it as the pipeline **rigger**; only the clip library is salvageable. |
+| Mixamo | **REFUSAL.** Adobe Additional Terms: no redistribution of raw animation files, AI/ML training ban. Free commercial use only when embedded. **Not CC0/CC-BY.** | sleep/prone clips INFERRED to exist, not catalogued | never | nothing | Refused under the project bar. Recorded so nobody re-litigates. |
+| AMASS / SMPL | **REFUSAL.** [Licence](https://amass.is.tue.mpg.de/license.html) is research / non-commercial; commercial product use prohibited. | large pose corpus | never | nothing | Refused. Recorded. |
+| CMU Graphics Lab mocap | **CONDITIONAL — not CC0/CC-BY.** Free for research and commercial products, but the data **may not be resold even converted**; NSF EIA-0196217 acknowledgement requested. | `Get Up From Ground Laying on Back` VERIFIED in the search UI — a floor get-up, not a hospital bed | already used once (walk BVH) | `motion_bind_stage` | Usable with restrictions. **Not** a clean CC0 pass; prefer the hm08 CC0 BVH. |
+| `makehuman-eyebrows01` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/eyebrows01.html), archive `eyebrows01_cc0.zip`) | **CC0 1.0 — VERIFIED 2026-08-21 (#542) in every staged `.mhclo` header** (`# license CC0`, `# author Mindfront (Sweden)`), plus pack page + `_cc0` filename. All 14 headers also declare `basemesh hm08` (ClothesService will not refuse). No uuid override needed. | 14 eyebrow proxies (`mindfront_eyebrows_01..14`), 11,477,790 B archive; staged at `.openclinxr-local/provider-cache/facial/sources/makehuman-eyebrows01/` + `PROVENANCE.json` | **Acquired 2026-08-21** under operator build order (eyebrows/eyelashes + teeth/tongue for all 11 actors) | `materialize_mpfb_humanoid_candidate.py` `EYEBROW_STYLE_BY_REFERENCE` → `ClothesService.fit_clothes_to_human` (same rail as fitted hair) | **Keep.** CC0; replace on quality grounds only. |
+| `makehuman-eyelashes01` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/eyelashes01.html), archive `eyelashes01_cc0.zip`) | **CC0 1.0 — VERIFIED 2026-08-21 (#542) in every staged `.mhclo` header** (`# license CC0`, `# author Mindfront`), plus pack page + `_cc0` filename. All 5 declare `basemesh hm08`. | 5 eyelash proxies (`mindfront_eyelashes_01..05`), 3,493,692 B archive; staged at `.openclinxr-local/provider-cache/facial/sources/makehuman-eyelashes01/` + `PROVENANCE.json` | **Acquired 2026-08-21** | **Not fitted in #542** — eyelashes retained from hm08 `helper-*-eyelashes-*` groups (selective helper retention) instead of a second pack fit. Pack stays staged for optional future fit. | **Keep.** CC0; #542 chose hm08-helper retention over pack fit (do not do both). |
+| `makehuman-skins01` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/skins01.html)) | **REFUSED on the header — page says CC0, the FILES do not clear. MEASURED 2026-08-21 (#510) by reading all 23 `.mhmat` headers inside the archive:** **2 × explicit AGPLv3 header** — `blindsaypatten_uniform_skin_texture`, `callharvey3d_midtoned_female` (verbatim `# This file is licensed AGPLv3`, the MakeHuman template header, copyright Data Collection AB / Joel Palmius / Jonas Hauquier) — **copyleft, hard refusal**; **21 × no licence line at all** — unspecified is a refusal (#497 class). `packs/skins01.json` declares `"license": "CC0"` on all entries — a **packager claim, not a per-asset grant** (#430 visemes02 class). PNG metadata chunks: **0** licence chunks across the pack's PNGs. **Fourth page-CC0 ≠ file mismatch on this site.** | 23 skins, 99.4 MB (archive bytes verified vs Content-Length). Female-dominant. Authors: blindsaypatten, bobby_03, callharvey3d, CutOff3D, darthfurby, flower-angel, Nyloseth, OnlyTheGhosts, saltycowdawg, skalldyrssuppe, spreadcore, MargaretToigo (page shows 23 asset rows, not 25 as previously recorded). Every `.mhmat` declares a `diffuseTexture` that resolves on disk. **Resolution ABSENT from the page. Target base mesh / UV topology ABSENT from the page.** | **Acquired + MEASURED 2026-08-21 (#510), NOT consumed** — extracted at `.openclinxr-local/provider-cache/skins/sources/skins01/` | nothing. Skin today is MPFB2's bundled `enhanced_skin` node tree baked to a `baseColorTexture` (row above, CC0, #343) | **`reject_measured` — do not wire.** `$diffusetexture_filename` stays empty until a skin whose OWN header clears exists. No operator override is named for these uuids (the mhair02 override was uuid-scoped). The `_with_genitals` entries are NOT the reason for refusal (OPERATOR RULING 2026-08-20 permits them) — the headers are. |
+| `makehuman-skins02` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/skins02.html)) | **REFUSED on the header — page says CC0, the FILES do not clear. MEASURED 2026-08-21 (#510) by reading all 13 `.mhmat` headers inside the archive:** **1 × explicit AGPLv3 header** — `rehmanpolanski_skin_viking_tattoos` (verbatim `# This file is licensed AGPLv3`, MakeHuman template header) — **copyleft, hard refusal**; **12 × no licence line at all** — unspecified is a refusal (#497 class). `packs/skins02.json` declares `"license": "CC0"` on all entries — **packager claim, not a grant** (#430 class). PNG metadata chunks: **0** licence chunks. **Fourth page-CC0 ≠ file mismatch on this site** (with skins01, mhair02, hair01, #497). | 13 skins, 72.6 MB (archive bytes verified vs Content-Length). All male — complements skins01's female bias. Authors: jartur69, ken1138, Mindfront, OnlyTheGhosts, RehmanPolanski, MargaretToigo. Every `.mhmat` declares a `diffuseTexture` that resolves on disk; the two Mindfront skins also declare `normalmapTexture` + `specularTexture`. **Resolution ABSENT. Target base mesh ABSENT.** | **Acquired + MEASURED 2026-08-21 (#510), NOT consumed** — extracted at `.openclinxr-local/provider-cache/skins/sources/skins02/` | nothing | **`reject_measured` — do not wire.** Same standing as skins01: no skin in either pack clears its own header licence, so today every MPFB body keeps the one shared baked skin. |
+| `makehuman-hair01` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/hair01.html)) | **MIXED — NOT CC0. Corrected 2026-08-11 (#330) by reading all 25 cached `.mhclo` headers:** 10 × `AGPL3` (**copyleft — hard refusal**), 6 × `CC0`, 2 × `CC-0`, 1 × `CC BY 4.0`, 1 × `CC_by`, 4 × **no licence line at all** (unspecified is a refusal). The previous **CC0 1.0** claim on this row was a *pack-page* reading, not a per-header read — the same error this ledger already corrected once for `makehuman-shirts01` (row above). **Do not glob this pack**: a directory-wide fit ships ten AGPL3 assets on the ledger's own authority. Usable subset = CC0/CC-BY **and** zero helper-vertex refs: the six `toigo_*` bobs. AGPL3 refusals: learning_anime_hair, culturalibre_hair_01/02, elvs_double_mh_braid, elvs_french_braid_variation, elvs_unkempt_french_braid, littleright_bobcut_hair, rehmanpolanski_hair_bun_brown, sonntag78_junglebook_hair, sonntag78_blond_with_headband. Unlicensed: the four `cortu_*`. **The gate is now machine-checkable, not prose**: `hair-licence-classify.ts` parses every staged `.mhclo`'s OWN header and helper-vertex refs (the non-uniform `CC0`/`CC-0`/`CC_by`/`CC BY 4.0`/`AGPL3`/absent spellings, and refs ≥ 13,380 vs the #318 stripped basemesh) and writes `.openclinxr/evidence/issue-330/hair-licence-classification.json` (25 rows). `faydaen_hair_1` (12 helper refs) and `culturalibre_hair_05` (4 helper refs) are additionally excluded on topology despite clean licences. | 26 hairstyles, `.mhclo` + `.mhmat`, 217 MB. Authors: Cortu, culturalibre, Elvaerwyn, Faydaen, learning, littleright, punkduck, RehmanPolanski, sonntag78, MargaretToigo | 2026-08-11 | `embed_library_hair.py` hair fit via `ClothesService.fit_clothes_to_human` — **fitted 2026-08-11 (#330):** `toigo_blunt_bob_with_bangs` on `body-param-adult_lean_female-library.glb` (`makeclothes_library_hair_toigo_blunt_bob_with_bangs_adult_lean_female_mesh`, 4,976 tris, weighted to `mixamorig:Head`), wired as an unconditional `body-param-cli.ts` finish step with a licence gate that refuses the bake when the selected style is not usable per its own header. The heavy-male class is a **recorded skip** — the licence-clean zero-helper subset is entirely feminine styles, so a bob on a male patient would regress realism; recorded in the catalog, never silent. CC-BY styles (`o4saken_long01`, `elvs_reverse_french_braid_bun`) are classified usable but carry an attribution obligation that must survive into any shipped build. **2026-08-14 (#381, slice 1 of #341): the SAME style is now fitted onto the MPFB2 cast actor** `mpfb-ob-patient-aisha.glb` by `materialize_mpfb_humanoid_candidate.py` (fit runs BEFORE the #318 helper strip, the peer fence's fit order; `makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh`, 4,976 tris, weighted to the standard rig's `head` bone; bake-time licence re-read from the style's own `.mhclo` header via `read_hair_mhclo_licence` — refused if not CC0/CC-BY). The painted scalp region stays UNDER the fitted mesh. Kevin (male nurse) no longer stays on hair01: he consumes the named `mhair02` page-CC0 override (next row) — hair01's usable subset is still the six `toigo_*` bobs plus `culturalibre_hair_06` / two CC-BY styles, which is a pack-inventory fact, not a kevin skip. | **Keep.** CC0 is the cleanest posture available; replace only on quality grounds, not licence grounds. Mostly low-poly/stylised — likely to be a realism ceiling before it is a licence problem. |
+| `makehuman-community-mhair02` ([clothes page](http://www.makehumancommunity.org/clothes/mhair02.html), uuid `f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4`) | **PAGE CC0 / HEADER AGPL3 — operator override this uuid only, 2026-08-14.** Patrick pointed at the community page as CC0. The downloaded `.mhclo` header still says `# license AGPL3` (`# author MHteam`). Same class as `visemes02`: assume the page grant, record the header contradiction, allow **this asset only**. `read_hair_mhclo_licence` is unchanged — AGPL is still a hard refusal there. The bake path checks `HAIR_PAGE_CC0_OVERRIDE` after the header read. Sibling `male_short_hair` (same page/header lie, not named) stays refused. 0 helper-vertex refs ≥ 13,380 (maxRef 12,367). `mhair02.mhmat` declares `diffuseTexture mhair02.png`; the page listed no diffuse and the PNG is absent — bake uses the existing role/vertex-color material path and does **not** invent a texture. | 2026-08-14 | Short male cut (`.mhclo` + `.obj` + `.mhmat` + `.thumb`; 2,314 obj verts / 1,730 faces). Cached at `.openclinxr-local/provider-cache/hair/sources/makehuman-community-male/mhair02/`. | **Consumed by the kevin bake** (`materialize_mpfb_humanoid_candidate.py` `HAIR_STYLE_BY_REFERENCE["peds_nurse_kevin"] = "mhair02"`). Revisit if the author says the header is the real grant — then every derived asset must be re-baked without it. | **Keep under the recorded assumption.** Not a relicence of the header; not a permit for other AGPL hair. |
+| `makehuman-pants01` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/pants01.html), mirror `https://files2.makehumancommunity.org/asset_packs/pants01/pants01_cc0.zip`) | **CC0 1.0 by the index, USED under the 2026-08-24 operator ruling. CORRECTED 2026-08-24 (#540): this row was a PACK-PAGE reading with no per-header check** — the ledger's own repeated warning, applied to itself. Measured per file: `cargo_pants.mhclo` has **no licence line at all** — and an unspecified `.mhclo` is normally a refusal (#497 class). `cargo_pants.obj:3` declares `# license AGPL3`, the MakeHuman template boilerplate, which is not the grant either way. **This is the case the 2026-08-24 index-override exists for**: index CC0 vs a silent `.mhclo` -> index is more permissive -> **USE**, owner contact pending. **This is an assumption on the index, not a finding in the file.** If the owner confirms AGPL3 is the real grant, every derived asset must be re-baked without it. | 4 lower-body garments — `cortu_cargo_pants`, `cortu_jeans_shorts`, `toigo_wool_pants`, `toigo_harem_pants` — `.mhclo` + `.obj`, author Cortu Johnstone / MargaretToigo. Only cargo pants is cached (`cargo_pants.mhclo` + `cargo_pants.obj`, original pack filename `cortu_cargo_pants.mhclo`, internal name `cargo_pants`) | 2026-08-11 | `body_param_stage.py` lower fit via `ClothesService` (cargo pants on both `body-param-*-library.glb` classes). #310: the missing rebuildable source for the shipped `makeclothes_library_cargo_pants_*` meshes | **Keep.** CC0 is the cleanest posture; replace only on quality grounds. |
+| `makehuman-community-scrub-shirt` ([Scrub_Shirt.mhclo](http://www.makehumancommunity.org/sites/default/files/clothes/8124/601141795/Scrub_Shirt.mhclo), author WojackOWL, "Medical Scrubs Kit") | **CC-BY** — attribution: `WojackOWL, Medical Scrubs Kit, CC-BY` | `Scrub_Shirt.mhclo` + `.obj`, cached under `.openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt/`. Header states `license: CC-BY`. Previously only downloaded ad-hoc at bake time; now tracked so re-bakes need no network | 2026-08-11 | `body_param_stage.py` upper fit (`makeclothes_library_scrub_shirt_*` on the heavy-male library body); factory fallback upper per `garment-selection-by-role.ts`; **2026-08-14 medical wardrobe: consumed by kevin, the ED clinical nurse AND the physician** (`materialize_mpfb_humanoid_candidate.py` `--actor-role nurse --reference peds_nurse_kevin` → `makeclothes_library_scrub_shirt_mpfb_peds_nurse_kevin_mesh`, `--reference ed_chest_pain_nurse_adult` → `makeclothes_library_scrub_shirt_mpfb_ed_chest_pain_nurse_adult_mesh`, and `--actor-role physician --reference ed_chest_pain_nurse_adult` → `makeclothes_library_scrub_shirt_mpfb_ed_chest_pain_nurse_adult_mesh` on `mpfb-clinical-physician-adult.glb` under the physician's CC0 lab coat; `LONG_SLEEVE_UPPER_BY_REFERENCE["peds_nurse_kevin"]=None` and `["ed_chest_pain_nurse_adult"]=None` so the clinician branch selects this shirt, not `toigo_fisherman_sweater`). Bake-time licence re-read via `read_hair_mhclo_licence` (`# license: CC-BY`). | **Replace when a CC0 equivalent exists.** CC-BY attribution must survive into shipped builds. |
+| `makehuman-community-scrub-pants` ([clothes page](http://www.makehumancommunity.org/clothes/scrub_pants.html), uuid `c0c024de-6d38-427c-8505-5c3f8485e86b`) | **CC-BY** — page and `# license: CC-BY` header agree. Attribution: `WojackOWL, Medical Scrubs Kit, CC-BY`. Same kit as the shirt row. | 2026-08-14 staged: `.openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-pants/` (`Scrub_Pants.mhclo` + `.obj` + `.mhmat` + `.thumb`; 1,392 obj verts / 2,704 tris; max basemesh ref 13,351 < 13,380). Declared `ScrubsMain_Pants_BaseColor_Utility - sRGB - Texture.png` is **not staged** — bake skips the texture and keeps the locked scrub colour. | **Consumed by kevin, the ED clinical nurse AND the physician** (`materialize_mpfb_humanoid_candidate.py` clinician lower slot → `makeclothes_library_scrub_pants_mpfb_peds_nurse_kevin_mesh`, `makeclothes_library_scrub_pants_mpfb_ed_chest_pain_nurse_adult_mesh`, and the same `ed_chest_pain_nurse_adult`-reference mesh on `mpfb-clinical-physician-adult.glb`). `x_scale` refs 13868/14308 are helper verts — fit runs BEFORE the #318 helper strip. Patients/family stay on `cortu_cargo_pants`. Bake-time licence re-read via `read_hair_mhclo_licence`. | **Keep with attribution.** Pair with the shirt. |
+| `makehuman-community-crude-labcoat-female` ([clothes page](http://www.makehumancommunity.org/clothes/crude_lab_coat_open_female.html), uuid `bd2ee39d-2940-4428-95a6-19b6b59db688`) | **CC0** — page and `# license CC0` / `# author Joel Palmius` agree. | 2026-08-14 staged: `…/makehuman-community-crude-labcoat-female/` (`crudelabcoatopen.mhclo` + `.obj`; max interpolation basemesh ref 13,351 < 13,380, x_scale refs 5399/11998 < 13,380 → fits the #318 helper-stripped basemesh; declared `crudelabcoatopen.mhmat` not staged, bake keeps the locked white coat colour) | **Consumed by the physician-adult bake** (`materialize_mpfb_humanoid_candidate.py` `--actor-role physician --reference ed_chest_pain_nurse_adult` → `makeclothes_library_lab_coat_mpfb_ed_chest_pain_nurse_adult_mesh`, THIRD layer over the clinician scrub shirt+pants; only the exact `physician` role wears it — nurse/RT/MA stay in scrubs. Bake-time licence re-read via `read_hair_mhclo_licence` (`# license CC0`)). | **Keep.** Low-poly “crude” series — quality ceiling, not a licence problem. |
+| `makehuman-community-crude-labcoat-male` ([clothes page](http://www.makehumancommunity.org/clothes/male_crude_labcoat.html), uuid `c3f44ec6-3aa2-4bad-9eca-e701047bcdd8`) | **CC0** — page and `# license CC0` / `# author Makuman_edited by elv` agree. | 2026-08-14 staged: `…/makehuman-community-crude-labcoat-male/` | **Not consumed.** Optional physician overlay so physician ≠ nurse sweater. | **Keep.** |
+| `makehuman-shirts01` (pack file `shirts01_cc0.zip`) | **MIXED — NOT uniformly CC0. Corrected 2026-08-14 by reading all TEN `.mhclo` headers inside the archive, not just the three extracted.** 9 x `CC0`, and **1 x `AGPL3`: `skalldyrssuppe_tube_top_funky_colors`** (copyleft — HARD REFUSAL). The pack filename says `_cc0` and the row below said CC0 1.0; both are pack-level claims, and the same error this ledger already corrected once for `makehuman-hair01` and once for this very row (#322 checked only the three extracted garments). **Do not glob this pack.** Extracting `clothes/*` ships an AGPL3 asset on the ledger's own authority. **Also measured: the pack contains SEVEN unextracted garments**, including `toigo_fisherman_sweater` (CC0, author MRT) — the only LONG-SLEEVE garment available anywhere in the cache, which #199 needs. **Helper-vertex refs are NOT a discriminator for these garments**: every one of the ten, including the `toigo_basic_tucked_t-shirt` that ships on aisha and the child today, references vertices well above 13,380 (maxRef 98,857 for the shipping t-shirt). Garments fit BEFORE the #318 helper strip, so the hair pack's topology refusal does not transfer. Do not reuse that threshold here. Original row follows. | **CC0 1.0** — re-checked against the garments' own `.mhclo` headers on 2026-08-11 (#322): `# license CC0` on `toigo_basic_tucked_t-shirt` (author MRT), `elvs_crude_t-shirt_male` (Elvaerwyn) and `namuhekam_male_polo_shirt` (Namuhekam). The earlier "CC-BY per existing cache provenance" row was a pack-page reading, not the headers, and is corrected here. | 3 upper `.mhclo` shirts + `.obj` | pre-existing | `body_param_stage.py` upper fit via `ClothesService` — `toigo_basic_tucked_t-shirt` now fitted to the lean-female `body-param-adult_lean_female-library.glb` (family/parent/spouse casual layers, #322). `namuhekam_male_polo_shirt` is excluded: 3,648 of its fitting refs are helper vertices (indices ≥ 13,380) and it cannot fit the helper-stripped basemesh (#318/#321). **2026-08-14 (#199): `toigo_fisherman_sweater` extracted by name from the pack (NOT `clothes/*` — the AGPL3 `skalldyrssuppe_tube_top_funky_colors` stays in the archive) and fitted as the LONG-SLEEVE upper on `mpfb-peds-nurse-kevin.glb` by `materialize_mpfb_humanoid_candidate.py` (`makeclothes_library_fisherman_sweater_mpfb_peds_nurse_kevin_mesh`, 2,126 verts / 4,164 tris, k-NN weighted to the standard rig, locked scrub colour kind; the asset's OWN declared `sweater_fisherman.mhmat` → `shirt-knit.png` consumed as baseColorTexture via the #360 path). Staging per §8y: a nurse in long sleeves, not a patient. Bake-time licence re-read from the `.mhclo`'s OWN header (`# license CC0`, `# author MRT`) refuses the bake on AGPL/unspecified — the same guard the #381 hair fit runs. Fits the #318 stripped basemesh (max basemesh ref 11,018 < 13,380, same shape as the shipping t-shirt's 11,016) at the SAME fit order as the t-shirt (after the strip). The scrub shirt row below remains in use for the library rail; kevin's upper slot is now this CC0 garment.** | **Keep.** CC0 removes the CC-BY attribution obligation entirely; replace only on quality grounds. |
+| `makehuman-visemes02` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/visemes02.html), mirror `https://files2.makehumancommunity.org/functional/visemes02.zip`) | **UNSPECIFIED (page) — packager JSON claims CC0 (#430); pack page states no licence. Still an assumption, not a finding.** `packs/visemes02.json` declares `license: CC0` on all 15 entries (author: Mika Suominen) — a **packager claim, not a page grant** (#430), not a licence finding; the pack page itself states no licence, and no CC/GPL/public-domain string in the HTML. Unlike `pants01` and `shoes01` there is **no `_cc0` variant** (both `visemes02_cc0.zip` URLs return 404). Author: Mika Suominen. | 2026-08-11 | 15 Meta/ARKit `visemes02` targets (`sil, PP, FF, TH, DD, kk, CH, SS, nn, RR, aa, E, I, O, U`), hm08 topology, real per-vertex deltas (`viseme_aa` 2,548, `viseme_PP` 2,282, `viseme_sil` 0 as rest), 130 KB. Matches MPFB's `VISEMES02_TO_LIPSYNC` (`faceservice.py:122`) name-for-name and the `viseme_*` prefix the runtime already drives. | **STAGED UNDER AN EXPLICIT OPERATOR ASSUMPTION, 2026-08-11.** The standing rule is *unspecified is a refusal*; the operator directed otherwise — *"backlog the license chase but assume the best so that we are unblocked and can move forward — we can revisit if we hear otherwise."* Recorded as an **assumption, not a finding**: this pack is NOT known to be CC0/CC-BY. Licence clarification is filed as a backlog item. **If clarification comes back restrictive, every asset derived from these targets must be re-baked without them** — that is the revisit trigger, and it is why this row states the assumption rather than a licence. |
+| `makehuman-shoes01` (pack file `shoes01_cc0.zip`, 83 MB, 23 shoes, all `basemesh hm08`) | **CC0 1.0 — CLEARS ON ITS OWN `.mhclo`; NO override invoked. AMENDED 2026-08-24 (#540).** `culturalibre_male_boots.mhclo` declares `# license CC-0`, so this row stands on its own header exactly as #324 recorded it. `male_boots.obj:3` additionally declares `# license AGPL3` — that is the MakeHuman **template boilerplate**, noted here so nobody re-discovers it, and it is **not** the grant. The 2026-08-24 index-override is index-vs-`.mhclo` and does not apply where the `.mhclo` already clears. Original per-`.mhclo` read, unchanged and still correct as far as it went — per each shoe's own `.mhclo` header, read on 2026-08-11 (#324): `# license CC0` on `toigo_flats` (author MRT), `toigo_mj_cloth_shoes` (author MRT), `# license CC-0` on `culturalibre_male_boots` (author culturalibre, original Roachburn). The 23-shoe pack is CC0; the per-header read is the compliance surface the factory requires. | 3 cached shoes with **zero helper-vertex refs** (fit the helper-stripped basemesh, #318): `toigo_flats` (28,808 obj verts), `toigo_mj_cloth_shoes` (556), `culturalibre_male_boots` (15,308). Helper-bearing shoes in the pack (ankle boots, ballet flats, stilettos — 6,252–67,242 refs ≥ 13,380) cannot bake and are not cached | 2026-08-11 | `embed_library_footwear.py` footwear fit via `ClothesService.fit_clothes_to_human` — `toigo_flats` on `body-param-adult_lean_female-library.glb` (family role), `culturalibre_male_boots` on `body-param-adult_heavy_male-library.glb` (male patient actor). #324: replaces the 86-vertex procedural footwear shells (a resolution defect — 1 : 50 shoe-to-foot vert ratio) | **Keep.** CC0 is the cleanest posture; the excluded helper-bearing shoes stay out until the basemesh-topology blocker (#318) is resolved, not on licence grounds. |
+| `anny` (PyPI, NAVER Corp) | **Apache-2.0** (code); bundled `data/mpfb2` assets **CC0 1.0** | Parametric body model, phenotype oracle | 2026-08-11 | Anny rail; `anny.Anthropometry`, `AnnyInverter` | **Keep.** Note its optional SMPL-X topology is non-commercial download-only and the pipeline deliberately does not call that path. |
+| MPFB2 (Blender extension) | AGPL-3 (plugin code) — **tool, not shipped asset** | Rig, macros, `ClothesService`, base mesh | pre-existing | `body_param_stage.py`, `add_mpfb2_eye_rig.py` | **Keep as a build-time tool.** It is not linked into or shipped with the runtime; the outputs (meshes) are ours. Flagged here because the repo bars copyleft in *shipped* dependencies and someone will ask. |
+| MPFB2 bundled data textures (`mpfb_face.jpg`, `mpfb_lips.jpg`, `mpfb_ears.jpg`, `mpfb_eyelids.jpg`, `mpfb_fingernails.jpg`, `mpfb_toenails.jpg`, `mpfb_aureolae.jpg`, `mpfb_inside-mouth.jpg`, `mpfb_crotch.jpg`, `mpfb_genitals.jpg`, `sss.png` — `data/textures/` inside the MPFB2 extension) | **CC0 1.0 — verified 2026-08-12 (#343) from the upstream repo's own asset grant, not a pack page.** `makehumancommunity/mpfb2` ships a SPLIT licence: code under `LICENSE.CODE.md` (GPL-3.0-or-later, matching `blender_manifest.toml` `SPDX:GPL-3.0-or-later`) and **assets/data under `LICENSE.ASSETS.md` = CC0 1.0 Universal** ("base mesh, proxies, targets/modifiers, **textures**, clothes, rigs, poses, expressions, JSON mesh data... no attribution, copyright notices, or restrictions"). The addon manifest's `GPL-3.0-or-later` labels the extension as a whole; the per-asset grant in `LICENSE.ASSETS.md` is the operative licence for the texture bytes and is CC0. | 11 skin/body-part detail textures + `sss.png` (1.4 MB), used by the `enhanced_skin` procedural shader's region nodes | 2026-08-12 | `materialize_mpfb_humanoid_candidate.py` #343 — `MaterialService.create_v2_skin_material` loads the shipped `enhanced_skin` node tree; its region groups reference these bundled textures at build time; a baked skin `baseColorTexture` ships in the GLB (derived asset, CC0 inputs) | **Keep.** CC0 is the cleanest posture; no attribution obligation. Same split-licence precedent as the `anny` row (code copyleft, bundled `data/mpfb2` assets CC0). |
+| MakeHuman default eyes (`makehuman2` repo, [`data/eyes/hm08/`](https://github.com/makehumancommunity/makehuman2/tree/main/data/eyes/hm08)) | **CC0 1.0 — verified IN THE ASSET HEADERS themselves, 2026-08-11 (#337), not a pack page:** `low-poly.mhclo`, `low-poly.obj` and `materials/brown.mhmat` each carry *"This asset was explicitly released as CC0 in september 2020"* with copyright holders Data Collection AB, Joel Palmius, Jonas Hauquier. The surrounding `makehuman2` repo is AGPL — this does NOT infect these assets; the headers are the per-asset grant, and the same eyes ship inside the separately-packaged `makehuman_system_assets_cc0.zip`. **`brown_eye.png` (the `diffuseTexture` the `brown.mhmat` declares) is part of the SAME CC0 release, verified 2026-08-11 (#340):** 610,817 bytes, git blob `bda1b4b0d94f4b7b34ca4f58063eab04f05cd2e7` == upstream `main` byte-for-byte (gh API), no licence text chunks inside the PNG, so the grant is read from the declaring `brown.mhmat` header in the same directory — the same header-only standard #337 held. | `low-poly` eye pair: `low-poly.mhclo` + `low-poly.obj` (96 verts / 86 quads ≈ 172 tris) + `brown.mhmat` + `brown_eye.png` (1024² RGBA). **Topology note:** all 96 fit refs are helper verts 14598–14741 (≥ 13,380) — the eye fit MUST run before the #318 helper strip, and does. | 2026-08-11 | `materialize_mpfb_humanoid_candidate.py` eye fit (#337) via MPFB's proven `HumanService.add_mhclo_asset(asset_type="eyes", material_type="PROCEDURAL_EYES")`, bound to the standard rig's `eyeL`/`eyeR` by `add_mhclo_asset`'s own `interpolate_weights` (probe: dominant groups `eye.L` 48 / `eye.R` 48 — the k-NN garment projection was measured wrong for eyes and is not used). **#340: the eye material now consumes the asset's own `brown.mhmat` — `diffuseTexture brown_eye.png` bound as glTF `baseColorTexture` via the generic `make_material_from_mhmat` path (was: flat white, then flat brown — neither was an eye); `brown_eye.png` staged in `.openclinxr-local/provider-cache/eyes/makehuman-default/`** | **Keep.** CC0 is the cleanest posture; replace only on quality grounds (the low-poly default is deliberately low-poly — a high-poly eye exists at `data/eyes/hm08/high-poly/`, same CC0 header, if fidelity demands it). |
+| MakeHuman system-asset eyes (`makehuman_system_assets` pack, [pack page](https://static.makehumancommunity.org/assets/assetpacks/makehuman_system_assets.html), mirror `https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip`, 280,737,770 bytes) | **CC0 1.0 — verified IN THE ASSET HEADERS themselves, 2026-08-13 (#356), same standard as the hm08 row:** every staged `<colour>.mhmat` (`eyes/materials/`) carries the identical *"This asset was explicitly released as CC0 in september 2020"* header with the same copyright holders (Data Collection AB, Joel Palmius, Jonas Hauquier); the pack page licence column also reads CC0. `brown_eye.png` in the pack is **byte-identical** to the shipped hm08 iris (sha256 `4659691c7295ad62…`, 610,817 bytes) — the same asset, re-verified. | 9 iris materials + textures: `blue`, `bluegreen`, `brown`, `brownlight`, `deepblue`, `green`, `grey`, `ice`, `lightblue` — each `<colour>.mhmat` + `<colour>_eye.png` (610,817–701,486 bytes, 1024² RGBA, luminance sd 33.7–40.0 measured); the pack also carries the same `low-poly`/`high-poly` eye meshes as hm08. Staged at `.openclinxr-local/provider-cache/eyes/makehuman-system-assets/` (gitignored cache; the GLB-embedded textures are the shipped bytes) | 2026-08-13 | `materialize_mpfb_humanoid_candidate.py` #356 — the eye material is now case-driven: `automate_blender.eye_iris_colour(actor_role, phenotype)` returns the declared colour id and the materializer consumes that colour's own `.mhmat` via the same generic `make_material_from_mhmat` path (#340). Cast: child/patient → `brown` (byte-identical iris to pre-fix), parent/family → `green`, nurse → `blue`; baseColorFactor stays (1,1,1) — the texture is the whole appearance | **Keep.** CC0 is the cleanest posture; no attribution obligation. The 6 unused colours stay staged for future casts — no new download or licence re-check needed to extend the palette. |
+| Infinigen Indoors (princeton-vl/infinigen, `indoors-stable` tag, `release_v1.14.0`) | **BSD-3-Clause** (source) — confirmed in the `LICENSE` at the installed checkout (`~/.openclinxr-tools/infinigen/source`); generated geometry is ours | Procedural indoor floorplan + empty room shells; `clinical_bay.gin` seed 0 → extracted `dining-room_0` shipped as `apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb` | 2026-08-07 (install) / 2026-08-11 (#336 consumer) | `apps/ui-xr/src/infinigen-station-environment.ts` loader, keyed by `environmentId` (`ed_exam_bay_v1`); baked GLB 2,184,544 bytes, 440 tris, 3 baked textures (Cycles albedo+AO, #345) | **Keep.** BSD-3-Clause is permissive and the shipped asset is our own generated geometry (coarse-stage shell; baked texture is derived from our geometry, no external textures). Submodules (`infinigen_gpl`, `OcMesher`) are GPL/BSD tools that stay inside the install and are not shipped. Replace only on quality grounds. |
+
+## Refused — do not re-litigate without new information
+
+| source | why refused | date |
+|---|---|---|
+| **Sketchfab — seven more operator-supplied links, 2026-08-24** (batch 3): [Medical Tray Cart](https://skfb.ly/oQR7y), [Medical Mobile Food Over Bed](https://skfb.ly/p7rQu), [IV Pole Stand](https://skfb.ly/oBFUP), [Medical Tripod](https://skfb.ly/oqnzU), [Mobile nursing cart](https://skfb.ly/P9nM), [Hospital Props](https://skfb.ly/6STTx), [Casual Sport Shoes](https://skfb.ly/pKrYG) | **REFUSAL — 7 of 7.** Verified via API 2026-08-24: three "Standard", three no licence set (`license == {}`), one **"Editorial"** (a class not previously seen here — editorial use only, not product). **`isDownloadable: false` on all seven.** Two are also unusable on size regardless of licence: Mobile nursing cart at 660,167 tris, Hospital Props at 55,584. **THE PATTERN IS THE FINDING:** across three batches, **15 operator-supplied links reviewed, 1 clears** (a CC-BY clock, 576 tris). Sketchfab's browse and search surfaces are dominated by store-licensed content; the CC-BY tier is only reliably reachable through the API filter `?license=by&downloadable=true`. Browsing the site is not an efficient way to find usable assets here. |
+| **Sketchfab — clinical GARMENTS**, operator-supplied 2026-08-24: BINARYCLOTH ["Women Hospital Gown with pocket"](https://skfb.ly/oZYKD), Julio César Cruzalta ["Doctor Coat"](https://skfb.ly/oqCsw), 3dia ["Men's Doctor Uniform"](https://skfb.ly/o8TSU) | **REFUSAL — Sketchfab "Standard" licence on all three, `isDownloadable: false` on all three.** Verified via API 2026-08-24. Same store-licence class as the Studio Lab row above. **Recorded because the NEED is real and will recur**: the project site itself states *"Every garment we own, classified. None of them is a hospital gown."* The gap is genuine; these three are not the way to fill it. Garment sourcing runs through the MakeHuman/MPFB wardrobe path per D11, not Sketchfab store assets. |
+| **Sketchfab — Studio Lab** "Hospital Bed" ([model](https://sketchfab.com/3d-models/hospital-bed-32237d8a7ab74dd5aa0177c7384170b4)), "Hospital Props Pack" ([model](https://sketchfab.com/3d-models/hospital-props-pack-b85c18b6ca5247d88bce2b5bb1818a1c)) | **REFUSAL — Sketchfab "Standard" licence, not Creative Commons.** Verified via API 2026-08-24: `license.label = "Standard"`, `isDownloadable: false` on both. The API's requirements text reads permissively (*"use worldwide, on all types of media, commercially or not"*) — that is Sketchfab's **store** licence, not a CC grant, and neither file can be downloaded regardless. Operator-supplied 2026-08-24; recorded so the permissive-sounding wording is not re-litigated. |
+| **Sketchfab — Medical Modeller** "Hospital Bed" ([model](https://sketchfab.com/3d-models/hospital-bed-d5417d4d1458406aa9a4a619e7f67fdc)), "Sink Unit" ([model](https://sketchfab.com/3d-models/sink-unit-56c72db4084b4b7782465c1ad345b2c4)) | **REFUSAL — no licence declared.** Verified via API 2026-08-24: the `license` key is PRESENT and equals `{}` — the API reports no licence *set*, rather than withholding one — and `isDownloadable: false`. Unspecified is a refusal, not a maybe. Checked explicitly because *"absent from the response"* and *"absent on the model"* are different claims. |
+| `haireditor` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/haireditor.html)) — geometry-nodes hair/fur, `hair.blend` + `fur.blend`, ~12 MB | **No licence stated on the source page.** This is the pack MPFB's own `haireditorservices.py` looks for (`get_hair_blend_path`), and it is the procedural route that would best satisfy D2 — so it is the one worth chasing a clarification on. Until then, unspecified is a refusal. | 2026-08-11 |
+| Sketchfab Medical Monitor (pistonstone / Medical Modeller) [model](https://sketchfab.com/3d-models/medical-monitor-8d9b3789c39b4c789cb9e4b45bc6aa3a) | **API licence null + not downloadable.** Search snippets called it free; API said no licence. Unspecified = refusal. | 2026-08-12 |
+| Kenney Furniture Kit (beds: bedSingle/bedDouble/bedBunk/cabinetBed) [kenney.nl](https://kenney.nl/assets/furniture-kit) | **CC0 VERIFIED** (source page text: "Download this package (140 assets) for free, CC0 licensed!"; poly.pizza mirror /m/sn8az3odMR states Public Domain CC0). 314-932 tris per bed. | `hospital_bed_equipment` deck source | **Token-free deck-bank path** — staged 2026-08-12 at `.openclinxr/staging/equipment/kenney-furniture-kit/` (provenance.json alongside; ledger = durable record). Generic bed deck (no rails/wheels; `side_rails_equipment` is a separate id). **MEASURED tick 20: bedSingle = 1.125 m × deck-top 0.375 m vs runtime spec 2.15 m / 0.58 m → spec-incompatible as-is; NOT a promotion candidate without 1.9× distort.** Prefer GRADD Hospital Room / OGA Small Hospital Bed (CC BY 3.0) for promotion. No attribution required (CC0). |
+| Sketchfab Medical Cart (yazzywazzy) [model](https://sketchfab.com/3d-models/medical-cart-d5e03bd688394269be0ad02b8f9aae62) | **CC BY-SA** (ShareAlike not in allowed set). | 2026-08-12 |
+| Sketchfab Patient Monitor (Guardiano) [model](https://sketchfab.com/3d-models/patient-monitor-ce4b4459e9fa4713b56d1385997aac5b) | **CC BY-NC** (non-commercial not allowed). | 2026-08-12 |
+
+### Sketchfab equipment bank promote (2026-08-12)
+
+| Sketchfab Hospital Bed (Matt LeMoine) [model](https://sketchfab.com/3d-models/hospital-bed-9cd9464990d2456e98b69978447852aa) | **CC BY 4.0 VERIFIED** (API at download) | `hospital_bed_equipment` bank GLB | 2026-08-12 | `apps/ui-xr/public/xr-assets/medical-equipment/hospital-bed-sketchfab-ccby.glb` via `REAL_EQUIPMENT_GLTF_BY_ID`; L=2.15 W=0.98 deck≈0.585 m after normalize (bedside stand dropped) | **Keep with attribution.** CC-BY surface: PROVENANCE.md + sidecar. Replace only on quality/Quest budget. |
+| Sketchfab Hospital Stretcher Trolley (UsmanAzhar2256) [model](https://sketchfab.com/3d-models/hospital-stretcher-trolley-edfeb93b201b4c8da2c7a4fb5dea090c) | **CC BY 4.0 VERIFIED** | `stretcher_equipment` bank GLB | 2026-08-12 | `stretcher-sketchfab-ccby.glb` (L=2.0 W=0.72 deck≈0.725) | **Keep with attribution.** |
+| Sketchfab Exam Table (orphic_oasis8) [model](https://sketchfab.com/3d-models/exam-table-459c00d5a0524c67a4ad2fa5c6eacb15) | **CC BY 4.0 VERIFIED** | `exam_table_equipment` bank GLB | 2026-08-12 | `exam-table-sketchfab-ccby.glb` (L=1.9 W=0.70 deck≈0.575) | **Keep with attribution.** |
+| Sketchfab Bed Curtain + Vital Signs Monitor (Ethan Cragun) [model](https://sketchfab.com/3d-models/bed-curtain-and-vital-signs-monitor-295ed50eeaa249e8bbeed7b305d3da71) | **CC BY 4.0 VERIFIED** | `privacy_curtain_equipment` bank GLB | 2026-08-12 | `privacy-curtain-monitor-sketchfab-ccby.glb` (height-fit 2.2 m) | **Keep with attribution.** Composite curtain+monitor; not a second bedside_monitor bank entry. |
+
+
+## Equipment candidates (NOT acquired — staging only, 2026-08-12)
+
+Full table + poly counts: `docs/openclinxr/equipment-oss-candidates.md`. MADR 0054 lane-1 bank path; acquire only after licence-tab re-verify for INFERRED rows.
+
+| source | licence (status) | subject | next action |
+|---|---|---|---|
+| Hospital Bed (Matt LeMoine) [Sketchfab](https://sketchfab.com/3d-models/hospital-bed-9cd9464990d2456e98b69978447852aa) | **CC BY 4.0 VERIFIED** (API) · ~3k tris · `isDownloadable=true` | `hospital_bed_equipment` | **Priority acquire** with attribution; post-opt if needed (0050). Download needs `SKETCHFAB_API_TOKEN` |
+| IV Stand (teeart) [Sketchfab](https://sketchfab.com/3d-models/iv-stand-dd3115aafb0e4a628f261d0de7a787b9) | **CC BY 4.0 VERIFIED** · ~5k tris | IV pole alt | Optional; bank already has iv-pole GLB |
+| Hospital Stretcher Trolley (UsmanAzhar2256) [Sketchfab](https://sketchfab.com/3d-models/hospital-stretcher-trolley-edfeb93b201b4c8da2c7a4fb5dea090c) | **CC BY 4.0 VERIFIED** (API re-read 2026-08-12) · ~2.2k tris | stretcher | **Acquire** with attribution; needs `SKETCHFAB_API_TOKEN` |
+| Exam Table (orphic_oasis8) [Sketchfab](https://sketchfab.com/3d-models/exam-table-459c00d5a0524c67a4ad2fa5c6eacb15) | **CC BY 4.0 VERIFIED** (API re-read 2026-08-12) · ~7.9k tris · downloadable | exam table | **Acquire** with attribution; needs `SKETCHFAB_API_TOKEN` |
+| Bed Curtain + Vital Signs Monitor (Ethan Cragun) [Sketchfab](https://sketchfab.com/3d-models/bed-curtain-and-vital-signs-monitor-295ed50eeaa249e8bbeed7b305d3da71) | **CC BY 4.0 VERIFIED** (API re-read 2026-08-12) · ~8.8k tris · downloadable | curtain + monitor | **Acquire** with attribution; needs `SKETCHFAB_API_TOKEN` |
+| Medical Monitor (brodys_arts) [Sketchfab](https://sketchfab.com/3d-models/medical-monitor-84aa2c97829b4557bc077e8006d97e58) | **CC BY 4.0 VERIFIED** (API re-read 2026-08-12) · ~4.9k tris · downloadable | monitor alt | Optional acquire; bank already has bedside-monitor GLB |
+| Emergency Cart (tutminchai) | CC BY 4.0 **INFERRED** · ~412k tris | crash cart | Only if decimation budget accepted; else keep kit ECG cart |
+| Poly Haven wheelchair_01 | **CC0 VERIFIED** (site-wide) | wheelchair | Optional; not in current bank scenarios |
+| OpenGameArt small hospital bed (qubodup) | **CC BY 3.0 VERIFIED** (page "license CCBY3+"; zip `license.txt`: "New work licensed under CC-BY 3.0 or later") · 540 tris / 379 verts | bed alt | **MEASURED tick 22 (2026-08-12):** converted `letto_small.blend` → GLB (Blender 5.1.1, staged at `.openclinxr/staging/equipment/oga-small-hospital-bed/` + `oga-bed.glb`). Deck-top analysis (largest horizontal face band by area, 2.355 m²) = **0.462 m** vs runtime spec 0.58 m; length 2.203 vs 2.15 m; width 1.154 vs 0.98 m → **spec-incompatible as-is; NOT a promotion candidate without distort.** Deck 0.118 m low = 20%, and a 1.255× Z-only stretch would break length/width proportions — same class as the Kenney verdict. Parametric bed remains deck SSOT. Attribution: "Small Hospital Bed by TiZeta (CC BY 2.0 original), modified by qubodup (CC BY 3.0)" |
+| GRADD Hospital Room (GRADD CO) [poly.pizza](https://poly.pizza/m/9sUalfQ76kn) | **CC BY 3.0 VERIFIED** (page: "Creative Commons Attribution" → cc/3.0) · OBJ/GLTF ward-room scene | bed alt (ward bed in-scene) | **UNBLOCKED tick 24 (2026-08-12).** Direct public GLB: `https://static.poly.pizza/d8989cd8-33d1-49a1-8139-31215dbdcf84.glb` — VERIFIED returning `model/gltf-binary`. GLB S3 key is the model's thumbnail UUID (`d8989cd8-…`, read from `/search/hospital` page), NOT the short model id; tick-23 `AccessDenied` was a wrong-key error. No auth needed. Official API (`https://api.poly.pizza/v1.1/model/9sUalfQ76kn` + `x-auth-token`, free key from `poly.pizza/settings/api`) exposes the same `Download` field deterministically. Next: download → extract bed mesh → tick-22 deck-band measurement vs 0.58 m. Attribution: `"GRADD Hospital Room" by GRADD CO, https://poly.pizza/m/9sUalfQ76kn. Licence at https://creativecommons.org/licenses/by/3.0/` |
+| Old Hospital Bed (Vavrinec Foltan) [BlenderKit](https://www.blendkit.com/asset-gallery-detail/d91eed93-39a3-480e-9e87-ac9814583385/) | **CC0 VERIFIED** (page: `license Creative commons zero`) · 4,862 polys · 7.4 MiB `.blend` · free-plan asset | `hospital_bed_equipment` deck alt (old-style hospital bed) | **NEW VERIFIED tick 24.** Download needs a free BlenderKit account. Deck height unmeasured — must pass the tick-22 deck-band method before promotion (every measured non-Sketchfab bed so far failed 0.58 m). No attribution required (CC0). |
+| Metal bedframe (MiriamAHoyt) [Blendswap](https://blendswap.com/blend/16481) | **CC0 VERIFIED** (detail + download page "Free under CC0") · 165 KB `.blend` · "old-fashioned hospital-type bed", twin, **to-scale** | `hospital_bed_equipment` deck alt (frame + rails) | **NEW VERIFIED tick 24.** Download needs a free Blendswap account ("Sign in to download"). Deck height unmeasured — must pass the tick-22 deck-band method. No attribution required (CC0). |
+| Isometric Hospital Room (graphytv) [Blendswap](https://blendswap.com/blend/20057) | **CC-BY VERIFIED** (detail page "License CC-BY") · 191 KB · low-poly hospital room incl. bed | bed alt (bed in-scene) | **NEW VERIFIED tick 24.** Free Blendswap account required. Attribution: `Isometric Hospital Room by graphytv (Blender, CC-BY) — https://blendswap.com/blend/20057`. |
+| Hospital Room For BGE (CGDude) [Blendswap](https://blendswap.com/blend/16996) | **CC-BY VERIFIED** (detail page "License CC-BY") · 2.27 MB · small hospital room | bed alt (room with bed) | **NEW VERIFIED tick 24.** Free Blendswap account required. Attribution: `Hospital Room For BGE by CGDude (Blender, CC-BY) — https://blendswap.com/blend/16996`. |
+| Gurney medevac (dudecon) [Sketchfab](https://sketchfab.com/3d-models/gurney-medevac-patient-stretcher-rescue-litter-40c85d5457a144d3b5dc1b328a2425a3) | **CC BY 4.0 UPGRADED INFERRED→VERIFIED tick 24** (public API `license.slug: by` → cc/4.0; `isDownloadable: true`; 1,532 faces / 572 verts). **Conflict noted:** author description prose claims "Actual license is Public Domain" (links `ip.tryop.com`); the API licence field is the machine-checkable licence — kept CC BY 4.0 | stretcher + baked wrapped patient | Download still needs `SKETCHFAB_API_TOKEN`. Attribution: `Gurney medevac patient stretcher rescue litter by dudecon (Sketchfab, CC BY 4.0)`. |
+
+**Structural note:** no CC0 ward bed / IV pole / crash cart pack found. External equipment path is CC-BY + attribution (same as scrub-shirt), or stay thin_parametric (lane 2).
+
+## Licence uncertainties surfaced 2026-08-11 (researcher; NOT resolved)
+
+| item | uncertainty | why it matters |
+|---|---|---|
+| **fab.com listing `833b6c3d-cb22-466a-9324-4ab5c36b0c9a`** (operator-supplied 2026-08-24) | **NOT DETERMINED — could not read the listing.** Both the page and Fab's internal `/i/listings/` endpoint return **HTTP 403** behind a Cloudflare challenge, so the asset's identity, price and licence are unknown to me and I am not guessing them. **What can be said at the CLASS level:** Fab is Epic's marketplace and its default terms are the Epic **Standard License** (personal/professional tiers) — a proprietary EULA, not Creative Commons. Fab does host some CC-BY/CC0 items migrated from the Sketchfab store, labelled as such, so a specific listing *can* clear. **The decisive question here is redistribution, not price** (see the delivery-model rule above): this product serves raw `.glb` files from a public directory, and marketplace EULAs commonly permit use while restricting redistribution. **To resolve:** open the listing and read the licence block — if it says CC-BY or CC0, it clears; if it says Epic Standard or similar, it does not, free or paid. |
+| `haireditor` pack | The CC0 grant found is **the distributor's, not the author's**. Tomáš Klecer authored `hair.blend`/`fur.blend` as a CS bachelor thesis; a distributor cannot grant CC0 on someone else's work. **One forum question to the author or MPFB maintainers closes this.** | Blocks the procedural (D2-aligned) hair path. The geo-nodes *engine* is already installed in MPFB 2.0.15; only the two `.blend` templates are missing. |
+| `retarget_bvh` (Diffeomorphic) | **GPL-2.0-or-later.** Clear licence, but copyleft. | **Build-time tooling only**, same posture as MPFB's AGPL — never linked into or shipped with the runtime. Recorded so nobody promotes it to a dependency. |
+| CMU mocap clips | *"free for all uses"*, commercial embedding permitted, but **"you may not resell this data directly, even in converted form"**, plus a requested NSF EIA-0196217 acknowledgement. | Usable, with an attribution obligation and a resale restriction that must survive into any distribution. **2026-08-14 workstream B consumed the already-in-tree diagnostic clip** `tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_07_01_walk.bvh` (cgspeed conversion; `LICENSE-CMU-DIAG.txt`) as the first `motion_bind_stage` input. Not a new acquisition. Build-time retarget only — the derived GLB is a factory artifact, not a resale of the BVH. Acknowledgement: NSF EIA-0196217. |
+| Mesh2Motion clips | Code MIT, assets **CC0-1.0**; but the repo ships **no LICENSE file**, so the claim rests on README text. | ~150 clips are the salvage from a motion path that turned out to be browser-only. Verify before harvesting. |
+| Expy-Kit, Mwni | **No LICENSE file**; GPL claim rests on a single header line. | Not acquired. Recorded so it is not mistaken for cleared. |
+| MakeHuman base mesh | A stale 2016 README in the org's own tree asserts **AGPL** against a 2020 `LICENSE.md` saying **CC0**. No dated relicensing announcement found. | This is the mesh under every body we generate. The contradiction is upstream, not ours, but it is the single most load-bearing licence in the pipeline. |
+
+## Cleared but NOT acquired — G2P pronunciation data (2026-08-13, #375)
+
+| resource | licence, verified at source | verdict |
+|---|---|---|
+| **CMUdict** (Carnegie Mellon Pronouncing Dictionary, ~134k English words to ARPAbet) | **BSD 2-clause**, copyright Carnegie Mellon University. Fetched verbatim from `https://raw.githubusercontent.com/cmusphinx/cmudict/master/LICENSE` on 2026-08-13. Permits redistribution and commercial use provided the copyright notice and conditions are retained; **explicitly not copyleft**. | **CLEARS the bar.** Permissive, non-copyleft, no AGPL contamination. Obligation on use: retain the CMU copyright notice wherever the data is redistributed. |
+| **Rhubarb Lip Sync** | **MIT** (core, copyright Daniel Wolf 2015-2016); bundled third-party deps MIT/BSD-family (Boost BSL, CMU Sphinx 2-clause-BSD variant) per the LICENSE.md shipped inside the release. Verified by reading the `LICENSE.md` shipped in the release under `~/.openclinxr-tools/rhubarb/` on 2026-08-22 (#578), not a summary page. | **CLEARS the bar** — permissive, non-copyleft, no network calls at run time (local PocketSphinx + phonetic recognizers; `res/sphinx` ships in the install). Acquired 2026-08-22 (#578): v1.14.0 official macOS release → `~/.openclinxr-tools/rhubarb/` (out-of-repo). **ON PATH since 2026-08-27**: `/opt/homebrew/bin/rhubarb` symlinks the canonical binary, verified functionally through the link (`--version` 1.14.0; phonetic and default PocketSphinx recognizers both read a WAV and emit a `mouthCues` timeline, so `res/sphinx` resolves through the symlink). Before that, `which rhubarb` was empty and the tool read as absent to anyone measuring PATH — which it did to me on 2026-08-27. Supersedes the 2026-08-13 "NOT APPLICABLE — consumes AUDIO" row below in licence scope only; the audio-input finding stands and is recorded in `docs/openclinxr/cagematch/findings/rhubarb-lip-sync-driver.md`: `-d` dialog text is an aid to audio recognition, never a standalone text→viseme path (measured: silent wav + full transcript yields one idle `X` cue; `.txt` input refused outright). |
+
+## Superseded rows
+
+| resource | earlier verdict (superseded) | why superseded |
+|---|---|---|
+| **Rhubarb Lip Sync** (2026-08-13, #375 era) | "Not investigated — NOT APPLICABLE to this pipeline. Rhubarb consumes AUDIO and this repo has zero audio assets (measured 2026-08-13); that target presumes an audio pipeline that does not exist." | #578 ran the binary directly. The repo-level fact (no audio assets) was right, but the tool-level claim had never been measured: the `-d` text-only premise is false for a structural reason (recognizers consume a waveform; text only biases recognition), which is now evidence rather than inference. Licence itself clears (MIT). |
+
+**Cleared is not acquired.** Nothing from CMUdict is in the tree. #375 is the consuming slice and is
+deliberately un-operationalized pending its extraction question; this entry removes only the licence
+half of that blocker.
+
+**Method note:** verified by fetching the LICENSE file itself, not a summary page or a package-manager
+badge. §PROTO_CURIOUS_RESEARCHER: unspecified is a refusal, so a second-hand claim would not have
+cleared it.
+
+## Open questions
+
+- **`haireditor` licence.** Worth asking upstream. If it comes back CC0/CC-BY it is the preferred hair
+  path: geometry-nodes hair is procedural (D2) and is what MPFB 2.0.11 natively supports, where hair01
+  is static mesh assets.
+- **CC-BY attribution surface.** #193's actual gap: nothing in the build currently emits attribution
+  for CC-BY sources. The one CC-BY source in use today is `makehuman-community-scrub-shirt`
+  (WojackOWL's `Scrub_Shirt`, heavy-male + factory fallback upper); `makehuman-shirts01` is CC0 per its
+  `.mhclo` headers (#322 re-check) and carries no attribution obligation. This ledger records the
+  obligation; it does not discharge it.
+
+## NOT FOUND — searched, absent, do not re-file as a bake
+
+Recorded so nobody re-opens these as generation work. Both are **procurement facts, not bake facts**;
+neither is a shopping ticket and neither unparks P1.
+
+- **`hospital_gown` — NOT FOUND.** E1 classed and rendered every cached garment on 2026-08-19:
+  13 unique garments (16 cache paths; three shirts are duplicated under `makehuman-shirts01/<name>/`
+  and `makehuman-shirts01/extracted/clothes/<name>/`). Classes are `evening_dress` 1, `labcoat` 2,
+  `scrub` 2, `street` 5, `footwear` 3. **Zero gowns.** `crudegown.mhclo` is classed `evening_dress`
+  and the orchestrator's native-resolution grade of `garment-class-sheet.png` confirms it: a coral
+  spaghetti-strap floor-length dress. Presence, placement and provenance are three questions and
+  none of them is class.
+- **Long-sleeve `scrub` upper — NOT FOUND.** The only cached scrub upper is `Scrub_Shirt.mhclo`
+  (CC-BY, WojackOWL), graded on the class sheet as a **short-sleeve V-neck**.
+
+  **CORRECTED 2026-08-19.** An earlier version of this row said swapping `Scrub_Shirt` onto the
+  nurse "would be a reversal of #199, not a library consume". **That reasoning was wrong** and is
+  withdrawn. #199's no-forearm finding is **Anny-only**, and #199 corrects itself further down its
+  own body — *"true for Anny and false for MPFB — a D11 rail split… Anny 0 forearm vertices, MPFB
+  122 and 192."* Verified independently on the shipped bytes: `mpfb-peds-nurse-kevin` carries 137
+  joints with a full `lowerarm01/02.L/R` + `wrist.L/R` chain, while the Anny-rail bodies carry 23
+  joints with `forearm.L/R` and no wrist. `a-long-sleeve-reaches-the-wrist-on-the-mpfb-rail.test.ts`
+  is 3/3 on main, so **MPFB long sleeve is proven and landed**.
+
+  What remains true: no long-sleeve *scrub* upper exists in cache, and we will not invent one.
+  Kevin's upper is therefore a **clinical staging choice, not a geometry block** — long-sleeve
+  street sweater versus short-sleeve clinical scrub. The call is the short-sleeve `Scrub_Shirt`,
+  because a learner should see a nurse in the clinical set rather than a fisherman knit. That is a
+  staging verdict recorded by an engineering process, **not a clinician sign-off** and not a claim
+  about exam-appropriate dress.
+
+  **Anny actors keep short sleeves** — their forearm is genuinely absent. Do not put the sweater
+  on them.
+
+The clinical wardrobe is therefore **four items**: two labcoats, `Scrub_Shirt`, `Scrub_Pants`.
+`Scrub_Pants` is cached, classed and unconsumed — that one is a real consume and is tracked separately.
+
+## Not tested / not claimed
+
+Licences here are recorded from the source pages as of the acquisition date. This is a tracking record
+maintained by an engineering process, **not a legal review**, and nothing in it constitutes clearance
+for commercial distribution.
+
+## REFUSED — Animato (`github.com/otdnnc/Animato`), 2026-08-21
+
+**Licence is not the problem — MIT tool, output inherits the input. It is refused on D1.**
+
+Mechanism: inspect the skeleton, build a prompt, an LLM writes one short `bpy` script, headless Blender
+bakes the clip. **One inference per animation.**
+
+Proposed and REJECTED: commit the generated script so re-bakes are deterministic. That makes clip N
+replayable; **clip N+1 is another LLM call.** It is per-asset toil with git history, which is precisely
+the anti-pattern D1 names ("not a handful of LLMs toiling in non-deterministic ways building things in
+the factory"). D9's "the exam runs with no LLM" is necessary and **not sufficient** — D9's motion row
+is *retargeted clips*, not LLM-authored `bpy` at bake time. A dark factory may bake for hours; it may
+not have an LLM on the floor for each new pose.
+
+What would pass instead: a **deterministic binder** that takes a clip file and writes animation onto the
+137-bone rig with the same code every case. **That already exists** — `motion_bind_stage.py` /
+`motion-bind-cli.ts`. Animato would only sit in front of it as a non-deterministic clip author.
+
+**Do not gate it "behind the source map." Do not run it "just to see."** A later Lane C bake-off is
+permitted only if the operator explicitly asks; it is not implied by the 2026-08-21 brief.
+
+## GRADED 2026-08-21 — Mesh2Motion `Sleeping` is NOT side-sleep; back-vs-front NOT DETERMINED
+
+The ledger row for the `mesh2motion` clip library recorded *"whether `Sleeping` is back-flat or
+side-sleep is **NOT graded**"*. Half of that is now settled, by measurement rather than by eye — the
+shipped preview is a 3.5 KB thumbnail and §11l forbids a fine verdict from a thumbnail.
+
+Measured from `static/animations/human-addon-animations.glb`, clip `Sleeping` (198 channels),
+rotation channels at t=0:
+
+    root      q = [-0.707, 0.000, 0.000, 0.707]   -> -90 deg about X ONLY
+    pelvis    q = [ 0.126, 0.000, 0.000, 0.992]   -> 14.5 deg forward tilt, no roll
+    spine_01  q = [-0.065, 0.000, 0.000, 0.998]   ->  7.4 deg, no roll
+
+**CLAIM: it is not side-lying.** A side-sleep pose requires a ROLL about the body's forward axis; the
+root chain carries a pure X pitch and **zero Y/Z rotation anywhere**, so no roll is introduced.
+
+**NOT DETERMINED: back (supine) vs front (prone).** That depends on the rest-pose forward convention,
+which I could not establish — every foot/ball/toe node's local translation lies along bone-local Y
+(Blender bone-axis convention), so those translations carry no world-forward information. **The
+instrument is blind to this question**; resolving it needs one rendered frame of the clip on a mesh.
+
+**MORE USEFUL FINDING — the clinically relevant clips are not `Sleeping`.** Enumerated from the two
+human GLBs (87 base + 75 addon):
+
+    Sitting_Idle · Sitting_Enter · Sitting_Exit · Sitting_Talking
+    Idle_Talking · Idle_TalkingPhone · Idle Listening · Idle Hurt · Idle_Subtle · LayToIdle
+
+For a Step 2 CS-style station — a patient seated, conversing, being listened to — `Sitting_Talking`
+and `Idle Listening` are worth more than a sleeping pose, and `Sitting_Enter`/`Sitting_Exit` are the
+transitions a station actually needs. **If one clip is to be mapped first (the standing ruling is ONE
+clip, not the library), the candidate should be chosen from these, not from `Sleeping`.**
+
+Licence unchanged: CC0 VERIFIED (`LICENSE-CC0.MD` in the local clone). Rig unchanged: 66-joint
+Mixamo-adjacent, so a **66->137 SOURCE map** is required either way.
+
+
+## CORRECTION 2026-08-21 — my `Sleeping` mechanism was wrong; the verdict survives on other evidence
+
+Grading the seated clips exposed an error in the `Sleeping` entry above. I wrote that
+`root q = [-0.707, 0, 0, 0.707]` (a -90 deg X pitch) meant the body was laid flat. **It does not.**
+Measured on `human-base-animations.glb`, the STANDING clip `Idle_A` carries the identical root
+rotation. The -90 deg X pitch is the rig's up-axis convention, present in every clip, and carries no
+pose information at all.
+
+**What survives, and why the verdict is unchanged:** the `Sleeping` claim was "NOT side-lying", and its
+evidence was **zero Y/Z rotation anywhere in the root chain** — a side-lying pose needs a ROLL about
+the forward axis. That measurement stands and is independent of the root convention. `Sleeping` is
+still not side-sleep.
+
+**The real evidence that `Sleeping` is horizontal is the PELVIS, not the root:**
+
+    clip             pelvis pitchX     thigh pitchX        calf pitchX
+    Idle_A (stand)      99.1 deg      151.8 / 178.7      21.4 / 14.1
+    Sitting_Idle       104.5 deg       80.0 /  80.2      84.7 / 83.5
+    Sleeping            14.5 deg              --                --
+
+`Sleeping`'s pelvis sits ~85 deg away from both upright poses. That is the discriminator I should have
+used, and the correction is recorded here rather than appended quietly to the original claim.
+
+## GRADED 2026-08-21 — the seated clips are genuinely seated, and two of them are identical at frame 0
+
+`Sitting_Idle`: hips flexed 80.0/80.2 deg, knees flexed 84.7/83.5 deg. Against the standing control
+`Idle_A` (thighs 151.8/178.7, calves 21.4/14.1) that is an unambiguous seated posture. **PASS.**
+
+**`Sitting_Idle` and `Sitting_Talking` are BYTE-IDENTICAL at frame 0** — every measured quaternion
+matches to three decimals. Their difference is temporal, not postural. Consequence for the one-clip
+rule: **a frame-0 still cannot choose between them**, so the choice must be made on what the station
+needs (a conversing patient => `Sitting_Talking`) or on a mid-clip sample, not on a first-frame grade.
+
+NOT DETERMINED: whether either clip's motion is clinically plausible over its full duration — I graded
+the entry pose, not the animation. And the 66-joint Mixamo-adjacent rig still requires a 66->137 SOURCE
+map before any of this reaches a learner.
+
+## TOOL FACT 2026-08-21 - retarget_bvh already ingests glTF; there is NO format bridge to build
+
+Surfaced while #556 worked the Mesh2Motion bind. Worth recording because the obvious assumption is
+wrong and would cost a slice: the proven path binds `cmu_07_01_walk.BVH`, and Mesh2Motion ships
+**glTF animations**, so it looks like a converter is needed. It is not.
+
+Measured in the installed addon
+(`~/Library/Application Support/Blender/5.1/extensions/user_default/retarget_bvh/load.py`):
+
+    :20   filter_glob = "*.bvh;*.fbx;*.glb;*.gltf"
+    :222  elif ext in ('.glb','.gltf'):
+    :231      gltfpath = self.saveGltf2Bvh(context, act, filepath)
+    :232      rig = self.loadBvhFile(context, gltfpath)
+    :382  def saveGltf2Bvh(self, context, act, filepath):
+    :383      gltf_path = "%s.bvh" % os.path.splitext(os.path.realpath(filepath))[0]
+
+So the loader takes a `.glb` directly and converts to BVH internally per action. **Do not write a
+glTF->BVH converter** - that is the D1 anti-pattern (hand-authoring where a proven tool exists), and
+the tool is already a dependency of the shipped bind path.
+
+NOT TESTED: whether `saveGltf2Bvh` preserves the 66-joint source names the source map will key on, or
+whether the BVH round-trip renames or flattens them. That is the first thing to measure if a bind
+comes back with unexpectedly low coverage - the map may be correct and the round-trip lossy.
+
+
+## CORRECTION 2026-08-25 — `.obj` AGPL3 boilerplate is NOT the asset licence; two refusals reversed
+
+**Operator, 2026-08-25:** *"recall that license files are sometimes off and you need to check the make
+human website for the reference to the more permissive license."* Checked, and the hint was right.
+
+`#540` refused `cortu_cargo_pants` and `culturalibre_male_boots` on a single line in their `.obj`:
+
+```
+# license AGPL3 (see also http://www.makehuman.org/doc/node/external_tools_license.html)
+```
+
+**That line is stale template boilerplate and its URL is dead.** `makehuman.org` is now a parked
+domain advertising itself for sale, so the document the header defers to no longer exists. The header
+also defers to an *external tools* licence — MakeHuman the software — not to the asset.
+
+Three sources measured 2026-08-25, and the two ASSET-SPECIFIC ones agree:
+
+| source | `culturalibre_male_boots` | `cortu_cargo_pants` |
+|---|---|---|
+| pack page, `static.makehumancommunity.org/assets/assetpacks/shoes01.html` / `pants01.html` | **CC0** (author culturalibre) | **CC0** (author Cortu) |
+| `.mhclo` asset descriptor | **`# license CC-0`** | (no licence line) |
+| `.obj` mesh header | `# license AGPL3` + dead URL | `# license AGPL3` + dead URL |
+
+Both pack pages list every asset with an explicit per-asset licence column, and neither page mentions
+AGPL anywhere. shoes01 is CC0 across all 23 entries; pants01 is CC0 across all 4.
+
+**RULING: the `.mhclo` is the asset descriptor MakeClothes authors, and the pack page is the
+publisher's per-asset record. Where those two agree, a boilerplate line in the `.obj` deferring to a
+dead external-tools page does not override them.** `cortu_cargo_pants` and `culturalibre_male_boots`
+are **CC0 and cleared**, which also clears them for the six cast actors already wearing them.
+
+**WHAT THIS DOES NOT REVERSE.** The `skins01`/`skins02` refusals stand and are a different shape: those
+carry `# This file is licensed AGPLv3` as an explicit per-file statement in the asset's OWN `.mhmat`
+descriptor, not boilerplate in a mesh, and 21 of 23 carry no licence line at all. The rule that
+*unspecified is a refusal* is unchanged. So is the `#497` finding that a page alone cannot clear a
+file — what clears these two is the DESCRIPTOR agreeing with the page, not the page by itself.
+
+**Precedence for future intake, in order:**
+1. the asset's own descriptor (`.mhclo` / `.mhmat`) — the author's declaration
+2. the publisher's per-asset pack page
+3. a mesh-header line — only when it is asset-specific, never when it is template boilerplate
+   deferring to an external-tools document
+
+Silence anywhere still refuses. Two sources disagreeing still refuses unless one is demonstrably
+boilerplate, as here.
