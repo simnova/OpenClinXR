@@ -16,5 +16,10 @@ export default mergeConfig(nodeConfig, defineConfig({
     "../../../../apps/ui-xr/src/ordinary-actor-turn-speech.ts": fileURLToPath(new URL("./apps/ui-xr/tests/actor-audio-compat.ts", import.meta.url)),
     "../../../../apps/ui-xr/src/ordinary-actor-turn-speech.js": fileURLToPath(new URL("./apps/ui-xr/tests/actor-audio-compat.ts", import.meta.url)),
   } },
-  test: { exclude: [...nodeConfig["test"]!.exclude!, "**/audible-lip-sync-proof/capture.test.mjs", "**/audible-lip-sync-proof/source-wiring.test.mjs", "**/actor-audio-package-subpath-integration/historical-test-compatibility.test.ts"] },
+  test: {
+    // Root-only: root UI probes share one browser slot; run files serially
+    // so queueing does not consume their test deadlines.
+    maxWorkers: 1,
+    fileParallelism: false,
+    exclude: [...nodeConfig["test"]!.exclude!, "**/audible-lip-sync-proof/capture.test.mjs", "**/audible-lip-sync-proof/source-wiring.test.mjs", "**/actor-audio-package-subpath-integration/historical-test-compatibility.test.ts"] },
 }));
