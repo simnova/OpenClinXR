@@ -97,8 +97,8 @@ export const MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH =
   "/generated-humanoids/mpfb-gown-adult-patient.glb";
 /**
  * #491 L6 + #652 — the last Anny literal in the cast path is retired. Any ED actor not
- * in ED_RUNTIME_CAST_BY_ACTOR (extra staff, unknown casts) resolves to the same gowned
- * MPFB body as the ED patient cast row; the Anny ed_chest_pain_adult_cast.glb still
+ * in ED_RUNTIME_CAST_BY_ACTOR (extra staff, unknown casts) resolves to the shared
+ * gowned MPFB body, not the case-bound ED rebake; the Anny ed_chest_pain_adult_cast.glb still
  * ships as a comparator only. Mirrors actor-casting's ED rows.
  */
 // NOT exported: asset-registry declares a DIFFERENT constant of the same name (the Anny
@@ -193,8 +193,7 @@ function environmentIdForScenario(scenarioId: string): string {
  * #479: the spouse moves to the MPFB family-partner body (mirrors actor-casting).
  */
 const ED_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
-  // #491 L6: the ED patient loads the gowned MPFB body (was the 23-joint Anny gown).
-  patient_robert_hayes_v1: MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH,
+  patient_robert_hayes_v1: "/generated-humanoids/mpfb-gown-ed-robert-hayes.glb",
   // #403: the ED nurse loads the MPFB clinical-nurse body (was the shared Anny nurse mesh).
   nurse_maria_alvarez_v1: MPFB_CLINICAL_NURSE_ADULT_RUNTIME_PATH,
   spouse_anna_hayes_v1: MPFB_FAMILY_PARTNER_ADULT_RUNTIME_PATH,

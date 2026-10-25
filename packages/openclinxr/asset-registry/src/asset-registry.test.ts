@@ -12,12 +12,11 @@ import {
   resolveRuntimeAssetBlobUrl,
   resolveRuntimeAssetStoreConfig,
   resolveRuntimeAssetUrl,
+  resolveScenarioActorCast,
   toLearnerRuntimeAssetBundle,
 } from "@openclinxr/asset-registry/runtime-bundles";
 import { edChestPainScenario, pediatricAsthmaScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
-// #592: import the casting SSOT directly from its module rather than repeating the literal.
-import { MPFB_GOWN_ADULT_PATIENT_GLB } from "./cast-asset-constants.js";
 
 const MPFB_FAMILY_PARTNER_ADULT_GLB = "mpfb-family-partner-adult.glb";
 
@@ -432,8 +431,14 @@ describe("asset registry", () => {
       assetStoreKind: "app_public_fixture",
     });
     expect(resolveRuntimeAssetUrl(bundle.environment)).toBe("/xr-assets/environment/ed-exam-bay-shell.glb");
+    const edPatientCast = resolveScenarioActorCast("ed_chest_pain_priority_v1").find(
+      (entry) => entry.actorId === "patient_robert_hayes_v1",
+    );
+    if (!edPatientCast) {
+      throw new Error("Expected ED chest-pain casting to include patient_robert_hayes_v1.");
+    }
     expect(resolveRuntimeAssetUrl(findRuntimeActorAsset(bundle, "patient_robert_hayes_v1")?.model ?? bundle.environment))
-      .toBe(`/generated-humanoids/${MPFB_GOWN_ADULT_PATIENT_GLB}`);
+      .toBe("/generated-humanoids/mpfb-gown-ed-robert-hayes.glb");
     expect(resolveRuntimeAssetUrl(findRuntimeEquipmentAsset(bundle, "ecg_cart_equipment")?.model ?? bundle.environment))
       .toBe("/xr-assets/medical-equipment/ecg-cart-12-lead.glb");
     expect(bundle.actors.every((actor) => actor.gazeProfile.supportsActorTargets)).toBe(true);

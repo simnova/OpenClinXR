@@ -31,12 +31,20 @@
     {
       "path": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md",
       "reason": "Dated tightjeans rebake evidence note; .md must not join generatedExtensions (doc-authority collision)."
+    },
+    {
+      "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.glb",
+      "reason": "Local runtime candidate ED gown cast under public/generated-humanoids, which scannedRoots does not walk (only public/xr-assets); kept as a pre-commit candidate, not a promotion claim."
+    },
+    {
+      "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.provenance.json",
+      "reason": "Lineage sidecar for the same local ED candidate; same directory miss as the GLB, not a generic JSON keep."
     }
   ],
   "counts": {
-    "keep-evidence": 1952,
+    "keep-evidence": 1953,
     "ignore-local-cache": 2771,
-    "keep-current": 255,
+    "keep-current": 256,
     "keep-template": 13,
     "keep-compatibility-input": 24
   },
@@ -20319,6 +20327,20 @@
       "tracked": false,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.provenance.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",

@@ -19,13 +19,15 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `tools/openclinxr/evidence/humanoid-vetting/render-tex-candidates.py` — EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script.
 - `tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg` — Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/.
 - `tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md` — Dated tightjeans rebake evidence note; .md must not join generatedExtensions (doc-authority collision).
+- `apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.glb` — Local runtime candidate ED gown cast under public/generated-humanoids, which scannedRoots does not walk (only public/xr-assets); kept as a pre-commit candidate, not a promotion claim.
+- `apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.provenance.json` — Lineage sidecar for the same local ED candidate; same directory miss as the GLB, not a generic JSON keep.
 
 ## Counts
 
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
-- keep-current: 255
-- keep-evidence: 1952
+- keep-current: 256
+- keep-evidence: 1953
 - keep-template: 13
 
 ## Cleanup Actions
@@ -2939,6 +2941,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `apps/ui-xr/dist/xr-assets/medical-equipment/stretcher-sketchfab-ccby.provenance.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/dist/xr-assets/medical-equipment/wall-clock-analog.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/dist/xr-assets/medical-equipment/wall-clock-analog.provenance.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb` - keep-current; keep; Promoted MPFB2 runtime cast under public/generated-humanoids, which scannedRoots does not walk (only public/xr-assets).
 - `apps/ui-xr/public/xr-assets/environment/ed-exam-bay-shell.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/environment/infinigen-adult-ed-abdominal-bay.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
@@ -3092,6 +3095,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `.agent-factory/quest-mixed-reality-manual-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
 - `.agent-factory/quest-mixed-reality-manual-template-check.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
 - `.agent-factory/risk-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.provenance.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json` - keep-evidence; keep; Lineage sidecar for the same promoted cast; same directory miss as the GLB, not a generic JSON keep.
 - `docs/agent-ops/worker-session-time-split-2026-09-29.json` - keep-evidence; keep; Worker session time-split data (2026-09-29): per-session and aggregate model/tool/rate-limit seconds plus schema witnesses.
 - `docs/assets/ward-door-finished-before-after-reference-2026-09-30.jpg` - keep-evidence; keep; Entry 121 committed three-way finished-door sheet: before, shipped, and v2 reference.

@@ -1,8 +1,9 @@
 import path from "node:path";
-import { MPFB_GOWN_ADULT_PATIENT_GLB, PEDS_CHILD_GLB, PEDS_PARENT_GLB } from "@openclinxr/asset-registry/cast-asset-constants";
+import { PEDS_CHILD_GLB, PEDS_PARENT_GLB } from "@openclinxr/asset-registry/cast-asset-constants";
 import {
   buildEncounterFactorySummaryContracts,
   createEdChestPainLocalLearnerRuntimeAssetBundle,
+  resolveScenarioActorCast,
 } from "@openclinxr/asset-registry/runtime-bundles";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
@@ -164,7 +165,13 @@ describe("OpenClinXR API shell", () => {
     //
     // The learner-safe assertions around it are untouched and still pass: opaque identity scope,
     // no tenantId/userId/examRunId/encounterId, productionCloudCall false.
-    expect(body.actors[0]?.model.blob.url).toBe(`/generated-humanoids/${MPFB_GOWN_ADULT_PATIENT_GLB}`);
+    const edPatientCast = resolveScenarioActorCast("ed_chest_pain_priority_v1").find(
+      (entry) => entry.actorId === "patient_robert_hayes_v1",
+    );
+    if (!edPatientCast) {
+      throw new Error("Expected ED chest-pain casting to include patient_robert_hayes_v1.");
+    }
+    expect(body.actors[0]?.model.blob.url).toBe("/generated-humanoids/mpfb-gown-ed-robert-hayes.glb");
     expect(body.equipment.map((equipment) => equipment.equipmentId)).toEqual(["ecg_cart_equipment", "iv_stand_equipment"]);
     expect(body.notEvidenceFor).toContain("quest_readiness");
   });
@@ -4637,7 +4644,7 @@ describe("OpenClinXR API shell", () => {
   });
 
   it("routes actor response requests through session-state when actorId is omitted", async () => {
-    const app = createApiApp();
+    const app = createOfflineApiApp();
     const start = await app.request("/sessions", {
       method: "POST",
       headers: { "content-type": "application/json" },

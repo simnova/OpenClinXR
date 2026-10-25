@@ -51,6 +51,7 @@ import {
   MPFB_CLINICAL_PHYSICIAN_ADULT_GLB,
   MPFB_FAMILY_PARTNER_ADULT_GLB,
   MPFB_GOWN_ADULT_PATIENT_GLB,
+  MPFB_GOWN_ED_ROBERT_HAYES_GLB,
   MPFB_OB_PATIENT_AISHA_GLB,
   MPFB_PEDS_NURSE_KEVIN_GLB,
   MPFB_PEDS_PARENT_AISHA_MOTION_BIND_GLB,
@@ -350,13 +351,17 @@ function castFromScenarioBank(scenarioId: string, injected?: CaseScenarioSource 
 export function resolveScenarioActorCast(scenarioId: string, scenario?: CaseScenarioSource | undefined): ScenarioActorCast[] {
   if (scenarioId === ED_CHEST_PAIN_SCENARIO_ID || scenarioId === "ed_chest_pain_priority_v2") {
     // All three ED roles are adults with role-distinct wardrobe (#96):
-    // patient = gowned MPFB body (#491 L6); nurse = MPFB scrubs; spouse = female street clothes.
+    // patient = case-bound gowned MPFB body (ph20-cast); nurse = MPFB scrubs; spouse = female street clothes.
     return [
       castEntry({
         actorId: "patient_robert_hayes_v1",
         role: "patient",
         scenarioId: ED_CHEST_PAIN_SCENARIO_ID,
-        glbFile: MPFB_GOWN_ADULT_PATIENT_GLB,
+        // ph20-cast: the ED patient loads the case-bound rebake, NOT the shared
+        // scene_closure gown body — the shared body's provenance names a different
+        // scenario, so casting it here fails the same-scenario provenance contract.
+        // The shared body keeps serving the six other inpatient-gown slots.
+        glbFile: MPFB_GOWN_ED_ROBERT_HAYES_GLB,
       }),
       castEntry({
         actorId: "nurse_maria_alvarez_v1",

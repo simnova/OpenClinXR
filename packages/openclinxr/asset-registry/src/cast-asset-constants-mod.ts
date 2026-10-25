@@ -95,6 +95,10 @@ export const MPFB_STREET_ADULT_MALE_GLB = "mpfb-street-adult-male.glb";
  * NOT wired into any pool — L6 owns repointing ED_ADULT_CAST_GLB and the recast.
  */
 export const MPFB_GOWN_ADULT_PATIENT_GLB = "mpfb-gown-adult-patient.glb";
+/** Case-bound ED gowned MPFB patient (Robert Hayes): rebake of the shared gown body
+ * with ED-scenario provenance; the shared gown stays pinned to scene_closure.
+ * Wired only into the ED patient row; never pooled. */
+export const MPFB_GOWN_ED_ROBERT_HAYES_GLB = "mpfb-gown-ed-robert-hayes.glb";
 
 /**
  * Adult pool — role-agnostic fallback for unknown roles and exhausted preference

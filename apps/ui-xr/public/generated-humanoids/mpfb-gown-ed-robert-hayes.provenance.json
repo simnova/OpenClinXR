@@ -1,0 +1,420 @@
+{
+ "actorId": "patient_robert_hayes_v1",
+ "actorRole": "patient",
+ "animationMode": "procedural_clinical_idle_conversation_posture_fallback_plus_grafted_retargeted_clip (carried over from input; 4 animations, grafted retargeted clip intact)",
+ "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.glb",
+ "authoredBy": "ph20-cast lane. Generation time = GLB export mtime in UTC; observation time = now in UTC; no timestamp typed by hand.",
+ "byteLineage": {
+  "derivationArgv": [
+   "blender",
+   "--background",
+   "--python",
+   "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py",
+   "--",
+   "--input-glb",
+   "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+   "--output-glb",
+   "<OWN>/candidates/apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.glb"
+  ],
+  "inputBytes": 20462500,
+  "inputProvenance": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.provenance.json",
+  "inputSha256": "27cbf4e5ed5a007ad497a3bafe2763ac72746583374ad1718d51573ba649aa66",
+  "note": "REPO_ROOT-absolute output path: pathlib Path(REPO_ROOT)/absolute == absolute, so the script wrote to OWN, never to main. Input is read-only; main was never written."
+ },
+ "caseInputs": {
+  "source": "edChestPainScenario.actors[patient_robert_hayes_v1].phenotype (case-authored; adapter extracts, never restates)",
+  "caseModule": "packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts",
+  "caseModuleSha256": "f083bbe68b014869ae8c4a03f3757b6e3bc03fa543bc4570bd808dcbe91cfe4f",
+  "adapter": "candidates/tools/openclinxr/evidence/blender/extract-ed-gown-phenotype.mts",
+  "bodyAgeHeightMorphs": "NOT rebaked from case params at this run; inherited from input GLB sha27cbf4e5 (138 joints, 47 morphs, stature 1.804m). Case age52/178cm agree with inherited body.",
+  "documentedDifferences": [
+   "clothing_style: case clinical_exam_tshirt_chest_pain vs bake clinical_exam_hospital_gown_chest_pain (gown kind selected by garmentLayers, exact)",
+   "fitProfile adult_standard_fit: NOT consumed by bake; fit inherited from input body"
+  ],
+  "fieldsReachingBuilderAtThisRun": [
+   "garmentLayers=hospital_gown (exact)",
+   "clothing_color=soft_blue (exact)",
+   "fabricPalette=hospital_gown_blue_pattern (exact)",
+   "role_visual_cue=ed_chest_pain_patient (exact)",
+   "skin/hair/eye=warm_medium/brown/brown (exact)"
+  ]
+ },
+ "claimScope": "The ED patient role resolves to an asset generated FOR the ED scenario: adult stature from its own geometry, ED scenarioId from its own provenance. Same-scenario provenance for patient_robert_hayes_v1.",
+ "derivationMode": "case_bound_ed_rebake_off_shipped_gowned_mpfb_base",
+ "gates": {
+  "geometryBonesMorphs": "pass (table in measurements)",
+  "licenseEligibility": "pass: hm08 CC0 by operator ruling 2026-09-10 (row-07, scope incl. teeth/tongue); garment first-party; no new approval needed",
+  "sameScenarioProvenance": "ED scenarioId recorded at generation time by this sidecar (not a runtime transform)",
+  "sourceEligibility": "pass: input is a tracked in-repo generated humanoid; no downloads, no providers, no paid assets",
+  "statureFloor": "pass: 1.804 m > 1.5 m",
+  "visualParity": "PENDING parent acceptance: runtime before/after captures recorded in receipt; gown material colour identical, shell tri count identical"
+ },
+ "generatorMode": "blender_only_rebake_on_shipped_base_via_bake_mpfb_gown_inspect_py",
+ "generatedAt": "2026-10-22T09:51:49.020376+00:00",
+ "licenseChain": {
+  "notReverified": "Rows cited from input sidecar + row-07 record read 2026-10-22 (operatorRuling2026_09_10 intact); packs not re-downloaded.",
+  "status": "subcomponent_rights_recorded_per_mesh__hm08_CC0_by_operator_ruling_2026_09_10",
+  "subcomponentRecords": [
+   {
+    "mesh": "mpfb_robert_reference_body",
+    "record": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json",
+    "standing": "RESOLVED 2026-09-10 by operator ruling (patrick@simnova.com): the 2020 LICENSE.md SUPERSEDES the stale 2016 README; hm08 is CC0. Scope: hm08 base mesh, teeth, tongue in every MakeHuman-derived body; public RENDER cleared. Does NOT reach mhair02 (row-14) or cortu_cargo_pants (row-15). Reversal: if an upstream owner states the README is the real grant, every derived asset is re-baked without hm08 and the ruling is withdrawn in place."
+   },
+   {
+    "mesh": "makeclothes_library_eyes_low_poly_*",
+    "record": "docs/openclinxr/asset-licence-records/row-27-makehuman-system-asset-eyes-makehumansystemassets-pack-pack-.json",
+    "standing": "CC0 1.0 verified in the asset headers"
+   },
+   {
+    "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_*",
+    "record": "docs/openclinxr/asset-licence-records/row-22-makehuman-shoes01-pack-file-shoes01cc0-zip-83-mb-23-shoes-al.json",
+    "standing": "CC0 1.0 clears on its own .mhclo header"
+   },
+   {
+    "mesh": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_*",
+    "record": "docs/openclinxr/asset-licence-records/row-13-makehuman-hair01-pack-page.json",
+    "standing": "pack is MIXED; the six toigo_* bobs are the CC0 subset and this is one of them"
+   },
+   {
+    "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_*",
+    "record": "docs/openclinxr/asset-licence-records/row-09-makehuman-eyebrows01-pack-page-archive-eyebrows01cc0-zip.json",
+    "standing": "CC0 1.0 verified in every staged .mhclo header"
+   },
+   {
+    "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_*",
+    "record": "docs/openclinxr/asset-licence-records/row-10-makehuman-eyelashes01-pack-page-archive-eyelashes01cc0-zip.json",
+    "standing": "CC0 1.0 verified in every staged .mhclo header"
+   },
+   {
+    "mesh": "openclinxr_hm08_teeth_*, openclinxr_hm08_tongue_*",
+    "record": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json",
+    "standing": "hm08 teeth/tongue: CC0 by the same 2026-09-10 operator ruling (in-scope)."
+   },
+   {
+    "mesh": "openclinxr_declared_upper_layers__hospital_gown_mesh, openclinxr_real_garment_hospital_gown_mesh (REBAKED for this case)",
+    "record": "first-party",
+    "standing": "generated procedurally by this repository's garment stations (bake_mpfb_gown_inspect.py + automate_blender.apply_role_clothing_material_regions); no third-party grant is involved. This shell is new geometry authored at this bake, not the scene_closure shell."
+   }
+  ]
+ },
+ "measurements": {
+  "gownBaseColour": [
+   0.15000000596046448,
+   0.550000011920929,
+   0.8199999928474426,
+   1
+  ],
+  "gownBaseColourIdentical": true,
+  "gownTris": {
+   "in": 6832,
+   "out": 6832
+  },
+  "input": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+  "jointCount": {
+   "in": 138,
+   "out": 138
+  },
+  "meshNamesIdentical": true,
+  "morphMaxPerPrim": {
+   "in": 47,
+   "out": 47
+  },
+  "output": "apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.glb",
+  "skinShoeEyeTextureBytesIdentical": [
+   1418657,
+   845321,
+   610817
+  ],
+  "statureMeters": {
+   "in": 1.804,
+   "out": 1.804
+  },
+  "tool": "ph20-cast/tmp/inspect.mjs + mat2.mjs + gownstats.mjs (NodeIO AABB, max Y/Z extent)",
+  "tris": {
+   "in": 40277,
+   "out": 39122
+  }
+ },
+ "notEvidenceFor": [
+  "clinical dress-code correctness",
+  "clinical likeness or facial identity of Robert Hayes",
+  "production asset readiness / realism grade (not_graded, same as input)",
+  "that the ED station looks good (parent visual acceptance pending)"
+ ],
+ "operations": [
+  {
+   "argv": [
+    "--input-glb",
+    "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+    "--output-glb",
+    "<OWN>/candidates/.../mpfb-gown-ed-robert-hayes.glb"
+   ],
+   "exit": 0,
+   "exportBytes": 6966220,
+   "kept": [
+    "openclinxr_real_garment_from_phenotype_hospital_gown (rebuilt clinical-gown cage, exported as openclinxr_real_garment_hospital_gown_mesh)"
+   ],
+   "kind": "blender_rebake_strip_and_rebuild_gown",
+   "stripped": [
+    "openclinxr_real_garment_from_phenotype_hospital_gown (3500 verts, input's old shell)"
+   ],
+   "tool": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py"
+  }
+ ],
+ "optimizationMode": "meshopt_decimated_post_blender_glb (carried over from input)",
+ "outputBytes": 8096468,
+ "outputSha256": "bc840005fe94f90712b77521283d1ba2c6636df523ec932c346ee37e14a3d120",
+ "promotionStatus": "candidate_not_promoted__needs_parent_visual_acceptance_and_root_full_suite",
+ "realismGrade": "not_graded",
+ "scenarioId": "ed_chest_pain_priority_v1",
+ "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+ "sourceKind": "mpfb2_makehuman_basemesh_hm08_with_standard_rig",
+ "sourceOriginChain": {
+  "derivationNote": "Regeneration, not relabel: the input's old gown shell was deleted in-Blender and a new shell was authored from the ED case phenotype at this bake. Body/rig/morphs/animations/textures are the same MPFB rail bytes carried through the glTF round-trip (2 orphan materials dropped: unused T-shirt material+texture, one orphan image \u2014 no surface loses its material).",
+  "generator": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py phenotype block (garmentLayers hospital_gown, fabricPalette hospital_gown_blue_pattern, role_visual_cue ed_chest_pain_patient, skin warm_medium, hair/eye brown)",
+  "materializedFrom": "Blender-only rebake of tracked input (see byteLineage); #684 regen shape (input == previously gowned asset)"
+ },
+ "textureMode": "authored_or_baked (carried over from input)",
+ "physicalFloors": {
+  "instrument": "the-gown-drapes-below-the-hip.test.ts readShell/belowHipBands verbatim (GAP_MAX 0.04, HEM_FRAC_MAX 0.45, TOP_FRAC_MIN 0.7, MIN_VERTS 2000)",
+  "results": {
+   "bands": 13,
+   "closed": 13,
+   "hemFrac": 0.315,
+   "split": 0,
+   "topFrac": 0.841,
+   "verts": 3500,
+   "worstGapMm": 18.6
+  },
+  "verdict": "all four original floors pass; no floors reset, no exemptions"
+ },
+ "exportMtimeUtc": "2026-10-22T09:51:49.020376+00:00",
+ "exportMtimeSource": "filesystem st_mtime of the exported GLB converted to UTC (05:51 EDT == 09:51 UTC); read, never typed",
+ "observedAt": "2026-10-22T10:11:51.134861+00:00",
+ "posedContactReplay": {
+  "driver": "gown-leg-contact-final/tmp/opencode-legfinal/prove.py (same-pose instrument, V5 ward pose context)",
+  "on": "new ED asset",
+  "results": {
+   "bodyMin": 0.5359560553471124,
+   "bodyMinExpect": 0.5359562103237806,
+   "bodySub50": 0,
+   "gownMin": 0.419836750067874,
+   "gownMinExpect": 0.4198367500678741,
+   "gownMinIdx": 3254,
+   "gownSub50Inside": 184,
+   "gownSub50Outside": 0
+  },
+  "verdict": "accepted 27cb clamp reproduced (same min vertex); no fit stage, no geometry change, no recapture"
+ },
+ "hemWidthBind": {
+  "hemY": {
+   "new": 0.56,
+   "original": 0.558
+  },
+  "instrument": "stride-aware POSITION read, X span of verts within 3cm of hem",
+  "xSpanM": {
+   "new": 0.49,
+   "original": 0.49
+  },
+  "verdict": "identical span; rebake lost no width"
+ },
+ "stages": [
+  {
+   "stage": "skin-normal-canonical-rebind",
+   "recipe": "coherent-pore-v6-orangepeel-sparsepits-bandlimited",
+   "inputGlbSha": "55d9d24aacade0028ec1175e45c180caabf15afd1e8ab84d96cdb7904f073471",
+   "bakeInputGlb": "mpfb-gown-ed-robert-hayes.glb",
+   "bakeInputGlbSha": "55d9d24aacade0028ec1175e45c180caabf15afd1e8ab84d96cdb7904f073471",
+   "bakeReportSha": "c10452106af3d0bbef82ff93dc613067131f64166c65be63321aa78526d4d5f8",
+   "bakeReportSha256": "c10452106af3d0bbef82ff93dc613067131f64166c65be63321aa78526d4d5f8",
+   "bakeRecipe": "coherent-pore-v6-orangepeel-sparsepits-bandlimited",
+   "bakePore": {
+    "mechanism": "low-freq orange-peel + sparse gaussian pits, bandlimited",
+    "seed": 55,
+    "strength": 1.2
+   },
+   "bakeMacro": {},
+   "bodyMesh": "mpfb_robert_reference_body",
+   "reportedBodyMesh": "mpfb_robert_reference_body",
+   "bodyVsha": "4fecaa81bfe799db7e98de320ef0ea78cb6e5b52aa0eee03a76c305729c27d96",
+   "flow": "append-new-image",
+   "oldNormalSha": null,
+   "newNormalSha": "d88b110f75ec8ccf09e9ca8448826564054befed771390bd5c9108b73eeada82",
+   "priorOutputSha256": "55d9d24aacade0028ec1175e45c180caabf15afd1e8ab84d96cdb7904f073471",
+   "priorOutputBytes": 6966220,
+   "outputGlbSha": "2437a9c868d7fd605d885204d6d24eed0bef49676e40fa5c641545af0c03183b",
+   "outputGlbBytes": 8301048,
+   "normalBars": {
+    "sdR": 11.005,
+    "flat": 0.0702,
+    "incoh": 0.4633,
+    "bars": [
+     true,
+     true,
+     true
+    ]
+   },
+   "codeSha": "e40e9cc5436365d378ea27d81191b42e3162cd59d54d48fa45072b611d97cef0",
+   "normalMetricsCodeSha": "ccdc5ecf1d5f874f157b206bc5d0d48c0d7fdc215c91cc8ae78e57d9c9a89cf4",
+   "runtime": "python3.13.14/numpy2.5.1/scipy1.18.0/analytic-heightfield/1024/seed55/strength1.2/blur3.0/NO-BLENDER/NO-MESH-BAKE",
+   "derivationMode": "procedural-stylized-analytic-heightfield: artistic texture; NOT a mesh-surface bake; NOT measured skin pores; NOT photoreal",
+   "generator": "python3.13.14/numpy2.5.1/scipy1.18.0 analytic-heightfield 1024px RGB8, seed-controlled",
+   "renderRecipe": "heightfield[ncomp=10 freq=4..12 pits=2500 r=2..4.5 blur=3.0 strength=1.2] -> gradient normal",
+   "meshSurfaceBake": false,
+   "measuredSkinPores": false,
+   "photorealClaim": false,
+   "bindingScope": "source GLB used for binding identity/UV slot only; mesh geometry normals preserved; detail carried only by the added tangent-space normal field",
+   "derivation": "procedural stylized coherent-detail binding: analytic heightfield artistic texture (no mesh-surface bake, no measured pores, no photoreal claim); source GLB used for binding identity/UV slot only; mesh geometry normals preserved, detail carried only by the added tangent-space normal field"
+  },
+  {
+   "stage": "ed-gown-posterior-fit-repair",
+   "tool": "tools/openclinxr/evidence/blender/fit-ed-gown-posterior.py",
+   "toolSha256": "ac19284990da1ce92cdd8d14a357ed3a935ea8162d3b20dd8bb17f1028012c0e",
+   "inputGlbSha": "2437a9c868d7fd605d885204d6d24eed0bef49676e40fa5c641545af0c03183b",
+   "outputGlbSha": "1d194468837255ec074e28adc1f9e4206a39d7c78e449f618e886fa64c1972e4",
+   "outputGlbBytes": 8301180,
+   "posteriorRule": "per 25mm y-band: gown z < body_zmin(y)-0.012 -> clamp; 12mm allowance measured from old shared control (hem body -0.035 vs old gown -0.044 ~=9mm)",
+   "anteriorClamped": false,
+   "xClamped": false,
+   "movedVerts": 964,
+   "maxPosteriorPullM": 0.087627,
+   "normals": "recomputed area-weighted smooth vertex normals from indices+final positions; TANGENT absent in and out (matches Main final; no regen needed; normal-map image bytes preserved)",
+   "tangentPresentIn": false,
+   "tangentPresentOut": false,
+   "validator": "gltf-transform validate: only pre-existing BUFFER_VIEW_TOO_LONG error also present in Main final 2437; no new errors; images/textures/materials/anims 4/4/16/4 unchanged",
+   "verify": "clean production probe (applyAndPlantSupineOnDeck, deck 0.55, HOB30, scale 0.82): candidate full 0.535/clearance -0.015 PASS bar -0.03; anatomical 0.536 unchanged; gown 0.540 vs control 0.542; regions pelvis 0.002/0.000 lumbar 0.012/-0.003 thorax 0.004/-0.003 heel 0.005/-0.014 occiput 0.015/0.003; rootY 0.776",
+   "derivationHonesty": "posterior-only garment repair on case-derived rebake; not a sidecar restamp, not a body copy; case receipt + byteLineage + prior stages preserved",
+   "computedAt": "2026-10-22T10:55:32.091255+00:00"
+  },
+  {
+   "stage": "container-length-repair",
+   "inputGlbSha": "1d194468837255ec074e28adc1f9e4206a39d7c78e449f618e886fa64c1972e4",
+   "priorOutputSha256": "1d194468837255ec074e28adc1f9e4206a39d7c78e449f618e886fa64c1972e4",
+   "priorOutputBytes": 8301180,
+   "outputGlbSha": "14c209b768e3aeae72371b069c8d5797626feaf0e3e01ea9b1dcdec97328bdd7",
+   "outputGlbBytes": 8301180,
+   "declaredByteLengthBefore": 6417476,
+   "declaredByteLengthAfter": 7752132,
+   "repairedAtUtc": "2026-10-22T11:01:51.208750+00:00",
+   "helperCodeSha": "51c45f348b12bfecfcf916479ad1b057ecc3bf476239418ccaaa7ea7d8de402f"
+  },
+  {
+   "stage": "ed-source-chest-graft",
+   "tool": "tools/openclinxr/asset-pipeline/skin/ed-case-material/graft-chest.mjs",
+   "toolSha256": "8d930767440a99583d84d3b4f06895ad211136bf01ab8c2800f8a7f507fdf810",
+   "inputGlbSha": "14c209b768e3aeae72371b069c8d5797626feaf0e3e01ea9b1dcdec97328bdd7",
+   "sourceRestSha": "27cbf4e5ed5a007ad497a3bafe2763ac72746583374ad1718d51573ba649aa66",
+   "restLAfter": [
+    0.085,
+    0.13919512927532196,
+    -3.3527612686157227e-08
+   ],
+   "restRAfter": [
+    -0.085,
+    0.13919512927532196,
+    -6.705522537231445e-08
+   ],
+   "guardWithdrawFixedKeys": 4,
+   "outputGlbSha": "40a22db20d67e8af4e191abfec28ca2f677f70d4122debd16c60dbca1b886c5c",
+   "computedAt": "2026-10-22T14:07:25.974599+00:00"
+  },
+  {
+   "stage": "ed-case-tint-regrade-and-bind",
+   "adapter": "tools/openclinxr/asset-pipeline/skin/ed-case-material/regrade.mts",
+   "adapterSha256": "44138e158b871028e1ac758bef1d840ea737701fa06fd6aa21c14228d23ef44d",
+   "baker": "tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts::bakeGlbAlbedo",
+   "binder": "tools/openclinxr/asset-pipeline/skin/ed-case-material/bind-skin.py",
+   "binderSha256": "458818f69b5351eee7bdd1dfe8c0ff8957ff15b4b526bca02aa4ba0ee8b26839",
+   "caseTone": "warm_medium (0.66,0.50,0.40) via edChestPainScenario patient_robert_hayes_v1.phenotype.skin_tone (actual fixture module)",
+   "measuredLinMean": [
+    0.5852662438716695,
+    0.4413472603268679,
+    0.36632450849209897
+   ],
+   "gain": [
+    1.1276918956301831,
+    1.1328947632521682,
+    1.091928033006908
+   ],
+   "wouldClipTexels8bit": 4019,
+   "note": "pixel/shader-factor colour rebake of inherited detail/SSS; no fresh MPFB shader generation; no resample; no geometry change; rest/IBM untouched (non-neutral source pose preserved)",
+   "bakeInputGlbSha": "40a22db20d67e8af4e191abfec28ca2f677f70d4122debd16c60dbca1b886c5c",
+   "bakedPngSha": "64523df5f54866e316eaaa42a491f60cf010030b7b93c6da5abaa6f52e65509c",
+   "outputGlbSha": "efd3ffd46ee4918e92fb27a2921d97d3a4f4980b56b9ab781efcdea5c3b30e91",
+   "outputGlbBytes": 8101176,
+   "computedAt": "2026-10-22T14:07:25.974599+00:00",
+   "texelCount": 489262,
+   "targetLinear": [
+    0.66,
+    0.5,
+    0.4
+   ],
+   "toneSource": "fixture:ed-chest-pain-mod.ts#patient_robert_hayes_v1.phenotype.skin_tone",
+   "sourceCodeSha256": {
+    "tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts": "8daa14443da9e8a80afb99767aa3a99145c36dff653c71a6930a2bab15d7a16e",
+    "tools/openclinxr/asset-pipeline/trellis/albedo-linear/colour-transfer.ts": "a2e567479c6a70e395efc7693b6eb8a56b148ce288e56c7b8e5d7079dd08bc6b",
+    "tools/openclinxr/asset-pipeline/trellis/albedo-linear/image-clone.ts": "c4070a8afe6627c4f0abf959709423bcc0ed59355aecbc1eaad42c2aa35ed1dd",
+    "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py": "0b5d2a0b205699abd6fea68457a6d1b0c96bc8e9b900bee97a9e856d22d9621f",
+    "packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts": "f083bbe68b014869ae8c4a03f3757b6e3bc03fa543bc4570bd808dcbe91cfe4f"
+   }
+  },
+  {
+   "stage": "skin-normal-region-rebind",
+   "recipe": "coherent-pore-v6-orangepeel-sparsepits-bandlimited",
+   "inputGlbSha": "efd3ffd46ee4918e92fb27a2921d97d3a4f4980b56b9ab781efcdea5c3b30e91",
+   "bakeInputGlb": "mpfb-gown-ed-robert-hayes.glb",
+   "bakeInputGlbSha": "efd3ffd46ee4918e92fb27a2921d97d3a4f4980b56b9ab781efcdea5c3b30e91",
+   "bakeReportSha": "bc6cb06f496f2abf14627568f7d83c442523097eb16012ed5b596e61d9b5a4ae",
+   "bakeReportSha256": "bc6cb06f496f2abf14627568f7d83c442523097eb16012ed5b596e61d9b5a4ae",
+   "bakeRecipe": "coherent-pore-v6-orangepeel-sparsepits-bandlimited",
+   "bakePore": {
+    "mechanism": "low-freq orange-peel + sparse gaussian pits, bandlimited",
+    "seed": 55,
+    "strength": 1.2
+   },
+   "regionBalance": {
+    "headTexels": 200396,
+    "foreTexels": 17610,
+    "headTris": 3238,
+    "foreTris": 652,
+    "blur": 8.0,
+    "headGain": 1.0,
+    "foreGain": 0.72,
+    "enabled": true,
+    "helperFile": "region_balance.py",
+    "helperSha256": "f19936029e3ed03248b3cc511661e4deae40fc0eaf5e64cbf1dca70ef340b26a",
+    "note": "smooth anatomically-derived UV/joint gain; head preserved, forearm softened; blurred, no seams/dots/gravel"
+   },
+   "bodyMesh": "mpfb_robert_reference_body",
+   "bodyVsha": "0033ffae898ed17af7d62c75dbe5399e77d7c1cf192544492724ef3cda1c6d56",
+   "flow": "rebind-bound-image-in-place",
+   "oldNormalSha": "d88b110f75ec8ccf09e9ca8448826564054befed771390bd5c9108b73eeada82",
+   "newNormalSha": "d0522981eb9f446aaa3242d0ce1033fce5b60987c3ecdb3f7d4d1cb1a6fbf96a",
+   "priorOutputSha256": "efd3ffd46ee4918e92fb27a2921d97d3a4f4980b56b9ab781efcdea5c3b30e91",
+   "priorOutputBytes": 8101176,
+   "outputGlbSha": "bc840005fe94f90712b77521283d1ba2c6636df523ec932c346ee37e14a3d120",
+   "outputGlbBytes": 8096468,
+   "normalBars": {
+    "sdR": 10.942,
+    "flat": 0.0706,
+    "incoh": 0.4634,
+    "bars": [
+     true,
+     true,
+     true
+    ]
+   },
+   "codeSha": "c0cf72b9d868b97dc1c0063b20944b1d4f3f91bb33082bcf978e1eb5603243b4",
+   "normalMetricsCodeSha": "ccdc5ecf1d5f874f157b206bc5d0d48c0d7fdc215c91cc8ae78e57d9c9a89cf4",
+   "runtime": "python3.13.14/numpy2.5.1/scipy1.18.0/analytic-heightfield/1024/seed55/strength1.2/blur3.0/NO-BLENDER/NO-MESH-BAKE+region-balance/head1.00/fore0.72/blur8.0",
+   "derivationMode": "procedural-stylized-analytic-heightfield: artistic texture; NOT a mesh-surface bake; NOT measured skin pores; NOT photoreal",
+   "generator": "python3.13.14/numpy2.5.1/scipy1.18.0 analytic-heightfield 1024px RGB8, seed-controlled",
+   "renderRecipe": "heightfield[ncomp=10 freq=4..12 pits=2500 r=2..4.5 blur=3.0 strength=1.2] -> gradient normal + region-balance[headx1.00 forex0.72 blur8.0 helper:f19936029e3e]",
+   "meshSurfaceBake": false,
+   "measuredSkinPores": false,
+   "photorealClaim": false,
+   "bindingScope": "source GLB used for binding identity/UV slot only; mesh geometry normals preserved; detail carried only by the added tangent-space normal field",
+   "derivation": "procedural stylized region-balanced coherent-detail rebind: bound normal-image bytes only; JSON topology, geometry, rig, albedo, animations untouched"
+  }
+ ]
+}
