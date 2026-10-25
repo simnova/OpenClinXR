@@ -1,0 +1,16 @@
+{
+  "id": "row-38-makehuman-system-asset-teeth-tongue",
+  "section": "Acquired",
+  "rowIndex": 38,
+  "cells": [
+    " MakeHuman system-asset teeth + tongue (`makehuman_system_assets` pack, same `makehuman_system_assets_cc0.zip` as the eyes row)",
+    "**CC0 1.0 \u2014 verified IN THE ASSET HEADERS themselves, 2026-09-18, same standard as the eyes rows:** `teeth/teeth_base/teeth_base.mhclo`, `teeth/teeth_base/teeth_base.obj`, `teeth/teeth_base/teeth.mhmat` and `tongue/tongue01/tongue01.mhclo`, `tongue/tongue01/tongue01.obj`, `tongue/tongue01/tongue01.mhmat` each open with *\"This asset was explicitly released as CC0 in september 2020\"* with copyright holders Data Collection AB, Joel Palmius, Jonas Hauquier (Copyright 2020 Data Collection AB, Joel Palmius, Jonas Hauquier). The pack page licence column also reads CC0. The surrounding `makehuman2` repo is AGPL \u2014 this does NOT infect these assets; the headers are the per-asset grant, same as the shipped eyes. `teeth.png` (the `diffuseTexture` the `teeth.mhmat` declares, 1,799,930 bytes) and `tongue01_diffuse.png` (the `diffuseTexture` the `tongue01.mhmat` declares, 625,419 bytes, staged from the same zip \u2014 the extracted tree carries the tongue `.mhclo`/`.obj`/`.mhmat` but no PNG) are part of the SAME CC0 release, so the grant is read from the declaring `.mhmat` header in the same directory \u2014 the same header-only standard #340 held for `brown_eye.png`. **FACSHuman teeth/tongue are AGPL3 \u2014 refused, never stage or fit those.**",
+    "`teeth_base`: `teeth_base.mhclo` + `teeth_base.obj` (3,868 verts / 3,560 faces) + `teeth.mhmat` + `teeth.png`. `tongue01`: `tongue01.mhclo` + `tongue01.obj` (226 verts / 224 faces, UVs present) + `tongue01.mhmat` + `tongue01_diffuse.png`. **Topology note:** `teeth_base` barycentric triples 15006\u201315111 and `tongue01` plain refs 13380\u201313605 are ALL \u2265 13,380 \u2014 the same helper-vert class as the eyes (14598\u201314741), so both fits MUST run before the #318 helper strip, and do. Both declare `basemesh hm08`.",
+    "2026-09-18",
+    "`materialize_mpfb_humanoid_candidate.py` teeth/tongue fit via MPFB's proven `HumanService.add_mhclo_asset(asset_type=\"teeth\"\\|\"tongue\", material_type=\"MAKESKIN\")` (the same call `HumanService._check_add_bodyparts` uses for the `[\"eyes\", \"eyelashes\", \"eyebrows\", \"tongue\", \"teeth\", \"hair\"]` slots \u2014 D1, no hand-authored geometry), each consumed material via the generic `make_material_from_mhmat` path (#340/#356 shape). Licence gate is the header release stamp (`teeth_tongue_licence_stamp` \u2014 these headers carry no `# license` line, so the hair gate would refuse them as unspecified), hard refusal otherwise. Fitted meshes are `openclinxr_fitted_teeth_*` / `openclinxr_fitted_tongue_*`; helper-held `openclinxr_hm08_teeth_*` / `openclinxr_hm08_tongue_*` are retired (\"do not do both\"). Staged at `.openclinxr-local/provider-cache/facial/teeth_base/` + `facial/tongue01/`",
+    "**Keep.** CC0 is the cleanest posture; no attribution obligation. "
+  ],
+  "reconciledFrom": "MAIN current ledger row verbatim (## Acquired)",
+  "reconciledReason": "Missing from records; added with source MAIN row identity, no new grant",
+  "sourceSha256": "7ab1dc4a916e946be27c5992bc30a77bebac2c75e6b048ad507c634f20af3b62"
+}

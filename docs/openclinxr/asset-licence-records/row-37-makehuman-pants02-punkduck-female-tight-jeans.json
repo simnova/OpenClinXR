@@ -1,0 +1,16 @@
+{
+  "id": "row-37-makehuman-pants02-punkduck-female-tight-jeans",
+  "section": "Acquired",
+  "rowIndex": 37,
+  "cells": [
+    " `makehuman-pants02` / `punkduck_female_tight_jeans` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/pants02.html), archive `pants02_ccby.zip`, clothes `http://www.makehumancommunity.org/node/391`)",
+    "**CC-BY \u2014 VERIFIED 2026-09-12.** Pack page licence column **CC-BY**. Asset `.mhclo` header token quoted: `# license CC BY 3.0` / `# author punkduck`. `read_hair_mhclo_licence` accepts `cc[\\s_-]*by`. uuid `2eb68cfa-7624-481c-a3e4-ba0695fd1dd2`. Tags `Female` `Pants` `Jeans`. max mhclo interpolation ref **13351 < 13380**. 2108 obj faces \u2192 4216 shipped tris.",
+    "Staged 2026-09-12 at `.openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/punkduck_female_tight_jeans/` (`punkduck_female_tight_jeans.mhclo` + `tightjeans.obj` + `tightjeans.mhmat` + `tightjeans.png`)",
+    "2026-09-12",
+    "Consumed by `materialize_mpfb_humanoid_candidate.py` `LOWER_GARMENT_BY_OUTPUT_STEM` for `mpfb-ob-patient-aisha`, `mpfb-peds-parent-aisha`, `mpfb-viseme-inspect`. Attribution: punkduck, pants02, CC BY 3.0. Menswear/disco/scrubs in the same pack are recorded in `female-covering-lower-acquisition-2026-09-12.md` and were not keyed.",
+    "**Keep with attribution.** CC-BY obligation must survive into shipped builds. "
+  ],
+  "reconciledFrom": "MAIN current ledger row verbatim (## Acquired)",
+  "reconciledReason": "Missing from records; added with source MAIN row identity, no new grant",
+  "sourceSha256": "70d6cfe31cd79885bddc8ce4894bd9f4fca2cf91d4564dc7421cbfa56b751a7c"
+}

@@ -255,5 +255,46 @@
     "quest_readiness",
     "visual_motion_quality",
     "runtime_playback"
-  ]
+  ],
+  "teethRestClearance": {
+    "scope": "OWN candidate only; MAIN untouched; hold promotion parent until all tests/visual proof pass",
+    "executorRole": "xr-systems-architect",
+    "executedAt": "2026-10-21T18:17:00Z",
+    "tool": {
+      "teeth-rest-clearance.ts": "36a653cbb9b3ea4e67303e59c68ef5affaf3164cc526dd2dae503ac482312171"
+    },
+    "params": {
+      "delta": 0.003
+    },
+    "rawInputSha": "538c29ecc7a38a416079e4c0f567083a3078189ce12ba4936ea3478be5f53561",
+    "sourceSha": "538c29ecc7a38a416079e4c0f567083a3078189ce12ba4936ea3478be5f53561",
+    "outputSha": "0bbc575f063e5abe60095a57f118d7cdd010bdaa4decd81c49e19e824a13ddf6",
+    "outputBytes": 19143652,
+    "action": "translated teeth back by 0.003 m on z",
+    "stamp": {
+      "schemaVersion": "openclinxr.teeth-rest-clearance-stamp.v1",
+      "deltaZ": -0.003,
+      "beforeMaxZ": 0.1422233134508133,
+      "afterMaxZ": 0.1392233134508133,
+      "issue": "#738"
+    },
+    "margins": {
+      "marginAtCap": 0.0014858782291412298,
+      "marginAtRest": 0.003985241055488586,
+      "tongueGap": 0.004510045051574707,
+      "verts": 136,
+      "tris": 192,
+      "skinned": true
+    },
+    "restTongueSkinProof": "probe stdout/teeth-probe.json: skin median positive at cap (+0.00149) and rest (+0.00399); tongue counterweight gap +0.00451; 192 skinned tris; non-teeth prims byte-identical (changed=0); rerun already-applied no-write hash-identical; fresh copy same output hash",
+    "repeatability": {
+      "pass2": "already-applied (no write)",
+      "hashIdentical": true,
+      "freshCopySameHash": true
+    },
+    "noClaims": [
+      "no clinical/production/readiness claims",
+      "no new population plain GLB invented"
+    ]
+  }
 }

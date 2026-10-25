@@ -82,12 +82,13 @@
     "2026-10-06 upper-silence (operator: correct invariant is upper base/skinning bitwise pre-image AND upper morph deltas 0, as 206009a30-c57cc153a had; the pre-image carries Oct-1 rigid translations on head-weighted verts, probe aa upper +7.967): seat-teeth-on-lip-rim.ts zeroes the 2314 component-rule upper-arch verts in every teeth viseme delta after rim transfer (base/skinning/transfer/down-gain/rest-drop/FF-contact unchanged: same pre-image 202ec91134a7, same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215; plan pins unchanged ffGap 12.530 to 0.232, 4 passes, rigid, honest rest 5.575). Probe teethUpperZ 0 on all 15 visemes. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
     "2026-10-06 ff-cover-behind (operator: upper incisors visible resting on the lower lip, lip behind the incisor front face; sound/motion sync): seat-teeth-on-lip-rim.ts --ff-lip-contact now runs a cover-behind tuck after the contact fixed point (contact pins unchanged: ffGap 12.530 to 0.232, 4 passes, 322 verts, worst correction 17.587mm): each in-span lower-lip patch vert ahead of (incisor front face - 0.5mm) retreats along head-forward by iterated quadratic falloff (face-pullback rule, 16-pass bound, 1um stop) with a lateral cosine skirt to zero at the commissure (measured span/commissure, C1 both ends; commissure untouched); 102 verts, worst 8.384mm, 7 passes, final edge gap 0.034mm, min clearance -0.001mm, mesh-neighbor jump 4.22mm. Rim transfer recomputes lower-teeth FF from the covered rim; other 14 visemes bitwise; upper-arch base/skinning/morphs still pre-image verbatim. Same pre-image 202ec91134a7, same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215. Runtime cue lead 1/3s (RUNTIME_CUE_LEAD_S, jaw group-delay closed form 2/6, internal only): jaw aperture lag +333.3ms to +33.3ms, lip-gap blend +266.7ms to -66.7ms; lip weights bit-equal modulo the 10-frame lead, contact reach >= 0.9, jitter outside contact 0.171862 unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
     "2026-10-06 ff-pressed-lips (operator: FF stays pressed lips on this rig [DECISION], PP seal unchanged): seat-teeth-on-lip-rim.ts --ff-lip-contact retires the ae7396f2f cover-behind tuck (11.95mm span-edge jump at 2.34x the 5.102 SS max, 2 LM-interior inverted tris, 14.2mm Z trough behind a 5.17mm Y slit) and the 69a2fb016 incisal-edge contact (10.55mm own cliff, 2.07x SS). Single press solve instead: lower outer curtain edge (nearest-to-upper-edge non-head vert in the central half-span band, forward of the incisor face, below the upper edge) meets the upper-lip edge (dominant-head, in-span, forward, min-y) to the 0.2mm render target, full 3D, 1 pass (before 1.542 to after 0.249, worst correction 1.342mm over a 1184-vert domain). Cosine BFS-ring falloff (rung-3 set {8,10,12}, committed 8 by the 3.0mm predicted-jump budget, predicted 0.303) with head-joint verts pinned at 0, so upper lip/nose/scalp never ride; the mouth aperture is a mesh hole, so the pressed boundary rings meet across it with no shared edge. Total FF adjacent vector jump 3.346mm (0.66x SS, was 2.34x), LM-interior inversions 0, whole-body 0. Rim transfer recomputes lower-teeth FF from the pressed rim; teeth base/skinning, all vowel deltas, body PP and every non-FF morph are bitwise identical to the ae7396f2f bytes. Same pre-image 202ec91134a7 (recovered: 46a609068, predates the GLB path rename; producer-preimage.ts now follows renames, depth 32), same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215, honest rest 5.575mm, rigid. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
-    "2026-10-07 tongue-TH (operator option C: TH shows the tongue tip between the incisors): seat-teeth-on-lip-rim.ts always solves a viseme_TH POSITION delta on openclinxr_fitted_tongue_mpfb_parent_tara_johnson_v1_mesh via tools/openclinxr/asset-pipeline/makeclothes/tongue-th-morph.ts (tip = max bind-z vert 116 of 253; front 30% of bind length at full weight, cosine falloff to the root; per-vertex inverse of the blended skinning rotation through the head world frame so the skinned tip lands on target). Same pre-image 202ec91134a7, same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215, --ff-lip-contact (plan pins unchanged: rim 76/tris 96, rigid, ffGap 0.249, honest rest 5.575; body and teeth accessors byte-identical to the ff-pressed-lips bytes). Tip lands centered on the edge span, midway between the incisal edges (-18.979/-32.742), 2.5mm ahead of the incisal face (residual 0.000mm); clearances upper 1.876 / lower 3.913 / lip 5.735mm, inverted tris 0. The tongue carries no other target, so other visemes resolve to nothing on it. outputSha256/outputBytes re-recorded in the same change that moved the bytes."
+    "2026-10-07 tongue-TH (operator option C: TH shows the tongue tip between the incisors): seat-teeth-on-lip-rim.ts always solves a viseme_TH POSITION delta on openclinxr_fitted_tongue_mpfb_parent_tara_johnson_v1_mesh via tools/openclinxr/asset-pipeline/makeclothes/tongue-th-morph.ts (tip = max bind-z vert 116 of 253; front 30% of bind length at full weight, cosine falloff to the root; per-vertex inverse of the blended skinning rotation through the head world frame so the skinned tip lands on target). Same pre-image 202ec91134a7, same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215, --ff-lip-contact (plan pins unchanged: rim 76/tris 96, rigid, ffGap 0.249, honest rest 5.575; body and teeth accessors byte-identical to the ff-pressed-lips bytes). Tip lands centered on the edge span, midway between the incisal edges (-18.979/-32.742), 2.5mm ahead of the incisal face (residual 0.000mm); clearances upper 1.876 / lower 3.913 / lip 5.735mm, inverted tris 0. The tongue carries no other target, so other visemes resolve to nothing on it. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+    "2026-10-21 physical correction: normal seat-teeth-ff1-open08.ts on the metadata-stamped 53d input produces 2e2561 with teeth matching the independently checked 3557 reference. Historical seating and garment-stamp receipts remain separate stages. Physical/lip-sync scope only; existing gum-detail appearance caveat and all readiness restrictions remain."
   ],
   "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
   "promotionGates": false,
-  "outputSha256": "5cab66767a6bec8cb22d4d021ccccc416955f8f617fdc243d38d56e17f185dde",
-  "outputBytes": 40345712,
+  "outputSha256": "2e2561a721f4dde840d1ee58b4d512ea8d485975408096120ec8f9ffa285dadf",
+  "outputBytes": 40321196,
   "fitTimeLower": {
     "garment": "punkduck_female_tight_jeans",
     "sourceObjFaces": 2108,
@@ -122,5 +123,66 @@
     "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
   },
   "preImageSha256": "202ec91134a7615f3242d3b823a07db48da7804ef866561a4078fff28e5d5688",
-  "preImageBytes": 40215924
+  "preImageBytes": 40215924,
+  "garmentProvenanceStamp": {
+    "tool": "tools/openclinxr/asset-pipeline/makeclothes/garment-provenance-stamp.ts",
+    "toolSha256": "ebe90a86002e1b4a8a41cc59fd62f85a186fdc9096745c0084fe26d46fd3fe0b",
+    "source": "Main apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+    "inputArchiveSha256": "5cab66767a6bec8cb22d4d021ccccc416955f8f617fdc243d38d56e17f185dde",
+    "outputSha256": "53d6129afc2465645090073c6e8f8fc6c5e7eb027f9550d0bdbc3ed021bee1d2",
+    "outputBytes": 40321196,
+    "changes": [
+      "female_tight_jeans:+{sourceKind:makeclothes,sourceMhclo:punkduck_female_tight_jeans.mhclo,licence:CC-BY,garmentClass:pants}",
+      "footwear_toigo:+{sourceKind:makeclothes,sourceMhclo:toigo_mj_cloth_shoes.mhclo,licence:CC0,garmentClass:shoes}",
+      "toigo_t_shirt:+{sourceKind:makeclothes,sourceMhclo:toigo_t_shirt.mhclo,licence:CC0,garmentClass:tshirt}"
+    ],
+    "fullSemanticDigest": "2a8489e656cfec45ec8761ff60ed2123926099e462e6ab6a5ec501bd2a630f13",
+    "date": "2026-10-21T23:20:26.590Z",
+    "notEvidenceFor": [
+      "clinical_validity",
+      "production_asset_readiness",
+      "gown_class_swap",
+      "licence_approval"
+    ],
+    "sourceHashNote": "no sourceHash claimed: makeclothes rows carry no generator hash; procedural gown recipe untouched (parent has no gown mesh)"
+  },
+  "mouthPhysicalCorrection": {
+    "tool": "tools/openclinxr/mouth-solver/seat-teeth-ff1-open08.ts",
+    "toolSha256": "fee7bd5f0d068aa5cf99f9c4eaa0af7f45ec314409ea191296623aa832fcd2a7",
+    "inputSha256": "53d6129afc2465645090073c6e8f8fc6c5e7eb027f9550d0bdbc3ed021bee1d2",
+    "inputBytes": 40321196,
+    "outputSha256": "2e2561a721f4dde840d1ee58b4d512ea8d485975408096120ec8f9ffa285dadf",
+    "outputBytes": 40321196,
+    "sourceBaselineSha256": "5cab66767a6bec8cb22d4d021ccccc416955f8f617fdc243d38d56e17f185dde",
+    "physicalReferenceOutputSha256": "3557f6c853f2a7c3d46d61880a1031ed516195b36b6d85ddbbf63d75a2c83eab",
+    "parameters": {
+      "dyMm": 3.12,
+      "dzMm": 0.16,
+      "openVowelGain": 0.8,
+      "ffPpGain": 1
+    },
+    "appliedAt": "2026-10-22T01:29:02.953732+00:00",
+    "claimScope": [
+      "physical_teeth_seating_and_viseme_correction"
+    ],
+    "notEvidenceFor": [
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "quest_readiness",
+      "learner_readiness",
+      "clinical_validity",
+      "scoring_validity",
+      "scene_placement_readiness"
+    ],
+    "preserved": [
+      "all_non_teeth_geometry_and_morphs",
+      "skin_joints_weights_bindings",
+      "all_materials_and_images",
+      "three_garment_provenance_extras",
+      "all_prior_provenance_and_gate_fields"
+    ],
+    "appearanceCaveat": "Existing lower gum detail remains in the model and becomes visible at the corrected seating. Before/after teeth-only comparison shows the same detail; this correction makes no appearance or readiness clearance claim.",
+    "sourceContributor": "actual external OpenCode Muse Spark 1.3 contributor, rigging-animation-specialist",
+    "metadataIntegrator": "Codex orchestrator; preserves source authorship and prior whole-file provenance"
+  }
 }

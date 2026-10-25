@@ -36,7 +36,7 @@
   "counts": {
     "keep-evidence": 1952,
     "ignore-local-cache": 2771,
-    "keep-current": 253,
+    "keep-current": 254,
     "keep-template": 13,
     "keep-compatibility-input": 24
   },
@@ -20770,6 +20770,13 @@
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.provenance.json",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "openclinxr.motion-bind-provenance.v1",
+  "assetPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "scenarioIdSource": "inherited from the bind target's recorded provenance apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json (scenarioId=peds_asthma_parent_anxiety_v1); not invented by the casting code.",
+  "derivationMode": "bind_stage_report_transcribed_by_receipt_cli_not_rerun",
+  "generator": "tools/openclinxr/asset-pipeline/makeclothes/motion-bind-receipt-cli.ts (reconstructed current receipt; no Blender run, no byte changes, no backdate)",
+  "generatedAt": "2026-10-25T01:21:43Z",
+  "historicalBind": {
+    "ranAt": "2026-09-03T07:35:00.056972+00:00",
+    "record": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind-report.json (schemaVersion openclinxr.seated-clip-bind.v1, stageId seated_clip_bind_stage, verdict ok)",
+    "operator": "mcp.load_and_retarget",
+    "addonModule": "bl_ext.user_default.retarget_bvh",
+    "clipName": "openclinxr_retarget_seated_talking_cc0",
+    "historicalInputHashes": "UNKNOWN: the bind-time record carries no input hashes; current bytes below do not prove historical bytes.",
+    "note": "report absolute paths point at the bind-time worktree and are transcribed as history, resolved here by basename to current in-tree files with hashes measured now."
+  },
+  "inputsMeasuredNow": {
+    "sourceClip": "tools/openclinxr/asset-pipeline/makeclothes/mesh2motion-sitting-talking-single-clip.bvh",
+    "sourceClipSha256": "aa059fdb54c0537781057514810b3d5301899ba4892dbfd5a7bd6ebb9cbd8d91",
+    "sourceClipBytes": 351949,
+    "targetRig": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+    "targetRigSha256": "2e2561a721f4dde840d1ee58b4d512ea8d485975408096120ec8f9ffa285dadf",
+    "targetRigBytes": 40321196,
+    "targetMap": "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json",
+    "targetMapSha256": "da72b6a5c40165055fa1acacd82a8308c990e15a471e339873290a73698d1c76",
+    "sourceMap": "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mesh2motion-human-66.json",
+    "sourceMapSha256": "841403445ad1532ed6a0ccfd970059ced28585c39b10b7fbd94332a6e2c751c9"
+  },
+  "outputMeasuredNow": {
+    "outputGlbSha256": "0bbc575f063e5abe60095a57f118d7cdd010bdaa4decd81c49e19e824a13ddf6",
+    "outputBytes": 19143652,
+    "matchesReportPostClearanceHash": true
+  },
+  "reportSha256": "2349cdf103d4f644625004dd5113580c676cccc643d9b3702e8fcc2d0b917f2b",
+  "producerWhyReceiptExists": "the bind stage emits only <stem>.motion-bind-report.json; the casting SSOT convention (<stem>.provenance.json) had no file. This receipt closes that gap from measured current bytes.",
+  "rerunCommandNotExecuted": "blender --background --python tools/openclinxr/asset-pipeline/makeclothes/seated_clip_bind_stage.py -- --actor <targetRig> --clip <sourceClip> --map <targetMap> --source-map <sourceMap> --output <outputGlb>",
+  "claimScope": "sidecar existence for casting inspector reads + current-byte identity of bind output/inputs",
+  "notEvidenceFor": [
+    "clinical_motion_realism",
+    "quest_readiness",
+    "visual_motion_quality",
+    "runtime_playback",
+    "reverification_of_the_historical_retarget_math",
+    "historical_input_byte_identity"
+  ],
+  "explicitUnknown": [
+    "bind-time input bytes (clip, rig, maps): no hashes recorded then; current hashes do not prove them",
+    "whether a fresh Blender rerun reproduces byte-identical output (not attempted; expensive)"
+  ]
+}

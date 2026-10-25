@@ -24,7 +24,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
-- keep-current: 253
+- keep-current: 254
 - keep-evidence: 1952
 - keep-template: 13
 
@@ -3003,6 +3003,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha.motion-bind.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind-report.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.provenance.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/humanoids/candidates/reom-local-fitted-scrub-top-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/humanoids/candidates/reom-namuhekam-polo-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
