@@ -1,3 +1,6 @@
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -152,6 +155,89 @@ const loadEquipmentActor = () =>
  * counterweight + measurement integrity, and leave the camera framing as
  * documented, not asserted-away.
  */
+type ActorExtentBox = { minX: number; maxX: number; minY: number; maxY: number; minZ: number; maxZ: number };
+
+function assertPostureAwareAdultExtent(
+  box: ActorExtentBox,
+  posture: string,
+  actorId: string,
+): void {
+  const bounds = [box.minX, box.maxX, box.minY, box.maxY, box.minZ, box.maxZ];
+  for (const v of bounds) {
+    expect(typeof v === "number" && Number.isFinite(v), `${actorId} extent bound non-finite`).toBe(true);
+  }
+  const spanX = box.maxX - box.minX;
+  const spanY = box.maxY - box.minY;
+  const spanZ = box.maxZ - box.minZ;
+  expect(spanX, `${actorId} AABB collapsed on X`).toBeGreaterThan(0);
+  expect(spanY, `${actorId} AABB collapsed on Y`).toBeGreaterThan(0);
+  expect(spanZ, `${actorId} AABB collapsed on Z`).toBeGreaterThan(0);
+  expect(spanX, `${actorId} AABB collapsed on X`).toBeGreaterThan(0.1);
+  if (posture === "supine") {
+    expect(
+      Math.max(spanX, spanZ),
+      `${actorId} explicit supine adult long extent <1m`,
+    ).toBeGreaterThan(1);
+  } else {
+    expect(spanY, `${actorId} AABB collapsed on Y`).toBeGreaterThan(1.0);
+  }
+}
+
+describe("posture-aware adult extent units", () => {
+  const supineBox = { minX: 0, maxX: 0.5, minY: 0, maxY: 0.5889275, minZ: 0, maxZ: 1.7 };
+  it("explicit supine adult passes on the horizontal long axis", () => {
+    assertPostureAwareAdultExtent(supineBox, "supine", "samuel");
+  });
+  it("same box standing/seated/unknown FAILS the upright gate", () => {
+    for (const posture of ["standing", "seated", "unknown", ""]) {
+      expect(() => assertPostureAwareAdultExtent(supineBox, posture, "samuel")).toThrow();
+    }
+  });
+  it("missing posture is treated as standing (counterweight)", () => {
+    expect(() => assertPostureAwareAdultExtent(supineBox, undefined as unknown as string, "samuel")).toThrow();
+  });
+  it("0.6 m cube FAILS even when supine", () => {
+    const cube = { minX: 0, maxX: 0.6, minY: 0, maxY: 0.6, minZ: 0, maxZ: 0.6 };
+    expect(() => assertPostureAwareAdultExtent(cube, "supine", "cube")).toThrow();
+  });
+  it("exact 1 m long extent FAILS the boundary", () => {
+    const edge = { minX: 0, maxX: 0.5, minY: 0, maxY: 0.5, minZ: 0, maxZ: 1.0 };
+    expect(() => assertPostureAwareAdultExtent(edge, "supine", "edge")).toThrow();
+  });
+  it("each of the six bounds NaN/Infinity/undefined FAILS", () => {
+    const good = { minX: 0, maxX: 0.5, minY: 0, maxY: 1.7, minZ: 0, maxZ: 0.3 };
+    for (const key of ["minX", "maxX", "minY", "maxY", "minZ", "maxZ"] as const) {
+      for (const bad of [NaN, Infinity, undefined]) {
+        expect(() =>
+          assertPostureAwareAdultExtent({ ...good, [key]: bad } as unknown as ActorExtentBox, "standing", `bad-${key}`),
+        ).toThrow();
+      }
+    }
+  });
+  it("zero/negative span on EACH axis FAILS", () => {
+    const base = { minX: 0, maxX: 0.5, minY: 0, maxY: 1.7, minZ: 0, maxZ: 1.2 };
+    expect(() => assertPostureAwareAdultExtent({ ...base, maxX: 0 }, "standing", "zx")).toThrow();
+    expect(() => assertPostureAwareAdultExtent({ ...base, maxX: -1 }, "standing", "nx")).toThrow();
+    expect(() => assertPostureAwareAdultExtent({ ...base, maxY: 0 }, "standing", "zy")).toThrow();
+    expect(() => assertPostureAwareAdultExtent({ ...base, maxY: -1 }, "standing", "ny")).toThrow();
+    expect(() => assertPostureAwareAdultExtent({ ...base, maxZ: 0 }, "supine", "zz")).toThrow();
+    expect(() => assertPostureAwareAdultExtent({ ...base, maxZ: -1 }, "supine", "nz")).toThrow();
+  });
+  it("supine with wrong finite Z FAILS; standing with missing Z FAILS", () => {
+    const wrongZ = { minX: 0, maxX: 1.7, minY: 0, maxY: 0.5, minZ: 0, maxZ: 0.3 };
+    expect(() => assertPostureAwareAdultExtent({ ...wrongZ, maxX: 0.5 }, "supine", "short")).toThrow();
+    const missingZ = { minX: 0, maxX: 0.5, minY: 0, maxY: 1.7 } as unknown as ActorExtentBox;
+    expect(() => assertPostureAwareAdultExtent(missingZ, "standing", "noz")).toThrow();
+  });
+  it("normal standing adult PASSES", () => {
+    assertPostureAwareAdultExtent(
+      { minX: 0, maxX: 0.5, minY: 0, maxY: 1.7, minZ: 0, maxZ: 0.3 },
+      "standing",
+      "adult",
+    );
+  });
+});
+
 describe("equipment placement vs actors — world vs screen (#281)", () => {
   it("writes the pre-fix measurement and finds no world-space placement bug in the ED stroke station", async () => {
     const mod = await loadEquipmentActor();
@@ -160,9 +246,26 @@ describe("equipment placement vs actors — world vs screen (#281)", () => {
 
     const report = await inspect!({
       scenarioIds: ["ed_stroke_alert_handoff_v1"],
-      writePreFix: true,
-      label: "pre-fix",
     });
+    const writePreFix = mod["writeEquipmentActorPreFix"] as
+      | ((report: unknown, input?: { outputPath?: string; label?: string }) => Promise<string>)
+      | undefined;
+    expect(writePreFix, "writeEquipmentActorPreFix disappeared").toBeTypeOf("function");
+    const tempRoot = await mkdtemp(join(tmpdir(), "openclinxr-equipment-actor-"));
+    try {
+      const tempPath = join(tempRoot, "pre-fix.json");
+      await writePreFix!(report, { outputPath: tempPath, label: "pre-fix" });
+      const written = JSON.parse(await readFile(tempPath, "utf8")) as {
+        schemaVersion?: string;
+        kind?: string;
+        report?: { stations?: unknown[] };
+      };
+      expect(written.schemaVersion).toBe("openclinxr.equipment-actor-overlap.v1");
+      expect(written.kind).toBe("equipment_actor_overlap_live");
+      expect(written.report?.stations).toHaveLength(1);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
 
     expect(report.stations).toHaveLength(1);
     const station = report.stations[0]!;
@@ -213,9 +316,8 @@ describe("equipment placement vs actors — world vs screen (#281)", () => {
     // Every actor measured a non-degenerate world AABB (a failed humanoid load
     // would produce a missing or zero-extent row and red here).
     for (const actor of station.actors) {
-      const b = actor.worldAabb as { minX: number; maxX: number; minY: number; maxY: number };
-      expect(b.maxX - b.minX, `${actor.actorId} AABB collapsed on X`).toBeGreaterThan(0.1);
-      expect(b.maxY - b.minY, `${actor.actorId} AABB collapsed on Y`).toBeGreaterThan(1.0);
+      const b = actor.worldAabb as ActorExtentBox;
+      assertPostureAwareAdultExtent(b, actor.posture, actor.actorId);
     }
 
     // The camera-space observation is RECORDED, not asserted away: the monitor
