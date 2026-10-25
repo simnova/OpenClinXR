@@ -102,8 +102,17 @@ const DISPATCHER = join(REPO_ROOT, "tools/openclinxr/openclaw/dispatch-worker.ts
 /** Computed so TypeScript cannot fail on a not-yet-exported symbol (SS383/SS352). */
 const SPECIFIER = ["../openclaw/dispatch", "worker.js"].join("-");
 const ROLE = "xr-systems-architect";
-/** Strings the baker demonstrably emits — measured, not assumed. */
-const CHARTER_MARKERS = ["## Persona", "charter.md", "memory.md", "UNABLE:"] as const;
+/** Strings the baker demonstrably emits — measured, not assumed.
+ *
+ * FIXED (ph541): the original marker `"## Persona"` is stale. Commit 69d9aaf15
+ * ("match tone functionality to a PROVEN mechanism (bake directive; personas are inert)")
+ * intentionally retired the literal Persona header during 2026-08-04 context optimization:
+ * native personas do not bind in headless `-p`, so the live contract bakes
+ * `WORKER_TONE_DIRECTIVE` ("TONE (obey)") plus the file-backed role paths
+ * `agents/core/xr-systems-architect/charter.md` + `memory.md` and the `UNABLE:`
+ * escalation. This marker set asserts that live contract.
+ */
+const CHARTER_MARKERS = ["TONE (obey)", "agents/core/xr-systems-architect", "charter.md", "memory.md", "UNABLE:"] as const;
 
 type Composer = (roleId: string) => string;
 async function loadComposer(): Promise<Composer | null> {
