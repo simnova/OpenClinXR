@@ -1,3 +1,4 @@
+import { availableParallelism } from "node:os";
 import { nodeConfig } from "@cellix/config-vitest/node";
 import { defineConfig, mergeConfig } from "vitest/config";
 
@@ -7,6 +8,7 @@ export default mergeConfig(
     test: {
       environment: "jsdom",
       testTimeout: 20_000,
+      maxWorkers: Math.max(1, Math.min(2, Math.floor(availableParallelism() / 2))),
     },
   }),
 );
