@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "soundFile": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/clinic_abdominal_pain_interpreter_v1/stage-lip-sync/utterance-7ec29c6c17.wav",
+    "duration": 3.87
+  },
+  "mouthCues": [
+    { "start": 0.00, "end": 0.01, "value": "X" },
+    { "start": 0.01, "end": 0.07, "value": "B" },
+    { "start": 0.07, "end": 0.12, "value": "A" },
+    { "start": 0.12, "end": 0.36, "value": "C" },
+    { "start": 0.36, "end": 0.71, "value": "B" },
+    { "start": 0.71, "end": 0.80, "value": "A" },
+    { "start": 0.80, "end": 0.86, "value": "E" },
+    { "start": 0.86, "end": 0.92, "value": "F" },
+    { "start": 0.92, "end": 1.13, "value": "B" },
+    { "start": 1.13, "end": 1.20, "value": "D" },
+    { "start": 1.20, "end": 1.34, "value": "C" },
+    { "start": 1.34, "end": 1.48, "value": "E" },
+    { "start": 1.48, "end": 1.55, "value": "F" },
+    { "start": 1.55, "end": 1.69, "value": "E" },
+    { "start": 1.69, "end": 1.76, "value": "C" },
+    { "start": 1.76, "end": 2.04, "value": "B" },
+    { "start": 2.04, "end": 2.11, "value": "C" },
+    { "start": 2.11, "end": 2.56, "value": "B" },
+    { "start": 2.56, "end": 2.60, "value": "C" },
+    { "start": 2.60, "end": 2.64, "value": "B" },
+    { "start": 2.64, "end": 2.71, "value": "C" },
+    { "start": 2.71, "end": 3.34, "value": "B" },
+    { "start": 3.34, "end": 3.48, "value": "E" },
+    { "start": 3.48, "end": 3.57, "value": "A" },
+    { "start": 3.57, "end": 3.63, "value": "B" },
+    { "start": 3.63, "end": 3.83, "value": "E" },
+    { "start": 3.83, "end": 3.87, "value": "X" }
+  ]
+}

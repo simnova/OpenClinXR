@@ -1,0 +1,2030 @@
+{
+  "schemaVersion": "openclinxr.heel-audit.v1",
+  "measuredAt": "2026-10-17T10:18:01.344Z",
+  "definition": "heel floor = min heel world Y over the run (or bound loop); Y gate = floor + 0.02 m; speed gate = consecutive-sample heel XZ step <= 0.02 m/s * dt (dt = 1/30 s captures, clip sample dt offline); heel/toe plant = maximal >= 3-frame run with all frames Y-gated and all internal pairs speed-gated; heel span = max pairwise XZ distance over plant frames, m; stance = heel plant + max-overlap same-foot toe plant (>= 1 shared frame); order valid iff heel-strike < foot-flat < heel-off < toe-off (strict); fractions = (event - cycleStart)/(cycleEnd - cycleStart) over consecutive same-foot heel-strikes, null when open.",
+  "bars": {
+    "spanM": 0.01,
+    "orderViolationShare": 0.1
+  },
+  "routes": {
+    "sc05": {
+      "runs": [
+        {
+          "tag": "sc05:.openclinxr/evidence/foot-base-routes/after7/sc05:sc05-run0",
+          "sourceFile": "sc05-run0.json",
+          "nFrames": 211,
+          "floorM": {
+            "leftHeel": 0.056239665298341984,
+            "rightHeel": 0.053142964027681566,
+            "leftToe": 0.004673431478729145,
+            "rightToe": 0.0048468416386200225
+          },
+          "heelPlants": [],
+          "toePlants": [
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 6,
+              "endFrame": 8,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.0048468416386200225,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 38,
+              "endFrame": 40,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.0048468416386200225,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 57,
+              "endFrame": 67,
+              "nFrames": 11,
+              "spanBaseM": 0.0002593107328671223,
+              "spanPairM": 0.0002593107328671223,
+              "floorM": 0.004673431478729145,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 64,
+              "endFrame": 210,
+              "nFrames": 147,
+              "spanBaseM": 0.0003966751757990809,
+              "spanPairM": 0.0005770621475157711,
+              "floorM": 0.0048468416386200225,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 85,
+              "endFrame": 210,
+              "nFrames": 126,
+              "spanBaseM": 0.0006696380761917006,
+              "spanPairM": 0.0006696380761917006,
+              "floorM": 0.004673431478729145,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [],
+          "unpairedHeelPlants": [],
+          "maxHeelSpanM": null,
+          "violationRate": null,
+          "walkingStances": 0
+        },
+        {
+          "tag": "sc05:.openclinxr/evidence/foot-base-routes/after7/sc05:sc05-run1",
+          "sourceFile": "sc05-run1.json",
+          "nFrames": 211,
+          "floorM": {
+            "leftHeel": 0.056636658478207536,
+            "rightHeel": 0.054676138800831525,
+            "leftToe": 0.004970282626799272,
+            "rightToe": 0.004952327012945665
+          },
+          "heelPlants": [],
+          "toePlants": [
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 22,
+              "endFrame": 24,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.004970282626799272,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 38,
+              "endFrame": 40,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.004952327012945665,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 57,
+              "endFrame": 67,
+              "nFrames": 11,
+              "spanBaseM": 0.00024179161256871541,
+              "spanPairM": 0.000254508673197562,
+              "floorM": 0.004970282626799272,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 64,
+              "endFrame": 210,
+              "nFrames": 147,
+              "spanBaseM": 0.0006357323186981017,
+              "spanPairM": 0.0007928859106974886,
+              "floorM": 0.004952327012945665,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 85,
+              "endFrame": 210,
+              "nFrames": 126,
+              "spanBaseM": 0.0008967923958445025,
+              "spanPairM": 0.0008967923958445025,
+              "floorM": 0.004970282626799272,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [],
+          "unpairedHeelPlants": [],
+          "maxHeelSpanM": null,
+          "violationRate": null,
+          "walkingStances": 0
+        },
+        {
+          "tag": "sc05:.openclinxr/evidence/foot-base-routes/after7/sc05:sc05-run2",
+          "sourceFile": "sc05-run2.json",
+          "nFrames": 211,
+          "floorM": {
+            "leftHeel": 0.05617422421912882,
+            "rightHeel": 0.054456395518798134,
+            "leftToe": 0.004415583988451613,
+            "rightToe": 0.005156525668422174
+          },
+          "heelPlants": [],
+          "toePlants": [
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 6,
+              "endFrame": 8,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.005156525668422174,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 22,
+              "endFrame": 24,
+              "nFrames": 3,
+              "spanBaseM": 2.220446049250313e-16,
+              "spanPairM": 2.220446049250313e-16,
+              "floorM": 0.004415583988451613,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 38,
+              "endFrame": 40,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.005156525668422174,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 57,
+              "endFrame": 67,
+              "nFrames": 11,
+              "spanBaseM": 0.0002376522464455257,
+              "spanPairM": 0.0002491984517739422,
+              "floorM": 0.004415583988451613,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 64,
+              "endFrame": 210,
+              "nFrames": 147,
+              "spanBaseM": 0.0006653093981343418,
+              "spanPairM": 0.0008908629158116916,
+              "floorM": 0.005156525668422174,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 85,
+              "endFrame": 210,
+              "nFrames": 126,
+              "spanBaseM": 0.0008919364456753322,
+              "spanPairM": 0.0008919364456753322,
+              "floorM": 0.004415583988451613,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [],
+          "unpairedHeelPlants": [],
+          "maxHeelSpanM": null,
+          "violationRate": null,
+          "walkingStances": 0
+        },
+        {
+          "tag": "sc05:.openclinxr/evidence/foot-base-routes/sc05:sc05-run0",
+          "sourceFile": "sc05-run0.json",
+          "nFrames": 211,
+          "floorM": {
+            "leftHeel": 0.06550095187273511,
+            "rightHeel": 0.0677070688469893,
+            "leftToe": 0.005217344989565165,
+            "rightToe": 0.00630134366583282
+          },
+          "heelPlants": [
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 66,
+              "endFrame": 68,
+              "nFrames": 3,
+              "spanBaseM": 0.0005009663180411851,
+              "spanPairM": 0.0005009663180411851,
+              "floorM": 0.0677070688469893,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 87,
+              "endFrame": 101,
+              "nFrames": 15,
+              "spanBaseM": 0.00037386535642581093,
+              "spanPairM": 0.00037386535642581093,
+              "floorM": 0.0677070688469893,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "toePlants": [
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 5,
+              "endFrame": 9,
+              "nFrames": 5,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.00630134366583282,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 22,
+              "endFrame": 24,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.005217344989565165,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 37,
+              "endFrame": 40,
+              "nFrames": 4,
+              "spanBaseM": 2.220446049250313e-16,
+              "spanPairM": 2.482534153247273e-16,
+              "floorM": 0.00630134366583282,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 58,
+              "endFrame": 67,
+              "nFrames": 10,
+              "spanBaseM": 0.0002366589884536636,
+              "spanPairM": 0.0002463035363033811,
+              "floorM": 0.005217344989565165,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 64,
+              "endFrame": 210,
+              "nFrames": 147,
+              "spanBaseM": 0.0006226337392798329,
+              "spanPairM": 0.000710881956969912,
+              "floorM": 0.00630134366583282,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 85,
+              "endFrame": 210,
+              "nFrames": 126,
+              "spanBaseM": 0.0008330091020105769,
+              "spanPairM": 0.0008330091020105769,
+              "floorM": 0.005217344989565165,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [
+            {
+              "foot": "right",
+              "heelStrike": 66,
+              "footFlat": 64,
+              "heelOff": 68,
+              "toeOff": 210,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 66,
+              "cycleEnd": 87,
+              "fracHeelStrike": 0,
+              "fracFootFlat": -0.09523809523809523,
+              "fracHeelOff": 0.09523809523809523,
+              "fracToeOff": 6.857142857142857
+            },
+            {
+              "foot": "right",
+              "heelStrike": 87,
+              "footFlat": 64,
+              "heelOff": 101,
+              "toeOff": 210,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 87,
+              "cycleEnd": null,
+              "fracHeelStrike": null,
+              "fracFootFlat": null,
+              "fracHeelOff": null,
+              "fracToeOff": null
+            }
+          ],
+          "unpairedHeelPlants": [],
+          "maxHeelSpanM": 0.0005009663180411851,
+          "violationRate": 1,
+          "walkingStances": 0
+        },
+        {
+          "tag": "sc05:.openclinxr/evidence/foot-base-routes/sc05:sc05-run1",
+          "sourceFile": "sc05-run1.json",
+          "nFrames": 211,
+          "floorM": {
+            "leftHeel": 0.06525147935924819,
+            "rightHeel": 0.068293043008443,
+            "leftToe": 0.004483839155010633,
+            "rightToe": 0.0060871501903996955
+          },
+          "heelPlants": [
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 66,
+              "endFrame": 68,
+              "nFrames": 3,
+              "spanBaseM": 0.000639528872286483,
+              "spanPairM": 0.000639528872286483,
+              "floorM": 0.068293043008443,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "toePlants": [
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 5,
+              "endFrame": 8,
+              "nFrames": 4,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.0060871501903996955,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 22,
+              "endFrame": 24,
+              "nFrames": 3,
+              "spanBaseM": 4.440892098500626e-16,
+              "spanPairM": 4.440892098500626e-16,
+              "floorM": 0.004483839155010633,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 37,
+              "endFrame": 40,
+              "nFrames": 4,
+              "spanBaseM": 2.220446049250313e-16,
+              "spanPairM": 2.220446049250313e-16,
+              "floorM": 0.0060871501903996955,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 58,
+              "endFrame": 67,
+              "nFrames": 10,
+              "spanBaseM": 0.00022886673565016534,
+              "spanPairM": 0.00023736200670829497,
+              "floorM": 0.004483839155010633,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 64,
+              "endFrame": 210,
+              "nFrames": 147,
+              "spanBaseM": 0.0006623799454963897,
+              "spanPairM": 0.0008920083970148568,
+              "floorM": 0.0060871501903996955,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 85,
+              "endFrame": 210,
+              "nFrames": 126,
+              "spanBaseM": 0.0008759651237168445,
+              "spanPairM": 0.0008759651237168445,
+              "floorM": 0.004483839155010633,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [
+            {
+              "foot": "right",
+              "heelStrike": 66,
+              "footFlat": 64,
+              "heelOff": 68,
+              "toeOff": 210,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 66,
+              "cycleEnd": null,
+              "fracHeelStrike": null,
+              "fracFootFlat": null,
+              "fracHeelOff": null,
+              "fracToeOff": null
+            }
+          ],
+          "unpairedHeelPlants": [],
+          "maxHeelSpanM": 0.000639528872286483,
+          "violationRate": 1,
+          "walkingStances": 0
+        },
+        {
+          "tag": "sc05:.openclinxr/evidence/foot-base-routes/sc05:sc05-run2",
+          "sourceFile": "sc05-run2.json",
+          "nFrames": 211,
+          "floorM": {
+            "leftHeel": 0.06438724617492333,
+            "rightHeel": 0.06879683683267418,
+            "leftToe": 0.004665736373084858,
+            "rightToe": 0.005513628872228615
+          },
+          "heelPlants": [
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 65,
+              "endFrame": 68,
+              "nFrames": 4,
+              "spanBaseM": 0.0005299449301364407,
+              "spanPairM": 0.0005445937299070609,
+              "floorM": 0.06879683683267418,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 84,
+              "endFrame": 100,
+              "nFrames": 17,
+              "spanBaseM": 0.0007558770884641749,
+              "spanPairM": 0.0007558770884641749,
+              "floorM": 0.06879683683267418,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 197,
+              "endFrame": 210,
+              "nFrames": 14,
+              "spanBaseM": 0.00020341253134295947,
+              "spanPairM": 0.00020341253134295947,
+              "floorM": 0.06879683683267418,
+              "phaseAtStart": "arrived"
+            }
+          ],
+          "toePlants": [
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 5,
+              "endFrame": 8,
+              "nFrames": 4,
+              "spanBaseM": 4.440892098500626e-16,
+              "spanPairM": 4.440892098500626e-16,
+              "floorM": 0.005513628872228615,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 21,
+              "endFrame": 23,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.004665736373084858,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 37,
+              "endFrame": 40,
+              "nFrames": 4,
+              "spanBaseM": 1.1102230246251565e-16,
+              "spanPairM": 1.1102230246251565e-16,
+              "floorM": 0.005513628872228615,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 58,
+              "endFrame": 67,
+              "nFrames": 10,
+              "spanBaseM": 0.0005414623794275954,
+              "spanPairM": 0.0005419509735155377,
+              "floorM": 0.004665736373084858,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 64,
+              "endFrame": 210,
+              "nFrames": 147,
+              "spanBaseM": 0.0003816338356257571,
+              "spanPairM": 0.0005766882397683233,
+              "floorM": 0.005513628872228615,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 85,
+              "endFrame": 210,
+              "nFrames": 126,
+              "spanBaseM": 0.0006446206184068796,
+              "spanPairM": 0.0006446206184068796,
+              "floorM": 0.004665736373084858,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [
+            {
+              "foot": "right",
+              "heelStrike": 65,
+              "footFlat": 64,
+              "heelOff": 68,
+              "toeOff": 210,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 65,
+              "cycleEnd": 84,
+              "fracHeelStrike": 0,
+              "fracFootFlat": -0.05263157894736842,
+              "fracHeelOff": 0.15789473684210525,
+              "fracToeOff": 7.631578947368421
+            },
+            {
+              "foot": "right",
+              "heelStrike": 84,
+              "footFlat": 64,
+              "heelOff": 100,
+              "toeOff": 210,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 84,
+              "cycleEnd": 197,
+              "fracHeelStrike": 0,
+              "fracFootFlat": -0.17699115044247787,
+              "fracHeelOff": 0.1415929203539823,
+              "fracToeOff": 1.1150442477876106
+            },
+            {
+              "foot": "right",
+              "heelStrike": 197,
+              "footFlat": 64,
+              "heelOff": 210,
+              "toeOff": 210,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 197,
+              "cycleEnd": null,
+              "fracHeelStrike": null,
+              "fracFootFlat": null,
+              "fracHeelOff": null,
+              "fracToeOff": null
+            }
+          ],
+          "unpairedHeelPlants": [],
+          "maxHeelSpanM": 0.0007558770884641749,
+          "violationRate": 1,
+          "walkingStances": 0
+        }
+      ],
+      "decision": {
+        "route": "sc05",
+        "nRuns": 6,
+        "nHeelPlants": 6,
+        "nStances": 6,
+        "nUnpairedHeelPlants": 0,
+        "nWalkingStances": 0,
+        "maxHeelSpanM": 0.0007558770884641749,
+        "violationRate": 1,
+        "spanPass": true,
+        "orderPass": false,
+        "pass": false
+      }
+    },
+    "2.0": {
+      "runs": [
+        {
+          "tag": "2.0:.openclinxr/evidence/foot-base-routes/2.0:sc05-run0",
+          "sourceFile": "sc05-run0.json",
+          "nFrames": 227,
+          "floorM": {
+            "leftHeel": 0.06525451274383964,
+            "rightHeel": 0.06968289194760485,
+            "leftToe": 0.004333807558544192,
+            "rightToe": 0.005212249927739276
+          },
+          "heelPlants": [
+            {
+              "foot": "left",
+              "kind": "heel",
+              "startFrame": 49,
+              "endFrame": 51,
+              "nFrames": 3,
+              "spanBaseM": 0.000256614907576611,
+              "spanPairM": 0.0003127191632268605,
+              "floorM": 0.06525451274383964,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "heel",
+              "startFrame": 103,
+              "endFrame": 226,
+              "nFrames": 124,
+              "spanBaseM": 0.001493354959377505,
+              "spanPairM": 0.001493354959377505,
+              "floorM": 0.06525451274383964,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "toePlants": [
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 5,
+              "endFrame": 8,
+              "nFrames": 4,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.005212249927739276,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 36,
+              "endFrame": 40,
+              "nFrames": 5,
+              "spanBaseM": 2.220446049250313e-16,
+              "spanPairM": 2.220446049250313e-16,
+              "floorM": 0.005212249927739276,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 53,
+              "endFrame": 55,
+              "nFrames": 3,
+              "spanBaseM": 1.1102230246251565e-16,
+              "spanPairM": 1.1102230246251565e-16,
+              "floorM": 0.004333807558544192,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 73,
+              "endFrame": 83,
+              "nFrames": 11,
+              "spanBaseM": 0.00043408091680781125,
+              "spanPairM": 0.0004502243276962283,
+              "floorM": 0.004333807558544192,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 81,
+              "endFrame": 226,
+              "nFrames": 146,
+              "spanBaseM": 0.0006281440168446028,
+              "spanPairM": 0.0006444132662634771,
+              "floorM": 0.005212249927739276,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 102,
+              "endFrame": 226,
+              "nFrames": 125,
+              "spanBaseM": 0.0004956346807313664,
+              "spanPairM": 0.0004956346807313664,
+              "floorM": 0.004333807558544192,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [
+            {
+              "foot": "left",
+              "heelStrike": 103,
+              "footFlat": 102,
+              "heelOff": 226,
+              "toeOff": 226,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 103,
+              "cycleEnd": null,
+              "fracHeelStrike": null,
+              "fracFootFlat": null,
+              "fracHeelOff": null,
+              "fracToeOff": null
+            }
+          ],
+          "unpairedHeelPlants": [
+            {
+              "foot": "left",
+              "kind": "heel",
+              "startFrame": 49,
+              "endFrame": 51,
+              "nFrames": 3,
+              "spanBaseM": 0.000256614907576611,
+              "spanPairM": 0.0003127191632268605,
+              "floorM": 0.06525451274383964,
+              "phaseAtStart": "walking"
+            }
+          ],
+          "maxHeelSpanM": 0.001493354959377505,
+          "violationRate": 1,
+          "walkingStances": 0
+        },
+        {
+          "tag": "2.0:.openclinxr/evidence/foot-base-routes/2.0:sc05-run1",
+          "sourceFile": "sc05-run1.json",
+          "nFrames": 227,
+          "floorM": {
+            "leftHeel": 0.06517300301675877,
+            "rightHeel": 0.06928017110887133,
+            "leftToe": 0.0035287598516771934,
+            "rightToe": 0.00683125029875338
+          },
+          "heelPlants": [
+            {
+              "foot": "left",
+              "kind": "heel",
+              "startFrame": 110,
+              "endFrame": 226,
+              "nFrames": 117,
+              "spanBaseM": 0.002677498320377997,
+              "spanPairM": 0.002677498320377997,
+              "floorM": 0.06517300301675877,
+              "phaseAtStart": "arrived"
+            }
+          ],
+          "toePlants": [
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 5,
+              "endFrame": 8,
+              "nFrames": 4,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.00683125029875338,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 37,
+              "endFrame": 40,
+              "nFrames": 4,
+              "spanBaseM": 2.220446049250313e-16,
+              "spanPairM": 2.220446049250313e-16,
+              "floorM": 0.00683125029875338,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 53,
+              "endFrame": 55,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.0035287598516771934,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 74,
+              "endFrame": 83,
+              "nFrames": 10,
+              "spanBaseM": 0.00013176014993779948,
+              "spanPairM": 0.00014582362971935452,
+              "floorM": 0.0035287598516771934,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 81,
+              "endFrame": 226,
+              "nFrames": 146,
+              "spanBaseM": 0.000669954138123346,
+              "spanPairM": 0.0009017782809242948,
+              "floorM": 0.00683125029875338,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 102,
+              "endFrame": 226,
+              "nFrames": 125,
+              "spanBaseM": 0.0007448516668306312,
+              "spanPairM": 0.0007448516668306312,
+              "floorM": 0.0035287598516771934,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [
+            {
+              "foot": "left",
+              "heelStrike": 110,
+              "footFlat": 102,
+              "heelOff": 226,
+              "toeOff": 226,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 110,
+              "cycleEnd": null,
+              "fracHeelStrike": null,
+              "fracFootFlat": null,
+              "fracHeelOff": null,
+              "fracToeOff": null
+            }
+          ],
+          "unpairedHeelPlants": [],
+          "maxHeelSpanM": 0.002677498320377997,
+          "violationRate": 1,
+          "walkingStances": 0
+        },
+        {
+          "tag": "2.0:.openclinxr/evidence/foot-base-routes/2.0:sc05-run2",
+          "sourceFile": "sc05-run2.json",
+          "nFrames": 228,
+          "floorM": {
+            "leftHeel": 0.06544529794847753,
+            "rightHeel": 0.0687807868054987,
+            "leftToe": 0.0035287598516772906,
+            "rightToe": 0.006831250298753311
+          },
+          "heelPlants": [
+            {
+              "foot": "left",
+              "kind": "heel",
+              "startFrame": 106,
+              "endFrame": 227,
+              "nFrames": 122,
+              "spanBaseM": 0.002770566526689839,
+              "spanPairM": 0.002770566526689839,
+              "floorM": 0.06544529794847753,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "toePlants": [
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 6,
+              "endFrame": 8,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.006831250298753311,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 37,
+              "endFrame": 40,
+              "nFrames": 4,
+              "spanBaseM": 2.220446049250313e-16,
+              "spanPairM": 2.220446049250313e-16,
+              "floorM": 0.006831250298753311,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 74,
+              "endFrame": 83,
+              "nFrames": 10,
+              "spanBaseM": 0.0001317601499375793,
+              "spanPairM": 0.00014582362971939908,
+              "floorM": 0.0035287598516772906,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 81,
+              "endFrame": 227,
+              "nFrames": 147,
+              "spanBaseM": 0.0006699541381237443,
+              "spanPairM": 0.0009030990034741888,
+              "floorM": 0.006831250298753311,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 102,
+              "endFrame": 227,
+              "nFrames": 126,
+              "spanBaseM": 0.0010019020852230982,
+              "spanPairM": 0.0010019020852230982,
+              "floorM": 0.0035287598516772906,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [
+            {
+              "foot": "left",
+              "heelStrike": 106,
+              "footFlat": 102,
+              "heelOff": 227,
+              "toeOff": 227,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 106,
+              "cycleEnd": null,
+              "fracHeelStrike": null,
+              "fracFootFlat": null,
+              "fracHeelOff": null,
+              "fracToeOff": null
+            }
+          ],
+          "unpairedHeelPlants": [],
+          "maxHeelSpanM": 0.002770566526689839,
+          "violationRate": 1,
+          "walkingStances": 0
+        }
+      ],
+      "decision": {
+        "route": "2.0",
+        "nRuns": 3,
+        "nHeelPlants": 4,
+        "nStances": 3,
+        "nUnpairedHeelPlants": 1,
+        "nWalkingStances": 0,
+        "maxHeelSpanM": 0.002770566526689839,
+        "violationRate": 1,
+        "spanPass": true,
+        "orderPass": false,
+        "pass": false
+      }
+    },
+    "3.7": {
+      "runs": [
+        {
+          "tag": "3.7:.openclinxr/evidence/foot-base-routes/3.7:sc05-run0",
+          "sourceFile": "sc05-run0.json",
+          "nFrames": 275,
+          "floorM": {
+            "leftHeel": 0.06559384221778072,
+            "rightHeel": 0.06991686960830171,
+            "leftToe": 0.00428381779115472,
+            "rightToe": 0.004490252912541598
+          },
+          "heelPlants": [
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 129,
+              "endFrame": 132,
+              "nFrames": 4,
+              "spanBaseM": 0.0005979728086340868,
+              "spanPairM": 0.0006041387976345445,
+              "floorM": 0.06991686960830171,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 149,
+              "endFrame": 274,
+              "nFrames": 126,
+              "spanBaseM": 0.0007561799705405843,
+              "spanPairM": 0.0009180926528327155,
+              "floorM": 0.06991686960830171,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "toePlants": [
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 6,
+              "endFrame": 8,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.004490252912541598,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 38,
+              "endFrame": 40,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.004490252912541598,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 70,
+              "endFrame": 72,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.004490252912541598,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 85,
+              "endFrame": 87,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.00428381779115472,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 101,
+              "endFrame": 104,
+              "nFrames": 4,
+              "spanBaseM": 2.220446049250313e-16,
+              "spanPairM": 2.220446049250313e-16,
+              "floorM": 0.004490252912541598,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 122,
+              "endFrame": 131,
+              "nFrames": 10,
+              "spanBaseM": 0.00037440096555658867,
+              "spanPairM": 0.00038600663715258947,
+              "floorM": 0.00428381779115472,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 128,
+              "endFrame": 274,
+              "nFrames": 147,
+              "spanBaseM": 0.00019653870474855135,
+              "spanPairM": 0.0002327001137696447,
+              "floorM": 0.004490252912541598,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 148,
+              "endFrame": 274,
+              "nFrames": 127,
+              "spanBaseM": 0.0005210392719669156,
+              "spanPairM": 0.0005210392719669156,
+              "floorM": 0.00428381779115472,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [
+            {
+              "foot": "right",
+              "heelStrike": 129,
+              "footFlat": 128,
+              "heelOff": 132,
+              "toeOff": 274,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 129,
+              "cycleEnd": 149,
+              "fracHeelStrike": 0,
+              "fracFootFlat": -0.05,
+              "fracHeelOff": 0.15,
+              "fracToeOff": 7.25
+            },
+            {
+              "foot": "right",
+              "heelStrike": 149,
+              "footFlat": 128,
+              "heelOff": 274,
+              "toeOff": 274,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 149,
+              "cycleEnd": null,
+              "fracHeelStrike": null,
+              "fracFootFlat": null,
+              "fracHeelOff": null,
+              "fracToeOff": null
+            }
+          ],
+          "unpairedHeelPlants": [],
+          "maxHeelSpanM": 0.0009180926528327155,
+          "violationRate": 1,
+          "walkingStances": 0
+        },
+        {
+          "tag": "3.7:.openclinxr/evidence/foot-base-routes/3.7:sc05-run1",
+          "sourceFile": "sc05-run1.json",
+          "nFrames": 275,
+          "floorM": {
+            "leftHeel": 0.06533937305347742,
+            "rightHeel": 0.07003034501171432,
+            "leftToe": 0.005047393865550739,
+            "rightToe": 0.0045752769993855635
+          },
+          "heelPlants": [
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 129,
+              "endFrame": 132,
+              "nFrames": 4,
+              "spanBaseM": 0.0005990503320702532,
+              "spanPairM": 0.0005990503320702532,
+              "floorM": 0.07003034501171432,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 149,
+              "endFrame": 274,
+              "nFrames": 126,
+              "spanBaseM": 0.0009554242551912882,
+              "spanPairM": 0.0010009945174376466,
+              "floorM": 0.07003034501171432,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "toePlants": [
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 6,
+              "endFrame": 8,
+              "nFrames": 3,
+              "spanBaseM": 4.440892098500626e-16,
+              "spanPairM": 4.440892098500626e-16,
+              "floorM": 0.0045752769993855635,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 38,
+              "endFrame": 40,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.0045752769993855635,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 70,
+              "endFrame": 72,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.0045752769993855635,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 85,
+              "endFrame": 88,
+              "nFrames": 4,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.005047393865550739,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 101,
+              "endFrame": 104,
+              "nFrames": 4,
+              "spanBaseM": 1.1102230246251565e-16,
+              "spanPairM": 1.1102230246251565e-16,
+              "floorM": 0.0045752769993855635,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 122,
+              "endFrame": 131,
+              "nFrames": 10,
+              "spanBaseM": 0.0003747611837314205,
+              "spanPairM": 0.000387807593721033,
+              "floorM": 0.005047393865550739,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 128,
+              "endFrame": 274,
+              "nFrames": 147,
+              "spanBaseM": 0.00028556597529566676,
+              "spanPairM": 0.00028556597529566676,
+              "floorM": 0.0045752769993855635,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 148,
+              "endFrame": 274,
+              "nFrames": 127,
+              "spanBaseM": 0.0005059614835023207,
+              "spanPairM": 0.0005059614835023207,
+              "floorM": 0.005047393865550739,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [
+            {
+              "foot": "right",
+              "heelStrike": 129,
+              "footFlat": 128,
+              "heelOff": 132,
+              "toeOff": 274,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 129,
+              "cycleEnd": 149,
+              "fracHeelStrike": 0,
+              "fracFootFlat": -0.05,
+              "fracHeelOff": 0.15,
+              "fracToeOff": 7.25
+            },
+            {
+              "foot": "right",
+              "heelStrike": 149,
+              "footFlat": 128,
+              "heelOff": 274,
+              "toeOff": 274,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 149,
+              "cycleEnd": null,
+              "fracHeelStrike": null,
+              "fracFootFlat": null,
+              "fracHeelOff": null,
+              "fracToeOff": null
+            }
+          ],
+          "unpairedHeelPlants": [],
+          "maxHeelSpanM": 0.0010009945174376466,
+          "violationRate": 1,
+          "walkingStances": 0
+        },
+        {
+          "tag": "3.7:.openclinxr/evidence/foot-base-routes/3.7:sc05-run2",
+          "sourceFile": "sc05-run2.json",
+          "nFrames": 274,
+          "floorM": {
+            "leftHeel": 0.0658901100176367,
+            "rightHeel": 0.07005832850897148,
+            "leftToe": 0.004104498695741449,
+            "rightToe": 0.004037642585920098
+          },
+          "heelPlants": [
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 129,
+              "endFrame": 132,
+              "nFrames": 4,
+              "spanBaseM": 0.0009262106615513698,
+              "spanPairM": 0.0009262106615513698,
+              "floorM": 0.07005832850897148,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 148,
+              "endFrame": 273,
+              "nFrames": 126,
+              "spanBaseM": 0.0012577553723699894,
+              "spanPairM": 0.0012577553723699894,
+              "floorM": 0.07005832850897148,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "toePlants": [
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 38,
+              "endFrame": 40,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.004037642585920098,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 69,
+              "endFrame": 72,
+              "nFrames": 4,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.004037642585920098,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 85,
+              "endFrame": 87,
+              "nFrames": 3,
+              "spanBaseM": 2.220446049250313e-16,
+              "spanPairM": 2.220446049250313e-16,
+              "floorM": 0.004104498695741449,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 100,
+              "endFrame": 104,
+              "nFrames": 5,
+              "spanBaseM": 1.1102230246251565e-16,
+              "spanPairM": 1.1102230246251565e-16,
+              "floorM": 0.004037642585920098,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 122,
+              "endFrame": 131,
+              "nFrames": 10,
+              "spanBaseM": 0.0003746266448557172,
+              "spanPairM": 0.0003851189165000588,
+              "floorM": 0.004104498695741449,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 128,
+              "endFrame": 273,
+              "nFrames": 146,
+              "spanBaseM": 0.00018326968086019378,
+              "spanPairM": 0.0002950049715295727,
+              "floorM": 0.004037642585920098,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 148,
+              "endFrame": 273,
+              "nFrames": 126,
+              "spanBaseM": 0.0005346618653722721,
+              "spanPairM": 0.0005346618653722721,
+              "floorM": 0.004104498695741449,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [
+            {
+              "foot": "right",
+              "heelStrike": 129,
+              "footFlat": 128,
+              "heelOff": 132,
+              "toeOff": 273,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 129,
+              "cycleEnd": 148,
+              "fracHeelStrike": 0,
+              "fracFootFlat": -0.05263157894736842,
+              "fracHeelOff": 0.15789473684210525,
+              "fracToeOff": 7.578947368421052
+            },
+            {
+              "foot": "right",
+              "heelStrike": 148,
+              "footFlat": 128,
+              "heelOff": 273,
+              "toeOff": 273,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 148,
+              "cycleEnd": null,
+              "fracHeelStrike": null,
+              "fracFootFlat": null,
+              "fracHeelOff": null,
+              "fracToeOff": null
+            }
+          ],
+          "unpairedHeelPlants": [],
+          "maxHeelSpanM": 0.0012577553723699894,
+          "violationRate": 1,
+          "walkingStances": 0
+        }
+      ],
+      "decision": {
+        "route": "3.7",
+        "nRuns": 3,
+        "nHeelPlants": 6,
+        "nStances": 6,
+        "nUnpairedHeelPlants": 0,
+        "nWalkingStances": 0,
+        "maxHeelSpanM": 0.0012577553723699894,
+        "violationRate": 1,
+        "spanPass": true,
+        "orderPass": false,
+        "pass": false
+      }
+    },
+    "6.0": {
+      "runs": [
+        {
+          "tag": "6.0:.openclinxr/evidence/foot-base-routes/6.0:sc05-run0",
+          "sourceFile": "sc05-run0.json",
+          "nFrames": 338,
+          "floorM": {
+            "leftHeel": 0.06432796217485423,
+            "rightHeel": 0.06967129823238868,
+            "leftToe": 0.0010278611521251646,
+            "rightToe": 0.0005051067370454299
+          },
+          "heelPlants": [
+            {
+              "foot": "left",
+              "kind": "heel",
+              "startFrame": 55,
+              "endFrame": 57,
+              "nFrames": 3,
+              "spanBaseM": 0.0004003745720996288,
+              "spanPairM": 0.0004003745720996288,
+              "floorM": 0.06432796217485423,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 193,
+              "endFrame": 196,
+              "nFrames": 4,
+              "spanBaseM": 0.001122340669257415,
+              "spanPairM": 0.001122340669257415,
+              "floorM": 0.06967129823238868,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 212,
+              "endFrame": 307,
+              "nFrames": 96,
+              "spanBaseM": 0.001189313324221479,
+              "spanPairM": 0.001189313324221479,
+              "floorM": 0.06967129823238868,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "toePlants": [
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 6,
+              "endFrame": 8,
+              "nFrames": 3,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.0005051067370454299,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 147,
+              "endFrame": 151,
+              "nFrames": 5,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": 0.0010278611521251646,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 164,
+              "endFrame": 167,
+              "nFrames": 4,
+              "spanBaseM": 1.1102230246251565e-16,
+              "spanPairM": 1.1102230246251565e-16,
+              "floorM": 0.0005051067370454299,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 186,
+              "endFrame": 195,
+              "nFrames": 10,
+              "spanBaseM": 0.0006804501184805849,
+              "spanPairM": 0.0006809745833256416,
+              "floorM": 0.0010278611521251646,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 191,
+              "endFrame": 337,
+              "nFrames": 147,
+              "spanBaseM": 0.0008893743345505974,
+              "spanPairM": 0.0008893743345505974,
+              "floorM": 0.0005051067370454299,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 212,
+              "endFrame": 337,
+              "nFrames": 126,
+              "spanBaseM": 0.00044463004051085883,
+              "spanPairM": 0.00044463004051085883,
+              "floorM": 0.0010278611521251646,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [
+            {
+              "foot": "right",
+              "heelStrike": 193,
+              "footFlat": 191,
+              "heelOff": 196,
+              "toeOff": 337,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 193,
+              "cycleEnd": 212,
+              "fracHeelStrike": 0,
+              "fracFootFlat": -0.10526315789473684,
+              "fracHeelOff": 0.15789473684210525,
+              "fracToeOff": 7.578947368421052
+            },
+            {
+              "foot": "right",
+              "heelStrike": 212,
+              "footFlat": 191,
+              "heelOff": 307,
+              "toeOff": 337,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 212,
+              "cycleEnd": null,
+              "fracHeelStrike": null,
+              "fracFootFlat": null,
+              "fracHeelOff": null,
+              "fracToeOff": null
+            }
+          ],
+          "unpairedHeelPlants": [
+            {
+              "foot": "left",
+              "kind": "heel",
+              "startFrame": 55,
+              "endFrame": 57,
+              "nFrames": 3,
+              "spanBaseM": 0.0004003745720996288,
+              "spanPairM": 0.0004003745720996288,
+              "floorM": 0.06432796217485423,
+              "phaseAtStart": "walking"
+            }
+          ],
+          "maxHeelSpanM": 0.001189313324221479,
+          "violationRate": 1,
+          "walkingStances": 0
+        },
+        {
+          "tag": "6.0:.openclinxr/evidence/foot-base-routes/6.0:sc05-run1",
+          "sourceFile": "sc05-run1.json",
+          "nFrames": 338,
+          "floorM": {
+            "leftHeel": 0.06436704650015321,
+            "rightHeel": 0.07009790364890991,
+            "leftToe": -0.0006410935253209904,
+            "rightToe": 0.00020114218384789662
+          },
+          "heelPlants": [
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 193,
+              "endFrame": 195,
+              "nFrames": 3,
+              "spanBaseM": 0.00020709972432041832,
+              "spanPairM": 0.00020709972432041832,
+              "floorM": 0.07009790364890991,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 212,
+              "endFrame": 337,
+              "nFrames": 126,
+              "spanBaseM": 0.0015545536630800789,
+              "spanPairM": 0.0015545536630800789,
+              "floorM": 0.07009790364890991,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "toePlants": [
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 148,
+              "endFrame": 151,
+              "nFrames": 4,
+              "spanBaseM": 2.220446049250313e-16,
+              "spanPairM": 2.220446049250313e-16,
+              "floorM": -0.0006410935253209904,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 164,
+              "endFrame": 167,
+              "nFrames": 4,
+              "spanBaseM": 2.482534153247273e-16,
+              "spanPairM": 2.482534153247273e-16,
+              "floorM": 0.00020114218384789662,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 187,
+              "endFrame": 195,
+              "nFrames": 9,
+              "spanBaseM": 0.0007003388521037749,
+              "spanPairM": 0.0007059881446750669,
+              "floorM": -0.0006410935253209904,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 193,
+              "endFrame": 195,
+              "nFrames": 3,
+              "spanBaseM": 0.00002636561552077996,
+              "spanPairM": 0.00002636561552077996,
+              "floorM": 0.00020114218384789662,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 196,
+              "endFrame": 337,
+              "nFrames": 142,
+              "spanBaseM": 0.0007712310736973899,
+              "spanPairM": 0.000887251019268792,
+              "floorM": 0.00020114218384789662,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 212,
+              "endFrame": 337,
+              "nFrames": 126,
+              "spanBaseM": 0.0005107503854836409,
+              "spanPairM": 0.0005107503854836409,
+              "floorM": -0.0006410935253209904,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [
+            {
+              "foot": "right",
+              "heelStrike": 193,
+              "footFlat": 193,
+              "heelOff": 195,
+              "toeOff": 195,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 193,
+              "cycleEnd": 212,
+              "fracHeelStrike": 0,
+              "fracFootFlat": 0,
+              "fracHeelOff": 0.10526315789473684,
+              "fracToeOff": 0.10526315789473684
+            },
+            {
+              "foot": "right",
+              "heelStrike": 212,
+              "footFlat": 196,
+              "heelOff": 337,
+              "toeOff": 337,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 212,
+              "cycleEnd": null,
+              "fracHeelStrike": null,
+              "fracFootFlat": null,
+              "fracHeelOff": null,
+              "fracToeOff": null
+            }
+          ],
+          "unpairedHeelPlants": [],
+          "maxHeelSpanM": 0.0015545536630800789,
+          "violationRate": 1,
+          "walkingStances": 0
+        },
+        {
+          "tag": "6.0:.openclinxr/evidence/foot-base-routes/6.0:sc05-run2",
+          "sourceFile": "sc05-run2.json",
+          "nFrames": 338,
+          "floorM": {
+            "leftHeel": 0.0642772241860936,
+            "rightHeel": 0.06985583967111084,
+            "leftToe": -0.0008890321858368716,
+            "rightToe": 0.0003869452220188335
+          },
+          "heelPlants": [
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 193,
+              "endFrame": 195,
+              "nFrames": 3,
+              "spanBaseM": 0.00022524498367588352,
+              "spanPairM": 0.00022524498367588352,
+              "floorM": 0.06985583967111084,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "heel",
+              "startFrame": 212,
+              "endFrame": 337,
+              "nFrames": 126,
+              "spanBaseM": 0.0014734663090533256,
+              "spanPairM": 0.0014734663090533256,
+              "floorM": 0.06985583967111084,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "toePlants": [
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 6,
+              "endFrame": 8,
+              "nFrames": 3,
+              "spanBaseM": 8.881784197001252e-16,
+              "spanPairM": 8.881784197001252e-16,
+              "floorM": 0.0003869452220188335,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 148,
+              "endFrame": 151,
+              "nFrames": 4,
+              "spanBaseM": 0,
+              "spanPairM": 0,
+              "floorM": -0.0008890321858368716,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 164,
+              "endFrame": 167,
+              "nFrames": 4,
+              "spanBaseM": 1.1102230246251565e-16,
+              "spanPairM": 1.1102230246251565e-16,
+              "floorM": 0.0003869452220188335,
+              "phaseAtStart": "walking"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 187,
+              "endFrame": 195,
+              "nFrames": 9,
+              "spanBaseM": 0.0006923462042020472,
+              "spanPairM": 0.000696107999881778,
+              "floorM": -0.0008890321858368716,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 193,
+              "endFrame": 195,
+              "nFrames": 3,
+              "spanBaseM": 0.0000158461155953956,
+              "spanPairM": 0.0000158461155953956,
+              "floorM": 0.0003869452220188335,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "right",
+              "kind": "toe",
+              "startFrame": 196,
+              "endFrame": 337,
+              "nFrames": 142,
+              "spanBaseM": 0.00024362287054198857,
+              "spanPairM": 0.00024449100597760307,
+              "floorM": 0.0003869452220188335,
+              "phaseAtStart": "settling"
+            },
+            {
+              "foot": "left",
+              "kind": "toe",
+              "startFrame": 212,
+              "endFrame": 337,
+              "nFrames": 126,
+              "spanBaseM": 0.0004908749552892411,
+              "spanPairM": 0.0004908749552892411,
+              "floorM": -0.0008890321858368716,
+              "phaseAtStart": "settling"
+            }
+          ],
+          "stances": [
+            {
+              "foot": "right",
+              "heelStrike": 193,
+              "footFlat": 193,
+              "heelOff": 195,
+              "toeOff": 195,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 193,
+              "cycleEnd": 212,
+              "fracHeelStrike": 0,
+              "fracFootFlat": 0,
+              "fracHeelOff": 0.10526315789473684,
+              "fracToeOff": 0.10526315789473684
+            },
+            {
+              "foot": "right",
+              "heelStrike": 212,
+              "footFlat": 196,
+              "heelOff": 337,
+              "toeOff": 337,
+              "orderOk": false,
+              "violatedAt": "heelStrike<footFlat",
+              "cycleStart": 212,
+              "cycleEnd": null,
+              "fracHeelStrike": null,
+              "fracFootFlat": null,
+              "fracHeelOff": null,
+              "fracToeOff": null
+            }
+          ],
+          "unpairedHeelPlants": [],
+          "maxHeelSpanM": 0.0014734663090533256,
+          "violationRate": 1,
+          "walkingStances": 0
+        }
+      ],
+      "decision": {
+        "route": "6.0",
+        "nRuns": 3,
+        "nHeelPlants": 7,
+        "nStances": 6,
+        "nUnpairedHeelPlants": 1,
+        "nWalkingStances": 0,
+        "maxHeelSpanM": 0.0015545536630800789,
+        "violationRate": 1,
+        "spanPass": true,
+        "orderPass": false,
+        "pass": false
+      }
+    }
+  },
+  "bound": {
+    "glb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+    "clip": "openclinxr_retarget_walk_source",
+    "actorScale": 0.86,
+    "loopDurationS": 1.7083333730697632,
+    "nLoopSamples": 41,
+    "floorM": {
+      "leftHeel": 0.06644453909850984,
+      "rightHeel": 0.0671558856318595,
+      "leftToe": 0.014952327497696514,
+      "rightToe": 0.01395024025689861
+    },
+    "heelPlants": [],
+    "toePlants": [],
+    "stances": [],
+    "unpairedHeelPlants": [],
+    "maxHeelSpanM": null,
+    "violationRate": null
+  },
+  "boundDecision": {
+    "maxHeelSpanM": null,
+    "spanPass": true
+  },
+  "decision": {
+    "pass": false,
+    "reason": "FAIL: sc05, 2.0, 3.7, 6.0"
+  }
+}

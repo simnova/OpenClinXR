@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "soundFile": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/telehealth_diabetes_health_literacy_v1/stage-lip-sync/utterance-7dc25f1728.wav",
+    "duration": 3.76
+  },
+  "mouthCues": [
+    { "start": 0.00, "end": 0.12, "value": "X" },
+    { "start": 0.12, "end": 0.19, "value": "C" },
+    { "start": 0.19, "end": 0.26, "value": "B" },
+    { "start": 0.26, "end": 0.33, "value": "D" },
+    { "start": 0.33, "end": 0.61, "value": "F" },
+    { "start": 0.61, "end": 0.68, "value": "G" },
+    { "start": 0.68, "end": 0.75, "value": "D" },
+    { "start": 0.75, "end": 0.82, "value": "E" },
+    { "start": 0.82, "end": 0.89, "value": "B" },
+    { "start": 0.89, "end": 0.97, "value": "A" },
+    { "start": 0.97, "end": 1.12, "value": "H" },
+    { "start": 1.12, "end": 1.33, "value": "C" },
+    { "start": 1.33, "end": 1.50, "value": "X" },
+    { "start": 1.50, "end": 2.23, "value": "B" },
+    { "start": 2.23, "end": 2.37, "value": "C" },
+    { "start": 2.37, "end": 2.44, "value": "B" },
+    { "start": 2.44, "end": 2.51, "value": "D" },
+    { "start": 2.51, "end": 2.58, "value": "B" },
+    { "start": 2.58, "end": 2.72, "value": "D" },
+    { "start": 2.72, "end": 3.00, "value": "F" },
+    { "start": 3.00, "end": 3.07, "value": "C" },
+    { "start": 3.07, "end": 3.35, "value": "B" },
+    { "start": 3.35, "end": 3.56, "value": "C" },
+    { "start": 3.56, "end": 3.70, "value": "B" },
+    { "start": 3.70, "end": 3.76, "value": "X" }
+  ]
+}
