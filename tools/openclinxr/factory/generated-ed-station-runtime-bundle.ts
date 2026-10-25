@@ -6,6 +6,7 @@ import { createAzuriteAssetObjectStore } from "../../../packages/openclinxr/asse
 import type { RuntimeAssetReviewDecision } from "../../../packages/openclinxr/asset-registry/src/runtime-asset-review.js";
 import {
   buildEncounterRuntimeAssetBundle,
+  createEdChestPainLocalLearnerRuntimeAssetBundle,
   type EncounterRuntimeAssetBundle,
   type LearnerRuntimeAssetBundle,
   type RuntimeAssetStoreConfig,
@@ -13,7 +14,7 @@ import {
   resolveRuntimeAssetStoreConfig,
   toLearnerRuntimeAssetBundle,
 } from "../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
-import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
+import { edChestPainScenarioV2, scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 import { buildEnvironmentRuntimeAssetReference, defaultEnvironmentArtifactsReportPath, type EnvironmentArtifactsReport } from "../evidence/environment-artifacts.js";
 import { buildMedicalEquipmentRuntimeAssetReferences, defaultMedicalEquipmentReportPath, type MedicalEquipmentArtifactsReport } from "../evidence/medical-equipment-artifacts.js";
 import { buildGeneratedHumanRiggingRuntimeAssetReference, defaultGeneratedHumanRiggingReportPath, type GeneratedHumanRiggingReport } from "./generated-human-rigging-artifacts.js";
@@ -96,6 +97,7 @@ type CliOptions = {
   outputPath: string;
   writeAzurite: boolean;
   refreshPublicPlacements: boolean;
+  refreshPublicEquipment: boolean;
   publicRoot: string;
   validateLatest: boolean;
   help: boolean;
@@ -116,6 +118,11 @@ export async function runGeneratedEdStationRuntimeBundleCli(args = process.argv.
   if (options.refreshPublicPlacements) {
     await refreshPublicActorPlacements(options.scenarioId, options.publicRoot);
     process.stdout.write(`Refreshed public actor placements for ${options.scenarioId}\n`);
+    return;
+  }
+  if (options.refreshPublicEquipment) {
+    await refreshPublicEquipment(options.scenarioId, options.publicRoot);
+    process.stdout.write(`Refreshed public equipment for ${options.scenarioId}\n`);
     return;
   }
   if (options.validateLatest) {
@@ -1384,6 +1391,163 @@ function postureForAuthoredSupport(supportSurface: AuthoredPlacement["supportSur
   return "standing";
 }
 
+const PUBLIC_EQUIPMENT_REFRESH_SUPPORTED_SCENARIOS = ["ed_chest_pain_priority_v1", "ed_chest_pain_priority_v2"] as const;
+
+type PublicEquipmentRefreshScenarioId = (typeof PUBLIC_EQUIPMENT_REFRESH_SUPPORTED_SCENARIOS)[number];
+
+function isPublicEquipmentRefreshScenarioId(scenarioId: string): scenarioId is PublicEquipmentRefreshScenarioId {
+  return (PUBLIC_EQUIPMENT_REFRESH_SUPPORTED_SCENARIOS as readonly string[]).includes(scenarioId);
+}
+
+function caseScenarioForPublicEquipmentRefresh(scenarioId: PublicEquipmentRefreshScenarioId) {
+  if (scenarioId === "ed_chest_pain_priority_v1") return undefined;
+  // D1: scenarioBank intentionally omits the authored V2; the authored V2 lives as the named
+  // edChestPainScenarioV2 export. Validate its id before use.
+  if (edChestPainScenarioV2.scenarioId !== scenarioId) {
+    throw new Error(`public equipment refresh refused: authored V2 scenario id mismatch (${edChestPainScenarioV2.scenarioId})`);
+  }
+  return edChestPainScenarioV2;
+}
+
+/**
+ * R4 stable de-dupe key: whole-ref identity for existing records. JSON-stringify preserves
+ * original records and order while collapsing exact duplicates from repeated refresh.
+ */
+function equipmentAssetRefKey(ref: unknown): string {
+  return JSON.stringify(ref);
+}
+
+/**
+ * R5: append-only. Original prefix kept EXACT (duplicates/order included); only new refs
+ * not already represented are appended.
+ */
+function appendNewEquipmentSourceRefs(original: readonly string[], additions: readonly string[]): string[] {
+  const seen = new Set(original);
+  const out = [...original];
+  for (const ref of additions) {
+    if (seen.has(ref)) continue;
+    seen.add(ref);
+    out.push(ref);
+  }
+  return out;
+}
+
+function appendNewEquipmentAssetRefs<T>(original: readonly T[], additions: readonly T[]): T[] {
+  const seen = new Set(original.map(equipmentAssetRefKey));
+  const out = [...original];
+  for (const ref of additions) {
+    const key = equipmentAssetRefKey(ref);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(ref);
+  }
+  return out;
+}
+
+/**
+ * Deterministic LOCAL equipment refresh: merges canonical case-factory equipment rows and
+ * scene-manifest placements into an existing public learner bundle. Actors, actor placements,
+ * identity, and unrelated fields are preserved byte-semantically. Fail-closed on
+ * missing/mismatched scenario or unsupported authored case — never a guessed placement.
+ */
+export function refreshPublicEquipmentInLearnerBundle(
+  bundle: LearnerRuntimeAssetBundle,
+  scenarioId: string,
+): LearnerRuntimeAssetBundle {
+  if (!isPublicEquipmentRefreshScenarioId(scenarioId)) {
+    throw new Error(`public equipment refresh refused: unsupported authored case ${scenarioId}`);
+  }
+  if (bundle.scenarioId !== scenarioId || bundle.sceneManifest.scenarioId !== scenarioId) {
+    throw new Error(
+      `public equipment refresh refused: bundle scenario mismatch (bundle=${bundle.scenarioId}, manifest=${bundle.sceneManifest.scenarioId}, requested=${scenarioId})`,
+    );
+  }
+  const canonical = createEdChestPainLocalLearnerRuntimeAssetBundle({
+    scenarioId,
+    scenario: caseScenarioForPublicEquipmentRefresh(scenarioId),
+  });
+  const refreshed: LearnerRuntimeAssetBundle = {
+    ...bundle,
+    equipment: canonical.equipment,
+    sceneManifest: {
+      ...bundle.sceneManifest,
+      equipmentPlacements: canonical.sceneManifest.equipmentPlacements,
+    },
+    assemblyAuditMetadata: {
+      ...bundle.assemblyAuditMetadata,
+      // R1/R5: keep original arrays byte-semantic prefix EXACT (incl. duplicates/order);
+      // append ONLY new equipment refs not already represented. Idempotent preserved.
+      sourceDefinitionRefs: appendNewEquipmentSourceRefs(
+        bundle.assemblyAuditMetadata.sourceDefinitionRefs,
+        canonical.equipment.map((row) => `equipment_source:${row.equipmentId}:${row.model.assetId}`),
+      ),
+      generatedAssetRefs: appendNewEquipmentAssetRefs(
+        bundle.assemblyAuditMetadata.generatedAssetRefs,
+        canonical.equipment.map((row) => ({
+          assetId: row.model.assetId,
+          scenarioAssetId: row.model.scenarioAssetId,
+          kind: row.model.kind,
+          version: row.model.version,
+          reviewStatus: row.model.reviewStatus,
+          blobRef: {
+            storeKind: row.model.blob.storeKind,
+            containerName: row.model.blob.containerName,
+            blobName: row.model.blob.blobName,
+          },
+          provenanceRefs: [...row.model.provenanceRefs],
+        })),
+      ),
+    },
+  };
+  // R2: when the existing bundle carries an equipment materialization gate, refresh ONLY its
+  // equipment-descriptive count/ids to match the refreshed rows. Actor gate, readiness-false
+  // flags, blockers, caveats, claimBoundary, and runtime-selection blocks are preserved.
+  // Gate absent in a unit fixture is never invented.
+  // R3: clone the gate holder before assigning the nested equipmentGate so the input bundle
+  // object is never mutated.
+  const gateHolder = refreshed as unknown as {
+    actorEquipmentMaterializationGate?: { equipmentGate?: { equipmentIds?: unknown; equipmentVariantCount?: unknown } };
+  };
+  if (gateHolder.actorEquipmentMaterializationGate?.equipmentGate) {
+    // R3: replace (not mutate) the nested gate objects so the input bundle stays untouched.
+    gateHolder.actorEquipmentMaterializationGate = {
+      ...gateHolder.actorEquipmentMaterializationGate,
+    };
+    gateHolder.actorEquipmentMaterializationGate.equipmentGate = {
+      ...gateHolder.actorEquipmentMaterializationGate.equipmentGate,
+      equipmentIds: refreshed.equipment.map((row) => row.equipmentId),
+      equipmentVariantCount: refreshed.equipment.length,
+    };
+  }
+  return refreshed;
+}
+
+export async function refreshPublicEquipment(
+  scenarioId: string,
+  publicRoot = "apps/ui-xr/public/xr-assets/generated",
+): Promise<void> {
+  // R6: fail closed BEFORE any file I/O on unsupported authored case.
+  if (!isPublicEquipmentRefreshScenarioId(scenarioId)) {
+    throw new Error(`public equipment refresh refused: unsupported authored case ${scenarioId}`);
+  }
+  const stationDir = path.join(publicRoot, scenarioId);
+  const bundlePath = path.join(stationDir, "learner-runtime-bundle.v1.json");
+  const manifestPath = path.join(stationDir, "scene-manifest.v1.json");
+  const bundle = JSON.parse(await readFile(bundlePath, "utf8")) as LearnerRuntimeAssetBundle;
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as EncounterRuntimeAssetBundle["sceneManifest"];
+  // R6: refuse standalone manifest scenario mismatch BEFORE ANY write.
+  if (manifest.scenarioId !== undefined && manifest.scenarioId !== scenarioId) {
+    throw new Error(
+      `public equipment refresh refused: standalone manifest scenario mismatch (manifest=${manifest.scenarioId}, requested=${scenarioId})`,
+    );
+  }
+  const refreshed = refreshPublicEquipmentInLearnerBundle(bundle, scenarioId);
+  const manifestEquipmentPlacements = (refreshed.sceneManifest.equipmentPlacements ?? {}) as Record<string, unknown>;
+  manifest.equipmentPlacements = manifestEquipmentPlacements as EncounterRuntimeAssetBundle["sceneManifest"]["equipmentPlacements"];
+  await writeFile(bundlePath, `${JSON.stringify(refreshed, null, 2)}\n`, "utf8");
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+}
+
 export async function refreshPublicActorPlacements(
   scenarioId: string,
   publicRoot = "apps/ui-xr/public/xr-assets/generated",
@@ -1542,12 +1706,13 @@ function createScenarioRuntimeSceneManifest(
 }
 
 function parseCliOptions(args: string[]): CliOptions {
-  const options: CliOptions = { humanReportPath: defaultGeneratedHumanRiggingReportPath(), equipmentReportPath: defaultMedicalEquipmentReportPath(), environmentReportPath: defaultEnvironmentArtifactsReportPath(), runtimeAssetReviewDecisionsPath: null, scenarioId: "ed_chest_pain_priority_v1", outputPath: defaultGeneratedEdStationRuntimeBundleReportPath(), writeAzurite: false, refreshPublicPlacements: false, publicRoot: "apps/ui-xr/public/xr-assets/generated", validateLatest: false, help: false };
+  const options: CliOptions = { humanReportPath: defaultGeneratedHumanRiggingReportPath(), equipmentReportPath: defaultMedicalEquipmentReportPath(), environmentReportPath: defaultEnvironmentArtifactsReportPath(), runtimeAssetReviewDecisionsPath: null, scenarioId: "ed_chest_pain_priority_v1", outputPath: defaultGeneratedEdStationRuntimeBundleReportPath(), writeAzurite: false, refreshPublicPlacements: false, refreshPublicEquipment: false, publicRoot: "apps/ui-xr/public/xr-assets/generated", validateLatest: false, help: false };
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
     if (arg === "--help" || arg === "-h") options.help = true;
     else if (arg === "--write-azurite") options.writeAzurite = true;
     else if (arg === "--refresh-public-placements") options.refreshPublicPlacements = true;
+    else if (arg === "--refresh-public-equipment") options.refreshPublicEquipment = true;
     else if (arg === "--public-root") options.publicRoot = requireNext(args, ++index, arg);
     else if (arg === "--validate-latest") options.validateLatest = true;
     else if (arg === "--human-report") options.humanReportPath = requireNext(args, ++index, arg);
@@ -1567,7 +1732,7 @@ function requireNext(args: string[], index: number, flag: string): string {
 }
 
 function helpText(): string {
-  return ["Usage: tsx tools/openclinxr/generated-ed-station-runtime-bundle.ts [options]", "  --write-azurite            Write frozen bundle JSON to local Azurite when configured", "  --refresh-public-placements Refresh actorPlacements in the shipped bundle and manifest", "  --public-root <path>        Public generated-bundle root used by placement refresh", "  --human-report <path>      Generated human rigging report path", "  --equipment-report <path>  Medical equipment report path", "  --environment-report <path> Environment report path", "  --runtime-asset-review-decisions <path> Runtime asset review decision JSON array path", "  --scenario-id <id>         Scenario to package into a generated learner runtime bundle", "  --scenario <id>            Alias for --scenario-id", "  --output <path>            Bundle report output path", "  --validate-latest          Validate the report at --output"].join("\n");
+  return ["Usage: tsx tools/openclinxr/generated-ed-station-runtime-bundle.ts [options]", "  --write-azurite            Write frozen bundle JSON to local Azurite when configured", "  --refresh-public-placements Refresh actorPlacements in the shipped bundle and manifest", "  --refresh-public-equipment Refresh equipment rows/placements in the shipped bundle and manifest", "  --public-root <path>        Public generated-bundle root used by placement refresh", "  --human-report <path>      Generated human rigging report path", "  --equipment-report <path>  Medical equipment report path", "  --environment-report <path> Environment report path", "  --runtime-asset-review-decisions <path> Runtime asset review decision JSON array path", "  --scenario-id <id>         Scenario to package into a generated learner runtime bundle", "  --scenario <id>            Alias for --scenario-id", "  --output <path>            Bundle report output path", "  --validate-latest          Validate the report at --output"].join("\n");
 }
 
 function parseRuntimeAssetReviewDecisions(value: unknown): RuntimeAssetReviewDecision[] {

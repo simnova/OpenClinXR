@@ -2,9 +2,12 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import {
   buildGeneratedEdStationRuntimeBundleReport,
   refreshPublicActorPlacements,
+  refreshPublicEquipment,
+  refreshPublicEquipmentInLearnerBundle,
   runGeneratedEdStationRuntimeBundleCli,
   validateGeneratedEdStationRuntimeBundleReport,
 } from "./generated-ed-station-runtime-bundle.js";
@@ -34,6 +37,157 @@ describe("generated ED station runtime bundle", () => {
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
+  });
+
+  it("refreshes public equipment rows/placements from the case-defined factory, preserving actors", () => {
+    const scenarioId = "ed_chest_pain_priority_v2";
+    const canonical = createEdChestPainLocalLearnerRuntimeAssetBundle({ scenarioId, scenario: undefined });
+    const stale = JSON.parse(JSON.stringify(canonical)) as typeof canonical;
+    (stale as unknown as { equipment: unknown }).equipment = [
+      { equipmentId: "ecg_cart_equipment", model: { assetId: "ecg", scenarioAssetId: "ecg", blob: { blobName: "ecg.glb", url: "http://127.0.0.1/ecg.glb" } } },
+    ];
+    (stale.sceneManifest as unknown as { equipmentPlacements: unknown }).equipmentPlacements = {};
+
+    const refreshed = refreshPublicEquipmentInLearnerBundle(stale, scenarioId);
+    const placements = refreshed.sceneManifest.equipmentPlacements as Record<string, { position: { x: number; y: number; z: number } }>;
+    expect(Object.keys(placements).length).toBeGreaterThan(0);
+    expect(refreshed.equipment.map((row) => row.equipmentId)).toEqual(canonical.equipment.map((row) => row.equipmentId));
+    const ecg = refreshed.equipment.find((row) => row.equipmentId === "ecg_cart_equipment");
+    expect(ecg?.model.assetId).toBe("ecg_cart_12_lead_glb");
+    expect(ecg?.model.blob.blobName).toBe("xr-assets/medical-equipment/ecg-cart-12-lead.glb");
+    expect(JSON.stringify(refreshed.equipment)).not.toContain("127.0.0.1/ecg.glb");
+    expect(refreshed.actors).toEqual(stale.actors);
+    expect(refreshed.sceneManifest.actorPlacements).toEqual(stale.sceneManifest.actorPlacements);
+    expect(refreshed.notEvidenceFor).toEqual(stale.notEvidenceFor);
+    expect(refreshed.sceneManifest.equipmentPlacements).toEqual(canonical.sceneManifest.equipmentPlacements);
+  });
+
+  it("preserves actor audit provenance and updates only equipment-scoped refs plus equipment gate ids", () => {
+    const scenarioId = "ed_chest_pain_priority_v2";
+    const canonical = createEdChestPainLocalLearnerRuntimeAssetBundle({ scenarioId, scenario: undefined });
+    const stale = JSON.parse(JSON.stringify(canonical)) as typeof canonical;
+    const staleBundle = {
+      ...stale,
+      equipment: [
+        { equipmentId: "ecg_cart_equipment", model: { assetId: "ecg", scenarioAssetId: "ecg", kind: "equipment_model", version: "v1", reviewStatus: "approved_for_local_runtime", blob: { storeKind: "azurite_blob", containerName: "openclinxr-assets", blobName: "ecg.glb" }, provenanceRefs: ["fixture"] } },
+      ],
+      assemblyAuditMetadata: {
+        ...stale.assemblyAuditMetadata,
+        sourceDefinitionRefs: ["test_fixture:encounter-publication-payloads"],
+        generatedAssetRefs: [],
+      },
+    } as unknown as Parameters<typeof refreshPublicEquipmentInLearnerBundle>[0];
+    (staleBundle as unknown as { actorEquipmentMaterializationGate: unknown }).actorEquipmentMaterializationGate = {
+      schemaVersion: "openclinxr.actor-equipment-materialization-gate.v1",
+      claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness",
+      runtimeSelectionBlockedUntilEvidenceAttached: true,
+      actorGate: { actorVariantCount: 3, actorRoles: ["patient", "nurse", "family"] },
+      equipmentGate: { equipmentVariantCount: 1, equipmentIds: ["ecg_cart_equipment"], genericEquipmentReuseDetected: true, materializationBlockers: ["generic_equipment_reuse_blocks_equipment_specific_asset_readiness"], caveats: ["Generic equipment reuse is fixture scaffolding until equipment-specific scale and affordance evidence attaches."], recommendedNextAction: "materialize_equipment_specific_variants_before_runtime_readiness_claim" },
+      combinedBlockers: ["generic_equipment_reuse_blocks_equipment_specific_asset_readiness"],
+      notEvidenceFor: ["runtime_readiness"],
+    };
+    (staleBundle.sceneManifest as unknown as { equipmentPlacements: unknown }).equipmentPlacements = {};
+
+    const refreshed = refreshPublicEquipmentInLearnerBundle(staleBundle, scenarioId);
+    // R1 counterweight: original actor/test-fixture refs remain; no canonical non-equipment actor refs inserted.
+    expect(refreshed.assemblyAuditMetadata.sourceDefinitionRefs).toContain("test_fixture:encounter-publication-payloads");
+    expect(refreshed.assemblyAuditMetadata.sourceDefinitionRefs).toContain("equipment_source:ecg_cart_equipment:ecg_cart_12_lead_glb");
+    expect(refreshed.assemblyAuditMetadata.generatedAssetRefs.every((ref) => ref.kind === "equipment_model")).toBe(true);
+    // R2 counterweight: equipment gate ids/count match refreshed rows; actor gate + readiness blocks preserved.
+    const gate = (refreshed as unknown as { actorEquipmentMaterializationGate: { actorGate: { actorVariantCount: number }; equipmentGate: { equipmentVariantCount: number; equipmentIds: string[]; materializationBlockers: string[] }; runtimeSelectionBlockedUntilEvidenceAttached: boolean; claimBoundary: string } }).actorEquipmentMaterializationGate;
+    expect(gate.equipmentGate.equipmentVariantCount).toBe(refreshed.equipment.length);
+    expect(gate.equipmentGate.equipmentIds).toEqual(refreshed.equipment.map((row) => row.equipmentId));
+    expect(gate.actorGate.actorVariantCount).toBe(3);
+    expect(gate.runtimeSelectionBlockedUntilEvidenceAttached).toBe(true);
+    expect(gate.equipmentGate.materializationBlockers.length).toBeGreaterThan(0);
+  });
+
+  it("does not mutate input gate and is idempotent on repeated refresh", () => {
+    const scenarioId = "ed_chest_pain_priority_v2";
+    const canonical = createEdChestPainLocalLearnerRuntimeAssetBundle({ scenarioId, scenario: undefined });
+    const stale = JSON.parse(JSON.stringify(canonical)) as typeof canonical;
+    const staleBundle = {
+      ...stale,
+      assemblyAuditMetadata: {
+        ...stale.assemblyAuditMetadata,
+        sourceDefinitionRefs: ["test_fixture:encounter-publication-payloads"],
+        generatedAssetRefs: [],
+      },
+    } as unknown as Parameters<typeof refreshPublicEquipmentInLearnerBundle>[0];
+    (staleBundle as unknown as { actorEquipmentMaterializationGate: unknown }).actorEquipmentMaterializationGate = {
+      equipmentGate: { equipmentVariantCount: 1, equipmentIds: ["ecg_cart_equipment"] },
+      actorGate: { actorVariantCount: 3 },
+      runtimeSelectionBlockedUntilEvidenceAttached: true,
+    };
+    const before = JSON.stringify(staleBundle);
+    const once = refreshPublicEquipmentInLearnerBundle(staleBundle, scenarioId);
+    // R3: input bundle unchanged after call.
+    expect(JSON.stringify(staleBundle)).toBe(before);
+    // R4: second identical refresh is semantically equal to the first.
+    const twice = refreshPublicEquipmentInLearnerBundle(once, scenarioId);
+    expect(JSON.stringify(twice)).toBe(JSON.stringify(once));
+    expect(once.assemblyAuditMetadata.sourceDefinitionRefs).toContain("test_fixture:encounter-publication-payloads");
+  });
+
+  it("retains original duplicate audit refs as exact prefix and exercises the V2 path", () => {
+    const scenarioId = "ed_chest_pain_priority_v2";
+    const canonical = createEdChestPainLocalLearnerRuntimeAssetBundle({ scenarioId, scenario: undefined });
+    const stale = JSON.parse(JSON.stringify(canonical)) as typeof canonical;
+    const dupGenerated = {
+      assetId: "fixture_actor_glb",
+      scenarioAssetId: "fixture_actor",
+      kind: "actor_model",
+      version: "v1",
+      reviewStatus: "fixture",
+      blob: { storeKind: "azurite_blob", containerName: "openclinxr-assets", blobName: "fixture.glb" },
+      provenanceRefs: ["fixture"],
+    };
+    const originalSources = ["test_fixture:encounter-publication-payloads", "test_fixture:encounter-publication-payloads"];
+    const staleBundle = {
+      ...stale,
+      assemblyAuditMetadata: {
+        ...stale.assemblyAuditMetadata,
+        sourceDefinitionRefs: [...originalSources],
+        generatedAssetRefs: [dupGenerated, JSON.parse(JSON.stringify(dupGenerated))],
+      },
+    } as unknown as Parameters<typeof refreshPublicEquipmentInLearnerBundle>[0];
+    const refreshed = refreshPublicEquipmentInLearnerBundle(staleBundle, scenarioId);
+    // R5: original prefix (incl. duplicates/order) retained exactly.
+    expect(refreshed.assemblyAuditMetadata.sourceDefinitionRefs.slice(0, originalSources.length)).toEqual(originalSources);
+    expect(refreshed.assemblyAuditMetadata.generatedAssetRefs.slice(0, 2)).toEqual([dupGenerated, dupGenerated]);
+    expect(refreshed.equipment.map((row) => row.equipmentId)).toEqual(canonical.equipment.map((row) => row.equipmentId));
+    // R4 still holds: second refresh semantically equal.
+    expect(JSON.stringify(refreshPublicEquipmentInLearnerBundle(refreshed, scenarioId))).toBe(JSON.stringify(refreshed));
+  });
+
+  it("writer refuses unsupported case before I/O and mismatched manifest before writes", async () => {
+    await expect(refreshPublicEquipment("peds_asthma_parent_anxiety_v1", "/nonexistent-public-root")).rejects.toThrow(
+      /unsupported authored case/,
+    );
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-equipment-writer-guards-"));
+    const scenarioId = "ed_chest_pain_priority_v2";
+    const canonical = createEdChestPainLocalLearnerRuntimeAssetBundle({ scenarioId, scenario: undefined });
+    const stationDir = path.join(tempDir, scenarioId);
+    try {
+      await mkdir(stationDir, { recursive: true });
+      const bundleText = JSON.stringify(canonical);
+      const mismatchedManifestText = JSON.stringify({ ...canonical.sceneManifest, scenarioId: "ed_chest_pain_priority_v1" });
+      await writeFile(path.join(stationDir, "learner-runtime-bundle.v1.json"), bundleText, "utf8");
+      await writeFile(path.join(stationDir, "scene-manifest.v1.json"), mismatchedManifestText, "utf8");
+      await expect(refreshPublicEquipment(scenarioId, tempDir)).rejects.toThrow(/standalone manifest scenario mismatch/);
+      expect(await readFile(path.join(stationDir, "learner-runtime-bundle.v1.json"), "utf8")).toBe(bundleText);
+      expect(await readFile(path.join(stationDir, "scene-manifest.v1.json"), "utf8")).toBe(mismatchedManifestText);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("refuses public equipment refresh on mismatch or unsupported case", () => {
+    const scenarioId = "ed_chest_pain_priority_v2";
+    const canonical = createEdChestPainLocalLearnerRuntimeAssetBundle({ scenarioId, scenario: undefined });
+    expect(() => refreshPublicEquipmentInLearnerBundle(canonical, "peds_asthma_parent_anxiety_v1")).toThrow(/unsupported authored case/);
+    const mismatched = { ...canonical, scenarioId: "ed_chest_pain_priority_v1" };
+    expect(() => refreshPublicEquipmentInLearnerBundle(mismatched, scenarioId)).toThrow(/bundle scenario mismatch/);
   });
 
   it("reports not_configured until all generated artifact reports exist", async () => {

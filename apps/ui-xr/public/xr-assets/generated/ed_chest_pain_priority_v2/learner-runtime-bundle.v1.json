@@ -131,20 +131,50 @@
     {
       "equipmentId": "ecg_cart_equipment",
       "model": {
-        "assetId": "ecg",
-        "version": "v1",
+        "assetId": "ecg_cart_12_lead_glb",
+        "version": "local-fixture-2026-05-22",
         "kind": "equipment_model",
-        "displayName": "ECG",
-        "scenarioAssetId": "ecg",
+        "displayName": "12-lead ECG cart GLB fixture",
+        "scenarioAssetId": "ecg_cart_equipment",
         "blob": {
-          "storeKind": "azurite_blob",
-          "containerName": "openclinxr-assets",
-          "blobName": "ecg.glb",
-          "url": "http://127.0.0.1/ecg.glb"
+          "storeKind": "app_public_fixture",
+          "containerName": "ui-xr-public",
+          "blobName": "xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+          "contentType": "model/gltf-binary",
+          "url": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb"
         },
-        "reviewStatus": "approved_for_local_runtime",
+        "reviewStatus": "fixture_approved_for_local_runtime",
         "provenanceRefs": [
-          "fixture"
+          "openclinxr-local-generated-asset-fixture",
+          "ecg_cart_12_lead_glb_provenance"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    },
+    {
+      "equipmentId": "iv_stand_equipment",
+      "model": {
+        "assetId": "iv_pole_with_pump_glb",
+        "version": "local-fixture-2026-05-22",
+        "kind": "equipment_model",
+        "displayName": "IV pole with pump GLB fixture",
+        "scenarioAssetId": "iv_stand_equipment",
+        "blob": {
+          "storeKind": "app_public_fixture",
+          "containerName": "ui-xr-public",
+          "blobName": "xr-assets/medical-equipment/iv-pole-with-pump.glb",
+          "contentType": "model/gltf-binary",
+          "url": "/xr-assets/medical-equipment/iv-pole-with-pump.glb"
+        },
+        "reviewStatus": "fixture_approved_for_local_runtime",
+        "provenanceRefs": [
+          "openclinxr-local-generated-asset-fixture",
+          "iv_pole_with_pump_glb_provenance"
         ],
         "notEvidenceFor": [
           "production_asset_readiness",
@@ -414,7 +444,32 @@
         "headingRadians": 1.57
       }
     },
-    "equipmentPlacements": {},
+    "equipmentPlacements": {
+      "ecg_cart_equipment": {
+        "position": {
+          "x": -2.15,
+          "y": 0,
+          "z": 0.55
+        },
+        "label": "12-lead ECG",
+        "interactionCueIds": [
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
+        ]
+      },
+      "iv_stand_equipment": {
+        "position": {
+          "x": -1.85,
+          "y": 0,
+          "z": 0.95
+        },
+        "label": "IV pump",
+        "interactionCueIds": [
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
+        ]
+      }
+    },
     "productionReadinessClaimed": false,
     "notEvidenceFor": [
       "production_asset_readiness",
@@ -556,11 +611,46 @@
     "schemaVersion": "openclinxr.runtime-bundle-assembly-audit.v1",
     "claimBoundary": "asset_reference_audit_metadata_not_materialized_assets",
     "sourceDefinitionRefs": [
-      "test_fixture:encounter-publication-payloads"
+      "test_fixture:encounter-publication-payloads",
+      "equipment_source:ecg_cart_equipment:ecg_cart_12_lead_glb",
+      "equipment_source:iv_stand_equipment:iv_pole_with_pump_glb"
     ],
     "workOrderRefs": [],
     "factoryRequestRefs": [],
-    "generatedAssetRefs": [],
+    "generatedAssetRefs": [
+      {
+        "assetId": "ecg_cart_12_lead_glb",
+        "scenarioAssetId": "ecg_cart_equipment",
+        "kind": "equipment_model",
+        "version": "local-fixture-2026-05-22",
+        "reviewStatus": "fixture_approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "app_public_fixture",
+          "containerName": "ui-xr-public",
+          "blobName": "xr-assets/medical-equipment/ecg-cart-12-lead.glb"
+        },
+        "provenanceRefs": [
+          "openclinxr-local-generated-asset-fixture",
+          "ecg_cart_12_lead_glb_provenance"
+        ]
+      },
+      {
+        "assetId": "iv_pole_with_pump_glb",
+        "scenarioAssetId": "iv_stand_equipment",
+        "kind": "equipment_model",
+        "version": "local-fixture-2026-05-22",
+        "reviewStatus": "fixture_approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "app_public_fixture",
+          "containerName": "ui-xr-public",
+          "blobName": "xr-assets/medical-equipment/iv-pole-with-pump.glb"
+        },
+        "provenanceRefs": [
+          "openclinxr-local-generated-asset-fixture",
+          "iv_pole_with_pump_glb_provenance"
+        ]
+      }
+    ],
     "humanoidMetadataRefs": [],
     "remediationPlanRefs": [],
     "evidenceGateIds": [],
@@ -613,9 +703,10 @@
     "equipmentGate": {
       "equipmentSpecificVariantKeysRequired": true,
       "genericEquipmentReuseDetected": true,
-      "equipmentVariantCount": 1,
+      "equipmentVariantCount": 2,
       "equipmentIds": [
-        "ecg_cart_equipment"
+        "ecg_cart_equipment",
+        "iv_stand_equipment"
       ],
       "materializationBlockers": [
         "generic_equipment_reuse_blocks_equipment_specific_asset_readiness"
