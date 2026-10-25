@@ -142,8 +142,8 @@ No Mixamo target swap. No NC datasets. No LLM-authored `bpy`.
 as a factory win.
 
 <!-- CI-CLOSURE-20261023-FINAL -->
-**2026-10-25 | Verified source c7ac54c869 | Local normal-hook commits complete for seven reviewed packets; no push.**
-Full forced package graph555 passes196/196 tasks with zero cache hits and source/runtime/control guards. Final cast-reader repair567 passes12 tests in Main and W3; types/architecture/lint/Knip/docs and normal hooks pass. ED cast/registry and albedo replay fixes are committed; public API and guardrails unchanged. Current package evidence does not establish whole-root CI or visual readiness.
-Fresh citation568 remains RED:262 path tokens unchanged. Original83 genuine historical inventory files are a different scope and remain absent. Last full-root473 failed125files/192assertions before latest repairs; no refreshed aggregate implied. Asset placement/whole-actor acceptance, rejected gait, and OB lineage gaps remain; W3/W4 owners retained. Do not fabricate historical evidence, move actors arbitrarily, waive thresholds or promote pending candidates. Muse image transport lacks required capability.
-Archive569 contains1214 immutable entries, all hashes verified. No approval pending; no code freeze. Exact resume: /Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph570-current-cleanup-checkpoint/current.json.
+**2026-10-25 | Citation cleanup verified at e0892a7d12 | No push or approval pending.**
+Thirty regressions closed:4 authenticated historical cornice paths committed,26 pure derived metadata records restored with explicit deterministic replay provenance.26/26 match historical writer replay; matching source inputs exist in the original report publication tree. No original output-byte/execution-environment identity asserted, no measured controls substituted, original report/baseline untouched.
+Fresh HEAD citation guard remains RED232 (was262), zero new regressions. Original83 genuinely missing inventory files remain unresolved and are a different scope. Citation helper2tests/types/architecture/docs/policy/licenses and normal hooks pass. Whole-root CI remains red; asset placement/visual acceptance, rejected gait and OB lineage impediments persist under existing W3/W4 ownership.
+Archive1294 hashes verified; all other-owner work and23 original controls preserved. Resume /Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph579-citation-closure/current.json. No source freeze, no push.
 <!-- CI-CLOSURE-20261023-FINAL:END -->
