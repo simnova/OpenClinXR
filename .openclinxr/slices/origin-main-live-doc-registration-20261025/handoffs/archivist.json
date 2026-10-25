@@ -1,0 +1,90 @@
+{
+  "role": "archivist",
+  "taskId": "tsk_fc90d83def7f96ec",
+  "verdict": "done",
+  "touched": [
+    "docs/openclinxr/doc-authority-registry-2026-05-27.json",
+    "docs/openclinxr/doc-authority-registry-2026-05-27.md",
+    "docs/openclinxr/generated-artifact-registry-2026-05-27.json",
+    "docs/openclinxr/generated-artifact-registry-2026-05-27.md",
+    ".openclinxr/slices/origin-main-live-doc-registration-20261025/handoffs/archivist.json"
+  ],
+  "added": [
+    {
+      "path": "docs/muse-free-first-routing.md",
+      "authority": "current-reference"
+    },
+    {
+      "path": "docs/openclinxr/license/iwsdk-mit-resolution-evidence-2026-10-20.md",
+      "authority": "evidence"
+    },
+    {
+      "path": "docs/openclinxr/quest3-capacity-harness-plan-2026-10-14.md",
+      "authority": "current-reference"
+    },
+    {
+      "path": "tools/openclinxr/evidence/room-bake/predicate-reference/EXTRACTION_PROOF.md",
+      "authority": "evidence"
+    },
+    {
+      "path": "docs/openclinxr/evidence/quest3-capacity-research-2026-10-14.json",
+      "authority": "keep-evidence"
+    }
+  ],
+  "docCounts": {
+    "before": {
+      "agent-methodology": 118,
+      "current-reference": 201,
+      "archive-candidate": 136,
+      "evidence": 186,
+      "temporary": 54,
+      "protected-policy": 10,
+      "agent-memory": 34,
+      "generated-evidence": 11,
+      "historical-synthesis": 18,
+      "decision-record": 48
+    },
+    "after": {
+      "agent-methodology": 118,
+      "current-reference": 203,
+      "archive-candidate": 136,
+      "evidence": 188,
+      "temporary": 54,
+      "protected-policy": 10,
+      "agent-memory": 34,
+      "generated-evidence": 11,
+      "historical-synthesis": 18,
+      "decision-record": 48
+    },
+    "entries": [
+      816,
+      820
+    ]
+  },
+  "genCounts": {
+    "before": {
+      "keep-evidence": 1953,
+      "ignore-local-cache": 2771,
+      "keep-current": 260,
+      "keep-template": 13,
+      "keep-compatibility-input": 24
+    },
+    "after": {
+      "keep-evidence": 1954,
+      "ignore-local-cache": 2771,
+      "keep-current": 260,
+      "keep-template": 13,
+      "keep-compatibility-input": 24
+    },
+    "entries": [
+      5021,
+      5022
+    ]
+  },
+  "navEntries": 213,
+  "testsRun": [],
+  "notTested": [
+    "full suite/build/types/arch/policy/licenses by parent; candidate diff validated by parent before mechanical copy to Main"
+  ],
+  "blockers": []
+}
