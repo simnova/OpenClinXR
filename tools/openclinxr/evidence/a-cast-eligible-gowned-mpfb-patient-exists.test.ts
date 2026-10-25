@@ -3,6 +3,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import * as castAssetConstants from "@openclinxr/asset-registry/cast-asset-constants";
 
 /**
  * Campaign #478 lane **L5**, corrected. *"Bake one MPFB adult patient wearing that gown."*
@@ -158,12 +159,16 @@ async function shapeOf(path: string): Promise<Shape | null> {
 }
 
 /** Cast-eligible = declared in the registry constants AND shipped under generated-humanoids. */
+// FIXED (#559): read actual exported cast values via the constants namespace, not the
+// re-export barrel text (cast-asset-constants.ts holds no filenames).
 async function castEligibleGownedPatients(): Promise<Shape[]> {
-  const constants = readFileSync(CONSTANTS, "utf8");
+  const declared = new Set<string>(
+    Object.values(castAssetConstants).filter((v) => typeof v === "string" && (v as string).endsWith(".glb")),
+  );
   const out: Shape[] = [];
-  for (const file of readdirSync(GENERATED).filter((n) => n.endsWith(".glb"))) {
+  for (const file of readdirSync(GENERATED).filter((n: string) => n.endsWith(".glb"))) {
     if (file === "mpfb-gown-inspect.glb") continue; // the harness subject is what this slice replaces
-    if (!constants.includes(file)) continue; // must be a DECLARED cast asset, not a loose bake
+    if (!declared.has(file)) continue; // must be a DECLARED cast asset, not a loose bake
     const s = await shapeOf(join(GENERATED, file));
     if (!s || !s.gownDeclared) continue;
     if (s.joints <= MPFB_JOINT_FLOOR) continue; // Anny is 23; this lane is MPFB only
@@ -176,7 +181,7 @@ describe("a cast-eligible gowned MPFB adult patient exists", () => {
   it("(1) a DECLARED gowned patient asset ships on the MPFB rail", async () => {
     const found = await castEligibleGownedPatients();
     expect(
-      found.map((s) => s.file),
+      found.map((asset) => asset.file),
       `no GLB named in cast-asset-constants.ts carries a gown on the MPFB rail; the only gowned MPFB\n`
         + `  body is mpfb-gown-inspect.glb, which is cast to nothing`,
     ).not.toEqual([]);

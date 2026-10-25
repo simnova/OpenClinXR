@@ -61,7 +61,8 @@ async function readGenerationScenarioId(provenanceManifestPath: string): Promise
 }
 
 function isChildAsset(entry: ScenarioActorCast): boolean {
-  return entry.assetPath.includes("peds_patient_child") || entry.runtimeAssetPath.includes("peds_patient_child");
+  const norm = (p: string) => p.replace(/-/g, "_");
+  return norm(entry.assetPath).includes("peds_patient_child") || norm(entry.runtimeAssetPath).includes("peds_patient_child");
 }
 
 /**
