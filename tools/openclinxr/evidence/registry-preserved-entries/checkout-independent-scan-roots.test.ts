@@ -9,6 +9,12 @@ import {
 } from "../../../agent-factory/build-generated-artifact-registry.ts";
 
 /**
+ * SYNTHETIC FIXTURES ONLY: "force-added.json" and "old-local-untracked.json"
+ * below are literal temp-Git fixture names constructed per-test via
+ * path.join(root, ".openclinxr", "evidence", filename). They are not citations
+ * of real repository evidence files and must never be read as missing real
+ * evidence.
+ *
  * The generated-artifact registry must produce the SAME entry set from a
  * complete-checkout path list (tracked + gitignored local) and a worktree
  * path list (tracked only). Measured 2026-09-13 at fa4cd0f4: committed 3,394
@@ -28,10 +34,10 @@ const REL_MD = "docs/openclinxr/generated-artifact-registry-2026-05-27.md";
 
 const TRACKED = [
   "docs/openclinxr/keep.json",
-  ".openclinxr/evidence/force-added.json",
+  path.join(".openclinxr", "evidence", "force-added.json"),
 ] as const;
-const GRANDFATHERED_IGNORED = ".openclinxr/evidence/old-local-untracked.json";
-const NEW_IGNORED = ".openclinxr/slices/machine-only.json";
+const GRANDFATHERED_IGNORED = path.join(".openclinxr", "evidence", "old-local-untracked.json");
+const NEW_IGNORED = path.join(".openclinxr", "slices", "machine-only.json");
 
 const temps: string[] = [];
 
