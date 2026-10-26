@@ -1,0 +1,140 @@
+{
+  "canonicalPath": "docs/openclinxr/evidence/asset-store-migrations/sc04-chest-anchor-20261026.json",
+  "manifestSha256": "9fd7f03a33fb490b5f45cccd1b05f2e40eea664390084602cfbd10ebebaf2ff7",
+  "manifestUri": "store:9fd7f03a33fb490b5f45cccd1b05f2e40eea664390084602cfbd10ebebaf2ff7/archive-set-manifest.json",
+  "originalEpochAuthentication": "UNKNOWN",
+  "originalRawReports": [
+    {
+      "canonicalReportPath": ".openclinxr/evidence/scene-closure/sc-04/rederive/nurse-rederive-report.json",
+      "migratedReportSha256": "907c16dc33cd9685fc769241b788acf223214ab50385c3814e4a5c443711f957",
+      "originalGeneratedAt": "2026-09-09T20:55:55.277Z",
+      "originalReportBytes": 1248,
+      "originalReportSha256": "60792769a4a4c6f4fd8a0af603851354ba2202d7aaf94f6a5e8b2dacd2c0672d",
+      "originalReportStoreUri": "store:60792769a4a4c6f4fd8a0af603851354ba2202d7aaf94f6a5e8b2dacd2c0672d/nurse-rederive-report.json"
+    },
+    {
+      "canonicalReportPath": ".openclinxr/evidence/scene-closure/sc-04/rederive/gown-rederive-report.json",
+      "migratedReportSha256": "80d4e4e39f9db11b881a4aeaa262296760da63e5c1015d41ed3a73261c9d9e44",
+      "originalGeneratedAt": "2026-09-09T20:55:55.542Z",
+      "originalReportBytes": 1302,
+      "originalReportSha256": "1b5df0ad3c09bc396c6b223e096c95e350a66c18758944fddba64e3f22b2b96d",
+      "originalReportStoreUri": "store:1b5df0ad3c09bc396c6b223e096c95e350a66c18758944fddba64e3f22b2b96d/gown-rederive-report.json"
+    },
+    {
+      "canonicalReportPath": ".openclinxr/evidence/scene-closure/sc-04/rederive/family-rederive-report.json",
+      "migratedReportSha256": "c173c70c150393ff0f8e984ffd5e3e6cc3ffb3802f3c6fe14cdb85593be3fd72",
+      "originalGeneratedAt": "2026-09-09T20:55:55.771Z",
+      "originalReportBytes": 1248,
+      "originalReportSha256": "61b2a34c8b12891d98b547203a739fc880cfa01421cac09f0c3d0b4e594153e6",
+      "originalReportStoreUri": "store:61b2a34c8b12891d98b547203a739fc880cfa01421cac09f0c3d0b4e594153e6/family-rederive-report.json"
+    }
+  ],
+  "parentReplayProof": {
+    "parentResultSha256": "e0cf274b823be8217f01508e11dfc11d22876c7b5e4c6d0bbb07025159e1b3be",
+    "producerBlob": {
+      "cleanHead": "d062f3e73e9288252d6c12c3518abdcade81c8d8",
+      "cleanPinOk": true,
+      "exitCode": 0,
+      "kernel": "sc04-pinned-replay-kernel",
+      "originalsUnchanged": true,
+      "runnerBlobSha": "2a310ba248d102f9c2949ef982efd72a75a6769d"
+    },
+    "rows": [
+      {
+        "actualOutBytes": 11112092,
+        "actualOutSha256": "bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d",
+        "case": "nurse",
+        "extractRc": 0,
+        "metricDeltas": [],
+        "metricsMatch": true,
+        "origPostSha256": "bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d",
+        "origPreSha256": "2e111a0da68f18f151a623a98e544154e610cdcd916ac106f6d9213d9d8c7089",
+        "outputMatch": true,
+        "ownPreBytes": 11112080,
+        "ownPreSha256": "2e111a0da68f18f151a623a98e544154e610cdcd916ac106f6d9213d9d8c7089",
+        "preMatch": true,
+        "replayRc": 0,
+        "status": "MATCH"
+      },
+      {
+        "actualOutBytes": 18840492,
+        "actualOutSha256": "59f590701ad182c4eca33e90a7ba25f0cb94b8698afd7fc2318436fc3c26e9a6",
+        "case": "gown",
+        "extractRc": 0,
+        "metricDeltas": [],
+        "metricsMatch": true,
+        "origPostSha256": "59f590701ad182c4eca33e90a7ba25f0cb94b8698afd7fc2318436fc3c26e9a6",
+        "origPreSha256": "029dbb504c6f655c7a2fc141948ff92dbd86190a306ee75ade8c50c39f8ab43f",
+        "outputMatch": true,
+        "ownPreBytes": 18840716,
+        "ownPreSha256": "029dbb504c6f655c7a2fc141948ff92dbd86190a306ee75ade8c50c39f8ab43f",
+        "preMatch": true,
+        "replayRc": 0,
+        "status": "MATCH"
+      },
+      {
+        "actualOutBytes": 8411080,
+        "actualOutSha256": "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93",
+        "case": "family",
+        "extractRc": 0,
+        "metricDeltas": [],
+        "metricsMatch": true,
+        "origPostSha256": "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93",
+        "origPreSha256": "14a4167a9b6d6aec9d01f367b91c806d1c8e18568a0ebe36e6405240697e7a0c",
+        "outputMatch": true,
+        "ownPreBytes": 8411072,
+        "ownPreSha256": "14a4167a9b6d6aec9d01f367b91c806d1c8e18568a0ebe36e6405240697e7a0c",
+        "preMatch": true,
+        "replayRc": 0,
+        "status": "MATCH"
+      }
+    ]
+  },
+  "payloads": [
+    {
+      "basename": "mpfb-clinical-nurse-adult-pre.glb",
+      "bytes": 11112080,
+      "sha256": "2e111a0da68f18f151a623a98e544154e610cdcd916ac106f6d9213d9d8c7089",
+      "storeUri": "store:2e111a0da68f18f151a623a98e544154e610cdcd916ac106f6d9213d9d8c7089/mpfb-clinical-nurse-adult-pre.glb"
+    },
+    {
+      "basename": "mpfb-clinical-nurse-adult-rederived.glb",
+      "bytes": 11112092,
+      "sha256": "bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d",
+      "storeUri": "store:bc5b9009af57703716647c09a7033a8758f08952d3ec6b177485f953cf4e042d/mpfb-clinical-nurse-adult-rederived.glb"
+    },
+    {
+      "basename": "mpfb-gown-adult-patient-pre.glb",
+      "bytes": 18840716,
+      "sha256": "029dbb504c6f655c7a2fc141948ff92dbd86190a306ee75ade8c50c39f8ab43f",
+      "storeUri": "store:029dbb504c6f655c7a2fc141948ff92dbd86190a306ee75ade8c50c39f8ab43f/mpfb-gown-adult-patient-pre.glb"
+    },
+    {
+      "basename": "mpfb-gown-adult-patient-rederived.glb",
+      "bytes": 18840492,
+      "sha256": "59f590701ad182c4eca33e90a7ba25f0cb94b8698afd7fc2318436fc3c26e9a6",
+      "storeUri": "store:59f590701ad182c4eca33e90a7ba25f0cb94b8698afd7fc2318436fc3c26e9a6/mpfb-gown-adult-patient-rederived.glb"
+    },
+    {
+      "basename": "mpfb-family-partner-adult-pre.glb",
+      "bytes": 8411072,
+      "sha256": "14a4167a9b6d6aec9d01f367b91c806d1c8e18568a0ebe36e6405240697e7a0c",
+      "storeUri": "store:14a4167a9b6d6aec9d01f367b91c806d1c8e18568a0ebe36e6405240697e7a0c/mpfb-family-partner-adult-pre.glb"
+    },
+    {
+      "basename": "mpfb-family-partner-adult-rederived.glb",
+      "bytes": 8411080,
+      "sha256": "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93",
+      "storeUri": "store:8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93/mpfb-family-partner-adult-rederived.glb"
+    }
+  ],
+  "recordedAt": "2026-10-26T18:44:47.624Z",
+  "renewedAcceptance": {
+    "license": false,
+    "readiness": false,
+    "visual": false
+  },
+  "runId": "sc04-store-portable-proof-fields-20261026",
+  "schemaVersion": "openclinxr.asset-store-migration.sc04-chest-anchor.v2",
+  "sourceHead": "d062f3e73e9288252d6c12c3518abdcade81c8d8"
+}

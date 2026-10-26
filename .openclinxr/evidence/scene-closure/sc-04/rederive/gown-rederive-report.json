@@ -1,0 +1,46 @@
+{
+  "animationChannelsAdjusted": [
+    {
+      "animation": "ClinicalIdleConversation",
+      "joint": "breast.L",
+      "keyframes": 2
+    },
+    {
+      "animation": "ClinicalIdleConversation",
+      "joint": "breast.R",
+      "keyframes": 2
+    }
+  ],
+  "chestSpanM": {
+    "after": 0.17,
+    "before": 7.450612571346937e-09
+  },
+  "claimScope": "mpfb_shipped_rig_chest_anchor_lateral_separation_mirrored_about_midline",
+  "clavicleSpanM": 0.04690490663051605,
+  "generatedAt": "2026-09-09T20:55:55.542Z",
+  "halfSpanM": 0.085,
+  "inputPath": "store:029dbb504c6f655c7a2fc141948ff92dbd86190a306ee75ade8c50c39f8ab43f/mpfb-gown-adult-patient-pre.glb",
+  "joints": {
+    "breast.L": {
+      "afterX": 0.085,
+      "beforeX": -3.725304509316629e-09
+    },
+    "breast.R": {
+      "afterX": -0.085,
+      "beforeX": 3.725308062030308e-09
+    }
+  },
+  "maxChestSeparationM": 0.25,
+  "notEvidenceFor": [
+    "what_any_still_shows",
+    "b_plus_visual_realism_gate",
+    "quest_readiness",
+    "clinical_validity",
+    "chest_anchor_height",
+    "other_rigs"
+  ],
+  "outputPath": "store:59f590701ad182c4eca33e90a7ba25f0cb94b8698afd7fc2318436fc3c26e9a6/mpfb-gown-adult-patient-rederived.glb",
+  "schemaVersion": "openclinxr.generated-humanoid-chest-anchor-separation.v1",
+  "separationApplied": true,
+  "stage": "post_blender_glb_chest_anchor_lateral"
+}
