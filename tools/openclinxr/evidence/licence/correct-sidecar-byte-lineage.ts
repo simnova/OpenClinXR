@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 /**
@@ -21,6 +21,10 @@ import path from "node:path";
  *
  * IT RECORDS THE OLD VALUE. `byteLineage.recordedBefore` keeps the superseded hash, so a reader can
  * see what changed and a reviewer can repeat the reproduction.
+ *
+ * Each invocation allocates a unique child directory inside the given working directory
+ * (`{asset}-<random>/`), and `{pre}`, `{out}`, and `{report}` placeholders all resolve inside
+ * that child, so repeat calls for the same actor never clobber each other.
  */
 
 export type ByteLineageCorrection = {
@@ -44,15 +48,22 @@ export function correctSidecarByteLineage(input: ByteLineageCorrection): {
   bytes: number;
   previous: { outputSha256: unknown; outputBytes: unknown };
 } {
-  mkdirSync(input.workingDirectory, { recursive: true });
-  const preImagePath = path.join(input.workingDirectory, `${path.basename(input.assetPath, ".glb")}-pre.glb`);
-  const rederivedPath = path.join(input.workingDirectory, `${path.basename(input.assetPath, ".glb")}-rederived.glb`);
+  const rawBase = input.workingDirectory;
+  if (rawBase === undefined || rawBase.trim() === "" || rawBase.trim().startsWith("-")) {
+    throw new Error("correct-sidecar-byte-lineage: --working-directory <dir> is required before any derivation IO.");
+  }
+  const base = path.resolve(rawBase);
+  mkdirSync(base, { recursive: true });
+  const callDir = mkdtempSync(path.join(base, `${path.basename(input.assetPath, ".glb")}-`));
+  const preImagePath = path.join(callDir, `${path.basename(input.assetPath, ".glb")}-pre.glb`);
+  const rederivedPath = path.join(callDir, `${path.basename(input.assetPath, ".glb")}-rederived.glb`);
+  const ownedReportPath = path.join(callDir, `${path.basename(input.assetPath, ".glb")}-report.json`);
 
   const preImage = execFileSync("git", ["show", input.preImageRevision], { maxBuffer: 1024 * 1024 * 512 });
   writeFileSync(preImagePath, preImage);
 
   const argv = input.derivationArgv.map((token) =>
-    token.replace("{pre}", preImagePath).replace("{out}", rederivedPath),
+    token.replace("{pre}", preImagePath).replace("{out}", rederivedPath).replace("{report}", ownedReportPath),
   );
   const executable = argv[0];
   if (executable === undefined) {
@@ -153,7 +164,7 @@ const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory">[] = 
       "--output",
       "{out}",
       "--report",
-      ".openclinxr/evidence/scene-closure/sc-04/rederive/nurse-rederive-report.json",
+      "{report}",
       "--half-span-m",
       "0.085",
     ],
@@ -171,7 +182,7 @@ const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory">[] = 
       "--output",
       "{out}",
       "--report",
-      ".openclinxr/evidence/scene-closure/sc-04/rederive/gown-rederive-report.json",
+      "{report}",
       "--half-span-m",
       "0.085",
     ],
@@ -189,7 +200,7 @@ const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory">[] = 
       "--output",
       "{out}",
       "--report",
-      ".openclinxr/evidence/scene-closure/sc-04/rederive/family-rederive-report.json",
+      "{report}",
       "--half-span-m",
       "0.085",
     ],
@@ -198,9 +209,21 @@ const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory">[] = 
 ];
 
 function main(): void {
-  const workingDirectory = ".openclinxr/evidence/scene-closure/sc-04/rederive";
+  const argv = process.argv.slice(2);
+  if (argv.includes("--help")) {
+    process.stdout.write(
+      "usage: correct-sidecar-byte-lineage.ts --working-directory <dir>\n",
+    );
+    return;
+  }
+  const flagIndex = argv.indexOf("--working-directory");
+  const value = flagIndex >= 0 ? argv[flagIndex + 1] : undefined;
+  if (flagIndex < 0 || value === undefined || value.trim() === "" || value.startsWith("-")) {
+    throw new Error("correct-sidecar-byte-lineage: --working-directory <dir> is required before any derivation IO.");
+  }
+  const base = path.resolve(value);
   for (const correction of CORRECTIONS) {
-    const result = correctSidecarByteLineage({ ...correction, workingDirectory });
+    const result = correctSidecarByteLineage({ ...correction, workingDirectory: base });
     process.stdout.write(
       `${correction.assetPath}: reproduced ${result.sha256} (${result.bytes} B), superseding ${String(result.previous.outputSha256)} (${String(result.previous.outputBytes)} B)\n`,
     );
