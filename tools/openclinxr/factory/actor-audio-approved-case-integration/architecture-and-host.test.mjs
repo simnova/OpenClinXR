@@ -1,9 +1,10 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync,readdirSync,existsSync} from 'node:fs';
+import { createHash } from 'node:crypto';
 import {resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {execFileSync} from 'node:child_process';
+import { assertClock as assertClockShared, assertSyncNotMovedOutsideFrame } from '../actor-audio-app-owned-integration/source-contract.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'../../../..');
 const methods=['initPreparedActorAudioBridge','startPreparedActorTurnAudio','syncPreparedActorAudio','preparedActorTurnAudioAvailable','startActorTurnSpeech','caseAudio'];
 const retired=['prepared-actor-audio.ts','prepared-actor-audio-data.ts','ordinary-actor-turn-speech.ts'];
@@ -11,6 +12,11 @@ const lines=s=>s===''?0:s.split(/\r?\n/).length-(/\r?\n$/.test(s)?1:0);
 function sources(dir){return readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?(/^(node_modules|dist)$/.test(e.name)?[]:sources(resolve(dir,e.name))):/\.(ts|tsx)$/.test(e.name)&&!/(\.test\.|\.spec\.|\.d\.ts$)/.test(e.name)?[resolve(dir,e.name)]:[]);}
 // Remove comments while preserving strings/import specifiers; a comment cannot satisfy wiring.
 function uncomment(s){return s.replace(/("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)|(\/\*[\s\S]*?\*\/|\/\/[^\n]*)/g,(all,string)=>string??' ');}
+// Causal sync-before-facial invariant lives in the shared source contract:
+// the named simulation callback drives the facial loop, the sync tick precedes
+// the fixed-clock dispatch in the same frame callback, and simulate points at
+// that same callback.
+const assertClock = assertClockShared;
 function assertHost(s){
  let code=uncomment(s);
  assert.doesNotMatch(code,/from\s*["']\.\/(?:prepared-actor-audio|prepared-actor-audio-data|ordinary-actor-turn-speech)\.js["']/,'relative app business modules must be removed');
@@ -22,7 +28,7 @@ function assertHost(s){
  assert.ok(init,'one explicit factory destructure with real development gate');
  assert.deepEqual(init[1].split(',').map(s=>s.trim()).sort(),[...methods].sort(),'closed exact method bindings; no exposed Maps');
  for(const m of methods.filter(m=>m!=='caseAudio'))assert.ok(new RegExp('\\b'+m+'\\s*\\(').test(code),'method actually called: '+m);
- assert.match(code,/syncPreparedActorAudio\s*\(now\)\s*;\s*updateGeneratedHumanoidAnimations\s*\(/,'clock sync before admitted facial loop');
+ assertClock(code);
  assert.match(code,/speak\s*:\s*\(ctx\)\s*=>\s*startPreparedActorTurnAudio\s*\(/,'prepared branch still real direct consumer');
  assert.match(code,/!preparedActorTurnAudioAvailable\s*\(/,'ordinary override depends on prepared absence');
  assert.match(code,/startActorTurnSpeech\s*\([\s\S]*?readSpeech\s*:\s*\(c\)\s*=>\s*generatedHumanoidAnimationSlotsByActorId\.get\(c\.actorId\)\?\.activeSpeech/,'ordinary host uses actual slot speech');
@@ -41,7 +47,8 @@ test('RED actual Main uses one admitted closed subpath factory at existing host 
 test('RED package runtime exists and all actor-audio implementation modules stay below500',()=>{const dir=resolve(root,'packages/openclinxr/xr-dialogue/src');assert.ok(existsSync(resolve(dir,'actor-audio-runtime.ts')),'named private runtime source required');for(const f of sources(dir).filter(f=>/actor-audio/.test(f)))assert.ok(lines(readFileSync(f,'utf8'))<500,f+' exceeds private module cap');});
 const good=`import {createActorAudioRuntime} from '@openclinxr/xr-dialogue/actor-audio-runtime';
 const {${methods.join(',')}}=createActorAudioRuntime({developmentFixture:import.meta.env.DEV===true});
-function step(now){syncPreparedActorAudio(now);updateGeneratedHumanoidAnimations(0,now);}
+const stepActorSimulation = (deltaSeconds: number, now: number): void => { updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid, bundleLocomotionOrders()); };
+function renderSceneFrame(timestamp?: number): void { syncPreparedActorAudio(frameNowMs); if (!fixedClockDisabled) { stepFixedClockFrame(fixedClockFrame, { frameDtSeconds: frameDtSeconds, nowMs: frameNowMs, simulate: stepActorSimulation }); } else { stepActorSimulation(frameDtSeconds, frameNowMs); } }
 const options={speak:(ctx)=>startPreparedActorTurnAudio(ctx),...(!preparedActorTurnAudioAvailable({actorId:'a'})?{speak:ctx=>startActorTurnSpeech(ctx,{readSpeech:(c)=>generatedHumanoidAnimationSlotsByActorId.get(c.actorId)?.activeSpeech,startDialogue:(c)=>triggerHumanoidDialogue(c.actorId,c.spokenText)})}: {})};
 initPreparedActorAudioBridge({getSlot:id=>slots.get(id)});
 encounterRuntimeAssetBundle=caseAudio.select(bundle);
@@ -52,7 +59,15 @@ test('positive legitimate closed Main wiring passes same source oracle',()=>asse
 test('negative old relative business imports fail identical oracle',()=>assert.throws(()=>assertHost(good+"\nimport {old} from './prepared-actor-audio.js';"),/relative app/));
 test('negative unused import and second runtime fail identical oracle',()=>{assert.throws(()=>assertHost("import {createActorAudioRuntime} from '@openclinxr/xr-dialogue/actor-audio-runtime';"),/runtime construction/);assert.throws(()=>assertHost(good+'\ncreateActorAudioRuntime({});'),/one runtime/);});
 test('negative comment-only host sites cannot green',()=>assert.throws(()=>assertHost('/*'+good+'*/'),/factory must/));
-test('positive factory fixture executes one instance and calls closed actual bindings',()=>{const events=[];const mock=Object.fromEntries(methods.map(m=>[m,()=>{events.push(m);return true;}]));let constructions=0;const createActorAudioRuntime=()=>{constructions++;return mock;};const {initPreparedActorAudioBridge,startPreparedActorTurnAudio,syncPreparedActorAudio,preparedActorTurnAudioAvailable,startActorTurnSpeech}=createActorAudioRuntime();initPreparedActorAudioBridge();syncPreparedActorAudio();startPreparedActorTurnAudio();preparedActorTurnAudioAvailable();startActorTurnSpeech();assert.equal(constructions,1);assert.deepEqual(events,[methods[0],methods[2],methods[1],methods[3],methods[4]]);});
+test('negative reordered or detached clock wiring fails the identical source oracle',()=>{
+ const movedSync=good.replace('syncPreparedActorAudio(frameNowMs); ','');
+ assert.throws(()=>assertHost(movedSync.replace('} else { stepActorSimulation(frameDtSeconds, frameNowMs); }','} else { stepActorSimulation(frameDtSeconds, frameNowMs); } syncPreparedActorAudio(frameNowMs);')),/precedes fixed-clock dispatch/);
+ assert.throws(()=>assertHost(good.replace('simulate: stepActorSimulation','simulate: stepDetachedSimulation')),/points at the named simulation callback/);
+ const elsewhere=good.replace('updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid, bundleLocomotionOrders()); ','');
+ assert.throws(()=>assertHost(elsewhere.replace('syncPreparedActorAudio(frameNowMs);','updateGeneratedHumanoidAnimations(deltaSeconds, now); syncPreparedActorAudio(frameNowMs);')),/drives the facial loop on the same tick/);
+ assertSyncNotMovedOutsideFrame(good,assertHost);
+});
+test('positive factory fixture executes one instance and calls closed actual bindings',()=>{const events=[];const caseAudio={select:()=>{events.push('caseAudio.select');},markGesture:()=>{events.push('caseAudio.markGesture');},start:()=>{events.push('caseAudio.start');},bindPlan:()=>{events.push('caseAudio.bindPlan');},snapshot:()=>{events.push('caseAudio.snapshot');}};const mock={...Object.fromEntries(methods.filter(m=>m!=='caseAudio').map(m=>[m,()=>{events.push(m);return true;}])),caseAudio};let constructions=0;const createActorAudioRuntime=()=>{constructions++;return mock;};const created=createActorAudioRuntime();assert.equal(typeof created.caseAudio,'object');for(const k of ['select','markGesture','start','bindPlan','snapshot'])assert.equal(typeof created.caseAudio[k],'function');const {initPreparedActorAudioBridge,startPreparedActorTurnAudio,syncPreparedActorAudio,preparedActorTurnAudioAvailable,startActorTurnSpeech,caseAudio:ca}=created;initPreparedActorAudioBridge();syncPreparedActorAudio();startPreparedActorTurnAudio();preparedActorTurnAudioAvailable();startActorTurnSpeech();ca.select();assert.equal(constructions,1);assert.ok(ca===created.caseAudio,'caseAudio is the same single-instance facet');assert.deepEqual(events,[methods[0],methods[2],methods[1],methods[3],methods[4],'caseAudio.select']);});
 
 test('negative each new host seam unwired fails the identical source oracle',()=>{
  for(const token of ['caseAudio.select(bundle)','caseAudio.markGesture(tag)','caseAudio.start(plan,execution,{gazeTarget,req:requirement})','caseAudio.bindPlan(consumed,tag)'])
@@ -72,7 +87,12 @@ test('actual selected store callback returns refusal without running ordinary fa
  assert.deepEqual(ordinary({},null,{},null),{legacy:true});assert.equal(fallback,1);
 });
 
+import { execFileSync } from 'node:child_process';
 test('negative actual pre-bridge334 Main is refused by identical new consumed-host oracle',()=>{
- const old=execFileSync('git',['show','3345167e003f5239e9396f42cfeb3ddd634d5438:apps/ui-xr/src/main.ts'],{cwd:root,encoding:'utf8'});
+ // Genuine Git blob for frozen pre-bridge Main sample
+ // (commit 3345167e003f5239e9396f42cfeb3ddd634d5438); no fs fixture dependency.
+ const old=execFileSync("git",["show","3345167e003f5239e9396f42cfeb3ddd634d5438:apps/ui-xr/src/main.ts"],{cwd:root,encoding:"utf8",maxBuffer:4*1024*1024});
+ assert.equal(Buffer.byteLength(old,'utf8'), 231824, 'frozen old-Main input is exactly 231824 bytes');
+ assert.equal(createHash('sha256').update(old,'utf8').digest('hex'), 'a264e79b35061784998579bd19c2547e18802acf74c40a5b24034bec77e6c522', 'frozen old-Main input hash pins commit 3345167e');
  assert.throws(()=>assertHost(old),/closed exact method bindings|selected bundle/);
 });
