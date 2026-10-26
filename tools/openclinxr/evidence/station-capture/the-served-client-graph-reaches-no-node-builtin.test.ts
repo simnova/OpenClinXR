@@ -154,7 +154,7 @@ describe("the served client graph reaches no node: builtin", () => {
     expect(src).toMatch(/export \{[\s\S]*verifyCommittedScenePlanAgainstDisk[\s\S]*\} from/u);
     expect(src).not.toMatch(/export type \{[\s\S]*verifyCommittedScenePlanAgainstDisk/u);
     const impl = readFileSync(
-      resolve(REPO, "packages/openclinxr/asset-registry/src/encounter-bundle-admission-mod.ts"),
+      resolve(REPO, "packages/openclinxr/asset-registry/src/scene-plan-disk-verification.ts"), // PSR-08 facade: declaration lives here; -mod only re-exports
       "utf8",
     );
     expect(impl).toMatch(/export function verifyCommittedScenePlanAgainstDisk/u);

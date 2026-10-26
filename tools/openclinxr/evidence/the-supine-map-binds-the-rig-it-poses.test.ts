@@ -113,7 +113,7 @@ import { resolvePoseBone } from "../../../packages/openclinxr/asset-registry/src
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const GENERATED = pathResolve(HERE, "../../../apps/ui-xr/public/generated-humanoids");
-const SUPINE_POSE_SRC = pathResolve(HERE, "../../../apps/ui-xr/src/supine-pose.ts");
+const SUPINE_POSE_SRC = pathResolve(HERE, "../../../packages/openclinxr/xr-pose/src/supine-pose.ts");
 
 /** The 17 keys of SUPINE_BONE_EULERS as authored. */
 const SUPINE_MAP_BONES = [

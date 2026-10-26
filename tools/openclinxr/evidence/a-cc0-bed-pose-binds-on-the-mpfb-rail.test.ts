@@ -118,7 +118,7 @@ import { describe, expect, it } from "vitest";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const REPORT = join(HERE, "cc0-bed-pose-bind-report.json");
-const SUPINE_SRC = join(REPO_ROOT, "apps/ui-xr/src/supine-pose.ts");
+const SUPINE_SRC = join(REPO_ROOT, "packages/openclinxr/xr-pose/src/supine-pose.ts");
 const MPFB_MAP = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/known-rigs/mpfb2-default-no-toes.json");
 
 const VERDICTS = ["bound_and_better", "bound_but_not_better", "reject_measured", "other"] as const;
