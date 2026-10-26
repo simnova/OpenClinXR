@@ -8,13 +8,22 @@ import { searchClinicalLayouts } from "./layout-search.js";
 import type { CachedSceneSnapshot } from "./staging-types.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = join(HERE, "../../..");
 
+// Dated 2026-10-20 source-pinned regression captures (see ./test-fixtures/provenance.json,
+// frozenNote): measured browser snapshots via the existing
+// captureStationEnvironmentRooms + cacheSnapshotRaw/cacheObservedGate path,
+// not the git-ignored `.openclinxr/staging-solver/*/scene-snapshot.json` cache.
+// These are frozen regression fixtures, not current runtime acceptance:
+// captures precede 2 chest-anchor restorations. No readiness claims.
 function loadSnapshot(scenarioId: string): CachedSceneSnapshot {
-  const raw = readFileSync(join(REPO_ROOT, ".openclinxr/staging-solver", scenarioId, "scene-snapshot.json"), "utf8");
+  const raw = readFileSync(join(HERE, "test-fixtures", `${scenarioId}.scene-snapshot.json`), "utf8");
   return JSON.parse(raw) as CachedSceneSnapshot;
 }
 
+function loadAuthoredSnapshot(): CachedSceneSnapshot {
+  const raw = readFileSync(join(HERE, "test-fixtures", "primary_care_dyslipidemia_joint_pain_v1.authored.scene-snapshot.json"), "utf8");
+  return JSON.parse(raw) as CachedSceneSnapshot;
+}
 function intersects(a: CachedSceneSnapshot extends never ? never : { min: [number, number, number]; max: [number, number, number] }, b: { min: [number, number, number]; max: [number, number, number] }, pad = 0): boolean {
   return a.min[0] < b.max[0] + pad && a.max[0] > b.min[0] - pad
     && a.min[1] < b.max[1] && a.max[1] > b.min[1]
@@ -134,4 +143,21 @@ describe("cached snapshot layouts resolve", () => {
       }
     });
   }
+
+  it("authored post-solution snapshot keeps gate and does not lose coverage", () => {
+    const snapshot = loadAuthoredSnapshot();
+    const unchanged = searchClinicalLayouts(snapshot).layouts.find(
+      (layout) => layout.every((row) => row.persistPlacement === false),
+    );
+    expect(unchanged).toBeDefined();
+    expect(snapshot.observedCamera).toBeDefined();
+    if (!unchanged || !snapshot.observedCamera) return;
+    const candidate = searchBestCamera(snapshot, unchanged);
+    expect(candidate?.gate.gatePass).toBe(true);
+    if (!candidate) return;
+    const observed = { ...snapshot.observedCamera, aspect: snapshot.cameraAspect };
+    expect(projectedActorCoverage(snapshot, unchanged, candidate.camera)).toBeGreaterThanOrEqual(
+      projectedActorCoverage(snapshot, unchanged, observed),
+    );
+  });
 });

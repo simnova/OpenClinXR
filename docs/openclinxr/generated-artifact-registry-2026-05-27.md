@@ -27,8 +27,8 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 261
-- keep-evidence: 1963
-- keep-template: 13
+- keep-evidence: 1964
+- keep-template: 17
 
 ## Cleanup Actions
 
@@ -5051,6 +5051,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `tools/openclinxr/evidence/room-ward-finish-chain/door-closeup-poses.json` - keep-evidence; keep; Door closeup pose input (lever inspection framing); the standard hand-placed-poses.json is untouched.
 - `tools/openclinxr/evidence/room-ward-finish-chain/hand-placed-poses.json` - keep-evidence; keep; Ward-finish-chain part 3 pose inputs: verbatim copy of the sibling wt/infinigen-room hand-placed poses (stage2-camera-fit), read-only source untouched.
 - `tools/openclinxr/mouth-solver/solved-teeth-gap.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `tools/openclinxr/staging-solver/test-fixtures/provenance.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/optimized/hunyuan3d-mlx-2.0/provenance.json` - keep-template; keep; Hunyuan optimized-asset derivation and territory provenance.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/optimized/pixal3d/provenance.json` - keep-template; keep; Pixal3D optimized-asset derivation provenance.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/hunyuan3d-mlx-2.0/provenance.json` - keep-template; keep; Hunyuan raw provenance and territory flag.
@@ -5064,3 +5065,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/quest-manual-performance-template.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.
 - `docs/openclinxr/quest-mixed-reality-manual-template.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.
 - `docs/openclinxr/security-audit-policy-2026-08-02.json` - keep-template; keep; Reusable template/checklist/policy fixture.
+- `tools/openclinxr/staging-solver/test-fixtures/adult_abdominal_pain_v1.scene-snapshot.json` - keep-template; keep; Reusable template/checklist/policy fixture.
+- `tools/openclinxr/staging-solver/test-fixtures/peds_fever_v1.scene-snapshot.json` - keep-template; keep; Reusable template/checklist/policy fixture.
+- `tools/openclinxr/staging-solver/test-fixtures/primary_care_dyslipidemia_joint_pain_v1.authored.scene-snapshot.json` - keep-template; keep; Reusable template/checklist/policy fixture.
+- `tools/openclinxr/staging-solver/test-fixtures/primary_care_dyslipidemia_joint_pain_v1.scene-snapshot.json` - keep-template; keep; Reusable template/checklist/policy fixture.

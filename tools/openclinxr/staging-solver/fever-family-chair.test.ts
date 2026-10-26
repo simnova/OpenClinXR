@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { buildStationEnvironment } from "@openclinxr/xr-station";
 import { searchClinicalLayouts } from "./layout-search.js";
 import { sitContact } from "./contact-solvers.js";
@@ -7,19 +9,11 @@ import { sitContact } from "./contact-solvers.js";
 type Tuple3 = [number, number, number];
 type Tuple2 = [number, number];
 
+const HERE = dirname(fileURLToPath(import.meta.url));
+
+// Source-controlled real live-capture fixture (see ./test-fixtures/provenance.json).
 function readSnapshot(scenarioId: string) {
-  const candidates = [
-    `.openclinxr/staging-solver/${scenarioId}/scene-snapshot.json`,
-    `tools/openclinxr/staging-solver/snapshots/${scenarioId}.json`,
-  ];
-  for (const path of candidates) {
-    try {
-      return JSON.parse(readFileSync(path, "utf8"));
-    } catch {
-      continue;
-    }
-  }
-  throw new Error(`missing snapshot ${scenarioId}`);
+  return JSON.parse(readFileSync(join(HERE, "test-fixtures", `${scenarioId}.scene-snapshot.json`), "utf8"));
 }
 
 function entryMinMax(entry: { min?: number[]; max?: number[]; box?: { min?: number[]; max?: number[] } }) {

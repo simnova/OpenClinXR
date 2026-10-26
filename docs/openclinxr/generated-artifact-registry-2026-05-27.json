@@ -42,10 +42,10 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1963,
+    "keep-evidence": 1964,
     "ignore-local-cache": 2771,
     "keep-current": 261,
-    "keep-template": 13,
+    "keep-template": 17,
     "keep-compatibility-input": 24
   },
   "entries": [
@@ -35272,6 +35272,41 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "tools/openclinxr/staging-solver/test-fixtures/adult_abdominal_pain_v1.scene-snapshot.json",
+      "authority": "keep-template",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Reusable template/checklist/policy fixture."
+    },
+    {
+      "path": "tools/openclinxr/staging-solver/test-fixtures/peds_fever_v1.scene-snapshot.json",
+      "authority": "keep-template",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Reusable template/checklist/policy fixture."
+    },
+    {
+      "path": "tools/openclinxr/staging-solver/test-fixtures/primary_care_dyslipidemia_joint_pain_v1.authored.scene-snapshot.json",
+      "authority": "keep-template",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Reusable template/checklist/policy fixture."
+    },
+    {
+      "path": "tools/openclinxr/staging-solver/test-fixtures/primary_care_dyslipidemia_joint_pain_v1.scene-snapshot.json",
+      "authority": "keep-template",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Reusable template/checklist/policy fixture."
+    },
+    {
+      "path": "tools/openclinxr/staging-solver/test-fixtures/provenance.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     }
   ]
 }
