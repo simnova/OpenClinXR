@@ -3,7 +3,7 @@ import { EventEmitter } from "node:events";
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetCoordinationRootCache } from "./coordination-root.js";
 import { dispatch, readSessions } from "./dispatch-worker.js";
 
@@ -99,9 +99,28 @@ async function dispatchExpectingDeath(root: string, slice: string): Promise<void
   })).rejects.toThrow(/died before emitting an end event/);
 }
 
+const AMBIENT_GUARD_KEYS = ["RUST_LOG", "GROK_DEBUG_FILE"] as const;
+const ambientGuardSaved = new Map<string, string | undefined>();
+
+beforeEach(() => {
+  for (const key of AMBIENT_GUARD_KEYS) {
+    if (!ambientGuardSaved.has(key)) ambientGuardSaved.set(key, process.env[key]);
+    delete process.env[key];
+  }
+});
+
 afterEach(() => {
   resetCoordinationRootCache();
   delete process.env["OPENCLINXR_COORDINATION_ROOT"];
+  try {
+    for (const key of AMBIENT_GUARD_KEYS) {
+      const saved = ambientGuardSaved.get(key);
+      if (saved === undefined) delete process.env[key];
+      else process.env[key] = saved;
+    }
+  } finally {
+    ambientGuardSaved.clear();
+  }
 });
 
 describe("a dead dispatch is not a completion", () => {

@@ -4,7 +4,7 @@ import { EventEmitter } from "node:events";
 import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetCoordinationRootCache } from "./coordination-root.js";
 import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { setFactoryField } from "./board-cli.js";
@@ -106,10 +106,30 @@ function fakeChildWithOutput(output: string, stderr = ""): ReturnType<typeof spa
   return child as unknown as ReturnType<typeof spawn>;
 }
 
+const AMBIENT_GUARD_KEYS = ["RUST_LOG", "GROK_DEBUG_FILE"] as const;
+const ambientGuardSaved = new Map<string, string | undefined>();
+
+beforeEach(() => {
+  for (const key of AMBIENT_GUARD_KEYS) {
+    if (!ambientGuardSaved.has(key)) ambientGuardSaved.set(key, process.env[key]);
+    delete process.env[key];
+  }
+  spawnMock.mockClear();
+});
+
 afterEach(async () => {
-  await dispatchFixtureLifecycle.drain();
-  resetCoordinationRootCache();
-  delete process.env["OPENCLINXR_COORDINATION_ROOT"];
+  try {
+    await dispatchFixtureLifecycle.drain();
+  } finally {
+    resetCoordinationRootCache();
+    delete process.env["OPENCLINXR_COORDINATION_ROOT"];
+    for (const key of AMBIENT_GUARD_KEYS) {
+      const saved = ambientGuardSaved.get(key);
+      if (saved === undefined) delete process.env[key];
+      else process.env[key] = saved;
+    }
+    ambientGuardSaved.clear();
+  }
   setFactoryFieldMock.mockClear();
   announcePresenceMock.mockClear();
   renewalMock.mockClear();
@@ -195,6 +215,38 @@ describe("credential-leak guard", () => {
 
   it("allows a clean environment", () => {
     expect(() => assertSafeEnvironment({ PATH: "/usr/bin" })).not.toThrow();
+  });
+
+  it("real dispatch refuses when ambient debug vars leak in, before any spawn or output", async () => {
+    const root = mkdtempSync(join(tmpdir(), "dispatch-guard-ambient-"));
+    try {
+      seedRoleForDispatch(root);
+      for (const key of ["RUST_LOG", "GROK_DEBUG_FILE"] as const) {
+        process.env[key] = key === "RUST_LOG" ? "debug" : join(root, "guard-probe.log");
+        try {
+          await expect(
+            dispatch(root, {
+              prompt: "do the thing",
+              role: TEST_ROLE,
+              slice: "guard-ambient-refusal",
+              contract: "none",
+              contractReason: "guard regression: ambient debug env must refuse pre-spawn",
+            }),
+          ).rejects.toThrow(/REFUSING TO DISPATCH/);
+          expect(spawnMock, `${key} must refuse before spawn`).not.toHaveBeenCalled();
+          expect(setFactoryFieldMock, `${key} must refuse before board write`).not.toHaveBeenCalled();
+          expect(existsSync(join(root, "guard-probe.log"))).toBe(false);
+          const { readdirSync } = await import("node:fs");
+          expect(readdirSync(root).sort()).toEqual(["agents"]);
+        } finally {
+          spawnMock.mockClear();
+          setFactoryFieldMock.mockClear();
+          delete process.env[key];
+        }
+      }
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });
 
