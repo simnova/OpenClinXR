@@ -58,6 +58,7 @@ def main():
     ap.add_argument("--old-sidecar", required=False, default=None)
     ap.add_argument("--append-new-image", action="store_true")
     ap.add_argument("--reuse-unbound-normal-texture", action="store_true")
+    ap.add_argument("--coherent-skin-tangents", action="store_true")
     ap.add_argument("--code-sha", required=False, default=None)
     ap.add_argument("--expect-old-sha", required=False, default=None)
     ap.add_argument("--trust-name-match", action="store_true")
@@ -289,6 +290,11 @@ def main():
 
     views = j["bufferViews"]
     is_reuse = bool(a.reuse_unbound_normal_texture)
+    want_tan = bool(a.coherent_skin_tangents)
+    if want_tan and not is_reuse:
+        refuse("coherent-skin-tangents requires --reuse-unbound-normal-texture strict mode")
+    if want_tan:
+        pass  # all tangent validation/pack/append delegated to append_skin_tangents
     if is_reuse and a.trust_name_match:
         refuse("trust-name-match forbidden in reuse mode")
     if append:
@@ -334,6 +340,17 @@ def main():
             newbin += blobs[vi]
     while len(newbin) % 4:
         newbin += b"\x00"
+    tangent_meta = None
+    if want_tan:
+        from skin_tangents import append_skin_tangents as _ast
+        try:
+            newbin, _tm = _ast(j, bytes(newbin), si)
+        except ValueError as _e:
+            refuse("tangent append refused: " + str(_e))
+        tangent_meta = {"prims": 1, "counts": [_tm["count"]], "bytesSha": _tm["fullRawSha"],
+                        "targetMesh": _tm["targetMesh"], "targetPrim": _tm["targetPrim"],
+                        "tangentCount": _tm["tangentCount"], "tangentSha": _tm["tangentSha"],
+                        "helperFile": "skin_tangents.py", "helperSha": _tm["helperSha"]}
     if "buffers" not in j or not isinstance(j["buffers"], list) or len(j["buffers"]) != 1:
         j["buffers"] = [{"byteLength": len(newbin)}]
     else:
@@ -359,6 +376,9 @@ def main():
                "incoh": round(st["incoh"], 4),
                "bars": [bool(x) for x in st["bars"]],
                "flow": "append-new-image" if append else ("reuse-unbound-normal-texture" if is_reuse else "replace-retired-normal")}
+    if tangent_meta is not None:
+        rep_out["tangents"] = dict(tangent_meta)
+        rep_out["tangents"]["generator"] = "skin_tangents.py/three-r184-computeTangents-port"
     pp = rep.get("pore") or {}
     mm = rep.get("macro") or {}
     bake_rep_sha = sha(open(a.bake_report, "rb").read())
@@ -404,6 +424,12 @@ def main():
          "photorealClaim": False,
          "bindingScope": rep.get("bindingScope"),
          "derivation": "procedural stylized coherent-detail binding: analytic heightfield artistic texture (no mesh-surface bake, no measured pores, no photoreal claim); source GLB used for binding identity/UV slot only; mesh geometry normals preserved, detail carried only by the added tangent-space normal field"})
+    if tangent_meta is not None:
+        prov["stages"][-1]["tangentDerivation"] = tangent_meta
+        prov["stages"][-1]["derivation"] = ("procedural stylized coherent-detail binding: analytic heightfield artistic texture"
+                                            " (no mesh-surface bake, no measured pores, no photoreal claim);"
+                                            " original position/normal/UV/index bytes unchanged;"
+                                            " tangent basis derives from original positions/normals/UV")
     prov["outputSha256"] = newsha
     prov["outputBytes"] = len(glb)
     if arch_name is not None:

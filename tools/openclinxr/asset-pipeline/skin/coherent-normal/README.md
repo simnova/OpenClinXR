@@ -85,3 +85,20 @@ python3 bind_skin_normal.py --src <actor>.glb --new-normal <map> ... \
 # Reuses the existing orphan texture index as skin normalTexture scale 1;
 # replaces only target image bytes/offsets. No --old-sidecar, no append,
 # no trust-name-match, no force/bypass. Refusals write nothing.
+
+## 6. Coherent skin tangents (OPTIONAL, off by default)
+
+python3 bind_skin_normal.py ... --reuse-unbound-normal-texture --expect-old-sha <sha> \
+  --coherent-skin-tangents
+
+Requires strict reuse mode. Computes indexed-UV vertex tangents + handedness
+(Gram-Schmidt, three r184 computeTangents port in skin_tangents.py, stdlib only)
+for exactly one skin-material primitive; refuses zero/multiple targets, existing
+TANGENT, non-TRIANGLES mode, sparse/non-finite/unsigned-only index violations,
+view-crossing offsets, and all-degenerate inputs. Default behavior unchanged
+without the flag. Provenance records tangentDerivation (target/count/tangentSHA/
+helper file SHA); no historical rewrite, no readiness claim. Append is staged:
+append_skin_tangents validates mode/TANGENT/indices/bounds BEFORE any
+mutation, then packs all rows and commits exactly one view + one accessor +
+TANGENT attr. Refusals write nothing; default (no flag) adds no
+tangentDerivation key.
