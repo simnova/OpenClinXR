@@ -162,8 +162,8 @@
   }
  ],
  "optimizationMode": "meshopt_decimated_post_blender_glb (carried over from input)",
- "outputBytes": 8096468,
- "outputSha256": "bc840005fe94f90712b77521283d1ba2c6636df523ec932c346ee37e14a3d120",
+ "outputBytes": 8056172,
+ "outputSha256": "dedcbb3e417e59b28a19d3f5bc73169b3fae98ece580111193d3a092126ae1f5",
  "promotionStatus": "candidate_not_promoted__needs_parent_visual_acceptance_and_root_full_suite",
  "realismGrade": "not_graded",
  "scenarioId": "ed_chest_pain_priority_v1",

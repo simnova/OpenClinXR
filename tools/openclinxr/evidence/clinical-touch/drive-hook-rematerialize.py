@@ -15,6 +15,8 @@ import tempfile
 import types
 
 bake_py, glb_path, report_arg = sys.argv[1], sys.argv[2], sys.argv[3]
+prov_arg = sys.argv[4] if len(sys.argv) > 4 else "-"
+prov_root_arg = sys.argv[5] if len(sys.argv) > 5 else "-"
 
 stub_bpy = types.ModuleType("bpy")
 stub_bpy.ops = types.SimpleNamespace()
@@ -68,5 +70,13 @@ ns = {
 }
 exec(compile(ast.Module(body=wanted, type_ignores=[]), bake_py, "exec"), ns)
 report_path = None if report_arg == "-" else pathlib.Path(report_arg)
-out = ns["rematerialize_rlq_clip"](pathlib.Path(glb_path), report_path)
+prov_path = None if prov_arg == "-" else pathlib.Path(prov_arg)
+prov_root = None if prov_root_arg == "-" else pathlib.Path(prov_root_arg)
+sig = ns["rematerialize_rlq_clip"].__code__.co_varnames[:ns["rematerialize_rlq_clip"].__code__.co_argcount]
+if "provenance_root" in sig:
+    out = ns["rematerialize_rlq_clip"](pathlib.Path(glb_path), report_path, prov_path, prov_root)
+elif prov_path is not None and "provenance_path" in sig:
+    out = ns["rematerialize_rlq_clip"](pathlib.Path(glb_path), report_path, prov_path)
+else:
+    out = ns["rematerialize_rlq_clip"](pathlib.Path(glb_path), report_path)
 print(json.dumps({"skipped": out is None, "report": out}))

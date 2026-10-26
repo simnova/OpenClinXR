@@ -56,7 +56,7 @@ def _glb_animation_names(glb_path: pathlib.Path) -> list:
     return [a.get("name") for a in gltf.get("animations", [])]
 
 
-def rematerialize_rlq_clip(exported_glb: pathlib.Path, report_path: pathlib.Path | None = None) -> dict | None:
+def rematerialize_rlq_clip(exported_glb: pathlib.Path, report_path: pathlib.Path | None = None, provenance_path: pathlib.Path | None = None, provenance_root: pathlib.Path | None = None) -> dict | None:
     """Re-run the RLQ materializer over a Blender-exported GLB (pure postprocess).
 
     Skips exports that carry no RLQ-named clip (actors without an existing/required
@@ -73,10 +73,15 @@ def rematerialize_rlq_clip(exported_glb: pathlib.Path, report_path: pathlib.Path
     backup = job_dir / (exported_glb.stem + ".pre-rlq.bak.glb")
     report = report_path if report_path is not None else job_dir / (exported_glb.stem + ".rlq-rematerialize-report.json")
     tool = REPO_ROOT / MATERIALIZER
-    proc = subprocess.run(
-        ["pnpm", "exec", "tsx", str(tool), "--glb", str(exported_glb),
+    cmd = ["pnpm", "exec", "tsx", str(tool), "--glb", str(exported_glb),
          "--out", str(exported_glb), "--backup", str(backup),
-         "--report", str(report)],
+         "--report", str(report)]
+    if provenance_path is not None:
+        cmd += ["--provenance", str(provenance_path)]
+    if provenance_root is not None:
+        cmd += ["--provenance-root", str(provenance_root)]
+    proc = subprocess.run(
+        cmd,
         cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300,
     )
     print(proc.stdout)
@@ -430,6 +435,7 @@ def main() -> None:
     ap.add_argument("--input-glb", default=str(GEN / "mpfb-viseme-inspect.glb"))
     ap.add_argument("--output-glb", default=str(GEN / "mpfb-gown-inspect.glb"))
     ap.add_argument("--rlq-report", default=str(GEN / "bake-rlq-rematerialize-report.json"))
+    ap.add_argument("--rlq-provenance", default="")
     args = ap.parse_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:])
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -546,7 +552,8 @@ def main() -> None:
         export_extras=True,
     )
     print(f"EXPORTED {out} {out.stat().st_size} bytes")
-    rlq_report = rematerialize_rlq_clip(out, REPO_ROOT / args.rlq_report if args.rlq_report else None)
+    rlq_provenance = pathlib.Path(args.rlq_provenance) if args.rlq_provenance else None
+    rlq_report = rematerialize_rlq_clip(out, REPO_ROOT / args.rlq_report if args.rlq_report else None, rlq_provenance)
     if rlq_report is not None:
         print(f"RLQ_REMATERIALIZED {json.dumps({k: rlq_report.get(k) for k in ('animationName', 'appliedNodeCount', 'appliedNodes')}, default=str)}")
 

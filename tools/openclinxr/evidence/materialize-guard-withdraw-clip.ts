@@ -18,7 +18,8 @@
  * Old Anny cagematch / docs/openclinxr report defaults are forbidden.
  */
 
-import { cp, mkdir, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { Accessor, type Node as GltfNode, NodeIO } from "@gltf-transform/core";
 import { PropertyBinding } from "three";
@@ -38,6 +39,8 @@ type CliOptions = {
   outputPath: string;
   backupPath: string;
   reportPath: string;
+  provenancePath?: string;
+  provenanceRoot?: string;
 };
 
 type PoseTrack = {
@@ -102,6 +105,7 @@ async function main(): Promise<void> {
       [
         "Usage: tsx tools/openclinxr/evidence/materialize-guard-withdraw-clip.ts \\",
         "  --glb <in.glb> --out <out.glb> --backup <bak.glb> --report <report.json>",
+        "  [--provenance <sidecar.json> syncs root outputSha256/outputBytes to produced bytes]",
         "Aliases: --input, --output. All four flags are required.",
         "Do not use the old Anny cagematch default or docs/openclinxr report path.",
         "",
@@ -109,15 +113,106 @@ async function main(): Promise<void> {
     );
     return;
   }
+  const preflight = parsed.provenancePath
+    ? await preflightProvenance(parsed.provenancePath, parsed.outputPath, parsed.inputPath, parsed.provenanceRoot)
+    : null;
   const report = await materializeGuardWithdrawClip(parsed);
   await mkdir(path.dirname(parsed.reportPath), { recursive: true });
   await writeFile(parsed.reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(`Injected ${ANIMATION_NAME} (${report.appliedNodeCount} nodes) into ${parsed.outputPath}`);
   console.log(`Wrote ${parsed.reportPath}`);
+  if (parsed.provenancePath && preflight) {
+    const synced = await syncProvenanceOutput(parsed.provenancePath, parsed.outputPath, preflight.provenance);
+    console.log(`Synced ${parsed.provenancePath}: sha=${synced.sha256} bytes=${synced.bytes}`);
+  }
 }
 
 function sanitiseBoneName(name: string): string {
   return PropertyBinding.sanitizeNodeName(name);
+}
+
+/**
+ * Preflight + sync for a provenance sidecar. Validates BEFORE any backup/output/
+ * report/sidecar write: sidecar JSON parses, assetPath names the canonical
+ * repo-relative output path, and any existing root outputSha256/outputBytes match
+ * the actual pre-write input bytes. Returns the declared output + root.
+ */
+async function preflightProvenance(
+  provenancePath: string,
+  outputPath: string,
+  inputPath: string,
+  provenanceRoot?: string,
+): Promise<{ root: string; provenance: Record<string, unknown> }> {
+  const raw = await readFile(provenancePath, "utf8").catch(() => {
+    throw new Error(`Provenance ${provenancePath} missing or unreadable; refusing to write.`);
+  });
+  let record: Record<string, unknown>;
+  try {
+    record = JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    throw new Error(`Provenance ${provenancePath} is not valid JSON; refusing to write.`);
+  }
+  const root = provenanceRoot ?? process.cwd();
+  const declaredAsset = record["assetPath"];
+  if (typeof declaredAsset !== "string" || declaredAsset.length === 0) {
+    throw new Error(`Provenance ${provenancePath} carries no assetPath; refusing to write.`);
+  }
+  if (
+    path.isAbsolute(declaredAsset) ||
+    declaredAsset.split("/").includes("..") ||
+    declaredAsset.split("\\").includes("..")
+  ) {
+    throw new Error(
+      `Provenance assetPath ${declaredAsset} is not a safe repo-relative path; refusing to write.`,
+    );
+  }
+  const resolvedDeclared = path.resolve(root, declaredAsset);
+  const resolvedOutput = path.resolve(outputPath);
+  if (resolvedDeclared !== resolvedOutput) {
+    throw new Error(
+      `Provenance assetPath ${declaredAsset} does not resolve (against root ${root}) to ${outputPath}; refusing to write.`,
+    );
+  }
+  const inputBytes = await readFile(inputPath);
+  const inputSha = createHash("sha256").update(inputBytes).digest("hex");
+  const declaredSha = record["outputSha256"];
+  const declaredBytes = record["outputBytes"];
+  if (
+    typeof declaredSha !== "string" ||
+    !/^[0-9a-f]{64}$/.test(declaredSha) ||
+    typeof declaredBytes !== "number" ||
+    !Number.isInteger(declaredBytes) ||
+    declaredBytes < 0
+  ) {
+    throw new Error(
+      `Provenance ${provenancePath} receipt incomplete (require lowercase sha256 + finite byte count); refusing to write.`,
+    );
+  }
+  if (declaredSha !== inputSha || declaredBytes !== inputBytes.length) {
+    throw new Error(
+      `Provenance receipt mismatch: sidecar (${declaredSha}/${declaredBytes}) != input bytes (${inputSha}/${inputBytes.length}); refusing to write.`,
+    );
+  }
+  return { root, provenance: record };
+}
+
+/**
+ * Sync a provenance sidecar's root outputSha256/outputBytes to the bytes the
+ * producer just wrote. Verifies the sidecar already names the canonical
+ * repo-relative assetPath (refuses without writing on mismatch) and preserves
+ * source epoch, lineage, and all other fields — only the two root output fields move.
+ */
+async function syncProvenanceOutput(
+  provenancePath: string,
+  outputPath: string,
+  record: Record<string, unknown>,
+): Promise<{ sha256: string; bytes: number }> {
+  const bytes = await readFile(outputPath);
+  const sha256 = createHash("sha256").update(bytes).digest("hex");
+  record["outputSha256"] = sha256;
+  record["outputBytes"] = bytes.length;
+  await writeFile(provenancePath, `${JSON.stringify(record, null, 2)}\n`, "utf8");
+  return { sha256, bytes: bytes.length };
 }
 
 function restRotation(node: GltfNode): [number, number, number, number] {
@@ -366,6 +461,10 @@ function parseArgs(args: string[]): CliOptions | { help: true } {
       options.backupPath = requireNext(args, ++index, arg);
     } else if (arg === "--report") {
       options.reportPath = requireNext(args, ++index, arg);
+    } else if (arg === "--provenance") {
+      options.provenancePath = requireNext(args, ++index, arg);
+    } else if (arg === "--provenance-root") {
+      options.provenanceRoot = requireNext(args, ++index, arg);
     }
   }
   if (!options.inputPath || !options.outputPath || !options.backupPath || !options.reportPath) {
@@ -379,6 +478,8 @@ function parseArgs(args: string[]): CliOptions | { help: true } {
     outputPath: options.outputPath,
     backupPath: options.backupPath,
     reportPath: options.reportPath,
+    provenancePath: options.provenancePath,
+    provenanceRoot: options.provenanceRoot,
   };
 }
 
