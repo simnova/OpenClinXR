@@ -48,7 +48,10 @@ import { DONE_WHEN_RULE_VOCABULARY, evaluateDoneWhenRule, isKnownDoneWhenRule } 
  * the only place that should know about expected-fails.
  */
 
-const ROOT = "/Volumes/files/src/openclinxr";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
 // REPOINTED 2026-09-06. The previous fixture,
 // tools/openclinxr/evidence/the-shipped-room-matches-its-declared-shape.test.ts, was flipped
 // when b27f423b landed the ED exam-bay aspect fix, so it stopped being an unflipped plant and
