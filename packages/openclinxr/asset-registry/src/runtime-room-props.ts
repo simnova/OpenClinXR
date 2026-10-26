@@ -95,6 +95,63 @@ function edExamBayRoomProps(): EncounterRuntimeRoomProp[] {
   ];
 }
 
+/**
+ * An authored physical room prop whose identity, position, and semantic role come from the
+ * shipped case manifest (tools/openclinxr/factory/generated-ed-station-runtime-bundle.ts) —
+ * not the shared ED/ward environmental-detail vocabulary. Roles stay authored so
+ * xr-capture-evidence/visual-review-filter.ts permits scene_manifest props whose
+ * semanticRole != environmental_detail.
+ */
+function authoredPhysicalRoomProp(
+  propId: string,
+  label: string,
+  semanticRole: EncounterRuntimeRoomProp["semanticRole"],
+  evidenceCue: string,
+  colorHex: string,
+  accentColorHex: string,
+  position: EncounterRuntimeRoomProp["position"],
+  interactionTags: string[],
+): EncounterRuntimeRoomProp {
+  return {
+    propId,
+    label,
+    semanticRole,
+    evidenceCue,
+    colorHex,
+    accentColorHex,
+    position,
+    scale: { x: 1, y: 1, z: 1 },
+    interactionTags,
+    affordanceCueIds: [`${propId}:visual_context`, `${propId}:runtime_scene_manifest_prop`],
+    generatedBy: "scene_manifest",
+  };
+}
+
+/**
+ * Room props for the behavioral-health private room: the three physical props the shipped
+ * psych case manifest authors (safe-room-soft-chair, observer-station, safety-plan-whiteboard)
+ * at their authored positions with their authored roles. The ligature-risk-cleared-zone is a
+ * cue/overlay, not furniture — it does not ship here.
+ */
+function behavioralHealthRoomProps(): EncounterRuntimeRoomProp[] {
+  return [
+    authoredPhysicalRoomProp("safe-room-soft-chair", "Safe room chair", "scenario_context", "safe_room_context_cue", "e5e7eb", "4b5563", { x: -0.8, y: 0, z: -0.2 }, ["seating_furniture"]),
+    authoredPhysicalRoomProp("observer-station", "Observer station", "communication_cue", "observer_escalation_cue", "e0f2fe", "0284c7", { x: 1.65, y: 0, z: -1.0 }, ["observation_furniture"]),
+    authoredPhysicalRoomProp("safety-plan-whiteboard", "Safety plan prompts", "review_cue", "safety_plan_review_cue", "fefce8", "ca8a04", { x: 0.4, y: 0, z: -0.95 }, ["review_surface"]),
+  ];
+}
+
+/**
+ * Room props for the telehealth home visit: the one physical prop the shipped telehealth case
+ * manifest authors (telehealth-tablet-stand) at its authored position with its authored role.
+ * The plan card / log review / cost cue are pedagogy overlays, not furniture.
+ */
+function telehealthHomeRoomProps(): EncounterRuntimeRoomProp[] {
+  return [
+    authoredPhysicalRoomProp("telehealth-tablet-stand", "Telehealth tablet stand", "scenario_context", "telehealth_visit_context_cue", "e0f2fe", "0284c7", { x: 0.5, y: -0.1, z: 0.3 }, ["visit_device_furniture"]),
+  ];
+}
+
 /** Select room props based on environment id. */
 export function roomPropsForEnvironment(environmentId: string): EncounterRuntimeRoomProp[] {
   switch (environmentId) {
@@ -102,6 +159,10 @@ export function roomPropsForEnvironment(environmentId: string): EncounterRuntime
       return wardRoomProps();
     case "ed_exam_bay_v1":
       return edExamBayRoomProps();
+    case "behavioral_health_private_room_v1":
+      return behavioralHealthRoomProps();
+    case "telehealth_home_visit_v1":
+      return telehealthHomeRoomProps();
     default:
       // Environment-specific fixtures and scenario equipment already describe every other
       // shipped room. Falling through to the ED set populated homes and clinics with oxygen,

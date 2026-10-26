@@ -16,11 +16,19 @@ describe("environment-owned room props", () => {
 
   it.each([
     "adult_ed_abdominal_bay_v1",
-    "telehealth_home_visit_v1",
     "primary_care_clinic_v1",
     "ed_stroke_bay_v1",
   ])("does not inject the ED prop set into %s", (environmentId) => {
     expect(roomPropsForEnvironment(environmentId)).toEqual([]);
+  });
+
+  it("ships the one supported telehealth physical prop at its authored case position", () => {
+    const props = roomPropsForEnvironment("telehealth_home_visit_v1");
+    expect(props).toHaveLength(1);
+    expect(props[0]?.propId).toBe("telehealth-tablet-stand");
+    expect(props[0]?.position).toEqual({ x: 0.5, y: -0.1, z: 0.3 });
+    expect(props[0]?.generatedBy).toBe("scene_manifest");
+    expect(props[0]?.semanticRole).toBe("scenario_context");
   });
 
   it("mounts the support required by the recumbent stroke patient", () => {

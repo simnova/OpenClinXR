@@ -120,6 +120,7 @@
   "tests": [
     "src/api-client.test.ts",
     "src/capture-shadow-map.test.ts",
+    "src/fixture-role-ownership.test.ts",
     "src/station-environment.test.ts",
     "src/station-equipment.test.ts",
     "src/station-interior-lighting.test.ts",

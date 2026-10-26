@@ -105,6 +105,11 @@
         "name": "planStationEquipmentMounts",
         "kind": "runtime",
         "via": "own-test"
+      },
+      {
+        "name": "stampSuppressedDeclaredEquipmentOntoFixtures",
+        "kind": "runtime",
+        "via": "own-test"
       }
     ]
   }

@@ -20,6 +20,8 @@ export type FixtureRoleClass =
   | "learner_start"
   | "layout_other";
 
+import { isRoomPropPhysicalObject } from "./room-prop-classification.js";
+
 /** Roles where fixture ownership suppresses equipment / roomProp geometry. */
 const OWNABLE_ROLES = new Set<FixtureRoleClass>([
   "support_surface",
@@ -193,7 +195,12 @@ export function stampSuppressedDeclaredEquipmentOntoFixtures(input: {
   }
   for (const prop of input.roomProps) {
     if (!prop.propId) continue;
-    if (prop.semanticRole === "review_cue" || prop.semanticRole === "objective_cue") continue;
+    // Known physical furniture (room-prop-classification.ts table) may carry a cue
+    // semanticRole (safety-plan-whiteboard ships review_cue) yet still fulfills a
+    // declaration through its owned real fixture. Unknown/abstract cues stay out.
+    if (prop.semanticRole === "review_cue" || prop.semanticRole === "objective_cue") {
+      if (!isRoomPropPhysicalObject(prop.propId, { semanticRole: prop.semanticRole })) continue;
+    }
     declared.add(prop.propId);
   }
   const stamped: Array<{
