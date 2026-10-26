@@ -669,39 +669,70 @@ export async function rebindBoundClipTravelHeading(input: {
   };
 }
 
+const CLI_USAGE = `graft-bound-clip.ts modes:
+  (default graft) --target <glb> --source <glb|store:…> --clip <name> --output <glb> --report <json>
+  --drop-leading-rest-frame --target <glb> --clip <name> --output <glb> --report <json>
+  --rebind-travel-heading --target <glb> --clip <name> --output <glb> --report <json>
+--output and --report are required in every mode; no implicit defaults are written.`;
+
+function requireCliValue(args: string[], flag: string, mode: string): string {
+  const index = args.indexOf(flag);
+  if (index < 0) throw new Error(`${mode}: ${flag} is required. No implicit default is written.`);
+  const value = args[index + 1];
+  if (value === undefined || value.startsWith("--") || value === "") {
+    throw new Error(`${mode}: ${flag} requires a value.`);
+  }
+  return value;
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
+  if (args.includes("--help") || args.includes("-h")) {
+    process.stdout.write(`${CLI_USAGE}\n`);
+    return;
+  }
   const flagValue = (flag: string, fallback: string): string => {
     const index = args.indexOf(flag);
-    return index >= 0 ? (args[index + 1] ?? fallback) : fallback;
+    if (index < 0) return fallback;
+    const value = args[index + 1];
+    if (value === undefined || value.startsWith("--") || value === "") {
+      throw new Error(`graft-bound-clip: ${flag} requires a value.`);
+    }
+    return value;
   };
-  const targetPath = flagValue("--target", "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb");
+  const has = (flag: string): boolean => args.includes(flag);
   if (args.includes("--drop-leading-rest-frame")) {
-    const report = await dropLeadingRestFrame({
-      targetPath,
-      clipName: flagValue("--clip", ""),
-      outputPath: flagValue("--output", ".openclinxr/evidence/walk-bind/rest-frame-dropped.glb"),
-    });
-    if (!flagValue("--clip", "")) throw new Error("drop-leading-rest-frame: --clip is required.");
-    const reportPath = flagValue("--report", ".openclinxr/evidence/walk-bind/rest-frame-drop.json");
+    const mode = "drop-leading-rest-frame";
+    const outputPath = requireCliValue(args, "--output", mode);
+    const reportPath = requireCliValue(args, "--report", mode);
+    const targetPath = requireCliValue(args, "--target", mode);
+    const clipName = requireCliValue(args, "--clip", mode);
+    const report = await dropLeadingRestFrame({ targetPath, clipName, outputPath });
     await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
     process.stdout.write(`${reportPath}\n`);
     return;
   }
   if (args.includes("--rebind-travel-heading")) {
+    const mode = "rebind-travel-heading";
+    const outputPath = requireCliValue(args, "--output", mode);
+    const reportPath = requireCliValue(args, "--report", mode);
+    const targetPath = requireCliValue(args, "--target", mode);
     const report = await rebindBoundClipTravelHeading({
       targetPath,
-      clipName: flagValue("--clip", "openclinxr_retarget_walk_formal_cc0"),
-      outputPath: flagValue("--output", ".openclinxr/evidence/walk-bind/physician-heading-rebind.glb"),
-      ...(args.includes("--publish")
+      clipName: requireCliValue(args, "--clip", mode),
+      outputPath,
+      ...(has("--publish")
         ? { publish: { provenancePath: targetPath.replace(/\.glb$/u, ".provenance.json") } }
         : {}),
     });
-    const reportPath = flagValue("--report", ".openclinxr/evidence/walk-bind/physician-heading-rebind.json");
     await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
     process.stdout.write(`${reportPath}\n`);
     return;
   }
+  const mode = "graft";
+  const outputPath = requireCliValue(args, "--output", mode);
+  const reportPath = requireCliValue(args, "--report", mode);
+  const targetPath = requireCliValue(args, "--target", mode);
   const removeClipName = flagValue("--remove-clip", "");
   const removeReason = flagValue(
     "--remove-reason",
@@ -709,9 +740,9 @@ async function main(): Promise<void> {
   );
   const report = await graftBoundClip({
     targetPath,
-    sourcePath: flagValue("--source", "store:f22b6f95cc9bc0c860a091d3880d1859c1951df1ac339eb960b3624e3b34dfed/physician-walk.glb"),
-    clipName: flagValue("--clip", "openclinxr_retarget_cmu_02_01_walk"),
-    outputPath: flagValue("--output", ".openclinxr/evidence/walk-bind/physician-grafted.glb"),
+    sourcePath: requireCliValue(args, "--source", mode),
+    clipName: requireCliValue(args, "--clip", mode),
+    outputPath,
     ...(removeClipName ? { removeClips: [{ clipName: removeClipName, reason: removeReason }] } : {}),
     ...(args.includes("--publish")
       ? {
@@ -738,9 +769,9 @@ async function main(): Promise<void> {
         }
       : {}),
   });
-  const reportPath = flagValue("--report", "docs/openclinxr/evidence/physician-walk-clip-graft.json");
-  await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
-  process.stdout.write(`${reportPath}\n`);
+  const graftReportPath = reportPath;
+  await writeFile(graftReportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  process.stdout.write(`${graftReportPath}\n`);
 }
 
 if (process.argv[1]?.endsWith("graft-bound-clip.ts")) await main();
