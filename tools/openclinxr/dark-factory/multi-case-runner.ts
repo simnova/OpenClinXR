@@ -320,6 +320,8 @@ export type RunMultiCaseChainOptions = {
   /** Override the population enumeration (defaults to shipped bundles). */
   population?: string[];
   signal?: AbortSignal;
+  /** Explicit owned file that may receive a second copy of the rollup. No publication by default. */
+  publishRollupPath?: string;
 };
 
 /** IMPLEMENTATION lines (same adopted implementation #286 recorded). */
@@ -1806,11 +1808,12 @@ export async function runMultiCaseChain(options: RunMultiCaseChainOptions = {}):
     };
     await mkdir(evidenceDir, { recursive: true });
     await writeFile(path.join(evidenceDir, "multi-case-rollup.json"), `${JSON.stringify(rollup, null, 2)}\n`, "utf8");
-    // Stable published path the /internal/factory-run-table route serves; the
-    // per-issue evidenceDir output above is kept as the run record.
-    const publishedDir = path.join(REPO_ROOT, ".openclinxr", "evidence", "factory-run");
-    await mkdir(publishedDir, { recursive: true });
-    await writeFile(path.join(publishedDir, "multi-case-rollup.json"), `${JSON.stringify(rollup, null, 2)}\n`, "utf8");
+    // Explicit second copy only: no canonical publication by default.
+    if (options.publishRollupPath) {
+      const ownedDir = path.dirname(options.publishRollupPath);
+      await mkdir(ownedDir, { recursive: true });
+      await writeFile(options.publishRollupPath, `${JSON.stringify(rollup, null, 2)}\n`, "utf8");
+    }
     return rollup;
   } finally {
     if (server) {
@@ -1860,7 +1863,19 @@ async function main(): Promise<void> {
   const dirIndex = args.indexOf("--evidence-dir");
   const evidenceDir = (dirIndex >= 0 && args[dirIndex + 1]) || process.env["OPENCLINXR_EVIDENCE_DIR"] || undefined;
   const all = args.includes("--all");
-  if (args.includes("--refresh-stale")) {
+  const publishCanonical = args.includes("--publish-canonical");
+  const wantsRefresh = args.includes("--refresh-stale");
+  if (publishCanonical && !all) {
+    console.error("usage: multi-case-runner.ts --case <scenarioId> [--evidence-dir <dir>] | --all [--evidence-dir <dir>] [--publish-canonical] | --refresh-stale");
+    console.error("REFUSED: --publish-canonical requires --all");
+    process.exit(1);
+  }
+  if (publishCanonical && (caseIndex >= 0 || wantsRefresh)) {
+    console.error("usage: multi-case-runner.ts --case <scenarioId> [--evidence-dir <dir>] | --all [--evidence-dir <dir>] [--publish-canonical] | --refresh-stale");
+    console.error("REFUSED: --publish-canonical is incompatible with --case or --refresh-stale");
+    process.exit(1);
+  }
+  if (wantsRefresh) {
     const marked = await refreshRollupStaleness();
     console.log(marked ? "ROLLUP_MARKED_STALE" : "ROLLUP_CURRENT");
     return;
@@ -1872,12 +1887,15 @@ async function main(): Promise<void> {
     return;
   }
   if (all) {
-    const rollup = await runMultiCaseChain({ evidenceDir });
+    const publishRollupPath = publishCanonical
+      ? path.join(REPO_ROOT, ".openclinxr", "evidence", "factory-run", "multi-case-rollup.json")
+      : undefined;
+    const rollup = await runMultiCaseChain({ evidenceDir, publishRollupPath });
     console.log(`MULTI_CASE_DONE cases=${rollup.summary.casesAttempted} fullyDeterministic=${rollup.summary.casesFullyDeterministic}`);
     console.log(JSON.stringify({ frontierCounts: rollup.summary.frontierCounts, deterministicTotals: rollup.summary.deterministicStationTotals }, null, 2));
     return;
   }
-  console.error("usage: multi-case-runner.ts --case <scenarioId> [--evidence-dir <dir>] | --all [--evidence-dir <dir>] | --refresh-stale");
+  console.error("usage: multi-case-runner.ts --case <scenarioId> [--evidence-dir <dir>] | --all [--evidence-dir <dir>] [--publish-canonical] | --refresh-stale");
   process.exit(1);
 }
 

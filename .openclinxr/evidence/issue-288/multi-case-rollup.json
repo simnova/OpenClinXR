@@ -6,7 +6,7 @@
     "tools/openclinxr/dark-factory/multi-case-runner.ts": "a7e7982297c643bc852eedc28271b429d444e6eab062f725ab2d2e2a5979be0e",
     "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py": "b7e9a3e07a32ebdb03621fb44953a53ac8d15aac9b4d261828c1ca64b8b20473"
   },
-  "stale": false,
+  "stale": true,
   "population": [
     {
       "caseId": "adult_abdominal_pain_v1",
