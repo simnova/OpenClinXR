@@ -39,8 +39,8 @@ const CASES = [
 ];
 
 describe("the coherent normal binds and replays byte-exact", () => {
-  it("python binder guards pass (17 retained + append-mode)", () => {
-    execFileSync("python3", [path.join(DIR, "tests", "test_bind_unittest.py")], { stdio: "inherit" });
+  it("python binder guards pass (35 retained + 17 tangent guards)", () => {
+    execFileSync(process.env.PYTHON ?? "python3", ["-m", "unittest", "discover", "-s", path.join(DIR, "tests")], { stdio: "inherit" });
   });
   it("procedural receipt passes through the actual binder", () => {
     execFileSync("python3", [path.join(DIR, "tests", "test_procedural_truthfulness.py"), "-v"], { stdio: "inherit" });
