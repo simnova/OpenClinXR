@@ -25,6 +25,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Historical negative-control assets require history while old blobs stay on demand.
+          fetch-depth: 0
+          filter: blob:none
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4

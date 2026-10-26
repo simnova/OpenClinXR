@@ -2,7 +2,7 @@ import { deflateSync } from "node:zlib";
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtempSync, mkdirSync, writeFileSync, copyFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, test } from "node:test";
@@ -26,8 +26,16 @@ execFileSync("git", ["init", "-q"], { cwd: root });
 execFileSync("git", ["add", "packages"], { cwd: root });
 execFileSync("git", ["-c", "user.name=Validator Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-q", "-m", "explicit fixture source"], { cwd: root });
 report.captureHead = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+// Deterministic historical asset objects: the exact blobs whose digests the production
+// validator pins in assetHashes (commit 787fae872b319d22be35d74ded7bc21e07ae051f).
+// The live tree has since been rebaked, so copying current Main GLBs here would pair new
+// bytes with old pins and fail honestly. Production staleness stays RED outside unit tests.
+const historicalAssetCommit = "787fae872b319d22be35d74ded7bc21e07ae051f";
 for (const asset of Object.keys(assetHashes)) {
-  const dest = join(root, "apps/ui-xr/public/generated-humanoids", asset); mkdirSync(join(dest, ".."), { recursive: true }); copyFileSync(join(process.cwd(), "apps/ui-xr/public/generated-humanoids", asset), dest);
+  const dest = join(root, "apps/ui-xr/public/generated-humanoids", asset); mkdirSync(join(dest, ".."), { recursive: true });
+  const historical = execFileSync("git", ["show", `${historicalAssetCommit}:apps/ui-xr/public/generated-humanoids/${asset}`], { cwd: process.cwd(), maxBuffer: 64 * 1024 * 1024 });
+  if (sha(historical) !== assetHashes[asset]) throw new Error(`historical asset bytes no longer match pinned digest: ${asset} @ ${historicalAssetCommit}`);
+  writeFileSync(dest, historical);
   for (const context of ["idle", "speech", "authored-emotion"]) {
     const frames = Array.from({ length: 601 }, (_, i) => ({ timeMs: i * 50, leftClosure: [80,280,480].includes(i) ? 1 : 0, rightClosure: [80,280,480].includes(i) ? 1 : 0, leftLidVertexDelta: 0.005, rightLidVertexDelta: 0.005, faceVisible: true, rootTransformDelta: 0, visemeAmplitude: context === "speech" ? 0.5 : 0, emotion: context === "authored-emotion" && i > 20 && i < 200 ? "pain" : "neutral", browDelta: context === "authored-emotion" && i > 20 && i < 200 ? 0.1 : 0 }));
     const raw = { runId: report.runId, captureHead: report.captureHead, asset, assetSha256: assetHashes[asset], context, productionLoop: true, syntheticClock: false, geometryRevision: "fixture-geometry", frames };
@@ -58,3 +66,5 @@ test("identical valid PNG phases cannot claim a blink",()=>mutateRaw((raw,c)=>{c
 test("header-only PNG cannot stand in for a screenshot",()=>{const path=join(root,report.cases[0].images[0].path),saved=readFileSync(path);try{const bytes=Buffer.alloc(24);Buffer.from([137,80,78,71,13,10,26,10]).copy(bytes);bytes.writeUInt32BE(960,16);bytes.writeUInt32BE(720,20);writeFileSync(path,bytes);const r=clone();r.cases[0].images[0].sha256=sha(bytes);assert.ok(validateFacialReport(r,root).errors.some((e)=>e.includes("valid framed PNG required")));}finally{writeFileSync(path,saved);}});
 
 test("a legitimate return to identical open-rest pixels is allowed",()=>{const reportCopy=clone();const c=reportCopy.cases[0];const path=join(root,c.raw.path),saved=readFileSync(path);try{c.images[2]={...c.images[0],phase:"reopened",frameTimeMs:4050};const raw=JSON.parse(saved);raw.images=c.images;const bytes=Buffer.from(JSON.stringify(raw));writeFileSync(path,bytes);c.raw.sha256=sha(bytes);assert.deepEqual(validateFacialReport(reportCopy,root),{ok:true,errors:[]});}finally{writeFileSync(path,saved);}});
+
+test("edited asset bytes cannot reuse the historical proof (controlled single-bit mutation)",()=>{const target=join(root,"apps/ui-xr/public/generated-humanoids",Object.keys(assetHashes)[0]);const saved=readFileSync(target);try{const edited=Buffer.from(saved);edited[0]^=1;writeFileSync(target,edited);const result=validateFacialReport(report,root);assert.equal(result.ok,false);assert.ok(result.errors.some((e)=>e.includes("shipped asset identity mismatch")),JSON.stringify(result.errors));}finally{writeFileSync(target,saved);}});
