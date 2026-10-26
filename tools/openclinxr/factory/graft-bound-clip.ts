@@ -709,7 +709,7 @@ async function main(): Promise<void> {
   );
   const report = await graftBoundClip({
     targetPath,
-    sourcePath: flagValue("--source", ".openclinxr/evidence/walk-bind/physician-walk.glb"),
+    sourcePath: flagValue("--source", "store:f22b6f95cc9bc0c860a091d3880d1859c1951df1ac339eb960b3624e3b34dfed/physician-walk.glb"),
     clipName: flagValue("--clip", "openclinxr_retarget_cmu_02_01_walk"),
     outputPath: flagValue("--output", ".openclinxr/evidence/walk-bind/physician-grafted.glb"),
     ...(removeClipName ? { removeClips: [{ clipName: removeClipName, reason: removeReason }] } : {}),

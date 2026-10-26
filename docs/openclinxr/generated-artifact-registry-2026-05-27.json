@@ -42,7 +42,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1962,
+    "keep-evidence": 1963,
     "ignore-local-cache": 2771,
     "keep-current": 261,
     "keep-template": 13,
@@ -24548,6 +24548,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
+    },
+    {
+      "path": "docs/openclinxr/evidence/asset-store-migrations/physician-walk-20261026.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Purpose-built evidence directory artifact; retain unless a later evidence compaction policy supersedes it."
     },
     {
       "path": "docs/openclinxr/evidence/bound-clip-foot-plant.json",

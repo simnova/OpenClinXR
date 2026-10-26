@@ -27,7 +27,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2771
 - keep-compatibility-input: 24
 - keep-current: 261
-- keep-evidence: 1962
+- keep-evidence: 1963
 - keep-template: 13
 
 ## Cleanup Actions
@@ -3577,6 +3577,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/equipment-catalog.v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/equipment-factory-loop-state.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/evidence-index-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
+- `docs/openclinxr/evidence/asset-store-migrations/physician-walk-20261026.json` - keep-evidence; keep; Purpose-built evidence directory artifact; retain unless a later evidence compaction policy supersedes it.
 - `docs/openclinxr/evidence/bound-clip-foot-plant.json` - keep-evidence; keep; Purpose-built evidence directory artifact; retain unless a later evidence compaction policy supersedes it.
 - `docs/openclinxr/evidence/displayed-walk-on-the-loaded-physician.json` - keep-evidence; keep; Purpose-built evidence directory artifact; retain unless a later evidence compaction policy supersedes it.
 - `docs/openclinxr/evidence/iwsdk-mpfb-radial-pulse-interaction-2026-09-04.json` - keep-evidence; keep; Purpose-built evidence directory artifact; retain unless a later evidence compaction policy supersedes it.

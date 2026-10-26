@@ -36,7 +36,7 @@ import { resolveInputBytes } from "../asset-store/resolve-store-ref.js";
  * nothing the moment the asset is rebaked.
  */
 
-const DEFAULT_GLB = ".openclinxr/evidence/walk-bind/physician-walk.glb";
+const DEFAULT_GLB = "store:f22b6f95cc9bc0c860a091d3880d1859c1951df1ac339eb960b3624e3b34dfed/physician-walk.glb";
 const DEFAULT_CLIP = "openclinxr_retarget_cmu_02_01_walk";
 const DEFAULT_REPORT = "docs/openclinxr/evidence/bound-clip-foot-plant.json";
 
