@@ -65,11 +65,11 @@ import type { EncounterRuntimeActorAsset } from "../../../packages/openclinxr/as
 
 const clinicKneePainScenarioId = "clinic_knee_pain_return_to_play_v1";
 
-function makeActor(actorId: string, role: EncounterRuntimeActorAsset["role"]): EncounterRuntimeActorAsset {
+function makeActor(actorId: string, role: string): EncounterRuntimeActorAsset {
   return {
     actorId,
     embodiment: "humanoid",
-    role,
+    role: role as EncounterRuntimeActorAsset["role"],
     model: {
       assetId: actorId,
       version: "v1",
@@ -92,6 +92,60 @@ function makeActor(actorId: string, role: EncounterRuntimeActorAsset["role"]): E
   };
 }
 
+function placementHumanReport(): Loose {
+  return {
+    schemaVersion: "openclinxr.generated-human-rigging-artifacts.v1",
+    kind: "generated_human_rigging_artifacts",
+    generatedAt: "2026-05-22T00:00:00.000Z",
+    tool: { name: "tools/openclinxr/generated-human-rigging-artifacts.ts", blenderVersion: "Blender 5.1.1", elapsedMs: 1 },
+    policy: { localOnly: true, installsIntroduced: true, cloudApisUsed: false, paidApisUsed: false, externalAssetsUsed: false, generatedThirdPartyAssetsCommitted: false, productionAssetReadinessClaimed: false },
+    input: { laneId: "generatedHumanRigging", stationSlug: "ed-chest-pain", actorSlug: "neutral-generated-human", generationMode: "anny_parametric_body_mesh_with_blender_canonical_rig", sourceLicensePosture: "anny_apache_2_code_mpfb2_assets_license_recorded", preferredGeneratorToolId: "anny" },
+    artifacts: {
+      glbPath: ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+      annySourceObjPath: ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/anny-neutral-generated-human.obj",
+      annySourceManifestPath: ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/anny-source-generator-manifest.json",
+      canonicalSkeletonBindingPath: ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+      skinWeightQualityPath: ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+      humanoidRealismManifestPath: ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human-realism-manifest.json",
+    },
+    output: { glbBytes: 128, magic: "glTF", version: 2, declaredLength: 128, semanticInventory: { nodeCount: 1, meshCount: 1, skinCount: 1, materialCount: 1, animationCount: 0, nodeNames: [], skinJointNames: [], requiredBoneNames: [], missingRequiredBoneNames: [], requiredAnchorNodeNames: [], missingRequiredAnchorNodeNames: [], requiredEmbodimentNodeNames: [], missingRequiredEmbodimentNodeNames: [] }, embodimentRigging: { sourceGeneratorRequired: "anny", faceRigPresent: true, lipSyncControlsPresent: true, eyeGazeControlsPresent: true, ragdollCollisionProxyPresent: true, physicianInteractionTargetPresent: true, runtimeDialogueLipSyncRequired: true, runtimeDialogueGazeRequired: true } },
+    verdict: { passed: true, readyForProductionAssets: false, blockers: [] },
+  };
+}
+
+function placementEquipmentReport(): Loose {
+  return {
+    schemaVersion: "openclinxr.medical-equipment-artifacts.v1",
+    kind: "medical_equipment_artifacts",
+    generatedAt: "2026-05-22T00:00:00.000Z",
+    tool: { name: "tools/openclinxr/medical-equipment-artifacts.ts", blenderVersion: "Blender 5.1.1", elapsedMs: 1 },
+    policy: { localOnly: true, installsIntroduced: false, cloudApisUsed: false, paidApisUsed: false, externalAssetsUsed: false, generatedThirdPartyAssetsCommitted: false, productionAssetReadinessClaimed: false },
+    input: { laneId: "medicalEquipmentLibrary", stationSlug: "ed-chest-pain", generationMode: "local_blender_scripted_equipment_fixture" },
+    artifacts: {
+      ecgCartGlbPath: ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+      ivPoleWithPumpGlbPath: ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+      equipmentProvenancePath: ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+      equipmentRealismManifestPath: ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ed-chest-pain-equipment-realism-manifest.json",
+    },
+    output: { ecgCartGlbBytes: 64, ivPoleWithPumpGlbBytes: 72, requiredObjectNames: [], caveats: [] },
+    verdict: { passed: true, readyForProductionAssets: false, blockers: [] },
+  };
+}
+
+function placementEnvironmentReport(): Loose {
+  return {
+    schemaVersion: "openclinxr.environment-artifacts.v1",
+    kind: "environment_artifacts",
+    generatedAt: "2026-05-22T00:00:00.000Z",
+    tool: { name: "tools/openclinxr/environment-artifacts.ts" },
+    policy: { localOnly: true, installsIntroduced: false, cloudApisUsed: false, paidApisUsed: false, externalAssetsUsed: false, generatedThirdPartyAssetsCommitted: false, productionAssetReadinessClaimed: false, questReadinessClaimed: false },
+    input: { laneId: "environmentShell", stationSlug: "ed-chest-pain", workOrderId: "environment_work_order:ed_chest_pain_priority_v1:ed_exam_bay_environment", generationMode: "repo_authored_environment_layout_evidence_bundle" },
+    artifacts: { edExamBayShellGlbPath: ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb", layoutManifestPath: ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json", equipmentPlacementManifestPath: ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json", questBudgetPath: ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json" },
+    output: { edExamBayShellGlbBytes: 96, spatialZoneCount: 3, equipmentPlacementCount: 2, interactionAnchorCount: 4, environmentRealismCueCount: 6, caveats: [] },
+    verdict: { passed: true, readyForProductionEnvironment: false, blockers: [] },
+  };
+}
+
 describe("The factory resolves actor placement from the case, not from the actor index", () => {
   it("(1) generatedActorPlacement returns the three clinic-knee-pain authored vectors for the three actors, not index-derived positions", async () => {
     // Authored vectors from clinic-knee-pain.ts:53,76,99
@@ -105,7 +159,7 @@ describe("The factory resolves actor placement from the case, not from the actor
 
     // This import will fail until the function signature is extended with case input
     const mod = await import("../../../packages/openclinxr/asset-registry/src/actor-placement.js");
-    const fn = (mod as Record<string, unknown>)["generatedActorPlacement"];
+    const fn = (mod as Record<string, unknown>)["generatedActorPlacement"] as Loose;
     expect(typeof fn).toBe("function");
 
     // When case placements are provided with authored offsets, they must be used
@@ -116,9 +170,9 @@ describe("The factory resolves actor placement from the case, not from the actor
     };
 
     // The extended function should accept casePlacements and return authored positions
-    const patientPlacement = fn(patient, 0, { scenarioId: clinicKneePainScenarioId, casePlacements });
-    const parentPlacement = fn(parent, 1, { scenarioId: clinicKneePainScenarioId, casePlacements });
-    const maPlacement = fn(ma, 2, { scenarioId: clinicKneePainScenarioId, casePlacements });
+    const patientPlacement = (fn as Loose)(patient, 0, { scenarioId: clinicKneePainScenarioId, casePlacements });
+    const parentPlacement = (fn as Loose)(parent, 1, { scenarioId: clinicKneePainScenarioId, casePlacements });
+    const maPlacement = (fn as Loose)(ma, 2, { scenarioId: clinicKneePainScenarioId, casePlacements });
 
     // Assert the three authored vectors exactly — NOT the index-derived positions
     expect(patientPlacement.position).toEqual({ x: 0.4, y: 0, z: 0 });
@@ -138,16 +192,33 @@ describe("The factory resolves actor placement from the case, not from the actor
   it("(2) emitCompileNodes emits Placement nodes with plantOffsetMeters and supportSurface from the case", async () => {
     const { emitCompileNodes } = await import("./encounter-materialization-evidence.js");
     const { buildEncounterMaterializationEvidenceReport } = await import("./encounter-materialization-evidence.js");
+    const { mkdtemp, rm, mkdir, writeFile } = await import("node:fs/promises");
+    const nodeOs = await import("node:os");
+    const nodePath = await import("node:path");
 
-    // Build a minimal report for clinic-knee-pain
-    const bundleReport = await import("./generated-ed-station-runtime-bundle.js").then(m =>
-      m.buildGeneratedEdStationRuntimeBundleReport({
-        humanReportPath: ".openclinxr/evidence/fixtures/clinic-knee-pain/human.json",
-        equipmentReportPath: ".openclinxr/evidence/fixtures/clinic-knee-pain/equipment.json",
-        environmentReportPath: ".openclinxr/evidence/fixtures/clinic-knee-pain/environment.json",
-        scenarioId: clinicKneePainScenarioId,
-      })
-    );
+    // Genuine temporary fixtures: serialize the actual in-memory report objects, then
+    // supply the real temp file paths to the three required builder args.
+    const tempDir = await mkdtemp(nodePath.join(nodeOs.tmpdir(), "openclinxr-placement-offset-"));
+    let bundleReport: Awaited<ReturnType<(typeof import("./generated-ed-station-runtime-bundle.js"))["buildGeneratedEdStationRuntimeBundleReport"]>>;
+    try {
+      const humanPath = nodePath.join(tempDir, "human.json");
+      const equipmentPath = nodePath.join(tempDir, "equipment.json");
+      const environmentPath = nodePath.join(tempDir, "environment.json");
+      await mkdir(tempDir, { recursive: true });
+      await writeFile(humanPath, `${JSON.stringify(placementHumanReport(), null, 2)}\n`, "utf8");
+      await writeFile(equipmentPath, `${JSON.stringify(placementEquipmentReport(), null, 2)}\n`, "utf8");
+      await writeFile(environmentPath, `${JSON.stringify(placementEnvironmentReport(), null, 2)}\n`, "utf8");
+      bundleReport = await import("./generated-ed-station-runtime-bundle.js").then(m =>
+        m.buildGeneratedEdStationRuntimeBundleReport({
+          humanReportPath: humanPath,
+          equipmentReportPath: equipmentPath,
+          environmentReportPath: environmentPath,
+          scenarioId: clinicKneePainScenarioId,
+        })
+      );
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
 
     const evidenceBundleReport = {
       ...bundleReport,
@@ -233,7 +304,7 @@ describe("The factory resolves actor placement from the case, not from the actor
       },
       equipmentMaterializationContract: bundleReport.equipmentMaterializationContract,
     };
-    const report = buildEncounterMaterializationEvidenceReport({ bundleReport: evidenceBundleReport });
+    const report = buildEncounterMaterializationEvidenceReport({ bundleReport: evidenceBundleReport as Loose });
 
     // Resolve the case descriptor for clinic-knee-pain to get authored placements
     // PUBLIC: scenarioBank is the admitted export; .find is the exact equivalent lookup.
@@ -246,9 +317,9 @@ describe("The factory resolves actor placement from the case, not from the actor
     expect(placementNodes.length).toBe(3);
 
     // Each placement node must carry the authored plantOffsetMeters and supportSurface
-    const patientPlacement = placementNodes.find((n: Loose) => n.spec.actorId === "patient_jordan_cole_v1");
-    const parentPlacement = placementNodes.find((n: Loose) => n.spec.actorId === "parent_lena_cole_v1");
-    const maPlacement = placementNodes.find((n: Loose) => n.spec.actorId === "medical_assistant_rui_park_v1");
+    const patientPlacement = placementNodes.find((n: Loose) => n.spec.actorId === "patient_jordan_cole_v1") as Loose;
+    const parentPlacement = placementNodes.find((n: Loose) => n.spec.actorId === "parent_lena_cole_v1") as Loose;
+    const maPlacement = placementNodes.find((n: Loose) => n.spec.actorId === "medical_assistant_rui_park_v1") as Loose;
 
     expect(patientPlacement).toBeDefined();
     expect(patientPlacement.spec.plantOffsetMeters).toEqual({ x: 0.4, y: 0, z: 0 });
@@ -270,22 +341,24 @@ describe("The factory resolves actor placement from the case, not from the actor
 
   it("(3) multi-case-runner staging_placement station passes authored plantOffsetMeters and supportSurface, not hardcoded 0/posture", async () => {
     const { runPlacementStage } = await import("../dark-factory/multi-case-runner.js");
-
+    const { mkdtemp, readFile, rm } = await import("node:fs/promises");
+    const nodeOs = await import("node:os");
+    const nodePath = await import("node:path");
     // The staging_placement station currently hardcodes:
     //   supportSurface: placement.posture ?? "stretcher"
     //   plantOffsetMeters: 0
     // It must instead read the authored placement from the case and pass it through.
 
-    const stageDir = "/tmp/test-placement-stage";
-    const run = await runPlacementStage(clinicKneePainScenarioId, stageDir);
+    const stageDir = await mkdtemp(nodePath.join(nodeOs.tmpdir(), "openclinxr-placement-stage-"));
+    try {
+      const run = await runPlacementStage(clinicKneePainScenarioId, stageDir);
 
-    expect(run.row.classification).toBe("deterministic");
-    expect(run.row.artifactPaths.length).toBeGreaterThan(0);
+      expect(run.row.classification).toBe("deterministic");
+      expect(run.row.artifactPaths.length).toBeGreaterThan(0);
 
-    // Read the artifact and verify it carries the authored offsets
-    const { readFile } = await import("node:fs/promises");
-    const { join } = await import("node:path");
-    const artifact = JSON.parse(await readFile(join(stageDir, "placements.json"), "utf8")) as Loose;
+      // Read the artifact and verify it carries the authored offsets
+      const { join } = await import("node:path");
+      const artifact = JSON.parse(await readFile(join(stageDir, "placements.json"), "utf8")) as Loose;
 
     const patientRow = artifact.rows.find((r: Loose) => r.actorId === "patient_jordan_cole_v1");
     const parentRow = artifact.rows.find((r: Loose) => r.actorId === "parent_lena_cole_v1");
@@ -306,11 +379,14 @@ describe("The factory resolves actor placement from the case, not from the actor
     // The hardcoded values must NOT appear
     expect(patientRow.placement.plantOffsetMeters).not.toEqual({ x: 0, y: 0, z: 0 });
     expect(patientRow.placement.supportSurface).not.toBe("stretcher");
+    } finally {
+      await rm(stageDir, { recursive: true, force: true });
+    }
   });
 
   it("(4) headingRadians is populated when the case authors a facing, undefined when absent (never 0)", async () => {
     const mod = await import("../../../packages/openclinxr/asset-registry/src/actor-placement.js");
-    const fn = (mod as Record<string, unknown>)["generatedActorPlacement"];
+    const fn = (mod as Record<string, unknown>)["generatedActorPlacement"] as Loose;
     expect(typeof fn).toBe("function");
 
     const patient = makeActor("patient_jordan_cole_v1", "patient");
@@ -322,8 +398,8 @@ describe("The factory resolves actor placement from the case, not from the actor
       parent_lena_cole_v1: { plantOffsetMeters: { x: -0.55, y: 0, z: 0.2 }, supportSurface: "chair" },
     };
 
-    const patientPlacement = fn(patient, 0, { scenarioId: clinicKneePainScenarioId, casePlacements: casePlacementsNoHeading });
-    const parentPlacement = fn(parent, 1, { scenarioId: clinicKneePainScenarioId, casePlacements: casePlacementsNoHeading });
+    const patientPlacement = (fn as Loose)(patient, 0, { scenarioId: clinicKneePainScenarioId, casePlacements: casePlacementsNoHeading });
+    const parentPlacement = (fn as Loose)(parent, 1, { scenarioId: clinicKneePainScenarioId, casePlacements: casePlacementsNoHeading });
 
     // headingRadians must be undefined when the case does not author a facing
     // Zero is a real heading (facing +X); undefined means "not authored"
@@ -336,8 +412,8 @@ describe("The factory resolves actor placement from the case, not from the actor
       parent_lena_cole_v1: { plantOffsetMeters: { x: -0.55, y: 0, z: 0.2 }, supportSurface: "chair" },
     };
 
-    const patientWithHeading = fn(patient, 0, { scenarioId: clinicKneePainScenarioId, casePlacements: casePlacementsWithHeading });
-    const parentWithoutHeading = fn(parent, 1, { scenarioId: clinicKneePainScenarioId, casePlacements: casePlacementsWithHeading });
+    const patientWithHeading = (fn as Loose)(patient, 0, { scenarioId: clinicKneePainScenarioId, casePlacements: casePlacementsWithHeading });
+    const parentWithoutHeading = (fn as Loose)(parent, 1, { scenarioId: clinicKneePainScenarioId, casePlacements: casePlacementsWithHeading });
 
     // Actor with authored heading gets the value
     expect(patientWithHeading.headingRadians).toBe(Math.PI / 2);
