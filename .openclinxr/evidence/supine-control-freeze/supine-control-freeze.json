@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "openclinxr.supine-control-freeze.v1",
+  "scenarioId": "ward_delirium_med_rec_v1",
+  "assetSha256ByPath": {
+    "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": "daba523993fe0d72d13cf7b1d3e1613eaffecd906ae843af04449c914ffe6faf",
+    "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "c7def44bda87d5d115d53c794f546ec6bf1b5ae655865f00df4262cdf538e6ab",
+    "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": "e8896ed8905266c54ec87191a50c48e73e755f9b887a527190b0ed7fba5bca27",
+    "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "a5947b503c97306fcc9cfffb43d97c3741b9aa7d5d990c6f98158a88a1606dd4",
+    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "6b6d32eece3bbf72f667e470a3a19e453dd1bb5a4798b8a66a534d5b03d05ef8",
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb",
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
+    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "39314ddcfdb192b6ec798301e3dcd17c2dde6f083ee67c6db293e79ab2a187b5"
+  },
+  "staged": {
+    "posture": "supine",
+    "supportSurfaceCount": 1,
+    "clearanceAboveDeckMeters": 0.25
+  },
+  "producedFrom": {
+    "observedBy": "ph20-evidence asset-pipeline lane",
+    "observedAtIso": "2026-10-22T10:28:49.934Z",
+    "reason": "ph20 regeneration of never-produced cited record from current asset bytes",
+    "byteCountByPath": {
+      "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9220256,
+      "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9308164,
+      "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": 9000208,
+      "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 20660044,
+      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 10752728,
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 8775848,
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 9618436,
+      "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 10554532
+    }
+  }
+}

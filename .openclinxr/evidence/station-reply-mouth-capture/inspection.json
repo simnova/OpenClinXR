@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "openclinxr.ui-xr.station-reply-mouth-capture.v1",
+  "generatedAt": "2026-09-20T00:14:16.300Z",
+  "claimScope": "mouth_motion_vs_control_live_station_reply (morph-probe applyMouthOpen is NOT this treatment)",
+  "actor": "parent_tara_johnson_v1",
+  "traceTag": "parent_communication",
+  "url": "http://127.0.0.1:60821/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1&openclinxrCaptureMode=face-detail&openclinxrAcceleratedExam=1",
+  "framing": {
+    "targetMeshName": "mpfb_peds_anxious_parent_body_1",
+    "targetWorldPosition": {
+      "x": -0.55,
+      "y": -0.4208454787499999,
+      "z": -0.75
+    },
+    "headNdc": {
+      "x": 0,
+      "y": 0
+    },
+    "subjectInFrame": true,
+    "aimJointName": "jaw",
+    "aimWorldY": 1.124378725359764,
+    "crownApexWorldY": 1.2750615446112707,
+    "anchorWorldPosition": {
+      "x": -0.580474264166536,
+      "y": 1.124378725359764,
+      "z": -0.7468782183430259
+    },
+    "cameraWorldPosition": {
+      "x": -0.540474264166536,
+      "y": 1.164378725359764,
+      "z": -0.02687821834302595
+    }
+  },
+  "control": {
+    "pngPath": "/Users/patrick/.grok/worktrees/src-openclinxr/true-station-reply-capture/docs/assets/speaking-sync-station-reply-control.png",
+    "bytes": 556334,
+    "sha256": "6820c7b82dc2044f0ed2f803b40ba42ccd035250ba52c70bac674b9d272ce75a",
+    "mouthOpenInfluence": 0
+  },
+  "treatment": {
+    "pngPath": "/Users/patrick/.grok/worktrees/src-openclinxr/true-station-reply-capture/docs/assets/speaking-sync-station-reply-treatment.png",
+    "bytes": 532634,
+    "sha256": "b32841d1fb6471b13c9b467bfcc05cbdef878f60cff60c5209bcd175cf433ec5",
+    "mouthOpenInfluence": 0,
+    "appliedMeshes": 0,
+    "targetWeight": 1,
+    "treatmentDriver": "triggerStationReply"
+  },
+  "producer": "tools/openclinxr/evidence/ui-xr-station-reply-mouth-capture.ts",
+  "notEvidenceFor": [
+    "clinician_realism",
+    "quest_readiness",
+    "audible_tts",
+    "production_phoneme_timing",
+    "clinical_validity",
+    "scoring_validity",
+    "morph_probe_applyMouthOpen"
+  ]
+}

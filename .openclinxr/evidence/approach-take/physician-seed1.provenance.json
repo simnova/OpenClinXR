@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "openclinxr.kimodo-approach-take-provenance.v1",
+  "generatedAt": "2026-10-11T05:41:08.444601+00:00",
+  "clipName": "openclinxr_retarget_kimodo_approach_rb195b40700549c99_physician_seed1",
+  "targetActor": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+  "outputGlb": "/Volumes/files/src/openclinxr-wt/approach-take/.openclinxr/evidence/approach-take/physician-seed1.glb",
+  "routeHash": "b195b40700549c9977dcacb8caf538290bd09fa089976ad1bcd50d9fabd2af00",
+  "routeHashShort": "b195b40700549c99",
+  "route": {
+    "points": [
+      [
+        -1.95,
+        1.72
+      ],
+      [
+        -1.6575,
+        1.575
+      ],
+      [
+        -1.365,
+        1.43
+      ],
+      [
+        -1.0725,
+        1.285
+      ],
+      [
+        -0.78,
+        1.14
+      ]
+    ],
+    "arrivalHeadingRadians": 3.141592653589793
+  },
+  "constraintArrivalHeadingRadians": 2.0310192919565173,
+  "noBakedTurn": true,
+  "constraintScale": {
+    "factor": 1.0852678484877107,
+    "scaledRouteLengthM": 1.4172201975838616,
+    "scaledWalkSpeedMps": 1.117825883942342,
+    "derivation": "1/hipHeightRatio from the same rig's pilot bind report (unscaled seed-1 take), or 1.0 when unscaled"
+  },
+  "bindYawMirrorCompensated": false,
+  "generation": {
+    "generatorRepo": "https://github.com/nv-tlabs/kimodo.git",
+    "generatorCommit": "58e781898b3d7e328a676a75d3e338c45dce3ad9",
+    "checkpoint": {
+      "modelRepoId": "nvidia/Kimodo-SOMA-RP-v1.1",
+      "resolved": true,
+      "snapshotHash": "6c9233af1180b8151e3c4703477104af5dce9dd5",
+      "weightFile": "model.safetensors",
+      "weightBlobSha256": "ef0a0ca45a6089ab4532dde609785771ae3f38755b4ae6cf314b0213e07cd4a3"
+    },
+    "textEncoder": {
+      "preset": "llm2vec",
+      "models": {
+        "base_model_name_or_path": "McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp",
+        "peft_model_name_or_path": "McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp-supervised"
+      },
+      "resolvedFrom": "kimodo/model/load_model.py:DEFAULT_TEXT_ENCODER, or the TEXT_ENCODER env var if set"
+    },
+    "prompt": "A person stands still, then walks forward, slows down and stops, and stands still with both feet planted.",
+    "seed": 1,
+    "diffusionSteps": 20,
+    "constraintProfile": "stand, cosine ease-in, cruise, cosine ease-out, in-place turn to arrival delta, hold (build_approach_constraints.py)",
+    "constraintProfileDetail": {
+      "takeFrame": {
+        "originWorld": [
+          -1.95,
+          1.72
+        ],
+        "tangent0Radians": 2.031019291649815,
+        "arrivalDeltaRadians": 3.0670221917716844e-10,
+        "requestedArrivalDeltaRadians": 3.0670221917716844e-10,
+        "bindYawMirrorCompensated": false,
+        "endTangentRelRadians": 0.0
+      },
+      "walkSpeedMps": 1.117825883942342,
+      "routeLengthM": 1.4172201975838616,
+      "stand0Seconds": 1.0,
+      "easeInSeconds": 0.8,
+      "cruiseSeconds": 0.36783626854802953,
+      "decelSeconds": 1.0,
+      "turnSeconds": 0.0,
+      "holdSeconds": 1.5,
+      "durationSeconds": 4.6678362685480295,
+      "boundaries": {
+        "stand0End": 1.0,
+        "easeInEnd": 1.8,
+        "cruiseEnd": 2.1678362685480295,
+        "decelEnd": 3.1678362685480295,
+        "turnEnd": 3.1678362685480295,
+        "end": 4.6678362685480295
+      },
+      "fps": 30.0,
+      "numFrames": 140
+    }
+  },
+  "bind": {
+    "station": "packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_from_positions_stage.py",
+    "stripHorizontalRootMotion": false,
+    "bakeTimeFootLock": false,
+    "bakeTimeFootLockLog": "no foot_lock log line (no --foot-contacts passed, as specified)",
+    "yawCorrection": {
+      "naturalYawDeg": 0.44665952890201766,
+      "targetYawDeg": -0.86,
+      "appliedCorrectionDeg": 0.0,
+      "rebindForYaw": false,
+      "correctedYawDeg": 0.44665952890201766,
+      "measuredWith": "net Hips root-travel chord over stand0->decelEnd (Blender XY -> glTF-convention yaw atan2(dx,-dy))",
+      "spanSeconds": [
+        1.0,
+        3.1678362685480295
+      ]
+    }
+  },
+  "graft": {
+    "tool": "tools/openclinxr/factory/graft-bound-clip.ts",
+    "removedClips": [],
+    "graftedJoints": 137,
+    "geometryParity": {
+      "primitives": 18,
+      "trianglesBefore": 41718,
+      "trianglesAfter": 41718,
+      "positionBytesIdentical": true
+    }
+  },
+  "stationCommit": "ea04c1194606665be87f68b1dfc99fb2983d5fed",
+  "claims": {
+    "evidenceFor": [
+      "a deterministic, scripted (actor, route, heading, prompt, seed) -> bound whole-approach take pipeline with root motion kept",
+      "the take's recorded route hash (sha256 of the mm-rounded polyline + arrival heading)"
+    ],
+    "notEvidenceFor": [
+      "gait realism",
+      "clinical plausibility",
+      "Quest performance",
+      "foot-plant bar passage (see the assay report for this take)",
+      "whether Kimodo honored the arrival heading (see the sweep row endFacingErrorDeg)",
+      "production readiness of the target actor GLB this was grafted onto (scratch output only)"
+    ]
+  }
+}

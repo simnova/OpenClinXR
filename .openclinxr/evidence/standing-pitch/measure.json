@@ -1,0 +1,1204 @@
+{
+  "schemaVersion": "openclinxr.standing-pitch.v1",
+  "measuredAt": "2026-10-17T11:50:27.527Z",
+  "definition": "floor[foot] = min toe-joint world Y over the run (frames + preWalk); heelAbove = heelContactY - floor (heelContact = heel-sole world from the foot-bone-local point); toeAbove = toeY - floor; pitchDeg = atan2(heelContactY - toeY, heelToeXZ) in degrees, signed, + = heel up (plantarflexed); DEFECT iff at arrival either foot has heelAbove > 0.015 m while toeAbove <= 0.01 m, or pitchDeg > 8.",
+  "bars": {
+    "heelLiftM": 0.015,
+    "toeDownM": 0.01,
+    "pitchDeg": 8
+  },
+  "configs": {
+    "default": {
+      "query": "steppingTurn=1",
+      "nRuns": 3,
+      "runs": [
+        {
+          "file": "default:sc05-run0.json",
+          "urlQuery": "steppingTurn=1",
+          "floors": {
+            "left": 0.005317511507609132,
+            "right": 0.0051142486190963315
+          },
+          "idle": {
+            "frameLabel": "pre0:phase=walking",
+            "left": {
+              "heelContactY": 0.013507427207167924,
+              "heelAboveFloorM": 0.008189915699558792,
+              "toeY": 0.06563550257884594,
+              "toeAboveFloorM": 0.06031799107123681,
+              "ankleY": 0.07240182914167695,
+              "ankleAboveFloorM": 0.06708431763406782,
+              "heelToeDxzM": 0.1081676052185781,
+              "pitchDeg": -25.73032259732049
+            },
+            "right": {
+              "heelContactY": 0.11806027464183257,
+              "heelAboveFloorM": 0.11294602602273623,
+              "toeY": 0.0824205521911699,
+              "toeAboveFloorM": 0.07730630357207356,
+              "ankleY": 0.16888060222503296,
+              "ankleAboveFloorM": 0.1637663536059366,
+              "heelToeDxzM": 0.114669234845426,
+              "pitchDeg": 17.265483523300414
+            }
+          },
+          "midStance": {
+            "frameLabel": "midStance L=step3 R=step15",
+            "left": {
+              "heelContactY": 0.04938549459937176,
+              "heelAboveFloorM": 0.04406798309176263,
+              "toeY": 0.021605216947268233,
+              "toeAboveFloorM": 0.0162877054396591,
+              "ankleY": 0.10246145356891032,
+              "ankleAboveFloorM": 0.09714394206130118,
+              "heelToeDxzM": 0.11677401213753033,
+              "pitchDeg": 13.381790432988527
+            },
+            "right": {
+              "heelContactY": 0.005086204858829976,
+              "heelAboveFloorM": -0.000028043760266355244,
+              "toeY": 0.01448302409361995,
+              "toeAboveFloorM": 0.009368775474523618,
+              "ankleY": 0.06261520382272753,
+              "ankleAboveFloorM": 0.0575009552036312,
+              "heelToeDxzM": 0.11970708109444696,
+              "pitchDeg": -4.4884252310370725
+            }
+          },
+          "turnEnd": {
+            "frameLabel": "step24:phase=walking",
+            "left": {
+              "heelContactY": 0.19179238423068015,
+              "heelAboveFloorM": 0.186474872723071,
+              "toeY": 0.10251657581100941,
+              "toeAboveFloorM": 0.09719906430340028,
+              "ankleY": 0.21899217130648313,
+              "ankleAboveFloorM": 0.213674659798874,
+              "heelToeDxzM": 0.07910130689729508,
+              "pitchDeg": 48.457999674363585
+            },
+            "right": {
+              "heelContactY": 0.12863972724796188,
+              "heelAboveFloorM": 0.12352547862886555,
+              "toeY": 0.08074057479005231,
+              "toeAboveFloorM": 0.07562632617095598,
+              "ankleY": 0.17459411405649897,
+              "ankleAboveFloorM": 0.16947986543740262,
+              "heelToeDxzM": 0.10987081460003859,
+              "pitchDeg": 23.555219870998332
+            }
+          },
+          "arrival": {
+            "frameLabel": "step191:phase=arrived",
+            "left": {
+              "heelContactY": 0.05590293037299285,
+              "heelAboveFloorM": 0.050585418865383716,
+              "toeY": 0.005686562650080371,
+              "toeAboveFloorM": 0.0003690511424712384,
+              "ankleY": 0.10211969914181612,
+              "ankleAboveFloorM": 0.09680218763420699,
+              "heelToeDxzM": 0.108792221020536,
+              "pitchDeg": 24.777126162681654
+            },
+            "right": {
+              "heelContactY": 0.03398435629024607,
+              "heelAboveFloorM": 0.02887010767114974,
+              "toeY": 0.006207284157077039,
+              "toeAboveFloorM": 0.0010930355379807077,
+              "ankleY": 0.08627399914406175,
+              "ankleAboveFloorM": 0.08115975052496542,
+              "heelToeDxzM": 0.11674395552068771,
+              "pitchDeg": 13.38362279125711
+            }
+          },
+          "arrivalDefect": [
+            {
+              "foot": "left",
+              "heelAboveFloorM": 0.050585418865383716,
+              "toeAboveFloorM": 0.0003690511424712384,
+              "pitchDeg": 24.777126162681654,
+              "heelLifted": true,
+              "pitchHigh": true
+            },
+            {
+              "foot": "right",
+              "heelAboveFloorM": 0.02887010767114974,
+              "toeAboveFloorM": 0.0010930355379807077,
+              "pitchDeg": 13.38362279125711,
+              "heelLifted": true,
+              "pitchHigh": true
+            }
+          ],
+          "defect": true,
+          "nullContact": false
+        },
+        {
+          "file": "default:sc05-run1.json",
+          "urlQuery": "steppingTurn=1",
+          "floors": {
+            "left": 0.005161993012545094,
+            "right": 0.004762119535425699
+          },
+          "idle": {
+            "frameLabel": "pre1:phase=walking",
+            "left": {
+              "heelContactY": 0.0048139938098348545,
+              "heelAboveFloorM": -0.0003479992027102391,
+              "toeY": null,
+              "toeAboveFloorM": null,
+              "ankleY": 0.06354943495056573,
+              "ankleAboveFloorM": 0.05838744193802063,
+              "heelToeDxzM": null,
+              "pitchDeg": null
+            },
+            "right": {
+              "heelContactY": -0.0019042025064108237,
+              "heelAboveFloorM": -0.006666322041836523,
+              "toeY": null,
+              "toeAboveFloorM": null,
+              "ankleY": 0.056826932764645455,
+              "ankleAboveFloorM": 0.052064813229219756,
+              "heelToeDxzM": null,
+              "pitchDeg": null
+            }
+          },
+          "midStance": {
+            "frameLabel": "midStance L=step3 R=step15",
+            "left": {
+              "heelContactY": 0.048995060792875175,
+              "heelAboveFloorM": 0.04383306778033008,
+              "toeY": 0.021108591412812447,
+              "toeAboveFloorM": 0.015946598400267353,
+              "ankleY": 0.1018497491472482,
+              "ankleAboveFloorM": 0.09668775613470311,
+              "heelToeDxzM": 0.11672620842277862,
+              "pitchDeg": 13.43639409494498
+            },
+            "right": {
+              "heelContactY": 0.005140117783793398,
+              "heelAboveFloorM": 0.00037799824836769885,
+              "toeY": 0.014634288813888792,
+              "toeAboveFloorM": 0.009872169278463093,
+              "ankleY": 0.06269709136381488,
+              "ankleAboveFloorM": 0.05793497182838918,
+              "heelToeDxzM": 0.11969909501578001,
+              "pitchDeg": -4.535034002037461
+            }
+          },
+          "turnEnd": {
+            "frameLabel": "step24:phase=walking",
+            "left": {
+              "heelContactY": 0.19164147485132926,
+              "heelAboveFloorM": 0.18647948183878416,
+              "toeY": 0.10223619171991373,
+              "toeAboveFloorM": 0.09707419870736864,
+              "ankleY": 0.21891200755167872,
+              "ankleAboveFloorM": 0.21375001453913361,
+              "heelToeDxzM": 0.07914476078708443,
+              "pitchDeg": 48.48359472181532
+            },
+            "right": {
+              "heelContactY": 0.12861331118987723,
+              "heelAboveFloorM": 0.12385119165445153,
+              "toeY": 0.08078313049982729,
+              "toeAboveFloorM": 0.07602101096440159,
+              "ankleY": 0.1747667861229276,
+              "ankleAboveFloorM": 0.1700046665875019,
+              "heelToeDxzM": 0.10993972289128758,
+              "pitchDeg": 23.511845388503826
+            }
+          },
+          "arrival": {
+            "frameLabel": "step191:phase=arrived",
+            "left": {
+              "heelContactY": 0.0561835207927219,
+              "heelAboveFloorM": 0.05102152778017681,
+              "toeY": 0.005743504882794556,
+              "toeAboveFloorM": 0.0005815118702494626,
+              "ankleY": 0.10246707623645693,
+              "ankleAboveFloorM": 0.09730508322391183,
+              "heelToeDxzM": 0.10874158278569494,
+              "pitchDeg": 24.88432880466699
+            },
+            "right": {
+              "heelContactY": 0.03318649774708635,
+              "heelAboveFloorM": 0.028424378211660654,
+              "toeY": 0.005220640830975273,
+              "toeAboveFloorM": 0.0004585212955495743,
+              "ankleY": 0.08556069722479898,
+              "ankleAboveFloorM": 0.08079857768937328,
+              "heelToeDxzM": 0.11671421412744826,
+              "pitchDeg": 13.4745863701896
+            }
+          },
+          "arrivalDefect": [
+            {
+              "foot": "left",
+              "heelAboveFloorM": 0.05102152778017681,
+              "toeAboveFloorM": 0.0005815118702494626,
+              "pitchDeg": 24.88432880466699,
+              "heelLifted": true,
+              "pitchHigh": true
+            },
+            {
+              "foot": "right",
+              "heelAboveFloorM": 0.028424378211660654,
+              "toeAboveFloorM": 0.0004585212955495743,
+              "pitchDeg": 13.4745863701896,
+              "heelLifted": true,
+              "pitchHigh": true
+            }
+          ],
+          "defect": true,
+          "nullContact": false
+        },
+        {
+          "file": "default:sc05-run2.json",
+          "urlQuery": "steppingTurn=1",
+          "floors": {
+            "left": 0.005359070119164547,
+            "right": 0.005163166734878696
+          },
+          "idle": {
+            "frameLabel": "pre1:phase=walking",
+            "left": {
+              "heelContactY": 0.013528856866235513,
+              "heelAboveFloorM": 0.008169786747070966,
+              "toeY": 0.06570034165958602,
+              "toeAboveFloorM": 0.06034127154042147,
+              "ankleY": 0.07246783326284298,
+              "ankleAboveFloorM": 0.06710876314367843,
+              "heelToeDxzM": 0.10816615117903348,
+              "pitchDeg": -25.74928105403812
+            },
+            "right": {
+              "heelContactY": 0.11813176595555903,
+              "heelAboveFloorM": 0.11296859922068034,
+              "toeY": 0.08246861160980128,
+              "toeAboveFloorM": 0.07730544487492258,
+              "ankleY": 0.16899104834076914,
+              "ankleAboveFloorM": 0.16382788160589046,
+              "heelToeDxzM": 0.11467000659682669,
+              "pitchDeg": 17.27605020551416
+            }
+          },
+          "midStance": {
+            "frameLabel": "midStance L=step3 R=step15",
+            "left": {
+              "heelContactY": 0.04940260265408038,
+              "heelAboveFloorM": 0.04404353253491583,
+              "toeY": 0.021642386102745242,
+              "toeAboveFloorM": 0.016283315983580696,
+              "ankleY": 0.10251674836204172,
+              "ankleAboveFloorM": 0.09715767824287717,
+              "heelToeDxzM": 0.1167825151765153,
+              "pitchDeg": 13.371535532527155
+            },
+            "right": {
+              "heelContactY": 0.005072864680738649,
+              "heelAboveFloorM": -0.00009030205414004705,
+              "toeY": 0.014476613902114709,
+              "toeAboveFloorM": 0.009313447167236012,
+              "ankleY": 0.06261424246306185,
+              "ankleAboveFloorM": 0.05745107572818316,
+              "heelToeDxzM": 0.11970675386858753,
+              "pitchDeg": -4.491734052022764
+            }
+          },
+          "turnEnd": {
+            "frameLabel": "step24:phase=walking",
+            "left": {
+              "heelContactY": 0.19184900228085844,
+              "heelAboveFloorM": 0.1864899321616939,
+              "toeY": 0.10256788690159743,
+              "toeAboveFloorM": 0.09720881678243289,
+              "ankleY": 0.21904818970543366,
+              "ankleAboveFloorM": 0.21368911958626913,
+              "heelToeDxzM": 0.07909798739440485,
+              "pitchDeg": 48.460883668169835
+            },
+            "right": {
+              "heelContactY": 0.128655752281329,
+              "heelAboveFloorM": 0.1234925855464503,
+              "toeY": 0.08074459080043846,
+              "toeAboveFloorM": 0.07558142406555976,
+              "ankleY": 0.17460163375438215,
+              "ankleAboveFloorM": 0.16943846701950344,
+              "heelToeDxzM": 0.10986612523925704,
+              "pitchDeg": 23.56137802737247
+            }
+          },
+          "arrival": {
+            "frameLabel": "step191:phase=arrived",
+            "left": {
+              "heelContactY": 0.055910535728352875,
+              "heelAboveFloorM": 0.05055146560918833,
+              "toeY": 0.005705117672712923,
+              "toeAboveFloorM": 0.0003460475535483759,
+              "ankleY": 0.1021294279673709,
+              "ankleAboveFloorM": 0.09677035784820635,
+              "heelToeDxzM": 0.10879701094520468,
+              "pitchDeg": 24.77141242366953
+            },
+            "right": {
+              "heelContactY": 0.03411708557422796,
+              "heelAboveFloorM": 0.028953918839349266,
+              "toeY": 0.006353740488286921,
+              "toeAboveFloorM": 0.001190573753408225,
+              "ankleY": 0.0864108896325878,
+              "ankleAboveFloorM": 0.08124772289770911,
+              "heelToeDxzM": 0.11674716873508471,
+              "pitchDeg": 13.376891651343028
+            }
+          },
+          "arrivalDefect": [
+            {
+              "foot": "left",
+              "heelAboveFloorM": 0.05055146560918833,
+              "toeAboveFloorM": 0.0003460475535483759,
+              "pitchDeg": 24.77141242366953,
+              "heelLifted": true,
+              "pitchHigh": true
+            },
+            {
+              "foot": "right",
+              "heelAboveFloorM": 0.028953918839349266,
+              "toeAboveFloorM": 0.001190573753408225,
+              "pitchDeg": 13.376891651343028,
+              "heelLifted": true,
+              "pitchHigh": true
+            }
+          ],
+          "defect": true,
+          "nullContact": false
+        }
+      ],
+      "meanArrival": {
+        "left": {
+          "heelAboveFloorM": 0.05071947075158295,
+          "toeAboveFloorM": 0.0004322035220896923,
+          "pitchDeg": 24.81095579700606,
+          "ankleAboveFloorM": 0.09695920956877506
+        },
+        "right": {
+          "heelAboveFloorM": 0.02874946824071989,
+          "toeAboveFloorM": 0.0009140435289795024,
+          "pitchDeg": 13.411700270929913,
+          "ankleAboveFloorM": 0.08106868370401593
+        }
+      },
+      "meanIdle": {
+        "left": {
+          "heelAboveFloorM": 0.0053372344146398396,
+          "toeAboveFloorM": 0.06032963130582914,
+          "pitchDeg": -25.739801825679308,
+          "ankleAboveFloorM": 0.06419350757192228
+        },
+        "right": {
+          "heelAboveFloorM": 0.07308276773386002,
+          "toeAboveFloorM": 0.07730587422349808,
+          "pitchDeg": 17.270766864407285,
+          "ankleAboveFloorM": 0.1265530161470156
+        }
+      },
+      "defectRuns": 3
+    },
+    "plan-only": {
+      "query": "steppingTurn=1&footstepPlan=1&fixedClock=1",
+      "nRuns": 3,
+      "runs": [
+        {
+          "file": "plan-only:sc05-run0.json",
+          "urlQuery": "steppingTurn=1&footstepPlan=1&fixedClock=1",
+          "floors": {
+            "left": 0.004267990248967277,
+            "right": 0.005510447574679098
+          },
+          "idle": {
+            "frameLabel": "pre1:phase=walking",
+            "left": {
+              "heelContactY": 0.06385904120653058,
+              "heelAboveFloorM": 0.0595910509575633,
+              "toeY": 0.04708012974912336,
+              "toeAboveFloorM": 0.04281213950015608,
+              "ankleY": 0.12001459779669205,
+              "ankleAboveFloorM": 0.11574660754772477,
+              "heelToeDxzM": 0.7863359511559872,
+              "pitchDeg": 1.2223973006137434
+            },
+            "right": {
+              "heelContactY": 0.11233486138895299,
+              "heelAboveFloorM": 0.10682441381427389,
+              "toeY": 0.05383596320083292,
+              "toeAboveFloorM": 0.04832551562615382,
+              "ankleY": 0.15680949322308027,
+              "ankleAboveFloorM": 0.1512990456484012,
+              "heelToeDxzM": 0.8265836587108433,
+              "pitchDeg": 4.048181672682337
+            }
+          },
+          "midStance": {
+            "frameLabel": "midStance L=step23 R=step39",
+            "left": {
+              "heelContactY": 0.01495641008908799,
+              "heelAboveFloorM": 0.010688419840120714,
+              "toeY": 0.015493987263694282,
+              "toeAboveFloorM": 0.011225997014727006,
+              "ankleY": 0.0733597579148435,
+              "ankleAboveFloorM": 0.06909176766587623,
+              "heelToeDxzM": 0.14054650077735867,
+              "pitchDeg": -0.21914991048289761
+            },
+            "right": {
+              "heelContactY": 0.015656886758677102,
+              "heelAboveFloorM": 0.010146439183998004,
+              "toeY": 0.01100483881694838,
+              "toeAboveFloorM": 0.005494391242269282,
+              "ankleY": 0.07273860274049104,
+              "ankleAboveFloorM": 0.06722815516581195,
+              "heelToeDxzM": 0.12027124467155709,
+              "pitchDeg": 2.2150756563826204
+            }
+          },
+          "turnEnd": {
+            "frameLabel": "step44:phase=walking",
+            "left": {
+              "heelContactY": 0.1422240870379373,
+              "heelAboveFloorM": 0.13795609678897003,
+              "toeY": 0.0609621997755886,
+              "toeAboveFloorM": 0.056694209526621325,
+              "ankleY": 0.17464621784103052,
+              "ankleAboveFloorM": 0.17037822759206322,
+              "heelToeDxzM": 0.08940334566645258,
+              "pitchDeg": 42.26881784254068
+            },
+            "right": {
+              "heelContactY": 0.05746936853691585,
+              "heelAboveFloorM": 0.051958920962236754,
+              "toeY": 0.04079098898473149,
+              "toeAboveFloorM": 0.03528054141005239,
+              "ankleY": 0.1121977590029565,
+              "ankleAboveFloorM": 0.1066873114282774,
+              "heelToeDxzM": 0.12063364803723134,
+              "pitchDeg": 7.871609159151494
+            }
+          },
+          "arrival": {
+            "frameLabel": "step210:phase=arrived",
+            "left": {
+              "heelContactY": 0.09777967652507898,
+              "heelAboveFloorM": 0.0935116862761117,
+              "toeY": 0.004966500158156403,
+              "toeAboveFloorM": 0.0006985099091891267,
+              "ankleY": 0.12268213530772049,
+              "ankleAboveFloorM": 0.11841414505875321,
+              "heelToeDxzM": 0.07504904427156597,
+              "pitchDeg": 51.040880499745874
+            },
+            "right": {
+              "heelContactY": 0.034767410784447735,
+              "heelAboveFloorM": 0.029256963209768637,
+              "toeY": 0.010233984645685187,
+              "toeAboveFloorM": 0.00472353707100609,
+              "ankleY": 0.08799827741024191,
+              "ankleAboveFloorM": 0.08248782983556281,
+              "heelToeDxzM": 0.11749832119245897,
+              "pitchDeg": 11.793807991032036
+            }
+          },
+          "arrivalDefect": [
+            {
+              "foot": "left",
+              "heelAboveFloorM": 0.0935116862761117,
+              "toeAboveFloorM": 0.0006985099091891267,
+              "pitchDeg": 51.040880499745874,
+              "heelLifted": true,
+              "pitchHigh": true
+            },
+            {
+              "foot": "right",
+              "heelAboveFloorM": 0.029256963209768637,
+              "toeAboveFloorM": 0.00472353707100609,
+              "pitchDeg": 11.793807991032036,
+              "heelLifted": true,
+              "pitchHigh": true
+            }
+          ],
+          "defect": true,
+          "nullContact": false
+        },
+        {
+          "file": "plan-only:sc05-run1.json",
+          "urlQuery": "steppingTurn=1&footstepPlan=1&fixedClock=1",
+          "floors": {
+            "left": 0.004052863498012649,
+            "right": 0.006282442019027043
+          },
+          "idle": {
+            "frameLabel": "pre1:phase=walking",
+            "left": {
+              "heelContactY": 0.06216983808970298,
+              "heelAboveFloorM": 0.05811697459169033,
+              "toeY": 0.04571776091050393,
+              "toeAboveFloorM": 0.041664897412491284,
+              "ankleY": 0.11825814231814794,
+              "ankleAboveFloorM": 0.11420527882013529,
+              "heelToeDxzM": 0.11897057573359111,
+              "pitchDeg": 7.873323656232156
+            },
+            "right": {
+              "heelContactY": 0.11306974124037995,
+              "heelAboveFloorM": 0.10678729922135291,
+              "toeY": 0.05503671797952585,
+              "toeAboveFloorM": 0.048754275960498805,
+              "ankleY": 0.15771669226541307,
+              "ankleAboveFloorM": 0.15143425024638602,
+              "heelToeDxzM": 0.10538192314505754,
+              "pitchDeg": 28.841242497307363
+            }
+          },
+          "midStance": {
+            "frameLabel": "midStance L=step24 R=step39",
+            "left": {
+              "heelContactY": 0.018532231405102177,
+              "heelAboveFloorM": 0.014479367907089528,
+              "toeY": 0.0192090104945018,
+              "toeAboveFloorM": 0.01515614699648915,
+              "ankleY": 0.07772962953520368,
+              "ankleAboveFloorM": 0.07367676603719103,
+              "heelToeDxzM": 0.1341127689837524,
+              "pitchDeg": -0.2891317256966599
+            },
+            "right": {
+              "heelContactY": 0.015848288224374965,
+              "heelAboveFloorM": 0.009565846205347922,
+              "toeY": 0.01122079400489355,
+              "toeAboveFloorM": 0.004938351985866507,
+              "ankleY": 0.07392310422158127,
+              "ankleAboveFloorM": 0.06764066220255423,
+              "heelToeDxzM": 0.1428376776454241,
+              "pitchDeg": 1.8555551503525667
+            }
+          },
+          "turnEnd": {
+            "frameLabel": "step44:phase=walking",
+            "left": {
+              "heelContactY": 0.14488179674939872,
+              "heelAboveFloorM": 0.14082893325138607,
+              "toeY": 0.06230332839385555,
+              "toeAboveFloorM": 0.0582504648958429,
+              "ankleY": 0.17790092633196308,
+              "ankleAboveFloorM": 0.17384806283395043,
+              "heelToeDxzM": 0.10083950398358413,
+              "pitchDeg": 39.31438633268015
+            },
+            "right": {
+              "heelContactY": 0.0582089679880228,
+              "heelAboveFloorM": 0.05192652596899576,
+              "toeY": 0.041300657847796615,
+              "toeAboveFloorM": 0.03501821582876957,
+              "ankleY": 0.11386063376669511,
+              "ankleAboveFloorM": 0.10757819174766807,
+              "heelToeDxzM": 0.1320879650307633,
+              "pitchDeg": 7.294644687534535
+            }
+          },
+          "arrival": {
+            "frameLabel": "step210:phase=arrived",
+            "left": {
+              "heelContactY": 0.09850673563211858,
+              "heelAboveFloorM": 0.09445387213410593,
+              "toeY": 0.004055107931624488,
+              "toeAboveFloorM": 0.000002244433611839347,
+              "ankleY": 0.1237747430129203,
+              "ankleAboveFloorM": 0.11972187951490765,
+              "heelToeDxzM": 0.07501817179863778,
+              "pitchDeg": 51.541653012071855
+            },
+            "right": {
+              "heelContactY": 0.03936411106393982,
+              "heelAboveFloorM": 0.033081669044912776,
+              "toeY": 0.014570831872783144,
+              "toeAboveFloorM": 0.0082883898537561,
+              "ankleY": 0.09368421631335697,
+              "ankleAboveFloorM": 0.08740177429432992,
+              "heelToeDxzM": 0.11753713079837674,
+              "pitchDeg": 11.911351085604867
+            }
+          },
+          "arrivalDefect": [
+            {
+              "foot": "left",
+              "heelAboveFloorM": 0.09445387213410593,
+              "toeAboveFloorM": 0.000002244433611839347,
+              "pitchDeg": 51.541653012071855,
+              "heelLifted": true,
+              "pitchHigh": true
+            },
+            {
+              "foot": "right",
+              "heelAboveFloorM": 0.033081669044912776,
+              "toeAboveFloorM": 0.0082883898537561,
+              "pitchDeg": 11.911351085604867,
+              "heelLifted": true,
+              "pitchHigh": true
+            }
+          ],
+          "defect": true,
+          "nullContact": false
+        },
+        {
+          "file": "plan-only:sc05-run2.json",
+          "urlQuery": "steppingTurn=1&footstepPlan=1&fixedClock=1",
+          "floors": {
+            "left": 0.00433553947048658,
+            "right": 0.005889872907674523
+          },
+          "idle": {
+            "frameLabel": "pre1:phase=walking",
+            "left": {
+              "heelContactY": 0.0638275714596131,
+              "heelAboveFloorM": 0.05949203198912652,
+              "toeY": 0.0470539747264858,
+              "toeAboveFloorM": 0.04271843525599922,
+              "ankleY": 0.12005542987328063,
+              "ankleAboveFloorM": 0.11571989040279405,
+              "heelToeDxzM": 1.1421976581808844,
+              "pitchDeg": 0.8413493189572405
+            },
+            "right": {
+              "heelContactY": 0.11252912656377101,
+              "heelAboveFloorM": 0.10663925365609649,
+              "toeY": 0.05398758279737409,
+              "toeAboveFloorM": 0.048097709889699566,
+              "ankleY": 0.1570765850968448,
+              "ankleAboveFloorM": 0.1511867121891703,
+              "heelToeDxzM": 1.1909081854512782,
+              "pitchDeg": 2.814226683438507
+            }
+          },
+          "midStance": {
+            "frameLabel": "midStance L=step23 R=step39",
+            "left": {
+              "heelContactY": 0.015007891326790201,
+              "heelAboveFloorM": 0.010672351856303622,
+              "toeY": 0.01555760249478498,
+              "toeAboveFloorM": 0.011222063024298401,
+              "ankleY": 0.07353660989334201,
+              "ankleAboveFloorM": 0.06920107042285543,
+              "heelToeDxzM": 0.14306111754954817,
+              "pitchDeg": -0.22015747819820813
+            },
+            "right": {
+              "heelContactY": 0.015633299182849586,
+              "heelAboveFloorM": 0.009743426275175063,
+              "toeY": 0.010963679410553755,
+              "toeAboveFloorM": 0.0050738065028792315,
+              "ankleY": 0.07280391615157658,
+              "ankleAboveFloorM": 0.06691404324390206,
+              "heelToeDxzM": 0.12301954239309833,
+              "pitchDeg": 2.1738100488259375
+            }
+          },
+          "turnEnd": {
+            "frameLabel": "step44:phase=walking",
+            "left": {
+              "heelContactY": 0.1425311804507212,
+              "heelAboveFloorM": 0.13819564098023462,
+              "toeY": 0.061157019471535984,
+              "toeAboveFloorM": 0.056821480001049404,
+              "ankleY": 0.17499925662491492,
+              "ankleAboveFloorM": 0.17066371715442835,
+              "heelToeDxzM": 0.09064122045375532,
+              "pitchDeg": 41.91626060041841
+            },
+            "right": {
+              "heelContactY": 0.05750644214221259,
+              "heelAboveFloorM": 0.051616569234538064,
+              "toeY": 0.040790260674595694,
+              "toeAboveFloorM": 0.03490038776692117,
+              "ankleY": 0.11230013277194925,
+              "ankleAboveFloorM": 0.10641025986427473,
+              "heelToeDxzM": 0.12187730216816084,
+              "pitchDeg": 7.809721533686145
+            }
+          },
+          "arrival": {
+            "frameLabel": "step210:phase=arrived",
+            "left": {
+              "heelContactY": 0.09784577196444416,
+              "heelAboveFloorM": 0.09351023249395758,
+              "toeY": 0.004911373030027408,
+              "toeAboveFloorM": 0.0005758335595408282,
+              "ankleY": 0.12278426846949805,
+              "ankleAboveFloorM": 0.11844872899901147,
+              "heelToeDxzM": 0.07505758427424088,
+              "pitchDeg": 51.07425293848541
+            },
+            "right": {
+              "heelContactY": 0.034622201351162035,
+              "heelAboveFloorM": 0.028732328443487512,
+              "toeY": 0.010084520148470374,
+              "toeAboveFloorM": 0.004194647240795851,
+              "ankleY": 0.08794443753710118,
+              "ankleAboveFloorM": 0.08205456462942666,
+              "heelToeDxzM": 0.11750498129651939,
+              "pitchDeg": 11.795146349131386
+            }
+          },
+          "arrivalDefect": [
+            {
+              "foot": "left",
+              "heelAboveFloorM": 0.09351023249395758,
+              "toeAboveFloorM": 0.0005758335595408282,
+              "pitchDeg": 51.07425293848541,
+              "heelLifted": true,
+              "pitchHigh": true
+            },
+            {
+              "foot": "right",
+              "heelAboveFloorM": 0.028732328443487512,
+              "toeAboveFloorM": 0.004194647240795851,
+              "pitchDeg": 11.795146349131386,
+              "heelLifted": true,
+              "pitchHigh": true
+            }
+          ],
+          "defect": true,
+          "nullContact": false
+        }
+      ],
+      "meanArrival": {
+        "left": {
+          "heelAboveFloorM": 0.09382526363472506,
+          "toeAboveFloorM": 0.0004255293007805981,
+          "pitchDeg": 51.218928816767715,
+          "ankleAboveFloorM": 0.11886158452422411
+        },
+        "right": {
+          "heelAboveFloorM": 0.030356986899389638,
+          "toeAboveFloorM": 0.005735524721852681,
+          "pitchDeg": 11.833435141922763,
+          "ankleAboveFloorM": 0.0839813895864398
+        }
+      },
+      "meanIdle": {
+        "left": {
+          "heelAboveFloorM": 0.05906668584612671,
+          "toeAboveFloorM": 0.04239849072288219,
+          "pitchDeg": 3.3123567586010463,
+          "ankleAboveFloorM": 0.11522392559021805
+        },
+        "right": {
+          "heelAboveFloorM": 0.10675032223057444,
+          "toeAboveFloorM": 0.0483925004921174,
+          "pitchDeg": 11.901216951142736,
+          "ankleAboveFloorM": 0.15130666936131917
+        }
+      },
+      "defectRuns": 3
+    },
+    "plan-footbase": {
+      "query": "steppingTurn=1&footstepPlan=1&fixedClock=1&footBase=1",
+      "nRuns": 3,
+      "runs": [
+        {
+          "file": "plan-footbase:sc05-run0.json",
+          "urlQuery": "steppingTurn=1&footstepPlan=1&fixedClock=1&footBase=1",
+          "floors": {
+            "left": 0.005282503360142368,
+            "right": 0.005641067948693804
+          },
+          "idle": {
+            "frameLabel": "pre1:phase=walking",
+            "left": {
+              "heelContactY": 0.06238268151657855,
+              "heelAboveFloorM": 0.057100178156436185,
+              "toeY": 0.050867048258969955,
+              "toeAboveFloorM": 0.045584544898827586,
+              "ankleY": 0.11957731290125814,
+              "ankleAboveFloorM": 0.11429480954111577,
+              "heelToeDxzM": 2.0604027341093483,
+              "pitchDeg": 0.32022395584425645
+            },
+            "right": {
+              "heelContactY": 0.11288465123375671,
+              "heelAboveFloorM": 0.10724358328506291,
+              "toeY": 0.11637752105163407,
+              "toeAboveFloorM": 0.11073645310294027,
+              "ankleY": 0.17229060822956224,
+              "ankleAboveFloorM": 0.16664954028086842,
+              "heelToeDxzM": 2.062653166578685,
+              "pitchDeg": -0.0970238287775567
+            }
+          },
+          "midStance": {
+            "frameLabel": "midStance L=step23 R=step39",
+            "left": {
+              "heelContactY": 0.017839673587276617,
+              "heelAboveFloorM": 0.012557170227134248,
+              "toeY": 0.017226941196030424,
+              "toeAboveFloorM": 0.011944437835888055,
+              "ankleY": 0.07619086609972081,
+              "ankleAboveFloorM": 0.07090836273957844,
+              "heelToeDxzM": 0.12008375724531192,
+              "pitchDeg": 0.2923515729226934
+            },
+            "right": {
+              "heelContactY": 0.029342315500982374,
+              "heelAboveFloorM": 0.02370124755228857,
+              "toeY": 0.01623371870339227,
+              "toeAboveFloorM": 0.010592650754698466,
+              "ankleY": 0.08519364057247156,
+              "ankleAboveFloorM": 0.07955257262377775,
+              "heelToeDxzM": 0.12738658656373417,
+              "pitchDeg": 5.875288214314663
+            }
+          },
+          "turnEnd": {
+            "frameLabel": "step44:phase=walking",
+            "left": {
+              "heelContactY": 0.1684732968782111,
+              "heelAboveFloorM": 0.16319079351806876,
+              "toeY": 0.06866166937359348,
+              "toeAboveFloorM": 0.06337916601345112,
+              "ankleY": 0.18787639944417886,
+              "ankleAboveFloorM": 0.18259389608403648,
+              "heelToeDxzM": 0.07693533558105708,
+              "pitchDeg": 52.37477243117723
+            },
+            "right": {
+              "heelContactY": 0.05512845894867838,
+              "heelAboveFloorM": 0.049487390999984573,
+              "toeY": 0.044964057096103266,
+              "toeAboveFloorM": 0.03932298914740946,
+              "ankleY": 0.11106487317171779,
+              "ankleAboveFloorM": 0.10542380522302398,
+              "heelToeDxzM": 0.1312580650774639,
+              "pitchDeg": 4.428050843677729
+            }
+          },
+          "arrival": {
+            "frameLabel": "step210:phase=arrived",
+            "left": {
+              "heelContactY": 0.09856125631600299,
+              "heelAboveFloorM": 0.09327875295586062,
+              "toeY": 0.005628877239710325,
+              "toeAboveFloorM": 0.0003463738795679572,
+              "ankleY": 0.12350007897896051,
+              "ankleAboveFloorM": 0.11821757561881814,
+              "heelToeDxzM": 0.07505877437738596,
+              "pitchDeg": 51.07320017028885
+            },
+            "right": {
+              "heelContactY": 0.03611721346139486,
+              "heelAboveFloorM": 0.03047614551270106,
+              "toeY": 0.011578222299952035,
+              "toeAboveFloorM": 0.005937154351258231,
+              "ankleY": 0.08943896809543703,
+              "ankleAboveFloorM": 0.08379790014674322,
+              "heelToeDxzM": 0.117504639526437,
+              "pitchDeg": 11.79579174548647
+            }
+          },
+          "arrivalDefect": [
+            {
+              "foot": "left",
+              "heelAboveFloorM": 0.09327875295586062,
+              "toeAboveFloorM": 0.0003463738795679572,
+              "pitchDeg": 51.07320017028885,
+              "heelLifted": true,
+              "pitchHigh": true
+            },
+            {
+              "foot": "right",
+              "heelAboveFloorM": 0.03047614551270106,
+              "toeAboveFloorM": 0.005937154351258231,
+              "pitchDeg": 11.79579174548647,
+              "heelLifted": true,
+              "pitchHigh": true
+            }
+          ],
+          "defect": true,
+          "nullContact": false
+        },
+        {
+          "file": "plan-footbase:sc05-run1.json",
+          "urlQuery": "steppingTurn=1&footstepPlan=1&fixedClock=1&footBase=1",
+          "floors": {
+            "left": 0.00509675104890342,
+            "right": 0.0060820971499045695
+          },
+          "idle": {
+            "frameLabel": "pre1:phase=walking",
+            "left": {
+              "heelContactY": 0.059619738998732706,
+              "heelAboveFloorM": 0.05452298794982929,
+              "toeY": 0.04850959195179136,
+              "toeAboveFloorM": 0.04341284090288794,
+              "ankleY": 0.1163441986058546,
+              "ankleAboveFloorM": 0.11124744755695118,
+              "heelToeDxzM": 0.11957306633156953,
+              "pitchDeg": 5.308403625707413
+            },
+            "right": {
+              "heelContactY": 0.11288553763515857,
+              "heelAboveFloorM": 0.106803440485254,
+              "toeY": 0.11881029167295516,
+              "toeAboveFloorM": 0.11272819452305059,
+              "ankleY": 0.17216837677735064,
+              "ankleAboveFloorM": 0.16608627962744607,
+              "heelToeDxzM": 0.11993988308496263,
+              "pitchDeg": -2.8279808513142473
+            }
+          },
+          "midStance": {
+            "frameLabel": "midStance L=step24 R=step39",
+            "left": {
+              "heelContactY": 0.016060451803819487,
+              "heelAboveFloorM": 0.010963700754916067,
+              "toeY": 0.021099676660614422,
+              "toeAboveFloorM": 0.016002925611711002,
+              "ankleY": 0.07565047767227118,
+              "ankleAboveFloorM": 0.07055372662336776,
+              "heelToeDxzM": 0.12838857875495283,
+              "pitchDeg": -2.247693608009416
+            },
+            "right": {
+              "heelContactY": 0.02927363613740481,
+              "heelAboveFloorM": 0.02319153898750024,
+              "toeY": 0.016613760627557553,
+              "toeAboveFloorM": 0.010531663477652983,
+              "ankleY": 0.08626449219329829,
+              "ankleAboveFloorM": 0.08018239504339372,
+              "heelToeDxzM": 0.13674984447188274,
+              "pitchDeg": 5.289189243002889
+            }
+          },
+          "turnEnd": {
+            "frameLabel": "step44:phase=walking",
+            "left": {
+              "heelContactY": 0.16857391575327899,
+              "heelAboveFloorM": 0.16347716470437557,
+              "toeY": 0.06745338225569551,
+              "toeAboveFloorM": 0.06235663120679209,
+              "ankleY": 0.18890360333667577,
+              "ankleAboveFloorM": 0.18380685228777235,
+              "heelToeDxzM": 0.08765606377796259,
+              "pitchDeg": 49.07970628772718
+            },
+            "right": {
+              "heelContactY": 0.056398311428276074,
+              "heelAboveFloorM": 0.050316214278371504,
+              "toeY": 0.04589423523296696,
+              "toeAboveFloorM": 0.03981213808306239,
+              "ankleY": 0.11338241544221331,
+              "ankleAboveFloorM": 0.10730031829230874,
+              "heelToeDxzM": 0.14113949667679943,
+              "pitchDeg": 4.256297938074159
+            }
+          },
+          "arrival": {
+            "frameLabel": "step210:phase=arrived",
+            "left": {
+              "heelContactY": 0.09993007514857524,
+              "heelAboveFloorM": 0.09483332409967182,
+              "toeY": 0.00509675104890342,
+              "toeAboveFloorM": 0,
+              "ankleY": 0.12524733860109402,
+              "ankleAboveFloorM": 0.1201505875521906,
+              "heelToeDxzM": 0.07497496598338024,
+              "pitchDeg": 51.670200204888374
+            },
+            "right": {
+              "heelContactY": 0.04132835910822377,
+              "heelAboveFloorM": 0.0352462619583192,
+              "toeY": 0.016446580724578524,
+              "toeAboveFloorM": 0.010364483574673955,
+              "ankleY": 0.09588560474908253,
+              "ankleAboveFloorM": 0.08980350759917796,
+              "heelToeDxzM": 0.11753788792809944,
+              "pitchDeg": 11.95257288749237
+            }
+          },
+          "arrivalDefect": [
+            {
+              "foot": "left",
+              "heelAboveFloorM": 0.09483332409967182,
+              "toeAboveFloorM": 0,
+              "pitchDeg": 51.670200204888374,
+              "heelLifted": true,
+              "pitchHigh": true
+            },
+            {
+              "foot": "right",
+              "heelAboveFloorM": 0.0352462619583192,
+              "toeAboveFloorM": 0.010364483574673955,
+              "pitchDeg": 11.95257288749237,
+              "heelLifted": false,
+              "pitchHigh": true
+            }
+          ],
+          "defect": true,
+          "nullContact": false
+        },
+        {
+          "file": "plan-footbase:sc05-run2.json",
+          "urlQuery": "steppingTurn=1&footstepPlan=1&fixedClock=1&footBase=1",
+          "floors": {
+            "left": 0.005612546513213301,
+            "right": 0.006295466518954698
+          },
+          "idle": {
+            "frameLabel": "pre1:phase=walking",
+            "left": {
+              "heelContactY": 0.06070037792960194,
+              "heelAboveFloorM": 0.055087831416388636,
+              "toeY": 0.049418776471488984,
+              "toeAboveFloorM": 0.04380622995827568,
+              "ankleY": 0.11774067888656736,
+              "ankleAboveFloorM": 0.11212813237335406,
+              "heelToeDxzM": 0.11956237099186996,
+              "pitchDeg": 5.39032466245047
+            },
+            "right": {
+              "heelContactY": 0.11266827995132661,
+              "heelAboveFloorM": 0.10637281343237191,
+              "toeY": 0.11787908631905791,
+              "toeAboveFloorM": 0.11158361980010321,
+              "ankleY": 0.17217222187868828,
+              "ankleAboveFloorM": 0.16587675535973356,
+              "heelToeDxzM": 0.11997417327380525,
+              "pitchDeg": -2.4869493472952877
+            }
+          },
+          "midStance": {
+            "frameLabel": "midStance L=step24 R=step39",
+            "left": {
+              "heelContactY": 0.01612060404163764,
+              "heelAboveFloorM": 0.01050805752842434,
+              "toeY": 0.02151006376210244,
+              "toeAboveFloorM": 0.01589751724888914,
+              "ankleY": 0.07579668075867715,
+              "ankleAboveFloorM": 0.07018413424546385,
+              "heelToeDxzM": 0.13099989928299396,
+              "pitchDeg": -2.3558739769276573
+            },
+            "right": {
+              "heelContactY": 0.029395803526286297,
+              "heelAboveFloorM": 0.0231003370073316,
+              "toeY": 0.01644966243241855,
+              "toeAboveFloorM": 0.010154195913463851,
+              "ankleY": 0.08616529513861179,
+              "ankleAboveFloorM": 0.0798698286196571,
+              "heelToeDxzM": 0.13973507032449758,
+              "pitchDeg": 5.293215113051788
+            }
+          },
+          "turnEnd": {
+            "frameLabel": "step44:phase=walking",
+            "left": {
+              "heelContactY": 0.16856852115340074,
+              "heelAboveFloorM": 0.16295597464018743,
+              "toeY": 0.06776045109770633,
+              "toeAboveFloorM": 0.06214790458449303,
+              "ankleY": 0.1887642262409277,
+              "ankleAboveFloorM": 0.1831516797277144,
+              "heelToeDxzM": 0.09083960263636202,
+              "pitchDeg": 47.977530862731385
+            },
+            "right": {
+              "heelContactY": 0.05609005952916391,
+              "heelAboveFloorM": 0.049794593010209214,
+              "toeY": 0.045580088175166705,
+              "toeAboveFloorM": 0.03928462165621201,
+              "ankleY": 0.11284607177309405,
+              "ankleAboveFloorM": 0.10655060525413936,
+              "heelToeDxzM": 0.1444526894750328,
+              "pitchDeg": 4.161347238924667
+            }
+          },
+          "arrival": {
+            "frameLabel": "step210:phase=arrived",
+            "left": {
+              "heelContactY": 0.10006253670465234,
+              "heelAboveFloorM": 0.09444999019143904,
+              "toeY": 0.005612546513213301,
+              "toeAboveFloorM": 0,
+              "ankleY": 0.125331434978767,
+              "ankleAboveFloorM": 0.1197188884655537,
+              "heelToeDxzM": 0.0750202050281955,
+              "pitchDeg": 51.54041294233032
+            },
+            "right": {
+              "heelContactY": 0.03944407002257336,
+              "heelAboveFloorM": 0.03314860350361866,
+              "toeY": 0.014648668853288013,
+              "toeAboveFloorM": 0.008353202334333315,
+              "ankleY": 0.09376448948484703,
+              "ankleAboveFloorM": 0.08746902296589233,
+              "heelToeDxzM": 0.11753668956568651,
+              "pitchDeg": 11.91238485758151
+            }
+          },
+          "arrivalDefect": [
+            {
+              "foot": "left",
+              "heelAboveFloorM": 0.09444999019143904,
+              "toeAboveFloorM": 0,
+              "pitchDeg": 51.54041294233032,
+              "heelLifted": true,
+              "pitchHigh": true
+            },
+            {
+              "foot": "right",
+              "heelAboveFloorM": 0.03314860350361866,
+              "toeAboveFloorM": 0.008353202334333315,
+              "pitchDeg": 11.91238485758151,
+              "heelLifted": true,
+              "pitchHigh": true
+            }
+          ],
+          "defect": true,
+          "nullContact": false
+        }
+      ],
+      "meanArrival": {
+        "left": {
+          "heelAboveFloorM": 0.09418735574899051,
+          "toeAboveFloorM": 0.00011545795985598573,
+          "pitchDeg": 51.427937772502524,
+          "ankleAboveFloorM": 0.1193623505455208
+        },
+        "right": {
+          "heelAboveFloorM": 0.032957003658212976,
+          "toeAboveFloorM": 0.008218280086755167,
+          "pitchDeg": 11.88691649685345,
+          "ankleAboveFloorM": 0.08702347690393784
+        }
+      },
+      "meanIdle": {
+        "left": {
+          "heelAboveFloorM": 0.05557033250755137,
+          "toeAboveFloorM": 0.04426787191999707,
+          "pitchDeg": 3.6729840813340466,
+          "ankleAboveFloorM": 0.11255679649047368
+        },
+        "right": {
+          "heelAboveFloorM": 0.10680661240089628,
+          "toeAboveFloorM": 0.11168275580869802,
+          "pitchDeg": -1.8039846757956972,
+          "ankleAboveFloorM": 0.166204191756016
+        }
+      },
+      "defectRuns": 3
+    }
+  },
+  "decision": {
+    "defect": true,
+    "defectRuns": 9,
+    "nRuns": 9,
+    "nullContact": false,
+    "reason": "DEFECT: 9/9 runs trip the pre-registered heel-lift or pitch bar at arrival"
+  }
+}

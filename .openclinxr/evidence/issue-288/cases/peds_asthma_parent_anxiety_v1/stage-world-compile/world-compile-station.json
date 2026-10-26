@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-world-compile.v1",
+  "station": "world_compile",
+  "implementation": "tools/openclinxr/factory/encounter-materialization-compile.ts:168 compileEncounterMaterialization (WCG compile runner: compileNodes + wouldInvoke/skippedBakers) + tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts planned-baker invocation (hands wouldInvoke === \"blender\" nodes to runChainWorldCompileBaker -> orchestrate_character.py; locked wardrobes stay skipped)",
+  "caseId": "peds_asthma_parent_anxiety_v1",
+  "priorPath": "docs/openclinxr/encounter-materialization-evidence-peds-asthma-parent-anxiety-2026-05-28.json",
+  "compileVersion": 1,
+  "skippedBakers": [],
+  "nodeCount": 16,
+  "wouldInvokeBlenderCount": 4,
+  "wouldInvokeTrellisCount": 0,
+  "plannedBakerInvocations": {
+    "plannedCount": 4,
+    "invokedCount": 4,
+    "skippedCount": 12,
+    "failedCount": 0
+  },
+  "artifactPathsByNodeId": {
+    "actor:nurse_kevin_lee_v1:body": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-body/peds_nurse_kevin.obj",
+    "actor:nurse_kevin_lee_v1:wardrobe": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.glb",
+    "actor:parent_tara_johnson_v1:body": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-body/peds_anxious_parent.obj",
+    "actor:parent_tara_johnson_v1:wardrobe": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.glb",
+    "actor:patient_maya_johnson_v1:body": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-body/peds_patient_child.obj",
+    "actor:patient_maya_johnson_v1:wardrobe": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.glb"
+  }
+}

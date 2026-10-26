@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "openclinxr.world-compile.planned-baker-invocation.v1",
+  "runner": "multi-case-runner.ts runChainWorldCompileBaker (wardrobe_character -> orchestrate_character.py --case-actor-preset <case>:<actor>; bake output under stage-world-compile/bakes, never clobbering stage-rig)",
+  "plannedCount": 4,
+  "invokedCount": 4,
+  "failedCount": 0,
+  "skippedCount": 12,
+  "invocations": [
+    {
+      "nodeId": "actor:patient_maya_johnson_v1:wardrobe",
+      "bakerId": "wardrobe_character",
+      "family": "ActorVariant",
+      "bakeReason": "body_changed",
+      "artifactPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.glb",
+      "cacheKey": "4eaa20c7495358f094529ecc95416e0e567421e66ff646e3d73e94fb3299b85a"
+    },
+    {
+      "nodeId": "actor:parent_tara_johnson_v1:wardrobe",
+      "bakerId": "wardrobe_character",
+      "family": "ActorVariant",
+      "bakeReason": "body_changed",
+      "artifactPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.glb",
+      "cacheKey": "77a0c67a4896fa9a70fc2b8a56ed79705f6d1cd1f6c0cbca12e4dc0183a6fb33"
+    },
+    {
+      "nodeId": "actor:nurse_kevin_lee_v1:wardrobe",
+      "bakerId": "wardrobe_character",
+      "family": "ActorVariant",
+      "bakeReason": "body_changed",
+      "artifactPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.glb",
+      "cacheKey": "b70d1bcfcb033929d728d089490db6598f6c674aa9ac50261a17e70862b24ed9"
+    },
+    {
+      "nodeId": "room:pediatric_urgent_care_bay_v1",
+      "bakerId": "room_environment",
+      "family": "Room",
+      "bakeReason": null,
+      "artifactPath": null,
+      "cacheKey": "02befee13621163e7168f0066eeae2d8fe3acb70aa413e55611740862644a12e"
+    }
+  ],
+  "failures": [],
+  "skippedNodeIds": [
+    "actor:patient_maya_johnson_v1:body",
+    "actor:parent_tara_johnson_v1:body",
+    "actor:nurse_kevin_lee_v1:body",
+    "equip:pulse_oximeter_equipment",
+    "equip:nebulizer_mask_equipment",
+    "equip:oxygen_wall_port_equipment",
+    "equip:pediatric_stretcher_equipment",
+    "equip:parent_chair_equipment",
+    "equip:inhaler_spacer_equipment",
+    "dialogue:patient_maya_johnson_v1",
+    "dialogue:parent_tara_johnson_v1",
+    "dialogue:nurse_kevin_lee_v1"
+  ]
+}

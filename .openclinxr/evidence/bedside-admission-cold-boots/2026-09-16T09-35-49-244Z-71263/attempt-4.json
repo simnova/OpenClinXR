@@ -1,0 +1,123 @@
+{
+  "attemptId": "4",
+  "captureHead": "1583e1eb61bd4121af3a51978bc4f748cbc8b57b",
+  "bundleSha256": "9831fa8aaa8a4cca88acfc80f5a30305998825e1cd43b4f8891630ad2ca407f1",
+  "frozenPlanSha256": "713638508cf0049263f43564adb9b85490023bb0d9d5116fde0f54d97ef58dab",
+  "browserVersion": "147.0.7727.15",
+  "startIso": "2026-09-16T09:36:37.496Z",
+  "endIso": "2026-09-16T09:36:52.688Z",
+  "namedTimeout": null,
+  "timeoutDiagnostic": null,
+  "admissionObservationPresent": true,
+  "finalStatus": "admitted",
+  "finalReason": null,
+  "finalDetail": null,
+  "finalReproduced": true,
+  "observedGeometryRevision": "geom-v1-cdaa4a22-7",
+  "snapshots": [
+    {
+      "atIso": "2026-09-16T09:36:38.077Z",
+      "atMs": 1789551398077,
+      "status": "admitted",
+      "reason": null,
+      "detail": null,
+      "reproduced": false,
+      "observedGeometryRevision": null,
+      "source": "window.__openClinXrFrozenScenePlanAdmission"
+    },
+    {
+      "atIso": "2026-09-16T09:36:41.600Z",
+      "atMs": 1789551401600,
+      "status": "admitted",
+      "reason": null,
+      "detail": null,
+      "reproduced": true,
+      "observedGeometryRevision": "geom-v1-cdaa4a22-7",
+      "source": "window.__openClinXrFrozenScenePlanAdmission"
+    }
+  ],
+  "publishCount": 64,
+  "driveSource": "case_owned_bedside_approach",
+  "driveSourceDiagnostic": null,
+  "environmentState": "loaded",
+  "environmentDiagnostic": null,
+  "actorWorldPositions": [
+    {
+      "actorId": "patient_margaret_ellis_v1",
+      "name": "openclinxr.ed-chest-pain.patient-robert-hayes",
+      "x": -0.78,
+      "y": 0,
+      "z": -0.18
+    },
+    {
+      "actorId": "patient_margaret_ellis_v1",
+      "name": "ed_chest_pain_adult_cast_glb",
+      "x": -0.4382365591445847,
+      "y": 0.7854070954854725,
+      "z": 0.1821660048210143
+    },
+    {
+      "actorId": "ward_nurse_patel_v1",
+      "name": "openclinxr.ed-chest-pain.nurse-maria-alvarez",
+      "x": 0.64,
+      "y": 0,
+      "z": 0.3
+    },
+    {
+      "actorId": "ward_nurse_patel_v1",
+      "name": "ed_chest_pain_adult_cast_nurse_glb",
+      "x": 0.5619534563217052,
+      "y": 0,
+      "z": 0.8100915619989355
+    },
+    {
+      "actorId": "daughter_lena_ellis_v1",
+      "name": "openclinxr.ed-chest-pain.spouse-anna-hayes",
+      "x": -2.05,
+      "y": 0.93,
+      "z": 0.36
+    },
+    {
+      "actorId": "daughter_lena_ellis_v1",
+      "name": "ed_chest_pain_adult_cast_spouse_glb",
+      "x": -2.1777412215030028,
+      "y": -0.24366834149375893,
+      "z": 0.8351293232189527
+    },
+    {
+      "actorId": "senior_resident_ward_v1",
+      "name": "runtime_additional_cast_slot",
+      "x": -1.660939233330296,
+      "y": 0,
+      "z": 1.5884706177096144
+    },
+    {
+      "actorId": "senior_resident_ward_v1",
+      "name": "ed_chest_pain_adult_cast_additional_glb",
+      "x": -1.6624305924158207,
+      "y": 0,
+      "z": 1.5853793437123087
+    }
+  ],
+  "actorPositionsDiagnostic": null,
+  "consoleErrors": [],
+  "pageErrors": [],
+  "requestErrors": [],
+  "browser": {
+    "name": "chromium",
+    "version": "147.0.7727.15",
+    "pid": null,
+    "pidDiagnostic": "playwright browser.process() returned no pid",
+    "launchedAtIso": "2026-09-16T09:36:37.496Z",
+    "closedAtIso": "2026-09-16T09:36:52.652Z"
+  },
+  "screenshot": {
+    "path": ".openclinxr/evidence/bedside-admission-cold-boots/2026-09-16T09-35-49-244Z-71263/attempt-4.png",
+    "sha256": "1a206be9e6affd23f22738d8f44ca8a439a22d06a1bc927b82ccc722c31cf151",
+    "diagnostic": null
+  },
+  "raw": {
+    "path": ".openclinxr/evidence/bedside-admission-cold-boots/2026-09-16T09-35-49-244Z-71263/attempt-4.json",
+    "sha256": ""
+  }
+}

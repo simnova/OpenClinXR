@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "openclinxr.world-compile.baker-invocation-node.v1",
+  "nodeId": "room:pediatric_urgent_care_bay_v1",
+  "bakerId": "room_environment",
+  "status": "skipped",
+  "reason": "no chain bake entrypoint for bakerId room_environment"
+}
