@@ -118,7 +118,44 @@ import { describe, expect, it } from "vitest";
  * psychometric and legal judgement and this test makes none of it.
  */
 
+import { scenarioBank } from "@openclinxr/scenario-fixtures";
+
 const load = async () => import("./promotion-path-reaches-learner.js") as Promise<Record<string, unknown>>;
+
+/** Deterministic serialization — key order cannot mask a shipped mutation. */
+function stableStringify(value: unknown): string {
+  if (value === null || typeof value !== "object") return JSON.stringify(value) ?? "null";
+  if (Array.isArray(value)) return `[${value.map(stableStringify).join(",")}]`;
+  const record = value as Record<string, unknown>;
+  const keys = Object.keys(record).sort();
+  return `{${keys.map((key) => `${JSON.stringify(key)}:${stableStringify(record[key])}`).join(",")}}`;
+}
+
+type BankSnapshot = { approvedCount: number; stageZeroCount: number; canonical: string };
+
+function captureBankSnapshot(): BankSnapshot {
+  const ordered = [...scenarioBank].sort(
+    (a, b) => a.scenarioId.localeCompare(b.scenarioId) || a.version - b.version,
+  );
+  return {
+    approvedCount: ordered.filter((s) => s.status === "approved").length,
+    stageZeroCount: ordered.filter((s) => s.governance.validationStage === "stage_0_synthetic_draft").length,
+    canonical: stableStringify(ordered),
+  };
+}
+
+/**
+ * Immutable BEFORE snapshot, taken at test-module initialization — before any load() or
+ * inspect() invocation, before the producer module is even imported, independent of the
+ * producer. Historical note: this counterweight once pinned stage_0 at 13, the fleet size
+ * on planting day. The bank has since legitimately grown (a new stage_0 draft, no review
+ * state changed anywhere), so a hardcoded fleet size is no longer a valid oracle — it
+ * false-reds on legitimate growth. What the human review gate actually forbids (anything
+ * auto-promoted, any shipped row mutated) is proven below by equivalence to BEFORE, never
+ * by re-pinning a fleet size and never by blessing the gate away.
+ */
+const BEFORE = captureBankSnapshot();
+Object.freeze(BEFORE);
 
 type ScenarioGateState = {
   scenarioId: string;
@@ -213,8 +250,14 @@ describe("a review decision through a real route reaches the learner (#167)", ()
       `control scenario ${run.control.scenarioId} became ${run.control.queueStatus} without review`,
     ).not.toBe("activation_ready");
 
-    // The shipped bank must still read exactly as measured: 1 approved, 13 at stage_0.
+    // The shipped bank must read exactly as at module init: still 1 approved (no legit
+    // review has landed since), the run's reported counts equal to BEFORE, and the full
+    // canonical bank content identical to BEFORE. Any auto-promotion or shipped fixture
+    // edit changes the canonical string, so growth by legitimate new drafts passes while
+    // mutation of any shipped row fails. No fleet size is re-pinned here.
     expect(run.shippedBankApprovedCount, "the shipped bank's approved count changed").toBe(1);
-    expect(run.shippedBankStageZeroCount, "the shipped bank's stage_0 count changed").toBe(13);
+    expect(run.shippedBankApprovedCount, "run report disagrees with the BEFORE snapshot").toBe(BEFORE.approvedCount);
+    expect(run.shippedBankStageZeroCount, "run report disagrees with the BEFORE snapshot").toBe(BEFORE.stageZeroCount);
+    expect(captureBankSnapshot().canonical, "shipped bank content mutated during the run — auto-promotion or fixture edit").toBe(BEFORE.canonical);
   }, 900_000);
 });

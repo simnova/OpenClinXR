@@ -1,0 +1,19 @@
+{
+  "docs/openclinxr/room-realism/cornice-flush/stepdown/shipped-budget.json": "444192e2fb54339455315976774dc961761dd1873295d6e97f5385bc68219e69",
+  "docs/openclinxr/room-realism/cornice-flush/stepdown/door-reference-measurements.json": "557a99eb6ec24c2261b34e97d81b0fe2f8a8cde1f897916885a4173e3bc8dc4c",
+  "docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile/runtime-04-door-inside.png": "f6860d5b0eadc018389682cd8ccd9e6ec8324193bf3490939d00fcd641d21269",
+  "docs/openclinxr/room-realism/stepdown-room-v1-finish/budget.json": "95ccefcb8903e3d3892d1ef527e59d0eadfd6f27d073df8d850666be7759fe0b",
+  "docs/openclinxr/room-realism/stepdown-room-v1-finish/derived-poses.json": "b73d0d936e30b740ea44e2f08bc7fcf3140cc28e58921321b0de600cc9555e32",
+  "docs/openclinxr/room-realism/stepdown-room-v1-finish/door-reference-measurements.json": "f3f7b79d395afa6705d07db3113d2a5d8659f0fdd919d17ec8116e9e5bddeaf5",
+  "docs/openclinxr/room-realism/stepdown-room-v1-finish/REPORT.md": "7903f744bf33c5e278c179dfc307f25722ad974b7908c649150952789b3b3759",
+  "tools/openclinxr/evidence/room-chain-wiring/the-stepdown-finish-meets-pixel-budgets.test.ts": "82146786bec7ff2b2eb04e8a4534b5df469de76e4082520919ae23f646aea765",
+  "tools/openclinxr/evidence/room-chain-wiring/measure-stepdown-door.py": "abba18b6d4ed8d1fa5cf8fc56410b12c385c09314a1b35d6f56e1e5b9b4caab6",
+  "tools/openclinxr/evidence/room-chain-wiring/cornice-flush-capture.ts": "cadb1908873bf7d81738c24f6b374bb9607d5cdb5b4cb89c7ed3c9446fa87cc4",
+  "tools/openclinxr/evidence/room-chain-wiring/cornice-flush-evidence.py": "be5eac51a6a93fde919cc1230417568b792ff99192482b059e2051d3b279b885",
+  "tools/openclinxr/evidence/room-ward-finish-chain/ward-finish-chain-capture.ts": "4e44662089b1125d3b36c8fed9c83e2a79c8be7da6564065153d2fcf13140232",
+  "tools/openclinxr/evidence/room-ward-finish-chain/door-measurements.py": "dfb0827f1a980f9df0b609376fb5b62cc89d0a4ed3b306df98818a0b2bf30721",
+  "tools/openclinxr/evidence/room-ward-finish-chain/ship-ward-budget.ts": "c4e2e9aefb24b423c3143cd859b72f05c19b5d446a2c7fa7b4324976dac53686",
+  "docs/openclinxr/room-realism/cornice-flush/measurements.json": "e0511e268a4df149b99b26a072da81c8a2c035be81754505a6b37beef347a297",
+  "docs/openclinxr/room-realism/cornice-flush/build-manifest.json": "7a88e297301759a72271a1c8ae8bb473262e0fccffce9b18ee3abfb11d944051",
+  "docs/openclinxr/room-realism/cornice-flush/REPORT.md": "f3bfe255efddc768373c2d9c4b3e0a7e6ed8091d55dd37c3aed9fd37a74756e0"
+}

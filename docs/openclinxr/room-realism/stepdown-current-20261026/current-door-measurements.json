@@ -1,0 +1,206 @@
+{
+  "schemaVersion": "openclinxr.stepdown-door-current-measurements.v1",
+  "epoch": "stepdown-current-20261026",
+  "pose": "derived learner-runtime pose 04 (derived-poses.json)",
+  "sourceGlb": "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb",
+  "sourceGlbSha256": "c7def44bda87d5d115d53c794f546ec6bf1b5ae655865f00df4262cdf538e6ab",
+  "capture": "captures/runtime-04-door-inside.png",
+  "captureSha256": "f6860d5b0eadc018389682cd8ccd9e6ec8324193bf3490939d00fcd641d21269",
+  "reference": {
+    "wall": {
+      "box": [
+        485,
+        125,
+        505,
+        155
+      ],
+      "meanRgb": [
+        167.74,
+        161.15,
+        149.4
+      ]
+    },
+    "infill": {
+      "box": [
+        520,
+        125,
+        540,
+        155
+      ],
+      "meanRgb": [
+        169.56,
+        163.56,
+        151.56
+      ]
+    },
+    "leaf": {
+      "box": [
+        550,
+        210,
+        645,
+        570
+      ],
+      "meanRgb": [
+        171.97,
+        129.41,
+        80.18
+      ]
+    },
+    "frame": {
+      "box": [
+        506,
+        210,
+        519,
+        590
+      ],
+      "meanRgb": [
+        181.65,
+        178.41,
+        170.14
+      ]
+    },
+    "infillVsWall": {
+      "deltaRgb": [
+        1.82,
+        2.41,
+        2.16
+      ]
+    }
+  },
+  "current": {
+    "wall": {
+      "box": [
+        485,
+        75,
+        505,
+        140
+      ],
+      "meanRgb": [
+        203.43,
+        200.49,
+        197.24
+      ]
+    },
+    "infill": {
+      "box": [
+        529,
+        75,
+        549,
+        140
+      ],
+      "meanRgb": [
+        204.71,
+        203.21,
+        199.0
+      ]
+    },
+    "leaf": {
+      "box": [
+        540,
+        240,
+        565,
+        580
+      ],
+      "meanRgb": [
+        201.6,
+        157.89,
+        106.63
+      ]
+    },
+    "frame": {
+      "box": [
+        505,
+        230,
+        518,
+        580
+      ],
+      "meanRgb": [
+        216.03,
+        214.36,
+        212.39
+      ]
+    },
+    "infillVsWall": {
+      "deltaRgb": [
+        1.28,
+        2.72,
+        1.76
+      ],
+      "boundaryProfileBox": [
+        480,
+        75,
+        575,
+        140
+      ],
+      "maximumBoundaryColumnStep": 3.43
+    },
+    "kickPlate": {
+      "scanEndpoints": [
+        [
+          527,
+          650
+        ],
+        [
+          715,
+          616
+        ]
+      ],
+      "leafWidthPixels": 189,
+      "plateWidthPixels": 186,
+      "widthFractionOfLeaf": 0.9841,
+      "meanPolygon": [
+        [
+          531,
+          620
+        ],
+        [
+          710,
+          588
+        ],
+        [
+          710,
+          633
+        ],
+        [
+          531,
+          665
+        ]
+      ],
+      "meanRgb": [
+        180.68,
+        182.63,
+        183.52
+      ],
+      "meanLuminance": 182.28,
+      "leafMeanLuminance": 163.48,
+      "method": "Rec.709 weights on encoded RGB (0-255); neutral plate pixels inside crop-verified polygon; width counts neutral pixels along perspective-matched scan within the leaf."
+    },
+    "leafVsReference": {
+      "deltaRgb": [
+        29.63,
+        28.48,
+        26.45
+      ]
+    },
+    "frameVsReference": {
+      "deltaRgb": [
+        34.38,
+        35.95,
+        42.25
+      ]
+    }
+  },
+  "gates": {
+    "infillWallMaxAbsChannelDelta": 3,
+    "boundaryMaximumColumnStep": 4,
+    "minimumPlateLeafWidthFraction": 0.9,
+    "minimumPlateLeafLuminanceRatio": 1.0
+  },
+  "boxProvenance": "BOXES verbatim from tools/openclinxr/evidence/room-chain-wiring/measure-stepdown-door.py",
+  "notEvidenceFor": [
+    "clinical validity",
+    "exam equivalence",
+    "Quest readiness",
+    "production readiness"
+  ]
+}

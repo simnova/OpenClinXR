@@ -1,3 +1,13 @@
+/**
+ * Current-epoch stepdown finish proof (HEAD c7def44b, 2026-10-26).
+ *
+ * Reader/budget adopted to the honest new epoch in
+ * docs/openclinxr/room-realism/stepdown-current-20261026/ (fresh HOST capture
+ * via the shipped learner runtime URL, no GLB override). Every geometry/pixel
+ * gate below is unchanged from the original cornice-flush proof; only the
+ * reader/budget source paths moved. Historical cornice-flush records stay
+ * byte-exact and are never repinned here.
+ */
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -7,10 +17,11 @@ import { getBounds } from "@gltf-transform/functions";
 import { describe, expect, it } from "vitest";
 
 const root = path.resolve(import.meta.dirname, "../../../..");
+const epoch = path.join(root, "docs/openclinxr/room-realism/stepdown-current-20261026");
 const glb = path.join(root, "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb");
 const wardGlb = path.join(root, "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb");
-const budget = JSON.parse(readFileSync(path.join(root, "docs/openclinxr/room-realism/cornice-flush/stepdown/shipped-budget.json"), "utf8"));
-const doorMeasurements = JSON.parse(readFileSync(path.join(root, "docs/openclinxr/room-realism/cornice-flush/stepdown/door-reference-measurements.json"), "utf8"));
+const budget = JSON.parse(readFileSync(path.join(epoch, "current-stepdown-budget.json"), "utf8"));
+const doorMeasurements = JSON.parse(readFileSync(path.join(epoch, "current-door-measurements.json"), "utf8"));
 
 describe("the shipped stepdown room carries its data-driven clinical finish", () => {
   it("gives every primitive a material and emits the floor, cove, door, and troffer", async () => {
@@ -31,10 +42,11 @@ describe("the shipped stepdown room carries its data-driven clinical finish", ()
     }
   });
 
-  it("stays within the 56 MiB decoded RGBA budget", () => {
+  it("stays within the 56 MiB decoded RGBA budget (current epoch c7def44b)", () => {
     expect(budget.materiallessPrimitives).toBe(0);
     expect(budget.decodedMiBWithMips).toBeLessThanOrEqual(56);
     expect(budget.sha256).toBe(createHash("sha256").update(readFileSync(glb)).digest("hex"));
+    expect(budget.sha256).toBe("c7def44bda87d5d115d53c794f546ec6bf1b5ae655865f00df4262cdf538e6ab");
   });
 
   it("closes only the declared stepdown transom, flush to the shell wall", async () => {
@@ -65,9 +77,9 @@ describe("the shipped stepdown room carries its data-driven clinical finish", ()
     expect(Math.abs(transomPlane - nearestWallPlane)).toBeLessThanOrEqual(0.005);
   });
 
-  it("matches the transom infill to the adjacent rendered wall", () => {
-    expect(doorMeasurements.after.infillVsWall.deltaRgb.every((channel: number) => Math.abs(channel) <= 3)).toBe(true);
-    expect(doorMeasurements.after.infillVsWall.maximumBoundaryColumnStep).toBeLessThanOrEqual(4);
+  it("matches the transom infill to the adjacent rendered wall (current capture f6860d5b)", () => {
+    expect(doorMeasurements.current.infillVsWall.deltaRgb.every((channel: number) => Math.abs(channel) <= 3)).toBe(true);
+    expect(doorMeasurements.current.infillVsWall.maximumBoundaryColumnStep).toBeLessThanOrEqual(4);
   });
 
   it("keeps the stainless kick plate full-width, 250 mm tall, and flush to the facing", async () => {
@@ -87,10 +99,10 @@ describe("the shipped stepdown room carries its data-driven clinical finish", ()
     expect(material.getMetallicFactor()).toBeCloseTo(1);
     expect(material.getRoughnessFactor()).toBeCloseTo(0.35);
     expect(material.getBaseColorFactor().slice(0, 3).every((channel) => channel >= 0.75)).toBe(true);
-    expect(doorMeasurements.after.kickPlate.widthFractionOfLeaf).toBeGreaterThanOrEqual(0.9);
-    expect(doorMeasurements.after.kickPlate.meanLuminance).toBeGreaterThanOrEqual(doorMeasurements.after.kickPlate.leafMeanLuminance);
-    const capture = path.join(root, "docs/openclinxr/room-realism/cornice-flush/stepdown/v4-flush-tile/runtime-04-door-inside.png");
-    expect(doorMeasurements.after.captureSha256).toBe(createHash("sha256").update(readFileSync(capture)).digest("hex"));
+    expect(doorMeasurements.current.kickPlate.widthFractionOfLeaf).toBeGreaterThanOrEqual(0.9);
+    expect(doorMeasurements.current.kickPlate.meanLuminance).toBeGreaterThanOrEqual(doorMeasurements.current.kickPlate.leafMeanLuminance);
+    const capture = path.join(epoch, "captures/runtime-04-door-inside.png");
+    expect(doorMeasurements.captureSha256).toBe(createHash("sha256").update(readFileSync(capture)).digest("hex"));
     expect(doorMeasurements.sourceGlbSha256).toBe(budget.sha256);
   });
 });

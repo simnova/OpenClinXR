@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { ROOM_CHAIN_RECIPES, runRoomChain } from "@openclinxr/factory-stations/room-chain";
@@ -99,58 +99,81 @@ export function roomGlbContentEqual(leftFile: string, rightFile: string): boolea
   });
 }
 
-export function parseRoomPromoteArgs(args: readonly string[]): { environmentId: string; seed?: number; outDir: string; noCache: boolean } {
+export function parseRoomPromoteArgs(args: readonly string[]): { environmentId: string; seed?: number; outDir: string; noCache: boolean; publicationRoot?: string } {
   let environmentId = "";
   let seed: number | undefined;
   let outDir = ".openclinxr/evidence/ward-finish-chain";
   let noCache = false;
+  let publicationRoot: string | undefined;
   for (let i = 0; i < args.length; i += 1) {
     if (args[i] === "--environment") environmentId = String(args[++i] ?? "");
     else if (args[i] === "--seed") seed = Number(args[++i]);
     else if (args[i] === "--out-dir") outDir = String(args[++i] ?? "");
+    else if (args[i] === "--publication-root") publicationRoot = String(args[++i] ?? "");
     else if (args[i] === "--no-cache") noCache = true;
   }
   if (!environmentId) throw new Error("--environment is required");
   if (seed !== undefined && !Number.isFinite(seed)) throw new Error("--seed must be finite");
   if (!outDir) throw new Error("--out-dir requires a directory");
-  return seed === undefined ? { environmentId, outDir, noCache } : { environmentId, seed, outDir, noCache };
+  if (publicationRoot !== undefined && !publicationRoot) throw new Error("--publication-root requires a directory");
+  return seed === undefined ? { environmentId, outDir, noCache, publicationRoot } : { environmentId, seed, outDir, noCache, publicationRoot };
 }
 
-export async function promoteRoom(args = process.argv.slice(2)): Promise<void> {
-  const { environmentId, seed: requestedSeed, outDir, noCache } = parseRoomPromoteArgs(args);
+export type PromoteRoomDependencies = {
+  /** Generation step. Defaults to the real runRoomChain; tests inject shipped-byte copies. */
+  readonly runChain?: typeof runRoomChain;
+  /** Resolves the promoter script path. Defaults to process.cwd() (current CLI semantics). */
+  readonly repositoryRoot?: string;
+  /** All publication writes resolve under this root. Defaults to repositoryRoot, so passing only a fixture root can never publish to process.cwd(). */
+  readonly publicationTargetRoot?: string;
+};
+
+export async function promoteRoom(args = process.argv.slice(2), dependencies: PromoteRoomDependencies = {}): Promise<void> {
+  const { environmentId, seed: requestedSeed, outDir, noCache, publicationRoot: cliPublicationRoot } = parseRoomPromoteArgs(args);
+  const runChain = dependencies.runChain ?? runRoomChain;
+  const repositoryRoot = path.resolve(dependencies.repositoryRoot ?? process.env["ROOM_PROMOTE_REPOSITORY_ROOT"] ?? process.cwd());
+  const publicationTargetRoot = path.resolve(dependencies.publicationTargetRoot ?? cliPublicationRoot ?? process.env["ROOM_PROMOTE_PUBLICATION_ROOT"] ?? repositoryRoot);
+  const resolveTarget = (relativePath: string): string => path.resolve(publicationTargetRoot, relativePath);
   const recipe = ROOM_CHAIN_RECIPES[environmentId as keyof typeof ROOM_CHAIN_RECIPES];
   const runtime = RUNTIME_PATHS[environmentId];
   if (recipe === undefined || runtime === undefined) throw new Error(`No promotable room-chain recipe for ${environmentId}`);
   const seed = requestedSeed ?? recipe.defaultSeed;
-  const before = Object.fromEntries([runtime.glb, runtime.rig].map((file) => [file, existsSync(file) ? digest(file) : null]));
-  const chain = await runRoomChain({
+  const glbTarget = resolveTarget(runtime.glb);
+  const rigTarget = resolveTarget(runtime.rig);
+  const provenanceOutAbs = runtime.provenanceOut === undefined ? undefined : resolveTarget(runtime.provenanceOut);
+  const before = Object.fromEntries([runtime.glb, runtime.rig].map((file) => [file, existsSync(resolveTarget(file)) ? digest(resolveTarget(file)) : null]));
+  const chain = await runChain({
     environmentId,
     seed,
     outDir,
     noCache,
   });
-  const preservedShippedGlbContent = existsSync(runtime.glb)
-    && digest(chain.finalGlb) !== digest(runtime.glb)
-    && roomGlbContentEqual(chain.finalGlb, runtime.glb);
-  if (!preservedShippedGlbContent) copyFileSync(chain.finalGlb, runtime.glb);
-  copyFileSync(chain.rigJson, runtime.rig);
+  const preservedShippedGlbContent = existsSync(glbTarget)
+    && digest(chain.finalGlb) !== digest(glbTarget)
+    && roomGlbContentEqual(chain.finalGlb, glbTarget);
+  if (!preservedShippedGlbContent) {
+    mkdirSync(path.dirname(glbTarget), { recursive: true });
+    copyFileSync(chain.finalGlb, glbTarget);
+  }
+  mkdirSync(path.dirname(rigTarget), { recursive: true });
+  copyFileSync(chain.rigJson, rigTarget);
   const evidencePosesPath = path.join(outDir, "room-evidence-poses.json");
   const evidencePoses = await writeRoomEvidencePoses(
-    preservedShippedGlbContent ? runtime.glb : chain.finalGlb,
+    preservedShippedGlbContent ? glbTarget : chain.finalGlb,
     recipe,
     evidencePosesPath,
   );
   if (runtime.provenanceOut !== undefined && !preservedShippedGlbContent) {
     execFileSync(process.execPath, [
-      path.join("node_modules", "tsx", "dist", "cli.mjs"),
-      "tools/openclinxr/evidence/room-ward-finish-chain/ship-ward-provenance.ts",
+      path.join(repositoryRoot, "node_modules", "tsx", "dist", "cli.mjs"),
+      path.join(repositoryRoot, "tools/openclinxr/evidence/room-ward-finish-chain/ship-ward-provenance.ts"),
     ], {
-      cwd: process.cwd(),
+      cwd: publicationTargetRoot,
       stdio: "inherit",
-      env: { ...process.env, SHIP_WARD_OUT: process.env["SHIP_WARD_OUT"] ?? runtime.provenanceOut, SHIP_WARD_SEED: String(seed), SHIP_WARD_CHAIN_OUT: path.dirname(chain.finalGlb) },
+      env: { ...process.env, SHIP_WARD_OUT: process.env["SHIP_WARD_OUT"] ?? provenanceOutAbs!, SHIP_WARD_SEED: String(seed), SHIP_WARD_CHAIN_OUT: path.dirname(chain.finalGlb), SHIP_WARD_SOURCE_ROOT: repositoryRoot, SHIP_WARD_PUBLICATION_ROOT: publicationTargetRoot },
     });
   }
-  const after = Object.fromEntries([runtime.glb, runtime.rig].map((file) => [file, digest(file)]));
+  const after = Object.fromEntries([runtime.glb, runtime.rig].map((file) => [file, digest(resolveTarget(file))]));
   const changed = Object.keys(after).filter((file) => before[file] !== after[file]);
   process.stdout.write(`${JSON.stringify({
     environmentId,

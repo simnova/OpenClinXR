@@ -147,10 +147,14 @@ function sha256File(filePath: string): string {
   return createHash("sha256").update(buffer).digest("hex");
 }
 
-/** Compute SHA256 for all control asset paths. */
-function computeAssetHashes(root: string): Record<string, string> {
+/** Compute SHA256 for all control asset paths. Overrides pin published bytes by rel path. */
+function computeAssetHashes(root: string, overrides: Record<string, Buffer> = {}): Record<string, string> {
   const out: Record<string, string> = {};
   for (const relPath of CONTROL_ASSET_PATHS) {
+    if (overrides[relPath] !== undefined) {
+      out[relPath] = createHash("sha256").update(overrides[relPath]).digest("hex");
+      continue;
+    }
     const absPath = join(root, relPath);
     if (existsSync(absPath)) {
       out[relPath] = sha256File(absPath);
@@ -165,10 +169,14 @@ function computeAssetHashes(root: string): Record<string, string> {
   return out;
 }
 
-/** Byte count per control asset, or -1 where the file is absent. */
-function computeAssetByteCounts(root: string): Record<string, number> {
+/** Byte count per control asset, or -1 where the file is absent. Overrides pin published sizes. */
+function computeAssetByteCounts(root: string, overrides: Record<string, Buffer> = {}): Record<string, number> {
   const out: Record<string, number> = {};
   for (const relPath of CONTROL_ASSET_PATHS) {
+    if (overrides[relPath] !== undefined) {
+      out[relPath] = overrides[relPath].length;
+      continue;
+    }
     const absPath = join(root, relPath);
     out[relPath] = existsSync(absPath) ? statSync(absPath).size : -1;
   }
@@ -178,8 +186,8 @@ function computeAssetByteCounts(root: string): Record<string, number> {
 /**
  * Read the persisted freeze record, or null if missing.
  */
-export function readSupineControlFreeze(): SupineControlFreeze | null {
-  const path = freezeRecordPath();
+export function readSupineControlFreeze(root?: string): SupineControlFreeze | null {
+  const path = freezeRecordPath(root ?? repoRoot());
   if (!existsSync(path)) return null;
   try {
     const raw = readFileSync(path, "utf8");
@@ -192,8 +200,8 @@ export function readSupineControlFreeze(): SupineControlFreeze | null {
 /**
  * Compute a fresh freeze record from current asset bytes on disk.
  */
-export function computeSupineControlFreeze(repoRootPath: string): SupineControlFreeze {
-  const assetSha256ByPath = computeAssetHashes(repoRootPath);
+export function computeSupineControlFreeze(repoRootPath: string, overrides: Record<string, Buffer> = {}): SupineControlFreeze {
+  const assetSha256ByPath = computeAssetHashes(repoRootPath, overrides);
   return {
     schemaVersion: "openclinxr.supine-control-freeze.v1",
     scenarioId: CONTROL_SCENARIO_ID,
@@ -404,6 +412,8 @@ export function produceSupineControlFreeze(input: {
   observedAtIso: string;
   reason: string;
   repoRootPath?: string;
+  /** Additive published-bytes override keyed by control-asset rel path. */
+  publishedControlAssets?: Record<string, Buffer>;
 }): SupineControlProduction {
   if (input.observedBy.trim() === "") {
     return { produced: false, reason: "a control freeze must name the observer who produced it" };
@@ -420,7 +430,8 @@ export function produceSupineControlFreeze(input: {
     };
   }
   const root = input.repoRootPath ?? repoRoot();
-  const assetSha256ByPath = computeAssetHashes(root);
+  const overrides = input.publishedControlAssets ?? {};
+  const assetSha256ByPath = computeAssetHashes(root, overrides);
   const unreadable = Object.entries(assetSha256ByPath)
     .filter(([, digest]) => digest === "")
     .map(([path]) => path);
@@ -432,7 +443,7 @@ export function produceSupineControlFreeze(input: {
         + "them would make the control compare equal to every tree that also cannot read them.",
     };
   }
-  const byteCountByPath = computeAssetByteCounts(root);
+  const byteCountByPath = computeAssetByteCounts(root, overrides);
   return {
     produced: true,
     freeze: {

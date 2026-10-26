@@ -18,7 +18,7 @@ from PIL import Image, ImageFilter, ImageStat
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))))))
-LB = os.path.join(ROOT, "docs/openclinxr/room-realism/light-balance")
+LB = os.environ.get("ROOM_WARD_LB_OUT", os.path.join(ROOT, "docs/openclinxr/room-realism/light-balance"))
 REF = os.path.join(ROOT, "docs/openclinxr/room-realism/imagine-multiview-v2")
 CAP = os.path.join(LB, "captures-floor-skirting")
 GLB = os.path.join(ROOT, ".openclinxr/evidence/ward-finish-chain/ward-chain.work.glb")

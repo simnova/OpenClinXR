@@ -1,7 +1,8 @@
 /** Run after the chain, live captures and SC-06 freeze; derive, never transcribe, asset pins. */
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import {
   computeSupineControlFreeze,
   produceSupineControlFreeze,
@@ -9,23 +10,53 @@ import {
   supineControlFreezeIsStillValid,
 } from "../supine-control-freeze/supine-control-freeze.js";
 
-const out = process.env["SHIP_WARD_OUT"] ?? "docs/openclinxr/room-realism/ship-ward-room";
-const asset = "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb";
-const rig = "apps/ui-xr/public/xr-assets/lighting/inpatient_ward_room_v1.rig.json";
-const chain = process.env["SHIP_WARD_CHAIN_OUT"] ?? ".openclinxr/evidence/ward-finish-chain";
-const seed = Number(process.env["SHIP_WARD_SEED"] ?? "205");
+export interface ShipWardProvenanceOptions {
+  publicationRoot?: string;
+  sourceRoot?: string;
+  outDir?: string;
+  /** Explicit publication sub-path for the freeze record. Preserves dated behavior. */
+  reportPath?: string;
+  freezeRecordPath?: string;
+  chainDir?: string;
+  seed?: number;
+  previousBudgetPath?: string;
+  provenanceTemplatePath?: string;
+  /** Additive override: control-asset rel path -> bytes the published tree carries. */
+  publishedControlAssets?: Record<string, Buffer>;
+  runBudget?: (assetAbs: string) => { sha256: string; bytes: number; triangles: number; primitiveCount: number; decodedMiBWithMips: number; images: Array<{ name: string; decodedRgbaBytes: number }>; meshCount?: number; materiallessPrimitives?: number; assetSha256?: string; rigSha256?: string; decodedMiB?: number };
+}
+
+export function shipWardProvenance(opts: ShipWardProvenanceOptions = {}): { out: string; provenancePath: string; shippedBudgetPath: string; freezeRecordPath: string; assetSha256: string; rigSha256: string; decodedMiB: number } {
+const publicationRoot = path.resolve(opts.publicationRoot ?? process.env["SHIP_WARD_PUBLICATION_ROOT"] ?? process.cwd());
+const sourceRoot = path.resolve(opts.sourceRoot ?? process.env["SHIP_WARD_SOURCE_ROOT"] ?? process.cwd());
+const resolveOut = (p: string): string => path.resolve(publicationRoot, p);
+const resolveSource = (p: string): string => path.resolve(sourceRoot, p);
+const out = opts.outDir ?? resolveOut(process.env["SHIP_WARD_OUT"] ?? "docs/openclinxr/room-realism/ship-ward-room");
+mkdirSync(out, { recursive: true });
+const asset = resolveOut("apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb");
+const rig = resolveOut("apps/ui-xr/public/xr-assets/lighting/inpatient_ward_room_v1.rig.json");
+const chain = opts.chainDir ?? process.env["SHIP_WARD_CHAIN_OUT"] ?? resolveOut(".openclinxr/evidence/ward-finish-chain");
+const seed = opts.seed ?? Number(process.env["SHIP_WARD_SEED"] ?? "205");
 const digest = (file: string) => createHash("sha256").update(readFileSync(file)).digest("hex");
 if (digest(asset) !== digest(`${chain}/infinigen-inpatient-ward.chain.glb`) ||
     digest(rig) !== digest(`${chain}/ward-chain.lighting-rig.json`)) {
   throw new Error("Runtime bytes must equal the chain outputs before producing provenance");
 }
-const budget = JSON.parse(execFileSync("pnpm", ["exec", "tsx",
-  "tools/openclinxr/evidence/room-ward-finish-chain/ship-ward-budget.ts",asset], {encoding:"utf8"}));
-const previousPath = process.env["SHIP_WARD_PREVIOUS_BUDGET"] ??
-  "docs/openclinxr/room-realism/ship-ward-room/shipped-budget.json";
+const publishedWardRel = "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb";
+const freezeOverrides: Record<string, Buffer> = opts.publishedControlAssets ?? {
+  [publishedWardRel]: readFileSync(asset),
+};
+const budget = opts.runBudget ? opts.runBudget(asset) : JSON.parse(execFileSync("pnpm", ["exec", "tsx",
+  "tools/openclinxr/evidence/room-ward-finish-chain/ship-ward-budget.ts", asset], {encoding:"utf8", cwd: sourceRoot}));
+const previousPath = opts.previousBudgetPath ?? process.env["SHIP_WARD_PREVIOUS_BUDGET"] ??
+  resolveSource("docs/openclinxr/room-realism/ship-ward-room/shipped-budget.json");
 const previous = JSON.parse(readFileSync(previousPath,"utf8"));
+if (!Array.isArray((previous as { images?: unknown }).images)) {
+  throw new Error(`Previous budget ${previousPath} must carry required images[] contract`);
+}
+const previousImages = (previous as { images: Array<{ name: string; decodedRgbaBytes: number }> }).images;
 const imageComparison = budget.images.map((image: {name: string; decodedRgbaBytes: number}) => {
-  const prior = previous.images.find((old: {name: string}) => old.name === image.name) as
+  const prior = previousImages.find((old: {name: string}) => old.name === image.name) as
     { decodedRgbaBytes: number } | undefined;
   return {
     name: image.name,
@@ -34,10 +65,13 @@ const imageComparison = budget.images.map((image: {name: string; decodedRgbaByte
   };
 });
 writeFileSync(`${out}/shipped-budget.json`,JSON.stringify({...budget,
-  rigSha256:digest(rig),rigBytes:readFileSync(rig).length,imageComparison,
+  assetSha256: budget.sha256, rigSha256:digest(rig),rigBytes:readFileSync(rig).length,imageComparison,
+  decodedMiB: budget.decodedMiBWithMips,
   producer:"tools/openclinxr/evidence/room-ward-finish-chain/ship-ward-provenance.ts",
 },null,2)+"\n");
-const provenancePath = "apps/ui-xr/public/xr-assets/environment/PROVENANCE.md";
+const provenanceTemplate = opts.provenanceTemplatePath ?? process.env["SHIP_WARD_PROVENANCE_TEMPLATE"] ??
+  resolveSource("apps/ui-xr/public/xr-assets/environment/PROVENANCE.md");
+const provenancePath = resolveOut("apps/ui-xr/public/xr-assets/environment/PROVENANCE.md");
 const entry = `- \`infinigen-inpatient-ward.glb\`
   - SHA-256: \`${budget.sha256}\`; ${budget.bytes} bytes; ${budget.triangles} triangles; ${budget.primitiveCount} primitives, all authored materials.
   - Source: Infinigen Indoors (Princeton VL, BSD-3-Clause), seed ${seed}, factory chain \`room_generate → room_clinic_finish → lighting_design\`; ward footprint 4.3 × 3.9 × 2.4 m. Supersedes the historical seed-29 shell.
@@ -48,7 +82,7 @@ const entry = `- \`infinigen-inpatient-ward.glb\`
   - Evidence: \`${out}\` contains six before/after learner-URL captures (no GLB route override), two-way/three-way sheets, exact runtime box grades and budget breakdown. Environment-ID URL mapping is unchanged.
   - Boundaries: not production readiness, Quest readiness, clinical visual validity, scoring or exam-equivalence evidence.
 `;
-writeFileSync(provenancePath,readFileSync(provenancePath,"utf8").replace(
+writeFileSync(provenancePath,readFileSync(provenanceTemplate,"utf8").replace(
   /- `infinigen-inpatient-ward\.glb`\n[\s\S]*?(?=- `infinigen-pediatric-fever)/,entry));
 const readerAuditPath = `${out}/READER-AUDIT.md`;
 if (existsSync(readerAuditPath)) {
@@ -60,15 +94,30 @@ if (existsSync(readerAuditPath)) {
     .replace(/The rig SHA-256 is\n`[a-f0-9]{64}`\./, `The rig SHA-256 is\n\`${digest(rig)}\`.`);
   writeFileSync(readerAuditPath, readerAudit);
 }
-const recorded = readSupineControlFreeze();
-const current = computeSupineControlFreeze(process.cwd());
+const freezeOut = opts.freezeRecordPath ?? opts.reportPath ?? resolveOut("tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.record.json");
+{
+const recorded = readSupineControlFreeze(sourceRoot);
+const current = computeSupineControlFreeze(sourceRoot, freezeOverrides);
 if (recorded === null || !supineControlFreezeIsStillValid(recorded, current).valid) {
   const produced = produceSupineControlFreeze({
     observedBy:"factory:room:promote deterministic asset promotion",
     observedAtIso:new Date().toISOString(),
     reason:`Room-chain promotion changed the installed ${asset} bytes; provenance and byte counts were re-derived by the supported producer.`,
+    repoRootPath: sourceRoot,
+    publishedControlAssets: freezeOverrides,
   });
   if (!produced.produced) throw new Error(produced.reason);
-  writeFileSync("tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.record.json",JSON.stringify(produced.freeze,null,2)+"\n");
+  mkdirSync(path.dirname(freezeOut), { recursive: true });
+  writeFileSync(freezeOut,JSON.stringify(produced.freeze,null,2)+"\n");
 }
-console.log(JSON.stringify({assetSha256:budget.sha256,rigSha256:digest(rig),decodedMiB:budget.decodedMiBWithMips}));
+}
+const shippedBudgetPath = `${out}/shipped-budget.json`;
+const freezeRecordPath = freezeOut;
+return { out, provenancePath, shippedBudgetPath, freezeRecordPath, assetSha256: budget.sha256, rigSha256: digest(rig), decodedMiB: budget.decodedMiBWithMips };
+}
+
+const invokedAsCli = process.argv[1] !== undefined && /ship-ward-provenance(\.[tj]s)?$/.test(process.argv[1]);
+if (invokedAsCli) {
+  const result = shipWardProvenance();
+  console.log(JSON.stringify({ out: result.out }));
+}
