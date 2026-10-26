@@ -69,3 +69,19 @@ python3 bind_skin_normal.py --src <actor>.glb --new-normal <map> ... \
 # exists (use replacement mode). Appends one image + bufferView + texture;
 # old buffers/geometry/materials untouched except skin.normalTexture.
 # Stage records flow=append-new-image with oldNormalSha=null (never faked).
+
+## 5. Reuse mode (verified unbound texture reuse)
+
+python3 bind_skin_normal.py --src <actor>.glb --new-normal <map> ... \
+  --reuse-unbound-normal-texture --expect-old-sha <full>
+# Requires the embedded OLD normal bytes (verified by --expect-old-sha),
+# EXACTLY ONE plain root texture sourcing the target image, zero textureInfo
+# index users anywhere under materials/extensions (any dict with integer
+# index resolving to target, regardless of extra keys), zero opaque root
+# extensions, single exact bufferView parent (no accessor/sparse/extension
+# alias), actual target mime image/png plus PNG header bytes, opaque-free
+# image record, and --expect-old-sha supplied without reuse preflight-refuses.
+# JSON references, single bufferView parent, opaque-free image record.
+# Reuses the existing orphan texture index as skin normalTexture scale 1;
+# replaces only target image bytes/offsets. No --old-sidecar, no append,
+# no trust-name-match, no force/bypass. Refusals write nothing.

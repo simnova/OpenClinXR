@@ -516,5 +516,254 @@ class BindTests(unittest.TestCase):
         self.assertFalse(os.path.exists(o2 + ".prov.json"))
 
 
+    def _reuse_glb(self, path, mutate=None):
+        images = [{"name": "albedo", "mimeType": "image/png", "bufferView": 0},
+                  {"name": "skin-normal", "mimeType": "image/png", "bufferView": 1}]
+        textures = [{"source": 0}, {"source": 1}]
+        bvs = [{"byteOffset": 0, "byteLength": len(self.alb)},
+               {"byteOffset": len(self.alb), "byteLength": len(self.old)}]
+        blob = self.alb + self.old
+        if mutate:
+            images, textures = mutate(images, textures)
+        doc = {
+            "asset": {"version": "2.0"},
+            "materials": [{"name": "skin-test-mat"}],
+            "meshes": [{"name": "body-test",
+                        "primitives": [{"attributes": {"POSITION": 0, "TEXCOORD_0": 1},
+                                        "material": 0}]}],
+            "images": images, "textures": textures, "bufferViews": bvs,
+            "buffers": [{"byteLength": len(blob)}],
+            "accessors": [{"bufferView": 0, "componentType": 5126, "count": 3, "type": "VEC3"},
+                          {"bufferView": 0, "componentType": 5126, "count": 3, "type": "VEC2"}],
+        }
+        js = json.dumps(doc, separators=(",", ":")).encode()
+        while len(js) % 4:
+            js += b" "
+        glb = (struct.pack("<III", 0x46546C67, 2, 12 + 8 + len(js) + 8 + len(blob))
+               + struct.pack("<II", len(js), 0x4E4F534A) + js
+               + struct.pack("<II", len(blob), 0x004E4942) + blob)
+        open(path, "wb").write(glb)
+        return hashlib.sha256(glb).hexdigest()
+
+    def _reuse_args(self, glb, srcsha, rep, prov, out, oldsha=None, extra=()):
+        a = ["--src", glb, "--new-normal", self.npng,
+             "--expect-src-sha", srcsha,
+             "--expect-png-sha", hashlib.sha256(self.new).hexdigest(),
+             "--expect-old-sha", oldsha or hashlib.sha256(self.old).hexdigest(),
+             "--skin-sub", "skin-test-mat",
+             "--prov-in", prov, "--recipe", "test-recipe",
+             "--bake-report", rep, "--reuse-unbound-normal-texture",
+             "--out", out, "--prov-out", out + ".prov.json"]
+        return a + list(extra)
+
+    def _reuse_rep_prov(self, srcsha, name):
+        rr = os.path.join(self.tmp, name + ".json")
+        json.dump({"inputGlbFullSha": srcsha, "bakeInputGlbFullSha": srcsha,
+                   "outputPngSha": hashlib.sha256(self.new).hexdigest(),
+                   "recipe": "test-recipe", "vsha": "x", "bodyMeshBase": "body-test",
+                   "bodyMesh": "body-test",
+                   "derivationMode": "procedural-stylized-analytic-heightfield: test",
+                   "generator": "python-test analytic-heightfield",
+                   "renderRecipe": "test heightfield",
+                   "meshSurfaceBake": False, "measuredSkinPores": False,
+                   "photorealClaim": False, "bindingScope": "test", "vshaScope": "test",
+                   "runtime": "pythontest/analytic-heightfield/NO-BLENDER/NO-MESH-BAKE"},
+                  open(rr, "w"))
+        pv = os.path.join(self.tmp, name + ".prov.json")
+        json.dump({"stages": []}, open(pv, "w"))
+        return rr, pv
+
+    def _view_bytes(self, path):
+        d = open(path, "rb").read()
+        jl, = struct.unpack("<I", d[12:16])
+        j = json.loads(d[20:20 + jl])
+        off = 20 + jl
+        bl, = struct.unpack("<I", d[off:off + 4])
+        binary = d[off + 8:off + 8 + bl]
+        out = {}
+        for vi, v in enumerate(j["bufferViews"]):
+            s = v.get("byteOffset", 0)
+            out[vi] = binary[s:s + v["byteLength"]]
+        return j, out
+
+    def test_reuse_positive_reuses_orphan_index(self):
+        g = os.path.join(self.tmp, "reuse-in.glb")
+        s = self._reuse_glb(g)
+        rep, prov = self._reuse_rep_prov(s, "reuse-bake")
+        o = os.path.join(self.tmp, "reuse-out.glb")
+        r = run_bind(self._reuse_args(g, s, rep, prov, o))
+        self.assertEqual(r.returncode, 0, (r.stdout + r.stderr)[-800:])
+        j0, b0 = self._view_bytes(g)
+        j2, b2 = self._view_bytes(o)
+        self.assertEqual(len(j2["textures"]), len(j0["textures"]))
+        self.assertEqual(len(j2["images"]), len(j0["images"]))
+        si = next(i for i, m in enumerate(j2["materials"]) if "skin-test" in m["name"])
+        self.assertEqual(j2["materials"][si]["normalTexture"], {"index": 1, "scale": 1.0})
+        self.assertEqual(b2[0], b0[0])
+        self.assertEqual(b2[1], self.new)
+        self.assertEqual(j2["meshes"], j0["meshes"])
+        self.assertEqual(j2["accessors"], j0["accessors"])
+        rep_out = json.loads(r.stdout.strip().split("BIND ", 1)[1])
+        self.assertEqual(rep_out["flow"], "reuse-unbound-normal-texture")
+        st = json.load(open(o + ".prov.json"))["stages"][-1]
+        self.assertEqual(st["flow"], "reuse-unbound-normal-texture")
+        self._assert_container(o)
+
+    def _reuse_refuses(self, mutate, extra=(), oldsha=None, name="reuse-neg"):
+        g = os.path.join(self.tmp, name + "-in.glb")
+        s = self._reuse_glb(g, mutate=mutate)
+        rep, prov = self._reuse_rep_prov(s, name + "-bake")
+        o = os.path.join(self.tmp, name + "-out.glb")
+        args = self._reuse_args(g, s, rep, prov, o, oldsha=oldsha, extra=extra)
+        r = run_bind(args)
+        self.assertNotEqual(r.returncode, 0, name)
+        self.assertFalse(os.path.exists(o), name)
+        self.assertFalse(os.path.exists(o + ".prov.json"), name)
+        return r
+
+    def test_reuse_refuses_shared_albedo(self):
+        def m(images, textures):
+            textures[0]["source"] = 1
+            return images, textures
+        self._reuse_refuses(m, name="reuse-shared")
+
+    def test_reuse_refuses_other_material_normal(self):
+        def m(images, textures):
+            return images, textures
+        g = os.path.join(self.tmp, "reuse-mat-in.glb")
+        s = self._reuse_glb(g, mutate=m)
+        j, _ = self._glb_json(g)
+        j["materials"].append({"name": "other-mat", "normalTexture": {"index": 1}})
+        d = open(g, "rb").read()
+        jl, = struct.unpack("<I", d[12:16])
+        off = 20 + jl
+        bl, = struct.unpack("<I", d[off:off + 4])
+        binary = d[off + 8:off + 8 + bl]
+        doc = json.dumps(j, separators=(",", ":")).encode()
+        while len(doc) % 4:
+            doc += b" "
+        open(g, "wb").write(struct.pack("<III", 0x46546C67, 2, 12 + 8 + len(doc) + 8 + len(binary))
+                            + struct.pack("<II", len(doc), 0x4E4F534A) + doc
+                            + struct.pack("<II", len(binary), 0x004E4942) + binary)
+        s = hashlib.sha256(open(g, "rb").read()).hexdigest()
+        rep, prov = self._reuse_rep_prov(s, "reuse-mat-bake")
+        o = os.path.join(self.tmp, "reuse-mat-out.glb")
+        r = run_bind(self._reuse_args(g, s, rep, prov, o))
+        self.assertNotEqual(r.returncode, 0)
+        self.assertFalse(os.path.exists(o))
+
+    def test_reuse_refuses_khr_nested_texture_info(self):
+        def m(images, textures):
+            textures[1]["extensions"] = {"KHR_texture_transform": {"offset": [0, 0]}}
+            return images, textures
+        self._reuse_refuses(m, name="reuse-khr")
+
+    def test_reuse_refuses_multi_parent(self):
+        def m(images, textures):
+            textures.append({"source": 1})
+            return images, textures
+        self._reuse_refuses(m, name="reuse-multi")
+
+    def test_reuse_refuses_wrong_old_hash(self):
+        self._reuse_refuses(None, oldsha="0" * 64, name="reuse-wronghash")
+
+    def test_reuse_refuses_trust_flag(self):
+        self._reuse_refuses(None, extra=("--trust-name-match",), name="reuse-trust")
+
+    def test_reuse_refuses_opaque_image_ref(self):
+        def m(images, textures):
+            images[1]["extensions"] = {"X": 1}
+            return images, textures
+        self._reuse_refuses(m, name="reuse-opaque")
+
+    def test_reuse_no_clobber_writes_nothing(self):
+        g = os.path.join(self.tmp, "reuse-clob-in.glb")
+        s = self._reuse_glb(g)
+        rep, prov = self._reuse_rep_prov(s, "reuse-clob-bake")
+        o = os.path.join(self.tmp, "reuse-clob-out.glb")
+        open(o, "wb").write(b"x")
+        po = o + ".prov.json"
+        open(po, "w").write('{"keep": true}')
+        r = run_bind(self._reuse_args(g, s, rep, prov, o))
+        self.assertNotEqual(r.returncode, 0)
+        self.assertEqual(open(o, "rb").read(), b"x")
+        self.assertEqual(open(po).read(), '{"keep": true}')
+
+    def test_reuse_refuses_occlusion_with_extra_keys(self):
+        g = os.path.join(self.tmp, "reuse-occ-in.glb")
+        s = self._reuse_glb(g)
+        j, _ = self._glb_json(g)
+        j["materials"].append({"name": "other-mat",
+                               "occlusionTexture": {"index": 1, "strength": 0.5}})
+        self._rewrite_glb(g, j)
+        s = hashlib.sha256(open(g, "rb").read()).hexdigest()
+        rep, prov = self._reuse_rep_prov(s, "reuse-occ-bake")
+        o = os.path.join(self.tmp, "reuse-occ-out.glb")
+        r = run_bind(self._reuse_args(g, s, rep, prov, o))
+        self.assertNotEqual(r.returncode, 0)
+        self.assertFalse(os.path.exists(o))
+        self.assertFalse(os.path.exists(o + ".prov.json"))
+
+    def _rewrite_glb(self, path, j):
+        d = open(path, "rb").read()
+        jl, = struct.unpack("<I", d[12:16])
+        off = 20 + jl
+        bl, = struct.unpack("<I", d[off:off + 4])
+        binary = d[off + 8:off + 8 + bl]
+        doc = json.dumps(j, separators=(",", ":")).encode()
+        while len(doc) % 4:
+            doc += b" "
+        open(path, "wb").write(struct.pack("<III", 0x46546C67, 2, 12 + 8 + len(doc) + 8 + len(binary)) + struct.pack("<II", len(doc), 0x4E4F534A) + doc + struct.pack("<II", len(binary), 0x004E4942) + binary)
+
+    def test_reuse_refuses_opaque_root_reference(self):
+        g = os.path.join(self.tmp, "reuse-root-in.glb")
+        s = self._reuse_glb(g)
+        j, _ = self._glb_json(g)
+        j["extensions"] = {"X_root": {"texture": 1}}
+        self._rewrite_glb(g, j)
+        s = hashlib.sha256(open(g, "rb").read()).hexdigest()
+        rep, prov = self._reuse_rep_prov(s, "reuse-root-bake")
+        o = os.path.join(self.tmp, "reuse-root-out.glb")
+        r = run_bind(self._reuse_args(g, s, rep, prov, o))
+        self.assertNotEqual(r.returncode, 0)
+        self.assertFalse(os.path.exists(o))
+        self.assertFalse(os.path.exists(o + ".prov.json"))
+
+    def test_reuse_refuses_accessor_bufferview_sharing(self):
+        g = os.path.join(self.tmp, "reuse-acc-in.glb")
+        s = self._reuse_glb(g)
+        j, _ = self._glb_json(g)
+        j["accessors"].append({"bufferView": 1, "componentType": 5126, "count": 1, "type": "SCALAR"})
+        self._rewrite_glb(g, j)
+        s = hashlib.sha256(open(g, "rb").read()).hexdigest()
+        rep, prov = self._reuse_rep_prov(s, "reuse-acc-bake")
+        o = os.path.join(self.tmp, "reuse-acc-out.glb")
+        r = run_bind(self._reuse_args(g, s, rep, prov, o))
+        self.assertNotEqual(r.returncode, 0)
+        self.assertFalse(os.path.exists(o))
+        self.assertFalse(os.path.exists(o + ".prov.json"))
+
+    def test_replacement_refuses_expect_old_sha(self):
+        o, args = self.out("oldsha-out.glb")
+        r = run_bind(args + ["--expect-old-sha", "0" * 64])
+        self.assertNotEqual(r.returncode, 0)
+        self.assertFalse(os.path.exists(o))
+        self.assertFalse(os.path.exists(o + ".prov.json"))
+
+    def test_reuse_refuses_non_png_target(self):
+        g = os.path.join(self.tmp, "reuse-badmime-in.glb")
+        s = self._reuse_glb(g)
+        j, _ = self._glb_json(g)
+        j["images"][1]["mimeType"] = "image/jpeg"
+        self._rewrite_glb(g, j)
+        s = hashlib.sha256(open(g, "rb").read()).hexdigest()
+        rep, prov = self._reuse_rep_prov(s, "reuse-badmime-bake")
+        o = os.path.join(self.tmp, "reuse-badmime-out.glb")
+        r = run_bind(self._reuse_args(g, s, rep, prov, o))
+        self.assertNotEqual(r.returncode, 0)
+        self.assertFalse(os.path.exists(o))
+        self.assertFalse(os.path.exists(o + ".prov.json"))
+
+
 if __name__ == "__main__":
     unittest.main()

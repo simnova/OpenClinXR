@@ -57,10 +57,17 @@ def main():
         ap.add_argument("--" + k.replace("_", "-"), required=True)
     ap.add_argument("--old-sidecar", required=False, default=None)
     ap.add_argument("--append-new-image", action="store_true")
+    ap.add_argument("--reuse-unbound-normal-texture", action="store_true")
     ap.add_argument("--code-sha", required=False, default=None)
+    ap.add_argument("--expect-old-sha", required=False, default=None)
     ap.add_argument("--trust-name-match", action="store_true")
     a = ap.parse_args()
     append = bool(a.append_new_image)
+    reuse = bool(a.reuse_unbound_normal_texture)
+    if reuse and (append or a.trust_name_match or a.old_sidecar is not None):
+        refuse("reuse-unbound mode takes no old-sidecar/append/trust-name-match")
+    if not reuse and a.expect_old_sha is not None:
+        refuse("expect-old-sha is reuse-mode only")
 
     actual_code_sha = sha(open(os.path.abspath(__file__), "rb").read())
     if a.code_sha is not None and a.code_sha != actual_code_sha:
@@ -71,7 +78,7 @@ def main():
     for p in required_files:
         if not os.path.isfile(p):
             refuse("missing input: " + p)
-    if not append and a.old_sidecar is None:
+    if not append and not reuse and a.old_sidecar is None:
         refuse("old-sidecar required in replacement mode (or use --append-new-image)")
     outs = [os.path.realpath(a.out), os.path.realpath(a.prov_out)]
     if outs[0] == outs[1]:
@@ -153,6 +160,8 @@ def main():
     if append:
         if a.trust_name_match:
             refuse("trust-name-match is replacement-mode only")
+        if a.expect_old_sha is not None:
+            refuse("expect-old-sha is reuse-mode only")
         pre_skin = [m for m in j["materials"] if a.skin_sub in m.get("name", "")]
         if len(pre_skin) != 1:
             refuse("skin material ambiguous: %s" % pre_skin)
@@ -163,6 +172,84 @@ def main():
         if retired:
             refuse("retired unbound normal present; use replacement mode")
         ti = None
+    elif reuse:
+        if a.expect_old_sha is None:
+            refuse("reuse mode requires --expect-old-sha")
+        oldsha = a.expect_old_sha
+        cands = [i for i, im in enumerate(j["images"])
+                 if sha(img_bytes(binary, j["bufferViews"], im["bufferView"])) == oldsha]
+        if len(cands) != 1:
+            refuse("reuse identity ambiguous: %s" % cands)
+        ti = cands[0]
+        tim = j["images"][ti]
+        if not isinstance(tim.get("bufferView"), int):
+            refuse("reuse target must be bufferView PNG")
+        if tim.get("mimeType") != "image/png":
+            refuse("reuse target must be image/png")
+        tvi = tim["bufferView"]
+        if img_bytes(binary, j["bufferViews"], tvi)[:8] != b"\x89PNG\r\n\x1a\n":
+            refuse("reuse target bytes must be PNG")
+        if j.get("extensions"):
+            refuse("reuse refused: opaque root extensions present")
+        refs = []
+        tex_by_idx = {n: t for n, t in enumerate(j.get("textures", []))}
+
+        def _idx_walk(o):
+            if isinstance(o, dict):
+                if isinstance(o.get("index"), int):
+                    t = tex_by_idx.get(o["index"])
+                    if t is not None and t.get("source") == ti:
+                        refs.append("material-texture-index:%d" % o["index"])
+                for k, v in o.items():
+                    if isinstance(v, (dict, list)):
+                        _idx_walk(v)
+            elif isinstance(o, list):
+                for v in o:
+                    _idx_walk(v)
+        _idx_walk(j.get("materials", []))
+        _idx_walk(j.get("extensions", {}))
+        if refs:
+            refuse("reuse target referenced: %s" % refs[:4])
+        # exactly one plain root-level texture must point at ti
+        roots = [t for t in j.get("textures", [])
+                 if t.get("source") == ti and set(t.keys()) <= {"source", "name", "sampler"}]
+        if len(roots) != 1:
+            refuse("reuse requires exactly 1 plain root texture: found %d" % len(roots))
+        if roots[0].get("extensions"):
+            refuse("reuse root texture has extensions")
+        if set(tim.keys()) - {"name", "mimeType", "bufferView"}:
+            refuse("reuse target image has opaque references")
+        # recursive exact source-index JSON pointer check: ti must appear only there
+        ptrs = []
+
+        def _ptr(o, path):
+            if isinstance(o, dict):
+                for k, v in o.items():
+                    if k == "source" and v == ti:
+                        ptrs.append(path + "/source")
+                    _ptr(v, path + "/" + k)
+            elif isinstance(o, list):
+                for n, v in enumerate(o):
+                    _ptr(v, path + "/" + str(n))
+        _ptr(j, "")
+        if len(ptrs) != 1 or not ptrs[0].startswith("/textures/"):
+            refuse("reuse target has other references: %s" % ptrs[:4])
+        # no other parent of the same bufferView
+        bv_ptrs = []
+
+        def _bv(o, path):
+            if isinstance(o, dict):
+                for k, v in o.items():
+                    if k == "bufferView" and v == tvi:
+                        bv_ptrs.append(path + "/bufferView")
+                    if isinstance(v, (dict, list)):
+                        _bv(v, path + "/" + k)
+            elif isinstance(o, list):
+                for n, v in enumerate(o):
+                    _bv(v, path + "/" + str(n))
+        _bv(j, "")
+        if len(bv_ptrs) != 1 or bv_ptrs[0] != "/images/%d/bufferView" % ti:
+            refuse("reuse bufferView shared: %s" % bv_ptrs[:4])
     else:
         old = open(a.old_sidecar, "rb").read()
         oldsha = sha(old)
@@ -201,6 +288,9 @@ def main():
         refuse("no skin primitives found")
 
     views = j["bufferViews"]
+    is_reuse = bool(a.reuse_unbound_normal_texture)
+    if is_reuse and a.trust_name_match:
+        refuse("trust-name-match forbidden in reuse mode")
     if append:
         old_spans = [(v.get("byteOffset", 0), v.get("byteLength", 0)) for v in views]
         tx = len(j.get("textures", []))
@@ -215,14 +305,20 @@ def main():
         if [(v.get("byteOffset", 0), v.get("byteLength", 0)) for v in views[:-1]] != old_spans:
             refuse("append altered old bufferViews")
     else:
-        raw = json.dumps(j)
-        if not all(t.get("source") != ti for t in j.get("textures", [])):
-            refuse("target image has texture parents")
-        if '"source": %d' % ti in raw:
-            refuse("target image referenced in JSON")
-        tx = len(j.get("textures", []))
-        j.setdefault("textures", []).append({"source": ti})
-        j["materials"][si]["normalTexture"] = {"index": tx, "scale": 1.0}
+        if is_reuse:
+            tx = next(ti2 for ti2, t in enumerate(j.get("textures", []))
+                      if t.get("source") == ti)
+            pre = dict(j["materials"][si])
+            j["materials"][si]["normalTexture"] = {"index": tx, "scale": 1.0}
+        else:
+            raw = json.dumps(j)
+            if not all(t.get("source") != ti for t in j.get("textures", [])):
+                refuse("target image has texture parents")
+            if '"source": %d' % ti in raw:
+                refuse("target image referenced in JSON")
+            tx = len(j.get("textures", []))
+            j.setdefault("textures", []).append({"source": ti})
+            j["materials"][si]["normalTexture"] = {"index": tx, "scale": 1.0}
 
         blobs = []
         for vi, v in enumerate(views):
@@ -262,7 +358,7 @@ def main():
                "sdR": round(st["sd"], 3), "flat": round(st["flat"], 4),
                "incoh": round(st["incoh"], 4),
                "bars": [bool(x) for x in st["bars"]],
-               "flow": "append-new-image" if append else "replace-retired-normal"}
+               "flow": "append-new-image" if append else ("reuse-unbound-normal-texture" if is_reuse else "replace-retired-normal")}
     pp = rep.get("pore") or {}
     mm = rep.get("macro") or {}
     bake_rep_sha = sha(open(a.bake_report, "rb").read())
@@ -290,7 +386,7 @@ def main():
          "bakeRecipe": rep.get("recipe"), "bakePore": pp, "bakeMacro": mm,
          "bodyMesh": src_mesh_name, "reportedBodyMesh": reported_base,
          "bodyVsha": rep.get("vsha"),
-         "flow": "append-new-image" if append else "replace-retired-normal",
+         "flow": "append-new-image" if append else ("reuse-unbound-normal-texture" if is_reuse else "replace-retired-normal"),
          "oldNormalSha": oldsha, "newNormalSha": a.expect_png_sha,
          "priorOutputSha256": prior_sha, "priorOutputBytes": prior_bytes,
          "outputGlbSha": newsha, "outputGlbBytes": len(glb),
