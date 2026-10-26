@@ -1,5 +1,6 @@
 import { NodeIO } from "@gltf-transform/core";
 import type { Node as GltfNode } from "@gltf-transform/core";
+import { resolveInputBytes } from "../asset-store/resolve-store-ref.js";
 // Not published from the entrypoint, and not published for this: the package arch-ceiling is
 // shrink-only. Read the type from the module that declares it.
 import type { FootSample } from "../../../../packages/openclinxr/asset-registry/src/approach-executor-mod.js";
@@ -147,7 +148,8 @@ export async function boundClipJointTrack(input: {
   clipName: string;
   boneName: string;
 }): Promise<BoundClipTrack> {
-  const document = await new NodeIO().read(input.glbPath);
+  const resolved = await resolveInputBytes(input.glbPath);
+  const document = await new NodeIO().readBinary(resolved.bytes);
   const root = document.getRoot();
   const animation = root.listAnimations().find((candidate) => candidate.getName() === input.clipName);
   if (!animation) {

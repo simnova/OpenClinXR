@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
+import { rejectStoreRefForOutput, resolveInputBytes } from "../evidence/asset-store/resolve-store-ref.js";
 import type { Accessor, Animation, Document, Node as GltfNode } from "@gltf-transform/core";
 import { NodeIO } from "@gltf-transform/core";
 
@@ -197,11 +198,18 @@ export async function graftBoundClip(input: {
     licenceStatus: string;
   };
 }): Promise<ClipGraftReport> {
+  rejectStoreRefForOutput(input.outputPath, "graftBoundClip");
+  if (input.publish) {
+    rejectStoreRefForOutput(input.targetPath, "graftBoundClip:publish.target");
+    rejectStoreRefForOutput(input.publish.provenancePath, "graftBoundClip:publish.provenance");
+  }
   const io = new NodeIO();
-  const targetBytes = await readFile(input.targetPath);
-  const sourceBytes = await readFile(input.sourcePath);
-  const target = await io.read(input.targetPath);
-  const source = await io.read(input.sourcePath);
+  const targetResolved = await resolveInputBytes(input.targetPath);
+  const sourceResolved = await resolveInputBytes(input.sourcePath);
+  const targetBytes = targetResolved.bytes;
+  const sourceBytes = sourceResolved.bytes;
+  const target = await io.readBinary(targetBytes);
+  const source = await io.readBinary(sourceBytes);
 
   const removedClips: ClipGraftReport["removedClips"] = [];
   for (const removal of input.removeClips ?? []) {

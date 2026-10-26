@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { planBedsideApproach } from "../../../../packages/openclinxr/asset-registry/src/bedside-approach-path.js";
 import {
@@ -13,6 +13,7 @@ import {
   stepBedsideApproach,
 } from "../../../../packages/openclinxr/asset-registry/src/approach-executor.js";
 import { boundClipJointTrack } from "./bound-clip-foot-track.js";
+import { resolveInputBytes } from "../asset-store/resolve-store-ref.js";
 
 /**
  * Does the bound walk clip plant its feet on the rig that would ship?
@@ -128,7 +129,8 @@ export async function measureBoundClipFootPlant(input: {
 }): Promise<BoundClipFootPlantReport> {
   const rootJoint = input.rootJoint ?? "root";
   const measuredJoints = input.joints ?? MPFB_MEASURED_JOINTS;
-  const bytes = await readFile(input.glbPath);
+  const resolved = await resolveInputBytes(input.glbPath);
+  const bytes = resolved.bytes;
   const rootTrack = await boundClipJointTrack({ ...input, boneName: rootJoint });
   const frames = rootTrack.samples;
   const first = frames[0];
