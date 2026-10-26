@@ -3,7 +3,7 @@
   "generatedAt": "2026-10-22T10:17:15.677Z",
   "results": {
     "inpatient_ward_room_v1/v1": {
-      "finalGlb": ".openclinxr/evidence/cornice-ab/inpatient_ward_room_v1/v1/infinigen-inpatient-ward.chain.glb",
+      "finalGlb": "store:1fea3600c408f717f9707ed93f9bdb0dd09947d0de128a8dc81d87a23f0973e7/infinigen-inpatient-ward.chain.glb",
       "glbSha256": "1fea3600c408f717f9707ed93f9bdb0dd09947d0de128a8dc81d87a23f0973e7",
       "cache": {
         "room_generate": {
@@ -63,7 +63,7 @@
       }
     },
     "inpatient_ward_room_v1/v3": {
-      "finalGlb": ".openclinxr/evidence/cornice-ab/inpatient_ward_room_v1/v3/infinigen-inpatient-ward.chain.glb",
+      "finalGlb": "store:036a51dcdf7817362acfb0cb2f210952f7eb1bbec0b3e61bba30accbcca129b2/infinigen-inpatient-ward.chain.glb",
       "glbSha256": "036a51dcdf7817362acfb0cb2f210952f7eb1bbec0b3e61bba30accbcca129b2",
       "cache": {
         "room_generate": {
@@ -123,7 +123,7 @@
       }
     },
     "inpatient_ward_room_v1/v4": {
-      "finalGlb": ".openclinxr/evidence/cornice-ab/inpatient_ward_room_v1/v4/infinigen-inpatient-ward.chain.glb",
+      "finalGlb": "store:daba523993fe0d72d13cf7b1d3e1613eaffecd906ae843af04449c914ffe6faf/infinigen-inpatient-ward.chain.glb",
       "glbSha256": "daba523993fe0d72d13cf7b1d3e1613eaffecd906ae843af04449c914ffe6faf",
       "cache": {
         "room_generate": {
@@ -183,7 +183,7 @@
       }
     },
     "stepdown_room_v1/v1": {
-      "finalGlb": ".openclinxr/evidence/cornice-ab/stepdown_room_v1/v1/infinigen-stepdown.chain.glb",
+      "finalGlb": "store:937c287c5d70aadd0c7d95ed99d9ca2626e515fa05e1d539756d1a721b055cc3/infinigen-stepdown.chain.glb",
       "glbSha256": "937c287c5d70aadd0c7d95ed99d9ca2626e515fa05e1d539756d1a721b055cc3",
       "cache": {
         "room_generate": {
@@ -243,7 +243,7 @@
       }
     },
     "stepdown_room_v1/v3": {
-      "finalGlb": ".openclinxr/evidence/cornice-ab/stepdown_room_v1/v3/infinigen-stepdown.chain.glb",
+      "finalGlb": "store:9b0c9c0de5a0e754264aa32c92b933413d389da5f4b45325048e473af68c185c/infinigen-stepdown.chain.glb",
       "glbSha256": "9b0c9c0de5a0e754264aa32c92b933413d389da5f4b45325048e473af68c185c",
       "cache": {
         "room_generate": {
@@ -303,7 +303,7 @@
       }
     },
     "stepdown_room_v1/v4": {
-      "finalGlb": ".openclinxr/evidence/cornice-ab/stepdown_room_v1/v4/infinigen-stepdown.chain.glb",
+      "finalGlb": "store:0130a0897ffddb3f140bb914b429c9cbee165386621f51de3e7999b9a5f19f03/infinigen-stepdown.chain.glb",
       "glbSha256": "0130a0897ffddb3f140bb914b429c9cbee165386621f51de3e7999b9a5f19f03",
       "cache": {
         "room_generate": {

@@ -26,7 +26,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 
 - ignore-local-cache: 2774
 - keep-compatibility-input: 24
-- keep-current: 261
+- keep-current: 262
 - keep-evidence: 1965
 - keep-template: 17
 
@@ -3090,6 +3090,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `tools/openclinxr/evidence/humanoid-vetting/render-tex-candidates.py` - keep-current; keep; EEVEE isolated texture-candidate renderer with a black-frame extrema guard — a different producer than the seated-clip script.
 - `tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg` - keep-current; keep; Texture-resize candidate (JPEG q85 2048²) used as the visual comparison; .jpg is a generated extension but the file lives under tools/.
 - `tools/openclinxr/evidence/humanoid-vetting/tightjeans-rebake-2026-09-12.md` - keep-current; keep; Dated tightjeans rebake evidence note; .md must not join generatedExtensions (doc-authority collision).
+- `tools/openclinxr/evidence/room-chain-wiring/cornice-store-retrieval-20261026.json` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
 - `tools/openclinxr/evidence/secure-provider-tracking/report.json` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
 - `.agent-factory/benchmark-gate-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
 - `.agent-factory/evidence-debt-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.

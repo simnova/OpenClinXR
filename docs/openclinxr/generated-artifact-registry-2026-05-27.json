@@ -44,7 +44,7 @@
   "counts": {
     "keep-evidence": 1965,
     "ignore-local-cache": 2774,
-    "keep-current": 261,
+    "keep-current": 262,
     "keep-template": 17,
     "keep-compatibility-input": 24
   },
@@ -35272,6 +35272,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Dated tightjeans rebake evidence note; .md must not join generatedExtensions (doc-authority collision)."
+    },
+    {
+      "path": "tools/openclinxr/evidence/room-chain-wiring/cornice-store-retrieval-20261026.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated-looking artifact retained by conservative default after explicit stale/cache/template rules."
     },
     {
       "path": "tools/openclinxr/evidence/room-ward-finish-chain/door-closeup-poses.json",

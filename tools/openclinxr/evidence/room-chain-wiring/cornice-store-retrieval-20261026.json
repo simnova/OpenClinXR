@@ -1,0 +1,181 @@
+{
+  "actualManifestRef": "store:57c6d9343f13f54d15855644c1dfc5634c4baa15916f2b67c31b18d6572cf406/archive-set-manifest.json",
+  "actualPublicationRecordedAt": "2026-10-26T22:30:58.759849+00:00",
+  "all15ReadbacksFullSHA256": true,
+  "authenticationOfOriginalEpoch": "UNKNOWN",
+  "authorship": "Six metadata migrations authored by actual Muse; receipt closure update and consumer kernel by this worker. No original-epoch auth or visual acceptance claimed.",
+  "bytesTotal": 55616154,
+  "canonical17Unchanged": true,
+  "consumer": {
+    "codeSha256": "b3c974540c8dd5d6b405de450fc026bf4ce0da36c4208a603321859ce75cba9a",
+    "path": "tools/openclinxr/evidence/room-chain-wiring/cornice-capture-input.ts",
+    "testSha256": "3b93acc44130153e5d02b13098f96ba6b119791fedf439747e201f644256aa78"
+  },
+  "currentEpoch": "2026-10-26T22:28:02Z",
+  "manifestRef": "store:57c6d9343f13f54d15855644c1dfc5634c4baa15916f2b67c31b18d6572cf406/archive-set-manifest.json",
+  "migratedGlbs": [
+    {
+      "bytes": 9202468,
+      "key": "inpatient_ward_room_v1/v1",
+      "sha256": "1fea3600c408f717f9707ed93f9bdb0dd09947d0de128a8dc81d87a23f0973e7",
+      "storeRef": "store:1fea3600c408f717f9707ed93f9bdb0dd09947d0de128a8dc81d87a23f0973e7/infinigen-inpatient-ward.chain.glb"
+    },
+    {
+      "bytes": 9220252,
+      "key": "inpatient_ward_room_v1/v3",
+      "sha256": "036a51dcdf7817362acfb0cb2f210952f7eb1bbec0b3e61bba30accbcca129b2",
+      "storeRef": "store:036a51dcdf7817362acfb0cb2f210952f7eb1bbec0b3e61bba30accbcca129b2/infinigen-inpatient-ward.chain.glb"
+    },
+    {
+      "bytes": 9220256,
+      "key": "inpatient_ward_room_v1/v4",
+      "sha256": "daba523993fe0d72d13cf7b1d3e1613eaffecd906ae843af04449c914ffe6faf",
+      "storeRef": "store:daba523993fe0d72d13cf7b1d3e1613eaffecd906ae843af04449c914ffe6faf/infinigen-inpatient-ward.chain.glb"
+    },
+    {
+      "bytes": 9290040,
+      "key": "stepdown_room_v1/v1",
+      "sha256": "937c287c5d70aadd0c7d95ed99d9ca2626e515fa05e1d539756d1a721b055cc3",
+      "storeRef": "store:937c287c5d70aadd0c7d95ed99d9ca2626e515fa05e1d539756d1a721b055cc3/infinigen-stepdown.chain.glb"
+    },
+    {
+      "bytes": 9307868,
+      "key": "stepdown_room_v1/v3",
+      "sha256": "9b0c9c0de5a0e754264aa32c92b933413d389da5f4b45325048e473af68c185c",
+      "storeRef": "store:9b0c9c0de5a0e754264aa32c92b933413d389da5f4b45325048e473af68c185c/infinigen-stepdown.chain.glb"
+    },
+    {
+      "bytes": 9307868,
+      "key": "stepdown_room_v1/v4",
+      "sha256": "0130a0897ffddb3f140bb914b429c9cbee165386621f51de3e7999b9a5f19f03",
+      "storeRef": "store:0130a0897ffddb3f140bb914b429c9cbee165386621f51de3e7999b9a5f19f03/infinigen-stepdown.chain.glb"
+    }
+  ],
+  "objects": [
+    {
+      "action": "reused-exact",
+      "bytes": 9202468,
+      "key": "inpatient_ward_room_v1/v1",
+      "sha256": "1fea3600c408f717f9707ed93f9bdb0dd09947d0de128a8dc81d87a23f0973e7",
+      "storeRef": "store:1fea3600c408f717f9707ed93f9bdb0dd09947d0de128a8dc81d87a23f0973e7/infinigen-inpatient-ward.chain.glb"
+    },
+    {
+      "action": "reused-exact",
+      "bytes": 9220252,
+      "key": "inpatient_ward_room_v1/v3",
+      "sha256": "036a51dcdf7817362acfb0cb2f210952f7eb1bbec0b3e61bba30accbcca129b2",
+      "storeRef": "store:036a51dcdf7817362acfb0cb2f210952f7eb1bbec0b3e61bba30accbcca129b2/infinigen-inpatient-ward.chain.glb"
+    },
+    {
+      "action": "reused-exact",
+      "bytes": 9220256,
+      "key": "inpatient_ward_room_v1/v4",
+      "sha256": "daba523993fe0d72d13cf7b1d3e1613eaffecd906ae843af04449c914ffe6faf",
+      "storeRef": "store:daba523993fe0d72d13cf7b1d3e1613eaffecd906ae843af04449c914ffe6faf/infinigen-inpatient-ward.chain.glb"
+    },
+    {
+      "action": "reused-exact",
+      "bytes": 9290040,
+      "key": "stepdown_room_v1/v1",
+      "sha256": "937c287c5d70aadd0c7d95ed99d9ca2626e515fa05e1d539756d1a721b055cc3",
+      "storeRef": "store:937c287c5d70aadd0c7d95ed99d9ca2626e515fa05e1d539756d1a721b055cc3/infinigen-stepdown.chain.glb"
+    },
+    {
+      "action": "reused-exact",
+      "bytes": 9307868,
+      "key": "stepdown_room_v1/v3",
+      "sha256": "9b0c9c0de5a0e754264aa32c92b933413d389da5f4b45325048e473af68c185c",
+      "storeRef": "store:9b0c9c0de5a0e754264aa32c92b933413d389da5f4b45325048e473af68c185c/infinigen-stepdown.chain.glb"
+    },
+    {
+      "action": "reused-exact",
+      "bytes": 9307868,
+      "key": "stepdown_room_v1/v4",
+      "sha256": "0130a0897ffddb3f140bb914b429c9cbee165386621f51de3e7999b9a5f19f03",
+      "storeRef": "store:0130a0897ffddb3f140bb914b429c9cbee165386621f51de3e7999b9a5f19f03/infinigen-stepdown.chain.glb"
+    },
+    {
+      "action": "atomic-exclusive-append",
+      "bytes": 10595,
+      "key": ".openclinxr/evidence/cornice-ab/build-manifest.json",
+      "sha256": "e376c36f20042e7dff2006e7c017c5ea77b228dcfa07478607b055e49d24804a",
+      "storeRef": "store:e376c36f20042e7dff2006e7c017c5ea77b228dcfa07478607b055e49d24804a/build-manifest.json"
+    },
+    {
+      "action": "atomic-exclusive-append",
+      "bytes": 2565,
+      "key": "docs/openclinxr/room-realism/cornice-ab/ward/v1/stage2-multiview.json",
+      "sha256": "90f40cb5072d2b741f3ce642c28de27614c530c874208936f2a3001cc4587f39",
+      "storeRef": "store:90f40cb5072d2b741f3ce642c28de27614c530c874208936f2a3001cc4587f39/stage2-multiview.json"
+    },
+    {
+      "action": "atomic-exclusive-append",
+      "bytes": 2565,
+      "key": "docs/openclinxr/room-realism/cornice-ab/ward/v3/stage2-multiview.json",
+      "sha256": "cebb07a4762486424ae2fd948bdaa11d8b27d01e3afd4f185d523ff3bc732628",
+      "storeRef": "store:cebb07a4762486424ae2fd948bdaa11d8b27d01e3afd4f185d523ff3bc732628/stage2-multiview.json"
+    },
+    {
+      "action": "atomic-exclusive-append",
+      "bytes": 2565,
+      "key": "docs/openclinxr/room-realism/cornice-ab/ward/v4/stage2-multiview.json",
+      "sha256": "34e11792c38d777758f8894cd13c4625197dfac0ca2c34ef99db482775b58885",
+      "storeRef": "store:34e11792c38d777758f8894cd13c4625197dfac0ca2c34ef99db482775b58885/stage2-multiview.json"
+    },
+    {
+      "action": "atomic-exclusive-append",
+      "bytes": 12425,
+      "key": "docs/openclinxr/room-realism/cornice-ab/stepdown/v1/stage2-multiview.json",
+      "sha256": "41ab1bb1a8c12e56b2964c2e6b5f9242c8f3474626f3ca563613b4090a343edb",
+      "storeRef": "store:41ab1bb1a8c12e56b2964c2e6b5f9242c8f3474626f3ca563613b4090a343edb/stage2-multiview.json"
+    },
+    {
+      "action": "atomic-exclusive-append",
+      "bytes": 12425,
+      "key": "docs/openclinxr/room-realism/cornice-ab/stepdown/v3/stage2-multiview.json",
+      "sha256": "3d0eaf35a693bb308eda57d9530fcfec80da55de9a3c1607cb06f37a086e277c",
+      "storeRef": "store:3d0eaf35a693bb308eda57d9530fcfec80da55de9a3c1607cb06f37a086e277c/stage2-multiview.json"
+    },
+    {
+      "action": "atomic-exclusive-append",
+      "bytes": 12425,
+      "key": "docs/openclinxr/room-realism/cornice-ab/stepdown/v4/stage2-multiview.json",
+      "sha256": "43c3cff4fd779124985cad6ee123ff883eaf61251ad77047d867a12100932c58",
+      "storeRef": "store:43c3cff4fd779124985cad6ee123ff883eaf61251ad77047d867a12100932c58/stage2-multiview.json"
+    },
+    {
+      "action": "atomic-exclusive-append",
+      "bytes": 6002,
+      "key": "current-parent-closure-proof",
+      "sha256": "c780901263c733a52eca87fdb5e9786b14afdac98b930414119b7c9161d4aec7",
+      "storeRef": "store:c780901263c733a52eca87fdb5e9786b14afdac98b930414119b7c9161d4aec7/cornice-closure-proof.json"
+    },
+    {
+      "action": "atomic-exclusive-append",
+      "bytes": 5835,
+      "key": "current-archive-manifest",
+      "sha256": "57c6d9343f13f54d15855644c1dfc5634c4baa15916f2b67c31b18d6572cf406",
+      "storeRef": "store:57c6d9343f13f54d15855644c1dfc5634c4baa15916f2b67c31b18d6572cf406/archive-set-manifest.json"
+    }
+  ],
+  "originalPreimageSha256": {
+    "build-manifest.json": "e376c36f20042e7dff2006e7c017c5ea77b228dcfa07478607b055e49d24804a",
+    "stepdown-v1": "41ab1bb1a8c12e56b2964c2e6b5f9242c8f3474626f3ca563613b4090a343edb",
+    "stepdown-v3": "3d0eaf35a693bb308eda57d9530fcfec80da55de9a3c1607cb06f37a086e277c",
+    "stepdown-v4": "43c3cff4fd779124985cad6ee123ff883eaf61251ad77047d867a12100932c58",
+    "ward-v1": "90f40cb5072d2b741f3ce642c28de27614c530c874208936f2a3001cc4587f39",
+    "ward-v3": "cebb07a4762486424ae2fd948bdaa11d8b27d01e3afd4f185d523ff3bc732628",
+    "ward-v4": "34e11792c38d777758f8894cd13c4625197dfac0ca2c34ef99db482775b58885"
+  },
+  "parentProofRef": "store:c780901263c733a52eca87fdb5e9786b14afdac98b930414119b7c9161d4aec7/cornice-closure-proof.json",
+  "promotion": false,
+  "schemaVersion": "openclinxr.cornice-store-retrieval.v1",
+  "scope": "Current retrieval and immutable address migration only; no regeneration, visual/readiness re-acceptance, re-acceptance, or regen",
+  "sourceHead": "8097c6472c3c0caf71a5f5726c0f6951fcca2f43",
+  "sourceUnchanged": true,
+  "storeRoot": "/Volumes/files/openclinxr-assets/store/ci-gap-evidence-20261026/ci-gap-evidence-20261026",
+  "unmigratedV2Retained": [
+    "inpatient_ward_room_v1/v2",
+    "stepdown_room_v1/v2"
+  ]
+}
