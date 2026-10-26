@@ -415,6 +415,21 @@
    "photorealClaim": false,
    "bindingScope": "source GLB used for binding identity/UV slot only; mesh geometry normals preserved; detail carried only by the added tangent-space normal field",
    "derivation": "procedural stylized region-balanced coherent-detail rebind: bound normal-image bytes only; JSON topology, geometry, rig, albedo, animations untouched"
+  },
+  {
+   "stage": "rlq-guard-withdraw-postprocess-repair",
+   "tool": "tools/openclinxr/evidence/materialize-guard-withdraw-clip.ts via tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py rematerialize_rlq_clip (tested post-export hook)",
+   "inputGlbSha": "bc840005fe94f90712b77521283d1ba2c6636df523ec932c346ee37e14a3d120",
+   "outputGlbSha": "dedcbb3e417e59b28a19d3f5bc73169b3fae98ece580111193d3a092126ae1f5",
+   "outputGlbBytes": 8056172,
+   "repairedAnimation": "openclinxr_role_patient_guard_withdraw_rlq",
+   "channelsBefore": 414,
+   "channelsAfter": 9,
+   "pathsAfter": ["rotation"],
+   "nodesAfter": [35, 37, 39, 61, 63, 65, 127, 131, 133],
+   "rlqHashAfter": "33b3b99160accc3b2d87a108c78d2a6bfb44c235dc05e194e788d33f2d640589",
+   "preservedUnchanged": ["nodes", "meshes", "skins", "materials", "images", "ClinicalIdleConversation", "openclinxr_retarget_walk_source", "ClinicalExpressionMicroTransition", "non-RLQ sampler bytes"],
+   "computedAt": "2026-10-26T01:03:00+00:00"
   }
  ]
 }

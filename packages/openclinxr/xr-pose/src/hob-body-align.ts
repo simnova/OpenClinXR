@@ -274,6 +274,7 @@ type SupineRestHead = {
   point: { x: number; y: number; z: number };
   incline: number;
   quaternion: { x: number; y: number; z: number; w: number };
+  pillow?: { x: number; z: number };
 };
 
 function finitePoint(value: unknown): value is { x: number; y: number; z: number } {
@@ -312,23 +313,35 @@ export function captureSupineRestHeadReference(root: Object3D): void {
   const head = readHeadWorld(root);
   const incline = root.userData["openClinXrSupineInclineDegrees"];
   const quaternion: unknown = root.userData["openClinXrSupineRootQuat"];
+  const pillow = root.userData["openClinXrSupinePillowWorld"] as { x?: unknown; z?: unknown } | undefined;
   root.updateWorldMatrix(true, false);
   const determinant = root.matrixWorld.determinant();
   if (!head || !finitePoint(head) || !Number.isFinite(incline) || !finiteQuaternion(quaternion)
     || !Number.isFinite(determinant) || Math.abs(determinant) < 1e-12) return;
   const point = root.worldToLocal(new Vector3(head.x, head.y, head.z));
   if (!finitePoint(point)) return;
-  root.userData["openClinXrSupineRestHeadRoot"] = {
+  const entry: SupineRestHead = {
     point: { x: point.x, y: point.y, z: point.z }, incline, quaternion: { ...quaternion },
-  } satisfies SupineRestHead;
+  };
+  if (pillow && typeof pillow.x === "number" && typeof pillow.z === "number") {
+    entry.pillow = { x: pillow.x, z: pillow.z };
+  }
+  root.userData["openClinXrSupineRestHeadRoot"] = entry;
 }
 
 export function reapplySupineRestHeadToStoredPillow(root: Object3D): void {
-  // Articulated contact owns the accepted head/hips relationship; whole-root XZ replant would
-  // move those support patches back off their finite mattress sections after every hold.
-  if (root.userData["openClinXrSupineArticulatedSupport"]) return;
   const cache = root.userData["openClinXrSupineRestHeadRoot"] as SupineRestHead | undefined;
   const pillow = root.userData["openClinXrSupinePillowWorld"] as { x?: unknown; z?: unknown } | undefined;
+  // Articulated contact owns the accepted head/hips relationship; whole-root XZ replant would
+  // move those support patches back off their finite mattress sections after every hold.
+  // Exception: an explicitly retargeted pillow after plant must still move (replant-then-shift).
+  const plantedPillow = cache?.pillow;
+  const pillowMoved = cache && finitePoint(cache.point) && pillow
+    && typeof pillow.x === "number" && Number.isFinite(pillow.x)
+    && typeof pillow.z === "number" && Number.isFinite(pillow.z)
+    && plantedPillow && typeof plantedPillow.x === "number" && typeof plantedPillow.z === "number"
+    && (Math.abs(pillow.x - plantedPillow.x) > 1e-9 || Math.abs(pillow.z - plantedPillow.z) > 1e-9);
+  if (root.userData["openClinXrSupineArticulatedSupport"] && !pillowMoved) return;
   const quaternion: unknown = root.userData["openClinXrSupineRootQuat"];
   if (!cache || !finitePoint(cache.point) || !finiteQuaternion(cache.quaternion)
     || !Number.isFinite(cache.incline) || cache.incline !== root.userData["openClinXrSupineInclineDegrees"]

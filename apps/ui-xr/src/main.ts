@@ -4147,7 +4147,7 @@ function playOneShotResponseClip(actorId: string, clipName: string): boolean {
   const clip = slot.responseClips.find((candidate) => candidate.name === clipName);
   if (!clip) return false;
   const mixer = slot.mixer;
-  playManifestMotionClip({ mixer, manifestAddress: { clipId: clipName }, clips: slot.responseClips });
+  playManifestMotionClip({ mixer, manifestAddress: { clipId: clipName }, clips: slot.responseClips, overlayRoot: slot.root });
   const action = mixer.existingAction(clip);
   if (!action) return false;
   action.setLoop(LoopOnce, 1);

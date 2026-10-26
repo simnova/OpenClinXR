@@ -194,6 +194,11 @@
       {
         "name": "CASE_FROZEN_SCENE_PLANS",
         "kind": "runtime"
+      },
+      {
+        "name": "CASE_FROZEN_SCENE_PLANS",
+        "kind": "runtime",
+        "via": "path-reach"
       }
     ]
   },
@@ -234,8 +239,7 @@
     "names": [
       {
         "name": "findRuntimeActorAsset",
-        "kind": "runtime",
-        "via": "path-reach"
+        "kind": "runtime"
       }
     ]
   },
@@ -250,8 +254,16 @@
       },
       {
         "name": "createEdChestPainLocalLearnerRuntimeAssetBundle",
+        "kind": "runtime"
+      },
+      {
+        "name": "createEdChestPainLocalLearnerRuntimeAssetBundle",
         "kind": "runtime",
         "via": "path-reach"
+      },
+      {
+        "name": "createEdChestPainRuntimeSceneManifest",
+        "kind": "runtime"
       },
       {
         "name": "createEdChestPainRuntimeSceneManifest",
@@ -589,8 +601,7 @@
     "names": [
       {
         "name": "edChestPainScenario",
-        "kind": "runtime",
-        "via": "path-reach"
+        "kind": "runtime"
       }
     ]
   },
@@ -598,6 +609,10 @@
     "provider": "@openclinxr/scenario-fixtures",
     "entrypoint": "./scenario-bank",
     "names": [
+      {
+        "name": "scenarioBank",
+        "kind": "runtime"
+      },
       {
         "name": "scenarioBank",
         "kind": "runtime",
@@ -1316,6 +1331,10 @@
     "provider": "@openclinxr/xr-pose",
     "entrypoint": ".",
     "names": [
+      {
+        "name": "applySupinePoseHoldingIncline",
+        "kind": "runtime"
+      },
       {
         "name": "mpfbForearmIdleEuler",
         "kind": "runtime"

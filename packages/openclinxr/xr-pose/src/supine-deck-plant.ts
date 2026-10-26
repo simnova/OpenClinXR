@@ -16,6 +16,7 @@ import {
 } from "@openclinxr/xr-station";
 import { type Object3D, Quaternion, Vector3 } from "three";
 import { flexSupineArmsOntoDeck, reapplyStoredSupineArmFlex } from "./hob-arm-flex.js";
+import { captureOwnedBoneRotations, composeOwnedBoneDeltas } from "./supine-overlay-compose.js";
 import {
   alignSupineHeadToPillow,
   captureSupineRestHeadReference,
@@ -83,10 +84,17 @@ function recordPlantStep(
  * `holdSupinePlantFrame` owns base XYZ; then reapply pillow XZ.
  */
 export function applySupinePoseHoldingIncline(humanoidRoot: Object3D): ApplySupinePoseResult {
+  // One-shot overlay seam: the mixer already wrote the active response clip's bones this
+  // frame in bone-local space. Capture those animated quats, run the FULL canonical hold
+  // (no owned skips: floor/root/feet/head/arm support all resolve to planted pose), then
+  // compose the rest-relative delta qFinal = qPlanted * inv(qRef) * qAnimated per owned
+  // bone. A zero-response frame yields the identity delta, so the planted pose survives.
+  const animated = captureOwnedBoneRotations(humanoidRoot);
   const result = applySupinePose(humanoidRoot);
   reapplyStoredSupineArmFlex(humanoidRoot);
   reapplyStoredSupineFootFlex(humanoidRoot);
   reapplySupineArticulatedContact(humanoidRoot);
+  composeOwnedBoneDeltas(humanoidRoot, animated);
   const stored = humanoidRoot.userData?.["openClinXrSupineRootQuat"] as
     | { x: number; y: number; z: number; w: number }
     | undefined;

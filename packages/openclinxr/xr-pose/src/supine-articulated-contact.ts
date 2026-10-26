@@ -21,7 +21,9 @@ const regions = ["pelvis", "lumbar", "thorax", "heelL", "heelR", "occiput"] as c
 
 /** Restore the accepted articulation after absolute pose/mixer writes, without additive drift. */
 export function reapplySupineArticulatedContact(root: Object3D): void {
-  for (const row of solvedRotations.get(root) ?? []) row.bone.rotation.set(...row.rotation);
+  for (const row of solvedRotations.get(root) ?? []) {
+    row.bone.rotation.set(...row.rotation);
+  }
 }
 
 /**

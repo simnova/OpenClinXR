@@ -44,7 +44,7 @@
   "counts": {
     "keep-evidence": 1962,
     "ignore-local-cache": 2771,
-    "keep-current": 260,
+    "keep-current": 261,
     "keep-template": 13,
     "keep-compatibility-input": 24
   },
@@ -35181,6 +35181,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Hand-authored Blender producer for seated-clip frames, not generated output; tools/ is not a scan root."
+    },
+    {
+      "path": "tools/openclinxr/evidence/clinical-touch/ed-input-trs-baseline.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated-looking artifact retained by conservative default after explicit stale/cache/template rules."
     },
     {
       "path": "tools/openclinxr/evidence/hair-muse4h/handoff-2026-10-23/part-guide1-vs-target-open8-1to1.png",

@@ -33,12 +33,58 @@ import json
 import math
 import pathlib
 import re
+import subprocess
 import sys
+import tempfile
 
 import bpy
 from mathutils import Matrix
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[4]
+
+RLQ_CLIP_NAME = "openclinxr_role_patient_guard_withdraw_rlq"
+MATERIALIZER = "tools/openclinxr/evidence/materialize-guard-withdraw-clip.ts"
+
+
+def _glb_animation_names(glb_path: pathlib.Path) -> list:
+    """Read animation names from a GLB JSON chunk without Blender."""
+    data = glb_path.read_bytes()
+    if data[:4] != b"glTF":
+        raise RuntimeError(f"not a GLB: {glb_path}")
+    json_len = int.from_bytes(data[12:16], "little")
+    gltf = json.loads(data[20:20 + json_len].decode("utf-8"))
+    return [a.get("name") for a in gltf.get("animations", [])]
+
+
+def rematerialize_rlq_clip(exported_glb: pathlib.Path, report_path: pathlib.Path | None = None) -> dict | None:
+    """Re-run the RLQ materializer over a Blender-exported GLB (pure postprocess).
+
+    Skips exports that carry no RLQ-named clip (actors without an existing/required
+    RLQ response are preserved untouched). Otherwise the materializer disposes the
+    same-name clip (a possible idle duplicate from the glTF round-trip) and
+    re-injects the genuine 9-channel rotation-only flinch, preserving all other GLB
+    payload. Backup and default report live in a unique job-local temp dir, never in
+    the public generated-humanoids tree. Raises on failure without touching
+    provenance (fail closed before any acceptance bookkeeping)."""
+    if RLQ_CLIP_NAME not in _glb_animation_names(exported_glb):
+        print(f"RLQ_SKIP no {RLQ_CLIP_NAME!r} clip in {exported_glb}; preserving actor untouched")
+        return None
+    job_dir = pathlib.Path(tempfile.mkdtemp(prefix="rlq-rematerialize-"))
+    backup = job_dir / (exported_glb.stem + ".pre-rlq.bak.glb")
+    report = report_path if report_path is not None else job_dir / (exported_glb.stem + ".rlq-rematerialize-report.json")
+    tool = REPO_ROOT / MATERIALIZER
+    proc = subprocess.run(
+        ["pnpm", "exec", "tsx", str(tool), "--glb", str(exported_glb),
+         "--out", str(exported_glb), "--backup", str(backup),
+         "--report", str(report)],
+        cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=300,
+    )
+    print(proc.stdout)
+    if proc.returncode != 0:
+        raise RuntimeError(f"RLQ rematerialization failed: {proc.stderr[-2000:]}")
+    print(f"RLQ_REPORT {report}")
+    return json.loads(report.read_text())
+
 _ANNY_DIR = REPO_ROOT / "tools/openclinxr/asset-pipeline/anny"
 if str(_ANNY_DIR) not in sys.path:
     sys.path.insert(0, str(_ANNY_DIR))
@@ -383,6 +429,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="#480 bake MPFB gown inspect GLB")
     ap.add_argument("--input-glb", default=str(GEN / "mpfb-viseme-inspect.glb"))
     ap.add_argument("--output-glb", default=str(GEN / "mpfb-gown-inspect.glb"))
+    ap.add_argument("--rlq-report", default=str(GEN / "bake-rlq-rematerialize-report.json"))
     args = ap.parse_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:])
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -499,6 +546,9 @@ def main() -> None:
         export_extras=True,
     )
     print(f"EXPORTED {out} {out.stat().st_size} bytes")
+    rlq_report = rematerialize_rlq_clip(out, REPO_ROOT / args.rlq_report if args.rlq_report else None)
+    if rlq_report is not None:
+        print(f"RLQ_REMATERIALIZED {json.dumps({k: rlq_report.get(k) for k in ('animationName', 'appliedNodeCount', 'appliedNodes')}, default=str)}")
 
 
 if __name__ == "__main__":

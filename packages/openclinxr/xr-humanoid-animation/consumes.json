@@ -454,6 +454,17 @@
   },
   {
     "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./manifest-motion-clip-playback",
+    "names": [
+      {
+        "name": "playManifestMotionClip",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
     "entrypoint": "./stepping-turn",
     "names": [
       {
