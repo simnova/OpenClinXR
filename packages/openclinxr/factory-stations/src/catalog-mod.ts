@@ -254,8 +254,8 @@ export const factoryStationSchemas: Record<ProductionStationId, FactoryStationSc
     // {x,y,z} in metres, SIGNED. Matches ScenarioSchema plantOffsetMeters
     // (shared-schemas/src/schemas.ts:235-241). A bare number is refused.
     plantOffsetMeters: { type: "vector3", required: false, description: "signed {x,y,z} offset in metres" },
-    // closed union, matching the case. A POSTURE ("supine") is refused.
-    supportSurface: { type: "enum", values: ["stretcher", "exam_table", "chair", "none"], required: true },
+    // closed union, matching the case (ActorPlacementSchema: stretcher|bed|exam_table|chair|none). A POSTURE ("supine") is refused.
+    supportSurface: { type: "enum", values: ["stretcher", "bed", "exam_table", "chair", "none"], required: true },
   }),
   dialogue_runtime: defineStation("dialogue_runtime", {
     actorId: { type: "string", required: true },

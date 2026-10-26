@@ -32,9 +32,14 @@ import {
   runMultiCaseChain,
   type MultiCaseRollup,
 } from "../dark-factory/multi-case-runner.js";
+import { uniqueRunDir } from "../dark-factory/process-helpers.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const EVIDENCE_DIR = DEFAULT_EVIDENCE_DIR;
+// Per-test unique evidence root (mkdtemp, collision-free): concurrent CI writers
+// never collide on the shared cases/<case>/stage-* paths, and the canonical
+// DEFAULT_EVIDENCE_DIR root is never touched by this test — every assertion
+// below reads from the run's own directory.
+const EVIDENCE_DIR = uniqueRunDir(DEFAULT_EVIDENCE_DIR);
 
 const CHAIN_HOUR_MS = 90 * 60 * 1000;
 
@@ -51,7 +56,7 @@ describe("dark factory multi-case chain (issue-288)", () => {
   it(
     "runs the landed runner over the case population and satisfies the contract counterweights",
     { timeout: CHAIN_HOUR_MS },
-    async () => {
+    async ({ signal }) => {
       // 1. The runner module exists under tools/ (the import above already proves
       //    it resolves; assert the physical location for the record).
       const runnerModulePath = path.join(REPO_ROOT, "tools", "openclinxr", "dark-factory", "multi-case-runner.ts");
@@ -63,9 +68,12 @@ describe("dark factory multi-case chain (issue-288)", () => {
       expect(population.length).toBeGreaterThanOrEqual(1);
       expect(population).toContain("peds_asthma_parent_anxiety_v1");
 
-      // 3. Invoke the runner over the whole population. This writes pre-fix.json,
-      //    per-case station tables and the roll-up under .openclinxr/evidence/issue-288/.
-      const rollup: MultiCaseRollup = await runMultiCaseChain({ population });
+      // 3. Invoke the runner over the whole population into this test's own
+      //    directory, carrying Vitest's TestContext signal: the 90-minute
+      //    timeout now cancels the batch AND its Blender children instead of
+      //    abandoning them. This writes pre-fix.json, per-case station tables
+      //    and the roll-up there — never into the shared canonical root.
+      const rollup: MultiCaseRollup = await runMultiCaseChain({ population, evidenceDir: EVIDENCE_DIR, signal });
 
       // 4. pre-fix.json exists and records the population + #286 coverage.
       const preFixPath = path.join(EVIDENCE_DIR, "pre-fix.json");

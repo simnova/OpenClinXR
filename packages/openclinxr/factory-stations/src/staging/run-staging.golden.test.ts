@@ -27,4 +27,17 @@ describe("runStaging unsolved golden", () => {
   });
 });
 
+describe("runStaging bed support surface (issue-288 stepdown repair)", () => {
+  it("accepts the case-authored 'bed' surface (stepdown_sepsis_nurse_escalation_v1 patient)", () => {
+    expect(runStaging({ ...STAGING_PAYLOAD, supportSurface: "bed" })).toMatchObject({
+      status: "adapted",
+      supportSurface: "bed",
+    });
+  });
+
+  it("still refuses a POSTURE value for supportSurface", () => {
+    expect(() => runStaging({ ...STAGING_PAYLOAD, supportSurface: "supine" })).toThrow(/supportSurface|unknown/i);
+  });
+});
+
 // NOT TESTED: the solved golden (arrives with the staging-solver branch).
