@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { eyeSpreadMeters, measureRoomCameraLandings, type CameraLanding }
+import { type CameraLanding, eyeSpreadMeters, measureRoomCameraLandings }
   from "./the-room-camera-lands-in-the-same-place-twice.js";
 
 /**
@@ -56,6 +56,15 @@ import { eyeSpreadMeters, measureRoomCameraLandings, type CameraLanding }
  * interior-corner list), so the eye is a pure function of the room geometry again. The band sits
  * far below any standoff difference that would change the frame, and it does not touch the
  * known-good column: psych's candidates are separated by metres, so its winner is unchanged.
+ */
+
+/*
+ * ## CENSUS + WITNESS (post stride-fix)
+ *
+ * After the stride fix, valid derivations may carry fewer rejected candidates (known 15/14/1),
+ * so the old `rejectedCandidateCount > 1` tripwire is obsolete as a health signal.
+ * Clause (4) instead asserts a positive census with accepted+rejected=total plus a distinct
+ * per-derivation `witness=` on every landing, so a copied reading still fails while few rejects pass.
  */
 
 const UNSTABLE = "primary_care_dyslipidemia_joint_pain_v1";
@@ -115,10 +124,17 @@ describe("the room camera lands in the same place twice", () => {
     // Without this, clause (1) passes on an instrument that measures once and copies. Pins that
     // distinct derivations happened and that the note carried a candidate list to parse.
     expect(landings.length, "3 repeats x 2 stations").toBeGreaterThanOrEqual(6);
+    for (const r of landings) {
+      expect(r.candidateTotal, `${r.scenarioId}: no candidate census parsed`).toBeGreaterThan(0);
+      expect(
+        r.acceptedCount + r.rejectedCandidateCount,
+        `${r.scenarioId}: accepted+rejected must equal the candidate total`,
+      ).toBe(r.candidateTotal);
+    }
+    const witnesses = landings.map((r) => r.witness);
     expect(
-      forStation(UNSTABLE).some((r) => r.rejectedCandidateCount > 1),
-      "the unstable station rejected five candidates when measured; a zero here means the note "
-      + "shape changed and the parse is silently returning nothing",
-    ).toBe(true);
+      new Set(witnesses).size,
+      "each landing must carry a distinct in-browser derivation witness; a copied reading repeats",
+    ).toBe(landings.length);
   }, BOOT_TIMEOUT_MS);
 });

@@ -1,8 +1,9 @@
+import { spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import { chromium } from "./lib/slotted-playwright.js";
+import { parseLandingNote } from "./room-camera/landing-note.js";
 import {
   buildRoomCaptureUrl, reframeCameraForRoom, waitForHumanoidAssetsLoaded, waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
-import { spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 
 /**
  * Repeat the room-camera derivation for a station and report where the eye landed each time.
@@ -24,10 +25,12 @@ export interface CameraLanding {
   /** Eye position, rounded to 2 dp - the same precision the capture note prints. */
   readonly eye: readonly [number, number, number];
   readonly rejectedCandidateCount: number;
+  readonly candidateTotal: number;
+  readonly acceptedCount: number;
+  /** In-browser per-derivation witness (performance.now at derive time). */
+  readonly witness: string;
 }
 
-const EYE = /roomCam\(derived\)=(-?[\d.]+),(-?[\d.]+),(-?[\d.]+)/u;
-const REJECTED = /rejected=([^\s]*(?:\s[-\d][^\s]*)*)/u;
 
 export async function measureRoomCameraLandings(
   scenarioIds: readonly string[], repeats = 3,
@@ -45,14 +48,15 @@ export async function measureRoomCameraLandings(
           const live = await waitForStationShell(page, 180_000);
           await waitForHumanoidAssetsLoaded(page, 180_000);
           const note = await reframeCameraForRoom(page, live.environmentId);
-          const m = EYE.exec(note);
-          if (!m) throw new Error(`no derived camera in note for ${scenarioId}: ${note}`);
-          const rejected = REJECTED.exec(note)?.[1]?.trim() ?? "";
+          const parsed = parseLandingNote(note, scenarioId);
           landings.push({
             scenarioId,
             environmentId: live.environmentId,
-            eye: [Number(m[1]), Number(m[2]), Number(m[3])],
-            rejectedCandidateCount: rejected.length === 0 ? 0 : rejected.split(/\s+/u).length,
+            eye: parsed.eye,
+            rejectedCandidateCount: parsed.rejectedCount,
+            candidateTotal: parsed.candidateTotal,
+            acceptedCount: parsed.acceptedCount,
+            witness: parsed.witness,
           });
         } finally {
           await page.close().catch(() => undefined);
