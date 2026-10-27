@@ -164,7 +164,7 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     // #186: door + wall board — architecture shared with all bays (not psych-only).
     fixtureSlots: [
       ED_STRETCHER,
-      { slotId: "monitor", purpose: "Bedside monitor wall mount", position: { x: -1.6, y: 1.4, z: -1.2 } },
+      { slotId: "monitor", purpose: "Bedside monitor wall mount", position: { x: 1.7, y: 1.4, z: -1.35 } },
       // #183: was (1.1, 0, 0.4) — sits between clinical_team framing (0.64, 0.3) and family
       // framing (1.42, 0.04); nurse + spouse both measured ≥0.63 XZ inside the cart body.
       // Park on patient-side bay, clear of standing plants and the stretcher at (-0.9, −0.1).

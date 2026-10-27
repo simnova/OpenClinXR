@@ -256,7 +256,32 @@
       "headingRadians": 1.57
     }
   },
-  "equipmentPlacements": {},
+  "equipmentPlacements": {
+    "ecg_cart_equipment": {
+      "position": {
+        "x": -2.15,
+        "y": 0,
+        "z": 0.55
+      },
+      "label": "12-lead ECG",
+      "interactionCueIds": [
+        "selectable_equipment_reference",
+        "clinical_workflow_cue"
+      ]
+    },
+    "iv_stand_equipment": {
+      "position": {
+        "x": -1.85,
+        "y": 0,
+        "z": 0.95
+      },
+      "label": "IV pump",
+      "interactionCueIds": [
+        "selectable_equipment_reference",
+        "clinical_workflow_cue"
+      ]
+    }
+  },
   "productionReadinessClaimed": false,
   "notEvidenceFor": [
     "production_asset_readiness",

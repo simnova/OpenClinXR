@@ -23,21 +23,22 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
+  type Footprint,
   INSIDE_OVERLAP_FRACTION_THRESHOLD,
   listShippedScenarioManifestIds,
-  type Footprint,
 } from "./actor-furniture-clearance.js";
-import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
+  type MeasurementTreeStamp,
   tryReadStampedArtifact,
   withTreeStamp,
-  type MeasurementTreeStamp,
 } from "./lib/measurement-tree-stamp.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
+import { POSED_WORLD_BOX_SOURCE } from "./lib/posed-world-bounds.js";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
-  ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
+  ROOM_CAPTURE_MODE,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
 
@@ -362,40 +363,7 @@ export async function readLivePropIntersectionFromPage(page: Page): Promise<Live
     const params = new URLSearchParams(globalThis.location.search);
     let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
 
-    function worldBox(obj) {
-      if (!obj || typeof obj.updateWorldMatrix !== "function") return null;
-      obj.updateWorldMatrix(true, true);
-      let minX = Infinity, minY = Infinity, minZ = Infinity;
-      let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
-      let any = false;
-      obj.traverse(function (child) {
-        if (!child || !child.isMesh || !child.geometry) return;
-        if (child.visible === false) return;
-        if (child.geometry.computeBoundingBox) child.geometry.computeBoundingBox();
-        const bb = child.geometry.boundingBox;
-        if (!bb) return;
-        child.updateWorldMatrix(true, false);
-        const m = child.matrixWorld.elements;
-        const xs = [bb.min.x, bb.max.x];
-        const ys = [bb.min.y, bb.max.y];
-        const zs = [bb.min.z, bb.max.z];
-        for (let ix = 0; ix < 2; ix++) {
-          for (let iy = 0; iy < 2; iy++) {
-            for (let iz = 0; iz < 2; iz++) {
-              const x = xs[ix], y = ys[iy], z = zs[iz];
-              const wx = m[0]*x + m[4]*y + m[8]*z + m[12];
-              const wy = m[1]*x + m[5]*y + m[9]*z + m[13];
-              const wz = m[2]*x + m[6]*y + m[10]*z + m[14];
-              minX = Math.min(minX, wx); minY = Math.min(minY, wy); minZ = Math.min(minZ, wz);
-              maxX = Math.max(maxX, wx); maxY = Math.max(maxY, wy); maxZ = Math.max(maxZ, wz);
-              any = true;
-            }
-          }
-        }
-      });
-      if (!any) return null;
-      return { minX: minX, minY: minY, minZ: minZ, maxX: maxX, maxY: maxY, maxZ: maxZ };
-    }
+${POSED_WORLD_BOX_SOURCE}
 
     function fpOf(b) {
       return { minX: b.minX, maxX: b.maxX, minZ: b.minZ, maxZ: b.maxZ };
@@ -979,40 +947,7 @@ export async function readEquipmentActorOverlapFromPage(
       return Math.round(v * 1000) / 1000;
     }
 
-    function worldBox(obj) {
-      if (!obj || typeof obj.updateWorldMatrix !== "function") return null;
-      obj.updateWorldMatrix(true, true);
-      let minX = Infinity, minY = Infinity, minZ = Infinity;
-      let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
-      let any = false;
-      obj.traverse(function (child) {
-        if (!child || !child.isMesh || !child.geometry) return;
-        if (child.visible === false) return;
-        if (child.geometry.computeBoundingBox) child.geometry.computeBoundingBox();
-        const bb = child.geometry.boundingBox;
-        if (!bb) return;
-        child.updateWorldMatrix(true, false);
-        const m = child.matrixWorld.elements;
-        const xs = [bb.min.x, bb.max.x];
-        const ys = [bb.min.y, bb.max.y];
-        const zs = [bb.min.z, bb.max.z];
-        for (let ix = 0; ix < 2; ix++) {
-          for (let iy = 0; iy < 2; iy++) {
-            for (let iz = 0; iz < 2; iz++) {
-              const x = xs[ix], y = ys[iy], z = zs[iz];
-              const wx = m[0]*x + m[4]*y + m[8]*z + m[12];
-              const wy = m[1]*x + m[5]*y + m[9]*z + m[13];
-              const wz = m[2]*x + m[6]*y + m[10]*z + m[14];
-              minX = Math.min(minX, wx); minY = Math.min(minY, wy); minZ = Math.min(minZ, wz);
-              maxX = Math.max(maxX, wx); maxY = Math.max(maxY, wy); maxZ = Math.max(maxZ, wz);
-              any = true;
-            }
-          }
-        }
-      });
-      if (!any) return null;
-      return { minX: minX, minY: minY, minZ: minZ, maxX: maxX, maxY: maxY, maxZ: maxZ };
-    }
+${POSED_WORLD_BOX_SOURCE}
 
     // ---- camera (default capture camera: the scene's perspective camera) ----
     let camera = null;

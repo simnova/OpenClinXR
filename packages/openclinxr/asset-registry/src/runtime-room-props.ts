@@ -31,8 +31,10 @@ function runtimeRoomProp(
 }
 
 /**
- * The 17 room props identical (id, label, colours, position, scale, tags) in both clinical
- * environments. Ward and ED each append their own privacy-curtain, curtain-track-rings, and
+ * The 17 room props shared (id, label, colours, position, scale, tags) as defaults across
+ * both clinical environments. Shared defaults are retained; the Ward-only wall-clock
+ * wall-anchor override (z=-2.35) lives in `wardRoomProps` and ED defaults are unchanged.
+ * Ward and ED each append their own privacy-curtain, curtain-track-rings, and
  * doorway-station-sign label (positions differ per room layout), and ED appends ten more
  * cardiac/urgent workflow items on top (see `edExamBayRoomProps` below). Deduplicated
  * 2026-09-26 (room-obstacles): the two lists were 20/30 fully-written entries with only these
@@ -59,15 +61,23 @@ const SHARED_ROOM_PROPS: readonly EncounterRuntimeRoomProp[] = [
 ];
 
 /**
- * Room props specific to the inpatient ward room environment: the shared 17 plus a ward-layout
- * curtain (ceiling track on right side of bed, bed at x=-0.9/z=-0.1, spanning z≈0.2 to 1.0) and
- * ward-labelled doorway sign. No ED cardiac/urgent items.
+ * Room props specific to the inpatient ward room environment: the shared 17 (with the
+ * Ward-only wall-clock wall-anchor override to z=-2.35; ED defaults unchanged) plus a
+ * ward-layout curtain parked OPEN at the rear (behind the review camera eye z=-1.60,
+ * plane z~-1.9, footprint X[-1.8,-0.2], top 2.215 under measured ceiling underside 2.34)
+ * and ward-labelled doorway sign. No ED cardiac/urgent items. The curtain's own
+ * source-built track sits at local Y1.9; the separate rings row records the existing
+ * perpendicular rail branch (axis residual) and is NOT a global renderer rewrite.
  */
 function wardRoomProps(): EncounterRuntimeRoomProp[] {
   return [
-    ...SHARED_ROOM_PROPS,
-    runtimeRoomProp("privacy-curtain", "Curtain", "7fb6c7", "3f7482", { x: -0.9, y: 1.12, z: 0.6 }, { x: 1.0, y: 0.86, z: 0.035 }, ["ambient_safety"]),
-    runtimeRoomProp("curtain-track-rings", "Rings", "dfe9ee", "5e8292", { x: -0.9, y: 1.98, z: 0.6 }, { x: 1.0, y: 0.035, z: 0.035 }, ["environmental_texture"]),
+    ...SHARED_ROOM_PROPS.map((prop) =>
+      prop.propId === "wall-clock"
+        ? { ...prop, position: { ...prop.position, z: -2.35 } }
+        : prop
+    ),
+    runtimeRoomProp("privacy-curtain", "Curtain", "7fb6c7", "3f7482", { x: -1.0, y: 0.30, z: -1.9 }, { x: 1.0, y: 0.86, z: 0.035 }, ["ambient_safety"]),
+    runtimeRoomProp("curtain-track-rings", "Rings", "dfe9ee", "5e8292", { x: -1.0, y: 2.2, z: -1.6 }, { x: 1.0, y: 0.035, z: 0.035 }, ["environmental_texture"]),
     runtimeRoomProp("doorway-station-sign", "Ward Room", "f4d35e", "7c6220", { x: -1.02, y: 1.92, z: 1.86 }, { x: 0.34, y: 0.09, z: 0.025 }, ["room_identification"]),
   ];
 }
