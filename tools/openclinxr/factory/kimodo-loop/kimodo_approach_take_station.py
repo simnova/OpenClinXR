@@ -39,9 +39,12 @@ Usage (job-owned outputs only -- never write canonical evidence paths or store U
     --output "$JOB_TMP/physician-seed1.glb" \\
     --clip-name openclinxr_retarget_kimodo_approach_rb195b40700549c99_physician_seed1 \\
     --report "$JOB_TMP/physician-seed1.provenance.json"
-  # Historical run wrote .openclinxr/evidence/approach-take/physician-seed1.glb; that
-  # artifact was missing and is now preserved in the immutable store (see
-  # approach-take-retrieval-20261026.json); future runs must use job-owned paths above.
+  # Historical run wrote .openclinxr/evidence/approach-take/physician-seed1.glb; the
+  # original local path is historical only (no original-epoch authenticity claim) and the
+  # original preimage archive is retained. Current immutable address:
+  # store:4690ae15e3e690e5ff77fc76693cb87cddb9318ffbc3f5b6666bc4989af4a304/physician-seed1.glb
+  # (see tools/openclinxr/evidence/asset-store/approach-take-retrieval-20261026.json);
+  # future runs must use job-owned paths above.
 """
 import argparse
 import hashlib

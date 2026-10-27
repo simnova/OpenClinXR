@@ -82,7 +82,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const ANNY = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/anny");
 const CALL_SITE = join(REPO_ROOT, "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py");
-const BANK = join(REPO_ROOT, "packages/openclinxr/scenario-fixtures/src/pediatric-asthma.ts");
+const BANK = join(REPO_ROOT, "packages/openclinxr/scenario-fixtures/src/pediatric-asthma-mod.ts"); // PSR-08 facade: case lives in -mod, entry is keep-only re-export
 const EYE_MATS = join(mainWorktreeRoot(REPO_ROOT), ".openclinxr-local/provider-cache/eyes/makehuman-system-assets");
 
 /** Call the selector from a Blender-free import. Returns stdout, or "ERR:<Type>" when it raises. */

@@ -81,7 +81,7 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
 /** Runtime humanoid paths, read from the SSOT rather than restated, so a move breaks this loudly. */
 function runtimeHumanoidPaths(): string[] {
   const src = readFileSync(
-    `${REPO_ROOT}/apps/ui-xr/src/humanoid-runtime-asset-url.ts`,
+    `${REPO_ROOT}/packages/openclinxr/xr-scene/src/humanoid-runtime-asset-url.ts`,
     "utf8",
   );
   const paths = new Set<string>();

@@ -1,0 +1,67 @@
+{
+ "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+ "derivationMode": "orchestrate",
+ "scenarioId": "peds_asthma_parent_anxiety_v1",
+ "actorId": "parent_tara_johnson_v1",
+ "actorRole": "family",
+ "assetPath": "store:41754c7d7030d2ce4ca844e5a720e1b28119fa236466fe524b55ad1398c92b12/peds_anxious_parent.glb",
+ "riggingReportPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent_rigging_report.json",
+ "sourceManifestPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.anny_manifest.json",
+ "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
+ "sourceKind": "real_anny_candidate_unverified",
+ "usesRealAnnyForwardPass": true,
+ "realAnnyWeightsUsed": false,
+ "textureMode": "procedural_fallback",
+ "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+ "optimizationMode": "unoptimized_post_blender_glb",
+ "realismGrade": "B",
+ "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+ "sourceOriginChain": {
+  "sourceRecordPath": "sources/anny-github-2026.json",
+  "meshStage": "/Volumes/files/src/openclinxr/tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
+  "blenderStage": "/Volumes/files/src/openclinxr/tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+  "orchestrator": "/Volumes/files/src/openclinxr/tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
+  "optimizationStage": null,
+  "sourceManifestKind": "real_anny_candidate_unverified",
+  "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1"
+ },
+ "licenseChain": {
+  "status": "enumerated_from_source_record_at_orchestrate",
+  "annyCode": "Apache-2.0 per sources/anny-github-2026.json",
+  "mpfb2AdaptedAssets": "CC0 per sources/anny-github-2026.json",
+  "generatedCandidate": "OpenClinXR local Anny forward-pass candidate; no cloud provider, paid API, credential, external model download, or noncommercial download helper used",
+  "sourceRecordPath": "sources/anny-github-2026.json",
+  "notRun": []
+ },
+ "derivativeLineage": {
+  "status": "orchestrate_derivative",
+  "caseId": "peds_asthma_parent_anxiety_v1",
+  "actorId": "parent_tara_johnson_v1",
+  "actorRole": "family",
+  "reuseKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_candidate",
+  "sourceParametersHash": "89ca6d103c51744269dbcdae10163bf739d5f8475db6547e658f2f13741b4adc",
+  "notRun": []
+ },
+ "toolVersion": "openclinxr-real-anny-local-forward-pass-blender-v1-case-actor-presets",
+ "promptOrCaseParameterHash": "89ca6d103c51744269dbcdae10163bf739d5f8475db6547e658f2f13741b4adc",
+ "notEvidenceFor": [
+  "b_plus_visual_realism_gate",
+  "quest_readiness",
+  "production_asset_readiness",
+  "learner_readiness",
+  "clinical_validity",
+  "scoring_validity",
+  "scene_placement_readiness",
+  "provider_runtime_readiness",
+  "production_asset_readiness",
+  "quest_readiness",
+  "learner_readiness",
+  "clinical_validity",
+  "scoring_validity"
+ ],
+ "sourceNotes": [
+  "Generated through the installed local Anny package forward pass plus Blender procedural rigging/material fallback; preserved as a quarantined source candidate until isolated model-vetting evidence clears.",
+  "This is evidence of local Anny source generation only, not B+ realism, production, Quest, learner, clinical, or scoring readiness."
+ ],
+ "phenotypeSource": "case_definition"
+}

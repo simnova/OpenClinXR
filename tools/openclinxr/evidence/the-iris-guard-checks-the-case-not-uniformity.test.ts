@@ -70,7 +70,7 @@ import { describe, expect, it } from "vitest";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const GUARD = join(HERE, "eye-colour-is-case-driven.test.ts");
-const BANK = join(HERE, "../../../packages/openclinxr/scenario-fixtures/src/pediatric-asthma.ts");
+const BANK = join(HERE, "../../../packages/openclinxr/scenario-fixtures/src/pediatric-asthma-mod.ts"); // PSR-08 facade: case lives in -mod, entry is keep-only re-export
 
 describe("the iris guard checks the case, not uniformity", () => {
   it("(1) RED: the guard no longer fails merely because the cast is uniform", () => {

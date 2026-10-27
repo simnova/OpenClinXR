@@ -98,7 +98,7 @@ import { describe, expect, it } from "vitest";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const RUNTIME_STATE = join(REPO_ROOT, "apps/ui-xr/src/runtime-state.ts");
+const RUNTIME_STATE = join(REPO_ROOT, "packages/openclinxr/xr-runtime-state/src/runtime-state.ts");
 const FN = "locomotionAttemptFromEvidence";
 
 /** The six members declared at runtime-state.ts:203, plus the optional-property `undefined`. */

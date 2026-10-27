@@ -76,7 +76,7 @@ import { describe, expect, it } from "vitest";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const SUPINE_SRC = join(REPO_ROOT, "apps/ui-xr/src/supine-pose.ts");
+const SUPINE_SRC = join(REPO_ROOT, "packages/openclinxr/xr-pose/src/supine-pose.ts");
 const REPORT = join(HERE, "supine-rail-euler-switch.json");
 
 /** The 17 authored keys — clause (3) pins every one. */

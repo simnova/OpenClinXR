@@ -107,7 +107,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const SUITE = join(
   REPO_ROOT,
-  "packages/openclinxr-verification/architecture-rules/src/workspace-architecture.test.ts",
+  "packages/openclinxr-verification/architecture-rules/src/archunit-tests/workspace-architecture.test.ts",
 );
 
 /**
@@ -119,7 +119,7 @@ const SCAN_MODULE = [
   "..",
   "..",
   "packages",
-  "openclinxr",
+  "openclinxr-verification",
   "architecture-rules",
   "src",
   "checks",

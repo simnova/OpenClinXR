@@ -103,7 +103,7 @@ import { describe, expect, it } from "vitest";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const DUMP = join(HERE, "supine-pose-two-subject-dump.json");
-const SUPINE_POSE_SRC = join(REPO_ROOT, "apps/ui-xr/src/supine-pose.ts");
+const SUPINE_POSE_SRC = join(REPO_ROOT, "packages/openclinxr/xr-pose/src/supine-pose.ts");
 const CASTING_SRC = join(REPO_ROOT, "packages/openclinxr/asset-registry/src/actor-casting.ts");
 
 const CONTROL = "ed_chest_pain_adult_cast.glb";

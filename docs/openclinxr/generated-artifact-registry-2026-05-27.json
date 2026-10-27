@@ -43,8 +43,8 @@
   ],
   "counts": {
     "keep-evidence": 1965,
-    "ignore-local-cache": 2774,
-    "keep-current": 263,
+    "ignore-local-cache": 2787,
+    "keep-current": 264,
     "keep-template": 17,
     "keep-compatibility-input": 24
   },
@@ -11832,6 +11832,97 @@
     },
     {
       "path": ".openclinxr/evidence/issue-287/rebake-clearance-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/anny_stub.mtl",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.anny_base.obj",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.anny_base.obj",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.anny_base.obj",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": true,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.provenance.json",
       "authority": "ignore-local-cache",
       "tracked": true,
       "action": "ignore",
@@ -35212,6 +35303,13 @@
     },
     {
       "path": "tools/openclinxr/evidence/asset-store/approach-take-retrieval-20261026.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated-looking artifact retained by conservative default after explicit stale/cache/template rules."
+    },
+    {
+      "path": "tools/openclinxr/evidence/asset-store/issue288-retrieval-20261027.json",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",

@@ -24,9 +24,9 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 
 ## Counts
 
-- ignore-local-cache: 2774
+- ignore-local-cache: 2787
 - keep-compatibility-input: 24
-- keep-current: 263
+- keep-current: 264
 - keep-evidence: 1965
 - keep-template: 17
 
@@ -1704,6 +1704,19 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `.openclinxr/evidence/issue-287/peds-after-hiding.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/issue-287/pre-fix.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/issue-287/rebake-clearance-report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/anny_stub.mtl` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.anny_base.obj` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.anny_manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.bundle.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.provenance.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.anny_base.obj` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.anny_manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.bundle.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.provenance.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.anny_base.obj` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.anny_manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.bundle.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.provenance.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/issue-288/multi-case-rollup.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/issue-288/pre-fix.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/issue-289/pre-fix.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -3082,6 +3095,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/wall-plaster.jpg` - keep-current; keep; Ward-finish station input: operator-generated Grok Imagine painted plaster albedo (row-32 provenance, 2026-09-28 working set); staged for the ceiling-wiring follow-up.
 - `tools/openclinxr/asset-pipeline/trellis/equipment-freezes/ecg-cart.freeze.json` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
 - `tools/openclinxr/evidence/asset-store/approach-take-retrieval-20261026.json` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
+- `tools/openclinxr/evidence/asset-store/issue288-retrieval-20261027.json` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
 - `tools/openclinxr/evidence/blender/render_seated_clip_frames.py` - keep-current; keep; Hand-authored Blender producer for seated-clip frames, not generated output; tools/ is not a scan root.
 - `tools/openclinxr/evidence/clinical-touch/ed-input-trs-baseline.json` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
 - `tools/openclinxr/evidence/hair-muse4h/handoff-2026-10-23/part-guide1-vs-target-open8-1to1.png` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.

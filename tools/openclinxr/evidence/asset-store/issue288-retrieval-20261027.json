@@ -1,0 +1,218 @@
+{
+  "retrievedAt": "2026-10-27T00:20:54.270925+00:00",
+  "sourceHead": "f236e615cbb571c1c8495635afef9ea9bae11d1d",
+  "scope": "Current immutable retrieval only; historical epoch authentication UNKNOWN; no visual or readiness reacceptance",
+  "storeRoot": "/Volumes/files/openclinxr-assets/store/ci-gap-evidence-20261026/ci-gap-evidence-20261026",
+  "manifestRef": "store:4b7078e7e7e6e057a5f67dec875a45002e87ed5b6ba37b6816b7f3112fcefa10/archive-set-manifest.json",
+  "parentProofRef": "store:5b328552c4aed4125a1013aedb77666ff39b9f54a7169b4a91ed4de7f52e3fc2/issue288-closure-proof.json",
+  "originalEpochAuthentication": "UNVERIFIED UNKNOWN",
+  "noAssetPromotion": true,
+  "noVisualPromotion": true,
+  "storeObjects": [
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_patient_child.glb",
+      "storeRef": "store:5c87e7805139bab8cc5db2729ae5dc1c51673e18b3a2651bb327cf119cb58269/peds_patient_child.glb",
+      "sha256": "5c87e7805139bab8cc5db2729ae5dc1c51673e18b3a2651bb327cf119cb58269",
+      "bytes": 6769880
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_nurse_kevin.glb",
+      "storeRef": "store:e8b5f9ea84cce53f944138426f24c7aaeb21cc6b20aa0983122504dbb6fb9292/peds_nurse_kevin.glb",
+      "sha256": "e8b5f9ea84cce53f944138426f24c7aaeb21cc6b20aa0983122504dbb6fb9292",
+      "bytes": 7767252
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_anxious_parent.glb",
+      "storeRef": "store:41754c7d7030d2ce4ca844e5a720e1b28119fa236466fe524b55ad1398c92b12/peds_anxious_parent.glb",
+      "sha256": "41754c7d7030d2ce4ca844e5a720e1b28119fa236466fe524b55ad1398c92b12",
+      "bytes": 8811376
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.provenance.json",
+      "storeRef": "store:a2bec6b0c54b84e95c62b2a81c4a720867aff4d3fe9a1992a69b6a5527efcd67/peds_patient_child.provenance.json",
+      "sha256": "a2bec6b0c54b84e95c62b2a81c4a720867aff4d3fe9a1992a69b6a5527efcd67",
+      "bytes": 3586
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child_rigging_report.json",
+      "storeRef": "store:43bed620895f660530409a93c23f0f681baf6fcf47d255a7d58f6b59ca2e7fbb/peds_patient_child_rigging_report.json",
+      "sha256": "43bed620895f660530409a93c23f0f681baf6fcf47d255a7d58f6b59ca2e7fbb",
+      "bytes": 27489
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.glb",
+      "storeRef": "store:5c87e7805139bab8cc5db2729ae5dc1c51673e18b3a2651bb327cf119cb58269/peds_patient_child.glb",
+      "sha256": "5c87e7805139bab8cc5db2729ae5dc1c51673e18b3a2651bb327cf119cb58269",
+      "bytes": 6769880
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.anny_manifest.json",
+      "storeRef": "store:a41fb6e132deeec576b485e3a22651896dca011e598cff261dedd6f6a53d2578/peds_patient_child.anny_manifest.json",
+      "sha256": "a41fb6e132deeec576b485e3a22651896dca011e598cff261dedd6f6a53d2578",
+      "bytes": 4590
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.anny_base.obj",
+      "storeRef": "store:c99f7177ca8cb6d25a2c1df2d49ec9d987d9aa82819cf97542638b408bb1af53/peds_patient_child.anny_base.obj",
+      "sha256": "c99f7177ca8cb6d25a2c1df2d49ec9d987d9aa82819cf97542638b408bb1af53",
+      "bytes": 1289924
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.bundle.json",
+      "storeRef": "store:84ddeaa77c003de074f1282b9f658b39b6ee7c7f8a8103b7d23eca1a91afe767/peds_patient_child.bundle.json",
+      "sha256": "84ddeaa77c003de074f1282b9f658b39b6ee7c7f8a8103b7d23eca1a91afe767",
+      "bytes": 2377
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.provenance.json",
+      "storeRef": "store:9faad3a98b2b1f2d603baa5edb04f696ef4847044aa548e54a91f47d9c2821d2/peds_nurse_kevin.provenance.json",
+      "sha256": "9faad3a98b2b1f2d603baa5edb04f696ef4847044aa548e54a91f47d9c2821d2",
+      "bytes": 3559
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin_rigging_report.json",
+      "storeRef": "store:6c6b8b2b8edc181ae8e2523a6cc33dfa53fc7b2753c55ff9f5944574fdc2b58a/peds_nurse_kevin_rigging_report.json",
+      "sha256": "6c6b8b2b8edc181ae8e2523a6cc33dfa53fc7b2753c55ff9f5944574fdc2b58a",
+      "bytes": 30555
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.glb",
+      "storeRef": "store:e8b5f9ea84cce53f944138426f24c7aaeb21cc6b20aa0983122504dbb6fb9292/peds_nurse_kevin.glb",
+      "sha256": "e8b5f9ea84cce53f944138426f24c7aaeb21cc6b20aa0983122504dbb6fb9292",
+      "bytes": 7767252
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.anny_manifest.json",
+      "storeRef": "store:ec488e9f81505259ccaebb048fe141cc76583d8b2ccf3bdca2df950a90377b16/peds_nurse_kevin.anny_manifest.json",
+      "sha256": "ec488e9f81505259ccaebb048fe141cc76583d8b2ccf3bdca2df950a90377b16",
+      "bytes": 4793
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.anny_base.obj",
+      "storeRef": "store:1124ef98b6ee0438d4e7573700eaaed8793d3bad6810c851aeae0a9340bf37cc/peds_nurse_kevin.anny_base.obj",
+      "sha256": "1124ef98b6ee0438d4e7573700eaaed8793d3bad6810c851aeae0a9340bf37cc",
+      "bytes": 1252891
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.bundle.json",
+      "storeRef": "store:b80243b6d905111d6d4a8da62cbb9d23ab600181f39b84bd7606cd01b3f121ba/peds_nurse_kevin.bundle.json",
+      "sha256": "b80243b6d905111d6d4a8da62cbb9d23ab600181f39b84bd7606cd01b3f121ba",
+      "bytes": 2360
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.provenance.json",
+      "storeRef": "store:3cc60c9cef198748484011b30704faca11dc82f9c696b76a77b2e30f427ad01f/peds_anxious_parent.provenance.json",
+      "sha256": "3cc60c9cef198748484011b30704faca11dc82f9c696b76a77b2e30f427ad01f",
+      "bytes": 3583
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent_rigging_report.json",
+      "storeRef": "store:b8522bddff86d9600bddd370d35c52308b991dbc5887f3c35932d293b7a21b73/peds_anxious_parent_rigging_report.json",
+      "sha256": "b8522bddff86d9600bddd370d35c52308b991dbc5887f3c35932d293b7a21b73",
+      "bytes": 30632
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.glb",
+      "storeRef": "store:41754c7d7030d2ce4ca844e5a720e1b28119fa236466fe524b55ad1398c92b12/peds_anxious_parent.glb",
+      "sha256": "41754c7d7030d2ce4ca844e5a720e1b28119fa236466fe524b55ad1398c92b12",
+      "bytes": 8811376
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.anny_manifest.json",
+      "storeRef": "store:1175636ca55a3468bab5e3ea8c0c55ab3a06b84e2e4b5c167d90b5f0d604dfc7/peds_anxious_parent.anny_manifest.json",
+      "sha256": "1175636ca55a3468bab5e3ea8c0c55ab3a06b84e2e4b5c167d90b5f0d604dfc7",
+      "bytes": 4630
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.anny_base.obj",
+      "storeRef": "store:29c1fe5dc3798c7301325cdb594d62cba8d47a741f2c7906fcc6e70ccceacb3e/peds_anxious_parent.anny_base.obj",
+      "sha256": "29c1fe5dc3798c7301325cdb594d62cba8d47a741f2c7906fcc6e70ccceacb3e",
+      "bytes": 1252777
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.bundle.json",
+      "storeRef": "store:aca6705afcff315a1106d5c8029068fd3de5e17166c0120b54427f657871fc0d/peds_anxious_parent.bundle.json",
+      "sha256": "aca6705afcff315a1106d5c8029068fd3de5e17166c0120b54427f657871fc0d",
+      "bytes": 2380
+    },
+    {
+      "key": "current-parent-closure-proof",
+      "storeRef": "store:5b328552c4aed4125a1013aedb77666ff39b9f54a7169b4a91ed4de7f52e3fc2/issue288-closure-proof.json",
+      "sha256": "5b328552c4aed4125a1013aedb77666ff39b9f54a7169b4a91ed4de7f52e3fc2",
+      "bytes": 15140
+    },
+    {
+      "key": "current-archive-manifest",
+      "storeRef": "store:4b7078e7e7e6e057a5f67dec875a45002e87ed5b6ba37b6816b7f3112fcefa10/archive-set-manifest.json",
+      "sha256": "4b7078e7e7e6e057a5f67dec875a45002e87ed5b6ba37b6816b7f3112fcefa10",
+      "bytes": 10724
+    }
+  ],
+  "physicalGlbAvailableInStoreNotInHead": [
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_patient_child.glb",
+      "storeRef": "store:5c87e7805139bab8cc5db2729ae5dc1c51673e18b3a2651bb327cf119cb58269/peds_patient_child.glb",
+      "sha256": "5c87e7805139bab8cc5db2729ae5dc1c51673e18b3a2651bb327cf119cb58269",
+      "bytes": 6769880
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_nurse_kevin.glb",
+      "storeRef": "store:e8b5f9ea84cce53f944138426f24c7aaeb21cc6b20aa0983122504dbb6fb9292/peds_nurse_kevin.glb",
+      "sha256": "e8b5f9ea84cce53f944138426f24c7aaeb21cc6b20aa0983122504dbb6fb9292",
+      "bytes": 7767252
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_anxious_parent.glb",
+      "storeRef": "store:41754c7d7030d2ce4ca844e5a720e1b28119fa236466fe524b55ad1398c92b12/peds_anxious_parent.glb",
+      "sha256": "41754c7d7030d2ce4ca844e5a720e1b28119fa236466fe524b55ad1398c92b12",
+      "bytes": 8811376
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.glb",
+      "storeRef": "store:5c87e7805139bab8cc5db2729ae5dc1c51673e18b3a2651bb327cf119cb58269/peds_patient_child.glb",
+      "sha256": "5c87e7805139bab8cc5db2729ae5dc1c51673e18b3a2651bb327cf119cb58269",
+      "bytes": 6769880
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.glb",
+      "storeRef": "store:e8b5f9ea84cce53f944138426f24c7aaeb21cc6b20aa0983122504dbb6fb9292/peds_nurse_kevin.glb",
+      "sha256": "e8b5f9ea84cce53f944138426f24c7aaeb21cc6b20aa0983122504dbb6fb9292",
+      "bytes": 7767252
+    },
+    {
+      "key": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.glb",
+      "storeRef": "store:41754c7d7030d2ce4ca844e5a720e1b28119fa236466fe524b55ad1398c92b12/peds_anxious_parent.glb",
+      "sha256": "41754c7d7030d2ce4ca844e5a720e1b28119fa236466fe524b55ad1398c92b12",
+      "bytes": 8811376
+    }
+  ],
+  "consumerProof": {
+    "consumer": "tools/openclinxr/evidence/asset-store/resolve-store-ref.ts",
+    "rc": 0,
+    "actualLogSha256": "fe32976ebaee4a43015baeb85baa6e85987cb1388b6ebf05ab831007f6345a0a",
+    "consumerSha256": "93ca2b3705778bf80885c0fe29aacfaa12330fb845da5ffc28f59d1e89c427ff",
+    "archivePhysicalReadbacks": 23,
+    "uniqueStoreObjects": 20,
+    "actualResolveInputReads": 3,
+    "allGlbsSelfContained": true,
+    "noAssetPromotion": true,
+    "originalEpochAuthentication": "UNKNOWN"
+  },
+  "replayLimitation": "upstream neutral-generated-human.glb absent; old-template replay not closable",
+  "adoptedFiles": {
+    "peds_patient_child.bundle.json": "c271f565c43f982580aa00f6603a001d83d4e1f33786ebf2801b9145a25c95f5",
+    "peds_patient_child.provenance.json": "31db56ab042124745bb50d42135ffc1044c542d6a7700ef085f13c217eb24a7a",
+    "peds_nurse_kevin.bundle.json": "4b6e368fcc7669402873927abdc9729718f5f39621bec5646723c8de89b8df4a",
+    "peds_nurse_kevin.provenance.json": "24cba09f1e948c8ea7a90fb514620dc4241e6583990ed522381546154595086d",
+    "peds_anxious_parent.bundle.json": "473a1736127cdb81c199d04f0da2abd375fc11ed4883b6aa24facf1d48996017",
+    "peds_anxious_parent.provenance.json": "b6df11c76d96dc167fde2884919775d917557ccdbf24cc3c449683ad3794e3f4",
+    "peds_patient_child.anny_manifest.json": "a41fb6e132deeec576b485e3a22651896dca011e598cff261dedd6f6a53d2578",
+    "peds_patient_child.anny_base.obj": "c99f7177ca8cb6d25a2c1df2d49ec9d987d9aa82819cf97542638b408bb1af53",
+    "peds_nurse_kevin.anny_manifest.json": "ec488e9f81505259ccaebb048fe141cc76583d8b2ccf3bdca2df950a90377b16",
+    "peds_nurse_kevin.anny_base.obj": "1124ef98b6ee0438d4e7573700eaaed8793d3bad6810c851aeae0a9340bf37cc",
+    "peds_anxious_parent.anny_manifest.json": "1175636ca55a3468bab5e3ea8c0c55ab3a06b84e2e4b5c167d90b5f0d604dfc7",
+    "peds_anxious_parent.anny_base.obj": "29c1fe5dc3798c7301325cdb594d62cba8d47a741f2c7906fcc6e70ccceacb3e",
+    "anny_stub.mtl": "5055264a917e6a4a5d3790bbe2e3adce283c4e54a623c71798c5b31089cf3b12"
+  },
+  "sourceEpochClaim": "Current retrieved bytes only; original generation epoch and producer ancestry UNKNOWN"
+}
