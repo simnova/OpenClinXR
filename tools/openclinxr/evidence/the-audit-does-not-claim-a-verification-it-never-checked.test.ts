@@ -27,19 +27,57 @@
  *
  * THIS HEADER IS IMMUTABLE. Flip the assertion and append a `## FIXED (#721)` block below.
  */
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+/**
+ * ## QUALIFICATION (2026-10-27, portable contract proposal)
+ *
+ * The header above and the `## FIXED (#721)` block below are the immutable 2026-08-27/28
+ * historical record: a real-card report measured against the live ledger (issue-692/693).
+ * That live ledger is gitignored private state and is NOT read or authenticated here.
+ * Every fixture in THIS file is synthetic, written to a unique mkdtemp root per test with
+ * cleanup, uses distinct synthetic issue/session IDs, and never reads the real 692/693 rows.
+ * `describeDispatchProofs(tempRoot, syntheticID)` is called purely against those temp ledgers
+ * in the exact worker-sessions.jsonl shape. No historical IDs or evidence are fabricated.
+ */
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
 
 const REPO = resolve(import.meta.dirname, "../../..");
 const AUDIT = resolve(REPO, "tools/openclinxr/openclaw/supervisor-audit.ts");
-const LEDGER = resolve(REPO, ".openclinxr/openclaw/worker-sessions.jsonl");
 
-/** The exact cards that produced the false message, not a stand-in. */
-const FALSE_CASES = [692, 693];
+/** Synthetic cards mirroring the 692/693 shape: proofsOk=false with live-family failures. */
+const FALSE_CASES = [602001, 602002];
 
-function lastDispatchRow(issue: number): { proofsOk?: boolean } | null {
-  const lines = readFileSync(LEDGER, "utf8").split("\n").filter(Boolean);
+const tmpRoots: string[] = [];
+afterEach(() => {
+  while (tmpRoots.length > 0) rmSync(tmpRoots.pop()!, { recursive: true, force: true });
+});
+
+function tempRoot(): string {
+  const root = mkdtempSync(join(tmpdir(), "audit-ledger-"));
+  tmpRoots.push(root);
+  return root;
+}
+
+function writeLedger(root: string, rows: unknown[]): void {
+  mkdirSync(join(root, ".openclinxr/openclaw"), { recursive: true });
+  writeFileSync(
+    join(root, ".openclinxr/openclaw/worker-sessions.jsonl"),
+    rows.map((r) => JSON.stringify(r)).join("\n") + "\n",
+    "utf8",
+  );
+}
+
+function seedFalseLedger(root: string): void {
+  writeLedger(root, [
+    { slice: `issue-${FALSE_CASES[0]}`, sessionId: "sess-synth-a", phase: "completed", proofsOk: false, proofs: [{ rule: "live:plant-still-fails", passed: false }] },
+    { slice: `issue-${FALSE_CASES[1]}`, sessionId: "sess-synth-b", phase: "completed", proofsOk: false, proofs: [{ rule: "live:sweep-missing", passed: false }, { rule: "exists:sweep.json", passed: false }] },
+  ]);
+}
+
+function lastDispatchRow(root: string, issue: number): { proofsOk?: boolean } | null {
+  const lines = readFileSync(join(root, ".openclinxr/openclaw/worker-sessions.jsonl"), "utf8").split("\n").filter(Boolean);
   for (let i = lines.length - 1; i >= 0; i -= 1) {
     if (!lines[i]!.includes(`"slice":"issue-${issue}"`)) continue;
     try {
@@ -61,27 +99,32 @@ describe("#721 the audit does not assert a dispatch verification it never read",
   it("(1b) the message BEHAVES — it names the real dispatch failure, not a template", async () => {
     // Source-text clauses prove a literal is gone. They cannot prove the replacement fires, and no
     // card on the board currently reaches this branch (every Landed card has an artifact), so the
-    // wording would otherwise ship untested. Exercise it against the two cards that produced the
-    // false message.
+    // wording would otherwise ship untested. Exercise it against synthetic cards carrying the same
+    // shape as the two cards that produced the false message.
+    const root = tempRoot();
+    seedFalseLedger(root);
     const mod = (await import("../openclaw/supervisor-audit.js")) as {
       describeDispatchProofs?: (root: string, issue: number) => string;
     };
     expect(typeof mod.describeDispatchProofs).toBe("function");
     for (const issue of FALSE_CASES) {
-      const text = mod.describeDispatchProofs!(REPO, issue);
+      const text = mod.describeDispatchProofs!(root, issue);
       expect(text, `issue-${issue}`).toContain("dispatch record says proofs FAILED");
       // The failing rule kinds must be named, or the operator learns nothing actionable.
       expect(text, `issue-${issue}`).toContain("live");
     }
     // And the UNKNOWN branch must be reachable rather than decorative.
-    expect(mod.describeDispatchProofs!(REPO, 999_999)).toContain("UNKNOWN");
+    expect(mod.describeDispatchProofs!(root, 999_999)).toContain("UNKNOWN");
   });
 
-  it("(2) the known-good column: the ledger records the truth the message contradicts", () => {
-    // If this fails, the premise is gone and clause (1) is asserting about nothing — the cards were
-    // re-dispatched, or the ledger was rotated. Check that before touching the message.
+  it("(2) the synthetic known-good column: the synthetic ledger records proofs FAILED", () => {
+    // Synthetic contract only, not a historical authentication: the temp ledger above carries
+    // proofsOk=false rows in the exact worker-sessions.jsonl shape. If this fails, the
+    // synthetic seeding broke — not that a live campaign rotated.
+    const root = tempRoot();
+    seedFalseLedger(root);
     for (const issue of FALSE_CASES) {
-      const row = lastDispatchRow(issue);
+      const row = lastDispatchRow(root, issue);
       expect(row, `no ledger row for issue-${issue}`).not.toBeNull();
       expect(row?.proofsOk, `issue-${issue} proofsOk`).toBe(false);
     }

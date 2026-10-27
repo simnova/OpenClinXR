@@ -1,7 +1,9 @@
-import { readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import * as ts from "typescript";
 
 /**
  * # THE DEFECT, MEASURED 2026-08-19 on main cd51020a — do not re-derive these rows
@@ -107,15 +109,24 @@ import { describe, expect, it } from "vitest";
  *   - **Whether the board is the right substrate at all.** That is the operator's call and it is
  *     already made; this slice implements it, it does not evaluate it.
  */
+/**
+ * ## QUALIFICATION (2026-10-27, portable contract proposal)
+ *
+ * The header above is the immutable 2026-08-19 historical record: a real-campaign report
+ * measured against the live ledger (issue-440 with role openclaw-drift-police plus rows
+ * without roles). That live ledger is gitignored private state and is NOT read here.
+ * Clause (5) in THIS file is synthetic: it writes an explicit synthetic ledger to a unique
+ * mkdtemp root per test with cleanup, in the exact worker-sessions.jsonl shape, carrying
+ * one row with a real role alongside rows without roles. No historical IDs are reused.
+ */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = join(HERE, "../../..");
 
 const DISPATCH = join(REPO_ROOT, "tools/openclinxr/openclaw/dispatch-worker.ts");
 const INTEGRATE = join(REPO_ROOT, "tools/openclinxr/openclaw/integrate.ts");
 const BOARD_CLI = join(REPO_ROOT, "tools/openclinxr/openclaw/board-cli.ts");
 const DIRECTIVES = join(REPO_ROOT, "packages/openclinxr/agent-loop/src/worker-directives.ts");
-const LEDGER = join(REPO_ROOT, ".openclinxr/openclaw/worker-sessions.jsonl");
 
 const BLOCK = /\/\*[\s\S]*?\*\//gu;
 const LINE = /^[ \t]*\/\/.*$/gmu;
@@ -125,6 +136,59 @@ const code = (p: string): string => readFileSync(p, "utf8").replace(BLOCK, "").r
 const dispatchSrc = code(DISPATCH);
 const integrateSrc = code(INTEGRATE);
 const boardSrc = code(BOARD_CLI);
+
+const tmpRoots: string[] = [];
+
+/** Minimal pure string-expression evaluator: string/template literals plus `+` only. */
+function evalStringExpr(node: ts.Expression): string {
+  if (ts.isStringLiteralLike(node)) return node.text;
+  if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+    return evalStringExpr(node.left) + evalStringExpr(node.right);
+  }
+  if (ts.isParenthesizedExpression(node)) return evalStringExpr(node.expression);
+  throw new Error(`unsupported directive initializer: ${ts.SyntaxKind[node.kind]}`);
+}
+
+/** Exact top-level `export const NAME = <pure string expr>` value via the TypeScript AST. */
+function readDirectiveValue(sourcePath: string, name: string): string {
+  const program = ts.createSourceFile(sourcePath, readFileSync(sourcePath, "utf8"), ts.ScriptTarget.Latest, true);
+  for (const stmt of program.statements) {
+    if (!ts.isVariableStatement(stmt)) continue;
+    if ((stmt.declarationList.flags & ts.NodeFlags.Const) === 0) continue;
+    if (!stmt.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)) continue;
+    for (const decl of stmt.declarationList.declarations) {
+      if (decl.name.getText(program) === name) {
+        if (!decl.initializer || !ts.isExpression(decl.initializer)) throw new Error(`no initializer for ${name}`);
+        return evalStringExpr(decl.initializer);
+      }
+    }
+  }
+  throw new Error(`top-level const ${name} not found in ${sourcePath}`);
+}
+afterEach(() => {
+  while (tmpRoots.length > 0) rmSync(tmpRoots.pop()!, { recursive: true, force: true });
+});
+
+function writeSyntheticLedger(): string {
+  const root = mkdtempSync(join(tmpdir(), "board-ledger-"));
+  tmpRoots.push(root);
+  mkdirSync(join(root, ".openclinxr/openclaw"), { recursive: true });
+  const rows = [
+    { slice: "issue-603001", sessionId: "sess-no-role-1", phase: "completed", proofsOk: true, proofs: [] },
+    { slice: "issue-603002", sessionId: "sess-no-role-2", phase: "completed", proofsOk: true, proofs: [] },
+    { slice: "issue-603003", sessionId: "sess-no-role-3", phase: "completed", proofsOk: true, proofs: [] },
+    { slice: "issue-603004", sessionId: "sess-no-role-4", phase: "completed", proofsOk: true, proofs: [] },
+    { slice: "issue-603005", sessionId: "sess-no-role-5", phase: "completed", proofsOk: true, proofs: [] },
+    { slice: "issue-603006", sessionId: "sess-no-role-6", phase: "completed", proofsOk: false, proofs: [] },
+    { slice: "issue-603007", sessionId: "sess-synth-role", phase: "completed", proofsOk: true, proofs: [], role: "openclaw-drift-police" },
+  ];
+  writeFileSync(
+    join(root, ".openclinxr/openclaw/worker-sessions.jsonl"),
+    rows.map((r) => JSON.stringify(r)).join("\n") + "\n",
+    "utf8",
+  );
+  return join(root, ".openclinxr/openclaw/worker-sessions.jsonl");
+}
 
 describe("the board is the dequeue queue, and workers have a voice", () => {
   it("(1) RED: dispatch refuses a slice with no role", () => {
@@ -178,16 +242,30 @@ describe("the board is the dequeue queue, and workers have a voice", () => {
     ).toBe(false);
   });
 
-  it("(5) VACUITY GUARD: the ledger holds the one dispatch that did pass a role", () => {
-    // Reads the ledger, not the absent surfaces, so it passes today and keeps passing: if role
-    // support is dropped, this goes red before the clauses above become unfalsifiable.
+  it("(5) VACUITY GUARD: the seeded role composes through the real role support", async () => {
+    // Synthetic ledger in the exact worker-sessions.jsonl shape: rows without roles plus one
+    // row carrying the real canonical role openclaw-drift-police. The guard binds to the
+    // actual exported role support: assertDispatchRole(role, REPO_ROOT) accepts it,
+    // and the directive VALUE is read from the DIRECTIVES source via the TypeScript AST;
+    // buildRoleCharterAppendix(role, REPO_ROOT) is non-empty and carries the shared
+    // worker status directive, and missing/unknown roles reject. No dispatch, spawn,
+    // network, or main-ledger read; temp root holds only the synthetic ledger.
+    const LEDGER = writeSyntheticLedger();
     const rows = readFileSync(LEDGER, "utf8").split("\n").filter((l) => l.trim().length > 0);
-    expect(rows.length, "the dispatch ledger must not be empty").toBeGreaterThan(5);
-    const withRole = rows.filter((l) => /"role"\s*:\s*"[a-z][a-z0-9-]+"/u.test(l));
-    expect(
-      withRole.length,
-      `no ledger row carries a real role — issue-440 (openclaw-drift-police) is the only evidence `
-        + `in this tree that the composed path works end to end`,
-    ).toBeGreaterThan(0);
+    expect(rows.length, "the synthetic ledger must hold rows with and without roles").toBeGreaterThan(5);
+    const withRole = rows.filter((l) => l.includes('"role":"openclaw-drift-police"'));
+    expect(withRole.length, "synthetic ledger must seed the canonical role").toBeGreaterThan(0);
+    const mod = (await import("../openclaw/dispatch-worker.js")) as {
+      assertDispatchRole: (role: string | undefined, repoRoot: string) => void;
+      buildRoleCharterAppendix: (role: string, repoRoot?: string) => string;
+    };
+    expect(() => mod.assertDispatchRole("openclaw-drift-police", REPO_ROOT)).not.toThrow();
+    const appendix = mod.buildRoleCharterAppendix("openclaw-drift-police", REPO_ROOT);
+    expect(appendix.length, "baked charter must be non-empty for the canonical role").toBeGreaterThan(0);
+    const directiveValue = readDirectiveValue(DIRECTIVES, "WORKER_STATUS_REPORTING_DIRECTIVE");
+    expect(directiveValue.length, "shared worker directive must be non-empty").toBeGreaterThan(0);
+    expect(appendix, "baked charter must carry the actual shared status directive").toContain(directiveValue);
+    expect(() => mod.assertDispatchRole(undefined, REPO_ROOT)).toThrow(/role is required/);
+    expect(() => mod.assertDispatchRole("not-a-real-role", REPO_ROOT)).toThrow(/not a dispatchable repo role/);
   });
 });
