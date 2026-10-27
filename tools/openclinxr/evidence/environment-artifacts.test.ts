@@ -55,7 +55,7 @@ describe("environment artifacts", () => {
     }
   });
 
-  it("writes a local ED bay layout evidence bundle without readiness claims", async () => {
+  it("writes a local ED bay layout evidence bundle without readiness claims", async (ctx) => {
     // The emitter's full path now includes the Cycles albedo+AO bake stage
     // (issue-345) — build (~10 s) + bake (~45 s) per invocation.
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-environment-artifacts-"));
@@ -64,6 +64,7 @@ describe("environment artifacts", () => {
       const report = await writeEnvironmentArtifacts({
         outputRoot: path.join(tempDir, "environment"),
         reportPath,
+        signal: ctx.signal,
       });
 
       expect(report.verdict).toEqual({
@@ -148,13 +149,14 @@ describe("environment artifacts", () => {
     }
   });
 
-  it("rejects production or Quest readiness claims", async () => {
+  it("rejects production or Quest readiness claims", async (ctx) => {
     // Full emitter path (build + issue-345 bake stage) — needs >5 s.
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-environment-invalid-"));
     try {
       const report = await writeEnvironmentArtifacts({
         outputRoot: path.join(tempDir, "environment"),
         reportPath: path.join(tempDir, "environment-artifacts.json"),
+        signal: ctx.signal,
       });
       const invalid = structuredClone(report) as unknown as {
         policy: { productionAssetReadinessClaimed: boolean; questReadinessClaimed: boolean };

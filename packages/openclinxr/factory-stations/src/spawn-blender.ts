@@ -6,10 +6,10 @@ export type BlenderProcessResult = ComputeProcessResult;
 export function spawnBlenderProcess(
   blender: string,
   args: string[],
-  opts: { cwd: string; timeoutMs: number },
+  opts: { cwd: string; timeoutMs: number; signal?: AbortSignal },
 ): Promise<BlenderProcessResult> {
   const script = args.find((arg) => arg.endsWith(".py"));
-  return createLocalComputeServices({ cwd: opts.cwd }).blender.run({
+  return createLocalComputeServices({ cwd: opts.cwd, ...(opts.signal === undefined ? {} : { signal: opts.signal }) }).blender.run({
     script: blender,
     args,
     label: `blender:${script ?? args[0] ?? "process"}`,

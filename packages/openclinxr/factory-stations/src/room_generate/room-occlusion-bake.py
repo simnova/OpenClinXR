@@ -56,7 +56,7 @@ small few large islands. Same pattern as D3b's BAKE_UV box_project_into (0711c8a
 Usage (inside Blender 5.1 headless):
   blender --background --python room-occlusion-bake.py -- \
     --input <room.glb> --output <baked.glb> [--resolution 512 (AO_DEFAULT_RESOLUTION, budget max)] \
-    [--device cpu|metal]
+    [--device auto|metal|cpu (default cpu)]
 
 Exit 0 on success; non-zero with a printed error on any bake failure (the input GLB is
 never modified in place).
@@ -332,28 +332,64 @@ def box_project_group(objects: List[bpy.types.Object], layer_name: str, resoluti
     separate_coplanar_uv_groups(objects, layer_name, resolution)
 
 
+def resolve_occlusion_device(requested: str, available_types: List[str]) -> str:
+    """Pure backend selection for the occlusion Cycles bake (no Blender dependency).
+
+    Explicit `metal` fails closed when no METAL device exists (silently falling
+    back to CPU would misreport the device the bake ran on); `auto` chooses
+    Metal when available and CPU otherwise; anything else is rejected. The
+    Blender-touching setup_scene() below applies the returned choice, so this
+    function is unit-testable without Blender (stub bpy and import).
+    """
+    if requested == "metal":
+        if "METAL" not in available_types:
+            raise RuntimeError("room occlusion bake --device metal: no METAL Cycles device found")
+        return "metal"
+    if requested == "cpu":
+        return "cpu"
+    if requested == "auto":
+        return "metal" if "METAL" in available_types else "cpu"
+    raise RuntimeError(f"room occlusion bake --device must be auto|metal|cpu (got {requested!r})")
+
+
 def setup_scene(device: str = "cpu") -> None:
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
     scene.cycles.samples = AO_SAMPLES
     scene.cycles.seed = AO_SEED
-    if device == "metal":
-        # Same fail-closed pattern as bake_shell_materials.setup_bake_scene:
-        # silently falling back to CPU would misreport the device this bake ran on.
-        prefs = bpy.context.preferences.addons["cycles"].preferences
-        prefs.compute_device_type = "METAL"
-        prefs.get_devices()
-        metal = [d for d in prefs.devices if d.type == "METAL"]
-        if not metal:
-            raise RuntimeError("room occlusion bake --device metal: no METAL Cycles device found")
-        for d in prefs.devices:
-            d.use = d.type == "METAL"
-        scene.cycles.device = "GPU"
-        print(f"[room-ao] device=metal ({len(metal)} Metal device(s) enabled)")
+    # Cycles device (same fail-closed pattern as room-albedo-ao-bake.py
+    # setup_scene: silently falling back to CPU would misreport the device
+    # this bake ran on). `auto` chooses Metal when a METAL device exists and
+    # CPU otherwise, so callers that pass --device auto get the supported
+    # local GPU on compatible Macs and a true CPU fallback elsewhere.
+    # Per-process Blender preferences only: the background process exits
+    # after the bake, so no global Blender prefs or environment are mutated.
+    prefs = bpy.context.preferences.addons["cycles"].preferences
+    if device in ("metal", "auto"):
+        try:
+            prefs.compute_device_type = "METAL"
+            prefs.get_devices()
+            available_types = [d.type for d in prefs.devices]
+        except Exception:
+            # Cycles builds without a METAL enum entry (e.g. Linux CUDA/OPTIX
+            # builds) cannot probe Metal at all: explicit metal still fails
+            # closed below; auto falls back to CPU.
+            available_types = []
+        chosen = resolve_occlusion_device(device, available_types)
+        if chosen == "metal":
+            metal = [d for d in prefs.devices if d.type == "METAL"]
+            for d in prefs.devices:
+                d.use = d.type == "METAL"
+            scene.cycles.device = "GPU"
+            suffix = "->metal" if device == "auto" else ""
+            print(f"[room-ao] device={device}{suffix} ({len(metal)} Metal device(s) enabled)")
+        else:
+            scene.cycles.device = "CPU"
+            print("[room-ao] device=auto->cpu (no METAL Cycles device found)")
     elif device == "cpu":
         scene.cycles.device = "CPU"
     else:
-        raise RuntimeError(f"room occlusion bake --device must be cpu|metal (got {device!r})")
+        raise RuntimeError(f"room occlusion bake --device must be auto|metal|cpu (got {device!r})")
     if hasattr(scene.cycles, "use_denoising"):
         scene.cycles.use_denoising = False
     # Margin 0: island gutters are filled by dilate_unpainted_texels from the
@@ -714,8 +750,9 @@ def main() -> None:
     ap.add_argument("--input", required=True)
     ap.add_argument("--output", required=True)
     ap.add_argument("--resolution", type=int, default=AO_DEFAULT_RESOLUTION)
-    ap.add_argument("--device", choices=("cpu", "metal"), default="cpu",
-                    help="Cycles device for the EMIT+AO bake (default cpu; metal is "
+    ap.add_argument("--device", choices=("auto", "metal", "cpu"), default="cpu",
+                    help="Cycles device for the EMIT+AO bake (default cpu; auto "
+                    "selects Metal when a METAL device exists else CPU; metal is "
                     "fail-closed when no METAL device exists)")
     ap.add_argument("--exclude-shell-cornice", action="store_true",
                     help="hide the decorative shell cornice from bake rays: the "

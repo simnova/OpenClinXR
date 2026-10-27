@@ -1,19 +1,16 @@
-import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { promisify } from "node:util";
-import { withComputeSlot } from "@openclinxr/compute-slots/slots";
 import { ROOM_ALBEDO_REL, ROOM_OCCLUSION_REL, runRoomGenerate } from "@openclinxr/factory-stations";
+import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
 import {
   type EncounterRuntimeAsset,
   type RuntimeAssetStoreConfig,
   registerGeneratedRuntimeAssetReference,
   resolveRuntimeAssetStoreConfig,
 } from "../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
-
-const execFileAsync = promisify(execFile);
+import { prepareBlenderReadableGlb } from "./environment-artifacts/prepare-blender-input.js";
 
 export const ENVIRONMENT_ARTIFACTS_SCHEMA_VERSION = "openclinxr.environment-artifacts.v1";
 export const ENVIRONMENT_ARTIFACTS_KIND = "environment_artifacts";
@@ -88,14 +85,17 @@ export function defaultEnvironmentArtifactsReportPath(date = new Date()): string
 export async function writeEnvironmentArtifacts(options?: {
   outputRoot?: string;
   reportPath?: string;
+  signal?: AbortSignal;
 }): Promise<EnvironmentArtifactsReport> {
   const outputRoot = options?.outputRoot ?? ENVIRONMENT_ARTIFACTS_OUTPUT_DIR;
   const artifactPaths = environmentArtifactPaths(outputRoot);
+  const signal = options?.signal;
   const generatedAt = new Date().toISOString();
   await mkdir(artifactPaths.outputRoot, { recursive: true });
   await runBlenderEnvironmentBake({
     blenderPath: process.env["BLENDER"] ?? "blender",
     edExamBayShellGlbPath: artifactPaths.edExamBayShellGlb,
+    ...(signal === undefined ? {} : { signal }),
   });
   // MADR 0056 item 1: bake albedo + AO into a baseColorTexture (issue-345). The
   // build above exports flat materials; the Cycles DIFFUSE bake (proven in #343,
@@ -103,6 +103,7 @@ export async function writeEnvironmentArtifacts(options?: {
   await runRoomAlbedoAoBake({
     blenderPath: process.env["BLENDER"] ?? "blender",
     edExamBayShellGlbPath: artifactPaths.edExamBayShellGlb,
+    ...(signal === undefined ? {} : { signal }),
   });
   // Issue-349 (MADR 0056 item 1, light half): bake a SEPARATE glTF occlusionTexture per
   // material with the native Cycles AO bake type (D1). Kept separable from base colour —
@@ -110,6 +111,7 @@ export async function writeEnvironmentArtifacts(options?: {
   await runRoomOcclusionBake({
     blenderPath: process.env["BLENDER"] ?? "blender",
     edExamBayShellGlbPath: artifactPaths.edExamBayShellGlb,
+    ...(signal === undefined ? {} : { signal }),
   });
   await writeFile(artifactPaths.layoutManifest, `${JSON.stringify(buildEnvironmentLayoutManifest(generatedAt), null, 2)}\n`, "utf8");
   await writeFile(artifactPaths.equipmentPlacementManifest, `${JSON.stringify(buildEquipmentPlacementManifest(generatedAt), null, 2)}\n`, "utf8");
@@ -390,6 +392,7 @@ function buildQuestBudget(generatedAt: string) {
 async function runRoomAlbedoAoBake(options: {
   blenderPath: string;
   edExamBayShellGlbPath: string;
+  signal?: AbortSignal;
 }): Promise<void> {
   await runRoomGenerate(
     {
@@ -404,6 +407,7 @@ async function runRoomAlbedoAoBake(options: {
       bakeAlbedo: true,
       bakeOcclusion: false,
       timeoutMs: ROOM_BAKE_TIMEOUT_MS,
+      ...(options.signal === undefined ? {} : { signal: options.signal }),
       albedoExtraArgs: [
         "--input",
         options.edExamBayShellGlbPath,
@@ -417,45 +421,81 @@ async function runRoomAlbedoAoBake(options: {
 async function runRoomOcclusionBake(options: {
   blenderPath: string;
   edExamBayShellGlbPath: string;
+  signal?: AbortSignal;
 }): Promise<void> {
-  await runRoomGenerate(
-    {
-      environmentId: "ed_bay_v1",
-      infinigenPrompt: "exam bay",
-      seed: 1,
-      layoutVariant: "default",
-    },
-    {
-      blender: options.blenderPath,
-      workGlb: options.edExamBayShellGlbPath,
-      bakeAlbedo: false,
-      bakeOcclusion: true,
-      timeoutMs: ROOM_BAKE_TIMEOUT_MS,
-      occlusionExtraArgs: [
-        "--input",
-        options.edExamBayShellGlbPath,
-        "--output",
-        options.edExamBayShellGlbPath,
-        "--resolution",
-        "512",
-      ],
-    },
-  );
+  // The albedo stage's simplify-after-bake leaves the work GLB
+  // meshopt-compressed, which Blender 5.1.1's glTF importer refuses
+  // (EXT_meshopt_compression unavailable). Decode to a UNIQUE owned temp for
+  // the --input only; --output stays canonical so the occlusion stage's own
+  // simplify-after-bake re-applies the published final compression policy.
+  // Input artifact semantics preserved; no resampling; temp always cleaned.
+  const prepared = await prepareBlenderReadableGlb(options.edExamBayShellGlbPath, {
+    ...(options.signal === undefined ? {} : { signal: options.signal }),
+  });
+  try {
+    await runRoomGenerate(
+      {
+        environmentId: "ed_bay_v1",
+        infinigenPrompt: "exam bay",
+        seed: 1,
+        layoutVariant: "default",
+      },
+      {
+        blender: options.blenderPath,
+        workGlb: options.edExamBayShellGlbPath,
+        bakeAlbedo: false,
+        bakeOcclusion: true,
+        timeoutMs: ROOM_BAKE_TIMEOUT_MS,
+        ...(options.signal === undefined ? {} : { signal: options.signal }),
+        occlusionExtraArgs: [
+          "--input",
+          prepared.blenderInputPath,
+          "--output",
+          options.edExamBayShellGlbPath,
+          "--resolution",
+          "512",
+          // Cycles device routing: runRoomGenerate's own default occlusion
+          // args carry --device metal, but this explicit override replaces
+          // those defaults, so it must route the device itself. `auto`
+          // selects Metal when a METAL Cycles device exists and falls back
+          // to CPU elsewhere (fail-closed explicit metal preserved in the
+          // bake script), so Mac GPUs are used without stranding non-Metal
+          // hosts. All bake quality fields stay at their script defaults.
+          "--device",
+          "auto",
+        ],
+      },
+    );
+  } finally {
+    await prepared.cleanup();
+  }
 }
 
 async function runBlenderEnvironmentBake(options: {
   blenderPath: string;
   edExamBayShellGlbPath: string;
+  signal?: AbortSignal;
 }): Promise<void> {
+  const scriptPath = path.join(path.dirname(options.edExamBayShellGlbPath), "generate-ed-exam-bay-shell.py");
   const script = createEnvironmentBlenderScript(options.edExamBayShellGlbPath);
-  const scriptPath = path.join(ENVIRONMENT_ARTIFACTS_OUTPUT_DIR, "generate-ed-exam-bay-shell.py");
   await mkdir(path.dirname(scriptPath), { recursive: true });
   await writeFile(scriptPath, script, "utf8");
-  await withComputeSlot("blender", { label: "environment-artifacts" }, () =>
-    execFileAsync(options.blenderPath, ["--background", "--python", scriptPath], {
-      timeout: BLENDER_ENVIRONMENT_COMMAND_TIMEOUT_MS,
-      maxBuffer: 20 * 1024 * 1024,
-    }));
+  const bake = await createLocalComputeServices({
+    ...(options.signal === undefined ? {} : { signal: options.signal }),
+  }).blender.run({
+    script: options.blenderPath,
+    args: ["--background", "--python", scriptPath],
+    label: "environment-artifacts",
+    timeoutMs: BLENDER_ENVIRONMENT_COMMAND_TIMEOUT_MS,
+  });
+  if (bake.timedOut) {
+    throw new Error(
+      `environment shell bake timed out after ${BLENDER_ENVIRONMENT_COMMAND_TIMEOUT_MS / 1000} s (signal ${bake.signal ?? "unknown"}):\n${bake.stderr.slice(-2000)}`,
+    );
+  }
+  if (bake.code !== 0) {
+    throw new Error(`environment shell bake failed with exit code ${bake.code}:\n${bake.stderr.slice(-2000)}`);
+  }
 }
 
 function createEnvironmentBlenderScript(outputPath: string): string {

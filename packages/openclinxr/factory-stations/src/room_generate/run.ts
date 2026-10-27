@@ -198,6 +198,7 @@ export type RoomGenerateRunOptions = {
   generateTimeoutMs?: number;
   infinigenSource?: string;
   venvPython?: string;
+  signal?: AbortSignal;
 };
 
 /**
@@ -265,6 +266,9 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
       : undefined) as
       | { doorWall?: string; wallOffsetM?: number; hingeSide?: string; widthM?: number; heightM?: number; style?: string }
       | undefined;
+    if (options.signal?.aborted) {
+      throw options.signal.reason instanceof Error ? options.signal.reason : new Error("room generate aborted before Infinigen generate spawn");
+    }
     generate = await runInfinigenGenerate(
       {
         environmentId,
@@ -279,6 +283,7 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
         timeoutMs: options.generateTimeoutMs,
         infinigenSource: options.infinigenSource,
         venvPython: options.venvPython,
+        ...(options.signal === undefined ? {} : { signal: options.signal }),
       },
     );
   }
@@ -306,7 +311,7 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
     const albedo = await spawnBlenderProcess(
       options.blender,
       ["--background", "--python", albedoScript, "--", ...albedoArgs],
-      { cwd, timeoutMs },
+      { cwd, timeoutMs, ...(options.signal === undefined ? {} : { signal: options.signal }) },
     );
     albedoExit = albedo.code;
     albedoStdout = albedo.stdout;
@@ -355,7 +360,7 @@ export async function runRoomGenerate(input: unknown, options: RoomGenerateRunOp
     const occlusion = await spawnBlenderProcess(
       options.blender,
       ["--background", "--python", occlusionScript, "--", ...occlusionArgs],
-      { cwd, timeoutMs },
+      { cwd, timeoutMs, ...(options.signal === undefined ? {} : { signal: options.signal }) },
     );
     occlusionExit = occlusion.code;
     occlusionStdout = occlusion.stdout;

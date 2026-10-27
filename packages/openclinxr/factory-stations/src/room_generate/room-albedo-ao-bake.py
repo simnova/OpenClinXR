@@ -42,7 +42,12 @@ export). Triangle count is untouched — the bake only replaces material colours
 Usage (inside Blender 5.1 headless):
   blender --background --python room-albedo-ao-bake.py -- \\
     --input <room.glb> --output <baked.glb> [--resolution 1024] \\
-    [--means-log <path>] [--room-name <file.glb>]
+    [--means-log <path>] [--room-name <file.glb>] [--device auto|metal|cpu]
+
+Cycles device (default auto): Metal when a METAL Cycles device exists, CPU
+otherwise. Explicit metal fails closed when no METAL device exists; the
+pattern mirrors room-occlusion-bake.py setup_scene (per-process Blender
+preferences only, no global mutation).
 
 Exit 0 on success; non-zero with a printed error on any bake failure (the input
 GLB is never modified in place).
@@ -542,6 +547,26 @@ def restore_bright_albedo(mat: bpy.types.Material, surface: str) -> None:
     bsdf.inputs["Base Color"].default_value = albedo_for_surface(surface)
 
 
+def resolve_albedo_device(requested: str, available_types: List[str]) -> str:
+    """Pure backend selection for the albedo Cycles bake (no Blender dependency).
+
+    Explicit `metal` fails closed when no METAL device exists (silently falling
+    back to CPU would misreport the device the bake ran on); `auto` chooses
+    Metal when available and CPU otherwise; anything else is rejected. The
+    Blender-touching setup_scene() below applies the returned choice, so this
+    function is unit-testable without Blender (stub bpy/mathutils and import).
+    """
+    if requested == "metal":
+        if "METAL" not in available_types:
+            raise RuntimeError("room albedo bake --device metal: no METAL Cycles device found")
+        return "metal"
+    if requested == "cpu":
+        return "cpu"
+    if requested == "auto":
+        return "metal" if "METAL" in available_types else "cpu"
+    raise RuntimeError(f"room albedo bake --device must be auto|metal|cpu (got {requested!r})")
+
+
 def setup_scene(
     bbox: Dict[str, float],
     light_rig: str,
@@ -550,9 +575,44 @@ def setup_scene(
     samples: int = 32,
     floor_energy_mul: float | None = None,
     wall_contrast: float = 0.0,
+    device: str = "auto",
 ) -> None:
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
+    # Cycles device (same fail-closed pattern as room-occlusion-bake.py
+    # setup_scene and bake_shell_materials.setup_bake_scene: silently falling
+    # back to CPU would misreport the device this bake ran on). `auto` (the
+    # default) chooses Metal when a METAL device exists and CPU otherwise, so
+    # unchanged callers get the supported local GPU on compatible Macs and a
+    # true CPU fallback elsewhere. Per-process Blender preferences only: the
+    # background process exits after the bake, so no global Blender prefs or
+    # environment are mutated.
+    prefs = bpy.context.preferences.addons["cycles"].preferences
+    if device in ("metal", "auto"):
+        try:
+            prefs.compute_device_type = "METAL"
+            prefs.get_devices()
+            available_types = [d.type for d in prefs.devices]
+        except Exception:
+            # Cycles builds without a METAL enum entry (e.g. Linux CUDA/OPTIX
+            # builds) cannot probe Metal at all: explicit metal still fails
+            # closed below; auto falls back to CPU.
+            available_types = []
+        chosen = resolve_albedo_device(device, available_types)
+        if chosen == "metal":
+            metal = [d for d in prefs.devices if d.type == "METAL"]
+            for d in prefs.devices:
+                d.use = d.type == "METAL"
+            scene.cycles.device = "GPU"
+            suffix = "->metal" if device == "auto" else ""
+            print(f"[room-bake] device={device}{suffix} ({len(metal)} Metal device(s) enabled)")
+        else:
+            scene.cycles.device = "CPU"
+            print("[room-bake] device=auto->cpu (no METAL Cycles device found)")
+    elif device == "cpu":
+        scene.cycles.device = "CPU"
+    else:
+        raise RuntimeError(f"room albedo bake --device must be auto|metal|cpu (got {device!r})")
     scene.cycles.samples = samples
     if hasattr(scene.cycles, "use_denoising"):
         scene.cycles.use_denoising = False
@@ -1011,6 +1071,14 @@ def main() -> None:
         default=True,
         help="Disconnect prior bake maps and set bright Base Color before COLOR bake",
     )
+    ap.add_argument(
+        "--device",
+        choices=("auto", "metal", "cpu"),
+        default="auto",
+        help="Cycles device for the DIFFUSE bake (default auto: Metal when a "
+        "METAL device exists, else CPU; metal is fail-closed when no METAL "
+        "device exists)",
+    )
     args = ap.parse_args(_argv_after_double_dash())
 
     if not os.path.exists(args.input):
@@ -1030,6 +1098,7 @@ def main() -> None:
         args.samples,
         args.floor_energy_scale,
         args.wall_contrast,
+        args.device,
     )
     results = bake_materials(args.resolution, args.restore_albedo)
     wire_textures_to_base_color()

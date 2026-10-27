@@ -61,6 +61,8 @@ export type InfinigenGenerateOptions = {
   timeoutMs?: number | undefined;
   infinigenSource?: string | undefined;
   venvPython?: string | undefined;
+  /** Caller abort: forwarded to every local child spawn/probe through the central group service. */
+  signal?: AbortSignal | undefined;
 };
 
 export type InfinigenGenerateReport = {
@@ -87,11 +89,12 @@ function spawnBlenderPass(
   label: string,
   cmd: string,
   args: string[],
-  opts: { cwd: string; timeoutMs: number; env?: Record<string, string | undefined>; device?: BlenderDevice },
+  opts: { cwd: string; timeoutMs: number; env?: Record<string, string | undefined>; device?: BlenderDevice; signal?: AbortSignal | undefined },
 ): Promise<ComputeProcessResult> {
   return createLocalComputeServices({
     cwd: opts.cwd,
     ...(opts.env === undefined ? {} : { env: opts.env }),
+    ...(opts.signal === undefined ? {} : { signal: opts.signal }),
   }).blender.run({
     script: cmd,
     args,
@@ -146,6 +149,9 @@ export async function runInfinigenGenerate(
   input: InfinigenGenerateInput,
   options: InfinigenGenerateOptions,
 ): Promise<InfinigenGenerateReport> {
+  if (options.signal?.aborted) {
+    throw options.signal.reason instanceof Error ? options.signal.reason : new Error("infinigen generate aborted before spawn");
+  }
   const root = repoRoot();
   const moduleDir = path.join(root, ROOM_GENERATE_MODULE_REL);
   const extractScript = path.join(root, ROOM_GENERATE_EXTRACT_REL);
@@ -267,6 +273,7 @@ export async function runInfinigenGenerate(
   const generated = await spawnBlenderPass("generate", venvPython, driverArgs, {
     cwd: infinigenSource,
     timeoutMs,
+    ...(options.signal === undefined ? {} : { signal: options.signal }),
     // OPENCLINXR_ROOM_REALISM=1 pins room_walls to Plaster (S4 shell
     // contract) and room_floors to BumpyRubberFloor (calibrated shell-only
     // base_color via apply(); S5 replaces with vinyl at finish).
@@ -305,7 +312,7 @@ export async function runInfinigenGenerate(
       "--output",
       workBlend,
     ],
-    { cwd: options.cwd ?? root, timeoutMs },
+    { cwd: options.cwd ?? root, timeoutMs, ...(options.signal === undefined ? {} : { signal: options.signal }) },
   );
   durationsMs["stripMs"] = Date.now() - started;
   if (stripped.code !== 0 || !existsSync(workBlend)) {
@@ -347,7 +354,7 @@ export async function runInfinigenGenerate(
       // difference on the seed-205 ward. The script fails closed when no
       // Metal device exists.
     ],
-    { cwd: options.cwd ?? root, timeoutMs, device: "metal" },
+    { cwd: options.cwd ?? root, timeoutMs, device: "metal", ...(options.signal === undefined ? {} : { signal: options.signal }) },
   );
   durationsMs["shellBakeMs"] = Date.now() - started;
   if (shellBaked.code !== 0 || !existsSync(workBlend)) {
@@ -383,7 +390,7 @@ export async function runInfinigenGenerate(
       "--predicate-output",
       predicatePath,
     ],
-    { cwd: options.cwd ?? root, timeoutMs },
+    { cwd: options.cwd ?? root, timeoutMs, ...(options.signal === undefined ? {} : { signal: options.signal }) },
   );
   durationsMs["extractMs"] = Date.now() - started;
   if (extracted.code !== 0 || !existsSync(workGlb)) {
@@ -424,7 +431,7 @@ export async function runInfinigenGenerate(
       "--output",
       probePath,
     ],
-    { cwd: options.cwd ?? root, timeoutMs },
+    { cwd: options.cwd ?? root, timeoutMs, ...(options.signal === undefined ? {} : { signal: options.signal }) },
   );
   durationsMs["probeMs"] = Date.now() - started;
   if (probed.code !== 0 || !existsSync(probePath)) {
