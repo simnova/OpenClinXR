@@ -247,11 +247,6 @@
       "card": "unfiled: the encounter emission test needs a timeout above 11s"
     },
     {
-      "path": "tools/openclinxr/evidence/the-room-camera-lands-in-the-same-place-twice.test.ts",
-      "reason": "Clause 3 received abs eye-X difference 0 against a gate of 0.2. Clauses 1 and 2 passed, so each room was stable within 0.1 m. reframeCameraForRoom and the test file match origin/main.",
-      "card": "unfiled: the two control rooms derived the same absolute eye X"
-    },
-    {
       "path": "tools/openclinxr/evidence/shipped-head-of-bed-incline.test.ts",
       "reason": "flat_baseline headCenterY was not finite. The ED incline clause in the same file passed. The test and shipped-head-of-bed-incline.ts match origin/main.",
       "card": "unfiled: the flat head-of-bed pass must record headCenterY"
