@@ -27,7 +27,8 @@ bedside-approach-take-mod.ts byte-for-byte): points rounded to mm joined by `;`,
 rounded to 1e-4 rad, sha256 hex. NOTE Math.round-bankers mismatch: JS Math.round(-1657.5) is
 -1657 (half up) while Python round() is -1658 (half even), so this uses floor(v + 0.5).
 
-Usage:
+Usage (job-owned outputs only -- never write canonical evidence paths or store URIs):
+  JOB_TMP=$(mktemp -d "${TMPDIR:-/tmp}/openclinxr-approach-take-$$-XXXXXX")
   python3 kimodo_approach_take_station.py \\
     --actor apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb \\
     --route '[[-1.95,1.72],[-1.6575,1.575],[-1.365,1.43],[-1.0725,1.285],[-0.78,1.14]]' \\
@@ -35,9 +36,12 @@ Usage:
     --expected-hash b195b40700549c9977dcacb8caf538290bd09fa089976ad1bcd50d9fabd2af00 \\
     --walk-speed-mps 1.03 --rig physician --seed 1 \\
     --prompt "A person stands still, then walks forward, slows down and stops, turns in place, and stands still with both feet planted." \\
-    --output .openclinxr/evidence/approach-take/physician-seed1.glb \\
+    --output "$JOB_TMP/physician-seed1.glb" \\
     --clip-name openclinxr_retarget_kimodo_approach_rb195b40700549c99_physician_seed1 \\
-    --report .openclinxr/evidence/approach-take/physician-seed1.provenance.json
+    --report "$JOB_TMP/physician-seed1.provenance.json"
+  # Historical run wrote .openclinxr/evidence/approach-take/physician-seed1.glb; that
+  # artifact was missing and is now preserved in the immutable store (see
+  # approach-take-retrieval-20261026.json); future runs must use job-owned paths above.
 """
 import argparse
 import hashlib

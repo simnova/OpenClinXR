@@ -26,7 +26,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 
 - ignore-local-cache: 2774
 - keep-compatibility-input: 24
-- keep-current: 262
+- keep-current: 263
 - keep-evidence: 1965
 - keep-template: 17
 
@@ -3081,6 +3081,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/wall-plaster-tileable.jpg` - keep-current; keep; Ward-finish station input: deterministic tileable pass of the row-33 illumination-flattened painted plaster albedo (flatten-first, then offset-by-half wrap + cosine seam heal, JPEG q95); staged for the ceiling-wiring follow-up.
 - `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/wall-plaster.jpg` - keep-current; keep; Ward-finish station input: operator-generated Grok Imagine painted plaster albedo (row-32 provenance, 2026-09-28 working set); staged for the ceiling-wiring follow-up.
 - `tools/openclinxr/asset-pipeline/trellis/equipment-freezes/ecg-cart.freeze.json` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
+- `tools/openclinxr/evidence/asset-store/approach-take-retrieval-20261026.json` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
 - `tools/openclinxr/evidence/blender/render_seated_clip_frames.py` - keep-current; keep; Hand-authored Blender producer for seated-clip frames, not generated output; tools/ is not a scan root.
 - `tools/openclinxr/evidence/clinical-touch/ed-input-trs-baseline.json` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
 - `tools/openclinxr/evidence/hair-muse4h/handoff-2026-10-23/part-guide1-vs-target-open8-1to1.png` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.

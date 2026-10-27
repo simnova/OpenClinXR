@@ -1,0 +1,137 @@
+{
+  "actualManifestRef": "store:39cc1222ab7494e9292a224dc743b00481dc133a8becd2119a5974629cce311e/archive-set-manifest.json",
+  "actualParentProofRef": "store:b3b2dde39779d76537d9db0746b3de31cb3beed635a32fa203722e0ce4b3e943/approach-closure-proof.json",
+  "actualPublicationRecordedAt": "2026-10-26T23:21:38.031786+00:00",
+  "all9ReadbacksFullSHA256": true,
+  "allHistoricalVerdictsUnchanged": true,
+  "archivedObjects": [
+    {
+      "key": "child-seed8",
+      "storeRef": "store:298050038e532f40b4e84e0d9d34acc2e3ce4ecf3016a6ebb28ba7b07ca3273b/child-seed8.glb",
+      "sha256": "298050038e532f40b4e84e0d9d34acc2e3ce4ecf3016a6ebb28ba7b07ca3273b",
+      "bytes": 12005336,
+      "action": "reused-exact"
+    },
+    {
+      "key": "nurse-seed1",
+      "storeRef": "store:9724950b76b3aaab7340eabc19f8c526e5798b361e2d862094894a8a3677314d/nurse-seed1.glb",
+      "sha256": "9724950b76b3aaab7340eabc19f8c526e5798b361e2d862094894a8a3677314d",
+      "bytes": 9043720,
+      "action": "reused-exact"
+    },
+    {
+      "key": "physician-seed1",
+      "storeRef": "store:4690ae15e3e690e5ff77fc76693cb87cddb9318ffbc3f5b6666bc4989af4a304/physician-seed1.glb",
+      "sha256": "4690ae15e3e690e5ff77fc76693cb87cddb9318ffbc3f5b6666bc4989af4a304",
+      "bytes": 9892100,
+      "action": "reused-exact"
+    },
+    {
+      "key": "physician-seed4",
+      "storeRef": "store:15961e89fb5684bff5e84c1f761a58289043d731f5fbfc0d15fed2b93eecdce2/physician-seed4.glb",
+      "sha256": "15961e89fb5684bff5e84c1f761a58289043d731f5fbfc0d15fed2b93eecdce2",
+      "bytes": 9900836,
+      "action": "reused-exact"
+    },
+    {
+      "key": ".openclinxr/evidence/approach-take/assay.json",
+      "storeRef": "store:cfa48d1f89d856bba5712f9b0c2451bec866a5aac2ae08e70990e61f52ee84d3/assay.json",
+      "sha256": "cfa48d1f89d856bba5712f9b0c2451bec866a5aac2ae08e70990e61f52ee84d3",
+      "bytes": 17087,
+      "action": "atomic-exclusive-append"
+    },
+    {
+      "key": ".openclinxr/evidence/approach-take/physician-seed1.provenance.json",
+      "storeRef": "store:a3f92adf59af64d5f07ceb3a91f794a9ac48aa17868f2a5e2007a3b93a584e3c/physician-seed1.provenance.json",
+      "sha256": "a3f92adf59af64d5f07ceb3a91f794a9ac48aa17868f2a5e2007a3b93a584e3c",
+      "bytes": 5044,
+      "action": "atomic-exclusive-append"
+    },
+    {
+      "key": "tools/openclinxr/factory/kimodo-loop/kimodo_approach_take_station.py",
+      "storeRef": "store:e42e88c70d6b28379bc2e815adf9ad9db8a7c8fd8c383e099ac1bb4c90577207/kimodo_approach_take_station.py",
+      "sha256": "e42e88c70d6b28379bc2e815adf9ad9db8a7c8fd8c383e099ac1bb4c90577207",
+      "bytes": 19112,
+      "action": "atomic-exclusive-append"
+    },
+    {
+      "key": "current-parent-closure-proof",
+      "storeRef": "store:b3b2dde39779d76537d9db0746b3de31cb3beed635a32fa203722e0ce4b3e943/approach-closure-proof.json",
+      "sha256": "b3b2dde39779d76537d9db0746b3de31cb3beed635a32fa203722e0ce4b3e943",
+      "bytes": 4404,
+      "action": "atomic-exclusive-append"
+    },
+    {
+      "key": "current-archive-manifest",
+      "storeRef": "store:39cc1222ab7494e9292a224dc743b00481dc133a8becd2119a5974629cce311e/archive-set-manifest.json",
+      "sha256": "39cc1222ab7494e9292a224dc743b00481dc133a8becd2119a5974629cce311e",
+      "bytes": 3291,
+      "action": "atomic-exclusive-append"
+    }
+  ],
+  "authenticationOfOriginalEpoch": "UNKNOWN",
+  "authorship": "Actual Muse historical address edits and Python Usage repair; parent seals machine-derived publication and consumer checksum facts during exact integration.",
+  "bytesTotal": 40841992,
+  "canonical17Unchanged": true,
+  "consumer": {
+    "codeSha256": "93ca2b3705778bf80885c0fe29aacfaa12330fb845da5ffc28f59d1e89c427ff",
+    "path": "tools/openclinxr/evidence/asset-store/resolve-store-ref.ts",
+    "readFn": "resolveInputBytes"
+  },
+  "currentEpoch": "2026-10-26T23:21:38.031786+00:00",
+  "migratedTakeGlbs": [
+    {
+      "bytes": 12005336,
+      "key": "child-seed8",
+      "sourceSHA256": "298050038e532f40b4e84e0d9d34acc2e3ce4ecf3016a6ebb28ba7b07ca3273b",
+      "storeRef": "store:298050038e532f40b4e84e0d9d34acc2e3ce4ecf3016a6ebb28ba7b07ca3273b/child-seed8.glb"
+    },
+    {
+      "bytes": 9043720,
+      "key": "nurse-seed1",
+      "sourceSHA256": "9724950b76b3aaab7340eabc19f8c526e5798b361e2d862094894a8a3677314d",
+      "storeRef": "store:9724950b76b3aaab7340eabc19f8c526e5798b361e2d862094894a8a3677314d/nurse-seed1.glb"
+    },
+    {
+      "bytes": 9892100,
+      "key": "physician-seed1",
+      "sourceSHA256": "4690ae15e3e690e5ff77fc76693cb87cddb9318ffbc3f5b6666bc4989af4a304",
+      "storeRef": "store:4690ae15e3e690e5ff77fc76693cb87cddb9318ffbc3f5b6666bc4989af4a304/physician-seed1.glb"
+    },
+    {
+      "bytes": 9900836,
+      "key": "physician-seed4",
+      "sourceSHA256": "15961e89fb5684bff5e84c1f761a58289043d731f5fbfc0d15fed2b93eecdce2",
+      "storeRef": "store:15961e89fb5684bff5e84c1f761a58289043d731f5fbfc0d15fed2b93eecdce2/physician-seed4.glb"
+    }
+  ],
+  "originalReportPreimages": [
+    {
+      "bytes": 17087,
+      "kind": "original-report-preimage",
+      "path": ".openclinxr/evidence/approach-take/assay.json",
+      "sha256": "cfa48d1f89d856bba5712f9b0c2451bec866a5aac2ae08e70990e61f52ee84d3",
+      "storeRef": "store:cfa48d1f89d856bba5712f9b0c2451bec866a5aac2ae08e70990e61f52ee84d3/assay.json"
+    },
+    {
+      "bytes": 5044,
+      "kind": "original-report-preimage",
+      "path": ".openclinxr/evidence/approach-take/physician-seed1.provenance.json",
+      "sha256": "a3f92adf59af64d5f07ceb3a91f794a9ac48aa17868f2a5e2007a3b93a584e3c",
+      "storeRef": "store:a3f92adf59af64d5f07ceb3a91f794a9ac48aa17868f2a5e2007a3b93a584e3c/physician-seed1.provenance.json"
+    },
+    {
+      "bytes": 19112,
+      "kind": "original-report-preimage",
+      "path": "tools/openclinxr/factory/kimodo-loop/kimodo_approach_take_station.py",
+      "sha256": "e42e88c70d6b28379bc2e815adf9ad9db8a7c8fd8c383e099ac1bb4c90577207",
+      "storeRef": "store:e42e88c70d6b28379bc2e815adf9ad9db8a7c8fd8c383e099ac1bb4c90577207/kimodo_approach_take_station.py"
+    }
+  ],
+  "promotion": false,
+  "schemaVersion": "openclinxr.approach-take-retrieval.v1",
+  "scope": "Current immutable retrieval of existing historical rejected takes, no regeneration or movement acceptance; all old metrics and rejection flags preserved",
+  "sourceHead": "f236e615cbb571c1c8495635afef9ea9bae11d1d",
+  "sourceUnchanged": true,
+  "storeRoot": "/Volumes/files/openclinxr-assets/store/ci-gap-evidence-20261026/ci-gap-evidence-20261026"
+}

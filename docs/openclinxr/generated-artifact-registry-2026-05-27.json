@@ -44,7 +44,7 @@
   "counts": {
     "keep-evidence": 1965,
     "ignore-local-cache": 2774,
-    "keep-current": 262,
+    "keep-current": 263,
     "keep-template": 17,
     "keep-compatibility-input": 24
   },
@@ -35205,6 +35205,13 @@
     },
     {
       "path": "tools/openclinxr/asset-pipeline/trellis/equipment-freezes/ecg-cart.freeze.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated-looking artifact retained by conservative default after explicit stale/cache/template rules."
+    },
+    {
+      "path": "tools/openclinxr/evidence/asset-store/approach-take-retrieval-20261026.json",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",

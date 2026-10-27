@@ -3,7 +3,7 @@
   "generatedAt": "2026-10-11T05:41:08.444601+00:00",
   "clipName": "openclinxr_retarget_kimodo_approach_rb195b40700549c99_physician_seed1",
   "targetActor": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-  "outputGlb": "/Volumes/files/src/openclinxr-wt/approach-take/.openclinxr/evidence/approach-take/physician-seed1.glb",
+  "outputGlb": "store:4690ae15e3e690e5ff77fc76693cb87cddb9318ffbc3f5b6666bc4989af4a304/physician-seed1.glb",
   "routeHash": "b195b40700549c9977dcacb8caf538290bd09fa089976ad1bcd50d9fabd2af00",
   "routeHashShort": "b195b40700549c99",
   "route": {
