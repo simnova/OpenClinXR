@@ -1,6 +1,8 @@
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { FACTORY_RUN_ROLLUP_REL, parseFactoryRunRollup } from "@openclinxr/rest";
+import { Hono } from "hono";
+import { FACTORY_RUN_ROLLUP_REL, parseFactoryRunRollup, registerFactoryRunTableRoutes } from "@openclinxr/rest";
 import { describe, expect, it } from "vitest";
 import { createApiApp } from "./index.js";
 import { repoRoot } from "./scenario-promotion-bridge.js";
@@ -183,3 +185,83 @@ describe("the factory run-table route serves the station table", () => {
 // NOT TESTED: that the served numbers describe the CURRENT tree (the rollup carries its own
 // measuredInputs digests and a stale flag; surfacing staleness is a later slice); auth role
 // gating on this route; live Blender; Quest.
+
+type ApiEnv = Awaited<ReturnType<typeof createApiApp>> extends Hono<infer E> ? E : never;
+
+function testApp(getRepoRoot: () => string): Hono<ApiEnv> {
+  const app = new Hono<ApiEnv>();
+  registerFactoryRunTableRoutes(app,{repoRoot:getRepoRoot});
+  return app;
+}
+
+const ERROR_FIXTURE = {
+  schemaVersion: "openclinxr.dark-factory-multi-case-rollup.v1",
+  generatedAt: "2026-09-06T00:00:00.000Z",
+  runner: "test fixture, not a real run",
+  cases: [
+    {
+      caseId: "diag_http_case_v1",
+      stations: [
+        {
+          stationId: "render",
+          classification: "error",
+          artifactPaths: [],
+          diagnosticArtifactPaths: ["diag/a.png", 7, null],
+          notes: [],
+        },
+        {
+          stationId: "body",
+          classification: "deterministic",
+          artifactPaths: ["proof/body.obj"],
+          notes: [],
+        },
+      ],
+    },
+  ],
+};
+
+describe("factory-run-table diagnosticArtifactPaths HTTP regression", () => {
+  it("(9) temp-root round trip: empty 200/cases[], then error-row diags filtered + success row unchanged", async () => {
+    const root = mkdtempSync(join(tmpdir(), "factory-run-table-"));
+    try {
+      const app = testApp(() => root);
+      const empty = await app.request("/internal/factory-run-table");
+      expect(empty.status).toBe(200);
+      const emptyBody = (await empty.json()) as { cases: unknown[] };
+      expect(emptyBody.cases).toEqual([]);
+
+      const absolute = join(root, FACTORY_RUN_ROLLUP_REL);
+      mkdirSync(dirname(absolute), { recursive: true });
+      writeFileSync(absolute, JSON.stringify(ERROR_FIXTURE), "utf8");
+
+      const response = await app.request("/internal/factory-run-table");
+      expect(response.status).toBe(200);
+      const body = (await response.json()) as {
+        cases: {
+          caseId: string;
+          stations: {
+            stationId: string;
+            classification: string;
+            artifactPaths?: string[];
+            diagnosticArtifactPaths?: string[];
+          }[];
+        }[];
+        claimBoundary: string;
+        notEvidenceFor: string[];
+      };
+      expect(body.claimBoundary).toBeTypeOf("string");
+      expect(body.notEvidenceFor).toEqual(["live_blender_bake", "current_tree_state", "clinical_validity"]);
+      expect(body.cases).toHaveLength(1);
+      const stations = body.cases[0].stations;
+      const render = stations.find((s) => s.stationId === "render");
+      const success = stations.find((s) => s.stationId === "body");
+      expect(render?.classification).toBe("error");
+      expect(render?.artifactPaths).toEqual([]);
+      expect(render?.diagnosticArtifactPaths).toEqual(["diag/a.png"]);
+      expect(success?.diagnosticArtifactPaths).toBeUndefined();
+      expect(success?.artifactPaths).toEqual(["proof/body.obj"]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+});

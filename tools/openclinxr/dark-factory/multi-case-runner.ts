@@ -212,6 +212,7 @@ export type StationRow = {
   classification: StationClassification;
   implementation: string;
   artifactPaths: string[];
+  diagnosticArtifactPaths?: string[];
   notes: string[];
 };
 
@@ -1013,16 +1014,18 @@ async function runRenderStage(
       meanFacingDeg: entry.liveShell.meanFacingDeg,
       nearOcclusionFraction: entry.liveShell.nearOcclusion?.fraction,
     });
-    return {
-      row: makeRow("render", classified.classification, [
-        relStage(stageDir, `capture/${entry.imagePath}`),
-        relStage(stageDir, "capture/capture-manifest.json"),
-      ], [
-        `RAN live: loaded ${caseId} in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.`,
-        `Live env=${entry.liveShell.environmentId ?? "?"}; capture-manifest source=live_scene.`,
-        classified.note,
-      ]),
-    };
+    const capturePaths = [
+      relStage(stageDir, `capture/${entry.imagePath}`),
+      relStage(stageDir, "capture/capture-manifest.json"),
+    ];
+    const proofPaths = classified.classification === "deterministic" ? capturePaths : [];
+    const row = makeRow("render", classified.classification, proofPaths, [
+      `RAN live: loaded ${caseId} in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written.`,
+      `Live env=${entry.liveShell.environmentId ?? "?"}; capture-manifest source=live_scene.`,
+      classified.note,
+    ]);
+    if (classified.classification !== "deterministic") row.diagnosticArtifactPaths = capturePaths;
+    return { row };
   } catch (err) {
     return {
       row: makeRow("render", "error", [], [

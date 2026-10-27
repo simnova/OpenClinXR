@@ -20,6 +20,7 @@ export type FactoryRunTableStation = {
   stationId: string;
   classification: FactoryRunStationClassification;
   artifactPaths?: string[];
+  diagnosticArtifactPaths?: string[];
   notes?: string[];
 };
 

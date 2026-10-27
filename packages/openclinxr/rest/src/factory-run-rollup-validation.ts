@@ -10,6 +10,7 @@ export type FactoryRunStationRow = {
   stationId: string;
   classification: string;
   artifactPaths?: string[];
+  diagnosticArtifactPaths?: string[];
   notes?: string[];
 };
 
@@ -60,6 +61,11 @@ export function parseFactoryRunRollup(
         };
         if (Array.isArray(stationRow["artifactPaths"])) {
           parsed.artifactPaths = stationRow["artifactPaths"].filter(
+            (path): path is string => typeof path === "string",
+          );
+        }
+        if (Array.isArray(stationRow["diagnosticArtifactPaths"])) {
+          parsed.diagnosticArtifactPaths = stationRow["diagnosticArtifactPaths"].filter(
             (path): path is string => typeof path === "string",
           );
         }

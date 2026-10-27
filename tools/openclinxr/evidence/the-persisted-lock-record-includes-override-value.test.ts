@@ -20,7 +20,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const SRC = readFileSync(
-  join(dirname(fileURLToPath(import.meta.url)), "../../../apps/ui-admin/src/faculty-compile-lock-types.ts"),
+  join(dirname(fileURLToPath(import.meta.url)), "../../../packages/openclinxr/ui-route-admin/src/faculty-compile-lock-types.ts"),
   "utf8",
 );
 

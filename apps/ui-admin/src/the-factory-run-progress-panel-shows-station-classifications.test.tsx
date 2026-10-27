@@ -92,3 +92,44 @@ describe("the factory run progress panel shows station classifications", () => {
 
 // NOT TESTED: that ui-admin fetches /internal/factory-run-table (that wire is asserted by
 // the app-level suite); pixel appearance; that the classifications are current.
+
+describe("factory run progress panel diagnostic captures", () => {
+  it("(6) error row shows diagnostic paths while classification stays error and proof stays absent", () => {
+    const { container } = render(
+      <FactoryRunProgressPanel
+        cases={[
+          {
+            caseId: "diag_case_v1",
+            stations: [
+              {
+                stationId: "render",
+                classification: "error",
+                artifactPaths: [],
+                diagnosticArtifactPaths: ["diag/a.png"],
+              },
+            ],
+          },
+        ]}
+      />,
+    );
+    expect(screen.getByText("Diagnostic captures")).toBeTruthy();
+    expect(screen.getByText("diag/a.png")).toBeTruthy();
+    expect(screen.queryByText("proof/a.glb")).toBeNull();
+    expect(container.querySelectorAll('[data-classification="error"]').length).toBe(1);
+  });
+
+  it("(7) success row without diagnostics renders unchanged", () => {
+    render(
+      <FactoryRunProgressPanel
+        cases={[
+          {
+            caseId: "ok_case_v1",
+            stations: [{ stationId: "body", classification: "deterministic", artifactPaths: ["body.obj"] }],
+          },
+        ]}
+      />,
+    );
+    expect(screen.queryByText("Diagnostic captures")).toBeNull();
+    expect(screen.getByText("body.obj")).toBeTruthy();
+  });
+});

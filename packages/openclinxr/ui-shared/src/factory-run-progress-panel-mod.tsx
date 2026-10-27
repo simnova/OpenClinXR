@@ -7,6 +7,7 @@ export type FactoryRunStationRow = {
   stationId: string;
   classification: FactoryRunStationClassification;
   artifactPaths?: string[];
+  diagnosticArtifactPaths?: string[];
   notes?: string[];
 };
 
@@ -38,6 +39,16 @@ export function FactoryRunProgressPanel({ cases }: FactoryRunProgressPanelProps)
                     {path}
                   </Typography.Text>
                 ))}
+                {station.diagnosticArtifactPaths !== undefined && station.diagnosticArtifactPaths.length > 0 && (
+                  <div>
+                    <Typography.Text>Diagnostic captures</Typography.Text>
+                    {station.diagnosticArtifactPaths.map((path) => (
+                      <Typography.Text key={path} type="secondary">
+                        {path}
+                      </Typography.Text>
+                    ))}
+                  </div>
+                )}
                 {station.notes?.map((note) => (
                   <Typography.Text key={note} type="secondary">
                     {note}

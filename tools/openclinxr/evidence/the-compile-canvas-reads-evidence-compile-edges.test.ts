@@ -25,7 +25,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const SRC = readFileSync(
-  join(dirname(fileURLToPath(import.meta.url)), "../../../apps/ui-admin/src/faculty-compile-lock.tsx"),
+  join(dirname(fileURLToPath(import.meta.url)), "../../../packages/openclinxr/ui-route-admin/src/faculty-compile-lock.tsx"),
   "utf8",
 );
 
