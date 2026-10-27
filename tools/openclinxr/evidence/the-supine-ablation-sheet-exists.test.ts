@@ -2,6 +2,8 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { Bone, Euler, Object3D, Quaternion } from "three";
+import { applySupinePose } from "@openclinxr/xr-pose";
 
 /**
  * #492 — ABLATION, not another fix. Superagent-directed after four landings failed to make the
@@ -87,11 +89,30 @@ import { describe, expect, it } from "vitest";
  * flipped `it.fails` -> `it`.
  */
 
+/**
+ * CI cleanup — CORRECTION (appended as a separate block; historical header above byte-preserved).
+ *
+ * Post-#495 history: `96b67c6a5` (CI cleanup) rendered the sheet on the original ablation contract;
+ * `5d4472938` re-rendered after the #496 rail switch. Current `supine-pose.ts` keeps the #495
+ * opt-in seam and makes the default per-rail: `options.applyJointEulers ?? !isMpfb2Rig(jointNames)`
+ * — true on the 23-bone Anny rail the 17 eulers were tuned for, false on the 137-joint MPFB2 rail
+ * where the graded #495 sheet showed they are the crumple. The committed authentic report
+ * (`bodyGlb mpfb-gown-adult-patient.glb`) records `full.appliedJointEulers: false`, which is the
+ * correct MPFB2-native product behaviour — not a regression. Clause (1) below therefore asserts the
+ * rail-consistent expectation derived from the report's own `bodyGlb` plus the source's
+ * `isMpfb2Rig` branch, and clause (2) pins the per-rail default (Anny keeps eulers, MPFB2 skips by
+ * default, explicit override wins). Historical header, report bytes, and sheet image are untouched.
+ *
+ * Path rail: `bodyGlb` is relative to `apps/ui-xr/public`; resolution and containment check run
+ * against that public root, not the repo root.
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const SHEET = join(HERE, "stills/supine-ablation-sheet.png");
+const PUBLIC_ROOT = join(REPO_ROOT, "apps/ui-xr/public");
 const REPORT = join(HERE, "supine-ablation-report.json");
-const SUPINE_SRC = join(REPO_ROOT, "apps/ui-xr/src/supine-pose.ts");
+const SUPINE_SRC = join(REPO_ROOT, "packages/openclinxr/xr-pose/src/supine-pose.ts");
 
 const CELLS = ["standing", "root_only", "full"] as const;
 /** The 17 authored keys. Clause (3) pins every one. */
@@ -113,6 +134,60 @@ function requireReport(): Report {
   return JSON.parse(readFileSync(REPORT, "utf8")) as Report;
 }
 
+/** Rail of the sheet, classified from the report's own bodyGlb payload — not its name.
+ *
+ * Parses the authentic bodyGlb's GLB JSON skin/joint node names into a real three.js
+ * Bone/Object3D representative rig, runs the actual default applySupinePose, and derives
+ * the expected `applied` flag. Fail-closed on missing/invalid/non-public-root paths or
+ * empty joint lists. Report/image bytes untouched.
+ */
+function reportIsMpfbRail(r: Report): boolean {
+  return classifyReportBodyGlbRail(r) === "mpfb";
+}
+
+const EXPECTED_ROOT_QUAT = new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 0, Math.PI / 2, "XYZ"));
+
+function classifyReportBodyGlbRail(r: Report): "mpfb" | "anny" {
+  const rel = (r.bodyGlb ?? "").replace(/\\/g, "/").replace(/^\.\//, "").replace(/^\/+/, "");
+  if (!rel) throw new Error("report bodyGlb is empty");
+  const abs = pathResolve(PUBLIC_ROOT, rel);
+  const rootSlash = pathResolve(PUBLIC_ROOT, ".") + "/";
+  if (abs !== rootSlash.slice(0, -1) && !abs.startsWith(rootSlash)) {
+    throw new Error(`bodyGlb escapes the public root: ${r.bodyGlb}`);
+  }
+  if (!existsSync(abs)) throw new Error(`bodyGlb missing: ${abs}`);
+  const bytes = readFileSync(abs);
+  if (bytes.length < 12 || bytes.readUInt32LE(0) !== 0x46546c67) {
+    throw new Error(`bodyGlb is not a GLB container: ${abs}`);
+  }
+  const jsonLen = bytes.readUInt32LE(12);
+  const json = JSON.parse(bytes.subarray(20, 20 + jsonLen).toString("utf8")) as {
+    nodes?: { name?: string }[];
+    skins?: { joints?: number[] }[];
+  };
+  const jointNames: string[] = [];
+  for (const skin of json.skins ?? []) {
+    for (const j of skin.joints ?? []) {
+      const n = json.nodes?.[j]?.name;
+      if (typeof n === "string" && n) jointNames.push(n);
+    }
+  }
+  if (jointNames.length === 0) throw new Error(`bodyGlb has no skin joints: ${abs}`);
+  // Representative rig: real three.js Bone nodes carrying the authentic joint names.
+  const rig = new Object3D();
+  for (const n of jointNames) {
+    const b = new Bone();
+    b.name = n;
+    rig.add(b);
+  }
+  // Actual default applySupinePose classifies the payload; expected flag follows.
+  const res = applySupinePose(rig);
+  // Non-vacuous root-basis pin on the classified rig.
+  expect(rig.quaternion.length()).toBeCloseTo(1, 5);
+  expect(rig.quaternion.angleTo(EXPECTED_ROOT_QUAT)).toBeCloseTo(0, 5);
+  return res.applied ? "anny" : "mpfb";
+}
+
 describe("the supine ablation sheet exists and is gradeable", () => {
   it("(1) RED: a three-cell ablation sheet was rendered from the runtime path", () => {
     expect(existsSync(SHEET), `${SHEET} must exist — the orchestrator grades this image`).toBe(true);
@@ -131,12 +206,18 @@ describe("the supine ablation sheet exists and is gradeable", () => {
     expect(byCell["standing"]!.ranSupineCall, "standing runs no supine call").toBe(false);
     expect(byCell["root_only"]!.ranSupineCall, "root_only runs the supine call").toBe(true);
     expect(byCell["root_only"]!.appliedJointEulers, "root_only applies NO joint eulers").toBe(false);
-    expect(byCell["full"]!.appliedJointEulers, "full applies the joint eulers").toBe(true);
+    // #496 rail semantics: the full cell applies the 17 eulers on the Anny rail and skips them by
+    // default on the MPFB2 rail. The rail comes from the report's own bodyGlb.
+    const expectFullEulers = !reportIsMpfbRail(r);
+    expect(
+      byCell["full"]!.appliedJointEulers,
+      `full cell on ${reportIsMpfbRail(r) ? "MPFB2" : "Anny"} rail (${r.bodyGlb}) must ${expectFullEulers ? "apply" : "skip"} the joint eulers by default`,
+    ).toBe(expectFullEulers);
   });
 
-  it("(2) COUNTERWEIGHT: applySupinePose's DEFAULT behaviour is unchanged", () => {
-    // Refuses (b). The ablation must be opt-in; a default-changing edit turns a diagnostic into an
-    // unreviewed product change while four stations are already broken.
+  it("(2) COUNTERWEIGHT: applySupinePose keeps the 17-euler map with a per-rail default", () => {
+    // Refuses (b) in rail-aware form: legacy/Anny callers keep the eulers by default, the MPFB2
+    // rail skips them by default, and an explicit option still overrides either rail.
     const src = readFileSync(SUPINE_SRC, "utf8");
     expect(src.includes("humanoidRoot.quaternion.copy(SUPINE_ROOT_QUAT)"), "root basis still applied")
       .toBe(true);
@@ -146,6 +227,11 @@ describe("the supine ablation sheet exists and is gradeable", () => {
       /export function applySupinePose\(humanoidRoot: Object3D(,\s*[^)]*=\s*\{[^)]*\})?\)/.test(src),
       "any new parameter must be OPTIONAL with a default, so existing callers are untouched",
     ).toBe(true);
+    expect(src.includes("isMpfb2Rig"), "per-rail default must branch on isMpfb2Rig").toBe(true);
+    expect(
+      src.includes("options.applyJointEulers ?? !isMpfb2Rig(jointNames)"),
+      "default must be Anny-true / MPFB2-false unless explicitly overridden",
+    ).toBe(true);
   });
 
   it("(3) COUNTERWEIGHT: all 17 authored eulers survive", () => {
@@ -154,6 +240,9 @@ describe("the supine ablation sheet exists and is gradeable", () => {
     for (const b of MAP_BONES) {
       expect(src.includes(`["${b}"`), `SUPINE_BONE_EULERS must still author "${b}"`).toBe(true);
     }
+    // Exact 17: a 16-entry map passes every per-key guard above and still drops a bone.
+    const entries = src.match(/\["(pelvis|spine|chest|thigh[LR]|shin[LR]|foot[LR]|upper_arm[LR]|forearm[LR]|hand[LR]|neck|head)", \{/g) ?? [];
+    expect(new Set(entries).size, `map must author exactly 17 keys; got ${entries.length}`).toBe(17);
   });
 
   it("(4) VACUITY GUARD: the three cells are not the same render", () => {

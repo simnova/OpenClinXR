@@ -1332,6 +1332,10 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "applySupinePose",
+        "kind": "runtime"
+      },
+      {
         "name": "applySupinePoseHoldingIncline",
         "kind": "runtime"
       },

@@ -84,6 +84,11 @@
         "name": "reapplySupineHeadToStoredPillow",
         "kind": "runtime",
         "via": "own-test"
+      },
+      {
+        "name": "applySupinePose",
+        "kind": "runtime",
+        "via": "own-test"
       }
     ]
   },
