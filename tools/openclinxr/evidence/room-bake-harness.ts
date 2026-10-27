@@ -14,6 +14,7 @@ import { copyFile, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
+import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { decodePng } from "./decode-png.js";
 
 export const SHIPPED_PRIMARY_CARE_GLB =
@@ -88,7 +89,7 @@ export type RoomBakeHarnessSpawn = (argv: readonly string[]) => void;
 
 type Surface = "wall" | "floor" | "ceiling";
 
-const io = new NodeIO();
+const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
 
 export function repoRoot(): string {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");

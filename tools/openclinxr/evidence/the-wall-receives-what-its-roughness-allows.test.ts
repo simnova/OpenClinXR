@@ -147,7 +147,8 @@ describe("the wall receives what its roughness allows", () => {
     const GLB = "apps/ui-xr/public/xr-assets/environment/infinigen-primary-care-clinic.glb";
     expect(existsSync(GLB), "the shipped room GLB must still exist").toBe(true);
     const { NodeIO } = await import("@gltf-transform/core");
-    const doc = await new NodeIO().read(GLB);
+    const { KHRTextureTransform } = await import("@gltf-transform/extensions");
+    const doc = await new NodeIO().registerExtensions([KHRTextureTransform]).read(GLB);
     for (const m of doc.getRoot().listMaterials()) {
       if (!/hexagon/.test(m.getName() ?? "")) continue;
       expect(m.getRoughnessFactor(),

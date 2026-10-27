@@ -1,4 +1,4 @@
-import { mkdtempSync, statSync } from "node:fs";
+import { mkdtempSync, statSync, writeFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -11,7 +11,27 @@ import {
   SHIPPED_PRIMARY_CARE_GLB,
   surfaceForBakeName,
   surfaceForNodeName,
+  treatmentMeetsRealismBar,
 } from "../room-bake-harness.js";
+import {
+  buildAllBlackBakeGlb,
+  buildMissingTextureBakeGlb,
+  buildSyntheticBakeGlb,
+  buildUrgentCareShapeGlb,
+  SYNTHETIC_CEILING_MEAN,
+  SYNTHETIC_CEILING_OCCUPIED,
+  SYNTHETIC_FLOOR_MEAN,
+  SYNTHETIC_WALL_BRIGHT,
+  SYNTHETIC_WALL_OCCUPIED,
+  SYNTHETIC_WALL_WHOLE_MEAN,
+} from "./synthetic-bake-fixture.js";
+
+async function writeSyntheticGlb(bytes: Uint8Array): Promise<string> {
+  const dir = mkdtempSync(path.join(tmpdir(), "room-bake-synthetic-"));
+  const glb = path.join(dir, "synthetic.glb");
+  writeFileSync(glb, bytes);
+  return glb;
+}
 
 describe("room bake harness", () => {
   it("scores a bright field with a black island nearer the bright field than the whole-image mean", () => {
@@ -60,14 +80,15 @@ describe("room bake harness", () => {
   });
 
   it("measure-only returns finite wall, floor, and ceiling means without starting Blender", async () => {
+    const glb = await writeSyntheticGlb(await buildSyntheticBakeGlb("node-role"));
     const reportPath = path.join(mkdtempSync(path.join(tmpdir(), "room-bake-harness-")), "report.json");
     const report = await runRoomBakeHarness(
       [
         "--measure-only",
         "--control",
-        SHIPPED_PRIMARY_CARE_GLB,
+        glb,
         "--treatment",
-        SHIPPED_PRIMARY_CARE_GLB,
+        glb,
         "--report",
         reportPath,
       ],
@@ -91,6 +112,15 @@ describe("room bake harness", () => {
 
     const written = JSON.parse(await readFile(report.reportPath, "utf8")) as RoomBakeHarnessReport;
     expect(written.control.wall.occupiedMean).toBeGreaterThan(written.control.wall.wholeMean);
+    // Report roundtrip: all numerical luminance fields survive the write/read.
+    for (const side of ["control", "treatment"] as const) {
+      for (const surface of ["wall", "floor", "ceiling"] as const) {
+        expect(written[side][surface].occupiedMean).toBe(report[side][surface].occupiedMean);
+        expect(written[side][surface].wholeMean).toBe(report[side][surface].wholeMean);
+        expect(written[side][surface].occupiedSd).toBe(report[side][surface].occupiedSd);
+        expect(written[side][surface].occupiedCount).toBe(report[side][surface].occupiedCount);
+      }
+    }
   });
 
   it("forwards --samples and refuses a non-positive sample count", async () => {
@@ -128,8 +158,8 @@ describe("room bake harness", () => {
   });
 
   it("scores urgent-care wall, floor, and ceiling from node roles", async () => {
+    const source = await writeSyntheticGlb(await buildUrgentCareShapeGlb());
     const reportPath = path.join(mkdtempSync(path.join(tmpdir(), "room-bake-harness-")), "report.json");
-    const source = "apps/ui-xr/public/xr-assets/environment/infinigen-urgent-care-clinic.glb";
     const report = await runRoomBakeHarness(
       ["--measure-only", "--control", source, "--treatment", source, "--report", reportPath],
       {
@@ -142,6 +172,90 @@ describe("room bake harness", () => {
     expect(report.control.ceiling.occupiedCount).toBeGreaterThan(0);
     expect(report.control.wall.occupiedCount).toBe(0);
     expect(report.control.floor.occupiedMean).toBeGreaterThan(report.control.wall.wholeMean);
+  });
+});
+
+describe("synthetic bake fixture", () => {
+  it("measures deterministic wall padding (node-role naming)", async () => {
+    const glb = await writeSyntheticGlb(await buildSyntheticBakeGlb("node-role"));
+    const report = (await runRoomBakeHarness(
+      ["--measure-only", "--control", glb, "--treatment", glb, "--report", path.join(mkdtempSync(path.join(tmpdir(), "room-bake-synthetic-")), "report.json")],
+      { spawn() { throw new Error("measure-only must not start Blender"); } },
+    )) as RoomBakeHarnessReport;
+    expect(report.control.wall.occupiedMean).toBe(SYNTHETIC_WALL_BRIGHT);
+    expect(report.control.wall.occupiedMean).toBeGreaterThan(report.control.wall.wholeMean);
+    expect(report.control.wall.wholeMean).toBeCloseTo(SYNTHETIC_WALL_WHOLE_MEAN, 0);
+    expect(report.control.wall.occupiedCount).toBe(SYNTHETIC_WALL_OCCUPIED);
+    expect(report.control.floor.occupiedMean).toBe(SYNTHETIC_FLOOR_MEAN);
+    expect(report.control.ceiling.occupiedMean).toBe(SYNTHETIC_CEILING_MEAN);
+    expect(report.control.ceiling.occupiedCount).toBe(SYNTHETIC_CEILING_OCCUPIED);
+  });
+
+  it("measures identical wall statistics through the bake-name fallback path", async () => {
+    const glb = await writeSyntheticGlb(await buildSyntheticBakeGlb("bake-name"));
+    const report = (await runRoomBakeHarness(
+      ["--measure-only", "--control", glb, "--treatment", glb, "--report", path.join(mkdtempSync(path.join(tmpdir(), "room-bake-synthetic-")), "report.json")],
+      { spawn() { throw new Error("measure-only must not start Blender"); } },
+    )) as RoomBakeHarnessReport;
+    expect(report.control.wall.occupiedMean).toBe(SYNTHETIC_WALL_BRIGHT);
+    expect(report.control.wall.occupiedCount).toBe(SYNTHETIC_WALL_OCCUPIED);
+    expect(report.control.floor.occupiedMean).toBe(SYNTHETIC_FLOOR_MEAN);
+    expect(report.control.ceiling.occupiedMean).toBe(SYNTHETIC_CEILING_MEAN);
+  });
+
+  it("all-black fixture yields zero occupied on every surface", async () => {
+    const glb = await writeSyntheticGlb(await buildAllBlackBakeGlb());
+    const report = (await runRoomBakeHarness(
+      ["--measure-only", "--control", glb, "--treatment", glb, "--report", path.join(mkdtempSync(path.join(tmpdir(), "room-bake-synthetic-")), "report.json")],
+      { spawn() { throw new Error("measure-only must not start Blender"); } },
+    )) as RoomBakeHarnessReport;
+    for (const surface of [report.control.wall, report.control.floor, report.control.ceiling]) {
+      expect(surface.occupiedCount).toBe(0);
+      expect(surface.occupiedMean).toBe(0);
+    }
+  });
+
+  it("black treatment fails the realism bar", async () => {
+    const lit = await writeSyntheticGlb(await buildSyntheticBakeGlb("node-role"));
+    const black = await writeSyntheticGlb(await buildAllBlackBakeGlb());
+    const litReport = (await runRoomBakeHarness(
+      ["--measure-only", "--control", lit, "--treatment", lit, "--report", path.join(mkdtempSync(path.join(tmpdir(), "room-bake-synthetic-")), "report.json")],
+      { spawn() { throw new Error("measure-only must not start Blender"); } },
+    )) as RoomBakeHarnessReport;
+    const blackReport = (await runRoomBakeHarness(
+      ["--measure-only", "--control", black, "--treatment", black, "--report", path.join(mkdtempSync(path.join(tmpdir(), "room-bake-synthetic-")), "report.json")],
+      { spawn() { throw new Error("measure-only must not start Blender"); } },
+    )) as RoomBakeHarnessReport;
+    expect(treatmentMeetsRealismBar(litReport.control, blackReport.control).ok).toBe(false);
+  });
+
+  it("missing surface texture throws instead of scoring", async () => {
+    const glb = await writeSyntheticGlb(await buildMissingTextureBakeGlb());
+    await expect(runRoomBakeHarness(
+      ["--measure-only", "--control", glb, "--treatment", glb, "--report", path.join(mkdtempSync(path.join(tmpdir(), "room-bake-synthetic-")), "report.json")],
+      { spawn() { throw new Error("measure-only must not start Blender"); } },
+    )).rejects.toThrow(/missing .* bake image/);
+  });
+
+  it("shipped primary-care and urgent-care assets keep their automated measurement integration", async () => {
+    const shippedGlbs = [
+      SHIPPED_PRIMARY_CARE_GLB,
+      SHIPPED_PRIMARY_CARE_GLB.replace("primary-care", "urgent-care"),
+    ];
+    for (const shippedGlb of shippedGlbs) {
+      const report = (await runRoomBakeHarness(
+        ["--measure-only", "--control", shippedGlb, "--treatment", shippedGlb, "--report", path.join(mkdtempSync(path.join(tmpdir(), "room-bake-synthetic-")), "report.json")],
+        { spawn() { throw new Error("measure-only must not start Blender"); } },
+      )) as RoomBakeHarnessReport;
+      for (const side of [report.control, report.treatment]) {
+        for (const surface of [side.wall, side.floor, side.ceiling]) {
+          expect(Number.isFinite(surface.occupiedMean)).toBe(true);
+          expect(Number.isFinite(surface.occupiedSd)).toBe(true);
+          expect(Number.isFinite(surface.wholeMean)).toBe(true);
+          expect(surface.occupiedCount).toBeGreaterThan(0);
+        }
+      }
+    }
   });
 });
 
