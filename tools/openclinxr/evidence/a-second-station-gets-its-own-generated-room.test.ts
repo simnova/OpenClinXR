@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
+import { KHRTextureTransform } from "@gltf-transform/extensions";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -108,7 +109,7 @@ async function shapeOf(assetUrl: string): Promise<RoomShape | null> {
   const abs = join(PUBLIC, assetUrl.replace(/^\//u, ""));
   if (!existsSync(abs)) throw new Error("missing artifact");
   const bytes = readFileSync(abs);
-  const doc = await new NodeIO().readBinary(bytes);
+  const doc = await new NodeIO().registerExtensions([KHRTextureTransform]).readBinary(bytes);
   const root = doc.getRoot();
   const lo = [Infinity, Infinity, Infinity];
   const hi = [-Infinity, -Infinity, -Infinity];

@@ -219,13 +219,13 @@ describe("the settled correction execution is measured", () => {
         x: heelTarget.x,
         y: heelTarget.y,
         z: heelTarget.z,
-      }, maxExtension, softening);
+      }, maxExtension, softening, actorSlot);
 
       console.log("=== SOLVE TWO BONE IK DIRECT MEASUREMENT ===");
       console.log(`chain found: ${!!chain}`);
       console.log(`ikResult returned: ${!!ikResult}`);
       if (ikResult) {
-        console.log(`hipQuat: (${ikResult.hipQuat.x.toFixed(6)}, ${ikResult.hipQuat.y.toFixed(6)}, ${ikResult.hipQuat.z.toFixed(6)}, ${ikResult.hipQuat.w.toFixed(6)})`);
+        console.log(`hipDelta: (${ikResult.hipDelta.x.toFixed(6)}, ${ikResult.hipDelta.y.toFixed(6)}, ${ikResult.hipDelta.z.toFixed(6)}, ${ikResult.hipDelta.w.toFixed(6)})`);
         console.log(`kneeQuat: (${ikResult.kneeQuat.x.toFixed(6)}, ${ikResult.kneeQuat.y.toFixed(6)}, ${ikResult.kneeQuat.z.toFixed(6)}, ${ikResult.kneeQuat.w.toFixed(6)})`);
       } else {
         console.log("ikResult is null - solver failed");

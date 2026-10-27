@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
-  advanceCaseOwnedBedsideApproach,
-  applyCaseOwnedStanceLock,
   createCaseOwnedBedsideApproach,
   measureStanceGroundAdvance,
 } from "../../../../packages/openclinxr/xr-humanoid-animation/src/case-owned-approach-runtime-mod.js";
+import {
+  advanceCaseOwnedBedsideApproach,
+  applyCaseOwnedStanceLock,
+} from "@openclinxr/xr-humanoid-animation/case-owned-approach-runtime";
 import { applySettledPostureCorrection } from "../../../../packages/openclinxr/xr-humanoid-animation/src/stance-lock-mod.js";
 import { AnimationClip, Group, Object3D, VectorKeyframeTrack } from "three";
 
@@ -291,7 +293,7 @@ describe("the settled branch execution is observed", () => {
         actorSlot.updateMatrixWorld(true);
         toeYAfterCorrection = worldY(direct.stanceFoot === "right" ? toeR : toeL);
       }
-      applyCaseOwnedStanceLock(approach);
+      applyCaseOwnedStanceLock(approach, dt);
       actorSlot.updateMatrixWorld(true);
       const toeYSample = worldY(toeL) <= worldY(toeR) ? worldY(toeL) : worldY(toeR);
       frames.push({
