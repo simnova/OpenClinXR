@@ -59,6 +59,12 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Prepare SC-10 metadata store
+        run: |
+          SC10_DIR="$(mktemp -d "${RUNNER_TEMP}/sc10-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}-XXXXXX")"
+          pnpm exec tsx tools/openclinxr/evidence/scene-closure-research/prepare-sc10-metadata-store.ts --output-dir "$SC10_DIR"
+          echo "OPENCLINXR_SC_EVIDENCE_REGISTRY=$SC10_DIR/registry.json" >> "${GITHUB_ENV}"
+
       - name: Test
         run: pnpm test
 

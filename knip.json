@@ -75,7 +75,8 @@
     "packages/openclinxr/motion-compiler/src/derive-skeleton-profile.ts",
     "packages/openclinxr/motion-compiler/src/regions/region-anchors.ts",
     "packages/openclinxr/review-workflow/src/planted.ts",
-    "tools/openclinxr/evidence/room-bake-harness.test.ts"
+    "tools/openclinxr/evidence/room-bake-harness.test.ts",
+    ".openclinxr/slices/**/evidence/**/files/**"
   ],
   "ignoreDependencies": [
     "@gltf-transform/cli",

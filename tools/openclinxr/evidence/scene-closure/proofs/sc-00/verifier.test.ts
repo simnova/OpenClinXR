@@ -88,7 +88,7 @@ const SYNTHETIC_DAMAGE: Record<string, { metric: RubricMetric; kind: "fail" | "r
   "missing-contact-windows-fails": { metric: "signed-floor-contact", kind: "fail", mutate: (m) => { for (const t of m.contactTracks) for (const s of t.samples) s.position.y += 0.5; } },
   "zero-skinned-samples-fails": { metric: "skinned-body-presence", kind: "fail", mutate: (m) => { m.skinnedBodyCount = 0; m.skinnedVertexSampleCount = 0; } },
   "absent-actor-fails": { metric: "actor-presence", kind: "fail", mutate: (m) => { m.actorId = ""; } },
-  "thin-obstacle-between-waypoints-fails": { metric: "swept-collision", kind: "fail", mutate: (m) => { m.route?.obstacles.push({ id: "pole", bounds: { min: { x: 0.28, y: 0, z: 0.8 }, max: { x: 0.33, y: 1.6, z: 0.85 } } }); } },
+  "thin-obstacle-between-waypoints-fails": { metric: "swept-collision", kind: "fail", mutate: (m) => { m.route?.obstacles.push({ id: "pole", bounds: { min: { x: -0.025, y: 0, z: 0.975 }, max: { x: 0.025, y: 1.6, z: 1.025 } } }); } },
   "wrong-support-frame-fails": { metric: "support-frame-identity", kind: "fail", mutate: (m) => { if (m.support) m.support.bounds = { min: { x: 5, y: 0.45, z: 5 }, max: { x: 6, y: 0.5, z: 6 } }; } },
   "clip-flag-without-motion-fails": { metric: "clip-motion-observed", kind: "fail", mutate: (m) => { m.clipDeclaredPlayed = true; } },
   "unsupported-floor-geometry-refuses": { metric: "floor-frame-supported", kind: "refuse", mutate: (m) => { m.floor = { frameId: "ramp", originY: 0, normal: { x: 0, y: 0.9, z: 0.44 } }; } },

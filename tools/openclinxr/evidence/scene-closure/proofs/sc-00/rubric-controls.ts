@@ -104,11 +104,12 @@ function selectedRoute(extraObstacles: SweptRoute["obstacles"]): SweptRoute {
 /**
  * An IV pole placed in the blind spot of the shipped 0.35 m waypoint sampler.
  *
- * The geometry is not a guess. With a 0.3 m standing footprint and 0.35 m waypoints, the circles at
- * consecutive waypoints stop covering the segment once the lateral offset exceeds
- * sqrt(0.09 - 0.0306) = 0.244 m. At 0.30 m lateral the nearest corner of a 0.05 m pole sits
- * 0.347 m from each waypoint — outside both circles — while the swept body passes 0.275 m from it,
- * a 0.025 m intrusion. The baseline planner reports `pathViolations: []` and `arrivesAtTarget:
+ * The geometry is route-relative, not a fitted threshold. The pole straddles one segment's
+ * midpoint at a lateral offset of one live body radius minus 5 mm, so the rubric's own 0.04 m
+ * resweep intrudes a fixed 0.03 m into its 0.05 m width however the measured radius drifts,
+ * while both segment endpoints stay clear: each sits half a segment (~0.175 m) along the route
+ * plus the full lateral offset from the pole, outside the discrete waypoint circles. The baseline
+ * planner checks only those waypoints, so it reports `pathViolations: []` and `arrivesAtTarget:
  * true` on exactly this arrangement; that measurement is this card's RED 2.
  */
 export function thinObstacleBetweenWaypoints(route: SweptRoute): SweptRoute["obstacles"][number] {
@@ -121,7 +122,10 @@ export function thinObstacleBetweenWaypoints(route: SweptRoute): SweptRoute["obs
   const length = Math.hypot(dirX, dirZ);
   const lateralX = -dirZ / length;
   const lateralZ = dirX / length;
-  const offset = 0.3;
+  // One live body radius minus 5 mm: the swept body overlaps the pole's near face by a fixed
+  // 0.03 m (5 mm past the radius plus the 0.025 m pole half-width) at any measured radius,
+  // while the endpoints keep their half-segment along-route clearance.
+  const offset = SCENE_CLOSURE_RUBRIC_THRESHOLDS.sweptBodyRadiusMeters.value - 0.005;
   const half = 0.025;
   const centre = { x: mid.x + lateralX * offset, z: mid.z + lateralZ * offset };
   return {
