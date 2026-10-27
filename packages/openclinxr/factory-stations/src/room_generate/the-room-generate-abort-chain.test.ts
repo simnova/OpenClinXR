@@ -2,7 +2,8 @@ import { existsSync } from "node:fs";
 import { chmod, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { readComputeSlotsStatus } from "@openclinxr/compute-slots/slots";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { runRoomGenerate } from "../index.js";
 
 // Public-API abort-chain regression for runRoomGenerate through the public
@@ -26,6 +27,36 @@ setTimeout(() => {}, 120_000);
 `;
 
 const JOB_TMP_ROOT = process.env["OPENCLINXR_JOB_TMP"] ?? os.tmpdir();
+
+// Slot isolation (per-test): bake path takes the machine-wide `blender`
+// slot (withComputeSlot), so a contended real pool queues CPU stand-ins
+// past the 5000ms budget. Verified dynamic: slots.ts lockRoot() resolves
+// OPENCLINXR_LOCK_ROOT per call, so each test gets a unique mkdtemp root.
+let priorLockRootChain: string | undefined;
+let fileLockRootChain: string | null = null;
+
+beforeEach(async () => {
+  priorLockRootChain = process.env["OPENCLINXR_LOCK_ROOT"];
+  fileLockRootChain = await mkdtemp(path.join(JOB_TMP_ROOT, "room-gen-abort-locks-"));
+  process.env["OPENCLINXR_LOCK_ROOT"] = fileLockRootChain;
+});
+
+afterEach(async () => {
+  try {
+    const status = readComputeSlotsStatus();
+    expect(path.resolve(status.root)).toBe(path.resolve(fileLockRootChain as string));
+    const alive = status.pools.flatMap((p) => [...p.holders, ...p.waiters]).filter((h) => h.alive);
+    expect(alive).toEqual([]);
+  } finally {
+    if (priorLockRootChain === undefined) delete process.env["OPENCLINXR_LOCK_ROOT"];
+    else process.env["OPENCLINXR_LOCK_ROOT"] = priorLockRootChain;
+    priorLockRootChain = undefined;
+    if (fileLockRootChain !== null) {
+      await rm(fileLockRootChain, { recursive: true, force: true });
+      fileLockRootChain = null;
+    }
+  }
+});
 
 const PRE_ABORT_REASON = "pre-aborted probe";
 const POST_ABORT_REASON = "post-spawn probe abort";

@@ -61,7 +61,21 @@ const SHARED_ROOM_PROPS: readonly EncounterRuntimeRoomProp[] = [
 ];
 
 /**
- * Room props specific to the inpatient ward room environment: the shared 17 (with the
+ * The scenario id that owns the corrected inpatient ward room layout.
+ *
+ * Literal, not a second catalogue: `caseScenarioDocument` (case-actor-placements-mod.ts)
+ * already resolves this id through the scenario bank / injected document, and no shipped
+ * case schema field authors room-prop overrides, so there is no definition contract to
+ * read the ownership from. The frozen scene-closure case
+ * (`tools/openclinxr/factory/scene-closure-case-source.ts`, SCENE_CLOSURE_CASE_ID) shares
+ * the ward `environmentId` but is NOT this id, so it keeps the baseline below and its
+ * committed freeze (geom-v1-d983811a-17) reproduces byte-identically.
+ */
+export const WARD_DELIRIUM_SCENARIO_ID = "ward_delirium_med_rec_v1";
+
+/**
+ * Room props for the owning Ward case (`ward_delirium_med_rec_v1`,
+ * `packages/openclinxr/scenario-fixtures/src/ward-delirium.ts`): the shared 17 (with the
  * Ward-only wall-clock wall-anchor override to z=-2.35; ED defaults unchanged) plus a
  * ward-layout curtain parked OPEN at the rear (behind the review camera eye z=-1.60,
  * plane z~-1.9, footprint X[-1.8,-0.2], top 2.215 under measured ceiling underside 2.34)
@@ -80,6 +94,35 @@ function wardRoomProps(): EncounterRuntimeRoomProp[] {
     runtimeRoomProp("curtain-track-rings", "Rings", "dfe9ee", "5e8292", { x: -1.0, y: 2.2, z: -1.6 }, { x: 1.0, y: 0.035, z: 0.035 }, ["environmental_texture"]),
     runtimeRoomProp("doorway-station-sign", "Ward Room", "f4d35e", "7c6220", { x: -1.02, y: 1.92, z: 1.86 }, { x: 0.34, y: 0.09, z: 0.025 }, ["room_identification"]),
   ];
+}
+
+/**
+ * Baseline ward layout: the shared 17 at authored defaults (wall-clock z=-1.42) plus the
+ * pre-correction ward curtain placement. This is what the frozen scene-closure case's
+ * committed 17-obstacle freeze was measured against, so any ward-environment case that
+ * is NOT the owning Ward case keeps reproducing it exactly.
+ */
+function baselineWardRoomProps(): EncounterRuntimeRoomProp[] {
+  return [
+    ...SHARED_ROOM_PROPS,
+    runtimeRoomProp("privacy-curtain", "Curtain", "7fb6c7", "3f7482", { x: -0.9, y: 1.12, z: 0.6 }, { x: 1.0, y: 0.86, z: 0.035 }, ["ambient_safety"]),
+    runtimeRoomProp("curtain-track-rings", "Rings", "dfe9ee", "5e8292", { x: -0.9, y: 1.98, z: 0.6 }, { x: 1.0, y: 0.035, z: 0.035 }, ["environmental_texture"]),
+    runtimeRoomProp("doorway-station-sign", "Ward Room", "f4d35e", "7c6220", { x: -1.02, y: 1.92, z: 1.86 }, { x: 0.34, y: 0.09, z: 0.025 }, ["room_identification"]),
+  ];
+}
+
+/**
+ * Case-routed room props. The owning Ward case gets the corrected layout; every other
+ * case in the ward environment (including the frozen scene-closure case) gets the
+ * baseline its freeze was measured against; all other environments are unchanged.
+ * Additive only: `roomPropsForEnvironment` below is untouched.
+ */
+export function roomPropsForScenario(scenarioId: string, environmentId: string): EncounterRuntimeRoomProp[] {
+  if (environmentId === "inpatient_ward_room_v1") {
+    if (scenarioId === WARD_DELIRIUM_SCENARIO_ID) return wardRoomProps();
+    return baselineWardRoomProps();
+  }
+  return roomPropsForEnvironment(environmentId);
 }
 
 /**

@@ -1,10 +1,4 @@
-import type { RuntimeActorAudioEvidence } from "./runtime-actor-audio-evidence.js";
 import { resolveScenarioActorCast } from "./actor-casting.js";
-import { resolveRuntimeBundleCast } from "./runtime-bundle-cast.js";
-import {
-  resolveRuntimeAssetBlobUrl,
-  resolveRuntimeAssetStoreConfig,
-} from "./runtime-bundle-asset-urls.js";
 import {
   generatedActorLabel,
   generatedActorPlacement,
@@ -16,6 +10,12 @@ import {
   buildRealizedEquipmentPlacements,
   type EquipmentPlacementReport,
 } from "./realized-equipment-placements.js";
+import type { RuntimeActorAudioEvidence } from "./runtime-actor-audio-evidence.js";
+import {
+  resolveRuntimeAssetBlobUrl,
+  resolveRuntimeAssetStoreConfig,
+} from "./runtime-bundle-asset-urls.js";
+import { resolveRuntimeBundleCast } from "./runtime-bundle-cast.js";
 
 export {
   resolveScenarioActorCast } from "./actor-casting.js";
@@ -27,7 +27,7 @@ import { placementsWithPersistedCaseIntent, type SupportedPlacementAcceptance } 
 import { caseRealGlbEquipmentFixtures, caseRealGlbEquipmentPlacements } from "./case-runtime-equipment-mod.js";
 import { resolveBundleCastActorIds } from "./cast-actor-ids.js";
 import { defaultRuntimeAssetContainerName, missingRuntimeStrings, uniqueRuntimeStrings } from "./runtime-bundle-strings.js";
-import { roomPropsForEnvironment } from "./runtime-room-props.js";
+import { roomPropsForScenario } from "./runtime-room-props.js";
 
 export type RuntimeAssetKind = "humanoid_model" | "environment_model" | "equipment_model" | "animation_clip" | "audio_clip" | "texture" | "ui_schema" | "phoneme_map";
 
@@ -1514,7 +1514,11 @@ export function createEdChestPainRuntimeSceneManifest(input: {
         : {}),
     }, { environmentId, authored }),
     equipmentPlacements: caseRealGlbEquipmentPlacements(input.scenario),
-    roomProps: roomPropsForEnvironment(environmentId),
+    // Case-routed (main42): the corrected Ward layout belongs to the owning Ward case,
+    // not to every case sharing the ward environmentId. The frozen scene-closure case
+    // keeps the baseline its freeze was measured against, so its parametric digest
+    // stays geom-v1-532f79a5-17 and its freeze stays geom-v1-d983811a-17.
+    roomProps: roomPropsForScenario(manifestScenarioId, environmentId),
     // `locomotionOrders` (main.ts reads this list and forwards it -- it does not decide which
     // actor walks where) is not authored on any shipped case yet: the order-driven walker can
     // walk through an unmapped fixture (measured on scene_closure's nurse -- she cut through the
