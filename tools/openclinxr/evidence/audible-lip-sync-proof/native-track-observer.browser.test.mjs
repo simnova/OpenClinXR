@@ -1,10 +1,7 @@
-import {it, expect} from "vitest";
-import {execFileSync} from "node:child_process";
-import {mkdirSync, writeFileSync, readFileSync} from "node:fs";
-import {resolve} from "node:path";
-import {randomUUID} from "node:crypto";
-import {chromium} from "playwright";
-import {fileURLToPath} from "node:url";
+import { it, expect } from "vitest";
+import { chromium } from "playwright";
+import { fileURLToPath } from "node:url";
+import { buildBrowserControlBundle } from "./browser-bundle-helper.mjs";
 
 it("installed browser tees decode a painted 1024 marker and keep the original tracks live", async () => {
   const observer = fileURLToPath(new URL("./native-track-observer.mjs", import.meta.url));
@@ -68,30 +65,35 @@ window.runNativeTrackControl=async()=>{
   afterOsc
  };
 };`;
-  const buildRoot = fileURLToPath(new URL("./tmp/native-track-" + randomUUID() + "/", import.meta.url));
-  mkdirSync(buildRoot, { recursive: true });
-  const entry = resolve(buildRoot, "control.js");
-  const bundle = resolve(buildRoot, "control.bundle.js");
-  writeFileSync(entry, source);
-  execFileSync("bun", ["build", entry, "--target=browser", "--format=iife", "--outfile=" + bundle], { cwd: process.cwd(), encoding: "utf8" });
-  const browser = await chromium.launch({ headless: true });
+  let bundle;
+  let browser;
   try {
-    const page = await browser.newPage();
-    await page.setContent("<html><body></body></html>");
-    await page.addScriptTag({ content: readFileSync(bundle, "utf8") });
-    const result = await page.evaluate(() => window.runNativeTrackControl());
-    expect(result.support.status).toBe("available");
-    expect(result.audioFramesObserved).toBeGreaterThan(0);
-    expect(result.audioClosed).toBe(result.audioFramesObserved);
-    expect(result.videoClosed).toBe(result.videoFramesObserved);
-    expect(result.sampleCount).toBeGreaterThan(0);
-    expect(result.marked[0]).toMatchObject({ callbackSerial: 88, generationN: 7, nodeSerial: 3 });
-    expect(result.tamperedVideoFrames).toBeGreaterThan(0);
-    expect(result.tamperedKinds.some((k) => k === "excluded-checksum" || k === "unmarked")).toBe(true);
-    expect(result.liveAfterStop.audio).toBe("live");
-    expect(result.audioEpoch).toBe("audio-data-capture-ticks");
-    expect(result.videoEpoch).toBe("video-frame-relative-first-ticks");
+    bundle = await buildBrowserControlBundle(source);
+    browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage();
+      await page.setContent("<html><body></body></html>");
+      await page.addScriptTag({ content: bundle.code });
+      const result = await page.evaluate(() => window.runNativeTrackControl());
+      expect(result.support.status).toBe("available");
+      expect(result.audioFramesObserved).toBeGreaterThan(0);
+      expect(result.audioClosed).toBe(result.audioFramesObserved);
+      expect(result.videoClosed).toBe(result.videoFramesObserved);
+      expect(result.sampleCount).toBeGreaterThan(0);
+      expect(result.marked[0]).toMatchObject({ callbackSerial: 88, generationN: 7, nodeSerial: 3 });
+      expect(result.tamperedVideoFrames).toBeGreaterThan(0);
+      expect(result.tamperedKinds.some((k) => k === "excluded-checksum" || k === "unmarked")).toBe(true);
+      expect(result.liveAfterStop.audio).toBe("live");
+      expect(result.audioEpoch).toBe("audio-data-capture-ticks");
+      expect(result.videoEpoch).toBe("video-frame-relative-first-ticks");
+    } finally {
+      try {
+        await browser.close();
+      } finally {
+        bundle.dispose();
+      }
+    }
   } finally {
-    await browser.close();
+    bundle?.dispose();
   }
 }, 20000);
