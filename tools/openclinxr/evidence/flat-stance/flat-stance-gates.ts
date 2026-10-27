@@ -12,9 +12,10 @@
  * atan2(heelContactY - toeY, heelToeXZ), + = heel up.
  *
  * Usage:
+ *   export OPENCLINXR_JOB_TMP="$(mktemp -d "${TMPDIR:-/tmp}/openclinxr-flat-stance-gates-$$-XXXXXX")"
  *   pnpm tsx tools/openclinxr/evidence/flat-stance/flat-stance-gates.ts \
  *     --after=.openclinxr/evidence/flat-stance \
- *     --out=.openclinxr/evidence/flat-stance/gates.json
+ *     --out="${OPENCLINXR_JOB_TMP:?}/flat-stance/gates.json"
  */
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";

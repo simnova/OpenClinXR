@@ -7,11 +7,12 @@
  * INSTRUMENT ONLY. Reads committed capture JSON; writes no product code.
  *
  * Usage:
+ *   export OPENCLINXR_JOB_TMP="$(mktemp -d "${TMPDIR:-/tmp}/openclinxr-foot-base-divergence-$$-XXXXXX")"
  *   pnpm tsx tools/openclinxr/evidence/slide-phase/foot-base-divergence.ts \
  *     --before=.openclinxr/evidence/foot-base/before/sc05-run0.json \
  *     --after=.openclinxr/evidence/foot-base/after/sc05-run0.json \
  *     --tap=.openclinxr/evidence/foot-base/after/tap-sc05-run0.json \
- *     --out=.openclinxr/evidence/foot-base/divergence.json
+ *     --out="${OPENCLINXR_JOB_TMP:?}/foot-base/divergence.json"
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";

@@ -9,8 +9,9 @@
  * hold_transition | plan_end | reach_saturation | other.
  *
  * Usage:
+ *   export OPENCLINXR_JOB_TMP="$(mktemp -d "${TMPDIR:-/tmp}/openclinxr-turn-leg-snaps-analyze-$$-XXXXXX")"
  *   pnpm tsx tools/openclinxr/evidence/settle-entry/turn-leg-snaps-analyze.ts \
- *     --dir=.openclinxr/evidence/turn-leg-snaps/stage1 --out=.openclinxr/evidence/turn-leg-snaps/stage1-classes.json
+ *     --dir=.openclinxr/evidence/turn-leg-snaps/stage1 --out="${OPENCLINXR_JOB_TMP:?}/turn-leg-snaps/stage1-classes.json"
  */
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";

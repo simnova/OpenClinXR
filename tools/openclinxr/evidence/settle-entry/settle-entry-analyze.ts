@@ -11,12 +11,13 @@
  * (first step + field where two runs differ, with magnitudes).
  *
  * Usage:
+ *   export OPENCLINXR_JOB_TMP="$(mktemp -d "${TMPDIR:-/tmp}/openclinxr-settle-entry-analyze-$$-XXXXXX")"
  *   pnpm tsx tools/openclinxr/evidence/settle-entry/settle-entry-analyze.ts \
- *     --dir=.openclinxr/evidence/settle-entry/control --out=.openclinxr/evidence/settle-entry/control-summary.json
+ *     --dir=.openclinxr/evidence/settle-entry/control --out="${OPENCLINXR_JOB_TMP:?}/settle-entry/control-summary.json"
  */
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { normBandOf, quatStepDeg, type NormBand } from "./quat-norm-math.js";
+import { type NormBand, normBandOf, quatStepDeg } from "./quat-norm-math.js";
 
 type Vec3 = { x: number; y: number; z: number };
 type Quat = { x: number; y: number; z: number; w: number };

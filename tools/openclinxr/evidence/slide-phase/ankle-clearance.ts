@@ -27,10 +27,11 @@
  *     datum subtraction, so datum-relative clearances are world-true.
  *
  * Usage:
+ *   export OPENCLINXR_JOB_TMP="$(mktemp -d "${TMPDIR:-/tmp}/openclinxr-ankle-clearance-$$-XXXXXX")"
  *   pnpm tsx tools/openclinxr/evidence/slide-phase/ankle-clearance.ts \
  *     --route=sc05 --run=.openclinxr/evidence/knee-budget/sc05/sc05-run0.json \
  *     [--run=...] [--bound-glb=...] [--clip=openclinxr_retarget_walk_source] \
- *     --out=.openclinxr/evidence/ankle/step1-sc05.json
+ *     --out="${OPENCLINXR_JOB_TMP:?}/ankle/step1-sc05.json"
  *
  * INSTRUMENT ONLY. Reads committed captures/GLBs; writes no product code.
  */
