@@ -1,5 +1,6 @@
-import { Vector3 } from "three";
 import type { HumanoidSpeechEvidence } from "@openclinxr/xr-runtime-state";
+import { Vector3 } from "three";
+import { clampDialogueFacingYaw, normalizeHumanoidAnimationAngle } from "./face-rig.js";
 import type {
   GeneratedHumanoidAnimationSlot,
   HumanoidAnimationRuntimeContext,
@@ -7,7 +8,6 @@ import type {
   HumanoidDialogueGazeTarget,
   HumanoidSpeechPlayback,
 } from "./types.js";
-import { clampDialogueFacingYaw, normalizeHumanoidAnimationAngle } from "./face-rig.js";
 
 export function buildHumanoidSpeechEvidence(
   actorId: string | null,
@@ -77,7 +77,18 @@ export function orientHumanoidEyeFocusCue(
   slot.eyeFocusCue.rotation.x = -Math.atan2(offset.y, horizontal) * 0.45;
 }
 
+/** Shared supine-frame predicate: the supine plant owns the root quaternion. */
+export function isSupineSupportedFrame(slot: GeneratedHumanoidAnimationSlot): boolean {
+  const rootPosture = (slot.root.userData as Record<string, unknown>)["openClinXrActorPosture"];
+  const slotPosture = (slot.actorSlot.userData as Record<string, unknown>)["openClinXrActorPosture"];
+  return rootPosture === "supine" || slotPosture === "supine";
+}
+
 export function orientHumanoidTowardGazeTarget(slot: GeneratedHumanoidAnimationSlot, targetWorld: Vector3): void {
+  if (isSupineSupportedFrame(slot)) {
+    slot.root.userData["openClinXrDialogueFacingCue"] = "supine_supported_plant_gaze_turn_suppressed";
+    return;
+  }
   const targetInActorSlot = slot.actorSlot.worldToLocal(targetWorld.clone());
   const direction = targetInActorSlot.sub(slot.root.position);
   const desiredYaw = Math.atan2(direction.x, direction.z) + Math.PI;

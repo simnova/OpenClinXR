@@ -259,6 +259,16 @@
         "name": "updateStopPlayback",
         "kind": "runtime",
         "via": "own-test"
+      },
+      {
+        "name": "orientHumanoidEyeFocusCue",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "orientHumanoidTowardGazeTarget",
+        "kind": "runtime",
+        "via": "own-test"
       }
     ]
   },

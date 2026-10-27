@@ -16,7 +16,6 @@ import {
 } from "@openclinxr/xr-station";
 import { type Object3D, Quaternion, Vector3 } from "three";
 import { flexSupineArmsOntoDeck, reapplyStoredSupineArmFlex } from "./hob-arm-flex.js";
-import { captureOwnedBoneRotations, composeOwnedBoneDeltas } from "./supine-overlay-compose.js";
 import {
   alignSupineHeadToPillow,
   captureSupineRestHeadReference,
@@ -38,11 +37,13 @@ import {
 } from "./hob-extremity-flex.js";
 import { collectJointNames } from "./pose-bone-runtime.js";
 import { isMpfb2Rig } from "./seated-pose-mpfb2.js";
+import { reapplySupineArticulatedContact, resetSupineArticulatedContact, solveSupineArticulatedContact } from "./supine-articulated-contact.js";
 import { applyContactAwareSupineArms } from "./supine-hand-rest.js";
 import { plantLegacySupineIncline } from "./supine-legacy-incline.js";
+import { captureOwnedBoneRotations, composeOwnedBoneDeltas } from "./supine-overlay-compose.js";
 import { type ApplySupinePoseResult, applySupinePose } from "./supine-pose.js";
-import { reapplySupineArticulatedContact, resetSupineArticulatedContact, solveSupineArticulatedContact } from "./supine-articulated-contact.js";
 import { makeSupineSupportPlanes, settleSupineSupportRegions } from "./supine-support-contact.js";
+import { reapplyStoredGarmentSupport } from "./ward-garment-support.js";
 
 export type PlantStepMetrics = {
   step: string;
@@ -117,9 +118,12 @@ export function applySupinePoseHoldingIncline(humanoidRoot: Object3D): ApplySupi
   return result;
 }
 
-/** After hold restores base XYZ, re-apply head→pillow XZ only (no Y — Y sink undoes seat plant). */
+/** After hold restores base XYZ: head-pillow XZ, then garment correction (no Y sink). */
 export function reapplySupineHeadToStoredPillow(humanoidRoot: Object3D): void {
   reapplySupineRestHeadToStoredPillow(humanoidRoot);
+  humanoidRoot.updateMatrixWorld?.(true);
+  reapplyStoredGarmentSupport(humanoidRoot);
+  humanoidRoot.updateMatrixWorld?.(true);
 }
 
 /** World-Z tip without pelvis translation — for per-frame hold that owns position. */

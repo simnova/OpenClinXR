@@ -1,8 +1,9 @@
 /** Private MPFB supine hand contact: shared relaxed fingers and geometry-bounded arm staging. */
 import { type Object3D, Quaternion, Vector3 } from "three";
-import { measureGarmentLane, type GarmentLane } from "./supine-garment-lane.js";
 import { findSupineBone } from "./hob-extremity-flex.js";
+import { type GarmentLane, measureGarmentLane } from "./supine-garment-lane.js";
 import { makeSupineSupportPlanes, type SupineSupportPlane } from "./supine-support-contact.js";
+import { correctGarmentAgainstSupport, type GarmentSupportPlane, isGarmentMesh, registerGarmentSupport } from "./ward-garment-support.js";
 
 const pristineHands = new WeakMap<Object3D, Map<Object3D, Quaternion>>();
 const handBones = (root: Object3D): Object3D[] => {
@@ -23,6 +24,11 @@ function storeCandidate(root: Object3D): void {
     quaternion: { x: bone.quaternion.x, y: bone.quaternion.y, z: bone.quaternion.z, w: bone.quaternion.w },
   }));
   root.updateMatrixWorld(true);
+}
+
+/** Stored registration lives in ward-garment-support.ts; hand-rest only registers. */
+export function storeGarmentSupportPlanes(root: Object3D, bed: Object3D, planes: GarmentSupportPlane[], buildPlanes?: (bed: Object3D) => GarmentSupportPlane[]): void {
+  registerGarmentSupport(root, bed, planes, buildPlanes);
 }
 
 /** Same bind-relative hand preset for authored, IK and diagnostic physics comparisons. */
@@ -135,6 +141,22 @@ export function applyContactAwareSupineArms(root: Object3D, bed: Object3D): Supi
   applyRelaxedSupineHands(root);
   const support = makeSupineSupportPlanes(bed, 0);
   const planes = [support.pelvis, support.thorax];
+  // R1: per-frame factory recomputes from the LIVE bed each frame; never closes over stale support.
+  // No pre-arm correction here: moved geometry must not perturb the arm candidate baseline.
+  storeGarmentSupportPlanes(root, bed,
+    [support.pelvis, support.thorax, support.lumbar].map((plane) => ({
+      origin: plane.origin.clone(),
+      normal: plane.normal.clone(),
+      ...(plane.contains ? { contains: (world: Vector3) => plane.contains!(world) } : {}),
+    })),
+    (liveBed) => {
+      const live = makeSupineSupportPlanes(liveBed, 0);
+      return [live.pelvis, live.thorax, live.lumbar].map((plane) => ({
+        origin: plane.origin.clone(),
+        normal: plane.normal.clone(),
+        ...(plane.contains ? { contains: (world: Vector3) => plane.contains!(world) } : {}),
+      }));
+    });
   const result: SupineArmCandidateResult[] = [];
   const lanes = new Map<string, { forward: Vector3; lateral: Vector3; baseline: SupineArmCandidateResult; quats: Map<Object3D, Quaternion> }>();
   for (const side of ["L", "R"]) {
@@ -366,6 +388,20 @@ export function applyContactAwareSupineArms(root: Object3D, bed: Object3D): Supi
       result[index] = { ...lane.baseline, garmentLane: { ...row.garmentLane, attempted: row.garmentLane.after,
         after: measureGarmentLane(root, limbPoints(root, row.side, "hand"), lane.forward, lane.lateral),
         status: "infeasible-retained-contact", refusal: "bilateral settled cloth clearance changed" } };
+    }
+  }
+  // R4: single post-settling correction AFTER all arms settled; truthful refusal stays untouched.
+  {
+    const liveSupport = makeSupineSupportPlanes(bed, 0);
+    const liveFinite: GarmentSupportPlane[] = [liveSupport.pelvis, liveSupport.thorax, liveSupport.lumbar].map((plane) => ({
+      origin: plane.origin.clone(),
+      normal: plane.normal.clone(),
+      ...(plane.contains ? { contains: (world: Vector3) => plane.contains!(world) } : {}),
+    }));
+    if (result.some((row) => row.accepted)) {
+      root.traverse((object) => {
+        if (isGarmentMesh(object)) correctGarmentAgainstSupport(object, liveFinite);
+      });
     }
   }
   for (const row of result) if (row.accepted) {

@@ -16,13 +16,15 @@
  * claimScope: that these channels are driven through the public API. notEvidenceFor blink realism,
  * anatomical correctness, or whether the resulting face reads as the intended emotion.
  */
-import { BoxGeometry, Group, Line, Mesh, MeshBasicMaterial, PerspectiveCamera } from "three";
+import { BoxGeometry, Group, Line, Mesh, MeshBasicMaterial, PerspectiveCamera, Quaternion, Vector3 } from "three";
 import { describe, expect, it } from "vitest";
 import {
   applyHumanoidMorphTargetCue,
   createHumanoidEmotionExpressionState,
   type GeneratedHumanoidAnimationSlot,
   type HumanoidAnimationRuntimeContext,
+  orientHumanoidEyeFocusCue,
+  orientHumanoidTowardGazeTarget,
   updateGeneratedHumanoidAnimations,
 } from "./index.js";
 
@@ -167,5 +169,75 @@ describe("an authored emotion drives every FACS unit it implies", () => {
     const dict = face.morphTargetDictionary!;
     const names = Object.keys(dict).filter(n => (face.morphTargetInfluences![dict[n]!] ?? 0) > 0.001);
     expect(names).toEqual(["openclinxr_brow_concern"]);
+  });
+});
+
+describe("supine gaze keeps the support quaternion", () => {
+  function supineSlot(postureOn: "root" | "actorSlot") {
+    const built = actor("patient", MPFB_TARGETS);
+    const q = new Quaternion().setFromAxisAngle(new Vector3(1, 2, 3).normalize(), 0.6).normalize();
+    built.slot.root.quaternion.copy(q);
+    built.slot.root.rotation.setFromQuaternion(q, built.slot.root.rotation.order);
+    built.slot.root.quaternion.setFromEuler(built.slot.root.rotation);
+    built.slot.root.userData["openClinXrSupineRootQuat"] = { x: built.slot.root.quaternion.x, y: built.slot.root.quaternion.y, z: built.slot.root.quaternion.z, w: built.slot.root.quaternion.w };
+    if (postureOn === "root") built.slot.root.userData["openClinXrActorPosture"] = "supine";
+    else built.slot.actorSlot.userData["openClinXrActorPosture"] = "supine";
+    return built;
+  }
+  function runSilent(slot: GeneratedHumanoidAnimationSlot) {
+    const ctx = context([slot]);
+    const camera = new PerspectiveCamera();
+    for (let t = 0; t < 30; t += 1 / 60) updateGeneratedHumanoidAnimations(ctx, 1 / 60, t * 1000, camera);
+    return slot.root.quaternion.clone();
+  }
+  it("ROOT supine: silent frames hold the baseline quaternion", () => {
+    const { slot } = supineSlot("root");
+    const base = slot.root.quaternion.clone();
+    const after = runSilent(slot);
+    expect(after.x).toBeCloseTo(base.x, 12); expect(after.y).toBeCloseTo(base.y, 12);
+    expect(after.z).toBeCloseTo(base.z, 12); expect(after.w).toBeCloseTo(base.w, 12);
+  });
+  it("actorSlot supine: silent frames hold the baseline quaternion", () => {
+    const { slot } = supineSlot("actorSlot");
+    const base = slot.root.quaternion.clone();
+    const after = runSilent(slot);
+    expect(after.x).toBeCloseTo(base.x, 12); expect(after.y).toBeCloseTo(base.y, 12);
+    expect(after.z).toBeCloseTo(base.z, 12); expect(after.w).toBeCloseTo(base.w, 12);
+  });
+  it("COUNTERWEIGHT: standing yaw 0.6 with base 0 still eases normally", () => {
+    const { slot } = actor("patient", MPFB_TARGETS);
+    slot.root.rotation.y = 0.6; slot.baseRotationY = 0;
+    const ctx = context([slot]);
+    const camera = new PerspectiveCamera();
+    updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
+    expect(slot.root.rotation.y).toBeLessThan(0.6);
+    expect(slot.root.rotation.y).toBeGreaterThan(0);
+  });
+});
+
+describe("orientHumanoidTowardGazeTarget respects posture", () => {
+  it("supine on ROOT or actorSlot leaves the quaternion byte-exact", () => {
+    for (const where of ["root", "actorSlot"] as const) {
+      const { slot } = actor("patient", MPFB_TARGETS);
+      slot.root.updateMatrixWorld(true);
+      const base = slot.root.quaternion.clone();
+      if (where === "root") slot.root.userData["openClinXrActorPosture"] = "supine";
+      else slot.actorSlot.userData["openClinXrActorPosture"] = "supine";
+      orientHumanoidTowardGazeTarget(slot, new Vector3(5, 1, 5));
+      expect(slot.root.quaternion.x).toBe(base.x); expect(slot.root.quaternion.y).toBe(base.y);
+      expect(slot.root.quaternion.z).toBe(base.z); expect(slot.root.quaternion.w).toBe(base.w);
+    }
+  });
+  it("standing still turns toward the target", () => {
+    const { slot } = actor("patient", MPFB_TARGETS);
+    slot.root.updateMatrixWorld(true);
+    const before = slot.root.rotation.y;
+    orientHumanoidTowardGazeTarget(slot, new Vector3(5, 1, 5));
+    expect(slot.root.rotation.y).not.toBe(before);
+  });
+  it("eye focus cue still updates visuals", () => {
+    const { slot } = actor("patient", MPFB_TARGETS);
+    orientHumanoidEyeFocusCue(slot, new Vector3(0, 1.5, 0), new Vector3(1, 1.5, -1));
+    expect(slot.eyeFocusCue.visible).toBe(true);
   });
 });

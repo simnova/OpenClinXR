@@ -52,7 +52,7 @@
     "plantSeatedPelvisOnSeat": "After a seated pose is applied, shift the humanoid root so the pelvis rests on the chair seat (not hovering, not buried).",
     "readBackSectionPlane": "World normal of the back section top (outward from mattress).",
     "readSupineTorsoWorldDeg": "World-space torso axis angle from horizontal (degrees), from pelvis→chest/spine.",
-    "reapplySupineHeadToStoredPillow": "After hold restores base XYZ, re-apply head→pillow XZ only (no Y — Y sink undoes seat plant).",
+    "reapplySupineHeadToStoredPillow": "After hold restores base XYZ: head-pillow XZ, then garment correction (no Y sink).",
     "resolveEffectiveVerticalOffsetMeters": "Live diagnosis (#72): telehealth actors with feet-near-origin GLBs were placed with the ED-era pairing (slot y≈1.0 + verticalOffset≈-0.95).",
     "sanitiseBoneName": "Strip dots like three.js `PropertyBinding.sanitizeNodeName` (§6v).",
     "seatedRoleClipIsPlayable": "True when `clipName` names a seated-rig performance AND its measured translation channels do not animate root/pelvis/leg bones, so playing it under the #83 seated carve-out cannot fight seated height ownership.",

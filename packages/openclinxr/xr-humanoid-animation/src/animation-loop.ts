@@ -25,7 +25,7 @@ import {
   updateHumanoidEmotionExpression,
   visemeOpenness,
 } from "./face-rig.js";
-import { buildHumanoidSpeechEvidence, resolveHumanoidGazeTargetWorld, updateHumanoidGazeCue, updateVirtualDeviceActorSpeechPulses } from "./gaze-evidence.js";
+import { buildHumanoidSpeechEvidence, isSupineSupportedFrame, resolveHumanoidGazeTargetWorld, updateHumanoidGazeCue, updateVirtualDeviceActorSpeechPulses } from "./gaze-evidence.js";
 import { snapshotLocoGroundTap } from "./loco-ground-tap-mod.js";
 import { driveSlotLocomotion } from "./locomotion-clip-playback-mod.js";
 import { resolveIdleLifePhaseSeconds } from "./locomotion-drive-clock-mod.js";
@@ -318,7 +318,7 @@ export function updateHumanoidSpeechCue(
     // A silent humanoid still blinks. Applied AFTER the reset and the morph cue, both of which
     // zero the lid channel, so neither can undo it.
     applyHumanoidRestBlink(slot, nowMs);
-    slot.root.rotation.y += normalizeHumanoidAnimationAngle(slot.baseRotationY - slot.root.rotation.y) * 0.08;
+    if (!isSupineSupportedFrame(slot)) slot.root.rotation.y += normalizeHumanoidAnimationAngle(slot.baseRotationY - slot.root.rotation.y) * 0.08;
     return;
   }
   (slot as unknown as Record<string, unknown>)["_restBlinkOriginMs"] = undefined;

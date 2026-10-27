@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
 import { buildPatientStretcher } from "@openclinxr/xr-station";
+import { AnimationClip, AnimationMixer, Bone, BoxGeometry, BufferGeometry, Float32BufferAttribute, Group, Mesh, MeshBasicMaterial, Quaternion, QuaternionKeyframeTrack, Skeleton, SkinnedMesh, Uint16BufferAttribute, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { applyAndPlantSupineOnDeck, applySupinePoseHoldingIncline, holdSupinePlantFrame, reapplySupineHeadToStoredPillow } from "./index.js";
-import { Mesh, BoxGeometry, AnimationMixer, AnimationClip, QuaternionKeyframeTrack, Quaternion, Bone, Group, BufferGeometry, Float32BufferAttribute, MeshBasicMaterial, Skeleton, SkinnedMesh, Uint16BufferAttribute, Vector3 } from "three";
 import { describe, expect, it } from "vitest";
-import { makeSupineSupportPlanes, measureSupineSupportRegions, settleSupineSupportRegions, type SupineSupportPlane } from "./supine-support-contact.js";
+import { applyAndPlantSupineOnDeck, applySupinePoseHoldingIncline, holdSupinePlantFrame, reapplySupineHeadToStoredPillow } from "./index.js";
+import { makeSupineSupportPlanes, measureSupineSupportRegions, type SupineSupportPlane, settleSupineSupportRegions } from "./supine-support-contact.js";
 
 function rig(rows: Array<{ bone: "pelvis" | "spine03" | "spine01" | "head"; y: number; posterior?: boolean }>): SkinnedMesh {
   const bones = ["pelvis", "spine03", "spine01", "head"].map((name) => {
@@ -267,5 +267,117 @@ describe("shipped supine body rests on both articulated mattress sections", () =
     expectContact(root, bed);
   // Heavy 60k-vertex real-GLB fixture + 120 hold frames under parallel CI needs operational
   // headroom: offline watchdog only, not a frame/quality budget. Cases/frames/assertions unchanged.
+  }, 60_000);
+});
+describe("ward garment public pipeline regressions", () => {
+  const GOWN_PREFIX = "openclinxr_real_garment_";
+  function gownsOf(root: Group): SkinnedMesh[] {
+    const found: SkinnedMesh[] = [];
+    root.traverse((object) => {
+      const mesh = object as SkinnedMesh;
+      if (mesh.isSkinnedMesh === true && mesh.name.startsWith(GOWN_PREFIX)) found.push(mesh);
+    });
+    return found;
+  }
+  function localBytes(mesh: SkinnedMesh): Float32Array {
+    const pos = mesh.geometry.getAttribute("position");
+    const out = new Float32Array(pos.count * 3);
+    for (let i = 0; i < pos.count; i += 1) { out[i * 3] = pos.getX(i); out[i * 3 + 1] = pos.getY(i); out[i * 3 + 2] = pos.getZ(i); }
+    return out;
+  }
+  function maxAbsDelta(a: Float32Array, mesh: SkinnedMesh): number {
+    const b = localBytes(mesh);
+    let worst = 0;
+    for (let i = 0; i < a.length; i += 1) worst = Math.max(worst, Math.abs(a[i]! - b[i]!));
+    return worst;
+  }
+  function baseOf(root: Group): { x: number; y: number; z: number; scaleX: number; scaleY: number; scaleZ: number } {
+    return { x: root.position.x, y: root.position.y, z: root.position.z, scaleX: root.scale.x, scaleY: root.scale.y, scaleZ: root.scale.z };
+  }
+  function fullPublicFrame(root: Group): void {
+    const base = baseOf(root);
+    applySupinePoseHoldingIncline(root);
+    holdSupinePlantFrame(root, base, 0);
+    reapplySupineHeadToStoredPillow(root);
+  }
+  function gownClearance(root: Group, bed: Group): { checked: number; worst: number } {
+    const garmentPlanes = makeSupineSupportPlanes(bed, 0);
+    const finite = [garmentPlanes.pelvis, garmentPlanes.thorax, garmentPlanes.lumbar];
+    const probe = new Vector3();
+    let checked = 0;
+    let worst = Infinity;
+    for (const gown of gownsOf(root)) {
+      gown.updateMatrixWorld(true);
+      const count = gown.geometry.getAttribute("position").count;
+      for (let i = 0; i < count; i += 1) {
+        gown.getVertexPosition(i, probe);
+        probe.applyMatrix4(gown.matrixWorld);
+        for (const plane of finite) {
+          if (plane.contains && !plane.contains(probe)) continue;
+          const gap = plane.normal.dot(probe.clone().sub(plane.origin));
+          checked += 1;
+          worst = Math.min(worst, gap);
+          break;
+        }
+      }
+    }
+    return { checked, worst };
+  }
+  it("full public pipeline corrects the canonical gown clear of the finite mattress", async () => {
+    const root = await shippedBody();
+    const bed = buildPatientStretcher({ slotId: "patient", position: { x: 0, y: 0, z: 0 }, trimColor: 0, inclineDegrees: 0 });
+    applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
+    const gowns = gownsOf(root);
+    expect(gowns.length).toBeGreaterThan(0);
+    const rest = gowns.map((gown) => localBytes(gown));
+    root.position.y -= 0.002;
+    root.updateMatrixWorld(true);
+    fullPublicFrame(root);
+    const corrected = gowns.some((gown, index) => maxAbsDelta(rest[index]!, gown) > 0);
+    expect(corrected, "genuine first correction changes local geometry").toBe(true);
+    const clearance = gownClearance(root, bed);
+    expect(clearance.checked).toBeGreaterThan(0);
+    expect(clearance.worst, "gown world vertices clear the finite mattress").toBeGreaterThanOrEqual(0.002 - 1e-5);
+    expectContact(root, bed);
+  }, 60_000);
+  it("shared original geometry stays untouched and the repeated full pipeline is idempotent", async () => {
+    const root = await shippedBody();
+    const gowns = gownsOf(root);
+    expect(gowns.length).toBeGreaterThan(0);
+    const twin = gowns[0]!.clone();
+    const original = localBytes(gowns[0]!);
+    const bed = buildPatientStretcher({ slotId: "patient", position: { x: 0, y: 0, z: 0 }, trimColor: 0, inclineDegrees: 0 });
+    applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
+    expect(localBytes(twin)).toEqual(original);
+    root.position.y -= 0.002;
+    root.updateMatrixWorld(true);
+    fullPublicFrame(root);
+    const once = gowns.map((gown) => localBytes(gown));
+    const settled = root.position.clone();
+    fullPublicFrame(root);
+    for (const [index, gown] of gowns.entries()) {
+      expect(localBytes(gown)).toEqual(once[index]!);
+    }
+    expect(root.position.distanceTo(settled), "repeated full pipeline stays stable").toBeLessThan(0.001);
+    expect(localBytes(twin)).toEqual(original);
+    expectContact(root, bed);
+  }, 60_000);
+  it("active position morph influence refuses through the public seam with rest bytes unchanged", async () => {
+    const root = await shippedBody();
+    const gowns0 = gownsOf(root);
+    expect(gowns0.length).toBeGreaterThan(0);
+    const baseline = localBytes(gowns0[0]!);
+    const bed = buildPatientStretcher({ slotId: "patient", position: { x: 0, y: 0, z: 0 }, trimColor: 0, inclineDegrees: 0 });
+    applyAndPlantSupineOnDeck(root, { stretcher: bed, deckTopWorldY: 0.55, deckCenter: { x: 0, z: 0 } });
+    const gowns = gownsOf(root);
+    expect(gowns.length).toBeGreaterThan(0);
+    const gown = gowns[0]!;
+    const count = gown.geometry.getAttribute("position").count;
+    gown.geometry.morphAttributes.position = [new Float32BufferAttribute(new Float32Array(count * 3), 3)];
+    gown.morphTargetInfluences = [1];
+    root.position.y -= 0.002;
+    root.updateMatrixWorld(true);
+    fullPublicFrame(root);
+    expect(localBytes(gown)).toEqual(baseline);
   }, 60_000);
 });
