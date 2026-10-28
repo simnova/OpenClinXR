@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,6 +38,39 @@ const MAT = join(
   "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
 );
 
+/** Resolve the effective brow budget at the real call site via AST proof.
+ * The helper execs python3 stdlib ast.parse on the materializer (no import,
+ * no Blender): it requires exactly one reduce_eyebrow_mesh call total, that
+ * single call carrying budget_tris=args.eyebrow_tris_budget, plus exactly one
+ * parser.add_argument (receiver Name parser) declaring --eyebrow-tris-budget
+ * with an int (not bool) default. The default is the effective budget. */
+function browBudget(matPath: string): number {
+  const py = [
+    "import ast, json",
+    `src = open(${JSON.stringify(matPath)}, encoding="utf8").read()`,
+    "tree = ast.parse(src)",
+    "calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == 'reduce_eyebrow_mesh']",
+    "good = [c for c in calls for kw in c.keywords if kw.arg == 'budget_tris' and isinstance(kw.value, ast.Attribute) and isinstance(kw.value.value, ast.Name) and kw.value.value.id == 'args' and kw.value.attr == 'eyebrow_tris_budget']",
+    "decls = [n for n in ast.walk(tree) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and isinstance(n.func.value, ast.Name) and n.func.value.id == 'parser' and n.func.attr == 'add_argument' and n.args and isinstance(n.args[0], ast.Constant) and n.args[0].value == '--eyebrow-tris-budget']",
+    "defaults = [kw.value.value for n in decls for kw in n.keywords if kw.arg == 'default' and isinstance(kw.value, ast.Constant) and isinstance(kw.value.value, int) and not isinstance(kw.value.value, bool)]",
+    "print(json.dumps({'total': len(calls), 'calls': len(good), 'decls': len(decls), 'defaults': defaults}))",
+  ].join("\n");
+  const out = JSON.parse(execFileSync("python3", ["-c", py], { encoding: "utf8" }).trim()) as {
+    total: number;
+    calls: number;
+    decls: number;
+    defaults: number[];
+  };
+  expect(out.total, "exactly one reduce_eyebrow_mesh call total").toBe(1);
+  expect(out.calls, "the single call threads budget_tris=args.eyebrow_tris_budget").toBe(1);
+  expect(out.decls, "exactly one parser.add_argument('--eyebrow-tris-budget') declaration").toBe(1);
+  expect(out.defaults.length, "exactly one integer (non-bool) --eyebrow-tris-budget default").toBe(1);
+  const budget: unknown = out.defaults[0];
+  expect(typeof budget, "budget default is a number").toBe("number");
+  if (typeof budget !== "number") throw new Error("unreachable: budget default missing");
+  return budget;
+}
+
 describe("the reduced eyebrow keeps covering strands", () => {
   it("(1) RED: the reducer fills leftover budget with the densest covering strands", () => {
     const src = readFileSync(REDUCER, "utf8");
@@ -49,21 +83,15 @@ describe("the reduced eyebrow keeps covering strands", () => {
       /ink.*per.*tri|per.*tri.*ink/i,
     );
     // The materializer actually spends more than the dusting budget.
-    const mat = readFileSync(MAT, "utf8");
-    const m = mat.match(/budget_tris=(\d+)/);
-    expect(m, "materializer passes an explicit brow budget").not.toBeNull();
     expect(
-      Number(m![1]),
+      browBudget(MAT),
       "brow budget raised above the 3600 dusting floor",
     ).toBeGreaterThan(3600);
   });
 
   it("(2) COUNTERWEIGHT: the raised budget stays far below the 21k speckle", () => {
-    const mat = readFileSync(MAT, "utf8");
-    const m = mat.match(/budget_tris=(\d+)/);
-    expect(m, "materializer passes an explicit brow budget").not.toBeNull();
     expect(
-      Number(m![1]),
+      browBudget(MAT),
       "brow budget must not replay the 21k-speckle treatment",
     ).toBeLessThanOrEqual(10000);
   });
@@ -75,3 +103,11 @@ describe("the reduced eyebrow keeps covering strands", () => {
     );
   });
 });
+
+/**
+ * ## MIGRATED 2026-10-28 — AST syntax correction; planted header immutable
+ *
+ * browBudget now execs the embedded Python via stdlib ast (single-line
+ * comprehensions) against the real materializer path; tightened to exactly one
+ * reduce_eyebrow_mesh call, parser receiver, unique flag, int non-bool default.
+ */

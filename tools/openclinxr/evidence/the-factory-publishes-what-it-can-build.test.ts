@@ -64,8 +64,8 @@ const REPO = pathResolve(HERE, "../../..");
 const ANNY = join(REPO, "tools/openclinxr/asset-pipeline/anny");
 const MANIFEST = join(REPO, "packages/openclinxr/asset-registry/src/iris-capability-manifest.json");
 const RESOLVED = join(REPO, "packages/openclinxr/asset-registry/src/resolved-phenotype-field.ts");
-const SCHEMAS = join(REPO, "packages/openclinxr/shared-schemas/src/schemas.ts");
-const BANK = join(REPO, "packages/openclinxr/scenario-fixtures/src/pediatric-asthma.ts");
+const SCHEMAS = join(REPO, "packages/openclinxr/shared-schemas/src/face-phenotype/actor-phenotype.ts"); // phenotype fields moved here (schemas.ts re-exports); this file carries the eye_color declaration
+const BANK = join(REPO, "packages/openclinxr/scenario-fixtures/src/pediatric-asthma-mod.ts"); // PSR-08 facade: case lives in -mod, entry is keep-only re-export
 
 /** §9h — the colours the SELECTOR accepts, obtained by calling it, never by reading a list. */
 function packFromSelector(): string[] {
@@ -147,4 +147,8 @@ describe("the factory publishes what it can build", () => {
  * unbuildable name), the pack is still the nine, and eye_color is still Type.String(). The
  * manifest (1)/(2)/(3) are unaffected.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
+
+/**
+ * ## MIGRATED 2026-10-28 — AST correction carryover; planted headers immutable
  */

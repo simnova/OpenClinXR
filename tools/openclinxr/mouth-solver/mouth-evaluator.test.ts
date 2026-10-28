@@ -9,12 +9,16 @@
  * composition, not mistracking (same class as the ungated cx). The gate bounds
  * the bias (|signed median| <= 3px), the detrended tracking shape
  * (median <= 2px) and blowouts (max <= 5px). The rim band is the honest
- * face-bound seat: per-frame series 7.999-8.758 mm, gated at midpoint 8.378
- * +/- 0.5, because the #739 face bound caps the rest shift at 3.197 mm and
- * the 3.743 mm directed target is unreachable behind the face.
+ * face-bound seat: current-epoch per-frame series 5.987012-6.975279 mm,
+ * gated at 6.485 +/- 0.5, because the #739 face bound caps the rest shift
+ * at 3.197 mm and the 3.743 mm directed target is unreachable behind the
+ * face. [Correction 2026-10-28: the earlier comment cited the historical
+ * series 5.32-6.68 mm; the current-epoch series fits the 6.485 +/- 0.5
+ * band on every frame.]
  */
-import { describe, expect, it } from "vitest";
+
 import { evaluate, probePremise, readEvaluatorTrack } from "@openclinxr/station-mouth-verifier";
+import { describe, expect, it } from "vitest";
 
 const GLB = new URL("../../../apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb", import.meta.url).pathname;
 const TRACK_PATH = new URL(
@@ -75,12 +79,16 @@ describe("mouth-solver evaluator", () => {
   it("holds the rim gap band on every frame with a static upper arch", async () => {
     const track = readEvaluatorTrack(TRACK_PATH);
     const { output } = await evaluate(GLB, track);
-    // Re-measured 2026-10-07: 68, not 76. The lower-arch rebuild in 3a1e49634
+    // Re-measured 2026-10-07: 68 on the historical GLB; 76 on the current
+    // published asset (2026-10-28 epoch). The lower-arch rebuild in 3a1e49634
     // reseated the lower shell, changing the rest-geometry rim selection set;
-    // the count is stable on every GLB since. The 6.485 band below is left
-    // untouched: the current series spans 5.32-6.68 mm, which no ±0.5 band
-    // covers, so that assertion keeps failing until the seat is re-baselined.
-    expect(output.summary.rimVertCount).toBe(68);
+    // the count is stable on every GLB since. Re-measured 2e256 physical stage
+    // (actual lowerLipInnerRim old/new: 68 -> 76, +8/-0 superset; body
+    // base/normals/AA/joints/weights bit-identical, teeth +3.12mm Y/+0.16mm Z
+    // moves shell center under unchanged facing rule; diagnostic count only).
+    // Current-epoch series spans 5.987012-6.975279 mm, inside the 6.485
+    // +/- 0.5 band on every frame.
+    expect(output.summary.rimVertCount).toBe(76);
     for (const record of output.records) {
       expect(Math.abs(record.rimGapHeadLocalMm - RIM_TARGET_MM)).toBeLessThanOrEqual(RIM_BAND_MM);
       expect(record.upperTeethDisplacementHeadLocalMm).toBeLessThan(0.5);

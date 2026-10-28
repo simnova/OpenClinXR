@@ -1,0 +1,49 @@
+{
+  "currentFixtureSHA256": "a7ad8e023d40235f6b5224ad0913b1b90cfebe5f110928ac17f6c62259fbf0fb",
+  "evaluator": "public evaluate() from @openclinxr/station-mouth-verifier via tools/openclinxr/mouth-solver/evaluate.ts",
+  "fixtureDate": "2026-10-28",
+  "fixturePath": "the-evaluator-output-current-20261028.fixture.json",
+  "generation": "Actual public evaluate on committed source59 after successful build closure; original path placeholders and recursive wallClockMs=0 only. No invented output fields.",
+  "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+  "glbSHA256": "86b0f17dccaa09ff4f75fbe32ad74c7bcc8fd56cd8e264e056f46473288aec4b",
+  "historicalFixturePreserved": "tools/openclinxr/mouth-solver/the-evaluator-output-is-unchanged.fixture.json",
+  "historicalFixtureSHA256": "6337dd72a2ae5c8e4f9d6349c7b8e21b2e926fd80258d830993d725f6a0a0a57",
+  "m3ParityClaim": "none; production lip-rounding postdates the historical fixture",
+  "normalization": "wallClockMs=0, glbPath=<GLB>, trackPath=<TRACK>",
+  "records": 124,
+  "rimVertCount": 76,
+  "runtime": {
+    "node": "v24.18.1"
+  },
+  "sourceCommit": "78f9218a6a88c27ab7e47ce8bdddd4048a1c06e4",
+  "track": "docs/openclinxr/mouth-dynamics/teeth-gap/fixed-capture/metrics.json",
+  "trackSHA256": "32eeb2c1d31b200a3279019c762102b8a0dcde1c8aee117defb608c7224e954f",
+  "runtimeSourcePinsBounded": {
+    "packages/openclinxr/stations/mouth-verifier/src/index.ts": "d2746719126b7be736be8a9ce8ffa088e74bae5f1d6b5dba7ca336f76ae34410",
+    "packages/openclinxr/stations/mouth-verifier/src/evaluator.ts": "0c75f10b1cc0c2a6cadc3579e6d6dfef9bcdaf401ad7fa13d2b25bdd8894bbe3",
+    "packages/openclinxr/stations/mouth-verifier/src/probe.ts": "978430060bc2476eaed7a485fae8b19f12483584237218bbac6d807574740639",
+    "packages/openclinxr/xr-dialogue/src/actor-audio-runtime.ts": "a6cef075f5e082b03514b37a0b2daa0dad5ac1ab90cf2709903fde48944801ec",
+    "packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts": "a5c1c744891ccf0059427b471530a84f5bba7d043b7b3e1d1b63db9dc8cc884b",
+    "packages/openclinxr/xr-dialogue/src/lip-bone-rounding.ts": "8b8ffa8ee1049655c325f798008dc82db07b12300602d488674756ef9332ebee",
+    "packages/openclinxr/xr-dialogue/src/viseme-runtime.ts": "e280535a54d1de71c57d931873e88762551b3027f024c96839fb411512abc9b7",
+    "packages/openclinxr/xr-dialogue/src/viseme-timeline.ts": "876664b58684b714d3ef1d1e35ce74d8dd75c10b95e8ef8ba6c99a28654c73d3"
+  },
+  "notEvidenceFor": [
+    "Original M3 port parity",
+    "Visual acceptance",
+    "Clinical or Quest readiness"
+  ],
+  "historicalInputs": {
+    "glbSHA256": "5cab66767a6bec8cb22d4d021ccccc416955f8f617fdc243d38d56e17f185dde",
+    "trackSHA256": "6b88d07cec1e20033a4519c44d774ead8441910913cb59a8727134d910e6f65a",
+    "fixtureIntroduction": "8162d7f6ab3fed944d96c4b3e8537cd442fec2db",
+    "laterRoundingFeature": "3b450aa3711eb8436b33a05dafd3ed491aa8b5e5",
+    "diagnosticFullEquality": [
+      "current rounding: FAIL",
+      "only rounding disabled in isolated test: PASS",
+      "restored rounding: FAIL"
+    ],
+    "historicalFixtureByteExact": true,
+    "diagnosticMockShipped": false
+  }
+}
