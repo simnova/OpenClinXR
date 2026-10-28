@@ -149,7 +149,8 @@ describe("the offline rapier gate actually steps", () => {
 
   it("(3) COUNTERWEIGHT: the mode string is not deleted to make the claim true", () => {
     // Refuses (c). The literal claims a gate; the fix is to BUILD the gate, not to lower the claim.
-    for (const rel of ["apps/ui-xr/src/main.ts", "packages/openclinxr/xr-runtime-state/src/runtime-state.ts"]) {
+    // Claim moved out of main.ts by the xr-capture-evidence extraction (was main.ts:1735); runtime-state.ts keeps its copy.
+    for (const rel of ["packages/openclinxr/xr-capture-evidence/src/scene-asset-evidence.ts", "packages/openclinxr/xr-runtime-state/src/runtime-state.ts"]) {
       expect(
         readFileSync(join(REPO_ROOT, rel), "utf8").includes(MODE_LITERAL),
         `${rel} no longer contains "${MODE_LITERAL}" — deleting the claim is not meeting it`,
