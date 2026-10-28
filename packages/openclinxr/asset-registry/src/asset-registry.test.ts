@@ -1,5 +1,5 @@
-import { findRuntimeActorAsset, findRuntimeEquipmentAsset } from "@openclinxr/asset-registry/runtime-bundle-lookups";
 import { promoteEncounterRuntimeAssetBundleForLocalUse } from "@openclinxr/asset-registry/runtime-asset-review";
+import { findRuntimeActorAsset, findRuntimeEquipmentAsset } from "@openclinxr/asset-registry/runtime-bundle-lookups";
 import {
   buildEncounterDynamicBehaviorCoverageSummary,
   buildEncounterFactoryDryRunSummary,
@@ -438,7 +438,7 @@ describe("asset registry", () => {
       throw new Error("Expected ED chest-pain casting to include patient_robert_hayes_v1.");
     }
     expect(resolveRuntimeAssetUrl(findRuntimeActorAsset(bundle, "patient_robert_hayes_v1")?.model ?? bundle.environment))
-      .toBe("/generated-humanoids/mpfb-gown-ed-robert-hayes.glb");
+      .toBe(edPatientCast.runtimeAssetPath);
     expect(resolveRuntimeAssetUrl(findRuntimeEquipmentAsset(bundle, "ecg_cart_equipment")?.model ?? bundle.environment))
       .toBe("/xr-assets/medical-equipment/ecg-cart-12-lead.glb");
     expect(bundle.actors.every((actor) => actor.gazeProfile.supportsActorTargets)).toBe(true);

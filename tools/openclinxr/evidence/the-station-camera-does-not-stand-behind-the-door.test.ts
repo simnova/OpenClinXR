@@ -267,7 +267,7 @@ describe("the station camera does not stand behind the door", () => {
     // a real net: it passes today and reds the moment the door is edited to clear the camera.
     const fixtures = readFileSync(join(HERE, "../../../packages/openclinxr/xr-station/src/station-architecture-fixtures.ts"), "utf8");
     const zones = readFileSync(
-      join(HERE, "../../../packages/openclinxr/asset-registry/src/environment-zone-templates.ts"),
+      join(HERE, "../../../packages/openclinxr/asset-registry/src/environment-zone-templates-mod.ts"),
       "utf8",
     );
     const doorFn = fixtures.slice(fixtures.indexOf("export function buildDoorLeafFixture"));

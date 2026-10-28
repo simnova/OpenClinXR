@@ -8,6 +8,12 @@ import {
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql/documents";
 import { createActorDialogueModelGateway } from "@openclinxr/model-gateway";
+import type {
+  ApiPersistenceSink,
+  ApiScenarioReviewDecisionRecord,
+  ApiStationRunQueueSnapshot,
+} from "@openclinxr/rest";
+import { createOpenClinXrApiProtocolPosture } from "@openclinxr/rest";
 import { edChestPainScenario, pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
 import {
   createDefaultScenarioRuntime,
@@ -20,12 +26,6 @@ import {
   openClinXrSpanNames,
   telemetryAttributeNames,
 } from "@openclinxr/telemetry";
-import type {
-  ApiPersistenceSink,
-  ApiScenarioReviewDecisionRecord,
-  ApiStationRunQueueSnapshot,
-} from "@openclinxr/rest";
-import { createOpenClinXrApiProtocolPosture } from "@openclinxr/rest";
 import { describe, expect, it } from "vitest";
 import { createApiApp } from "./index.js";
 
@@ -171,7 +171,7 @@ describe("OpenClinXR API shell", () => {
     if (!edPatientCast) {
       throw new Error("Expected ED chest-pain casting to include patient_robert_hayes_v1.");
     }
-    expect(body.actors[0]?.model.blob.url).toBe("/generated-humanoids/mpfb-gown-ed-robert-hayes.glb");
+    expect(body.actors[0]?.model.blob.url).toBe(edPatientCast.runtimeAssetPath);
     expect(body.equipment.map((equipment) => equipment.equipmentId)).toEqual(["ecg_cart_equipment", "iv_stand_equipment"]);
     expect(body.notEvidenceFor).toContain("quest_readiness");
   });
