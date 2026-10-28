@@ -54,7 +54,9 @@ type InspectFaceCueTruth = () => Promise<{ scenarioIds: string[]; captureMode: s
 const load = () =>
   import("./the-loaded-mesh-matches-the-cast.js") as Promise<Record<string, unknown>>;
 
-const MAIN_SOURCE_URL = new URL("../../../apps/ui-xr/src/main.ts", import.meta.url);
+import { analyzeProducerContract, evaluateActualGate, gateBehavior } from "./face-cue-source-contract/producer-contract.js";
+
+const ROLE_VISUALS_SOURCE_URL = new URL("../../../packages/openclinxr/xr-asset-loading/src/role-visuals.ts", import.meta.url);
 
 describe("real faces are not covered by face-cue primitives under face-detail (#368)", () => {
   it("(1) RED: every actor with real face morph targets renders zero face-cue primitives", async () => {
@@ -79,31 +81,23 @@ describe("real faces are not covered by face-cue primitives under face-detail (#
   }, 900_000);
 
   it("(2) COUNTERWEIGHT: primitive_fallback still gates the face cues on — capture mode no longer does", () => {
-    const mainSource = readFileSync(MAIN_SOURCE_URL, "utf8");
-
-    // Refuse deleting the cues outright — the cue-adding code must still exist.
-    for (const cueName of [
-      "actor-specific-hair-cap-variant-cue",
-      "actor-specific-face-tone-and-cheek-volume-cue",
-      "left-eye-gaze-anchor-cue",
-      "right-eye-gaze-anchor-cue",
-      "emotion-mouth-line-viseme-anchor-cue",
-      "emotion-brow-tension-cue",
-    ]) {
-      expect(mainSource, `the face-cue primitive ${cueName} must not be deleted`).toContain(cueName);
+    const roleVisualsSource = readFileSync(ROLE_VISUALS_SOURCE_URL, "utf8");
+    const contract = analyzeProducerContract(roleVisualsSource);
+    for (const cueName of ["actor-specific-hair-cap-variant-cue", "actor-specific-face-tone-and-cheek-volume-cue", "left-eye-gaze-anchor-cue", "right-eye-gaze-anchor-cue", "emotion-mouth-line-viseme-anchor-cue", "emotion-brow-tension-cue"]) {
+      expect(contract.producerStrings, `the face-cue primitive ${cueName} must live inside the real producer body`).toContain(cueName);
     }
-
-    // Construct the gate predicate from source: primitive_fallback still shows, capture mode
-    // must not be a reason. A future edit that reintroduces the capture-mode term (or drops
-    // the fallback term) fails here.
-    const gate = mainSource.match(
-      /function shouldShowProceduralHumanoidDetailCues\(faceCueMode: HumanoidCueMode\): boolean \{\s*\n([\s\S]*?)\n\}/,
-    )?.[1];
-    expect(gate, "could not locate shouldShowProceduralHumanoidDetailCues in main.ts").toBeTruthy();
-    expect(gate).toContain('faceCueMode === "primitive_fallback"');
-    expect(gate).not.toContain("isHumanoidFaceDetailCaptureMode");
+    expect(contract.realProducerCalls, "real producer CallExpression addActorSpecificIdentityVariantCue(...) missing outside its declaration").toBeGreaterThanOrEqual(1);
+    expect(contract.gateCallsInProducer, "actual gate CallExpression missing inside the producer body").toBeGreaterThanOrEqual(1);
+    expect(contract.gateText).toContain('faceCueMode === "primitive_fallback"');
+    expect(contract.gateText).toContain("shouldShowAffordanceMarkers");
+    expect(contract.gateText).not.toContain("isHumanoidFaceDetailCaptureMode");
+    expect(contract.gateText).not.toContain("captureMode");
+    const gate = evaluateActualGate(contract.gateText);
+    const behavior = gateBehavior(gate);
+    expect(behavior.fallback, "fallback arm must be true").toBe(true);
+    expect(behavior.realFace, "real-face mode must be false").toBe(false);
+    expect(behavior.marker, "affordance marker must still gate on").toBe(true);
   });
-
   it("(3) VACUITY GUARD: at least three slots enumerated, one with a non-zero morph-target count", async () => {
     const mod = await load();
     const inspect = mod["inspectFaceCueTruth"] as InspectFaceCueTruth | undefined;
