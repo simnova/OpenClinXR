@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import type { ExpectedSourceSet } from "./room-prop-source-contract/expected-set.js";
+import { expectedSourceBoundPropSet } from "./room-prop-source-contract/expected-set.js";
+import { TRACKED_ED_ANCHORS } from "./room-prop-source-contract/source-declarations.js";
 
 /**
  * PLANTED CONTRACTS (#223). Three REDs. All flip.
@@ -136,6 +139,10 @@ import { describe, expect, it } from "vitest";
  *   affordance markers.
  */
 
+/* NOTE (helper-extraction, not historical measurement): runtime-bundles.ts assembles scenes through
+ * an imported per-environment helper, a dynamic assembly form the collector never expands, so its
+ * direct literal declarations are the only ones counted; original >19 / cues>9 floors restored. */
+
 type PropClass = "physical_object" | "cue_or_overlay";
 
 type ClassifiedProp = {
@@ -171,7 +178,6 @@ describe("a pedagogical cue is not furniture (#223)", () => {
     const mod = await load();
     const inspect = mod["inspectCuePropsAreNotFurniture"] as Inspect | undefined;
     expect(inspect).toBeTypeOf("function");
-
     const report = await inspect!();
     expect(
       report.props.length,
@@ -183,6 +189,37 @@ describe("a pedagogical cue is not furniture (#223)", () => {
       cues.length,
       "no prop classified as a cue — 28 of 39 builder-less ids are per-station cue quadruplets",
     ).toBeGreaterThan(9);
+
+    // Stronger exact source-bound coverage alongside the original floors above.
+    const expected: ExpectedSourceSet = await expectedSourceBoundPropSet();
+    expect(expected.authoredIds.length).toBeGreaterThan(0);
+    expect(expected.cueIds.length).toBeGreaterThan(0);
+    expect(TRACKED_ED_ANCHORS.length).toEqual(3);
+    for (const anchor of ["monitor-waveform-card", "monitor-vitals-badge", "ekg-leads-on-bed"] as const) {
+      expect(expected.authoredIds, `canonical ED declaration missing from sources: ${anchor}`).toContain(anchor);
+    }
+
+    const actualIds = report.props.map((p) => p.propId);
+    const expectedSet = new Set(expected.expectedIds);
+    const actualSet = new Set(actualIds);
+    expect(actualIds.length).toEqual(expected.expectedIds.length);
+    expect([...actualSet].sort()).toEqual([...expectedSet].sort());
+    const missing = expected.expectedIds.filter((id) => !actualSet.has(id));
+    const unexplained = actualIds.filter((id) => !expectedSet.has(id));
+    expect(missing, `expected current ids missing from report:\n${missing.join("\n")}`).toEqual([]);
+    expect(unexplained, `unexplained report ids outside current sources:\n${unexplained.join("\n")}`).toEqual([]);
+
+    expect([...new Set(cues.map((p) => p.propId))].sort()).toEqual([...expected.cueIds].sort());
+    const seen = new Set<string>();
+    const duplicates = actualIds.filter((id) => {
+      if (seen.has(id)) {
+        return true;
+      }
+      seen.add(id);
+      return false;
+    });
+    expect(duplicates, `duplicate report ids:\n${duplicates.join("\n")}`).toEqual([]);
+    expect(cues.length).toBeGreaterThan(0);
 
     const slabs: string[] = [];
     for (const p of cues) {
@@ -198,7 +235,7 @@ describe("a pedagogical cue is not furniture (#223)", () => {
     expect(slabs, `pedagogical concepts still rendering as furniture:\n${slabs.join("\n")}`).toEqual([]);
   }, 1_800_000);
 
-  it("every affordance cue id still reaches the scene (COUNTERWEIGHT)", async () => {
+it("every affordance cue id still reaches the scene (COUNTERWEIGHT)", async () => {
     // Cues carry affordanceCueIds and interactionTags, and #209's declared-equipment inspector
     // unions roomProps into its declared set. Making a cue stop being a BOX must not make it stop
     // being a CUE. If both cannot hold, say so and stop — that is a finding, not a failure.

@@ -13,20 +13,20 @@ import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
   classifyRoomProp,
   type RoomPropClass,
 } from "@openclinxr/xr-station";
-import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
+  type MeasurementTreeStamp,
   tryReadStampedArtifact,
   withTreeStamp,
-  type MeasurementTreeStamp,
 } from "./lib/measurement-tree-stamp.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
-  ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
+  ROOM_CAPTURE_MODE,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
 
@@ -203,11 +203,12 @@ export async function collectDeclaredPropRows(): Promise<DeclaredPropRow[]> {
     }
   }
 
-  const runtimeBundlesPath = path.join(
-    repoRoot,
-    "packages/openclinxr/asset-registry/src/runtime-bundles.ts",
-  );
-  if (existsSync(runtimeBundlesPath)) {
+  const runtimeBundlePaths = [
+    path.join(repoRoot, "packages/openclinxr/asset-registry/src/runtime-bundles.ts"),
+    path.join(repoRoot, "packages/openclinxr/asset-registry/src/runtime-room-props.ts"),
+  ];
+  for (const runtimeBundlesPath of runtimeBundlePaths) {
+    if (!existsSync(runtimeBundlesPath)) continue;
     const src = await readFile(runtimeBundlesPath, "utf8");
     for (const match of src.matchAll(
       /runtimeRoomProp\(\s*"([a-z0-9_-]+)"\s*,\s*"([^"]*)"/gu,
