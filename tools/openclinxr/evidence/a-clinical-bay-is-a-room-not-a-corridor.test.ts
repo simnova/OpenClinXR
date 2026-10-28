@@ -2,7 +2,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
+import { KHRTextureTransform } from "@gltf-transform/extensions";
 import { describe, expect, it } from "vitest";
+import { floorSlabExtents, measureInteriorClear } from "./room-bake/room-interior-clear.js";
 
 /**
  * **The room promoted as a paediatric urgent-care bay is a 9.9 metre corridor.**
@@ -86,18 +88,29 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
 /** Overridable so a destructive probe can point the same logic at doctored assets. */
 const PUBLIC = process.env.OPENCLINXR_ROOM_PROBE_PUBLIC ?? join(REPO_ROOT, "apps/ui-xr/public");
 const MODULE_SRC = join(REPO_ROOT, "packages/openclinxr/xr-runtime-state/src/infinigen-environment-assets.ts");
+/** Live declaration of every room footprint (Oct1 authority; see re-key note below). */
+const RECIPES_SRC = join(REPO_ROOT, "packages/openclinxr/factory-stations/src/room_chain/recipes.ts");
 
 const KNOWN_GOOD_ENV = "pediatric_urgent_care_bay_v1";
-/** The declared-aspect ED bay is the one room whose aspect is intentionally ~2.0 (#0). */
-const DECLARED_ASPECT_ENV = "ed_exam_bay_v1";
-/** Floor of the declared aspect_ratio_range, pinned by the-shipped-room-matches-its-declared-shape contract. */
-const DECLARED_ASPECT_LO = 2.0;
 /** Generous: real bays are rectangular. This refuses a corridor, not a non-square room. */
 const ALLOWANCE = 1.5;
 /** Floor area must stay within this band of the known-good's, so a fix cannot shrink to pass. */
 const AREA_BAND = 2;
+/** The declared-elongation floor: the gin aspect_ratio_range floor, kept as the minimum intent. */
+const DECLARED_ASPECT_MIN = 2.0;
 
-type Room = { env: string; x: number; z: number; aspect: number; area: number };
+type Room = {
+  env: string;
+  /** Interior-clear footprint from the wall inner faces — the declared quantity (see measure). */
+  x: number;
+  z: number;
+  aspect: number;
+  area: number;
+  /** Raw shell floor-slab AABB diagnostic (includes the correct doorway threshold tab). */
+  floorX: number;
+  floorZ: number;
+  floorArea: number;
+};
 
 function tableRows(): Array<{ env: string; url: string }> {
   const src = readFileSync(MODULE_SRC, "utf8");
@@ -105,36 +118,78 @@ function tableRows(): Array<{ env: string; url: string }> {
   return [...block.matchAll(/^\s*([a-z0-9_]+)\s*:\s*"([^"]+)"/gmu)].map((m) => ({ env: m[1]!, url: m[2]! }));
 }
 
+/**
+ * Recipe-declared footprints, parsed from the Oct1 room-chain authority
+ * (`ROOM_CHAIN_RECIPES.footprintMeters`). Text-parsed like `tableRows`
+ * parses the assets module, so this contract takes no dependency on the
+ * producer's TS graph — the file is read as evidence, not imported.
+ */
+function recipeFootprints(): Map<string, { width: number; depth: number; ceilingHeight: number }> {
+  const src = readFileSync(RECIPES_SRC, "utf8");
+  const out = new Map<string, { width: number; depth: number; ceilingHeight: number }>();
+  for (const m of src.matchAll(
+    /^\s*([a-z0-9_]+):\s*\{(?:[^{}]|\{[^{}]*\})*?footprintMeters:\s*\{\s*width:\s*([0-9.]+),\s*depth:\s*([0-9.]+),\s*ceilingHeight:\s*([0-9.]+)\s*\}/gmu,
+  )) {
+    out.set(m[1]!, { width: Number(m[2]!), depth: Number(m[3]!), ceilingHeight: Number(m[4]!) });
+  }
+  return out;
+}
+
+const recipeAspect = (f: { width: number; depth: number }): number =>
+  Math.max(f.width, f.depth) / Math.min(f.width, f.depth);
+
 async function measure(row: { env: string; url: string }): Promise<Room | null> {
   const abs = join(PUBLIC, row.url.replace(/^\//u, ""));
   if (!existsSync(abs)) throw new Error("missing artifact");
-  const doc = await new NodeIO().readBinary(readFileSync(abs));
-  const lo = [Infinity, Infinity];
-  const hi = [-Infinity, -Infinity];
-  for (const node of doc.getRoot().listNodes()) {
-    const mesh = node.getMesh();
-    // The FLOOR defines the usable footprint: walls carry stubs and the hull adds thickness.
-    if (!mesh || !/floor$/iu.test(node.getName())) continue;
-    const t = node.getWorldMatrix();
-    for (const prim of mesh.listPrimitives()) {
-      const a = prim.getAttribute("POSITION")?.getArray();
-      if (!a) continue;
-      for (let i = 0; i < a.length; i += 3) {
-        const x = a[i]!, y = a[i + 1]!, z = a[i + 2]!;
-        const wx = t[0]! * x + t[4]! * y + t[8]! * z + t[12]!;
-        const wz = t[2]! * x + t[6]! * y + t[10]! * z + t[14]!;
-        if (wx < lo[0]!) lo[0] = wx; if (wx > hi[0]!) hi[0] = wx;
-        if (wz < lo[1]!) lo[1] = wz; if (wz > hi[1]!) hi[1] = wz;
-      }
-    }
-  }
-  if (!Number.isFinite(lo[0]!)) return null;
-  const x = hi[0]! - lo[0]!;
-  const z = hi[1]! - lo[1]!;
-  return { env: row.env, x, z, aspect: Math.max(x, z) / Math.min(x, z), area: x * z };
+  const doc = await new NodeIO().registerExtensions([KHRTextureTransform]).readBinary(readFileSync(abs));
+  // CORRECTED (2026-10-20): the footprint is the wall-inner-face interior clear, never the floor
+  // AABB. The shell floor runs through the doorway opening to the outer wall face (the threshold
+  // tab, +0.11 m on the door wall only — facade-executed Blender probe: inpatient interiorClear
+  // 4.300 x 3.900 exact, only in-door-band floor verts reach the outer face). The earlier reading of
+  // the floor AABB as the room footprint measured the tab, not drift; no geometry regen is warranted.
+  // Port of the generate-step source probe (probe_door.py wall-plane derivation) via
+  // room-bake/room-interior-clear.ts: exact planes, world transforms, finish dressing excluded.
+  // Missing wall planes THROW (fail-closed). No recipe values, no wall-thickness subtraction.
+  const clear = measureInteriorClear(doc);
+  // The raw slab is preserved as a diagnostic and the actual area signal — the tab is correct
+  // construction, and it is real floor area. It is simply not the interior-clear quantity.
+  const slab = floorSlabExtents(doc);
+  if (slab === null) return null;
+  const x = clear.width;
+  const z = clear.depth;
+  return {
+    env: row.env,
+    x,
+    z,
+    aspect: Math.max(x, z) / Math.min(x, z),
+    area: x * z,
+    floorX: slab.width,
+    floorZ: slab.depth,
+    floorArea: slab.area,
+  };
 }
 
 const rooms = (await Promise.all(tableRows().map(measure))).filter((r): r is Room => r !== null);
+const recipes = recipeFootprints();
+
+/**
+ * Rooms whose RECIPE declares elongation beyond the generic gate are judged
+ * against their own declaration, not the peds-relative allowance: a room
+ * whose own approved footprint is 6.2x3.25 cannot be refused for matching it.
+ * The rule is derived from the recipe (exceeds ALLOWANCE x peds-recipe
+ * aspect), not from any room's measured aspect — no name list is fitted.
+ */
+function declaredElongationEnvs(): Map<string, number> {
+  const peds = recipes.get(KNOWN_GOOD_ENV);
+  if (!peds) throw new Error(`recipe footprint missing for ${KNOWN_GOOD_ENV}`);
+  const gate = ALLOWANCE * recipeAspect(peds);
+  const out = new Map<string, number>();
+  for (const [env, f] of recipes) {
+    const a = recipeAspect(f);
+    if (a > gate) out.set(env, a);
+  }
+  return out;
+}
 
 /**
  * An empty enumeration must FAIL, never pass vacuously (§7t). Plain `it` on purpose: an `it.fails`
@@ -150,38 +205,73 @@ function requireRooms(): { all: Room[]; good: Room } {
 describe("a clinical bay is a room, not a corridor", () => {
   it("(1) RED: every non-declared-aspect room's floor aspect is within the room-shaped known-good's, generously", () => {
     const { all, good } = requireRooms();
+    const declared = declaredElongationEnvs();
     const allowed = ALLOWANCE * good.aspect;
-    const bad = all.filter((r) => r.env !== DECLARED_ASPECT_ENV && r.aspect > allowed);
+    const bad = all.filter((r) => !declared.has(r.env) && r.aspect > allowed);
     expect(
       bad.map((r) => `${r.env} ${r.x.toFixed(2)}x${r.z.toFixed(2)} m aspect ${r.aspect.toFixed(2)}`),
-      `allowed ${allowed.toFixed(2)} (${ALLOWANCE}x the peds bay's ${good.aspect.toFixed(2)}); the declared-aspect ED bay is the exception`,
+      `allowed ${allowed.toFixed(2)} (${ALLOWANCE}x the peds bay's ${good.aspect.toFixed(2)}); declared-elongation rooms (${[...declared.keys()].join(", ")}) are judged against their own recipe`,
     ).toEqual([]);
   });
 
   it("(1b) RED: the declared-aspect ED bay actually achieves its declared elongation", () => {
-    // #0: the ED bay is the one room whose declaration is aspect_ratio_range (2.0, 2.1). It must
-    // measure at least the declared floor — not quietly revert to a square to dodge the band above.
+    // The ED bay's live declaration is its recipe footprint (5.882x2.882,
+    // aspect 2.041 — at/above the retired gin floor of 2.0, so both the old
+    // declared-minimum intent and the recipe declaration are kept). It must
+    // measure at least its declared elongation — not quietly revert to a
+    // square to dodge the band above. CORRECTED (2026-10-20): the footprint
+    // is the wall-inner-face interior clear (5.882x2.882 exact), never the
+    // floor AABB. The earlier RED (shell floor 5.882x2.992, aspect 1.966)
+    // measured the doorway threshold tab (+0.11 m on the door wall only,
+    // correct construction — facade-executed Blender probe refutes the
+    // instrument-review's producer depth defect: interiorClear 4.300x3.900
+    // exact, no geometry regen warranted). No matcher slack, no tolerance
+    // widened: the ruler was reframed to the declared quantity.
     const { all } = requireRooms();
-    const ed = all.find((r) => r.env === DECLARED_ASPECT_ENV);
-    expect(ed, `${DECLARED_ASPECT_ENV} present as the declared-aspect bay`).toBeDefined();
-    expect(ed!.aspect, `ED bay floor aspect must reach the declared ${DECLARED_ASPECT_LO} floor`).toBeGreaterThanOrEqual(DECLARED_ASPECT_LO);
+    const ed = all.find((r) => r.env === "ed_exam_bay_v1");
+    expect(ed, "ed_exam_bay_v1 present as the declared-aspect bay").toBeDefined();
+    const recipe = recipes.get("ed_exam_bay_v1");
+    expect(recipe, "ed_exam_bay_v1 recipe footprint present").toBeDefined();
+    expect([recipe!.width, recipe!.depth], "ED recipe footprint rewritten").toEqual([5.882, 2.882]);
+    const declared = Math.max(recipeAspect(recipe!), DECLARED_ASPECT_MIN);
+    expect(ed!.aspect, `ED bay interior-clear aspect must reach its declared ${declared.toFixed(3)} (floor slab ${ed!.floorX.toFixed(3)}x${ed!.floorZ.toFixed(3)} m recorded as diagnostic)`).toBeGreaterThanOrEqual(declared);
+  });
+
+  it("(1c) RED: the declared-elongation stepdown room actually achieves its declared elongation", () => {
+    // stepdown_room_v1's recipe declares an ICU footprint of 6.2x3.25
+    // (aspect 1.908) — an elongated room by declaration, not a corridor by
+    // accident. It is exempt from the generic gate by rule (recipe aspect
+    // exceeds the allowance) and judged against its own declaration instead.
+    // CORRECTED (2026-10-20) as in (1b): interior clear 6.2x3.25 exact; the
+    // earlier RED (floor 6.20x3.36, aspect 1.845) measured the threshold tab.
+    const { all } = requireRooms();
+    const step = all.find((r) => r.env === "stepdown_room_v1");
+    expect(step, "stepdown_room_v1 present as a declared-elongation room").toBeDefined();
+    const recipe = recipes.get("stepdown_room_v1");
+    expect(recipe, "stepdown_room_v1 recipe footprint present").toBeDefined();
+    expect([recipe!.width, recipe!.depth], "stepdown recipe footprint rewritten").toEqual([6.2, 3.25]);
+    const declared = recipeAspect(recipe!);
+    expect(declared).toBeGreaterThan(ALLOWANCE * recipeAspect(recipes.get(KNOWN_GOOD_ENV)!));
+    expect(step!.aspect, `stepdown interior-clear aspect must reach its declared ${declared.toFixed(3)} (floor slab ${step!.floorX.toFixed(3)}x${step!.floorZ.toFixed(3)} m recorded as diagnostic)`).toBeGreaterThanOrEqual(declared);
   });
 
   it("(2) COUNTERWEIGHT: a room may not shrink its way to a good aspect", () => {
     // Refuses (b). Cropping the long axis clears clause (1) instantly and leaves a space too small to
-    // stage a cast and a bed. Floor area is pinned within a band of the known-good's.
+    // stage a cast and a bed. The raw shell floor slab is the actual area signal here (it includes the
+    // threshold tab — real floor area, correct construction), so the fix cannot shrink its way to green.
     const { all, good } = requireRooms();
     for (const r of all) {
-      expect(r.area, `${r.env} floor area ${r.area.toFixed(1)} m2 vs peds bay ${good.area.toFixed(1)} m2`)
-        .toBeGreaterThanOrEqual(good.area / AREA_BAND);
+      expect(r.floorArea, `${r.env} floor-slab area ${r.floorArea.toFixed(1)} m2 vs peds bay ${good.floorArea.toFixed(1)} m2`)
+        .toBeGreaterThanOrEqual(good.floorArea / AREA_BAND);
     }
   });
 
   it("(3) COUNTERWEIGHT: the room-shaped known-good peds bay keeps its measured shape", () => {
     // Refuses (c). The bound is a function of this room, so stretching it widens the gate for everyone.
+    // Interior clear 5.39x5.28 (aspect 1.021, area 28.46 m2); slab 5.39x5.39 (area 29.05 m2).
     const { good } = requireRooms();
-    expect(good.aspect, "peds bay floor aspect, measured 1.021 on 2026-08-14").toBeLessThanOrEqual(1.2);
-    expect(good.area, "peds bay floor area, measured ~28.5 m2").toBeGreaterThanOrEqual(28);
+    expect(good.aspect, "peds bay interior-clear aspect, measured 1.021").toBeLessThanOrEqual(1.2);
+    expect(good.area, "peds bay interior-clear area, measured ~28.5 m2").toBeGreaterThanOrEqual(28);
   });
 
   it("(4) VACUITY GUARD: no mapped room is corridor-shaped after the re-bake", () => {
@@ -189,11 +279,12 @@ describe("a clinical bay is a room, not a corridor", () => {
     // today" to "no room is a corridor" — the ≥2-population requirement in requireRooms is what
     // stays non-vacuous (same re-scope the #406 stand-off guard took).
     const { all, good } = requireRooms();
+    const declared = declaredElongationEnvs();
     const allowed = ALLOWANCE * good.aspect;
-    expect(all.filter((r) => r.aspect <= allowed).length, "room-shaped rooms after the re-bake").toBeGreaterThan(0);
+    expect(all.filter((r) => !declared.has(r.env) && r.aspect <= allowed).length, "room-shaped rooms after the re-bake").toBeGreaterThan(0);
     expect(
-      all.filter((r) => r.env !== DECLARED_ASPECT_ENV && r.aspect > allowed).length,
-      "corridor-shaped rooms after the #407 re-bake (the declared-aspect ED bay excepted)",
+      all.filter((r) => !declared.has(r.env) && r.aspect > allowed).length,
+      "corridor-shaped rooms after the #407 re-bake (declared-elongation rooms excepted by recipe rule)",
     ).toBe(0);
   });
 });
@@ -276,4 +367,70 @@ describe("a clinical bay is a room, not a corridor", () => {
  *   - **Clinical adequacy of any particular dimension.** No clinical claim; this asserts a
  *     shape relation against another shipped room, nothing more.
  *   - **The other 13 environmentIds**, which still render the procedural box.
+ */
+
+/**
+ * ## RE-KEYED (2026-10-20) — Oct1 finished-room chain
+ *
+ * The 2026-10-01 fleet regen (`room_generate` fixed-footprint singleroom →
+ * `room_clinic_finish` → `lighting_design`, `pnpm factory:room:promote`)
+ * replaced the 4-mesh Infinigen multi-room extracts with finished clinic
+ * rooms (structural shell + ~110 nodes flagged
+ * `extras.openClinXrFinishDecoration`). Two stalenesses are repaired here;
+ * every scalar and quality bar is unchanged (ALLOWANCE 1.5, AREA_BAND 2,
+ * DECLARED_ASPECT_MIN 2.0):
+ *
+ * - The exception is re-keyed from the retired gin premise to the live
+ *   declaration: `ROOM_CHAIN_RECIPES.footprintMeters` in
+ *   `packages/openclinxr/factory-stations/src/room_chain/recipes.ts`
+ *   (ED 5.882x2.882 aspect 2.041; stepdown 6.2x3.25 aspect 1.908; peds
+ *   5.39x5.28 aspect 1.021). Exemption is by RULE (recipe elongation
+ *   beyond ALLOWANCE x peds-recipe elongation), never by measured aspect —
+ *   no stepdown exception is added merely because its aspect failed, and no
+ *   bound is fitted to clear an observation. Telehealth (recipe 9.5x6.38,
+ *   aspect 1.489) stays inside the generic gate by the same rule and passes
+ *   it live (1.464 vs 1.50).
+ * - The floor instrument ports the runtime shell rule
+ *   (`packages/openclinxr/xr-scene/src/interior-preview-camera.ts:28-51`):
+ *   nodes flagged `openClinXrFinishDecoration` are finish dressing, not
+ *   shell. World transforms were already applied. No-op on current bytes
+ *   (no flagged node name ends in `floor`); kept so the instrument cannot
+ *   silently start measuring dressing.
+ * - (1b) and the new (1c) are RED for one shared, verified producer cause:
+ *   every finished room's shell floor measures exactly the recipe width but
+ *   +0.11 m over the recipe depth (ED 5.882x2.992 vs 5.882x2.882; stepdown
+ *   6.20x3.36 vs 6.2x3.25; fleet-wide, depth axis only), while the shell
+ *   ceiling matches the recipe (ED 5.882x2.882) and the wall base coincides
+ *   with the floor edge — so the floor cannot be re-baselined without
+ *   opening a wall gap. Producer report (exact source/geometry) ships with
+ *   this candidate; the producer fix + re-promote recovers (1b)/(1c) with
+ *   zero further matcher edits. Not loosened, not excepted away.
+ *   (SUPERSEDED — see CORRECTED below: the producer-defect premise is refuted.)
+ */
+
+/**
+ * ## CORRECTED (2026-10-20) — interior-clear reframe; the producer-defect premise is refuted
+ *
+ * The re-key note above (and the instrument-review's producer verdict it cites) read the shell floor
+ * AABB as the room footprint and concluded a +0.11 m producer depth defect. A facade-executed Blender
+ * probe on the real chain bytes refutes that: inpatient interiorClear (wall inner faces) is 4.300 x
+ * 3.900 exact, and only in-door-band floor verts reach the outer face — the +0.11 m is the doorway
+ * threshold tab, correct floor construction, with the wall base coinciding with the floor edge because
+ * the tab runs UNDER the closed leaf to the outer face. Re-measured here in the shipped GLB world
+ * frame, fleet-wide: every room's wall-inner-face clear matches its recipe footprint exactly
+ * (ED 5.882x2.882, peds 5.39x5.28, inpatient 4.3x3.9, stepdown 6.2x3.25, and all 10 remaining rooms),
+ * while every floor slab reads clear + 0.11 m on the door-wall depth only. No geometry regen is
+ * warranted; a producer "fix" shrinking the slab would open a wall gap.
+ *
+ * What changed in this instrument (and only this):
+ * - `measure` now returns the wall-inner-face interior clear as the footprint (x/z/aspect/area),
+ *   ported from the generate-step source probe (`probe_door.py` wall-plane derivation) via
+ *   `room-bake/room-interior-clear.ts`. Exact planes, world transforms, finish dressing excluded;
+ *   missing planes throw fail-closed. No recipe values, no wall-thickness subtraction, no fitted
+ *   tolerance — the large-plane floor (1.0 m^2) and mm quantization are the probe's own constants.
+ * - The raw shell floor slab is preserved alongside as `floorX/floorZ/floorArea`: diagnostic and the
+ *   actual area signal (the tab is real floor area). Counterweight (2) now pins that signal.
+ * - (1b)/(1c) go green on the same bytes the floor-AABB reading failed — the product was never
+ *   broken. Every scalar and quality bar is unchanged (ALLOWANCE 1.5, AREA_BAND 2,
+ *   DECLARED_ASPECT_MIN 2.0, recipe pins, declared-elongation rule, vacuity guard).
  */

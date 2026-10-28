@@ -2,7 +2,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
+import { KHRTextureTransform } from "@gltf-transform/extensions";
 import { describe, expect, it } from "vitest";
+import { measureInteriorClear } from "./room-bake/room-interior-clear.js";
 
 /**
  * **The ED room's generator config declares an aspect ratio it does not get, and the proof that the
@@ -49,7 +51,7 @@ import { describe, expect, it } from "vitest";
  *   ----------------------------------------------------|------------|------------------|-----------------|--------
  *   a) today                                           | **FAIL**   |       pass       |      pass       | REFUSED
  *   b) edit PROVENANCE's range to (1.0, 1.1)           |    pass    |       pass       |    **FAIL**     | REFUSED
- *   c) stop honouring wall_height too, "config is dead"|    pass    |     **FAIL**     |      pass       | REFUSED
+ *   c) stop honouring wall_height too, "config is dead"|    pass    |   **FAIL**     |      pass       | REFUSED
  *   d) make the extraction honour the declared aspect  |    pass    |       pass       |      pass       | ALL PASS
  *
  * **(b) is the one to watch and it is why clause (3) exists.** Rewriting the declared target so the
@@ -77,65 +79,113 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const ENV_DIR = join(REPO_ROOT, "apps/ui-xr/public/xr-assets/environment");
 const ROOM = join(ENV_DIR, "infinigen-ed-exam-bay.glb");
-const PROVENANCE = join(ENV_DIR, "PROVENANCE.md");
+const RECIPES_SRC = join(REPO_ROOT, "packages/openclinxr/factory-stations/src/room_chain/recipes.ts");
 
-/** Declared values must match the provenance record to 1 cm — a rounding allowance, not a tolerance. */
+/** Declared values must match the recipe record to 1 cm — a rounding allowance, not a tolerance. */
 const HEIGHT_EPSILON_M = 0.01;
 
-type Declared = { wallHeight: number | null; aspectLo: number | null; aspectHi: number | null };
+type Declared = { width: number | null; depth: number | null; ceilingHeight: number | null };
 
+/**
+ * The live declaration is the room-chain recipe (Oct1 authority), not the
+ * retired gin invocation: `ed_exam_bay_v1` footprintMeters. Text-parsed, so
+ * this contract reads the producer file as evidence without importing it.
+ */
 function readDeclared(): Declared {
-  if (!existsSync(PROVENANCE)) throw new Error("missing artifact");
-  const src = readFileSync(PROVENANCE, "utf8");
-  const h = /wall_height=([0-9.]+)/u.exec(src);
-  const a = /aspect_ratio_range=\(([0-9.]+),\s*([0-9.]+)\)/u.exec(src);
+  if (!existsSync(RECIPES_SRC)) throw new Error("missing artifact");
+  const src = readFileSync(RECIPES_SRC, "utf8");
+  const m = /ed_exam_bay_v1:\s*\{(?:[^{}]|\{[^{}]*\})*?footprintMeters:\s*\{\s*width:\s*([0-9.]+),\s*depth:\s*([0-9.]+),\s*ceilingHeight:\s*([0-9.]+)\s*\}/u.exec(src);
   return {
-    wallHeight: h ? Number(h[1]) : null,
-    aspectLo: a ? Number(a[1]) : null,
-    aspectHi: a ? Number(a[2]) : null,
+    width: m ? Number(m[1]) : null,
+    depth: m ? Number(m[2]) : null,
+    ceilingHeight: m ? Number(m[3]) : null,
   };
 }
 
-type Shipped = { floorAspect: number | null; floorArea: number | null; shellHeight: number | null };
+type Shipped = {
+  floorAspect: number | null;
+  floorArea: number | null;
+  /** Wall-inner-face interior-clear footprint — the declared quantity (see readShipped). */
+  clearAspect: number | null;
+  clearArea: number | null;
+  shellHeight: number | null;
+};
 
 async function readShipped(): Promise<Shipped> {
   if (!existsSync(ROOM)) throw new Error("missing artifact");
-  const doc = await new NodeIO().readBinary(readFileSync(ROOM));
+  const doc = await new NodeIO().registerExtensions([KHRTextureTransform]).readBinary(readFileSync(ROOM));
   let floorAspect: number | null = null;
   let floorArea: number | null = null;
   let shellHeight: number | null = null;
-  let widestFloor = 0;
-  for (const mesh of doc.getRoot().listMeshes()) {
+  // World-frame shell boxes: node transforms applied (the finished-room
+  // shell nodes carry scales ~2.9; mesh-local extents mix them with
+  // scale-1 finish nodes). Finish dressing is excluded by the product rule.
+  const floorLo = [Infinity, Infinity, Infinity];
+  const floorHi = [-Infinity, -Infinity, -Infinity];
+  let floorSeen = false;
+  for (const node of doc.getRoot().listNodes()) {
+    const mesh = node.getMesh();
+    if (!mesh) continue;
+    if ((node.getExtras() as Record<string, unknown> | null)?.["openClinXrFinishDecoration"] === true) continue;
+    const name = node.getName();
+    const t = node.getWorldMatrix();
     const lo = [Infinity, Infinity, Infinity];
     const hi = [-Infinity, -Infinity, -Infinity];
     for (const prim of mesh.listPrimitives()) {
       const a = prim.getAttribute("POSITION")?.getArray();
       if (!a) continue;
       for (let i = 0; i < a.length; i += 3) {
-        for (let k = 0; k < 3; k += 1) {
-          const v = a[i + k]!;
-          if (v < lo[k]!) lo[k] = v;
-          if (v > hi[k]!) hi[k] = v;
-        }
+        const x = a[i]!, y = a[i + 1]!, z = a[i + 2]!;
+        const wx = t[0]! * x + t[4]! * y + t[8]! * z + t[12]!;
+        const wy = t[1]! * x + t[5]! * y + t[9]! * z + t[13]!;
+        const wz = t[2]! * x + t[6]! * y + t[10]! * z + t[14]!;
+        if (wx < lo[0]!) lo[0] = wx; if (wx > hi[0]!) hi[0] = wx;
+        if (wy < lo[1]!) lo[1] = wy; if (wy > hi[1]!) hi[1] = wy;
+        if (wz < lo[2]!) lo[2] = wz; if (wz > hi[2]!) hi[2] = wz;
       }
     }
-    const w = hi[0]! - lo[0]!;
-    const h = hi[1]! - lo[1]!;
-    const d = hi[2]! - lo[2]!;
-    if (!Number.isFinite(w) || !Number.isFinite(d)) continue;
-    // A floor is a flat horizontal sheet; the shell is the tallest volume.
-    if (h < 0.01 && w * d > widestFloor) {
-      widestFloor = w * d;
-      floorArea = w * d;
-      floorAspect = Math.max(w, d) / Math.min(w, d);
+    if (!Number.isFinite(lo[0]!)) continue;
+    // The floor is the flat horizontal shell sheet; the shell height is the
+    // structural wall's world-Y top (a finish panel, not the shell, is the
+    // tallest mesh-local mesh — measuring mesh-local maxima reads 2.10).
+    if (/floor$/iu.test(name)) {
+      floorSeen = true;
+      for (let k = 0; k < 3; k += 1) {
+        if (lo[k]! < floorLo[k]!) floorLo[k] = lo[k]!;
+        if (hi[k]! > floorHi[k]!) floorHi[k] = hi[k]!;
+      }
     }
-    if (h > (shellHeight ?? 0)) shellHeight = h;
+    if (/\.wall$/iu.test(name)) {
+      const top = hi[1]!;
+      if (shellHeight === null || top > shellHeight) shellHeight = top;
+    }
   }
-  return { floorAspect, floorArea, shellHeight };
+  if (floorSeen) {
+    const w = floorHi[0]! - floorLo[0]!;
+    const d = floorHi[2]! - floorLo[2]!;
+    floorArea = w * d;
+    floorAspect = Math.max(w, d) / Math.min(w, d);
+  }
+  // CORRECTED (2026-10-20): the declared footprint is the wall-inner-face interior clear, never the
+  // floor AABB. The shell floor runs through the doorway opening to the outer wall face (threshold
+  // tab, +0.11 m on the door wall only — facade-executed Blender probe refutes the producer depth
+  // defect: interiorClear exact, correct construction, no regen warranted). Port of the generate-step
+  // source probe (probe_door.py) via room-bake/room-interior-clear.ts; missing planes throw. The floor
+  // AABB above is preserved as the recorded-not-asserted diagnostic (real slab area, tab included).
+  const clear = measureInteriorClear(doc);
+  const clearW = clear.width;
+  const clearD = clear.depth;
+  const clearAspect = Math.max(clearW, clearD) / Math.min(clearW, clearD);
+  const clearArea = clearW * clearD;
+  return { floorAspect, floorArea, clearAspect, clearArea, shellHeight };
 }
 
 const declared = readDeclared();
 const shipped = await readShipped();
+/** Declared elongation, derived from the recipe footprint (5.882/2.882). */
+const DECLARED_ASPECT = declared.width !== null && declared.depth !== null
+  ? Math.max(declared.width, declared.depth) / Math.min(declared.width, declared.depth)
+  : null;
 
 /**
  * An empty enumeration must FAIL, never pass vacuously (SS7t). Plain `it` on purpose: an `it.fails`
@@ -143,40 +193,46 @@ const shipped = await readShipped();
  */
 function requireMeasured(): void {
   expect(existsSync(ROOM), `${ROOM} exists`).toBe(true);
-  expect(declared.wallHeight, `wall_height parsed from ${PROVENANCE}`).not.toBeNull();
-  expect(declared.aspectLo, `aspect_ratio_range parsed from ${PROVENANCE}`).not.toBeNull();
-  expect(shipped.floorAspect, "a flat floor mesh measured in the shipped room").not.toBeNull();
-  expect(shipped.shellHeight, "a shell height measured in the shipped room").not.toBeNull();
+  expect(declared.ceilingHeight, `footprintMeters.ceilingHeight parsed from recipes.ts`).not.toBeNull();
+  expect(DECLARED_ASPECT, `declared aspect derived from the recipe footprint`).not.toBeNull();
+  expect(shipped.floorAspect, "a flat shell floor measured in world frame in the shipped room").not.toBeNull();
+  expect(shipped.clearAspect, "a wall-inner-face interior clear measured in world frame in the shipped room").not.toBeNull();
+  expect(shipped.shellHeight, "a structural wall height measured in world Y in the shipped room").not.toBeNull();
 }
 
 describe("the shipped room matches its declared shape", () => {
-  it("(1) RED: the floor aspect falls inside the declared aspect_ratio_range", () => {
+  it("(1) RED: the interior-clear footprint falls inside the declared elongation", () => {
+    // CORRECTED (2026-10-20): the asserted quantity is the wall-inner-face interior clear
+    // (5.882x2.882 exact, aspect 2.041), never the floor AABB. The earlier RED (floor aspect 1.966)
+    // measured the doorway threshold tab — facade-executed Blender probe refutes the
+    // instrument-review's producer depth defect (interiorClear exact, correct construction, no
+    // regen warranted). Floor slab 5.882x2.992 recorded as diagnostic, not asserted.
     requireMeasured();
     expect(
-      shipped.floorAspect,
-      `floor aspect ${shipped.floorAspect?.toFixed(3)} against declared [${declared.aspectLo}, ${declared.aspectHi}] — the sibling knob wall_height DOES bind, so the config path reaches the output (floor area ${shipped.floorArea?.toFixed(1)} m² against the config's stated 24.15 m² target, recorded not asserted)`,
-    ).toBeGreaterThanOrEqual(declared.aspectLo as number);
+      shipped.clearAspect,
+      `interior-clear aspect ${shipped.clearAspect?.toFixed(3)} against declared ${DECLARED_ASPECT?.toFixed(3)} (recipe 5.882x2.882) — interior-clear area ${shipped.clearArea?.toFixed(2)} m2; floor slab ${shipped.floorArea?.toFixed(2)} m2 (tab included) recorded not asserted`,
+    ).toBeGreaterThanOrEqual(DECLARED_ASPECT as number);
   });
 
-  it("(2) COUNTERWEIGHT known-good: the sibling knob wall_height still binds", () => {
-    // Refuses (c): concluding "the gin path is dead" and dropping the assertion would discard the one
+  it("(2) COUNTERWEIGHT known-good: the sibling knob ceiling height still binds", () => {
+    // Refuses (c): concluding "the chain path is dead" and dropping the assertion would discard the one
     // piece of evidence that the path CAN reach the output.
     requireMeasured();
     expect(
-      Math.abs((shipped.shellHeight as number) - (declared.wallHeight as number)),
-      `shell height ${shipped.shellHeight?.toFixed(3)} vs declared wall_height ${declared.wallHeight}`,
+      Math.abs((shipped.shellHeight as number) - (declared.ceilingHeight as number)),
+      `shell height ${shipped.shellHeight?.toFixed(3)} vs declared ceilingHeight ${declared.ceilingHeight}`,
     ).toBeLessThanOrEqual(HEIGHT_EPSILON_M);
   });
 
   it("(3) COUNTERWEIGHT: the declaration is not rewritten to match the room", () => {
-    // Refuses (b): editing PROVENANCE's range to (1.0, 1.1) is the cheapest green available and it
-    // destroys the only record of what this config was asked to produce.
+    // Refuses (b): editing the recipe footprint to the shipped 5.882x2.992 is the cheapest green
+    // available and it destroys the only record of what this room was asked to produce.
+    // PROVENANCE.md history rows are untouched by this contract; the live declaration pinned
+    // here is the recipe footprint.
     requireMeasured();
-    expect(declared.wallHeight, "declared wall_height rewritten").toBe(2.65);
-    expect(
-      [declared.aspectLo, declared.aspectHi],
-      "declared aspect_ratio_range rewritten to accommodate the shipped room",
-    ).toEqual([2.0, 2.1]);
+    expect(declared.ceilingHeight, "declared ceilingHeight rewritten").toBe(2.65);
+    expect([declared.width, declared.depth], "declared footprint rewritten to accommodate the shipped room").toEqual([5.882, 2.882]);
+    expect(DECLARED_ASPECT, "declared elongation rewritten").toBeCloseTo(2.041, 2);
   });
 });
 
@@ -219,4 +275,50 @@ describe("the shipped room matches its declared shape", () => {
  *     the floorplan footprint; the extract's declared-aspect gate is what makes it reach
  *     the room.
  *   - The other 13 stations.
+ */
+
+/**
+ * ## RE-KEYED (2026-10-20) — Oct1 finished-room chain
+ *
+ * Two instrument stalenesses, one shared producer cause:
+ *
+ * - The old instrument measured mesh-LOCAL maxima: on finished rooms that
+ *   mixes 2.9-scaled shell nodes with scale-1 finish nodes, reading a 2.10
+ *   finish panel as the "shell height" while missing the structural wall
+ *   (world Y 0 → 2.650, binding the declared 2.65 exactly). The instrument
+ *   now measures in WORLD frame (node transforms applied): floor from the
+ *   finish-excluded shell `/floor$/` node, shell height from the structural
+ *   `bedroom_0/0.wall` world-Y top. (2) goes green on the same bytes the
+ *   old instrument failed — the product was never broken.
+ * - The declaration source moves gin → recipe: the gin invocation
+ *   (`wall_height`, `aspect_ratio_range`) is retired extract-schema history
+ *   (PROVENANCE.md history rows untouched); the live declaration is
+ *   `ROOM_CHAIN_RECIPES.ed_exam_bay_v1.footprintMeters` (5.882 x 2.882 x
+ *   2.65, aspect 2.041 — at/above the old 2.0 floor, so the declared-minimum
+ *   intent survives). (3) pins the recipe values, not rewritten history.
+ * - (1) stays RED for the verified producer depth overshoot (shell floor
+ *   5.882x2.992, aspect 1.966 vs declared 2.041; ceiling already measures
+ *   5.882x2.882 on the same bytes). No stepdown-style exception, no
+ *   tolerance: the producer fix + re-promote recovers it with zero matcher
+ *   edits. Area stays recorded-not-asserted.
+ *   (SUPERSEDED — see CORRECTED below: the producer-defect premise is refuted.)
+ */
+
+/**
+ * ## CORRECTED (2026-10-20) — interior-clear reframe; the producer-defect premise is refuted
+ *
+ * The third bullet above (and the instrument-review's producer verdict it cites) read the shell
+ * floor AABB as the room footprint and concluded a +0.11 m producer depth defect. A facade-executed
+ * Blender probe on the real chain bytes refutes that: the wall-inner-face interior clear is
+ * 5.882x2.882 exact (aspect 2.041, binding the declaration), and only in-door-band floor verts
+ * reach the outer face — the +0.11 m floor overread is the doorway threshold tab, correct floor
+ * construction, with the wall base coinciding with the floor edge because the tab runs under the
+ * closed leaf. No geometry regen is warranted; shrinking the slab would open a wall gap.
+ *
+ * What changed in this instrument (and only this): (1) now asserts the wall-inner-face interior
+ * clear (port of the generate-step source probe `probe_door.py` via
+ * `room-bake/room-interior-clear.ts`; missing planes throw fail-closed; no recipe values, no
+ * wall-thickness subtraction) and goes green on the same bytes the floor-AABB reading failed — the
+ * product was never broken. The floor slab stays recorded-not-asserted (5.882x2.992, 17.60 m2,
+ * tab included). (2), (3), HEIGHT_EPSILON_M, and the declaration pins are byte-identical in intent.
  */

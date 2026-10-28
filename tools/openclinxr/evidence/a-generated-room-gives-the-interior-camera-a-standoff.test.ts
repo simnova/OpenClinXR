@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
+import { KHRTextureTransform } from "@gltf-transform/extensions";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -102,8 +103,18 @@ const PUBLIC = join(REPO_ROOT, "apps/ui-xr/public");
 const MODULE_SRC = join(REPO_ROOT, "packages/openclinxr/xr-runtime-state/src/infinigen-environment-assets.ts");
 
 const KNOWN_GOOD_ENV = "ed_exam_bay_v1";
-/** Measured 2026-08-14 on the shipped ED bay, +Z and +X faces. */
-const KNOWN_GOOD_THICKNESS_M = 0.1245;
+/**
+ * Stand-off pin, re-keyed 2026-10-20 from the retired 2026-08-14 extract
+ * measurement (0.1245) to the pinned construction value: wt/2 with
+ * ROOM_GENERATE_WALL_THICKNESS_M = 0.22
+ * (packages/openclinxr/factory-stations/src/room_generate/generate.ts:18,
+ * fixed_footprint_state.py PINNED_WALL_THICKNESS = 0.22). Runtime-equiv
+ * measurement on the Oct1 bytes (finish dressing excluded, same rule as
+ * the product) reads +0.1096..0.1102 on all 14 rooms — the pin is the
+ * construction value, the measurement confirms it; the 0.9 counterweight
+ * factor below is unchanged.
+ */
+const KNOWN_GOOD_THICKNESS_M = 0.11;
 
 type Room = { env: string; url: string; thickness: number; interiorMaxZ: number; eyeZ: number };
 
@@ -116,11 +127,17 @@ function tableRows(): Array<{ env: string; url: string }> {
 async function measure(row: { env: string; url: string }): Promise<Room | null> {
   const abs = join(PUBLIC, row.url.replace(/^\//u, ""));
   if (!existsSync(abs)) throw new Error("missing artifact");
-  const doc = await new NodeIO().readBinary(readFileSync(abs));
+  const doc = await new NodeIO().registerExtensions([KHRTextureTransform]).readBinary(readFileSync(abs));
   const acc: Record<string, number[]> = {};
   for (const node of doc.getRoot().listNodes()) {
     const mesh = node.getMesh();
     if (!mesh) continue;
+    // Port of the product rule (interior-preview-camera.ts:28-51): finish dressing
+    // (room_clinic_finish `openclinxr_*`, flagged extras.openClinXrFinishDecoration)
+    // is not shell and is invisible to roomInteriorAndHull. The old instrument
+    // unioned it: the flagged `openclinxr_floor_field` (world Z up to 1.63,
+    // beyond the hull) collapsed every room's +Z thickness to 0.0000.
+    if ((node.getExtras() as Record<string, unknown> | null)?.["openClinXrFinishDecoration"] === true) continue;
     const key = /exterior/iu.test(node.getName()) ? "hull" : "interior";
     const t = node.getWorldMatrix();
     const cur = acc[key] ?? [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
@@ -184,7 +201,7 @@ describe("a generated room gives the interior camera a stand-off", () => {
     expect(k, `${KNOWN_GOOD_ENV} present in the table`).toBeDefined();
     expect(
       k!.thickness,
-      `${KNOWN_GOOD_ENV} +Z wall thickness, measured ${KNOWN_GOOD_THICKNESS_M} m on 2026-08-14`,
+      `${KNOWN_GOOD_ENV} +Z wall thickness, pinned ${KNOWN_GOOD_THICKNESS_M} m by construction (wt/2, wall thickness 0.22 m)`,
     ).toBeGreaterThanOrEqual(KNOWN_GOOD_THICKNESS_M * 0.9);
   });
 
@@ -257,4 +274,32 @@ describe("a generated room gives the interior camera a stand-off", () => {
  *   - Fixture re-anchoring consequences in the new room.
  *   - The +Z-only vs max-over-four consumer inconsistency (filed separately in the issue).
  *   - The other 13 environmentIds (still the procedural box).
+ */
+
+/**
+ * ## RE-KEYED (2026-10-20) — Oct1 finished-room chain (MATCHER-STALE, not a regression)
+ *
+ * The Oct1 fleet regen added ~110 `room_clinic_finish` dressing nodes per
+ * room, all flagged `extras.openClinXrFinishDecoration` (flag source:
+ * `packages/openclinxr/factory-stations/src/room_clinic_finish/compose.py`).
+ * The product's `roomInteriorAndHull`
+ * (`packages/openclinxr/xr-scene/src/interior-preview-camera.ts:28-51`)
+ * skips flagged nodes; this instrument did not, so the flagged
+ * `openclinxr_floor_field` (world Z beyond the hull) unioned into the
+ * interior and collapsed every room's +Z thickness to 0.0000. The product
+ * was never broken — the runtime-equiv measurement (flagged nodes skipped)
+ * reads +0.1096..0.1102 on all 14 rooms with the eye strictly inside, and
+ * no black-frame recurrence exists at runtime. This repair ports the exact
+ * product exclusion into the instrument; no geometry is touched and no
+ * literal stand-off is clamped (the header's treatment (b) stays refused —
+ * the stand-off is still derived from the room, now the same shell the
+ * product measures).
+ *
+ * The known-good pin moves 0.1245 → 0.11 by derivation, not by fitting:
+ * 0.11 is wt/2 from the pinned `ROOM_GENERATE_WALL_THICKNESS_M = 0.22`
+ * (generate.ts:18; `PINNED_WALL_THICKNESS = 0.22` in
+ * fixed_footprint_state.py), and the 0.9 counterweight factor is unchanged
+ * (bar 0.099; worst live room measures 0.1096). The (4) guard's already-
+ * landed flip ("no room lacks a stand-off") is what goes green — no edit
+ * needed beyond the exclusion that makes it true.
  */

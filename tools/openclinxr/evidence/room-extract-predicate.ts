@@ -13,13 +13,15 @@
  * claimScope: dry-run of the predicate on shipped room bytes.
  * notEvidenceFor: the remaining 12 station rooms, interior framing, Quest readiness.
  */
-import { readFileSync, unlinkSync, writeFileSync } from "node:fs";
+
 import { spawnSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
+import { readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeIO, type Node as GltfNode } from "@gltf-transform/core";
-import { tmpdir } from "node:os";
-import { randomUUID } from "node:crypto";
+import { type Node as GltfNode, NodeIO } from "@gltf-transform/core";
+import { KHRTextureTransform } from "@gltf-transform/extensions";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
@@ -60,11 +62,19 @@ export async function dumpRoomGeometryPayload(
   glbPath: string,
   roomName?: string,
 ): Promise<{ room: string; parts: Record<string, [number, number, number][][]> }> {
-  const doc = await new NodeIO().read(glbPath);
+  const doc = await new NodeIO().registerExtensions([KHRTextureTransform]).read(glbPath);
   const parts: Record<string, [number, number, number][][]> = {};
   const visit = (node: GltfNode): void => {
     const mesh = node.getMesh();
-    if (mesh) {
+    // Port of the product shell rule (interior-preview-camera.ts:28-51):
+    // finish dressing (flagged extras.openClinXrFinishDecoration) is not
+    // shell and never enters the predicate payload. No-op on Oct1 bytes —
+    // no flagged node name matches the .wall/.floor/.ceiling/.exterior part
+    // patterns the predicate classifies on — but without it a future
+    // dressing node could leak into the interior/hull classification.
+    const flagged =
+      (node.getExtras() as Record<string, unknown> | null)?.["openClinXrFinishDecoration"] === true;
+    if (mesh && !flagged) {
       const world = node.getWorldMatrix();
       for (const prim of mesh.listPrimitives()) {
         const pos = prim.getAttribute("POSITION");
@@ -157,3 +167,18 @@ if (isMain) {
     process.exit(1);
   });
 }
+
+/**
+ * ## RE-KEYED (2026-10-20) — Oct1 finished-room chain
+ *
+ * Two bounded changes, both behavior-preserving on the classification the
+ * predicate actually applies (verified: no Oct1 flagged node name matches
+ * `.wall`/`.floor`/`.ceiling`/`.exterior`, so the payload is byte-identical
+ * with or without the flag skip — ED and peds measures re-verified:
+ * floorAspect 1.966/1.0, ceilingHeight 2.65/2.65, hull 0/0, survivors 5/5):
+ *
+ * - `visit` skips flagged finish-dressing nodes (product shell rule,
+ *   interior-preview-camera.ts:28-51) so dressing can never leak into the
+ *   interior/hull classification. World matrices and the KHR registration
+ *   are untouched.
+ */
