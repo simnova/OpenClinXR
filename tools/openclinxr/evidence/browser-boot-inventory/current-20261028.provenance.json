@@ -1,0 +1,34 @@
+{
+  "sourceBaseCommit": "cf8a7e4b3d876bf13e96aaaf688708f054597490",
+  "candidateSourceOverlayPins": {
+    "tools/openclinxr/evidence/the-measured-geometry-artifact-knows-when-it-is-stale.test.ts": "5552cb973c3a4e46277c7a7161625cc2ef992c14c11febb3d32ba43dcd4400db",
+    "tools/openclinxr/evidence/browser-boot-inventory.test.ts": "ab3ee17fc7cdf1cb814ed4d57ae4276411033d23a2057c0419ab57949bbd17c6",
+    "tools/openclinxr/openclaw/known-red-tests.json": "affe6c330bed2ee71c80fff698c15502f897883d2afbce50ee377ef758460e56",
+    "tools/openclinxr/evidence/browser-boot-inventory.ts": "3eabf6d18c93685f0ba48c79397e94eaeed65ce80ff8aedda72c18814f8f34b5",
+    "tools/openclinxr/evidence/browser-boot-inventory/exclusions.ts": "1f5ccc092c3cbe81cacb0bd4ebe0e4cbfad1ba5c38a690a294ee9ab41ddb50af",
+    "packages/openclinxr-verification/architecture-rules/src/archunit-tests/nothing-reaches-across-a-package-boundary-by-path.test.ts": "f95264c31abb5b168c522a1c50c3a0137516ae3e1158ebd365ab4a3e003b3bdf"
+  },
+  "generatedAt": "2026-10-28T15:43:59.127Z",
+  "producer": "tools/openclinxr/evidence/browser-boot-inventory.ts",
+  "producerSHA256": "3eabf6d18c93685f0ba48c79397e94eaeed65ce80ff8aedda72c18814f8f34b5",
+  "generation": "Actual existing static CLI with explicit --out on exact Git source plus reviewed candidate source overlay; no in-flight source or browser execution. Wrapper exclusions AST-derived from actual runner, root config, shared worktree and project archive source modules.",
+  "javaScriptTypeScriptAPIVersion": "6.0.3",
+  "installedThreeVersion": "0.184.0",
+  "installedThreeStaticSourcePins": {
+    "apps/ui-xr/node_modules/three/examples/jsm/loaders/GLTFLoader.js": "97642d720f16cc9a0c9844934198e4d0c023bea8e89576d0f7545d03b2d103d2",
+    "apps/ui-xr/node_modules/three/examples/jsm/utils/SkeletonUtils.js": "b1632a703206c3d830de9fcbe515696770d04b71a15ee6b50afa6d2c3298c86f",
+    "apps/ui-xr/node_modules/three/build/three.core.js": "368dc78835287709a48939e8eb9a7a61d0732098bdf916e56840d458aae9ccf3",
+    "apps/ui-xr/node_modules/three/build/three.module.js": "61134198639a10885daf893fb29669ca26386e2a4cde76e8399f51e329f741f2",
+    "apps/ui-xr/node_modules/three/examples/jsm/utils/BufferGeometryUtils.js": "d700b4c4584b9ff53a04692624d2363019f6d1df2978a207389168c6ae647a65"
+  },
+  "inventorySHA256": "ab7745a5c4281f3abb6833bbac4f6643e9a4a925faa92fd64353d4cef25854f7",
+  "historicalRecord": ".openclinxr/evidence/issue-284/pre-fix.json",
+  "historicalSHA256": "f14d17bc79e904a8fdb802cd292a5c7da35fe4c2349a72f0be8e6964402661a5",
+  "historicalUnchanged": true,
+  "claimScope": "Static reachability, actual configured exclusions, and eligible-file suite minima only",
+  "notEvidenceFor": [
+    "Actual process counts",
+    "Performance speedup",
+    "Physical Quest readiness"
+  ]
+}

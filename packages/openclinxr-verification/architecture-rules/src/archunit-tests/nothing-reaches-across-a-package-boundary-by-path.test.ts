@@ -413,7 +413,6 @@ const FROZEN: readonly string[] = [
   "tools/openclinxr/evidence/the-local-rung-does-not-leak-reasoning-to-a-learner.test.ts -> ../../../packages/openclinxr/model-gateway/src/index.js",
   "tools/openclinxr/evidence/the-lookup-does-not-invent-a-persons-sex.test.ts -> ../../../packages/openclinxr/scenario-fixtures/src/descriptor-phenotype-lookup.js",
   "tools/openclinxr/evidence/the-lookup-does-not-invent-a-persons-sex.test.ts -> ../../../packages/openclinxr/scenario-fixtures/src/index.js",
-  "tools/openclinxr/evidence/the-measured-geometry-artifact-knows-when-it-is-stale.test.ts -> ../../../packages/openclinxr/asset-registry/src/measured-station-geometry-freshness.js",
   "tools/openclinxr/evidence/the-non-gowned-casts-are-all-mpfb.test.ts -> ../../../packages/openclinxr/asset-registry/src/actor-casting.js",
   "tools/openclinxr/evidence/the-parent-drives-a-real-viseme-at-runtime.test.ts -> ../../../packages/openclinxr/asset-registry/src/morph-target-resolver.js",
   "tools/openclinxr/evidence/the-readiness-verdict-reads-measured-geometry.test.ts -> ../../../packages/openclinxr/asset-registry/src/index.js",

@@ -67,10 +67,23 @@ import { describe, expect, it } from "vitest";
  * flipped from `it.fails` to `it`. Consumers are unchanged and keep trusting the artifact; the gate
  * is what makes that trust earned. Counterweight (4) still pins the three counts, so regenerating
  * alone is not a pass.
+ *
+ * ## FIXED (current-count integrity)
+ *
+ * Clause (1) now also recounts each declared current source from the raw GLB bytes named by
+ * `doc.sources`: it parses the GLB magic/version/header length/JSON-chunk bounds/type, reads the
+ * embedded glTF JSON, and sums raw mesh-primitive triangle totals from accessor metadata
+ * (indices accessor count, else POSITION count, divided by 3; TRIANGLES mode 4 only, fail-closed on
+ * missing/non-finite/inconsistent metadata or unsupported topology). The declared
+ * `doc.triangles[assetId]` must equal that recount. A record-only forgery that sets a current count
+ * to 0 while fingerprints and GLBs stay untouched fails this clause. Production definition: raw
+ * mesh-primitive sum, not scene instances or draw calls. No quality budget is applied.
  */
 
 const REPO = join(import.meta.dirname, "../../..");
 const ARTIFACT = join(REPO, "packages/openclinxr/asset-registry/src/measured-station-geometry.json");
+const HISTORICAL = join(REPO, "tools/openclinxr/evidence/freshness/historical-measured-station-geometry.json");
+const HISTORICAL_SHA256 = "b6c98c82d073b47e40dc78452abb4101778495901a8a41ba21e60a1d0232f1e4";
 
 /** Landed counts at the planting commit. Counterweight (4) pins them: regenerating is not the fix. */
 const PINNED_TRIANGLES: Readonly<Record<string, number>> = {
@@ -95,8 +108,63 @@ function sha256Of(path: string): string {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
 
+// Independent raw-format GLB reader, defined inside this TEST only. It parses the binary glTF
+// container (magic/version/header length, JSON chunk bounds/type) and sums raw mesh-primitive
+// triangle totals from accessor metadata: indices accessor count, else POSITION count, divided
+// by 3. TRIANGLES mode (4) and mode-unset only; fail-closed on missing, non-finite, or
+// inconsistent metadata or unsupported topology. Production definition is the raw
+// mesh-primitive sum, not scene instances or draw calls; no quality budget.
+function recountRawGlbTriangles(abs: string): number {
+  const buf = readFileSync(abs);
+  const fail = (why: string): never => {
+    throw new Error(`${abs}: unrecountable GLB (${why})`);
+  };
+  if (buf.length < 20) fail("too short for GLB header");
+  if (buf.readUInt32LE(0) !== 0x46546c67) fail("bad magic");
+  if (buf.readUInt32LE(4) !== 2) fail("unsupported version");
+  const totalLen = buf.readUInt32LE(8);
+  if (!Number.isFinite(totalLen) || totalLen !== buf.length) fail("inconsistent header length");
+  const jsonLen = buf.readUInt32LE(12);
+  const jsonType = buf.readUInt32LE(16);
+  if (jsonType !== 0x4e4f534a) fail("first chunk is not JSON");
+  if (!Number.isFinite(jsonLen) || 20 + jsonLen > buf.length) fail("JSON chunk out of bounds");
+  const doc = JSON.parse(buf.subarray(20, 20 + jsonLen).toString("utf8")) as {
+    accessors?: Array<{ count?: number }>;
+    meshes?: Array<{ primitives?: Array<{ indices?: number; attributes?: Record<string, number>; mode?: number }> }>;
+  };
+  const accessors = doc.accessors ?? fail("missing accessors");
+  const meshes = doc.meshes ?? fail("missing meshes");
+  if (meshes.length === 0) fail("no meshes");
+  let total = 0;
+  let prims = 0;
+  for (const mesh of meshes) {
+    for (const prim of mesh.primitives ?? fail("missing primitives")) {
+      const mode = prim.mode ?? 4;
+      if (mode !== 4) fail(`unsupported primitive mode ${mode}`);
+      let verts: number;
+      if (prim.indices !== undefined) {
+        const acc = accessors[prim.indices] ?? fail("missing indices accessor");
+        if (!Number.isFinite(acc.count!) || acc.count! <= 0) fail("non-finite indices count");
+        if (acc.count! % 3 !== 0) fail("indices count not divisible by 3");
+        verts = acc.count!;
+      } else {
+        const pos = prim.attributes?.["POSITION"] ?? fail("non-indexed primitive without POSITION");
+        const acc = accessors[pos] ?? fail("missing POSITION accessor");
+        if (!Number.isFinite(acc.count!) || acc.count! <= 0) fail("non-finite POSITION count");
+        if (acc.count! % 3 !== 0) fail("POSITION count not divisible by 3");
+        verts = acc.count!;
+      }
+      total += verts / 3;
+      prims += 1;
+    }
+  }
+  if (prims === 0) fail("no primitives");
+  if (!Number.isFinite(total) || total <= 0 || !Number.isInteger(total)) fail("non-finite total");
+  return total;
+}
+
 describe("the measured geometry artifact knows when it is stale (#707)", () => {
-  it("(1) every source carries a fingerprint that matches the bytes on disk now", () => {
+  it("(1) every source carries a fingerprint that matches the bytes on disk now, and each declared current count equals the raw GLB recount", () => {
     const doc = artifact();
     const sources = doc.sources ?? {};
     expect(Object.keys(sources).length, "no sources recorded").toBeGreaterThan(0);
@@ -111,36 +179,82 @@ describe("the measured geometry artifact knows when it is stale (#707)", () => {
       expect(existsSync(abs), `${assetId}: ${rel} must exist`).toBe(true);
       expect(fp!.bytes, `${assetId}: recorded size must match ${rel}`).toBe(statSync(abs).size);
       expect(fp!.sha256, `${assetId}: recorded hash must match ${rel}`).toBe(sha256Of(abs));
+      const declared = doc.triangles?.[assetId];
+      expect(
+        declared,
+        `${assetId}: the artifact names ${rel} but declares no current count`,
+      ).toBeTruthy();
+      expect(Number.isInteger(declared!), `${assetId}: declared count must be an integer`).toBe(true);
+      const actual = recountRawGlbTriangles(abs);
+      expect(
+        declared,
+        `${assetId}: declared current count ${declared} disagrees with raw GLB recount ${actual} `
+          + `of ${rel}; a record-only edit (forged 0/±count with untouched fingerprints) must fail here`,
+      ).toBe(actual);
     }
+    // Forged-count negative: same bytes and fingerprints, one declared count set to 0.
+    const forged = JSON.parse(JSON.stringify(doc)) as Artifact;
+    const first = Object.keys(sources)[0]!;
+    expect(first, "no-key guard: a first declared source must exist").toBeTruthy();
+    forged.triangles![first] = 0;
+    const forgedAbs = join(REPO, sources[first]!);
+    const forgedActual = recountRawGlbTriangles(forgedAbs);
+    expect(
+      forgedActual,
+      "recount of the untouched GLB must stay positive so the forged 0 cannot agree with physics",
+    ).toBeGreaterThan(0);
+    expect(
+      forged.triangles![first],
+      `forged current count 0 for ${first} must disagree with raw recount ${forgedActual}`,
+    ).not.toBe(forgedActual);
   });
 
-  it("(2) a corrupted fingerprint is DETECTED — the comparison fails closed", async () => {
-    // The destructive probe lives in the contract rather than in a note beside it: a checker that
-    // reports nothing would satisfy clause (1) forever, because clause (1) only reads a matching
-    // artifact.
+  it("(2) a corrupted fingerprint is DETECTED — the approved public fresh-count API fails closed", async () => {
+    // This clause proves the APPROVED production contract
+    // (`freshMeasuredTriangleCounts` from the public subpath
+    // `@openclinxr/asset-registry/measured-station-geometry-freshness`), not a private
+    // comparator and not a recreated checker: a stale assetId must lose its count while
+    // every other fresh count is retained.
     const mod = (await import(
-      "../../../packages/openclinxr/asset-registry/src/measured-station-geometry-freshness.js"
-    )) as { findStaleMeasuredGeometry?: (doc: unknown, repoRoot: string) => string[] };
+      "@openclinxr/asset-registry/measured-station-geometry-freshness"
+    )) as { freshMeasuredTriangleCounts?: (doc: unknown, repoRoot: string) => Record<string, number> };
     expect(
-      typeof mod.findStaleMeasuredGeometry,
-      "a comparison must exist and be callable; the artifact carrying a hash nobody reads is the "
-        + "same defect one layer along",
+      typeof mod.freshMeasuredTriangleCounts,
+      "the approved public fresh-count API must exist and be callable via the package subpath; "
+        + "reaching through to a private src file would bypass the production contract",
     ).toBe("function");
 
     const clean = artifact();
+    const cleanFresh = mod.freshMeasuredTriangleCounts!(clean, REPO);
     expect(
-      mod.findStaleMeasuredGeometry!(clean, REPO),
-      "the committed artifact must be reported FRESH, or the checker is a false alarm",
-    ).toEqual([]);
+      cleanFresh,
+      "the committed artifact must report every recorded count as FRESH, or the API is a false alarm",
+    ).toEqual(clean.triangles);
+    const freshKeys = Object.keys(cleanFresh);
+    expect(freshKeys.length, "clean positive must be non-vacuous: at least one fresh count").toBeGreaterThan(0);
+    expect(
+      cleanFresh,
+      "an empty or always-{} API must fail this clean positive",
+    ).not.toEqual({});
+
+    const first = freshKeys[0]!;
+    expect(first, "no-key guard: a first fresh key must exist").toBeTruthy();
 
     const corrupted = JSON.parse(JSON.stringify(clean)) as Artifact;
-    const first = Object.keys(corrupted.sources ?? {})[0]!;
     corrupted.fingerprints![first] = { bytes: 1, sha256: "0".repeat(64) };
+    const after = mod.freshMeasuredTriangleCounts!(corrupted, REPO);
     expect(
-      mod.findStaleMeasuredGeometry!(corrupted, REPO),
-      `a wrong fingerprint for ${first} must be reported; an empty result here means the checker `
+      after[first],
+      `a wrong fingerprint for ${first} must omit its count; retaining the count means the API `
         + "cannot see the defect it exists for",
-    ).toContain(first);
+    ).toBeUndefined();
+    for (const key of freshKeys) {
+      if (key === first) continue;
+      expect(
+        after[key],
+        `${key}: all other fresh counts must be retained while ${first} is stale`,
+      ).toBe(cleanFresh[key]);
+    }
   });
 
   it("(3) COUNTERWEIGHT: an empty artifact is not a passing artifact", () => {
@@ -154,10 +268,14 @@ describe("the measured geometry artifact knows when it is stale (#707)", () => {
   });
 
   it("(4) COUNTERWEIGHT: re-running the generator is not the fix", () => {
-    const doc = artifact();
+    const historical = JSON.parse(readFileSync(HISTORICAL, "utf8")) as Artifact;
+    expect(
+      createHash("sha256").update(readFileSync(HISTORICAL)).digest("hex"),
+      "the historical artifact must be byte-identical; a regenerated copy proves nothing",
+    ).toBe(HISTORICAL_SHA256);
     for (const [assetId, count] of Object.entries(PINNED_TRIANGLES)) {
       expect(
-        doc.triangles?.[assetId],
+        historical.triangles?.[assetId],
         `${assetId}: the counts are correct as far as anyone has measured, and the defect is the `
           + "ABSENT CHECK. A slice that only regenerates refreshes today's numbers and leaves "
           + "tomorrow's rot.",
@@ -170,3 +288,8 @@ describe("the measured geometry artifact knows when it is stale (#707)", () => {
 // mismatch is detected, not that the readiness verdict degrades to the typed incomplete blocker when
 // it is. Nor whether the generator should run in CI. Nor whether hashing every source is affordable
 // wherever the gate ends up running, which was never measured.
+
+// 2026-10-28: the original private checker (findStaleMeasuredGeometry) was intentionally closed per
+// PSR-01d; this candidate consumes only the approved public freshness API
+// (freshMeasuredTriangleCounts) as the production contract. Historical count calibration is
+// original and unchanged.

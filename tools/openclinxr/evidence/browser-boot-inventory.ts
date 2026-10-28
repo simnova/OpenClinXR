@@ -43,6 +43,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { deriveExclusionPatterns, isExcludedRepoRel } from "./browser-boot-inventory/exclusions.js";
 
 export const PRIMITIVES = {
   server: "spawnPortlessDevServer",
@@ -167,18 +168,9 @@ export function findRepoRoot(startDir: string = fileURLToPath(new URL(".", impor
   }
 }
 
-/** Parse the 13 `--exclude` paths out of the `//#test:tools` script. */
+/** Parse every exclusion pattern: legacy --exclude flags plus the actual wrapper sources. */
 export function parseTestToolsExcludes(root: string): string[] {
-  const pkg = JSON.parse(readFileSync(path.join(root, PACKAGE_JSON_NAME), "utf8")) as {
-    scripts?: Record<string, string>;
-  };
-  const script = pkg.scripts?.[TEST_TOOLS_SCRIPT_KEY] ?? "";
-  const excludes: string[] = [];
-  for (const m of script.matchAll(/--exclude\s+(\S+)/g)) {
-    const value = m[1];
-    if (value !== undefined) excludes.push(value);
-  }
-  return [...new Set(excludes)];
+  return deriveExclusionPatterns(root);
 }
 
 type DirEntry = { name: string; kind: "file" | "dir" };
@@ -365,7 +357,7 @@ function directLaunchersOf(testFile: string, launcherSet: Set<string>): string[]
 
 export function buildBrowserBootInventory(root: string = findRepoRoot()): BrowserBootInventory {
   const testFiles = walkTestFiles(path.join(root, "tools")).sort();
-  const excludes = new Set(parseTestToolsExcludes(root).map((p) => p.split(path.sep).join("/")));
+  const patterns = parseTestToolsExcludes(root);
   const rows: BrowserBootInventoryRow[] = [];
   for (const tf of testFiles) {
     const rel = path.relative(root, tf).split(path.sep).join("/");
@@ -391,7 +383,7 @@ export function buildBrowserBootInventory(root: string = findRepoRoot()): Browse
     }
     rows.push({
       testFile: rel,
-      excludedFromTestTools: excludes.has(rel),
+      excludedFromTestTools: isExcludedRepoRel(rel, patterns),
       acquisitionMode: "own",
       ownsServer,
       ownsBrowser,
@@ -421,8 +413,8 @@ export function buildBrowserBootInventory(root: string = findRepoRoot()): Browse
     totalTestFiles: testFiles.length,
     browserBootingTestFiles: rows.length,
     excludedAmongBrowserBooting: rows.filter((r) => r.excludedFromTestTools).length,
-    minBrowsersPerSuiteRun: rows.filter((r) => r.ownsBrowser).length,
-    minServersPerSuiteRun: rows.filter((r) => r.ownsServer).length,
+    minBrowsersPerSuiteRun: rows.filter((r) => r.ownsBrowser && !r.excludedFromTestTools).length,
+    minServersPerSuiteRun: rows.filter((r) => r.ownsServer && !r.excludedFromTestTools).length,
     staticUpperBoundBrowsers: rows.reduce((acc, r) => acc + r.closureBrowserCallSites, 0),
     staticUpperBoundServers: rows.reduce((acc, r) => acc + r.closureServerCallSites, 0),
     rows,
