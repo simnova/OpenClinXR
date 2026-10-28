@@ -195,22 +195,22 @@ describe("the station ships one brow by case: G2 no clause worse than noise", ()
     expect(Math.abs(r.gates.G2.shapeSubjectMode["TINT"]!.delta)).toBeLessThanOrEqual(noiseOf("TINT"));
   });
 
-  it("stage-3 anchor: run5 socket sha equals the pinned socket when the store is present", () => {
+  it("stage-3 anchor: run5 socket sha equals the pinned socket when the store is present", (ctx) => {
     const run5Socket = join(STORE_ROOT, "face-station-cases", "body2", "run5", "albedo_socket.png");
-    if (!existsSync(run5Socket)) return;
+    if (!existsSync(run5Socket)) ctx.skip(`optional historical store artifact absent: ${run5Socket}`);
     expect(sha256File(run5Socket)).toBe("4e8b36305aa30fce751e5ba836bbfa5afec83af784476a9458695c79f04befe2");
   });
 });
 
 describe("the station ships one brow by case: stage-4 argv carries the flag", () => {
-  it("texture rebake argv carries --brow-form texture (station stage-records.json)", () => {
+  it("texture rebake argv carries --brow-form texture (station stage-records.json)", (ctx) => {
     // The texture rebakes live in store dirs outside the runN tracking
     // (r3 precedent: experimental runs keep their bytes but stay out of the
     // tracked case-run-report.json so unrelated suites keep reading run1-3).
     const stageRecords = join(
       STORE_ROOT, "face-station-cases", "body2", "browform-texture-run1", "stage-records.json",
     );
-    if (!existsSync(stageRecords)) return;
+    if (!existsSync(stageRecords)) ctx.skip(`optional historical store artifact absent: ${stageRecords}`);
     const doc = loadJson(stageRecords) as {
       stages?: Array<{ stage: number; argv: string[] }>;
     };
@@ -220,9 +220,9 @@ describe("the station ships one brow by case: stage-4 argv carries the flag", ()
     expect(s4.argv[at + 1]).toBe("texture");
   });
 
-  it("mesh/absent case passes no flag: argv-proof bound to the exact shared.ts bytes", () => {
-    if (!existsSync(ARGV_PROOF)) return;
-    if (!existsSync(SHARED_TS)) return;
+  it("mesh/absent case passes no flag: argv-proof bound to the exact shared.ts bytes", (ctx) => {
+    expect(existsSync(SHARED_TS), `mandatory repo source absent: ${SHARED_TS}`).toBe(true);
+    if (!existsSync(ARGV_PROOF)) ctx.skip(`optional historical local proof absent: ${ARGV_PROOF}`);
     const proof = loadJson(ARGV_PROOF) as {
       sharedSha256?: unknown;
       argv?: Record<string, unknown>;
@@ -241,8 +241,8 @@ describe("the station ships one brow by case: stage-4 argv carries the flag", ()
 });
 
 describe("the station ships one brow by case: cited bytes recompute", () => {
-  it("sheet shas recompute when the store is present", () => {
-    if (!existsSync(BROW_FORM_STORE)) return;
+  it("sheet shas recompute when the store is present", (ctx) => {
+    if (!existsSync(BROW_FORM_STORE)) ctx.skip(`optional historical store absent: ${BROW_FORM_STORE}`);
     const r = loadJson(REPORT) as {
       gates: { G5: { sheets: Record<string, { png: string; sha256: string }> } };
     };
@@ -252,12 +252,12 @@ describe("the station ships one brow by case: cited bytes recompute", () => {
     }
   });
 
-  it("H1 control: sheet PRE and POST name the same albedo and roughness shas", () => {
+  it("H1 control: sheet PRE and POST name the same albedo and roughness shas", (ctx) => {
     // The handback defect: PRE/POST must differ ONLY by the eyebrow mesh.
     // Both capture JSONs record their served texture files + shas in `inputs`.
     const pre = join(SCRATCH, "render", "pre3-body2.json");
     const post = join(SCRATCH, "render", "post-body2.json");
-    if (!existsSync(pre) || !existsSync(post)) return;
+    if (!existsSync(pre) || !existsSync(post)) ctx.skip(`optional historical local render absent: ${pre} / ${post}`);
     const shaOf = (doc: Record<string, unknown>, needle: string): string => {
       const inputs = doc["inputs"] as Record<string, { sha256?: unknown }>;
       for (const [path, rec] of Object.entries(inputs)) {
@@ -278,8 +278,8 @@ describe("the station ships one brow by case: cited bytes recompute", () => {
     );
   });
 
-  it("noise render shas recompute when the store is present", () => {
-    if (!existsSync(BROW_FORM_STORE)) return;
+  it("noise render shas recompute when the store is present", (ctx) => {
+    if (!existsSync(BROW_FORM_STORE)) ctx.skip(`optional historical store absent: ${BROW_FORM_STORE}`);
     const r = loadJson(REPORT) as {
       noise: { renders: Record<string, string> };
     };
@@ -289,14 +289,19 @@ describe("the station ships one brow by case: cited bytes recompute", () => {
       "twoalb-body2": "twoalb-body2-front.png",
       "twomesh-body2": "twomesh-body2-front.png",
     };
+    let checked = 0;
+    const missing: string[] = [];
     for (const [key, file] of Object.entries(names)) {
       const abs = join(
         "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/st-browform",
         "render",
         file,
       );
-      if (!existsSync(abs)) continue;
+      if (!existsSync(abs)) { missing.push(abs); continue; }
+      checked += 1;
       expect(sha256File(abs), file).toBe(r.noise.renders[key]);
     }
+    if (checked === 0) ctx.skip("optional historical local renders absent: no noise render files present");
+    if (missing.length > 0) ctx.skip(`optional historical local renders absent: ${missing.join(", ")}`);
   });
 });

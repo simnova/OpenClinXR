@@ -153,10 +153,10 @@ describe("the station-skin-int report holds", () => {
     }
   });
 
-  it("G1 re-measures from the store when run6 exists", () => {
+  it("G1 re-measures from the store when run6 exists", (ctx) => {
     const rep = loadReport();
     const aishaRun = join(rep.store, rep.runs.runB["aisha"] as string);
-    if (!existsSync(join(aishaRun, "albedo_detail.png"))) return;
+    if (!existsSync(join(aishaRun, "albedo_detail.png"))) ctx.skip(`optional historical store artifact absent: ${join(aishaRun, "albedo_detail.png")}`);
     const mean = parseFloat(
       py(
         [
@@ -187,7 +187,7 @@ describe("the station-skin-int report holds", () => {
     expect(mean).toBeLessThanOrEqual(1);
   }, 600_000);
 
-  it("G2 re-measures from the store when run9 and the ablation exist", () => {
+  it("G2 re-measures from the store when run9 and the ablation exist", (ctx) => {
     const rep = loadReport();
     const g2d = rep.gates["g2"]!.details as Record<string, string | number>;
     const body2Run = join(rep.store, rep.runs.runB["body2"] as string);
@@ -199,7 +199,7 @@ describe("the station-skin-int report holds", () => {
       join(rep.store, (out["bad"] as string).replace(/^store\//, "")),
       join(rep.store, (out["good"] as string).replace(/^store\//, "")),
     ];
-    if (files.some((f) => !existsSync(f))) return;
+    if (files.some((f) => !existsSync(f))) ctx.skip(`optional historical store artifacts absent: ${files.filter((f) => !existsSync(f)).join(", ")}`);
     const counts = JSON.parse(
       py(
         [
@@ -222,7 +222,7 @@ describe("the station-skin-int report holds", () => {
     expect(counts.good).toBe(g2d["known_good"]);
   }, 600_000);
 
-  it("G3 re-measures outside-union identity from the store when the runs exist", () => {
+  it("G3 re-measures outside-union identity from the store when the runs exist", (ctx) => {
     const rep = loadReport();
     const pairs = [
       { run: rep.runs.runB["aisha"] as string, pre: "albedo_detail.png", post: "albedo_browform.png" },
@@ -236,7 +236,7 @@ describe("the station-skin-int report holds", () => {
         join(dir, "derive_out", "mask-brows-L.png"),
         join(dir, "derive_out", "mask-brows-R.png"),
       ];
-      if (need.some((f) => !existsSync(f))) return;
+      if (need.some((f) => !existsSync(f))) ctx.skip(`optional historical store artifacts absent: ${need.filter((f) => !existsSync(f)).join(", ")}`);
       const maxOutside = parseFloat(
         py(
           [

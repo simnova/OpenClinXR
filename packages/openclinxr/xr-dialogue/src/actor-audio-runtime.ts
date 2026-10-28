@@ -1,9 +1,9 @@
 import { createCaseAudioController } from "./actor-audio-case-controller.js";
 import type { CaseAudioOptions } from "./actor-audio-case-types.js";
-import { createPlayback, createAudioSpeechClock } from "./actor-audio-playback-clock.js";
+import { createAudioSpeechClock, createPlayback } from "./actor-audio-playback-clock.js";
+import type { DiagnosticMouthCue, PlaybackContext } from "./actor-audio-prepared-data.js";
 import { cuesAdmissible, decodePcm16MonoWav as decodePcm16MonoWavPure, hasPreparedEntry } from "./actor-audio-prepared-data.js";
-import type { PlaybackContext, DiagnosticMouthCue } from "./actor-audio-prepared-data.js";
-import type { Host, OwnedSession, LiveSlot, PreparedEntry, PreparedIdentity, PreparedActorStartContext } from "./actor-audio-types.js";
+import type { Host, LiveSlot, OwnedSession, PreparedActorStartContext, PreparedEntry, PreparedIdentity } from "./actor-audio-types.js";
 import { mapRhubarbTrack } from "./viseme-cue-track.js";
 import { applyNamedSpeechVisemes } from "./viseme-runtime-wire.js";
 export function createActorAudioRuntime(options: { developmentFixture?: boolean; fixtureSearch?: string; caseAudio?: CaseAudioOptions } = {}) {
@@ -174,12 +174,15 @@ function registerPreparedActorAudioEntry(entry: PreparedEntry): void {
 function syncPreparedActorAudio(displayNowMs: number): void {
   for (const session of sessions.values()) {
     session.clock.snapshot(displayNowMs);
+    const ownedReader = session.slot.mediaPositionSeconds === session.mediaPositionReader;
+    const frozenPosition = session.clockState.lastPosition;
+    const visemeReader = ownedReader ? () => frozenPosition : session.slot.mediaPositionSeconds;
     const root = session.slot.root;
     if (root) {
       const active = session.slot.activeSpeech;
       applyNamedSpeechVisemes({
         root,
-        ...(session.slot.mediaPositionSeconds === undefined ? {} : { mediaPositionSeconds: session.slot.mediaPositionSeconds }),
+        ...(visemeReader === undefined ? {} : { mediaPositionSeconds: visemeReader }),
         activeSpeech: active === undefined ? undefined : {
           phonemeSequence: active.phonemeSequence ?? ["sil"],
           startedAtMs: active.startedAtMs,

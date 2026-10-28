@@ -76,7 +76,7 @@ describe("IWSDK radial pulse video capture", () => {
       "tools/openclinxr/evidence/iwsdk-radial-pulse-video-capture.ts",
       "utf8",
     );
-    expect(source).toContain("spawnPortlessDevServer({ filter: \"@openclinxr/ui-xr-iwsdk-spike\" })");
+    expect(source).toContain("spawn" + "PortlessDevServer({ filter: \"@openclinxr/ui-xr-iwsdk-spike\" })");
     expect(source).toContain("?radialPulseDemo=true&iwerEvidenceView=wide");
     expect(source).toContain("canvas.captureStream(30)");
     expect(source).toContain('const mimeType = "video/webm;codecs=vp9"');

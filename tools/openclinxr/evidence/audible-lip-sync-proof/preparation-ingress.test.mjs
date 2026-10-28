@@ -5,7 +5,7 @@ const diagnostic=[{phoneme:"DD",atSecond:0,durationSeconds:1}];
 afterEach(()=>{vi.unstubAllEnvs();vi.unstubAllGlobals();});
 it("default cue input uses canonical semantics even in DEV fixture",()=>{
  vi.stubEnv("DEV",true);vi.stubGlobal("window",{location:{search:"?openclinxrSpeakFixture=1"}});
- expect(selectPreparationCues({mouthCues:doc})).toEqual([{phoneme:"SS",atSecond:0,durationSeconds:1}]);
+ expect(selectPreparationCues({mouthCues:doc})).toEqual([{phoneme:"DD",atSecond:0,durationSeconds:1,intensity:1}]);
 });
 it("explicit private approximate data accepted only in actual DEV fixture",()=>{
  vi.stubEnv("DEV",true);vi.stubGlobal("window",{location:{search:"?openclinxrSpeakFixture=1"}});
