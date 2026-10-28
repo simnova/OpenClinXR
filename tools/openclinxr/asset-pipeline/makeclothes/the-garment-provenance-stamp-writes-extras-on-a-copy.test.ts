@@ -11,19 +11,20 @@ import { describe, expect, it } from "vitest";
  * sourceMhclo/licence/garmentClass onto a COPY. It must not rewrite shipped bytes
  * on --dry, and it must not call a t-shirt a gown.
  *
- * claimScope: extras on a temp copy of the gown-patient GLB.
+ * claimScope: extras on a temp copy; clauses 2/3 use the t-shirt-bearing peds-parent GLB.
  * notEvidenceFor: how the garment looks; swapping the peds upper shell for a gown.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../../..");
 const STATION = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/garment-provenance-stamp.ts");
+const TSHIRT = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb");
 const SHIPPED = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb");
 const NURSE = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");
 
 describe("garment-provenance-stamp writes extras on a copy", () => {
   it("(1) --dry on the shipped gown patient writes nothing", () => {
-    if (!existsSync(SHIPPED)) return;
+    expect(existsSync(SHIPPED), "required fixture SHIPPED").toBe(true);
     const before = readFileSync(SHIPPED);
     const out = execFileSync("pnpm", ["exec", "tsx", STATION, SHIPPED, "--dry"], {
       cwd: REPO_ROOT,
@@ -37,10 +38,10 @@ describe("garment-provenance-stamp writes extras on a copy", () => {
   });
 
   it("(2) a temp copy receives sourceMhclo extras and the t-shirt is not classed gown", async () => {
-    if (!existsSync(SHIPPED)) return;
+    expect(existsSync(TSHIRT), "required fixture TSHIRT").toBe(true);
     const dir = mkdtempSync(join(tmpdir(), "ocxr-garment-stamp-"));
     const copy = join(dir, "gown-copy.glb");
-    copyFileSync(SHIPPED, copy);
+    copyFileSync(TSHIRT, copy);
     execFileSync("pnpm", ["exec", "tsx", STATION, copy], {
       cwd: REPO_ROOT,
       encoding: "utf8",
@@ -61,10 +62,10 @@ describe("garment-provenance-stamp writes extras on a copy", () => {
   });
 
   it("(3) does not overwrite sourceMhclo that fit_stage already wrote", async () => {
-    if (!existsSync(SHIPPED)) return;
+    expect(existsSync(TSHIRT), "required fixture TSHIRT").toBe(true);
     const dir = mkdtempSync(join(tmpdir(), "ocxr-garment-stamp-keep-"));
     const copy = join(dir, "gown-copy.glb");
-    copyFileSync(SHIPPED, copy);
+    copyFileSync(TSHIRT, copy);
     const io = new NodeIO();
     const planted = await io.read(copy);
     const tshirt = planted.getRoot().listMeshes().find((m) => /toigo_t_shirt/i.test(m.getName()));
@@ -93,7 +94,7 @@ describe("garment-provenance-stamp writes extras on a copy", () => {
   });
 
   it("(4) a nurse copy records WojackOWL CC-BY scrubs, not a gown class", async () => {
-    if (!existsSync(NURSE)) return;
+    expect(existsSync(NURSE), "required fixture NURSE").toBe(true);
     const dir = mkdtempSync(join(tmpdir(), "ocxr-garment-stamp-nurse-"));
     const copy = join(dir, "nurse-copy.glb");
     copyFileSync(NURSE, copy);
