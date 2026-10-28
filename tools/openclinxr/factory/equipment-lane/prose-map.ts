@@ -85,6 +85,12 @@ export const PROSE_TO_EQUIPMENT_ID: Readonly<Record<string, string>> = {
   "incentive spirometer": "incentive_spirometer_equipment",
   // Stepdown sepsis blood-culture collection set — dedicated thin parametric id.
   "blood-culture kit": "blood_culture_kit_equipment",
+  // Clinic knee-clinic additions (2026-10-21): chairs precedent + orthopedic-kit assetNeeds-bound ids.
+  // Builders exist: crutches/goniometer/ice_pack via station-equipment-orthopedic-kit.ts.
+  "clinic chairs": "chairs_equipment",
+  goniometer: "goniometer_equipment",
+  "ice pack": "ice_pack_equipment",
+  crutches: "crutches_equipment",
 };
 
 /**
@@ -95,7 +101,8 @@ export const PROSE_TO_EQUIPMENT_ID: Readonly<Record<string, string>> = {
 export type DeferredNonEquipmentClass =
   | "education_poster"
   | "handheld_cognitive_aid"
-  | "environment_lighting";
+  | "environment_lighting"
+  | "patient_worn_support";
 
 export const DEFERRED_NON_EQUIPMENT: Readonly<
   Record<string, { class: DeferredNonEquipmentClass; reason: string }>
@@ -111,6 +118,15 @@ export const DEFERRED_NON_EQUIPMENT: Readonly<
   "soft lighting": {
     class: "environment_lighting",
     reason: "environment lighting cue — not equipment; room/light system owns it",
+  },
+  // Knee-clinic handheld + worn-good: not room equipment geometry; sleeve needs bound soft-good, no readiness claim.
+  "clipboard rooming notes": {
+    class: "handheld_cognitive_aid",
+    reason: "handheld rooming-notes clipboard — not room equipment geometry (cf. neuro exam card)",
+  },
+  "elastic knee sleeve": {
+    class: "patient_worn_support",
+    reason: "patient-worn soft support — requires bound soft-good asset; not room equipment geometry, no readiness claim",
   },
 };
 

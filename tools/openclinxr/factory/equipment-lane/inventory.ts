@@ -6,12 +6,12 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { scenarioBank } from "../../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.ts";
-import { resolveDeferredNonEquipment, resolveProseToEquipmentId } from "./prose-map.js";
 import {
   defaultBuilderSymbol,
   defaultLaneFor,
   defaultMidbandStatus,
 } from "./lane-policy.js";
+import { resolveDeferredNonEquipment, resolveProseToEquipmentId } from "./prose-map.js";
 import {
   EQUIPMENT_CATALOG_SCHEMA,
   type EquipmentCatalogDocument,
@@ -45,7 +45,10 @@ function medicalEquipmentDir(): string {
 
 export function rebuildEquipmentCatalog(repoRoot: string = REPO_ROOT): EquipmentCatalogDocument {
   const buildersPath = path.join(repoRoot, "packages/openclinxr/xr-station/src/station-equipment-builders.ts");
-  const stationPath = path.join(repoRoot, "packages/openclinxr/xr-station/src/station-equipment.ts");
+  // Canonical GLB map lives in station-equipment-catalog.ts (split from the
+  // station-equipment.ts barrel, which only re-exports it). Read the canonical
+  // implementation so bank rows resolve their gltfFileName.
+  const stationPath = path.join(repoRoot, "packages/openclinxr/xr-station/src/station-equipment-catalog.ts");
   const builderIds = parseBuilderCases(buildersPath);
   const glbMap = parseGlbMap(stationPath);
   const glbDir = path.join(repoRoot, "apps/ui-xr/public/xr-assets/medical-equipment");
