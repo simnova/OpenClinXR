@@ -2,10 +2,10 @@ import { readdirSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
+import { describe, expect, it } from "vitest";
 // Relative source import: `tools/` is outside the workspace package graph and cannot resolve
 // `@openclinxr/asset-registry` by name. This is the SAME function the runtime calls (#308).
 import { resolveMorphTarget } from "../../../packages/openclinxr/asset-registry/src/morph-target-resolver.ts";
-import { describe, expect, it } from "vitest";
 
 /**
  * **Every MPFB actor a learner will speak to is mute.** Speech drives nothing on their mouths, while
@@ -115,12 +115,37 @@ type Row = {
   file: string;
   morphCount: number;
   mouthFacsCount: number;
+  availableNames: string[];
   resolvedVisemes: { name: string; target: string | null }[];
   resolvedCanonical: { name: string; target: string | null }[];
 };
 
 const io = new NodeIO();
-const isMouthTarget = (n: string): boolean => /mouth|lip|jaw/i.test(n);
+/**
+ * Recognized project resolver name contract: the spellings the project resolver
+ * accepts as viseme alias outputs (lowercased identity/case-variant family). Matching
+ * one of these spellings means the name is a recognized resolver output, NOT a claim
+ * of genuine physical mouth deformation or conformance to any industry ARKit standard
+ * inferred from the names. Accepted baked names are sourced from the existing project
+ * resolver alias outputs only; there is no blanket `viseme_` prefix rule.
+ * Anything else under `viseme_` (e.g. `viseme_brow`, `viseme_eye`) is not recognized.
+ */
+const KNOWN_BAKED_VISEMES: ReadonlySet<string> = new Set(
+  [
+    "viseme_sil", "viseme_AA", "viseme_E", "viseme_IH", "viseme_OH",
+    "viseme_OU", "viseme_FV", "viseme_TH", "viseme_L",
+    "viseme_PP", "viseme_SS",
+    "viseme_I", "viseme_O", "viseme_U", "viseme_FF", "viseme_nn",
+    "viseme_aa", "viseme_kk", "viseme_silence",
+  ].map((s) => s.toLowerCase()),
+);
+const isKnownBakedViseme = (n: string): boolean => KNOWN_BAKED_VISEMES.has(n.toLowerCase());
+const isMouthTarget = (n: string, available: Iterable<string>): boolean => {
+  const set: ReadonlySet<string> = available instanceof Set ? available : new Set(available);
+  if (!set.has(n)) return false;
+  if (/mouth|lip|jaw/i.test(n)) return true;
+  return /^viseme_/i.test(n) && isKnownBakedViseme(n);
+};
 
 async function measure(rel: string): Promise<Row | null> {
   const doc = await io.read(join(REPO_ROOT, rel));
@@ -130,10 +155,12 @@ async function measure(rel: string): Promise<Row | null> {
     for (const t of extras.targetNames ?? []) names.add(t);
   }
   if (names.size === 0) return null;
+  const mouthSet = (n: string): boolean => /mouth|lip|jaw/i.test(n);
   return {
     file: rel.split("/").pop()!,
     morphCount: names.size,
-    mouthFacsCount: [...names].filter(isMouthTarget).length,
+    mouthFacsCount: [...names].filter(mouthSet).length,
+    availableNames: [...names],
     resolvedVisemes: ARKIT_VISEMES.map((v) => ({
       name: `viseme_${v}`,
       target: resolveMorphTarget(`viseme_${v}`, names),
@@ -191,12 +218,23 @@ describe("MPFB actors can speak", () => {
     // Refuses a resolver that returns some name for every request and moves the wrong region — the
     // #308 failure mode, which is why that module counterweighted on anatomical ordering.
     requireRows();
-    const wrongRegion = rows.flatMap((r) =>
-      r.resolvedVisemes
-        .filter((v) => v.target !== null && !isMouthTarget(v.target))
-        .map((v) => `${r.file}: ${v.name} -> ${v.target} (not a mouth/lip/jaw target)`),
-    );
+    const wrongRegion = rows.flatMap((r) => {
+      const available = new Set(r.availableNames);
+      return r.resolvedVisemes
+        .filter((v) => v.target !== null && !isMouthTarget(v.target, available))
+        .map((v) => `${r.file}: ${v.name} -> ${v.target} (not a mouth/lip/jaw target)`);
+    });
     expect(wrongRegion, "visemes resolved onto non-mouth morphs").toEqual([]);
+
+    // Bounded inline counterweights: invented viseme_brow/viseme_eye names still
+    // fail even when present in the available set; missing targets fail.
+    expect(isMouthTarget("mouth-open", ["mouth-open"])).toBe(true);
+    expect(isMouthTarget("viseme_aa", ["viseme_aa"])).toBe(true);
+    expect(isMouthTarget("VISEME_AA", ["VISEME_AA"])).toBe(true);
+    expect(isMouthTarget("viseme_brow", ["viseme_brow"])).toBe(false);
+    expect(isMouthTarget("viseme_eye", ["viseme_eye"])).toBe(false);
+    expect(isMouthTarget("viseme_sil", [])).toBe(false);
+    expect(isMouthTarget("eyebrows-left-inner-up", ["eyebrows-left-inner-up"])).toBe(false);
   });
 
   it("(4) NET known-good: #308's canonical expressions still resolve", () => {
