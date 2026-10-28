@@ -72,7 +72,7 @@ describe("#743 machine attribution reaches what a subject cannot, without weaken
 
   it("(4) the known-good column: #742's artifact is the real fixture and is well formed", () => {
     // If this fails the fixture moved and clause (1) is asserting about nothing.
-    const p = resolve(REPO, ".openclinxr/openclaw/contract-verify-issue-742-merge.json");
+    const p = resolve(REPO, "tools/openclinxr/evidence/fixtures/issue-742-merge-receipt.json");
     expect(existsSync(p), "issue-742 merge artifact").toBe(true);
     const j = JSON.parse(readFileSync(p, "utf8")) as Record<string, unknown>;
     expect(j.sliceId).toBe("issue-742");

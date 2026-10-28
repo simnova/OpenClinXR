@@ -26,7 +26,7 @@ describe("IWSDK preinstall checker", () => {
       reviewWarnings: [],
       missingPackageManagerControls: [],
     });
-    expect(report.policy.allowedFirstSlicePackages).toEqual(["@iwsdk/core", "@iwsdk/xr-input"]);
+    expect(report.policy.allowedFirstSlicePackages).toEqual(["@iwsdk/core", "@iwsdk/xr-input", "@iwsdk/scene-composition"]);
     expect(coreSelection?.transitivePackages).toEqual([
       "@babylonjs/havok",
       "@iwsdk/glxf",

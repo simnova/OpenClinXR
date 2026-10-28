@@ -70,8 +70,9 @@ describe("Anny candidate preflight", () => {
       expect(candidate.provenance.sourceOriginChainPresent).toBe(true);
       expect(candidate.provenance.licenseChainPresent).toBe(true);
       expect(candidate.provenance.derivativeLineagePresent).toBe(true);
-      // #142: mode-tagged honesty — shipped candidates are blender_only_rebake.
-      expect(candidate.provenance.derivationMode).toBe("blender_only_rebake");
+      // Per-actor derivation honesty: Maya=blender_only_rebake, Tara/Kevin=orchestrate (tracked sidecars).
+      const expectedDerivation = candidate.actorMapping.actorId === "patient_maya_johnson_v1" ? "blender_only_rebake" : "orchestrate";
+      expect(candidate.provenance.derivationMode).toBe(expectedDerivation);
       expect(candidate.provenance.licenseChainHonestForMode).toBe(true);
       expect(candidate.provenance.toolVersionPresent).toBe(true);
       expect(candidate.provenance.promptOrCaseParameterHashPresent).toBe(true);
@@ -104,7 +105,7 @@ describe("Anny candidate preflight", () => {
     }
     expect(report.candidates.map((candidate) => candidate.roleNormalization.sourceActorRole)).toEqual([
       "patient",
-      "parent",
+      "family",
       "nurse",
     ]);
     expect(validateAnnyCandidatePreflightReport(report)).toEqual({ ok: true });
@@ -319,6 +320,39 @@ describe("Anny candidate preflight", () => {
     try {
       await writeFile(reportPath, `${JSON.stringify(await buildAnnyCandidatePreflightReport(), null, 2)}\n`, "utf8");
       await expect(readFile(reportPath, "utf8").then(JSON.parse).then(validateAnnyCandidatePreflightReport)).resolves.toEqual({ ok: true });
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("blocks unmapped actor roles even when generator mode matches", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-anny-unmapped-role-"));
+    try {
+      const provenancePath = path.join(tempDir, "peds_anxious_parent.provenance.json");
+      const provenance = JSON.parse(await readFile("apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json", "utf8"));
+      provenance.actorRole = "unknown_string_role_before_actual_build_call";
+      await writeFile(provenancePath, `${JSON.stringify(provenance, null, 2)}\n`, "utf8");
+      const report = await buildAnnyCandidatePreflightReport({
+        generatedAt: "2026-06-05T04:30:00.000Z",
+        candidates: [
+          {
+            candidateId: "peds_anxious_parent_anny_compatible_candidate",
+            scenarioId: "peds_asthma_parent_anxiety_v1",
+            actorId: "parent_tara_johnson_v1",
+            actorRole: "family",
+            actorDisplayRole: "anxious parent",
+            sourceGlbPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+            provenancePath,
+            reuseKey: "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_candidate",
+            expectedGeneratorMode: "real_anny_local_forward_pass_plus_blender_procedural",
+          },
+        ],
+      });
+      const candidate = report.candidates[0]!;
+      expect(candidate.blockers).toContain("actor_role_alias_unmapped");
+      expect(candidate.status).toBe("blocked");
+      expect(report.decision.status).toBe("blocked_until_candidate_evidence_clears");
+      expect(report.decision.runtimePromotionAllowed).toBe(false);
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

@@ -348,7 +348,8 @@ const defaultCandidates: AnnyCandidateSpec[] = [
     sourceGlbPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
     reuseKey: "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_candidate",
-    expectedGeneratorMode: "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
+    // Tara sidecar derivationMode=orchestrate: real forward pass + Blender procedural.
+    expectedGeneratorMode: "real_anny_local_forward_pass_plus_blender_procedural",
   },
   {
     candidateId: "peds_nurse_kevin_anny_compatible_candidate",
@@ -359,7 +360,8 @@ const defaultCandidates: AnnyCandidateSpec[] = [
     sourceGlbPath: "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.provenance.json",
     reuseKey: "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_candidate",
-    expectedGeneratorMode: "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
+    // Kevin sidecar derivationMode=orchestrate: real forward pass + Blender procedural.
+    expectedGeneratorMode: "real_anny_local_forward_pass_plus_blender_procedural",
   },
 ];
 
@@ -541,6 +543,7 @@ async function evaluateCandidate(spec: AnnyCandidateSpec): Promise<CandidatePref
     || blocker.startsWith("provenance_")
     || blocker.endsWith("_false_gate_missing")
     || blocker === "unexpected_generator_mode"
+    || blocker === "actor_role_alias_unmapped"
     || blocker.startsWith("local_candidate_bundle_")
   );
   const status: CandidateStatus = hardBlocked
