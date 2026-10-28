@@ -7,11 +7,6 @@
       "card": "unfiled: solver-side projection fix for the dy visibility-composition offset plus a stated jaw-travel baseline"
     },
     {
-      "path": "tools/openclinxr/factory/actor-audio-package-integration/public-admission.test.ts",
-      "reason": "Pins ADMISSION_GROUPS to exactly [psr-01f, actor-audio-runtime-v1]; four later reviewed admissions (room-chain-wiring-v1, teeth-viseme-consumers-v1, startup-cast-v1, viseme-motion-subpaths-v1) made it fail on main (measured at 3b450aa37: 6 groups vs 2). The authoritative pin lives in admission-overlays-do-not-launder-closed-removes.test.ts.",
-      "card": "unfiled: retire or re-point the actor-audio admission pin to the authoritative ADMISSION_GROUPS test"
-    },
-    {
       "path": "tools/openclinxr/evidence/generator-sweep-harness.test.ts",
       "reason": "Fails on origin/main. Before the one-line globalThis.self polyfill the sweep throws ReferenceError self is not defined in three GLTFLoader. After that line the loader runs and two assertions still fail on unchanged origin/main data: unaccounted fallback ids crutches_equipment, goniometer_equipment, and ice_pack_equipment are declared on the knee scenario and absent from station-equipment-catalog (catalog unchanged vs HEAD); hospital_bed_equipment meshCount is 2 because the tracked hospital-bed GLB has 2 meshes, while the test requires meshCount greater than 3. This merge does not change the catalog, the builders, or the GLB.",
       "card": "unfiled: distinct equipment-family builders for the three clinic ids, and a bed gate that accepts the shipped 2-mesh GLB while still rejecting the 56-triangle pole"
@@ -240,16 +235,6 @@
       "path": "tools/openclinxr/encounter-runtime-emission.test.ts",
       "reason": "emits replay-safe artifact hit the default 5000ms timeout in the related gate. Solo on 2026-10-08 the same test passed in 10795ms. The test file matches origin/main and sets no timeout.",
       "card": "unfiled: the encounter emission test needs a timeout above 11s"
-    },
-    {
-      "path": "tools/openclinxr/evidence/shipped-head-of-bed-incline.test.ts",
-      "reason": "flat_baseline headCenterY was not finite. The ED incline clause in the same file passed. The test and shipped-head-of-bed-incline.ts match origin/main.",
-      "card": "unfiled: the flat head-of-bed pass must record headCenterY"
-    },
-    {
-      "path": "tools/openclinxr/evidence/the-supine-head-rests-on-its-pillow.test.ts",
-      "reason": "beforeAll hook timed out at 420000ms while calling inspectShippedHeadOfBedIncline. The test file matches origin/main. In the same gate the incline inspect held the browser slot for about 258s on another file.",
-      "card": "unfiled: the pillow beforeAll shares the incline inspect and exceeds the hook timeout"
     },
     {
       "path": "tools/openclinxr/evidence/isolated-foot-grounder/the-isolated-foot-grounder-samples-both-feet.test.ts",

@@ -13,13 +13,14 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "./lib/slotted-playwright.js";
 import { listShippedCastScenarioIds } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
-import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
-  ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
+  ROOM_CAPTURE_MODE,
+  waitForHumanoidAssetsLoaded,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
 
@@ -177,6 +178,13 @@ async function measureLive(input: { baseUrl?: string }): Promise<ShippedHeadOfBe
           await waitForStationShell(page, 180_000);
           await waitForFrames(page, 6, 120_000);
           await page.waitForTimeout(800);
+
+          if (scenarioId === "ed_chest_pain_priority_v1") {
+            // GLB-readiness gate: the head/pillow read needs the ED skeleton,
+            // which lands after shell+frames. Await the EXISTING asset readiness
+            // for ED only; no other station here has a bone-dependent observation.
+            await waitForHumanoidAssetsLoaded(page, 180_000);
+          }
 
           const live = await readLiveStationFromPage(page, scenarioId);
           stations.push({
