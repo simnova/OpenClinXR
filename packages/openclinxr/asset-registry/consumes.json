@@ -19,31 +19,6 @@
         "via": "own-test"
       },
       {
-        "name": "ED_MONITOR_BOUNDS",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "ED_STRETCHER_DECK_BOUNDS",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "ENVIRONMENT_SHELL_DESCRIPTORS",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "HumanoidRealismMetadata",
-        "kind": "type",
-        "via": "own-test"
-      },
-      {
-        "name": "InMemoryAssetRegistry",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
         "name": "bedsideClearanceViolations",
         "kind": "runtime",
         "via": "own-test"
@@ -109,6 +84,21 @@
         "via": "own-test"
       },
       {
+        "name": "ED_MONITOR_BOUNDS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ED_STRETCHER_DECK_BOUNDS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ENVIRONMENT_SHELL_DESCRIPTORS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "evaluateAssetManifest",
         "kind": "runtime",
         "via": "own-test"
@@ -145,6 +135,16 @@
       },
       {
         "name": "headingRadiansToward",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "HumanoidRealismMetadata",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "InMemoryAssetRegistry",
         "kind": "runtime",
         "via": "own-test"
       },
@@ -226,17 +226,6 @@
   },
   {
     "provider": "@openclinxr/asset-registry",
-    "entrypoint": "./cast-asset-constants",
-    "names": [
-      {
-        "name": "MPFB_GOWN_ADULT_PATIENT_GLB",
-        "kind": "runtime",
-        "via": "own-test"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/asset-registry",
     "entrypoint": "./encounter-bundle-admission",
     "names": [
       {
@@ -273,6 +262,17 @@
   },
   {
     "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./measured-station-geometry-freshness",
+    "names": [
+      {
+        "name": "freshMeasuredTriangleCounts",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
     "entrypoint": "./runtime-asset-review",
     "names": [
       {
@@ -282,11 +282,6 @@
       },
       {
         "name": "EncounterBundleFactoryMemberKind",
-        "kind": "type",
-        "via": "own-test"
-      },
-      {
-        "name": "RuntimeAssetReviewDecision",
         "kind": "type",
         "via": "own-test"
       },
@@ -302,6 +297,11 @@
       {
         "name": "promoteReviewedFactoryOutputsToImmutableEncounterBundle",
         "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "RuntimeAssetReviewDecision",
+        "kind": "type",
         "via": "own-test"
       }
     ]
@@ -329,22 +329,6 @@
     "provider": "@openclinxr/asset-registry",
     "entrypoint": "./runtime-bundles",
     "names": [
-      {
-        "name": "EncounterRuntimeActorPlacement",
-        "kind": "type"
-      },
-      {
-        "name": "EncounterRuntimeAsset",
-        "kind": "type"
-      },
-      {
-        "name": "EncounterRuntimeSceneManifest",
-        "kind": "type"
-      },
-      {
-        "name": "RuntimeAssetKind",
-        "kind": "type"
-      },
       {
         "name": "buildEncounterDynamicBehaviorCoverageSummary",
         "kind": "runtime"
@@ -392,6 +376,18 @@
         "via": "own-test"
       },
       {
+        "name": "EncounterRuntimeActorPlacement",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterRuntimeAsset",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterRuntimeSceneManifest",
+        "kind": "type"
+      },
+      {
         "name": "evaluateEncounterRuntimeLearnerUseGate",
         "kind": "runtime"
       },
@@ -414,6 +410,10 @@
       {
         "name": "resolveScenarioActorCast",
         "kind": "runtime"
+      },
+      {
+        "name": "RuntimeAssetKind",
+        "kind": "type"
       },
       {
         "name": "toLearnerRuntimeAssetBundle",

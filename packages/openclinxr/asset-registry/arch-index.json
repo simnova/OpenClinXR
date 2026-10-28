@@ -87,6 +87,7 @@
     "src/encounter-bundle-promotion.test.ts",
     "src/environment-spatial-zones.test.ts",
     "src/every-cast-actor-is-staged-or-reported.test.ts",
+    "src/measured-station-geometry-freshness.unit.test.ts",
     "src/object-store.test.ts",
     "src/physician-cast-constant.test.ts",
     "src/runtime-asset-review.test.ts",

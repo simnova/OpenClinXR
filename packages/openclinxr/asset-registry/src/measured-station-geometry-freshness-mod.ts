@@ -73,12 +73,15 @@ export function findStaleMeasuredGeometry(doc: unknown, repoRoot: string): strin
  */
 export function freshMeasuredTriangleCounts(doc: unknown, repoRoot: string): Record<string, number> {
   const stale = new Set(findStaleMeasuredGeometry(doc, repoRoot));
+  const sources = (doc as { sources?: Record<string, unknown> } | undefined)?.sources ?? {};
   const triangles = (doc as { triangles?: Record<string, number> } | undefined)?.triangles ?? {};
   const fresh: Record<string, number> = {};
   for (const [assetId, count] of Object.entries(triangles)) {
-    if (typeof count === "number" && Number.isFinite(count) && !stale.has(assetId)) {
-      fresh[assetId] = count;
-    }
+    if (typeof count !== "number" || !Number.isFinite(count) || stale.has(assetId)) continue;
+    if (!Object.hasOwn(sources, assetId)) continue;
+    const rel = (sources as Record<string, unknown>)[assetId];
+    if (typeof rel !== "string" || rel.length === 0) continue;
+    fresh[assetId] = count;
   }
   return fresh;
 }

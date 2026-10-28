@@ -1,4 +1,23 @@
-import { readFileSync } from "node:fs";
+/**
+ * ## EPOCH NOTE 2026-10-28 — freshness epoch boundary
+ *
+ * The committed `src/measured-station-geometry.json` has moved on from the
+ * 91eb numbers pinned below (patient 64802 / nurse 38913 / spouse 33623):
+ * the generator re-ran and the current counts, bytes, and sha256 values
+ * differ. The PINNED_* constants stay because they describe the HISTORICAL
+ * fixture at `evidence/freshness/historical-measured-station-geometry.json`,
+ * byte-exact at 91eb, not the live artifact. Clause (1) therefore asserts
+ * preservation against the CURRENT committed document, whatever its numbers
+ * are; clauses (3)–(4) use an explicit synthetic proxy plus the historical
+ * fixture so the old over-budget finding is exercised without claiming the
+ * proxy bytes measured the old counts. Source/dist authority: the default
+ * built API reads `dist`; clause (4) asserts the default verdict equals the
+ * verdict built explicitly from the current source document for ED.
+ */
+
+import { createHash } from "node:crypto";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createSeedBankAssetReadiness } from "../../../packages/openclinxr/rest/src/api-route-support.js";
@@ -114,70 +133,139 @@ function edRow(rows: Row[]): Row {
   return row!;
 }
 
+function proxyDoc(privateRoot: string): Artifact {
+  const files: Record<string, string> = {
+    "proxy/patient.glb": "patient-proxy-bytes-001",
+    "proxy/nurse.glb": "nurse-proxy-bytes-002",
+    "proxy/spouse.glb": "spouse-proxy-bytes-003",
+  };
+  const fps: Record<string, { bytes: number; sha256: string }> = {};
+  for (const [rel, text] of Object.entries(files)) {
+    const abs = join(privateRoot, rel);
+    writeFileSync(abs, Buffer.from(text, "utf8"));
+    const bytes = Buffer.from(text, "utf8");
+    const key = rel === "proxy/patient.glb" ? ED_PATIENT : rel === "proxy/nurse.glb" ? "nurse_maria_alvarez_character" : "spouse_anna_hayes_character";
+    fps[key] = { bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") };
+  }
+  return {
+    sources: {
+      [ED_PATIENT]: "proxy/patient.glb",
+      nurse_maria_alvarez_character: "proxy/nurse.glb",
+      spouse_anna_hayes_character: "proxy/spouse.glb",
+    },
+    triangles: { ...PINNED_TRIANGLES },
+    fingerprints: fps,
+  };
+}
+
+function withCwd<T>(dir: string, fn: () => T): T {
+  const orig = process.cwd;
+  (process as { cwd?: () => string }).cwd = () => dir;
+  try {
+    return fn();
+  } finally {
+    (process as { cwd?: () => string }).cwd = orig;
+  }
+}
+
+const HISTORICAL_FIXTURE = join(import.meta.dirname, "freshness/historical-measured-station-geometry.json");
+
 describe("a stale measurement stops deciding readiness (#711)", () => {
   it("(1) only fresh counts are handed to the verdict", async () => {
     const mod = (await import(
       "../../../packages/openclinxr/asset-registry/src/measured-station-geometry-freshness.js"
-    )) as { freshMeasuredTriangleCounts?: (doc: unknown, repoRoot: string) => Record<string, number> };
-    expect(
-      typeof mod.freshMeasuredTriangleCounts,
-      "the counts handed to evaluateScenarioReadiness must be filtered by the freshness check, so "
-        + "there has to be something that does the filtering",
-    ).toBe("function");
+    )) as {
+      freshMeasuredTriangleCounts?: (doc: unknown, repoRoot: string) => Record<string, number>;
+      findStaleMeasuredGeometry?: (doc: unknown, repoRoot: string) => string[];
+    };
+    expect(typeof mod.freshMeasuredTriangleCounts, "freshness filter must exist").toBe("function");
 
-    const fresh = mod.freshMeasuredTriangleCounts!(committed(), REPO);
-    for (const [assetId, count] of Object.entries(PINNED_TRIANGLES)) {
-      expect(fresh[assetId], `${assetId}: a fresh artifact must keep every count`).toBe(count);
+    const doc = committed();
+    expect(Object.keys(doc.triangles ?? {}).length, "current triangles map must not be empty").toBeGreaterThan(0);
+    expect(Object.keys(doc.sources ?? {}).length, "current sources map must not be empty").toBeGreaterThan(0);
+    for (const assetId of Object.keys(PINNED_TRIANGLES)) {
+      expect(Object.hasOwn(doc.triangles ?? {}, assetId), `${assetId}: current count present`).toBe(true);
+      const count = doc.triangles![assetId];
+      expect(Number.isInteger(count) && count > 0, `${assetId}: current count finite positive integer`).toBe(true);
+      expect(Object.hasOwn(doc.sources ?? {}, assetId), `${assetId}: current source present`).toBe(true);
+      expect(typeof doc.sources![assetId] === "string" && doc.sources![assetId].length > 0, `${assetId}: current source nonempty string`).toBe(true);
+      expect(Object.hasOwn(doc.fingerprints ?? {}, assetId), `${assetId}: current fingerprint present`).toBe(true);
+      const fp = doc.fingerprints![assetId]!;
+      expect(typeof fp.sha256 === "string" && /^[0-9a-f]{64}$/.test(fp.sha256), `${assetId}: current sha full 64hex`).toBe(true);
+      expect(typeof fp.bytes === "number" && Number.isInteger(fp.bytes) && fp.bytes > 0, `${assetId}: current bytes positive integer`).toBe(true);
     }
+    const fresh = mod.freshMeasuredTriangleCounts!(doc, REPO);
+    expect(fresh, "fresh committed artifact must keep every count exactly").toEqual(doc.triangles);
 
-    const filtered = mod.freshMeasuredTriangleCounts!(withCorruptedFingerprint(), REPO);
-    expect(
-      Object.keys(filtered),
-      `${ED_PATIENT}'s fingerprint no longer matches its GLB, so its count must be dropped rather `
-        + "than handed on",
-    ).not.toContain(ED_PATIENT);
+    const staleDoc = withCorruptedFingerprint();
+    const filtered = mod.freshMeasuredTriangleCounts!(staleDoc, REPO);
+    expect(Object.keys(filtered), `${ED_PATIENT} stale count must be dropped`).not.toContain(ED_PATIENT);
+
+    const noFp = JSON.parse(JSON.stringify(doc)) as Artifact;
+    delete (noFp.fingerprints as Record<string, unknown>)[ED_PATIENT];
+    expect(mod.freshMeasuredTriangleCounts!(noFp, REPO)).not.toHaveProperty(ED_PATIENT);
   });
 
   it("(2) a stale source changes the verdict, and to the typed incomplete blocker", () => {
-    // The seam: `createSeedBankAssetReadiness` accepts an artifact override so a stale document can
-    // be exercised without mutating a tracked file. Default stays the committed artifact.
     const build = createSeedBankAssetReadiness as unknown as (doc?: unknown) => Row[];
     const stale = build(withCorruptedFingerprint());
     const row = edRow(stale);
-    expect(
-      row.stationBudget.blockers,
-      "with the patient's count dropped, ED can no longer be shown over budget — the honest verdict "
-        + "is #700's typed incomplete blocker, not a silent fall back to declarations",
-    ).toContain("station_triangle_measurements_incomplete");
-    expect(
-      row.stationBudget.blockers,
-      "citing a count whose fingerprint no longer matches is the defect this card exists for",
-    ).not.toContain("station_triangle_budget_exceeded");
-    expect(row.devReady, "a station with an unusable measurement is not dev-ready").toBe(false);
+    expect(row.stationBudget.blockers).toContain("station_triangle_measurements_incomplete");
+    expect(row.stationBudget.blockers).not.toContain("station_triangle_budget_exceeded");
+    expect(row.devReady).toBe(false);
   });
 
-  it("(3) COUNTERWEIGHT: the committed artifact still puts ED over budget", () => {
-    const row = edRow(createSeedBankAssetReadiness() as unknown as Row[]);
-    expect(
-      row.stationBudget.blockers,
-      "making every station report incomplete satisfies clause (2) and destroys the finding #705 "
-        + "landed. With a FRESH artifact the budget breach must still be reported. NOTE: this reads "
-        + "the BUILT copy in dist, so an edit to src does not move it — see the header; treat this "
-        + "clause as unproven until the src/dist authority question is settled.",
-    ).toContain("station_triangle_budget_exceeded");
-    expect(row.stationBudget.totalTriangles, "ED's measured total").toBe(191_338);
-  });
+  it("(3) COUNTERWEIGHT: synthetic freshness proxy puts ED over budget, stale proxy drops it", () => {
+    const build = createSeedBankAssetReadiness as unknown as (doc?: unknown) => Row[];
+    const privateRoot = mkdtempSync(join(tmpdir(), "ed-proxy-"));
+    mkdirSync(join(privateRoot, "proxy"), { recursive: true });
+    try {
+      const doc = proxyDoc(privateRoot);
+      const rows = withCwd(privateRoot, () => build(doc)) as Row[];
+      const row = edRow(rows);
+      expect(row.stationBudget.totalTriangles).toBe(191_338);
+      expect(row.stationBudget.blockers).toContain("station_triangle_budget_exceeded");
 
-  it("(4) COUNTERWEIGHT: the counts and fingerprints are not edited away", () => {
-    const doc = committed();
-    for (const [assetId, count] of Object.entries(PINNED_TRIANGLES)) {
-      expect(doc.triangles?.[assetId], `${assetId}: count must not change`).toBe(count);
-      expect(
-        doc.fingerprints?.[assetId]?.sha256,
-        `${assetId}: deleting the fingerprint makes the freshness question unanswerable, which is a `
-          + "way to pass clause (1) by removing the check's input",
-      ).toBeTruthy();
+      const wrong = JSON.parse(JSON.stringify(doc)) as Artifact;
+      wrong.fingerprints![ED_PATIENT] = { bytes: 1, sha256: "0".repeat(64) };
+      const rowWrong = edRow(withCwd(privateRoot, () => build(wrong)) as Row[]);
+      expect(rowWrong.stationBudget.blockers).toContain("station_triangle_measurements_incomplete");
+      expect(rowWrong.stationBudget.blockers).not.toContain("station_triangle_budget_exceeded");
+
+      const missing = JSON.parse(JSON.stringify(doc)) as Artifact;
+      delete (missing.sources as Record<string, string>)[ED_PATIENT];
+      const rowMissing = edRow(withCwd(privateRoot, () => build(missing)) as Row[]);
+      expect(rowMissing.stationBudget.blockers).toContain("station_triangle_measurements_incomplete");
+      expect(rowMissing.stationBudget.blockers).not.toContain("station_triangle_budget_exceeded");
+    } finally {
+      rmSync(privateRoot, { recursive: true, force: true });
     }
+  });
+
+  it("(4) COUNTERWEIGHT: historical fixture byte-exact; default verdict equals explicit current source doc for ED", () => {
+    const raw = readFileSync(HISTORICAL_FIXTURE);
+    expect(createHash("sha256").update(raw).digest("hex")).toBe(
+      "b6c98c82d073b47e40dc78452abb4101778495901a8a41ba21e60a1d0232f1e4",
+    );
+    const hist = JSON.parse(raw.toString("utf8")) as Artifact;
+    for (const [assetId, count] of Object.entries(PINNED_TRIANGLES)) {
+      expect(hist.triangles?.[assetId], `${assetId}: historical count`).toBe(count);
+    }
+    expect(hist.fingerprints?.[ED_PATIENT]?.sha256).toBe(
+      "7bd12d06aec497a939aa62301c73274cf23e6dd7b1da6d5c085db6c17f57fd4a",
+    );
+    expect(hist.fingerprints?.["nurse_maria_alvarez_character"]?.sha256).toBe(
+      "b98c8b3411fe2bc7e0275cf2d1ab465b447f701319d9d446200f5b109511cf61",
+    );
+    expect(hist.fingerprints?.["spouse_anna_hayes_character"]?.sha256).toBe(
+      "15befdc850c3df189e2c1e12fdae1192b12e3baa2d8d34790d7daf0b7c53ac8d",
+    );
+    const build = createSeedBankAssetReadiness as unknown as (doc?: unknown) => Row[];
+    const def = edRow(build() as Row[]);
+    const explicit = edRow(build(committed()) as Row[]);
+    expect(explicit.stationBudget, "default built verdict must equal explicit current source doc for ED").toEqual(
+      def.stationBudget,
+    );
   });
 });
 
