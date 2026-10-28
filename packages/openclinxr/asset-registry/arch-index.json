@@ -88,6 +88,7 @@
     "src/environment-spatial-zones.test.ts",
     "src/every-cast-actor-is-staged-or-reported.test.ts",
     "src/object-store.test.ts",
+    "src/physician-cast-constant.test.ts",
     "src/runtime-asset-review.test.ts",
     "src/runtime-bundles.test.ts",
     "src/runtime-room-props.test.ts",

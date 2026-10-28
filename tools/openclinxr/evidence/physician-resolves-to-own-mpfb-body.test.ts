@@ -1,7 +1,6 @@
-import { describe, expect, it } from "vitest";
-
-import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+import { resolveScenarioActorCast } from "@openclinxr/asset-registry/runtime-bundles";
 import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
+import { describe, expect, it } from "vitest";
 
 /**
  * 2026-08-14 medical wardrobe — the physician is no longer a shared clinical-team
@@ -61,12 +60,5 @@ describe("the physician resolves to its own MPFB body", () => {
         `/generated-humanoids/${NURSE_GLB}`,
       );
     }
-  });
-
-  it("the physician GLB constant mirrors the runtime path in cast-asset-constants", async () => {
-    const mod = await import(
-      "../../../packages/openclinxr/asset-registry/src/cast-asset-constants.js"
-    );
-    expect(mod.MPFB_CLINICAL_PHYSICIAN_ADULT_GLB).toBe(PHYSICIAN_GLB);
   });
 });

@@ -310,8 +310,6 @@ const FROZEN: readonly string[] = [
   "tools/openclinxr/evidence/patient-opening-utterance.ts -> ../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js",
   "tools/openclinxr/evidence/patient-opening-utterance.ts -> ../../../packages/openclinxr/xr-dialogue/src/initial-dialogue-text.js",
   "tools/openclinxr/evidence/per-station-actor-integrity.ts -> ../../../packages/openclinxr/asset-registry/src/actor-casting.js",
-  "tools/openclinxr/evidence/physician-resolves-to-own-mpfb-body.test.ts -> ../../../packages/openclinxr/asset-registry/src/actor-casting.js",
-  "tools/openclinxr/evidence/physician-resolves-to-own-mpfb-body.test.ts -> ../../../packages/openclinxr/asset-registry/src/cast-asset-constants.js",
   "tools/openclinxr/evidence/physics-placement-cagematch.ts -> ../../../packages/openclinxr/asset-registry/src/actor-casting.js",
   "tools/openclinxr/evidence/physics-placement-cagematch.ts -> ../../../packages/openclinxr/asset-registry/src/environment-descriptors.js",
   "tools/openclinxr/evidence/physics-placement-cagematch.ts -> ../../../packages/openclinxr/asset-registry/src/runtime-bundles.js",

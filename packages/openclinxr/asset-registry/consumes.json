@@ -276,6 +276,21 @@
     "entrypoint": "./runtime-asset-review",
     "names": [
       {
+        "name": "EncounterBundleFactoryMember",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "EncounterBundleFactoryMemberKind",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "RuntimeAssetReviewDecision",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
         "name": "promoteEncounterRuntimeAssetBundleForLocalUse",
         "kind": "runtime"
       },
@@ -285,8 +300,8 @@
         "via": "own-test"
       },
       {
-        "name": "RuntimeAssetReviewDecision",
-        "kind": "type",
+        "name": "promoteReviewedFactoryOutputsToImmutableEncounterBundle",
+        "kind": "runtime",
         "via": "own-test"
       }
     ]

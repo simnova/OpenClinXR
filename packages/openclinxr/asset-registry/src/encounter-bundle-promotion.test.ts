@@ -5,12 +5,12 @@ import {
   resolveRuntimeAssetStoreConfig,
 } from "@openclinxr/asset-registry/runtime-bundles";
 import { describe, expect, it } from "vitest";
+import type { RuntimeAssetReviewDecision } from "./runtime-asset-review.js";
 import {
   type EncounterBundleFactoryMember,
   type EncounterBundleFactoryMemberKind,
   promoteReviewedFactoryOutputsToImmutableEncounterBundle,
-} from "./encounter-bundle-promotion.js";
-import type { RuntimeAssetReviewDecision } from "./runtime-asset-review.js";
+} from "./runtime-asset-review.js";
 
 const STORE = resolveRuntimeAssetStoreConfig({
   storeKind: "azurite_blob",
