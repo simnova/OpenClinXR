@@ -13,26 +13,46 @@
  * garment fit (#131), clinical realism, promotion of any candidate.
  */
 
-import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { withComputeSlotSync } from "@openclinxr/compute-slots/slots";
+import { createHash } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
-  readFileSync,
   readdirSync,
+  readFileSync,
   statSync,
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeIO, type Document, type Mesh, type Primitive } from "@gltf-transform/core";
+import { type Document, type Mesh, NodeIO, type Primitive } from "@gltf-transform/core";
+import { listShippedCastScenarioIds } from "@openclinxr/asset-registry";
+import { resolveScenarioActorCast } from "@openclinxr/asset-registry/runtime-bundles";
+import { withComputeSlotSync } from "@openclinxr/compute-slots/slots";
+import { liveCastAssetPaths } from "../openclaw/runtime-humanoid-reachability.js";
+import {
+  countConnectedComponents,
+  type ExcludedSubject,
+  type FixtureProof,
+  parseObjMesh,
+  resolveBaseSubject,
+} from "./hm08-rig-carry-base-resolve.js";
+import {
+  isDeclarationOnly,
+  validateDeclarationOnly,
+} from "./provenance-artifact-kind.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
 
 const HUMANOID_DIR = path.join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
-const EVIDENCE_DIR = path.join(REPO_ROOT, ".openclinxr/evidence/issue-134");
+// IO routing only: optional explicit evidence output dir override. Empty/undefined
+// keeps the byte-equivalent historical default path below. No source/export change.
+const EVIDENCE_DIR = path.resolve(
+  process.env.OPENCLINXR_HM08_EVIDENCE_DIR?.trim()
+    ? process.env.OPENCLINXR_HM08_EVIDENCE_DIR
+    : path.join(REPO_ROOT, ".openclinxr/evidence/issue-134"),
+);
 const PRE_FIX_PATH = path.join(EVIDENCE_DIR, "pre-fix.json");
 const REPORT_PATH = path.join(EVIDENCE_DIR, "probe-report.json");
 const CANDIDATE_GLB = path.join(EVIDENCE_DIR, "hm08-rig-carry-candidate.glb");
@@ -117,7 +137,14 @@ export type PreFixSubject = {
   uniqueVertPositions: number;
   baseVertCount: number;
   contentSha256Prefix: string;
+  /** Repo-relative tracked base OBJ actually read (provenance ref or basename fallback). */
+  baseObjPath?: string;
+  /** Which resolution leg located baseObjPath. Absent only for rows written before #134 fix. */
+  baseObjSource?: "provenance-ref" | "basename-fallback";
 };
+
+/** MPFB-rail outputs excluded from the Anny comparison with reason + evidence. */
+export type { ExcludedSubject };
 
 export type InspectReport = {
   bake: BakeComparison[];
@@ -161,73 +188,8 @@ function listShippedHumanoidGlbs(): string[] {
     .sort();
 }
 
-function countConnectedComponents(vertCount: number, faces: number[][]): number {
-  const adj: number[][] = Array.from({ length: vertCount }, () => []);
-  const used = new Uint8Array(vertCount);
-  for (const f of faces) {
-    for (let i = 0; i < f.length; i += 1) {
-      const a = f[i]!;
-      const b = f[(i + 1) % f.length]!;
-      if (a < 0 || b < 0 || a >= vertCount || b >= vertCount) continue;
-      adj[a]!.push(b);
-      adj[b]!.push(a);
-      used[a] = 1;
-      used[b] = 1;
-    }
-  }
-  const seen = new Uint8Array(vertCount);
-  let components = 0;
-  for (let i = 0; i < vertCount; i += 1) {
-    if (!used[i] || seen[i]) continue;
-    components += 1;
-    const stack = [i];
-    seen[i] = 1;
-    while (stack.length > 0) {
-      const u = stack.pop()!;
-      for (const v of adj[u] ?? []) {
-        if (!seen[v]) {
-          seen[v] = 1;
-          stack.push(v);
-        }
-      }
-    }
-  }
-  return components;
-}
-
-function parseObjMesh(objPath: string): {
-  vertCount: number;
-  faceCount: number;
-  triangles: number;
-  connectedComponents: number;
-} {
-  const text = readFileSync(objPath, "utf8");
-  let vertCount = 0;
-  const faces: number[][] = [];
-  for (const line of text.split(/\r?\n/)) {
-    if (line.startsWith("v ")) {
-      vertCount += 1;
-    } else if (line.startsWith("f ")) {
-      const idxs = line
-        .trim()
-        .split(/\s+/)
-        .slice(1)
-        .map((tok: string) => {
-          const vi = Number.parseInt(tok.split("/")[0] ?? "", 10);
-          return vi < 0 ? vertCount + vi : vi - 1;
-        });
-      faces.push(idxs);
-    }
-  }
-  let triangles = 0;
-  for (const f of faces) triangles += Math.max(0, f.length - 2);
-  return {
-    vertCount,
-    faceCount: faces.length,
-    triangles,
-    connectedComponents: countConnectedComponents(vertCount, faces),
-  };
-}
+// countConnectedComponents + parseObjMesh moved to ./hm08-rig-carry-base-resolve.ts
+// (runner line budget; behavior unchanged; imported above).
 
 function primitiveFaces(prim: Primitive): {
   vertCount: number;
@@ -413,19 +375,45 @@ export async function writePreFixInventory(outPath: string = PRE_FIX_PATH): Prom
   mkdirSync(path.dirname(outPath), { recursive: true });
   const io = new NodeIO();
   const subjects: PreFixSubject[] = [];
+  const excluded: ExcludedSubject[] = [];
+  // Live cast from the resolver the product uses — the shared fixture proof
+  // checks declaration-only sidecars against THIS set, no dummy list.
+  const fixtureProof: FixtureProof = {
+    isDeclarationOnlyFixture: isDeclarationOnly,
+    validateFixture: validateDeclarationOnly,
+    liveAssetPaths: liveCastAssetPaths({ listShippedCastScenarioIds, resolveScenarioActorCast }),
+  };
 
   for (const glbPath of listShippedHumanoidGlbs()) {
-    const baseObj = glbPath.replace(/\.glb$/i, ".anny_base.obj");
-    if (!existsSync(baseObj)) {
-      throw new Error(`missing base OBJ for ${glbPath}: expected ${baseObj}`);
+    const assetPath = path.relative(REPO_ROOT, glbPath).replace(/\\/g, "/");
+    const glbBytes = readFileSync(glbPath);
+    const actualDoc = await io.read(glbPath);
+    const actualGlbSha256 = createHash("sha256").update(glbBytes).digest("hex");
+    const bodyMeshNames = actualDoc.getRoot().listMeshes().map((m) => m.getName() ?? "");
+    const subject = resolveBaseSubject(glbPath, REPO_ROOT, fixtureProof, {
+      actualGlbSha256,
+      bodyMeshNames,
+    });
+    if (subject.kind === "error") {
+      const excludedSoFar = excluded.map((e) => `${e.assetPath} [${e.reason}]`).join("; ");
+      throw new Error(
+        `missing base OBJ for ${glbPath}: ${subject.reason} ` +
+          `(attempted: ${subject.attempted.join(", ")})` +
+          (excludedSoFar.length > 0 ? ` (excluded non-Anny so far: ${excludedSoFar})` : ""),
+      );
     }
+    if (subject.kind === "excluded-noncomparable" || subject.kind === "excluded-fixture") {
+      excluded.push({ assetPath, reason: subject.reason, evidence: subject.evidence });
+      continue;
+    }
+    const baseObj = subject.baseObj;
     const obj = parseObjMesh(baseObj);
-    const doc = await io.read(glbPath);
+    const doc = actualDoc;
     const body = bodyMeshAnalysis(doc);
     if (!body) throw new Error(`no anny_base body mesh in ${glbPath}`);
     const joints = jointsAsThreeJs(doc);
     subjects.push({
-      assetPath: path.relative(REPO_ROOT, glbPath).replace(/\\/g, "/"),
+      assetPath,
       baseObjTris: obj.triangles,
       glbTris: totalGlbTriangles(doc),
       bodyMeshTris: body.triangles,
@@ -441,6 +429,8 @@ export async function writePreFixInventory(outPath: string = PRE_FIX_PATH): Prom
       uniqueVertPositions: body.uniqueVertPositions,
       baseVertCount: obj.vertCount,
       contentSha256Prefix: sha256Prefix(glbPath),
+      baseObjPath: path.relative(REPO_ROOT, baseObj).replace(/\\/g, "/"),
+      baseObjSource: subject.baseObjSource,
     });
   }
 
@@ -456,6 +446,10 @@ export async function writePreFixInventory(outPath: string = PRE_FIX_PATH): Prom
       "artefact (boundary verts duplicated) and do NOT answer surface continuity. " +
       "Withdrawn prior measure: body_mesh_connected_components as sum of per-prim index islands.",
     subjects,
+    excluded,
+    excludedNote:
+      "MPFB-rail outputs (proven by their own sourceKind, no anny lineage) have no anny base " +
+      "and are excluded from the Anny base-vs-bake comparison with reason + evidence, never silently skipped.",
     notes: {
       jointNameConvention:
         "jointNamesAsThreeJsSeesThem use PropertyBinding.sanitizeNodeName (dots stripped)",
