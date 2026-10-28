@@ -1,9 +1,25 @@
 import { Bone, BoxGeometry, Color, Float32BufferAttribute, Group, Mesh, MeshStandardMaterial, Skeleton, SkinnedMesh } from "three";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { addActorSpecificIdentityVariantCue, addRoleSpecificHumanoidVisuals, addScenarioSpecificClinicalTeamCue, addScenarioSpecificFamilyCue, addScenarioSpecificPatientCue, configureSemanticRolePoseOverlay, runtimeHumanoidVariantAssetPath, shouldShowProceduralHumanoidDetailCues, tintGeneratedSceneMaterials } from "./index.js";
 import { readSelectedHumanoidSourceComparator, rebindHeadLockedTeeth } from "./generated-loaders.js";
+import { type AssetLoadingContext, addActorSpecificIdentityVariantCue, addRoleSpecificHumanoidVisuals, addScenarioSpecificClinicalTeamCue, addScenarioSpecificFamilyCue, addScenarioSpecificPatientCue, configureSemanticRolePoseOverlay, loadGeneratedEquipmentIntoSceneSlot, runtimeHumanoidVariantAssetPath, shouldShowProceduralHumanoidDetailCues, tintGeneratedSceneMaterials } from "./index.js";
 import { tintGeneratedMaterial } from "./material-tint.js";
-import type { AssetLoadingContext } from "./types.js";
+
+type LoadSceneSlotOptions = Parameters<typeof loadGeneratedEquipmentIntoSceneSlot>[2];
+
+const loadCallbacks: Array<(gltf: { scene: Group; animations: never[] }) => void> = [];
+
+vi.mock("three/addons/loaders/GLTFLoader.js", () => ({
+  GLTFLoader: class {
+    setMeshoptDecoder(): void {}
+    load(_url: string, onLoad: (gltf: { scene: Group; animations: never[] }) => void): void {
+      loadCallbacks.push(onLoad);
+    }
+  },
+}));
+
+vi.mock("three/addons/libs/meshopt_decoder.module.js", () => ({
+  MeshoptDecoder: {},
+}));
 
 function stubContext(overrides: Partial<AssetLoadingContext> = {}): AssetLoadingContext {
   const recorded: Array<{ actorId: string; cueId: string; sceneObjectName: string }> = [];
@@ -256,5 +272,69 @@ describe("rebindHeadLockedTeeth", () => {
     for (const v of upper) expect(mesh.skeleton.bones[strongestJoint(mesh, v)]?.name).toBe("head");
     rebindHeadLockedTeeth(root);
     for (const v of upper) expect(mesh.skeleton.bones[strongestJoint(mesh, v)]?.name).toBe("head");
+  });
+});
+
+describe("loadGeneratedEquipmentIntoSceneSlot normalize-before-marker order", () => {
+  it("normalizes the GLB body before the affordance marker is attached", () => {
+    loadCallbacks.length = 0;
+    const seenChildCounts: number[] = [];
+    let markerPresentAtNormalize = false;
+    let bodyMeshPresentAtNormalize = false;
+    let bodyMeshRef: Mesh | null = null;
+    const ctx = stubContext({
+      normalizeEquipmentMount: (equipment: Group) => {
+        seenChildCounts.push(equipment.children.length);
+        markerPresentAtNormalize = equipment.children.some(
+          (child) => typeof (child.userData as Record<string, unknown>)["openClinXrAffordanceCueId"] === "string",
+        );
+        bodyMeshPresentAtNormalize =
+          bodyMeshRef !== null && equipment.children.includes(bodyMeshRef);
+        const wrapper = new Group();
+        wrapper.name = "synthetic_mount_fixture";
+        const stand = new Group();
+        stand.name = "synthetic_stand_fixture";
+        wrapper.add(equipment);
+        wrapper.add(stand);
+        return wrapper;
+      },
+      affordanceMarker: (cueId: string) => {
+        const marker = new Mesh(new BoxGeometry(0.02, 0.02, 0.02), new MeshStandardMaterial({ color: 0x35d39b }));
+        (marker.userData as Record<string, unknown>)["openClinXrAffordanceCueId"] = cueId;
+        return marker;
+      },
+    });
+    const sceneSlot = new Group();
+    sceneSlot.position.y = 0;
+    (sceneSlot.userData as Record<string, unknown>)["openClinXrEquipmentId"] = "bedside_monitor_equipment";
+    const options: LoadSceneSlotOptions = {
+      assetId: "bedside_monitor_equipment",
+      assetPath: "/bedside-monitor-generated.glb",
+      objectName: "bedside_monitor",
+    };
+    loadGeneratedEquipmentIntoSceneSlot(ctx, sceneSlot, options);
+    expect(loadCallbacks.length).toBe(1);
+    const body = new Group();
+    body.name = "bedside_monitor";
+    const bodyMesh = new Mesh(new BoxGeometry(0.38, 0.3, 0.22), new MeshStandardMaterial({ color: 0xffffff }));
+    bodyMesh.position.y = 0.042 + 0.15;
+    bodyMeshRef = bodyMesh;
+    body.add(bodyMesh);
+    loadCallbacks[0]?.({ scene: body, animations: [] });
+    expect(seenChildCounts).toEqual([1]);
+    expect(markerPresentAtNormalize).toBe(false);
+    expect(bodyMeshPresentAtNormalize).toBe(true);
+    const wrapper = sceneSlot.children.find((child) => child.name === "synthetic_mount_fixture") as Group | undefined;
+    expect(wrapper).toBeDefined();
+    if (wrapper === undefined) throw new Error("mounted wrapper missing");
+    const original = wrapper.children.find((child) => child.name === "bedside_monitor") as Group | undefined;
+    expect(original).toBeDefined();
+    if (original === undefined) throw new Error("original equipment missing from wrapper");
+    expect(original.children.includes(bodyMeshRef)).toBe(true);
+    const marker = original.children.find(
+      (child) => typeof (child.userData as Record<string, unknown>)["openClinXrAffordanceCueId"] === "string",
+    );
+    expect(marker).toBeInstanceOf(Mesh);
+    expect(marker?.parent).toBe(original);
   });
 });

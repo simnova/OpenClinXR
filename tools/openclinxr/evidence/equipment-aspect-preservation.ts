@@ -18,9 +18,8 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
-import { REAL_EQUIPMENT_GLTF_BY_ID } from "@openclinxr/xr-station";
-import { measureParametricComposite } from "@openclinxr/xr-station";
-import { inspectDeclaredEquipmentMounting, type DeclaredEquipmentMountingReport } from "./declared-equipment-mounted.js";
+import { measureParametricComposite, REAL_EQUIPMENT_GLTF_BY_ID } from "@openclinxr/xr-station";
+import { type DeclaredEquipmentMountingReport, inspectDeclaredEquipmentMounting } from "./declared-equipment-mounted.js";
 
 export const ISSUE_268_EVIDENCE_DIR = ".openclinxr/evidence/issue-268";
 export const PRE_FIX_NAME = "pre-fix.json";
@@ -134,8 +133,9 @@ export async function measureGltfAssetLocalBounds(): Promise<
         if (!pos) continue;
         const arr = pos.getArray();
         if (!arr) continue;
-        const node = root.listNodes().find((n) => n.getMesh() === mesh);
-        const m = node ? node.getWorldMatrix() : null;
+        const nodes = root.listNodes().filter((n) => n.getMesh() === mesh);
+        for (const node of nodes) {
+        const m = node.getWorldMatrix();
         if (!m) continue;
         for (let i = 0; i < pos.getCount(); i += 1) {
           const x = arr[i * 3];
@@ -151,6 +151,7 @@ export async function measureGltfAssetLocalBounds(): Promise<
           if (wy > max[1]) max[1] = wy;
           if (wz > max[2]) max[2] = wz;
           found = true;
+        }
         }
       }
     }

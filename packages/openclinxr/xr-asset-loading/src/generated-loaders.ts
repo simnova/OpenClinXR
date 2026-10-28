@@ -17,7 +17,9 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { type LoadSceneSlotOptions, stampEquipmentSlotIdentity } from "./equipment-slot-identity.js";
 import { registerGeneratedHumanoidAnimation } from "./humanoid-animation.js";
 import { rebindHeadLockedTeeth } from "./rebind-head-locked-teeth.js";
+
 export { rebindHeadLockedTeeth };
+
 import { addRoleSpecificHumanoidVisuals } from "./role-visuals.js";
 import type { AssetLoadingContext, HumanoidSourceComparator } from "./types.js";
 import { runtimeHumanoidVariantAssetPath } from "./variant-paths.js";
@@ -441,7 +443,6 @@ export function loadGeneratedEquipmentIntoSceneSlot(
       const equipment = gltf.scene;
       equipment.name = options.objectName;
       (equipment.userData as Record<string, unknown>)["openClinXrAffordances"] = ["selectable_equipment_reference", "clinical_workflow_cue"];
-      equipment.add(ctx.affordanceMarker(`${options.objectName}:equipment_reference`, 0x35d39b));
       if (ctx.shouldSuppressEquipmentModel(options.assetId, options.assetPath)) {
         recordSceneAssetStatus({
           assetId: options.assetId,
@@ -463,6 +464,7 @@ export function loadGeneratedEquipmentIntoSceneSlot(
         child.visible = false;
       }
       sceneSlot.add(ctx.normalizeEquipmentMount(equipment, sceneSlot));
+      equipment.add(ctx.affordanceMarker(`${options.objectName}:equipment_reference`, 0x35d39b));
       (sceneSlot.userData as Record<string, unknown>)["openClinXrEquipmentSource"] = "gltf";
       if (ctx.environmentStatePresent()) {
         ctx.applyEquipmentTraceVisuals();
