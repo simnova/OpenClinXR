@@ -74,10 +74,10 @@ import { describe, expect, it } from "vitest";
 
 const GLB = "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb";
 const CAP_SOURCE = "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
-const BODY = "mpfb_ob_patient_aisha_body";
-const SKIN_MAT = "mpfb_skin_ob_patient_aisha";
-const TEETH = "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh";
-const TONGUE = "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh";
+const BODY = "mpfb_peds_anxious_parent_body";
+const SKIN_MAT = "mpfb_skin_peds_anxious_parent";
+const TEETH = "openclinxr_hm08_teeth_mpfb_peds_anxious_parent_mesh";
+const TONGUE = "openclinxr_hm08_tongue_mpfb_peds_anxious_parent_mesh";
 
 /** The teeth's own band, measured from its AABB at the planting commit. */
 const Y_LO = 1.4746;
