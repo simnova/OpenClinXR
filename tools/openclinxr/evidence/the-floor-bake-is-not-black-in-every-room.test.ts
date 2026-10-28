@@ -64,9 +64,11 @@
  *
  * THIS HEADER IS IMMUTABLE. Flip the assertion and append a `## FIXED (#641)` block below.
  */
-import { NodeIO } from "@gltf-transform/core";
+
 import { existsSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { NodeIO } from "@gltf-transform/core";
+import { KHRTextureTransform } from "@gltf-transform/extensions";
 import { describe, expect, it } from "vitest";
 import { regionLuminance } from "./lib/png-region-luminance.js";
 
@@ -76,7 +78,8 @@ const BANK = resolve(REPO, "apps/ui-xr/public/xr-assets/environment");
 /** Materials whose bake covers a floor. Derived from the shader classes named in the card. */
 const FLOOR_SHADER = /tile|dirt|bone|rug|floor/i;
 /** The known-good column. Asserted on only to prove the instrument can see a good bake. */
-const WALL_SHADER = /plaster/i;
+// Migration 2026-10-28: wall selector also matches shell_bake_wall (current producer role); legacy plaster retained.
+const WALL_SHADER = /plaster|shell_bake_wall/i;
 /** From the empty gap between the floor population (<=7.4%) and the wall known-good (100%). */
 const MIN_NON_BLACK_PCT = 50;
 
@@ -93,7 +96,7 @@ function roomAssets(dir: string, out: string[] = []): string[] {
 type Bake = { room: string; material: string; pct: number; bytes: number };
 
 async function measureBakes(): Promise<{ floors: Bake[]; walls: Bake[] }> {
-  const io = new NodeIO();
+  const io = new NodeIO().registerExtensions([KHRTextureTransform]);
   const floors: Bake[] = [];
   const walls: Bake[] = [];
   for (const path of roomAssets(BANK)) {
@@ -156,7 +159,7 @@ describe("#641 the floor base-colour bake is not black", () => {
     // The card measured baseColorFactor [1,1,1,1] on all four materials of the peds room, so the
     // black is in the texture. Raising the factor would brighten the render without fixing the bake
     // and would also brighten anything else using that material.
-    const io = new NodeIO();
+    const io = new NodeIO().registerExtensions([KHRTextureTransform]);
     for (const path of roomAssets(BANK)) {
       const doc = await io.read(path);
       for (const material of doc.getRoot().listMaterials()) {
