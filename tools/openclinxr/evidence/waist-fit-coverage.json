@@ -52,15 +52,24 @@
       "source": "cast",
       "skipped": true,
       "skipReason": "no lower trouser mesh — gowned or single-layer wardrobe; waist meet is not applicable",
-      "upperName": "mat_makeclothes_library_toigo_t_shirt",
+      "upperName": null,
+      "lowerName": null,
+      "gapped": 0
+    },
+    {
+      "id": "mpfb-gown-ed-robert-hayes",
+      "source": "cast",
+      "skipped": true,
+      "skipReason": "no lower trouser mesh — gowned or single-layer wardrobe; waist meet is not applicable",
+      "upperName": null,
       "lowerName": null,
       "gapped": 0
     },
     {
       "id": "mpfb-ob-patient-aisha",
       "source": "cast",
-      "skipped": true,
-      "skipReason": "lower garment present but fewer than 12 comparable hem/waistband buckets — not a silent pass",
+      "overlapMm": 4.7,
+      "bucketCount": 28,
       "upperName": "mat_makeclothes_library_toigo_t_shirt",
       "lowerName": "mat_makeclothes_library_female_tight_jeans_pants",
       "gapped": 0
