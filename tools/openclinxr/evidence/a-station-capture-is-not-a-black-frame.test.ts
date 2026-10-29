@@ -1,8 +1,13 @@
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { classifyCaptureFrame, UNIFORM_SD_CEILING, regionLuminance } from "./lib/png-region-luminance.js";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import {
+	classifyCaptureFrame,
+	regionLuminance,
+	UNIFORM_SD_CEILING,
+} from "./lib/png-region-luminance.js";
+import { resolveRoomFrameInput } from "./room-frame-loader.js";
 
 /**
  * **A station can render NOTHING and every contract in this repo still passes.**
@@ -113,8 +118,14 @@ import { describe, expect, it } from "vitest";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
-const CAPTURE_DIR =
-  process.env.OPENCLINXR_FRAME_PROBE_DIR ?? join(REPO_ROOT, ".openclinxr/evidence/ui-xr-environment-room/latest");
+const resolved = resolveRoomFrameInput({
+	explicitEnvDir: process.env.OPENCLINXR_FRAME_PROBE_DIR,
+	fixtureDir: join(HERE, "fixtures", "room-frames"),
+	repoRoot: REPO_ROOT,
+});
+if (resolved.kind === "error")
+	throw new Error(`[room-frames] ${resolved.reason}`);
+const CAPTURE_DIR = resolved.dir;
 
 const SUBJECT = "peds_asthma_parent_anxiety_v1";
 const KNOWN_GOOD = "ed_chest_pain_priority_v1";
@@ -123,26 +134,38 @@ const FLOOR_FRACTION = 0.5;
 /** Luminance below this counts as black. A rendered dark surface still carries texture noise above it. */
 const BLACK_LUMA = 12;
 
-type Frame = { id: string; nonBlackPct: number; mean: number; sd: number; classification: ReturnType<typeof classifyCaptureFrame> };
+type Frame = {
+	id: string;
+	nonBlackPct: number;
+	mean: number;
+	sd: number;
+	classification: ReturnType<typeof classifyCaptureFrame>;
+};
 
 async function readFrames(): Promise<Frame[]> {
-  if (!existsSync(CAPTURE_DIR)) throw new Error("missing artifact");
-  const out: Frame[] = [];
-  for (const file of readdirSync(CAPTURE_DIR).filter((f) => f.endsWith("-room.png")).sort()) {
-    const abs = join(CAPTURE_DIR, file);
-    if (!statSync(abs).isFile()) continue;
-    // The 3D viewport: left 68%, excluding the top strip and the bottom status bar.
-    const r = regionLuminance(readFileSync(abs), { left: 0, top: 0.1, width: 0.68, height: 0.8 }, { blackLuma: BLACK_LUMA, step: 6 });
-    if (!r) continue;
-    out.push({
-      id: file.replace(/-room\.png$/u, ""),
-      nonBlackPct: r.nonBlackPct,
-      mean: r.mean,
-      sd: r.sd,
-      classification: classifyCaptureFrame(readFileSync(abs)),
-    });
-  }
-  return out;
+	if (!existsSync(CAPTURE_DIR)) throw new Error("missing artifact");
+	const out: Frame[] = [];
+	for (const file of readdirSync(CAPTURE_DIR)
+		.filter((f) => f.endsWith("-room.png"))
+		.sort()) {
+		const abs = join(CAPTURE_DIR, file);
+		if (!statSync(abs).isFile()) continue;
+		// The 3D viewport: left 68%, excluding the top strip and the bottom status bar.
+		const r = regionLuminance(
+			readFileSync(abs),
+			{ left: 0, top: 0.1, width: 0.68, height: 0.8 },
+			{ blackLuma: BLACK_LUMA, step: 6 },
+		);
+		if (!r) continue;
+		out.push({
+			id: file.replace(/-room\.png$/u, ""),
+			nonBlackPct: r.nonBlackPct,
+			mean: r.mean,
+			sd: r.sd,
+			classification: classifyCaptureFrame(readFileSync(abs)),
+		});
+	}
+	return out;
 }
 
 const frames = await readFrames();
@@ -152,52 +175,77 @@ const frames = await readFrames();
  * cannot guard its own vacuity — it is satisfied by ANY failure, including this guard throwing.
  */
 function requireFrames(): { all: Frame[]; good: Frame } {
-  expect(frames.length, `station frames read under ${CAPTURE_DIR}`).toBeGreaterThanOrEqual(2);
-  const good = frames.find((f) => f.id === KNOWN_GOOD);
-  expect(good, `${KNOWN_GOOD} frame present as the known-good column`).toBeDefined();
-  return { all: frames, good: good as Frame };
+	expect(
+		frames.length,
+		`station frames read under ${CAPTURE_DIR}`,
+	).toBeGreaterThanOrEqual(2);
+	const good = frames.find((f) => f.id === KNOWN_GOOD);
+	expect(
+		good,
+		`${KNOWN_GOOD} frame present as the known-good column`,
+	).toBeDefined();
+	return { all: frames, good: good as Frame };
 }
 
 describe("a station capture is not a black frame", () => {
-  it("(1) every captured station renders something — INVERTED GUARD (#172), was `nonBlackPct < floor`", () => {
-    // Superseded assertion, kept as an inverted guard: nonBlackPct bounds only the dark end, so the
-    // old form alone admitted a blank WHITE frame at 100%. The verdict now comes from
-    // classifyCaptureFrame, which refuses a UNIFORM frame at either exposure on variance.
-    const { all } = requireFrames();
-    const uniform = all.filter((f) => f.classification?.uniform);
-    expect(
-      uniform.map((f) => `${f.id} classified uniform: sd ${f.sd.toFixed(2)} <= ceiling ${UNIFORM_SD_CEILING}`),
-      "a station that rendered nothing is refused whether it came out black or white",
-    ).toEqual([]);
-    // The original dark-end bound survives beside the generalised verdict, so the floor's
-    // known-good column keeps doing its job.
-    const { good } = requireFrames();
-    const floor = FLOOR_FRACTION * good.nonBlackPct;
-    expect(all.filter((f) => f.nonBlackPct < floor).map((f) => `${f.id} ${f.nonBlackPct.toFixed(1)}%`)).toEqual([]);
-  });
+	it("(1) every captured station renders something — INVERTED GUARD (#172), was `nonBlackPct < floor`", () => {
+		// Superseded assertion, kept as an inverted guard: nonBlackPct bounds only the dark end, so the
+		// old form alone admitted a blank WHITE frame at 100%. The verdict now comes from
+		// classifyCaptureFrame, which refuses a UNIFORM frame at either exposure on variance.
+		const { all } = requireFrames();
+		const uniform = all.filter((f) => f.classification?.uniform);
+		expect(
+			uniform.map(
+				(f) =>
+					`${f.id} classified uniform: sd ${f.sd.toFixed(2)} <= ceiling ${UNIFORM_SD_CEILING}`,
+			),
+			"a station that rendered nothing is refused whether it came out black or white",
+		).toEqual([]);
+		// The original dark-end bound survives beside the generalised verdict, so the floor's
+		// known-good column keeps doing its job.
+		const { good } = requireFrames();
+		const floor = FLOOR_FRACTION * good.nonBlackPct;
+		expect(
+			all
+				.filter((f) => f.nonBlackPct < floor)
+				.map((f) => `${f.id} ${f.nonBlackPct.toFixed(1)}%`),
+		).toEqual([]);
+	});
 
-  it("(4) #172 COUNTERWEIGHT: no captured station is a UNIFORM frame at either exposure", () => {
-    // The white half of the defect, stated against the live population. classifyCaptureFrame is
-    // exposure-blind by derivation: the black peds failure sat at viewport sd 4.9, the dimmest
-    // textured fixture at 17.36, and every one of today's shipped stations measured well above the
-    // 9.22 ceiling (dimmest real capture: ed_stroke_alert_handoff_v1 at 36.01).
-    const { all } = requireFrames();
-    const undecodable = all.filter((f) => f.classification === null);
-    expect(undecodable.map((f) => f.id), "every capture decodes; an undecodable frame is undetermined").toEqual([]);
-    const uniform = all.filter((f) => f.classification?.uniform);
-    expect(uniform.map((f) => f.id), `ceiling ${UNIFORM_SD_CEILING} derived in lib/png-region-luminance.ts`).toEqual([]);
-  });
+	it("(4) #172 COUNTERWEIGHT: no captured station is a UNIFORM frame at either exposure", () => {
+		// The white half of the defect, stated against the live population. classifyCaptureFrame is
+		// exposure-blind by derivation: the black peds failure sat at viewport sd 4.9, the dimmest
+		// textured fixture at 17.36, and every one of today's shipped stations measured well above the
+		// 9.22 ceiling (dimmest real capture: ed_stroke_alert_handoff_v1 at 36.01).
+		const { all } = requireFrames();
+		const undecodable = all.filter((f) => f.classification === null);
+		expect(
+			undecodable.map((f) => f.id),
+			"every capture decodes; an undecodable frame is undetermined",
+		).toEqual([]);
+		const uniform = all.filter((f) => f.classification?.uniform);
+		expect(
+			uniform.map((f) => f.id),
+			`ceiling ${UNIFORM_SD_CEILING} derived in lib/png-region-luminance.ts`,
+		).toEqual([]);
+	});
 
-  it("(2) COUNTERWEIGHT: the known-good frame is not darkened to lower the bar", () => {
-    // Refuses (c). The floor is a function of this frame, so dimming it widens the gate for everyone.
-    const { good } = requireFrames();
-    expect(good.nonBlackPct, `${KNOWN_GOOD} non-black share, measured 70.3% on 2026-08-14`).toBeGreaterThanOrEqual(50);
-  });
+	it("(2) COUNTERWEIGHT: the known-good frame is not darkened to lower the bar", () => {
+		// Refuses (c). The floor is a function of this frame, so dimming it widens the gate for everyone.
+		const { good } = requireFrames();
+		expect(
+			good.nonBlackPct,
+			`${KNOWN_GOOD} non-black share, measured 70.3% on 2026-08-14`,
+		).toBeGreaterThanOrEqual(50);
+	});
 
-  it("(3) COUNTERWEIGHT: the broken station is still in the measured population", () => {
-    // Refuses (b). This contract reads artifacts, so the cheapest green is to stop capturing the
-    // station that fails. The subject must remain present until it genuinely passes.
-    const { all } = requireFrames();
-    expect(all.map((f) => f.id), `${SUBJECT} must remain captured and measured`).toContain(SUBJECT);
-  });
+	it("(3) COUNTERWEIGHT: the broken station is still in the measured population", () => {
+		// Refuses (b). This contract reads artifacts, so the cheapest green is to stop capturing the
+		// station that fails. The subject must remain present until it genuinely passes.
+		const { all } = requireFrames();
+		expect(
+			all.map((f) => f.id),
+			`${SUBJECT} must remain captured and measured`,
+		).toContain(SUBJECT);
+	});
 });
