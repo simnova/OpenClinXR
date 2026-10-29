@@ -1,9 +1,14 @@
+import type { HumanoidExpressionEmotion } from "@openclinxr/xr-humanoid-animation";
 import {
   applyPedsActorPlayerSequenceListenerCues as applyPackagePedsActorPlayerSequenceListenerCues,
   recordPedsActorPlayerRuntimePlaybackEvidence as recordPackagePlaybackEvidence,
 } from "@openclinxr/xr-trace-readiness";
-import type { HumanoidExpressionEmotion } from "@openclinxr/xr-humanoid-animation";
 import type { PedsAdaptiveDialogueBranchResolution } from "./policy.js";
+import {
+  type SequenceSchedulerHost,
+  scheduleDurationGovernedSequence,
+} from "./sequence-scheduler.js";
+import { speechClockNowMs, speechClockRemainingMs } from "./speech-clock.js";
 import type {
   ActorDialogueAdaptiveEvidence,
   ActorDialoguePlaybackDeps,
@@ -291,22 +296,11 @@ export function playPedsActorPlayerRuntimeSequence(
         latestSequenceStepIndex: number;
       },
     ) => void;
-  },
+  } & SequenceSchedulerHost,
   sequence: ActorDialogueSequence,
   fallbackTurns: ActorDialogueTurn[],
 ): void {
-  sequence.turns.forEach((turn, stepIndex) => {
-    deps.scheduleTimeout(() => {
-      deps.playTurn(turn, {
-        turns: fallbackTurns,
-        latestTurnIndex: fallbackTurns.findIndex((fallbackTurn) => fallbackTurn.turnId === turn.turnId && fallbackTurn.actorId === turn.actorId),
-        latestTriggerSource: "trace_action",
-        latestTraceTag: sequence.traceTag,
-        latestSequence: sequence,
-        latestSequenceStepIndex: stepIndex,
-      });
-    }, stepIndex * 1150);
-  });
+  scheduleDurationGovernedSequence(deps, sequence, fallbackTurns);
 }
 
 export function triggerPedsActorPlayerRuntimeTurnForTrace(
@@ -389,6 +383,14 @@ export function schedulePedsActorPlayerRuntimePlaybackIfReady(
   const playNextTurn = (): void => {
     const nowMs = deps.nowMs();
     if (nowMs - deps.playbackLastTraceAtMs() < 3800 || nowMs < deps.playbackSequenceActiveUntilMs()) {
+      return;
+    }
+    const speechStillActive = deps.animationSlots().some((slot) => {
+      const activeSpeech = (slot as { activeSpeech?: { startedAtMs: number; durationMs: number } }).activeSpeech;
+      const clock = speechClockNowMs(slot as { root?: { userData?: Record<string, unknown> } }, nowMs);
+      return speechClockRemainingMs(activeSpeech, clock) > 0;
+    });
+    if (speechStillActive) {
       return;
     }
     const turn = turns[turnIndex % turns.length];

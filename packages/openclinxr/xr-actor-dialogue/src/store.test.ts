@@ -1,10 +1,16 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
-import { resolveLiveActorTurnForTrace } from "@openclinxr/xr-dialogue/package-actor-turn";
+import { phonemesForText, resolveLiveActorTurnForTrace } from "@openclinxr/xr-dialogue/package-actor-turn";
+import {
+  createHumanoidEmotionExpressionState,
+  type GeneratedHumanoidAnimationSlot,
+  humanoidDialogueDurationMs,
+} from "@openclinxr/xr-humanoid-animation";
 import type { HumanoidSpeechEvidence } from "@openclinxr/xr-runtime-state";
+import { Group, Line, Mesh } from "three";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createActorDialogueStore } from "./index.js";
 import type { ActorDialogueStoreOptions } from "./store.js";
-import type { ActorDialogueAdaptiveEvidence, ActorDialogueTurn } from "./types.js";
+import type { ActorDialogueAdaptiveEvidence, ActorDialogueSequence, ActorDialogueTurn } from "./types.js";
 
 function stubOptions(overrides: Partial<ActorDialogueStoreOptions> = {}): ActorDialogueStoreOptions {
   const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
@@ -107,6 +113,32 @@ function stubOptions(overrides: Partial<ActorDialogueStoreOptions> = {}): ActorD
   };
 }
 
+function genuineSlot(actorId: string): GeneratedHumanoidAnimationSlot {
+  const root = new Group();
+  const actorSlot = new Group();
+  actorSlot.add(root);
+  return {
+    actorId,
+    assetId: `${actorId}-asset`,
+    root,
+    actorSlot,
+    baseX: 0,
+    baseY: 0,
+    baseZ: 0,
+    baseScaleX: 1,
+    baseScaleY: 1,
+    baseScaleZ: 1,
+    baseRotationY: 0,
+    phaseOffsetMs: 0,
+    mouthCue: new Mesh(),
+    gazeCue: new Line(),
+    eyeFocusCue: new Group(),
+    expressionCue: new Group(),
+    emotionExpression: createHumanoidEmotionExpressionState({ deterministicClock: true }),
+    sourceComparatorFreezeEnabled: false,
+  };
+}
+
 describe("actor dialogue store", () => {
   beforeEach(() => {
     vi.useRealTimers();
@@ -163,5 +195,174 @@ describe("actor dialogue store", () => {
       kind: "learner_camera",
       actorId: null,
     });
+  });
+
+  it("latest direct sequence play invalidates earlier queued continuations", () => {
+    vi.useFakeTimers();
+    try {
+      const lines: string[] = [];
+      let now = 1000;
+      const base = stubOptions({
+        nowMs: () => now,
+        scheduleTimeout: (callback, delayMs) => {
+          setTimeout(callback, delayMs);
+        },
+        setDialogueLineText: (text) => {
+          lines.push(text);
+        },
+      });
+      const store = createActorDialogueStore(base);
+      const turns = base.fallbackTurns();
+      const first: ActorDialogueSequence = {
+        sequenceId: "seq_inhaler_history",
+        traceTag: "inhaler_history",
+        source: "single_runtime_turn",
+        turns: [turns[0]!, turns[2]!],
+      };
+      const second: ActorDialogueSequence = {
+        sequenceId: "seq_parent_communication",
+        traceTag: "parent_communication",
+        source: "single_runtime_turn",
+        turns: [turns[1]!],
+      };
+      store.playPedsActorPlayerRuntimeSequence(first, turns);
+      store.playPedsActorPlayerRuntimeSequence(second, turns);
+      now += 60000;
+      vi.advanceTimersByTime(60000);
+      expect(lines.length).toBeGreaterThan(0);
+      expect(lines.every((line) => !line.includes("watching her breathing"))).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("two-actor sequence holds the second actor until the first utterance ends", () => {
+    vi.useFakeTimers();
+    try {
+      const lines: string[] = [];
+      let now = 1000;
+      const parentCaption =
+        "Tara: She was up half the night coughing and I am really worried about her breathing right now.";
+      const base = stubOptions({
+        nowMs: () => now,
+        scheduleTimeout: (callback, delayMs) => {
+          setTimeout(callback, delayMs);
+        },
+        setDialogueLineText: (text) => {
+          lines.push(text);
+        },
+        liveTurnForTrace: () => undefined,
+      });
+      const parentDuration = humanoidDialogueDurationMs(phonemesForText(parentCaption).length, false);
+      expect(parentDuration).toBeGreaterThan(1150);
+      const store = createActorDialogueStore(base);
+      const turns = base.fallbackTurns();
+      const longParent: ActorDialogueTurn = { ...turns[1]!, text: parentCaption };
+      const sequence: ActorDialogueSequence = {
+        sequenceId: "seq_parent_then_nurse",
+        traceTag: "parent_communication",
+        source: "single_runtime_turn",
+        turns: [longParent, turns[2]!],
+      };
+      store.playPedsActorPlayerRuntimeSequence(sequence, turns);
+      vi.advanceTimersByTime(0);
+      expect(lines.length).toBe(1);
+      now += 1150;
+      vi.advanceTimersByTime(1150);
+      expect(lines.length).toBe(1);
+      now = 1000 + parentDuration;
+      vi.advanceTimersByTime(parentDuration - 1150);
+      expect(lines.length).toBe(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("divergent actor clock holds the second actor until the actor clock ends", () => {
+    vi.useFakeTimers();
+    try {
+      const lines: string[] = [];
+      const parentCaption =
+        "Tara: She was up half the night coughing and I am really worried about her breathing right now.";
+      let wallNow = 2000;
+      const parentSlot = genuineSlot("parent_tara_johnson_v1");
+      const nurseSlot = genuineSlot("nurse_kevin_lee_v1");
+      parentSlot.root.userData["openClinXrSpeechNowMs"] = 1000;
+      nurseSlot.root.userData["openClinXrSpeechNowMs"] = 1000;
+      const base = stubOptions({
+        nowMs: () => wallNow,
+        scheduleTimeout: (callback, delayMs) => {
+          setTimeout(callback, delayMs);
+        },
+        setDialogueLineText: (text) => {
+          lines.push(text);
+        },
+        liveTurnForTrace: () => undefined,
+        animationSlots: () => [parentSlot, nurseSlot],
+        animationSlotForActor: (actorId) =>
+          actorId === parentSlot.actorId ? parentSlot : actorId === nurseSlot.actorId ? nurseSlot : undefined,
+      });
+      const store = createActorDialogueStore(base);
+      const turns = base.fallbackTurns();
+      const longParent: ActorDialogueTurn = { ...turns[1]!, text: parentCaption };
+      const sequence: ActorDialogueSequence = {
+        sequenceId: "seq_divergent_actor_clock",
+        traceTag: "parent_communication",
+        source: "single_runtime_turn",
+        turns: [longParent, turns[2]!],
+      };
+      store.playPedsActorPlayerRuntimeSequence(sequence, turns);
+      vi.advanceTimersByTime(0);
+      expect(lines.length).toBe(1);
+      const firstSpeech = parentSlot.activeSpeech;
+      expect(firstSpeech).toBeDefined();
+      const startedAt = firstSpeech!.startedAtMs;
+      const duration = firstSpeech!.durationMs;
+      expect(startedAt).toBe(1000);
+      expect(duration).toBeGreaterThan(1150);
+      const actualEnd = startedAt + duration;
+      wallNow = actualEnd + 1000;
+      parentSlot.root.userData["openClinXrSpeechNowMs"] = actualEnd - 416.3;
+      vi.advanceTimersByTime(duration);
+      expect(lines.length).toBe(1);
+      parentSlot.root.userData["openClinXrSpeechNowMs"] = actualEnd;
+      delete parentSlot.activeSpeech;
+      vi.advanceTimersByTime(416.3 + 1);
+      expect(lines.length).toBe(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("missing actor callback cancels the queued continuation", () => {
+    vi.useFakeTimers();
+    try {
+      const lines: string[] = [];
+      let now = 1000;
+      const base = stubOptions({
+        nowMs: () => now,
+        scheduleTimeout: (callback, delayMs) => {
+          setTimeout(callback, delayMs);
+        },
+        setDialogueLineText: (text) => {
+          lines.push(text);
+        },
+        slotHasActor: () => false,
+      });
+      const store = createActorDialogueStore(base);
+      const turns = base.fallbackTurns();
+      const sequence: ActorDialogueSequence = {
+        sequenceId: "seq_missing_actor",
+        traceTag: "parent_communication",
+        source: "single_runtime_turn",
+        turns: [turns[1]!, turns[2]!],
+      };
+      store.playPedsActorPlayerRuntimeSequence(sequence, turns);
+      now += 60000;
+      vi.advanceTimersByTime(60000);
+      expect(lines.length).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

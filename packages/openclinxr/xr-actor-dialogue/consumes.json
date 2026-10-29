@@ -113,6 +113,10 @@
         "kind": "runtime"
       },
       {
+        "name": "createHumanoidEmotionExpressionState",
+        "kind": "runtime"
+      },
+      {
         "name": "GeneratedHumanoidAnimationSlot",
         "kind": "type"
       },

@@ -1,9 +1,8 @@
-import type { createActorAudioRuntime } from "@openclinxr/xr-dialogue/package-actor-turn";
 import type { LearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
-import type {
-  ActorTurnPlayback,
-  LiveActorTurnConsumption,
-} from "@openclinxr/xr-dialogue/package-actor-turn";
+import type { 
+  ActorTurnPlayback,createActorAudioRuntime, 
+  LiveActorTurnConsumption,} from "@openclinxr/xr-dialogue/package-actor-turn";
+import { phonemesForText } from "@openclinxr/xr-dialogue/package-actor-turn";
 import type {
   HumanoidDialogueEmotionContext,
   HumanoidDialogueGazeTarget,
@@ -12,7 +11,6 @@ import type {
 } from "@openclinxr/xr-humanoid-animation";
 import type { HumanoidSpeechEvidence } from "@openclinxr/xr-runtime-state";
 import type { PedsActorListenerCueContext } from "@openclinxr/xr-trace-readiness";
-import type { PedsAdaptiveDialogueBranchResolution } from "./policy.js";
 import {
   localDialogueActorIdForTraceTag,
   localDialogueGazeTargetForTraceTag,
@@ -24,7 +22,7 @@ import { playLiveFrozenActorTurn } from "./frozen-turn.js";
 import { initialDialogueTextForSelectedScenario } from "./initial-dialogue.js";
 import {
   applyPedsActorPlayerSequenceListenerCues,
-  dedupePedsActorPlayerRuntimeTurns,
+  dedupePedsActorPlayerRuntimeTurns,normalizePedsActorPlayerEmotion, 
   pedsActorPlayerBundleDialogueTurns,
   pedsActorPlayerRuntimeSequenceForTrace,
   pedsActorPlayerTurnForTraceTag,
@@ -33,14 +31,14 @@ import {
   playPedsActorPlayerRuntimeTurn,
   recordPedsActorPlayerRuntimePlaybackEvidence,
   schedulePedsActorPlayerRuntimePlaybackIfReady,
-  triggerPedsAdaptiveDialogueBranch,
   triggerPedsActorPlayerRuntimeTurnForTrace,
+  triggerPedsAdaptiveDialogueBranch
 } from "./playback.js";
+import type { PedsAdaptiveDialogueBranchResolution } from "./policy.js";
 import {
   triggerHumanoidDialogue,
   triggerHumanoidDialogueForTrace,
 } from "./speech.js";
-import { normalizePedsActorPlayerEmotion } from "./playback.js";
 import type {
   ActorDialogueAdaptiveEvidence,
   ActorDialogueDeps,
@@ -170,6 +168,7 @@ export function createActorDialogueStore(options: ActorDialogueStoreOptions): Ac
   let playbackScheduled = false;
   let playbackLastTraceAtMs = 0;
   let playbackSequenceActiveUntilMs = 0;
+  let sequenceGeneration = 0;
 
   const speechDeps: ActorDialogueSpeechDeps = {
     encounterBundle: options.encounterBundle,
@@ -260,9 +259,9 @@ export function createActorDialogueStore(options: ActorDialogueStoreOptions): Ac
     notePlaybackScheduled: () => {
       playbackScheduled = true;
     },
-    noteTracePlayback: (_traceTag, turnCount) => {
+    noteTracePlayback: (_traceTag, _turnCount) => {
       playbackLastTraceAtMs = options.nowMs();
-      playbackSequenceActiveUntilMs = playbackLastTraceAtMs + (turnCount * 1250) + 2600;
+      sequenceGeneration += 1;
     },
   });
 
@@ -301,8 +300,39 @@ export function createActorDialogueStore(options: ActorDialogueStoreOptions): Ac
     );
   };
 
+  const reserveSequenceWindow = (sequence: ActorDialogueSequence): void => {
+    const now = options.nowMs();
+    let end = now;
+    for (const step of sequence.turns) {
+      const caption = options.liveTurnForTrace(step.cue)?.caption ?? step.text;
+      end += humanoidDialogueDurationMs(speechDeps, phonemesForText(caption).length);
+    }
+    if (end > playbackSequenceActiveUntilMs) playbackSequenceActiveUntilMs = end;
+  };
+
   const playSequence = (sequence: ActorDialogueSequence, turns: ActorDialogueTurn[]): void => {
-    playPedsActorPlayerRuntimeSequence({ scheduleTimeout: options.scheduleTimeout, playTurn }, sequence, turns);
+    sequenceGeneration += 1;
+    const generation = sequenceGeneration;
+    reserveSequenceWindow(sequence);
+    playPedsActorPlayerRuntimeSequence(
+      {
+        scheduleTimeout: options.scheduleTimeout,
+        nowMs: options.nowMs,
+        animationSlotForActor: options.animationSlotForActor,
+        slotHasActor: options.slotHasActor,
+        reviewCaptureMode: options.reviewCaptureMode,
+        liveTurnForTrace: options.liveTurnForTrace,
+        sequenceGeneration: () => sequenceGeneration,
+        reportUtteranceEnd: (endsAtMs: number) => {
+          if (generation === sequenceGeneration && endsAtMs > playbackSequenceActiveUntilMs) {
+            playbackSequenceActiveUntilMs = endsAtMs;
+          }
+        },
+        playTurn,
+      },
+      sequence,
+      turns,
+    );
   };
 
   void playLiveFrozenActorTurn;
@@ -339,11 +369,10 @@ export function createActorDialogueStore(options: ActorDialogueStoreOptions): Ac
 }
 
 export type {
-  ActorDialogueDeps,
-  ActorDialogueTurn as PedsActorPlayerRuntimeTurn,
-  ActorDialogueSequence as PedsActorPlayerRuntimeSequenceEvidence,
-  ActorDialoguePlaybackEvidence as PedsActorPlayerRuntimePlaybackEvidence,
   ActorDialogueAdaptiveEvidence as PedsAdaptiveDialogueEvidence,
+  ActorDialogueDeps,
+  ActorDialoguePlaybackEvidence as PedsActorPlayerRuntimePlaybackEvidence,
+  ActorDialogueSequence as PedsActorPlayerRuntimeSequenceEvidence,
+  ActorDialogueTurn as PedsActorPlayerRuntimeTurn,PedsAdaptiveDialogueBranchResolution 
 };
-export type { PedsAdaptiveDialogueBranchResolution };
-export { pedsActorPlayerTurnForTraceTag, pedsActorPlayerTurnFromRuntimeBundleTrace, pedsActorPlayerRuntimeSequenceForTrace };
+export { pedsActorPlayerRuntimeSequenceForTrace, pedsActorPlayerTurnForTraceTag, pedsActorPlayerTurnFromRuntimeBundleTrace };

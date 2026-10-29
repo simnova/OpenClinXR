@@ -6,10 +6,10 @@ import {
 } from "@openclinxr/xr-dialogue/package-actor-turn";
 import {
   buildHumanoidSpeechEvidence as buildPackageHumanoidSpeechEvidence,
-  startHumanoidEmotionTransition as startPackageHumanoidEmotionTransition,
   type HumanoidDialogueEmotionContext,
   type HumanoidDialogueGazeTarget,
   type HumanoidExpressionEmotion,
+  startHumanoidEmotionTransition as startPackageHumanoidEmotionTransition,
 } from "@openclinxr/xr-humanoid-animation";
 import type { HumanoidSpeechEvidence } from "@openclinxr/xr-runtime-state";
 import {
@@ -19,6 +19,7 @@ import {
   scenarioDialogueEmotionContext,
 } from "./dialogue-context.js";
 import { humanoidDialogueDurationMs } from "./dialogue-duration.js";
+import { speechClockNowMs } from "./speech-clock.js";
 import type { ActorDialogueSpeechDeps } from "./types.js";
 
 export function triggerHumanoidDialogueForTrace(
@@ -127,10 +128,10 @@ export function triggerHumanoidDialogue(
     actorRuntimeRealismRequirement,
     phonemeSequence,
     visemeSequence,
-    startedAtMs: deps.nowMs(),
+    startedAtMs: speechClockNowMs(slot, deps.nowMs()),
     durationMs: humanoidDialogueDurationMs(deps, phonemeSequence.length),
   };
-  startPackageHumanoidEmotionTransition(slot, emotion, deps.nowMs());
+  startPackageHumanoidEmotionTransition(slot, emotion, speechClockNowMs(slot, deps.nowMs()));
   attachBakedCuesToSpeech(slot, text, deps.selectedScenarioIdValue());
   slot.root.userData["openClinXrDialoguePhonemeMapping"] = {
     actorId,

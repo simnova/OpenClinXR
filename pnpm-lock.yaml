@@ -1844,6 +1844,12 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
+      '@types/three':
+        specifier: 'catalog:'
+        version: 0.184.0
+      three:
+        specifier: 0.184.0
+        version: 0.184.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
