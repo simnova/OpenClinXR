@@ -49,6 +49,20 @@ export const GARMENT_EXCLUSION_RULE: GarmentExclusionRule[] = [
       "and classing anatomy as street/other would be a wrong green that hides the real question",
     test: (relPath) => relPath === "facial" || relPath.startsWith("facial/"),
   },
+  {
+    reason:
+      "teeth and tongue proxies staged under system-assets/extracted/teeth/ and " +
+      "system-assets/extracted/tongue/ are facial anatomy, not garments — " +
+      "authenticated from the makehuman_system_assets_cc0 pack (names Teeth_Base/tongue01, " +
+      "basemesh hm08, tag MakeHuman). Excluded by directory, mirroring hair/eyes/facial/: " +
+      "a basename-wide teeth/tongue exception is refused because a garment staged under " +
+      "garments/ keeps its class even if named teeth_base.mhclo",
+    test: (relPath) =>
+      relPath.startsWith("system-assets/extracted/teeth/") ||
+      relPath === "system-assets/extracted/teeth" ||
+      relPath.startsWith("system-assets/extracted/tongue/") ||
+      relPath === "system-assets/extracted/tongue",
+  },
 ];
 
 function isExcluded(relPath: string): boolean {

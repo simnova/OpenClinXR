@@ -2,7 +2,7 @@
   "schemaVersion": "openclinxr.garment-class-sheet.v1",
   "issue": "416",
   "factoryStep": "instrument",
-  "measuredAt": "2026-08-18T19:04:27.272Z",
+  "measuredAt": "2026-10-29T05:22:33.268Z",
   "renderer": "apps/ui-xr isolated-subject.html `glb` subject kind (three.js WebGLRenderer via ui-xr dev:portless); OBJ->GLB by three.js OBJLoader+GLTFExporter (garment-class-sheet.ts); composited by buildContactSheet from isolated-subject-harness.ts (Playwright HTML composite)",
   "sheet": "garment-class-sheet.png",
   "cells": [
@@ -70,6 +70,46 @@
       "basename": "toigo_mj_cloth_shoes.mhclo",
       "class": "footwear",
       "cell": 12
+    },
+    {
+      "basename": "toigo_wool_pants.mhclo",
+      "class": "street",
+      "cell": 13
+    },
+    {
+      "basename": "elvs_jeans_bootcut.mhclo",
+      "class": "street",
+      "cell": 14
+    },
+    {
+      "basename": "elvs_jeans_straight_leg.mhclo",
+      "class": "street",
+      "cell": 15
+    },
+    {
+      "basename": "elvs_male_trouser.mhclo",
+      "class": "street",
+      "cell": 16
+    },
+    {
+      "basename": "mindfront_male_trousers_1.mhclo",
+      "class": "street",
+      "cell": 17
+    },
+    {
+      "basename": "mindfront_male_trousers_2.mhclo",
+      "class": "street",
+      "cell": 18
+    },
+    {
+      "basename": "punkduck_female_tight_jeans.mhclo",
+      "class": "street",
+      "cell": 19
+    },
+    {
+      "basename": "punkduck_male_classic_jeans.mhclo",
+      "class": "street",
+      "cell": 20
     }
   ]
 }

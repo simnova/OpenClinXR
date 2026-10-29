@@ -1,152 +1,275 @@
 {
- "enumeratedFrom": ".openclinxr-local/provider-cache",
- "measuredAt": "2026-08-18",
- "method": "MPFB fit_clothes_to_human vertex placement (provider-cache/mpfb): garment vertex = weighted hm08 base-mesh triangle + per-range scale-line offsets; hem = lowest fitted Y as fraction of base.obj height (feet at 0, crown at 1). Shoulder coverage from X-cluster analysis of the garment's top 6% body-height band.",
- "classVocabulary": [
-  "hospital_gown",
-  "evening_dress",
-  "scrub",
-  "labcoat",
-  "street",
-  "footwear",
-  "other"
- ],
- "shoulderCoverageVocabulary": [
-  "sleeve",
-  "strap",
-  "sleeveless-open",
-  "no_shoulder_contact"
- ],
- "hospitalGownFound": false,
- "rows": [
-  {
-   "basename": "crudegown.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-gown/crudegown.mhclo",
-   "class": "evening_dress",
-   "hemFractionOfBody": 0.0299,
-   "shoulderCoverage": "strap",
-   "evidence": "hem at 0.030 of body height (feet=0, crown=1), top at 0.835; 2 separated X clusters (widths [0.425, 0.425]) at top band [0.78,0.84] of body height \u2014 fabric does not span the shoulder; class evening_dress"
-  },
-  {
-   "basename": "crudelabcoatopen.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-labcoat-female/crudelabcoatopen.mhclo",
-   "class": "labcoat",
-   "hemFractionOfBody": 0.2684,
-   "shoulderCoverage": "sleeve",
-   "evidence": "hem at 0.268 of body height (feet=0, crown=1), top at 0.861; single X cluster spanning 0.97 of body X at top band [0.80,0.86] \u2014 shoulder covered by one continuous piece; class labcoat"
-  },
-  {
-   "basename": "male_crude_labcoatop.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-labcoat-male/male_crude_labcoatop.mhclo",
-   "class": "labcoat",
-   "hemFractionOfBody": 0.2234,
-   "shoulderCoverage": "sleeve",
-   "evidence": "hem at 0.223 of body height (feet=0, crown=1), top at 0.869; single X cluster spanning 0.94 of body X at top band [0.81,0.87] \u2014 shoulder covered by one continuous piece; class labcoat"
-  },
-  {
-   "basename": "Scrub_Pants.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-pants/Scrub_Pants.mhclo",
-   "class": "scrub",
-   "hemFractionOfBody": 0.0592,
-   "shoulderCoverage": "no_shoulder_contact",
-   "evidence": "hem at 0.059 of body height (feet=0, crown=1), top at 0.579; no vertices above 0.52 of body height (top at 0.579); class scrub; in-file tag medical + 'Part of Medical Scrubs Kit'"
-  },
-  {
-   "basename": "Scrub_Shirt.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt/Scrub_Shirt.mhclo",
-   "class": "scrub",
-   "hemFractionOfBody": 0.5544,
-   "shoulderCoverage": "sleeve",
-   "evidence": "hem at 0.554 of body height (feet=0, crown=1), top at 0.858; single X cluster spanning 1.01 of body X at top band [0.80,0.86] \u2014 shoulder covered by one continuous piece; class scrub; in-file tag formal/profession + 'Part of Medical Scrubs Kit'"
-  },
-  {
-   "basename": "cargo_pants.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/cargo_pants.mhclo",
-   "class": "street",
-   "hemFractionOfBody": 0.0411,
-   "shoulderCoverage": "no_shoulder_contact",
-   "evidence": "hem at 0.041 of body height (feet=0, crown=1), top at 0.577; no vertices above 0.52 of body height (top at 0.577); class street; ankle-length trousers; no in-file tag, plain cargo silhouette"
-  },
-  {
-   "basename": "elvs_crude_t-shirt_male.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/elvs_crude_t-shirt_male/elvs_crude_t-shirt_male.mhclo",
-   "class": "street",
-   "hemFractionOfBody": 0.5491,
-   "shoulderCoverage": "sleeve",
-   "evidence": "hem at 0.549 of body height (feet=0, crown=1), top at 0.837; single X cluster spanning 1.02 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; hip-length sleeved top; t-shirt silhouette"
-  },
-  {
-   "basename": "elvs_crude_t-shirt_male.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/extracted/clothes/elvs_crude_t-shirt_male/elvs_crude_t-shirt_male.mhclo",
-   "class": "street",
-   "hemFractionOfBody": 0.5491,
-   "shoulderCoverage": "sleeve",
-   "evidence": "hem at 0.549 of body height (feet=0, crown=1), top at 0.837; single X cluster spanning 1.02 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; duplicate of elvs t-shirt under extracted/"
-  },
-  {
-   "basename": "namuhekam_male_polo_shirt.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/extracted/clothes/namuhekam_male_polo_shirt/namuhekam_male_polo_shirt.mhclo",
-   "class": "street",
-   "hemFractionOfBody": 0.495,
-   "shoulderCoverage": "sleeve",
-   "evidence": "hem at 0.495 of body height (feet=0, crown=1), top at 0.843; single X cluster spanning 1.02 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; hip-length sleeved top; tag casual/contemporary (polo)"
-  },
-  {
-   "basename": "toigo_basic_tucked_t-shirt.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/extracted/clothes/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo",
-   "class": "street",
-   "hemFractionOfBody": 0.587,
-   "shoulderCoverage": "sleeve",
-   "evidence": "hem at 0.587 of body height (feet=0, crown=1), top at 0.844; single X cluster spanning 1.00 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; hip-length sleeved top; tag casual (t-shirt)"
-  },
-  {
-   "basename": "namuhekam_male_polo_shirt.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/namuhekam_male_polo_shirt/namuhekam_male_polo_shirt.mhclo",
-   "class": "street",
-   "hemFractionOfBody": 0.495,
-   "shoulderCoverage": "sleeve",
-   "evidence": "hem at 0.495 of body height (feet=0, crown=1), top at 0.843; single X cluster spanning 1.02 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; duplicate of polo under extracted/"
-  },
-  {
-   "basename": "toigo_basic_tucked_t-shirt.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo",
-   "class": "street",
-   "hemFractionOfBody": 0.587,
-   "shoulderCoverage": "sleeve",
-   "evidence": "hem at 0.587 of body height (feet=0, crown=1), top at 0.844; single X cluster spanning 1.00 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; duplicate of t-shirt under extracted/"
-  },
-  {
-   "basename": "toigo_fisherman_sweater.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_fisherman_sweater/toigo_fisherman_sweater.mhclo",
-   "class": "street",
-   "hemFractionOfBody": 0.522,
-   "shoulderCoverage": "sleeve",
-   "evidence": "hem at 0.522 of body height (feet=0, crown=1), top at 0.847; single X cluster spanning 1.02 of body X at top band [0.79,0.85] \u2014 shoulder covered by one continuous piece; class street; hip-length sleeved top; tag knit/casual (sweater)"
-  },
-  {
-   "basename": "culturalibre_male_boots.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/culturalibre_male_boots.mhclo",
-   "class": "footwear",
-   "hemFractionOfBody": 0.0166,
-   "shoulderCoverage": "no_shoulder_contact",
-   "evidence": "hem at 0.017 of body height (feet=0, crown=1), top at 0.223; no vertices above 0.16 of body height (top at 0.223); class footwear; foot-covering, top at 0.22 body height"
-  },
-  {
-   "basename": "toigo_flats.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/toigo_flats.mhclo",
-   "class": "footwear",
-   "hemFractionOfBody": 0.0159,
-   "shoulderCoverage": "no_shoulder_contact",
-   "evidence": "hem at 0.016 of body height (feet=0, crown=1), top at 0.052; garment never reaches the shoulder band (0.70-0.84) \u2014 no shoulder contact; class footwear; flat sole, top at 0.05 body height"
-  },
-  {
-   "basename": "toigo_mj_cloth_shoes.mhclo",
-   "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/toigo_mj_cloth_shoes.mhclo",
-   "class": "footwear",
-   "hemFractionOfBody": 0.0149,
-   "shoulderCoverage": "no_shoulder_contact",
-   "evidence": "hem at 0.015 of body height (feet=0, crown=1), top at 0.059; garment never reaches the shoulder band (0.70-0.84) \u2014 no shoulder contact; class footwear; low shoe, top at 0.06 body height"
+  "enumeratedFrom": ".openclinxr-local/provider-cache",
+  "measuredAt": "2026-08-18",
+  "method": "MPFB fit_clothes_to_human vertex placement (provider-cache/mpfb): garment vertex = weighted hm08 base-mesh triangle + per-range scale-line offsets; hem = lowest fitted Y as fraction of base.obj height (feet at 0, crown at 1). Shoulder coverage from X-cluster analysis of the garment's top 6% body-height band.",
+  "classVocabulary": [
+    "hospital_gown",
+    "evening_dress",
+    "scrub",
+    "labcoat",
+    "street",
+    "footwear",
+    "other"
+  ],
+  "shoulderCoverageVocabulary": [
+    "sleeve",
+    "strap",
+    "sleeveless-open",
+    "no_shoulder_contact"
+  ],
+  "hospitalGownFound": false,
+  "rows": [
+    {
+      "basename": "crudegown.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-gown/crudegown.mhclo",
+      "class": "evening_dress",
+      "hemFractionOfBody": 0.0299,
+      "shoulderCoverage": "strap",
+      "evidence": "hem at 0.030 of body height (feet=0, crown=1), top at 0.835; 2 separated X clusters (widths [0.425, 0.425]) at top band [0.78,0.84] of body height \u2014 fabric does not span the shoulder; class evening_dress"
+    },
+    {
+      "basename": "crudelabcoatopen.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-labcoat-female/crudelabcoatopen.mhclo",
+      "class": "labcoat",
+      "hemFractionOfBody": 0.2684,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.268 of body height (feet=0, crown=1), top at 0.861; single X cluster spanning 0.97 of body X at top band [0.80,0.86] \u2014 shoulder covered by one continuous piece; class labcoat"
+    },
+    {
+      "basename": "male_crude_labcoatop.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-crude-labcoat-male/male_crude_labcoatop.mhclo",
+      "class": "labcoat",
+      "hemFractionOfBody": 0.2234,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.223 of body height (feet=0, crown=1), top at 0.869; single X cluster spanning 0.94 of body X at top band [0.81,0.87] \u2014 shoulder covered by one continuous piece; class labcoat"
+    },
+    {
+      "basename": "Scrub_Pants.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-pants/Scrub_Pants.mhclo",
+      "class": "scrub",
+      "hemFractionOfBody": 0.0592,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "hem at 0.059 of body height (feet=0, crown=1), top at 0.579; no vertices above 0.52 of body height (top at 0.579); class scrub; in-file tag medical + 'Part of Medical Scrubs Kit'"
+    },
+    {
+      "basename": "Scrub_Shirt.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt/Scrub_Shirt.mhclo",
+      "class": "scrub",
+      "hemFractionOfBody": 0.5544,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.554 of body height (feet=0, crown=1), top at 0.858; single X cluster spanning 1.01 of body X at top band [0.80,0.86] \u2014 shoulder covered by one continuous piece; class scrub; in-file tag formal/profession + 'Part of Medical Scrubs Kit'"
+    },
+    {
+      "basename": "cargo_pants.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/cargo_pants.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.0411,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "hem at 0.041 of body height (feet=0, crown=1), top at 0.577; no vertices above 0.52 of body height (top at 0.577); class street; ankle-length trousers; no in-file tag, plain cargo silhouette"
+    },
+    {
+      "basename": "elvs_crude_t-shirt_male.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/elvs_crude_t-shirt_male/elvs_crude_t-shirt_male.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.5491,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.549 of body height (feet=0, crown=1), top at 0.837; single X cluster spanning 1.02 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; hip-length sleeved top; t-shirt silhouette"
+    },
+    {
+      "basename": "elvs_crude_t-shirt_male.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/extracted/clothes/elvs_crude_t-shirt_male/elvs_crude_t-shirt_male.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.5491,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.549 of body height (feet=0, crown=1), top at 0.837; single X cluster spanning 1.02 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; duplicate of elvs t-shirt under extracted/"
+    },
+    {
+      "basename": "namuhekam_male_polo_shirt.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/extracted/clothes/namuhekam_male_polo_shirt/namuhekam_male_polo_shirt.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.495,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.495 of body height (feet=0, crown=1), top at 0.843; single X cluster spanning 1.02 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; hip-length sleeved top; tag casual/contemporary (polo)"
+    },
+    {
+      "basename": "toigo_basic_tucked_t-shirt.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/extracted/clothes/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.587,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.587 of body height (feet=0, crown=1), top at 0.844; single X cluster spanning 1.00 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; hip-length sleeved top; tag casual (t-shirt)"
+    },
+    {
+      "basename": "namuhekam_male_polo_shirt.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/namuhekam_male_polo_shirt/namuhekam_male_polo_shirt.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.495,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.495 of body height (feet=0, crown=1), top at 0.843; single X cluster spanning 1.02 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; duplicate of polo under extracted/"
+    },
+    {
+      "basename": "toigo_basic_tucked_t-shirt.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.587,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.587 of body height (feet=0, crown=1), top at 0.844; single X cluster spanning 1.00 of body X at top band [0.78,0.84] \u2014 shoulder covered by one continuous piece; class street; duplicate of t-shirt under extracted/"
+    },
+    {
+      "basename": "toigo_fisherman_sweater.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_fisherman_sweater/toigo_fisherman_sweater.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.522,
+      "shoulderCoverage": "sleeve",
+      "evidence": "hem at 0.522 of body height (feet=0, crown=1), top at 0.847; single X cluster spanning 1.02 of body X at top band [0.79,0.85] \u2014 shoulder covered by one continuous piece; class street; hip-length sleeved top; tag knit/casual (sweater)"
+    },
+    {
+      "basename": "culturalibre_male_boots.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/culturalibre_male_boots.mhclo",
+      "class": "footwear",
+      "hemFractionOfBody": 0.0166,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "hem at 0.017 of body height (feet=0, crown=1), top at 0.223; no vertices above 0.16 of body height (top at 0.223); class footwear; foot-covering, top at 0.22 body height"
+    },
+    {
+      "basename": "toigo_flats.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/toigo_flats.mhclo",
+      "class": "footwear",
+      "hemFractionOfBody": 0.0159,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "hem at 0.016 of body height (feet=0, crown=1), top at 0.052; garment never reaches the shoulder band (0.70-0.84) \u2014 no shoulder contact; class footwear; flat sole, top at 0.05 body height"
+    },
+    {
+      "basename": "toigo_mj_cloth_shoes.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_mj_cloth_shoes/toigo_mj_cloth_shoes.mhclo",
+      "class": "footwear",
+      "hemFractionOfBody": 0.0149,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "hem at 0.015 of body height (feet=0, crown=1), top at 0.059; garment never reaches the shoulder band (0.70-0.84) \u2014 no shoulder contact; class footwear; low shoe, top at 0.06 body height"
+    },
+    {
+      "basename": "toigo_wool_pants.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/toigo_wool_pants/toigo_wool_pants.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.0592,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "MPFB weighted-triangle+offset fit (1372/1372 verts, scales=[1.0321, 0.9668, 0.961]); hem 0.0592 top 0.6121 of body (feet=0,crown=1); hem-band X clusters=2 top-band X clusters=1; obj pants_wool.obj (1372 verts, Y span [-7.5197, 2.5151]); header tags: pants male; class street; trouser silhouette matches calibration cargo_pants/street (2 leg-branch clusters, top below shoulder band); header tags carry no medical/scrub-kit claim so provenance UNKNOWN for scrub -> street",
+      "measuredAt": "2026-10-29T05:06:50.469994+00:00",
+      "inputSha256": {
+        "mhclo": "ac1a57a817976d80ece8a88698873d54de7f252d01ba3dca5e361693621fcf22",
+        "obj": "e02cd1e417ca3365e4dafc033f415c5186739df535d98810075cface0ce59c96"
+      }
+    },
+    {
+      "basename": "elvs_jeans_bootcut.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/elvs_jeans_bootcut/elvs_jeans_bootcut.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.0338,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "MPFB weighted-triangle+offset fit (3109/3109 verts, scales=[1.0, 1.0, 1.0]); hem 0.0338 top 0.6075 of body (feet=0,crown=1); hem-band X clusters=2 top-band X clusters=1; obj mens_elv_jeans1f.obj (3109 verts, Y span [-7.9856, 2.3665]); header tags: pant menswear fashion traditional jeans; class street; trouser silhouette matches calibration cargo_pants/street (2 leg-branch clusters, top below shoulder band); header tags carry no medical/scrub-kit claim so provenance UNKNOWN for scrub -> street",
+      "measuredAt": "2026-10-29T05:06:50.469994+00:00",
+      "inputSha256": {
+        "mhclo": "2a4d59bba50b704c59f20adb00bacd021cb36b7d0ce26573b39f2323352ac8e7",
+        "obj": "76a153ebee820512bd0a1f1735c67b0ac0187a1ae0ecfdef41bac92939916384"
+      }
+    },
+    {
+      "basename": "elvs_jeans_straight_leg.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/elvs_jeans_straight_leg/elvs_jeans_straight_leg.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.0486,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "MPFB weighted-triangle+offset fit (3109/3109 verts, scales=[1.0, 1.0, 1.0]); hem 0.0486 top 0.6075 of body (feet=0,crown=1); hem-band X clusters=2 top-band X clusters=1; obj mens_elv_jeans2slf.obj (3109 verts, Y span [-7.7353, 2.3665]); header tags: jeans menswear fashion traditional casual; class street; trouser silhouette matches calibration cargo_pants/street (2 leg-branch clusters, top below shoulder band); header tags carry no medical/scrub-kit claim so provenance UNKNOWN for scrub -> street",
+      "measuredAt": "2026-10-29T05:06:50.469994+00:00",
+      "inputSha256": {
+        "mhclo": "a236750938e771e7f887e853a2e7dc1604b3fe247cbfe901147eff768b7f0087",
+        "obj": "b023a0fbf686b6246358e65548256a528914a17bc98ab99290f8bbcf5de8781f"
+      }
+    },
+    {
+      "basename": "elvs_male_trouser.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/elvs_male_trouser/elvs_male_trouser.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.0338,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "MPFB weighted-triangle+offset fit (1824/1824 verts, scales=[1.0, 1.0, 1.0]); hem 0.0338 top 0.6075 of body (feet=0,crown=1); hem-band X clusters=2 top-band X clusters=1; obj mens_trouser_f_elv1.obj (1824 verts, Y span [-7.9856, 2.3665]); header tags: pant menswear fashion traditional trouser; class street; trouser silhouette matches calibration cargo_pants/street (2 leg-branch clusters, top below shoulder band); header tags carry no medical/scrub-kit claim so provenance UNKNOWN for scrub -> street",
+      "measuredAt": "2026-10-29T05:06:50.469994+00:00",
+      "inputSha256": {
+        "mhclo": "52d94ba23c56034f65263edb0b7f67d63b6e76444228a8e5e478b5df38a41bfd",
+        "obj": "ccdc0676335b22f94eeaf1912bbb4c67dc8fab576b7c032a7287ad5a7df81818"
+      }
+    },
+    {
+      "basename": "mindfront_male_trousers_1.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/mindfront_male_trousers_1/mindfront_male_trousers_1.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.0519,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "MPFB weighted-triangle+offset fit (1719/1719 verts, scales=[0.7744, 0.9088, 0.9078]); hem 0.0519 top 0.6037 of body (feet=0,crown=1); hem-band X clusters=2 top-band X clusters=1; obj m_trousers_01.obj (1719 verts, Y span [-7.6575, 2.3508]); header tags: Male Trousers Jeans Pants; class street; trouser silhouette matches calibration cargo_pants/street (2 leg-branch clusters, top below shoulder band); header tags carry no medical/scrub-kit claim so provenance UNKNOWN for scrub -> street",
+      "measuredAt": "2026-10-29T05:06:50.469994+00:00",
+      "inputSha256": {
+        "mhclo": "8b0e1764cfe03d03eeec9d3a89326df99d446c0842f52c3def5c0f23dfe3d30f",
+        "obj": "8866ae70637c11d6944738e50819609096749a4acb7d3ccef6533cc029607121"
+      }
+    },
+    {
+      "basename": "mindfront_male_trousers_2.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/mindfront_male_trousers_2/mindfront_male_trousers_2.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.0353,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "MPFB weighted-triangle+offset fit (7391/7391 verts, scales=[0.7744, 0.9088, 0.9078]); hem 0.0353 top 0.6092 of body (feet=0,crown=1); hem-band X clusters=2 top-band X clusters=1; obj m_trousers_02.obj (7391 verts, Y span [-7.955, 2.4003]); header tags: Male Trousers Pants; class street; trouser silhouette matches calibration cargo_pants/street (2 leg-branch clusters, top below shoulder band); header tags carry no medical/scrub-kit claim so provenance UNKNOWN for scrub -> street",
+      "measuredAt": "2026-10-29T05:06:50.469994+00:00",
+      "inputSha256": {
+        "mhclo": "fa4a1b702b33b4052bceb8a07172dc7b2d8bec5f5b27e60333cab58e0b238b33",
+        "obj": "43bd510dd3c4d2e2a505d2665e4a2ca1fb5031737e55d9e3bf88912d9bb387dd"
+      }
+    },
+    {
+      "basename": "punkduck_female_tight_jeans.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/punkduck_female_tight_jeans/punkduck_female_tight_jeans.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.0607,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "MPFB weighted-triangle+offset fit (2394/2394 verts, scales=[1.0587, 1.0577, 1.0423]); hem 0.0607 top 0.6148 of body (feet=0,crown=1); hem-band X clusters=2 top-band X clusters=1; obj tightjeans.obj (2394 verts, Y span [-7.4567, 1.3893]); header tags: Female Pants Jeans; class street; trouser silhouette matches calibration cargo_pants/street (2 leg-branch clusters, top below shoulder band); header tags carry no medical/scrub-kit claim so provenance UNKNOWN for scrub -> street",
+      "measuredAt": "2026-10-29T05:06:50.469994+00:00",
+      "inputSha256": {
+        "mhclo": "2e3ef3b712d5058403b8831871e0a47b91c0fce620f1e649cd511cd40b08e24c",
+        "obj": "19f5341595702fbd3e96ced237912c0b78e6ee771812227e6fe09c8d3ef82d21"
+      }
+    },
+    {
+      "basename": "punkduck_male_classic_jeans.mhclo",
+      "sourcePath": ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/punkduck_male_classic_jeans/punkduck_male_classic_jeans.mhclo",
+      "class": "street",
+      "hemFractionOfBody": 0.0563,
+      "shoulderCoverage": "no_shoulder_contact",
+      "evidence": "MPFB weighted-triangle+offset fit (2614/2614 verts, scales=[1.0321, 0.9668, 0.961]); hem 0.0563 top 0.6208 of body (feet=0,crown=1); hem-band X clusters=2 top-band X clusters=1; obj male-classic-jeans.obj (2614 verts, Y span [-7.5637, 2.5613]); header tags: Jeans Pants male; class street; trouser silhouette matches calibration cargo_pants/street (2 leg-branch clusters, top below shoulder band); header tags carry no medical/scrub-kit claim so provenance UNKNOWN for scrub -> street",
+      "measuredAt": "2026-10-29T05:06:50.469994+00:00",
+      "inputSha256": {
+        "mhclo": "8e375d1fc5eae9a52f2677eb02474b116d2ce6918c8e45142d254391c6b46944",
+        "obj": "847cd28a532f12a560c5cbdd7069b1fea49ee9565f372e9965f8fd3653595fbf"
+      }
+    }
+  ],
+  "classVocabularyNote": "`class` is a SHAPE verdict, measured from hem fraction and shoulder contact \u2014 EXCEPT for trousers. Scrub_Pants and cargo_pants are shape-indistinguishable (confirmed by eye on garment-class-sheet.png, f073dce8); their scrub/street split is a KIT/LICENCE provenance claim, not a geometric one. A mapping brief that ever chooses trousers by class must name BOTH columns. Recorded 2026-08-18 after the orchestrator graded the gate sheet; superagent ruled this is a note, not a vocabulary split.",
+  "generatedAt": "2026-10-29T05:06:50.469994+00:00",
+  "measurementEpochs": {
+    "retainedRows": {
+      "measuredAt": "2026-08-18",
+      "rows": 16,
+      "sourceInventorySHA256": "a9c5f90214a2daa779b384be4662e2d271a03a3a93ba9974bc4fc1f0b5ea043c"
+    },
+    "appendedRows": {
+      "measuredAt": "2026-10-29T05:06:50.469994+00:00",
+      "rows": 8,
+      "method": "Pure CPU evaluation of installed MPFB hm08 weighted-triangle correspondence, offset/scale and normalized height; numeric leg-branch calibration and separately recorded kit provenance. Not Blender fitting or worn acceptance.",
+      "producerSHA256": "94ba3d8fc8b0776921db4a8ba52da20939d4b550b958cb3961e1fc4ab0475e2f",
+      "producerInputs": {
+        "clothesservice.py": "20b60daeb862e35652035b9e94d1830f1bd2d86706b1e6056f0f2cee43c8d40b",
+        "mhclo.py": "889ed0a4384ba50dd80d79768e75c9c62a3370551d4d62530e503db050ed739c",
+        "base.obj": "8e761e6624b8f54536409135d1636da63b32486a90d4897f84e121d144f6fb4c"
+      }
+    }
   }
- ],
- "classVocabularyNote": "`class` is a SHAPE verdict, measured from hem fraction and shoulder contact \u2014 EXCEPT for trousers. Scrub_Pants and cargo_pants are shape-indistinguishable (confirmed by eye on garment-class-sheet.png, f073dce8); their scrub/street split is a KIT/LICENCE provenance claim, not a geometric one. A mapping brief that ever chooses trousers by class must name BOTH columns. Recorded 2026-08-18 after the orchestrator graded the gate sheet; superagent ruled this is a note, not a vocabulary split."
 }
