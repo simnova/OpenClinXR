@@ -156,6 +156,11 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "buildStationRoomShell",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "StationClinicalTouchSource",
         "kind": "type",
         "via": "own-test"
