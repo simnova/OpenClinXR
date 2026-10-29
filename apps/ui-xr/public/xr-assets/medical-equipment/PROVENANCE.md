@@ -25,7 +25,7 @@ entries in `REAL_EQUIPMENT_GLTF_BY_ID` (`apps/ui-xr/src/station-equipment.ts`).
 - SHA-256: `6c7ce26cbee8ee38e8118abfddccbb7fc0f36626a85f1952eee9b9fff551221a`
 - `exam-table-sketchfab-ccby.glb` (Sketchfab CC BY 4.0 — **Exam Table by
   orphic_oasis8**; L=1.9 W=0.70 deck≈0.575; see sidecar)
-- SHA-256: `a66a8fff1e2ff4a4662ba90554ca59eae6b375ab09263fe2e6ae862a6fd3f335`
+- SHA-256: `8f7feeff376cc87c0d0ef466085c63eff553d0408b649cdac895f4854d9569d6`
 - `privacy-curtain-monitor-sketchfab-ccby.glb` (Sketchfab CC BY 4.0 — **Bed
   Curtain and Vital Signs Monitor by Ethan Cragun**; height-fit 2.2 m; see
   sidecar)

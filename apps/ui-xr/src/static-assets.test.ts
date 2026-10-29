@@ -80,7 +80,7 @@ const generatedSceneAssetHashes = {
   "environment/ed-exam-bay-shell.glb": "e390697fea990ea41701fc220224c94b1be2b18ce4cde9778e892261c07124f9",
   "medical-equipment/hospital-bed-sketchfab-ccby.glb": "d429b23ec21148c527121386d94675ef66aaa2c8171743314fe2834143ad5903",
   "medical-equipment/stretcher-sketchfab-ccby.glb": "6c7ce26cbee8ee38e8118abfddccbb7fc0f36626a85f1952eee9b9fff551221a",
-  "medical-equipment/exam-table-sketchfab-ccby.glb": "a66a8fff1e2ff4a4662ba90554ca59eae6b375ab09263fe2e6ae862a6fd3f335",
+  "medical-equipment/exam-table-sketchfab-ccby.glb": "8f7feeff376cc87c0d0ef466085c63eff553d0408b649cdac895f4854d9569d6",
   "medical-equipment/privacy-curtain-monitor-sketchfab-ccby.glb": "b320a807a789561a34222a7c3d4573842679f8cf6b1921263d015c59fcc210aa",
   "environment/pediatric_urgent_care_bay_environment.glb": "9c431d8e158cbb7486de557ffaed02e79a0bac9681704b80449ace7dc4af8c62",
   "environment/infinigen-ed-exam-bay.glb": "60f4e7468b56d4891f195e2853d6294634b549050364e345f52c3d9c45713d47",

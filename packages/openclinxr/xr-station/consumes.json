@@ -102,6 +102,10 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "buildStationEnvironment",
+        "kind": "runtime"
+      },
+      {
         "name": "planStationEquipmentMounts",
         "kind": "runtime",
         "via": "own-test"

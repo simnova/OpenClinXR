@@ -86,6 +86,7 @@ export const abdominalPainInterpreterScenario = draftScenario({
     asset("father_carlos_morales_character", "character", "Concerned father actor for interpreter and family-dynamics pressure"),
     asset("urgent_care_clinic_room_environment", "environment", "Urgent care clinic room with tablet interpreter UI and abdominal exam affordance"),
   ],
+  fixtureSlotPlacements: { patient_chair: { x: 0.25, y: 0, z: -0.85 } },
   syntheticCaseDisclosure: "Synthetic abdominal-pain interpreter-use draft; not validated for summative assessment.",
 });
 

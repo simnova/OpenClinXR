@@ -7,26 +7,39 @@
  * room. This is not a second mount API — `mountStationEnvironmentForRuntime`
  * is the learner entry.
  *
+ * Case-authored `fixtureSlotPlacements` (when set) forward to the parametric
+ * fallback shell so case overrides survive readiness refusal and load
+ * failure. Absent = descriptor resolve unchanged.
+ *
  * claimScope: simulated_actor_or_factory_behavior
  * notEvidenceFor: clinical validity, licensure, exam equivalence, Quest readiness
  */
 
+import {
+  type BuildStationEnvironmentInput,
+  resolveStationEnvironment,
+} from "@openclinxr/xr-station";
 import type { Group } from "three";
 import {
-  evaluateCompiledRoomReadiness,
-  stampCompiledRoomReadinessUserData,
   type CompiledRoomReadinessDiagnostic,
   type CompiledRoomReadinessResult,
+  evaluateCompiledRoomReadiness,
+  stampCompiledRoomReadinessUserData,
 } from "./compiled-room-readiness.js";
-import { resolveStationEnvironment } from "@openclinxr/xr-station";
 
 export async function fallbackPrimitiveStationShell(input: {
   environmentId: string;
   diagnostics: CompiledRoomReadinessDiagnostic[];
   compileNodeIdAttempted?: string;
   loadFailed?: boolean;
+  fixtureSlotPlacements?: BuildStationEnvironmentInput["fixtureSlotPlacements"];
 }): Promise<Group> {
-  const root = await resolveStationEnvironment({ environmentId: input.environmentId });
+  const root = await resolveStationEnvironment({
+    environmentId: input.environmentId,
+    ...(input.fixtureSlotPlacements
+      ? { fixtureSlotPlacements: input.fixtureSlotPlacements }
+      : {}),
+  });
   const notReady: CompiledRoomReadinessResult = {
     ready: false,
     diagnostics: input.diagnostics,
@@ -54,6 +67,7 @@ export async function applyCompiledRoomReadinessOrFallback(input: {
   compiled: Group;
   environmentId: string;
   compileNodeId: string;
+  fixtureSlotPlacements?: BuildStationEnvironmentInput["fixtureSlotPlacements"];
 }): Promise<Group> {
   const metadata = input.compiled.userData["openClinXrCompiledRoomMetadata"];
   if (metadata === undefined || metadata === null) {
@@ -72,6 +86,9 @@ export async function applyCompiledRoomReadinessOrFallback(input: {
     environmentId: input.environmentId,
     compileNodeIdAttempted: input.compileNodeId,
     diagnostics: readiness.diagnostics,
+    ...(input.fixtureSlotPlacements
+      ? { fixtureSlotPlacements: input.fixtureSlotPlacements }
+      : {}),
   });
 }
 
@@ -79,11 +96,15 @@ export async function fallbackCompiledRoomLoadFailure(input: {
   environmentId: string;
   compileNodeId: string;
   message: string;
+  fixtureSlotPlacements?: BuildStationEnvironmentInput["fixtureSlotPlacements"];
 }): Promise<Group> {
   return fallbackPrimitiveStationShell({
     environmentId: input.environmentId,
     compileNodeIdAttempted: input.compileNodeId,
     loadFailed: true,
     diagnostics: [{ code: "load_failure", message: input.message }],
+    ...(input.fixtureSlotPlacements
+      ? { fixtureSlotPlacements: input.fixtureSlotPlacements }
+      : {}),
   });
 }

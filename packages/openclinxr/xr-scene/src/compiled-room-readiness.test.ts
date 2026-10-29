@@ -1,10 +1,10 @@
-import { Group, Mesh, BoxGeometry, MeshBasicMaterial, type Object3D } from "three";
-import { describe, expect, it } from "vitest";
 import type { EncounterRuntimeAsset } from "@openclinxr/asset-registry/runtime-bundles";
+import { BoxGeometry, Group, Mesh, MeshBasicMaterial, type Object3D } from "three";
+import { describe, expect, it } from "vitest";
 import {
+  type CompiledRoomAuthoredMetadata,
   evaluateCompiledRoomReadiness,
   parseCompiledRoomAuthoredMetadata,
-  type CompiledRoomAuthoredMetadata,
 } from "./compiled-room-readiness.js";
 // Arch offset (tsk_4ca1eb82092e11bd): same symbol through the entrypoint so
 // testInternalImports holds at 10 while the eye-shader wiring test takes one
@@ -260,3 +260,116 @@ describe("mountStationEnvironmentForRuntime readiness composition", () => {
     expect(hasParametricFloor(mounted)).toBe(false);
   });
 });
+
+describe("mountStationEnvironmentForRuntime fixtureSlotPlacements threading", () => {
+  const FIXTURES = {
+    monitor: { x: 1.1, y: 0.9, z: -0.5 },
+  } as const;
+
+  function mountWithFixtures(input: {
+    scene?: Group;
+    metadata?: unknown;
+    loadGltf?: (url: string) => Promise<Group>;
+    environment?: EncounterRuntimeAsset;
+  }): Promise<Group> {
+    const scene = input.scene ?? compiledSceneWithAnchors();
+    if (input.metadata !== undefined) {
+      scene.userData["openClinXrCompiledRoomMetadata"] = input.metadata;
+    }
+    return mountStationEnvironmentForRuntime({
+      environmentId: ED_BAY,
+      environment: input.environment ?? compiledEnvironment(ED_BAY, "/compiled/rooms/ed_exam_bay_v1.glb"),
+      loadGltf: input.loadGltf ?? mockLoadGltfFrom(scene),
+      fixtureSlotPlacements: { ...FIXTURES },
+    });
+  }
+
+  function slotPosition(root: Group, slotId: string): { x: number; y: number; z: number } | undefined {
+    const slots = root.userData["fixtureSlots"] as
+      | Array<{ slotId: string; position: { x: number; y: number; z: number } }>
+      | undefined;
+    return slots?.find((slot) => slot.slotId === slotId)?.position;
+  }
+
+  it("preserves placements on the no-compiled parametric fallback with defaults", async () => {
+    const mounted = await mountStationEnvironmentForRuntime({
+      environmentId: ED_BAY,
+      environment: { ...compiledEnvironment(ED_BAY, "/compiled/rooms/ed_exam_bay_v1.glb"), kind: "equipment_model" },
+      fixtureSlotPlacements: { ...FIXTURES },
+    });
+    expect(mounted.name).toBe("openclinxr.station-environment-shell");
+    expect(slotPosition(mounted, "monitor")).toEqual({ x: 1.1, y: 0.9, z: -0.5 });
+    expect(mounted.userData["openClinXrCompiledRoom"]).not.toBe(true);
+  });
+
+  it("keeps the compiled shell on valid success and does not mark fallback", async () => {
+    const mounted = await mountWithFixtures({ metadata: VALID_METADATA });
+    expect(mounted.name).toBe("openclinxr.compiled-room-shell");
+    expect(mounted.userData["openClinXrCompiledRoom"]).toBe(true);
+    expect(mounted.userData["openClinXrCompiledRoomReadiness"]).toBe("ready");
+    expect(mounted.userData["openClinXrCompiledRoomFallback"]).toBe(false);
+    expect(mounted.userData["openClinXrCompiledRoomLoadFailed"]).toBeUndefined();
+    expect(mounted.userData["openClinXrCompiledRoomResolvedAnchors"]).toHaveLength(3);
+    expect(hasParametricFloor(mounted)).toBe(false);
+  });
+
+  it("preserves placements through invalid-compiled readiness fallback with typed diagnostics", async () => {
+    const mounted = await mountWithFixtures({ metadata: { actorAnchors: "nope" } });
+    expect(mounted.name).toBe("openclinxr.station-environment-shell");
+    expect(slotPosition(mounted, "monitor")).toEqual({ x: 1.1, y: 0.9, z: -0.5 });
+    expect(mounted.userData["openClinXrCompiledRoomFallback"]).toBe(true);
+    expect(mounted.userData["openClinXrCompiledRoomDiagnostics"]).toEqual([
+      expect.objectContaining({ code: "malformed_metadata" }),
+    ]);
+    expect(hasParametricFloor(mounted)).toBe(true);
+  });
+
+  it("preserves placements through load-failure fallback with typed diagnostics", async () => {
+    const mounted = await mountWithFixtures({
+      loadGltf: async (): Promise<Group> => {
+        throw new Error("gltf 404");
+      },
+    });
+    expect(mounted.name).toBe("openclinxr.station-environment-shell");
+    expect(slotPosition(mounted, "monitor")).toEqual({ x: 1.1, y: 0.9, z: -0.5 });
+    expect(mounted.userData["openClinXrCompiledRoomLoadFailed"]).toBe(true);
+    expect(mounted.userData["compileNodeIdAttempted"]).toBe("room:ed_exam_bay_v1");
+    expect(mounted.userData["openClinXrCompiledRoomDiagnostics"]).toEqual([
+      expect.objectContaining({ code: "load_failure", message: "gltf 404" }),
+    ]);
+    expect(hasParametricFloor(mounted)).toBe(true);
+  });
+  describe("compiled-success fixtureSlotPlacements stay unapplied (source70 honesty)", () => {
+    it("nonempty map on compiled success stamps unapplied slot IDs and applies no positions", async () => {
+      const mounted = await mountWithFixtures({ metadata: VALID_METADATA });
+      expect(mounted.name).toBe("openclinxr.compiled-room-shell");
+      expect(mounted.userData["openClinXrCompiledRoom"]).toBe(true);
+      expect(mounted.userData["openClinXrCompiledRoomReadiness"]).toBe("ready");
+      expect(mounted.userData["openClinXrFixtureSlotPlacementsApplied"]).not.toBe(true);
+      const unapplied = mounted.userData["fixtureSlotPlacementsUnapplied"] as unknown;
+      expect(Array.isArray(unapplied)).toBe(true);
+      expect(unapplied).toEqual(expect.arrayContaining(["monitor"]));
+      expect(mounted.userData["fixtureSlots"]).toBeUndefined();
+      expect(hasParametricFloor(mounted)).toBe(false);
+    });
+
+    it("absent and empty maps on compiled success stamp no unapplied diagnostic", async () => {
+      const absent = await mountCompiled({ metadata: VALID_METADATA });
+      expect(absent.userData["fixtureSlotPlacementsUnapplied"]).toBeUndefined();
+      expect(absent.userData["openClinXrFixtureSlotPlacementsApplied"]).toBeUndefined();
+      const scene = compiledSceneWithAnchors();
+      scene.userData["openClinXrCompiledRoomMetadata"] = VALID_METADATA;
+      const empty = await mountStationEnvironmentForRuntime({
+        environmentId: ED_BAY,
+        environment: compiledEnvironment(ED_BAY, "/compiled/rooms/ed_exam_bay_v1.glb"),
+        loadGltf: mockLoadGltfFrom(scene),
+        fixtureSlotPlacements: {},
+      });
+      expect(empty.name).toBe("openclinxr.compiled-room-shell");
+      expect(empty.userData["fixtureSlotPlacementsUnapplied"]).toBeUndefined();
+      expect(empty.userData["openClinXrCompiledRoomReadiness"]).toBe("ready");
+    });
+  });
+});
+
+

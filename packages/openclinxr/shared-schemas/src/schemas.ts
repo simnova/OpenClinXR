@@ -249,6 +249,7 @@ export const ActorPlacementSchema = Type.Object({
 // is at its 500-line zone budget, so the phenotype (with its face keys) moved
 // out instead of growing here. Re-exported so existing import sites keep working.
 import { ActorPhenotypeSchema } from "./face-phenotype/actor-phenotype.js";
+
 export { ActorPhenotypeSchema };
 
 export const ActorCardSchema = Type.Object({
@@ -457,5 +458,15 @@ export const ScenarioSchema = Type.Object({
   assetNeeds: Type.Optional(Type.Array(AssetNeedSchema)),
   emotionPolicy: Type.Optional(CaseEmotionPolicySchema),
   equipmentDecisions: Type.Optional(SceneEquipmentDecisionsSchema),
+  fixtureSlotPlacements: Type.Optional(
+    Type.Record(
+      Type.String({ minLength: 1 }),
+      Type.Object({
+        x: Type.Number(),
+        y: Type.Number(),
+        z: Type.Number(),
+      }),
+    ),
+  ),
   startingRequirements: Type.Optional(Type.Array(SceneStartingRequirementSchema)),
 });

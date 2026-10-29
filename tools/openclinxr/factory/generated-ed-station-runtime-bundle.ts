@@ -98,6 +98,7 @@ type CliOptions = {
   writeAzurite: boolean;
   refreshPublicPlacements: boolean;
   refreshPublicEquipment: boolean;
+  refreshPublicFixtures: boolean;
   publicRoot: string;
   validateLatest: boolean;
   help: boolean;
@@ -115,6 +116,13 @@ export async function runGeneratedEdStationRuntimeBundleCli(args = process.argv.
     process.stdout.write(`${helpText()}\n`);
     return;
   }
+  const refreshModes = [options.refreshPublicPlacements, options.refreshPublicEquipment, options.refreshPublicFixtures].filter(Boolean).length;
+  if (refreshModes > 1) {
+    throw new Error("refusing: mutually exclusive refresh modes (--refresh-public-placements, --refresh-public-equipment, --refresh-public-fixtures)");
+  }
+  if (options.refreshPublicFixtures && (options.writeAzurite || options.validateLatest)) {
+    throw new Error("refusing: --refresh-public-fixtures cannot combine with --write-azurite or --validate-latest");
+  }
   if (options.refreshPublicPlacements) {
     await refreshPublicActorPlacements(options.scenarioId, options.publicRoot);
     process.stdout.write(`Refreshed public actor placements for ${options.scenarioId}\n`);
@@ -123,6 +131,11 @@ export async function runGeneratedEdStationRuntimeBundleCli(args = process.argv.
   if (options.refreshPublicEquipment) {
     await refreshPublicEquipment(options.scenarioId, options.publicRoot);
     process.stdout.write(`Refreshed public equipment for ${options.scenarioId}\n`);
+    return;
+  }
+  if (options.refreshPublicFixtures) {
+    await refreshPublicFixtures(options.scenarioId, options.publicRoot);
+    process.stdout.write(`Refreshed public fixtures for ${options.scenarioId}\n`);
     return;
   }
   if (options.validateLatest) {
@@ -1548,6 +1561,87 @@ export async function refreshPublicEquipment(
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 }
 
+const PUBLIC_FIXTURE_REFRESH_SUPPORTED_SCENARIOS = ["clinic_abdominal_pain_interpreter_v1"] as const;
+
+type PublicFixtureRefreshScenarioId = (typeof PUBLIC_FIXTURE_REFRESH_SUPPORTED_SCENARIOS)[number];
+
+function isPublicFixtureRefreshScenarioId(scenarioId: string): scenarioId is PublicFixtureRefreshScenarioId {
+  return (PUBLIC_FIXTURE_REFRESH_SUPPORTED_SCENARIOS as readonly string[]).includes(scenarioId);
+}
+
+function caseFixtureSlotsForPublicFixtureRefresh(
+  scenarioId: PublicFixtureRefreshScenarioId,
+): Record<string, { x: number; y: number; z: number }> {
+  const slots = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId)?.fixtureSlotPlacements;
+  if (!isFixtureSlotMap(slots)) {
+    throw new Error(`public fixture refresh refused: no authored fixture map for ${scenarioId}`);
+  }
+  return Object.fromEntries(Object.entries(slots).map(([slotId, position]) => [slotId, { ...position }]));
+}
+
+function isFixtureSlotMap(value: unknown): value is Record<string, { x: number; y: number; z: number }> {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const entries = Object.entries(value as Record<string, unknown>);
+  if (entries.length === 0) return false;
+  return entries.every(
+    ([slotId, position]) =>
+      slotId.length > 0
+      && typeof position === "object"
+      && position !== null
+      && Number.isFinite((position as { x: unknown }).x)
+      && Number.isFinite((position as { y: unknown }).y)
+      && Number.isFinite((position as { z: unknown }).z),
+  );
+}
+
+function refreshPublicFixturesInLearnerBundle(
+  bundle: LearnerRuntimeAssetBundle,
+  scenarioId: string,
+): LearnerRuntimeAssetBundle {
+  if (!isPublicFixtureRefreshScenarioId(scenarioId)) {
+    throw new Error(`public fixture refresh refused: unsupported authored case ${scenarioId}`);
+  }
+  if (bundle.scenarioId !== scenarioId || bundle.sceneManifest.scenarioId !== scenarioId) {
+    throw new Error(
+      `public fixture refresh refused: bundle scenario mismatch (bundle=${bundle.scenarioId}, manifest=${bundle.sceneManifest.scenarioId}, requested=${scenarioId})`,
+    );
+  }
+  const slots = caseFixtureSlotsForPublicFixtureRefresh(scenarioId);
+  return {
+    ...bundle,
+    sceneManifest: {
+      ...bundle.sceneManifest,
+      fixtureSlotPlacements: slots,
+    },
+  };
+}
+
+async function refreshPublicFixtures(scenarioId: string, publicRoot: string): Promise<void> {
+  if (!isPublicFixtureRefreshScenarioId(scenarioId)) {
+    throw new Error(`public fixture refresh refused: unsupported authored case ${scenarioId}`);
+  }
+  const stationDir = path.join(publicRoot, scenarioId);
+  const bundlePath = path.join(stationDir, "learner-runtime-bundle.v1.json");
+  const manifestPath = path.join(stationDir, "scene-manifest.v1.json");
+  const bundleText = await readFile(bundlePath, "utf8");
+  const manifestText = await readFile(manifestPath, "utf8");
+  const bundle = JSON.parse(bundleText) as LearnerRuntimeAssetBundle;
+  const manifest = JSON.parse(manifestText) as EncounterRuntimeAssetBundle["sceneManifest"];
+  if (manifest.scenarioId !== scenarioId) {
+    throw new Error(
+      `public fixture refresh refused: standalone manifest scenario mismatch (manifest=${manifest.scenarioId}, requested=${scenarioId})`,
+    );
+  }
+  const slots = caseFixtureSlotsForPublicFixtureRefresh(scenarioId);
+  const refreshed = refreshPublicFixturesInLearnerBundle(bundle, scenarioId);
+  const updatedManifest = {
+    ...manifest,
+    fixtureSlotPlacements: slots,
+  };
+  await writeFile(bundlePath, `${JSON.stringify(refreshed, null, 2)}\n`, "utf8");
+  await writeFile(manifestPath, `${JSON.stringify(updatedManifest, null, 2)}\n`, "utf8");
+}
+
 export async function refreshPublicActorPlacements(
   scenarioId: string,
   publicRoot = "apps/ui-xr/public/xr-assets/generated",
@@ -1676,6 +1770,8 @@ function trimRolePrefix(words: string[], role?: string): string[] {
 function createScenarioRuntimeSceneManifest(
   preset: ReturnType<typeof scenarioRuntimePreset>,
 ): EncounterRuntimeAssetBundle["sceneManifest"] {
+  const caseDocument = scenarioBank.find((candidate) => candidate.scenarioId === preset.scenarioId);
+  const fixtureSlots = caseDocument?.fixtureSlotPlacements;
   return {
     schemaVersion: "openclinxr.runtime-scene-manifest.v1",
     manifestId: `scene_manifest:${preset.scenarioId}:${preset.stationId}`,
@@ -1686,6 +1782,9 @@ function createScenarioRuntimeSceneManifest(
     dialogueTurns: runtimeDialogueTurnsForScenario(preset),
     actorPlacements: runtimeActorPlacementsForScenario(preset),
     equipmentPlacements: runtimeEquipmentPlacementsForScenario(preset),
+    ...(fixtureSlots && Object.keys(fixtureSlots).length > 0
+      ? { fixtureSlotPlacements: Object.fromEntries(Object.entries(fixtureSlots).map(([slotId, position]) => [slotId, { ...position }])) }
+      : {}),
     roomProps: preset.roomProps.map((prop) => ({
       propId: prop.propId,
       label: prop.label,
@@ -1706,13 +1805,15 @@ function createScenarioRuntimeSceneManifest(
 }
 
 function parseCliOptions(args: string[]): CliOptions {
-  const options: CliOptions = { humanReportPath: defaultGeneratedHumanRiggingReportPath(), equipmentReportPath: defaultMedicalEquipmentReportPath(), environmentReportPath: defaultEnvironmentArtifactsReportPath(), runtimeAssetReviewDecisionsPath: null, scenarioId: "ed_chest_pain_priority_v1", outputPath: defaultGeneratedEdStationRuntimeBundleReportPath(), writeAzurite: false, refreshPublicPlacements: false, refreshPublicEquipment: false, publicRoot: "apps/ui-xr/public/xr-assets/generated", validateLatest: false, help: false };
+  const options: CliOptions = { humanReportPath: defaultGeneratedHumanRiggingReportPath(), equipmentReportPath: defaultMedicalEquipmentReportPath(), environmentReportPath: defaultEnvironmentArtifactsReportPath(), runtimeAssetReviewDecisionsPath: null, scenarioId: "ed_chest_pain_priority_v1", outputPath: defaultGeneratedEdStationRuntimeBundleReportPath(), writeAzurite: false, refreshPublicPlacements: false, refreshPublicEquipment: false, refreshPublicFixtures: false, publicRoot: "apps/ui-xr/public/xr-assets/generated", validateLatest: false, help: false };
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
+    if (typeof arg === "undefined") throw new Error("Missing CLI argument");
     if (arg === "--help" || arg === "-h") options.help = true;
     else if (arg === "--write-azurite") options.writeAzurite = true;
     else if (arg === "--refresh-public-placements") options.refreshPublicPlacements = true;
     else if (arg === "--refresh-public-equipment") options.refreshPublicEquipment = true;
+    else if (arg === "--refresh-public-fixtures") options.refreshPublicFixtures = true;
     else if (arg === "--public-root") options.publicRoot = requireNext(args, ++index, arg);
     else if (arg === "--validate-latest") options.validateLatest = true;
     else if (arg === "--human-report") options.humanReportPath = requireNext(args, ++index, arg);
@@ -1721,6 +1822,8 @@ function parseCliOptions(args: string[]): CliOptions {
     else if (arg === "--runtime-asset-review-decisions") options.runtimeAssetReviewDecisionsPath = requireNext(args, ++index, arg);
     else if (arg === "--scenario-id" || arg === "--scenario") options.scenarioId = requireNext(args, ++index, arg);
     else if (arg === "--output") options.outputPath = requireNext(args, ++index, arg);
+    else if (arg.startsWith("-")) throw new Error(`Unknown flag ${arg}`);
+    else throw new Error(`Unknown positional argument ${arg}`);
   }
   return options;
 }
@@ -1732,7 +1835,7 @@ function requireNext(args: string[], index: number, flag: string): string {
 }
 
 function helpText(): string {
-  return ["Usage: tsx tools/openclinxr/generated-ed-station-runtime-bundle.ts [options]", "  --write-azurite            Write frozen bundle JSON to local Azurite when configured", "  --refresh-public-placements Refresh actorPlacements in the shipped bundle and manifest", "  --refresh-public-equipment Refresh equipment rows/placements in the shipped bundle and manifest", "  --public-root <path>        Public generated-bundle root used by placement refresh", "  --human-report <path>      Generated human rigging report path", "  --equipment-report <path>  Medical equipment report path", "  --environment-report <path> Environment report path", "  --runtime-asset-review-decisions <path> Runtime asset review decision JSON array path", "  --scenario-id <id>         Scenario to package into a generated learner runtime bundle", "  --scenario <id>            Alias for --scenario-id", "  --output <path>            Bundle report output path", "  --validate-latest          Validate the report at --output"].join("\n");
+  return ["Usage: tsx tools/openclinxr/generated-ed-station-runtime-bundle.ts [options]", "  --write-azurite            Write frozen bundle JSON to local Azurite when configured", "  --refresh-public-placements Refresh actorPlacements in the shipped bundle and manifest", "  --refresh-public-equipment Refresh equipment rows/placements in the shipped bundle and manifest", "  --refresh-public-fixtures Refresh fixtureSlotPlacements in the shipped bundle and manifest", "  --public-root <path>        Public generated-bundle root used by placement refresh", "  --human-report <path>      Generated human rigging report path", "  --equipment-report <path>  Medical equipment report path", "  --environment-report <path> Environment report path", "  --runtime-asset-review-decisions <path> Runtime asset review decision JSON array path", "  --scenario-id <id>         Scenario to package into a generated learner runtime bundle", "  --scenario <id>            Alias for --scenario-id", "  --output <path>            Bundle report output path", "  --validate-latest          Validate the report at --output"].join("\n");
 }
 
 function parseRuntimeAssetReviewDecisions(value: unknown): RuntimeAssetReviewDecision[] {

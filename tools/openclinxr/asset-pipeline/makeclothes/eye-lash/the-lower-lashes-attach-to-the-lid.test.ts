@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it, beforeAll } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 /**
  * CARD tsk_0a4a6ccf5ebb0da0 (lash-tick): the lower lashes attach to the lid.
@@ -39,9 +39,9 @@ const MANIFEST = join(
   REPO_ROOT,
   "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/manifest.json",
 );
-const INPUT = pathResolve(
+const INPUT = join(
   REPO_ROOT,
-  "../realism-95/.openclinxr/realism-spike/eyemesh/aisha-hp-cornea.glb",
+  ".openclinxr/realism-spike/eyemesh/aisha-hp-cornea.glb",
 );
 
 type SideRow = {

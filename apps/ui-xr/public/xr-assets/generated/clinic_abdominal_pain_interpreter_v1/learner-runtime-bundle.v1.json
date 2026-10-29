@@ -376,7 +376,14 @@
       "quest_readiness",
       "clinical_validity",
       "scoring_validity"
-    ]
+    ],
+    "fixtureSlotPlacements": {
+      "patient_chair": {
+        "x": 0.25,
+        "y": 0,
+        "z": -0.85
+      }
+    }
   },
   "generatedAt": "2026-05-23T17:49:41.236Z",
   "expiresAt": null,

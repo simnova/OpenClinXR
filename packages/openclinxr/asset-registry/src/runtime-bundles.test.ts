@@ -405,3 +405,38 @@ describe("encounter factory summary contracts", () => {
     ]);
   });
 });
+
+import { createEdChestPainRuntimeSceneManifest } from "@openclinxr/asset-registry/runtime-bundles";
+import { scenarioBank } from "@openclinxr/scenario-fixtures";
+import { validateScenario } from "@openclinxr/shared-schemas";
+
+function cloneBankCase(source74ScenarioId: string) {
+  const found = scenarioBank.find((candidate) => candidate.scenarioId === source74ScenarioId);
+  if (!found) {
+    throw new Error(`bank case missing: ${source74ScenarioId}`);
+  }
+  return structuredClone(found);
+}
+
+describe("typed fixtureSlotPlacements case regressions (source74 correction)", () => {
+  it("valid fixtureSlotPlacements map passes validateScenario on a cloned bank case", () => {
+    const candidate = {
+      ...cloneBankCase("clinic_abdominal_pain_interpreter_v1"),
+      fixtureSlotPlacements: { patient_chair: { x: 0.25, y: 0, z: -0.85 } },
+    };
+    expect(validateScenario(candidate).ok).toBe(true);
+  });
+
+  it("malformed fixtureSlotPlacements (string x, missing z) fail validateScenario", () => {
+    const bankCase = cloneBankCase("clinic_abdominal_pain_interpreter_v1");
+    expect(validateScenario({ ...bankCase, fixtureSlotPlacements: { patient_chair: { x: "left", y: 0, z: -0.85 } } }).ok).toBe(false);
+    expect(validateScenario({ ...bankCase, fixtureSlotPlacements: { patient_chair: { x: 0.25, y: 0 } } }).ok).toBe(false);
+  });
+
+  it("canonical manifest for the authored abdominal case materializes the exact patient_chair map", () => {
+    const manifest = createEdChestPainRuntimeSceneManifest({ scenarioId: "clinic_abdominal_pain_interpreter_v1" });
+    expect(manifest).toMatchObject({
+      fixtureSlotPlacements: { patient_chair: { x: 0.25, y: 0, z: -0.85 } },
+    });
+  });
+});

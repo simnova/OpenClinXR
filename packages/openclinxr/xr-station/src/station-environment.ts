@@ -18,38 +18,38 @@
  */
 
 import { resolveEnvironmentShellDescriptor } from "@openclinxr/asset-registry";
-import {
-  type NamedShellWall,
-  wallFacingYawRadians,
-} from "@openclinxr/asset-registry/fixture-wall-mounting";
 // #196: subpath avoids growing the frozen asset-registry barrel (index.ts freeze 2843).
 import {
   fixturePlacementRule,
   resolveFixtureSlotsForRoom,
 } from "@openclinxr/asset-registry/environment-zone-templates";
 import {
+  type NamedShellWall,
+  wallFacingYawRadians,
+} from "@openclinxr/asset-registry/fixture-wall-mounting";
+import {
   BoxGeometry,
+  type ColorRepresentation,
   Group,
   Mesh,
   MeshStandardMaterial,
-  type ColorRepresentation,
   type Object3D,
 } from "three";
 import {
-  anchorFixtureNearFaceToPlane,
-  tryBuildArchitectureFixture,
-} from "./station-architecture-fixtures.js";
+  type CompiledRoomLoadInput,
+  hasCompiledRoomAssetUrl,
+  loadCompiledRoomShell,
+} from "./compiled-room-loader.js";
 import {
   ownedRolesFromFixtureSlots,
   roleClassFromFixtureSlotId,
 } from "./fixture-role-ownership.js";
+import {
+  anchorFixtureNearFaceToPlane,
+  tryBuildArchitectureFixture,
+} from "./station-architecture-fixtures.js";
 import { buildPatientChair, isPatientChairSlotId } from "./station-chair.js";
 import { buildPatientStretcher, isStretcherSlotId } from "./station-stretcher.js";
-import {
-  hasCompiledRoomAssetUrl,
-  loadCompiledRoomShell,
-  type CompiledRoomLoadInput,
-} from "./compiled-room-loader.js";
 
 export type BuildStationEnvironmentInput = {
   environmentId: string;
@@ -70,6 +70,15 @@ export type BuildStationEnvironmentInput = {
   roomWidthMeters?: number;
   roomDepthMeters?: number;
   roomHeightMeters?: number;
+  /**
+   * Case-authored fixture slot position overrides, keyed by slotId.
+   * Descriptor/parametric-shell overrides only: applied by `buildStationEnvironment`.
+   * Compiled meshes retain author geometry; overrides are NOT repositioned onto a
+   * compiled shell. On compiled success `resolveStationEnvironment` stamps the
+   * unapplied slot IDs under `fixtureSlotPlacementsUnapplied` for diagnosis.
+   * Absent = resolve every slot from the shared descriptor unchanged.
+   */
+  fixtureSlotPlacements?: Readonly<Record<string, { x: number; y: number; z: number }>> | undefined;
 };
 
 /** Spawn anchor — never furniture (#133). */
@@ -190,12 +199,18 @@ export async function resolveStationEnvironment(
   const compiledUrl = input.compiledRoomAssetUrl?.trim() ?? "";
   const compileNodeId = input.compileNodeId?.trim() ?? "";
   if (hasCompiledRoomAssetUrl({ compiledRoomAssetUrl: compiledUrl, compileNodeId })) {
-    return loadCompiledRoomShell({
+    const loaded = await loadCompiledRoomShell({
       environmentId: input.environmentId,
       compiledRoomAssetUrl: compiledUrl,
       compileNodeId,
       ...(input.loadGltf ? { loadGltf: input.loadGltf } : {}),
     });
+    const slotIds = input.fixtureSlotPlacements ? Object.keys(input.fixtureSlotPlacements) : [];
+    if (slotIds.length > 0) {
+      loaded.userData["fixtureSlotPlacementsUnapplied"] = [...slotIds];
+      loaded.userData["openClinXrFixtureSlotPlacementsApplied"] = false;
+    }
+    return loaded;
   }
   return buildStationEnvironment(input);
 }
@@ -242,7 +257,11 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
       depthMeters: d.roomDepthMeters,
       heightMeters: d.roomHeightMeters,
     },
-  );
+  ).map((slot) => {
+    const override = input.fixtureSlotPlacements?.[slot.slotId];
+    if (!override) return slot;
+    return { ...slot, position: { x: override.x, y: override.y, z: override.z } };
+  });
   shell.userData["fixtureSlots"] = resolvedSlots.map((slot) => ({
     ...slot,
     position: { ...slot.position },

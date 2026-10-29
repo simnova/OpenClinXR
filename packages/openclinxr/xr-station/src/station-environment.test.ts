@@ -142,3 +142,68 @@ describe("the declared environment drives the station shell (#44)", () => {
     expect(known.userData?.["environmentFallbackActive"]).toBe(false);
   });
 });
+
+import { buildStationEnvironment } from "@openclinxr/xr-station";
+
+const SOURCE74_ROOM = "urgent_care_clinic_room_v1";
+const SOURCE74_CHAIR_NAME = "openclinxr.station-environment.fixture-slot.patient_chair";
+
+type Source74Shell = ReturnType<typeof buildStationEnvironment>;
+type Source74SlotNode = { name: string; x: number; y: number; z: number };
+
+function source74SlotPositions(shell: Source74Shell) {
+  const found: Array<Source74SlotNode> = [];
+  shell.traverse((node) => {
+    if (node.name.startsWith("openclinxr.station-environment.fixture-slot.")) {
+      found.push({ name: node.name, x: node.position.x, y: node.position.y, z: node.position.z });
+    }
+  });
+  return found.sort((a, b) => (a.name < b.name ? -1 : 1));
+}
+
+function source74ChairShape(shell: Source74Shell) {
+  const chair = shell.getObjectByName(SOURCE74_CHAIR_NAME);
+  const meshes: Array<{ geometryType: string; childCount: number }> = [];
+  chair?.traverse?.((node: { geometry?: { type?: string }; children?: unknown }) => {
+    if (node.geometry?.type !== undefined) {
+      meshes.push({ geometryType: String(node.geometry.type), childCount: Array.isArray(node.children) ? node.children.length : 0 });
+    }
+  });
+  return meshes;
+}
+
+describe("fixtureSlotPlacements drive station shell (source74 correction)", () => {
+  it("override of patient_chair changes x, keeps z at the authored -.85, and leaves shape counts and non-chair slots identical", () => {
+    const base = buildStationEnvironment({ environmentId: SOURCE74_ROOM });
+    const moved = buildStationEnvironment({
+      environmentId: SOURCE74_ROOM,
+      fixtureSlotPlacements: { patient_chair: { x: 0.25, y: 0, z: -0.85 } },
+    });
+    const baseChair = base.getObjectByName(SOURCE74_CHAIR_NAME);
+    const movedChair = moved.getObjectByName(SOURCE74_CHAIR_NAME);
+    expect(baseChair?.position.x).toBeDefined();
+    expect(movedChair?.position.x).toBeCloseTo(0.25, 5);
+    expect(movedChair?.position.y).toBe(0);
+    expect(movedChair?.position.z).toBeCloseTo(-0.85, 5);
+    expect(baseChair?.position.z).toBeCloseTo(-0.85, 5);
+    expect(baseChair?.position.x).not.toBe(movedChair?.position.x);
+    const baseSlots = source74SlotPositions(base).filter((slot) => slot.name !== SOURCE74_CHAIR_NAME);
+    const movedSlots = source74SlotPositions(moved).filter((slot) => slot.name !== SOURCE74_CHAIR_NAME);
+    expect(movedSlots.length).toBeGreaterThan(0);
+    expect(movedSlots).toEqual(baseSlots);
+    expect(source74SlotPositions(moved).length).toBe(source74SlotPositions(base).length);
+    expect(source74ChairShape(moved)).toEqual(source74ChairShape(base));
+  });
+
+  it("omitted placements keep the default chair position, matching an explicit empty placements map", () => {
+    const shell = buildStationEnvironment({ environmentId: SOURCE74_ROOM });
+    const withEmpty = buildStationEnvironment({ environmentId: SOURCE74_ROOM, fixtureSlotPlacements: {} });
+    const chair = shell.getObjectByName(SOURCE74_CHAIR_NAME);
+    const emptyChair = withEmpty.getObjectByName(SOURCE74_CHAIR_NAME);
+    expect(chair?.position.x).toBeDefined();
+    expect(chair?.position.x).not.toBe(0.25);
+    expect(emptyChair?.position.x).toBe(chair?.position.x);
+    expect(emptyChair?.position.y).toBe(chair?.position.y);
+    expect(emptyChair?.position.z).toBe(chair?.position.z);
+  });
+});

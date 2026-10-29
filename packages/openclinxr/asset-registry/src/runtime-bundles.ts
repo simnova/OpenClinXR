@@ -213,6 +213,15 @@ export type EncounterRuntimeSceneManifest = {
   equipmentPlacements: Record<string, EncounterRuntimeEquipmentPlacement>;
   roomProps: EncounterRuntimeRoomProp[];
   /**
+   * Case-authored fixture slot position overrides, keyed by slotId. Absent = shared
+   * descriptor positions. Carried on the persisted manifest so the runtime need not
+   * ask the scenarioBank about a case it has never seen.
+   * Parametric-shell overrides only: compiled room meshes retain author geometry and
+   * never reposition fixture nodes; a nonempty map on a compiled-success mount is
+   * reported as unapplied slot IDs, not as applied positions.
+   */
+  fixtureSlotPlacements?: Readonly<Record<string, { x: number; y: number; z: number }>> | undefined;
+  /**
    * Case-owned orders for actors walking OUTSIDE the frozen-plan approach, by ROLE (not
    * actorId). `targetOffsetMeters` is relative to that role's own placement -- not absolute --
    * since this manifest is reused across cases with different placements. main.ts only forwards.
@@ -1514,6 +1523,10 @@ export function createEdChestPainRuntimeSceneManifest(input: {
         : {}),
     }, { environmentId, authored }),
     equipmentPlacements: caseRealGlbEquipmentPlacements(input.scenario),
+    ...(() => {
+      const slots = caseDocument?.fixtureSlotPlacements;
+      return slots && Object.keys(slots).length > 0 ? { fixtureSlotPlacements: { ...slots } } : {};
+    })(),
     // Case-routed (main42): the corrected Ward layout belongs to the owning Ward case,
     // not to every case sharing the ward environmentId. The frozen scene-closure case
     // keeps the baseline its freeze was measured against, so its parametric digest

@@ -1,8 +1,8 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
+import { describe, expect, it } from "vitest";
 import {
   buildGeneratedEdStationRuntimeBundleReport,
   refreshPublicActorPlacements,
@@ -764,3 +764,137 @@ function environmentReport() {
     verdict: { passed: true, readyForProductionEnvironment: false, blockers: [] },
   };
 }
+
+describe("clinic fixture public refresh correction", () => {
+  const CLINIC_SCENARIO_ID = "clinic_abdominal_pain_interpreter_v1";
+  const EXPECTED_FIXTURE_SLOTS = { patient_chair: { x: 0.25, y: 0, z: -0.85 } };
+
+  async function writeReportInputs(tempDir: string) {
+    const humanPath = path.join(tempDir, "human.json");
+    const equipmentPath = path.join(tempDir, "equipment.json");
+    const environmentPath = path.join(tempDir, "environment.json");
+    await writeFile(humanPath, `${JSON.stringify(humanReport(), null, 2)}\n`, "utf8");
+    await writeFile(equipmentPath, `${JSON.stringify(equipmentReport(), null, 2)}\n`, "utf8");
+    await writeFile(environmentPath, `${JSON.stringify(environmentReport(), null, 2)}\n`, "utf8");
+    return { humanReportPath: humanPath, equipmentReportPath: equipmentPath, environmentReportPath: environmentPath };
+  }
+
+  it("general builder propagates the owner fixture map with finite coordinates, and a non-owner case gains no map", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-fixture-owner-"));
+    try {
+      const inputs = await writeReportInputs(tempDir);
+      const owner = await buildGeneratedEdStationRuntimeBundleReport({ ...inputs, scenarioId: CLINIC_SCENARIO_ID });
+      expect(owner.status).toBe("bundle_ready");
+      const slots = owner.bundle?.sceneManifest.fixtureSlotPlacements;
+      expect(slots).toBeDefined();
+      if (slots === undefined) throw new Error("owner fixture map missing");
+      expect(slots).toEqual(EXPECTED_FIXTURE_SLOTS);
+      for (const position of Object.values(slots)) {
+        expect(Number.isFinite(position.x)).toBe(true);
+        expect(Number.isFinite(position.y)).toBe(true);
+        expect(Number.isFinite(position.z)).toBe(true);
+      }
+      const other = await buildGeneratedEdStationRuntimeBundleReport({ ...inputs, scenarioId: "peds_asthma_parent_anxiety_v1" });
+      expect(other.status).toBe("bundle_ready");
+      expect("fixtureSlotPlacements" in (other.bundle?.sceneManifest ?? {})).toBe(false);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("fixture refresh writes both files, keeps every other field, and is idempotent", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-fixture-refresh-"));
+    const stationDir = path.join(tempDir, CLINIC_SCENARIO_ID);
+    try {
+      await mkdir(stationDir, { recursive: true });
+      const bundle = {
+        scenarioId: CLINIC_SCENARIO_ID,
+        actors: [{ actorId: "patient_lucia_morales_v1" }],
+        equipment: [{ equipmentId: "exam_table_equipment" }],
+        sceneManifest: {
+          scenarioId: CLINIC_SCENARIO_ID,
+          actorPlacements: { patient_lucia_morales_v1: {} },
+          equipmentPlacements: { exam_table_equipment: {} },
+        },
+      };
+      const manifest = {
+        scenarioId: CLINIC_SCENARIO_ID,
+        actorPlacements: { patient_lucia_morales_v1: {} },
+        equipmentPlacements: { exam_table_equipment: {} },
+      };
+      await writeFile(path.join(stationDir, "learner-runtime-bundle.v1.json"), JSON.stringify(bundle), "utf8");
+      await writeFile(path.join(stationDir, "scene-manifest.v1.json"), JSON.stringify(manifest), "utf8");
+
+      await runGeneratedEdStationRuntimeBundleCli(["--refresh-public-fixtures", "--scenario-id", CLINIC_SCENARIO_ID, "--public-root", tempDir]);
+
+      const refreshedBundle = JSON.parse(await readFile(path.join(stationDir, "learner-runtime-bundle.v1.json"), "utf8")) as typeof bundle & { sceneManifest: { fixtureSlotPlacements: unknown } };
+      const refreshedManifest = JSON.parse(await readFile(path.join(stationDir, "scene-manifest.v1.json"), "utf8")) as typeof manifest & { fixtureSlotPlacements: unknown };
+      expect(refreshedBundle.sceneManifest.fixtureSlotPlacements).toEqual(EXPECTED_FIXTURE_SLOTS);
+      expect(refreshedManifest.fixtureSlotPlacements).toEqual(EXPECTED_FIXTURE_SLOTS);
+      const { fixtureSlotPlacements: _bundleSlots, ...restBundle } = refreshedBundle.sceneManifest;
+      expect(restBundle).toEqual(bundle.sceneManifest);
+      const { fixtureSlotPlacements: _manifestSlots, ...restManifest } = refreshedManifest;
+      expect(restManifest).toEqual(manifest);
+      expect(refreshedBundle.actors).toEqual(bundle.actors);
+      expect(refreshedBundle.equipment).toEqual(bundle.equipment);
+
+      const onceBundle = await readFile(path.join(stationDir, "learner-runtime-bundle.v1.json"), "utf8");
+      const onceManifest = await readFile(path.join(stationDir, "scene-manifest.v1.json"), "utf8");
+      await runGeneratedEdStationRuntimeBundleCli(["--refresh-public-fixtures", "--scenario-id", CLINIC_SCENARIO_ID, "--public-root", tempDir]);
+      expect(await readFile(path.join(stationDir, "learner-runtime-bundle.v1.json"), "utf8")).toBe(onceBundle);
+      expect(await readFile(path.join(stationDir, "scene-manifest.v1.json"), "utf8")).toBe(onceManifest);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("refuses unsupported, mismatched, and scenario-less manifests without writing either file", async () => {
+    await expect(
+      runGeneratedEdStationRuntimeBundleCli(["--refresh-public-fixtures", "--scenario-id", "peds_asthma_parent_anxiety_v1", "--public-root", "/nonexistent-public-root"]),
+    ).rejects.toThrow(/unsupported authored case/);
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-fixture-guards-"));
+    const stationDir = path.join(tempDir, CLINIC_SCENARIO_ID);
+    try {
+      await mkdir(stationDir, { recursive: true });
+      const cases: Array<[string, string]> = [
+        [JSON.stringify({ scenarioId: "ed_chest_pain_priority_v1", sceneManifest: { scenarioId: "ed_chest_pain_priority_v1" } }), JSON.stringify({ scenarioId: "ed_chest_pain_priority_v1" })],
+        [JSON.stringify({ scenarioId: CLINIC_SCENARIO_ID, sceneManifest: { scenarioId: CLINIC_SCENARIO_ID } }), JSON.stringify({ actorPlacements: {} })],
+      ];
+      for (const [bundleText, manifestText] of cases) {
+        await writeFile(path.join(stationDir, "learner-runtime-bundle.v1.json"), bundleText, "utf8");
+        await writeFile(path.join(stationDir, "scene-manifest.v1.json"), manifestText, "utf8");
+        await expect(
+          runGeneratedEdStationRuntimeBundleCli(["--refresh-public-fixtures", "--scenario-id", CLINIC_SCENARIO_ID, "--public-root", tempDir]),
+        ).rejects.toThrow(/scenario mismatch/);
+        expect(await readFile(path.join(stationDir, "learner-runtime-bundle.v1.json"), "utf8")).toBe(bundleText);
+        expect(await readFile(path.join(stationDir, "scene-manifest.v1.json"), "utf8")).toBe(manifestText);
+      }
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("parser rejects unknown flags and conflicting modes before any I/O", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-fixture-parser-"));
+    try {
+      await expect(runGeneratedEdStationRuntimeBundleCli(["--bogus-flag-xyz", "--output", path.join(tempDir, "r.json")])).rejects.toThrow(/Unknown flag/);
+      expect((await import("node:fs")).existsSync(path.join(tempDir, "r.json"))).toBe(false);
+      await expect(runGeneratedEdStationRuntimeBundleCli(["-x", "--output", path.join(tempDir, "r2.json")])).rejects.toThrow(/Unknown flag/);
+      expect((await import("node:fs")).existsSync(path.join(tempDir, "r2.json"))).toBe(false);
+      await expect(runGeneratedEdStationRuntimeBundleCli(["--refresh-public-place", "--output", path.join(tempDir, "r3.json")])).rejects.toThrow(/Unknown/);
+      expect((await import("node:fs")).existsSync(path.join(tempDir, "r3.json"))).toBe(false);
+      await expect(
+        runGeneratedEdStationRuntimeBundleCli(["--refresh-public-placements", "--refresh-public-fixtures", "--scenario-id", CLINIC_SCENARIO_ID, "--public-root", tempDir]),
+      ).rejects.toThrow(/mutually exclusive/);
+      await expect(
+        runGeneratedEdStationRuntimeBundleCli(["--refresh-public-fixtures", "--write-azurite", "--scenario-id", CLINIC_SCENARIO_ID, "--public-root", tempDir]),
+      ).rejects.toThrow(/cannot combine/);
+      await expect(
+        runGeneratedEdStationRuntimeBundleCli(["--refresh-public-fixtures", "--validate-latest", "--scenario-id", CLINIC_SCENARIO_ID, "--public-root", tempDir, "--output", path.join(tempDir, "r.json")]),
+      ).rejects.toThrow(/cannot combine/);
+      expect((await import("node:fs")).existsSync(path.join(tempDir, "r.json"))).toBe(false);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+});

@@ -3,21 +3,27 @@
  * station shell. Fixture local shells stay parametric; identity must match
  * `room:<environmentId>` or the compiled URL is refused.
  *
+ * Case-authored `fixtureSlotPlacements` (when set) forward to every
+ * `resolveStationEnvironment` call: no-compiled fallback, compiled success
+ * resolve, and both readiness/load-failure helpers. Absent = descriptor
+ * resolve unchanged. Guard behavior, defaults, and readiness stamping are
+ * unchanged from baseline.
+ *
  * claimScope: simulated_actor_or_factory_behavior
  * notEvidenceFor: clinical validity, licensure, exam equivalence, Quest readiness
  */
 
 import type { EncounterRuntimeAsset } from "@openclinxr/asset-registry/runtime-bundles";
 import { resolveRuntimeAssetUrl } from "@openclinxr/asset-registry/runtime-bundles";
+import {
+  type BuildStationEnvironmentInput,
+  resolveStationEnvironment,
+} from "@openclinxr/xr-station";
 import type { Group } from "three";
 import {
   applyCompiledRoomReadinessOrFallback,
   fallbackCompiledRoomLoadFailure,
 } from "./compiled-room-runtime.js";
-import {
-  resolveStationEnvironment,
-  type BuildStationEnvironmentInput,
-} from "@openclinxr/xr-station";
 
 export type CompiledRoomRuntimeIdentity = {
   compiledRoomAssetUrl: string;
@@ -60,10 +66,16 @@ export async function mountStationEnvironmentForRuntime(input: {
   environmentId: string;
   environment: EncounterRuntimeAsset;
   loadGltf?: BuildStationEnvironmentInput["loadGltf"];
+  fixtureSlotPlacements?: BuildStationEnvironmentInput["fixtureSlotPlacements"];
 }): Promise<Group> {
   const compiled = resolveCompiledRoomFromRuntimeEnvironment(input);
   if (!compiled) {
-    return resolveStationEnvironment({ environmentId: input.environmentId });
+    return resolveStationEnvironment({
+      environmentId: input.environmentId,
+      ...(input.fixtureSlotPlacements
+        ? { fixtureSlotPlacements: input.fixtureSlotPlacements }
+        : {}),
+    });
   }
   try {
     const loaded = await resolveStationEnvironment({
@@ -71,11 +83,17 @@ export async function mountStationEnvironmentForRuntime(input: {
       compiledRoomAssetUrl: compiled.compiledRoomAssetUrl,
       compileNodeId: compiled.compileNodeId,
       ...(input.loadGltf ? { loadGltf: input.loadGltf } : {}),
+      ...(input.fixtureSlotPlacements
+        ? { fixtureSlotPlacements: input.fixtureSlotPlacements }
+        : {}),
     });
     return applyCompiledRoomReadinessOrFallback({
       compiled: loaded,
       environmentId: input.environmentId,
       compileNodeId: compiled.compileNodeId,
+      ...(input.fixtureSlotPlacements
+        ? { fixtureSlotPlacements: input.fixtureSlotPlacements }
+        : {}),
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "compiled room load failed";
@@ -83,6 +101,9 @@ export async function mountStationEnvironmentForRuntime(input: {
       environmentId: input.environmentId,
       compileNodeId: compiled.compileNodeId,
       message,
+      ...(input.fixtureSlotPlacements
+        ? { fixtureSlotPlacements: input.fixtureSlotPlacements }
+        : {}),
     });
   }
 }

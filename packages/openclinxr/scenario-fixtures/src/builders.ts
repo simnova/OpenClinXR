@@ -18,6 +18,7 @@ type DraftScenarioInput = {
   equipment: string[];
   assetNeeds: NonNullable<Scenario["assetNeeds"]>;
   syntheticCaseDisclosure: string;
+  fixtureSlotPlacements?: Readonly<Record<string, { x: number; y: number; z: number }>> | undefined;
 };
 
 export function draftScenario(input: DraftScenarioInput): Scenario {
@@ -53,6 +54,7 @@ export function draftScenario(input: DraftScenarioInput): Scenario {
     environment: input.environment,
     equipment: input.equipment,
     assetNeeds: input.assetNeeds,
+    ...(input.fixtureSlotPlacements ? { fixtureSlotPlacements: { ...input.fixtureSlotPlacements } } : {}),
   };
 }
 

@@ -14,8 +14,8 @@
   "optimizationMode": "length_width_deck_unit_normalize_no_decimation",
   "realismGrade": null,
   "promotionStatus": "runtime_candidate_not_readiness_gate_pass",
-  "sha256": "a66a8fff1e2ff4a4662ba90554ca59eae6b375ab09263fe2e6ae862a6fd3f335",
-  "bytes": 532224,
+  "sha256": "8f7feeff376cc87c0d0ef466085c63eff553d0408b649cdac895f4854d9569d6",
+  "bytes": 532344,
   "measuredNormalize": {
     "lengthM": 1.8999994993209839,
     "widthM": 0.7000000476837158,
@@ -66,17 +66,32 @@
       "Blender normalize (length/width/deck SSOT).",
       "Promote byte-identical normalized GLB into medical-equipment library.",
       "Wire REAL_EQUIPMENT_GLTF_BY_ID + deckTopYMeters stamp.",
-      "2026-09-16: finalize-equipment-glb-cli.ts (dedup) collapsed 15 materials each embedding a byte-identical 203,149-byte texture (verified sha256-equal) into 1 material + 1 texture. Lossless: all 15 materials were already property-identical (roughness 0.8211145401000977, metallic 0, alphaMode OPAQUE, doubleSided true, emissive [0,0,0], alphaCutoff 0.5, same UV set 0) — an authoring-time material-per-part duplication with no visual difference. Triangle count (7,940), vertex count (8,410), and AABB unchanged."
+      "2026-09-16: finalize-equipment-glb-cli.ts (dedup) collapsed 15 materials each embedding a byte-identical 203,149-byte texture (verified sha256-equal) into 1 material + 1 texture. Lossless: all 15 materials were already property-identical (roughness 0.8211145401000977, metallic 0, alphaMode OPAQUE, doubleSided true, emissive [0,0,0], alphaCutoff 0.5, same UV set 0) \u2014 an authoring-time material-per-part duplication with no visual difference. Triangle count (7,940), vertex count (8,410), and AABB unchanged.",
+      "2026-10-28T20:18:36.321638+00:00: pure wrapper: append one named +90deg Y node, reparent original scene roots; original objects/post-JSON stream exact; input a66a8fff1e2ff4a4662ba90554ca59eae6b375ab09263fe2e6ae862a6fd3f335; tool fbca9021bb5c461eb8a6bec7ff572702e5fd48e0cfbbc1c74a2b3e1686c30568; raw receipt tools/openclinxr/evidence/exam-table-frame/derive-report.json. No provider or Blender rerun."
     ]
   },
   "finalizeStation": {
     "tool": "tools/openclinxr/asset-pipeline/equipment/finalize-equipment-glb-cli.ts",
     "appliedAt": "2026-09-16T00:00:00.000Z",
-    "measuredBefore": { "sha256": "b620e4949d2fef3669fe83327d66937d2fcac4bfbc0f0960e98e25e0edb51f0b", "bytes": 3381996, "textures": 15, "materials": 15 },
-    "measuredAfter": { "sha256": "a66a8fff1e2ff4a4662ba90554ca59eae6b375ab09263fe2e6ae862a6fd3f335", "bytes": 532224, "textures": 1, "materials": 1 },
+    "measuredBefore": {
+      "sha256": "b620e4949d2fef3669fe83327d66937d2fcac4bfbc0f0960e98e25e0edb51f0b",
+      "bytes": 3381996,
+      "textures": 15,
+      "materials": 15
+    },
+    "measuredAfter": {
+      "sha256": "a66a8fff1e2ff4a4662ba90554ca59eae6b375ab09263fe2e6ae862a6fd3f335",
+      "bytes": 532224,
+      "textures": 1,
+      "materials": 1
+    },
     "bytesSavedPct": 84.3,
     "claimScope": "texture/material datablock dedup only; does not alter geometry, AABB, or UVs",
-    "notEvidenceFor": ["visual_realism_change", "clinical_validity", "quest_readiness"]
+    "notEvidenceFor": [
+      "visual_realism_change",
+      "clinical_validity",
+      "quest_readiness"
+    ]
   },
   "toolVersion": "openclinxr-equipment-bank-promote-v1",
   "promotedAt": "2026-08-12T14:01:20.607236+00:00",
@@ -88,5 +103,20 @@
     "clinical_validity",
     "scoring_validity",
     "scene_placement_readiness"
-  ]
+  ],
+  "frameDerivation": {
+    "actualToolSha256": "fbca9021bb5c461eb8a6bec7ff572702e5fd48e0cfbbc1c74a2b3e1686c30568",
+    "currentProducerReceiptPath": "tools/openclinxr/evidence/exam-table-frame/derive-report.json",
+    "derivedAtLocal": "2026-10-28",
+    "derivedBytes": 532344,
+    "derivedSha256": "8f7feeff376cc87c0d0ef466085c63eff553d0408b649cdac895f4854d9569d6",
+    "descriptor": "pure wrapper local-frame derivation: append one named +90deg Y node, reparent original scene roots; original objects/post-JSON stream exact",
+    "inputOriginalBytes": 532224,
+    "inputOriginalSha256": "a66a8fff1e2ff4a4662ba90554ca59eae6b375ab09263fe2e6ae862a6fd3f335",
+    "inputRef": "9dae5eaaaa842bd8e90bb5e9d9b5577801ef3a07",
+    "status": "candidate_not_promoted",
+    "toolPath": "tools/openclinxr/asset-pipeline/equipment-frame/normalize-exam-table-frame.py",
+    "stableRawReceiptPath": "tools/openclinxr/evidence/exam-table-frame/derive-report.json",
+    "actualGenerationTimeUtc": "2026-10-28T20:18:36.321638+00:00"
+  }
 }

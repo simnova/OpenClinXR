@@ -372,6 +372,10 @@
       },
       {
         "name": "createEdChestPainRuntimeSceneManifest",
+        "kind": "runtime"
+      },
+      {
+        "name": "createEdChestPainRuntimeSceneManifest",
         "kind": "runtime",
         "via": "own-test"
       },
@@ -467,6 +471,10 @@
       },
       {
         "name": "validateAssetManifest",
+        "kind": "runtime"
+      },
+      {
+        "name": "validateScenario",
         "kind": "runtime"
       },
       {

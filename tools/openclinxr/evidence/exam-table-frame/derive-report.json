@@ -1,0 +1,17 @@
+{
+  "inputSha256": "a66a8fff1e2ff4a4662ba90554ca59eae6b375ab09263fe2e6ae862a6fd3f335",
+  "approvedInputSha": "a66a8fff1e2ff4a4662ba90554ca59eae6b375ab09263fe2e6ae862a6fd3f335",
+  "canonicalInputPath": "apps/ui-xr/public/xr-assets/medical-equipment/exam-table-sketchfab-ccby.glb",
+  "inputCommit": "9dae5eaaaa842bd8e90bb5e9d9b5577801ef3a07",
+  "inputRef": "9dae5eaaaa842bd8e90bb5e9d9b5577801ef3a07",
+  "sourceRepo": "/Users/patrick/.codex/worktrees/ci-source62-qualification-20261028/openclinxr",
+  "outputSha256": "8f7feeff376cc87c0d0ef466085c63eff553d0408b649cdac895f4854d9569d6",
+  "transformStartUtc": "2026-10-28T20:18:36.296818+00:00",
+  "generationTimeUtc": "2026-10-28T20:18:36.321638+00:00",
+  "toolSha256": "fbca9021bb5c461eb8a6bec7ff572702e5fd48e0cfbbc1c74a2b3e1686c30568",
+  "toolPath": "/Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph634-ci-gap-execution/source66-git-bound-parent/tools/openclinxr/asset-pipeline/equipment-frame/normalize-exam-table-frame.py",
+  "attribution": "Exam Table by orphic_oasis8 (Sketchfab, CC BY 4.0)",
+  "transform": "pure wrapper: append one named +90deg Y node, reparent original scene roots; original objects/post-JSON stream exact",
+  "status": "candidate_not_promoted",
+  "stage": "DERIVED pure-frame stage; not provider/Blender rerun"
+}

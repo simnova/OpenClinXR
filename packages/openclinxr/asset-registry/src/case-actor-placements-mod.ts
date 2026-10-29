@@ -69,6 +69,12 @@ export type CaseScenarioSource = {
     intentionallyAbsentEquipmentIds?: readonly string[] | undefined;
     copies?: Readonly<Record<string, number>> | undefined;
   } | undefined;
+  /**
+   * Case-authored fixture slot position overrides, keyed by fixture slotId.
+   * Absent or empty = resolve every slot from the shared descriptor unchanged.
+   * Present entries replace the resolved position of the named slot only.
+   */
+  fixtureSlotPlacements?: Readonly<Record<string, { x: number; y: number; z: number }>> | undefined;
 };
 
 /**

@@ -119,6 +119,9 @@ export async function buildStationRoomShell(
   const stationEnvironment = await mountStationEnvironmentForRuntime({
     environmentId: envId,
     environment: bundle.environment,
+    ...(bundle.sceneManifest?.fixtureSlotPlacements
+      ? { fixtureSlotPlacements: bundle.sceneManifest.fixtureSlotPlacements }
+      : {}),
   });
 
   // Floor mesh from environment or fallback procedural box
