@@ -229,9 +229,51 @@ export const CAMERA_SWEEP_SCENE_SOURCE = String.raw`function () {
   for (pi = 0; pi < actors.length; pi++) if (/patient/i.test(actors[pi].id)) { patientActor = actors[pi]; break; }
   if (!patientActor) for (qi = 0; qi < actors.length; qi++) if (actors[qi].recumbent) { patientActor = actors[qi]; break; }
   if (!patientActor) patientActor = actors[0];
+  var isTranslucentPortalSurface = function (m) {
+    if (!m || typeof m !== "object") return false;
+    if (m.isMeshStandardMaterial !== true) return false;
+    if (hasCustomShaderCallback(m)) return false;
+    if (m.blending !== 1) return false;
+    if (m.depthWrite !== false) return false;
+    if (m.transparent !== true) return false;
+    if (typeof m.opacity !== "number" || !(m.opacity >= 0) || !(m.opacity < 1)) return false;
+    return true;
+  };
+  var hasCustomShaderCallback = function (m) {
+    if (!m || typeof m !== "object") return false;
+    try {
+      var chain = [], p = Object.getPrototypeOf(m);
+      while (p && p !== Object.prototype) { chain.push(p); p = Object.getPrototypeOf(p); }
+      var baseDefault;
+      for (var i = chain.length - 1; i >= 0; i--) {
+        if (Object.prototype.hasOwnProperty.call(chain[i], "onBeforeCompile") && typeof chain[i].onBeforeCompile === "function") { baseDefault = chain[i].onBeforeCompile; break; }
+      }
+      var q = Object.getPrototypeOf(m);
+      while (q && q !== Object.prototype) {
+        if (Object.prototype.hasOwnProperty.call(q, "onBeforeCompile")) {
+          if (typeof q.onBeforeCompile === "function" && q.onBeforeCompile !== baseDefault) return true;
+          break;
+        }
+        q = Object.getPrototypeOf(q);
+      }
+      if (Object.prototype.hasOwnProperty.call(m, "onBeforeCompile") && typeof m.onBeforeCompile === "function" && m.onBeforeCompile !== baseDefault) return true;
+      return false;
+    } catch (e) { return typeof m.onBeforeCompile === "function"; }
+  };
+  var blocksOcclusion = function (object) {
+    var mats = object.material;
+    if (!mats) return true;
+    if (!Array.isArray(mats)) mats = [mats];
+    if (mats.length === 0) return true;
+    for (var mi = 0; mi < mats.length; mi++) {
+      if (!isTranslucentPortalSurface(mats[mi])) return true;
+    }
+    return false;
+  };
   var occluders = [];
   scene.traverse(function (o) {
     if (!(o.isMesh || o.isSkinnedMesh) || !effectivelyVisible(o)) return;
+    if (!blocksOcclusion(o)) return;
     var box = worldBoxOf(o, true);
     if (!box) return;
     occluders.push({ box: box, actorId: actorIdOf(o), name: o.name || "unnamed" });

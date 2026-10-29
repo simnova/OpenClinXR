@@ -1,22 +1,22 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
 import { CASE_FROZEN_SCENE_PLANS } from "@openclinxr/asset-registry/case-frozen-scene-plans";
+import { describe, expect, it } from "vitest";
 import { gradeReport } from "../isolated-foot-grounder/capture.js";
 import {
+  assetMatchesExpected,
+  clipMatchesExpected,
+  FOOT_GROUNDER_CASE_ID,
+  FOOT_GROUNDER_PHYSICIAN_INSTANCE_ID,
+  getExpectedFootGrounderIdentity,
+} from "./expected-foot-identity.js";
+import {
   DECLARED_NONSTANDING_SCENARIO_IDS,
-  SIX_CANONICAL_DECLARATIONS,
   evaluateStagingCounterweight,
   expectedPostureFromCaseIntent,
   primarySupportSurfaceForScenario,
+  SIX_CANONICAL_DECLARATIONS,
 } from "./expected-posture.js";
-import {
-  FOOT_GROUNDER_CASE_ID,
-  FOOT_GROUNDER_PHYSICIAN_INSTANCE_ID,
-  assetMatchesExpected,
-  clipMatchesExpected,
-  getExpectedFootGrounderIdentity,
-} from "./expected-foot-identity.js";
 
 const REPO_ROOT = path.resolve(__dirname, "../../../..");
 
@@ -166,12 +166,12 @@ describe("canonical staging contracts (fake/static units, no browser)", () => {
       (i) => i?.instanceId === FOOT_GROUNDER_PHYSICIAN_INSTANCE_ID,
     );
     expect(physician?.assetSha256).toBe(
-      "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
+      "6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4",
     );
     expect(physician?.byteCount).toBe(9618436);
     expect(expected.expectedClipRevision).toBe("openclinxr_retarget_walk_source");
     expect(expected.expectedAssetSha256).toBe(
-      "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
+      "6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4",
     );
     expect(expected.expectedBytes).toBe(9618436);
     // Independent provenance lineage agrees; retired formal_cc0 preserved.
