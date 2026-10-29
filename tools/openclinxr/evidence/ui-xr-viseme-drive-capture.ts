@@ -36,32 +36,60 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "./lib/slotted-playwright.js";
-import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import {
   createDefaultModelGateway,
   MockModelProviderAdapter,
 } from "../../../packages/openclinxr/model-gateway/src/index.js";
-import { createDefaultScenarioRuntime, type ScenarioRuntime } from "../../../packages/openclinxr/scenario-runtime/src/index.js";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
+import { createDefaultScenarioRuntime, type ScenarioRuntime } from "../../../packages/openclinxr/scenario-runtime/src/index.js";
 import type { Scenario } from "../../../packages/openclinxr/shared-schemas/src/index.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
+import { buildVisemeProfileEvidence } from "./viseme-drive/epoch-profile-evidence.js";
+import { parseCaptureRunId, parseOutputRoot, resolveOutputPath } from "./viseme-drive/output-routing.js";
+import { type OwnedFrameEpoch, selectOwnedFrameEpochDurationMs } from "./viseme-drive/parent-epoch-frame-duration.js";
 
-const OUTPUT_DIR = ".openclinxr/evidence/viseme-drive-2026-08-06";
+const OUTPUT_ROOT = parseOutputRoot(process.argv.slice(2));
+const route = (...segments: string[]): string => resolveOutputPath(OUTPUT_ROOT, ...segments);
+
+const CAPTURE_RUN_ID = parseCaptureRunId(process.argv.slice(2));
+const RAW_OUTPUT_DIR = CAPTURE_RUN_ID === null ? ".openclinxr/evidence/viseme-drive-2026-08-06" : `.openclinxr/evidence/viseme-drive-${CAPTURE_RUN_ID}`;
+const OUTPUT_DIR = route(RAW_OUTPUT_DIR);
 const INSPECTION_PATH = path.join(OUTPUT_DIR, "inspection.json");
-const SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "parent-drives-a-real-viseme.json");
+const SUMMARY_PATH = route("tools", "openclinxr", "evidence", "parent-drives-a-real-viseme.json");
 /** #465: tracked summary proving the reframe puts the subject's head IN frame (not just ran). */
-const REFRAME_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "reframe-subject-in-frame.json");
+const REFRAME_SUMMARY_PATH = route("tools", "openclinxr", "evidence", "reframe-subject-in-frame.json");
 /** #468: tracked summary proving the review panel leaves the exam volume after a real crossing. */
-const REVIEW_PANEL_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "review-panel-leaves-exam-volume.json");
+const REVIEW_PANEL_SUMMARY_PATH = route("tools", "openclinxr", "evidence", "review-panel-leaves-exam-volume.json");
 /** #472: tracked summary proving the capture anchors on the mouth joint, not the crown apex. */
-const MOUTH_ANCHOR_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "capture-aims-at-the-mouth.json");
+const MOUTH_ANCHOR_SUMMARY_PATH = route("tools", "openclinxr", "evidence", "capture-aims-at-the-mouth.json");
 /** #730: tracked artifact recording EVERY nonzero morph on the subject (not only viseme_*), so
  * the openness channel's `mouth-open` write is visible to the cap contract. */
-const MOUTH_OPEN_CHANNEL_PATH = path.join("tools", "openclinxr", "evidence", "mouth-open-channel.json");
+const MOUTH_OPEN_CHANNEL_PATH = route("tools", "openclinxr", "evidence", "mouth-open-channel.json");
 /** #729: TRACKED record of the frame pass's own timing — one row per frame (label instant + PNG
  * bytes) and the utterance duration those frames claim to sample, read live from the speech
  * state. The gitignored inspection.json cannot be a contract input. */
-const FRAME_PASS_TIMING_PATH = path.join("tools", "openclinxr", "evidence", "frame-pass-timing.json");
+const FRAME_PASS_TIMING_PATH = route("tools", "openclinxr", "evidence", "frame-pass-timing.json");
+const SPEAK_FIXTURE_CAMERA_CANDIDATE_REPORT_PATH = route("tools/openclinxr/evidence/speak-fixture-camera-candidate-report.json");
+
+async function ensureRoutedParentDirs(): Promise<void> {
+  const dirs = new Set<string>([
+    OUTPUT_DIR,
+    path.dirname(INSPECTION_PATH),
+    path.dirname(SUMMARY_PATH),
+    path.dirname(REFRAME_SUMMARY_PATH),
+    path.dirname(REVIEW_PANEL_SUMMARY_PATH),
+    path.dirname(MOUTH_ANCHOR_SUMMARY_PATH),
+    path.dirname(MOUTH_OPEN_CHANNEL_PATH),
+    path.dirname(FRAME_PASS_TIMING_PATH),
+    SPEAK_FIXTURE_OUTPUT_DIR,
+    SPEAK_FIXTURE_FRAME_DIR,
+    path.dirname(SPEAK_FIXTURE_SUMMARY_PATH),
+    path.dirname(SPEAK_FIXTURE_CAMERA_CANDIDATE_REPORT_PATH),
+  ]);
+  for (const d of dirs) await mkdir(d, { recursive: true });
+}
+
 
 /**
  * #726: the subject is pinned by actor id, never by "first mesh with viseme_ keys". The child now
@@ -86,9 +114,10 @@ const SPEAK_FIXTURE_TRANSCRIPT = "When did the chest pressure start?";
 const SPEAK_FIXTURE_TRACE_TAG = "history_opqrst";
 const SPEAK_FIXTURE_EXPECTED_ACTOR_ID = "patient_robert_hayes_v1";
 const SPEAK_FIXTURE_AT_SECOND = 30;
-const SPEAK_FIXTURE_OUTPUT_DIR = ".openclinxr/evidence/speak-fixture-2026-08-28";
-const SPEAK_FIXTURE_SUMMARY_PATH = path.join("tools", "openclinxr", "evidence", "ui-xr-speak-fixture-live.json");
-const SPEAK_FIXTURE_FRAME_DIR = path.join("tools", "openclinxr", "evidence", "speak-fixture-stills");
+const RAW_SPEAK_FIXTURE_OUTPUT_DIR = ".openclinxr/evidence/speak-fixture-2026-08-28";
+const SPEAK_FIXTURE_OUTPUT_DIR = route(RAW_SPEAK_FIXTURE_OUTPUT_DIR);
+const SPEAK_FIXTURE_SUMMARY_PATH = route("tools", "openclinxr", "evidence", "ui-xr-speak-fixture-live.json");
+const SPEAK_FIXTURE_FRAME_DIR = route("tools", "openclinxr", "evidence", "speak-fixture-stills");
 /** #710: the capture URL param that arms the dev-only bridge in apps/ui-xr/src/speak-fixture-bridge.ts. */
 const SPEAK_FIXTURE_QUERY_PARAM = "openclinxrSpeakFixture=1";
 /** #710: the #709 runner's deterministic model gateway route id (mirrors the spike). */
@@ -133,6 +162,9 @@ type SceneSample = {
   /** NEW: why peak is null — "no viseme active" is a legitimate state, not an empty string. */
   noActiveVisemeReason?: string | null;
   speech?: { activeViseme?: string; activePhoneme?: string; activeMouthOpenness?: number } | null;
+  diagSameInstant?: Record<string, unknown> | null;
+  diagAnteroom?: Record<string, unknown> | null;
+  diagPanel?: Record<string, unknown> | null;
 };
 
 async function sampleParentVisemes(page: Page, expectedActorId: string = EXPECTED_SUBJECT_ACTOR_ID): Promise<SceneSample> {
@@ -200,10 +232,112 @@ async function sampleParentVisemes(page: Page, expectedActorId: string = EXPECTE
       : null;
 
     const speech = win.__openClinXrHumanoidSpeechEvidence;
+    const portalEv = win.__openClinXrPortalTransitionEvidence || null;
     const meshName = parentMesh && typeof parentMesh["name"] === "string" ? parentMesh["name"] : "";
+    // Owned-epoch diagnostic: climb the ACTUAL ancestors of the sampled parent mesh to find
+    // the runtime-owned epoch (slot.root.userData.openClinXrCurrentSpeechEpoch) and clock
+    // (slot.root.userData.openClinXrSpeechNowMs). Recorded raw under diagSameInstant.
+    // The global observer record below is preserved and is never treated as authoritative
+    // for which actor is active.
+    let ownedSpeechEpoch = null;
+    let ownedEpochRootName = null;
+    let ownedEpochRootActorId = null;
+    let ownedEpochClockMs = null;
+    let ownedClockRootActorId = null;
+    if (parentMesh) {
+      let cursor = parentMesh;
+      while (cursor) {
+        const cud = cursor["userData"];
+        if (cud) {
+          if (ownedSpeechEpoch === null && cud["openClinXrCurrentSpeechEpoch"] !== undefined && cud["openClinXrCurrentSpeechEpoch"] !== null) {
+            try { ownedSpeechEpoch = JSON.parse(JSON.stringify(cud["openClinXrCurrentSpeechEpoch"])); }
+            catch (e) { ownedSpeechEpoch = { cloneError: true }; }
+            if (typeof cursor["name"] === "string") ownedEpochRootName = cursor["name"];
+            if (typeof cud["openClinXrActorId"] === "string") ownedEpochRootActorId = cud["openClinXrActorId"];
+          }
+          if (ownedEpochClockMs === null && typeof cud["openClinXrSpeechNowMs"] === "number") {
+            ownedEpochClockMs = cud["openClinXrSpeechNowMs"];
+            if (typeof cud["openClinXrActorId"] === "string") ownedClockRootActorId = cud["openClinXrActorId"];
+          }
+        }
+        cursor = cursor["parent"];
+      }
+    }
+    const diagSameInstant = {
+      speechActiveActorId: (speech && typeof speech.activeActorId === "string") ? speech.activeActorId : null,
+      meshActorId: parentMesh ? actorIdOf(parentMesh) : null,
+      ownedSpeechEpoch: ownedSpeechEpoch,
+      ownedEpochRootName: ownedEpochRootName,
+      ownedEpochRootActorId: ownedEpochRootActorId,
+      ownedClockRootActorId: ownedClockRootActorId,
+      ownedEpochClockMs: ownedEpochClockMs,
+      dictKeys: dict ? Object.keys(dict) : [],
+      influenceLen: influences ? influences.length : 0,
+      speechActiveViseme: (speech && typeof speech.activeViseme === "string") ? speech.activeViseme : null,
+      speechActivePhoneme: (speech && typeof speech.activePhoneme === "string") ? speech.activePhoneme : null,
+      speechActiveMouthOpenness: (speech && typeof speech.activeMouthOpenness === "number") ? speech.activeMouthOpenness : null,
+      tNow: Date.now()
+    };
+    const diagAnteroomGlobal = win.__openClinXrReusableExteriorAnteroom || null;
+    const diagAnteroomGlobalPresent = diagAnteroomGlobal !== null && diagAnteroomGlobal !== undefined;
+    const diagAnteroomGlobalName = (diagAnteroomGlobal && typeof diagAnteroomGlobal["name"] === "string") ? diagAnteroomGlobal["name"] : null;
+    const diagAnteroomGlobalParentName = (diagAnteroomGlobal && diagAnteroomGlobal["parent"] && typeof diagAnteroomGlobal["parent"]["name"] === "string") ? diagAnteroomGlobal["parent"]["name"] : null;
+    let diagPolicyRootCount = 0;
+    let diagPolicyRootName = null;
+    if (scene && typeof scene.traverse === "function") {
+      scene.traverse(function (o) {
+        if (o && o.userData && o.userData.openClinXrReusableExteriorRoomPolicy === "reused_between_encounters_for_doorway_orientation_and_patient_note_capture_only") {
+          diagPolicyRootCount += 1;
+          if (diagPolicyRootName === null && typeof o["name"] === "string") diagPolicyRootName = o["name"];
+        }
+      });
+    }
+    let diagSpeechRaw = null;
+    let diagSpeechPlainRecord = false;
+    try {
+      if (speech && typeof speech === "object") {
+        diagSpeechPlainRecord = Object.getPrototypeOf(speech) === Object.prototype || Object.getPrototypeOf(speech) === null;
+        diagSpeechRaw = JSON.parse(JSON.stringify({
+          activeActorId: typeof speech.activeActorId === "string" ? speech.activeActorId : null,
+          activeAssetId: typeof speech.activeAssetId === "string" ? speech.activeAssetId : null,
+          lastText: typeof speech.lastText === "string" ? speech.lastText : null,
+          phonemeSequence: Array.isArray(speech.phonemeSequence) ? speech.phonemeSequence.slice(0, 64) : null,
+          visemeSequence: Array.isArray(speech.visemeSequence) ? speech.visemeSequence.slice(0, 64) : null,
+          activePhoneme: typeof speech.activePhoneme === "string" ? speech.activePhoneme : null,
+          activeViseme: typeof speech.activeViseme === "string" ? speech.activeViseme : null,
+          activeMouthOpenness: typeof speech.activeMouthOpenness === "number" ? speech.activeMouthOpenness : null
+        }));
+      }
+    } catch (e) { diagSpeechRaw = { cloneError: true }; }
+    let diagPanelMarkerPresent = false;
+    let diagPanelMarkedCount = 0;
+    const diagPanelVisibleFlags = [];
+    let diagPanelRootName = null;
+    let diagPanelAncestorChainVisible = true;
+    if (scene && typeof scene.traverse === "function") {
+      scene.traverse(function (o) {
+        if (o && o.userData && o.userData.openClinXrPortalInteriorReviewAffordance === true) {
+          diagPanelMarkedCount += 1;
+          if (!diagPanelMarkerPresent) {
+            diagPanelMarkerPresent = true;
+            if (typeof o["name"] === "string") diagPanelRootName = o["name"];
+            let cursor = o;
+            while (cursor) {
+              if (cursor["visible"] === false) diagPanelAncestorChainVisible = false;
+              cursor = cursor["parent"];
+            }
+          }
+          diagPanelVisibleFlags.push(o.visible !== false);
+        }
+      });
+    }
+    const diagPortalSide = portalEv && typeof portalEv.side === "string" ? portalEv.side : null;
     return {
       t: 0,
       meshName,
+      diagSameInstant: (typeof diagSameInstant !== "undefined") ? diagSameInstant : null,
+      diagAnteroom: { globalPresent: diagAnteroomGlobalPresent, globalName: diagAnteroomGlobalName, globalParentName: diagAnteroomGlobalParentName, policyRootCount: diagPolicyRootCount, policyRootName: diagPolicyRootName, speechPlainRecord: diagSpeechPlainRecord, speechRaw: diagSpeechRaw },
+      diagPanel: { markerPresent: diagPanelMarkerPresent, rootPresent: diagPanelMarkerPresent, markedNodeCount: diagPanelMarkedCount, visibleFlags: diagPanelVisibleFlags, portalSide: diagPortalSide, panelRootName: diagPanelRootName, ancestorChainVisible: diagPanelAncestorChainVisible },
       readings,
       allNonZero,
       availableTargets: dict ? Object.keys(dict) : [],
@@ -870,7 +1004,7 @@ async function waitForParentVisemeMesh(page: Page, expectedActorId: string = EXP
 
 export const EXPECTED_PARENT_SPEAKER_ID = "parent_tara_johnson_v1";
 
-export type ParentSpeakerAttempt = { clicked: boolean; buttonCount: number; speakerReady: boolean; activeActorId: string | null };
+export type ParentSpeakerAttempt = { clicked: boolean; buttonCount: number; speakerReady: boolean; activeActorId: string | null; speechActorId?: string | null; priorStartedAtMs?: number | null; startedAtMs?: number | null };
 
 export function isParentSpeakerAttemptReady(attempt: Omit<ParentSpeakerAttempt, "speakerReady">): boolean {
   if (!attempt.clicked) return false;
@@ -878,13 +1012,62 @@ export function isParentSpeakerAttemptReady(attempt: Omit<ParentSpeakerAttempt, 
   return attempt.activeActorId === EXPECTED_PARENT_SPEAKER_ID;
 }
 
-export async function retriggerParentDialogue(page: Page): Promise<{ clicked: boolean; buttonCount: number; speakerReady: boolean; activeActorId: string | null }> {
+export function isFreshOwnedParentEpochReady(attempt: Omit<ParentSpeakerAttempt, "speakerReady">): boolean {
+  if (!attempt.clicked) return false;
+  if (attempt.buttonCount === 0) return false;
+  if (attempt.activeActorId !== EXPECTED_PARENT_SPEAKER_ID) return false;
+  if (attempt.speechActorId !== EXPECTED_PARENT_SPEAKER_ID) return false;
+  // Same-actor stale refusal: a new epoch must prove a finite startedAtMs newer
+  // than the finite owned epoch captured before the click. A present-but-nonfinite
+  // prior (NaN/Infinity) is fail-closed refused; null/undefined no-prior stays allowed.
+  if (typeof attempt.startedAtMs !== "number" || !Number.isFinite(attempt.startedAtMs)) return false;
+  if (attempt.priorStartedAtMs === null || attempt.priorStartedAtMs === undefined) return true;
+  if (typeof attempt.priorStartedAtMs !== "number" || !Number.isFinite(attempt.priorStartedAtMs)) return false;
+  if (!(attempt.startedAtMs > attempt.priorStartedAtMs)) return false;
+  return true;
+}
+
+type OwnedParentEpochReading = {
+  actorId: unknown;
+  speechActorId: unknown;
+  startedAtMs: number | null;
+  durationMs: number | null;
+  nowMs: number | null;
+};
+
+async function readOwnedParentEpoch(page: Page): Promise<OwnedParentEpochReading> {
+  return page.evaluate(`(() => {
+    const EXPECTED_ACTOR = ${JSON.stringify(EXPECTED_PARENT_SPEAKER_ID)};
+    const scene = window.__openClinXrDebugScene;
+    if (!scene || typeof scene.traverse !== "function") return { actorId: null, speechActorId: null, startedAtMs: null, durationMs: null, nowMs: null };
+    let epoch = null;
+    scene.traverse(function (o) {
+      if (epoch) return;
+      const ud = o.userData;
+      if (!ud) return;
+      if (ud.openClinXrActorId !== EXPECTED_ACTOR) return;
+      if (ud.openClinXrCurrentSpeechEpoch && typeof ud.openClinXrCurrentSpeechEpoch === "object") epoch = ud.openClinXrCurrentSpeechEpoch;
+    });
+    if (!epoch) return { actorId: null, speechActorId: null, startedAtMs: null, durationMs: null, nowMs: null };
+    return {
+      actorId: epoch.actorId !== undefined ? epoch.actorId : null,
+      speechActorId: epoch.speechActorId !== undefined ? epoch.speechActorId : null,
+      startedAtMs: typeof epoch.startedAtMs === "number" ? epoch.startedAtMs : null,
+      durationMs: typeof epoch.durationMs === "number" ? epoch.durationMs : null,
+      nowMs: typeof epoch.nowMs === "number" ? epoch.nowMs : null
+    };
+  })()`);
+}
+
+export async function retriggerParentDialogue(page: Page): Promise<ParentSpeakerAttempt> {
   // Click the parent-communication trace to make the PARENT speak (its turn is authored on
   // `parent_communication`, actor `parent_tara_johnson_v1`), so the sampling window covers a
   // full parent utterance from t≈0. Fail-closed: a missing button or failed click must NOT
   // silently sample the expired tail (ph336: that tail is only viseme_sil).
   const button = page.getByRole("button", { name: /parent communication/i });
   const buttonCount = await button.count();
+  const priorOwned = await readOwnedParentEpoch(page);
+  const priorStartedAtMs = priorOwned.startedAtMs;
   let clicked = false;
   if (buttonCount > 0) {
     try {
@@ -894,34 +1077,39 @@ export async function retriggerParentDialogue(page: Page): Promise<{ clicked: bo
       clicked = false;
     }
   }
-  // Speaker-readiness acknowledgement (ph338): the runtime's own speech evidence must
-  // name the parent as the active speaker shortly after the click. This does NOT prove
-  // utterance epoch t≈0 when the same actor was already active — the ≥2 distinct
-  // rendered viseme_* gate (unchanged) remains the required evidence of real drive.
-  // A stale/expired utterance keeps the old actor (or none) and the caller refuses it.
+  // Speaker-readiness acknowledgement (ph338): the OWNED parent epoch must name the
+  // parent as the speaking actor shortly after the click. The global observer record stays
+  // a raw diagnostic only and is never authoritative. This does NOT prove utterance epoch
+  // t≈0 when the same actor was already active — the ≥2 distinct rendered viseme_* gate
+  // (unchanged) remains the required evidence of real drive.
+  // A stale/expired utterance keeps the old epoch (or none) and the caller refuses it.
   let activeActorId: string | null = null;
+  let speechActorId: string | null = null;
+  let startedAtMs: number | null = null;
   let speakerReady = false;
   for (let i = 0; i < 10; i += 1) {
-    activeActorId = await page.evaluate(`(() => {
-      const speech = window.__openClinXrHumanoidSpeechEvidence;
-      return (speech && typeof speech.activeActorId === "string") ? speech.activeActorId : null;
-    })()`);
-    if (isParentSpeakerAttemptReady({ clicked, buttonCount, activeActorId })) {
+    const owned = await readOwnedParentEpoch(page);
+    activeActorId = typeof owned.actorId === "string" ? owned.actorId : null;
+    speechActorId = typeof owned.speechActorId === "string" ? owned.speechActorId : null;
+    startedAtMs = owned.startedAtMs;
+    if (isFreshOwnedParentEpochReady({ clicked, buttonCount, activeActorId, speechActorId, priorStartedAtMs, startedAtMs })) {
       speakerReady = true;
       break;
     }
     await page.waitForTimeout(150);
   }
-  return { clicked, buttonCount, speakerReady, activeActorId };
+  return { clicked, buttonCount, speakerReady, activeActorId, speechActorId, priorStartedAtMs, startedAtMs };
 }
 
 export async function requireParentSpeakerReady(page: Page, where: string): Promise<void> {
   const attempt = await retriggerParentDialogue(page);
-  if (!isParentSpeakerAttemptReady(attempt) || !attempt.speakerReady) {
+  if (!isFreshOwnedParentEpochReady(attempt) || !attempt.speakerReady) {
     throw new Error(
       `parent speaker readiness NOT acknowledged at ${where}: `
       + `clicked=${attempt.clicked} buttonCount=${attempt.buttonCount} `
-      + `speakerReady=${attempt.speakerReady} activeActorId=${attempt.activeActorId ?? "null"} — `
+      + `speakerReady=${attempt.speakerReady} activeActorId=${attempt.activeActorId ?? "null"} `
+      + `speechActorId=${attempt.speechActorId ?? "null"} `
+      + `startedAtMs=${attempt.startedAtMs ?? "null"} priorStartedAtMs=${attempt.priorStartedAtMs ?? "null"} — `
       + `refusing to sample without the parent acknowledged as speaker`,
     );
   }
@@ -975,15 +1163,29 @@ async function readReviewPanelState(page: Page): Promise<{ present: boolean; vis
         if (!panel && o.userData && o.userData.openClinXrPortalInteriorReviewAffordance === true) panel = o;
       });
     }
+    let markedNodeCount = 0;
+    const visibleFlags = [];
+    if (scene && typeof scene.traverse === "function") {
+      scene.traverse(function (o) {
+        if (o && o.userData && o.userData.openClinXrPortalInteriorReviewAffordance === true) {
+          markedNodeCount += 1;
+          visibleFlags.push(o.visible !== false);
+        }
+      });
+    }
     return {
       present: Boolean(panel),
-      visible: Boolean(panel) && panel.visible !== false
+      visible: Boolean(panel) && panel.visible !== false,
+      markedNodeCount: markedNodeCount,
+      visibleFlags: visibleFlags
     };
   })()`);
 }
 
 export async function runVisemeCapture(): Promise<void> {
+  await ensureRoutedParentDirs();
   await mkdir(OUTPUT_DIR, { recursive: true });
+  await mkdir(path.dirname(SUMMARY_PATH), { recursive: true });
 
   let server: PortlessDevServer | undefined;
   try {
@@ -1102,8 +1304,9 @@ export async function runVisemeCapture(): Promise<void> {
       const SAMPLE_STEP_MS = 110;
       const SAMPLE_SPAN_MS = 4_400;
       async function denseStatesPass(): Promise<void> {
+        const densePassStartedAt = Date.now();
         for (let target = SAMPLE_STEP_MS; target <= SAMPLE_SPAN_MS; target += SAMPLE_STEP_MS) {
-          const elapsed = Date.now() - t0;
+          const elapsed = Date.now() - densePassStartedAt;
           if (target > elapsed) {
             await page.waitForTimeout(target - elapsed);
           }
@@ -1125,6 +1328,9 @@ export async function runVisemeCapture(): Promise<void> {
       // viseme so strong instants can be attributed to a frame (#465's second defect).
       await requireParentSpeakerReady(page, "frame-pass-start");
       await page.waitForTimeout(120);
+      // Same-pass owned epoch: read BEFORE any frame wait/screenshot and retain it
+      // for the whole timing report. No scene traversal, no baked/text fallback.
+      const frameEpoch: OwnedFrameEpoch = await readOwnedParentEpoch(page);
       const FRAME_STEP_MS = 250;
       const FRAME_COUNT = 8;
       // #729: the pass paces against its OWN start, not the sampling-wide t0 (which precedes the
@@ -1175,40 +1381,27 @@ export async function runVisemeCapture(): Promise<void> {
       }
 
       // #729: TRACKED timing record — the gitignored inspection.json cannot be a contract input.
-      // The utterance duration is read live from the subject's baked viseme timeline (the
-      // runtime's own speech state), falling back to the runtime's deterministic text-derived
-      // formula (phonemeCount * 90, clamped 900-4800) when no baked cue file was served.
-      const utteranceDurationMs = await page.evaluate(`(() => {
-        const EXPECTED_ACTOR = ${JSON.stringify(EXPECTED_SUBJECT_ACTOR_ID)};
-        const scene = window.__openClinXrDebugScene;
-        if (!scene || typeof scene.traverse !== "function") return null;
-        let duration = null;
-        let phonemeCount = null;
-        scene.traverse(function (o) {
-          const ud = o.userData;
-          if (!ud) return;
-          const actorId = typeof ud.openClinXrActorId === "string" ? ud.openClinXrActorId : null;
-          const timeline = ud.openClinXrBakedVisemeTimeline;
-          if (timeline && typeof timeline.durationMs === "number") {
-            if (actorId === EXPECTED_ACTOR || duration === null) duration = timeline.durationMs;
-          }
-          const mapping = ud.openClinXrDialoguePhonemeMapping;
-          if (mapping && Array.isArray(mapping.phonemeSequence)) {
-            if (actorId === EXPECTED_ACTOR || phonemeCount === null) phonemeCount = mapping.phonemeSequence.length;
-          }
-        });
-        if (duration !== null) return duration;
-        if (phonemeCount !== null) return Math.max(900, Math.min(4800, phonemeCount * 90));
-        return null;
-      })()`);
-      if (typeof utteranceDurationMs !== "number" || utteranceDurationMs <= 0) {
-        throw new Error("frame pass: no utterance duration found in the live speech state");
+      // The utterance duration comes ONLY from the same-pass owned parent epoch captured
+      // before the frame waits (actorId/speechActorId/startedAtMs/durationMs/nowMs).
+      // No baked-timeline traversal, no text-derived fallback.
+      const utteranceDurationMs = selectOwnedFrameEpochDurationMs(frameEpoch, EXPECTED_SUBJECT_ACTOR_ID);
+      if (utteranceDurationMs === null) {
+        throw new Error(
+          `frame pass: no valid same-pass owned parent epoch (actorId=${String(frameEpoch.actorId)} speechActorId=${String(frameEpoch.speechActorId)} startedAtMs=${String(frameEpoch.startedAtMs)} durationMs=${String(frameEpoch.durationMs)} nowMs=${String(frameEpoch.nowMs)}) — refusing baked/text fallback`,
+        );
       }
       const frameTimingReport = {
         schemaVersion: "openclinxr.ui-xr-viseme-drive-capture.frame-pass-timing.v1",
         capturedFrom: `${INSPECTION_PATH} (pnpm asset:ui-xr:viseme-drive-capture)`,
         generatedAt: new Date().toISOString(),
         utteranceDurationMs,
+        parentEpoch: {
+          actorId: frameEpoch.actorId,
+          speechActorId: frameEpoch.speechActorId,
+          startedAtMs: frameEpoch.startedAtMs,
+          durationMs: frameEpoch.durationMs,
+          nowMs: frameEpoch.nowMs,
+        },
         frameStepMs: FRAME_STEP_MS,
         frameCount: FRAME_COUNT,
         frames: framePass.map((f) => ({
@@ -1357,6 +1550,9 @@ export async function runVisemeCapture(): Promise<void> {
           peak: s.peak,
           noActiveVisemeReason: s.noActiveVisemeReason ?? null,
           speech: s.speech,
+          diagSameInstant: (s as unknown as Record<string, unknown>).diagSameInstant ?? null,
+          diagAnteroom: (s as unknown as Record<string, unknown>).diagAnteroom ?? null,
+          diagPanel: (s as unknown as Record<string, unknown>).diagPanel ?? null,
           nonZeroVisemes: s.readings
             .filter((r) => r.influence > 0.01)
             .map((r) => ({
@@ -1490,33 +1686,9 @@ export async function runVisemeCapture(): Promise<void> {
       // locomotion crossing (side + hidden names read live from portal evidence), while still
       // existing outside it. subjectVisible/firstHitMeshName record the live camera->head raycast
       // verdict and the viseme mixer's driven influences. Derived from the same live run, never typed.
-      const reviewPanelSummary = {
-        capturedFrom: `${INSPECTION_PATH} (pnpm asset:ui-xr:viseme-drive-capture)`,
-        queryUsed: new URL(url).search,
-        side: interiorSnapshot?.side ?? "no_portal_evidence",
-        portalInteriorHiddenObjectNames: interiorSnapshot?.portalInteriorHiddenObjectNames ?? [],
-        panelPresentOutsideEncounter: exteriorPanel.present && exteriorPanel.visible,
-        subjectVisible: firstReframe.status === "ok" ? firstReframe.subjectVisible : false,
-        firstHitMeshName: firstReframe.status === "ok" ? firstReframe.firstHitMeshName : null,
-        visemeInfluences: [...strongByName.entries()].map(([drivenTargetName, v]) => ({
-          drivenTargetName,
-          influence: Number(v.influence.toFixed(4)),
-        })),
-      };
-      await writeFile(REVIEW_PANEL_SUMMARY_PATH, `${JSON.stringify(reviewPanelSummary, null, 2)}\n`, "utf8");
-      process.stdout.write(
-        `reviewPanelSummary: ${REVIEW_PANEL_SUMMARY_PATH} side=${reviewPanelSummary.side} panelOutside=${reviewPanelSummary.panelPresentOutsideEncounter} subjectVisible=${reviewPanelSummary.subjectVisible} firstHit=${reviewPanelSummary.firstHitMeshName}\n`,
-      );
-
-      // #472 land-path summary: prove the camera anchored on the mouth joint (jaw, or the ruled
-      // eye-midpoint / head fallback), not the crown apex. The drop (crown -> aim) and the
-      // first-hit verdict are measured in-page; nothing here is typed. fail-closed statuses are
-      // recorded as nulls so a broken reframe cannot masquerade as a framed mouth.
-      //
-      // #726: the artifact also records WHAT it measured — the producer path and the subject's
-      // loaded GLB, with per-source fingerprints (bytes + sha256) computed from the bytes this
-      // run read. findStaleMeasuredGeometry (#707) refuses the artifact the moment either source
-      // no longer matches the tree, so a snapshot can never again be green about a different tree.
+      // source148: owned-epoch viseme profile + expiry facts over the actual built
+      // inspection.rawTimeline rows (serialized nonZeroVisemes). No runtime/gain/
+      // threshold/routing change; the panel's original fields above are untouched.
       const subjectGlbRepoPath =
         firstReframe.status === "ok"
         && firstReframe.subjectAssetPath
@@ -1533,6 +1705,63 @@ export async function runVisemeCapture(): Promise<void> {
         const bytes = readFileSync(repoRelativePath);
         return { bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") };
       };
+      const profileRows = inspection.rawTimeline.map((row) => ({
+        t: row.t,
+        meshName: row.meshName,
+        nonZeroVisemes: row.nonZeroVisemes,
+        diagSameInstant: (row.diagSameInstant ?? null) as Record<string, unknown> | null,
+      }));
+      const firstDiag = (profileRows[0]?.diagSameInstant ?? null) as Record<string, unknown> | null;
+      const dictKeys = Array.isArray(firstDiag?.["dictKeys"]) ? (firstDiag?.["dictKeys"] as string[]) : [];
+      const visemeProfileEvidence = buildVisemeProfileEvidence({
+        rows: profileRows,
+        expectedOwnerActorId: EXPECTED_SUBJECT_ACTOR_ID,
+        expectedMeshName:
+          (firstReframe.status === "ok" && firstReframe.targetMeshName) ||
+          drivenMeshNames[0] ||
+          "",
+        actorId: EXPECTED_SUBJECT_ACTOR_ID,
+        meshName:
+          (firstReframe.status === "ok" && firstReframe.targetMeshName) ||
+          drivenMeshNames[0] ||
+          "",
+        subjectAssetPath: firstReframe.status === "ok" ? (firstReframe.subjectAssetPath as string) : "",
+        subjectAssetSha256: fingerprintOf(subjectGlbRepoPath).sha256,
+        dictKeysSha256: createHash("sha256").update(JSON.stringify(dictKeys)).digest("hex"),
+        targetCount: dictKeys.length,
+        sourceFile: "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts",
+        sourceSha256: fingerprintOf("packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts").sha256,
+        collectorSourceFile: "tools/openclinxr/evidence/viseme-drive/epoch-profile-evidence.ts",
+        collectorSourceSha256: fingerprintOf("tools/openclinxr/evidence/viseme-drive/epoch-profile-evidence.ts").sha256,
+      });
+      const reviewPanelSummary = {
+        capturedFrom: `${INSPECTION_PATH} (pnpm asset:ui-xr:viseme-drive-capture)`,
+        queryUsed: new URL(url).search,
+        side: interiorSnapshot?.side ?? "no_portal_evidence",
+        portalInteriorHiddenObjectNames: interiorSnapshot?.portalInteriorHiddenObjectNames ?? [],
+        panelPresentOutsideEncounter: exteriorPanel.present && exteriorPanel.visible,
+        subjectVisible: firstReframe.status === "ok" ? firstReframe.subjectVisible : false,
+        firstHitMeshName: firstReframe.status === "ok" ? firstReframe.firstHitMeshName : null,
+        visemeInfluences: [...strongByName.entries()].map(([drivenTargetName, v]) => ({
+          drivenTargetName,
+          influence: Number(v.influence.toFixed(4)),
+        })),
+        visemeProfileEvidence,
+      };
+      await writeFile(REVIEW_PANEL_SUMMARY_PATH, `${JSON.stringify(reviewPanelSummary, null, 2)}\n`, "utf8");
+      process.stdout.write(
+        `reviewPanelSummary: ${REVIEW_PANEL_SUMMARY_PATH} side=${reviewPanelSummary.side} panelOutside=${reviewPanelSummary.panelPresentOutsideEncounter} subjectVisible=${reviewPanelSummary.subjectVisible} firstHit=${reviewPanelSummary.firstHitMeshName}\n`,
+      );
+
+      // #472 land-path summary: prove the camera anchored on the mouth joint (jaw, or the ruled
+      // eye-midpoint / head fallback), not the crown apex. The drop (crown -> aim) and the
+      // first-hit verdict are measured in-page; nothing here is typed. fail-closed statuses are
+      // recorded as nulls so a broken reframe cannot masquerade as a framed mouth.
+      //
+      // #726: the artifact also records WHAT it measured — the producer path and the subject's
+      // loaded GLB, with per-source fingerprints (bytes + sha256) computed from the bytes this
+      // run read. findStaleMeasuredGeometry (#707) refuses the artifact the moment either source
+      // no longer matches the tree, so a snapshot can never again be green about a different tree.
       const mouthAnchorSummary = {
         capturedFrom: `${INSPECTION_PATH} (pnpm asset:ui-xr:viseme-drive-capture)`,
         aimJointName: firstReframe.status === "ok" ? firstReframe.aimJointName : null,
@@ -1705,8 +1934,10 @@ async function readSpeakFixtureRuntimeContext(page: Page): Promise<SpeakFixtureR
  * tools/openclinxr/evidence/.
  */
 export async function runSpeakFixture(): Promise<void> {
+  await ensureRoutedParentDirs();
   await mkdir(SPEAK_FIXTURE_OUTPUT_DIR, { recursive: true });
   await mkdir(SPEAK_FIXTURE_FRAME_DIR, { recursive: true });
+  await mkdir(path.dirname(SPEAK_FIXTURE_SUMMARY_PATH), { recursive: true });
 
   const runnerTurn = await runSpeakFixtureRunner();
   process.stdout.write(
@@ -1982,8 +2213,9 @@ export async function runSpeakFixture(): Promise<void> {
           attempts: row.sweep?.attempts ?? [],
         })),
       };
+      await mkdir(path.dirname(SPEAK_FIXTURE_CAMERA_CANDIDATE_REPORT_PATH), { recursive: true });
       await writeFile(
-        path.join("tools", "openclinxr", "evidence", "speak-fixture-camera-candidate-report.json"),
+        SPEAK_FIXTURE_CAMERA_CANDIDATE_REPORT_PATH,
         `${JSON.stringify(candidateReport, null, 2)}\n`,
         "utf8",
       );

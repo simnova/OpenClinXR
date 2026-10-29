@@ -16,7 +16,8 @@ type FakePage = Parameters<typeof retriggerParentDialogue>[0];
  * click reject / wrong actor refuse; Maya-then-Tara waits and acknowledges.
  */
 describe("real parent speaker gate (ph341)", () => {
-  function fakePage(opts: { count: number; clickRejects: boolean; actors: (string | null)[] }): FakePage {
+  type OwnedEpoch = { actorId: string | null; speechActorId: string | null; startedAtMs: number | null; durationMs: number | null; nowMs: number | null };
+  function fakePage(opts: { count: number; clickRejects: boolean; epochs: (OwnedEpoch | null)[] }): FakePage {
     let calls = 0;
     let waits = 0;
     return {
@@ -29,25 +30,28 @@ describe("real parent speaker gate (ph341)", () => {
         }),
       }),
       evaluate: async () => {
-        const a = opts.actors[Math.min(calls, opts.actors.length - 1)];
+        const e = opts.epochs[Math.min(calls, opts.epochs.length - 1)];
         calls += 1;
-        return a;
+        return e ?? { actorId: null, speechActorId: null, startedAtMs: null, durationMs: null, nowMs: null };
       },
       waitForTimeout: async () => {
         waits += 1;
       },
     } as unknown as FakePage;
   }
+  const noEpoch = { actorId: null, speechActorId: null, startedAtMs: null, durationMs: null, nowMs: null };
+  const mayaEpoch = (startedAtMs: number): OwnedEpoch => ({ actorId: "patient_maya_johnson_v1", speechActorId: "patient_maya_johnson_v1", startedAtMs, durationMs: 4000, nowMs: startedAtMs + 100 });
+  const taraEpoch = (startedAtMs: number): OwnedEpoch => ({ actorId: EXPECTED_PARENT_SPEAKER_ID, speechActorId: EXPECTED_PARENT_SPEAKER_ID, startedAtMs, durationMs: 4000, nowMs: startedAtMs + 100 });
 
   it("a missing parent-communication button refuses", async () => {
-    const r = await retriggerParentDialogue(fakePage({ count: 0, clickRejects: false, actors: [null] }));
+    const r = await retriggerParentDialogue(fakePage({ count: 0, clickRejects: false, epochs: [noEpoch] }));
     expect(r.buttonCount).toBe(0);
     expect(r.speakerReady).toBe(false);
   });
 
   it("a rejected click refuses", async () => {
     const r = await retriggerParentDialogue(
-      fakePage({ count: 1, clickRejects: true, actors: [EXPECTED_PARENT_SPEAKER_ID] }),
+      fakePage({ count: 1, clickRejects: true, epochs: [noEpoch, taraEpoch(2000)] }),
     );
     expect(r.clicked).toBe(false);
     expect(r.speakerReady).toBe(false);
@@ -55,7 +59,7 @@ describe("real parent speaker gate (ph341)", () => {
 
   it("a wrong actor never qualifies", async () => {
     const r = await retriggerParentDialogue(
-      fakePage({ count: 1, clickRejects: false, actors: ["patient_maya_johnson_v1", "patient_maya_johnson_v1"] }),
+      fakePage({ count: 1, clickRejects: false, epochs: [mayaEpoch(1000), mayaEpoch(1000)] }),
     );
     expect(r.speakerReady).toBe(false);
   });
@@ -65,7 +69,7 @@ describe("real parent speaker gate (ph341)", () => {
     const page = fakePage({
       count: 1,
       clickRejects: false,
-      actors: ["patient_maya_johnson_v1", EXPECTED_PARENT_SPEAKER_ID],
+      epochs: [mayaEpoch(1000), mayaEpoch(1000), taraEpoch(2000)],
     });
     const origWait = (page as unknown as { waitForTimeout: () => Promise<void> }).waitForTimeout;
     (page as unknown as { waitForTimeout: () => Promise<void> }).waitForTimeout = async () => {
@@ -76,6 +80,24 @@ describe("real parent speaker gate (ph341)", () => {
     expect(r.speakerReady).toBe(true);
     expect(r.activeActorId).toBe(EXPECTED_PARENT_SPEAKER_ID);
     expect(waits).toBeGreaterThan(0);
+  });
+
+  it("a same-parent stale epoch refuses", async () => {
+    const r = await retriggerParentDialogue(
+      fakePage({ count: 1, clickRejects: false, epochs: [taraEpoch(2000), taraEpoch(2000)] }),
+    );
+    expect(r.speakerReady).toBe(false);
+  });
+
+  it("a wrong speech owner refuses", async () => {
+    const r = await retriggerParentDialogue(
+      fakePage({
+        count: 1,
+        clickRejects: false,
+        epochs: [noEpoch, { ...taraEpoch(2000), speechActorId: "patient_maya_johnson_v1" }],
+      }),
+    );
+    expect(r.speakerReady).toBe(false);
   });
 });
 

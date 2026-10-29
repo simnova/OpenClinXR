@@ -1,4 +1,5 @@
 import type { HumanoidSpeechEvidence } from "@openclinxr/xr-runtime-state";
+import type { updateHumanoidEmotionExpression } from "./face-rig.js";
 import type {
   GeneratedHumanoidAnimationSlot,
   HumanoidActingCueRecord,
@@ -6,7 +7,6 @@ import type {
   HumanoidExpressionWeights,
   HumanoidSpeechPlayback,
 } from "./types.js";
-import type { updateHumanoidEmotionExpression } from "./face-rig.js";
 
 declare global {
   // Window evidence surfaces owned by the app composition root; this package
@@ -96,6 +96,16 @@ export function writeHumanoidSpeechFrameEvidence(
   ) => HumanoidSpeechEvidence,
   roundWeights: (weights: HumanoidExpressionWeights) => HumanoidExpressionWeights,
 ): void {
+  slot.root.userData["openClinXrCurrentSpeechEpoch"] = {
+    actorId: slot.actorId,
+    speechActorId: speech.actorId,
+    startedAtMs: speech.startedAtMs,
+    durationMs: speech.durationMs,
+    nowMs,
+    currentViseme: viseme,
+    currentMouthOpenness: Number(openness.toFixed(3)),
+    turnRef: (activeDialogueTurnRef as unknown) ?? undefined,
+  };
   const browserGlobal = globalThis as unknown as { window?: unknown };
   if (typeof browserGlobal.window === "undefined") {
     return;
@@ -145,6 +155,17 @@ export function writeHumanoidSpeechFrameEvidence(
   };
   void ctx;
   void slot;
+}
+
+export function syncHumanoidSpeechEpochClock(slot: GeneratedHumanoidAnimationSlot, nowMs: number): void {
+  slot.root.userData["openClinXrSpeechNowMs"] = nowMs;
+  const speech = slot.activeSpeech;
+  if (!speech || (nowMs - speech.startedAtMs) >= speech.durationMs) {
+    delete slot.root.userData["openClinXrCurrentSpeechEpoch"];
+    return;
+  }
+  const epoch = slot.root.userData["openClinXrCurrentSpeechEpoch"] as { startedAtMs?: unknown } | undefined;
+  if (epoch && epoch.startedAtMs !== speech.startedAtMs) delete slot.root.userData["openClinXrCurrentSpeechEpoch"];
 }
 
 export function writeMouthGazePoseComparatorEvidence(

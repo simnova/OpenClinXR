@@ -1,90 +1,97 @@
 {
   "schemaVersion": "openclinxr.ui-xr-viseme-drive-capture.frame-pass-timing.v1",
-  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
-  "generatedAt": "2026-10-24T23:00:39.732Z",
-  "utteranceDurationMs": 2940,
+  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
+  "generatedAt": "2026-10-29T16:54:13.122Z",
+  "utteranceDurationMs": 3150,
+  "parentEpoch": {
+    "actorId": "parent_tara_johnson_v1",
+    "speechActorId": "parent_tara_johnson_v1",
+    "startedAtMs": 8014.06666666672,
+    "durationMs": 3150,
+    "nowMs": 8297.400000000052
+  },
   "frameStepMs": 250,
   "frameCount": 8,
   "frames": [
     {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
-      "tMs": 12,
-      "bytes": 628303,
-      "targetName": "viseme_sil",
-      "targetNameAfterShot": "viseme_sil",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_00.png",
+      "tMs": 9,
+      "bytes": 827300,
+      "targetName": "viseme_TH",
+      "targetNameAfterShot": "viseme_E",
       "influenceAfterShot": 0.5,
-      "labelToPixelGapMs": 197,
-      "labelStableAcrossShot": true
+      "labelToPixelGapMs": 241,
+      "labelStableAcrossShot": false
     },
     {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_01.png",
-      "tMs": 265,
-      "bytes": 594042,
-      "targetName": "viseme_sil",
-      "targetNameAfterShot": "viseme_sil",
-      "influenceAfterShot": 0.5,
-      "labelToPixelGapMs": 166,
-      "labelStableAcrossShot": true
-    },
-    {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_02.png",
-      "tMs": 522,
-      "bytes": 583960,
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_01.png",
+      "tMs": 267,
+      "bytes": 824915,
       "targetName": "viseme_nn",
       "targetNameAfterShot": "viseme_I",
       "influenceAfterShot": 0.5,
-      "labelToPixelGapMs": 168,
+      "labelToPixelGapMs": 222,
       "labelStableAcrossShot": false
     },
     {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_03.png",
-      "tMs": 788,
-      "bytes": 640556,
-      "targetName": "viseme_nn",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_02.png",
+      "tMs": 509,
+      "bytes": 819525,
+      "targetName": "viseme_I",
+      "targetNameAfterShot": "viseme_TH",
+      "influenceAfterShot": 1,
+      "labelToPixelGapMs": 223,
+      "labelStableAcrossShot": false
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_03.png",
+      "tMs": 767,
+      "bytes": 830390,
+      "targetName": "viseme_TH",
       "targetNameAfterShot": "viseme_nn",
       "influenceAfterShot": 0.5,
-      "labelToPixelGapMs": 216,
-      "labelStableAcrossShot": true
-    },
-    {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_04.png",
-      "tMs": 1033,
-      "bytes": 710639,
-      "targetName": "viseme_nn",
-      "targetNameAfterShot": "viseme_sil",
-      "influenceAfterShot": 0.5,
-      "labelToPixelGapMs": 248,
+      "labelToPixelGapMs": 236,
       "labelStableAcrossShot": false
     },
     {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_05.png",
-      "tMs": 1264,
-      "bytes": 512931,
-      "targetName": "viseme_sil",
-      "targetNameAfterShot": "viseme_sil",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_04.png",
+      "tMs": 1020,
+      "bytes": 837803,
+      "targetName": "viseme_nn",
+      "targetNameAfterShot": "viseme_U",
       "influenceAfterShot": 0.5,
-      "labelToPixelGapMs": 138,
+      "labelToPixelGapMs": 249,
+      "labelStableAcrossShot": false
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_05.png",
+      "tMs": 1267,
+      "bytes": 822198,
+      "targetName": "viseme_U",
+      "targetNameAfterShot": "viseme_aa",
+      "influenceAfterShot": 0.5,
+      "labelToPixelGapMs": 257,
+      "labelStableAcrossShot": false
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_06.png",
+      "tMs": 1522,
+      "bytes": 807384,
+      "targetName": "viseme_aa",
+      "targetNameAfterShot": "viseme_aa",
+      "influenceAfterShot": 0.5,
+      "labelToPixelGapMs": 254,
       "labelStableAcrossShot": true
     },
     {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_06.png",
-      "tMs": 1517,
-      "bytes": 492539,
-      "targetName": "viseme_sil",
-      "targetNameAfterShot": "viseme_sil",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_07.png",
+      "tMs": 1780,
+      "bytes": 838995,
+      "targetName": "viseme_aa",
+      "targetNameAfterShot": "viseme_U",
       "influenceAfterShot": 0.5,
-      "labelToPixelGapMs": 150,
-      "labelStableAcrossShot": true
-    },
-    {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_07.png",
-      "tMs": 1763,
-      "bytes": 473591,
-      "targetName": "viseme_sil",
-      "targetNameAfterShot": "viseme_sil",
-      "influenceAfterShot": 0.5,
-      "labelToPixelGapMs": 133,
-      "labelStableAcrossShot": true
+      "labelToPixelGapMs": 241,
+      "labelStableAcrossShot": false
     }
   ]
 }

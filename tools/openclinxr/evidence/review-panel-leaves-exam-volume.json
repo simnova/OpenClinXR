@@ -1,24 +1,24 @@
 {
-  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
+  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
   "queryUsed": "?openclinxrScenarioId=peds_asthma_parent_anxiety_v1&openclinxrCaptureMode=face-detail&openclinxrAcceleratedExam=1",
   "side": "dynamic_encounter_world",
-  "portalInteriorHiddenObjectNames": [],
+  "portalInteriorHiddenObjectNames": [
+    "openclinxr.reusable-pre-encounter-anteroom.floor",
+    "openclinxr.reusable-pre-encounter-anteroom.portal-left-wall",
+    "openclinxr.reusable-pre-encounter-anteroom.portal-right-wall",
+    "openclinxr.reusable-pre-encounter-anteroom.portal-header-wall",
+    "openclinxr.peds_asthma_parent_anxiety_v1.encounter-portal-dynamic-opening",
+    "openclinxr.reusable-pre-encounter-anteroom.portal-left-jamb",
+    "openclinxr.reusable-pre-encounter-anteroom.portal-right-jamb",
+    "openclinxr.reusable-pre-encounter-anteroom.portal-lintel",
+    "openclinxr.peds_asthma_parent_anxiety_v1.encounter-portal-dynamic-threshold",
+    "openclinxr.reusable-pre-encounter-anteroom.patient-note-capture-cue",
+    "openclinxr.peds_asthma_parent_anxiety_v1.scenario-expectation-visual-review-panel"
+  ],
   "panelPresentOutsideEncounter": true,
   "subjectVisible": true,
   "firstHitMeshName": "mpfb_peds_anxious_parent_body_1",
   "visemeInfluences": [
-    {
-      "drivenTargetName": "viseme_sil",
-      "influence": 0.5
-    },
-    {
-      "drivenTargetName": "viseme_nn",
-      "influence": 0.5
-    },
-    {
-      "drivenTargetName": "viseme_I",
-      "influence": 0.5
-    },
     {
       "drivenTargetName": "viseme_TH",
       "influence": 1
@@ -26,6 +26,55 @@
     {
       "drivenTargetName": "viseme_E",
       "influence": 0.5
+    },
+    {
+      "drivenTargetName": "viseme_sil",
+      "influence": 0.5
+    },
+    {
+      "drivenTargetName": "viseme_I",
+      "influence": 0.5
+    },
+    {
+      "drivenTargetName": "viseme_aa",
+      "influence": 0.5
+    },
+    {
+      "drivenTargetName": "viseme_nn",
+      "influence": 0.5
+    },
+    {
+      "drivenTargetName": "viseme_U",
+      "influence": 0.5
     }
-  ]
+  ],
+  "visemeProfileEvidence": {
+    "actorId": "parent_tara_johnson_v1",
+    "meshName": "mpfb_peds_anxious_parent_body_1",
+    "subjectAssetPath": "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+    "subjectAssetSha256": "0bbc575f063e5abe60095a57f118d7cdd010bdaa4decd81c49e19e824a13ddf6",
+    "dictKeysSha256": "6a6082196390c4931bedff7eacf2f53740596393fda0df1cd79f56d43dbf9fae",
+    "targetCount": 47,
+    "sourceFile": "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts",
+    "sourceSha256": "88f9a7a055daa9599f35b5aeb70ba15f1060bb39247059554a57ebadc68b4811",
+    "collectorSourceFile": "tools/openclinxr/evidence/viseme-drive/epoch-profile-evidence.ts",
+    "collectorSourceSha256": "361280e58c8336728c00c9a028cd27ae9779bd2c49ad348a3742dc07c9637260",
+    "activeEpochSampleCount": 34,
+    "inactiveEpochSampleCount": 14,
+    "ownerMismatchCount": 0,
+    "completedEpochCount": 1,
+    "prematureEpochClearCount": 0,
+    "activeMorphPeaks": {
+      "viseme_TH": 1,
+      "viseme_E": 0.5,
+      "viseme_sil": 0.5,
+      "viseme_I": 0.5,
+      "viseme_aa": 0.5,
+      "viseme_nn": 0.5,
+      "viseme_U": 0.5
+    },
+    "inactiveMorphPeaks": {
+      "viseme_sil": 0.5
+    }
+  }
 }

@@ -1,24 +1,24 @@
 {
-  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
+  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
   "aimJointName": "jaw",
-  "aimWorldY": 1.1083547760602308,
-  "crownApexWorldY": 1.2677784663229938,
+  "aimWorldY": 1.093533475665513,
+  "crownApexWorldY": 1.2514560668717256,
   "anchorWorldPosition": {
-    "x": -1.6779278976377807,
-    "y": 1.1083547760602308,
-    "z": 0.19889146486684992
+    "x": -1.671766795482553,
+    "y": 1.093533475665513,
+    "z": 0.19914471332901448
   },
   "cameraWorldPosition": {
-    "x": -1.6379278976377807,
-    "y": 1.1483547760602308,
-    "z": 0.9188914648668499
+    "x": -1.631766795482553,
+    "y": 1.133533475665513,
+    "z": 0.9191447133290144
   },
   "subjectVisible": true,
   "firstHitMeshName": "mpfb_peds_anxious_parent_body_1",
   "subjectInFrame": true,
   "headNdc": {
-    "x": 0,
-    "y": 0
+    "x": 1.835320409819855e-15,
+    "y": 1.233105900347715e-15
   },
   "sources": {
     "producer": "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts",
@@ -26,8 +26,8 @@
   },
   "fingerprints": {
     "producer": {
-      "bytes": 95272,
-      "sha256": "e23185e6f3c9467e2bb7e8c4a72213b0818a8ea8685576684037e21a02db67d0"
+      "bytes": 108843,
+      "sha256": "0e77648fa78cd7afc61381271213df94e097d1fcdf82c1c7bb4d70ceb5434d6f"
     },
     "subject_glb": {
       "bytes": 19143652,

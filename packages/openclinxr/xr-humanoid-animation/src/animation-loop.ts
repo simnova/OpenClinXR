@@ -35,7 +35,7 @@ import {
   stepLocomotionOrders,
 } from "./locomotion-order-mod.js";
 import { recordMouthGazePoseComparatorEvidence } from "./mouth-gaze-pose-comparator-evidence.js";
-import { writeHumanoidSpeechFrameEvidence } from "./speech-evidence.js";
+import { syncHumanoidSpeechEpochClock, writeHumanoidSpeechFrameEvidence } from "./speech-evidence.js";
 import type {
   GeneratedHumanoidAnimationSlot,
   HumanoidActingCueRecord,
@@ -304,7 +304,7 @@ export function updateHumanoidSpeechCue(
   nowMs: number,
   camera: PerspectiveCamera,
 ): void {
-  slot.root.userData["openClinXrSpeechNowMs"] = nowMs;
+  syncHumanoidSpeechEpochClock(slot, nowMs);
   const speech = slot.activeSpeech;
   if (!speech) {
     slot.mouthCue.visible = false;

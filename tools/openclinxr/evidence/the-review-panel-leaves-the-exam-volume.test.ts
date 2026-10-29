@@ -106,6 +106,7 @@ import { describe, expect, it } from "vitest";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const MAIN_TS = join(REPO_ROOT, "apps/ui-xr/src/main.ts");
+const PORTAL_TRAIL = join(REPO_ROOT, "packages/openclinxr/xr-locomotion/src/portal-trail.ts");
 /** Tracked, not under gitignored .openclinxr/evidence — #396: that path has no land path. */
 const SUMMARY = join(HERE, "review-panel-leaves-exam-volume.json");
 
@@ -149,15 +150,34 @@ describe("the adversarial review panel leaves the learner exam volume", () => {
     expect(s.firstHitMeshName, "and something must actually be hit").not.toBeNull();
   });
 
-  it("(3) COUNTERWEIGHT: the viseme mixer still drives", () => {
-    // Refuses spec 1. Routing through shouldUseCleanHumanoidSourceComparatorCapture() returns at
-    // main.ts:8371 before the mixer, so these influences collapse to rest. This is the flag detector.
-    const s = summary();
-    for (const name of REQUIRED_VISEMES) {
-      const hit = s.visemeInfluences.find((v) => v.drivenTargetName === name);
-      expect(hit, `${name} must still be driven`).toBeDefined();
-      expect(hit?.influence, `${name} influence`).toBeCloseTo(1, 2);
+  it("(3) COUNTERWEIGHT: natural viseme profile from live evidence", async () => {
+    const { assertNaturalVisemeProfile } = await import("./review-panel/natural-viseme-profile-guard.js");
+    const authority = JSON.parse(readFileSync(join(HERE, "review-panel/profile-authority.json"), "utf8"));
+    type Ev = Record<string, unknown>;
+    const raw = summary() as unknown as { visemeProfileEvidence?: unknown };
+    if (raw.visemeProfileEvidence === undefined || raw.visemeProfileEvidence === null) {
+      expect("visemeProfileEvidence missing: old summary predates the real producer capture", "old summary must fail until new capture").toBe("present");
     }
+    const ev = raw.visemeProfileEvidence as Ev;
+    assertNaturalVisemeProfile(ev, authority, REPO_ROOT);
+    const clone = (): Ev => JSON.parse(JSON.stringify(ev)) as Ev;
+    const peaks = (m: Ev, which: string): Record<string, number> => m[which] as Record<string, number>;
+    const mustThrow = (m: Ev, re: RegExp, why: string): void => {
+      expect(() => assertNaturalVisemeProfile(m, authority, REPO_ROOT), why).toThrow(re);
+    };
+    { const m = clone(); peaks(m, "activeMorphPeaks").viseme_TH = 0.5; mustThrow(m, /viseme_TH/, "TH at rest level must fail"); }
+    { const m = clone(); peaks(m, "activeMorphPeaks").viseme_aa = 0; mustThrow(m, /viseme_aa/, "AA collapsed to 0 must fail"); }
+    { const m = clone(); peaks(m, "activeMorphPeaks").viseme_aa = 1; mustThrow(m, /viseme_aa/, "AA at full drive must fail"); }
+    { const m = clone(); m["actorId"] = "intruder"; mustThrow(m, /actorId|ownerMismatch|owner/, "wrong owner must fail"); }
+    { const m = clone(); m["ownerMismatchCount"] = 1; mustThrow(m, /ownerMismatch/, "owner mismatch count must fail"); }
+    { const m = clone(); m["subjectAssetSha256"] = "00".repeat(32); mustThrow(m, /subjectAssetSha256/, "wrong asset hash must fail"); }
+    { const m = clone(); m["dictKeysSha256"] = "00".repeat(32); mustThrow(m, /dictKeysSha256/, "wrong dictionary hash must fail"); }
+    { const m = clone(); peaks(m, "inactiveMorphPeaks").viseme_TH = 0.5; mustThrow(m, /inactiveMorphPeaks\.viseme_TH/, "inactive TH drive must fail"); }
+    { const m = clone(); m["prematureEpochClearCount"] = 1; mustThrow(m, /prematureEpochClearCount/, "premature clear must fail"); }
+    { const m = clone(); m["completedEpochCount"] = 0; mustThrow(m, /completedEpochCount/, "no observed completion must fail"); }
+    { const m = clone(); m["sourceFile"] = "packages/openclinxr/xr-dialogue/src/other-driver.ts"; mustThrow(m, /sourceFile/, "record from a different driver must fail"); }
+    { const m = clone(); m["sourceSha256"] = "00".repeat(32); mustThrow(m, /sourceSha256/, "record with wrong driver hash must fail"); }
+    { const m = clone(); m["collectorSourceSha256"] = "00".repeat(32); mustThrow(m, /collectorSourceSha256/, "record with wrong collector hash must fail"); }
   });
 
   it("(4) GREEN: not satisfiable by a URL parameter", () => {
@@ -180,27 +200,49 @@ describe("the adversarial review panel leaves the learner exam volume", () => {
     );
   });
 
-  it("(6) NET: the clean-capture predicate is untouched", () => {
-    // Reads the tree, passes today, and stays passing. If a fix reroutes through the clean flag the
-    // call-site count moves and this fires before anyone reads the artifact.
+  it("(6) NET: the clean-capture predicate is untouched", async () => {
+    const { assertFrozenCleanCapture } = await import("./review-panel/clean-capture-guard.js");
+    const baseline = JSON.parse(readFileSync(join(HERE, "review-panel/clean-capture-baseline.json"), "utf8"));
     const src = readFileSync(MAIN_TS, "utf8");
-    const sites = src.match(/shouldUseCleanHumanoidSourceComparatorCapture\(\)/g) ?? [];
-    expect(sites.length, "measured 11 on 281444fd; the clean flag is not this slice's mechanism").toBe(
-      11,
-    );
+    const ok = assertFrozenCleanCapture(src, baseline);
+    expect(ok.callSites, "7 exact AST call-sites anchored to Git 604").toBe(7);
+    const P = "shouldUseCleanHumanoidSourceComparatorCapture";
+    // AST-shape mutants: each still parses; each must be refused for its own reason.
+    const dropCall = (s: string): string => {
+      const sf = (globalThis as unknown as { __ts?: unknown }).__ts as never;
+      void sf;
+      // Remove the callee identifier of the first real call (keeps parens/args shape valid).
+      let done = false;
+      return s.split("\n").map((ln) => {
+        if (!done && ln.includes(P + "()") && !ln.trimStart().startsWith("function")) { done = true; return ln.replace(P, "droppedCleanCaptureCall"); }
+        return ln;
+      }).join("\n");
+    };
+    expect(() => assertFrozenCleanCapture(dropCall(src), baseline), "removed call must be refused").toThrow(/call-sites 6/);
+    expect(() => assertFrozenCleanCapture(src.split('"source-clean"').join('"source-cleaX"'), baseline), "body change must be refused").toThrow(/body sha/);
+    expect(() => assertFrozenCleanCapture(src.split(P).join("shouldUseCleanHumanoidSourceComparatorCapturX"), baseline), "lookalikes must be refused").toThrow(/declarations: 0/);
+    expect(() => assertFrozenCleanCapture(dropCall(src) + `\n// ${P}()\n`, baseline), "comment padding must not restore count").toThrow(/call-sites 6/);
+    expect(() => assertFrozenCleanCapture(dropCall(src) + `\nconst x = "${P}()";\n`, baseline), "string padding must not restore count").toThrow(/call-sites 6/);
   });
 
-  it("(7) VACUITY GUARD: the anteroom name filter is real and lacks the panel", () => {
-    // Reads the tree, not the absent artifact, so it passes today and keeps the trap honest: if
-    // someone widens the filter to a catch-all, the known-good column stops meaning anything.
-    const src = readFileSync(MAIN_TS, "utf8");
-    expect(src, "the known-good hider must still exist").toContain(
-      "function updateReusableExteriorAnteroomVisibility",
-    );
-    expect(src, "the anteroom's own entries must survive").toContain('object.name.includes("portal-lintel")');
-    expect(
-      src.slice(src.indexOf("function updateReusableExteriorAnteroomVisibility")).slice(0, 900),
-      "the filter does not name the panel today — that absence is the defect",
-    ).not.toContain(PANEL);
+  it("(7) VACUITY GUARD: the anteroom hider is real and marker-governed", async () => {
+    const { assertHiderSemantics } = await import("./review-panel/clean-capture-guard.js");
+    const src = readFileSync(PORTAL_TRAIL, "utf8");
+    const ok = assertHiderSemantics(src);
+    expect(ok.terms, "OR of explicit selector terms").toBeGreaterThanOrEqual(11);
+    // True-catchall mutant (still parses): must now fail.
+    const catchAll = src.replace('object.name.includes("portal-lintel")', "true");
+    expect(() => assertHiderSemantics(catchAll), "true catch-all must be refused").toThrow(/non-explicit/);
+    // Terms-only-in-comment mutant (still parses): must now fail.
+    const commentOnly = src.split('object.name.includes("portal-lintel")').join("knownLintelCheck") + '\n// portal-lintel .floor openClinXrPortalInteriorReviewAffordance\n';
+    expect(() => assertHiderSemantics(commentOnly), "comment decoys must be refused").toThrow();
+    // Constant-name receiver: valid spelling, wrong receiver — must be refused.
+    const constRecv = src.replace('object.name.includes("portal-lintel")', '({name:"portal-lintel"}).name.includes("portal-lintel")');
+    expect(() => assertHiderSemantics(constRecv), "constant receiver must be refused").toThrow();
+    // Foreign userData receiver: valid marker spelling on the wrong object — must be refused.
+    const foreignRecv = src.replace('object.userData["openClinXrPortalInteriorReviewAffordance"]', 'foreign.userData["openClinXrPortalInteriorReviewAffordance"]');
+    expect(() => assertHiderSemantics(foreignRecv), "foreign userData receiver must be refused").toThrow();
+    // Original actual hider must PASS.
+    expect(() => assertHiderSemantics(src), "actual hider must pass").not.toThrow();
   });
 });

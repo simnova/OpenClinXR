@@ -1,14 +1,18 @@
 {
-  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
+  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
   "meshName": "mpfb_peds_anxious_parent_body_1",
   "actor": "parent_tara_johnson_v1",
   "samples": [
     {
-      "drivenTargetName": "viseme_sil",
+      "drivenTargetName": "viseme_TH",
+      "influence": 1
+    },
+    {
+      "drivenTargetName": "viseme_E",
       "influence": 0.5
     },
     {
-      "drivenTargetName": "viseme_nn",
+      "drivenTargetName": "viseme_sil",
       "influence": 0.5
     },
     {
@@ -16,11 +20,15 @@
       "influence": 0.5
     },
     {
-      "drivenTargetName": "viseme_TH",
-      "influence": 1
+      "drivenTargetName": "viseme_aa",
+      "influence": 0.5
     },
     {
-      "drivenTargetName": "viseme_E",
+      "drivenTargetName": "viseme_nn",
+      "influence": 0.5
+    },
+    {
+      "drivenTargetName": "viseme_U",
       "influence": 0.5
     }
   ]

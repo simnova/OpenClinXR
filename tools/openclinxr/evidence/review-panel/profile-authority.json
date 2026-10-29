@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "sourceCommit": "c086572ee851acaeabca3d515aa501626f3129da",
+  "sourceFile": "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts",
+  "sourceSha256": "88f9a7a055daa9599f35b5aeb70ba15f1060bb39247059554a57ebadc68b4811",
+  "actorId": "parent_tara_johnson_v1",
+  "meshName": "mpfb_peds_anxious_parent_body_1",
+  "subjectAssetPath": "/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+  "subjectAssetSha256": "0bbc575f063e5abe60095a57f118d7cdd010bdaa4decd81c49e19e824a13ddf6",
+  "dictKeysSha256": "6a6082196390c4931bedff7eacf2f53740596393fda0df1cd79f56d43dbf9fae",
+  "targetCount": 47,
+  "expectedActivePeaks": {
+    "viseme_sil": 0.5,
+    "viseme_aa": 0.5,
+    "viseme_TH": 1
+  },
+  "expectedInactiveAAAndTH": 0,
+  "basis": "Actual unchanged shipped driver profile plus actual served GLB dictionary and HOST actor-owned active/off/expiry observations. TH=1 counterweight refuses a global0.5 clamp. No runtime gains/guard budgets changed."
+}

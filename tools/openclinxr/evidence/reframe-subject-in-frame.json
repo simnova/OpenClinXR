@@ -1,76 +1,84 @@
 {
-  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
+  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
   "reframe": {
     "status": "ok",
     "targetMeshName": "mpfb_peds_anxious_parent_body_1",
     "reappliedCount": 48,
     "headNdc": {
-      "x": 0,
-      "y": 0
+      "x": 1.835320409819855e-15,
+      "y": 1.233105900347715e-15
     },
     "subjectInFrame": true,
-    "headWorldY": 1.2677784663229938,
-    "aimWorldY": 1.1083547760602308,
+    "headWorldY": 1.2514560668717256,
+    "aimWorldY": 1.093533475665513,
     "firstHitMeshName": "mpfb_peds_anxious_parent_body_1",
-    "firstHitDistance": 0.0038,
+    "firstHitDistance": 0.0019,
     "subjectVisible": true,
     "occluderMeshName": null
   },
   "visemeInstants": [
     {
-      "targetName": "viseme_sil",
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png"
-    },
-    {
-      "targetName": "viseme_nn",
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_02.png"
-    },
-    {
-      "targetName": "viseme_I",
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png"
-    },
-    {
       "targetName": "viseme_TH",
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png"
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_00.png"
     },
     {
       "targetName": "viseme_E",
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png"
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_00.png"
+    },
+    {
+      "targetName": "viseme_sil",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_00.png"
+    },
+    {
+      "targetName": "viseme_I",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_02.png"
+    },
+    {
+      "targetName": "viseme_aa",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_06.png"
+    },
+    {
+      "targetName": "viseme_nn",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_01.png"
+    },
+    {
+      "targetName": "viseme_U",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_05.png"
     }
   ],
   "frameLinkage": {
+    "viseme_TH": {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_00.png",
+      "linkage": "dominant-match"
+    },
+    "viseme_E": {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_00.png",
+      "linkage": "nearest-timestamp"
+    },
     "viseme_sil": {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_00.png",
+      "linkage": "nearest-timestamp"
+    },
+    "viseme_I": {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_02.png",
+      "linkage": "dominant-match"
+    },
+    "viseme_aa": {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_06.png",
       "linkage": "dominant-match"
     },
     "viseme_nn": {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_02.png",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_01.png",
       "linkage": "dominant-match"
     },
-    "viseme_I": {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
-      "linkage": "nearest-timestamp"
-    },
-    "viseme_TH": {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
-      "linkage": "nearest-timestamp"
-    },
-    "viseme_E": {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
-      "linkage": "nearest-timestamp"
+    "viseme_U": {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_05.png",
+      "linkage": "dominant-match"
     }
   },
   "reframePerFrame": [
     {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_00.png",
-      "subjectInFrame": true,
-      "headNdc": {
-        "x": 1.835320409819855e-15,
-        "y": 0
-      }
-    },
-    {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_01.png",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_00.png",
       "subjectInFrame": true,
       "headNdc": {
         "x": 0,
@@ -78,15 +86,23 @@
       }
     },
     {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_02.png",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_01.png",
       "subjectInFrame": true,
       "headNdc": {
-        "x": 1.835320409819854e-15,
-        "y": 1.2331059003477147e-15
+        "x": 0,
+        "y": -1.233105900347715e-15
       }
     },
     {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_03.png",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_02.png",
+      "subjectInFrame": true,
+      "headNdc": {
+        "x": 1.8353204098198545e-15,
+        "y": 0
+      }
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_03.png",
       "subjectInFrame": true,
       "headNdc": {
         "x": 0,
@@ -94,35 +110,35 @@
       }
     },
     {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_04.png",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_04.png",
       "subjectInFrame": true,
       "headNdc": {
-        "x": 0,
+        "x": 1.8353204098198545e-15,
         "y": 0
       }
     },
     {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_05.png",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_05.png",
       "subjectInFrame": true,
       "headNdc": {
-        "x": 0,
+        "x": 1.835320409819854e-15,
+        "y": 1.2331059003477145e-15
+      }
+    },
+    {
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_06.png",
+      "subjectInFrame": true,
+      "headNdc": {
+        "x": -1.835320409819855e-15,
         "y": 0
       }
     },
     {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_06.png",
+      "framePath": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/viseme_frame_07.png",
       "subjectInFrame": true,
       "headNdc": {
-        "x": 0,
-        "y": -1.2331059003477149e-15
-      }
-    },
-    {
-      "framePath": ".openclinxr/evidence/viseme-drive-2026-08-06/viseme_frame_07.png",
-      "subjectInFrame": true,
-      "headNdc": {
-        "x": 0,
-        "y": -1.233105900347715e-15
+        "x": 1.835320409819854e-15,
+        "y": -1.2331059003477145e-15
       }
     }
   ],

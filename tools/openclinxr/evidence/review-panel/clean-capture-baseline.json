@@ -1,0 +1,9 @@
+{
+ "schema": 1,
+ "commit": "604ca53a6468e91dbe1df6aa23cdee7befa5685f",
+ "sourceFile": "apps/ui-xr/src/main.ts",
+ "blobSha256": "08c6519c6e88c478f4f824de4af521f1cf6c5ce4fbecc410a966eeecd50c4dd0",
+ "count": 8,
+ "predicate": "shouldUseCleanHumanoidSourceComparatorCapture",
+ "predicateBodySha256": "4c803cdb404bddc169cd302b84294231ff6b85c466cd9a9935401686361f49cf"
+}

@@ -241,3 +241,74 @@ describe("orientHumanoidTowardGazeTarget respects posture", () => {
     expect(slot.eyeFocusCue.visible).toBe(true);
   });
 });
+
+describe("each slot owns its current speech epoch", () => {
+  const EPOCH = "openClinXrCurrentSpeechEpoch";
+  function speakingSlot(actorId: string, startedAtMs: number, durationMs = 2000) {
+    const built = actor(actorId, MPFB_TARGETS);
+    built.slot.activeSpeech = {
+      actorId, assetId: `${actorId}-asset`, gazeTargetKind: "learner_camera", gazeTargetActorId: null,
+      text: "hello", emotion: "neutral",
+      emotionContext: { emotion: "neutral", source: "plan_missing", baselineMood: [], cueIds: [] },
+      phonemeSequence: ["h", "eh"], visemeSequence: ["A", "B"],
+      startedAtMs, durationMs,
+    };
+    return built;
+  }
+  function drive(slots: GeneratedHumanoidAnimationSlot[], nowMs: number) {
+    const ctx = context(slots);
+    updateGeneratedHumanoidAnimations(ctx, 1 / 60, nowMs, new PerspectiveCamera());
+  }
+  function readEpoch(root: { userData: Record<string, unknown> }): Record<string, unknown> {
+    return root.userData[EPOCH] as Record<string, unknown>;
+  }
+  it("fresh speech writes the owning slot epoch with actual playback fields", () => {
+    const { slot } = speakingSlot("patient", 1000);
+    drive([slot], 1500);
+    const epoch = readEpoch(slot.root);
+    expect(epoch["actorId"]).toBe("patient");
+    expect(epoch["startedAtMs"]).toBe(1000);
+    expect(epoch["durationMs"]).toBe(2000);
+    expect(epoch["nowMs"]).toBe(1500);
+    expect(typeof epoch["currentViseme"]).toBe("string");
+    expect(typeof epoch["currentMouthOpenness"]).toBe("number");
+  });
+  it("two actors keep independent epochs through the same public loop", () => {
+    const a = speakingSlot("patient", 1000, 8000);
+    const b = speakingSlot("nurse", 5000, 2000);
+    drive([a.slot, b.slot], 5500);
+    const ea = readEpoch(a.slot.root);
+    const eb = readEpoch(b.slot.root);
+    expect(ea["actorId"]).toBe("patient");
+    expect(eb["actorId"]).toBe("nurse");
+    expect(ea["startedAtMs"]).toBe(1000);
+    expect(eb["startedAtMs"]).toBe(5000);
+  });
+  it("same actor restart replaces the epoch with the new startedAtMs", () => {
+    const { slot } = speakingSlot("patient", 1000);
+    drive([slot], 1500);
+    expect(readEpoch(slot.root)["startedAtMs"]).toBe(1000);
+    slot.activeSpeech = {
+      ...(slot.activeSpeech as object),
+      startedAtMs: 9000,
+    } as typeof slot.activeSpeech;
+    drive([slot], 9500);
+    expect(readEpoch(slot.root)["startedAtMs"]).toBe(9000);
+  });
+  it("silent slot clears its epoch", () => {
+    const { slot } = speakingSlot("patient", 1000);
+    drive([slot], 1500);
+    expect(slot.root.userData[EPOCH]).toBeDefined();
+    slot.activeSpeech = undefined;
+    drive([slot], 1600);
+    expect(slot.root.userData[EPOCH]).toBeUndefined();
+  });
+  it("expired speech clears its epoch", () => {
+    const { slot } = speakingSlot("patient", 1000, 2000);
+    drive([slot], 1500);
+    expect(slot.root.userData[EPOCH]).toBeDefined();
+    drive([slot], 1000 + 2000 + 500);
+    expect(slot.root.userData[EPOCH]).toBeUndefined();
+    expect(slot.activeSpeech).toBeUndefined();
+  });
+});

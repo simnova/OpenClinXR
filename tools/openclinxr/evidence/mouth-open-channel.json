@@ -1,5 +1,5 @@
 {
-  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-08-06/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
+  "capturedFrom": ".openclinxr/evidence/viseme-drive-2026-10-29-main73/inspection.json (pnpm asset:ui-xr:viseme-drive-capture)",
   "meshName": "mpfb_peds_anxious_parent_body_1",
   "resolved": {
     "openclinxr_mouth_open": "mouth-open",
@@ -8,250 +8,40 @@
   },
   "samples": [
     {
-      "t": 0.112,
-      "activeMouthOpenness": 0.271,
+      "t": 0.113,
+      "activeMouthOpenness": 0.412,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.068
+          "influence": 0.0458
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.068
+          "influence": 0.0458
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.0585
+          "influence": 0.0344
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.13
+          "influence": 0.0764
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.0585
+          "influence": 0.0344
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.13
-        },
-        {
-          "targetName": "mouth-compression",
-          "influence": 1
-        },
-        {
-          "targetName": "nose-compression-uncompress",
-          "influence": 0.032
-        },
-        {
-          "targetName": "viseme_sil",
-          "influence": 0.5
-        }
-      ]
-    },
-    {
-      "t": 0.222,
-      "activeMouthOpenness": 0.284,
-      "nonZeroMorphs": [
-        {
-          "targetName": "eye-left-slit",
-          "influence": 0.068
-        },
-        {
-          "targetName": "eye-right-slit",
-          "influence": 0.068
-        },
-        {
-          "targetName": "eyebrows-left-down",
-          "influence": 0.0585
-        },
-        {
-          "targetName": "eyebrows-left-inner-up",
-          "influence": 0.13
-        },
-        {
-          "targetName": "eyebrows-right-down",
-          "influence": 0.0585
-        },
-        {
-          "targetName": "eyebrows-right-inner-up",
-          "influence": 0.13
-        },
-        {
-          "targetName": "mouth-compression",
-          "influence": 1
-        },
-        {
-          "targetName": "nose-compression-uncompress",
-          "influence": 0.032
-        },
-        {
-          "targetName": "viseme_sil",
-          "influence": 0.5
-        }
-      ]
-    },
-    {
-      "t": 0.333,
-      "activeMouthOpenness": 0.43,
-      "nonZeroMorphs": [
-        {
-          "targetName": "eye-left-slit",
-          "influence": 0.068
-        },
-        {
-          "targetName": "eye-right-slit",
-          "influence": 0.068
-        },
-        {
-          "targetName": "eyebrows-left-down",
-          "influence": 0.0585
-        },
-        {
-          "targetName": "eyebrows-left-inner-up",
-          "influence": 0.13
-        },
-        {
-          "targetName": "eyebrows-right-down",
-          "influence": 0.0585
-        },
-        {
-          "targetName": "eyebrows-right-inner-up",
-          "influence": 0.13
-        },
-        {
-          "targetName": "mouth-compression",
-          "influence": 1
-        },
-        {
-          "targetName": "nose-compression-uncompress",
-          "influence": 0.032
-        },
-        {
-          "targetName": "viseme_sil",
-          "influence": 0.5
-        }
-      ]
-    },
-    {
-      "t": 0.442,
-      "activeMouthOpenness": 0.313,
-      "nonZeroMorphs": [
-        {
-          "targetName": "eye-left-slit",
-          "influence": 0.096
-        },
-        {
-          "targetName": "eye-right-slit",
-          "influence": 0.096
-        },
-        {
-          "targetName": "eyebrows-left-down",
-          "influence": 0.0585
-        },
-        {
-          "targetName": "eyebrows-left-inner-up",
-          "influence": 0.13
-        },
-        {
-          "targetName": "eyebrows-right-down",
-          "influence": 0.0585
-        },
-        {
-          "targetName": "eyebrows-right-inner-up",
-          "influence": 0.13
+          "influence": 0.0764
         },
         {
           "targetName": "mouth-open",
-          "influence": 0.1572
-        },
-        {
-          "targetName": "nose-compression-uncompress",
-          "influence": 0.0452
-        },
-        {
-          "targetName": "viseme_nn",
-          "influence": 0.5
-        }
-      ]
-    },
-    {
-      "t": 0.553,
-      "activeMouthOpenness": 0.267,
-      "nonZeroMorphs": [
-        {
-          "targetName": "eye-left-slit",
-          "influence": 0.0459
-        },
-        {
-          "targetName": "eye-right-slit",
-          "influence": 0.0459
-        },
-        {
-          "targetName": "eyebrows-left-down",
-          "influence": 0.0295
-        },
-        {
-          "targetName": "eyebrows-left-inner-up",
-          "influence": 0.0655
-        },
-        {
-          "targetName": "eyebrows-right-down",
-          "influence": 0.0295
-        },
-        {
-          "targetName": "eyebrows-right-inner-up",
-          "influence": 0.0655
-        },
-        {
-          "targetName": "mouth-open",
-          "influence": 0.1764
+          "influence": 0.1274
         },
         {
           "targetName": "nose-compression-uncompress",
           "influence": 0.0216
-        },
-        {
-          "targetName": "viseme_I",
-          "influence": 0.5
-        }
-      ]
-    },
-    {
-      "t": 0.663,
-      "activeMouthOpenness": 0.409,
-      "nonZeroMorphs": [
-        {
-          "targetName": "eye-left-slit",
-          "influence": 0.0427
-        },
-        {
-          "targetName": "eye-right-slit",
-          "influence": 0.0427
-        },
-        {
-          "targetName": "eyebrows-left-down",
-          "influence": 0.0327
-        },
-        {
-          "targetName": "eyebrows-left-inner-up",
-          "influence": 0.0727
-        },
-        {
-          "targetName": "eyebrows-right-down",
-          "influence": 0.0327
-        },
-        {
-          "targetName": "eyebrows-right-inner-up",
-          "influence": 0.0727
-        },
-        {
-          "targetName": "mouth-open",
-          "influence": 0.127
-        },
-        {
-          "targetName": "nose-compression-uncompress",
-          "influence": 0.0201
         },
         {
           "targetName": "viseme_TH",
@@ -260,82 +50,40 @@
       ]
     },
     {
-      "t": 0.772,
-      "activeMouthOpenness": 0.321,
+      "t": 0.223,
+      "activeMouthOpenness": 0.339,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.0547
+          "influence": 0.0707
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.0547
+          "influence": 0.0707
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.0366
+          "influence": 0.0377
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.0813
+          "influence": 0.0837
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.0366
+          "influence": 0.0377
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.0813
+          "influence": 0.0837
         },
         {
           "targetName": "mouth-open",
-          "influence": 0.1528
+          "influence": 0.228
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.0257
-        },
-        {
-          "targetName": "viseme_nn",
-          "influence": 0.5
-        }
-      ]
-    },
-    {
-      "t": 0.883,
-      "activeMouthOpenness": 0.245,
-      "nonZeroMorphs": [
-        {
-          "targetName": "eye-left-slit",
-          "influence": 0.0749
-        },
-        {
-          "targetName": "eye-right-slit",
-          "influence": 0.0749
-        },
-        {
-          "targetName": "eyebrows-left-down",
-          "influence": 0.0399
-        },
-        {
-          "targetName": "eyebrows-left-inner-up",
-          "influence": 0.0887
-        },
-        {
-          "targetName": "eyebrows-right-down",
-          "influence": 0.0399
-        },
-        {
-          "targetName": "eyebrows-right-inner-up",
-          "influence": 0.0887
-        },
-        {
-          "targetName": "mouth-open",
-          "influence": 0.2285
-        },
-        {
-          "targetName": "nose-compression-uncompress",
-          "influence": 0.0353
+          "influence": 0.0333
         },
         {
           "targetName": "viseme_E",
@@ -344,662 +92,910 @@
       ]
     },
     {
+      "t": 0.332,
+      "activeMouthOpenness": 0.25,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eye-left-slit",
+          "influence": 0.077
+        },
+        {
+          "targetName": "eye-right-slit",
+          "influence": 0.077
+        },
+        {
+          "targetName": "eyebrows-left-down",
+          "influence": 0.041
+        },
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.091
+        },
+        {
+          "targetName": "eyebrows-right-down",
+          "influence": 0.041
+        },
+        {
+          "targetName": "eyebrows-right-inner-up",
+          "influence": 0.091
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.2287
+        },
+        {
+          "targetName": "nose-compression-uncompress",
+          "influence": 0.0362
+        },
+        {
+          "targetName": "viseme_E",
+          "influence": 0.5
+        }
+      ]
+    },
+    {
+      "t": 0.441,
+      "activeMouthOpenness": 0.347,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eye-left-slit",
+          "influence": 0.0422
+        },
+        {
+          "targetName": "eye-right-slit",
+          "influence": 0.0422
+        },
+        {
+          "targetName": "eyebrows-left-down",
+          "influence": 0.0448
+        },
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.0996
+        },
+        {
+          "targetName": "eyebrows-right-down",
+          "influence": 0.0448
+        },
+        {
+          "targetName": "eyebrows-right-inner-up",
+          "influence": 0.0996
+        },
+        {
+          "targetName": "mouth-compression",
+          "influence": 1
+        },
+        {
+          "targetName": "nose-compression-uncompress",
+          "influence": 0.0198
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 0.5
+        }
+      ]
+    },
+    {
+      "t": 0.553,
+      "activeMouthOpenness": 0.37,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eye-left-slit",
+          "influence": 0.0821
+        },
+        {
+          "targetName": "eye-right-slit",
+          "influence": 0.0821
+        },
+        {
+          "targetName": "eyebrows-left-down",
+          "influence": 0.0486
+        },
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1081
+        },
+        {
+          "targetName": "eyebrows-right-down",
+          "influence": 0.0486
+        },
+        {
+          "targetName": "eyebrows-right-inner-up",
+          "influence": 0.1081
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.1802
+        },
+        {
+          "targetName": "nose-compression-uncompress",
+          "influence": 0.0386
+        },
+        {
+          "targetName": "viseme_I",
+          "influence": 0.5
+        }
+      ]
+    },
+    {
+      "t": 0.662,
+      "activeMouthOpenness": 0.182,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eye-left-slit",
+          "influence": 0.0834
+        },
+        {
+          "targetName": "eye-right-slit",
+          "influence": 0.0834
+        },
+        {
+          "targetName": "eyebrows-left-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "eyebrows-right-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-right-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.1804
+        },
+        {
+          "targetName": "nose-compression-uncompress",
+          "influence": 0.0392
+        },
+        {
+          "targetName": "viseme_I",
+          "influence": 0.5
+        }
+      ]
+    },
+    {
+      "t": 0.772,
+      "activeMouthOpenness": 0.264,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eye-left-slit",
+          "influence": 0.0507
+        },
+        {
+          "targetName": "eye-right-slit",
+          "influence": 0.0507
+        },
+        {
+          "targetName": "eyebrows-left-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "eyebrows-right-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-right-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "mouth-compression",
+          "influence": 1
+        },
+        {
+          "targetName": "nose-compression-uncompress",
+          "influence": 0.0238
+        },
+        {
+          "targetName": "viseme_sil",
+          "influence": 0.5
+        }
+      ]
+    },
+    {
+      "t": 0.883,
+      "activeMouthOpenness": 0.432,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eye-left-slit",
+          "influence": 0.1442
+        },
+        {
+          "targetName": "eye-right-slit",
+          "influence": 0.1442
+        },
+        {
+          "targetName": "eyebrows-left-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "eyebrows-right-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-right-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.3
+        },
+        {
+          "targetName": "nose-compression-uncompress",
+          "influence": 0.0678
+        },
+        {
+          "targetName": "viseme_aa",
+          "influence": 0.5
+        }
+      ]
+    },
+    {
       "t": 0.992,
-      "activeMouthOpenness": 0.364,
+      "activeMouthOpenness": 0.324,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.068
+          "influence": 0.1442
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.068
+          "influence": 0.1442
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.036
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.08
+          "influence": 0.1096
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.036
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.08
+          "influence": 0.1096
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.3
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.032
+          "influence": 0.0678
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_aa",
           "influence": 0.5
         }
       ]
     },
     {
-      "t": 1.103,
-      "activeMouthOpenness": 0.359,
+      "t": 1.102,
+      "activeMouthOpenness": 0.23,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.068
+          "influence": 0.0787
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.068
+          "influence": 0.0787
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.036
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.08
+          "influence": 0.1096
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.036
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.08
+          "influence": 0.1096
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.1554
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.032
+          "influence": 0.037
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_nn",
           "influence": 0.5
         }
       ]
     },
     {
-      "t": 1.211,
-      "activeMouthOpenness": 0.233,
+      "t": 1.212,
+      "activeMouthOpenness": 0.401,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.068
+          "influence": 0.0834
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.068
+          "influence": 0.0834
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.036
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.08
+          "influence": 0.1096
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.036
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.08
+          "influence": 0.1096
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.1804
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.032
+          "influence": 0.0392
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_I",
           "influence": 0.5
         }
       ]
     },
     {
       "t": 1.322,
-      "activeMouthOpenness": 0.282,
+      "activeMouthOpenness": 0.373,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.068
+          "influence": 0.0974
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.068
+          "influence": 0.0974
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.036
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.08
+          "influence": 0.1096
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.036
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.08
+          "influence": 0.1096
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.2554
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.032
+          "influence": 0.0458
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_U",
           "influence": 0.5
         }
       ]
     },
     {
-      "t": 1.432,
-      "activeMouthOpenness": 0.38,
+      "t": 1.433,
+      "activeMouthOpenness": 0.245,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.068
+          "influence": 0.1442
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.068
+          "influence": 0.1442
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.036
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.08
+          "influence": 0.1096
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.036
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.08
+          "influence": 0.1096
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.3
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.032
+          "influence": 0.0678
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_aa",
           "influence": 0.5
         }
       ]
     },
     {
-      "t": 1.542,
-      "activeMouthOpenness": 0.268,
+      "t": 1.541,
+      "activeMouthOpenness": 0.357,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.0689
+          "influence": 0.0787
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.0689
+          "influence": 0.0787
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.0371
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.0823
+          "influence": 0.1096
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.0371
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.0823
+          "influence": 0.1096
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.1554
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.0324
+          "influence": 0.037
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_nn",
           "influence": 0.5
         }
       ]
     },
     {
       "t": 1.652,
-      "activeMouthOpenness": 0.296,
+      "activeMouthOpenness": 0.619,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.0875
+          "influence": 0.1442
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.0875
+          "influence": 0.1442
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.0596
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.1324
+          "influence": 0.1096
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.0596
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.1324
+          "influence": 0.1096
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.3
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.0412
+          "influence": 0.0678
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_aa",
           "influence": 0.5
         }
       ]
     },
     {
       "t": 1.763,
-      "activeMouthOpenness": 0.368,
+      "activeMouthOpenness": 0.271,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.1089
+          "influence": 0.1442
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.1089
+          "influence": 0.1442
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.0854
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.1899
+          "influence": 0.1096
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.0854
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.1899
+          "influence": 0.1096
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.3
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.0512
+          "influence": 0.0678
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_aa",
           "influence": 0.5
         }
       ]
     },
     {
-      "t": 1.873,
-      "activeMouthOpenness": 0.352,
+      "t": 1.872,
+      "activeMouthOpenness": 0.201,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.1471
+          "influence": 0.1442
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.1471
+          "influence": 0.1442
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.1317
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.2927
+          "influence": 0.1096
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.1317
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.2927
+          "influence": 0.1096
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.3
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.0692
+          "influence": 0.0678
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_aa",
           "influence": 0.5
         }
       ]
     },
     {
       "t": 1.982,
-      "activeMouthOpenness": 0.248,
+      "activeMouthOpenness": 0.43,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.1902
+          "influence": 0.0787
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.1902
+          "influence": 0.0787
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.1839
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.4087
+          "influence": 0.1096
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.1839
+          "influence": 0.0493
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.4087
+          "influence": 0.1096
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.1554
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.0895
+          "influence": 0.037
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_nn",
           "influence": 0.5
         }
       ]
     },
     {
-      "t": 2.092,
-      "activeMouthOpenness": 0.567,
+      "t": 2.093,
+      "activeMouthOpenness": 0.277,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.2271
+          "influence": 0.0866
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.2271
+          "influence": 0.0866
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.2285
+          "influence": 0.0485
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.5079
+          "influence": 0.1078
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.2285
+          "influence": 0.0485
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.5079
+          "influence": 0.1078
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.2052
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.1069
+          "influence": 0.0407
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_U",
           "influence": 0.5
         }
       ]
     },
     {
-      "t": 2.201,
-      "activeMouthOpenness": 0.398,
+      "t": 2.202,
+      "activeMouthOpenness": 0.236,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.2653
+          "influence": 0.0813
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.2653
+          "influence": 0.0813
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.2748
+          "influence": 0.0457
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.6106
+          "influence": 0.1016
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.2748
+          "influence": 0.0457
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.6106
+          "influence": 0.1016
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.2046
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.1249
+          "influence": 0.0383
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_U",
           "influence": 0.5
         }
       ]
     },
     {
       "t": 2.312,
-      "activeMouthOpenness": 0.258,
+      "activeMouthOpenness": 0.409,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.2901
+          "influence": 0.0628
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.2901
+          "influence": 0.0628
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.3048
+          "influence": 0.0434
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.6773
+          "influence": 0.0964
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.3048
+          "influence": 0.0434
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.6773
+          "influence": 0.0964
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.1292
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.1365
-        },
-        {
-          "targetName": "viseme_sil",
-          "influence": 0.5
+          "influence": 0.0296
         }
       ]
     },
     {
       "t": 2.422,
-      "activeMouthOpenness": 0.215,
+      "activeMouthOpenness": 0.363,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.3052
+          "influence": 0.0763
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.3052
+          "influence": 0.0763
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.323
+          "influence": 0.0406
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.7177
+          "influence": 0.0902
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.323
+          "influence": 0.0406
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.7177
+          "influence": 0.0902
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.2286
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.1436
+          "influence": 0.0359
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_E",
           "influence": 0.5
         }
       ]
     },
     {
-      "t": 2.533,
-      "activeMouthOpenness": 0.066,
+      "t": 2.532,
+      "activeMouthOpenness": 0.245,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.0577
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.0577
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.0382
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.0849
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.0382
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.0849
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.1531
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.0272
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_nn",
           "influence": 0.5
         }
       ]
     },
     {
       "t": 2.642,
-      "activeMouthOpenness": 0.293,
+      "activeMouthOpenness": 0.368,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.0244
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.0244
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.0354
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.0787
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.0354
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.0787
         },
         {
           "targetName": "mouth-compression",
@@ -1007,7 +1003,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.0115
         },
         {
           "targetName": "viseme_sil",
@@ -1016,116 +1012,108 @@
       ]
     },
     {
-      "t": 2.752,
-      "activeMouthOpenness": 0.25,
+      "t": 2.753,
+      "activeMouthOpenness": 0.359,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.0613
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.0613
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.0327
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.0726
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.0327
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.0726
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.227
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.0288
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_E",
           "influence": 0.5
         }
       ]
     },
     {
-      "t": 2.861,
-      "activeMouthOpenness": 0.421,
+      "t": 2.862,
+      "activeMouthOpenness": 0,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.0568
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
-        },
-        {
-          "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.0568
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
-        },
-        {
-          "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.0173
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.0173
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.2266
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.0267
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_E",
           "influence": 0.5
         }
       ]
     },
     {
       "t": 2.972,
-      "activeMouthOpenness": 0.342,
+      "activeMouthOpenness": 0,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.068
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.068
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.036
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.08
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.036
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.08
         },
         {
           "targetName": "mouth-compression",
@@ -1133,7 +1121,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.032
         },
         {
           "targetName": "viseme_sil",
@@ -1143,39 +1131,31 @@
     },
     {
       "t": 3.082,
-      "activeMouthOpenness": 0.245,
+      "activeMouthOpenness": 0.382,
       "nonZeroMorphs": [
         {
-          "targetName": "eye-left-closure",
-          "influence": 0.9525
-        },
-        {
           "targetName": "eye-left-slit",
-          "influence": 0.9525
-        },
-        {
-          "targetName": "eye-right-closure",
-          "influence": 0.9525
+          "influence": 0.068
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.9525
+          "influence": 0.068
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.036
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.08
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.036
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.08
         },
         {
           "targetName": "mouth-compression",
@@ -1183,7 +1163,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.032
         },
         {
           "targetName": "viseme_sil",
@@ -1192,40 +1172,32 @@
       ]
     },
     {
-      "t": 3.193,
-      "activeMouthOpenness": 0.06,
+      "t": 3.192,
+      "activeMouthOpenness": 0.268,
       "nonZeroMorphs": [
         {
-          "targetName": "eye-left-closure",
-          "influence": 0.0476
-        },
-        {
           "targetName": "eye-left-slit",
-          "influence": 0.306
-        },
-        {
-          "targetName": "eye-right-closure",
-          "influence": 0.0476
+          "influence": 0.068
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.068
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.036
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.08
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.036
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.08
         },
         {
           "targetName": "mouth-compression",
@@ -1233,7 +1205,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.032
         },
         {
           "targetName": "viseme_sil",
@@ -1243,31 +1215,31 @@
     },
     {
       "t": 3.301,
-      "activeMouthOpenness": 0.344,
+      "activeMouthOpenness": 0.258,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.068
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.068
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.036
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.08
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.036
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.08
         },
         {
           "targetName": "mouth-compression",
@@ -1275,7 +1247,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.032
         },
         {
           "targetName": "viseme_sil",
@@ -1285,31 +1257,31 @@
     },
     {
       "t": 3.413,
-      "activeMouthOpenness": 0.245,
+      "activeMouthOpenness": 0.416,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.068
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.068
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.036
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.08
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.036
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.08
         },
         {
           "targetName": "mouth-compression",
@@ -1317,7 +1289,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.032
         },
         {
           "targetName": "viseme_sil",
@@ -1326,32 +1298,32 @@
       ]
     },
     {
-      "t": 3.52,
-      "activeMouthOpenness": 0.301,
+      "t": 3.522,
+      "activeMouthOpenness": 0.567,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.068
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.068
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.036
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.08
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.036
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.08
         },
         {
           "targetName": "mouth-compression",
@@ -1359,7 +1331,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.032
         },
         {
           "targetName": "viseme_sil",
@@ -1368,32 +1340,32 @@
       ]
     },
     {
-      "t": 3.631,
-      "activeMouthOpenness": 0.43,
+      "t": 3.632,
+      "activeMouthOpenness": 0.244,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.0687
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.0687
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.0368
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.0818
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.0368
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.0818
         },
         {
           "targetName": "mouth-compression",
@@ -1401,7 +1373,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.0323
         },
         {
           "targetName": "viseme_sil",
@@ -1411,31 +1383,31 @@
     },
     {
       "t": 3.743,
-      "activeMouthOpenness": 0.284,
+      "activeMouthOpenness": 0.378,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.0831
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.0831
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.0543
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.1206
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.0543
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.1206
         },
         {
           "targetName": "mouth-compression",
@@ -1443,7 +1415,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.0391
         },
         {
           "targetName": "viseme_sil",
@@ -1452,32 +1424,32 @@
       ]
     },
     {
-      "t": 3.852,
-      "activeMouthOpenness": 0.112,
+      "t": 3.853,
+      "activeMouthOpenness": 0.416,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.1075
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.1075
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.0839
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.1863
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.0839
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.1863
         },
         {
           "targetName": "mouth-compression",
@@ -1485,7 +1457,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.0506
         },
         {
           "targetName": "viseme_sil",
@@ -1495,31 +1467,31 @@
     },
     {
       "t": 3.963,
-      "activeMouthOpenness": 0.376,
+      "activeMouthOpenness": 0.168,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.1455
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.1455
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.1298
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.2884
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.1298
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.2884
         },
         {
           "targetName": "mouth-compression",
@@ -1527,7 +1499,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.0685
         },
         {
           "targetName": "viseme_sil",
@@ -1536,32 +1508,32 @@
       ]
     },
     {
-      "t": 4.071,
-      "activeMouthOpenness": 0.331,
+      "t": 4.072,
+      "activeMouthOpenness": 0.047,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.1823
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.1823
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.1743
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.3873
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.1743
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.3873
         },
         {
           "targetName": "mouth-compression",
@@ -1569,7 +1541,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.0858
         },
         {
           "targetName": "viseme_sil",
@@ -1579,31 +1551,31 @@
     },
     {
       "t": 4.181,
-      "activeMouthOpenness": 0.247,
+      "activeMouthOpenness": 0.431,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.2255
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.2255
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.2266
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.5035
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.2266
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.5035
         },
         {
           "targetName": "mouth-compression",
@@ -1611,7 +1583,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.1061
         },
         {
           "targetName": "viseme_sil",
@@ -1620,32 +1592,32 @@
       ]
     },
     {
-      "t": 4.292,
-      "activeMouthOpenness": 0.351,
+      "t": 4.29,
+      "activeMouthOpenness": 0.318,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.259
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.259
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.2671
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.5936
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.2671
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.5936
         },
         {
           "targetName": "mouth-compression",
@@ -1653,7 +1625,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.1219
         },
         {
           "targetName": "viseme_sil",
@@ -1662,32 +1634,32 @@
       ]
     },
     {
-      "t": 4.401,
-      "activeMouthOpenness": 0.379,
+      "t": 4.402,
+      "activeMouthOpenness": 0.264,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.306
+          "influence": 0.2892
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.306
+          "influence": 0.2892
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.324
+          "influence": 0.3037
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.72
+          "influence": 0.6749
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.324
+          "influence": 0.3037
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.72
+          "influence": 0.6749
         },
         {
           "targetName": "mouth-compression",
@@ -1695,7 +1667,7 @@
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.144
+          "influence": 0.1361
         },
         {
           "targetName": "viseme_sil",
@@ -1704,337 +1676,337 @@
       ]
     },
     {
-      "t": 4.583,
-      "activeMouthOpenness": 0.298,
-      "nonZeroMorphs": [
-        {
-          "targetName": "eye-left-slit",
-          "influence": 0.306
-        },
-        {
-          "targetName": "eye-right-slit",
-          "influence": 0.306
-        },
-        {
-          "targetName": "eyebrows-left-down",
-          "influence": 0.3465
-        },
-        {
-          "targetName": "eyebrows-left-inner-up",
-          "influence": 0.77
-        },
-        {
-          "targetName": "eyebrows-right-down",
-          "influence": 0.3465
-        },
-        {
-          "targetName": "eyebrows-right-inner-up",
-          "influence": 0.77
-        },
-        {
-          "targetName": "mouth-compression",
-          "influence": 1
-        },
-        {
-          "targetName": "nose-compression-uncompress",
-          "influence": 0.144
-        },
-        {
-          "targetName": "viseme_sil",
-          "influence": 0.5
-        }
-      ]
-    },
-    {
-      "t": 4.835,
-      "activeMouthOpenness": 0.276,
-      "nonZeroMorphs": [
-        {
-          "targetName": "eye-left-slit",
-          "influence": 0.306
-        },
-        {
-          "targetName": "eye-right-slit",
-          "influence": 0.306
-        },
-        {
-          "targetName": "eyebrows-left-down",
-          "influence": 0.3465
-        },
-        {
-          "targetName": "eyebrows-left-inner-up",
-          "influence": 0.77
-        },
-        {
-          "targetName": "eyebrows-right-down",
-          "influence": 0.3465
-        },
-        {
-          "targetName": "eyebrows-right-inner-up",
-          "influence": 0.77
-        },
-        {
-          "targetName": "mouth-compression",
-          "influence": 1
-        },
-        {
-          "targetName": "nose-compression-uncompress",
-          "influence": 0.144
-        },
-        {
-          "targetName": "viseme_sil",
-          "influence": 0.5
-        }
-      ]
-    },
-    {
-      "t": 5.085,
-      "activeMouthOpenness": 0.427,
-      "nonZeroMorphs": [
-        {
-          "targetName": "eye-left-slit",
-          "influence": 0.3277
-        },
-        {
-          "targetName": "eye-right-slit",
-          "influence": 0.3277
-        },
-        {
-          "targetName": "eyebrows-left-down",
-          "influence": 0.3388
-        },
-        {
-          "targetName": "eyebrows-left-inner-up",
-          "influence": 0.7529
-        },
-        {
-          "targetName": "eyebrows-right-down",
-          "influence": 0.3388
-        },
-        {
-          "targetName": "eyebrows-right-inner-up",
-          "influence": 0.7529
-        },
-        {
-          "targetName": "mouth-open",
-          "influence": 0.1712
-        },
-        {
-          "targetName": "nose-compression-uncompress",
-          "influence": 0.1542
-        },
-        {
-          "targetName": "viseme_nn",
-          "influence": 0.5
-        }
-      ]
-    },
-    {
-      "t": 5.336,
-      "activeMouthOpenness": 0.317,
-      "nonZeroMorphs": [
-        {
-          "targetName": "eye-left-slit",
-          "influence": 0.0774
-        },
-        {
-          "targetName": "eye-right-slit",
-          "influence": 0.0774
-        },
-        {
-          "targetName": "eyebrows-left-down",
-          "influence": 0.0651
-        },
-        {
-          "targetName": "eyebrows-left-inner-up",
-          "influence": 0.1447
-        },
-        {
-          "targetName": "eyebrows-right-down",
-          "influence": 0.0651
-        },
-        {
-          "targetName": "eyebrows-right-inner-up",
-          "influence": 0.1447
-        },
-        {
-          "targetName": "mouth-open",
-          "influence": 0.1541
-        },
-        {
-          "targetName": "nose-compression-uncompress",
-          "influence": 0.0364
-        },
-        {
-          "targetName": "viseme_nn",
-          "influence": 0.5
-        }
-      ]
-    },
-    {
-      "t": 5.585,
-      "activeMouthOpenness": 0.255,
-      "nonZeroMorphs": [
-        {
-          "targetName": "eye-left-slit",
-          "influence": 0.079
-        },
-        {
-          "targetName": "eye-right-slit",
-          "influence": 0.079
-        },
-        {
-          "targetName": "eyebrows-left-down",
-          "influence": 0.0572
-        },
-        {
-          "targetName": "eyebrows-left-inner-up",
-          "influence": 0.1271
-        },
-        {
-          "targetName": "eyebrows-right-down",
-          "influence": 0.0572
-        },
-        {
-          "targetName": "eyebrows-right-inner-up",
-          "influence": 0.1271
-        },
-        {
-          "targetName": "mouth-open",
-          "influence": 0.1549
-        },
-        {
-          "targetName": "nose-compression-uncompress",
-          "influence": 0.0372
-        },
-        {
-          "targetName": "viseme_nn",
-          "influence": 0.5
-        }
-      ]
-    },
-    {
-      "t": 5.833,
-      "activeMouthOpenness": 0.363,
-      "nonZeroMorphs": [
-        {
-          "targetName": "eye-left-slit",
-          "influence": 0.068
-        },
-        {
-          "targetName": "eye-right-slit",
-          "influence": 0.068
-        },
-        {
-          "targetName": "eyebrows-left-down",
-          "influence": 0.036
-        },
-        {
-          "targetName": "eyebrows-left-inner-up",
-          "influence": 0.08
-        },
-        {
-          "targetName": "eyebrows-right-down",
-          "influence": 0.036
-        },
-        {
-          "targetName": "eyebrows-right-inner-up",
-          "influence": 0.08
-        },
-        {
-          "targetName": "mouth-compression",
-          "influence": 1
-        },
-        {
-          "targetName": "nose-compression-uncompress",
-          "influence": 0.032
-        },
-        {
-          "targetName": "viseme_sil",
-          "influence": 0.5
-        }
-      ]
-    },
-    {
-      "t": 6.085,
-      "activeMouthOpenness": 0.323,
-      "nonZeroMorphs": [
-        {
-          "targetName": "eye-left-slit",
-          "influence": 0.068
-        },
-        {
-          "targetName": "eye-right-slit",
-          "influence": 0.068
-        },
-        {
-          "targetName": "eyebrows-left-down",
-          "influence": 0.036
-        },
-        {
-          "targetName": "eyebrows-left-inner-up",
-          "influence": 0.08
-        },
-        {
-          "targetName": "eyebrows-right-down",
-          "influence": 0.036
-        },
-        {
-          "targetName": "eyebrows-right-inner-up",
-          "influence": 0.08
-        },
-        {
-          "targetName": "mouth-compression",
-          "influence": 1
-        },
-        {
-          "targetName": "nose-compression-uncompress",
-          "influence": 0.032
-        },
-        {
-          "targetName": "viseme_sil",
-          "influence": 0.5
-        }
-      ]
-    },
-    {
-      "t": 6.335,
+      "t": 4.738,
       "activeMouthOpenness": 0.245,
       "nonZeroMorphs": [
         {
           "targetName": "eye-left-slit",
-          "influence": 0.0905
+          "influence": 0.0718
         },
         {
           "targetName": "eye-right-slit",
-          "influence": 0.0905
+          "influence": 0.0718
         },
         {
           "targetName": "eyebrows-left-down",
-          "influence": 0.0632
+          "influence": 0.0672
         },
         {
           "targetName": "eyebrows-left-inner-up",
-          "influence": 0.1406
+          "influence": 0.1494
         },
         {
           "targetName": "eyebrows-right-down",
-          "influence": 0.0632
+          "influence": 0.0672
         },
         {
           "targetName": "eyebrows-right-inner-up",
-          "influence": 0.1406
+          "influence": 0.1494
         },
         {
-          "targetName": "mouth-compression",
-          "influence": 1
+          "targetName": "mouth-open",
+          "influence": 0.1289
         },
         {
           "targetName": "nose-compression-uncompress",
-          "influence": 0.0426
+          "influence": 0.0338
         },
         {
-          "targetName": "viseme_sil",
+          "targetName": "viseme_TH",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 4.991,
+      "activeMouthOpenness": 0.338,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eye-left-slit",
+          "influence": 0.0787
+        },
+        {
+          "targetName": "eye-right-slit",
+          "influence": 0.0787
+        },
+        {
+          "targetName": "eyebrows-left-down",
+          "influence": 0.0586
+        },
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1302
+        },
+        {
+          "targetName": "eyebrows-right-down",
+          "influence": 0.0586
+        },
+        {
+          "targetName": "eyebrows-right-inner-up",
+          "influence": 0.1302
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.1547
+        },
+        {
+          "targetName": "nose-compression-uncompress",
+          "influence": 0.037
+        },
+        {
+          "targetName": "viseme_nn",
+          "influence": 0.5
+        }
+      ]
+    },
+    {
+      "t": 5.24,
+      "activeMouthOpenness": 0.363,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eye-left-slit",
+          "influence": 0.0863
+        },
+        {
+          "targetName": "eye-right-slit",
+          "influence": 0.0863
+        },
+        {
+          "targetName": "eyebrows-left-down",
+          "influence": 0.0528
+        },
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1174
+        },
+        {
+          "targetName": "eyebrows-right-down",
+          "influence": 0.0528
+        },
+        {
+          "targetName": "eyebrows-right-inner-up",
+          "influence": 0.1174
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.1805
+        },
+        {
+          "targetName": "nose-compression-uncompress",
+          "influence": 0.0406
+        },
+        {
+          "targetName": "viseme_I",
+          "influence": 0.5
+        }
+      ]
+    },
+    {
+      "t": 5.491,
+      "activeMouthOpenness": 0.239,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eye-left-slit",
+          "influence": 0.074
+        },
+        {
+          "targetName": "eye-right-slit",
+          "influence": 0.074
+        },
+        {
+          "targetName": "eyebrows-left-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "eyebrows-right-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-right-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.1304
+        },
+        {
+          "targetName": "nose-compression-uncompress",
+          "influence": 0.0348
+        },
+        {
+          "targetName": "viseme_TH",
+          "influence": 1
+        }
+      ]
+    },
+    {
+      "t": 5.739,
+      "activeMouthOpenness": 0.269,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eye-left-slit",
+          "influence": 0.0787
+        },
+        {
+          "targetName": "eye-right-slit",
+          "influence": 0.0787
+        },
+        {
+          "targetName": "eyebrows-left-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "eyebrows-right-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-right-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.1554
+        },
+        {
+          "targetName": "nose-compression-uncompress",
+          "influence": 0.037
+        },
+        {
+          "targetName": "viseme_nn",
+          "influence": 0.5
+        }
+      ]
+    },
+    {
+      "t": 5.988,
+      "activeMouthOpenness": 0.427,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eye-left-slit",
+          "influence": 0.0974
+        },
+        {
+          "targetName": "eye-right-slit",
+          "influence": 0.0974
+        },
+        {
+          "targetName": "eyebrows-left-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "eyebrows-right-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-right-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.2554
+        },
+        {
+          "targetName": "nose-compression-uncompress",
+          "influence": 0.0458
+        },
+        {
+          "targetName": "viseme_U",
+          "influence": 0.5
+        }
+      ]
+    },
+    {
+      "t": 6.245,
+      "activeMouthOpenness": 0.447,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eye-left-slit",
+          "influence": 0.1442
+        },
+        {
+          "targetName": "eye-right-slit",
+          "influence": 0.1442
+        },
+        {
+          "targetName": "eyebrows-left-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "eyebrows-right-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-right-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.3
+        },
+        {
+          "targetName": "nose-compression-uncompress",
+          "influence": 0.0678
+        },
+        {
+          "targetName": "viseme_aa",
+          "influence": 0.5
+        }
+      ]
+    },
+    {
+      "t": 6.499,
+      "activeMouthOpenness": 0.18,
+      "nonZeroMorphs": [
+        {
+          "targetName": "eye-left-slit",
+          "influence": 0.1442
+        },
+        {
+          "targetName": "eye-right-slit",
+          "influence": 0.1442
+        },
+        {
+          "targetName": "eyebrows-left-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-left-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "eyebrows-right-down",
+          "influence": 0.0493
+        },
+        {
+          "targetName": "eyebrows-right-inner-up",
+          "influence": 0.1096
+        },
+        {
+          "targetName": "mouth-open",
+          "influence": 0.3
+        },
+        {
+          "targetName": "nose-compression-uncompress",
+          "influence": 0.0678
+        },
+        {
+          "targetName": "viseme_aa",
           "influence": 0.5
         }
       ]
