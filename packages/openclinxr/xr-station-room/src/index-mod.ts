@@ -89,6 +89,7 @@ export async function buildStationRoomShell(
     iwsdkStationSceneObjects,
     applyStationInteriorLightingForEnvironment,
     addScenarioExpectationPanel,
+    onReusableExteriorAnteroom,
     resolveEmulatorRuntimeAssetUrl,
     isDynamicGeneratedEncounterSceneMode,
   } = ctx;
@@ -108,10 +109,10 @@ export async function buildStationRoomShell(
     keyCastShadow: isCaptureShadowPath(selectedCaptureMode()),
   });
 
-  // Add reusable exterior pre-encounter room (anteroom)
-  let _reusableExteriorAnteroom: Group | null = null;
+  // Add reusable exterior pre-encounter room (anteroom). Bridge the SAME created root
+  // into the app synchronously, before any panel callback runs below.
   addPackageReusableExteriorPreEncounterRoom(assetLoadingContext(), scene, theme, (room: Group | null) => {
-    _reusableExteriorAnteroom = room;
+    onReusableExteriorAnteroom?.(room);
   });
 
   // #44: station shell from shared environmentId descriptor (not scenarioId doorway tint alone).

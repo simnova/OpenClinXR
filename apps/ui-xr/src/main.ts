@@ -36,7 +36,6 @@ import {
 import {
   addActorSpecificIdentityVariantCue as addPackageActorSpecificIdentityVariantCue,
   addHumanoidSourceComparatorFaceReviewCues as addPackageHumanoidSourceComparatorFaceReviewCues,
-  addReusableExteriorPreEncounterRoom as addPackageReusableExteriorPreEncounterRoom,
   addScenarioSpecificClinicalSetDressing as addPackageScenarioSpecificClinicalSetDressing,
   addRoleSpecificHumanoidVisuals as addRoleSpecificHumanoidVisualsPackage,
   clinicalTouchResponseClipNamesForActor as clinicalPackageTouchResponseClipNamesForActor,
@@ -90,6 +89,8 @@ import { type ActorTurnPlayback, applyNamedSpeechVisemes, attachBakedCuesToSpeec
   liveActorTurnFromPayload,loadBakedMouthCuesForUtterance, playFrozenActorTurnOnSlot,
   registerLiveActorTurn,
   resolveLiveActorTurnForTrace } from "@openclinxr/xr-dialogue";
+import { createActorAudioRuntime } from "@openclinxr/xr-dialogue/actor-audio-runtime";
+import { requestUnscriptedLiveTurn } from "@openclinxr/xr-dialogue/package-actor-turn";
 import {
   advanceFormRunClock as advancePackageFormRunClock,
   buildExamFlowEvidence as buildPackageExamFlowEvidence,
@@ -132,9 +133,9 @@ import {
 } from "@openclinxr/xr-humanoid-animation";
 import { createFixedClockFrameState, stepFixedClockFrame } from "@openclinxr/xr-humanoid-animation/fixed-timestep-clock";
 import { playManifestMotionClip } from "./motion-manifest-motion-address.js";
-import { requestUnscriptedLiveTurn } from "@openclinxr/xr-dialogue/package-actor-turn";
-import { createActorAudioRuntime } from "@openclinxr/xr-dialogue/actor-audio-runtime";
+
 const { caseAudio, initPreparedActorAudioBridge, startPreparedActorTurnAudio, syncPreparedActorAudio, preparedActorTurnAudioAvailable, startActorTurnSpeech } = createActorAudioRuntime({ developmentFixture: import.meta.env.DEV === true });
+
 import { observeMountedApproachGeometry } from "@openclinxr/xr-humanoid-animation/mounted-approach-geometry";
 import { applyStationBedsideStanceLock, createStationBedsideApproachState, updateStationBedsideApproach } from "@openclinxr/xr-humanoid-animation/station-bedside-approach";
 import {
@@ -253,9 +254,9 @@ import {
   applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,applyRealGarmentEvidenceSurfaces,
   bootLearnerExamFormFromApi,createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance,
   collectActorWorldBoxes,
-  deriveInteriorPreviewCamera,
+  deriveInteriorPreviewCamera,installStationLayoutView, 
   resolveHumanoidVariantOrCastPath,
-  resolveLocalHumanoidRuntimeAssetUrl, installStationLayoutView, sleeveDeformCueForAssetPath
+  resolveLocalHumanoidRuntimeAssetUrl, sleeveDeformCueForAssetPath
 } from "@openclinxr/xr-scene";
 import {
   addPediatricRespiratoryEquipmentCues as addPackagePediatricRespiratoryEquipmentCues,
@@ -2629,10 +2630,6 @@ function scenarioDoorwayVisualTheme(): ScenarioDoorwayVisualTheme {
   return { backgroundColor: 0x101820, floorColor: 0x55606b, panelBackground: "#eef7f4", panelAccent: "#0f766e", reusedAssetAccentColor: 0x0f766e };
 }
 
-function _addReusableExteriorPreEncounterRoom(scene: Scene, doorwayTheme: ScenarioDoorwayVisualTheme): void {
-  addPackageReusableExteriorPreEncounterRoom(assetLoadingContext(), scene, doorwayTheme, (room) => { reusableExteriorAnteroom = room; });
-}
-
 const portalThresholdZ = PORTAL_THRESHOLD_Z;
 let portalEncounterEntered = false;
 let portalEncounterStartedByPortal = false;
@@ -2967,10 +2964,10 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       stationInteriorLightingVariantId: () => resolveStationInteriorLightingVariantId(new URLSearchParams(window.location.search).get("stationLighting")),
       runtimeSceneObjectPrefix: () => runtimeSceneObjectPrefix(),
       assetLoadingContext: () => assetLoadingContext(),
-      recordBootPhase,
       iwsdkStationSceneObjects,
       applyStationInteriorLightingForEnvironment,
       addScenarioExpectationPanel,
+      onReusableExteriorAnteroom: (room) => { reusableExteriorAnteroom = room; },
       resolveEmulatorRuntimeAssetUrl,
       isDynamicGeneratedEncounterSceneMode,
     },

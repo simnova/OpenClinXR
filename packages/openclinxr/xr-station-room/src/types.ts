@@ -1,11 +1,10 @@
-import type { AssetLoadingScenarioTheme } from "@openclinxr/xr-asset-loading";
-import type { AssetLoadingContext } from "@openclinxr/xr-asset-loading";
 import type {
-  LearnerRuntimeAssetBundle,
   EncounterRuntimeAsset,
+  LearnerRuntimeAssetBundle,
 } from "@openclinxr/asset-registry/runtime-bundles";
-import type { StationContextView, StationInteriorLightingVariantId, StationInteriorLightingApplyResult } from "@openclinxr/xr-station";
-import type { Scene, WebGLRenderer, Group, Mesh } from "three";
+import type { AssetLoadingContext, AssetLoadingScenarioTheme } from "@openclinxr/xr-asset-loading";
+import type { StationContextView, StationInteriorLightingApplyResult, StationInteriorLightingVariantId } from "@openclinxr/xr-station";
+import type { Group, Mesh, Scene, WebGLRenderer } from "three";
 
 /**
  * Station room shell and environment loading context — extracted from apps/ui-xr/src/main.ts
@@ -49,11 +48,12 @@ export type StationRoomContext = {
   stationInteriorLightingVariantId: () => StationInteriorLightingVariantId;
   runtimeSceneObjectPrefix: () => string;
   assetLoadingContext: () => AssetLoadingContext;
-  recordBootPhase: (phase: string, error?: unknown) => void;
   iwsdkStationSceneObjects: typeof import("@openclinxr/xr-runtime-state").iwsdkStationSceneObjects;
   // Functions from apps/ui-xr that are app-owned callbacks (state-dependent)
   applyStationInteriorLightingForEnvironment: ApplyStationInteriorLightingForEnvironment;
   addScenarioExpectationPanel: (scene: Scene, stationContext: StationContextView) => void;
+  /** Optional synchronous bridge: receives the SAME created anteroom root before any panel callback runs. */
+  onReusableExteriorAnteroom?: (room: Group | null) => void;
   resolveEmulatorRuntimeAssetUrl: (asset: EncounterRuntimeAsset) => string;
   isDynamicGeneratedEncounterSceneMode: () => boolean;
 };
