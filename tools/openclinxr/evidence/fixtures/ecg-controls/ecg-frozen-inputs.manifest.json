@@ -1,0 +1,46 @@
+{
+  "archive": "ecg-frozen-inputs.tar.gz",
+  "archiveSha256": "2c0961f05af157f143a1ffb01397b971e96ec63612593950ea37854376d103a7",
+  "entries": [
+    {
+      "targetRepoPath": "apps/arena/model-vetting-studio/public/glb-grade-staging/2026-08-11T01-57-18Z/ecg-cart.glb",
+      "sha256": "6be8dfda2428742d252971a59b679b0466aa44d99b9f1f20a343e0d16e45c65a",
+      "bytes": 32392344
+    },
+    {
+      "targetRepoPath": "apps/arena/model-vetting-studio/public/glb-grade-staging/2026-08-11T01-57-18Z/champion.glb",
+      "sha256": "c2b8c81fc661581a2ffa9173588b79c4937d09f2d5463f6224261e3cdf4359b9",
+      "bytes": 3010512
+    },
+    {
+      "targetRepoPath": "apps/arena/model-vetting-studio/public/glb-grade-staging/2026-08-11T01-57-18Z/ecg-cart-r0_005.glb",
+      "sha256": "c6f8e748a9d9783b16f814aae1d1e509a521f0145bb620a32110741ae8f71436",
+      "bytes": 4568788
+    },
+    {
+      "targetRepoPath": "apps/arena/model-vetting-studio/public/glb-grade-staging/2026-08-11T01-57-18Z/ecg-cart-m1-direct80k.glb",
+      "sha256": "8f004f610a8b42a76baf3edc7a17be1086266e6c82d8bb4b31b2e184877500c9",
+      "bytes": 5436772
+    },
+    {
+      "targetRepoPath": ".openclinxr/evidence/ecg-cart-4view-cagematch/pack-a/ecg-cart/front.png",
+      "sha256": "447cf984ef498c502ab0dcab202054f0df9982842ae34fd50d3845289711afe3",
+      "bytes": 817809
+    },
+    {
+      "targetRepoPath": ".openclinxr/evidence/ecg-cart-4view-cagematch/pack-a/ecg-cart/side.png",
+      "sha256": "d82774363ec40397de60d941b157e1a766de19eaaa0a50901e1c025b040a86da",
+      "bytes": 718182
+    },
+    {
+      "targetRepoPath": ".openclinxr/evidence/ecg-cart-4view-cagematch/pack-a/ecg-cart/three_quarter_left.png",
+      "sha256": "cce078dcc89ba8d1d8f9ade71dae0902f660b9d1cccf6fead950854ed4b7a2e0",
+      "bytes": 764414
+    },
+    {
+      "targetRepoPath": ".openclinxr/evidence/ecg-cart-4view-cagematch/pack-a/ecg-cart/three_quarter_right.png",
+      "sha256": "f635bf175effb22fcd7cb50be000f807bcba62526b173e964b9c17f12e9f67d7",
+      "bytes": 771334
+    }
+  ]
+}

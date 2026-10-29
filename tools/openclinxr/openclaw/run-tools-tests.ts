@@ -6,7 +6,7 @@
  * excludes. Both groups always run; combined exit is nonzero if either
  * fails. `--list` prints the manifest.
  */
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { isAbsolute, normalize, relative, resolve, sep } from "node:path";
@@ -243,6 +243,28 @@ export interface GroupResult {
   skipped: boolean;
 }
 
+export function runEcgInputPreflight(root: string): void {
+  const collector = resolve(root, "tools/openclinxr/evidence/fixtures/ecg-controls/ecg-input-bootstrap.py");
+  if (!existsSync(collector)) {
+    throw new Error(`[run-tools-tests] ECG preflight: missing collector at ${collector}`);
+  }
+  const python = process.env["PYTHON"] ?? "python3";
+  const script =
+    "import importlib.util, json, sys\n" +
+    "p = " + JSON.stringify(collector) + "\n" +
+    "spec = importlib.util.spec_from_file_location('ecg_input_bootstrap', p)\n" +
+    "m = importlib.util.module_from_spec(spec)\n" +
+    "sys.modules[spec.name] = m\n" +
+    "spec.loader.exec_module(m)\n" +
+    "r = m.materialize(" + JSON.stringify(root) + ")\n" +
+    "print('restored=' + str(len(r['restored'])) + ' reused=' + str(len(r['reused'])))\n";
+  try {
+    execFileSync(python, ["-c", script], { cwd: root, stdio: "inherit" });
+  } catch (err) {
+    throw new Error(`[run-tools-tests] ECG preflight failed: ${String(err)}`);
+  }
+}
+
 function runNodeGroup(root: string, nodeFilesRel: readonly string[]): Promise<GroupResult> {
   const started = Date.now();
   if (nodeFilesRel.length === 0) return Promise.resolve({ group: "node", files: 0, ms: 0, code: 0, skipped: true });
@@ -348,6 +370,8 @@ export async function main(argv: string[], cwd: string): Promise<number> {
   }
 
   console.log(`[run-tools-tests] manifest: ${discovered.length} files → node:test ${partition.node.length}, vitest ${partition.vitest.length}`);
+
+  runEcgInputPreflight(root);
 
   const nodeResult = await runNodeGroup(root, partition.node);
   const vitestResult = await runVitestGroup(root, partition.node, allExcludes, opts.passthrough, partition.vitest.length);
