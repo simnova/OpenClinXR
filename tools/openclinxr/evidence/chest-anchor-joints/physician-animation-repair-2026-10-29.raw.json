@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "openclinxr.generated-humanoid-chest-anchor-animation-repair.v1",
+  "repairCollapsedAnimations": true,
+  "separationApplied": false,
+  "stage": "post_blender_glb_chest_anchor_animation_repair",
+  "restPreservedExactly": true,
+  "joints": {
+    "breast.L": {
+      "beforeX": 0.085,
+      "afterX": 0.085
+    },
+    "breast.R": {
+      "beforeX": -0.085,
+      "afterX": -0.085
+    }
+  },
+  "chestSpanM": {
+    "before": 0.17,
+    "after": 0.17
+  },
+  "clavicleSpanM": 0.04571203887462616,
+  "maxChestSeparationM": 0.25,
+  "animationChannelsRepaired": [
+    {
+      "animation": "openclinxr_retarget_walk_source",
+      "joint": "breast.L",
+      "keyframes": 2
+    },
+    {
+      "animation": "openclinxr_retarget_walk_source",
+      "joint": "breast.R",
+      "keyframes": 2
+    }
+  ],
+  "animationChannelsUnchanged": [
+    {
+      "animation": "ClinicalIdleConversation",
+      "joint": "breast.L",
+      "keyframes": 2,
+      "reason": "already_at_rest"
+    },
+    {
+      "animation": "ClinicalIdleConversation",
+      "joint": "breast.R",
+      "keyframes": 2,
+      "reason": "already_at_rest"
+    }
+  ],
+  "claimScope": "mpfb_shipped_rig_collapsed_walk_sampler_restoration_to_own_rest",
+  "notEvidenceFor": [
+    "what_any_still_shows",
+    "b_plus_visual_realism_gate",
+    "quest_readiness",
+    "clinical_validity",
+    "chest_anchor_height",
+    "other_rigs"
+  ],
+  "inputPath": "/Users/patrick/.codex/worktrees/ci-source62-qualification-20261028/openclinxr/apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+  "outputPath": "/Users/patrick/.codex/benchmarks/ci-closure-20261020-2vs59s7u/rest-20261021/ph634-ci-gap-execution/source74-typed-case-schema-and-fixture-regressions-workspace/jobs/source87-regenerate-current-cached-garment-class-inventory/continuations/source97-audit-and-replay-authentic-working-478-producer/continuations/source97-execute-real-full-path-and-decoded-accessors/replayed.glb",
+  "generatedAt": "2026-10-29T06:08:52.065Z"
+}

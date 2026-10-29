@@ -51,13 +51,24 @@ import { dirname } from "node:path";
 
 const HALF_SPAN_DEFAULT_M = 0.085;
 const TARGET_PATH_TRANSLATION = "translation";
+// Existing epsilon reused by the repair mode: keyframes within this of 0 count as
+// midline-pinned and within this of the joint rest X count as already valid.
+const REPAIR_EPS = 1e-6;
+// Explicit opt-in repair mode is a boolean flag (no value). It is the ONLY new CLI
+// surface; --input/--output/--report keep their exact meaning in both modes.
+const BOOLEAN_FLAGS = new Set(["repair-collapsed-animations"]);
 
 function parseArgs(argv) {
   const args = new Map();
   for (let index = 0; index < argv.length; index += 1) {
     const key = argv[index];
     if (!key.startsWith("--")) continue;
-    args.set(key.slice(2), argv[index + 1]);
+    const name = key.slice(2);
+    if (BOOLEAN_FLAGS.has(name)) {
+      args.set(name, "1");
+      continue;
+    }
+    args.set(name, argv[index + 1]);
     index += 1;
   }
   return args;
@@ -78,8 +89,11 @@ const args = parseArgs(process.argv.slice(2));
 const inputPath = requireArg(args, "input");
 const outputPath = args.get("output") ?? inputPath;
 const reportPath = requireArg(args, "report");
+// Opt-in repair mode for already-separated rigs whose grafted walk samplers pin the
+// breasts to the midline. DEFAULT (flag absent) behaviour below is unchanged.
+const repairMode = args.get("repair-collapsed-animations") === "1";
 const halfSpanM = Number(args.get("half-span-m") ?? HALF_SPAN_DEFAULT_M);
-if (!(halfSpanM > 0.03 && halfSpanM < 0.125)) {
+if (!repairMode && !(halfSpanM > 0.03 && halfSpanM < 0.125)) {
   throw new Error(
     `--half-span-m must be in (0.03, 0.125) so the chest pair clears the clavicle floor ` +
       `(~0.049 m in this file) and stays under the 0.25 m anatomical ceiling; got ${halfSpanM}`,
@@ -108,6 +122,21 @@ const beforeSpan = Math.abs(beforeLeftX - beforeRightX);
 const clavicleSpan = Math.abs(
   readX("clavicle.L") - readX("clavicle.R"),
 );
+
+if (repairMode) {
+  await repairCollapsedAnimations({
+    document,
+    nodes,
+    inputPath,
+    outputPath,
+    reportPath,
+    beforeLeftX,
+    beforeRightX,
+    beforeSpan,
+    clavicleSpan,
+  });
+  process.exit(0);
+}
 
 // Fail closed on already-separated anchors: if a later bake ever places these joints at a
 // lateral reach of its own, overwriting it with this tool's constant would be a regression.
@@ -198,3 +227,261 @@ console.log(
     animationChannelsAdjusted,
   }),
 );
+
+/**
+ * Opt-in `--repair-collapsed-animations` mode: rest-separated rigs whose grafted
+ * walk samplers pin breasts to the midline. DEFAULT path above is unchanged.
+ * Fail-closed: valid mirrored symmetric rest within existing bounds (0.03,0.125),
+ * span above clavicle and <=0.25; rest TRS never written; only breast TRANSLATION
+ * channels with EVERY X within 1e-6 of midline restore to the joint's own rest X
+ * (no new span); already-at-rest and meaningful-dynamic curves unchanged; mixed/
+ * wrong-offset ambiguous, malformed (incl. non-finite VEC3), CUBICSPLINE, shared
+ * output aliased to an innocent channel, or nothing-pinned all throw. Same-side
+ * same-value duplicate sharing one output is repaired once.
+ */
+async function repairCollapsedAnimations({
+  document,
+  nodes,
+  inputPath,
+  outputPath,
+  reportPath,
+  beforeLeftX,
+  beforeRightX,
+  beforeSpan,
+  clavicleSpan,
+}) {
+  const restX = { "breast.L": beforeLeftX, "breast.R": beforeRightX };
+
+  // Already-valid separated symmetric rest within the existing anatomic bounds.
+  if (!(beforeLeftX > 0) || !(beforeRightX < 0)) {
+    throw new Error(
+      `--repair-collapsed-animations requires an already-separated mirrored rest ` +
+        `(breast.L x>0, breast.R x<0); got L=${beforeLeftX} R=${beforeRightX} in ${inputPath}; refusing`,
+    );
+  }
+  if (Math.abs(Math.abs(beforeLeftX) - Math.abs(beforeRightX)) > REPAIR_EPS) {
+    throw new Error(
+      `--repair-collapsed-animations requires a symmetric rest ` +
+        `(|L|==|R| within 1e-6); got L=${beforeLeftX} R=${beforeRightX} in ${inputPath}; refusing`,
+    );
+  }
+  for (const [name, x] of [["breast.L", beforeLeftX], ["breast.R", beforeRightX]]) {
+    if (!(Math.abs(x) > 0.03 && Math.abs(x) < 0.125)) {
+      throw new Error(
+        `--repair-collapsed-animations requires each rest |x| inside the existing ` +
+          `(0.03, 0.125) half-span bounds; got ${name} x=${x} in ${inputPath}; refusing`,
+      );
+    }
+  }
+  if (!(beforeSpan <= 0.25)) {
+    throw new Error(
+      `--repair-collapsed-animations requires rest span at or under the existing ` +
+        `0.25 m anatomical ceiling; got ${beforeSpan} in ${inputPath}; refusing`,
+    );
+  }
+  if (!(beforeSpan > clavicleSpan)) {
+    throw new Error(
+      `--repair-collapsed-animations requires rest span above the in-file clavicle ` +
+        `span (${clavicleSpan}); got ${beforeSpan} in ${inputPath}; refusing`,
+    );
+  }
+
+  // Snapshot rest TRS so preservation is asserted, not assumed.
+  const restTRS = new Map();
+  for (const { name } of [LEFT, RIGHT]) {
+    const node = nodes.get(name);
+    restTRS.set(name, {
+      translation: [...node.getTranslation()],
+      rotation: [...node.getRotation()],
+      scale: [...node.getScale()],
+    });
+  }
+
+  // Index output-accessor users across every sampler/channel before mutating:
+  // two distinct samplers may still share one output accessor, so a sampler-keyed
+  // guard would miss the alias and corrupt the innocent joint on write.
+  const outputUsers = new Map();
+  for (const animation of document.getRoot().listAnimations()) {
+    for (const channel of animation.listChannels()) {
+      const sampler = channel.getSampler();
+      if (!sampler) continue;
+      const out = sampler.getOutput();
+      if (!out) continue;
+      const target = channel.getTargetNode();
+      const entry = { animation: animation.getName(), node: target?.getName() ?? null, path: channel.getTargetPath() };
+      const list = outputUsers.get(out) ?? [];
+      list.push(entry);
+      outputUsers.set(out, list);
+    }
+  }
+
+  const animationChannelsRepaired = [];
+  const animationChannelsUnchanged = [];
+  const repairedOutputs = new Set();
+
+  for (const animation of document.getRoot().listAnimations()) {
+    for (const channel of animation.listChannels()) {
+      const target = channel.getTargetNode();
+      if (!target) continue;
+      const side = [LEFT, RIGHT].find(({ name }) => name === target.getName());
+      if (!side) continue;
+      if (channel.getTargetPath() !== TARGET_PATH_TRANSLATION) continue;
+
+      const sampler = channel.getSampler();
+      if (!sampler) {
+        throw new Error(
+          `translation channel for ${side.name} in ${animation.getName()} has no sampler; refusing`,
+        );
+      }
+      if (sampler.getInterpolation() === "CUBICSPLINE") {
+        throw new Error(
+          `translation sampler for ${side.name} in ${animation.getName()} uses CUBICSPLINE ` +
+            `interpolation (tangents interleaved with values); refusing rather than corrupting tangents`,
+        );
+      }
+      const output = sampler.getOutput();
+      const array = output?.getArray();
+      if (!output || output.getType() !== "VEC3" || !array || array.length % 3 !== 0 || array.length === 0) {
+        throw new Error(
+          `translation sampler for ${side.name} in ${animation.getName()} is malformed ` +
+            `(expected non-empty VEC3 output); refusing`,
+        );
+      }
+      const input = sampler.getInput();
+      if (!input || input.getCount() !== output.getCount()) {
+        throw new Error(
+          `translation sampler for ${side.name} in ${animation.getName()} has mismatched ` +
+            `input/output key counts; refusing`,
+        );
+      }
+      for (const v of array) {
+        if (!Number.isFinite(v)) {
+          throw new Error(
+            `translation sampler for ${side.name} in ${animation.getName()} is malformed: carries a non-finite ` +
+              `VEC3 component (${v}); refusing rather than publishing corrupt output`,
+          );
+        }
+      }
+
+      const targetRestX = restX[side.name];
+      const xs = [];
+      for (let i = 0; i < array.length; i += 3) xs.push(array[i]);
+      const allPinned = xs.every((x) => Math.abs(x) <= REPAIR_EPS);
+      const allAtRest = xs.every((x) => Math.abs(x - targetRestX) <= REPAIR_EPS);
+
+      if (allAtRest) {
+        animationChannelsUnchanged.push({
+          animation: animation.getName(),
+          joint: side.name,
+          keyframes: xs.length,
+          reason: "already_at_rest",
+        });
+        continue;
+      }
+      if (!allPinned) {
+        const minAbs = Math.min(...xs.map((x) => Math.abs(x)));
+        const range = Math.max(...xs) - Math.min(...xs);
+        if (minAbs > REPAIR_EPS && range > REPAIR_EPS) {
+          // Meaningful animated curve (varies away from the midline): preserve, never flatten.
+          animationChannelsUnchanged.push({
+            animation: animation.getName(),
+            joint: side.name,
+            keyframes: xs.length,
+            reason: "meaningful_dynamic_preserved",
+          });
+          continue;
+        }
+        throw new Error(
+          `translation sampler for ${side.name} in ${animation.getName()} is mixed/ambiguous ` +
+            `(x range [${Math.min(...xs)}, ${Math.max(...xs)}], neither pinned at midline nor at ` +
+            `rest ${targetRestX}); refusing rather than guessing a fix`,
+        );
+      }
+
+      // Genuinely pinned at the midline: output-accessor aliasing guard before mutation.
+      const users = outputUsers.get(output) ?? [];
+      const conflicts = users.filter(
+        (u) => !(u.node === side.name && u.path === TARGET_PATH_TRANSLATION),
+      );
+      if (conflicts.length > 0) {
+        throw new Error(
+          `translation sampler for ${side.name} in ${animation.getName()} output is shared with ` +
+            `${conflicts.map((u) => `${u.node ?? "<no-target>"}:${u.path}`).join(", ")}; ` +
+            `repairing X to ${targetRestX} would mutate an innocent channel; refusing (clone or refuse)`,
+        );
+      }
+      if (repairedOutputs.has(output)) continue;
+      for (let i = 0; i < array.length; i += 3) array[i] = targetRestX;
+      repairedOutputs.add(output);
+      animationChannelsRepaired.push({
+        animation: animation.getName(),
+        joint: side.name,
+        keyframes: xs.length,
+      });
+    }
+  }
+
+  if (animationChannelsRepaired.length === 0) {
+    throw new Error(
+      `--repair-collapsed-animations found no midline-pinned breast translation channels in ` +
+        `${inputPath} (rest span ${beforeSpan.toFixed(5)} m already valid); nothing to repair; refusing ` +
+        `to write an identical output`,
+    );
+  }
+
+  // Rest TRS must be exactly what it was: this mode never writes nodes.
+  for (const { name } of [LEFT, RIGHT]) {
+    const node = nodes.get(name);
+    const snap = restTRS.get(name);
+    const now = {
+      translation: [...node.getTranslation()],
+      rotation: [...node.getRotation()],
+      scale: [...node.getScale()],
+    };
+    for (const key of ["translation", "rotation", "scale"]) {
+      if (snap[key].length !== now[key].length || snap[key].some((v, i) => v !== now[key][i])) {
+        throw new Error(`rest ${key} of ${name} changed during animation repair; aborting`);
+      }
+    }
+  }
+
+  const tempOutputPath = inputPath === outputPath ? `${outputPath}.chest-anchor.tmp.glb` : outputPath;
+  await io.write(tempOutputPath, document);
+  if (tempOutputPath !== outputPath) renameSync(tempOutputPath, outputPath);
+
+  const handoff = {
+    schemaVersion: "openclinxr.generated-humanoid-chest-anchor-animation-repair.v1",
+    repairCollapsedAnimations: true,
+    separationApplied: false,
+    stage: "post_blender_glb_chest_anchor_animation_repair",
+    restPreservedExactly: true,
+    joints: {
+      "breast.L": { beforeX: beforeLeftX, afterX: beforeLeftX },
+      "breast.R": { beforeX: beforeRightX, afterX: beforeRightX },
+    },
+    chestSpanM: { before: beforeSpan, after: beforeSpan },
+    clavicleSpanM: clavicleSpan,
+    maxChestSeparationM: 0.25,
+    animationChannelsRepaired,
+    animationChannelsUnchanged,
+    claimScope: "mpfb_shipped_rig_collapsed_walk_sampler_restoration_to_own_rest",
+    notEvidenceFor: [
+      "what_any_still_shows",
+      "b_plus_visual_realism_gate",
+      "quest_readiness",
+      "clinical_validity",
+      "chest_anchor_height",
+      "other_rigs",
+    ],
+  };
+
+  writeJson(reportPath, { ...handoff, inputPath, outputPath, generatedAt: new Date().toISOString() });
+  console.log(
+    JSON.stringify({
+      outputPath,
+      chestSpanM: { before: Number(beforeSpan.toFixed(5)), after: Number(beforeSpan.toFixed(5)) },
+      clavicleSpanM: Number(clavicleSpan.toFixed(5)),
+      animationChannelsRepaired,
+    }),
+  );
+}

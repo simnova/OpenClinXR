@@ -166,12 +166,12 @@ describe("canonical staging contracts (fake/static units, no browser)", () => {
       (i) => i?.instanceId === FOOT_GROUNDER_PHYSICIAN_INSTANCE_ID,
     );
     expect(physician?.assetSha256).toBe(
-      "6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4",
+      "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
     );
     expect(physician?.byteCount).toBe(9618436);
     expect(expected.expectedClipRevision).toBe("openclinxr_retarget_walk_source");
     expect(expected.expectedAssetSha256).toBe(
-      "6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4",
+      "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
     );
     expect(expected.expectedBytes).toBe(9618436);
     // Independent provenance lineage agrees; retired formal_cc0 preserved.

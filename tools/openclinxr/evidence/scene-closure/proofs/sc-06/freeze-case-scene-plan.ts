@@ -1,5 +1,4 @@
 import { writeFileSync } from "node:fs";
-import { chromium } from "../../../lib/slotted-playwright.js";
 import { type Object3D, Scene } from "three";
 import {
   composeSupportedActorWorldPosition,
@@ -19,6 +18,7 @@ import { observeMountedApproachGeometry } from "../../../../../../packages/openc
 import {
   buildStationEnvironment,
 } from "../../../../../../packages/openclinxr/xr-station/src/index.js";
+import { mountBundleDeclaredContent } from "../../../../factory/mount-bundle-declared-content.js";
 import {
   SCENE_CLOSURE_CASE_ID,
   SCENE_CLOSURE_CASE_SOURCE_VERSION,
@@ -29,9 +29,9 @@ import {
   SCENE_CLOSURE_STATION_ID,
   sceneClosureCaseDocument,
 } from "../../../../factory/scene-closure-case-source.js";
-import { mountBundleDeclaredContent } from "../../../../factory/mount-bundle-declared-content.js";
 import { newEvidencePage } from "../../../lib/evidence-page.js";
 import { spawnPortlessDevServer, stopPortlessDevServer } from "../../../lib/portless-server.js";
+import { chromium } from "../../../lib/slotted-playwright.js";
 
 /**
  * THE BUILD-TIME FREEZE that gives the shipped runtime a plan to reopen.
@@ -83,6 +83,47 @@ import { spawnPortlessDevServer, stopPortlessDevServer } from "../../../lib/port
  */
 
 const OUTPUT = "packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts";
+
+/**
+ * OPTIONAL candidate-only CLI. Defaults (no flags) preserve the original behavior exactly:
+ * positional caseIds filter configs, output goes to OUTPUT. `--output ABSFILE` changes ONLY
+ * the write location. `--fresh-machine-run RUNID` stamps the selected configs' runId,
+ * acceptedAtIso and acknowledgedAtIso with the current machine time. Anything else is
+ * rejected before any browser work starts.
+ */
+function parseCandidateArgs(argv: readonly string[]): { caseIds: string[]; outputPath: string; freshRunId: string | null } {
+  let outputPath = OUTPUT;
+  let freshRunId: string | null = null;
+  const caseIds: string[] = [];
+  const seen = new Set<string>();
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i] as string;
+    if (arg === "--output") {
+      const value = argv[i + 1];
+      if (value === undefined || value.length === 0) throw new Error("candidate: --output requires a value");
+      if (seen.has("--output")) throw new Error("candidate: duplicate --output flag");
+      seen.add("--output");
+      if (!value.startsWith("/")) throw new Error(`candidate: --output must be absolute, got: ${value}`);
+      outputPath = value;
+      i += 1;
+    } else if (arg === "--fresh-machine-run") {
+      const value = argv[i + 1];
+      if (value === undefined || value.length === 0) throw new Error("candidate: --fresh-machine-run requires a value");
+      if (seen.has("--fresh-machine-run")) throw new Error("candidate: duplicate --fresh-machine-run flag");
+      seen.add("--fresh-machine-run");
+      if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(value)) {
+        throw new Error(`candidate: --fresh-machine-run must be a safe run id, got: ${value}`);
+      }
+      freshRunId = value;
+      i += 1;
+    } else if (arg.startsWith("--")) {
+      throw new Error(`candidate: unknown flag: ${arg}`);
+    } else {
+      caseIds.push(arg);
+    }
+  }
+  return { caseIds, outputPath, freshRunId };
+}
 
 type LiveWallReanchor = {
   slotId: string;
@@ -605,10 +646,20 @@ async function freezeOneCase(config: CaseConfig) {
 }
 
 async function main(): Promise<void> {
-  const requestedCaseIds = process.argv.slice(2);
+  const { caseIds: requestedCaseIds, outputPath, freshRunId } = parseCandidateArgs(process.argv.slice(2));
+  let activeConfigs = CASE_CONFIGS;
+  if (freshRunId !== null) {
+    const nowIso = new Date().toISOString();
+    activeConfigs = CASE_CONFIGS.map((config) => ({
+      ...config,
+      runId: freshRunId,
+      acceptedAtIso: nowIso,
+      acknowledgedAtIso: nowIso,
+    }));
+  }
   const configs = requestedCaseIds.length > 0
-    ? CASE_CONFIGS.filter((config) => requestedCaseIds.includes(config.caseId))
-    : CASE_CONFIGS;
+    ? activeConfigs.filter((config) => requestedCaseIds.includes(config.caseId))
+    : activeConfigs;
   if (configs.length === 0) {
     throw new Error(`no matching case config for: ${requestedCaseIds.join(", ")}`);
   }
@@ -672,11 +723,11 @@ import type { DurableAcceptedScenePlanRecord } from "./accepted-scene-plan-evide
 export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedScenePlanRecord>> =
   Object.freeze(${JSON.stringify(records, null, 2).replace(/\n/gu, "\n  ")} as Record<string, DurableAcceptedScenePlanRecord>);
 `;
-  writeFileSync(OUTPUT, module, "utf8");
-  process.stdout.write(`sc-06 freeze: wrote ${OUTPUT} for ${Object.keys(records).join(", ")}\n`);
+  writeFileSync(outputPath, module, "utf8");
+  process.stdout.write(`sc-06 freeze: wrote ${outputPath} for ${Object.keys(records).join(", ")}\n`);
 }
 
-if (process.argv[1]?.endsWith("freeze-case-scene-plan.ts")) {
+if (process.argv[1]?.endsWith("freeze-case-scene-plan.ts") || process.argv[1]?.endsWith("candidate-freeze.ts")) {
   main().catch((error: unknown) => {
     process.stderr.write(`${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`);
     process.exitCode = 1;

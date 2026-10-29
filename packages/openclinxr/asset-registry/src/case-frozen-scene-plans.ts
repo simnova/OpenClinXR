@@ -42,9 +42,9 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "planId": "scene_closure_supine_bedside_plan_v1",
       "durableStore": "database_source_of_truth",
       "run": {
-        "stationRunId": "scene_closure_build_time_freeze",
-        "sessionId": "scene_closure_build_time_freeze",
-        "acceptedAtIso": "2026-09-10T00:00:00.000Z"
+        "stationRunId": "ci-physician-walk-repair-20261029-59817",
+        "sessionId": "ci-physician-walk-repair-20261029-59817",
+        "acceptedAtIso": "2026-10-29T08:26:10.270Z"
       },
       "case": {
         "caseId": "scene_closure_supine_bedside_v1",
@@ -78,7 +78,7 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "senior_resident_ward_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-          "assetSha256": "6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4",
+          "assetSha256": "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
           "byteCount": 9618436
         },
         {
@@ -167,11 +167,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-136386591a973c83f5a3b2de0cb24277",
+      "planRevision": "plan-v1-fa6da1fbd301e9890b988b1f5423af15",
       "acknowledgment": {
-        "acknowledgedBy": "scene_closure_build_time_freeze",
-        "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-136386591a973c83f5a3b2de0cb24277"
+        "acknowledgedBy": "ci-physician-walk-repair-20261029-59817",
+        "acknowledgedAtIso": "2026-10-29T08:26:10.270Z",
+        "acknowledgedPlanRevision": "plan-v1-fa6da1fbd301e9890b988b1f5423af15"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);
