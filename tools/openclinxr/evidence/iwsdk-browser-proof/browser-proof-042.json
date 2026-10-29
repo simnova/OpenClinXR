@@ -1,0 +1,35 @@
+{
+  "capturedAt": "2026-10-20T17:12:04.251Z",
+  "repoRoot": "/Volumes/files/src/openclinxr",
+  "licensedExpectation": {
+    "core": "0.4.2",
+    "xrInput": "0.4.2"
+  },
+  "sdk": {
+    "core": {
+      "version": "0.4.2",
+      "license": "MIT",
+      "distSha256": "08f1b9cf00b1f703e0816fcdd0f51a78765b76aa3d36d8d6d649b09ceb68b25c"
+    },
+    "xrInput": {
+      "version": "0.4.2",
+      "license": "MIT",
+      "distSha256": "16531b753a24cc89fb6d959253ba0b93ab5b636709d638596315af889d6113f6"
+    }
+  },
+  "bundle": "index-C_R-LlI4.js",
+  "bundleSha256": "efbcc4dc26836f956b292a2b4aec4f6b240f23b73bb6de32a5ce6f17726d7a6c",
+  "evaluated": {
+    "via": "window.__openClinXrIwsdkProof",
+    "proof": {
+      "coreVersion": "0.4.2",
+      "uiKitDocumentType": "function",
+      "xrInputExports": 32
+    }
+  },
+  "console": [
+    "                                                 \n▄▄▄▄▄▄  ▄▄      ▄▄   ▄▄▄▄    ▄▄▄▄▄     ▄▄   ▄▄▄ \n▀▀██▀▀  ██      ██ ▄█▀▀▀▀█   ██▀▀▀██   ██  ██▀  \n  ██    ▀█▄ ██ ▄█▀ ██▄       ██    ██  ██▄██    \n  ██     ██ ██ ██   ▀████▄   ██    ██  █████    \n  ██     ███▀▀███       ▀██  ██    ██  ██  ██▄  \n▄▄██▄▄   ███  ███  █▄▄▄▄▄█▀  ██▄▄▄██   ██   ██▄ \n▀▀▀▀▀▀   ▀▀▀  ▀▀▀   ▀▀▀▀▀    ▀▀▀▀▀     ▀▀    ▀▀                                                \n===============================================\nImmersive Web SDK v0.4.2\nThree.js r184\nEliCS v3.4.2"
+  ],
+  "pageErrors": [],
+  "pass": true
+}
