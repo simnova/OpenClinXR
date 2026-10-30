@@ -7,6 +7,7 @@ import {
   HAIR_PAGE_CC0_OVERRIDE_BASENAMES,
   classifyHairPack,
 } from "../../../tools/openclinxr/asset-pipeline/makeclothes/hair-licence-classify.js";
+import { materializeArchive } from "./fixtures/ci-cleanup-inputs.js";
 
 /**
  * **A licence-cleared, weighted hair FIT ships on the library rail and no cast actor consumes it.**
@@ -218,6 +219,15 @@ async function measure(dir: string, id: string): Promise<HairRow> {
   }
   return { id, exists: true, fittedTris, fittedWeighted, fittedNames, paintedTris };
 }
+
+/** ci-w10: the staged hair pack is machine-local (gitignored). Materialize it
+ * from the asset store before the live licence read below; the manifest pins
+ * archive sha256 + bytes and every .mhclo, and a missing store throws a named
+ * `[ci-cleanup]` error instead of passing vacuously. */
+materializeArchive(
+  join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/hair-pack-inputs.manifest.json"),
+  REPO_ROOT,
+);
 
 /** Live licence read — never a list typed into this file. */
 const classification = classifyHairPack(HAIR_PACK_DIR);

@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { beforeAll, describe, expect, it } from "vitest";
+import { materializeSingleFile } from "../../../evidence/fixtures/ci-cleanup-inputs.js";
 
 /**
  * CARD tsk_0a4a6ccf5ebb0da0 (lash-tick): the lower lashes attach to the lid.
@@ -85,6 +86,13 @@ let shared: { out: string; report: BakeReport } | null = null;
 let inputBytes: Buffer | null = null;
 
 beforeAll(() => {
+  // ci-w10: the bake input is machine-local (gitignored). Materialize it from
+  // the asset store first; the manifest pins sha256 + bytes and a missing
+  // store throws a named `[ci-cleanup]` error.
+  materializeSingleFile(
+    join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/eyemesh-input.manifest.json"),
+    REPO_ROOT,
+  );
   expect(existsSync(INPUT), INPUT).toBe(true);
   inputBytes = readFileSync(INPUT);
   shared = bakeOnce();

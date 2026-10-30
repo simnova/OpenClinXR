@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "openclinxr.ci-cleanup-inputs.v1",
+  "envVar": "OPENCLINXR_EYEMESH_INPUT_GLB",
+  "storeFile": "/Volumes/files/openclinxr-assets/store/ci-cleanup/eyemesh-20261030-cb04b877/aisha-hp-cornea.glb",
+  "sha256": "2587a367cee976683217fc2f06f9e171492e4a358fd4b51b196200d276963d1c",
+  "bytes": 46043127,
+  "targetRepoPath": ".openclinxr/realism-spike/eyemesh/aisha-hp-cornea.glb",
+  "note": "Pinned bake input for the lash-tick card; materialized into .openclinxr (gitignored), never written by the bake (outputs go to os.tmpdir)."
+}

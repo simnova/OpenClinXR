@@ -5,6 +5,7 @@ import {
   screenCandidate,
 } from "../../../scene-closure-research/candidate-screening.js";
 import {
+  defaultScEvidenceRegistryPath,
   loadRetrievedSources,
   measureHostFacts,
 } from "../../../scene-closure-research/load-retrieved-sources.js";
@@ -74,8 +75,14 @@ export function parseArgs(argv: readonly string[]): ParsedArgs {
 }
 
 function loadRegistry(): EvidenceRegistry | Error {
-  const registryPath = process.env["OPENCLINXR_SC_EVIDENCE_REGISTRY"];
-  if (!registryPath) return new Error("OPENCLINXR_SC_EVIDENCE_REGISTRY is not set");
+  let registryPath: string;
+  try {
+    // ci-w10: explicit env when set, else the pinned asset-store copy (same
+    // receipts, re-hashed on load — not a fixture). Missing store is an Error.
+    registryPath = process.env["OPENCLINXR_SC_EVIDENCE_REGISTRY"] ?? defaultScEvidenceRegistryPath();
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
   if (!path.isAbsolute(registryPath)) return new Error("OPENCLINXR_SC_EVIDENCE_REGISTRY must be absolute");
   try {
     return JSON.parse(readFileSync(registryPath, "utf8")) as EvidenceRegistry;
@@ -85,8 +92,13 @@ function loadRegistry(): EvidenceRegistry | Error {
 }
 
 function registryDigest(): string | Error {
-  const registryPath = process.env["OPENCLINXR_SC_EVIDENCE_REGISTRY"];
-  if (!registryPath) return new Error("OPENCLINXR_SC_EVIDENCE_REGISTRY is not set");
+  let registryPath: string;
+  try {
+    // ci-w10: same default as loadRegistry above; missing store is an Error.
+    registryPath = process.env["OPENCLINXR_SC_EVIDENCE_REGISTRY"] ?? defaultScEvidenceRegistryPath();
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
   try {
     return sha256Hex(readFileSync(registryPath));
   } catch (error) {

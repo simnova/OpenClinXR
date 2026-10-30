@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "openclinxr.ci-cleanup-inputs.v1",
+  "envVar": "OPENCLINXR_SC_EVIDENCE_REGISTRY",
+  "registryStorePath": "/Volumes/files/openclinxr-assets/store/ci-cleanup/sc-evidence-20261030-cb04b877/registry.json",
+  "registrySha256": "bf3e2f3137758718e0e7e3cb88cbba43e06090d14bbc4c2540b79f44b3ba7d38",
+  "registryBytes": 1621,
+  "entries": [
+    {
+      "path": "registry.json",
+      "sha256": "bf3e2f3137758718e0e7e3cb88cbba43e06090d14bbc4c2540b79f44b3ba7d38",
+      "bytes": 1621
+    },
+    {
+      "path": "store/sc-10/commands/assert-contract-live.txt",
+      "sha256": "2d2a9e6d5bc045888d946d36e0cf758dcc47c42bf6f2531f89d0ebb48ec2e718",
+      "bytes": 143
+    },
+    {
+      "path": "store/sc-10/commands/index.jsonl",
+      "sha256": "d7ba5304968c17d57c0b20ef09a66eac824bcb35050caadd405cb2fa89a71cc7",
+      "bytes": 379
+    },
+    {
+      "path": "store/sc-10/commands/named-behavior-test.txt",
+      "sha256": "c53e2390ec5d3a5b4ec0051690149ed129b52a04b5c95fb8df535c79777e2d04",
+      "bytes": 219
+    },
+    {
+      "path": "store/sc-10/commands/verifier-unit-tests.txt",
+      "sha256": "2925bf4f7594cf350fad745364fb04aa0221df43f38dfe8617c68091aebb61ab",
+      "bytes": 220
+    },
+    {
+      "path": "store/sc-10/controls/fabricated-executed-report.json",
+      "sha256": "df5cffa7c94295bb13d8788629549cf15ff6bc9157c4cdbd6c566571677f0d8c",
+      "bytes": 13993
+    },
+    {
+      "path": "store/sc-10/controls/green-fix-rejects-fabricated-executed.txt",
+      "sha256": "ba0771193e3f7e07f9be374b86cf5a8d3c0f7889f58d60b238c9f7e83b4e2662",
+      "bytes": 754
+    },
+    {
+      "path": "store/sc-10/controls/green-probe.ts",
+      "sha256": "ed06aca9af177ad6a9e9e35c5c1d8d5886038daf18506dd7f32a1e3e1a0a2cb4",
+      "bytes": 4175
+    },
+    {
+      "path": "store/sc-10/controls/red-baseline-accepts-fabricated-executed.txt",
+      "sha256": "1cc3d908f6ed6a442a94e51b18656f2d1dc5332e0cf7794155a6804e49f2656a",
+      "bytes": 578
+    },
+    {
+      "path": "store/sc-10/controls/red-probe.ts",
+      "sha256": "b32b4c94e853a98482f25535fbb8fc409f2f9689ea8f8ea6eb3578aadc511e77",
+      "bytes": 8013
+    },
+    {
+      "path": "store/sc-10/controls/report-schema.ts",
+      "sha256": "92f0e76c5bc1b463ce1399d8270ef579323776b9d19cf2e0f7c562fe85215e1f",
+      "bytes": 3968
+    },
+    {
+      "path": "store/sc-10/controls/two-sided-gate.json",
+      "sha256": "7e022eae917c557947e111221653550755a3121d9dbb2b42a1ec78ad45fd36d6",
+      "bytes": 3337
+    },
+    {
+      "path": "store/sc-10/controls/two-sided-gate.py",
+      "sha256": "8d5f9c3be59c60c7dfc1bce87e7d16768ddc3110a6c1bf6997f45b72ced581d2",
+      "bytes": 7219
+    },
+    {
+      "path": "store/sc-10/controls/verify-core.baseline.ts",
+      "sha256": "72c2fe63dc3a76078fdc227f20f38613da0f05981155b1e639b2a9f08f530b88",
+      "bytes": 17308
+    },
+    {
+      "path": "store/sc-10/reviews/independent-review.json",
+      "sha256": "b9835f6f5082e8af7107b143f4406025df933491c9e120109c4cc1cb69bfbb74",
+      "bytes": 4542
+    },
+    {
+      "path": "store/sc-10/sources/hf-index-bones-seed-dataset.json",
+      "sha256": "a6dce1eaddc4ffbbf5ed3bd68c139544aa1ec5c41349acbe1e00052cd68f41d1",
+      "bytes": 39385
+    },
+    {
+      "path": "store/sc-10/sources/hf-index-soma-rp.json",
+      "sha256": "d99ccc344e8172328b3ee62e3bc37157abbd539aab15605917510661664344b7",
+      "bytes": 1372
+    },
+    {
+      "path": "store/sc-10/sources/hf-index-soma-seed.json",
+      "sha256": "b96cdb48f6da72362065f2318710449df7dc7cac1e16745ad7b1edba70ba8c15",
+      "bytes": 1300
+    },
+    {
+      "path": "store/sc-10/sources/hf-index-text-encoder-adapter.json",
+      "sha256": "8e067d480da952387b65764fb8b5c14b8d08f98fac3c10f593152b8f20f1e6c8",
+      "bytes": 138604
+    },
+    {
+      "path": "store/sc-10/sources/hf-index-text-encoder-base.json",
+      "sha256": "85b577ea586fe0b55f75422ab27dc9a87edacf9338344f0cf1fd39105c44b790",
+      "bytes": 19380
+    },
+    {
+      "path": "store/sc-10/sources/kimodo-code-licence.txt",
+      "sha256": "d1a7d615ab8eff4de143b1456f46dabf232f54daf0fcf9a70442bb6f637a9e95",
+      "bytes": 11387
+    },
+    {
+      "path": "store/sc-10/sources/kimodo-pyproject.toml",
+      "sha256": "52da3177a21ee018ceba229410ff21e61016a03d326fcb8132cbc1349fdfb911",
+      "bytes": 1573
+    },
+    {
+      "path": "store/sc-10/sources/kimodo-repo-readme.md",
+      "sha256": "f7d5a98b909941578d71e0da5f4a4ed7f693f95ea926a6437489a4a92a6e8d64",
+      "bytes": 20188
+    },
+    {
+      "path": "store/sc-10/sources/kimodo-skeleton-definitions.py",
+      "sha256": "fafe12b5f82ca24096241932d9773b1d3d8c080da1197e74c77cfce8ce3a19fc",
+      "bytes": 13712
+    },
+    {
+      "path": "store/sc-10/sources/kimodo-skeleton-exports.py",
+      "sha256": "9494c2b86434054015bf65c906207db192cdbb5836a795adc2265ff38d387662",
+      "bytes": 735
+    },
+    {
+      "path": "store/sc-10/sources/kimodo-text-encoder-readme.md",
+      "sha256": "9e13aa22d1fd91b49e443546f3f1d2d936c82728f75de96b0ce7c143e745c559",
+      "bytes": 207
+    },
+    {
+      "path": "store/sc-10/sources/kimodo-text-encoder-wrapper.py",
+      "sha256": "e4dc146dd6a5a6f75a269b99b53d7ae43a873f6020992426ddb39bf3f924a1c4",
+      "bytes": 3286
+    },
+    {
+      "path": "store/sc-10/sources/retrieval-receipts.json",
+      "sha256": "0e3d921e9102590deb49bfb7c25f57499f41ebe2c8bc61fd0fc56370ffaef069",
+      "bytes": 7818
+    },
+    {
+      "path": "store/sc-10/sources/soma-rp-checkpoint-config.yaml",
+      "sha256": "905664ad05779b0e28c391b85dc81c9de166418bd5f471ef605f75ab746ce391",
+      "bytes": 675
+    },
+    {
+      "path": "store/sc-10/sources/soma-rp-model-card.md",
+      "sha256": "9854ebe176e78755a44cc4a74ae842c2a2874f24aa94f28f04929a0cc3d27b09",
+      "bytes": 13154
+    },
+    {
+      "path": "store/sc-10/sources/soma-rp-model-licence.txt",
+      "sha256": "11ccdcb47db87ac30b63765b5e5154403026c4fbb52c19919d99d912ec454e19",
+      "bytes": 10229
+    },
+    {
+      "path": "store/sc-10/sources/soma-seed-checkpoint-config.yaml",
+      "sha256": "905664ad05779b0e28c391b85dc81c9de166418bd5f471ef605f75ab746ce391",
+      "bytes": 675
+    },
+    {
+      "path": "store/sc-10/sources/soma-seed-model-card.md",
+      "sha256": "21913a26278021da2adc38086c971907e6483d354931f1fc10bf40f29c5aeb89",
+      "bytes": 12788
+    },
+    {
+      "path": "store/sc-10/sources/text-encoder-adapter-config.json",
+      "sha256": "2a1265e4a7829c16dad38a5175ec8ac41ea1e851654da5044ace2437615a58ba",
+      "bytes": 794
+    }
+  ],
+  "note": "Default for OPENCLINXR_SC_EVIDENCE_REGISTRY: verified copy of the owner sc-10 store prefix. Retrieval receipts pin every object; loadRetrievedSources re-hashes each against its receipt."
+}

@@ -2,6 +2,8 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { resolveRegistryWithDefault } from "../fixtures/ci-cleanup-inputs.js";
 import type { HostFacts } from "./candidate-screening.js";
 import { CANDIDATE_SOURCES } from "./candidate-source-manifest.js";
 import type { RetrievalReceipt } from "./retrieve-candidate-sources.js";
@@ -25,11 +27,21 @@ function sha256Hex(bytes: Buffer): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
-/** The alias root from the owner registry. No default, no environment fallback to a fixture. */
+/** The alias root from the owner registry. When the env var is unset, falls back
+ * to the pinned asset-store copy (`sc-evidence-inputs.manifest.json` pins its
+ * path + sha256); the copy carries the same retrieval receipts and every
+ * object below is re-hashed against its receipt, so the default is the same
+ * verified bytes, not a fixture. A missing store throws a named
+ * `[ci-cleanup]` error; it never degrades to a fixture. */
+export function defaultScEvidenceRegistryPath(): string {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  return resolveRegistryWithDefault(path.join(here, "sc-evidence-inputs.manifest.json"));
+}
+
 export function resolveSourceStoreRoot(registryPath: string | undefined): string {
-  if (!registryPath) throw new Error("OPENCLINXR_SC_EVIDENCE_REGISTRY is not set");
-  if (!path.isAbsolute(registryPath)) throw new Error("OPENCLINXR_SC_EVIDENCE_REGISTRY must be absolute");
-  const registry = JSON.parse(readFileSync(registryPath, "utf8")) as {
+  const resolved = registryPath ?? defaultScEvidenceRegistryPath();
+  if (!path.isAbsolute(resolved)) throw new Error("OPENCLINXR_SC_EVIDENCE_REGISTRY must be absolute");
+  const registry = JSON.parse(readFileSync(resolved, "utf8")) as {
     aliases?: Record<string, { root?: string }>;
   };
   const root = registry.aliases?.["sc-evidence"]?.root;

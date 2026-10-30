@@ -1,0 +1,140 @@
+{
+  "schemaVersion": "openclinxr.ci-cleanup-inputs.v1",
+  "envVar": "OPENCLINXR_HAIR_PACK_ARCHIVE",
+  "storeArchive": "/Volumes/files/openclinxr-assets/store/ci-cleanup/hair-pack-20261030-cb04b877/hair-pack-inputs.tar.gz",
+  "archiveSha256": "877768372611a4dcfe9659921591fa761df8df459390c53862382d4baed374be",
+  "archiveBytes": 3001966,
+  "entries": [
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-community-male/mhair02/mhair02.mhclo",
+      "sha256": "67933350d1e006957decb905c58c4643f7aea911237077f9a269624607124b44",
+      "bytes": 156218
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/cortu_shaggy_green_hair/cortu_shaggy_green_hair.mhclo",
+      "sha256": "38c021053137d4dff2e02b5e216700f5e7162ae2a3fa0f9fa8efccd85bab899f",
+      "bytes": 65636
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/cortu_short_messy_hair/cortu_short_messy_hair.mhclo",
+      "sha256": "868ae0221ba97b23c3c5d1d1c5757e6fd01ddad4a2992affffb6fd7880e3cda7",
+      "bytes": 56368
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/cortu_straight_bangs/cortu_straight_bangs.mhclo",
+      "sha256": "64ad5941c9380d507a6cd7c8c8f42a348f36f116b1fc5ccebd4f72e5e279ccda",
+      "bytes": 57446
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/cortu_strawberry_cloud_hair/cortu_strawberry_cloud_hair.mhclo",
+      "sha256": "1e621daaa55ef9ee0f7e71561d1ac50ca88b7a2b3d61b62004af9a97813d4d55",
+      "bytes": 32727
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/culturalibre_hair_01/culturalibre_hair_01.mhclo",
+      "sha256": "2644c85c6bcf5cdcd9abbe288ad44807b791c1386f8c59614c38b18d241d34c9",
+      "bytes": 212444
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/culturalibre_hair_02/culturalibre_hair_02.mhclo",
+      "sha256": "5d24186eb4248a7bebad93c769e288605b7ab9f2f086789d91a99a9b15206118",
+      "bytes": 156223
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/culturalibre_hair_05/culturalibre_hair_05.mhclo",
+      "sha256": "e3888a94ebb84bc37b73cefb3af7045bc674a8c3d92ff8e910e75c283a234078",
+      "bytes": 175979
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/culturalibre_hair_06/culturalibre_hair_06.mhclo",
+      "sha256": "fb5835f77df605cdaa866b9d62e22c87426eaf0116c5c70ffd3cb3263d9f0888",
+      "bytes": 510220
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/elvs_double_mh_braid/elvs_double_mh_braid.mhclo",
+      "sha256": "053db1ac6d1530c4396adb2033471d61c93f7ded65bfe75ca825150f6cec44fb",
+      "bytes": 543904
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/elvs_french_braid_variation/elvs_french_braid_variation.mhclo",
+      "sha256": "61ea506301f39cff5079485597aac6bf876689c1922c0ae2386d45226578d340",
+      "bytes": 440039
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/elvs_reverse_french_braid_bun/elvs_reverse_french_braid_bun.mhclo",
+      "sha256": "01046e726dafbae2d9e73a07546e755985afe1c8d771a80da8ba57172f96120c",
+      "bytes": 388054
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/elvs_unkempt_french_braid/elvs_unkempt_french_braid.mhclo",
+      "sha256": "868347915e98326679c1b764ba2e7909c7abffa31fd9ecc27735e709c66846a3",
+      "bytes": 443703
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/faydaen_hair_1/faydaen_hair_1.mhclo",
+      "sha256": "4b0739ab8cd217d90a5f6ee45954e15198ef09623278b7651fc5ea55978a61c3",
+      "bytes": 33164
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/learning_anime_hair/learning_anime_hair.mhclo",
+      "sha256": "eb59d05809b2d0c1f707f480e13a3dbd0864b068766205bc97c7bd841ae18c0b",
+      "bytes": 3108063
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/littleright_bobcut_hair/littleright_bobcut_hair.mhclo",
+      "sha256": "9fcfcb4fb308927a508df59be0c947b82673e222c87ebf879c5b7164ca3f263b",
+      "bytes": 129746
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/o4saken_long01/o4saken_long01.mhclo",
+      "sha256": "581d190f38086aba1c47cd4e589fee469a3cc0157f98fc74ce7bcb76a1caa646",
+      "bytes": 1016141
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/rehmanpolanski_hair_bun_brown/rehmanpolanski_hair_bun_brown.mhclo",
+      "sha256": "54f136555d516f940268881e75453305789ff430be85032f25864d773ebe9676",
+      "bytes": 171791
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/sonntag78_blond_with_headband/sonntag78_blond_with_headband.mhclo",
+      "sha256": "203bd4c2fe926caa469a0a082dbbb6c1cf20e372bf7ced189a9f66439fd8965f",
+      "bytes": 86444
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/sonntag78_junglebook_hair/sonntag78_junglebook_hair.mhclo",
+      "sha256": "424a6a929632ade6f99cb6b802f235ebf020592dcd30df6d58d5223dc35c6ee0",
+      "bytes": 329609
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_blunt_bob/toigo_blunt_bob.mhclo",
+      "sha256": "252f6b2edbc9f1568b85ff7f367709f5c328110023573df35720a4c84879f4e1",
+      "bytes": 102588
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_blunt_bob_with_bangs/toigo_blunt_bob_with_bangs.mhclo",
+      "sha256": "a10c85fea05740d19fbdb378169052ed0a857281753b5d286080c7a8720fee50",
+      "bytes": 179911
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_curled_under_bob/toigo_curled_under_bob.mhclo",
+      "sha256": "725bf6f11fbea1ec2f461a52ed73774df195180c3e113716fbbc00639d81e78a",
+      "bytes": 102450
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_curled_under_bob_with_bangs/toigo_curled_under_bob_with_bangs.mhclo",
+      "sha256": "ec629512656e225686074514d806ba307fe331028960b42e093a25d77b83e523",
+      "bytes": 179915
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_inverted_bob/toigo_inverted_bob.mhclo",
+      "sha256": "af32890eb389dd536afcb8f6cd5cbf1f57fd42be6a7c1ab2bcb56e0b383473c5",
+      "bytes": 102805
+    },
+    {
+      "targetRepoPath": ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_inverted_bob_with_bangs/toigo_inverted_bob_with_bangs.mhclo",
+      "sha256": "0621b98b006dd135801caff2c5abdc2fd1f7603ed4319ba75b4d6ffe164b6e83",
+      "bytes": 180524
+    }
+  ],
+  "note": "mhclo headers only: the licence classifier reads .mhclo files; baked geometry stays in the tracked GLBs. Materialized into .openclinxr-local (gitignored) like the ECG bootstrap."
+}
