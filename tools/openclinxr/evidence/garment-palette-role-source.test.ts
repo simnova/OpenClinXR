@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { makeclothesGarmentSlug } from "./lib/garment-mesh-class.js";
 
 /**
  * PLANTED CONTRACTS (#180a). The telehealth patient and his daughter wear byte-identical materials.
@@ -244,7 +245,10 @@ describe("garment colour is chosen with role, not garment kind alone (#180a)", (
     }
 
     const scrubs = report.bodies.flatMap((b) => b.allGarmentMaterials)
-      .filter((m) => /scrub_top/iu.test(m.materialName));
+      // The clinical scrub ships as the makeclothes library scrub_shirt (the locked-colour
+      // contract addresses it by slug); the legacy rail named the same slot scrub_top.
+      // One shared slug vocabulary, not a private /scrub_top/ matcher blind to the rail.
+      .filter((m) => /scrub_top/iu.test(m.materialName) || makeclothesGarmentSlug(m.materialName) === "scrub_shirt");
     expect(scrubs.length, "no scrub top material found in any shipped body").toBeGreaterThan(0);
     for (const s of scrubs) {
       expect(

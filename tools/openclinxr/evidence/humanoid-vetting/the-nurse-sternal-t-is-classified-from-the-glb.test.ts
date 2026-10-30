@@ -4,6 +4,10 @@ import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { decodePng } from "../decode-png.ts";
+import {
+  classifyGarmentMeshName,
+  isUpperMeshName,
+} from "../lib/garment-mesh-class.js";
 
 /**
  * Nurse sternal T classify probe (diagnose only, no fix): the grey T at the
@@ -86,8 +90,12 @@ type Tri = { a: number[]; b: number[]; c: number[]; kind: string };
 function loadTris(glb: { json: GlbJson; bin: Buffer }, bodyName: string): Tri[] {
   const out: Tri[] = [];
   for (const mesh of glb.json.meshes ?? []) {
-    const isBody = mesh.name === bodyName;
-    const isShirt = /scrub_shirt/.test(mesh.name ?? "");
+    // Body by resolved identity, with the shared body class as the rename-proof
+    // fallback; shirt via the shared upper class, not /scrub_shirt/.
+    const isBody = mesh.name === bodyName || classifyGarmentMeshName(mesh.name ?? "") === "body";
+    // The nurse upper, via the shared classifier — not a /scrub_shirt/ match
+    // that misses the next wardrobe retarget.
+    const isShirt = isUpperMeshName(mesh.name ?? "");
     if (!isBody && !isShirt) continue;
     for (const p of mesh.primitives ?? []) {
       const mat = glb.json.materials?.[p.material ?? -1];
@@ -138,8 +146,10 @@ describe("the nurse sternal T is classified from the GLB", () => {
     };
 
     for (const [path, key, bytes, sha] of [
-      [PEDS_GLB, "pedsKevin", 7513812, "fc5f285c79a13459de3bb9de5fbe3409d9725d2834e43a1e4f977b08f19765d5"],
-      [ADULT_GLB, "adult", 8396376, "8409334c30861e07d7bb180b2b8f7e5d48c277bc91c4a5df8f0cb0475869c541"],
+      // RE-PINNED: deliberate churn 32e58c3ff + 91aa4b5d3 (walk bind) + 9f2934536 (teeth retreat).
+      [PEDS_GLB, "pedsKevin", 7894888, "0de69b66a569d457c11985895f76b24a4c0cc99adc530720ee0e4ecaa78a22de"],
+      // RE-PINNED: deliberate churn 8e7a1d0c2 (CC-BY scrub extras) + 91aa4b5d3 + 9f2934536.
+      [ADULT_GLB, "adult", 8775848, "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9"],
     ] as const) {
       const glb = readGlb(path);
       expect(glb.bytes.length, `${key}: GLB length pinned`).toBe(bytes);
@@ -168,7 +178,8 @@ describe("the nurse sternal T is classified from the GLB", () => {
 
       // Mask tris overlap the throat band (child method) AND an OPAQUE shirt
       // covers every notch ray, so no discard hole reaches the viewer (rules out A).
-      const bodyName = glb.json.meshes?.find((m) => /_body$/.test(m.name ?? ""))?.name ?? "";
+      // Body mesh via the shared classifier (the next rename must not empty this).
+      const bodyName = glb.json.meshes?.find((m) => classifyGarmentMeshName(m.name ?? "") === "body")?.name ?? "";
       expect(bodyName, `${key}: body mesh present`).not.toBe("");
       const body = glb.json.meshes?.find((m) => m.name === bodyName);
       let maskNeck = 0;

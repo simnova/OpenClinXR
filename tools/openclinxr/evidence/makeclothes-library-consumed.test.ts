@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { isLegacySurfaceDerivedMeshName } from "./lib/garment-mesh-class.js";
 
 /**
  * PLANTED CONTRACTS (#215). Two REDs. Both flip.
@@ -40,7 +41,8 @@ import { describe, expect, it } from "vitest";
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  * THE CONSUMPTION SLOT ALREADY EXISTS AND IS WIRED — measured, do not rebuild it
  *
- *   apps/ui-xr/src/main.ts:7314
+ *   packages/openclinxr/xr-asset-loading/src/variant-paths.ts:30
+ *     (extracted verbatim from apps/ui-xr/src/main.ts:7314 by fd1a9e016)
  *     humanoidSourceComparator === "reom_local_fitted_garment_patient"
  *       -> '/xr-assets/humanoids/candidates/makeclothes-hm08-scrub-shirt-library.glb'
  *         (was reom-local-fitted-scrub-top-candidate.glb; #215 factory stage owns the path)
@@ -106,7 +108,8 @@ describe("the factory consumes a fitted MakeClothes garment (#215)", () => {
     for (const e of report.entries) {
       // The defining difference. Body-surface-derived garments carry the generated shell naming from
       // automate_blender.py. A FITTED garment does not — it came from a .mhclo through ClothesService.
-      const surfaceDerived = e.garmentMeshNames.filter((n) => /openclinxr_real_garment_/i.test(n));
+      // Provenance via the one shared contract, not a private /openclinxr_real_garment_/ literal.
+      const surfaceDerived = e.garmentMeshNames.filter((n) => isLegacySurfaceDerivedMeshName(n));
       if (surfaceDerived.length > 0) {
         bad.push(`${e.glbPath}: garment ${surfaceDerived.join(",")} is body-surface-derived, not fitted`);
       }
@@ -132,7 +135,7 @@ describe("the factory consumes a fitted MakeClothes garment (#215)", () => {
   }, 1_800_000);
 
   it("the runtime can resolve it, and no shipped Anny role was converted (COUNTERWEIGHT)", async () => {
-    // Consumption means the runtime can reach it — main.ts:7314 already proves a comparator slot for a
+    // Consumption means the runtime can reach it — variant-paths.ts:30 already proves a comparator slot for a
     // fitted-garment humanoid is a supported shape. But the seven shipped humanoids must stay Anny:
     // MADR 0044 says .mhclo transfer onto Anny topology shatters, so a converted role would be a
     // silent body swap. This slice adds a candidate; it does not migrate the cast.

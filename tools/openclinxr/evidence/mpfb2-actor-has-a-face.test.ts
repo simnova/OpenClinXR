@@ -147,6 +147,17 @@ import { describe, expect, it } from "vitest";
  * carries the same 32 targets with 104 moved deltas on its 1,285 verts). The floor moves to 5,000 —
  * still far above the next-largest primitive (the 2,164-vert hidden-foot prim) so the vacuity guard
  * keeps its job — and the mouth-target clauses are unchanged.
+ *
+ * ## RE-PINNED (HB-05 f6b335392, 2026-09-11; viseme bake E6.3)
+ *
+ * The face-preserving decimated rung took the skin prim 4,811v (bodyVerts now
+ * 4,331); the 5,000 floor breaks. The floor moves to 2,500 — still far above
+ * the next-largest morph-carrying primitive (the ~881-vert hidden-foot prim)
+ * so the vacuity guard keeps its job. The E6.3 viseme bake put 15 visemes on
+ * the shipped body, so the mouth inventory is now 27 usable (13 mouth-* + 14
+ * visemes) and `viseme_sil` — the rest pose, pinned empty by
+ * the-applied-visemes clause (3) — is exempt from clause (4), which otherwise
+ * reds on a target that must be empty.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -233,10 +244,10 @@ const knownGood = await Promise.all(KNOWN_GOOD.map(async (g) => ({ id: g, ...(aw
 
 /** An unmeasured subject must FAIL every clause, never pass vacuously (§7t). */
 function requireMeasured(): void {
-  // #359: the skin primitive (the largest morph-carrying primitive) is 9,822 verts since the
-  // scalp region became a separate primitive; 5,000 still sits above the next-largest prim
-  // (2,164) so the vacuity guard is intact.
-  expect(subject.bodyVerts, "aisha body mesh measured").toBeGreaterThan(5_000);
+  // HB-05 (f6b335392): the skin primitive (the largest morph-carrying primitive) is 4,811 verts
+  // after the face-preserving decimation; 2,500 still sits above the next-largest morph-carrying
+  // prim (~881 verts) so the vacuity guard is intact.
+  expect(subject.bodyVerts, "aisha body mesh measured").toBeGreaterThan(2_500);
   for (const g of knownGood) {
     expect(g.bodyVerts, `${g.id} body mesh measured`).toBeGreaterThan(30_000);
   }
@@ -286,7 +297,10 @@ describe("the MPFB2 actor a learner meets has a face, loaded from real MPFB targ
     "(4) COUNTERWEIGHT ON THE FIX (vacuous today, see header): every FACE-NAMED target on aisha is non-empty and localised",
     () => {
       requireMeasured();
-      expect(subject.emptyTargets, "aisha empty face shape keys").toEqual([]);
+      // viseme_sil is the rest pose — empty by design, pinned by
+      // the-applied-visemes clause (3). Everything else face-named must move.
+      const nonRest = subject.emptyTargets.filter((t) => t !== "viseme_sil");
+      expect(nonRest, "aisha empty face shape keys besides the rest pose").toEqual([]);
       expect(
         subject.wholeBodyTargets,
         "aisha whole-body face morphs — the Anny rail's approach (#316) is refused here",

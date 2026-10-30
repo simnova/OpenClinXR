@@ -60,6 +60,17 @@ import { describe, expect, it } from "vitest";
  * renamed `largestMeshName` -> `bodyMeshName`; pre-fix.json and rail-diagnosis.json were
  * regenerated with the same measured values (on every shipped GLB today the identity-resolved
  * body IS the largest mesh, so no count or class key changed).
+ *
+ * ## RE-PINNED (deliberate churn — artifacts regenerated from the live scan)
+ *
+ * `pre-fix.json` regenerated via `pnpm exec tsx tools/openclinxr/evidence/humanoid-body-signature.ts`
+ * (the module's own writer; 10 -> 20 assets) and `rail-diagnosis.json` rewritten by the same run:
+ *   - aisha body 26756 -> 10705, kevin -> 8049 (HB-05 face-preserving decimation, f6b335392);
+ *   - aisha bodyMeshName `mpfb_ob_patient_aisha_body` -> `mpfb_ob_patient_aisha_v1_body`
+ *     (the `_v1_body` rename, 4b151efbe);
+ *   - 10 new rows for the MPFB cast + peds_fever_patient_child, incl. robert-hayes (69f2c7075);
+ *   - child verts 15384 -> 15656 (mouth/teeth program geometry).
+ * Diagnosis case stays (c); clauses unchanged.
  */
 
 import {

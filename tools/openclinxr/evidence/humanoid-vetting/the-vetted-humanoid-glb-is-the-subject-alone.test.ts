@@ -5,6 +5,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { decodePng } from "../decode-png.ts";
+import { makeclothesGarmentSlug } from "../lib/garment-mesh-class.js";
 
 /**
  * HB-04 v2: the baked humanoid GLB is vetted as an artifact, through the
@@ -163,7 +164,9 @@ describe("the vetted humanoid GLB is the subject alone", () => {
       }
       expect(texturedUnresolved, `${file}: every textured non-white factor is the named street exception or white`).toEqual([]);
       if (file === STREET_EXCEPTION) {
-        const tee = (json.materials ?? []).find((m) => m.name === "mat_makeclothes_library_toigo_t_shirt");
+        // Street tee addressed by shared slug, not a literal that a wardrobe
+        // retarget renames out from under the clause.
+        const tee = (json.materials ?? []).find((m) => makeclothesGarmentSlug(m.name) === "toigo_t_shirt");
         expect(tee?.pbrMetallicRoughness?.baseColorTexture !== undefined, "street tee is textured").toBe(true);
         expect((tee?.pbrMetallicRoughness?.baseColorFactor ?? []).slice(0, 3), "street tee keeps the recorded [0.34,0.44,0.34]").toEqual([0.34, 0.44, 0.34]);
       }

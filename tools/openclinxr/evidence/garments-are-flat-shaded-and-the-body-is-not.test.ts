@@ -2,6 +2,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { classifyGarmentMeshName, isWearableMeshName } from "./lib/garment-mesh-class.js";
 
 /**
  * **Every MakeClothes garment ships flat-shaded; every MPFB-native primitive on the same body ships
@@ -100,8 +101,12 @@ const COPLANAR_DEG = 30;
 const SHARP_DEG = 60;
 
 /** Garment primitives only. The body, scalp and eyes are MPFB-native and already smooth (known-good). */
-const isGarment = (n: string): boolean => /makeclothes_library/i.test(n) && !/eyes/i.test(n);
-const isBody = (n: string): boolean => /^mpfb_skin_/i.test(n);
+/** Fitted wearables the flat-shade contract measures (upper/lower/footwear;
+ * fitted hair excluded by class — see isWearableMeshName). One shared
+ * classifier, not the /makeclothes_library/ rail gate that missed every legacy
+ * shell and could not tell eyes from garments. The body keeps its own column. */
+const isGarment = (n: string): boolean => isWearableMeshName(n);
+const isBody = (n: string): boolean => classifyGarmentMeshName(n) === "body";
 
 /**
  * MEASURED 2026-08-13 on the shipped bytes. Floors refuse (b) global smoothing and (c)/(d) remeshing.

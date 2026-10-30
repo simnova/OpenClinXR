@@ -3,6 +3,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { classifyGarmentMeshName } from "./lib/garment-mesh-class.js";
 
 /**
  * The MPFB rail cannot be cast at runtime because its actors are not dressed.
@@ -117,8 +118,13 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
 const LIBRARY = "apps/ui-xr/public/xr-assets/humanoids/candidates";
 
-const LOWER = /pants|trouser|lower|skirt|legging/i;
-const FOOTWEAR = /footwear|shoe|boot|flat/i;
+/** Lower-garment and footwear channels via the one shared classifier. Lower =
+ * any lower-slot garment (trousers, gown, skirt — the old /skirt/ branch is
+ * kept by class, not by literal), not a /pants|trouser|lower|skirt|legging/
+ * match that misses the next rename and cannot tell a hide-mask region from a
+ * garment. */
+const isLowerChannel = (name: string): boolean => classifyGarmentMeshName(name) === "lower";
+const isFootwearChannel = (name: string): boolean => classifyGarmentMeshName(name) === "footwear";
 
 /** 1-triangle SSOT markers are not garments (§7q); a real fitted channel has substance. */
 const MIN_CHANNEL_TRIS = 100;
@@ -163,12 +169,16 @@ function bodyOf(f: Figure): Mesh | null {
   return carriers.sort((a, b) => b.hi - b.lo - (a.hi - a.lo))[0]!;
 }
 
-function channel(f: Figure, re: RegExp): Mesh[] {
-  return f.meshes.filter((m) => re.test(m.name) && m.tris >= MIN_CHANNEL_TRIS && m.skinned);
+function channel(f: Figure, pred: (name: string) => boolean): Mesh[] {
+  return f.meshes.filter((m) => pred(m.name) && m.tris >= MIN_CHANNEL_TRIS && m.skinned);
 }
 
+/** *-inspect are fixtures, not cast: mpfb-gown-inspect was deliberately stripped of its
+ * lower channel for its bake (ece7f143c strips the cargo when a gown goes on the inspect
+ * body — live it carries only the t-shirt + the 1-tri unskinned declared_upper_layers
+ * marker + peds_upper, i.e. lower-less under channel()). Clause (1)/(2) gate the cast. */
 const mpfbFiles = readdirSync(join(REPO_ROOT, GENERATED))
-  .filter((n: string) => n.startsWith("mpfb-") && n.endsWith(".glb") && !/candidate/i.test(n))
+  .filter((n: string) => n.startsWith("mpfb-") && n.endsWith(".glb") && !/candidate/i.test(n) && !/-inspect\.glb$/.test(n))
   .map((n: string) => `${GENERATED}/${n}`);
 const libFiles = readdirSync(join(REPO_ROOT, LIBRARY))
   .filter((n: string) => n.startsWith("body-param-") && n.endsWith(".glb"))
@@ -188,8 +198,8 @@ describe("MPFB actors are dressed well enough to be cast at runtime", () => {
     requireFigures();
     const missing: string[] = [];
     for (const f of mpfb) {
-      if (channel(f, LOWER).length === 0) missing.push(`${f.file}: no lower garment`);
-      if (channel(f, FOOTWEAR).length === 0) missing.push(`${f.file}: no footwear`);
+      if (channel(f, isLowerChannel).length === 0) missing.push(`${f.file}: no lower garment`);
+      if (channel(f, isFootwearChannel).length === 0) missing.push(`${f.file}: no footwear`);
     }
     // "Real" = skinned and >= 100 tris. A 1-triangle marker or an empty node does not dress anyone.
     expect(missing, "MPFB bodies missing a wardrobe channel").toEqual([]);
@@ -200,7 +210,7 @@ describe("MPFB actors are dressed well enough to be cast at runtime", () => {
     const bad: string[] = [];
     for (const f of mpfb) {
       const body = bodyOf(f);
-      const feet = channel(f, FOOTWEAR);
+      const feet = channel(f, isFootwearChannel);
       if (!body) {
         bad.push(`${f.file}: no body mesh resolved`);
         continue;
@@ -223,8 +233,8 @@ describe("MPFB actors are dressed well enough to be cast at runtime", () => {
     for (const f of lib) {
       const body = bodyOf(f);
       expect(body, `${f.file}: body resolves`).not.toBeNull();
-      if (channel(f, LOWER).length === 0) regressed.push(`${f.file}: lost its lower garment`);
-      const feet = channel(f, FOOTWEAR);
+      if (channel(f, isLowerChannel).length === 0) regressed.push(`${f.file}: lost its lower garment`);
+      const feet = channel(f, isFootwearChannel);
       if (feet.length === 0) {
         regressed.push(`${f.file}: lost its footwear`);
         continue;

@@ -125,6 +125,16 @@ import { isFittedNonBodyName } from "./garment-slot.ts";
  * Measured on the shipped bytes with the new classifier: body = 26,756 — the documented stripped
  * count, hair and garments excluded. The destructive probe rebuilds the with-helpers state (36,972)
  * on top of it and the RED still fails, so the net keeps its exact discriminator.
+ *
+ * ## RE-PINNED (HB-05 f6b335392, 2026-09-11; #542 face parts)
+ *
+ * The face-preserving decimated rung took the skin prim 11,139v -> 4,811v and the stripped body
+ * 26,756t -> 10,705t; #542 had already landed brow (35,334t), lash, teeth and tongue on all
+ * actors, which the rail-gate + hair rule counted as body. `isFittedNonBodyName` now keys on the
+ * one shared classifier (every known non-body class excluded, `unknown` stays body), so the
+ * measured body is 10,705 <= 28,000 and the helper-shell probe material still counts as body.
+ * Clause (5) adds two shells (one decimated shell no longer trips the bound alone); clause (6)
+ * pins brow/lash/teeth/tongue on the shipped material names.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -133,9 +143,17 @@ const AISHA = `${REPO_ROOT}/apps/ui-xr/public/generated-humanoids/mpfb-ob-patien
 
 /** MADR 0052: helper-stripped is 26,756 tris. Headroom for scalp / material-region variation. */
 const MAX_TRIANGLES = 28_000;
-/** MADR 0052 documented pair: with helpers / stripped. The probe rebuilds both endpoints. */
-const WITH_HELPERS_TRIANGLES = 36_972;
-const STRIPPED_TRIANGLES = 26_756;
+/**
+ * Re-pinned 2026-09-12 by f6b335392 (HB-05 face-preserving decimated rung:
+ * skin prim 11,139v -> 4,811v, body 26,756t -> 10,705t). The helper-shell
+ * contribution is unchanged MADR 0052 arithmetic (36,972 - 26,756 per shell);
+ * the probe adds two shells because one decimated shell no longer trips the
+ * 28,000 bound on its own.
+ */
+const STRIPPED_TRIANGLES = 10_705;
+const ONE_HELPER_SHELL_TRIANGLES = 10_216;
+const PROBE_SHELL_COUNT = 2;
+const WITH_HELPERS_TRIANGLES = STRIPPED_TRIANGLES + PROBE_SHELL_COUNT * ONE_HELPER_SHELL_TRIANGLES;
 const MOUTH_NAME = /mouth|lip|jaw|viseme/i;
 const MOVED_EPSILON_M = 1e-5;
 const MIN_USABLE_MOUTH_TARGETS = 13;
@@ -216,7 +234,7 @@ describe("the shipped MPFB2 actor is a body, not a body wearing MakeHuman fittin
       requireMeasured();
       expect(
         bodyTris,
-        `aisha BODY triangles (36,972 = base.obj with helpers; 26,756 = documented stripped; garment tris excluded per #321, fitted hair per #391)`,
+        `aisha BODY triangles (HB-05 stripped 10,705, f6b335392; brow/lash/teeth/tongue excluded per #542, garment tris per #321, fitted hair per #391)`,
       ).toBeLessThanOrEqual(MAX_TRIANGLES);
     },
   );
@@ -245,24 +263,26 @@ describe("the shipped MPFB2 actor is a body, not a body wearing MakeHuman fittin
 
   it("(5) DESTRUCTIVE PROBE: an unstripped helper shell is still counted as body — the with-helpers count still fails the RED", () => {
     // Helpers are body-ish shells (skin-region geometry), not makeclothes garments and not fitted
-    // hair. Rebuild the documented with-helpers state (36,972) from the stripped body (26,756) by
-    // adding one helper-shell primitive; a classifier that wrongly excluded body-ish geometry —
-    // or that excluded the fitted hair the wrong way — would let the known-bad pass.
+    // hair. Rebuild an unstripped state from the HB-05 stripped body (10,705) by adding helper-shell
+    // primitives; a classifier that wrongly excluded body-ish geometry — or that excluded the fitted
+    // hair the wrong way — would let the known-bad pass. Two shells: one decimated shell (10,216)
+    // no longer trips the 28,000 bound alone, so the probe adds two to rebuild a failing total.
     const probe = cloneDocument(doc);
     const before = bodyTrianglesOf(probe);
-    expect(before, "probe starts from the documented stripped body").toBe(STRIPPED_TRIANGLES);
-    const helperTris = WITH_HELPERS_TRIANGLES - STRIPPED_TRIANGLES;
-    const positions = new Float32Array(helperTris * 9);
-    const accessor = probe
-      .createAccessor()
-      .setType(Accessor.Type.VEC3)
-      .setArray(positions)
-      .setBuffer(probe.createBuffer());
-    const helperPrim = probe.createPrimitive().setAttribute("POSITION", accessor);
-    helperPrim.setMaterial(probe.createMaterial().setName("mpfb_helper_shell_mat"));
-    probe.createMesh().setName("mpfb_helper_shell_mesh").addPrimitive(helperPrim);
+    expect(before, "probe starts from the HB-05 stripped body").toBe(STRIPPED_TRIANGLES);
+    for (let s = 0; s < PROBE_SHELL_COUNT; s += 1) {
+      const positions = new Float32Array(ONE_HELPER_SHELL_TRIANGLES * 9);
+      const accessor = probe
+        .createAccessor()
+        .setType(Accessor.Type.VEC3)
+        .setArray(positions)
+        .setBuffer(probe.createBuffer());
+      const helperPrim = probe.createPrimitive().setAttribute("POSITION", accessor);
+      helperPrim.setMaterial(probe.createMaterial().setName("mpfb_helper_shell_mat"));
+      probe.createMesh().setName(`mpfb_helper_shell_mesh_${s}`).addPrimitive(helperPrim);
+    }
     const after = bodyTrianglesOf(probe);
-    expect(after, "with-helpers count = the documented 36,972 (stripped 26,756 + helper shell)").toBe(
+    expect(after, "with-helpers count = stripped 10,705 + two helper shells").toBe(
       WITH_HELPERS_TRIANGLES,
     );
     expect(after, "the RED still catches the known-bad").toBeGreaterThan(MAX_TRIANGLES);
@@ -270,8 +290,9 @@ describe("the shipped MPFB2 actor is a body, not a body wearing MakeHuman fittin
 
   it("(6) NET: the slot classifier reads the shipped primitives by role, not by name", () => {
     // Pins the classification on the actual material names in the shipped GLB. There is no name
-    // list to go stale: a fitted hair material and a makeclothes garment of ANY slot are non-body,
-    // the skin and painted body regions are body.
+    // list to go stale: a fitted hair material, a makeclothes garment of ANY slot, and the #542
+    // fitted face parts (brow/lash/teeth/tongue — the rail-gate + hair rule went blind to all
+    // four) are non-body; the skin and painted body regions are body.
     expect(
       isFittedNonBodyName("openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat"),
       "fitted hair is not body (#391)",
@@ -280,6 +301,23 @@ describe("the shipped MPFB2 actor is a body, not a body wearing MakeHuman fittin
     expect(isFittedNonBodyName("mat_makeclothes_library_cargo_pants.001"), "lower slot garment").toBe(true);
     expect(isFittedNonBodyName("mat_makeclothes_library_footwear_toigo_flats"), "foot slot garment").toBe(true);
     expect(isFittedNonBodyName("mat_makeclothes_library_eyes_ob_patient_aisha"), "eye slot").toBe(true);
+    expect(
+      isFittedNonBodyName("openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_v1_mat"),
+      "fitted brow is not body (#542)",
+    ).toBe(true);
+    expect(
+      isFittedNonBodyName("openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_v1_mat"),
+      "fitted lash is not body (#542)",
+    ).toBe(true);
+    expect(
+      isFittedNonBodyName("mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_v1_mesh"),
+      "fitted teeth are not body (#542)",
+    ).toBe(true);
+    expect(
+      isFittedNonBodyName("mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_v1_mesh"),
+      "fitted tongue is not body (#542)",
+    ).toBe(true);
+    expect(isFittedNonBodyName("mpfb_helper_shell_mat"), "helper shell is body (probe discriminator)").toBe(false);
     expect(isFittedNonBodyName("mpfb_skin_ob_patient_aisha"), "body skin is body").toBe(false);
     expect(isFittedNonBodyName("openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh"), "painted body region is body").toBe(
       false,

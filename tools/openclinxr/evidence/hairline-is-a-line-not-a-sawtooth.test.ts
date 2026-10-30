@@ -3,6 +3,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { classifyGarmentMeshName } from "./lib/garment-mesh-class.js";
 
 /**
  * Every MPFB actor has a jagged black sawtooth across the forehead. It survives seven #341 rounds,
@@ -159,7 +160,7 @@ const GENERATED = "apps/ui-xr/public/generated-humanoids";
 /** The baked skin texture must stay present; below this it is not a real bake. */
 const MIN_SKIN_TEXTURE_KB = 200;
 
-type Row = { file: string; scalpPrims: number; separateHairMeshes: number; skinTextureKb: number };
+type Row = { file: string; scalpPrims: number; separateHairMeshes: number; fittedHairMeshes: number; skinTextureKb: number };
 
 const io = new NodeIO();
 
@@ -168,6 +169,7 @@ async function measure(rel: string): Promise<Row | null> {
   const meshes = doc.getRoot().listMeshes();
   let scalpPrims = 0;
   let separateHairMeshes = 0;
+  let fittedHairMeshes = 0;
   let skinTextureKb = 0;
   let bodyMesh: (typeof meshes)[number] | undefined;
   for (const mesh of meshes) {
@@ -179,7 +181,9 @@ async function measure(rel: string): Promise<Row | null> {
         scalpPrims++;
         bodyMesh = bodyMesh ?? mesh;
       }
-      if (/skin/i.test(name)) {
+      // Skin = the body class, read off the MATERIAL (the mesh half of the
+      // combined name never carries it). One shared classifier, not /skin/i.
+      if (classifyGarmentMeshName(prim.getMaterial()?.getName() ?? "") === "body") {
         const img = prim.getMaterial()?.getBaseColorTexture()?.getImage();
         if (img) skinTextureKb = Math.max(skinTextureKb, img.length / 1024);
       }
@@ -187,17 +191,28 @@ async function measure(rel: string): Promise<Row | null> {
   }
   for (const mesh of meshes) {
     if (mesh === bodyMesh) continue;
-    // #330/#381 — the FITTED library hair mesh (`makeclothes_library_hair_*`) is a
-    // D1-fitted .mhclo replacement, the OPPOSITE of the hand-authored UV sphere #222
-    // refuses; it is excluded by mesh-name prefix, the same convention as the #222
-    // contract's FITTED_LIBRARY_HAIR_MESH. #387: aisha's placeholder is retired BECAUSE
-    // this mesh replaced it, so counting it here would contradict the premise.
-    if (/^makeclothes_library_hair/i.test(mesh.getName() ?? "")) continue;
-    if (mesh.listPrimitives().some((p) => /hair/i.test(p.getMaterial()?.getName() ?? ""))) {
+    // #330/#381 — the FITTED library hair mesh is a D1-fitted .mhclo
+    // replacement, the OPPOSITE of the hand-authored UV sphere #222 refuses;
+    // excluded by shared hair class (covers the makeclothes prefix and any
+    // future fitted-hair mesh), not a private /^makeclothes_library_hair/ match.
+    // #387: aisha's placeholder is retired BECAUSE this mesh replaced it, so
+    // counting it here would contradict the premise.
+    // #399 529121f0e + mhair02: the fitted mesh is now the fleet-wide mechanism —
+    // counted as presence here (clause 1 re-premise), still excluded from the
+    // hand-authored tripwire below.
+    if (classifyGarmentMeshName(mesh.getName() ?? "") === "hair") {
+      fittedHairMeshes++;
+      continue;
+    }
+    if (
+      mesh
+        .listPrimitives()
+        .some((p) => classifyGarmentMeshName(p.getMaterial()?.getName() ?? "") === "hair")
+    ) {
       separateHairMeshes++;
     }
   }
-  return { file: rel.split("/").pop()!, scalpPrims, separateHairMeshes, skinTextureKb };
+  return { file: rel.split("/").pop()!, scalpPrims, separateHairMeshes, fittedHairMeshes, skinTextureKb };
 }
 
 const files = readdirSync(join(REPO_ROOT, GENERATED))
@@ -213,28 +228,31 @@ function requireRows(): void {
   expect(rows.length, `MPFB bodies scanned (of ${files.length})`).toBeGreaterThanOrEqual(3);
 }
 
-/** #387/#399/kevin-mhair02 — shipped base ids whose placeholder scalp paint is retired. */
-const RETIRED_FIGURES = new Set([
-  "mpfb-ob-patient-aisha.glb",
-  "mpfb-peds-patient-child.glb",
-  "mpfb-peds-parent-aisha.glb",
-  "mpfb-peds-nurse-kevin.glb",
-]);
+/**
+ * ## RE-PREMISED (placeholder retired fleet-wide) — the scalp is gone everywhere.
+ *
+ * #399 529121f0e retired the last placeholder scalp (the child's) and the mhair02
+ * rollout covered kevin, so the placeholder paint is ABSENT on all 12 shipped GLBs
+ * (verified: zero `scalp` mesh/material names) and every actor carries a fitted
+ * makeclothes_library_hair_* mesh (verified 12/12 on disk). The RETIRED set below
+ * is therefore the whole scanned fleet, derived from `rows` rather than hand-kept.
+ */
+const RETIRED_FIGURES: Set<string> = new Set(rows.map((r) => r.file));
 
 describe("the scalp region is the hair mechanism on the body mesh (texture route removed, #359)", () => {
-  it("(1) RED: the scalp region is present on every actor without fitted hair and absent where fitted hair replaced it", () => {
-    // #359 reinstated the per-polygon scalp region (the #341 texture route is removed).
-    // #387/#399: the region is a self-declared PLACEHOLDER (automate_blender.py:4245) — it is
-    // required where no real fitted hair exists (the nurse) and must be ABSENT where a fitted
-    // replacement is on disk (aisha, and the child under #399). Old assertion changed:
-    // "every MPFB actor carries the scalp region" — that encoded the placeholder as a
-    // required feature; the retirement makes the fitted-hair figures documented exceptions.
+  it("(1) RED: every actor carries fitted library hair and no placeholder scalp paint survives", () => {
+    // Re-premised (was: "scalp region present except RETIRED_FIGURES{4}"). #399
+    // 529121f0e retired the last placeholder scalp fleet-wide and the mhair02
+    // rollout covered the remaining masculine figure, so the region is required
+    // NOWHERE and fitted hair is required EVERYWHERE: 12/12 fitted
+    // makeclothes_library_hair_* on disk, 0 scalp primitives. The presence half
+    // refuses a bake that drops hair entirely; the absence half refuses a
+    // placeholder resurrection. Clauses (2) and (3) unchanged.
     requireRows();
-    const missing = rows
-      .filter((r) => !RETIRED_FIGURES.has(r.file))
-      .filter((r) => r.scalpPrims === 0)
-      .map((r) => `${r.file}: scalpPrims=${r.scalpPrims}`);
-    expect(missing, "bodies without the scalp region (aisha and the child exempt: placeholder retired)").toEqual([]);
+    const bare = rows
+      .filter((r) => r.fittedHairMeshes === 0)
+      .map((r) => `${r.file}: no fitted library hair mesh`);
+    expect(bare, "actors with no fitted library hair (the fleet-wide mechanism, 12/12 on disk)").toEqual([]);
     const stale = rows
       .filter((r) => RETIRED_FIGURES.has(r.file) && r.scalpPrims > 0)
       .map((r) => `${r.file}: scalpPrims=${r.scalpPrims} — placeholder not retired`);
