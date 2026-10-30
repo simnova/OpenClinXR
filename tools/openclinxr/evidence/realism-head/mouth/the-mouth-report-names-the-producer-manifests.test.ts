@@ -3,6 +3,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import {
+  materializerBakedWithShas,
+  sha256Hex,
+} from "../../materializer-baked-with.js";
 
 /**
  * Mouth compat report validator (tsk_667587349a455eec): the realism-head
@@ -27,7 +31,6 @@ const REPO_ROOT = pathResolve(HERE, "../../../../..");
 const REPORT = join(HERE, "compat-report.json");
 const CENSUS = join(HERE, "census.json");
 const SHELL_MANIFEST = join(HERE, "..", "shell", "shell-manifest.json");
-const MATERIALIZE = join(REPO_ROOT, "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py");
 const ROUNDTRIP = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/gltf-ext/roundtrip-report.json");
 const STORE_ROOT = "/Volumes/files/openclinxr-assets/store/";
 const SCRATCH_REALISM =
@@ -102,14 +105,48 @@ function storePath(src: string): string {
   return join(STORE_ROOT, "compat-mouth", rel);
 }
 
+/** Fail-closed producer binding shared by clause (1) and the known-bad fixtures. */
+function validateProducerBinding(r: CompatReport, history: Set<string>): void {
+  expect(history.size, "baked-with history must be non-empty").toBeGreaterThan(0);
+  expect(r.producerSourcePath).toBe(
+    "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+  );
+  expect(
+    history.has(r.producerSourceSha256),
+    `recorded producer ${r.producerSourceSha256} is not the baked-with bytes at any commit in history`,
+  ).toBe(true);
+}
+
 describe("the mouth report names the producer manifests", () => {
-  it("(1) report cites the shell-manifest lineage sha and the roundtrip-report sha", () => {
+  it("(1) report cites the shell-manifest lineage sha and the baked-with materializer (a history blob)", () => {
     const r = readReport();
     const shell = JSON.parse(readFileSync(SHELL_MANIFEST, "utf8")) as { producerSourceSha256: string };
     expect(r.producerSourceLineageSha256).toBe(shell.producerSourceSha256);
-    expect(r.producerSourceSha256).toBe(sha256File(MATERIALIZE));
+    // ci-w9 P1: the report records the materializer it was BAKED WITH
+    // (4c35ea1c… = materializer at 4dbcfb899, 2026-10-15), not the live
+    // script — so membership in history, not equality with the live file.
+    validateProducerBinding(r, materializerBakedWithShas(REPO_ROOT));
     expect(r.roundtripReportSha256).toBe(sha256File(ROUNDTRIP));
     expect(r.sheet.src).toMatch(/^assets:/);
+  }, 120_000);
+
+  it("(1b) known-bad: a fabricated producer sha is rejected", () => {
+    const history = materializerBakedWithShas(REPO_ROOT);
+    const fabricated = "e".repeat(64);
+    expect(history.has(fabricated), "fabricated sha must not be in history").toBe(false);
+    const bad = { ...readReport(), producerSourceSha256: fabricated };
+    expect(() => validateProducerBinding(bad, history)).toThrow();
+  }, 120_000);
+
+  it("(1c) known-bad: mutated control GLB bytes no longer match the recorded sha", () => {
+    const r = readReport();
+    const control = r.rows.find((x) => x.label === "control")!;
+    const abs = join(REPO_ROOT, control.glb);
+    const mutated = Buffer.from(readFileSync(abs));
+    mutated[mutated.length - 1] = (mutated[mutated.length - 1]! + 1) % 256;
+    expect(sha256Hex(mutated), "mutated bytes must not match the recorded GLB sha").not.toBe(
+      control.sha256,
+    );
   });
 
   it("(2) RED: both rows carry the 15 shipped viseme names, the jaw, and honest brow movers", () => {
