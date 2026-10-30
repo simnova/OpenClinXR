@@ -3,7 +3,7 @@
   "generatedAt": "2026-10-10T00:05:22.710002+00:00",
   "clipName": "openclinxr_retarget_kimodo_stop_physician_seed42",
   "targetActor": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-  "outputGlb": "/Volumes/files/src/openclinxr-wt/kimodo-stop/.openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop.glb",
+  "outputGlb": "store:3134786118fbcbc2645e9a5950c3d26371c9d6b9dbe9ae4376d39bc895a6c3e0/mpfb-clinical-physician-adult-stop.glb",
   "generation": {
     "generatorRepo": "https://github.com/nv-tlabs/kimodo.git",
     "generatorCommit": "58e781898b3d7e328a676a75d3e338c45dce3ad9",

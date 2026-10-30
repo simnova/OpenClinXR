@@ -3,7 +3,7 @@
   "generatedAt": "2026-10-10T00:11:28.721233+00:00",
   "clipName": "openclinxr_retarget_kimodo_stop_nurse_seed42",
   "targetActor": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-  "outputGlb": "/Volumes/files/src/openclinxr-wt/kimodo-stop/.openclinxr/evidence/kimodo-stop/mpfb-clinical-nurse-adult-stop.glb",
+  "outputGlb": "store:dfaa355de96b30f9ccb45535ce3b62a01e7dc35659cbad127706cea649a6a701/mpfb-clinical-nurse-adult-stop.glb",
   "generation": {
     "generatorRepo": "https://github.com/nv-tlabs/kimodo.git",
     "generatorCommit": "58e781898b3d7e328a676a75d3e338c45dce3ad9",

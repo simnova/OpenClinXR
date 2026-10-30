@@ -3,7 +3,7 @@
   "generatedAt": "2026-10-10T00:12:19.270488+00:00",
   "clipName": "openclinxr_retarget_kimodo_stop_child_seed42",
   "targetActor": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
-  "outputGlb": "/Volumes/files/src/openclinxr-wt/kimodo-stop/.openclinxr/evidence/kimodo-stop/mpfb-peds-patient-child-stop.glb",
+  "outputGlb": "store:b369097473603542bf2586a178d6963b16edc03bb622d5a99112b032ce80276d/mpfb-peds-patient-child-stop.glb",
   "generation": {
     "generatorRepo": "https://github.com/nv-tlabs/kimodo.git",
     "generatorCommit": "58e781898b3d7e328a676a75d3e338c45dce3ad9",
