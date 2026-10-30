@@ -78,7 +78,7 @@ function writeReplayDir(): string {
   const dir = mkdtempSync(join(tmpdir(), "xr-sync-c10-"));
   writeFileSync(join(dir, "S1fx.conversation-trace.json"), JSON.stringify(TRACE_S1));
   writeFileSync(join(dir, "S2fx.conversation-trace.json"), JSON.stringify(TRACE_S2));
-  const entry = (t: typeof TRACE_S1, i: number, file: string, obs: boolean) => ({
+  const entry = (t: { stationId: string; turns: Array<{ end: string }> }, i: number, file: string, obs: boolean) => ({
     stationId: t.stationId, stationIndex: i, traceFile: file, phases: ["doorway", "encounter", "note", "closed"],
     turnCount: t.turns.length, turnEnds: t.turns.map((x) => x.end), observerPresent: obs,
   });
@@ -219,5 +219,21 @@ describe("xr-sync-server C10 station replay from trace", () => {
     const index = JSON.parse(readFileSync(file, "utf8")) as { complete: boolean; stations: Array<{ stationId: string }> };
     expect(index.complete).toBe(false);
     expect(index.stations.map((s) => s.stationId)).toEqual(["station-1"]);
+  }, 40000);
+
+  it("C9 carry-over without traceDir: a station createRoom throw is contained (no unhandled rejection, server keeps serving)", async () => {
+    // Root, after review of 361b2f911: driveRoomRotation now rethrows; the no-traceDir branch must catch it.
+    const server = await boot({
+      timing: { doorwaySeconds: 1, encounterSeconds: 1, noteSeconds: 1 },
+      stations: ["station-1", "station-2"],
+      rotationFaults: { failNextStationCreate: 1 },
+    });
+    const learner = await joinRoom(server, { actors: ["a1", "a2"] });
+    let closed = false;
+    learner.onState((s) => { if (s.phase === "closed") closed = true; });
+    await waitFor(() => closed, 15000, "station-1 closed");
+    await new Promise((resolve) => setTimeout(resolve, 500)); // rotation runs right after closed (C7 dwell 15-55 ms)
+    const late = await joinRoom(server, { actors: ["a1"] });
+    expect(late.sessionId).not.toBe("");
   }, 40000);
 });

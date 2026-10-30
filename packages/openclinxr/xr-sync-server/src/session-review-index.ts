@@ -182,7 +182,11 @@ export async function handleStationClosed(host: StationCloseReviewHost, roomName
         setRotationStarted: host.setRotationStarted,
       },
       roomName,
-    );
+    ).catch((error: unknown) => {
+      // driveRoomRotation rethrows a station createRoom failure (C10). With no
+      // index to write it must not escape `void rotateStation()` unhandled.
+      console.error(`xr-sync: station rotation failed: ${error instanceof Error ? error.message : String(error)}`);
+    });
     return;
   }
   const collector = collectorFor(host.binding);
