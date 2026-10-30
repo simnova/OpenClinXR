@@ -1223,7 +1223,7 @@
         },
         {
           "material": "mat_makeclothes_library_toigo_t_shirt",
-          "decision": "baked: per-texel texture x factor folded into the texture, factor reset to white",
+          "decision": "retired 2026-10-30 (ci-w11b): material removed from the shipped gown by d1c44f8cd (ci-w11 D1 prune; verified 0 bound mesh primitives pre-prune, meshes still 10/nodes 149) — bake receipt samples retained for provenance, no live texture to sample; was: baked per-texel texture x factor folded into the texture, factor reset to white",
           "sourceResolution": "2048x2048",
           "bakedResolution": "2048x2048",
           "ladderRungId": "bake-resolution-ladder.res2048",
