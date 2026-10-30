@@ -48,8 +48,27 @@ const MAKECLOTHES_GARMENT_TOKENS = [
 
 const UPPER_MAKECLOTHES_TOKENS = new Set(["scrub_shirt", "toigo_t_shirt", "lab_coat"]);
 
-/** Generic trouser indicators beyond the makeclothes token table. */
-const TROUSER_GENERIC_TOKENS = new Set(["trouser", "trousers", "jeans", "pants", "shorts"]);
+/** Generic trouser indicators beyond the makeclothes token table. Deliberately
+ * NOT bare "lower": body-region hide materials (`openclinxr_hidden_lower_*`)
+ * carry that segment and must stay out of every garment population. */
+const TROUSER_GENERIC_TOKENS = new Set(["trouser", "trousers", "jeans", "pants", "shorts", "legging", "leggings"]);
+
+/**
+ * Generic upper indicators for `makeclothes_library_*` names outside the
+ * known-token table: cover shells (`civilian_shirt`), sweaters
+ * (`toigo_fisherman_sweater`, the #199 pick consumers still reference), and the
+ * bare `scrub` slot. Checked only after the known tokens, after
+ * hair/footwear/eyes/body, and after gown/skirt — never a guess for
+ * non-garment names.
+ */
+const UPPER_GENERIC_TOKENS = new Set([
+	"shirt",
+	"shirts",
+	"scrub",
+	"scrubs",
+	"sweater",
+	"sweaters",
+]);
 
 const NON_GARMENT_EXCLUSION_RE =
 	/(^|_)hair(_|\.|$)|footwear|_shoes?(_|\.|$)|_boots?(_|\.|$)|_slipper(_|\.|$)|(^|_)eyes?(_|\.|$)|(^|_)skin(_|\.|$)/;
@@ -64,6 +83,10 @@ function segmentsOf(name: string): string[] {
 
 function hasGenericTrouserToken(text: string): boolean {
 	return segmentsOf(text).some((seg) => TROUSER_GENERIC_TOKENS.has(seg));
+}
+
+function hasGenericUpperToken(text: string): boolean {
+	return segmentsOf(text).some((seg) => UPPER_GENERIC_TOKENS.has(seg));
 }
 
 /** Classify one mesh name. Non-strings and unrecognized names → `unknown`. */
@@ -94,6 +117,7 @@ export function classifyGarmentMeshName(name: unknown): GarmentMeshClass {
 			}
 		}
 		if (hasGenericTrouserToken(rest)) return "lower";
+		if (hasGenericUpperToken(rest)) return "upper";
 	}
 	if (!NON_GARMENT_EXCLUSION_RE.test(n)) {
 		if (hasGenericTrouserToken(n)) return "lower";
@@ -153,15 +177,39 @@ export function isUpperMeshName(name: unknown): boolean {
 	return classifyGarmentMeshName(name) === "upper";
 }
 
-/**
- * Fitted garment geometry (legacy `openclinxr_real_garment_*`, makeclothes
+/** Fitted garment geometry (legacy `openclinxr_real_garment_*`, makeclothes
  * garment tokens). Excludes `openclinxr_declared_upper_layers_*` shells:
  * those are layer declarations (open cardigans) whose front opening is
- * deliberately deep and must not join neckline populations.
- */
+ * deliberately deep and must not join neckline populations. */
 export function isFittedGarmentMeshName(name: unknown): boolean {
 	if (typeof name !== "string" || name.length === 0) return false;
 	if (name.toLowerCase().indexOf("openclinxr_declared_upper_layers_") >= 0) return false;
 	const cls = classifyGarmentMeshName(name);
 	return cls === "upper" || cls === "lower";
+}
+
+/**
+ * Fitted wearables the shading/texture contracts measure: upper/lower
+ * garments plus footwear. Fitted hair has its own class and is excluded here
+ * BY CLASS (its material prefix renamed out of the makeclothes rail, so a rail
+ * gate would admit it by accident): wearables contracts pin their populations
+ * to upper/lower/footwear, and admitting hair rewrites their scope. Declared
+ * layer shells stay out with the fitted set above.
+ */
+export function isWearableMeshName(name: unknown): boolean {
+	if (typeof name !== "string" || name.length === 0) return false;
+	if (name.toLowerCase().indexOf("openclinxr_declared_upper_layers_") >= 0) return false;
+	const cls = classifyGarmentMeshName(name);
+	return cls === "upper" || cls === "lower" || cls === "footwear";
+}
+
+/**
+ * Legacy body-surface-derived shells (`openclinxr_real_garment_*`): the rail
+ * the factory generated garments from the body surface before the MakeClothes
+ * fit path. Provenance, not class — a fitted makeclothes garment and a derived
+ * shell can share a class. Lives here so the legacy prefix has exactly one home.
+ */
+export function isLegacySurfaceDerivedMeshName(name: unknown): boolean {
+	if (typeof name !== "string" || name.length === 0) return false;
+	return name.toLowerCase().indexOf("openclinxr_real_garment_") >= 0;
 }

@@ -280,6 +280,161 @@
       "path": "tools/openclinxr/evidence/a-shipped-garment-keeps-its-base-colour-texture.test.ts",
       "reason": "ci-w1 classifier migration truthfully expands the population (the old /footwear|shoe|shirt/ regex never saw lower garments): 9 bare garment materials including lower-garment mats carry no baseColorTexture. Authoring the missing textures is an asset fix, not a name fix.",
       "card": "ci-w1: author base-colour textures for the 9 bare garment materials"
+    },
+    {
+      "path": "tools/openclinxr/evidence/a-declared-fabric-palette-reaches-the-shipped-garment.test.ts",
+      "reason": "ci-w1 classifier migration is green (child upper + parent upper both visible as uppers; no name miss): the child soft_blue palette ships upper (1,1,1) white so blue never exceeds red, and the parent rose channel 0 ships 1 vs known-good 0.62 (delta 0.38 > 0.005). Baking the declared palette into base colours is an asset fix.",
+      "card": "ci-w1: bake the declared fabric palette into garment base colours"
+    },
+    {
+      "path": "tools/openclinxr/evidence/a-garment-deforms-like-the-body-under-it.test.ts",
+      "reason": "ci-w1 classifier migration is green (garment/body populations select correctly): the known-good column fails on asset data — the MPFB rail transferred-weight band holds 316 verts vs the > 500 needed to compare. Restoring the band population is an asset fix.",
+      "card": "ci-w1: restore the transferred-weight band population above 500 verts"
+    },
+    {
+      "path": "tools/openclinxr/evidence/a-layered-garment-is-separated-from-the-one-beneath.test.ts",
+      "reason": "ci-w1 classifier migration is green (makeclothesGarmentSlug selects the nurse scrub shirt; no name miss): the unlayered control drifted — nurse scrub_shirt SHA 5702d9c49974cf6b vs pinned 3a2431b31f225830 (coat added or shirt rebaked). Ruling the control is a product decision.",
+      "card": "ci-w1: rule whether the nurse control wears a coat (re-pin) or must stay unlayered"
+    },
+    {
+      "path": "tools/openclinxr/evidence/a-station-cast-is-visually-separable.test.ts",
+      "reason": "ci-w1 classifier migration is green (lab_coat now visible as an upper; scrub-vs-tee separation works): co-present actors share a primary garment colour (3 pairs, shared white primaries now truthfully visible) and footwear is distinct only 2 of 3. Separating the colours is a palette decision.",
+      "card": "ci-w1: separate co-present actor garment colours (scrub white vs locked teal)"
+    },
+    {
+      "path": "tools/openclinxr/evidence/every-shipped-trouser-waistband-is-measured.test.ts",
+      "reason": "ci-w1 instrument migration is neutral (identical numbers via waistband-ring.ts): the directory scan finds 19 GLBs vs 20 shipped, and the nurse waistband artifact 3.341 no longer reproduces (same-instrument 3.627, drift 0.079 > 0.02). Re-measuring the artifact is a data fix.",
+      "card": "ci-w1: re-measure the waistband artifact for all 20 GLBs and re-pin the nurse row"
+    },
+    {
+      "path": "tools/openclinxr/evidence/eye-colour-is-case-driven.test.ts",
+      "reason": "ci-w1 classifier migration is green (isUpperMeshName selects lab_coat and scrub tops; no name miss): the iris does not match the authored pack eye_color, and the garment counterweights trip on shared white uppers (parent/child share one upper colour). Palette + casting gap, not a name miss.",
+      "card": "ci-w1: drive iris colour from packs and split parent/child upper colours"
+    },
+    {
+      "path": "tools/openclinxr/evidence/garment-hem-boundary.test.ts",
+      "reason": "ci-w1 helper migration is green (hem instrument reads the classifier; nurse shoulder-span measured for the first time): 7 sawn hems including 6 newly-visible makeclothes garments, and the nurse lost #121 shoulder coverage. Hem finishing + shoulder paint are asset gaps.",
+      "card": "ci-w1: finish the 7 sawn hems and restore nurse shoulder coverage"
+    },
+    {
+      "path": "tools/openclinxr/evidence/garment-palette-role-source.test.ts",
+      "reason": "ci-w1 helper migration is green (role-keyed palette reads isFitted/makeclothesGarmentSlug; no name miss): co-present actors share a primary garment material (shared white primaries now visible), scrub_shirt is white vs locked teal, and gown-ed-robert-hayes records no declared fabricPalette. Declaring per-role palettes is a product decision.",
+      "card": "ci-w1: declare per-role palettes including the ED gown; resolve scrub white vs locked teal"
+    },
+    {
+      "path": "tools/openclinxr/evidence/garment-selection-by-role.test.ts",
+      "reason": "ci-w1 helper migration is green (hm08 slot reads isUpper; counterweight green): 0 hm08 rows are measured (casting/catalog gap — the Anny rail has no nurse row to compare). Restoring casting rows is a data fix.",
+      "card": "ci-w1: restore hm08 casting rows so role selection is measurable"
+    },
+    {
+      "path": "tools/openclinxr/evidence/garments-are-flat-shaded-and-the-body-is-not.test.ts",
+      "reason": "ci-w1 classifier migration is green (body column passes via the classifier; no name miss): 3 garments never smoothed, 1 hard-edge set smoothed away, and female_tight_jeans is not in the baseline (7 remeshed-flag rows). Shading + baseline admission are asset fixes.",
+      "card": "ci-w1: smooth the 3 never-smoothed garments; admit female_tight to the baseline"
+    },
+    {
+      "path": "tools/openclinxr/evidence/garments-keep-their-authored-texture.test.ts",
+      "reason": "ci-w1 classifier migration is green (isWearable/makeclothesGarmentSlug select correctly; toigo 2b white-factor unchanged): legacy gowns are newly visible and need an authored-state ruling (unclassified material in all 4 clauses). The ruling is a product decision.",
+      "card": "ci-w1: rule the authored state of the newly-visible legacy gowns"
+    },
+    {
+      "path": "tools/openclinxr/evidence/hairline-is-a-line-not-a-sawtooth.test.ts",
+      "reason": "ci-w1 classifier migration is green (hair class selects all fitted hair; no name miss): 8 bodies report scalpPrims=0 (aisha and the child exempt) — the scalp region is absent where fitted hair should have replaced it or is missing. Hair-mechanism gap, not a name miss.",
+      "card": "ci-w1: restore the scalp region / fitted-hair assignment on the 8 bodies"
+    },
+    {
+      "path": "tools/openclinxr/evidence/humanoid-material-region-hygiene.test.ts",
+      "reason": "ci-w1 classifier migration is green (garment/face region selection holds; no name miss): the nurse neck opening 1.487 sits below the clavicle 1.532 — neck/shoulder paint regressed vs #73. Restoring the paint is an asset fix.",
+      "card": "ci-w1: restore the nurse neck opening above the clavicle line"
+    },
+    {
+      "path": "tools/openclinxr/evidence/makeclothes-library-consumed.test.ts",
+      "reason": "ci-w1 helper migration is green (isLegacySurfaceDerivedMeshName replaces the /openclinxr_real_garment_/ literal): the runtime-resolve counterweight fails — no comparator resolves a library GLB (the artifact exists but the runtime cannot reach it). Wiring the runtime to the library rail is a separate slice.",
+      "card": "ci-w1: wire the runtime comparator to the MakeClothes library rail"
+    },
+    {
+      "path": "tools/openclinxr/evidence/mpfb-actors-are-dressed-for-runtime.test.ts",
+      "reason": "ci-w1 classifier migration is green (lower + footwear populations select correctly): mpfb-gown-inspect.glb carries no lower garment (no real lower at >= 100 tris). Dressing the inspect asset or ruling it exempt is a product decision.",
+      "card": "ci-w1: dress the gown-inspect asset (or rule it exempt from the dressed set)"
+    },
+    {
+      "path": "tools/openclinxr/evidence/mpfb2-actor-is-stripped-of-helpers.test.ts",
+      "reason": "ci-w1 helper migration is green (isFittedNonBodyName now lives in the shared garment-slot.ts; slot/rail keying per #389/#391): the aisha BODY carries 63,311 tris vs <= 28000 (helpers unstripped; documented stripped 26,756). Stripping the shipped body is a factory fix.",
+      "card": "ci-w1: strip helper shells from the shipped aisha body"
+    },
+    {
+      "path": "tools/openclinxr/evidence/mpfb2-lower-garment-and-mask-footprint.test.ts",
+      "reason": "ci-w1 classifier migration is green (lower/mask populations select correctly): the aisha mask over-reaches the garment bounds by > 2mm, and the upper carries 1192 verts vs >= 4000 (#321 must hold). Mask/garment geometry gap, not a name miss.",
+      "card": "ci-w1: fit the aisha mask inside garment bounds; restore upper verts"
+    },
+    {
+      "path": "tools/openclinxr/evidence/no-orphan-skin-slivers.test.ts",
+      "reason": "ci-w1 classifier migration is green (skin/garment/overlap populations select correctly): 10 orphan skin components wider than 8mm, skin below 19000 tris on 10 actors, and 3 shirt/trouser overlaps at 0.0mm (gowns). Skin/garment geometry gap, not a name miss.",
+      "card": "ci-w1: clear orphan slivers without gutting skin; restore overlaps"
+    },
+    {
+      "path": "tools/openclinxr/evidence/open-front-underlayer.test.ts",
+      "reason": "ci-w1 helper migration is green (open-front instrument reads the classifier): the nurse lost #121 shoulder coverage (same paint gap as the hem counterweight). Restoring the paint is an asset fix.",
+      "card": "ci-w1: restore nurse shoulder coverage (shared with #121)"
+    },
+    {
+      "path": "tools/openclinxr/evidence/overlapping-garments-do-not-interpenetrate.test.ts",
+      "reason": "ci-w1 classifier migration is green (trouser/footwear populations select correctly): 1 trouser/footwear pair interpenetrates rather than layering, and the footwear-geometry counterweight trips 3 rows. Layer-order geometry gap, not a name miss.",
+      "card": "ci-w1: fix the trouser/footwear layer order without inflating footwear"
+    },
+    {
+      "path": "tools/openclinxr/evidence/the-ankle-cuff-is-as-smooth-as-the-waistband.test.ts",
+      "reason": "ci-w1 helper migration is green (cuff instrument reads isPantsName from waistband-ring.ts): 1 cuff rim rougher than 3x its waistband, 2 cuff rings decimated, 3 trouser-remesh flags, and the #373 denominator regressed. Rim geometry gap, not a name miss.",
+      "card": "ci-w1: regularize cuff rims without decimation; restore the #373 waistband"
+    },
+    {
+      "path": "tools/openclinxr/evidence/the-eyebrows-cost-more-than-every-other-facial-feature-combined.test.ts",
+      "reason": "ci-w1 classifier migration is green (facial classes select correctly): nurse eyelash 388 vs pinned 368 and nurse body 12833 vs pinned 26756 (rebake drift). Re-pinning the cost rows is a data fix.",
+      "card": "ci-w1: re-pin eyelash/body costs after the nurse rebake"
+    },
+    {
+      "path": "tools/openclinxr/evidence/the-gown-drapes-below-the-hip.test.ts",
+      "reason": "ci-w1 classifier migration is green (isGownMeshName selects the gown shells): below-hip bands are unsampleable (1 vs > 4) and no band clears the 40mm vacuity bound. Gown shell geometry gap, not a name miss.",
+      "card": "ci-w1: make the gown shell drape below the hip with sampleable bands"
+    },
+    {
+      "path": "tools/openclinxr/evidence/the-hide-mask-boundary-is-not-a-sawtooth.test.ts",
+      "reason": "ci-w1 helper migration is green (mask boundary reads slot-derived isUpperGarmentName): 2 mask rings decimated and 1 mask shrunk (coverage counterweight). Re-tessellating without shrinking is a geometry fix.",
+      "card": "ci-w1: re-tessellate mask rings without shrinking coverage"
+    },
+    {
+      "path": "tools/openclinxr/evidence/the-skin-normal-map-carries-surface-detail.test.ts",
+      "reason": "ci-w1 classifier migration is green (skin vs garment populations select correctly): skin normal maps on 2 actors are mostly the flat no-op value (mirror-smooth, noise-incoherent, unbound/scaled). Rebaking the maps is an asset fix.",
+      "card": "ci-w1: rebake skin normal maps with real surface detail"
+    },
+    {
+      "path": "tools/openclinxr/evidence/the-trouser-hem-is-a-line-not-a-sawtooth.test.ts",
+      "reason": "ci-w1 classifier migration is green (isTrouserMeshName selects the hem rings): the adult hem worst step is outside the child size-scaled band, and the aisha hem ring holds 73 verts vs >= 86 measured 2026-08-14. Hem geometry gap, not a name miss.",
+      "card": "ci-w1: restore hem rings (aisha back to >= 86 verts) inside the scaled band"
+    },
+    {
+      "path": "tools/openclinxr/evidence/the-waistband-is-as-smooth-as-the-hem.test.ts",
+      "reason": "ci-w1 helper migration is green (same waistband-ring.ts enumeration both sides): the peds child has a waistband ring but no hem ring (8 of 9 both-ring actors). The missing child hem ring is an asset/casting gap.",
+      "card": "ci-w1: give the peds child a measurable hem ring (or rule the exemption)"
+    },
+    {
+      "path": "tools/openclinxr/evidence/trousers-stay-on-the-legs.test.ts",
+      "reason": "ci-w1 classifier migration is green (isTrouser/isUpper select the trouser populations; the origin /cargo_pants/ miss is fixed): the aisha lateral ratio 1.138 left the 1.16-1.28 known-good band (hip flare lost or grown). Ruling the band is a product decision.",
+      "card": "ci-w1: rule the aisha hip-flare band (re-pin vs restore flare)"
+    },
+    {
+      "path": "tools/openclinxr/asset-pipeline/makeclothes/the-lowest-mesh-vertex-is-the-footwear.test.ts",
+      "reason": "ci-w1 helper migration is green (footwear class reads the classifier): the audit covers 19 GLBs vs 20 on disk (mpfb-gown-ed-robert-hayes missing from the audit), so the global-minimum-Y clause names the exception. Extending the audit is a data fix.",
+      "card": "ci-w1: extend the footing audit to all 20 GLBs"
+    },
+    {
+      "path": "tools/openclinxr/evidence/humanoid-vetting/the-nurse-sternal-t-is-classified-from-the-glb.test.ts",
+      "reason": "ci-w1 helper migration is green (sternal-T classification reads the classifier; scrub_shirt selected): pedsKevin GLB length is pinned 7513812 vs live 7894888 (rebake drift). Re-pinning the lengths is a data fix.",
+      "card": "ci-w1: re-pin GLB lengths after the rebake"
+    },
+    {
+      "path": "tools/openclinxr/evidence/humanoid-vetting/the-vetted-humanoid-glb-is-the-subject-alone.test.ts",
+      "reason": "ci-w1 helper migration is green (subject-alone classification reads makeclothesGarmentSlug; tee literal replaced): nurse live bytes 8775848 vs ladder raw rung 8396376 (rebake drift). Re-pinning the rung bytes is a data fix.",
+      "card": "ci-w1: re-pin ladder raw-rung bytes after the rebake"
     }
   ]
 }
