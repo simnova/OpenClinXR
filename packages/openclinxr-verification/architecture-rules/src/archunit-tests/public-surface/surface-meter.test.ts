@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 64 roots and 166 declared entrypoints", () => {
+  it("(1) the live tree discovers 65 roots and 167 declared entrypoints", () => {
     const report = measureSurface();
     // 2026-10-07 mouth-station pilot (MADR 0060/0061, integration branch station-mouth): the
     // objective package @openclinxr/station-mouth-objective adds one root (49 -> 50); its surface
@@ -144,7 +144,10 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-30 makeclothes evidence sidecar (operator-approved 2026-10-30): the
     // private sidecar @openclinxr/makeclothes-evidence adds one root that publishes
     // nothing (63 -> 64).
-    expect(report.totals.roots).toBe(64);
+    // 2026-10-30 realism-head evidence sidecar (operator-approved 2026-10-30): the
+    // private sidecar @openclinxr/realism-head-evidence adds one root that publishes
+    // nothing (64 -> 65).
+    expect(report.totals.roots).toBe(65);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -211,7 +214,10 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-30 makeclothes evidence sidecar (operator-approved 2026-10-30): the
     // sidecar, with no exports map, is discovered as one implicit "." that
     // publishes nothing (165 -> 166).
-    expect(report.totals.entrypoints).toBe(166);
+    // 2026-10-30 realism-head evidence sidecar (operator-approved 2026-10-30): the
+    // sidecar, with no exports map, is discovered as one implicit "." that
+    // publishes nothing (166 -> 167).
+    expect(report.totals.entrypoints).toBe(167);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -247,7 +253,8 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-30 face-realism station split adds two roots (60 -> 62), operator-approved 2026-10-30.
     // 2026-10-30 scene-closure evidence sidecar adds one root (62 -> 63), operator-approved 2026-10-30.
     // 2026-10-30 makeclothes evidence sidecar adds one root (63 -> 64), operator-approved 2026-10-30.
-    expect(report.packages.length).toBe(64);
+    // 2026-10-30 realism-head evidence sidecar adds one root (64 -> 65), operator-approved 2026-10-30.
+    expect(report.packages.length).toBe(65);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {
