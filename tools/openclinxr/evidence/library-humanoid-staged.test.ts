@@ -1,4 +1,9 @@
 import { describe, expect, it } from "vitest";
+import {
+  listShippedCastScenarioIds,
+  resolveScenarioActorCast,
+} from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+import { LIBRARY_ADULT_LEAN_FEMALE_GLB } from "../../../packages/openclinxr/asset-registry/src/cast-asset-constants-mod.js";
 
 /**
  * PLANTED CONTRACTS (#218). Two REDs. Both flip.
@@ -85,74 +90,64 @@ import { describe, expect, it } from "vitest";
  *     phenotype-driven pick is future work (hardcoded one-row staging for this slice).
  *   - Mapping layer: extend ED literal tables — rejected new libraryHumanoidByActorId subsystem
  *     until phenotype drives selection across stations.
+ *
+ * ## RETIRED (#479 — owner decision af8571555, 2026-08-20)
+ *
+ * #479 deliberately moved the ED spouse OFF the 64-joint library rail (no jaw, no eye mesh)
+ * onto the 137-joint MPFB family-partner body the other family-class slots already cast, and
+ * moved the peds_fever child onto MPFB the same commit. Zero `body-param-*-library.glb` rows
+ * remain in ordinary cast resolution, so the staging this file's #218 clauses demanded no
+ * longer exists to assert. `LIBRARY_ADULT_LEAN_FEMALE_GLB` stays exported for the S2
+ * gowned-patient swap (per the #479 commit message).
+ *
+ * The two clauses below therefore assert the RETIREMENT fact instead of the staging fact:
+ *   (1) no ordinary-resolution cast row resolves to a `body-param-*-library.glb` — if a
+ *       library row ever returns, this fails and the #218 staging clauses must be restored;
+ *   (2) COUNTERWEIGHT: the library constant stays exported with its `body-param-*-library`
+ *       shape (the S2 reservation), and the non-library cast is untouched (Anny rows still
+ *       resolve where the cast keeps them).
  */
 
-type StagedActor = {
-  scenarioId: string;
-  actorId: string;
-  resolvedUrl: string;
-  fromLibrary: boolean;
-  skinnedTriangleCount: number;
-  jointCount: number;
-  visible: boolean;
-};
+type CastRow = { role?: string; actorId?: string; assetPath?: string };
 
-type Inspect = () => Promise<{
-  stagedActors: StagedActor[];
-  annyActorsStillResolving: number;
-}>;
-
-const load = () =>
-  import("./library-humanoid-staged.js") as Promise<Record<string, unknown>>;
+const basename = (p: string | undefined): string => String(p ?? "").split("/").pop() ?? "";
 
 describe("a library humanoid is staged by ordinary cast resolution (#218)", () => {
-  it("at least one station stages a library body with no comparator flag", async () => {
-    const mod = await load();
-    const inspect = mod["inspectLibraryHumanoidStaged"] as Inspect | undefined;
-    expect(inspect).toBeTypeOf("function");
-
-    const report = await inspect!();
-    const fromLibrary = report.stagedActors.filter((a) => a.fromLibrary);
+  it("the library rail stays retired: no station stages a library body (#479)", () => {
+    const rows: { scenarioId: string; row: CastRow }[] = [];
+    for (const scenarioId of listShippedCastScenarioIds()) {
+      for (const row of resolveScenarioActorCast(scenarioId) as unknown as CastRow[]) {
+        rows.push({ scenarioId, row });
+      }
+    }
+    const onLibrary = rows
+      .filter(({ row }) => /body-param-.*-library/.test(basename(row.assetPath)))
+      .map(({ scenarioId, row }) => `${scenarioId}/${row.actorId}: ${basename(row.assetPath)}`);
     expect(
-      fromLibrary.length,
-      "no actor resolves to a body-param library GLB — three deterministic stations feed nothing",
-    ).toBeGreaterThan(0);
+      onLibrary,
+      `a library row returned to ordinary cast resolution — #479 af8571555 retired the rail\n`
+        + `  (ED spouse + peds child moved to MPFB); restore the #218 staging clauses instead of\n`
+        + `  deleting this:\n${onLibrary.join("\n")}`,
+    ).toEqual([]);
+  });
 
-    const bad: string[] = [];
-    for (const a of fromLibrary) {
-      if (!/body-param-.*-library/.test(a.resolvedUrl)) {
-        bad.push(`${a.scenarioId}/${a.actorId}: resolvedUrl "${a.resolvedUrl}" is not a library GLB`);
-      }
-      if (/generated-humanoids/.test(a.resolvedUrl)) {
-        bad.push(`${a.scenarioId}/${a.actorId}: fell back to the Anny cast path`);
-      }
-      if (!a.visible) bad.push(`${a.scenarioId}/${a.actorId}: staged but visible=false`);
-    }
-    expect(bad, `library staging that did not happen:\n${bad.join("\n")}`).toEqual([]);
-  }, 1_800_000);
+  it("the S2 reservation and the untouched cast hold (COUNTERWEIGHT)", () => {
+    // #479 kept the constant exported for the S2 gowned-patient swap: if the export or its
+    // shape goes, the reservation is silently gone.
+    expect(LIBRARY_ADULT_LEAN_FEMALE_GLB).toMatch(/body-param-.*-library/);
 
-  it("the staged figure keeps its rig, and the Anny cast is untouched (COUNTERWEIGHT)", async () => {
-    // A path entry is cheap. #187 established a failed load yields a ~1266-triangle primitive dummy,
-    // so "an actor rendered" is not "the library figure staged". The rig #216 landed must survive the
-    // load: joints present in the LIVE scene, not merely in the file.
-    const mod = await load();
-    const inspect = mod["inspectLibraryHumanoidStaged"] as Inspect;
-    const report = await inspect();
-
-    const broken: string[] = [];
-    for (const a of report.stagedActors.filter((x) => x.fromLibrary)) {
-      if (a.skinnedTriangleCount < 3000) {
-        broken.push(
-          `${a.actorId}: ${a.skinnedTriangleCount} skinned triangles — #187's load-failure dummy is ~1266`,
-        );
-      }
-      if (a.jointCount < 20) {
-        broken.push(`${a.actorId}: ${a.jointCount} joints in the live scene — the rig did not survive load`);
+    // The retirement stages ONE rail off, it does not migrate the cast: rows still resolve
+    // across more than one asset family (Anny generated-humanoids rows remain where kept).
+    const families = new Set<string>();
+    for (const scenarioId of listShippedCastScenarioIds()) {
+      for (const row of resolveScenarioActorCast(scenarioId) as unknown as CastRow[]) {
+        families.add(basename(row.assetPath));
       }
     }
-    if (report.annyActorsStillResolving < 1) {
-      broken.push("no Anny actors still resolve — this slice stages ONE role, it does not migrate the cast");
-    }
-    expect(broken, `the counterweight broke:\n${broken.join("\n")}`).toEqual([]);
-  }, 1_800_000);
+    expect(
+      [...families].filter((b) => /generated-humanoids|ed_chest_pain_adult_cast/.test(b)).length
+        + [...families].filter((b) => /^mpfb-/.test(b)).length,
+      `expected both Anny-kept and MPFB cast basenames to remain; families now: ${[...families].sort().join(", ")}`,
+    ).toBeGreaterThan(1);
+  });
 });
