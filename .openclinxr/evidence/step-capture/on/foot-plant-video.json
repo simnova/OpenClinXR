@@ -8395,10 +8395,6 @@
   },
   "humanoidOverride": null,
   "videos": {
-    "feetSide": ".openclinxr/evidence/step-capture/on/feet-side.mp4",
-    "feetSideSlow": ".openclinxr/evidence/step-capture/on/feet-side-slow.mp4",
-    "threeQuarter": ".openclinxr/evidence/step-capture/on/three-quarter.mp4",
-    "contactSheet": ".openclinxr/evidence/step-capture/on/feet-side-contact.png",
     "durationsSeconds": {
       "feetSide": 3.466667,
       "feetSideSlow": 13.833333,

@@ -124,10 +124,5 @@
     "packages/openclinxr/xr-pose/src/no-arm-clamp-in-the-pose-path.test.ts",
     "packages/openclinxr/xr-humanoid-animation/src/the-upper-body-ownership-ramps.test.ts"
   ],
-  "renders": [
-    ".openclinxr/evidence/arm-settle/renders/arm-settle-side-start.mp4",
-    ".openclinxr/evidence/arm-settle/renders/arm-settle-side-end.mp4",
-    ".openclinxr/evidence/arm-settle/renders/arm-settle-front-start.mp4",
-    ".openclinxr/evidence/arm-settle/renders/arm-settle-front-end.mp4"
-  ]
+  "renders": []
 }

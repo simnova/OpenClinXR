@@ -480,7 +480,6 @@
         "marker": "__openClinXrLocoGroundTap"
       },
       "routeLengthMeters": 6,
-      "video": ".openclinxr/evidence/loco-ground/ccd/loco-ground-ccd-0.5x.mp4",
       "walkingTapFrames": 131,
       "evidenceJoinMatched": 130,
       "evidenceJoinUnmatched": 0,

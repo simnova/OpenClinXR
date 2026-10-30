@@ -8396,9 +8396,6 @@
   },
   "humanoidOverride": null,
   "videos": {
-    "feetSide": ".openclinxr/evidence/ccd-browser/off/feet-side.mp4",
-    "feetSideSlow": ".openclinxr/evidence/ccd-browser/off/feet-side-slow.mp4",
-    "threeQuarter": ".openclinxr/evidence/ccd-browser/off/three-quarter.mp4",
     "contactSheet": ".openclinxr/evidence/ccd-browser/off/feet-side-contact.png",
     "durationsSeconds": {
       "feetSide": 3.466667,
