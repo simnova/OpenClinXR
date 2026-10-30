@@ -15,6 +15,8 @@
  *     contributes `git ls-files -s <dir>` plus mtimes of untracked files
  *     under it. (Tests read GLBs/JSON this way; a key over code alone would
  *     replay a pass after the asset it measured changed.)
+ * K2b: absolute literals outside the repo (asset store): presence, size and
+ *     mtime (externalPathPrint).
  * K3: salt — the keying sources themselves (run-tools-tests.ts,
  *     tools-test-areas.ts, tools-file-cache.ts, vitest.config.ts, the root
  *     package.json), the node version, and the values of env vars matching
@@ -259,6 +261,25 @@ function fileLiterals(abs: string, ctx: KeyContext): string[] {
   return out;
 }
 
+/**
+ * K2b: an absolute literal outside the repo (the local asset store, a Blender
+ * install). Tests gate on these existing, so presence, size and mtime enter
+ * the key; contents are not hashed (store GLBs are large and write-once).
+ * Returns null for anything that is not an absolute path outside the root.
+ */
+export function externalPathPrint(literal: string, root: string): string | null {
+  const trimmed = literal.trim();
+  if (!isAbsolute(trimmed) || /\s/.test(trimmed) || trimmed.length > 1024) return null;
+  const rel = relative(root, trimmed);
+  if (!rel.startsWith("..") && !isAbsolute(rel)) return null;
+  try {
+    const st = statSync(trimmed);
+    return st.isDirectory() ? `dir:${st.mtimeMs}` : `file:${st.size}:${st.mtimeMs}`;
+  } catch {
+    return "absent";
+  }
+}
+
 export interface FileKey {
   key: string;
   closureSize: number;
@@ -280,6 +301,11 @@ export function computeFileKey(absTestFile: string, ctx: KeyContext): FileKey {
     const seen = new Set<string>();
     for (const file of closure) {
       for (const literal of fileLiterals(file, ctx)) {
+        const external = externalPathPrint(literal, ctx.root);
+        if (external !== null) {
+          h.update(`ext:${literal}:${external}\0`);
+          continue;
+        }
         const resolved = resolveLiteralToRepoPath(literal, file, ctx.root);
         if (resolved === null || seen.has(resolved)) continue;
         seen.add(resolved);
@@ -353,6 +379,10 @@ export function parseVitestJsonResults(jsonText: string, root: string): Map<stri
     if (typeof r.name !== "string") continue;
     const rel = relative(root, r.name).split(sep).join("/");
     if (rel.startsWith("..")) continue;
+    // Every test skipped: the reporter says "passed", but a skip gate (missing
+    // asset, absent tool) may open later, and a skipped file costs nothing to rerun.
+    const asserts = Array.isArray(r.assertionResults) ? r.assertionResults : [];
+    if (r.status === "passed" && asserts.length > 0 && !asserts.some((a) => a.status === "passed")) continue;
     if (r.status === "passed" || r.status === "failed") {
       out.set(rel, r.status);
       continue;

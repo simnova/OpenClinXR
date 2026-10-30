@@ -136,6 +136,42 @@ describe("file key invalidation", () => {
     }
   });
 
+  it("(f) a test that passed while its literal-path asset was absent reruns once the asset appears", () => {
+    // An asset-gated test skips (and reports pass) when its file is missing; the
+    // recorded PASS must not survive the file arriving.
+    const dir = fixtureRepo({
+      "t.test.ts": `import { existsSync } from "node:fs";\nexport const gated = existsSync("evidence/late.glb");\n`,
+    });
+    const test = "t.test.ts";
+    try {
+      const first = fakeRun(dir, [test], EMPTY_STORE, [test]);
+      expect(fakeRun(dir, [test], first.store, []).executed).toEqual([]);
+      mkdirSync(path.join(dir, "evidence"), { recursive: true });
+      writeFileSync(path.join(dir, "evidence/late.glb"), "glb");
+      expect(fakeRun(dir, [test], first.store, []).executed).toEqual([test]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("(g) a test naming an absolute path outside the repo reruns when that file appears", () => {
+    const outside = mkdtempSync(path.join(tmpdir(), "tools-file-cache-store-"));
+    const storeFile = path.join(outside, "bake.glb");
+    const dir = fixtureRepo({
+      "t.test.ts": `import { existsSync } from "node:fs";\nexport const gated = existsSync(${JSON.stringify(storeFile)});\n`,
+    });
+    const test = "t.test.ts";
+    try {
+      const first = fakeRun(dir, [test], EMPTY_STORE, [test]);
+      expect(fakeRun(dir, [test], first.store, []).executed).toEqual([]);
+      writeFileSync(storeFile, "glb");
+      expect(fakeRun(dir, [test], first.store, []).executed).toEqual([test]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+      rmSync(outside, { recursive: true, force: true });
+    }
+  });
+
   it("(e) an unchanged passing test is skipped", () => {
     const { dir, test } = instrumentedRepo();
     try {
@@ -227,5 +263,18 @@ describe("vitest json attribution", () => {
     expect(statuses.has("c.test.ts")).toBe(false);
     expect(statuses.has("d.test.ts")).toBe(false);
     expect(parseVitestJsonResults("not json", root).size).toBe(0);
+  });
+
+  it("does not record a file whose every test skipped (the reporter calls it passed; a skip gate may open later)", () => {
+    const root = "/repo";
+    const json = JSON.stringify({
+      testResults: [
+        { name: "/repo/gated.test.ts", status: "passed", assertionResults: [{ status: "skipped" }, { status: "pending" }] },
+        { name: "/repo/mixed.test.ts", status: "passed", assertionResults: [{ status: "passed" }, { status: "skipped" }] },
+      ],
+    });
+    const statuses = parseVitestJsonResults(json, root);
+    expect(statuses.has("gated.test.ts")).toBe(false);
+    expect(statuses.get("mixed.test.ts")).toBe("passed");
   });
 });
