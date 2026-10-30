@@ -3,7 +3,7 @@
 // case-inputs.json (no case is named here).
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { repoRoot } from "../repo-root.js";
+import { repoRoot } from "@openclinxr/factory-station-core";
 import {
   ASSET_STORE_ROOT,
   BEARD_REL,

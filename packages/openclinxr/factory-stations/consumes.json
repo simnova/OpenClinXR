@@ -42,6 +42,80 @@
     ]
   },
   {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyStationPayloadToCompileSpec",
+        "kind": "runtime"
+      },
+      {
+        "name": "FactoryStationSchema",
+        "kind": "type"
+      },
+      {
+        "name": "factoryStationSchemas",
+        "kind": "runtime"
+      },
+      {
+        "name": "planFromCatalog",
+        "kind": "runtime"
+      },
+      {
+        "name": "PRODUCTION_STATION_IDS",
+        "kind": "runtime"
+      },
+      {
+        "name": "ProductionStationId",
+        "kind": "type"
+      },
+      {
+        "name": "productionStationIds",
+        "kind": "runtime"
+      },
+      {
+        "name": "repoRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "spawnBlenderProcess",
+        "kind": "runtime"
+      },
+      {
+        "name": "StandardFailureResult",
+        "kind": "type"
+      },
+      {
+        "name": "StandardIssue",
+        "kind": "type"
+      },
+      {
+        "name": "StandardResult",
+        "kind": "type"
+      },
+      {
+        "name": "StationJsonSchema",
+        "kind": "type"
+      },
+      {
+        "name": "StationPlan",
+        "kind": "type"
+      },
+      {
+        "name": "StationPlanResult",
+        "kind": "type"
+      },
+      {
+        "name": "StationPropertySchema",
+        "kind": "type"
+      },
+      {
+        "name": "StationRunner",
+        "kind": "type"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/factory-stations",
     "entrypoint": ".",
     "names": [
@@ -51,22 +125,7 @@
         "via": "own-test"
       },
       {
-        "name": "evaluateWalkSymmetry",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
         "name": "factoryStationSchemas",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "GATE_BARS",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "MPFB_WALK_JOINTS",
         "kind": "runtime",
         "via": "own-test"
       },
@@ -112,8 +171,7 @@
       },
       {
         "name": "runLipSync",
-        "kind": "runtime",
-        "via": "own-test"
+        "kind": "runtime"
       },
       {
         "name": "runRoomGenerate",
@@ -121,19 +179,8 @@
         "via": "own-test"
       },
       {
-        "name": "runStaging",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "sampleWalkClip",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
         "name": "writeLipSyncFixtureWav",
-        "kind": "runtime",
-        "via": "specifier"
+        "kind": "runtime"
       }
     ]
   },

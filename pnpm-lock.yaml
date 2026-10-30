@@ -1089,6 +1089,34 @@ importers:
         specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.1.6(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
+  packages/openclinxr/factory-station-core:
+    dependencies:
+      '@openclinxr/compute-services-spec':
+        specifier: workspace:*
+        version: link:../compute-services-spec
+      '@openclinxr/service-local-compute':
+        specifier: workspace:*
+        version: link:../service-local-compute
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@standard-schema/spec':
+        specifier: 1.1.0
+        version: 1.1.0
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.1.6(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+
   packages/openclinxr/factory-stations:
     dependencies:
       '@gltf-transform/core':
@@ -1106,6 +1134,9 @@ importers:
       '@openclinxr/compute-slots':
         specifier: workspace:*
         version: link:../compute-slots
+      '@openclinxr/factory-station-core':
+        specifier: workspace:*
+        version: link:../factory-station-core
       '@openclinxr/service-local-compute':
         specifier: workspace:*
         version: link:../service-local-compute
@@ -1119,9 +1150,6 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../cellix/config-vitest
-      '@standard-schema/spec':
-        specifier: 1.1.0
-        version: 1.1.0
       '@types/node':
         specifier: 'catalog:'
         version: 25.6.0

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { planRoomGenerate } from "../index.js";
+import { planRoomGenerate } from "./run.js";
 
 /**
  * Brown-band pin: occlusionExcludes reaches the occlusion bake as CLI flags,

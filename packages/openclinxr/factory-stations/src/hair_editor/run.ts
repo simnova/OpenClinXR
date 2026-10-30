@@ -3,10 +3,10 @@
 import { existsSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { factoryStationSchemas } from "../catalog.js";
-import { repoRoot } from "../repo-root.js";
-import type { StationPlanResult, StationRunner } from "../runner.js";
-import { spawnBlenderProcess } from "../spawn-blender.js";
+import { factoryStationSchemas } from "@openclinxr/factory-station-core";
+import { repoRoot } from "@openclinxr/factory-station-core";
+import type { StationPlanResult, StationRunner } from "@openclinxr/factory-station-core";
+import { spawnBlenderProcess } from "@openclinxr/factory-station-core";
 import { planHairEditor } from "./plan.js";
 
 export const HAIR_EDITOR_STAGE_REL = "packages/openclinxr/factory-stations/src/hair_editor/apply_hair_editor.py";

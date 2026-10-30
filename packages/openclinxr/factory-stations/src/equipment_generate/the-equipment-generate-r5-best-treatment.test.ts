@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { planEquipmentGenerate } from "../index.js";
+import { planEquipmentGenerate } from "./run.js";
 
 /**
  * MADR 0059 round 5b: equipment_generate gains the opt-in R5-BEST export

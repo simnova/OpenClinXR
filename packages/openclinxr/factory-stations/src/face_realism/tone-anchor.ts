@@ -2,7 +2,7 @@
 // no recorded anchor, measured from the case goal_front by tone-anchor.py and
 // gated against the instrument calibration. Case values come from case-inputs.json.
 import path from "node:path";
-import { repoRoot } from "../repo-root.js";
+import { repoRoot } from "@openclinxr/factory-station-core";
 import { ASSET_STORE_ROOT, readJsonFile, runMisePython } from "./shared.js";
 
 export const TONE_ANCHOR_REL = "tools/openclinxr/asset-pipeline/skin/families/tone-anchor.py";

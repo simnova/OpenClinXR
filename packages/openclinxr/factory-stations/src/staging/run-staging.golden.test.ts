@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { runStaging } from "../index.js";
+import { runStaging } from "./run.js";
 
 /**
  * OBSERVABLE: the unsolved staging result before MADR 0060's pilot.

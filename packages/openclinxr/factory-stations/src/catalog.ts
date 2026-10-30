@@ -1,10 +1,13 @@
-/** Public entry: keep-only re-exports. Implementation: ./catalog-mod.js */
-
+/**
+ * Public entry: keep-only re-exports. Implementation lives in
+ * `@openclinxr/factory-station-core`; this module re-exports it so the
+ * `./catalog` subpath keeps its names.
+ */
 
 export type {
   ProductionStationId,
-} from "./catalog-mod.js";
+} from "@openclinxr/factory-station-core";
 export {
   factoryStationSchemas,
   productionStationIds,
-} from "./catalog-mod.js";
+} from "@openclinxr/factory-station-core";

@@ -3,7 +3,7 @@
 // case-inputs.json (no case is named here).
 import { existsSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { repoRoot } from "../repo-root.js";
+import { repoRoot } from "@openclinxr/factory-station-core";
 import {
   FACE_REALISM_REPLAY_REL,
   manifestOutputPng,

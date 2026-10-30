@@ -3,8 +3,8 @@ import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { canonicalizeRoomDoors } from "../room_generate/simplify.js";
-import { repoRoot } from "../repo-root.js";
-import type { StandardFailureResult, StandardResult } from "../catalog-mod.js";
+import { repoRoot } from "@openclinxr/factory-station-core";
+import type { StandardFailureResult, StandardResult } from "@openclinxr/factory-station-core";
 
 /** Local plan result: station is new, catalog registration is out of scope. */
 export type RoomClinicFinishPlanResult =
@@ -17,7 +17,7 @@ export type RoomClinicFinishRunner = {
   plan: (value: unknown) => RoomClinicFinishPlanResult;
   run: (value: unknown) => Promise<Record<string, unknown>> | Record<string, unknown>;
 };
-import { spawnBlenderProcess } from "../spawn-blender.js";
+import { spawnBlenderProcess } from "@openclinxr/factory-station-core";
 import { designRoomFinishRecipe } from "./recipe.js";
 import type { RoomFinishFeatures } from "./finish-features.js";
 

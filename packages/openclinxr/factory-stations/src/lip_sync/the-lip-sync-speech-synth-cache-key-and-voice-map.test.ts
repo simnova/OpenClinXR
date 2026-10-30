@@ -3,7 +3,7 @@ import { mkdtemp, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { runLipSync } from "../index.js";
+import { runLipSync } from "./run.js";
 
 /**
  * OBSERVABLE: the dark-factory lip_sync stage fails on all 15 cases with

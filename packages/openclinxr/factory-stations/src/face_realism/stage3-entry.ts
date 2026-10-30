@@ -2,7 +2,7 @@
 // colour solve enters the skin chain from its own stage-2 output.
 import { existsSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { repoRoot } from "../repo-root.js";
+import { repoRoot } from "@openclinxr/factory-station-core";
 import { caseValue, runMisePython, sha256File } from "./shared.js";
 import type { Stage3ManifestDoc } from "./chain.js";
 import type { SubStage } from "./stages-c.js";

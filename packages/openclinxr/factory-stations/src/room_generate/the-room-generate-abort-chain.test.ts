@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { readComputeSlotsStatus } from "@openclinxr/compute-slots/slots";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { runRoomGenerate } from "../index.js";
+import { runRoomGenerate } from "./run.js";
 
 // Public-API abort-chain regression for runRoomGenerate through the public
 // barrel (../index.js), never the private run module. Drives the ACTUAL runtime chain

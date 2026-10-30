@@ -1,5 +1,5 @@
-import { factoryStationSchemas } from "../catalog.js";
-import { planFromCatalog, type StationPlanResult, type StationRunner } from "../runner.js";
+import { factoryStationSchemas } from "@openclinxr/factory-station-core";
+import { planFromCatalog, type StationPlanResult, type StationRunner } from "@openclinxr/factory-station-core";
 
 export function planStaging(input: unknown): StationPlanResult {
   return planFromCatalog("staging", input, (value) => {

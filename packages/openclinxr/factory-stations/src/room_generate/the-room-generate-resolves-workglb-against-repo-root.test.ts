@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
-import { runRoomGenerate } from "../index.js";
+import { runRoomGenerate } from "./run.js";
 
 /** Repo root without importing the station internals (keeps the test import ceiling flat). */
 function findRepoRoot(): string {

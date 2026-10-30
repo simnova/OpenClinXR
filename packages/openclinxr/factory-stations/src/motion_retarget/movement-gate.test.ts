@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { evaluateWalkSymmetry, MPFB_WALK_JOINTS, sampleWalkClip } from "../index.js";
+import { evaluateWalkSymmetry, MPFB_WALK_JOINTS, sampleWalkClip } from "./walk_symmetry_gate.js";
 import { evaluateMovementGate, MOVEMENT_GATE_BARS } from "./movement_gate.js";
 
 type GateInput = Parameters<typeof evaluateMovementGate>[0];

@@ -1,0 +1,57 @@
+{
+  "package": "factory-station-core",
+  "name": "@openclinxr/factory-station-core",
+  "entrypoint": "packages/openclinxr/factory-station-core/src/index.ts",
+  "purpose": "Station-agnostic half of the factory stations: the Standard Schema catalog all station payloads validate against, the StationRunner port every station implements, the repo-root and blender-spawn helpers stations build on, and the compile-spec payload writer.",
+  "exports": [
+    "FactoryStationSchema",
+    "PRODUCTION_STATION_IDS",
+    "ProductionStationId",
+    "StandardFailureResult",
+    "StandardIssue",
+    "StandardResult",
+    "StationJsonSchema",
+    "StationPlan",
+    "StationPlanResult",
+    "StationPropertySchema",
+    "StationRunner",
+    "applyStationPayloadToCompileSpec",
+    "factoryStationSchemas",
+    "planFromCatalog",
+    "productionStationIds",
+    "repoRoot",
+    "spawnBlenderProcess"
+  ],
+  "exportSummaries": {
+    "FactoryStationSchema": "The shape of one production station's contract: its id, its Standard Schema validator, and the JSON Schemas admin cards are derived from.",
+    "PRODUCTION_STATION_IDS": "The catalog itself: every production station id, the schema record keyed by id, and the id list in catalog order.",
+    "ProductionStationId": "The shape of one production station's contract: its id, its Standard Schema validator, and the JSON Schemas admin cards are derived from.",
+    "StandardFailureResult": "The shape of one production station's contract: its id, its Standard Schema validator, and the JSON Schemas admin cards are derived from.",
+    "StandardIssue": "The shape of one production station's contract: its id, its Standard Schema validator, and the JSON Schemas admin cards are derived from.",
+    "StandardResult": "The shape of one production station's contract: its id, its Standard Schema validator, and the JSON Schemas admin cards are derived from.",
+    "StationJsonSchema": "The shape of one production station's contract: its id, its Standard Schema validator, and the JSON Schemas admin cards are derived from.",
+    "StationPlan": "The port every factory_step runner implements: validate a payload, plan a dry run without spawning anything, or run for real.",
+    "StationPlanResult": "The port every factory_step runner implements: validate a payload, plan a dry run without spawning anything, or run for real.",
+    "StationPropertySchema": "The shape of one production station's contract: its id, its Standard Schema validator, and the JSON Schemas admin cards are derived from.",
+    "StationRunner": "The port every factory_step runner implements: validate a payload, plan a dry run without spawning anything, or run for real.",
+    "applyStationPayloadToCompileSpec": "Persist a validated station payload onto a compile-node spec.",
+    "factoryStationSchemas": "The catalog itself: every production station id, the schema record keyed by id, and the id list in catalog order.",
+    "planFromCatalog": "Catalog validate then attach dry-run plan fields.",
+    "productionStationIds": "The catalog itself: every production station id, the schema record keyed by id, and the id list in catalog order.",
+    "repoRoot": "Workspace root (pnpm-workspace.yaml), found by walking up from this package.",
+    "spawnBlenderProcess": "Blender run spawned through the local compute services gate."
+  },
+  "workspaceDependencies": [
+    "@openclinxr/compute-services-spec",
+    "@openclinxr/service-local-compute"
+  ],
+  "tests": [
+    "src/the-station-schemas-conform-to-standard-schema.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/factory-station-core test",
+    "typecheck": "pnpm --filter @openclinxr/factory-station-core typecheck",
+    "build": "pnpm --filter @openclinxr/factory-station-core build",
+    "lint": "pnpm --filter @openclinxr/factory-station-core lint"
+  }
+}

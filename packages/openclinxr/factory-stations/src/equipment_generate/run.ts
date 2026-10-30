@@ -3,8 +3,8 @@ import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { withComputeSlotSync } from "@openclinxr/compute-slots/slots";
-import { factoryStationSchemas } from "../catalog.js";
-import type { StationPlan, StationRunner } from "../runner.js";
+import { factoryStationSchemas } from "@openclinxr/factory-station-core";
+import type { StationPlan, StationRunner } from "@openclinxr/factory-station-core";
 import {
   findEquipmentSubject,
   repoRoot,
@@ -331,7 +331,7 @@ function sha256File(absPath: string): string | null {
 
 export function planEquipmentGenerate(
   input: unknown,
-): import("../catalog-mod.js").StandardFailureResult | { readonly value: Record<string, unknown>; readonly plan: EquipmentGeneratePlan; readonly issues?: undefined } {
+): import("@openclinxr/factory-station-core").StandardFailureResult | { readonly value: Record<string, unknown>; readonly plan: EquipmentGeneratePlan; readonly issues?: undefined } {
   const checked = factoryStationSchemas.equipment_generate["~standard"].validate(input);
   if (checked.issues !== undefined) return checked;
 

@@ -41,16 +41,22 @@
     "writeLipSyncFixtureWav"
   ],
   "exportSummaries": {
+    "FactoryStationSchema": "The shape of one production station's contract: its id, its Standard Schema validator, and the JSON Schemas admin cards are derived from.",
     "GATE_BARS": "Fixed gate thresholds with the provenance of each bar.",
     "MESHMOTION_WALK_JOINTS": "Mesh2Motion human-base/addon rig (66 joints), native units.",
     "MPFB_WALK_JOINTS": "MPFB2 default_no_toes rig bound clips, played at physician actor scale.",
-    "PRODUCTION_STATION_IDS": "Production factory station interfaces (Standard Schema V1 + JSON Schema).",
-    "ProductionStationId": "Public entry: keep-only re-exports.",
-    "StandardIssue": "Standard Schema V1 result types, structurally matching the spec (github.com/standard-schema/standard-schema, packages/spec/src/index.ts) without taking a runtime dependency on it.",
+    "PRODUCTION_STATION_IDS": "The catalog itself: every production station id, the schema record keyed by id, and the id list in catalog order.",
+    "ProductionStationId": "The shape of one production station's contract: its id, its Standard Schema validator, and the JSON Schemas admin cards are derived from.",
+    "StandardIssue": "The shape of one production station's contract: its id, its Standard Schema validator, and the JSON Schemas admin cards are derived from.",
+    "StandardResult": "The shape of one production station's contract: its id, its Standard Schema validator, and the JSON Schemas admin cards are derived from.",
+    "StationJsonSchema": "The shape of one production station's contract: its id, its Standard Schema validator, and the JSON Schemas admin cards are derived from.",
+    "StationPropertySchema": "The shape of one production station's contract: its id, its Standard Schema validator, and the JSON Schemas admin cards are derived from.",
     "WalkGateJoints": "Named joints the symmetry gate samples, plus metres-per-clip-unit scale.",
     "WalkGateReport": "Full gate report: provenance, per-foot and aggregate metrics, bar verdicts.",
     "applyStationPayloadToCompileSpec": "Persist a validated station payload onto a compile-node spec.",
     "evaluateWalkSymmetry": "Pure gate: metrics plus one verdict per bar from an already-sampled clip.",
+    "factoryStationSchemas": "The catalog itself: every production station id, the schema record keyed by id, and the id list in catalog order.",
+    "productionStationIds": "The catalog itself: every production station id, the schema record keyed by id, and the id list in catalog order.",
     "runBodyParam": "Unique spawn of body_param_stage.py.",
     "runClothingConsume": "Unique spawn of fit_stage.py.",
     "runEquipmentGenerate": "Spawns run_bake_isolated.py in a fresh subprocess.",
@@ -63,6 +69,7 @@
   "workspaceDependencies": [
     "@openclinxr/compute-services-spec",
     "@openclinxr/compute-slots",
+    "@openclinxr/factory-station-core",
     "@openclinxr/service-local-compute"
   ],
   "tests": [
@@ -136,8 +143,7 @@
     "src/the-factory-station-schemas-validate.test.ts",
     "src/the-spawn-blender-fails-closed-on-python-exceptions.test.ts",
     "src/the-staging-station-takes-a-signed-plant-vector.test.ts",
-    "src/the-station-runners-are-reachable-by-station-id.test.ts",
-    "src/the-station-schemas-conform-to-standard-schema.test.ts"
+    "src/the-station-runners-are-reachable-by-station-id.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/factory-stations test",
@@ -146,7 +152,7 @@
     "lint": "pnpm --filter @openclinxr/factory-stations lint"
   },
   "ceilings": {
-    "testInternalImports": 19,
-    "rootEntrypointExports": 28
+    "testInternalImports": 37,
+    "rootEntrypointExports": 35
   }
 }

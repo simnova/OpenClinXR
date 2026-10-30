@@ -3,7 +3,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { runRoomGenerate } from "../index.js";
+import { runRoomGenerate } from "./run.js";
 
 /**
  * Footprint RED: a REAL run through the GENERATE step (venv Infinigen, wall

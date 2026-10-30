@@ -13,9 +13,9 @@
 // weights, input paths) is read from that record at runtime.
 import { mkdirSync } from "node:fs";
 import path from "node:path";
-import { factoryStationSchemas } from "../catalog-mod.js";
-import { repoRoot } from "../repo-root.js";
-import type { StationPlanResult, StationRunner } from "../runner.js";
+import { factoryStationSchemas } from "@openclinxr/factory-station-core";
+import { repoRoot } from "@openclinxr/factory-station-core";
+import type { StationPlanResult, StationRunner } from "@openclinxr/factory-station-core";
 import {
   assertNoModelStage,
   planChainManifest,

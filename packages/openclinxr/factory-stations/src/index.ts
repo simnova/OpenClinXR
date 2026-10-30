@@ -7,13 +7,18 @@
  */
 
 
+/** Persist a validated station payload onto a compile-node spec. No baker spawn. */
 export {
   applyStationPayloadToCompileSpec,
-} from "./apply-station-payload.js";
+} from "@openclinxr/factory-station-core";
 export {
   planBodyParam,
   runBodyParam,
 } from "./body_param/run.js";
+/**
+ * The shape of one production station's contract: its id, its Standard Schema validator,
+ * and the JSON Schemas admin cards are derived from.
+ */
 export type {
   FactoryStationSchema,
   ProductionStationId,
@@ -21,12 +26,16 @@ export type {
   StandardResult,
   StationJsonSchema,
   StationPropertySchema,
-} from "./catalog-mod.js";
+} from "@openclinxr/factory-station-core";
+/**
+ * The catalog itself: every production station id, the schema record keyed by id,
+ * and the id list in catalog order.
+ */
 export {
   factoryStationSchemas,
   PRODUCTION_STATION_IDS,
   productionStationIds,
-} from "./catalog-mod.js";
+} from "@openclinxr/factory-station-core";
 export {
   planClothingConsume,
   runClothingConsume,

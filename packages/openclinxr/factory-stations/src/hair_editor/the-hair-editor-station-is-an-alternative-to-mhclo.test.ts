@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { factoryStationSchemas, PRODUCTION_STATION_IDS } from "../index.js";
+import { factoryStationSchemas, PRODUCTION_STATION_IDS } from "@openclinxr/factory-station-core";
 import { stationRunners } from "../station-runners.js";
 import { applyIteration, clampParam, criticOverall, proposeFromTargetRead } from "./plan.js";
 import { planHairEditorStation, runHairEditor } from "./run.js";

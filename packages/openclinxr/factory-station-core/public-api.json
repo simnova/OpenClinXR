@@ -1,0 +1,23 @@
+{
+  "entrypoints": {
+    ".": [
+      "FactoryStationSchema",
+      "PRODUCTION_STATION_IDS",
+      "ProductionStationId",
+      "StandardFailureResult",
+      "StandardIssue",
+      "StandardResult",
+      "StationJsonSchema",
+      "StationPlan",
+      "StationPlanResult",
+      "StationPropertySchema",
+      "StationRunner",
+      "applyStationPayloadToCompileSpec",
+      "factoryStationSchemas",
+      "planFromCatalog",
+      "productionStationIds",
+      "repoRoot",
+      "spawnBlenderProcess"
+    ]
+  }
+}

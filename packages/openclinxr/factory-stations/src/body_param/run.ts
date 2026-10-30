@@ -1,9 +1,9 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { factoryStationSchemas } from "../catalog.js";
-import { repoRoot } from "../repo-root.js";
-import { planFromCatalog, type StationPlanResult, type StationRunner } from "../runner.js";
-import { spawnBlenderProcess } from "../spawn-blender.js";
+import { factoryStationSchemas } from "@openclinxr/factory-station-core";
+import { repoRoot } from "@openclinxr/factory-station-core";
+import { planFromCatalog, type StationPlanResult, type StationRunner } from "@openclinxr/factory-station-core";
+import { spawnBlenderProcess } from "@openclinxr/factory-station-core";
 
 export const BODY_PARAM_STAGE_REL =
   "packages/openclinxr/factory-stations/src/body_param/body_param_stage.py";

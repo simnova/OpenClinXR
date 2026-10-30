@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { planRoomGenerate } from "../index.js";
+import { planRoomGenerate } from "./run.js";
 
 /**
  * room_generate accepts the opt-in fixed-footprint payload and refuses a

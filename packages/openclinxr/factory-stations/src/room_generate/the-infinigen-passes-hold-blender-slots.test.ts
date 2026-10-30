@@ -2,7 +2,7 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync 
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, expect, it } from "vitest";
-import { runRoomGenerate } from "../index.js";
+import { runRoomGenerate } from "./run.js";
 
 const priorLockRoot = process.env["OPENCLINXR_LOCK_ROOT"];
 const priorBlenderSize = process.env["OPENCLINXR_SLOTS_BLENDER"];

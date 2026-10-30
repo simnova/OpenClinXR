@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   MPFB_WALK_JOINTS,
   sampleWalkClip,
-} from "../index.js";
+} from "./walk_symmetry_gate.js";
 import {
   FOOT_BASE_ROW_COUNT,
   footBaseRowsFor,

@@ -2,7 +2,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { runRoomGenerate } from "../index.js";
+import { runRoomGenerate } from "./run.js";
 
 /**
  * A crashed Blender pass must leave its FULL log on disk at the point of

@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { factoryStationSchemas } from "../catalog.js";
+import { factoryStationSchemas } from "@openclinxr/factory-station-core";
 import { planClothingConsume, rigRefitContractFrom, runRigRefit } from "./run.js";
 
 /**

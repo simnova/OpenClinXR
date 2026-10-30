@@ -25,6 +25,9 @@
       "path": "../compute-slots"
     },
     {
+      "path": "../factory-station-core"
+    },
+    {
       "path": "../service-local-compute"
     }
   ]

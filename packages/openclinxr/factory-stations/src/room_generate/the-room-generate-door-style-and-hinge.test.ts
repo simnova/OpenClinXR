@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { planRoomGenerate } from "../index.js";
+import { planRoomGenerate } from "./run.js";
 
 /**
  * Door style pin + hingeSide perpendicular-axis RED (plan-only: no Blender,

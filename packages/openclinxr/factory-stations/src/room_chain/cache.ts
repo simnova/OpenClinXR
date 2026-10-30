@@ -52,7 +52,7 @@ import {
 } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
-import { repoRoot } from "../repo-root.js";
+import { repoRoot } from "@openclinxr/factory-station-core";
 import { planLightingDesign } from "../lighting_design/run.js";
 import { ROOM_GENERATE_EXTRACT_REL, ROOM_GENERATE_MODULE_REL } from "../room_generate/generate.js";
 import { planRoomGenerate } from "../room_generate/run.js";

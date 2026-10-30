@@ -1,0 +1,48 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/compute-services-spec",
+    "entrypoint": "./contracts",
+    "names": [
+      {
+        "name": "ComputeProcessResult",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "factoryStationSchemas",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "PRODUCTION_STATION_IDS",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/service-local-compute",
+    "entrypoint": "./local",
+    "names": [
+      {
+        "name": "createLocalComputeServices",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

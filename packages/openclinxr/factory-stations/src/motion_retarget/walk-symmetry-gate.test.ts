@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { evaluateWalkSymmetry, GATE_BARS } from "../index.js";
+import { evaluateWalkSymmetry, GATE_BARS } from "./walk_symmetry_gate.js";
 
 type SampleInput = Parameters<typeof evaluateWalkSymmetry>[0];
 type JointsInput = Parameters<typeof evaluateWalkSymmetry>[1];
