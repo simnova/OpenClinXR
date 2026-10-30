@@ -3,6 +3,11 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import {
+  classifyGarmentMeshName,
+  isTrouserMeshName,
+  isUpperMeshName,
+} from "./lib/garment-mesh-class.js";
 
 /**
  * Every MPFB actor's visible skin ships as 34–39 disconnected components. Twenty-two to twenty-four of
@@ -208,16 +213,22 @@ async function measure(rel: string): Promise<Row | null> {
       const a = prim.getAttribute("POSITION");
       const ix = prim.getIndices();
       if (!a || !ix) continue;
-      const name = `${mesh.getName()}/${mat?.getName() ?? ""}`;
+      const meshName = mesh.getName() ?? "";
       // #359 — the body surface is skin + scalp: the scalp hair region is a material
       // reclassification of the crown (a separate primitive on the same body mesh), not
       // gutted/hidden skin. Clause (3) refuses gutting the BODY to clear slivers, so the
       // measured surface must include the scalp or the #359 port would trip it.
-      const isSkin = /skin|scalp_hair/i.test(name);
-      const isPants = /cargo_pants/.test(name);
+      // Skin = the body class (mesh or material — scalp prims ride the body mesh).
+      // Shirt/pants = upper/trouser classes on the MESH (not the old combined-name
+      // literals: /cargo_pants/ missed refits like female_tight_jeans, and /scrub/
+      // counted scrub TROUSERS as shirt, dragging the overlap to trouser length).
+      const isSkin =
+        classifyGarmentMeshName(meshName) === "body"
+        || classifyGarmentMeshName(mat?.getName() ?? "") === "body";
+      const isPants = isTrouserMeshName(meshName);
       // #180: the nurse's upper garment is now `makeclothes_library_scrub_shirt_*` —
       // the overlap clause must keep measuring it.
-      const isShirt = /t_shirt|scrub/.test(name);
+      const isShirt = isUpperMeshName(meshName);
 
       const pos: number[][] = [];
       for (let i = 0; i < a.getCount(); i++) pos.push(a.getElement(i, [0, 0, 0]) as number[]);

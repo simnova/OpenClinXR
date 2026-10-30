@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { classifyGarmentMeshName } from "./lib/garment-mesh-class.js";
 
 /**
  * OPERATOR DIRECTION 2026-08-11 — the program is now transitioning off Anny-only assets, using Anny as
@@ -146,7 +147,12 @@ async function measureBody(id: string, rel: string): Promise<Body> {
     for (const prim of mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION");
       if (!pos || pos.getCount() <= best) continue;
-      if (/hidden|makeclothes|garment|toigo|boot|shoe|scalp|hair/i.test(prim.getMaterial()?.getName() ?? "")) continue;
+      // The body primitive: skin by shared class. Garments, hide-mask regions,
+      // fitted hair/scalp and face parts are not the body — the old
+      // /hidden|makeclothes|garment|toigo|boot|shoe|scalp|hair/ exclusion named
+      // the same set by literal. Largest-primitive selection is unchanged, so
+      // the winner is the same skin primitive on shipped bytes.
+      if (classifyGarmentMeshName(prim.getMaterial()?.getName() ?? "") !== "body") continue;
       best = pos.getCount();
       const el: [number, number, number] = [0, 0, 0];
       verts = [];

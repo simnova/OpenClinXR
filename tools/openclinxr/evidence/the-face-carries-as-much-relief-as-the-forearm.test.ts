@@ -83,6 +83,8 @@ import { describe, expect, it } from "vitest";
  *   mpfb-clinical-physician-adult     10.36           6.40         1.62
  *   mpfb-family-partner-adult         10.87           5.93         1.83
  *   mpfb-gown-adult-patient           10.05           6.38         1.58
+ *   mpfb-gown-ed-robert-hayes           10.24           9.99         1.03
+ *     (10th cast actor, added 69f2c7075; row appended via head-vs-forearm-normal-detail.ts)
  *   mpfb-ob-patient-aisha             10.69           6.41         1.67
  *   mpfb-peds-nurse-kevin             10.23           6.01         1.70
  *   mpfb-peds-parent-aisha            10.83           5.94         1.82

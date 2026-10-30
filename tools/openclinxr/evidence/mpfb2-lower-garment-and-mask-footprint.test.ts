@@ -2,6 +2,11 @@ import { dirname, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import {
+  classifyGarmentMeshName,
+  isTrouserMeshName,
+  isUpperMeshName,
+} from "./lib/garment-mesh-class.js";
 
 /**
  * Two causes, one functional area — the MPFB2 patient's wardrobe — each with its own non-vacuous proof
@@ -170,18 +175,18 @@ const PUBLIC = `${REPO_ROOT}/apps/ui-xr/public`;
 const AISHA = "generated-humanoids/mpfb-ob-patient-aisha.glb";
 const LIBRARY = "xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb";
 
-const UPPER = /shirt|top|tshirt|toigo/i;
-const LOWER = /pants|trouser|cargo/i;
+/**
+ * Garment channels via the one shared classifier, in the same check order as
+ * the literals they replace (footwear before upper: flats material contains
+ * "toigo"; hair skipped, never a channel). HIDDEN/MASK_SLOT stay literal:
+ * hide-mask slots are body-region vocabulary, not garment classes.
+ */
+const isUpper = (name: string): boolean => isUpperMeshName(name);
+const isLower = (name: string): boolean => isTrouserMeshName(name);
+const isFootwearCh = (name: string): boolean => classifyGarmentMeshName(name) === "footwear";
+const isHairCh = (name: string): boolean => classifyGarmentMeshName(name) === "hair";
 const HIDDEN = /hidden/i;
 const MASK_SLOT = /hidden_(upper|lower|foot|orphan)/i;
-/** Hair is not a garment the mask hides under — excluding it keeps the upper channel honest. */
-const HAIR = /hair|scalp/i;
-/**
- * #333: footwear is a wardrobe channel, not body — the library rail already ships it.
- * #357: footwear IS a garment the foot mask hides under, so it is collected as a channel
- * (checked BEFORE UPPER: aisha's flats material contains "toigo").
- */
-const FOOTWEAR = /footwear|shoe|boot|flat/i;
 /** Signed-clearance epsilon is 5 mm; 2 mm of bounds slack allows float + fan-triangulation edges. */
 const MAX_OVERREACH_M = 0.002;
 
@@ -235,13 +240,13 @@ async function railOf(id: string, rel: string): Promise<Rail> {
         // mask against a channel that does not hide it.
         const slot: MaskSlot = slotMatch?.[1] === "foot" ? "foot" : slotMatch?.[1] === "orphan" ? "orphan" : slotMatch?.[1] === "lower" ? "lower" : slotMatch?.[1] === "upper" ? "upper" : "orphan";
         masks.push({ slot, box });
-      } else if (FOOTWEAR.test(name)) {
+      } else if (isFootwearCh(name)) {
         footwear = absorb(footwear, box);
-      } else if (LOWER.test(name)) {
+      } else if (isLower(name)) {
         lower = absorb(lower, box);
-      } else if (HAIR.test(name)) {
+      } else if (isHairCh(name)) {
         // not a garment channel, not body the mask hides under — skip
-      } else if (UPPER.test(name)) {
+      } else if (isUpper(name)) {
         upper = absorb(upper, box);
       } else {
         body += pos.getCount();

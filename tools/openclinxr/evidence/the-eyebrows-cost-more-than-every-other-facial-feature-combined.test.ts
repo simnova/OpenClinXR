@@ -1,6 +1,7 @@
 import { readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { NodeIO } from "@gltf-transform/core";
+import { classifyGarmentMeshName } from "./lib/garment-mesh-class.js";
 
 /**
  * MEASURED ON HEAD 8519ebce7efb0267585687c70a6c1fb0844d2f14, 2026-08-23, by reading the shipped
@@ -137,6 +138,48 @@ const SIBLING_FACIAL_SUM = Object.values(SIBLING_FACIAL_TRIS_ON_EVERY_ACTOR).red
   0,
 ); // 1,180
 
+/**
+ * Per-actor re-pins (live bytes measured with this file's own instrument, NodeIO +
+ * the shared classifier). Deliberate changes since 8519ebce:
+ * bodies — HB-05 face-preserving decimation f6b335392 (aisha 10705, kevin 8049),
+ * #695 meshopt 0f1d0b9c6 + nurse hole-guard 20d7a2909 (nurse 12833), further
+ * decimation rungs on physician/family/gown/robert/inspect actors;
+ * lashes — fitted CC0 eyelashes01 f82e1cc2e (#683; nurse LOD via #737 at 388);
+ * teeth/tongue — mouth/teeth program ec55570e9 + #741 retreat 9f2934536
+ * (parent carries fitted_teeth 7120).
+ * Clause (1) still uses the 1,180 reference and stays RED; clause (3) untouched.
+ */
+const BODY_TRIS_BY_ACTOR: Record<string, number> = {
+  "mpfb-clinical-nurse-adult.glb": 12833,
+  "mpfb-clinical-physician-adult.glb": 12890,
+  "mpfb-family-partner-adult.glb": 13357,
+  "mpfb-gown-adult-patient.glb": 14928,
+  "mpfb-gown-ed-robert-hayes.glb": 14928,
+  "mpfb-gown-inspect.glb": 4149,
+  "mpfb-ob-patient-aisha.glb": 10705,
+  "mpfb-peds-nurse-kevin.glb": 8049,
+  "mpfb-peds-parent-aisha.glb": 26756,
+  "mpfb-peds-patient-child.glb": 26756,
+  "mpfb-street-adult-male.glb": 26756,
+  "mpfb-viseme-inspect.glb": 10705,
+};
+
+/** Per-actor sibling pins; actors absent here keep SIBLING_FACIAL_TRIS_ON_EVERY_ACTOR. */
+const SIBLING_OVERRIDES_BY_ACTOR: Record<string, Partial<Record<FacialGroup, number>>> = {
+  "mpfb-clinical-nurse-adult.glb": { eyelash: 388, tongue: 430 },
+  "mpfb-clinical-physician-adult.glb": { eyelash: 395, tongue: 418 },
+  "mpfb-family-partner-adult.glb": { eyelash: 3239, tongue: 430 },
+  "mpfb-gown-adult-patient.glb": { eyelash: 386, teeth: 190, tongue: 422 },
+  "mpfb-gown-ed-robert-hayes.glb": { eyelash: 297, teeth: 190, tongue: 422 },
+  "mpfb-gown-inspect.glb": { eyelash: 16632 },
+  "mpfb-ob-patient-aisha.glb": { eyelash: 16632 },
+  "mpfb-peds-nurse-kevin.glb": { eyelash: 16632 },
+  "mpfb-peds-parent-aisha.glb": { eyelash: 16632, teeth: 7120 },
+  "mpfb-peds-patient-child.glb": { eyelash: 16632 },
+  "mpfb-street-adult-male.glb": { eyelash: 16632 },
+  "mpfb-viseme-inspect.glb": { eyelash: 16632 },
+};
+
 /** Distinct eyebrow styles across the shipped cast, measured on HEAD 8519ebce. */
 const SHIPPED_EYEBROW_STYLES = [
   "mindfront_eyebrows_03",
@@ -148,12 +191,19 @@ const SHIPPED_EYEBROW_STYLES = [
 
 type FacialGroup = "eyebrow" | "eyelash" | "teeth" | "tongue" | "eyes";
 
+/**
+ * Facial groups via the one shared classifier (brow/lash/teeth/tongue/eyes
+ * classes), not private /fitted_eyebrow|hm08_eyelash|.../ literals. The shared
+ * lash class also covers fitted lashes the old /hm08_eyelash/ literal missed —
+ * they are lashes on shipped bytes, so the denominator grows truthfully.
+ */
 function classify(meshName: string): FacialGroup | null {
-  if (/fitted_eyebrow/i.test(meshName)) return "eyebrow";
-  if (/hm08_eyelash/i.test(meshName)) return "eyelash";
-  if (/hm08_teeth/i.test(meshName)) return "teeth";
-  if (/hm08_tongue/i.test(meshName)) return "tongue";
-  if (/eyes_low_poly/i.test(meshName)) return "eyes";
+  const cls = classifyGarmentMeshName(meshName);
+  if (cls === "brow") return "eyebrow";
+  if (cls === "lash") return "eyelash";
+  if (cls === "teeth") return "teeth";
+  if (cls === "tongue") return "tongue";
+  if (cls === "eyes") return "eyes";
   return null;
 }
 
@@ -193,7 +243,7 @@ async function measureActor(asset: string): Promise<ActorFacialMeasure> {
         : (prim.getAttribute("POSITION")?.getCount() ?? 0) / 3;
     }
     totalTris += tris;
-    if (/_body$/.test(name)) bodyTris += tris;
+    if (classifyGarmentMeshName(name) === "body") bodyTris += tris;
     const group = classify(name);
     if (group) {
       facial[group] += tris;
@@ -248,7 +298,9 @@ describe("the eyebrows cost more than every other facial feature combined", () =
   it("(2) the sibling facial accessories keep their measured cost on every actor", async () => {
     const actors = await allActors();
     for (const actor of actors) {
-      for (const [group, expected] of Object.entries(SIBLING_FACIAL_TRIS_ON_EVERY_ACTOR)) {
+      const overrides = SIBLING_OVERRIDES_BY_ACTOR[actor.asset] ?? {};
+      for (const [group, baseline] of Object.entries(SIBLING_FACIAL_TRIS_ON_EVERY_ACTOR)) {
+        const expected = overrides[group as FacialGroup] ?? baseline;
         expect(
           actor.facial[group as FacialGroup],
           `${actor.asset} ${group}: reference class must not move`,
@@ -283,7 +335,9 @@ describe("the eyebrows cost more than every other facial feature combined", () =
   it("(4) the body mesh keeps its own measured cost — the eyebrow is not merged into it", async () => {
     const actors = await allActors();
     for (const actor of actors) {
-      expect(actor.bodyTris, `${actor.asset} body`).toBe(26756);
+      // Per-actor decimation rungs (HB-05 f6b335392 / #695 0f1d0b9c6 / 20d7a2909);
+      // exact pins, not a ceiling — a merge would still fail here.
+      expect(actor.bodyTris, `${actor.asset} body`).toBe(BODY_TRIS_BY_ACTOR[actor.asset] ?? 26756);
     }
   });
 });

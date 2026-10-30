@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { classifyGarmentMeshName } from "./lib/garment-mesh-class.js";
 
 /**
  * **OBSERVABLE: no shipped clinician wears a party shoe that needs a bespoke patch script.**
@@ -87,7 +88,11 @@ const ALREADY_PLAIN = [
   "mpfb-street-adult-male.glb",
 ] as const;
 
-const FOOTWEAR_RE = /footwear|shoe|boot|slipper|sandal|sneaker/iu;
+/** Footwear channel via the one shared classifier — not a
+ * /footwear|shoe|boot|slipper|sandal|sneaker/ literal that misses the next
+ * footwear rename. The toigo_flats tombstone and shoe-kind identities below
+ * stay literal: they name specific retired/shipped assets, not a class. */
+const isFootwearMesh = (name: string): boolean => classifyGarmentMeshName(name) === "footwear";
 
 interface FootwearRow {
   readonly glb: string;
@@ -104,7 +109,7 @@ async function footwearOf(glb: string): Promise<FootwearRow> {
   const meshes = doc
     .getRoot()
     .listMeshes()
-    .filter((m) => FOOTWEAR_RE.test(m.getName()));
+    .filter((m) => isFootwearMesh(m.getName()));
   let triangles = 0;
   for (const mesh of meshes) {
     for (const prim of mesh.listPrimitives()) {

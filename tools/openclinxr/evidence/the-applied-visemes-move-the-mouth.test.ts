@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeIO } from "@gltf-transform/core";
+import { NodeIO, type Node as GLTFNode, type Primitive } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -78,33 +78,44 @@ const REST_TARGET = "viseme_sil";
  * an in-place rebake of any of them is treatment (d) and clause (4) refuses it by content, not by
  * existence. My first draft of this clause only checked the files were still present, which a
  * rebake satisfies trivially; caught while probing.
+ *
+ * RE-PINNED 2026-10-30 (ci-w1): treatment (d) was later chosen as the direction — E6.3's viseme
+ * bake now rides the SHIPPED bodies (mouth/viseme commits ec55570e9, d33b3d2b7, ae7396f2f on the
+ * parent; 2e437c255 accepts baked viseme spellings in the speak counterweight), and every row
+ * below was deliberately rebaked after its pin (lashes #683 f82e1cc2e, teeth #739/#741, HB-05
+ * f6b335392, HB-07, walk binds, mouth work). The pins are re-recorded to the current tree bytes
+ * with the per-row superseding commit; future churn is governed by clauses (1)-(3) — a bake
+ * that empties a target or moves it off the lips still fails — not by hash equality.
  */
 const SHIPPED_UNTOUCHED: Record<string, string> = {
   // #598 re-pinned 2026-08-23: leopard toigo_flats → plain toigo_mj_cloth_shoes (SHOE_BY_REFERENCE);
   // was 390ee91f722113f9267641f2ebcc5e7ddeaeef3093d288dd908232120f9c5504.
-  "mpfb-ob-patient-aisha": "67fa2812cad82bd67536cbb55c6ac0dbe2a58d7fd8b54d81fd9aa7c0f0c760cd",
+  // RE-PINNED (applied): treatment (d) chosen — mouth/viseme commits ec55570e9 +
+  // d33b3d2b7 + ae7396f2f on the shipped bodies + 2e437c255; every row rebaked after
+  // its pin. Re-recorded to live tree bytes; future churn governed by clauses (1)-(3).
+  "mpfb-ob-patient-aisha": "88070603c7b39b8bf433f088ac390c056bb69d9937bf2284845f1a541fc5f091",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
   // table (drift at HEAD, pre-existing); was d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1.
-  "mpfb-peds-parent-aisha": "1f148c9ec80e824f47f0142767f1d803dc6c61c4b859e726671e9706e8583ac3",
+  "mpfb-peds-parent-aisha": "86b0f17dccaa09ff4f75fbe32ad74c7bcc8fd56cd8e264e056f46473288aec4b",
   // #598 re-pinned 2026-08-23: worktree kevin bytes already differed from the prior pin
   // (was 0817dbd1932448185037c35487c9a25f5b9e70cbf6f558fa67098e104a955d72); this slice did
   // not rebake kevin — only re-recorded the on-disk hash so the table matches the tree.
-  "mpfb-peds-nurse-kevin": "313ea22ca8be776851824329807ae915a1e467f95a78998540e14d5285928679",
+  "mpfb-peds-nurse-kevin": "0de69b66a569d457c11985895f76b24a4c0cc99adc530720ee0e4ecaa78a22de",
   // #502 re-pinned 2026-08-21: the clinician footwear leopard "Shoe" texture was stripped to
   // the flat dark factor (gown-patient precedent); the viseme morph targets and every other
   // buffer are untouched.
   // #598 re-pinned 2026-08-23: flats → mj_cloth_shoes; was 8c8547ff6153f5d1fedb1b1dcdde5193d2bec6e5e31e617d25213ccfbaf7d409.
   // #568 re-pinned 2026-08-26: inherited brown iris removed (nurse_maria_authors nothing) so
   // the role fallback blue reaches the shipped GLB; was 34dbfc569a51e2902b54c5453bf0adb67f9b4d5d299a563a910cc1ae7434b432.
-  "mpfb-clinical-nurse-adult": "b96ee02554257c9dc60442a7e705b9e3f8186e98b20d4349e5ba398e7d9a1a45",
+  "mpfb-clinical-nurse-adult": "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9",
   // #504 re-pinned 2026-08-21: the physician's coat was pushed out 15 mm (wardrobe layer
   // separation); the viseme morph targets and every other buffer are untouched.
   // #502 re-pinned 2026-08-21: same footwear-texture strip as the nurse (this GLB's only delta).
   // #598 re-pinned 2026-08-23: flats → mj_cloth_shoes; was ab9a3352ed7d37cfa6c5aca0124fe6ee9987059329c934a5cdbddf113737bdf3.
   // #568 re-recorded 2026-08-26: the #665 WIP commit changed the physician GLB without
   // re-pinning this table (drift at HEAD, pre-existing); was b8ac08be92e5f87cd6d6b3175a7d5bd56b87c7143b2caf4663daf35b2d623847.
-  "mpfb-clinical-physician-adult": "266370e3de6a71319057f7c4abcb7e6d219ee0781b9d14e27f202309a36d73ca",
+  "mpfb-clinical-physician-adult": "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
 }
 
 type Prov = {
@@ -127,12 +138,12 @@ async function inspectGlb() {
   // mesh.extras.targetNames AND on each target's own name. Union both so a bake that populates
   // only one of them is not failed for a reason that has nothing to do with the mouth.
   const fromExtras = ((mesh!.getExtras()?.targetNames ?? []) as string[]) ?? [];
-  const fromTargets = prim.listTargets().map((t: any) => t.getName() ?? "");
+  const fromTargets = prim.listTargets().map((t) => t.getName() ?? "");
   const names = fromTargets.map((n: string, i: number) => n || fromExtras[i] || "");
   return { doc, prim, names };
 }
 /** Dominant skin joint for one vertex — the #425 instrument. */
-function dominantJoint(prim: any, names: string[], i: number): string {
+function dominantJoint(prim: Primitive, names: string[], i: number): string {
   const J = prim.getAttribute("JOINTS_0"), W = prim.getAttribute("WEIGHTS_0");
   if (!J || !W) return "";
   const j = J.getElement(i, [0, 0, 0, 0]), w = W.getElement(i, [0, 0, 0, 0]);
@@ -153,7 +164,7 @@ describe("the applied visemes move the mouth, not just the target list", () => {
     // Refuses (b) and (c). Discriminator measured in #425: lip vertices are dominated by oris*/levator*.
     const { doc, prim, names } = await inspectGlb();
     const skin = doc.getRoot().listSkins()[0];
-    const jointNames = (skin?.listJoints() ?? []).map((j: any) => j.getName());
+    const jointNames = (skin?.listJoints() ?? []).map((j: GLTFNode) => j.getName());
     const idx = names.indexOf("viseme_aa");
     expect(idx, "viseme_aa must be present").toBeGreaterThanOrEqual(0);
     const target = prim.listTargets()[idx]!.getAttribute("POSITION")!;

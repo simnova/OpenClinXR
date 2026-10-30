@@ -3,6 +3,10 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import {
+  classifyGarmentMeshName,
+  isTrouserMeshName,
+} from "./lib/garment-mesh-class.js";
 
 /**
  * **Kevin's trouser leg and his boot occupy the same space, and the sawtooth at his ankle is the two
@@ -170,8 +174,10 @@ async function measure(actor: string): Promise<Pair | null> {
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {
       const name = prim.getMaterial()?.getName() ?? "";
-      const isPants = /(cargo|scrub|trouser)_pants/i.test(name);
-      const isShoe = /footwear/i.test(name);
+      // Trouser legs (any cut — the old /(cargo|scrub|trouser)_pants/ missed
+      // refits like female_tight_jeans) and footwear, via the shared classifier.
+      const isPants = isTrouserMeshName(name);
+      const isShoe = classifyGarmentMeshName(name) === "footwear";
       if (!isPants && !isShoe) continue;
       const pos = prim.getAttribute("POSITION");
       if (!pos) continue;
@@ -266,8 +272,10 @@ async function shippedDressedActors(): Promise<string[]> {
     for (const mesh of doc.getRoot().listMeshes()) {
       for (const prim of mesh.listPrimitives()) {
         const name = prim.getMaterial()?.getName() ?? "";
-        if (/(cargo|scrub|trouser)_pants/iu.test(name)) lower = true;
-        if (/footwear/iu.test(name)) footwear = true;
+        // Trouser scope (not gown/skirt): the cuff-vs-shoe measure below only
+        // handles trouser legs, so the enumeration must match it, not "any" lower.
+        if (isTrouserMeshName(name)) lower = true;
+        if (classifyGarmentMeshName(name) === "footwear") footwear = true;
       }
     }
     if (lower && footwear) out.push(f.replace(/\.glb$/u, ""));

@@ -65,7 +65,12 @@ import { describe, expect, it } from "vitest";
 
 const ROOT = process.cwd();
 const MEASUREMENT = join(ROOT, ".openclinxr/evidence/ed-patient-upper-body/scene-sample.json");
-const CAPTURE = join(ROOT, ".openclinxr/evidence/ui-xr-environment-room/latest/ed_chest_pain_priority_v1-room.png");
+// Re-homed 2026-10-30: the old `latest/` dir is gitignored (.gitignore `.openclinxr/`),
+// so a PNG there has no land path (#64) — clause (4) went red on environment drift,
+// not product. Fresh capture re-run in-worktree 2026-10-30 via
+// `pnpm asset:ui-xr:environment-room-capture --scenario ed_chest_pain_priority_v1`
+// and landed here (tracked). Clauses (1)-(3) still read the in-worktree scene sample.
+const CAPTURE = join(ROOT, "tools/openclinxr/evidence/fixtures/ed-patient-upper-body/ed_chest_pain_priority_v1-room.png");
 
 /** The two actors compared. The nurse is the known-good column, measured in the same frame. */
 const PATIENT = "patient_robert_hayes_v1";
