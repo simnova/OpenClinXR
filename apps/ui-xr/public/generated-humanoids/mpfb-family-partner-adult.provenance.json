@@ -58,13 +58,14 @@
   "2026-09-12 clothing_consume: replaced the 2,789-tri body-derived cargo cover shell with pants02 elvs_jeans_bootcut fitted via ClothesService.fit_clothes_to_human on the live MPFB hm08 basemesh (macros live, mhclo vertex bindings). Source mens_elv_jeans1f.obj 2,854 faces; shipped lower 5,708 tris (exact x2). LOWER_GATE covers raycast 0.9362. Waist meet gapped 0 / min +5.0 mm. Nurse 2,704 and street 5,708 unchanged. outputSha256 0b1b9c991e11… / 8,151,256 B -> 354624a6c76c… / 10,414,636 B.",
   "2026-09-12 clothing_consume cloth_offset: covering-library lower no longer snapped to CLOTH_STANDOFF_M after mhclo fit (materialize_mpfb_humanoid_candidate.py covering-library else-branch). Family-partner rebaked --reference ed_chest_pain_spouse_adult --actor-role family; meshopt --simplify-ratio 0.4 --simplify-error 0.001 --simplify-only; chest-anchor 0.085 m; CC-BY notice. Lower still 5,708 tris. Pants standoff p5 3.848 / med 10.637 / p95 51.463 mm (was 14.464 / 15.000 / 15.027). Nurse and street not rebaked.",
   "2026-09-20: garment-provenance-stamp extras on remaining garments. Geometry unchanged. outputSha256/outputBytes re-recorded.",
-  "2026-10-30 ci-w11 D3 (chest-anchor re-separation, post-bake stage, not rebake): repair mode: rest already +-0.085 from #0; restored 2 openclinxr_retarget_walk_source keyframes per breast joint from midline to rest (walk graft 91aa4b5d3 had re-pinned them after the #0 run). Rest TRS untouched. Tool: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs (half-span 0.085, uniform with nurse known-good 1f5519d2)."
+  "2026-10-30 ci-w11 D3 (chest-anchor re-separation, post-bake stage, not rebake): repair mode: rest already +-0.085 from #0; restored 2 openclinxr_retarget_walk_source keyframes per breast joint from midline to rest (walk graft 91aa4b5d3 had re-pinned them after the #0 run). Rest TRS untouched. Tool: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs (half-span 0.085, uniform with nurse known-good 1f5519d2).",
+  "2026-10-30 ci-w11 D1 (orphan prune, not rebake): gltf-transform prune 4.3.0, same tool and flags as #555. Removed unreferenced mpfb-family-partner-adult.skin-normal (1091596 B). File 10529116 -> 9277296 B. Bound invariants held: boundTextures 5, boundBytes 4754841, meshes 10, materials 17, tris 39974, joints 137, animations 3."
  ],
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-12T16:29:00Z",
- "outputSha256": "3e331f11ea324a4c06a61a8b363465e21008d495b79255538c3e1feb1b563331",
- "outputBytes": 10529116,
+ "outputSha256": "ee45f65c0162208d9ca37f5a116c82d11d072def31b6429a6b32c74f040ee7cd",
+ "outputBytes": 9277296,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:06:17.490Z",
