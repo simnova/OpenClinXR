@@ -26,7 +26,16 @@ import { join } from "node:path";
 import type { ConversationTraceEvent } from "./conversation-trace.js";
 import { loadReplayStationTrace, type LoadedReplayStation } from "./station-replay-loading.js";
 import { ActorState, EncounterState, LearnerState, type ActorStateInstance, type LearnerStateInstance } from "./schema.js";
-import { EncounterRoom } from "./room.js";
+import { EncounterRoom, ENCOUNTER_ROOM_NAME } from "./room.js";
+import {
+  isReviewLobbyRequest,
+  launchLobbyStationReplay,
+  lobbySelectStationIdOf,
+  LOBBY_READ_ONLY_REASON,
+  LOBBY_UNKNOWN_STATION_REASON,
+  setupLobbyState,
+  validateLobbySelect,
+} from "./review-lobby.js";
 import type { EncounterRoomOptions } from "./room-types.js";
 import { parseEncounterRole } from "./observer.js";
 import {
@@ -66,6 +75,10 @@ export interface LoadedStationReplay {
   /** C11 per-station load failures (trace content only): a bad trace refuses
    * only its own station's join with its stored error, never the whole dir. */
   failures: Map<string, string>;
+  /** C12 index complete flag, copied for the lobby state. */
+  complete: boolean;
+  /** C12 lobby entries in index order, copied from the review index. */
+  lobbyStations: { stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number }[];
 }
 
 /**
@@ -98,6 +111,7 @@ export function loadStationReplayDir(dir: string): LoadedStationReplay {
   const stations = new Map<string, LoadedReplayStation>();
   const failures = new Map<string, string>();
   const stationCount = typeof index.stationCount === "number" ? index.stationCount : index.stations.length;
+  const lobbyStations: LoadedStationReplay["lobbyStations"] = [];
   for (const entry of index.stations) {
     if (!isRecord(entry) || typeof entry.stationId !== "string" || entry.stationId === "") {
       throw new Error("replay-bad-index: station entry without a stationId");
@@ -105,6 +119,14 @@ export function loadStationReplayDir(dir: string): LoadedStationReplay {
     if (typeof entry.traceFile !== "string" || entry.traceFile === "") {
       throw new Error(`replay-bad-index: station ${entry.stationId} names no trace file`);
     }
+    const typed = entry as unknown as SessionReviewStationEntry;
+    lobbyStations.push({
+      stationId: typed.stationId,
+      stationIndex: typeof typed.stationIndex === "number" ? typed.stationIndex : lobbyStations.length,
+      turnCount: typeof typed.turnCount === "number" ? typed.turnCount : 0,
+      notePresent: typed.notePresent === true,
+      noteChars: typeof typed.noteChars === "number" ? typed.noteChars : 0,
+    });
     // C11: a bad TRACE refuses only its own station (the error is stored
     // against it and surfaces at join); every other station still replays.
     try {
@@ -114,7 +136,7 @@ export function loadStationReplayDir(dir: string): LoadedStationReplay {
       failures.set(entry.stationId, error instanceof Error ? error.message : String(error));
     }
   }
-  return { stations, failures };
+  return { stations, failures, complete: index.complete === true, lobbyStations };
 }
 
 /** Per-server replay binding closed over by the replay room class. */
@@ -155,6 +177,26 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
     override onCreate(options?: EncounterRoomOptions): void {
       if (binding.loadError !== null || binding.replay === null) {
         throw new Error(binding.loadError ?? "replay-unavailable");
+      }
+      // C12 lobby: a reviewer lists the index stations, then picks one.
+      // The lobby lives in its own locked room; the pick reserves a fresh
+      // replay room for that station and sends the seat to this client only.
+      if (isReviewLobbyRequest(options)) {
+        const replay = binding.replay;
+        this.replayStation = null;
+        this.setState(new EncounterState());
+        setupLobbyState(this.state, replay);
+        void this.setPrivate(true);
+        this.lock();
+        this.onMessage("intent", (client, message: unknown) => {
+          this.handleLobbyIntent(client, message);
+        });
+        this.onMessage("*", (_client, type) => {
+          if (type === "intent") {
+            return;
+          }
+        });
+        return;
       }
       const stationId = replayStationIdOf(options);
       if (stationId === "") {
@@ -236,6 +278,10 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       void client;
       // Refuse unknown roles here so the SDK join rejects, mirroring live.
       parseEncounterRole(options);
+      // C12 lobby rooms admit their own reviewLobby joins (no station seat).
+      if (isReviewLobbyRequest(options)) {
+        return true;
+      }
       // Backstop for direct joins: the room serves exactly its own station.
       const station = this.replayStation;
       if (station === null || replayStationIdOf(options) !== station.stationId) {
@@ -248,6 +294,8 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       void options;
       // Reviewers hold a learner seat for snapshot normalcy only: every
       // intent still rejects replay-read-only and lastSeq never advances.
+      // Lobby reviewers share the same seat shape; a select-station ack
+      // advances lastSeq like a live applied intent.
       if (!this.state.learners.has(client.sessionId)) {
         const learner = new LearnerState();
         learner.sessionId = client.sessionId;
@@ -258,6 +306,48 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
         learner.speaking = false;
         this.state.learners.set(client.sessionId, learner);
       }
+    }
+
+    /** C12 lobby intent gate: select-station validates + launches, everything else is read-only. */
+    private handleLobbyIntent(client: Client, message: unknown): void {
+      if (!isRecord(message)) {
+        client.send("reject", { seq: 0, reason: LOBBY_READ_ONLY_REASON });
+        return;
+      }
+      // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["seq"] on this Record.
+      const seq = Number.isInteger(message["seq"]) ? (message["seq"] as number) : 0;
+      // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["kind"] on this Record.
+      const kind = message["kind"];
+      if (kind !== "select-station") {
+        client.send("reject", { seq, reason: LOBBY_READ_ONLY_REASON });
+        return;
+      }
+      if (binding.replay === null) {
+        client.send("reject", { seq, reason: LOBBY_UNKNOWN_STATION_REASON });
+        return;
+      }
+      // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["payload"] on this Record.
+      const stationId = lobbySelectStationIdOf(message["payload"]);
+      const verdict = validateLobbySelect(binding.replay, stationId);
+      if (!verdict.ok) {
+        client.send("reject", { seq, reason: verdict.reason });
+        return;
+      }
+      const learner = this.state.learners.get(client.sessionId);
+      if (learner) {
+        learner.lastSeq = seq;
+      }
+      this.state.serverTick += 1;
+      client.send("ack", { seq, serverTs: Date.now() });
+      // Launch THIS client's replay only (never a broadcast): the client
+      // consumes the seat like a C7 rotation on the same connection.
+      void launchLobbyStationReplay(ENCOUNTER_ROOM_NAME, stationId, client).catch(() => {
+        try {
+          client.send("rotation-failed", { stationId });
+        } catch {
+          // Best-effort; the ack already settled the intent.
+        }
+      });
     }
 
     override onLeave(client: Client): void {

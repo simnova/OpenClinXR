@@ -129,6 +129,11 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   }
 
   override onCreate(options?: EncounterRoomOptions): void {
+    // C12: a review lobby belongs on a replay server only. A reviewer
+    // pointed at a live server must never get a live learner seat.
+    if (isRecord(options) && (options as Record<string, unknown>)["reviewLobby"] === true) {
+      throw new Error("review-lobby-live-refused: join a replay server with reviewLobby");
+    }
     latestRoom = this;
     // Server-bound config only: client roomOptions.timing / .phase /
     // .traceDir / .stationId / .stationIndex are never read.
@@ -192,6 +197,11 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
 
   override onAuth(client: Client, options?: EncounterRoomOptions): boolean {
     void client;
+    // C12 backstop: reviewLobby on a live server refuses even when the room
+    // already exists (onCreate covers the first join).
+    if (isRecord(options) && (options as Record<string, unknown>)["reviewLobby"] === true) {
+      throw new Error("review-lobby-live-refused: join a replay server with reviewLobby");
+    }
     // Refuse unknown roles here so the SDK join rejects. Learner (default)
     // and observer pass; anything else throws.
     parseEncounterRole(options);
