@@ -1112,11 +1112,11 @@
     },
     {
       "path": "apps/ui-xr/public/xr-assets/medical-equipment/privacy-curtain-monitor-sketchfab-ccby.glb",
-      "sha256": "b320a807a789561a34222a7c3d4573842679f8cf6b1921263d015c59fcc210aa"
+      "sha256": "25786367cc9c5fa8bfe20b13910a526e3afc84fec4e6d7f7988c56ecff8fccb8"
     },
     {
       "path": "apps/ui-xr/public/xr-assets/medical-equipment/privacy-curtain-monitor-sketchfab-ccby.provenance.json",
-      "sha256": "3b12f1c3698b63572a924d18d7f9b1624352aba5446ce443283b605c768a12ee"
+      "sha256": "ec292ad7427888d68dbc16013e6e7ea40e880f27632074cc1bc8c9d741767e0d"
     },
     {
       "path": "apps/ui-xr/public/xr-assets/medical-equipment/stretcher-sketchfab-ccby.glb",
@@ -1125,6 +1125,14 @@
     {
       "path": "apps/ui-xr/public/xr-assets/medical-equipment/stretcher-sketchfab-ccby.provenance.json",
       "sha256": "be4b28df985cbd7374fe429feb58f3a1db3f89dfc53880c7a38dde97bb699caf"
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/medical-equipment/vitals-monitor-sketchfab-ccby.glb",
+      "sha256": "8238578e92b20de7da01014cf6d862448e65cf89f3e4d3e22dd6af7840f389cb"
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/medical-equipment/vitals-monitor-sketchfab-ccby.provenance.json",
+      "sha256": "20e81e9bc5db95a12b6461aaceb640186f5bf8988bb18d0ca2c5f699f39738c0"
     },
     {
       "path": "apps/ui-xr/public/xr-assets/medical-equipment/wall-clock-analog.glb",
@@ -4720,7 +4728,7 @@
     },
     {
       "path": "packages/openclinxr/xr-station/src/station-equipment-catalog.ts",
-      "sha256": "f67dc68fd4835e98c108853bffdb7c03dee3b7b00d1b19409c79ee2b2877037a"
+      "sha256": "d289dcb6291eb92a0a5cc3d7ff9339f0f1c1af16df8562f87d54339262464f1a"
     },
     {
       "path": "packages/openclinxr/xr-station/src/station-equipment-clinical-devices.ts",
@@ -5011,5 +5019,5 @@
       "sha256": "0dcd06c66f5acd0ccc42401c8d1fed8ee1351f889861ca13ecc8c79fec1a9f95"
     }
   ],
-  "sourcePinsDigest": "28b927023ab84902b0bc82d331fbe15cc6ae7c5be4ba85f6a826da42dd0d845e"
+  "sourcePinsDigest": "e133574e2226819a66f265640058ef0c69236196371c3d7791c35cfe637da820"
 }
