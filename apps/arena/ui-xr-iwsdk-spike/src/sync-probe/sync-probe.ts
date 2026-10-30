@@ -521,6 +521,14 @@ async function main(): Promise<void> {
       }, 20000, "turn 2 speaking");
 
       await sendIntentAndSettle("utterance-start", {});
+      // Hold the interrupting utterance until the page has rendered the
+      // interrupt from server state. Ending it one RTT later lets both changes
+      // coalesce into one 50 ms schema patch (Quest c4 quest2 never saw the
+      // interrupt emotion).
+      await waitFor(() => {
+        const turn = observedTurn();
+        return turn.turnId === 2 && !turn.a1Speaking && turn.owner === "learner";
+      }, 20000, "interrupt rendered");
       await sendIntentAndSettle("utterance-end", {});
       await waitFor(() => {
         const turn = observedTurn();
