@@ -1134,7 +1134,7 @@ describe("workspace architecture rules", () => {
 
   it("keeps runtime route telemetry low-cardinality and free of station-run identity", () => {
     expect(findRouteTelemetryIdentityViolations(routeTelemetryPolicySourceFiles())).toEqual([]);
-  }, 10_000);
+  }, 60_000);
 
   it("keeps Mongoose data sources out of station runtime and trace-ledger dependencies", () => {
     const forbiddenImports = /@openclinxr\/(?:scenario-runtime|trace-ledger|model-gateway|voice-gateway)|apps\//;

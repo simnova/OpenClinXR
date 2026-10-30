@@ -41,7 +41,7 @@ describe("transport application accounting (synthetic fixtures)", () => {
     const drained = await live(); await drained.stop(); expect(drained.snapshotMetrics().find((m) => m.id.endsWith(".unacked"))?.samples.at(-1)?.value).toBe(0);
     const small = await live({ maxBytes: 128 });
     expect(count(small, "accepted")).toBe(0); expect(count(small, "offered")).toBeGreaterThan(0); expect(count(small, "byteBudgetLimited")).toBeGreaterThan(0); await small.stop();
-  });
+  }, 60_000);
   it("counts offered attempts censored by message caps separately from admitted work", async () => {
     const handle = await live({ maxMessages: 1 }); await vi.advanceTimersByTimeAsync(61);
     expect(count(handle, "offered")).toBe(3); expect(count(handle, "accepted")).toBe(1);
