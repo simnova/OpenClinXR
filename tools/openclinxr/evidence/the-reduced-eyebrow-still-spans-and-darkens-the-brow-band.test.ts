@@ -66,7 +66,8 @@ import { type Document, NodeIO } from "@gltf-transform/core";
  *     eyes are the denominator — growing them LOWERS the ratio).
  *
  * claimScope: front-projected geometric visibility of the fitted eyebrow inside the
- *   eye-anchored brow band on the 11 shipped MPFB actors.
+ *   eye-anchored brow band on the 12 shipped MPFB actors (11 pinned 2026-08-26 +
+ *   mpfb-gown-ed-robert-hayes, shipped 69f2c7075, pinned 2026-10-30).
  * notEvidenceFor: how the brow LOOKS in a lit render (orchestrator grades pixels; this file
  *   bounds the mechanism's optimum); clinical appropriateness; Quest frame cost;
  *   profile/three-quarter visibility (front projection only); alpha-texture/hair-card
@@ -89,12 +90,19 @@ const Y_ABOVE = 0.5;
  * Measured 2026-08-26 from the PRE-reduction bytes (git main) with the exact instrument
  * below (calibration: .openclinxr/evidence/eyebrow-budget/calibrate-final.ts).
  * covFrac = band-cell coverage fraction; inkPerEye = browProjArea / eyeProjArea.
+ *
+ * mpfb-gown-ed-robert-hayes.glb (shipped 69f2c7075, Oct 2026) measured 2026-10-30
+ * with the same instrument (measureActor below: first fitted_eyebrow prim over the
+ * eyes_low_poly band): cov=0.0716 inkPerEye=0.509. The brow is the full
+ * mindfront_eyebrows_05 asset (12,122 tris, same family as the pinned rows), so
+ * this is a visible reference, not a reduced stub blessed as 100%.
  */
 const PINNED_VISIBLE_BROW = {
   "mpfb-clinical-nurse-adult.glb": { covFrac: 0.109, inkPerEye: 1.47 },
   "mpfb-clinical-physician-adult.glb": { covFrac: 0.142, inkPerEye: 1.48 },
   "mpfb-family-partner-adult.glb": { covFrac: 0.095, inkPerEye: 0.91 },
   "mpfb-gown-adult-patient.glb": { covFrac: 0.152, inkPerEye: 1.56 },
+  "mpfb-gown-ed-robert-hayes.glb": { covFrac: 0.072, inkPerEye: 0.51 },
   "mpfb-gown-inspect.glb": { covFrac: 0.122, inkPerEye: 1.24 },
   "mpfb-ob-patient-aisha.glb": { covFrac: 0.122, inkPerEye: 1.24 },
   "mpfb-peds-nurse-kevin.glb": { covFrac: 0.105, inkPerEye: 1.01 },
