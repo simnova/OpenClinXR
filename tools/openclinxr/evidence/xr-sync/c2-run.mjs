@@ -249,6 +249,21 @@ async function runHostProbe({ pageUrl, outDir }) {
 }
 
 async function runQuestProbe({ pageUrl, outDir, serial }) {
+  // Remove our reverses even when launch/connect throws before the inner
+  // finally is reached (a connect failure leaked tcp:54054/54055 on 2026-10-30).
+  try {
+    return await runQuestProbeInner({ pageUrl, outDir, serial });
+  } finally {
+    const httpPort = new URL(pageUrl).port;
+    const syncPort = new URL(pageUrl).searchParams.get("sync")?.match(/:(\d+)$/)?.[1];
+    for (const port of [httpPort, syncPort].filter(Boolean)) {
+      await adb(serial, ["reverse", "--remove", `tcp:${port}`]).catch(() => {});
+    }
+    await adb(serial, ["forward", "--remove", `tcp:${PLAYWRIGHT_CDP_PORT}`]).catch(() => {});
+  }
+}
+
+async function runQuestProbeInner({ pageUrl, outDir, serial }) {
   // Quest mode (NOT executed by the C2 author): Oculus Browser via CDP.
   // Owns a single new target only; never touches foreign tabs.
   const { chromium } = await import("playwright");
@@ -262,6 +277,19 @@ async function runQuestProbe({ pageUrl, outDir, serial }) {
   await adb(serial, ["forward", `tcp:${PLAYWRIGHT_CDP_PORT}`, "localabstract:chrome_devtools_remote"]);
   const pageErrors = [];
   const consoleErrors = [];
+  // The devtools socket exists only while Oculus Browser runs: launch our page
+  // first with a VIEW intent, then wait for the socket before connecting.
+  const quoted = pageUrl.replace(/'/g, "'\\''");
+  await adb(serial, ["shell", `am start -a android.intent.action.VIEW -d '${quoted}' com.oculus.browser`]);
+  const socketDeadline = Date.now() + 30000;
+  for (;;) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${PLAYWRIGHT_CDP_PORT}/json/version`);
+      if (response.ok) break;
+    } catch {}
+    if (Date.now() > socketDeadline) throw new Error("Oculus Browser devtools socket not up within 30 s");
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
   const browser = await chromium.connectOverCDP(`http://127.0.0.1:${PLAYWRIGHT_CDP_PORT}`);
   try {
     const before = new Set();
@@ -270,14 +298,31 @@ async function runQuestProbe({ pageUrl, outDir, serial }) {
         before.add(existing);
       }
     }
-    const page = await browser.newPage();
+    // Oculus Browser refuses Target.createTarget/newPage over CDP. Open our
+    // URL with a VIEW intent (quest-cdp-smoke.ts pattern), then attach to it.
+    let page = null;
+    const attachDeadline = Date.now() + 30000;
+    while (!page) {
+      for (const context of browser.contexts()) {
+        for (const candidate of context.pages()) {
+          if (candidate.url() === pageUrl) {
+            page = candidate;
+          }
+        }
+      }
+      if (page) break;
+      if (Date.now() > attachDeadline) {
+        throw new Error("VIEW intent page did not appear over CDP within 30 s");
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
     page.on("pageerror", (error) => pageErrors.push(String(error).slice(0, 300)));
     page.on("console", (message) => {
       if (message.type() === "error") {
         consoleErrors.push(message.text().slice(0, 300));
       }
     });
-    await page.goto(pageUrl, { timeout: 120000, waitUntil: "load" });
+    await page.waitForLoadState("load", { timeout: 120000 });
     const deadline = Date.now() + DONE_TIMEOUT_MS;
     let probe = null;
     for (;;) {
@@ -395,7 +440,7 @@ async function main(argv) {
     );
     const actors = run.serverState.actors ?? {};
     check("server state shows a1+a2 speaking", actors.a1?.speaking === true && actors.a2?.speaking === true, `a1=${actors.a1?.speaking} a2=${actors.a2?.speaking}`);
-    check("page snapshot caught up to final seq", probe.lastServerState?.learners?.[learnerIds[0]]?.lastSeq === probe.sent, `snapshotSeq=${probe.lastServerState?.learners?.[learnerIds[0]]?.lastSeq} sent=${probe.sent}`);
+    check("page snapshot caught up to final seq (page-reported)", probe.lastServerState?.learners?.[learnerIds[0]]?.lastSeq === probe.sent, `snapshotSeq=${probe.lastServerState?.learners?.[learnerIds[0]]?.lastSeq} sent=${probe.sent}`);
     check("bundle/source free of server imports", run.bundleCheck.hits.length === 0, run.bundleCheck.hits.join(" | ").slice(0, 300) || "clean");
 
     if (options.mode === "quest") {
@@ -431,3 +476,6 @@ async function main(argv) {
 }
 
 await main(process.argv.slice(2));
+// A Playwright CDP connection to the device browser keeps the event loop alive
+// (quest run hung after writing c2-run.json); exit explicitly.
+process.exit(process.exitCode ?? 0);
