@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -51,6 +52,45 @@ const GENERATOR = path.join(REPO, "tools/openclinxr/asset-pipeline/makeclothes/b
 const STATION = path.join(REPO, "tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts");
 const HUMANOIDS = path.join(REPO, "apps/ui-xr/public/generated-humanoids");
 const STATION_MODULE = "iterate-optimize";
+
+/** SC-04 licence-correction commit (fix #741, 2026-09-28): its diff on
+ *  mpfb-peds-parent-aisha.provenance.json replaced the byteLineage block that
+ *  cited `iterate-optimize.ts --face-preserving` with the SC-04 correction
+ *  stamp (correctedBy correct-sidecar-byte-lineage.ts, correctedAt
+ *  2026-09-28T04:07:11Z, why fix(#741)). Full hash so the tie below resolves
+ *  to exactly one commit. */
+const CORRECTION_COMMIT = "9f2934536de8b011a894036e5dcd7212594804b1";
+const CORRECTION_TOOL = "correct-sidecar-byte-lineage.ts (SC-04)";
+
+/** Fail-closed per-body check shared by clause (2) and the known-bad fixture. */
+function sidecarCarriesDecimationOrCorrection(body: string, text: string): void {
+  if (text.includes(STATION_MODULE)) return;
+  // No iterate-optimize link: accept ONLY the SC-04 superseding lineage —
+  // the correction tool stamp plus the #741 correction note, byte-identical
+  // to the stamp the licence-correction commit installed on this sidecar.
+  // Anything naming neither the station nor the correction still fails.
+  const doc = JSON.parse(text) as { byteLineage?: { correctedBy?: string; correctedAt?: string; why?: string } };
+  expect(
+    String(doc.byteLineage?.correctedBy ?? ""),
+    `${body} provenance names neither ${STATION_MODULE} nor the SC-04 correction tool`,
+  ).toContain(CORRECTION_TOOL);
+  expect(
+    String(doc.byteLineage?.why ?? ""),
+    `${body} lineage cites the tool but not the #741 licence correction`,
+  ).toContain("fix(#741)");
+  const sidecarRel = path.join("apps/ui-xr/public/generated-humanoids", body.replace(/\.glb$/u, ".provenance.json"));
+  const atCorrection = JSON.parse(
+    execFileSync("git", ["show", `${CORRECTION_COMMIT}:${sidecarRel}`], {
+      cwd: REPO,
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+    }),
+  ) as { byteLineage?: { correctedAt?: string } };
+  expect(
+    doc.byteLineage?.correctedAt,
+    `${body} lineage stamp must be the stamp ${CORRECTION_COMMIT.slice(0, 9)} installed`,
+  ).toBe(atCorrection.byteLineage?.correctedAt);
+}
 
 /** Bodies whose provenance sidecars name iterate-optimize.ts, so the station demonstrably ran on them. */
 const DECIMATED_BODIES = [
@@ -151,7 +191,10 @@ describe("the regenerated humanoid reaches the decimation", () => {
     // deleting the station, gutting its exports, or deleting the bodies would each make a naive
     // reachability assertion pass while destroying the capability. Restoration: iterate-optimize.ts
     // must keep exporting writeFacePreservingRung, facePreservingRungIds and facePreservingError,
-    // and the four bodies above must keep provenance sidecars naming the station.
+    // and the four bodies above must keep provenance sidecars naming the station —
+    // EXCEPT mpfb-peds-parent-aisha, whose SC-04 licence correction (9f2934536,
+    // fix #741, 2026-09-28) deliberately superseded the iterate-optimize link
+    // with the correction stamp. A lineage naming neither still fails.
     const station = readFileSync(STATION, "utf8");
     for (const entry of ["writeFacePreservingRung", "facePreservingRungIds", "facePreservingError"] as const) {
       expect(station, `station no longer exports ${entry}`).toContain(`export `);
@@ -160,10 +203,19 @@ describe("the regenerated humanoid reaches the decimation", () => {
     for (const body of DECIMATED_BODIES) {
       const sidecar = path.join(HUMANOIDS, body.replace(/\.glb$/u, ".provenance.json"));
       expect(existsSync(sidecar), `missing provenance sidecar: ${sidecar}`).toBe(true);
-      expect(
-        readFileSync(sidecar, "utf8"),
-        `${body} provenance no longer names ${STATION_MODULE}; the station's own evidence that it ran`,
-      ).toContain(STATION_MODULE);
+      sidecarCarriesDecimationOrCorrection(body, readFileSync(sidecar, "utf8"));
     }
+  });
+
+  it("(2b) known-bad: a provenance naming neither the station nor the correction is rejected", () => {
+    const stripped = JSON.stringify({
+      schemaVersion: "openclinxr.generated-humanoid-provenance.v1",
+      byteLineage: {
+        correctedBy: "hand edit",
+        correctedAt: "2026-10-30T00:00:00Z",
+        why: "no station and no licence correction ran here",
+      },
+    });
+    expect(() => sidecarCarriesDecimationOrCorrection("mpfb-peds-parent-aisha.glb", stripped)).toThrow();
   });
 });
