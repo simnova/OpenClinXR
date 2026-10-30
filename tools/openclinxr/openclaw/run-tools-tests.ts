@@ -5,13 +5,30 @@
  * under `node --test`; the rest run under Vitest with exact node-file
  * excludes. Both groups always run; combined exit is nonzero if either
  * fails. `--list` prints the manifest.
+ *
+ * Areas (see tools-test-areas.ts): with no `--area`, the runner hands the
+ * manifest to turbo as one cached task per area (`//#test:tools:<area>`), so an
+ * unchanged area is a cache hit. `--area <name>` runs one area: files that reach
+ * a shared browser/Blender slot run serially in the `serial` area, everything
+ * else runs with Vitest's default workers. `--direct` runs every area in this
+ * process without turbo; vitest passthrough args imply `--direct`.
  */
 import { execFileSync, spawn } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { homedir } from "node:os";
 import { isAbsolute, normalize, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import * as ts from "typescript";
+import {
+  assignAreas,
+  checkTurboInputs,
+  isToolsTestArea,
+  syncTurboInputs,
+  TOOLS_TEST_AREAS,
+  type ToolsTestArea,
+  turboTaskName,
+} from "./tools-test-areas.js";
 
 export const MANUAL_EXCLUDES: readonly string[] = [
   "tools/openclinxr/evidence/blueprint-voice-simulation-spike.test.ts",
@@ -235,6 +252,26 @@ export function buildVitestRunArgs(
   return args;
 }
 
+/** Vitest args for one area: exact file filters plus the router excludes. */
+/** Workers for the non-slot areas; half the cores leaves room for concurrent sessions. */
+export const PARALLEL_AREA_WORKERS = "50%";
+
+export function buildAreaVitestArgs(
+  mode: "run" | "list",
+  areaFilesRel: readonly string[],
+  allExcludes: readonly string[],
+  serial: boolean,
+  passthrough: readonly string[],
+): string[] {
+  const args = mode === "list" ? ["list", "--filesOnly", ...areaFilesRel] : ["run", ...areaFilesRel];
+  for (const e of allExcludes) args.push("--exclude", e);
+  // vitest.config.ts stays serial so direct `vitest run` calls (hooks) behave as before;
+  // the non-slot areas opt into parallel files here.
+  args.push(...(serial ? ["--maxWorkers=1", "--no-file-parallelism"] : ["--file-parallelism", `--maxWorkers=${PARALLEL_AREA_WORKERS}`]));
+  if (mode === "run") args.push(...passthrough);
+  return args;
+}
+
 export interface GroupResult {
   group: "node" | "vitest";
   files: number;
@@ -281,18 +318,12 @@ function runNodeGroup(root: string, nodeFilesRel: readonly string[]): Promise<Gr
   });
 }
 
-async function runVitestGroup(
-  root: string,
-  nodeFilesRel: readonly string[],
-  allExcludes: readonly string[],
-  passthrough: readonly string[],
-  vitestFiles: number,
-): Promise<GroupResult> {
+async function runVitestGroup(root: string, args: readonly string[], vitestFiles: number): Promise<GroupResult> {
   const started = Date.now();
   if (vitestFiles === 0) return { group: "vitest", files: 0, ms: 0, code: 0, skipped: true };
   const bin = resolveVitestBin(root);
   const code = await new Promise<number>((resolvePromise) => {
-    const child = spawn(bin, buildVitestRunArgs(nodeFilesRel, allExcludes, passthrough), { cwd: root, stdio: "inherit" });
+    const child = spawn(bin, [...args], { cwd: root, stdio: "inherit" });
     child.on("error", (err) => {
       console.error(`[run-tools-tests] vitest group spawn error: ${String(err)}`);
       resolvePromise(1);
@@ -309,10 +340,21 @@ export interface CliOptions {
   listOnly: boolean;
   manifestOut: string | null;
   passthrough: string[];
+  area: ToolsTestArea | null;
+  direct: boolean;
+  syncTurboInputs: boolean;
 }
 
 export function parseCli(argv: string[], cwd: string): CliOptions {
-  const opts: CliOptions = { root: cwd, listOnly: false, manifestOut: null, passthrough: [] };
+  const opts: CliOptions = {
+    root: cwd,
+    listOnly: false,
+    manifestOut: null,
+    passthrough: [],
+    area: null,
+    direct: false,
+    syncTurboInputs: false,
+  };
   const rest = [...argv];
   while (rest.length > 0) {
     const a = rest.shift() as string;
@@ -321,6 +363,14 @@ export function parseCli(argv: string[], cwd: string): CliOptions {
       break;
     } else if (a === "--list") {
       opts.listOnly = true;
+    } else if (a === "--direct") {
+      opts.direct = true;
+    } else if (a === "--sync-turbo-inputs") {
+      opts.syncTurboInputs = true;
+    } else if (a === "--area") {
+      const v = rest.shift();
+      if (!v || !isToolsTestArea(v)) throw new Error(`--area requires one of ${TOOLS_TEST_AREAS.join(", ")}`);
+      opts.area = v;
     } else if (a === "--root") {
       const v = rest.shift();
       if (!v) throw new Error("--root requires a value");
@@ -336,6 +386,97 @@ export function parseCli(argv: string[], cwd: string): CliOptions {
   return opts;
 }
 
+async function listAreaFiles(root: string, args: readonly string[]): Promise<string[]> {
+  const bin = resolveVitestBin(root);
+  return await new Promise<string[]>((resolvePromise, reject) => {
+    const child = spawn(bin, [...args], { cwd: root, stdio: ["ignore", "pipe", "pipe"] });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (d: Buffer) => {
+      stdout += d.toString();
+    });
+    child.stderr.on("data", (d: Buffer) => {
+      stderr += d.toString();
+    });
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code !== 0) reject(new Error(`vitest list for area failed (code ${code}):\n${stderr.slice(-4000)}`));
+      else resolvePromise(parseVitestFilesOnly(stdout, root));
+    });
+  });
+}
+
+/** Fail unless the area's vitest filters select exactly the area's files. */
+export function assertSameFiles(area: string, expected: readonly string[], listed: readonly string[]): void {
+  const want = new Set(expected);
+  const got = new Set(listed);
+  const missing = [...want].filter((f) => !got.has(f));
+  const extra = [...got].filter((f) => !want.has(f));
+  if (missing.length > 0 || extra.length > 0) {
+    throw new Error(
+      `[run-tools-tests] area ${area}: vitest filters select a different file set ` +
+        `(missing ${missing.length}: ${missing.slice(0, 5).join(", ")}; extra ${extra.length}: ${extra.slice(0, 5).join(", ")})`,
+    );
+  }
+}
+
+async function runArea(
+  root: string,
+  area: ToolsTestArea,
+  partition: Partition,
+  areas: Map<string, ToolsTestArea>,
+  allExcludes: readonly string[],
+  passthrough: readonly string[],
+): Promise<{ area: ToolsTestArea; node: GroupResult; vitest: GroupResult }> {
+  const nodeFiles = partition.node.filter((f) => areas.get(f) === area);
+  const vitestFiles = partition.vitest.filter((f) => areas.get(f) === area);
+  const serial = area === "serial";
+  console.log(
+    `[run-tools-tests] area ${area}: node:test ${nodeFiles.length}, vitest ${vitestFiles.length}${serial ? " (serial)" : ""}`,
+  );
+  if (vitestFiles.length > 0) {
+    const listed = await listAreaFiles(root, buildAreaVitestArgs("list", vitestFiles, allExcludes, serial, []));
+    assertSameFiles(area, vitestFiles, listed);
+  }
+  const node = await runNodeGroup(root, nodeFiles);
+  const vitest = await runVitestGroup(
+    root,
+    buildAreaVitestArgs("run", vitestFiles, allExcludes, serial, passthrough),
+    vitestFiles.length,
+  );
+  return { area, node, vitest };
+}
+
+function runTurbo(root: string): Promise<number> {
+  const local = resolve(root, "node_modules/.bin/turbo");
+  const bin = existsSync(local) ? local : "turbo";
+  // Loose env mode: the tests read machine env (BLENDER, OPENCLINXR_*) that strict mode would strip.
+  // --continue: one red area must not cancel the others.
+  const args = ["run", ...TOOLS_TEST_AREAS.map(turboTaskName), "--env-mode=loose", "--continue"];
+  console.log(`[run-tools-tests] turbo ${args.join(" ")}`);
+  return new Promise((resolvePromise) => {
+    const child = spawn(bin, args, {
+      cwd: root,
+      stdio: "inherit",
+      // Same cache dir as the packages:* scripts, so every worktree shares one cache.
+      env: {
+        ...process.env,
+        TURBO_CACHE_DIR: process.env["TURBO_CACHE_DIR"] ?? resolve(homedir(), ".cache/openclinxr/turbo"),
+        TURBO_TELEMETRY_DISABLED: "1",
+        DO_NOT_TRACK: "1",
+        OPENCLINXR_TOOLS_TESTS_PREFLIGHT_DONE: "1",
+      },
+    });
+    child.on("error", (err) => {
+      console.error(`[run-tools-tests] turbo spawn error: ${String(err)}`);
+      resolvePromise(1);
+    });
+    child.on("close", (code) => {
+      resolvePromise(code ?? 1);
+    });
+  });
+}
+
 export async function main(argv: string[], cwd: string): Promise<number> {
   const opts = parseCli(argv, cwd);
   const root = opts.root;
@@ -347,11 +488,17 @@ export async function main(argv: string[], cwd: string): Promise<number> {
 
   const discovered = await discoverViaVitestList(root, allExcludes);
   const partition = partitionManifest(discovered, root);
+  const areas = assignAreas(discovered, root);
+  const areaCounts = Object.fromEntries(
+    TOOLS_TEST_AREAS.map((a) => [a, [...areas.values()].filter((v) => v === a).length]),
+  );
   const manifest = {
     root,
     discovered: discovered.length,
     nodeFiles: partition.node,
     vitestFiles: partition.vitest,
+    areaCounts,
+    areas: Object.fromEntries([...areas].sort(([a], [b]) => a.localeCompare(b))),
     excludes: {
       manual: [...MANUAL_EXCLUDES],
       rootConfig: [...ROOT_CONFIG_EXCLUDES],
@@ -368,22 +515,39 @@ export async function main(argv: string[], cwd: string): Promise<number> {
     console.log(JSON.stringify(manifest, null, 2));
     return 0;
   }
+  if (opts.syncTurboInputs) {
+    const changed = syncTurboInputs(root, areas);
+    console.log(`[run-tools-tests] turbo.json inputs ${changed ? "updated" : "already current"}`);
+    return 0;
+  }
 
-  console.log(`[run-tools-tests] manifest: ${discovered.length} files → node:test ${partition.node.length}, vitest ${partition.vitest.length}`);
+  console.log(
+    `[run-tools-tests] manifest: ${discovered.length} files → node:test ${partition.node.length}, vitest ${partition.vitest.length}; areas ${JSON.stringify(areaCounts)}`,
+  );
 
-  runEcgInputPreflight(root);
+  // A stale turbo input list would let an area cache-hit on a changed file it imports.
+  const stale = checkTurboInputs(root, areas, opts.area === null ? TOOLS_TEST_AREAS : [opts.area]);
+  if (stale.length > 0) {
+    throw new Error(
+      `[run-tools-tests] turbo.json inputs miss imported files:\n${stale.slice(0, 20).join("\n")}\n` +
+        "Run: pnpm exec tsx tools/openclinxr/openclaw/run-tools-tests.ts --sync-turbo-inputs",
+    );
+  }
 
-  const nodeResult = await runNodeGroup(root, partition.node);
-  const vitestResult = await runVitestGroup(root, partition.node, allExcludes, opts.passthrough, partition.vitest.length);
+  if (process.env["OPENCLINXR_TOOLS_TESTS_PREFLIGHT_DONE"] !== "1") runEcgInputPreflight(root);
 
-  const summary = {
-    manifest: { discovered: discovered.length, node: partition.node.length, vitest: partition.vitest.length },
-    node: nodeResult,
-    vitest: vitestResult,
-    exit: nodeResult.code !== 0 ? nodeResult.code : vitestResult.code,
-  };
-  console.log(`[run-tools-tests] summary: ${JSON.stringify(summary)}`);
-  return summary.exit;
+  if (opts.area === null && !opts.direct && opts.passthrough.length === 0) {
+    return await runTurbo(root);
+  }
+
+  const selected = opts.area === null ? TOOLS_TEST_AREAS : [opts.area];
+  const results = [];
+  for (const area of selected) {
+    results.push(await runArea(root, area, partition, areas, allExcludes, opts.passthrough));
+  }
+  const exit = results.map((r) => (r.node.code !== 0 ? r.node.code : r.vitest.code)).find((c) => c !== 0) ?? 0;
+  console.log(`[run-tools-tests] summary: ${JSON.stringify({ areas: results, exit })}`);
+  return exit;
 }
 
 const invokedAsScript = (() => {
