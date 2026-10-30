@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { existsSync, readFileSync } from "node:fs";
 import { isAbsolute, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -61,7 +62,7 @@ import { describe, expect, it } from "vitest";
  * RAW GLBs, boards, receipts, and geometry diagnostics.
  */
 
-const ROOT = process.cwd();
+const ROOT = repoRoot();
 const REPORT = resolve(ROOT, "tools/openclinxr/evidence/fixtures/issue-697-conditioning-report.json");
 const RUBRIC = resolve(ROOT, "tools/openclinxr/asset-pipeline/trellis/rubrics/conditioning-v1.json");
 const PRIOR = resolve(ROOT, "tools/openclinxr/evidence/fixtures/issue-255-multiview-report.json");

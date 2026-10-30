@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -13,7 +14,7 @@ import { tmpdir } from "node:os";
  *  - tiny fixture PNG present → plan includes remesh_bake + optimize + pack, no GPU.
  */
 
-const ROOT = process.cwd();
+const ROOT = repoRoot();
 const CLI = "tools/openclinxr/asset-pipeline/trellis/trellis-hatch-cli.ts";
 
 /** 1×1 transparent PNG (valid, 68 bytes). */

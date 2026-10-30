@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -55,8 +56,8 @@ import { describe, expect, it } from "vitest";
  * pixel-graded (text-only worker; the orchestrator grades captures).
  */
 
-const SWEEP = join(process.cwd(), ".openclinxr/evidence/trellis-sampler-sweep/sweep.json");
-const CLI = join(process.cwd(), "tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts");
+const SWEEP = join(repoRoot(), ".openclinxr/evidence/trellis-sampler-sweep/sweep.json");
+const CLI = join(repoRoot(), "tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts");
 /**
  * ADAPTED 2026-10-26 (ci-w7): the #661 hatch-report and its input PNG were worktree-local and
  * never tracked, so the control they anchored is gone on clean checkouts. The newer work's
@@ -66,11 +67,11 @@ const CLI = join(process.cwd(), "tools/openclinxr/asset-pipeline/trellis/trellis
  * 293808 → 293719 with those commits cited — the newer work's measured value, not a relaxation.
  */
 const CONTROL_MEASURE = join(
-  process.cwd(),
+  repoRoot(),
   ".openclinxr/evidence/trellis-sampler-sweep/bakes/control-a/bake-measure.json",
 );
 const CONTROL_GLB = join(
-  process.cwd(),
+  repoRoot(),
   ".openclinxr/evidence/trellis-sampler-sweep/bakes/control-a/lowpoly-shoe-escape.glb",
 );
 

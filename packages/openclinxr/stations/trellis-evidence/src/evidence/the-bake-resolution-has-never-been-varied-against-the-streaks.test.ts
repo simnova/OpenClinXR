@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -68,7 +69,7 @@ import { describe, expect, it } from "vitest";
  * named — the text-only worker does not grade pixels and no gradedBy was written.
  */
 
-const REPO = join(import.meta.dirname, "../../..");
+const REPO = repoRoot();
 const LADDER = join(REPO, "tools/openclinxr/asset-pipeline/trellis/bake-resolution-ladder.json");
 const BOXY_SWEEP = join(REPO, "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-sweep.json");
 

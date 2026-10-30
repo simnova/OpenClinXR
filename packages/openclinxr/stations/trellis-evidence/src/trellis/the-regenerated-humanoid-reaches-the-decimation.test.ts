@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { existsSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
@@ -47,7 +48,7 @@ import { describe, expect, it } from "vitest";
  * Clause (1) accepts EITHER and fails only while NEITHER holds.
  */
 
-const REPO = path.resolve(import.meta.dirname, "../../../..");
+const REPO = repoRoot();
 const GENERATOR = path.join(REPO, "tools/openclinxr/asset-pipeline/makeclothes/body-param-cli.ts");
 const STATION = path.join(REPO, "tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts");
 const HUMANOIDS = path.join(REPO, "apps/ui-xr/public/generated-humanoids");

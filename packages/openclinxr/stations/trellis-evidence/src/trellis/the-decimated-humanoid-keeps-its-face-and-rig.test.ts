@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 /**
  * HB-03 — the decimated humanoid keeps its face and rig.
  *
@@ -43,7 +44,7 @@ import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 
-const ROOT = process.cwd();
+const ROOT = repoRoot();
 const HUMANOIDS = path.join(ROOT, "apps/ui-xr/public/generated-humanoids");
 const REPORT_PATH = path.join(ROOT, "docs/openclinxr/humanoid-postopt-ladder-2026-09-10.json");
 const HB05_REPORT_PATH = path.join(ROOT, "docs/openclinxr/humanoid-postopt-ladder-face-preserving-2026-09-11.json");

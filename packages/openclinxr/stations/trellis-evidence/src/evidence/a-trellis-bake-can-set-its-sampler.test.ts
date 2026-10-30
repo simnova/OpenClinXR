@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import * as typeScript from "typescript";
@@ -60,9 +61,11 @@ import * as typeScript from "typescript";
  * trellis-bake-cli.ts; they now parse, appear in dry-run plans, and reach argv.
  */
 
-const PY = "tools/openclinxr/evidence/blender/run_bake_isolated.py";
-const TS = "tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts";
-const RUN = "packages/openclinxr/factory-stations/src/equipment_generate/run.ts";
+import { join } from "node:path";
+
+const PY = join(repoRoot(), "tools/openclinxr/evidence/blender/run_bake_isolated.py");
+const TS = join(repoRoot(), "tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts");
+const RUN = join(repoRoot(), "packages/openclinxr/factory-stations/src/equipment_generate/run.ts");
 /** One flag per sampler is enough to prove the surface is reachable; steps is the cheapest to vary. */
 const REQUIRED_FLAGS = ["--ss-steps", "--shape-steps", "--tex-steps"] as const;
 

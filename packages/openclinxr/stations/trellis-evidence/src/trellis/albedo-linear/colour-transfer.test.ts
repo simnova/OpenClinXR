@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { srgbByteToLinear, linearToSrgbByte, buildAlbedoLut, bakeAlphaByte } from "./colour-transfer.js";
+import { srgbByteToLinear, linearToSrgbByte, buildAlbedoLut, bakeAlphaByte } from "../../../../../../../tools/openclinxr/asset-pipeline/trellis/albedo-linear/colour-transfer.js";
 // INDEPENDENT reference (spec text, not the implementation): decode sRGB -> linear,
 // multiply LINEAR factor, re-encode. Duplicated here so the test is not a mirror.
 function refBake(b: number, f: number): number {

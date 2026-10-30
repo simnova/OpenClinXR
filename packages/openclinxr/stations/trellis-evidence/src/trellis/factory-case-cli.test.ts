@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
@@ -12,7 +13,7 @@ import {
   factoryCaseReportPath,
   runFactoryCase,
   type FactoryCaseExec,
-} from "./factory-case-cli.js";
+} from "../../../../../../tools/openclinxr/asset-pipeline/trellis/factory-case-cli.js";
 
 /**
  * factory:case — scenario id → existing-cast inventory.
@@ -26,7 +27,7 @@ import {
  *  - live --motion-bind calls motion-bind-cli.ts
  */
 
-const ROOT = process.cwd();
+const ROOT = repoRoot();
 const CLI = "tools/openclinxr/asset-pipeline/trellis/factory-case-cli.ts";
 
 const PEDS = "peds_asthma_parent_anxiety_v1";

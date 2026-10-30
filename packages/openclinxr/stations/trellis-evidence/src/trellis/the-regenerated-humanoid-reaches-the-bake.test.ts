@@ -1,9 +1,10 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { bakeProducedHumanoidAlbedo } from "./bake-produced-humanoid.js";
+import { bakeProducedHumanoidAlbedo } from "../../../../../../tools/openclinxr/asset-pipeline/trellis/bake-produced-humanoid.js";
 
 /**
  * The albedo bake station has no caller, so any re-fit ships unbaked.
@@ -39,7 +40,7 @@ import { bakeProducedHumanoidAlbedo } from "./bake-produced-humanoid.js";
  * therefore accepts EITHER route and fails only while NEITHER holds.
  */
 
-const REPO = path.resolve(import.meta.dirname, "../../../..");
+const REPO = repoRoot();
 const GENERATOR = path.join(REPO, "tools/openclinxr/asset-pipeline/makeclothes/body-param-cli.ts");
 const STATION = path.join(REPO, "tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts");
 const HUMANOIDS = path.join(REPO, "apps/ui-xr/public/generated-humanoids");

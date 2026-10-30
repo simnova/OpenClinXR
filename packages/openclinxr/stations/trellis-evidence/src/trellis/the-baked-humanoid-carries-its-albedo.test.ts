@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 /**
  * HB-02 — the baked humanoid carries its albedo.
  *
@@ -21,7 +22,7 @@ import { readFileSync } from "node:fs";
 import { crc32, inflateSync } from "node:zlib";
 import path from "node:path";
 
-const ROOT = process.cwd();
+const ROOT = repoRoot();
 const HUMANOIDS = path.join(ROOT, "apps/ui-xr/public/generated-humanoids");
 const REPORT_PATH = path.join(ROOT, "docs/openclinxr/humanoid-albedo-bake-2026-09-10.json");
 
@@ -43,6 +44,10 @@ type BakedBodyRow = {
   materials: BakedMaterialRow[];
 };
 type BakeReport = { bodies: BakedBodyRow[]; exceptions: Array<{ body: string; reason: string }>; ladderRungId: string };
+// Decoded PNG scanlines: pixel dimensions, channel count, inflated IDAT bytes.
+// (The name was referenced but never declared; the root tools typecheck does not
+// cover test files, so this latent gap only surfaces in the sidecar gate.)
+type PngScan = { w: number; h: number; chans: number; raw: Buffer };
 
 function readGlbJson(file: string): { json: Record<string, unknown>; bytes: Buffer } {
   const bytes = readFileSync(file);

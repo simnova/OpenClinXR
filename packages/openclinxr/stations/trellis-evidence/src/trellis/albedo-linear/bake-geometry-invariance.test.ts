@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { crc32, deflateSync } from "node:zlib";
-import { bakeGlbAlbedo, decodePng8 } from "../bake-humanoid-albedo.js";
+import { bakeGlbAlbedo, decodePng8 } from "../../../../../../../tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.js";
 
 function refBake(b: number, f: number): number {
   const c = b / 255;
