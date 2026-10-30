@@ -166,10 +166,14 @@ describe("a placeholder scalp paint retires where real hair exists", () => {
       `${HAS_REAL_HAIR} carries ${aisha!.placeholderVerts} placeholder scalp verts UNDER ${aisha!.fittedHairTris} tris of real fitted hair — the placeholder was not retired when its replacement landed`,
     ).toBe(0);
     // SS6p: what replaces it must render as skin, not as nothing.
+    // RE-RECORDED (ci-w4): approved rebakes decimated ob-aisha's head skin 2220 -> 1077 verts
+    // (HB-02 42c42140a rebake + 10768617f normal-off lane; hair 4976 -> 1989, placeholder
+    // 1373 -> 0 kept). Coverage is still real (skin + hair + brow), so the floor follows the
+    // derivation rule — below the measured covered head — and a stripped-bare head still fails.
     expect(
       aisha!.headSkinVerts,
       `${HAS_REAL_HAIR} head must still be covered by the skin material after the paint is retired`,
-    ).toBeGreaterThan(1500);
+    ).toBeGreaterThan(800);
   });
 
   it("(2) COUNTERWEIGHT: the real fitted hair is not deleted instead of the paint", () => {

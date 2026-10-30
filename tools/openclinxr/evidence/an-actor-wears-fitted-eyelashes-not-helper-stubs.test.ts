@@ -107,13 +107,31 @@ describe("an actor wears fitted eyelashes, not helper stubs (#683)", () => {
   //       mpfb-clinical-nurse-adult.glb      12,892   (decimated 0.4,   error 0.001, #695)
   //       mpfb-family-partner-adult.glb      12,884   (decimated 0.4,   error 0.001, #695)
   //       mpfb-clinical-physician-adult.glb  12,890   (decimated 0.4,   error 0.001, #695)
+  //
+  //     RE-RECORDED (ci-w4): approved later work moved five bodies and added two, measured
+  //     2026-10-30 with this file's own `_body$` instrument (see ci-w4 bodies census):
+  //       gown-patient        14,942 -> 14,928  Oct supine lane (rebake d10314025, 4aaf5ba16, 1814a43c1)
+  //       nurse               12,892 -> 12,833  #741 teeth-retreat rebake 9f2934536
+  //       spouse/family       12,884 -> 13,357  HB-02 rebake 42c42140a
+  //       physician           12,890 unchanged
+  //       peds-nurse-kevin    26,756 -> 8,049   HB-05 fleet decimation f6b335392
+  //       ob-patient-aisha    26,756 -> 10,705  HB-02 rebake 42c42140a (+normal-off 10768617f)
+  //       robert-hayes        NEW 14,928        case-bound recast 69f2c7075
+  //       inspect sidecars    recorded too (gown-inspect 4,149; viseme-inspect 10,705)
+  //     Unlisted future actors still default to 26,756 — a NEW body that is not helper-stripped
+  //     full-resolution fails. Within-1% tolerance is the pre-existing #683 rule, unchanged.
   it("(3) COUNTERWEIGHT: the body stays 26,756 tris (helper-stripped actors) or at its recorded decimated count (ED cast)", async () => {
     const bodies: string[] = [];
     const DECIMATED: Record<string, number> = {
-      "mpfb-gown-adult-patient.glb": 14_942,
-      "mpfb-clinical-nurse-adult.glb": 12_892,
-      "mpfb-family-partner-adult.glb": 12_884,
+      "mpfb-gown-adult-patient.glb": 14_928,
+      "mpfb-clinical-nurse-adult.glb": 12_833,
+      "mpfb-family-partner-adult.glb": 13_357,
       "mpfb-clinical-physician-adult.glb": 12_890,
+      "mpfb-gown-ed-robert-hayes.glb": 14_928,
+      "mpfb-peds-nurse-kevin.glb": 8_049,
+      "mpfb-ob-patient-aisha.glb": 10_705,
+      "mpfb-gown-inspect.glb": 4_149,
+      "mpfb-viseme-inspect.glb": 10_705,
     };
     for (const glb of assets()) {
       for (const m of await meshes(glb)) {

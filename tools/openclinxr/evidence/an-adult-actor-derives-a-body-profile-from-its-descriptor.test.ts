@@ -45,9 +45,14 @@ import { derivePhenotypeFromDescriptors } from "../../../packages/openclinxr/sce
  * such a body looks like; the twelve actors that carry no descriptor text at all.
  */
 
-/** Three uncovered adults, deliberately of THREE different roles — one adult row cannot satisfy all. */
+/** Three uncovered adults, deliberately of THREE different roles — one adult row cannot satisfy all.
+ * ADAPTED (ci-w4): patient_robert_hayes_v1 was deliberately AUTHORED by #650
+ * (ed-chest-pain-mod.ts:137, 24 keys) and derivePhenotypeFromDescriptors refuses
+ * authored actors by construction — so robert can no longer be a derive target.
+ * Replaced with spouse_anna_hayes_v1 (family; authored=0; derives
+ * adult_standard_parent age 34 / 166 cm / bmi 24). The three-role spread is kept. */
 const ADULT_TARGETS = [
-  { actorId: "patient_robert_hayes_v1", role: "patient" },
+  { actorId: "spouse_anna_hayes_v1", role: "family" },
   { actorId: "nurse_maria_alvarez_v1", role: "nurse" },
   { actorId: "patient_margaret_ellis_v1", role: "patient" },
 ] as const;
@@ -128,6 +133,22 @@ describe("an adult actor derives a body profile from its descriptor", () => {
       expect(authored, `${t.actorId}: derive it from the descriptor table, do not author a phenotype`)
         .toBe(0);
     }
+  });
+
+  it("(5) PINNED NEWER STATE: robert is authored (#650), so derive refuses him by construction", () => {
+    // ci-w4 adaptation counterweight: the #650-vs-#605 tension is resolved by recording
+    // BOTH facts. If robert's authored block is ever removed, this clause fails and the
+    // derive-target question reopens; if derive ever accepts authored actors, it fails too.
+    // (Sufficiency-gate clause (4) pins that his authored phenotype still BUILDS.)
+    const { actor } = locate("patient_robert_hayes_v1");
+    expect(
+      Object.keys(actor.phenotype ?? {}).length,
+      "robert must stay authored (#650 ed-chest-pain-mod.ts:137)",
+    ).toBeGreaterThan(0);
+    expect(
+      derived("patient_robert_hayes_v1"),
+      "derive must keep refusing authored actors",
+    ).toBeUndefined();
   });
 });
 

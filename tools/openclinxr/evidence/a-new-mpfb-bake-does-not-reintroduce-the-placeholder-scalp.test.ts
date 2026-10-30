@@ -118,8 +118,14 @@ const KNOWN_GOOD = [
   "mpfb-ob-patient-aisha",
   "mpfb-peds-parent-aisha",
 ];
-/** Below the smallest shipped fitted-hair mesh (kevin, 3460 t) with room to spare. */
-const MIN_HAIR_TRIS = 2000;
+/** Below the smallest shipped fitted-hair mesh with room to spare.
+ * RE-RECORDED (ci-w4): approved HB-05 fleet decimation f6b335392 shrank kevin 3460 -> 1037
+ * and the inspect sidecar ships 745 (measured 2026-10-30 with this file's own material-name
+ * instrument: nurse 2254, physician 2974, spouse 2260, gown 3155, robert-hayes 3154,
+ * ob-aisha/viseme 1989, kevin 1037, parent/child 4976, street 3460, inspect 745; scalp 0
+ * everywhere). The floor follows the derivation rule — below the smallest shipped mesh —
+ * so a hairless bake (0) or a shaved stub still fails clause (2). */
+const MIN_HAIR_TRIS = 500;
 
 type Asset = { id: string; scalpTris: number; hairTris: number };
 

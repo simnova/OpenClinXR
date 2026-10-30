@@ -280,12 +280,33 @@ describe("MPFB skin carries a tangent-space normal map without breaking the albe
     }
   });
 
-  it("(1) RED: every MPFB skin material carries a normalTexture above a byte floor", () => {
+  /**
+   * ADAPTED (ci-w4): the RED's premise — every MPFB skin carries relief — was deliberately
+   * reversed on four actors by factory-skin-publication proofs that unbound the normal
+   * texture: gown-patient 1814a43c1, family-partner fc57e5a9d, peds-child 281364d88,
+   * ob-patient 10768617f (all 2026-09/10). This clause pins the NEWER state per actor:
+   * carriers must still carry above the floor (a future silent unbind on a carrier still
+   * fails), and the four recorded normal-free actors are named so a rebake that touches
+   * maps without updating this record fails loudly. Measured with this file's own
+   * instrument (isSkinMaterial + largest normal image per skin material).
+   */
+  it("(1) RED: every MPFB skin material carries a normalTexture above a byte floor, except the four recorded deliberate unbinds", () => {
     requireRows();
+    const RECORDED_NORMAL_FREE = new Set([
+      "mpfb-gown-adult-patient.glb", // 1814a43c1
+      "mpfb-family-partner-adult.glb", // fc57e5a9d
+      "mpfb-peds-patient-child.glb", // 281364d88
+      "mpfb-ob-patient-aisha.glb", // 10768617f
+    ]);
     const missing = rows
-      .filter((r) => r.normalTextureSha === null || r.normalTextureBytes < MIN_NORMAL_TEXTURE_BYTES)
+      .filter((r) => !RECORDED_NORMAL_FREE.has(r.file)
+        && (r.normalTextureSha === null || r.normalTextureBytes < MIN_NORMAL_TEXTURE_BYTES))
       .map((r) => `${r.file}: skin=[${r.skinMaterials.join(",")}] normal=${r.normalTextureSha ?? "NONE"} bytes=${r.normalTextureBytes}`);
-    expect(missing, "actors whose skin has no baked normal map (flat colour relief, not geometry+bump)").toEqual([]);
+    expect(missing, "actors whose skin lost its baked normal map outside the four recorded unbinds").toEqual([]);
+    const unrecordedCarriers = rows
+      .filter((r) => RECORDED_NORMAL_FREE.has(r.file) && r.normalTextureBytes >= MIN_NORMAL_TEXTURE_BYTES)
+      .map((r) => `${r.file}: carries a normal map again — update the recorded state, do not silently rebind`);
+    expect(unrecordedCarriers, "recorded normal-free actors that silently regained a map").toEqual([]);
   });
 
   it("(2) COUNTERWEIGHT (a): no two actors share one normal map", () => {

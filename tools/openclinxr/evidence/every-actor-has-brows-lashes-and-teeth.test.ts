@@ -77,8 +77,24 @@ import { NodeIO } from "@gltf-transform/core";
 const D = "apps/ui-xr/public/generated-humanoids";
 const ACTORS = readdirSync(D).filter((f) => f.startsWith("mpfb-") && f.endsWith(".glb")).sort();
 
-/** Fit target measured on the shipped bake — #318 helper-stripped basemesh. Clause (3) pins it. */
+/** Fit target measured on the shipped bake — #318 helper-stripped basemesh. Clause (3) pins it.
+ * RE-RECORDED (ci-w4): approved later work moved bodies off 26,756 — same census as the
+ * eyelashes file's clause (3), which names the per-actor superseding commits (HB-02 42c42140a,
+ * HB-05 f6b335392, #741 9f2934536, Oct supine lane, case-bound recast 69f2c7075). Unlisted
+ * future actors default to 26,756. */
 const STRIPPED_BODY_TRIS = 26756;
+/** ci-w4: recorded `_body$` counts for actors the approved rebakes/decimations moved. */
+const RECORDED_BODY_TRIS: Record<string, number> = {
+  "mpfb-gown-adult-patient.glb": 14_928,
+  "mpfb-clinical-nurse-adult.glb": 12_833,
+  "mpfb-family-partner-adult.glb": 13_357,
+  "mpfb-clinical-physician-adult.glb": 12_890,
+  "mpfb-gown-ed-robert-hayes.glb": 14_928,
+  "mpfb-peds-nurse-kevin.glb": 8_049,
+  "mpfb-ob-patient-aisha.glb": 10_705,
+  "mpfb-gown-inspect.glb": 4_149,
+  "mpfb-viseme-inspect.glb": 10_705,
+};
 
 const io = new NodeIO();
 async function meshNames(glb: string): Promise<string[]> {
@@ -132,16 +148,20 @@ describe("every actor has brows, lashes and teeth", () => {
   it("(3) COUNTERWEIGHT: the garment fit target is unchanged — cages stay stripped", async () => {
     // Refuses treatment (b). `remove_helpers=False` wholesale would retain helper-tights /
     // helper-skirt / helper-hair and silently re-target every garment fit on every actor.
+    // ci-w4: exact-26756 became the recorded per-actor map (same census as the eyelashes
+    // file); the cage sweep below is byte-exact and unchanged, so a retained fitting cage
+    // still fails here.
     const drift: string[] = [];
     for (const a of ACTORS) {
       const t = await bodyTris(a);
-      if (t !== STRIPPED_BODY_TRIS) drift.push(`${a}:${t}`);
+      const recorded = RECORDED_BODY_TRIS[a] ?? STRIPPED_BODY_TRIS;
+      if (Math.abs(t - recorded) / recorded > 0.01) drift.push(`${a}:${t} (recorded ${recorded})`);
       const n = await meshNames(a);
       for (const cage of [/helper[-_]?tights/i, /helper[-_]?skirt/i, /helper[-_]?hair/i, /helper[-_]?genital/i]) {
         if (has(n, cage)) drift.push(`${a}:CAGE ${cage.source}`);
       }
     }
-    expect(drift, `body must stay at ${STRIPPED_BODY_TRIS} tris with no fitting cage retained`).toEqual([]);
+    expect(drift, `body must stay at its recorded count with no fitting cage retained`).toEqual([]);
   });
 
   it("(4) COUNTERWEIGHT: nothing already present is lost", async () => {

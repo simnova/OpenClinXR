@@ -111,6 +111,16 @@ import { describe, expect, it } from "vitest";
  * v2/v3 fixtures spread v1's actors array). `authored.length` is now 5. The three peds pins are
  * unchanged; robert must BUILD but carries no byte-identity pin (a newly covered actor has no
  * regression record to pin against yet).
+ *
+ * ## ADAPTED (ci-w4) — clause (4) corpus grew by one authored actor (#665)
+ *
+ * #665 (8cb552478, 2026-08-25 — AFTER the #650 pin) authors `senior_resident_ward_v1`'s
+ * phenotype (24 fields incl. body-shape drivers), so the authored corpus is 5 + the ward
+ * senior = 6 rows. Like robert, the senior must BUILD but carries no byte-identity pin:
+ * a newly covered actor has no regression record to pin against yet. The three peds
+ * byte-pins and both cosmetic-refusal counterweights are untouched, so a future
+ * regression of the NEWER state (a 7th authored row, a moved peds hash, a senior
+ * refusal) still fails.
  */
 
 // Tree-relative so the contract proof re-runs against the WORKTREE it runs in, not
@@ -186,6 +196,9 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
       // pin does not reproduce on the ORIGINAL generator in this environment either.
       expect(outcome.hash).toBe("d1cd6be66a2b0a59");
     },
+    // One full anny body build: the vitest 5 s default flaked under parallel suite load
+    // (hook full-gate run timed out at 8.7 s) — same cause as clause (4)'s 30 s comment.
+    30_000,
   );
 
   it(
@@ -194,8 +207,9 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
       const authored = authoredPhenotypes();
       // peds (3) + the ED patient robert, who appears in BOTH
       // ed_chest_pain_priority_v1 and _v2 export entries (the v2/v3 fixtures
-      // spread v1's actors array, so the #650 authored block lands in both).
-      expect(authored.length).toBe(5);
+      // spread v1's actors array, so the #650 authored block lands in both),
+      // + the ward senior_resident (#665 8cb552478 — adapted, see header).
+      expect(authored.length).toBe(6);
       // Measured 2026-08-11 after the #302 height-macro solve (see ## FIXED (#302)
       // above): the child (125 cm) was outside Anny's reachable height band and
       // refused loudly; the two reachable adults produce bodies whose hashes changed
@@ -212,6 +226,9 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
         // real authored case), but there is no byte-identity record to pin against
         // for a newly covered actor — the KNOWN-GOOD pins are the migrated peds three.
         ["patient_robert_hayes_v1", {}],
+        // #665 (ci-w4 adaptation): newly-authored ward senior. Same terms as
+        // robert — must BUILD (24 fields incl. body-shape drivers), no hash pin.
+        ["senior_resident_ward_v1", {}],
       ]);
       for (const { actorId, phenotype } of authored) {
         const expectation = expected.get(actorId);
@@ -230,7 +247,9 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
     // Three full anny body builds in one subprocess (the child now solves the height
     // macro instead of refusing): the vitest 5s default flaked under parallel suite
     // load in BOTH the #385 run and the baseline run (10.1s vs 9.7s observed).
-    30_000,
+    // ci-w4 (#665): the corpus is now SIX builds (ward senior added) — observed 33.4s,
+    // so the 30s budget no longer fits the deliberate corpus growth.
+    120_000,
   );
 
   it("(5) the empty phenotype keeps refusing — #291's gate must not regress", () => {
