@@ -66,7 +66,9 @@ PEDS_ASTHMA_PARENT_ANXIETY_PRESETS: Dict[str, Dict[str, Any]] = {
             "phenotype": {
                 "skin_tone": "warm_light_child",
                 "hair_color": "light_brown",
-                "eye_color": "hazel",
+                # #681 (6a503c0a1): the case resolved maya's unbuildable hazel to green
+                # (closest staged CC0 iris) and re-baked; the baseline follows the case.
+                "eye_color": "green",
                 "anny_topology": "default",
                 "gender_presentation": "child",
                 "height_cm": 125,

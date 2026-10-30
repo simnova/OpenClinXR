@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -77,9 +77,16 @@ const CASES = [
 const hardcodedPresetCount = (): number =>
   (readFileSync(ORCHESTRATE, "utf8").match(/"actor_id":\s*"/gu) ?? []).length;
 
+/** Case fixture sources: the entry plus its PSR-08 `-mod` implementation when the entry
+ * is a keep-only re-export (the case lives in `-mod`, e.g. `ed-chest-pain-mod.ts`). */
+const caseSources = (c: string): string[] =>
+  [`${FIXTURE_DIR}/${c}.ts`, `${FIXTURE_DIR}/${c}-mod.ts`].filter((f) => existsSync(f));
+
 /** Cases whose fixture authors at least one `phenotype:` block. */
 const casesAuthoringAPhenotype = (): string[] =>
-  CASES.filter((c) => /phenotype:\s*\{/u.test(readFileSync(`${FIXTURE_DIR}/${c}.ts`, "utf8")));
+  CASES.filter((c) =>
+    caseSources(c).some((f) => /phenotype:\s*\{/u.test(readFileSync(f, "utf8"))),
+  );
 
 describe("a case actor bakes without a python preset", () => {
   it("(1) more than one case authors the humans its own actors are baked from", () => {
