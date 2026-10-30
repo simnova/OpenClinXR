@@ -3,8 +3,8 @@
   "measuredAt": "2026-08-18T22:10:00.000Z",
   "loadTargets": {
     "symbol": "load_targets",
-    "file": ".openclinxr-local/provider-cache/mpfb/extracted/services/faceservice.py",
-    "line": 154,
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 6318,
     "requiredFlags": {
       "load_microsoft_visemes": false,
       "load_meta_visemes": true,
@@ -15,12 +15,12 @@
       "load_meta_visemes": false,
       "load_arkit_faceunits": false
     },
-    "resolutionNote": "The cited source is a gitignored machine-local provider cache (~77 MB extracted tree), now provisioned into worker worktrees via this brief's asset_paths. Line 154 verified: def load_targets(basemesh, load_microsoft_visemes=True, load_meta_visemes=False, load_arkit_faceunits=False). Byte-identical copy also at addons/mpfb/services/faceservice.py."
+    "resolutionNote": "REPOINTED 2026-10-30 (ci-w8): the #428 citation (.openclinxr-local/provider-cache/mpfb/extracted/services/faceservice.py:154) is machine-local gitignored and resolves nowhere in a clone — resolvesTo threw 'missing artifact'. The upstream source still carries the symbol at the same lines (verified in the operator main checkout: def load_targets at :154, def configure_lip_sync at :304), but it cannot be the committed citation. The tracked holder is the E6.3 wiring that MAKES the call: line 6318 is _FaceService.load_targets( with exactly the required flags on the following lines (6319-6323), installed first from the staged visemes02 pack. Previous resolutionNote preserved below. The faceservice.py:154 reference in code comments names the upstream definition, not the citation."
   },
   "configureLipSync": {
     "symbol": "configure_lip_sync",
-    "file": ".openclinxr-local/provider-cache/mpfb/extracted/services/faceservice.py",
-    "line": 304
+    "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "line": 6311
   },
   "listSizes": {
     "MICROSOFT_VISEMES": 22,

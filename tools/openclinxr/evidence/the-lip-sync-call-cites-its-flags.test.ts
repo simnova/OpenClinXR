@@ -103,7 +103,10 @@ describe("the lip-sync call is cited with the flags this machine requires", () =
   it("(1) RED: load_targets is cited with a file and a line", () => {
     const d = doc();
     expect(d.loadTargets?.symbol, "symbol").toBe("load_targets");
-    expect(d.loadTargets?.file, "file path").toMatch(/faceservice\.py$/);
+    // REPOINTED 2026-10-30 (ci-w8): the #428 faceservice.py citation was machine-local
+    // gitignored and resolved nowhere in a clone. The committed citation is now the tracked
+    // E6.3 wiring that makes the call with the required flags.
+    expect(d.loadTargets?.file, "file path").toMatch(/materialize_mpfb_humanoid_candidate\.py$/);
     expect(typeof d.loadTargets?.line, "line number").toBe("number");
     expect(d.configureLipSync?.symbol, "the lip-sync entry point must also be cited").toBe("configure_lip_sync");
   });
