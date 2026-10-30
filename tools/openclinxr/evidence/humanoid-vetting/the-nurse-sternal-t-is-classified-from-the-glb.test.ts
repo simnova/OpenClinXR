@@ -147,9 +147,13 @@ describe("the nurse sternal T is classified from the GLB", () => {
 
     for (const [path, key, bytes, sha] of [
       // RE-PINNED: deliberate churn 32e58c3ff + 91aa4b5d3 (walk bind) + 9f2934536 (teeth retreat).
-      [PEDS_GLB, "pedsKevin", 7894888, "0de69b66a569d457c11985895f76b24a4c0cc99adc530720ee0e4ecaa78a22de"],
+      // ci-w11b re-pinned 2026-10-30: ci-w11 D3 c743aab61 repaired midline breast keyframes
+      // (rests already +-0.085; size holds at 7894888); was 0de69b66….
+      [PEDS_GLB, "pedsKevin", 7894888, "540e8b317196f592a5a6ed1697864eb8af511f08df8191119e802eaf88798aa1"],
       // RE-PINNED: deliberate churn 8e7a1d0c2 (CC-BY scrub extras) + 91aa4b5d3 + 9f2934536.
-      [ADULT_GLB, "adult", 8775848, "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9"],
+      // ci-w11b re-pinned 2026-10-30: ci-w11 D3 d0e2104d3 repaired midline breast keyframes
+      // (rests already +-0.085; size holds at 8775848); was 4f0a8c1d….
+      [ADULT_GLB, "adult", 8775848, "3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb"],
     ] as const) {
       const glb = readGlb(path);
       expect(glb.bytes.length, `${key}: GLB length pinned`).toBe(bytes);

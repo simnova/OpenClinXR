@@ -46,7 +46,7 @@
   {
    "body": "mpfb-family-partner-adult.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 10529144,
+   "bytesAfter": 9277296,
    "bytesBefore": 10409540,
    "chosenRungId": "raw",
    "faceAfter": 14945,
@@ -77,12 +77,12 @@
     "bake-humanoid-albedo.ts bakeGlbAlbedo"
    ],
    "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
-   "remeasureNote": "Re-measured 2026-10-30: bytes + body-mesh drift, face/joints identical. Superseding commit fc57e5a9 (2026-10-11 family normalTexture surgical unbind, sidecars re-recorded)."
+   "remeasureNote": "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 20462724,
+   "bytesAfter": 6763692,
    "bytesBefore": 18576544,
    "chosenRungId": "raw",
    "faceAfter": 14357,
@@ -100,7 +100,7 @@
    "promotionNote": "no rewrite: the live file already is the densest in-budget rung (40277 <= 80000 preferred)",
    "triangleCountAfter": 40277,
    "triangleCountBefore": 64140,
-   "remeasureNote": "Re-measured 2026-10-30: Oct8 supine rebake re-based the body (tris 64140->42693 at d10314025, ->40277 at 4aaf5ba16; bytes final at 1814a43c 2026-10-10). Face 14357 and 138 joints unchanged throughout; ratio-1 floor and joint invariant hold on the re-measured source."
+   "remeasureNote": "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 40277 / face 14357 / hand 14928 / joints 138 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune incl. a dead T-shirt material, 20462724 -> 6763692 B). Prior re-measure (d10314025/4aaf5ba16 supine rebake, 1814a43c1 byte-lineage) preserved in git history."
   },
   {
    "body": "mpfb-gown-inspect.glb",
@@ -137,7 +137,7 @@
   {
    "body": "mpfb-ob-patient-aisha.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 10069416,
+   "bytesAfter": 8828240,
    "bytesBefore": 17002120,
    "chosenRungId": "fp-r0.4",
    "faceAfter": 52778,
@@ -152,9 +152,9 @@
    "jointCountExpected": 137,
    "promoted": true,
    "promotionNote": "2026-09-12 fp-r0.4 restore after female covering lower. Fit-time jeans 4216 (2108 x 2). Shipped jeans 1986. budgets.propShare 40000 unchanged.",
-   "triangleCountAfter": 69093,
+   "triangleCountAfter": 69067,
    "triangleCountBefore": 92430,
-   "remeasureNote": "Re-measured 2026-10-30: bytes drift, geometry identical. Superseding commit 10768617 (2026-10-10 aisha normal-off proof, sidecar re-recorded)."
+   "remeasureNote": "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical at the decimation grain (tris 69067 / face 52778 / joints 137 all hold; the gravid displacement field moves verts within the same topology). Superseding commits d1c44f8cd (ci-w11 D1 orphan prune, 10069400 -> 8828240 B) and 21fad089f (ci-w12 D1 gravid re-apply on the pruned base, 1104 displacements, anchors verified +-0.085). Prior re-measure (10768617 normal-off proof) preserved in git history."
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -190,7 +190,7 @@
   {
    "body": "mpfb-peds-parent-aisha.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 40911888,
+   "bytesAfter": 18441636,
    "bytesBefore": 17181156,
    "chosenRungId": "fp-r0.4",
    "faceAfter": 33360,
@@ -209,12 +209,12 @@
    "triangleCountBefore": 92430,
    "noSurvivingRungReason": "The Sep11 fp-r0.4 rung output did not survive the Sep30 mouth rebuild afe8abced (fitted CC0 teeth 192->7120 tris, coverage-reduced brow 35334->8988 per the #597 strand budget, mesh renaming) plus the Oct mouth program; Oct24 lineage ba3e8229e and Oct25 albedo ceabb545e kept the rebuilt geometry (face 33360 / tris 73012 / joints 137 stable since Sep30). Face-retention ratio 1 and the 137-joint invariant now floor this re-measured source; historical pre-rebuild face 52778 preserved in previousFaceBefore.",
    "previousFaceBefore": 52778,
-   "remeasureNote": "Re-measured 2026-10-30: deliberate mouth-program rebuild, NOT a silent loss. Joints 137 throughout; teeth gained triangles. Superseding geometry commit afe8abced (2026-09-30), bytes commit ceabb545e (2026-10-25)."
+   "remeasureNote": "Re-measured 2026-10-30 (ci-w11b): bytes-only drift on the rebuilt source (tris 73012 / face 33360 / joints 137 stable since Sep30). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 19888836 -> 18441636 B). Prior re-measure (deliberate mouth-program rebuild afe8abced / ceabb545e) preserved in git history."
   },
   {
    "body": "mpfb-peds-patient-child.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 11743252,
+   "bytesAfter": 10418728,
    "bytesBefore": 11348244,
    "chosenRungId": "raw",
    "faceAfter": 39260,
@@ -231,7 +231,8 @@
    "promotionNote": "no rewrite: the live file already is the densest in-budget rung (77324 <= 80000 preferred) | Re-recorded bytesAfter 11362836->11743252 after deliberate byte churn 91aa4b5d3 (walk bind) + 7d71273e3 (clip travel) + 9f2934536 (teeth retreat) — geometry untouched, triangles unchanged.",
    "triangleCountAfter": 77422,
    "triangleCountBefore": 77324,
-   "hb07Note": "HB-07 attempt 5: triangleCountAfter 77422 -> 77422; bytesAfter 11362908 -> 11362836."
+   "hb07Note": "HB-07 attempt 5: triangleCountAfter 77422 -> 77422; bytesAfter 11362908 -> 11362836.",
+   "remeasureNote": "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 77422 / face 39260 / hand 26756 / joints 137 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 11743252 -> 10418728 B). Prior re-measures (walk bind 91aa4b5d3, travel 7d71273e3, teeth 9f2934536) preserved in git history."
   },
   {
    "body": "mpfb-viseme-inspect.glb",
