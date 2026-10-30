@@ -534,7 +534,7 @@ def main(argv: list[str]) -> int:
             # ROOT-MOTION FIX 2026-10-09: PoseBone.location is expressed in the bone's
             # own rest frame, not armature space -- the achieved armature-space offset
             # is R_rest @ location (measured: map equals rest rotation to 6e-7 on all
-            # three rigs, .openclinxr/evidence/rootmotion-bind/pre-fix.json). Assigning
+            # three rigs; full numbers were in the scratch pre-fix capture, gitignored,
             # the armature-space delta directly leaked forward travel into the other
             # axes in proportion to distance walked (sin of the rest tilt from the
             # 180-degree flip: nurse 0.27 / physician 8.79 / child 16.43 deg predicted

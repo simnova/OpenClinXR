@@ -3,7 +3,8 @@
  * switch + inertialized foot lock + two-bone IK (C) on the SAME walk-to-stop switch frame.
  *
  * Drives the shipped walk loop (`openclinxr_retarget_walk_source` from the shipped rig GLB)
- * into the S1 stop take (scratch GLB copied to `.openclinxr/evidence/inertialize/`) using FK
+ * into the S1 stop take (a machine-local scratch copy; the originals never landed in HEAD,
+ * so stopGlb below names a loud placeholder until a scratch take is supplied — ci-w8) using FK
  * over the GLB tracks (`bound-clip-foot-track.ts` pattern: gltf-transform sampling plus
  * quaternion composition, no renderer), at 60 Hz, switching at the runtime assay's
  * `stopEntryTimeS` phase. Contact labels come from the takes' own motion via a local port of
@@ -23,6 +24,7 @@
  */
 
 import { mkdir, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import type { Node as GltfNode } from "@gltf-transform/core";
 import { NodeIO } from "@gltf-transform/core";
@@ -67,21 +69,21 @@ const RIGS: Rig[] = [
   {
     rig: "physician",
     shippedGlb: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-    stopGlb: ".openclinxr/evidence/inertialize/physician-stop.glb",
+    stopGlb: "SCRATCH-MISSING: copy the physician stop-take GLB here (originals never in HEAD; ci-w8)",
     stopClipPrefix: "openclinxr_retarget_kimodo_stop_physician_seed8",
     entryTimeS: 1.6632475163873461,
   },
   {
     rig: "nurse",
     shippedGlb: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-    stopGlb: ".openclinxr/evidence/inertialize/nurse-stop.glb",
+    stopGlb: "SCRATCH-MISSING: copy the nurse stop-take GLB here (originals never in HEAD; ci-w8)",
     stopClipPrefix: "openclinxr_retarget_kimodo_stop_nurse_seed3",
     entryTimeS: 1.938707833356825,
   },
   {
     rig: "child",
     shippedGlb: "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
-    stopGlb: ".openclinxr/evidence/inertialize/child-stop.glb",
+    stopGlb: "SCRATCH-MISSING: copy the child stop-take GLB here (originals never in HEAD; ci-w8)",
     stopClipPrefix: "openclinxr_retarget_kimodo_stop_child_seed6",
     entryTimeS: 1.424000793741748,
   },
@@ -760,9 +762,11 @@ async function main(): Promise<void> {
     const i = args.indexOf(flag);
     return i >= 0 ? (args[i + 1] ?? fallback) : fallback;
   };
+  // Default report path is job-local: the evidence-path default once cited here names a
+  // machine-local capture output, gitignored, never in HEAD (ci-w8). Pass --out explicitly.
   const outPath = flagValue(
     "--out",
-    ".openclinxr/evidence/inertialize/report.json",
+    path.join(tmpdir(), "openclinxr-inertialize", "report.json"),
   );
   const perRig: Record<string, Record<string, TreatmentMetrics>> = {};
   const metas: Record<string, Record<string, unknown>> = {};

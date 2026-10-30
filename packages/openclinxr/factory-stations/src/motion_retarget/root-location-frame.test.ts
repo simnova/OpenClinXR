@@ -10,8 +10,8 @@ import { describe, expect, it } from "vitest";
  * leaked forward travel into the vertical axis by sin(tilt) * travel, where
  * tilt is the hips rest rotation's deviation from the 180-degree flip:
  * nurse 0.27 deg (no visible drop), physician 8.79 deg (0.42 m drop on 2.51 m
- * travel), child 16.43 deg (0.67 m drop on 2.15 m travel). Full numbers in
- * `.openclinxr/evidence/rootmotion-bind/pre-fix.json` (scratch, gitignored).
+ * travel), child 16.43 deg (0.67 m drop on 2.15 m travel). Full numbers were in the
+ * scratch pre-fix capture (machine-local, gitignored, never landed in HEAD — ci-w8).
  *
  * This test pins the conversion contract with the measured child rest matrix:
  * the naive assignment leaks ~0.61 m into Z on a 2.15 m travel delta (the

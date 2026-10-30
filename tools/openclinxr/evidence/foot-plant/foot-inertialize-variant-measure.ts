@@ -41,9 +41,11 @@ const CONTACT_JOINTS = ["toe1-1.L", "toe1-1.R"] as const;
 const SIM_SECONDS = 12;
 
 const RIGS = [
-  { rig: "physician", glb: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb", stopGlb: ".openclinxr/evidence/s1-stop/physician-stop.glb" },
-  { rig: "nurse", glb: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb", stopGlb: ".openclinxr/evidence/s1-stop/nurse-stop.glb" },
-  { rig: "child", glb: "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb", stopGlb: ".openclinxr/evidence/s1-stop/child-stop.glb" },
+  // stopGlb takes were machine-local scratch copies, gitignored, never in HEAD (ci-w8):
+  // loud placeholders until real takes are supplied; the assay decodes walk+stop from them.
+  { rig: "physician", glb: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb", stopGlb: "SCRATCH-MISSING: copy the physician S1 stop-take GLB here (originals never in HEAD; ci-w8)" },
+  { rig: "nurse", glb: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb", stopGlb: "SCRATCH-MISSING: copy the nurse S1 stop-take GLB here (originals never in HEAD; ci-w8)" },
+  { rig: "child", glb: "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb", stopGlb: "SCRATCH-MISSING: copy the child S1 stop-take GLB here (originals never in HEAD; ci-w8)" },
 ] as const;
 
 async function lowestSkinnedVertexY(glbPath: string): Promise<number> {

@@ -28,7 +28,11 @@ Usage:
     --prompt "A person walks forward, slows down and stops, standing still with both feet planted." \\
     --seed 42 \\
     --constraint-spec '{"walkSpeedMps": 1.03, "walkSeconds": 2.0, "decelSeconds": 1.2, "holdSeconds": 1.2, "headingRadians": 0.0}' \\
-    --output .openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop.glb \\
+    --output "$JOB_TMP/physician-seed42.glb" \\
+    (a historical run wrote its take under the evidence root; originals are machine-local,
+    gitignored, never in HEAD — the immutable address is
+    store:3134786118fbcbc2645e9a5950c3d26371c9d6b9dbe9ae4376d39bc895a6c3e0/mpfb-clinical-physician-adult-stop.glb
+    per historical-glb-migration-20261029; future runs must use job-owned paths) \\
     --clip-name openclinxr_retarget_kimodo_stop_physician_seed42 \\
     --report .openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop.provenance.json
 """

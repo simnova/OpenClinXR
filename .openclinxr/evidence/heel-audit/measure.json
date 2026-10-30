@@ -677,7 +677,7 @@
     "2.0": {
       "runs": [
         {
-          "tag": "2.0:.openclinxr/evidence/foot-base-routes/2.0:sc05-run0",
+          "tag": "2.0:sc05-run0",
           "sourceFile": "sc05-run0.json",
           "nFrames": 227,
           "floorM": {
@@ -813,7 +813,7 @@
           "walkingStances": 0
         },
         {
-          "tag": "2.0:.openclinxr/evidence/foot-base-routes/2.0:sc05-run1",
+          "tag": "2.0:sc05-run1",
           "sourceFile": "sc05-run1.json",
           "nFrames": 227,
           "floorM": {
@@ -926,7 +926,7 @@
           "walkingStances": 0
         },
         {
-          "tag": "2.0:.openclinxr/evidence/foot-base-routes/2.0:sc05-run2",
+          "tag": "2.0:sc05-run2",
           "sourceFile": "sc05-run2.json",
           "nFrames": 228,
           "floorM": {
@@ -1045,7 +1045,7 @@
     "3.7": {
       "runs": [
         {
-          "tag": "3.7:.openclinxr/evidence/foot-base-routes/3.7:sc05-run0",
+          "tag": "3.7:sc05-run0",
           "sourceFile": "sc05-run0.json",
           "nFrames": 275,
           "floorM": {
@@ -1206,7 +1206,7 @@
           "walkingStances": 0
         },
         {
-          "tag": "3.7:.openclinxr/evidence/foot-base-routes/3.7:sc05-run1",
+          "tag": "3.7:sc05-run1",
           "sourceFile": "sc05-run1.json",
           "nFrames": 275,
           "floorM": {
@@ -1367,7 +1367,7 @@
           "walkingStances": 0
         },
         {
-          "tag": "3.7:.openclinxr/evidence/foot-base-routes/3.7:sc05-run2",
+          "tag": "3.7:sc05-run2",
           "sourceFile": "sc05-run2.json",
           "nFrames": 274,
           "floorM": {
@@ -1534,7 +1534,7 @@
     "6.0": {
       "runs": [
         {
-          "tag": "6.0:.openclinxr/evidence/foot-base-routes/6.0:sc05-run0",
+          "tag": "6.0:sc05-run0",
           "sourceFile": "sc05-run0.json",
           "nFrames": 338,
           "floorM": {
@@ -1696,7 +1696,7 @@
           "walkingStances": 0
         },
         {
-          "tag": "6.0:.openclinxr/evidence/foot-base-routes/6.0:sc05-run1",
+          "tag": "6.0:sc05-run1",
           "sourceFile": "sc05-run1.json",
           "nFrames": 338,
           "floorM": {
@@ -1835,7 +1835,7 @@
           "walkingStances": 0
         },
         {
-          "tag": "6.0:.openclinxr/evidence/foot-base-routes/6.0:sc05-run2",
+          "tag": "6.0:sc05-run2",
           "sourceFile": "sc05-run2.json",
           "nFrames": 338,
           "floorM": {
