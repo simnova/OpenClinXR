@@ -36,6 +36,7 @@ import {
   consumeRotateTokenForJoin,
   driveRoomRotation,
   recordStationPose,
+  stationNonceCounts,
   type StationBinding,
 } from "./station-rotation.js";
 
@@ -96,7 +97,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   /** C6 host-clock ms per entered phase (Date.now at phase enter). Probe only, never in the trace. */
   private phaseChangedAtMs = new Map<string, number>();
   /** C7 per-server station binding (stations + single-use nonces), shared by reference. */
-  protected stationBinding: StationBinding = { stations: null, creationNonces: new Map(), joinNonces: new Set(), appliedPoseByStation: new Map() };
+  protected stationBinding: StationBinding = { stations: null, creationNonces: new Map(), joinNonces: new Set(), appliedPoseByStation: new Map(), rotationFaults: { failNext: 0, bogusRotate: false } };
   /** C7 rotation guard: closed fires once per room; this is the backstop. */
   private rotationStarted = false;
 
@@ -108,6 +109,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       turns: this.turnLog.map((entry) => ({ ...entry })),
       turnOpenedAtMs: Object.fromEntries(this.turnOpenedAtMs) as Record<number, number>,
       phaseChangedAtMs: Object.fromEntries(this.phaseChangedAtMs) as Record<string, number>,
+      stationNonces: stationNonceCounts(this.stationBinding),
     };
   }
 
@@ -284,13 +286,10 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         actorIds: [...this.state.actors.keys()],
         closedAt: this.phaseChangedAtMs.get("closed"),
         binding: this.stationBinding,
-        onRotationFailed: () => {
-          this.tracer.push({ seq: null, kind: "rotation-failed", actorId: "", turnId: null });
-        },
+        onRotationFailed: () =>
+          this.tracer.push({ seq: null, kind: "rotation-failed", actorId: "", turnId: null }),
         rotationStarted: this.rotationStarted,
-        setRotationStarted: (value) => {
-          this.rotationStarted = value;
-        },
+        setRotationStarted: (value) => { this.rotationStarted = value; },
       },
       ENCOUNTER_ROOM_NAME,
     );

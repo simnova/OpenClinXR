@@ -35,6 +35,8 @@
     "src/xr-sync-c6-server-config.test.ts",
     "src/xr-sync-c7-station-isolation.test.ts",
     "src/xr-sync-c7-station-rotation.test.ts",
+    "src/xr-sync-c8-observer-rotation.test.ts",
+    "src/xr-sync-c8-rotation-hardening.test.ts",
     "src/xr-sync-server.test.ts"
   ],
   "commands": {

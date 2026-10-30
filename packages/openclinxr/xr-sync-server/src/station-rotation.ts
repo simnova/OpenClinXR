@@ -153,6 +153,14 @@ export function consumeRotateTokenForJoin(
   return true;
 }
 
+/** C8 test seam (server-config only, never client-settable): force the next N
+ * seat reservations to fail (exercises retry + rotation-failed), and/or send
+ * a bogus rotate payload (exercises the client consume-fail path). */
+export interface RotationFaults {
+  failNext: number;
+  bogusRotate: boolean;
+}
+
 /** Per-server station binding shared by reference across a server's rooms. */
 export interface StationBinding {
   stations: string[] | null;
@@ -160,6 +168,8 @@ export interface StationBinding {
   joinNonces: Set<string>;
   /** C8 exact per-station applied pose counts (survives room dispose; drives F3). */
   appliedPoseByStation: Map<string, number>;
+  /** C8 rotation fault seam (server-config only; product path leaves it off). */
+  rotationFaults: RotationFaults;
 }
 
 /** C8: record one applied pose for the station (exact F3 cross-check source). */
@@ -295,22 +305,40 @@ export async function driveStationRotation(step: RotationStep): Promise<boolean>
     next?.phaseChangedAtMs.set("prev-station-closed", step.closedAt);
   }
   const failedStationId = stations[nextIndex] as string;
+  const faults = step.binding.rotationFaults;
   const participants: RotationLearner[] = [...step.learners, ...(step.observers ?? [])];
   for (const participant of participants) {
     const role = participant.role ?? "learner";
     const reserveOptions = (nonce: string): Record<string, unknown> =>
       role === "observer" ? { [STATION_ROTATE_KEY]: nonce, role: "observer" } : { [STATION_ROTATE_KEY]: nonce };
+    const tryReserve = async (room: typeof nextCache, options: Record<string, unknown>): Promise<unknown> => {
+      if (faults.failNext > 0) {
+        faults.failNext -= 1;
+        throw new Error("rotation-fault");
+      }
+      return mm.reserveSeatFor(room, options);
+    };
+    if (faults.bogusRotate) {
+      // C8 fault seam: a bogus rotate payload exercises the client
+      // consume-fail path. No nonce is issued, so D4 counts stay clean.
+      try {
+        participant.send("rotate", { bogus: true });
+      } catch {
+        // Best-effort; the client surfaces the failure itself.
+      }
+      continue;
+    }
     let joinNonce = randomUUID();
     step.binding.joinNonces.add(joinNonce);
     let reservation: unknown = null;
     try {
-      reservation = await mm.reserveSeatFor(nextCache, reserveOptions(joinNonce));
+      reservation = await tryReserve(nextCache, reserveOptions(joinNonce));
     } catch {
       step.binding.joinNonces.delete(joinNonce);
       joinNonce = randomUUID();
       step.binding.joinNonces.add(joinNonce);
       try {
-        reservation = await mm.reserveSeatFor(nextCache, reserveOptions(joinNonce));
+        reservation = await tryReserve(nextCache, reserveOptions(joinNonce));
       } catch {
         step.binding.joinNonces.delete(joinNonce);
         try {
@@ -340,6 +368,11 @@ export async function driveStationRotation(step: RotationStep): Promise<boolean>
     }
   }
   return true;
+}
+
+/** C8 unused station nonce counts for probe stats (binding-shared, probe only). */
+export function stationNonceCounts(binding: StationBinding): { creation: number; join: number } {
+  return { creation: binding.creationNonces.size, join: binding.joinNonces.size };
 }
 
 /**

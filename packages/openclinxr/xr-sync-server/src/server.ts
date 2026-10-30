@@ -28,6 +28,13 @@ export interface EncounterServerOptions {
    * rotation, stationId "", stationIndex 0, stationCount 0).
    */
   stations?: string[];
+  /**
+   * C8 rotation fault seam (server config only, never client-settable; the
+   * product path leaves it unset). Forces the next N seat reservations to
+   * fail (exercises retry + rotation-failed) and/or sends a bogus rotate
+   * payload (exercises the client consume-fail path). Test-only.
+   */
+  rotationFaults?: { failNextReservations?: number; sendBogusRotate?: boolean };
 }
 
 /** Handle to a running encounter server with its bound address. */
@@ -59,7 +66,16 @@ export async function createEncounterServer(
   // /.stationId/.stationIndex are ignored, and no module cell leaks one
   // server's config into another room or server. Rotation nonces are
   // per-server single-use sets shared by reference across this server's rooms.
-  const binding: StationBinding = { stations, creationNonces: new Map(), joinNonces: new Set(), appliedPoseByStation: new Map() };
+  const binding: StationBinding = {
+    stations,
+    creationNonces: new Map(),
+    joinNonces: new Set(),
+    appliedPoseByStation: new Map(),
+    rotationFaults: {
+      failNext: options.rotationFaults?.failNextReservations ?? 0,
+      bogusRotate: options.rotationFaults?.sendBogusRotate ?? false,
+    },
+  };
   class ConfiguredEncounterRoom extends EncounterRoom {
     protected override stationTiming = timing;
     protected override stationTraceDir = traceDir;

@@ -34,6 +34,8 @@ export interface RoomProbeStats {
   turnOpenedAtMs: Record<number, number>;
   /** C6 host-clock ms per entered phase (Date.now at phase enter). Probe only, never in the trace. */
   phaseChangedAtMs: Record<string, number>;
+  /** C8 unused station nonce counts from the shared server binding (probe only, never in the trace). */
+  stationNonces?: { creation: number; join: number };
 }
 
 /** Options accepted at room creation (forwarded from joinOrCreate). */

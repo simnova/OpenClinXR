@@ -1,26 +1,28 @@
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { connect, type SyncConnection } from "@openclinxr/xr-sync-client";
 import { afterEach, describe, expect, it } from "vitest";
 import { createEncounterServer, type EncounterServer } from "./index.js";
-import { getLatestRoom } from "./room.js";
-import {
-  clearStationNoncesOnDispose,
-  driveStationRotation,
-  type RotationMatchMaker,
-  type StationBinding,
-} from "./station-rotation.js";
 
-// C8 hardening (authored by the C8 worker, 2026-10-30): D2/D3/D4.
-//   D2: reservation failure retries once, then the client gets "rotation-failed"
-//     {stationId} and the trace records kind "rotation-failed" (no identity);
-//     the client surfaces it via onRotationFailed / rotationFailed.
-//   D3: an intent from a session that is neither learner nor observer of the
-//     room rejects "not-joined" (never a silent drop).
-//   D4: unused nonces are cleared on failure/expiry/dispose (no leak).
+// C8 hardening via the PUBLIC entrypoint only (2026-10-30 round 03): D2/D4.
+//   D2: a faulted reservation retries once, then the client gets
+//     "rotation-failed" {stationId}; the trace records kind "rotation-failed"
+//     (no identity); the client surfaces it via onRotationFailed /
+//     rotationFailed. A single fault still rotates with no failure signal.
+//   D4: unused nonces never leak: failure and success paths both settle at
+//     stationNonces {creation: 0, join: 0} (probe-visible via getProbeStats).
+//   Client consume-fail (bogus rotate payload) surfaces through the same
+//     typed rotation-failed channel.
+// NOTE (round 03): the D3 "not-joined" live test was dropped: reaching it
+// needs a connected session with no learner/observer entry, which the public
+// entrypoint cannot produce deterministically (every joined session is a
+// learner or observer; the branch is a defensive race guard). The behaviour
+// is kept (observer.rejectNotJoined + room.ts gate); see RESULT NOT_TESTED.
 
 const TIMING = { doorwaySeconds: 1, encounterSeconds: 1, noteSeconds: 1 };
+const STATIONS = ["station-1", "station-2"];
+const SESSION_TIMEOUT_MS = 15000;
 
 const servers: EncounterServer[] = [];
 const leavers: Array<() => Promise<unknown>> = [];
@@ -42,146 +44,167 @@ afterEach(async () => {
   }
 });
 
-function testBinding(stations: string[] = ["station-1", "station-2"]): StationBinding {
-  return { stations, creationNonces: new Map(), joinNonces: new Set(), appliedPoseByStation: new Map() };
+async function waitFor(condition: () => boolean, timeoutMs: number, label: string): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    if (condition()) {
+      return;
+    }
+    if (Date.now() > deadline) {
+      throw new Error(`timed out waiting for ${label}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
 }
 
-function fakeMatchMaker(overrides: {
-  createRoom?: (roomName: string, options: Record<string, unknown>) => Promise<{ roomId: string }>;
-  reserveSeatFor?: (room: { roomId: string }, options: Record<string, unknown>) => Promise<unknown>;
-}): RotationMatchMaker {
-  return {
-    createRoom: (overrides.createRoom ?? (async () => ({ roomId: "fake-room" }))) as RotationMatchMaker["createRoom"],
-    reserveSeatFor: (overrides.reserveSeatFor ?? (async () => ({ sessionId: "r1" }))) as RotationMatchMaker["reserveSeatFor"],
-    getLocalRoomById: (() => undefined) as RotationMatchMaker["getLocalRoomById"],
-  };
+function serverState(server: EncounterServer): { stationId?: string; phase?: string } {
+  return JSON.parse(server.getStateJSON()) as { stationId?: string; phase?: string };
 }
 
-describe("xr-sync-server C8 rotation hardening D2/D3/D4", () => {
-  it("D2: a twice-failed reservation sends rotation-failed and traces it without identity", async () => {
-    const binding = testBinding();
-    const deps = fakeMatchMaker({
-      reserveSeatFor: async () => {
-        throw new Error("full");
-      },
-    });
-    const sent: Array<{ type: string; message: unknown }> = [];
-    const failed: string[] = [];
-    const rotated = await driveStationRotation({
-      roomName: "encounter",
-      stations: ["station-1", "station-2"],
-      stationIndex: 0,
-      learners: [
-        {
-          sessionId: "s1",
-          send: (type: string, message: unknown): void => {
-            sent.push({ type, message });
-          },
-        },
-      ],
-      actorIds: ["a1"],
-      closedAt: undefined,
-      binding,
-      stationId: "station-1",
-      onRotationFailed: (stationId: string): void => {
-        failed.push(stationId);
-      },
-      deps,
-    });
-    expect(rotated).toBe(true);
-    expect(sent.filter((entry) => entry.type === "rotate")).toHaveLength(0);
-    expect(sent.filter((entry) => entry.type === "rotation-failed")).toHaveLength(1);
-    expect((sent.find((entry) => entry.type === "rotation-failed")?.message as { stationId?: unknown }).stationId).toBe(
-      "station-2",
-    );
-    expect(failed).toEqual(["station-2"]);
-    expect(binding.joinNonces.size).toBe(0);
-  }, 20000);
-
-  it("D2: one failure then success still rotates with no failure signal", async () => {
-    const binding = testBinding();
-    let calls = 0;
-    const deps = fakeMatchMaker({
-      reserveSeatFor: async () => {
-        calls += 1;
-        if (calls === 1) {
-          throw new Error("full");
-        }
-        return { sessionId: "r1" };
-      },
-    });
-    const sent: Array<{ type: string; message: unknown }> = [];
-    const failed: string[] = [];
-    const rotated = await driveStationRotation({
-      roomName: "encounter",
-      stations: ["station-1", "station-2"],
-      stationIndex: 0,
-      learners: [
-        {
-          sessionId: "s1",
-          send: (type: string, message: unknown): void => {
-            sent.push({ type, message });
-          },
-        },
-      ],
-      actorIds: ["a1"],
-      closedAt: undefined,
-      binding,
-      stationId: "station-1",
-      onRotationFailed: (stationId: string): void => {
-        failed.push(stationId);
-      },
-      deps,
-    });
-    expect(rotated).toBe(true);
-    expect(calls).toBe(2);
-    expect(sent.filter((entry) => entry.type === "rotate")).toHaveLength(1);
-    expect(sent.filter((entry) => entry.type === "rotation-failed")).toHaveLength(0);
-    expect(failed).toEqual([]);
-  }, 20000);
-
-  it("D4: a failed createRoom does not leak its creation nonce", async () => {
-    const binding = testBinding();
-    const deps = fakeMatchMaker({
-      createRoom: async () => {
-        throw new Error("no-room");
-      },
-    });
-    await expect(
-      driveStationRotation({
-        roomName: "encounter",
-        stations: ["station-1", "station-2"],
-        stationIndex: 0,
-        learners: [{ sessionId: "s1", send: (): void => {} }],
-        actorIds: ["a1"],
-        closedAt: undefined,
-        binding,
-        stationId: "station-1",
-        deps,
-      }),
-    ).rejects.toThrow("rotation-failed");
-    expect(binding.creationNonces.size).toBe(0);
-  }, 20000);
-
-  it("D4: dispose clearing empties every unused nonce", () => {
-    const binding = testBinding();
-    binding.creationNonces.set("create-leak", 1);
-    binding.joinNonces.add("join-leak");
-    clearStationNoncesOnDispose(binding);
-    expect(binding.creationNonces.size).toBe(0);
-    expect(binding.joinNonces.size).toBe(0);
+function trackStations(connection: SyncConnection): string[] {
+  const seen: string[] = [];
+  connection.onState((snapshot) => {
+    const id = (snapshot as unknown as { stationId?: unknown }).stationId;
+    if (typeof id === "string" && id !== "" && seen.at(-1) !== id) {
+      seen.push(id);
+    }
   });
+  return seen;
+}
 
-  it("D3: an intent from an unknown session rejects not-joined (never a silent drop)", async () => {
-    const traceDir = mkdtempSync(join(tmpdir(), "xr-sync-c8-d3-"));
-    const server = await createEncounterServer({ traceDir, timing: { ...TIMING } });
+function traceFiles(dir: string): Array<{ stationId?: string; raw: string; events: Array<{ kind: string }> }> {
+  return readdirSync(dir)
+    .filter((f) => f.endsWith(".conversation-trace.json"))
+    .map((f) => {
+      const raw = readFileSync(join(dir, f), "utf8");
+      const parsed = JSON.parse(raw) as { stationId?: string; events: Array<{ kind: string }> };
+      return { stationId: parsed.stationId, raw, events: parsed.events };
+    });
+}
+
+describe("xr-sync-server C8 rotation hardening D2/D4 (public entrypoint)", () => {
+  it("D2: one faulted reservation still rotates with no failure signal", async () => {
+    const traceDir = mkdtempSync(join(tmpdir(), "xr-sync-c8-d2r-"));
+    const server = await createEncounterServer({
+      traceDir,
+      timing: { ...TIMING },
+      stations: [...STATIONS],
+      rotationFaults: { failNextReservations: 1 },
+    });
     servers.push(server);
-    const learner: SyncConnection = await connect(server.url, { roomOptions: { actors: ["a1", "a2"] } });
+    const learner = await connect(server.url, { roomOptions: { actors: ["a1", "a2"] } });
     leavers.push(() => learner.leave());
-    const room = getLatestRoom();
-    expect(room).toBeDefined();
-    room?.state.learners.delete(learner.sessionId);
-    const result = await learner.sendIntent("pose", { x: 0, y: 1.6, z: 0 });
-    expect(result).toMatchObject({ status: "reject", reason: "not-joined" });
-  }, 20000);
+    const stations = trackStations(learner);
+    let failed: Array<{ stationId: string }> = [];
+    const unsub = learner.onRotationFailed((info) => {
+      failed = [...failed, info];
+    });
+    try {
+      await waitFor(() => serverState(server).stationId === "station-2", SESSION_TIMEOUT_MS, "station-2");
+      await waitFor(() => stations.at(-1) === "station-2", 5000, "learner sees station-2");
+      expect(learner.rotationFailed).toBeNull();
+      expect(failed).toEqual([]);
+    } finally {
+      unsub();
+    }
+    await waitFor(() => serverState(server).phase === "closed", SESSION_TIMEOUT_MS, "station-2 closed");
+    await server.close();
+    servers.pop();
+    leavers.length = 0;
+    const byStation = new Map(traceFiles(traceDir).map((t) => [t.stationId, t]));
+    expect(byStation.get("station-1")?.events.some((e) => e.kind === "rotation-failed")).toBe(false);
+  }, 40000);
+
+  it("D2: repeated faults send rotation-failed and trace it without identity", async () => {
+    const traceDir = mkdtempSync(join(tmpdir(), "xr-sync-c8-d2f-"));
+    const server = await createEncounterServer({
+      traceDir,
+      timing: { ...TIMING },
+      stations: [...STATIONS],
+      rotationFaults: { failNextReservations: 10 },
+    });
+    servers.push(server);
+    const learner = await connect(server.url, { roomOptions: { actors: ["a1", "a2"] } });
+    leavers.push(() => learner.leave());
+    const stations = trackStations(learner);
+    const seen: Array<{ stationId: string }> = [];
+    learner.onRotationFailed((info) => {
+      seen.push(info);
+    });
+    await waitFor(() => learner.rotationFailed !== null, SESSION_TIMEOUT_MS, "rotation-failed surfaced");
+    expect(learner.rotationFailed).toMatchObject({ stationId: "station-2" });
+    expect(seen).toEqual([{ stationId: "station-2" }]);
+    expect(stations).toEqual(["station-1"]);
+    await waitFor(
+      () => {
+        const nonces = server.getProbeStats().stationNonces;
+        return nonces !== undefined && nonces.creation === 0 && nonces.join === 0;
+      },
+      5000,
+      "D4 failure-path nonces settled",
+    );
+    await learner.leave();
+    leavers.pop();
+    await waitFor(
+      () => traceFiles(traceDir).some((t) => t.stationId === "station-1"),
+      10000,
+      "station-1 trace persisted",
+    );
+    const sessionId = learner.sessionId;
+    await server.close();
+    servers.pop();
+    const byStation = new Map(traceFiles(traceDir).map((t) => [t.stationId, t]));
+    const station1 = byStation.get("station-1");
+    expect(station1?.events.map((e) => e.kind)).toContain("rotation-failed");
+    expect(station1?.raw.includes(sessionId)).toBe(false);
+    const station2 = byStation.get("station-2");
+    if (station2) {
+      expect(station2.events.map((e) => e.kind)).not.toContain("rotation-failed");
+    }
+  }, 60000);
+
+  it("D4: success-path rotation leaves no unused nonces", async () => {
+    const traceDir = mkdtempSync(join(tmpdir(), "xr-sync-c8-d4-"));
+    const server = await createEncounterServer({ traceDir, timing: { ...TIMING }, stations: [...STATIONS] });
+    servers.push(server);
+    const learner = await connect(server.url, { roomOptions: { actors: ["a1", "a2"] } });
+    leavers.push(() => learner.leave());
+    const observer = await connect(server.url, { roomOptions: { actors: ["a1", "a2"], role: "observer" } });
+    leavers.push(() => observer.leave());
+    const learnerStations = trackStations(learner);
+    const observerStations = trackStations(observer);
+    await waitFor(() => serverState(server).stationId === "station-2", SESSION_TIMEOUT_MS, "station-2");
+    await waitFor(() => learnerStations.at(-1) === "station-2", 5000, "learner sees station-2");
+    await waitFor(() => observerStations.at(-1) === "station-2", 5000, "observer sees station-2");
+    await waitFor(
+      () => {
+        const nonces = server.getProbeStats().stationNonces;
+        return nonces !== undefined && nonces.creation === 0 && nonces.join === 0;
+      },
+      5000,
+      "D4 success-path nonces settled",
+    );
+  }, 40000);
+
+  it("client consume-fail surfaces through the typed rotation-failed channel", async () => {
+    const traceDir = mkdtempSync(join(tmpdir(), "xr-sync-c8-bogus-"));
+    const server = await createEncounterServer({
+      traceDir,
+      timing: { ...TIMING },
+      stations: [...STATIONS],
+      rotationFaults: { sendBogusRotate: true },
+    });
+    servers.push(server);
+    const learner = await connect(server.url, { roomOptions: { actors: ["a1", "a2"] } });
+    leavers.push(() => learner.leave());
+    const stations = trackStations(learner);
+    const seen: Array<{ stationId: string }> = [];
+    learner.onRotationFailed((info) => {
+      seen.push(info);
+    });
+    await waitFor(() => learner.rotationFailed !== null, SESSION_TIMEOUT_MS, "consume-fail surfaced");
+    expect(typeof learner.rotationFailed?.stationId).toBe("string");
+    expect(seen.length).toBeGreaterThan(0);
+    expect(stations).toEqual(["station-1"]);
+  }, 40000);
 });

@@ -221,18 +221,22 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
     }
   };
 
+  const notifyRotationFailed = (message: { stationId?: unknown }): void => {
+    const stationId = message.stationId;
+    const info = { stationId: typeof stationId === "string" ? stationId : "" };
+    lastRotationFailed = info;
+    for (const listener of rotationFailedListeners) {
+      listener(info);
+    }
+  };
+
   const wireRoom = (next: Room): void => {
     room = next;
     const bound = next;
     room.onMessage("ack", (message) => settleFrom(bound, message as { seq?: unknown }, "ack"));
     room.onMessage("reject", (message) => settleFrom(bound, message as { seq?: unknown }, "reject"));
     room.onMessage("rotation-failed", (message) => {
-      const stationId = (message as { stationId?: unknown }).stationId;
-      const info = { stationId: typeof stationId === "string" ? stationId : "" };
-      lastRotationFailed = info;
-      for (const listener of rotationFailedListeners) {
-        listener(info);
-      }
+      notifyRotationFailed(message as { stationId?: unknown });
     });
     // C8 rotation: the server moves the learner AND the observer to the next
     // station's room with a server-issued seat reservation. The client
@@ -262,7 +266,12 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
           rotating = false;
           flushRotationQueue();
           // Reservation consume failed: the connection stays on the old room
-          // (closed). Queued intents were flushed to it and surface there.
+          // (closed). Surface it through the same typed channel as a server
+          // rotation-failed (no station choice); the station is the room the
+          // client failed to leave.
+          const snap = toSnapshot(old.state);
+          notifyRotationFailed({ stationId: (snap as { stationId?: unknown } | undefined)?.stationId });
+          // Queued intents were flushed to the old room and surface there.
         }
       })();
     });
