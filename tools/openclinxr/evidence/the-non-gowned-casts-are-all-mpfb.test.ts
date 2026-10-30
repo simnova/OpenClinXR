@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   listShippedCastScenarioIds,
+  MPFB_GOWN_ADULT_PATIENT_GLB,
+  MPFB_GOWN_ED_ROBERT_HAYES_GLB,
   resolveScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 
@@ -126,13 +128,17 @@ describe("every non-gowned cast is on an MPFB body", () => {
   it("(3) NET: the seven gowned patients are recast onto the gowned MPFB body", () => {
     // #491 L6 lifted the P1 freeze: the seven gowned adult patients now resolve to
     // MPFB_GOWN_ADULT_PATIENT_GLB (138 joints + jaw, hospital gown), so none is Anny.
+    // 69f2c7075: the ED patient resolves to the case-bound MPFB_GOWN_ED_ROBERT_HAYES_GLB
+    // instead (same-scenario provenance) — still a gowned MPFB body, so the NET follows
+    // the resolver's gown constants rather than one filename.
+    const GOWN_BODIES = [MPFB_GOWN_ADULT_PATIENT_GLB, MPFB_GOWN_ED_ROBERT_HAYES_GLB];
     const onAnny = everyCast().filter(
       (r) => (r.cast.role ?? "").toLowerCase() === "patient"
         && (r.cast.assetPath ?? "").includes("ed_chest_pain_adult_cast.glb"),
     );
     const onGown = everyCast().filter(
       (r) => (r.cast.role ?? "").toLowerCase() === "patient"
-        && (r.cast.assetPath ?? "").includes("mpfb-gown-adult-patient.glb"),
+        && GOWN_BODIES.some((g) => (r.cast.assetPath ?? "").includes(g)),
     );
     expect(onAnny.length, "no gowned adult patient may still be cast on the 23-joint Anny body").toBe(0);
     expect(onGown.length, "the seven gowned adult patients must resolve to the gowned MPFB body").toBe(7);
