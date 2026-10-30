@@ -27,9 +27,14 @@ entries in `REAL_EQUIPMENT_GLTF_BY_ID` (`apps/ui-xr/src/station-equipment.ts`).
   orphic_oasis8**; L=1.9 W=0.70 deck≈0.575; see sidecar)
 - SHA-256: `8f7feeff376cc87c0d0ef466085c63eff553d0408b649cdac895f4854d9569d6`
 - `privacy-curtain-monitor-sketchfab-ccby.glb` (Sketchfab CC BY 4.0 — **Bed
-  Curtain and Vital Signs Monitor by Ethan Cragun**; height-fit 2.2 m; see
-  sidecar)
-- SHA-256: `b320a807a789561a34222a7c3d4573842679f8cf6b1921263d015c59fcc210aa`
+  Curtain and Vital Signs Monitor by Ethan Cragun**; curtain portion only after
+  the ci-w14 split — 28 parts, one touch-connected component; see sidecar)
+- SHA-256: `25786367cc9c5fa8bfe20b13910a526e3afc84fec4e6d7f7988c56ecff8fccb8`
+- `vitals-monitor-sketchfab-ccby.glb` (Sketchfab CC BY 4.0 — **Bed Curtain and
+  Vital Signs Monitor by Ethan Cragun**; vital-signs-monitor portion split out
+  of the composite in ci-w14 — 2 parts, one touch-connected component, kept in
+  the composite's GLB-local frame; see sidecar)
+- SHA-256: `8238578e92b20de7da01014cf6d862448e65cf89f3e4d3e22dd6af7840f389cb`
 - `clinic-chair-kenney-cc0.glb` (issue #646 — **Kenney Furniture Kit**, CC0,
   seat-height normalized: detected seat surface 0.24 m → 0.45 m, uniform scale
   1.875 baked into vertices; 162 real tris after the finalize station removed 8
@@ -59,8 +64,21 @@ by the flat mesh list, because dedup() legitimately collapsed same-shaped
 node-instanced Mesh datablocks (7-8 small cubes/cylinders) into 1-2 shared
 ones.
 
-## 2026-10-02 — `ecg-cart-12-lead.glb` replaced by the factory-treated cart
+## 2026-10-30 — `vitals-monitor-sketchfab-ccby.glb` split out of the curtain composite
 
+The `privacy-curtain-monitor-sketchfab-ccby.glb` composite staged two functional
+items 0.517 m apart (28-part curtain + 2-part monitor) under one node, so the
+assembly gate read two touch-connected components. ci-w12 reseated the monitor
+against the curtain edge; rejected — a monitor touching a curtain is not a real
+layout. ci-w14 instead detached the VitalsMonitor subtree (gltf-transform
+subtree detach + dispose + prune, no re-authored geometry) into its own bank
+entry, keeping both items in the composite's GLB-local frame: mounting the
+monitor at the curtain's slot reproduces the composite's world layout exactly.
+Measured: curtain 4,456 + monitor 4,356 = 8,812 rendered triangles, the
+composite's count; every surviving part's world AABB identical before/after;
+the finalize station is a no-op on both outputs.
+
+## 2026-10-02 — `ecg-cart-12-lead.glb` replaced by the factory-treated cart
 The Blender-primitive placeholder (`5ffc60fe8238a4e1acfaed01f519e17d0861f5cc6ecdb5e138c30899eb20e8b6`,
 22,988 bytes) is replaced by the `equipment_generate` station output with
 `exportTreatment: "r5-best"` (MADR 0059 round 5b: TRELLIS.2 seed-42 generation

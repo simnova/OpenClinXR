@@ -21,6 +21,13 @@ export const REAL_EQUIPMENT_GLTF_BY_ID: Readonly<Record<string, string>> = {
   stretcher_equipment: "stretcher-sketchfab-ccby.glb",
   exam_table_equipment: "exam-table-sketchfab-ccby.glb",
   privacy_curtain_equipment: "privacy-curtain-monitor-sketchfab-ccby.glb",
+  // ci-w14: the VitalsMonitor rode inside the curtain composite (two functional
+  // items 0.517 m apart under one node). Split into its own bank entry via
+  // gltf-transform subtree detach + prune; same CC-BY source (Ethan Cragun) and
+  // same GLB-local frame, so mounting at the curtain's slot reproduces the
+  // composite's world layout exactly. Rejected: reseating the monitor against
+  // the curtain edge (ci-w12) — a monitor touching a curtain is not a real layout.
+  vital_signs_monitor_equipment: "vitals-monitor-sketchfab-ccby.glb",
   // #646: Kenney Furniture Kit CC0 — promoted via kenney-promote-cli.ts (seat-height
   // normalize: detected seat 0.24 m -> 0.45 m, scale 1.875 baked into vertices). CC0 needs
   // no attribution surface. Staging kit untouched; provenance sidecar records both hashes.

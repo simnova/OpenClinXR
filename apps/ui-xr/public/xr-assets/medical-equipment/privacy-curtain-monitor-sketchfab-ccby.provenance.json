@@ -14,8 +14,8 @@
   "optimizationMode": "length_width_deck_unit_normalize_no_decimation",
   "realismGrade": null,
   "promotionStatus": "runtime_candidate_not_readiness_gate_pass",
-  "sha256": "b320a807a789561a34222a7c3d4573842679f8cf6b1921263d015c59fcc210aa",
-  "bytes": 3714348,
+  "sha256": "25786367cc9c5fa8bfe20b13910a526e3afc84fec4e6d7f7988c56ecff8fccb8",
+  "bytes": 3532128,
   "measuredNormalize": {
     "lengthM": 2.001667022705078,
     "widthM": 1.8111050128936768,
@@ -66,17 +66,29 @@
       "Blender normalize (length/width/deck SSOT).",
       "Promote byte-identical normalized GLB into medical-equipment library.",
       "Wire REAL_EQUIPMENT_GLTF_BY_ID + deckTopYMeters stamp.",
-      "2026-09-16: finalize-equipment-glb-cli.ts (prune) removed a small amount of unreferenced accessor/node cruft; no geometry, texture, or material changed (verified: 8,812 rendered triangles, 66 nodes, and AABB identical before/after)."
-    ]
+      "2026-09-16: finalize-equipment-glb-cli.ts (prune) removed a small amount of unreferenced accessor/node cruft; no geometry, texture, or material changed (verified: 8,812 rendered triangles, 66 nodes, and AABB identical before/after).",
+      "ci-w14: detached the VitalsMonitor subtree (gltf-transform subtree detach + dispose + prune, no re-authored geometry) into vitals-monitor-sketchfab-ccby.glb; both items keep the composite's GLB-local frame. Measured: curtain 4,456 + monitor 4,356 = 8,812 rendered triangles (the composite's count); every surviving part's world AABB identical before/after; finalize-equipment-glb-cli is a no-op on both outputs."
+    ],
+    "splitFrom": "privacy-curtain-monitor-sketchfab-ccby.glb composite (b320a807...) 2026-10-30"
   },
   "finalizeStation": {
     "tool": "tools/openclinxr/asset-pipeline/equipment/finalize-equipment-glb-cli.ts",
     "appliedAt": "2026-09-16T00:00:00.000Z",
-    "measuredBefore": { "sha256": "89ccdab93ce4f6ca1cdd0c8f94afe834db431ed667ddac4580bbd9cc3c22a8bf", "bytes": 3717432 },
-    "measuredAfter": { "sha256": "b320a807a789561a34222a7c3d4573842679f8cf6b1921263d015c59fcc210aa", "bytes": 3714348 },
+    "measuredBefore": {
+      "sha256": "89ccdab93ce4f6ca1cdd0c8f94afe834db431ed667ddac4580bbd9cc3c22a8bf",
+      "bytes": 3717432
+    },
+    "measuredAfter": {
+      "sha256": "b320a807a789561a34222a7c3d4573842679f8cf6b1921263d015c59fcc210aa",
+      "bytes": 3714348
+    },
     "bytesSavedPct": 0.1,
     "claimScope": "removed unreferenced datablock cruft only; no geometry, texture, or material changed",
-    "notEvidenceFor": ["visual_realism_change", "clinical_validity", "quest_readiness"]
+    "notEvidenceFor": [
+      "visual_realism_change",
+      "clinical_validity",
+      "quest_readiness"
+    ]
   },
   "toolVersion": "openclinxr-equipment-bank-promote-v1",
   "promotedAt": "2026-08-12T14:01:20.609822+00:00",
@@ -88,5 +100,34 @@
     "clinical_validity",
     "scoring_validity",
     "scene_placement_readiness"
-  ]
+  ],
+  "measuredSplit": {
+    "lengthM": 1.034368,
+    "widthM": 1.811105,
+    "heightM": 2.012584,
+    "parts": 28,
+    "touchComponents": 1,
+    "note": "world AABB spans of this file; the source-composite measuredNormalize block is unchanged below"
+  },
+  "splitStation": {
+    "tool": "gltf-transform subtree detach + dispose + prune (split-curtain.mjs, deleted after use)",
+    "appliedAt": "2026-10-30T00:00:00.000Z",
+    "measuredBefore": {
+      "sha256": "b320a807a789561a34222a7c3d4573842679f8cf6b1921263d015c59fcc210aa",
+      "bytes": 3714348,
+      "parts": 30
+    },
+    "measuredAfter": {
+      "sha256": "25786367cc9c5fa8bfe20b13910a526e3afc84fec4e6d7f7988c56ecff8fccb8",
+      "bytes": 3532128,
+      "parts": 28,
+      "touchComponents": 1
+    },
+    "claimScope": "subtree removal + unreferenced-datablock prune only; no geometry, texture, or material changed",
+    "notEvidenceFor": [
+      "visual_realism_change",
+      "clinical_validity",
+      "quest_readiness"
+    ]
+  }
 }
