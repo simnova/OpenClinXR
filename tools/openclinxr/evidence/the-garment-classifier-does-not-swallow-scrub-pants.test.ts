@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { classifyGarmentMeshName, classifyLowerGarmentKind } from "./lib/garment-mesh-class.js";
 
 /**
  * E5 / asset-pipeline-lead — "no vacuous evidence test on main".
@@ -64,33 +65,42 @@ import { describe, expect, it } from "vitest";
  * `pants|trouser` branch. Clause (1) flipped `it.fails` -> `it`. The sibling also gained diagnostics
  * naming the file and the missing slot on a dropped row, and reports a thrown `measure()` instead of
  * swallowing it to null.
+ *
+ * ## ADAPTED (ci-w1 409a456af, 2026-10-30)
+ *
+ * The sibling's private upper/lower regexes were replaced by the shared classifier
+ * (`lib/garment-mesh-class.ts`). Clause (1) now asserts the sibling imports and calls
+ * `classifyGarmentMeshName`, then classifies with it under the sibling's bucket rule. A classifier
+ * that lets `scrub` claim `scrub_pants` again still fails clause (1).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SIBLING = join(HERE, "a-station-cast-is-visually-separable.test.ts");
 
-/** Pull the sibling's own regexes so this contract cannot drift from the thing it guards. */
-function siblingClassifier(): { upper: RegExp; lower: RegExp; upperFirst: boolean } {
+/**
+ * The sibling classifies through the shared module (ci-w1 409a456af). Assert it still imports and
+ * calls that function, then classify with the same function and the same bucket rule the sibling
+ * applies, so this contract cannot drift from the thing it guards.
+ */
+function assertSiblingUsesSharedClassifier(): void {
   const src = readFileSync(SIBLING, "utf8");
-  const upper = /if \(\/([^/]+)\/i\.test\(name\)\) \{\s*\n\s*row\.upper/.exec(src);
-  const lower = /if \(\/([^/]+)\/i\.test\(name\)\) \{\s*\n\s*row\.lower/.exec(src);
-  expect(upper, "the sibling must still classify an upper garment by name").not.toBeNull();
-  expect(lower, "the sibling must still classify a lower garment by name").not.toBeNull();
-  return {
-    upper: new RegExp(upper![1]!, "i"),
-    lower: new RegExp(lower![1]!, "i"),
-    upperFirst: (upper!.index ?? 0) < (lower!.index ?? 0),
-  };
+  expect(/import\s*\{[^}]*\bclassifyGarmentMeshName\b[^}]*\}\s*from\s*"\.\/lib\/garment-mesh-class\.js"/.test(src),
+    "the sibling must classify garments through the shared garment-mesh-class module").toBe(true);
+  expect(/classifyGarmentMeshName\(name\)/.test(src), "and must call it on the mesh name").toBe(true);
+  expect(/row\.upper\s*=/.test(src) && /row\.lower\s*=/.test(src),
+    "the sibling must still fill both an upper and a lower row").toBe(true);
 }
 
 const SCRUB_PANTS = "makeclothes_library_scrub_pants_mpfb_peds_nurse_kevin_mesh";
 const SCRUB_SHIRT = "makeclothes_library_scrub_shirt_mpfb_peds_nurse_kevin_mesh";
 
-/** Classify exactly as the sibling does: whichever branch it tests first wins. */
+/** Bucket exactly as the sibling does: upper, or a gown drapes as the upper; else lower. */
 function classify(name: string): "upper" | "lower" | "none" {
-  const { upper, lower, upperFirst } = siblingClassifier();
-  if (upperFirst) return upper.test(name) ? "upper" : lower.test(name) ? "lower" : "none";
-  return lower.test(name) ? "lower" : upper.test(name) ? "upper" : "none";
+  assertSiblingUsesSharedClassifier();
+  const cls = classifyGarmentMeshName(name);
+  const lowerKind = cls === "lower" ? classifyLowerGarmentKind(name) : "unknown";
+  if (cls === "upper" || lowerKind === "gown") return "upper";
+  return cls === "lower" ? "lower" : "none";
 }
 
 describe("the garment classifier does not swallow scrub pants", () => {
