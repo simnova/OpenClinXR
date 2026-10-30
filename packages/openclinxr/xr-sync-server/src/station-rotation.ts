@@ -158,6 +158,13 @@ export interface StationBinding {
   stations: string[] | null;
   creationNonces: Map<string, number>;
   joinNonces: Set<string>;
+  /** C8 exact per-station applied pose counts (survives room dispose; drives F3). */
+  appliedPoseByStation: Map<string, number>;
+}
+
+/** C8: record one applied pose for the station (exact F3 cross-check source). */
+export function recordStationPose(binding: StationBinding, stationId: string): void {
+  binding.appliedPoseByStation.set(stationId, (binding.appliedPoseByStation.get(stationId) ?? 0) + 1);
 }
 
 /** Minimal room state surface the station setup writes. */
@@ -209,8 +216,13 @@ export function assertStationJoinAllowed(
 /** Structural learner client the rotation driver sends a reservation to. */
 export interface RotationLearner {
   sessionId: string;
+  /** "learner" (default) or "observer": observers rotate on the same path with role preserved. */
+  role?: "learner" | "observer";
   send(type: string, message: unknown): void;
 }
+
+/** Injectable matchmaking surface for rotation (tests pass fakes; product passes nothing). */
+export type RotationMatchMaker = Pick<typeof matchMaker, "createRoom" | "reserveSeatFor" | "getLocalRoomById">;
 
 /** Inputs for one rotation step (station index -> index + 1). */
 export interface RotationStep {
@@ -218,9 +230,17 @@ export interface RotationStep {
   stations: string[];
   stationIndex: number;
   learners: RotationLearner[];
+  /** C8 faculty observers rotated with the learners (same reservation + nonce path). */
+  observers?: RotationLearner[];
   actorIds: string[];
   closedAt: number | undefined;
   binding: StationBinding;
+  /** Current station id (for the rotation-failed client message). */
+  stationId?: string;
+  /** C8: record one review-safe rotation-failed trace event (no identity). */
+  onRotationFailed?: (failedStationId: string) => void;
+  /** C8 test seam: fake matchmaking (product path uses the real matchMaker). */
+  deps?: RotationMatchMaker;
 }
 
 /** Structural successor room surface for gap evidence (no room import: that would cycle). */
@@ -229,11 +249,20 @@ interface GapEvidenceRoom {
 }
 
 /**
- * C7 rotation driver: create the next station's room (server-issued, never a
- * client join), then issue each connected learner a seat reservation the
- * client consumes (it never picks a station). Per-learner best-effort: one
- * failed reservation never blocks the others. No rotation past the last
- * station; no stations means no rotation. Returns true when rotation ran.
+ * C8 rotation driver: create the next station's room (server-issued, never a
+ * client join), then issue each connected learner AND each connected observer
+ * a seat reservation the client consumes (it never picks a station; observer
+ * role is preserved in the reservation so the next room counts/traces it).
+ * Per-participant best-effort with one retry: a twice-failed reservation
+ * sends that client "rotation-failed" {stationId} and records one
+ * review-safe "rotation-failed" trace event (no identity). No rotation past
+ * the last station; no stations means no rotation. Returns true when
+ * rotation ran (room created, even if some participants failed).
+ *
+ * Nonce hygiene (C8 D4): a creation nonce is deleted when createRoom throws;
+ * a join nonce is deleted on reservation failure (both attempts), on consume
+ * (join path), on reservation expiry (timeout), and every remaining unused
+ * nonce is cleared when a station room disposes (clearStationNoncesOnDispose).
  */
 export async function driveStationRotation(step: RotationStep): Promise<boolean> {
   const { stations, stationIndex } = step;
@@ -246,29 +275,133 @@ export async function driveStationRotation(step: RotationStep): Promise<boolean>
   const nextIndex = stationIndex + 1;
   const createNonce = randomUUID();
   step.binding.creationNonces.set(createNonce, nextIndex);
-  const nextCache = await matchMaker.createRoom(step.roomName, {
-    actors: step.actorIds,
-    [STATION_CREATE_KEY]: { index: nextIndex, nonce: createNonce },
-  });
+  const mm: RotationMatchMaker = step.deps ?? matchMaker;
+  let nextCache: Awaited<ReturnType<typeof matchMaker.createRoom>>;
+  try {
+    nextCache = await mm.createRoom(step.roomName, {
+      actors: step.actorIds,
+      [STATION_CREATE_KEY]: { index: nextIndex, nonce: createNonce },
+    });
+  } catch {
+    step.binding.creationNonces.delete(createNonce);
+    throw new Error("rotation-failed");
+  }
   if (typeof step.closedAt === "number") {
     // E3 gap evidence: the successor records the predecessor closed time so
     // the harness reads both ends from the live room (the rotated-out room
     // disposes, taking its stats with it). Structural access: importing the
     // room would cycle back here.
-    const next = matchMaker.getLocalRoomById(nextCache.roomId) as unknown as GapEvidenceRoom | undefined;
+    const next = mm.getLocalRoomById(nextCache.roomId) as unknown as GapEvidenceRoom | undefined;
     next?.phaseChangedAtMs.set("prev-station-closed", step.closedAt);
   }
-  for (const learner of step.learners) {
+  const failedStationId = stations[nextIndex] as string;
+  const participants: RotationLearner[] = [...step.learners, ...(step.observers ?? [])];
+  for (const participant of participants) {
+    const role = participant.role ?? "learner";
+    const reserveOptions = (nonce: string): Record<string, unknown> =>
+      role === "observer" ? { [STATION_ROTATE_KEY]: nonce, role: "observer" } : { [STATION_ROTATE_KEY]: nonce };
+    let joinNonce = randomUUID();
+    step.binding.joinNonces.add(joinNonce);
+    let reservation: unknown = null;
     try {
-      const joinNonce = randomUUID();
-      step.binding.joinNonces.add(joinNonce);
-      const reservation = await matchMaker.reserveSeatFor(nextCache, {
-        [STATION_ROTATE_KEY]: joinNonce,
-      });
-      learner.send("rotate", reservation);
+      reservation = await mm.reserveSeatFor(nextCache, reserveOptions(joinNonce));
     } catch {
-      // Best-effort per learner: the learner stays in the closed room.
+      step.binding.joinNonces.delete(joinNonce);
+      joinNonce = randomUUID();
+      step.binding.joinNonces.add(joinNonce);
+      try {
+        reservation = await mm.reserveSeatFor(nextCache, reserveOptions(joinNonce));
+      } catch {
+        step.binding.joinNonces.delete(joinNonce);
+        try {
+          participant.send("rotation-failed", { stationId: failedStationId });
+        } catch {
+          // Client send is best-effort; the trace still records the failure.
+        }
+        step.onRotationFailed?.(failedStationId);
+        continue;
+      }
+    }
+    // C8 D4: an unused reservation expires server-side; the nonce must not
+    // outlive it. Consumed nonces are deleted at join; this timeout is the
+    // expiry backstop (unref so tests close cleanly).
+    const issued = joinNonce;
+    const timer = setTimeout(() => {
+      step.binding.joinNonces.delete(issued);
+    }, 15000);
+    if (typeof (timer as unknown as { unref?: () => void }).unref === "function") {
+      (timer as unknown as { unref: () => void }).unref();
+    }
+    try {
+      participant.send("rotate", reservation);
+    } catch {
+      // Best-effort per participant: the client stays in the closed room and
+      // surfaces the failure via its own consume path; the nonce expires above.
     }
   }
   return true;
+}
+
+/**
+ * C8 D4: clear every unused station nonce when a station room disposes. Safe
+ * because rotations are sequential: at dispose the in-flight nonces for the
+ * just-completed rotation were consumed at join (deleted), so anything left
+ * is a never-consumed reservation (leave/consume-fail) or a leaked creation
+ * nonce from a failed createRoom.
+ */
+export function clearStationNoncesOnDispose(binding: StationBinding): void {
+  binding.creationNonces.clear();
+  binding.joinNonces.clear();
+}
+
+/** Structural host surface the room passes for one rotation step. */
+export interface RoomRotationHost {
+  stations: string[] | null;
+  stationIndex: number;
+  stationId: string;
+  clients: RotationLearner[];
+  isObserver(sessionId: string): boolean;
+  actorIds: string[];
+  closedAt: number | undefined;
+  binding: StationBinding;
+  onRotationFailed(stationId: string): void;
+  rotationStarted: boolean;
+  setRotationStarted(value: boolean): void;
+}
+
+/** Room delegate: partition learners/observers and run the driver. */
+export async function driveRoomRotation(host: RoomRotationHost, roomName: string): Promise<void> {
+  if (host.stations === null || host.rotationStarted) {
+    return;
+  }
+  host.setRotationStarted(true);
+  try {
+    const learners = host.clients.filter((client) => !host.isObserver(client.sessionId));
+    const observers = host.clients
+      .filter((client) => host.isObserver(client.sessionId))
+      .map((client) => ({
+        sessionId: client.sessionId,
+        role: "observer" as const,
+        send: (type: string, message: unknown): void => {
+          client.send(type, message);
+        },
+      }));
+    const rotated = await driveStationRotation({
+      roomName,
+      stations: host.stations,
+      stationIndex: host.stationIndex,
+      learners,
+      observers,
+      actorIds: host.actorIds,
+      closedAt: host.closedAt,
+      binding: host.binding,
+      stationId: host.stationId,
+      onRotationFailed: host.onRotationFailed,
+    });
+    if (!rotated) {
+      host.setRotationStarted(false);
+    }
+  } catch {
+    host.setRotationStarted(false);
+  }
 }

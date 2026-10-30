@@ -19,7 +19,7 @@ import {
   type EncounterStateInstance,
   type LearnerStateInstance,
 } from "./schema.js";
-import { OBSERVER_READ_ONLY_REASON, parseEncounterRole } from "./observer.js";
+import { OBSERVER_READ_ONLY_REASON, parseEncounterRole, rejectNotJoined } from "./observer.js";
 import * as PhaseClock from "./phase-clock.js";
 import type { StationTiming } from "./phase-clock.js";
 import type { EncounterRoomOptions, ProbeSelection, RoomProbeStats, TurnRecord } from "./room-types.js";
@@ -31,9 +31,11 @@ export type { AckMessage, IntentKind, IntentMessage, RejectMessage } from "./pro
 import { applyPoseIntent, applySelectActorIntent } from "./learner-intents.js";
 import {
   assertStationJoinAllowed,
+  clearStationNoncesOnDispose,
   configureStationRoom,
   consumeRotateTokenForJoin,
-  driveStationRotation,
+  driveRoomRotation,
+  recordStationPose,
   type StationBinding,
 } from "./station-rotation.js";
 
@@ -94,7 +96,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   /** C6 host-clock ms per entered phase (Date.now at phase enter). Probe only, never in the trace. */
   private phaseChangedAtMs = new Map<string, number>();
   /** C7 per-server station binding (stations + single-use nonces), shared by reference. */
-  protected stationBinding: StationBinding = { stations: null, creationNonces: new Map(), joinNonces: new Set() };
+  protected stationBinding: StationBinding = { stations: null, creationNonces: new Map(), joinNonces: new Set(), appliedPoseByStation: new Map() };
   /** C7 rotation guard: closed fires once per room; this is the backstop. */
   private rotationStarted = false;
 
@@ -267,34 +269,31 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     this.phaseClock?.stop();
     this.phaseClock = null;
     this.flushConversationTrace();
+    clearStationNoncesOnDispose(this.stationBinding);
   }
 
-  /**
-   * C7 rotation: when this station closes, move every learner to the next
-   * station's room (driver creates it; observers stay). The old room disposes
-   * after its learners leave so its trace persists.
-   */
+  /** C8 rotation: learners + observers move together; role preserved. */
   private async rotateStation(): Promise<void> {
-    if (this.stationBinding.stations === null || this.rotationStarted) {
-      return;
-    }
-    this.rotationStarted = true;
-    try {
-      const rotated = await driveStationRotation({
-        roomName: ENCOUNTER_ROOM_NAME,
+    await driveRoomRotation(
+      {
         stations: this.stationBinding.stations,
         stationIndex: this.state.stationIndex,
-        learners: this.clients.filter((client) => !this.observers.has(client.sessionId)),
+        stationId: this.state.stationId,
+        clients: this.clients,
+        isObserver: (id) => this.observers.has(id),
         actorIds: [...this.state.actors.keys()],
         closedAt: this.phaseChangedAtMs.get("closed"),
         binding: this.stationBinding,
-      });
-      if (!rotated) {
-        this.rotationStarted = false;
-      }
-    } catch {
-      this.rotationStarted = false;
-    }
+        onRotationFailed: () => {
+          this.tracer.push({ seq: null, kind: "rotation-failed", actorId: "", turnId: null });
+        },
+        rotationStarted: this.rotationStarted,
+        setRotationStarted: (value) => {
+          this.rotationStarted = value;
+        },
+      },
+      ENCOUNTER_ROOM_NAME,
+    );
   }
 
   private dropLearner(sessionId: string): void {
@@ -319,6 +318,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     }
     const learner = this.state.learners.get(client.sessionId);
     if (!learner) {
+      rejectNotJoined((seqNum, reason) => this.reject(client, seqNum, reason), message);
       return;
     }
     if (!isRecord(message)) {
@@ -362,6 +362,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       return;
     }
     this.intentCounts[kind as string] = (this.intentCounts[kind as string] ?? 0) + 1;
+    if (kind === "pose" && this.state.stationId !== "") recordStationPose(this.stationBinding, this.state.stationId);
     learner.lastSeq = intentSeq;
     this.state.serverTick += 1;
     const ack: AckMessage = { seq: intentSeq, serverTs: Date.now() };

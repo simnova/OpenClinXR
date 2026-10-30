@@ -141,7 +141,7 @@ export function attachStationPhaseClock(
     },
     now: () => Date.now(),
     // C7 rotation fires on the station's "closed" phase-changed, on the room
-    // clock. Observers are never rotated (see room.rotateStation).
+    // clock. C8 rotates learners + observers together (see room.rotateStation).
     onClosed: () => {
       bindings.onClosed?.();
     },
@@ -256,7 +256,8 @@ export class StationPhaseClock {
     }
     const next = this.nextAfter(phase);
     if (next === null) {
-      // Terminal phase: C7 rotation fires on the room clock at closed.
+      // Terminal phase: C8 rotation fires on the room clock at closed (learners
+    // + observers rotate together; observer role preserved in the reservation).
       this.hooks.onClosed?.();
       return;
     }

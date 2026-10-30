@@ -82,8 +82,12 @@ export interface EncounterSnapshot {
 export interface SyncConnection {
   readonly sessionId: string;
   readonly reconnectionToken: string;
+  /** C8: last rotation-failed notice from the server (null when none). */
+  readonly rotationFailed: { stationId: string } | null;
   sendIntent(kind: IntentKind, payload?: IntentPayload): Promise<IntentResult>;
   onState(callback: (snapshot: EncounterSnapshot) => void): () => void;
+  /** C8: typed callback for the server rotation-failed notice (no station choice). */
+  onRotationFailed(callback: (info: { stationId: string }) => void): () => void;
   leave(consented?: boolean): Promise<void>;
   reconnect(): Promise<void>;
 }
@@ -92,6 +96,17 @@ const INTENT_TIMEOUT_MS = 5000;
 const ROOM_NAME = "encounter";
 
 interface PendingIntent {
+  room: Room;
+  resolve: (result: IntentResult) => void;
+  reject: (error: Error) => void;
+  startedAt: number;
+  timer: ReturnType<typeof setTimeout>;
+}
+
+interface QueuedIntent {
+  seq: number;
+  kind: IntentKind;
+  payload: IntentPayload;
   resolve: (result: IntentResult) => void;
   reject: (error: Error) => void;
   startedAt: number;
@@ -126,6 +141,10 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
   let seq = 0;
   const pending = new Map<number, PendingIntent>();
   const stateListeners = new Set<(snapshot: EncounterSnapshot) => void>();
+  const rotationFailedListeners = new Set<(info: { stationId: string }) => void>();
+  let lastRotationFailed: { stationId: string } | null = null;
+  let rotating = false;
+  const rotationQueue: QueuedIntent[] = [];
 
   const pushCurrent = (): void => {
     const snapshot = toSnapshot(room.state);
@@ -137,21 +156,27 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
     }
   };
 
-  const failAllPending = (error: Error): void => {
-    for (const [, item] of pending) {
-      clearTimeout(item.timer);
-      item.reject(error);
+  const failRoomPending = (target: Room, error: Error): void => {
+    for (const [key, item] of [...pending]) {
+      if (item.room === target) {
+        pending.delete(key);
+        clearTimeout(item.timer);
+        item.reject(error);
+      }
     }
-    pending.clear();
   };
 
-  const settle = (message: { seq?: unknown; serverTs?: unknown; reason?: unknown }, status: "ack" | "reject"): void => {
+  const settleFrom = (
+    source: Room,
+    message: { seq?: unknown; serverTs?: unknown; reason?: unknown },
+    status: "ack" | "reject",
+  ): void => {
     const messageSeq = message.seq;
     if (typeof messageSeq !== "number") {
       return;
     }
     const item = pending.get(messageSeq);
-    if (!item) {
+    if (!item || item.room !== source) {
       return;
     }
     pending.delete(messageSeq);
@@ -174,33 +199,70 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
     }
   };
 
+  const sendOn = (target: Room, current: number, kind: IntentKind, payload: IntentPayload): void => {
+    const item = pending.get(current);
+    if (!item) {
+      return;
+    }
+    try {
+      target.send("intent", { kind, seq: current, clientTs: Date.now(), payload });
+    } catch (error) {
+      pending.delete(current);
+      clearTimeout(item.timer);
+      item.reject(error instanceof Error ? error : new Error(String(error)));
+    }
+  };
+
+  const flushRotationQueue = (): void => {
+    const queued = rotationQueue.splice(0, rotationQueue.length);
+    for (const entry of queued) {
+      pending.set(entry.seq, { room, resolve: entry.resolve, reject: entry.reject, startedAt: entry.startedAt, timer: entry.timer });
+      sendOn(room, entry.seq, entry.kind, entry.payload);
+    }
+  };
+
   const wireRoom = (next: Room): void => {
     room = next;
-    room.onMessage("ack", (message) => settle(message as { seq?: unknown }, "ack"));
-    room.onMessage("reject", (message) => settle(message as { seq?: unknown }, "reject"));
-    // C7 rotation: the server moves the learner to the next station's room
-    // with a server-issued seat reservation. The client consumes it (it never
-    // picks a station): seq stays monotonic, onState subscriptions survive,
-    // intents pending on the old room resolve on the old room (its ack/reject
-    // handlers still settle the shared pending set; the old room is left only
-    // after the new room is wired). leave/reconnect always target the current
-    // room.
+    const bound = next;
+    room.onMessage("ack", (message) => settleFrom(bound, message as { seq?: unknown }, "ack"));
+    room.onMessage("reject", (message) => settleFrom(bound, message as { seq?: unknown }, "reject"));
+    room.onMessage("rotation-failed", (message) => {
+      const stationId = (message as { stationId?: unknown }).stationId;
+      const info = { stationId: typeof stationId === "string" ? stationId : "" };
+      lastRotationFailed = info;
+      for (const listener of rotationFailedListeners) {
+        listener(info);
+      }
+    });
+    // C8 rotation: the server moves the learner AND the observer to the next
+    // station's room with a server-issued seat reservation. The client
+    // consumes it (it never picks a station): seq stays monotonic, onState
+    // subscriptions survive, pending intents are per room (an intent settles
+    // only from the room it was sent to; old-room leave fails only that
+    // room's pending), and intents sent while a rotation is in flight are
+    // queued and sent to the new room in order. leave/reconnect target current.
     room.onMessage("rotate", (reservation: unknown) => {
+      rotating = true;
       void (async () => {
-        const old = room;
+        const old = bound;
         try {
           const incoming = await client.consumeSeatReservation(
             reservation as Parameters<Client["consumeSeatReservation"]>[0],
           );
           wireRoom(incoming as unknown as Room);
+          rotating = false;
+          flushRotationQueue();
           try {
             await old.leave();
           } catch {
-            // Old room leave is best-effort; the new room is already wired.
+            // Old room leave is best-effort; the new room is already wired and
+            // its pending is untouched (per-room fail only fails old's own).
           }
         } catch {
+          rotating = false;
+          flushRotationQueue();
           // Reservation consume failed: the connection stays on the old room
-          // (closed). Later sends surface the failure.
+          // (closed). Queued intents were flushed to it and surface there.
         }
       })();
     });
@@ -208,7 +270,7 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
       pushCurrent();
     });
     room.onLeave(() => {
-      failAllPending(new Error("room left with in-flight intents"));
+      failRoomPending(bound, new Error("room left with in-flight intents"));
     });
     pushCurrent();
   };
@@ -222,6 +284,9 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
     get reconnectionToken(): string {
       return room.reconnectionToken;
     },
+    get rotationFailed(): { stationId: string } | null {
+      return lastRotationFailed;
+    },
     sendIntent(kind: IntentKind, payload: IntentPayload = {}): Promise<IntentResult> {
       seq += 1;
       const current = seq;
@@ -229,10 +294,18 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
       return new Promise<IntentResult>((resolve, reject) => {
         const timer = setTimeout(() => {
           pending.delete(current);
+          const queuedIndex = rotationQueue.findIndex((entry) => entry.seq === current);
+          if (queuedIndex >= 0) {
+            rotationQueue.splice(queuedIndex, 1);
+          }
           reject(new Error(`intent ${current} timed out after ${INTENT_TIMEOUT_MS}ms`));
         }, INTENT_TIMEOUT_MS);
-        pending.set(current, { resolve, reject, startedAt, timer });
-        room.send("intent", { kind, seq: current, clientTs: Date.now(), payload });
+        if (rotating) {
+          rotationQueue.push({ seq: current, kind, payload, resolve, reject, startedAt, timer });
+          return;
+        }
+        pending.set(current, { room, resolve, reject, startedAt, timer });
+        sendOn(room, current, kind, payload);
       });
     },
     onState(callback: (snapshot: EncounterSnapshot) => void): () => void {
@@ -242,7 +315,17 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
         stateListeners.delete(callback);
       };
     },
+    onRotationFailed(callback: (info: { stationId: string }) => void): () => void {
+      rotationFailedListeners.add(callback);
+      return () => {
+        rotationFailedListeners.delete(callback);
+      };
+    },
     async leave(consented = true): Promise<void> {
+      for (const entry of rotationQueue.splice(0, rotationQueue.length)) {
+        clearTimeout(entry.timer);
+        entry.reject(new Error("connection left with queued intent"));
+      }
       await room.leave(consented);
     },
     async reconnect(): Promise<void> {

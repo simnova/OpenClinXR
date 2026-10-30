@@ -40,6 +40,8 @@ export interface EncounterServer {
   getProbeStats(): RoomProbeStats;
   /** C4 live conversation trace (review-safe: no sessionId, no reply text). */
   getConversationTrace(): ConversationTrace;
+  /** C8 exact per-station applied pose counts (survives room dispose). */
+  getStationPoseCounts(): Record<string, number>;
   close(): Promise<void>;
 }
 
@@ -57,7 +59,7 @@ export async function createEncounterServer(
   // /.stationId/.stationIndex are ignored, and no module cell leaks one
   // server's config into another room or server. Rotation nonces are
   // per-server single-use sets shared by reference across this server's rooms.
-  const binding: StationBinding = { stations, creationNonces: new Map(), joinNonces: new Set() };
+  const binding: StationBinding = { stations, creationNonces: new Map(), joinNonces: new Set(), appliedPoseByStation: new Map() };
   class ConfiguredEncounterRoom extends EncounterRoom {
     protected override stationTiming = timing;
     protected override stationTraceDir = traceDir;
@@ -94,6 +96,9 @@ export async function createEncounterServer(
         throw new Error("no live encounter room");
       }
       return room.getConversationTrace();
+    },
+    getStationPoseCounts(): Record<string, number> {
+      return Object.fromEntries(binding.appliedPoseByStation);
     },
     async close(): Promise<void> {
       // Flush the trace file before shutdown (same content the room writes on

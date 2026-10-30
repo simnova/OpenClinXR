@@ -103,7 +103,8 @@ export const PROBE_CASE_EMOTION_POLICY: CaseEmotionPolicy = {
  * null, no session id); the reducer ignores them for turns/emotions. C6 adds
  * phase-changed (seq null, actorId "", turnId null, phase set); the reducer
  * closes an open turn as "closed-by-phase" when the new phase is not
- * "encounter". */
+ * "encounter". C8 adds rotation-failed (seq null, actorId "", turnId null,
+ * no identity); the reducer ignores it like presence. */
 export type ConversationTraceEventKind =
   | "select-actor"
   | "utterance-start"
@@ -111,7 +112,8 @@ export type ConversationTraceEventKind =
   | "turn-completed"
   | "observer-joined"
   | "observer-left"
-  | "phase-changed";
+  | "phase-changed"
+  | "rotation-failed";
 
 /** One conversation event, in application order. Actor-agnostic: the learner
  * appears as utterance events with no sessionId; utterance-end names the
@@ -256,8 +258,9 @@ export function reduceConversationEvents(events: readonly ConversationTraceEvent
         break;
       }
       case "observer-joined":
-      case "observer-left": {
-        // C5 presence only: no turns, no emotions, no selection change.
+      case "observer-left":
+      case "rotation-failed": {
+        // C5 presence / C8 rotation failure: no turns, no emotions, no selection change.
         break;
       }
       case "phase-changed": {
@@ -306,6 +309,7 @@ function isTraceEventKind(kind: string): kind is ConversationTraceEventKind {
     kind === "turn-completed" ||
     kind === "observer-joined" ||
     kind === "observer-left" ||
+    kind === "rotation-failed" ||
     kind === "phase-changed"
   );
 }

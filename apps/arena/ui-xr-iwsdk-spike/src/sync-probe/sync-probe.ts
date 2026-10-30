@@ -32,7 +32,8 @@ import {
 } from "./probe-state.js";
 import { C4MouthRender, type SyncProbeCueObservation } from "./probe-c4.js";
 import { createPhaseRing, observedPhaseFrom, observedTurnFrom, runC3TurnScript, runC6PreEncounterProbe } from "./probe-c6.js";
-import { nextStationObservation, runC7Script } from "./probe-c7.js";
+import { runC7Script } from "./probe-c7.js";
+import { attachC8RotationFailed, createC8ObserverTracker, pushC8StationObservation } from "./probe-c8.js";
 import { createIntentQueue } from "./probe-queue.js";
 import { parseProbeQuery } from "./probe-query.js";
 
@@ -85,7 +86,11 @@ interface SyncProbeEvidence {
   /** C6 (phase, remainingS) appended when the SERVER phase/remaining changes. */
   phasesObserved: Array<{ phase: string; remainingS: number | null; atMs: number }>;
   /** C7 (stationId) appended when the SERVER station changes. */
-  stationsObserved: Array<{ stationId: string; atMs: number }>;
+  stationsObserved: Array<{ stationId: string; atMs: number; pageLoadId: string }>;
+  /** C8 (stationId, observerCount) appended when the SERVER observer count changes. */
+  observerCountsObserved: Array<{ stationId: string; observerCount: number; atMs: number }>;
+  /** C8 rotation-failed notices surfaced by the client (typed callback). */
+  rotationFaileds: Array<{ stationId: string; atMs: number }>;
   /** C7 page load id, set once at load (proves no reload across rotation). */
   pageLoadId: string;
   done: boolean;
@@ -130,6 +135,8 @@ function createEvidence(): SyncProbeEvidence {
     phase: "boot",
     phasesObserved: [],
     stationsObserved: [],
+    observerCountsObserved: [],
+    rotationFaileds: [],
     pageLoadId: "",
     done: false,
     error: null,
@@ -258,6 +265,8 @@ async function main(): Promise<void> {
   // C7: last observed stationId: stationsObserved grows only when the
   // SERVER's station changes (rotation). Read-only to the harness.
   let lastStationSeen: string | null = null;
+  const trackC8Observer = createC8ObserverTracker(probe);
+  attachC8RotationFailed(connection, probe);
   connection.onState((snapshot) => {
     probe.lastServerState = snapshot;
     const actors = (snapshot.actors ?? {}) as Record<
@@ -267,11 +276,8 @@ async function main(): Promise<void> {
     const turnOwner = typeof snapshot.turnOwner === "string" ? snapshot.turnOwner : "none";
     const turnId = typeof snapshot.turnId === "number" ? snapshot.turnId : 0;
     // C7: stationsObserved grows only when the SERVER station changes.
-    const stationUpdate = nextStationObservation(lastStationSeen, snapshot);
-    lastStationSeen = stationUpdate.lastSeen;
-    if (stationUpdate.event !== null) {
-      probe.stationsObserved.push(stationUpdate.event);
-    }
+    lastStationSeen = pushC8StationObservation(probe, lastStationSeen, snapshot);
+    trackC8Observer(snapshot);
     // C6: phase label + ring follow the SERVER only (pure functions of
     // phase/remainingS). The pre-sync push (no server fields) is skipped.
     const phaseField = (snapshot as { phase?: unknown }).phase;
@@ -314,7 +320,7 @@ async function main(): Promise<void> {
   probe.phase = "connected";
   setStatus("sync-probe connected, waiting for session");
 
-  if (query.script === "c6" || query.script === "c7") {
+  if (query.script === "c6" || query.script === "c7" || query.script === "c8") {
     // Gating probe at connect (doorway): before any XR setup.
     await runC6PreEncounterProbe({
       sent: () => probe.sent,
@@ -350,7 +356,7 @@ async function main(): Promise<void> {
       return;
     }
     probe.selectedLocal.push(actorId);
-    if (query.script === "c3" || query.script === "c6" || query.script === "c7") {
+    if (query.script === "c3" || query.script === "c6" || query.script === "c7" || query.script === "c8") {
       // C3/C6/C7 mode: select-actor ONLY. Utterance intents come from the scripted
       // turn sequence below, never from the trigger.
       enqueueIntent("select-actor", { actorId });
@@ -461,10 +467,10 @@ async function main(): Promise<void> {
     await rci.dispatch("set_connected", { device: "controller-right", connected: true });
 
     // Fixed script part 1: head yaw sweep 0 -> +30 -> -30 -> 0 over 6 s.
-    // Skipped for ?script=c7: the sweep generates head-pose evidence only,
+    // Skipped for ?script=c7/c8: the sweep generates head-pose evidence only,
     // and station-1's encounter window must fit setup + trigger + the shared
     // C3 turn script. The C3 utterance script itself is never forked.
-    const SWEEP_STEPS = query.script === "c7" ? 0 : 120;
+    const SWEEP_STEPS = query.script === "c7" || query.script === "c8" ? 0 : 120;
     for (let step = 0; step < SWEEP_STEPS; step += 1) {
       const yaw = sweepYawDegrees(step * 50);
       const quat = yawQuaternionDegrees(yaw);
@@ -523,8 +529,9 @@ async function main(): Promise<void> {
       await turnScript();
       setStatus(`sync-probe c6 ${resolvePhaseLabel(observedPhase().phase, observedPhase().remainingS)} waiting closed`);
       await waitFor(() => observedPhase().phase === "closed", 60000, "closed phase");
-    } else if (query.script === "c7") {
-      // C7: the shared C3 turn script once per station (see probe-c7).
+    } else if (query.script === "c7" || query.script === "c8") {
+      // C7: the shared C3 turn script once per station (see probe-c7). C8
+      // imports the same loop with pose streaming left on across rotation.
       await runC7Script({
         waitFor,
         sendIntentAndSettle,
@@ -539,6 +546,7 @@ async function main(): Promise<void> {
         setPoseStreaming: (enabled) => {
           poseStreaming = enabled;
         },
+        keepPoseAcrossRotation: query.script === "c8",
       });
     } else {
       for (const actorId of PROBE_ACTOR_IDS) {

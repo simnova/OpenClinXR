@@ -59,6 +59,8 @@ export interface C7ScriptDeps {
   getSnapshot(): unknown;
   setStatus(text: string): void;
   setPoseStreaming(enabled: boolean): void;
+  /** C8: leave pose streaming on across rotation (the C7 pause was a D1 workaround; C8 proves lossless). */
+  keepPoseAcrossRotation?: boolean;
 }
 
 function stationLabelOf(snapshot: unknown): string {
@@ -73,14 +75,14 @@ function phaseLabelOf(snapshot: unknown): { phase: string; remainingS: number | 
 /**
  * C7 station loop: the shared C3 turn script once per station. Station-1's
  * pre-encounter probe ran at connect; station-2 probes after rotation lands
- * in the new room's doorway. Pose stops when each script settles and resumes
- * only after the next station is observed, so no intent is ever in flight
- * when the server moves the connection (E5: exactly 2 rejects, both
- * pre-encounter probes).
+ * in the new room's doorway. C7 pauses pose across rotation (E5: exactly 2
+ * rejects, both pre-encounter probes); C8 passes keepPoseAcrossRotation to
+ * leave it on and prove rotation is lossless.
  */
 export async function runC7Script(deps: C7ScriptDeps): Promise<void> {
   const { waitFor, sendIntentAndSettle, aimAndTrigger, enqueueSelectA1, settlePreProbe, getSnapshot, setStatus, setPoseStreaming } =
     deps;
+  const keepPose = deps.keepPoseAcrossRotation === true;
   const snapshot = (): unknown => getSnapshot();
   const observedTurn = (): { turnId: number; owner: string; a1Speaking: boolean } =>
     observedTurnFrom(snapshot() as Parameters<typeof observedTurnFrom>[0]);
@@ -106,12 +108,12 @@ export async function runC7Script(deps: C7ScriptDeps): Promise<void> {
     );
     await aimAndTrigger("a1", 1);
     await turnScript();
-    // Stop the pose stream once the script's intents have settled: nothing
-    // may be in flight when the server moves the connection (E5: exactly 2
-    // rejects, both pre-encounter probes). Resume only after the next
-    // station is observed (post-rotation), so resumed poses address the
-    // new room.
-    setPoseStreaming(false);
+    // C7 pauses pose across rotation (the D1 workaround); C8 leaves it on.
+    // Resume only after the next station is observed (post-rotation), so
+    // resumed poses address the new room.
+    if (!keepPose) {
+      setPoseStreaming(false);
+    }
     setStatus(`sync-probe c7 ${stationLabelOf(snapshot())} waiting closed`);
     // The server rotates only at "closed", so seeing the next station also
     // proves this one closed. Rotation can replace the closed snapshot within
