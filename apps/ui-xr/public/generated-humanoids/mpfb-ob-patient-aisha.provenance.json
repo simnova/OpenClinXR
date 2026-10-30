@@ -81,11 +81,12 @@
   "2026-09-20: garment-provenance-stamp extras on remaining garments. Geometry unchanged. outputSha256/outputBytes re-recorded.",
   "2026-10-10: JSON-only removal of normalTexture on material mpfb_skin_ob_patient_aisha_v1. BIN chunk unchanged. Top-level outputSha256 and outputBytes re-recorded to the edited GLB. Shoulder clothing holes were not edited.",
   "2026-10-30 ci-w11 D3 (chest-anchor re-separation, post-bake stage, not rebake): default mode: rest 0.00000 -> +-0.085 (rebakes 32e58c3ff/91aa4b5d3/7d71273e3/9f2934536/10768617f had zeroed the #0 separation); moved 2 ClinicalIdleConversation + 2 openclinxr_retarget_walk_source keyframes per joint with the rests. y/z untouched. Tool: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs (half-span 0.085, uniform with nurse known-good 1f5519d2).",
-  "2026-10-30 ci-w11 D1 (orphan prune, not rebake): gltf-transform prune 4.3.0, same tool and flags as #555 (evidence tools/openclinxr/evidence/unbound-texture-prune.json). Removed unreferenced mpfb-ob-patient-aisha.skin-normal (1080156 B, orphaned by the 2026-10-10 normalTexture strip). File 10069400 -> 8828240 B. Bound invariants held: boundTextures 5, boundBytes 4246964, meshes 10, materials 17, tris 69067, joints 137, animations 3."
+  "2026-10-30 ci-w11 D1 (orphan prune, not rebake): gltf-transform prune 4.3.0, same tool and flags as #555 (evidence tools/openclinxr/evidence/unbound-texture-prune.json). Removed unreferenced mpfb-ob-patient-aisha.skin-normal (1080156 B, orphaned by the 2026-10-10 normalTexture strip). File 10069400 -> 8828240 B. Bound invariants held: boundTextures 5, boundBytes 4246964, meshes 10, materials 17, tris 69067, joints 137, animations 3.",
+  "2026-10-30 ci-w11b: ci-w12 D1 gravid station re-applied on the ci-w11 D1-pruned + D3-repaired bytes (cherry-pick c9d73bff3 binary conflict resolved by regeneration, never hand-merged bytes): 1104 recorded displacements via tools/openclinxr/asset-pipeline/makeclothes/apply-gravid-treatment.ts on the 8828240 B pruned base (topology match, max delta 101.3 mm). Chest anchors verified still +-0.085 post-apply; pregnancy contract the-case-declared-pregnancy-reaches-a-vertex.test.ts green (abdomen 319.2 within pin). outputSha256/outputBytes re-recorded in the same change that moved the bytes."
  ],
  "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
  "promotionGates": false,
- "outputSha256": "18a853e1d859160c32ffe4b664eac9e1d649b3cd2fa031249e6f365f1dab468d",
+ "outputSha256": "1b8a8ef4f548bfcd71305a30f8eae2e90f19a22176fb80e2e461f755010540ac",
  "outputBytes": 8828240,
  "fitTimeLower": {
   "garment": "punkduck_female_tight_jeans",
