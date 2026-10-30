@@ -70,14 +70,22 @@ describe("xr-sync-server C2 probe provisioning", () => {
     expect(select).toMatchObject({ status: "ack", seq: 1 });
     const started = await connection.sendIntent("utterance-start", {});
     expect(started).toMatchObject({ status: "ack", seq: 2 });
-    await waitFor(() => latest?.actors["a1"]?.speaking === true, 5000, "a1 speaking");
+    // C3 superseded: actor speaking now follows the server reply, see xr-sync-c3-actor-turn.test.ts.
+    await waitFor(() => latest?.learners[connection.sessionId]?.speaking === true, 5000, "learner speaking");
+    expect(latest?.actors["a1"]?.speaking).toBe(false);
+    expect(latest?.turnOwner).toBe("learner");
+    const ended = await connection.sendIntent("utterance-end", {});
+    expect(ended).toMatchObject({ status: "ack", seq: 3 });
+    await waitFor(() => latest?.actors["a1"]?.speaking === true, 5000, "a1 speaking on server reply");
 
     const stats = server.getProbeStats();
-    expect(stats.intentCounts).toMatchObject({ pose: 0, "select-actor": 1, "utterance-start": 1 });
+    expect(stats.intentCounts).toMatchObject({ pose: 0, "select-actor": 1, "utterance-start": 1, "utterance-end": 1 });
     expect(stats.selections).toEqual([{ sessionId: connection.sessionId, actorId: "a1", seq: 1 }]);
 
     const serverState = JSON.parse(server.getStateJSON()) as EncounterSnapshot;
     expect(serverState.actors["a1"]?.speaking).toBe(true);
+    expect(serverState.turnId).toBe(1);
+    expect(serverState.turnOwner).toBe("actor");
   }, 30000);
 
   it("invalid actor ids are ignored and defaults always survive", async () => {

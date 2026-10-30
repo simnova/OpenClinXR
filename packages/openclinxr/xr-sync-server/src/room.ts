@@ -21,6 +21,50 @@ export const MAX_EXTRA_ACTOR_IDS = 8;
 export const KNOWN_ACTOR_IDS = ["physician", "patient"] as const;
 export type KnownActorId = (typeof KNOWN_ACTOR_IDS)[number];
 
+/** C3 scripted actor reply: an id the page renders, text kept server-side, and a server-clock duration. */
+export interface C3ScriptedReply {
+  id: string;
+  text: string;
+  durationMs: number;
+}
+
+/**
+ * C3 server-side scripted reply table (module-local const, no LLM, no network).
+ * Every durationMs sits in [1500, 4000]: the floor is 30x the C2 Quest RTT max
+ * (43 ms) plus the 50 ms patch interval so the probe can observe and interrupt
+ * a turn on device; the ceiling keeps the scripted run short.
+ */
+export const C3_REPLY_TABLE: readonly C3ScriptedReply[] = [
+  { id: "c3-ack-open", text: "Thanks for sharing that. Tell me a little more about what brings you in today.", durationMs: 2000 },
+  { id: "c3-ack-onset", text: "I see. When did you first notice that change?", durationMs: 2500 },
+  { id: "c3-ack-recap", text: "Got it. Let me make sure I have that right before we go on.", durationMs: 3000 },
+];
+
+/**
+ * Deterministic C3 reply picker: the actor's own 1-based turn count selects the
+ * reply, so the same intent script always replays the same turn log.
+ */
+export function pickC3Reply(actorTurnCount: number): C3ScriptedReply {
+  const index = (Math.max(1, Math.floor(actorTurnCount)) - 1) % C3_REPLY_TABLE.length;
+  const reply = C3_REPLY_TABLE[index];
+  if (!reply) {
+    throw new Error("empty C3 reply table");
+  }
+  return reply;
+}
+
+/** One server-driven actor turn, in application order. Server-side only, never synced. */
+export interface TurnRecord {
+  turnId: number;
+  actorId: string;
+  replyId: string;
+  /** Seq of the utterance-end intent that opened the turn. */
+  startSeq: number;
+  end: "open" | "completed" | "interrupted";
+  /** Seq of the interrupting utterance-start, or null when completed/open. */
+  endSeq: number | null;
+}
+
 /** One applied select-actor intent, in application order. Server-side only, never synced. */
 export interface ProbeSelection {
   sessionId: string;
@@ -32,6 +76,8 @@ export interface ProbeSelection {
 export interface RoomProbeStats {
   intentCounts: Record<string, number>;
   selections: ProbeSelection[];
+  /** C3 actor-turn log; every entry is a copy, never a live reference. */
+  turns: TurnRecord[];
 }
 
 /** Options accepted at room creation (forwarded from joinOrCreate). */
@@ -72,10 +118,12 @@ export interface RejectMessage {
 export interface EncounterSnapshot {
   serverTick: number;
   phase: string;
-  actors: Record<string, { id: string; speaking: boolean; emotion: string }>;
+  turnId: number;
+  turnOwner: string;
+  actors: Record<string, { id: string; speaking: boolean; emotion: string; replyId: string }>;
   learners: Record<
     string,
-    { sessionId: string; headX: number; headY: number; headZ: number; lastSeq: number }
+    { sessionId: string; headX: number; headY: number; headZ: number; lastSeq: number; speaking: boolean }
   >;
 }
 
@@ -127,7 +175,7 @@ function parseExtraActorIds(value: unknown): string[] {
 export function snapshotState(state: EncounterStateInstance): EncounterSnapshot {
   const actors: EncounterSnapshot["actors"] = {};
   for (const [id, actor] of state.actors) {
-    actors[id] = { id: actor.id, speaking: actor.speaking, emotion: actor.emotion };
+    actors[id] = { id: actor.id, speaking: actor.speaking, emotion: actor.emotion, replyId: actor.replyId };
   }
   const learners: EncounterSnapshot["learners"] = {};
   for (const [sessionId, learner] of state.learners) {
@@ -137,9 +185,10 @@ export function snapshotState(state: EncounterStateInstance): EncounterSnapshot 
       headY: learner.headY,
       headZ: learner.headZ,
       lastSeq: learner.lastSeq,
+      speaking: learner.speaking,
     };
   }
-  return { serverTick: state.serverTick, phase: state.phase, actors, learners };
+  return { serverTick: state.serverTick, phase: state.phase, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners };
 }
 
 /** Server-authoritative encounter room. Clients send intents; only ack/reject go back as messages. */
@@ -150,12 +199,19 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   private intentCounts: Record<string, number> = { pose: 0, "select-actor": 0, "utterance-start": 0, "utterance-end": 0 };
   /** Applied select-actor intents in application order. Probe observability only. */
   private selectionLog: ProbeSelection[] = [];
+  /** C3 server-driven actor turns, in application order. Probe observability only. */
+  private turnLog: TurnRecord[] = [];
+  /** Per-actor completed turn counts driving the deterministic reply picker. */
+  private actorTurnCounts = new Map<string, number>();
+  /** The currently open actor turn, if any, with its server-clock completion timer. */
+  private openTurn: { turnId: number; actorId: string; timer: { clear(): void } } | null = null;
 
   /** Read-only copy of probe stats for the harness. Never sent on the wire. */
   getProbeStats(): RoomProbeStats {
     return {
       intentCounts: { ...this.intentCounts },
       selections: this.selectionLog.map((entry) => ({ ...entry })),
+      turns: this.turnLog.map((entry) => ({ ...entry })),
     };
   }
 
@@ -164,6 +220,8 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     this.setState(new EncounterState());
     this.state.serverTick = 0;
     this.state.phase = "brief";
+    this.state.turnId = 0;
+    this.state.turnOwner = "none";
     this.state.actors = new MapSchema<ActorStateInstance>();
     this.state.learners = new MapSchema<LearnerStateInstance>();
     const roster = new Set<string>(KNOWN_ACTOR_IDS);
@@ -175,6 +233,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       actor.id = id;
       actor.speaking = false;
       actor.emotion = "neutral";
+      actor.replyId = "";
       this.state.actors.set(id, actor);
     }
 
@@ -206,6 +265,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       learner.headY = 0;
       learner.headZ = 0;
       learner.lastSeq = 0;
+      learner.speaking = false;
       this.state.learners.set(client.sessionId, learner);
     }
   }
@@ -322,13 +382,36 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     return true;
   }
 
+  /**
+   * End the open actor turn as interrupted (learner started speaking again).
+   * The cancelled server-clock timer must never fire later and flip anything.
+   */
+  private interruptOpenTurn(endSeq: number): void {
+    const open = this.openTurn;
+    if (!open) {
+      return;
+    }
+    open.timer.clear();
+    this.openTurn = null;
+    const actor = this.state.actors.get(open.actorId);
+    if (actor) {
+      actor.speaking = false;
+    }
+    const record = this.turnLog.find((entry) => entry.turnId === open.turnId);
+    if (record && record.end === "open") {
+      record.end = "interrupted";
+      record.endSeq = endSeq;
+    }
+  }
+
   private applyUtterance(
     client: Client,
-    _learner: LearnerStateInstance,
+    learner: LearnerStateInstance,
     seq: number,
     kind: string,
     payload: unknown,
   ): boolean {
+    // C3: client-supplied reply/turn fields are ignored; only `actorId` is read.
     let actorId = this.selectedActor.get(client.sessionId);
     if (payload !== undefined) {
       if (!isRecord(payload)) {
@@ -344,6 +427,29 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         actorId = payloadActorId;
       }
     }
+    if (kind === "utterance-start") {
+      if (learner.speaking) {
+        this.reject(client, seq, "utterance-already-open");
+        return false;
+      }
+      if (actorId === undefined || !this.state.actors.has(actorId)) {
+        this.reject(client, seq, "no-actor-selected");
+        return false;
+      }
+      const spokenOver = this.state.actors.get(actorId);
+      if (!spokenOver) {
+        this.reject(client, seq, "unknown-actor");
+        return false;
+      }
+      this.interruptOpenTurn(seq);
+      learner.speaking = true;
+      this.state.turnOwner = "learner";
+      return true;
+    }
+    if (!learner.speaking) {
+      this.reject(client, seq, "no-open-utterance");
+      return false;
+    }
     if (actorId === undefined || !this.state.actors.has(actorId)) {
       this.reject(client, seq, "no-actor-selected");
       return false;
@@ -353,7 +459,27 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       this.reject(client, seq, "unknown-actor");
       return false;
     }
-    actor.speaking = kind === "utterance-start";
+    learner.speaking = false;
+    const turnCount = (this.actorTurnCounts.get(actorId) ?? 0) + 1;
+    this.actorTurnCounts.set(actorId, turnCount);
+    const reply = pickC3Reply(turnCount);
+    const turnId = this.state.turnId + 1;
+    this.state.turnId = turnId;
+    actor.speaking = true;
+    actor.replyId = reply.id;
+    this.state.turnOwner = "actor";
+    const record: TurnRecord = { turnId, actorId, replyId: reply.id, startSeq: seq, end: "open", endSeq: null };
+    this.turnLog.push(record);
+    const timer = this.clock.setTimeout(() => {
+      if (this.openTurn?.turnId !== turnId) {
+        return;
+      }
+      this.openTurn = null;
+      actor.speaking = false;
+      this.state.turnOwner = "none";
+      record.end = "completed";
+    }, reply.durationMs);
+    this.openTurn = { turnId, actorId, timer };
     return true;
   }
 }

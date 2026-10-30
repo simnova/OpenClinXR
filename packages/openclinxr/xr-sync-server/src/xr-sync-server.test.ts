@@ -145,6 +145,7 @@ describe("xr-sync-server C1 host-only sync", () => {
       headY: 250,
       headZ: -125,
       lastSeq: 100,
+      speaking: false,
     };
     expect(latestA?.learners[a.sessionId]).toEqual(expectedLearner);
     expect(latestB?.learners[a.sessionId]).toEqual(expectedLearner);
@@ -449,7 +450,8 @@ describe("xr-sync-server C1 host-only sync", () => {
       expect(latestLearner).toEqual(serverState.learners[sessionId]);
   }, 60000);
 
-  it("T7: select-actor and utterance intents toggle speaking", async () => {
+  it("T7: select-actor and utterance intents drive the server turn (C3 meaning)", async () => {
+    // C3 superseded: actor speaking now follows the server reply, see xr-sync-c3-actor-turn.test.ts.
     const server = await startServer();
     const a: SyncConnection = await connect(server.url);
     trackConnection(a);
@@ -466,6 +468,18 @@ describe("xr-sync-server C1 host-only sync", () => {
     expect(selected).toMatchObject({ status: "ack", seq: 1 });
     const started = await a.sendIntent(start, {});
     expect(started).toMatchObject({ status: "ack", seq: 2 });
+    // Learner holds the turn while speaking; the actor stays silent until utterance-end.
+    const learnerSpeakingIs = (snapshot: EncounterSnapshot | undefined, value: boolean): boolean => {
+      if (snapshot === undefined) {
+        return false;
+      }
+      return snapshot.learners[a.sessionId]?.speaking === value;
+    };
+    await waitFor(() => learnerSpeakingIs(latest, true), 5000, "learner speaking true");
+    await waitFor(() => latest?.actors["physician"]?.speaking !== true, 5000, "actor silent during learner turn");
+    expect(latest?.turnOwner).toBe("learner");
+    const ended = await a.sendIntent(end, {});
+    expect(ended).toMatchObject({ status: "ack", seq: 3 });
     const speakingIs = (snapshot: EncounterSnapshot | undefined, value: boolean): boolean => {
       if (snapshot === undefined) {
         return false;
@@ -473,10 +487,13 @@ describe("xr-sync-server C1 host-only sync", () => {
       const { physician }: { physician?: SnapshotActor } = snapshot.actors;
       return physician?.speaking === value;
     };
-    await waitFor(() => speakingIs(latest, true), 5000, "speaking true");
-    const ended = await a.sendIntent(end, {});
-    expect(ended).toMatchObject({ status: "ack", seq: 3 });
-    await waitFor(() => speakingIs(latest, false), 5000, "speaking false");
+    await waitFor(() => speakingIs(latest, true), 5000, "actor speaking on server reply");
+    expect(latest?.turnOwner).toBe("actor");
+    expect(latest?.turnId).toBe(1);
+    expect(latest?.actors["physician"]?.replyId).toMatch(/\S/);
+    // The server clock ends the turn on its own: speaking false, owner none.
+    await waitFor(() => speakingIs(latest, false), 15000, "speaking false");
+    expect(latest?.turnOwner).toBe("none");
 
     const serverState = JSON.parse(server.getStateJSON()) as EncounterSnapshot;
     const { physician: finalPhysician }: { physician?: SnapshotActor } = serverState.actors;

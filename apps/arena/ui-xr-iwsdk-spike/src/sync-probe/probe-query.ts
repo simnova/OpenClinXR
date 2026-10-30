@@ -10,6 +10,8 @@ export interface ProbeQuery {
   autostart: boolean;
   /** Quest mode: install the IWER runtime even when a native runtime is present. */
   forceIwer: boolean;
+  /** Probe script: "c2" (sweep + select each actor) or "c3" (server-driven actor turn). */
+  script: "c2" | "c3";
 }
 
 /** Parse the probe query string. Throws on missing/invalid ?sync=. */
@@ -19,10 +21,15 @@ export function parseProbeQuery(search: string): ProbeQuery {
   if (!/^ws:\/\/127\.0\.0\.1:\d+$/.test(syncUrl) && !/^ws:\/\/localhost:\d+$/.test(syncUrl)) {
     throw new Error(`invalid or missing ?sync= ws url: ${syncUrl.slice(0, 80)}`);
   }
+  const scriptParam = params.get("script") ?? "c2";
+  if (scriptParam !== "c2" && scriptParam !== "c3") {
+    throw new Error(`invalid ?script= value: ${scriptParam.slice(0, 20)}`);
+  }
   return {
     syncUrl,
     useIwer: params.get("iwer") === "1",
     autostart: params.get("autostart") === "1",
     forceIwer: params.get("forceIwer") === "1",
+    script: scriptParam,
   };
 }

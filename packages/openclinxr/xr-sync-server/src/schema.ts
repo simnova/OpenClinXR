@@ -12,6 +12,7 @@ export const ActorState = schema(
     id: t.string(),
     speaking: t.boolean(),
     emotion: t.string(),
+    replyId: t.string(),
   },
   "ActorState",
 );
@@ -23,6 +24,7 @@ export const LearnerState = schema(
     headY: t.number(),
     headZ: t.number(),
     lastSeq: t.number(),
+    speaking: t.boolean(),
   },
   "LearnerState",
 );
@@ -31,6 +33,8 @@ export const EncounterState = schema(
   {
     serverTick: t.number(),
     phase: t.string(),
+    turnId: t.number(),
+    turnOwner: t.string(),
     actors: t.map(ActorState),
     learners: t.map(LearnerState),
   },

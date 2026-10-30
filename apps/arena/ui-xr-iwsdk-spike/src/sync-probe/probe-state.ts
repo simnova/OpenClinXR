@@ -18,6 +18,28 @@ export function resolveActorColour(speaking: boolean): number {
   return speaking ? SPEAKING_ACTOR_COLOUR : BASE_ACTOR_COLOUR;
 }
 
+/** Base turn-indicator colour: nobody holds the turn. */
+export const BASE_TURN_COLOUR = 0x2a3f3a;
+/** Turn-indicator colour while the SERVER says the learner holds the turn. */
+export const LEARNER_TURN_COLOUR = 0x4fc3f7;
+/** Turn-indicator colour while the SERVER says the actor is replying. Never set locally. */
+export const ACTOR_TURN_COLOUR = 0xffb545;
+
+/**
+ * Rendered turn-indicator colour, derived ONLY from server turn state.
+ * Pure function of (turnOwner, actorSpeaking): no local intent state enters,
+ * so a page-local turn mutation can never move the indicator without the server.
+ */
+export function resolveTurnIndicatorColour(turnOwner: string, actorSpeaking: boolean): number {
+  if (turnOwner === "actor" && actorSpeaking) {
+    return ACTOR_TURN_COLOUR;
+  }
+  if (turnOwner === "learner") {
+    return LEARNER_TURN_COLOUR;
+  }
+  return BASE_TURN_COLOUR;
+}
+
 /** Quantize a pose component to float32 so the schema round-trip is bit-exact. */
 export function quantizePoseComponent(value: number): number {
   return Math.fround(value);

@@ -39,6 +39,8 @@ export interface SnapshotActor {
   id: string;
   speaking: boolean;
   emotion: string;
+  /** C3 server-driven reply id ("" before the actor's first turn). */
+  replyId: string;
 }
 
 /** Plain view of one synced learner, including intent cursor. */
@@ -48,12 +50,18 @@ export interface SnapshotLearner {
   headY: number;
   headZ: number;
   lastSeq: number;
+  /** C3 learner speech flag: true between utterance-start and utterance-end. */
+  speaking: boolean;
 }
 
 /** Plain view of synced encounter state delivered to onState. */
 export interface EncounterSnapshot {
   serverTick: number;
   phase: string;
+  /** C3 actor-turn counter (0 before any actor turn). */
+  turnId: number;
+  /** C3 turn owner: "none" | "learner" | "actor". */
+  turnOwner: string;
   actors: Record<string, SnapshotActor>;
   learners: Record<string, SnapshotLearner>;
 }

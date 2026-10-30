@@ -14,11 +14,15 @@ import {
 } from "@openclinxr/xr-sync-server";
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  ACTOR_TURN_COLOUR,
   BASE_ACTOR_COLOUR,
+  BASE_TURN_COLOUR,
+  LEARNER_TURN_COLOUR,
   PROBE_ACTOR_IDS,
   SPEAKING_ACTOR_COLOUR,
   quantizePoseComponent,
   resolveActorColour,
+  resolveTurnIndicatorColour,
   summarizeMs,
   sweepYawDegrees,
   yawQuaternionDegrees,
@@ -93,9 +97,11 @@ describe("sync-probe pure probe logic", () => {
 
   it("query parsing accepts loopback ws and the probe flags", () => {
     const query = parseProbeQuery("?sync=ws://127.0.0.1:4567&iwer=1&autostart=1");
-    expect(query).toEqual({ syncUrl: "ws://127.0.0.1:4567", useIwer: true, autostart: true, forceIwer: false });
+    expect(query).toEqual({ syncUrl: "ws://127.0.0.1:4567", useIwer: true, autostart: true, forceIwer: false, script: "c2" });
+    expect(parseProbeQuery("?sync=ws://127.0.0.1:4567&script=c3").script).toBe("c3");
     expect(() => parseProbeQuery("?iwer=1")).toThrow();
     expect(() => parseProbeQuery("?sync=https://example.com/x")).toThrow();
+    expect(() => parseProbeQuery("?sync=ws://127.0.0.1:4567&script=c9")).toThrow();
   });
 
   it("summaries report exact bucketed percentiles", () => {
@@ -144,9 +150,52 @@ describe("sync-probe server authority", () => {
     // Page-side mutation of the local copy (the strongest thing the page can do
     // outside intents): flip the snapshot and re-derive colour from it.
     const local = latest as EncounterSnapshot;
-    local.actors["a1"] = { id: "a1", speaking: true, emotion: "hijacked" };
+    local.actors["a1"] = { id: "a1", speaking: true, emotion: "hijacked", replyId: "hijacked" };
     expect(resolveActorColour(local.actors["a1"]?.speaking === true)).toBe(SPEAKING_ACTOR_COLOUR);
     expect(server.getStateJSON()).toBe(before);
     expect(JSON.parse(server.getStateJSON()).actors["a1"].speaking).toBe(false);
+  }, 30000);
+
+  it("page-local turn-field mutation leaves server state untouched; the turn indicator is pure server state", async () => {
+    const server = await createEncounterServer();
+    servers.push(server);
+    const connection: SyncConnection = await connect(server.url, { roomOptions: { actors: ["a1"] } });
+    leavers.push(() => connection.leave());
+
+    let latest: EncounterSnapshot | undefined;
+    connection.onState((snapshot) => {
+      latest = snapshot;
+    });
+    await waitFor(() => latest?.actors?.["a1"] !== undefined, 5000, "a1 snapshot");
+    const before = server.getStateJSON();
+
+    // Page-side mutation of the local turn fields: forge a turn the server never opened.
+    const local = latest as EncounterSnapshot;
+    local.turnId = 99;
+    local.turnOwner = "actor";
+    local.actors["a1"] = { id: "a1", speaking: true, emotion: "hijacked", replyId: "page-forged" };
+    const learnerEntry = local.learners[connection.sessionId];
+    if (learnerEntry) {
+      learnerEntry.speaking = true;
+    }
+    // The indicator resolver still derives from whatever server state it is given,
+    // but the forgery never reaches the server: state is byte-identical.
+    expect(resolveTurnIndicatorColour(local.turnOwner, local.actors["a1"]?.speaking === true)).toBe(
+      ACTOR_TURN_COLOUR,
+    );
+    expect(server.getStateJSON()).toBe(before);
+    expect(JSON.parse(server.getStateJSON()).turnId).toBe(0);
+    expect(JSON.parse(server.getStateJSON()).turnOwner).toBe("none");
+    expect(JSON.parse(server.getStateJSON()).actors["a1"].replyId).not.toBe("page-forged");
+
+    // Purity: the resolver is a pure function of server turn state.
+    expect(resolveTurnIndicatorColour("actor", true)).toBe(ACTOR_TURN_COLOUR);
+    expect(resolveTurnIndicatorColour("actor", false)).toBe(BASE_TURN_COLOUR);
+    expect(resolveTurnIndicatorColour("learner", false)).toBe(LEARNER_TURN_COLOUR);
+    expect(resolveTurnIndicatorColour("learner", true)).toBe(LEARNER_TURN_COLOUR);
+    expect(resolveTurnIndicatorColour("none", false)).toBe(BASE_TURN_COLOUR);
+    expect(resolveTurnIndicatorColour("none", true)).toBe(BASE_TURN_COLOUR);
+    expect(BASE_TURN_COLOUR).not.toBe(LEARNER_TURN_COLOUR);
+    expect(LEARNER_TURN_COLOUR).not.toBe(ACTOR_TURN_COLOUR);
   }, 30000);
 });
