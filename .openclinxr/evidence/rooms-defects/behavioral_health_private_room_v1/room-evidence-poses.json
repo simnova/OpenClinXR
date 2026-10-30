@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.room-derived-evidence-poses.v1",
   "environmentId": "behavioral_health_private_room_v1",
-  "sourceGlb": "/Volumes/files/src/openclinxr-wt/rooms-defects/.openclinxr/evidence/rooms-defects/behavioral_health_private_room_v1/infinigen-behavioral-health-private.chain.glb",
+  "sourceGlb": "store:c44c0ffd7dc660b9aecc9a49ac483a64a7ed34889c6518010af8130318df6591/infinigen-behavioral-health-private.chain.glb",
   "sourceGlbSha256": "c44c0ffd7dc660b9aecc9a49ac483a64a7ed34889c6518010af8130318df6591",
   "roomBounds": {
     "min": [

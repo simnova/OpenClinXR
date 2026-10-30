@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.room-derived-evidence-poses.v1",
   "environmentId": "stepdown_room_v1",
-  "sourceGlb": "/Volumes/files/src/openclinxr-wt/cornice-flush/.openclinxr/evidence/cornice-flush-promote-tile/stepdown/infinigen-stepdown.chain.glb",
+  "sourceGlb": "store:4c459f7f2f2953019e397e324416ff78f973a139e12ac86669681cb6622f70f2/infinigen-stepdown.chain.glb",
   "sourceGlbSha256": "4c459f7f2f2953019e397e324416ff78f973a139e12ac86669681cb6622f70f2",
   "roomBounds": {
     "min": [

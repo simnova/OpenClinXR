@@ -10,7 +10,7 @@
   "poseDerivation": {
     "schemaVersion": "openclinxr.room-derived-evidence-poses.v1",
     "environmentId": "stepdown_room_v1",
-    "sourceGlb": "/Volumes/files/src/openclinxr-wt/ceiling-cornice/.openclinxr/evidence/ceiling-cornice/stepdown/infinigen-stepdown.chain.glb",
+    "sourceGlb": "store:3c6e25ca9cd166dc916a11ad5be2f3f3f936d861bf7db64b77929955c7bfaeca/infinigen-stepdown.chain.glb",
     "sourceGlbSha256": "3c6e25ca9cd166dc916a11ad5be2f3f3f936d861bf7db64b77929955c7bfaeca",
     "roomBounds": {
       "min": [
