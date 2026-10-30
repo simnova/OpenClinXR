@@ -160,6 +160,13 @@ export function consumeRotateTokenForJoin(
 export interface RotationFaults {
   failNext: number;
   bogusRotate: boolean;
+  /**
+   * C10 test seam (server-config only, never client-settable): force the next
+   * N station createRoom calls to throw, exercising the terminal-failure path
+   * (the session index covers the stations that ran with complete false).
+   * Optional so existing bindings keep compiling untouched; absent means 0.
+   */
+  failNextCreate?: number;
 }
 
 /** Per-server station binding shared by reference across a server's rooms. */
@@ -291,6 +298,13 @@ export async function driveStationRotation(step: RotationStep): Promise<boolean>
   const createNonce = randomUUID();
   step.binding.creationNonces.set(createNonce, nextIndex);
   const mm: RotationMatchMaker = step.deps ?? matchMaker;
+  // C10 fault seam: the next N station creations throw exactly like a real
+  // createRoom failure (same nonce cleanup, same rotation-failed error).
+  if ((step.binding.rotationFaults.failNextCreate ?? 0) > 0) {
+    step.binding.rotationFaults.failNextCreate = (step.binding.rotationFaults.failNextCreate ?? 1) - 1;
+    step.binding.creationNonces.delete(createNonce);
+    throw new Error("rotation-failed");
+  }
   let nextCache: Awaited<ReturnType<typeof matchMaker.createRoom>>;
   try {
     nextCache = await mm.createRoom(step.roomName, {
@@ -443,7 +457,11 @@ export async function driveRoomRotation(host: RoomRotationHost, roomName: string
     if (!rotated) {
       host.setRotationStarted(false);
     }
-  } catch {
+  } catch (error) {
+    // A station createRoom throw is terminal for the session (C10): reset the
+    // guard and rethrow so the review handler writes the incomplete index.
+    // Per-participant reservation failures never reach here (best-effort).
     host.setRotationStarted(false);
+    throw error;
   }
 }

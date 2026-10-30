@@ -121,15 +121,18 @@ export function buildSessionReviewIndex(
 
 /**
  * Best-effort index persistence: mkdir -p, one
- * <traceDir>/exam-session.review-index.json. Failures never propagate; the
- * room must close cleanly even when evidence cannot be written.
+ * <traceDir>/exam-session.review-index.json. A write failure is logged with
+ * the path (console.error) instead of swallowed: a missing index is a silent
+ * faculty-review outage otherwise (C9 grade defect 4). Never throws; the room
+ * must close cleanly even when evidence cannot be written.
  */
 export function writeSessionReviewIndexFile(traceDir: string, index: SessionReviewIndex): void {
+  const file = join(traceDir, SESSION_REVIEW_INDEX_FILE);
   try {
     mkdirSync(traceDir, { recursive: true });
-    writeFileSync(join(traceDir, SESSION_REVIEW_INDEX_FILE), `${JSON.stringify(index)}\n`, "utf8");
-  } catch {
-    // Probe evidence only.
+    writeFileSync(file, `${JSON.stringify(index)}\n`, "utf8");
+  } catch (error) {
+    console.error(`xr-sync: failed to write session review index to ${file}: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
@@ -191,29 +194,37 @@ export async function handleStationClosed(host: StationCloseReviewHost, roomName
     stationReviewFromTrace(host.stationId, host.stationIndex, host.roomId, host.traceSnapshot()),
   );
   let learnerFailures = 0;
-  await driveRoomRotation(
-    {
-      stations,
-      stationIndex: host.stationIndex,
-      stationId: host.stationId,
-      clients: host.clients,
-      isObserver: host.isObserver,
-      actorIds: host.actorIds,
-      closedAt: host.closedAt,
-      binding: host.binding,
-      onRotationFailed: (stationId) => {
-        host.onRotationFailed(stationId);
+  let stationCreateFailed = false;
+  try {
+    await driveRoomRotation(
+      {
+        stations,
+        stationIndex: host.stationIndex,
+        stationId: host.stationId,
+        clients: host.clients,
+        isObserver: host.isObserver,
+        actorIds: host.actorIds,
+        closedAt: host.closedAt,
+        binding: host.binding,
+        onRotationFailed: (stationId) => {
+          host.onRotationFailed(stationId);
+        },
+        onParticipantFailed: (failed) => {
+          if (failed.role === "learner") {
+            learnerFailures += 1;
+          }
+        },
+        rotationStarted: host.rotationStarted,
+        setRotationStarted: host.setRotationStarted,
       },
-      onParticipantFailed: (failed) => {
-        if (failed.role === "learner") {
-          learnerFailures += 1;
-        }
-      },
-      rotationStarted: host.rotationStarted,
-      setRotationStarted: host.setRotationStarted,
-    },
-    roomName,
-  );
+      roomName,
+    );
+  } catch {
+    // A station createRoom throw is terminal for the session (C10): the
+    // session cannot proceed past this station, so the index below covers
+    // the stations that ran with complete false.
+    stationCreateFailed = true;
+  }
   if (collector.written) {
     return;
   }
@@ -227,7 +238,7 @@ export async function handleStationClosed(host: StationCloseReviewHost, roomName
   // reservation, so the session cannot proceed past this station. The index
   // covers the stations that ran (the entries held so far).
   const learnerCount = host.clients.filter((client) => !host.isObserver(client.sessionId)).length;
-  if (learnerCount > 0 && learnerFailures >= learnerCount) {
+  if (stationCreateFailed || (learnerCount > 0 && learnerFailures >= learnerCount)) {
     writeSessionReviewIndexFile(traceDir, buildSessionReviewIndex(stations, collector.entries, false));
     collector.written = true;
   }

@@ -76,6 +76,12 @@ export interface EncounterSnapshot {
   stationIndex?: number;
   /** C7 station count (0 when no stations). */
   stationCount?: number;
+  /** C10 replay mode ("replay" in replay rooms; absent on old servers). */
+  mode?: string;
+  /** C10 last recorded turn end ("" before the first end; absent on old servers). */
+  lastTurnEnd?: string;
+  /** C10 true after the last recorded event played (absent on old servers). */
+  replayDone?: boolean;
 }
 
 /** Live headset-side connection: intents out, snapshots in. */
