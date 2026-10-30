@@ -11,7 +11,7 @@
       "bakerId": "wardrobe_character",
       "family": "ActorVariant",
       "bakeReason": "body_changed",
-      "artifactPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_patient_child.glb",
+      "artifactPath": "store:5c87e7805139bab8cc5db2729ae5dc1c51673e18b3a2651bb327cf119cb58269/peds_patient_child.glb",
       "cacheKey": "4eaa20c7495358f094529ecc95416e0e567421e66ff646e3d73e94fb3299b85a"
     },
     {
@@ -19,7 +19,7 @@
       "bakerId": "wardrobe_character",
       "family": "ActorVariant",
       "bakeReason": "body_changed",
-      "artifactPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_anxious_parent.glb",
+      "artifactPath": "store:41754c7d7030d2ce4ca844e5a720e1b28119fa236466fe524b55ad1398c92b12/peds_anxious_parent.glb",
       "cacheKey": "77a0c67a4896fa9a70fc2b8a56ed79705f6d1cd1f6c0cbca12e4dc0183a6fb33"
     },
     {
@@ -27,7 +27,7 @@
       "bakerId": "wardrobe_character",
       "family": "ActorVariant",
       "bakeReason": "body_changed",
-      "artifactPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-rig/peds_nurse_kevin.glb",
+      "artifactPath": "store:e8b5f9ea84cce53f944138426f24c7aaeb21cc6b20aa0983122504dbb6fb9292/peds_nurse_kevin.glb",
       "cacheKey": "b70d1bcfcb033929d728d089490db6598f6c674aa9ac50261a17e70862b24ed9"
     },
     {

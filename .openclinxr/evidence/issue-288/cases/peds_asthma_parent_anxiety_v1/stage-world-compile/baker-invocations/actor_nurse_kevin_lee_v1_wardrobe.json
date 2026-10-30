@@ -4,5 +4,5 @@
   "bakerId": "wardrobe_character",
   "status": "invoked",
   "presetId": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1",
-  "outputGlb": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_nurse_kevin.glb"
+  "outputGlb": "store:e8b5f9ea84cce53f944138426f24c7aaeb21cc6b20aa0983122504dbb6fb9292/peds_nurse_kevin.glb"
 }

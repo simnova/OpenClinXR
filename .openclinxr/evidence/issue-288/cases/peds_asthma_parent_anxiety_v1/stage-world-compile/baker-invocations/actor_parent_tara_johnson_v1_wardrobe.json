@@ -4,5 +4,5 @@
   "bakerId": "wardrobe_character",
   "status": "invoked",
   "presetId": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1",
-  "outputGlb": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_anxious_parent.glb"
+  "outputGlb": "store:41754c7d7030d2ce4ca844e5a720e1b28119fa236466fe524b55ad1398c92b12/peds_anxious_parent.glb"
 }

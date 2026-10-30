@@ -4,5 +4,5 @@
   "bakerId": "wardrobe_character",
   "status": "invoked",
   "presetId": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1",
-  "outputGlb": ".openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_patient_child.glb"
+  "outputGlb": "store:5c87e7805139bab8cc5db2729ae5dc1c51673e18b3a2651bb327cf119cb58269/peds_patient_child.glb"
 }
