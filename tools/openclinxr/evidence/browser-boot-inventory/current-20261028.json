@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-10-28T15:43:59.127Z",
+  "generatedAt": "2026-10-30T17:53:19.854Z",
   "method": "static import-graph scan of tools/**/*.test.ts; value imports only; call detection after stripping comments and string literals",
   "primitives": [
     "spawnPortlessDevServer (lib/portless-server.ts — boots a Vite dev server)",
     "chromium.launch (playwright — boots a headless Chrome shell)"
   ],
-  "totalTestFiles": 1042,
-  "browserBootingTestFiles": 71,
+  "totalTestFiles": 1052,
+  "browserBootingTestFiles": 70,
   "excludedAmongBrowserBooting": 0,
-  "minBrowsersPerSuiteRun": 70,
-  "minServersPerSuiteRun": 69,
-  "staticUpperBoundBrowsers": 217,
-  "staticUpperBoundServers": 213,
+  "minBrowsersPerSuiteRun": 69,
+  "minServersPerSuiteRun": 68,
+  "staticUpperBoundBrowsers": 215,
+  "staticUpperBoundServers": 211,
   "rows": [
     {
       "testFile": "tools/openclinxr/dark-factory/the-multi-case-rollup-publishes-only-explicitly.test.ts",
@@ -273,7 +273,7 @@
       "acquisitionMode": "own",
       "ownsServer": true,
       "ownsBrowser": true,
-      "closureSize": 19,
+      "closureSize": 21,
       "directLaunchers": [
         "tools/openclinxr/evidence/cue-props-are-not-furniture.ts"
       ],
@@ -613,31 +613,12 @@
       "acquisitionMode": "own",
       "ownsServer": true,
       "ownsBrowser": true,
-      "closureSize": 21,
+      "closureSize": 24,
       "directLaunchers": [
         "tools/openclinxr/evidence/library-figure-finish-parity.ts"
       ],
       "launcherModules": [
         "tools/openclinxr/evidence/library-figure-finish-parity.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "closureServerCallSites": 2,
-      "closureBrowserCallSites": 2,
-      "invokedPathServerCallSites": 1,
-      "invokedPathBrowserCallSites": 1
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/library-humanoid-staged.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 21,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/library-humanoid-staged.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/library-humanoid-staged.ts",
         "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
       ],
       "closureServerCallSites": 2,
@@ -669,7 +650,7 @@
       "acquisitionMode": "own",
       "ownsServer": true,
       "ownsBrowser": true,
-      "closureSize": 21,
+      "closureSize": 23,
       "directLaunchers": [
         "tools/openclinxr/evidence/per-station-actor-integrity.ts"
       ],
@@ -688,7 +669,7 @@
       "acquisitionMode": "own",
       "ownsServer": true,
       "ownsBrowser": true,
-      "closureSize": 44,
+      "closureSize": 45,
       "directLaunchers": [
         "tools/openclinxr/evidence/the-loaded-mesh-matches-the-cast.ts"
       ],
@@ -1193,7 +1174,7 @@
       "acquisitionMode": "own",
       "ownsServer": true,
       "ownsBrowser": true,
-      "closureSize": 61,
+      "closureSize": 64,
       "directLaunchers": [
         "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts"
       ],
