@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 60 roots and 161 declared entrypoints", () => {
+  it("(1) the live tree discovers 62 roots and 164 declared entrypoints", () => {
     const report = measureSurface();
     // 2026-10-07 mouth-station pilot (MADR 0060/0061, integration branch station-mouth): the
     // objective package @openclinxr/station-mouth-objective adds one root (49 -> 50); its surface
@@ -134,7 +134,11 @@ describe("compiler-resolved surface meter", () => {
     // ./slots, compute-services-spec ./contracts, service-local-compute ./local).
     // 2026-10-30 trellis evidence sidecar (operator-approved 2026-10-30): the private
     // sidecar @openclinxr/trellis-evidence adds one root that publishes nothing (59 -> 60).
-    expect(report.totals.roots).toBe(60);
+    // 2026-10-30 face-realism station split (operator-approved 2026-10-30): the
+    // @openclinxr/station-face-realism station adds one root that publishes nothing at "."
+    // (60 -> 61) and the private sidecar @openclinxr/station-face-realism-evidence adds
+    // one more root that publishes nothing (61 -> 62).
+    expect(report.totals.roots).toBe(62);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -191,7 +195,11 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-30 trellis evidence sidecar (operator-approved 2026-10-30): the sidecar,
     // with no exports map, is discovered as one implicit "." that publishes nothing
     // (160 -> 161).
-    expect(report.totals.entrypoints).toBe(161);
+    // 2026-10-30 face-realism station split (operator-approved 2026-10-30): the station
+    // root publishes an empty "." plus the "./runner" subpath, and the evidence sidecar,
+    // with no exports map, is discovered as one implicit "." that publishes nothing
+    // (161 -> 164); no other package.json `exports` map changes.
+    expect(report.totals.entrypoints).toBe(164);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -224,7 +232,8 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-30 station-mouth-verifier-evidence sidecar adds one root (57 -> 58), operator-approved 2026-10-30.
     // 2026-10-30 factory-station-core split adds one root (58 -> 59), operator-approved 2026-10-30.
     // 2026-10-30 trellis evidence sidecar adds one root (59 -> 60), operator-approved 2026-10-30.
-    expect(report.packages.length).toBe(60);
+    // 2026-10-30 face-realism station split adds two roots (60 -> 62), operator-approved 2026-10-30.
+    expect(report.packages.length).toBe(62);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {

@@ -24,7 +24,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const CARD = "tsk_3dc1802d0ca2b36c";
 const CHAIN = "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json";
 const FIXTURE_ALBEDO = "tools/openclinxr/asset-pipeline/skin/face-replay/fixtures/base-good-A.png";
-const REPORT = "packages/openclinxr/factory-stations/src/face_realism/run-report.json";
+const REPORT = "packages/openclinxr/stations/face-realism/src/run-report.json";
 // Stages whose bytes this card's merged code may change (standalone beard
 // gains --vermilion-mask, detail gains --beard-weight, browform reads the
 // detail output). Derived from the manifest output_paths below, never
@@ -56,7 +56,7 @@ type RunModule = {
 async function main(): Promise<void> {
   const root = repoRoot();
   const runMod = (await import(
-    pathToFileURL(join(root, "packages/openclinxr/factory-stations/src/face_realism/run.js")).href
+    pathToFileURL(join(root, "packages/openclinxr/stations/face-realism/src/run.js")).href
   )) as RunModule;
 
   const chain = JSON.parse(readFileSync(join(root, CHAIN), "utf8")) as {

@@ -39,15 +39,15 @@ const SHEET_DIR = join(CHILD_STORE, "sheet/");
 const LID_CONFORM_PY = join(HERE, "lid_conform.py");
 const STAGES_B = join(
   REPO_ROOT,
-  "packages/openclinxr/factory-stations/src/face_realism/stages-b.ts",
+  "packages/openclinxr/stations/face-realism/src/stages-b.ts",
 );
 const RUN_TS = join(
   REPO_ROOT,
-  "packages/openclinxr/factory-stations/src/face_realism/run.ts",
+  "packages/openclinxr/stations/face-realism/src/run.ts",
 );
 const PLAN_TS = join(
   REPO_ROOT,
-  "packages/openclinxr/factory-stations/src/face_realism/plan.ts",
+  "packages/openclinxr/stations/face-realism/src/plan.ts",
 );
 
 type FleshVert = {
@@ -211,8 +211,8 @@ describe("the child lid conforms to its age-sized globe", () => {
   });
 
   it("(2) the stage-4 default stem is case-derived, not shared", () => {
-    // The stem-derivation unit test lives in-package at face_realism/
-    // the-stage-4-output-stem-is-case-derived.test.ts (this repo refuses
+    // The stem-derivation unit test lives in the face-realism evidence sidecar
+    // @openclinxr/station-face-realism-evidence (this repo refuses
     // cross-package relative src imports, so it cannot live here). This
     // clause pins the call-site wiring: runStage4 names no case literal and
     // the stage-4 stem function is the one the report's run used.

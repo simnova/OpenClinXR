@@ -70,7 +70,8 @@
     "@openclinxr/compute-services-spec",
     "@openclinxr/compute-slots",
     "@openclinxr/factory-station-core",
-    "@openclinxr/service-local-compute"
+    "@openclinxr/service-local-compute",
+    "@openclinxr/station-face-realism"
   ],
   "tests": [
     "src/clothing_consume/the-clothing-consume-station-builds-per-actor-bodies.test.ts",
@@ -81,15 +82,6 @@
     "src/clothing_consume/the-rig-refit-lands-on-animated-figures.test.ts",
     "src/equipment_generate/the-equipment-generate-r5-best-treatment.test.ts",
     "src/equipment_generate/the-equipment-station-publishes-a-runtime-asset-url.test.ts",
-    "src/face_realism/the-detail-bands-report-holds.test.ts",
-    "src/face_realism/the-face-station-completes-the-child-case.test.ts",
-    "src/face_realism/the-face-station-executes-the-chain.test.ts",
-    "src/face_realism/the-face-station-replays-a-stored-record.test.ts",
-    "src/face_realism/the-face-station-runs-seven-stages-from-a-case.test.ts",
-    "src/face_realism/the-run-case-never-overwrites-evidence.test.ts",
-    "src/face_realism/the-stage-4-output-stem-is-case-derived.test.ts",
-    "src/face_realism/the-station-chains-compose-and-colour.test.ts",
-    "src/face_realism/the-station-runs-every-manifest-stage.test.ts",
     "src/hair_editor/the-hair-apply-honours-the-plan.test.ts",
     "src/hair_editor/the-hair-editor-station-is-an-alternative-to-mhclo.test.ts",
     "src/lighting_design/the-lighting-design-station-emits-a-deterministic-rig.test.ts",

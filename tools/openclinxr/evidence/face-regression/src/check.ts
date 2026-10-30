@@ -137,8 +137,8 @@ const FACE_REGRESSION_DIR = resolve(SRC_DIR, "..");
 const REGIONS_PY = join(FACE_REGRESSION_DIR, "src", "regions.py");
 const GOLDEN_POINTER = join(FACE_REGRESSION_DIR, "golden-pointer.json");
 const CALIBRATION = join(FACE_REGRESSION_DIR, "calibration.json");
-const CASE_INPUTS = "packages/openclinxr/factory-stations/src/face_realism/case-inputs.json";
-const RUN_REPORT = "packages/openclinxr/factory-stations/src/face_realism/case-run-report.json";
+const CASE_INPUTS = "packages/openclinxr/stations/face-realism/src/case-inputs.json";
+const RUN_REPORT = "packages/openclinxr/stations/face-realism/src/case-run-report.json";
 // The brief names /Volumes/files/openclinxr-assets/store/face-regression (no
 // /src): the store lives at /Volumes/files/openclinxr-assets, which is also
 // where the station's own record (case-run-report.json:store) points.

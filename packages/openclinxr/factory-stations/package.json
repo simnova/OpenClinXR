@@ -30,6 +30,7 @@
     "@openclinxr/compute-slots": "workspace:*",
     "@openclinxr/factory-station-core": "workspace:*",
     "@openclinxr/service-local-compute": "workspace:*",
+    "@openclinxr/station-face-realism": "workspace:*",
     "@gltf-transform/core": "^4.3.0",
     "@gltf-transform/extensions": "^4.3.0",
     "@gltf-transform/functions": "^4.3.0",
