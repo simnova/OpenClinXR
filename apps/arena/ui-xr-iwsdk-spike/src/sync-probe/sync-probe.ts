@@ -17,7 +17,7 @@
  *   observed server state).
  */
 import * as THREE from "three";
-import { connect, type ConnectOptions, type EncounterSnapshot, type IntentKind, type SyncConnection } from "@openclinxr/xr-sync-client/headset";
+import { connect, type ConnectOptions, type EncounterSnapshot, type SyncConnection } from "@openclinxr/xr-sync-client/headset";
 import {
   BASE_ACTOR_COLOUR,
   BASE_TURN_COLOUR,
@@ -32,6 +32,8 @@ import {
 } from "./probe-state.js";
 import { C4MouthRender, type SyncProbeCueObservation } from "./probe-c4.js";
 import { createPhaseRing, observedPhaseFrom, observedTurnFrom, runC3TurnScript, runC6PreEncounterProbe } from "./probe-c6.js";
+import { nextStationObservation, runC7Script } from "./probe-c7.js";
+import { createIntentQueue } from "./probe-queue.js";
 import { parseProbeQuery } from "./probe-query.js";
 
 interface ProbePose {
@@ -82,6 +84,10 @@ interface SyncProbeEvidence {
   phase: string;
   /** C6 (phase, remainingS) appended when the SERVER phase/remaining changes. */
   phasesObserved: Array<{ phase: string; remainingS: number | null; atMs: number }>;
+  /** C7 (stationId) appended when the SERVER station changes. */
+  stationsObserved: Array<{ stationId: string; atMs: number }>;
+  /** C7 page load id, set once at load (proves no reload across rotation). */
+  pageLoadId: string;
   done: boolean;
   error: string | null;
 }
@@ -123,12 +129,16 @@ function createEvidence(): SyncProbeEvidence {
     selectMisses: 0,
     phase: "boot",
     phasesObserved: [],
+    stationsObserved: [],
+    pageLoadId: "",
     done: false,
     error: null,
   };
 }
 
 const probe = createEvidence();
+// C7 page load id, set once at load (proves no reload across rotation).
+probe.pageLoadId = `${Date.now().toString(36)}-${Math.floor(performance.now() * 1000).toString(36)}`;
 window.__syncProbe = probe;
 
 function setStatus(text: string): void {
@@ -245,6 +255,9 @@ async function main(): Promise<void> {
   // Last observed (phase, remainingS): phasesObserved grows only when the
   // SERVER's phase values change. Read-only to the harness.
   let lastPhaseSeen: { phase: string; remainingS: number | null } | null = null;
+  // C7: last observed stationId: stationsObserved grows only when the
+  // SERVER's station changes (rotation). Read-only to the harness.
+  let lastStationSeen: string | null = null;
   connection.onState((snapshot) => {
     probe.lastServerState = snapshot;
     const actors = (snapshot.actors ?? {}) as Record<
@@ -253,6 +266,12 @@ async function main(): Promise<void> {
     >;
     const turnOwner = typeof snapshot.turnOwner === "string" ? snapshot.turnOwner : "none";
     const turnId = typeof snapshot.turnId === "number" ? snapshot.turnId : 0;
+    // C7: stationsObserved grows only when the SERVER station changes.
+    const stationUpdate = nextStationObservation(lastStationSeen, snapshot);
+    lastStationSeen = stationUpdate.lastSeen;
+    if (stationUpdate.event !== null) {
+      probe.stationsObserved.push(stationUpdate.event);
+    }
     // C6: phase label + ring follow the SERVER only (pure functions of
     // phase/remainingS). The pre-sync push (no server fields) is skipped.
     const phaseField = (snapshot as { phase?: unknown }).phase;
@@ -289,57 +308,19 @@ async function main(): Promise<void> {
     probe.emotionsObserved.push(...delta.emotions);
   });
 
-  // Sequential intent queue: arrival order == call order == seq order, so every
-  // sent seq is acked in order on a healthy server.
-  let callIndex = 0;
-  let tail: Promise<void> = Promise.resolve();
+  // Sequential intent queue (shared module): arrival order == call order ==
+  // seq order, so every sent seq is acked in order on a healthy server.
+  const { enqueueIntent, sendIntentAndSettle } = createIntentQueue(connection, probe, waitFor);
   probe.phase = "connected";
   setStatus("sync-probe connected, waiting for session");
 
-  if (query.script === "c6") {
+  if (query.script === "c6" || query.script === "c7") {
     // Gating probe at connect (doorway): before any XR setup.
     await runC6PreEncounterProbe({
       sent: () => probe.sent,
       enqueueSelectA1: () => enqueueIntent("select-actor", { actorId: "a1" }),
       waitForSettled: (target) => waitFor(() => probe.acks + probe.rejects >= target, 15000, "pre-encounter select-actor settled"),
       setStatus,
-    });
-  }
-
-  function enqueueIntent(kind: IntentKind, payload: Record<string, unknown>): void {
-    callIndex += 1;
-    const seq = callIndex;
-    if (kind === "pose") {
-      const pose = payload as { x: number; y: number; z: number };
-      probe.lastSentPose = { x: pose.x, y: pose.y, z: pose.z, seq };
-    }
-    probe.sent += 1;
-    probe.sentSeqs.push(seq);
-    probe.sentByKind[kind] = (probe.sentByKind[kind] ?? 0) + 1;
-    let kindSeqs = probe.sentSeqsByKind[kind];
-    if (kindSeqs === undefined) {
-      kindSeqs = [];
-      probe.sentSeqsByKind[kind] = kindSeqs;
-    }
-    kindSeqs.push(seq);
-    tail = tail.then(async () => {
-      try {
-        const result = await connection.sendIntent(kind, payload);
-        if (result.status === "ack") {
-          probe.acks += 1;
-          probe.ackSeqs.push(result.seq);
-          probe.rttMs.push(Number(result.rttMs.toFixed(2)));
-        } else {
-          probe.rejects += 1;
-          probe.rejectDetails.push({ seq: result.seq, reason: result.reason });
-        }
-      } catch (error) {
-        probe.rejects += 1;
-        probe.rejectDetails.push({
-          seq,
-          reason: `send-failed:${error instanceof Error ? error.message : String(error)}`.slice(0, 120),
-        });
-      }
     });
   }
 
@@ -369,8 +350,8 @@ async function main(): Promise<void> {
       return;
     }
     probe.selectedLocal.push(actorId);
-    if (query.script === "c3" || query.script === "c6") {
-      // C3/C6 mode: select-actor ONLY. Utterance intents come from the scripted
+    if (query.script === "c3" || query.script === "c6" || query.script === "c7") {
+      // C3/C6/C7 mode: select-actor ONLY. Utterance intents come from the scripted
       // turn sequence below, never from the trigger.
       enqueueIntent("select-actor", { actorId });
       return;
@@ -479,16 +460,11 @@ async function main(): Promise<void> {
     const rci = device.remote;
     await rci.dispatch("set_connected", { device: "controller-right", connected: true });
 
-    // One intent through the sequential queue; resolves once acked/rejected.
-    // Defined before the sweep; the turn scripts below share it.
-    async function sendIntentAndSettle(kind: IntentKind, payload: Record<string, unknown>): Promise<void> {
-      const target = probe.sent + 1;
-      enqueueIntent(kind, payload);
-      await waitFor(() => probe.acks + probe.rejects >= target, 15000, `${kind} settled`);
-    }
-
     // Fixed script part 1: head yaw sweep 0 -> +30 -> -30 -> 0 over 6 s.
-    const SWEEP_STEPS = 120;
+    // Skipped for ?script=c7: the sweep generates head-pose evidence only,
+    // and station-1's encounter window must fit setup + trigger + the shared
+    // C3 turn script. The C3 utterance script itself is never forked.
+    const SWEEP_STEPS = query.script === "c7" ? 0 : 120;
     for (let step = 0; step < SWEEP_STEPS; step += 1) {
       const yaw = sweepYawDegrees(step * 50);
       const quat = yawQuaternionDegrees(yaw);
@@ -547,6 +523,23 @@ async function main(): Promise<void> {
       await turnScript();
       setStatus(`sync-probe c6 ${resolvePhaseLabel(observedPhase().phase, observedPhase().remainingS)} waiting closed`);
       await waitFor(() => observedPhase().phase === "closed", 60000, "closed phase");
+    } else if (query.script === "c7") {
+      // C7: the shared C3 turn script once per station (see probe-c7).
+      await runC7Script({
+        waitFor,
+        sendIntentAndSettle,
+        aimAndTrigger,
+        enqueueSelectA1: () => enqueueIntent("select-actor", { actorId: "a1" }),
+        settlePreProbe: async () => {
+          const target = probe.sent;
+          await waitFor(() => probe.acks + probe.rejects >= target, 15000, "station pre-encounter settled");
+        },
+        getSnapshot: () => probe.lastServerState,
+        setStatus,
+        setPoseStreaming: (enabled) => {
+          poseStreaming = enabled;
+        },
+      });
     } else {
       for (const actorId of PROBE_ACTOR_IDS) {
         // C3 semantics: the second trigger first closes the learner's open

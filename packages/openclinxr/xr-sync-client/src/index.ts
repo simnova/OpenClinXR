@@ -70,6 +70,12 @@ export interface EncounterSnapshot {
   learners: Record<string, SnapshotLearner>;
   /** C5 connected faculty observers (read-only). Present once the server counts them. */
   observerCount?: number;
+  /** C7 station id ("" when no stations: C6 behaviour). Always present on C7 servers. */
+  stationId?: string;
+  /** C7 station index (0 when no stations). */
+  stationIndex?: number;
+  /** C7 station count (0 when no stations). */
+  stationCount?: number;
 }
 
 /** Live headset-side connection: intents out, snapshots in. */
@@ -172,6 +178,32 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
     room = next;
     room.onMessage("ack", (message) => settle(message as { seq?: unknown }, "ack"));
     room.onMessage("reject", (message) => settle(message as { seq?: unknown }, "reject"));
+    // C7 rotation: the server moves the learner to the next station's room
+    // with a server-issued seat reservation. The client consumes it (it never
+    // picks a station): seq stays monotonic, onState subscriptions survive,
+    // intents pending on the old room resolve on the old room (its ack/reject
+    // handlers still settle the shared pending set; the old room is left only
+    // after the new room is wired). leave/reconnect always target the current
+    // room.
+    room.onMessage("rotate", (reservation: unknown) => {
+      void (async () => {
+        const old = room;
+        try {
+          const incoming = await client.consumeSeatReservation(
+            reservation as Parameters<Client["consumeSeatReservation"]>[0],
+          );
+          wireRoom(incoming as unknown as Room);
+          try {
+            await old.leave();
+          } catch {
+            // Old room leave is best-effort; the new room is already wired.
+          }
+        } catch {
+          // Reservation consume failed: the connection stays on the old room
+          // (closed). Later sends surface the failure.
+        }
+      })();
+    });
     room.onStateChange(() => {
       pushCurrent();
     });

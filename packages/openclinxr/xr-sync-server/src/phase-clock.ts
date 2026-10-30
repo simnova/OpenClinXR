@@ -79,6 +79,8 @@ export interface StationPhaseBindings {
   getOpenTurn(): { turnId: number; actorId: string; timer: { clear(): void } } | null;
   clearPhaseTurn(): void;
   phaseChangedAtMs: Map<string, number>;
+  /** C7 rotation driver: invoked once when the station enters "closed". */
+  onClosed?: () => void;
 }
 
 /**
@@ -138,6 +140,11 @@ export function attachStationPhaseClock(
       }
     },
     now: () => Date.now(),
+    // C7 rotation fires on the station's "closed" phase-changed, on the room
+    // clock. Observers are never rotated (see room.rotateStation).
+    onClosed: () => {
+      bindings.onClosed?.();
+    },
   });
   clock.start();
   return clock;
@@ -163,6 +170,8 @@ export interface PhaseClockHooks {
   tracePhase(phase: StationPhase, atMs: number): void;
   /** Room closes learner utterances / the open actor turn for a non-encounter phase. */
   onLeaveEncounter(): void;
+  /** C7 rotation driver: invoked once when the station enters "closed". */
+  onClosed?: () => void;
   now(): number;
 }
 
@@ -247,6 +256,8 @@ export class StationPhaseClock {
     }
     const next = this.nextAfter(phase);
     if (next === null) {
+      // Terminal phase: C7 rotation fires on the room clock at closed.
+      this.hooks.onClosed?.();
       return;
     }
     if (duration <= 0) {

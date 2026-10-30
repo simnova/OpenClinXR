@@ -28,6 +28,14 @@ import { INTENT_KINDS, type AckMessage, type IntentMessage, type RejectMessage }
 // Wire protocol types live in protocol.js; re-exported here so the package
 // "." surface and existing room.js importers keep working unchanged.
 export type { AckMessage, IntentKind, IntentMessage, RejectMessage } from "./protocol.js";
+import { applyPoseIntent, applySelectActorIntent } from "./learner-intents.js";
+import {
+  assertStationJoinAllowed,
+  configureStationRoom,
+  consumeRotateTokenForJoin,
+  driveStationRotation,
+  type StationBinding,
+} from "./station-rotation.js";
 
 /** Matchmaking name clients join to reach the authoritative encounter room. */
 export const ENCOUNTER_ROOM_NAME = "encounter";
@@ -85,6 +93,10 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   private phaseClock: { stop(): void } | null = null;
   /** C6 host-clock ms per entered phase (Date.now at phase enter). Probe only, never in the trace. */
   private phaseChangedAtMs = new Map<string, number>();
+  /** C7 per-server station binding (stations + single-use nonces), shared by reference. */
+  protected stationBinding: StationBinding = { stations: null, creationNonces: new Map(), joinNonces: new Set() };
+  /** C7 rotation guard: closed fires once per room; this is the backstop. */
+  private rotationStarted = false;
 
   /** Read-only copy of probe stats for the harness. Never sent on the wire. */
   getProbeStats(): RoomProbeStats {
@@ -112,8 +124,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   override onCreate(options?: EncounterRoomOptions): void {
     latestRoom = this;
     // Server-bound config only: client roomOptions.timing / .phase /
-    // .traceDir are never read (a client traceDir must not choose the
-    // server's trace write directory).
+    // .traceDir / .stationId / .stationIndex are never read.
     this.traceDir = this.stationTraceDir;
     this.setState(new EncounterState());
     this.state.serverTick = 0;
@@ -121,6 +132,8 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     this.state.turnOwner = "none";
     this.state.observerCount = 0;
     this.state.phaseRemainingS = 0;
+    // C7 station assignment: server binding + creation nonce only (never client roomOptions).
+    const station = configureStationRoom(this.stationBinding, options, this.state, this.tracer);
     this.state.actors = new MapSchema<ActorStateInstance>();
     this.state.learners = new MapSchema<LearnerStateInstance>();
     const roster = new Set<string>(KNOWN_ACTOR_IDS);
@@ -138,7 +151,8 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     }
 
     // C6 station clock from the server binding; client roomOptions.timing /
-    // roomOptions.phase are ignored (see phase-clock.ts).
+    // roomOptions.phase are ignored (see phase-clock.ts). C7 rotation fires
+    // on the station's "closed" phase-changed, on the room clock.
     this.phaseClock = PhaseClock.attachStationPhaseClock(
       {
         clock: this.clock,
@@ -150,9 +164,17 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
           this.openTurn = null;
         },
         phaseChangedAtMs: this.phaseChangedAtMs,
+        onClosed: () => {
+          void this.rotateStation();
+        },
       },
       this.stationTiming,
     );
+    // C7 isolation: non-first stations are server-created rooms for rotated learners only.
+    if (station.stationIndex > 0) {
+      void this.setPrivate(true);
+      this.lock();
+    }
 
     this.onMessage("intent", (client, message: IntentMessage) => {
       this.handleIntent(client, message);
@@ -178,6 +200,8 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     // Refuse unknown roles here so the SDK join rejects. Learner (default)
     // and observer pass; anything else throws.
     parseEncounterRole(options);
+    // C7 isolation: non-first rooms admit only server-issued rotations.
+    assertStationJoinAllowed(this.stationBinding, this.state.stationIndex, options);
     return true;
   }
 
@@ -185,6 +209,10 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     // Role re-parsed at join (onAuth already refused unknown roles; this
     // throw is the backstop when onAuth is bypassed).
     const role = parseEncounterRole(options);
+    // C7 isolation backstop: consume the rotation nonce for non-first rooms.
+    if (!consumeRotateTokenForJoin(this.state.stationIndex, this.stationBinding.joinNonces, options)) {
+      throw new Error("c7-no-rotation-token");
+    }
     if (role === "observer") {
       // Faculty observer: counted, traced, never a learner seat.
       this.observers.add(client.sessionId);
@@ -241,6 +269,34 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     this.flushConversationTrace();
   }
 
+  /**
+   * C7 rotation: when this station closes, move every learner to the next
+   * station's room (driver creates it; observers stay). The old room disposes
+   * after its learners leave so its trace persists.
+   */
+  private async rotateStation(): Promise<void> {
+    if (this.stationBinding.stations === null || this.rotationStarted) {
+      return;
+    }
+    this.rotationStarted = true;
+    try {
+      const rotated = await driveStationRotation({
+        roomName: ENCOUNTER_ROOM_NAME,
+        stations: this.stationBinding.stations,
+        stationIndex: this.state.stationIndex,
+        learners: this.clients.filter((client) => !this.observers.has(client.sessionId)),
+        actorIds: [...this.state.actors.keys()],
+        closedAt: this.phaseChangedAtMs.get("closed"),
+        binding: this.stationBinding,
+      });
+      if (!rotated) {
+        this.rotationStarted = false;
+      }
+    } catch {
+      this.rotationStarted = false;
+    }
+  }
+
   private dropLearner(sessionId: string): void {
     this.state.learners.delete(sessionId);
     this.selectedActor.delete(sessionId);
@@ -289,11 +345,18 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       this.reject(client, intentSeq, gated);
       return;
     }
+    const bindings = {
+      actors: this.state.actors,
+      selectedActor: this.selectedActor,
+      selectionLog: this.selectionLog,
+      tracer: this.tracer,
+      reject: this.reject.bind(this),
+    };
     const applied =
       kind === "pose"
-        ? this.applyPose(client, learner, intentSeq, payload)
+        ? applyPoseIntent(bindings, client, learner, intentSeq, payload)
         : kind === "select-actor"
-          ? this.applySelectActor(client, learner, intentSeq, payload)
+          ? applySelectActorIntent(bindings, client, intentSeq, payload)
           : this.applyUtterance(client, learner, intentSeq, kind, payload);
     if (!applied) {
       return;
@@ -305,53 +368,6 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     client.send("ack", ack);
     // State sync is exclusively the schema patch tick. No per-intent
     // broadcast: see DESTRUCTIVE_PROBE_ANCHOR (T6 probe) in onCreate.
-  }
-
-  private applyPose(
-    client: Client,
-    learner: LearnerStateInstance,
-    seq: number,
-    payload: unknown,
-  ): boolean {
-    if (!isRecord(payload)) {
-      this.reject(client, seq, "bad-pose-payload");
-      return false;
-    }
-    const { x, y, z } = payload as { x?: unknown; y?: unknown; z?: unknown };
-    if (!isFiniteNumber(x) || !isFiniteNumber(y) || !isFiniteNumber(z)) {
-      this.reject(client, seq, "bad-pose-payload");
-      return false;
-    }
-    learner.headX = x;
-    learner.headY = y;
-    learner.headZ = z;
-    return true;
-  }
-
-  private applySelectActor(
-    client: Client,
-    learner: LearnerStateInstance,
-    seq: number,
-    payload: unknown,
-  ): boolean {
-    void learner;
-    if (!isRecord(payload)) {
-      this.reject(client, seq, "bad-select-actor-payload");
-      return false;
-    }
-    const { actorId } = payload;
-    if (typeof actorId !== "string") {
-      this.reject(client, seq, "bad-select-actor-payload");
-      return false;
-    }
-    if (!this.state.actors.has(actorId)) {
-      this.reject(client, seq, "unknown-actor");
-      return false;
-    }
-    this.selectedActor.set(client.sessionId, actorId);
-    this.selectionLog.push({ sessionId: client.sessionId, actorId, seq });
-    this.tracer.push({ seq, kind: "select-actor", actorId, turnId: null });
-    return true;
   }
 
   /**

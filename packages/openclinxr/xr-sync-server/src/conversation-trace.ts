@@ -148,6 +148,8 @@ export interface ConversationTraceTurn {
  * determined by events; replay ignores the stored copies. */
 export interface ConversationTrace {
   schema: string;
+  /** C7 station that recorded this trace ("" when no stations). Partition key: turns and phase events stay in their station. */
+  stationId: string;
   events: ConversationTraceEvent[];
   turns: ConversationTraceTurn[];
   emotions: EmotionTransition[];
@@ -285,6 +287,8 @@ export function reduceConversationEvents(events: readonly ConversationTraceEvent
  */
 export interface ReplayableConversationTrace {
   schema: string;
+  /** C7 station partition key; optional for C4/C6 files, preserved when present. */
+  stationId?: string;
   events: readonly {
     seq: number | null;
     kind: string;
@@ -323,6 +327,7 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
   const { turns, emotions } = reduceConversationEvents(events);
   return {
     schema: CONVERSATION_TRACE_SCHEMA,
+    stationId: typeof trace.stationId === "string" ? trace.stationId : "",
     events,
     turns,
     emotions,
@@ -342,6 +347,13 @@ export const CONVERSATION_TRACE_FILE_SUFFIX = ".conversation-trace.json";
 export class ConversationTracer {
   private events: ConversationTraceEvent[] = [];
   private engines = new Map<string, EmotionEngine>();
+  /** C7 station partition key for the owning room ("" when no stations). */
+  private stationId = "";
+
+  /** C7: bind the owning room's station before any event is pushed. */
+  setStationId(stationId: string): void {
+    this.stationId = stationId;
+  }
 
   /** Append one conversation event, in application order. */
   push(event: ConversationTraceEvent): void {
@@ -363,6 +375,7 @@ export class ConversationTracer {
     const { turns, emotions } = reduceConversationEvents(this.events);
     return {
       schema: CONVERSATION_TRACE_SCHEMA,
+      stationId: this.stationId,
       events: this.events.map((event) => ({ ...event })),
       turns,
       emotions,

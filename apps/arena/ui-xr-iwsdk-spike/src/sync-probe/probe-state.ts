@@ -175,3 +175,25 @@ export function resolvePhaseLabel(phase: string, remainingS: unknown): string {
   }
   return `${phase}`;
 }
+
+/**
+ * C7 station label, derived ONLY from the server station fields.
+ * Pure function of (stationId, stationIndex, stationCount): no page-local
+ * state enters, so a page-local value can never move the label without the
+ * server. Empty stationId (C6 / no stations) renders as "single-station".
+ */
+export function resolveStationLabel(stationId: unknown, stationIndex: unknown, stationCount: unknown): string {
+  if (typeof stationId !== "string" || stationId.length === 0) {
+    return "single-station";
+  }
+  if (
+    typeof stationIndex === "number" &&
+    Number.isInteger(stationIndex) &&
+    typeof stationCount === "number" &&
+    Number.isInteger(stationCount) &&
+    stationCount > 0
+  ) {
+    return `${stationId} ${stationIndex + 1}/${stationCount}`;
+  }
+  return stationId;
+}

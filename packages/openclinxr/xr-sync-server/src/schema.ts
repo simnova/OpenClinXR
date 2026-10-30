@@ -40,6 +40,12 @@ export const EncounterState = schema(
     actors: t.map(ActorState),
     learners: t.map(LearnerState),
     observerCount: t.number(),
+    /** C7 station id ("" when no stations configured: C6 behaviour). */
+    stationId: t.string(),
+    /** C7 station index (0 when no stations). */
+    stationIndex: t.number(),
+    /** C7 station count (0 when no stations). */
+    stationCount: t.number(),
   },
   "EncounterState",
 );
@@ -63,6 +69,12 @@ export interface EncounterSnapshot {
   >;
   /** C5 connected faculty observers (read-only, no learners[] entry). */
   observerCount: number;
+  /** C7 station id ("" when no stations: C6 behaviour, no rotation). */
+  stationId: string;
+  /** C7 station index (0 when no stations). */
+  stationIndex: number;
+  /** C7 station count (0 when no stations). */
+  stationCount: number;
 }
 
 export function snapshotState(state: EncounterStateInstance): EncounterSnapshot {
@@ -81,5 +93,5 @@ export function snapshotState(state: EncounterStateInstance): EncounterSnapshot 
       speaking: learner.speaking,
     };
   }
-  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount };
+  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount, stationId: state.stationId, stationIndex: state.stationIndex, stationCount: state.stationCount };
 }

@@ -31,6 +31,7 @@ import {
   resolveMouthAmplitude,
   resolvePhaseColour,
   resolvePhaseLabel,
+  resolveStationLabel,
   resolveTurnIndicatorColour,
   summarizeMs,
   sweepYawDegrees,
@@ -267,5 +268,19 @@ describe("sync-probe C6 station phase label and ring", () => {
     expect(new Set(Object.values(PHASE_COLOURS)).size).toBe(5);
     // Unknown server values fall back; the resolver reads no page state.
     expect(resolvePhaseColour("page-forged")).toBe(BASE_TURN_COLOUR);
+  });
+});
+
+describe("sync-probe C7 station label", () => {
+  it("station label is a pure function of server stationId/stationIndex/stationCount", () => {
+    expect(resolveStationLabel("station-1", 0, 2)).toBe("station-1 1/2");
+    expect(resolveStationLabel("station-2", 1, 2)).toBe("station-2 2/2");
+    // Empty stationId (C6 / no stations) renders single-station.
+    expect(resolveStationLabel("", 0, 0)).toBe("single-station");
+    expect(resolveStationLabel(undefined, null, null)).toBe("single-station");
+    // Missing counts render the id alone; a page-local value never enters.
+    expect(resolveStationLabel("station-1", null, null)).toBe("station-1");
+    expect(resolveStationLabel("station-1", 0, 2)).toBe(resolveStationLabel("station-1", 0, 2));
+    expect(resolveStationLabel("station-1", 0, 2)).not.toBe(resolveStationLabel("station-2", 1, 2));
   });
 });

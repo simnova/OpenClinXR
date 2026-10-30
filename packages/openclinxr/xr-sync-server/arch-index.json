@@ -33,6 +33,8 @@
     "src/xr-sync-c5-observer.test.ts",
     "src/xr-sync-c6-phase-clock.test.ts",
     "src/xr-sync-c6-server-config.test.ts",
+    "src/xr-sync-c7-station-isolation.test.ts",
+    "src/xr-sync-c7-station-rotation.test.ts",
     "src/xr-sync-server.test.ts"
   ],
   "commands": {
