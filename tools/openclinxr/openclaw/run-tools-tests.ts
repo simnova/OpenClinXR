@@ -9,20 +9,30 @@
  * Areas (see tools-test-areas.ts): with no `--area`, the runner hands the
  * manifest to turbo as one cached task per area (`//#test:tools:<area>`), so an
  * unchanged area is a cache hit. `--area <name>` runs one area: files that reach
- * a shared browser/Blender slot run serially in the `serial` area, everything
+ * a shared browser/Blender slot run serially in the `serial-*` areas, everything
  * else runs with Vitest's default workers. `--direct` runs every area in this
  * process without turbo; vitest passthrough args imply `--direct`.
  */
 import { execFileSync, spawn } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { homedir } from "node:os";
 import { isAbsolute, normalize, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import * as ts from "typescript";
 import {
+  cacheFileForArea,
+  computeFileKey,
+  createKeyContext,
+  loadFileCache,
+  parseVitestJsonResults,
+  planExecution,
+  saveFileCache,
+} from "./tools-file-cache.js";
+import {
   assignAreas,
   checkTurboInputs,
+  isSerialArea,
   isToolsTestArea,
   syncTurboInputs,
   TOOLS_TEST_AREAS,
@@ -302,28 +312,59 @@ export function runEcgInputPreflight(root: string): void {
   }
 }
 
-function runNodeGroup(root: string, nodeFilesRel: readonly string[]): Promise<GroupResult> {
+function runNodeGroup(
+  root: string,
+  nodeFilesRel: readonly string[],
+): Promise<{ result: GroupResult; codes: Map<string, number> }> {
   const started = Date.now();
-  if (nodeFilesRel.length === 0) return Promise.resolve({ group: "node", files: 0, ms: 0, code: 0, skipped: true });
-  const abs = nodeFilesRel.map((f) => (isAbsolute(f) ? f : resolve(root, f)));
-  return new Promise((resolvePromise) => {
-    const child = spawn(process.execPath, buildNodeTestArgs(abs), { cwd: root, stdio: "inherit" });
-    child.on("error", (err) => {
-      console.error(`[run-tools-tests] node:test group spawn error: ${String(err)}`);
-      resolvePromise({ group: "node", files: nodeFilesRel.length, ms: Date.now() - started, code: 1, skipped: false });
+  const codes = new Map<string, number>();
+  if (nodeFilesRel.length === 0)
+    return Promise.resolve({
+      result: { group: "node", files: 0, ms: 0, code: 0, skipped: true },
+      codes,
     });
-    child.on("close", (code) => {
-      resolvePromise({ group: "node", files: nodeFilesRel.length, ms: Date.now() - started, code: code ?? 1, skipped: false });
-    });
-  });
+  // One process per file: the exit code attributes pass/fail to the file,
+  // which the per-file result cache needs. Same args and budgets as before
+  // (sequential here is no slower in practice: node files are the
+  // interpreter-spawn serial files, and there are ~20 of them suite-wide).
+  return (async () => {
+    let code = 0;
+    for (const f of nodeFilesRel) {
+      const abs = isAbsolute(f) ? f : resolve(root, f);
+      const fileCode = await new Promise<number>((resolvePromise) => {
+        const child = spawn(process.execPath, buildNodeTestArgs([abs]), { cwd: root, stdio: "inherit" });
+        child.on("error", (err) => {
+          console.error(`[run-tools-tests] node:test group spawn error: ${String(err)}`);
+          resolvePromise(1);
+        });
+        child.on("close", (c) => {
+          resolvePromise(c ?? 1);
+        });
+      });
+      codes.set(f, fileCode);
+      if (fileCode !== 0) code = fileCode;
+    }
+    return {
+      result: { group: "node", files: nodeFilesRel.length, ms: Date.now() - started, code, skipped: false },
+      codes,
+    };
+  })();
 }
 
-async function runVitestGroup(root: string, args: readonly string[], vitestFiles: number): Promise<GroupResult> {
+async function runVitestGroup(
+  root: string,
+  args: readonly string[],
+  vitestFiles: number,
+  jsonReportFile: string | null,
+): Promise<GroupResult> {
   const started = Date.now();
   if (vitestFiles === 0) return { group: "vitest", files: 0, ms: 0, code: 0, skipped: true };
   const bin = resolveVitestBin(root);
+  // The JSON report attributes pass/fail per file for the result cache; the
+  // default reporter still prints the human-readable output.
+  const fullArgs = jsonReportFile === null ? [...args] : [...args, "--reporter=default", "--reporter=json", `--outputFile=${jsonReportFile}`];
   const code = await new Promise<number>((resolvePromise) => {
-    const child = spawn(bin, [...args], { cwd: root, stdio: "inherit" });
+    const child = spawn(bin, fullArgs, { cwd: root, stdio: "inherit" });
     child.on("error", (err) => {
       console.error(`[run-tools-tests] vitest group spawn error: ${String(err)}`);
       resolvePromise(1);
@@ -343,6 +384,7 @@ export interface CliOptions {
   area: ToolsTestArea | null;
   direct: boolean;
   syncTurboInputs: boolean;
+  noFileCache: boolean;
 }
 
 export function parseCli(argv: string[], cwd: string): CliOptions {
@@ -354,6 +396,7 @@ export function parseCli(argv: string[], cwd: string): CliOptions {
     area: null,
     direct: false,
     syncTurboInputs: false,
+    noFileCache: false,
   };
   const rest = [...argv];
   while (rest.length > 0) {
@@ -367,6 +410,8 @@ export function parseCli(argv: string[], cwd: string): CliOptions {
       opts.direct = true;
     } else if (a === "--sync-turbo-inputs") {
       opts.syncTurboInputs = true;
+    } else if (a === "--no-file-cache") {
+      opts.noFileCache = true;
     } else if (a === "--area") {
       const v = rest.shift();
       if (!v || !isToolsTestArea(v)) throw new Error(`--area requires one of ${TOOLS_TEST_AREAS.join(", ")}`);
@@ -420,6 +465,11 @@ export function assertSameFiles(area: string, expected: readonly string[], liste
   }
 }
 
+export interface AreaCacheSummary {
+  skipped: number;
+  ran: number;
+}
+
 async function runArea(
   root: string,
   area: ToolsTestArea,
@@ -427,24 +477,85 @@ async function runArea(
   areas: Map<string, ToolsTestArea>,
   allExcludes: readonly string[],
   passthrough: readonly string[],
-): Promise<{ area: ToolsTestArea; node: GroupResult; vitest: GroupResult }> {
+  noFileCache: boolean,
+): Promise<{ area: ToolsTestArea; node: GroupResult; vitest: GroupResult; cache: AreaCacheSummary }> {
   const nodeFiles = partition.node.filter((f) => areas.get(f) === area);
   const vitestFiles = partition.vitest.filter((f) => areas.get(f) === area);
-  const serial = area === "serial";
+  const serial = isSerialArea(area);
   console.log(
     `[run-tools-tests] area ${area}: node:test ${nodeFiles.length}, vitest ${vitestFiles.length}${serial ? " (serial)" : ""}`,
   );
-  if (vitestFiles.length > 0) {
-    const listed = await listAreaFiles(root, buildAreaVitestArgs("list", vitestFiles, allExcludes, serial, []));
-    assertSameFiles(area, vitestFiles, listed);
+
+  // Per-file result cache: skip files with a recorded PASS under the same
+  // content key; record PASS only for files that passed in this run. A
+  // filtered (passthrough) run never records: it did not execute the file.
+  const clashesWithReporter = passthrough.some(
+    (a) => a === "--reporter" || a.startsWith("--reporter=") || a === "--outputFile" || a.startsWith("--outputFile="),
+  );
+  const useCache = !noFileCache;
+  const record = useCache && passthrough.length === 0 && !clashesWithReporter;
+  let toRunNode = nodeFiles;
+  let toRunVitest = vitestFiles;
+  let skipped = 0;
+  const keys = new Map<string, string>();
+  if (useCache) {
+    const ctx = createKeyContext(root);
+    for (const f of [...nodeFiles, ...vitestFiles]) {
+      keys.set(f, computeFileKey(resolve(root, f), ctx).key);
+    }
+    const store = loadFileCache(cacheFileForArea(root, area));
+    const plan = planExecution([...nodeFiles, ...vitestFiles], keys, useCache ? store : null);
+    const runSet = new Set(plan.toRun);
+    toRunNode = nodeFiles.filter((f) => runSet.has(f));
+    toRunVitest = vitestFiles.filter((f) => runSet.has(f));
+    skipped = plan.skipped.length;
+    console.log(`[run-tools-tests] area ${area}: file-cache skipped ${skipped}, running ${plan.toRun.length}`);
+  } else {
+    console.log(`[run-tools-tests] area ${area}: file-cache disabled (--no-file-cache)`);
   }
-  const node = await runNodeGroup(root, nodeFiles);
+
+  if (toRunVitest.length > 0) {
+    const listed = await listAreaFiles(root, buildAreaVitestArgs("list", toRunVitest, allExcludes, serial, []));
+    assertSameFiles(area, toRunVitest, listed);
+  }
+  const { result: node, codes: nodeCodes } = await runNodeGroup(root, toRunNode);
+  const jsonReportFile =
+    record && toRunVitest.length > 0
+      ? resolve(root, "node_modules", ".cache", "openclinxr-tools-tests", `vitest-${area}-${process.pid}.json`)
+      : null;
   const vitest = await runVitestGroup(
     root,
-    buildAreaVitestArgs("run", vitestFiles, allExcludes, serial, passthrough),
-    vitestFiles.length,
+    buildAreaVitestArgs("run", toRunVitest, allExcludes, serial, passthrough),
+    toRunVitest.length,
+    jsonReportFile,
   );
-  return { area, node, vitest };
+
+  if (record) {
+    const passed = new Set<string>();
+    for (const [f, code] of nodeCodes) if (code === 0) passed.add(f);
+    if (jsonReportFile !== null) {
+      try {
+        const statuses = parseVitestJsonResults(readFileSync(jsonReportFile, "utf8"), root);
+        for (const [f, status] of statuses) if (status === "passed") passed.add(f);
+      } catch {
+        // No attribution: record nothing for this area (safe direction).
+      }
+      try {
+        rmSync(jsonReportFile);
+      } catch {
+        // best effort cleanup
+      }
+    }
+    // Merge with the store on disk and record only this run's passes.
+    const cacheFile = cacheFileForArea(root, area);
+    const store = loadFileCache(cacheFile);
+    for (const f of [...toRunNode, ...toRunVitest]) {
+      const key = keys.get(f);
+      if (passed.has(f) && key !== undefined) store.entries[f] = key;
+    }
+    saveFileCache(cacheFile, store);
+  }
+  return { area, node, vitest, cache: { skipped, ran: toRunNode.length + toRunVitest.length } };
 }
 
 function runTurbo(root: string): Promise<number> {
@@ -543,7 +654,7 @@ export async function main(argv: string[], cwd: string): Promise<number> {
   const selected = opts.area === null ? TOOLS_TEST_AREAS : [opts.area];
   const results = [];
   for (const area of selected) {
-    results.push(await runArea(root, area, partition, areas, allExcludes, opts.passthrough));
+    results.push(await runArea(root, area, partition, areas, allExcludes, opts.passthrough, opts.noFileCache));
   }
   const exit = results.map((r) => (r.node.code !== 0 ? r.node.code : r.vitest.code)).find((c) => c !== 0) ?? 0;
   console.log(`[run-tools-tests] summary: ${JSON.stringify({ areas: results, exit })}`);

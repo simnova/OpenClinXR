@@ -130,11 +130,10 @@
       "cache": false,
       "persistent": true
     },
-    "//#test:tools:serial": {
+    "//#test:tools:serial-browser": {
       "cache": true,
       "inputs": [
         "packages/cellix/config-vitest/src/**",
-        "packages/openclinxr/agent-loop/src/**",
         "packages/openclinxr/arena/model-vetting/**",
         "packages/openclinxr/asset-registry/src/**",
         "packages/openclinxr/capability-gateway/src/**",
@@ -143,16 +142,47 @@
         "packages/openclinxr/scenario-runtime/src/**",
         "packages/openclinxr/shared-schemas/src/**",
         "packages/openclinxr/xr-dialogue/src/**",
-        "tests/openclinxr/helpers/assembled-exam-harness.ts",
-        "tools/agent-factory/benchmark-gate-report.test.ts",
-        "tools/agent-factory/build-benchmark-gate-report.ts",
         "tools/agent-factory/lib.ts",
         "tools/openclinxr/asset-pipeline/**",
         "tools/openclinxr/dark-factory/**",
         "tools/openclinxr/evidence/**",
         "tools/openclinxr/evidence/browser-boot-inventory/**",
         "tools/openclinxr/factory/**",
+        "tools/openclinxr/openclaw/**",
+        "tsconfig.tools-relaxed.json",
+        "vitest.config.ts"
+      ],
+      "outputs": []
+    },
+    "//#test:tools:serial-spawn": {
+      "cache": true,
+      "inputs": [
+        "packages/cellix/config-vitest/src/**",
+        "packages/openclinxr/agent-loop/src/**",
+        "packages/openclinxr/scenario-fixtures/src/**",
+        "tests/openclinxr/helpers/assembled-exam-harness.ts",
+        "tools/openclinxr/asset-pipeline/**",
+        "tools/openclinxr/evidence/**",
+        "tools/openclinxr/evidence/browser-boot-inventory/**",
         "tools/openclinxr/mouth-solver/**",
+        "tools/openclinxr/openclaw/**",
+        "tsconfig.tools-relaxed.json",
+        "vitest.config.ts"
+      ],
+      "outputs": []
+    },
+    "//#test:tools:serial-blender": {
+      "cache": true,
+      "inputs": [
+        "packages/cellix/config-vitest/src/**",
+        "packages/openclinxr/asset-registry/src/**",
+        "packages/openclinxr/capability-gateway/src/**",
+        "tools/agent-factory/benchmark-gate-report.test.ts",
+        "tools/agent-factory/build-benchmark-gate-report.ts",
+        "tools/agent-factory/lib.ts",
+        "tools/openclinxr/evidence/**",
+        "tools/openclinxr/evidence/browser-boot-inventory/**",
+        "tools/openclinxr/factory/**",
         "tools/openclinxr/openclaw/**",
         "tsconfig.tools-relaxed.json",
         "vitest.config.ts"
