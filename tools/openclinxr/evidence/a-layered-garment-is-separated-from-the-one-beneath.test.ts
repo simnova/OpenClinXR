@@ -33,6 +33,10 @@
 import { createHash } from "node:crypto";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { makeclothesGarmentSlug } from "./lib/garment-mesh-class.js";
+
+const isShirtMesh = (n: string): boolean => makeclothesGarmentSlug(n) === "scrub_shirt";
+const isCoatMesh = (n: string): boolean => makeclothesGarmentSlug(n) === "lab_coat";
 
 const DIR = "apps/ui-xr/public/generated-humanoids/";
 const NURSE = "mpfb-clinical-nurse-adult.glb";
@@ -42,10 +46,10 @@ const MIN_NET_SEPARATION_M = 0.001;
 
 type Geo = { verts: number; sha: string; mean: [number, number, number] };
 
-async function geo(file: string, match: RegExp): Promise<Geo | null> {
+async function geo(file: string, select: (name: string) => boolean): Promise<Geo | null> {
   const d = await new NodeIO().read(DIR + file);
   for (const m of d.getRoot().listMeshes()) {
-    if (!match.test(m.getName())) continue;
+    if (!select(m.getName())) continue;
     const pos = m.listPrimitives()[0]?.getAttribute("POSITION");
     if (!pos) continue;
     const a = pos.getArray() as Float32Array;
@@ -63,8 +67,8 @@ const netShift = (a: Geo, b: Geo): number =>
 
 describe("#504 a garment worn under another is separated from it", () => {
   it("the control pair is real — both assets ship and carry the same shirt today", async () => {
-    const n = await geo(NURSE, /scrub_shirt/);
-    const p = await geo(PHYS, /scrub_shirt/);
+    const n = await geo(NURSE, isShirtMesh);
+    const p = await geo(PHYS, isShirtMesh);
     expect(n, "nurse scrub_shirt").toBeTruthy();
     expect(p, "physician scrub_shirt").toBeTruthy();
     expect(n!.verts).toBe(18768);
@@ -74,9 +78,9 @@ describe("#504 a garment worn under another is separated from it", () => {
   it(
     "(1) the layered pair differs from the unlayered control — shirt pushed in OR coat pushed out, coherently",
     async () => {
-      const nurseShirt = (await geo(NURSE, /scrub_shirt/))!;
-      const physShirt = (await geo(PHYS, /scrub_shirt/))!;
-      const physCoat = (await geo(PHYS, /lab_coat/))!;
+      const nurseShirt = (await geo(NURSE, isShirtMesh))!;
+      const physShirt = (await geo(PHYS, isShirtMesh))!;
+      const physCoat = (await geo(PHYS, isCoatMesh))!;
 
       // EITHER approach is legitimate, so either satisfies this: move the inner garment in, or
       // the outer one out. Net centroid shift, not per-vertex magnitude — a jitter that changes
@@ -93,7 +97,7 @@ describe("#504 a garment worn under another is separated from it", () => {
   it(
     "(2) COUNTERWEIGHT: the UNLAYERED control is untouched — the nurse wears the same shirt with nothing over it",
     async () => {
-      const n = (await geo(NURSE, /scrub_shirt/))!;
+      const n = (await geo(NURSE, isShirtMesh))!;
       // #568 re-recorded 2026-08-26: the #568 iris rebake re-ran the nurse through the current
       // materializer (gender macro now pinned 0.0 by #670), which re-emitted the shirt's POSITION
       // bytes; was 4f15119183150c6a. The control still pins the shipped bytes — a separation slice
@@ -110,8 +114,8 @@ describe("#504 a garment worn under another is separated from it", () => {
   it(
     "(3) COUNTERWEIGHT: nothing is deleted, hidden or swapped — both garments keep their vertex counts",
     async () => {
-      const shirt = await geo(PHYS, /scrub_shirt/);
-      const coat = await geo(PHYS, /lab_coat/);
+      const shirt = await geo(PHYS, isShirtMesh);
+      const coat = await geo(PHYS, isCoatMesh);
       expect(shirt?.verts, "scrub_shirt must not be removed or decimated away").toBe(18768);
       expect(coat?.verts, "lab_coat must not be removed or swapped for a closed garment").toBe(5264);
     },

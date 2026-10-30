@@ -3,6 +3,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { isTrouserMeshName, isUpperMeshName } from "./lib/garment-mesh-class.js";
 
 /**
  * The MPFB nurse and child wear their trousers on their HANDS. Grey trouser-coloured shards sit on
@@ -150,10 +151,10 @@ async function measure(rel: string): Promise<Row | null> {
       prims.push({ mesh: mesh.getName(), pos, idx });
     }
   }
-  const pantsPrims = prims.filter((p) => /cargo_pants/.test(p.mesh));
+  const pantsPrims = prims.filter((p) => isTrouserMeshName(p.mesh));
   // #180: the nurse's upper is now the scrub shirt, not the toigo t-shirt — the upper
   // vocabulary must include it or the nurse drops out of the enumeration (§7t vacuous).
-  const shirtPrims = prims.filter((p) => /t_shirt|scrub/.test(p.mesh));
+  const shirtPrims = prims.filter((p) => isUpperMeshName(p.mesh));
   if (pantsPrims.length === 0 || shirtPrims.length === 0) return null;
 
   const pantsTop = Math.max(...pantsPrims.flatMap((p) => p.pos.map((v) => v[1]!)));

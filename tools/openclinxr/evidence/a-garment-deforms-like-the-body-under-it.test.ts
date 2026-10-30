@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { measureGarmentWeightCorrespondence } from "./garment-weight-correspondence.js";
+import { classifyGarmentMeshName, isUpperMeshName } from "./lib/garment-mesh-class.js";
+
+const isBodyMesh = (n: string): boolean => classifyGarmentMeshName(n) === "body";
 
 /**
  * OBSERVABLE: the garment shell is skinned like the body it was derived from, so cloth follows the
@@ -70,9 +73,9 @@ const MAX_DISAGREEMENT = 0.05;
 const BAND_M = 0.008;
 
 const annyGarment = () => measureGarmentWeightCorrespondence(
-  ANNY_GLB, (n) => /anny_base/u.test(n), (n) => /real_garment_peds_upper_v1_mesh$/u.test(n), BAND_M);
+  ANNY_GLB, isBodyMesh, isUpperMeshName, BAND_M);
 const mpfbGarment = () => measureGarmentWeightCorrespondence(
-  MPFB_GLB, (n) => /_body$/u.test(n), (n) => /toigo_t_shirt/u.test(n), BAND_M);
+  MPFB_GLB, isBodyMesh, isUpperMeshName, BAND_M);
 
 describe("a garment deforms like the body under it", () => {
   it("(1) the Anny garment shell inherits the skin weights of the body it was derived from", async () => {
@@ -100,7 +103,7 @@ describe("a garment deforms like the body under it", () => {
     // trivially similar. Both destroy the garment. Bounds are on the ANNY asset, which is the one
     // under treatment - MPFB is untouched by the fix and cannot vouch for it.
     const r = await measureGarmentWeightCorrespondence(
-      ANNY_GLB, (n) => /anny_base/u.test(n), (n) => /real_garment_peds_upper_v1_mesh$/u.test(n));
+      ANNY_GLB, isBodyMesh, isUpperMeshName);
     expect(r.meanNearestMeters, "the shell must stand off the skin - a shrink-wrapped garment is not a garment")
       .toBeGreaterThan(0.005);
     expect(r.meanInfluencesPerVertex, "and must stay multi-bone - one bone per vertex is a rigid parent")
@@ -117,7 +120,7 @@ describe("a garment deforms like the body under it", () => {
     const [anny, painted] = await Promise.all([
       annyGarment(),
       measureGarmentWeightCorrespondence(
-        `${HUMANOIDS}/peds_anxious_parent.glb`, (n) => /anny_base/u.test(n), (n) => /real_garment_peds_upper_v1_mesh$/u.test(n), BAND_M),
+        `${HUMANOIDS}/peds_anxious_parent.glb`, isBodyMesh, isUpperMeshName, BAND_M),
     ]);
     expect(anny.comparedVertices, "the Anny band must not be empty or clause (1) is green about nothing")
       .toBeGreaterThan(100);

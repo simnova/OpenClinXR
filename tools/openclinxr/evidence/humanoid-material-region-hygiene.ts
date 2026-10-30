@@ -19,6 +19,11 @@
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { NodeIO, type Document, type Node as GltfNode } from "@gltf-transform/core";
+import {
+	classifyGarmentMeshName,
+	isFittedGarmentMeshName,
+	isGownMeshName,
+} from "./lib/garment-mesh-class.js";
 
 export type RegionFacts = {
   hasRealGarmentMesh: boolean;
@@ -45,7 +50,6 @@ export type RegionFacts = {
   clavicleY: number;
 };
 
-const GARMENT_MESH_RE = /openclinxr_real_garment/i;
 const TORSO_CLOTHING_MAT_RE = /openclinxr_role_mesh_clothing_.*_(top|soft_trim)/i;
 const HAIR_MAT_RE = /openclinxr_mesh_native_scalp_hair/i;
 
@@ -98,8 +102,12 @@ export async function inspectMaterialRegionHygiene(input: {
 
   for (const mesh of root.listMeshes()) {
     const meshName = mesh.getName() || "";
-    if (GARMENT_MESH_RE.test(meshName)) {
+    if (isFittedGarmentMeshName(meshName)) {
       hasRealGarmentMesh = true;
+      // Neckline/yoke read only where a neckline exists: uppers and gowns.
+      // Trousers have no neck opening; their waistband must not join the min.
+      const neckClass = classifyGarmentMeshName(meshName);
+      if (neckClass !== "upper" && !isGownMeshName(meshName)) continue;
       for (const prim of mesh.listPrimitives()) {
         const pos = prim.getAttribute("POSITION")?.getArray();
         if (!pos || pos.length < 9) continue;
@@ -146,7 +154,7 @@ export async function inspectMaterialRegionHygiene(input: {
   // Fallback: some exports put garment under a renamed node mesh.
   if (!hasRealGarmentMesh) {
     for (const node of root.listNodes()) {
-      if (GARMENT_MESH_RE.test(node.getName() || "")) {
+      if (isFittedGarmentMeshName(node.getName() || "")) {
         hasRealGarmentMesh = true;
         break;
       }
@@ -267,7 +275,7 @@ function lateralBodyShoulderTopY(document: Document): number {
   const xs: number[] = [];
   const ys: number[] = [];
   for (const mesh of document.getRoot().listMeshes()) {
-    if (GARMENT_MESH_RE.test(mesh.getName() || "")) continue;
+    if (isFittedGarmentMeshName(mesh.getName() || "")) continue;
     for (const prim of mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION")?.getArray();
       if (!pos) continue;
@@ -307,7 +315,7 @@ function bodyAabb(document: Document): {
   let maxZ = -Infinity;
   let any = false;
   for (const mesh of document.getRoot().listMeshes()) {
-    if (GARMENT_MESH_RE.test(mesh.getName() || "")) continue;
+    if (isFittedGarmentMeshName(mesh.getName() || "")) continue;
     for (const prim of mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION")?.getArray();
       if (!pos) continue;

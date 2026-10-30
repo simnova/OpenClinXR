@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
 	classifyGarmentMeshName,
 	classifyLowerGarmentKind,
+	isFittedGarmentMeshName,
 	isGownMeshName,
 	isTrouserMeshName,
 	isUpperMeshName,
+	makeclothesGarmentSlug,
 } from "./garment-mesh-class.js";
 
 /** Shipped mesh names from mpfb-clinical-nurse-adult.glb (GLB JSON chunk). */
@@ -99,6 +101,36 @@ describe("garment-mesh-class", () => {
 		expect(
 			isUpperMeshName("makeclothes_library_scrub_pants_mpfb_ed_chest_pain_nurse_adult_mesh"),
 		).toBe(false);
+	});
+
+	it("fitted-garment excludes declared layer shells", () => {
+		expect(isFittedGarmentMeshName("openclinxr_real_garment_peds_upper_v1_mesh")).toBe(true);
+		expect(
+			isFittedGarmentMeshName(
+				"makeclothes_library_scrub_shirt_mpfb_ed_chest_pain_nurse_adult_mesh",
+			),
+		).toBe(true);
+		expect(
+			isFittedGarmentMeshName(
+				"openclinxr_declared_upper_layers__casual_top+open_cardigan_mesh",
+			),
+		).toBe(false);
+		expect(isFittedGarmentMeshName("mpfb_ed_chest_pain_nurse_adult_body")).toBe(false);
+	});
+
+	it("slug addresses one makeclothes garment exactly", () => {
+		expect(
+			makeclothesGarmentSlug(
+				"makeclothes_library_scrub_shirt_mpfb_ed_chest_pain_nurse_adult_mesh",
+			),
+		).toBe("scrub_shirt");
+		expect(
+			makeclothesGarmentSlug(
+				"makeclothes_library_lab_coat_mpfb_ward_delirium_senior_resident_adult_mesh",
+			),
+		).toBe("lab_coat");
+		expect(makeclothesGarmentSlug("openclinxr_real_garment_peds_upper_v1_mesh")).toBe(null);
+		expect(makeclothesGarmentSlug("mpfb_ed_chest_pain_nurse_adult_body")).toBe(null);
 	});
 
 	it("counterweight: a name list with no garments yields no upper/lower, unknowns stay unknown", () => {

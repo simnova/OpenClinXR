@@ -129,7 +129,39 @@ export function isGownMeshName(name: unknown): boolean {
 	return classifyGarmentMeshName(name) === "lower" && classifyLowerGarmentKind(name) === "gown";
 }
 
+/**
+ * The makeclothes garment slug embedded in a mesh name (`scrub_shirt`,
+ * `lab_coat`, `cargo_pants`, …), or null. Same single vocabulary as the
+ * classifier — use it instead of a private token regex when a test must
+ * address one garment mesh exactly (e.g. shirt-vs-coat separation).
+ */
+export function makeclothesGarmentSlug(name: unknown): string | null {
+	if (typeof name !== "string" || name.length === 0) return null;
+	const n = name.toLowerCase();
+	const prefix = "makeclothes_library_";
+	const at = n.indexOf(prefix);
+	if (at < 0) return null;
+	const rest = n.slice(at + prefix.length);
+	for (const token of MAKECLOTHES_GARMENT_TOKENS) {
+		if (matchKnownToken(rest, token)) return token;
+	}
+	return null;
+}
+
 /** Upper-body garment (shirt, scrub top, tee, lab coat, legacy real-garment upper). */
 export function isUpperMeshName(name: unknown): boolean {
 	return classifyGarmentMeshName(name) === "upper";
+}
+
+/**
+ * Fitted garment geometry (legacy `openclinxr_real_garment_*`, makeclothes
+ * garment tokens). Excludes `openclinxr_declared_upper_layers_*` shells:
+ * those are layer declarations (open cardigans) whose front opening is
+ * deliberately deep and must not join neckline populations.
+ */
+export function isFittedGarmentMeshName(name: unknown): boolean {
+	if (typeof name !== "string" || name.length === 0) return false;
+	if (name.toLowerCase().indexOf("openclinxr_declared_upper_layers_") >= 0) return false;
+	const cls = classifyGarmentMeshName(name);
+	return cls === "upper" || cls === "lower";
 }

@@ -3,6 +3,10 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import {
+	classifyGarmentMeshName,
+	isFittedGarmentMeshName,
+} from "./lib/garment-mesh-class.js";
 
 /**
  * **The paediatric patient's case definition declares `fabricPalette: "soft_blue_and_warm_white"`.
@@ -96,7 +100,7 @@ const KNOWN_GOOD: Readonly<Record<string, readonly [number, number, number]>> = 
   nurse_kevin_lee_v1: [0.05, 0.48, 0.52],
 };
 
-const GARMENT = /t_shirt|scrub_shirt|pants|sweater/iu;
+const isGarmentMesh = isFittedGarmentMeshName;
 /** A rounding allowance on an exported float, not a tolerance on the colour choice. */
 const COLOUR_EPSILON = 0.005;
 
@@ -136,12 +140,12 @@ async function readGarments(assetStem: string): Promise<{ upper: number[] | null
   let lower: number[] | null = null;
   for (const mesh of doc.getRoot().listMeshes()) {
     const name = mesh.getName();
-    if (!GARMENT.test(name)) continue;
+    if (!isGarmentMesh(name)) continue;
     for (const prim of mesh.listPrimitives()) {
       const factor = prim.getMaterial()?.getBaseColorFactor();
       if (!factor) continue;
       const rgb = [factor[0]!, factor[1]!, factor[2]!];
-      if (/pants|trouser/iu.test(name)) lower ??= rgb;
+      if (classifyGarmentMeshName(name) === "lower") lower ??= rgb;
       else upper ??= rgb;
     }
   }
