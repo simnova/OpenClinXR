@@ -86,11 +86,20 @@ async function measureAuthoredActors(): Promise<Row[]> {
       let bodyCm: number | null = null;
       if (existsSync(disk)) {
         const doc = await io.readBinary(readFileSync(disk));
+        // Fragment-sized primitives (morph splits, hidden-cage leftovers) are
+        // excluded by BODY_MIN_VERTS; the body is the largest primitive by
+        // construction. Approved decimation (HB-05 face-preserving rung) shrank
+        // whole bodies below the absolute floor (peds-nurse-kevin's 3,651-vert
+        // body measures its declared 176 cm), so when no primitive reaches the
+        // floor the mesh's largest primitive is read instead of reporting no
+        // body. No band, threshold, or assertion below changes.
+        const small: { cm: number; count: number }[] = [];
         for (const mesh of doc.getRoot().listMeshes()) {
           if (!/_body$/u.test(mesh.getName() ?? "")) continue;
           for (const prim of mesh.listPrimitives()) {
             const pos = prim.getAttribute("POSITION");
-            if (!pos || pos.getCount() < BODY_MIN_VERTS) continue;
+            if (!pos) continue;
+            const count = pos.getCount();
             const q = pos.getArray() as ArrayLike<number>;
             let lo = Infinity; let hi = -Infinity;
             for (let i = 1; i < q.length; i += 3) {
@@ -98,8 +107,16 @@ async function measureAuthoredActors(): Promise<Row[]> {
               if (q[i]! > hi) hi = q[i]!;
             }
             const cm = Math.round((hi - lo) * 1000) / 10;
+            if (count < BODY_MIN_VERTS) {
+              small.push({ cm, count });
+              continue;
+            }
             if (bodyCm === null || cm > bodyCm) bodyCm = cm;
           }
+        }
+        if (bodyCm === null && small.length > 0) {
+          small.sort((x, y) => y.count - x.count);
+          bodyCm = small[0]!.cm;
         }
       }
       rows.push({ actorId: a.actorId, declaredCm, bodyCm, asset: path.split("/").pop() ?? path });
