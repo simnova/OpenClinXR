@@ -1,9 +1,11 @@
 import { readFileSync } from "node:fs";
+import { inflateSync } from "node:zlib";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { NodeIO } from "@gltf-transform/core";
 import { readEyeRow, eyeRowFromDoc, type EyeRow } from "./eye-colour-is-case-driven.js";
+import { isUpperMeshName } from "./lib/garment-mesh-class.js";
 
 /**
  * Every actor in the peds asthma station has the same brown eyes, by construction. A case definition
@@ -82,7 +84,9 @@ import { readEyeRow, eyeRowFromDoc, type EyeRow } from "./eye-colour-is-case-dri
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
-const BANK = join(REPO_ROOT, "packages/openclinxr/scenario-fixtures/src/pediatric-asthma.ts");
+// PSR-08 (2f050c916) moved the bank to pediatric-asthma-mod.ts; pediatric-asthma.ts is a
+// 6-line keep-only re-export stub with no eye_color rows — the old path read the stub.
+const BANK = join(REPO_ROOT, "packages/openclinxr/scenario-fixtures/src/pediatric-asthma-mod.ts");
 
 /** Same-station peds asthma files (#388: parent is a dedicated family-palette variant). */
 const CAST = [
@@ -191,6 +195,58 @@ type Row = {
 
 const io = new NodeIO();
 
+/** Per-channel mean of a PNG's opaque texels, or null for absent/non-PNG images. */
+function textureChannelMeans(bytes: Uint8Array): [number, number, number] | null {
+  if (bytes.length < 8 || bytes[0] !== 0x89 || bytes[1] !== 0x50) return null;
+  let w = 0, h = 0, depth = 0, colour = -1;
+  const idat: Uint8Array[] = [];
+  let off = 8;
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  while (off + 8 <= bytes.length) {
+    const len = dv.getUint32(off);
+    const type = String.fromCharCode(bytes[off + 4]!, bytes[off + 5]!, bytes[off + 6]!, bytes[off + 7]!);
+    if (type === "IHDR") {
+      w = dv.getUint32(off + 8); h = dv.getUint32(off + 12);
+      depth = bytes[off + 16]!; colour = bytes[off + 17]!;
+    } else if (type === "IDAT") idat.push(bytes.subarray(off + 8, off + 8 + len));
+    else if (type === "IEND") break;
+    off += 12 + len;
+  }
+  const chans = colour === 0 ? 1 : colour === 2 ? 3 : colour === 4 ? 2 : colour === 6 ? 4 : 0;
+  if (depth !== 8 || !chans || !w) return null;
+  let raw: Buffer;
+  try { raw = inflateSync(Buffer.concat(idat.map((c) => Buffer.from(c)))); } catch { return null; }
+  const stride = w * chans;
+  if (raw.length < (stride + 1) * h) return null;
+  let prev = new Uint8Array(stride);
+  const cur = new Uint8Array(stride);
+  const sums = [0, 0, 0]; let n = 0, p = 0;
+  for (let y = 0; y < h; y += 1) {
+    const f = raw[p++]!;
+    for (let x = 0; x < stride; x += 1) {
+      const rb = raw[p + x]!;
+      const a = x >= chans ? cur[x - chans]! : 0, b = prev[x]!, c = x >= chans ? prev[x - chans]! : 0;
+      let v: number;
+      if (f === 0) v = rb; else if (f === 1) v = rb + a; else if (f === 2) v = rb + b;
+      else if (f === 3) v = rb + ((a + b) >> 1);
+      else { const pa = Math.abs(b - c), pb = Math.abs(a - c), pc = Math.abs(a + b - 2 * c);
+             v = rb + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c); }
+      cur[x] = v & 0xff;
+    }
+    p += stride;
+    if (y % 4 !== 0) continue;
+    for (let x = 0; x < w; x += 4) {
+      const i = x * chans;
+      if (chans === 4 && cur[i + 3]! < 128) continue;
+      sums[0]! += cur[i]!; sums[1]! += cur[i + 1] ?? cur[i]!; sums[2]! += cur[i + 2] ?? cur[i]!;
+      n += 1;
+    }
+    prev = Uint8Array.from(cur);
+  }
+  if (!n) return null;
+  return [sums[0]! / n / 255, sums[1]! / n / 255, sums[2]! / n / 255];
+}
+
 async function measure(file: string): Promise<Row | null> {
   const doc = await io.read(join(REPO_ROOT, GENERATED, file));
   const eye = eyeRowFromDoc(doc);
@@ -199,9 +255,17 @@ async function measure(file: string): Promise<Row | null> {
     for (const prim of mesh.listPrimitives()) {
       const mat = prim.getMaterial();
       if (!mat) continue;
-      if (/t_shirt|scrub|sweater/i.test(mesh.getName())) {
+      if (isUpperMeshName(mesh.getName())) {
         const c = mat.getBaseColorFactor();
-        if (c) upperRgb = [c[0]!, c[1]!, c[2]!];
+        // HB-02 (22ec335a5): the shipped garment colour is the EFFECTIVE colour
+        // (factor x per-channel texture mean), never the bare factor.
+        const img = mat.getBaseColorTexture()?.getImage() ?? null;
+        const means = img ? textureChannelMeans(img) : null;
+        if (c) {
+          upperRgb = means
+            ? [c[0]! * means[0], c[1]! * means[1], c[2]! * means[2]]
+            : [c[0]!, c[1]!, c[2]!];
+        }
       }
     }
   }
@@ -411,5 +475,25 @@ describe("eye colour is case-driven, not one constant for everyone", () => {
  * clause's own (a)/(b) logic needed no change — the new authored colour is a pack member with a
  * measured sha, and it differs from the adults' brown, so (b)'s hardcode defence now covers her
  * too. Clauses (2)/(3)/(3b)/(3c) untouched.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (PSR-08 2f050c916 + HB-02 22ec335a5) — appended; the planted header above is immutable
+ *
+ * Two deliberate changes moved stale reads; every threshold and the (2) textured-iris net
+ * are untouched:
+ *   - BANK pointed at `pediatric-asthma.ts`, which PSR-08 reduced to a 6-line re-export stub
+ *     with no eye_color rows — authoredColour threw on every actor. The bank is the mod file
+ *     (`pediatric-asthma-mod.ts`); Maya authors green (D13, 6a503c0a1, shipped green_eye sha
+ *     b9864ac4f4fa verified in the child GLB), both adults author brown. Clause (1)(a)/(b)
+ *     logic unchanged — the new path only restores the read the stub broke.
+ *   - HB-02 (22ec335a5) folded every baseColorFactor into its texture, so bare-factor upper
+ *     reads return white and clauses (3)/(3b)/(3c) red on correct bytes. measure() now reads
+ *     the EFFECTIVE upper (factor x per-channel texture mean): child soft-blue
+ *     (0.539,0.666,0.785), kevin teal (0.034,0.478,0.522), OB olive (0.334,0.431,0.334),
+ *     parent rose (0.607,0.420,0.485) != child. MIN_GARMENT_CHANNEL_DELTA (0.05) and all
+ *     pins (SOFT_BLUE/TEAL/OLIVE/CYAN) are untouched.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */

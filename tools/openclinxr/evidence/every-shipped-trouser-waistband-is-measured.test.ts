@@ -117,6 +117,27 @@ const GENERATED = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 const EXISTING = join(REPO_ROOT, "tools/openclinxr/evidence/the-waistband-is-as-smooth-as-the-hem.test.ts");
 const ARTIFACT = join(REPO_ROOT, "tools/openclinxr/evidence/waistband-membership.json");
 
+/*
+ * ## ADAPT ATTEMPT 2026-10-30 — STUCK (regen blocked; fresh values verified and recorded here)
+ *
+ * The regen writer (waistband-membership-write.ts) throws on mpfb-peds-patient-child and writes
+ * nothing: the actor ships a cargo-pants mesh but its shirt hem ring is NULL on the current
+ * bytes (shirt bottom-3% band = 4 verts, a stray spike from the HB-07 child rebakes 3f1c222a4 /
+ * 078d96a2c — see the bound file's ADAPT block for the bisection). The writer's throw is
+ * deliberate fail-closed design ("a missing ring is not data"); hand-omitting the child would be
+ * this contract's own refused treatment (d). No rule-compliant edit can produce a fresh artifact
+ * while those bytes ship, so clauses (1) and (4) stay red on the stale one (scanned 19 vs 20).
+ *
+ * Verified fresh same-instrument values for the regen, when the bytes allow it:
+ * scanned 20 (69f2c7075 added mpfb-gown-ed-robert-hayes — gown shell, no trousers, so count
+ * only, no row); DROP the gown-adult-patient row (d10314025 removed its cargo trousers —
+ * verified on disk: hospital_gown mesh, no trouser mesh); nurse 3.423 / 0.944 / 3.626
+ * (hem-close 38ff3505b); kevin 1.803 / 0.830 / 2.172; physician 1.688 / 4.805 / 0.351;
+ * family-partner bootcut-jeans 3.578 / 3.020 / 1.185; aisha tightjeans 7.889 / 1.918 / 4.113;
+ * parent-aisha tightjeans 13.461 / 2.350 / 5.728; street straight-leg 4.770 / 1.057 / 4.513;
+ * viseme tightjeans 7.889 / 1.918 / 4.113.
+ */
+
 /** Measured 2026-08-18 by enumerating the shipped directory. Not a target — the current population. */
 const UNMEASURED_TODAY = [
   "mpfb-clinical-nurse-adult",

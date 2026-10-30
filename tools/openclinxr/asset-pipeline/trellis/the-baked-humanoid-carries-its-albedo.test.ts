@@ -6,6 +6,15 @@
  * the report's before/after (unchanged by the bake), every textured material is
  * white-factored or a recorded exception. Counterweight: the textured-material
  * population across the baked bodies is non-zero, so this cannot pass vacuously.
+ *
+ * RE-RECORDS (pins move with deliberate changes; thresholds untouched):
+ *   - d10314025 (Oct-8 supine rebake) removed one gown-adult mesh: report
+ *     mpfb-gown-adult-patient mesh 11->10, node 150->149 (disk-verified).
+ *   - ceabb545e (Oct-25 linear-station restore) re-baked the parent shirt
+ *     (GLB 40321196->40911888 bytes): report samples are that commit's provenance
+ *     receipt (albedoRepair.bakedBodyRow, same 32-coordinate grid), and the texel
+ *     clause applies the linear fold for the receipt's "independent cloned image"
+ *     decision at the same +/-1 bar.
  */
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
@@ -204,6 +213,22 @@ function isWhite3(factor: unknown): boolean {
   return (factor as number[]).slice(0, 3).every((c) => c === 1);
 }
 
+/**
+ * Standard sRGB transfer functions (glTF 2.0: baseColorTexture bytes are sRGB-encoded,
+ * baseColorFactor is linear). Inline and independent of the producer module — the same
+ * shape as the sRGB-direct multiply above, for the one row the linear station baked.
+ * ceabb545e's receipt matches all 4194304 shirt pixels through exactly this round-trip.
+ */
+function srgbByteToLinear(v: number): number {
+  const c = Math.min(255, Math.max(0, Math.round(v))) / 255;
+  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+}
+function linearToSrgbByte(l: number): number {
+  const c = Math.min(1, Math.max(0, l));
+  const s = c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+  return Math.min(255, Math.max(0, Math.round(s * 255)));
+}
+
 describe("the baked humanoid carries its albedo", () => {
   const report = JSON.parse(readFileSync(REPORT_PATH, "utf8")) as BakeReport;
   const exceptionBodies = new Set(report.exceptions.map((e) => e.body));
@@ -285,10 +310,18 @@ describe("the baked humanoid carries its albedo", () => {
         expect(mat.samples.length).toBe(32);
         const scan = inflatePng(baseColorTextureBytes(json, bin, mat.material));
         const pixels = decodeScanToPixels(scan);
+        // ceabb545e restored the parent shirt through the albedo-linear station (decision
+        // "independent cloned image"): the fold is decode-sRGB -> x factor -> encode-sRGB,
+        // not sRGB-direct multiply. Same +/-1 bar, producer-accurate model; the row's own
+        // decision string selects it, so the HB-02 sRGB rows are untouched.
+        const linearFold = mat.decision.includes("independent cloned image");
         for (const s of mat.samples) {
           const actual = pixelAt(pixels, scan.w, scan.chans, s.x, s.y);
           for (let c = 0; c < 3; c += 1) {
-            expect(Math.abs(actual[c]! - Math.round(s.before[c]! * s.factor[c]!))).toBeLessThanOrEqual(1);
+            const expected = linearFold
+              ? linearToSrgbByte(srgbByteToLinear(s.before[c]!) * s.factor[c]!)
+              : Math.round(s.before[c]! * s.factor[c]!);
+            expect(Math.abs(actual[c]! - expected)).toBeLessThanOrEqual(1);
           }
           sampled += 1;
         }

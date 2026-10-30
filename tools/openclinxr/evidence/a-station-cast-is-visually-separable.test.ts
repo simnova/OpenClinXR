@@ -1,7 +1,12 @@
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { inflateSync } from "node:zlib";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import {
+  classifyGarmentMeshName,
+  classifyLowerGarmentKind,
+} from "./lib/garment-mesh-class.js";
 import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { resolveHumanoidVariantOrCastPath } from "@openclinxr/xr-scene";
 
@@ -130,6 +135,59 @@ type Row = { file: string; role: string; clinician: boolean; upper?: Garment; lo
 
 const io = new NodeIO();
 
+/** Per-channel mean of a PNG's opaque texels, or null for absent/non-PNG images. JPEG
+ * originals (parent tightjeans postopt) fall back to the bare factor. */
+function textureChannelMeans(bytes: Uint8Array): [number, number, number] | null {
+  if (bytes.length < 8 || bytes[0] !== 0x89 || bytes[1] !== 0x50) return null;
+  let w = 0, h = 0, depth = 0, colour = -1;
+  const idat: Uint8Array[] = [];
+  let off = 8;
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  while (off + 8 <= bytes.length) {
+    const len = dv.getUint32(off);
+    const type = String.fromCharCode(bytes[off + 4]!, bytes[off + 5]!, bytes[off + 6]!, bytes[off + 7]!);
+    if (type === "IHDR") {
+      w = dv.getUint32(off + 8); h = dv.getUint32(off + 12);
+      depth = bytes[off + 16]!; colour = bytes[off + 17]!;
+    } else if (type === "IDAT") idat.push(bytes.subarray(off + 8, off + 8 + len));
+    else if (type === "IEND") break;
+    off += 12 + len;
+  }
+  const chans = colour === 0 ? 1 : colour === 2 ? 3 : colour === 4 ? 2 : colour === 6 ? 4 : 0;
+  if (depth !== 8 || !chans || !w) return null;
+  let raw: Buffer;
+  try { raw = inflateSync(Buffer.concat(idat.map((c) => Buffer.from(c)))); } catch { return null; }
+  const stride = w * chans;
+  if (raw.length < (stride + 1) * h) return null;
+  let prev = new Uint8Array(stride);
+  const cur = new Uint8Array(stride);
+  const sums = [0, 0, 0]; let n = 0, p = 0;
+  for (let y = 0; y < h; y += 1) {
+    const f = raw[p++]!;
+    for (let x = 0; x < stride; x += 1) {
+      const rb = raw[p + x]!;
+      const a = x >= chans ? cur[x - chans]! : 0, b = prev[x]!, c = x >= chans ? prev[x - chans]! : 0;
+      let v: number;
+      if (f === 0) v = rb; else if (f === 1) v = rb + a; else if (f === 2) v = rb + b;
+      else if (f === 3) v = rb + ((a + b) >> 1);
+      else { const pa = Math.abs(b - c), pb = Math.abs(a - c), pc = Math.abs(a + b - 2 * c);
+             v = rb + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c); }
+      cur[x] = v & 0xff;
+    }
+    p += stride;
+    if (y % 4 !== 0) continue;
+    for (let x = 0; x < w; x += 4) {
+      const i = x * chans;
+      if (chans === 4 && cur[i + 3]! < 128) continue;
+      sums[0]! += cur[i]!; sums[1]! += cur[i + 1] ?? cur[i]!; sums[2]! += cur[i + 2] ?? cur[i]!;
+      n += 1;
+    }
+    prev = Uint8Array.from(cur);
+  }
+  if (!n) return null;
+  return [sums[0]! / n / 255, sums[1]! / n / 255, sums[2]! / n / 255];
+}
+
 async function measure(entry: (typeof CAST)[number]): Promise<Row | null> {
   const doc = await io.read(join(REPO_ROOT, GENERATED, entry.file));
   const row: Row = { file: entry.file, role: entry.role, clinician: entry.clinician, overlapMm: 0 };
@@ -142,24 +200,33 @@ async function measure(entry: (typeof CAST)[number]): Promise<Row | null> {
       if (mat.getAlphaMode() === "MASK" && (mat.getBaseColorFactor()?.[3] ?? 1) === 0) continue;
       const name = mesh.getName();
       const c = mat.getBaseColorFactor() ?? [0, 0, 0, 1];
-      const rgb: [number, number, number] = [c[0]!, c[1]!, c[2]!];
+      // HB-02 (22ec335a5): the shipped colour is the EFFECTIVE colour (factor x
+      // per-channel texture mean), never the bare factor.
+      const img = mat.getBaseColorTexture()?.getImage() ?? null;
+      const means = img ? textureChannelMeans(img) : null;
+      const rgb: [number, number, number] = means
+        ? [c[0]! * means[0], c[1]! * means[1], c[2]! * means[2]]
+        : [c[0]!, c[1]!, c[2]!];
+      // One shared classifier, not private regexes. Gowns drape from the
+      // shoulders, so a gown reads as the upper (as the old /gown/ branch did).
       // Upper-body garment ASSET id, stripped of the per-actor suffix: `..._library_<asset>_mpfb_<actor>_mesh`.
       const kind = name.replace(/^.*?library_/, "").replace(/_mpfb[_-].*$/, "");
       const pos = prim.getAttribute("POSITION");
-      // `scrub` alone would also match `scrub_pants`; the lookahead keeps trousers in the lower branch.
-      if (/t_shirt|scrub(?!_pants)|shirt|sweater|gown|top/i.test(name)) {
+      const cls = classifyGarmentMeshName(name);
+      const lowerKind = cls === "lower" ? classifyLowerGarmentKind(name) : "unknown";
+      if (cls === "upper" || lowerKind === "gown") {
         row.upper = { kind, rgb };
         if (pos) for (let i = 0; i < pos.getCount(); i++) {
           const y = (pos.getElement(i, [0, 0, 0]) as number[])[1]!;
           if (y < shirtBot) shirtBot = y;
         }
-      } else if (/pants|trouser/i.test(name)) {
+      } else if (cls === "lower") {
         row.lower = { kind, rgb };
         if (pos) for (let i = 0; i < pos.getCount(); i++) {
           const y = (pos.getElement(i, [0, 0, 0]) as number[])[1]!;
           if (y > pantsTop) pantsTop = y;
         }
-      } else if (/footwear|shoe|boot/i.test(name)) {
+      } else if (cls === "footwear") {
         row.footwear = { kind, rgb };
       }
     }
@@ -222,10 +289,19 @@ describe("a station cast is visually separable", () => {
   });
 
   it("(3) NET known-good: footwear stays per-actor distinct", () => {
-    // Footwear ALREADY differs per actor — the proof this pipeline can vary a garment by actor.
+    // #598 (99c56fd59) deliberately swapped the parent flats for the plain CC0 cloth shoes,
+    // so the two patients share one footwear asset: 2 distinct across 3 actors
+    // ({toigo_mj_cloth_shoes x2, culturalibre_male_boots x1}), not 3. The pin moves WITH the
+    // deliberate change; the clause still proves this pipeline can vary a garment per actor.
     requireRows();
     const kinds = rows.map((r) => r.footwear?.kind).filter(Boolean);
-    expect(new Set(kinds).size, `distinct footwear assets across ${rows.length} actors`).toBe(kinds.length);
+    expect(new Set(kinds).size, `distinct footwear assets across ${rows.length} actors`).toBe(2);
+    // Composition pin: both patients in the shared mj cloth shoe, the nurse in boots.
+    expect([...kinds].sort()).toEqual([
+      "footwear_culturalibre_male_boots",
+      "footwear_toigo_mj_cloth_shoes",
+      "footwear_toigo_mj_cloth_shoes",
+    ]);
   });
 
   it("(4) NET known-good: garment coverage survives", () => {
@@ -250,3 +326,19 @@ describe("a station cast is visually separable", () => {
     ).toBe(parent?.runtimeAssetPath);
   });
 });
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (HB-02 22ec335a5 + #598 99c56fd59) — appended; the planted header above is immutable
+ *
+ * Two deliberate changes moved stale reads; clauses (2) and (4) pass untouched:
+ *   - HB-02 (22ec335a5) folded every baseColorFactor into its texture, so bare-factor reads
+ *     return white on every actor and clause (1) red on correct bytes (three-way clash at
+ *     (1,1,1)). measure() now reads the EFFECTIVE colour (factor x per-channel texture
+ *     mean; bare factor when untextured, JPEG originals fall back to bare factor) and the
+ *     cast is pairwise distinct again at the untouched MIN_CHANNEL_DELTA (0.05).
+ *   - #598 (99c56fd59) deliberately swapped the parent flats for the plain CC0 cloth shoes:
+ *     3 distinct -> 2 distinct ({mj x2, boots}), pinned above with the composition. The pin
+ *     moves WITH the deliberate change; the clause still guards per-actor footwear variance.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */

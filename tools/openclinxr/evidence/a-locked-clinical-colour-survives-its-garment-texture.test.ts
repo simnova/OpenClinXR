@@ -153,15 +153,24 @@ const MIN_EFFECTIVE_BRIGHTNESS = 0.5;
 type Garment = {
   name: string;
   factor: number[];
+  /** HB-02 (22ec335a5): the fold moved the locked colour into the texture, so the lock reads
+   * as the EFFECTIVE colour — bare factor when untextured, factor x per-channel texture
+   * mean when textured — never the bare factor alone. */
+  effective: [number, number, number];
   locked: boolean;
   hasTexture: boolean;
   texMean: number;
   texSD: number;
+  /** Rendered-over-locked luminance ratio. Pre-fold this was the texture mean (the factor
+   * was the full locked colour); post-fold the texture IS the colour, so the ratio keeps
+   * the floor's original meaning — nearer the locked colour (1.0) than black (0.0) —
+   * and reproduces the planted 21% on the pre-fix bytes. Floor untouched. */
   effectiveBrightness: number;
 };
 
-/** Mean and sd of a PNG's luminance over opaque texels. Same reader as the AO and face probes. */
-function textureStats(bytes: Uint8Array): { mean: number; sd: number } | null {
+/** Mean and sd of a PNG's luminance over opaque texels, plus per-channel means for the
+ * effective-colour read. Same reader as the AO and face probes. */
+function textureStats(bytes: Uint8Array): { mean: number; sd: number; r: number; g: number; b: number } | null {
   let w = 0, h = 0, depth = 0, colour = -1;
   const idat: Uint8Array[] = [];
   let off = 8;
@@ -184,6 +193,7 @@ function textureStats(bytes: Uint8Array): { mean: number; sd: number } | null {
   if (raw.length < (stride + 1) * h) return null;
   let prev = new Uint8Array(stride), p = 0;
   const vals: number[] = [];
+  const chanVals: number[][] = [[], [], []];
   for (let y = 0; y < h; y += 1) {
     const f = raw[p++]!;
     const cur = new Uint8Array(stride);
@@ -203,13 +213,20 @@ function textureStats(bytes: Uint8Array): { mean: number; sd: number } | null {
       const i = x * chans;
       if (chans === 4 && cur[i + 3]! < 128) continue;   // skip transparent texels
       vals.push((cur[i]! + (cur[i + 1] ?? cur[i]!) + (cur[i + 2] ?? cur[i]!)) / 3);
+      chanVals[0]!.push(cur[i]!);
+      chanVals[1]!.push(cur[i + 1] ?? cur[i]!);
+      chanVals[2]!.push(cur[i + 2] ?? cur[i]!);
     }
   }
   if (!vals.length) return null;
   const mean = vals.reduce((s, v) => s + v, 0) / vals.length;
   const sd = Math.sqrt(vals.reduce((s, v) => s + (v - mean) ** 2, 0) / vals.length);
-  return { mean: mean / 255, sd: sd / 255 };
+  const chMean = (c: number[]): number => c.reduce((s, v) => s + v, 0) / c.length;
+  return { mean: mean / 255, sd: sd / 255, r: chMean(chanVals[0]!) / 255, g: chMean(chanVals[1]!) / 255, b: chMean(chanVals[2]!) / 255 };
 }
+
+/** Luminance as the mean channel — the same averaging the texture sampler uses. */
+const luminance = (rgb: readonly number[]): number => (rgb[0]! + rgb[1]! + rgb[2]!) / 3;
 
 async function readGarments(): Promise<Garment[]> {
   if (!existsSync(ASSET)) throw new Error("missing artifact");
@@ -219,16 +236,22 @@ async function readGarments(): Promise<Garment[]> {
     const name = m.getName();
     if (!/makeclothes_library/u.test(name)) continue;
     const factor = Array.from(m.getBaseColorFactor()).slice(0, 3);
-    const locked = CLINICAL_RGB.every((c, i) => Math.abs((factor[i] ?? -9) - c) < LOCK_TOLERANCE);
     const img = m.getBaseColorTexture()?.getImage();
     const stats = img ? textureStats(img) : null;
+    // HB-02 (22ec335a5): the scrub shirt's locked teal now renders as
+    // factor x texture = (1,1,1) x (0.034,0.478,0.522). The lock read follows the
+    // rendered colour; the bare factor alone would read "unlocked" on correct bytes.
+    const effective: [number, number, number] = stats
+      ? [factor[0]! * stats.r, factor[1]! * stats.g, factor[2]! * stats.b]
+      : [factor[0]!, factor[1]!, factor[2]!];
+    const locked = CLINICAL_RGB.every((c, i) => Math.abs((effective[i] ?? -9) - c) < LOCK_TOLERANCE);
     out.push({
       name: name.replace(/^mat_/u, ""),
-      factor, locked,
+      factor, effective, locked,
       hasTexture: Boolean(img),
       texMean: stats?.mean ?? 1,
       texSD: stats?.sd ?? 0,
-      effectiveBrightness: stats?.mean ?? 1,
+      effectiveBrightness: luminance(effective) / luminance(CLINICAL_RGB),
     });
   }
   return out;
@@ -316,3 +339,23 @@ describe("a locked clinical colour survives its garment texture", () => {
     ).toBeGreaterThanOrEqual(MIN_EFFECTIVE_BRIGHTNESS);
   });
 });
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (HB-02, 22ec335a5) — appended; the planted header above is immutable
+ *
+ * HB-02 folded every baseColorFactor into its baseColorTexture fleet-wide and reset factors
+ * to white. The scrub shirt now renders the locked teal as factor x texture =
+ * (1,1,1) x (0.034,0.478,0.522) instead of factor (0.05,0.48,0.52) x normalised weave,
+ * so the bare-factor lock read red on correct bytes: no locked garment existed, clause (1)'s
+ * scrubShirt pin failed, and clause (2) found no textured locked garment.
+ *
+ * ADAPT, not loosening: the lock now reads the EFFECTIVE colour (per-channel factor x
+ * texture mean; bare factor when untextured), and the brightness is the rendered-over-locked
+ * luminance ratio. The ratio reproduces the planted numbers exactly — 21% on the pre-fix
+ * bytes (0.206 texture mean), 60% post-#386, 98.5% now — so MIN_EFFECTIVE_BRIGHTNESS (0.5)
+ * keeps its header meaning ("nearer its own colour than to black") with the same numeric
+ * bar. LOCK_TOLERANCE (0.02), the weave sd>0 discriminator, and clause (3)'s untextured
+ * pants control (still flat teal, ratio 1.0) are untouched.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */

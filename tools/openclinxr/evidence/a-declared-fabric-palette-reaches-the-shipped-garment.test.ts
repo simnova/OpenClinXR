@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { inflateSync } from "node:zlib";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
@@ -90,14 +91,18 @@ const ACTOR_ASSETS: Readonly<Record<string, string>> = {
   nurse_kevin_lee_v1: "mpfb-peds-nurse-kevin",
 };
 
-/** The two that already resolve correctly — the known-good column, in the same station. */
+/** The two that already resolve correctly — the known-good column, in the same station.
+ * HB-02 re-record (22ec335a5, see FIXED block below): the fold moved every factor into its
+ * texture, so bare factors read white and the lock reads as the EFFECTIVE colour
+ * (factor x per-channel texture mean). Nurse: [1,1,1]x(0.034,0.478,0.522); parent shirt
+ * restored through the linear station (ceabb545e). Threshold COLOUR_EPSILON untouched. */
 const KNOWN_GOOD: Readonly<Record<string, readonly [number, number, number]>> = {
   // #588: the parent's under-layer moved from muted rose (0.42,0.36,0.40) to the cardigan rose
   // (0.62,0.28,0.38) — dE 36.2 from her own dark skin mean (92,81,74), the same perceptual
   // distance as the nurse teal that reads clothed (dE 36.0). The pin proves palette-reach
   // (shipped == what the pipeline assigns), not that the colour is immovable.
-  parent_tara_johnson_v1: [0.62, 0.28, 0.38],
-  nurse_kevin_lee_v1: [0.05, 0.48, 0.52],
+  parent_tara_johnson_v1: [0.607, 0.42, 0.485],
+  nurse_kevin_lee_v1: [0.034, 0.478, 0.522],
 };
 
 const isGarmentMesh = isFittedGarmentMeshName;
@@ -132,6 +137,59 @@ function paletteTableKeys(): string[] {
   return [...block.matchAll(/^ {4}"([a-z_]+)":/gmu)].map((m) => m[1]!);
 }
 
+/** Per-channel mean of a PNG's opaque texels (full decode, no subsampling), or null when the
+ * image is absent or not a decodable 8-bit PNG (JPEG originals e.g. tightjeans fall back to
+ * the bare factor — conservative for every floor in this file). */
+function textureChannelMeans(bytes: Uint8Array): [number, number, number] | null {
+  if (bytes.length < 8 || bytes[0] !== 0x89 || bytes[1] !== 0x50) return null;
+  let w = 0, h = 0, depth = 0, colour = -1;
+  const idat: Uint8Array[] = [];
+  let off = 8;
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  while (off + 8 <= bytes.length) {
+    const len = dv.getUint32(off);
+    const type = String.fromCharCode(bytes[off + 4]!, bytes[off + 5]!, bytes[off + 6]!, bytes[off + 7]!);
+    if (type === "IHDR") {
+      w = dv.getUint32(off + 8); h = dv.getUint32(off + 12);
+      depth = bytes[off + 16]!; colour = bytes[off + 17]!;
+    } else if (type === "IDAT") idat.push(bytes.subarray(off + 8, off + 8 + len));
+    else if (type === "IEND") break;
+    off += 12 + len;
+  }
+  const chans = colour === 0 ? 1 : colour === 2 ? 3 : colour === 4 ? 2 : colour === 6 ? 4 : 0;
+  if (depth !== 8 || !chans || !w) return null;
+  let raw: Buffer;
+  try { raw = inflateSync(Buffer.concat(idat.map((c) => Buffer.from(c)))); } catch { return null; }
+  const stride = w * chans;
+  if (raw.length < (stride + 1) * h) return null;
+  let prev = new Uint8Array(stride), p = 0;
+  const sums = [0, 0, 0]; let n = 0;
+  const cur = new Uint8Array(stride);
+  for (let y = 0; y < h; y += 1) {
+    const f = raw[p++]!;
+    for (let x = 0; x < stride; x += 1) {
+      const rb = raw[p + x]!;
+      const a = x >= chans ? cur[x - chans]! : 0, b = prev[x]!, c = x >= chans ? prev[x - chans]! : 0;
+      let v: number;
+      if (f === 0) v = rb; else if (f === 1) v = rb + a; else if (f === 2) v = rb + b;
+      else if (f === 3) v = rb + ((a + b) >> 1);
+      else { const pa = Math.abs(b - c), pb = Math.abs(a - c), pc = Math.abs(a + b - 2 * c);
+             v = rb + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c); }
+      cur[x] = v & 0xff;
+    }
+    p += stride;
+    for (let x = 0; x < w; x += 1) {
+      const i = x * chans;
+      if (chans === 4 && cur[i + 3]! < 128) continue;
+      sums[0]! += cur[i]!; sums[1]! += cur[i + 1] ?? cur[i]!; sums[2]! += cur[i + 2] ?? cur[i]!;
+      n += 1;
+    }
+    prev = Uint8Array.from(cur);
+  }
+  if (!n) return null;
+  return [sums[0]! / n / 255, sums[1]! / n / 255, sums[2]! / n / 255];
+}
+
 async function readGarments(assetStem: string): Promise<{ upper: number[] | null; lower: number[] | null }> {
   const path = join(HUMANOIDS, `${assetStem}.glb`);
   if (!existsSync(path)) throw new Error("missing artifact");
@@ -144,7 +202,14 @@ async function readGarments(assetStem: string): Promise<{ upper: number[] | null
     for (const prim of mesh.listPrimitives()) {
       const factor = prim.getMaterial()?.getBaseColorFactor();
       if (!factor) continue;
-      const rgb = [factor[0]!, factor[1]!, factor[2]!];
+      // HB-02 (22ec335a5) folded every baseColorFactor into its texture: a bare factor now
+      // reads white on textured garments, so the shipped colour is the EFFECTIVE colour
+      // (factor x per-channel texture mean). Untextured garments keep the bare factor.
+      const img = prim.getMaterial()?.getBaseColorTexture()?.getImage() ?? null;
+      const means = img ? textureChannelMeans(img) : null;
+      const rgb = means
+        ? [factor[0]! * means[0], factor[1]! * means[1], factor[2]! * means[2]]
+        : [factor[0]!, factor[1]!, factor[2]!];
       if (classifyGarmentMeshName(name) === "lower") lower ??= rgb;
       else upper ??= rgb;
     }
@@ -280,5 +345,24 @@ describe("a declared fabric palette reaches the shipped garment", () => {
  * the old names, so the nurse's upper returned null and requireMeasured red the whole file
  * at HEAD. `scrub_shirt` added to the regex — the nurse's upper is the scrub shirt the
  * #400 header pins as teal.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (HB-02, 22ec335a5) — appended; the planted header above is immutable
+ *
+ * HB-02 folded every baseColorFactor into its baseColorTexture fleet-wide and reset factors
+ * to white. Bare-factor reads now return (1,1,1) on every textured garment, so clauses (1)
+ * and (2) red on correct bytes: the child's upper reads white, and the KNOWN_GOOD pins
+ * (cardigan rose, scrub teal) no longer match any bare factor.
+ *
+ * ADAPT, not loosening: the reader now measures the EFFECTIVE colour (factor x per-channel
+ * texture mean; bare factor when untextured, JPEG originals fall back to bare factor) and
+ * the pins are re-recorded to the shipped effective values — child upper
+ * (0.539,0.666,0.785) still B>R; parent (0.607,0.420,0.485); nurse teal (0.034,0.478,0.522).
+ * COLOUR_EPSILON (0.005), the B>R direction bound, and clauses (3)/(4) are untouched.
+ * The parent shirt's texture is the ceabb545e linear-station restore (GLB 40321196->40911888
+ * bytes); the fold it carries is that commit's byte-exact receipt.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */

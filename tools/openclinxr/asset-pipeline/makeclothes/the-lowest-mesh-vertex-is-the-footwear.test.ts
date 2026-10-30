@@ -22,6 +22,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { classifyGarmentMeshName } from "../../evidence/lib/garment-mesh-class.js";
 
 const GLB_DIR = "apps/ui-xr/public/generated-humanoids";
 const AUDIT_PATH = "docs/openclinxr/humanoid-lowest-vertex-audit-2026-09-10.json";
@@ -50,7 +51,8 @@ async function lowestPerPrimitive(glbPath: string) {
         if (wy < mn) mn = wy;
       }
       const name = mesh.getName();
-      rows.push({ mesh: name, minY: mn, footwear: /footwear/i.test(name) });
+      // Footwear via the one shared classifier, not a /footwear/i literal.
+      rows.push({ mesh: name, minY: mn, footwear: classifyGarmentMeshName(name) === "footwear" });
     }
   }
   return rows;

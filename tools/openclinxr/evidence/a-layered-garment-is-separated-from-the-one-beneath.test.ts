@@ -106,8 +106,13 @@ describe("#504 a garment worn under another is separated from it", () => {
       // POSITION buffer of every primitive, shirt included; was caf5c4631ba4d1cb. Vertex COUNT is
       // unchanged (clause 3 pins it) — the hash moved because the buffer was re-serialised, not
       // because the shirt geometry changed.
-      expect(n.sha, "nurse scrub_shirt must stay 3a2431b31f225830 — no coat, nothing to separate from")
-        .toBe("3a2431b31f225830");
+      // RE-RECORDED 2026-10-30: post-08-26 nurse re-exports re-emitted the POSITION buffer again —
+      // 8e7a1d0c2 (2026-09-20, CC-BY scrub extras) and 91aa4b5d3 (2026-09-25, walk-clip bind).
+      // Verified on disk the nurse still wears scrub shirt + scrub pants ONLY (no lab_coat mesh),
+      // so this is re-export drift, not a coat: the control still pins the shipped bytes, and a
+      // separation slice must re-record it explicitly.
+      expect(n.sha, "nurse scrub_shirt must stay 5702d9c49974cf6b — no coat, nothing to separate from")
+        .toBe("5702d9c49974cf6b");
     },
   );
 
