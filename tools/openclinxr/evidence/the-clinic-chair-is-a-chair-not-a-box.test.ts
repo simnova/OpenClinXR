@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -121,19 +122,40 @@ describe("the clinic chair is a chair, not a box", () => {
     expect(s, "psych must not start emitting the clinic chair").not.toContain("chairs_equipment");
   });
 
-  it("(4) COUNTERWEIGHT: the source kit stays CC0 and untouched in staging", () => {
-    // The promoted asset is a derivative; the staging kit is the licence surface and must not be
-    // edited in place, or provenance cannot be reconstructed.
-    const lic = join(REPO, ".openclinxr/staging/equipment/kenney-furniture-kit/License.txt");
-    expect(existsSync(lic), "the CC0 licence file must remain beside the source kit").toBe(true);
-    expect(readFileSync(lic, "utf8")).toMatch(/Creative Commons Zero|CC0/iu);
+  it("(4) COUNTERWEIGHT: the promoted chair carries CC0 provenance from the finalize-station producer", () => {
+    // ADAPTED 2026-10-30 (ci-w7): the staging kit `.openclinxr/staging/equipment/kenney-furniture-kit/`
+    // was never tracked (gitignored) and is absent on clean checkouts, so asserting on it greens
+    // nothing and reds everywhere. The newer work's current output is the finalize-station-era
+    // provenance sidecar (`730be6c30`, 2026-09-16, finalize on every shipped medical-equipment GLB;
+    // producer `tools/openclinxr/asset-pipeline/equipment/kenney-promote-cli.ts` + finalize station).
+    // The guard is unchanged: the derivative must trace to a CC0 source, not an untracked blob.
+    const chair = promotedChair();
+    expect(chair).not.toBeNull();
+    const provPath = chair!.replace(/\.glb$/u, ".provenance.json");
+    expect(existsSync(provPath), "the promoted chair must ship a provenance sidecar").toBe(true);
+    const prov = JSON.parse(readFileSync(provPath, "utf8")) as Record<string, unknown>;
+    expect(prov["sourceKind"], "derivative must name its CC0 source kind").toBe("third_party_kenney_cc0");
+    const licence = (prov["licenseChain"] as Record<string, unknown> | undefined)?.["licence"];
+    expect(String(licence ?? ""), "licence chain must record the CC0 grant").toMatch(/CC0/iu);
+    const norm = prov["measuredNormalize"] as Record<string, unknown> | undefined;
+    expect(norm?.["scaleFactor"], "promotion must record the baked seat-height normalization").toBe(1.875);
+    expect(norm?.["promotedSurfaceY"], "promoted seat must land at human height").toBe(0.45);
   });
 
-  it("(5) VACUITY GUARD: the fixture exhibits the defect being fixed", () => {
-    // Without this, (1) and (2) could pass by the kit vanishing rather than by a chair being promoted.
-    const kit = join(REPO, ".openclinxr/staging/equipment/kenney-furniture-kit/Models/GLTF format");
-    expect(existsSync(kit), "the source kit must be present for this slice to mean anything").toBe(true);
-    expect(readdirSync(kit).filter((n) => /^chair.*\.glb$/i.test(n)).length,
-      "six chair candidates were measured at 9999ea73").toBeGreaterThanOrEqual(4);
+  it("(5) VACUITY GUARD: the provenance sha binds the shipped bytes — the test cannot pass on vanished or damaged artifacts", () => {
+    // Without this, (1) and (2) could pass by the artifacts vanishing rather than by a chair being
+    // promoted — the same vacuity the old kit-presence clause guarded, now pointed at the newer
+    // work's output. The sha re-computation is the counterweight: a damaged GLB fails here.
+    const chair = promotedChair();
+    expect(chair).not.toBeNull();
+    const provPath = chair!.replace(/\.glb$/u, ".provenance.json");
+    expect(existsSync(chair!), "the promoted chair GLB must be present for this slice to mean anything").toBe(true);
+    expect(existsSync(provPath), "and so must its provenance sidecar").toBe(true);
+    const prov = JSON.parse(readFileSync(provPath, "utf8")) as Record<string, unknown>;
+    const recorded = prov["sha256"];
+    expect(recorded, "provenance must pin the promoted bytes").toBeTypeOf("string");
+    const live = createHash("sha256").update(readFileSync(chair!)).digest("hex");
+    expect(live, "shipped chair bytes no longer match their provenance pin — re-promote, do not relax").toBe(recorded);
+    expect((prov["bytes"] as number | undefined), "provenance must pin the byte length").toBe(readFileSync(chair!).byteLength);
   });
 });
