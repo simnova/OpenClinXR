@@ -2,7 +2,9 @@ import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { Server } from "@colyseus/core";
 import { WebSocketTransport } from "@colyseus/ws-transport";
-import { ENCOUNTER_ROOM_NAME, EncounterRoom, getLatestRoom, type RoomProbeStats } from "./room.js";
+import { ENCOUNTER_ROOM_NAME, EncounterRoom, getLatestRoom } from "./room.js";
+import { parseStationTiming, type StationTiming } from "./phase-clock.js";
+import type { RoomProbeStats } from "./room-types.js";
 import { snapshotState } from "./schema.js";
 import type { ConversationTrace } from "./conversation-trace.js";
 
@@ -12,6 +14,12 @@ export interface EncounterServerOptions {
   port?: number;
   /** Directory for the review-safe conversation trace file (<roomId>.conversation-trace.json), written on room dispose and again on close (same content). Omit to disable. */
   traceDir?: string;
+  /**
+   * C6 station phase clock ({ doorwaySeconds, encounterSeconds, noteSeconds },
+   * integers >= 0). Server config only: the room ignores client
+   * roomOptions.timing/phase. Omit for C1..C5 "brief" behaviour.
+   */
+  timing?: StationTiming;
 }
 
 /** Handle to a running encounter server with its bound address. */
@@ -32,14 +40,20 @@ export async function createEncounterServer(
   options: EncounterServerOptions = {},
 ): Promise<EncounterServer> {
   const httpServer = createServer();
+  const timing = parseStationTiming(options.timing);
+  const traceDir = typeof options.traceDir === "string" ? options.traceDir : null;
+  // Per-server room subclass: timing + traceDir are bound in the closure and
+  // read in onCreate via the protected hook. Every room on this server shares
+  // this binding; client roomOptions.timing/.phase/.traceDir are ignored, and
+  // no module cell leaks one server's config into another room or server.
+  class ConfiguredEncounterRoom extends EncounterRoom {
+    protected override stationTiming = timing;
+    protected override stationTraceDir = traceDir;
+  }
   const server = new Server({
     transport: new WebSocketTransport({ server: httpServer }),
   });
-  server.define(
-    ENCOUNTER_ROOM_NAME,
-    EncounterRoom,
-    options.traceDir ? { traceDir: options.traceDir } : undefined,
-  );
+  server.define(ENCOUNTER_ROOM_NAME, ConfiguredEncounterRoom);
   await server.listen(options.port ?? 0);
   const address = httpServer.address() as AddressInfo | null;
   const port = address?.port ?? options.port ?? 0;

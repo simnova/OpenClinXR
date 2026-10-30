@@ -60,6 +60,8 @@ export interface SnapshotLearner {
 export interface EncounterSnapshot {
   serverTick: number;
   phase: string;
+  /** C6 integer seconds left in the current phase (0 when closed; absent on old servers / brief mode). */
+  phaseRemainingS?: number;
   /** C3 actor-turn counter (0 before any actor turn). */
   turnId: number;
   /** C3 turn owner: "none" | "learner" | "actor". */

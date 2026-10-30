@@ -21,6 +21,7 @@ import {
   DEFAULT_CUE_ENVELOPE,
   EMOTION_TINTS,
   LEARNER_TURN_COLOUR,
+  PHASE_COLOURS,
   PROBE_ACTOR_IDS,
   SPEAKING_ACTOR_COLOUR,
   quantizePoseComponent,
@@ -28,6 +29,8 @@ import {
   resolveActorTint,
   resolveCueEnvelope,
   resolveMouthAmplitude,
+  resolvePhaseColour,
+  resolvePhaseLabel,
   resolveTurnIndicatorColour,
   summarizeMs,
   sweepYawDegrees,
@@ -130,14 +133,14 @@ describe("sync-probe server authority", () => {
     room.onMessage("ack", (message) => acks.push(message));
     room.onMessage("reject", (message) => rejects.push(message));
 
-    await waitFor(() => JSON.parse(server.getStateJSON()).actors["a1"] !== undefined, 5000, "a1 present");
+    await waitFor(() => JSON.parse(server.getStateJSON()).actors.a1 !== undefined, 5000, "a1 present");
     const before = server.getStateJSON();
     room.send("state", { actors: { a1: { speaking: true, emotion: "angry" } } });
     await new Promise((resolve) => setTimeout(resolve, 300));
     expect(server.getStateJSON()).toBe(before);
     expect(acks).toEqual([]);
     expect(rejects).toEqual([]);
-    expect(JSON.parse(server.getStateJSON()).actors["a1"].speaking).toBe(false);
+    expect(JSON.parse(server.getStateJSON()).actors.a1.speaking).toBe(false);
   }, 30000);
 
   it("mutating the page's local snapshot copy leaves server state untouched", async () => {
@@ -150,16 +153,16 @@ describe("sync-probe server authority", () => {
     connection.onState((snapshot) => {
       latest = snapshot;
     });
-    await waitFor(() => latest?.actors?.["a1"] !== undefined, 5000, "a1 snapshot");
+    await waitFor(() => latest?.actors?.a1 !== undefined, 5000, "a1 snapshot");
     const before = server.getStateJSON();
 
     // Page-side mutation of the local copy (the strongest thing the page can do
     // outside intents): flip the snapshot and re-derive colour from it.
     const local = latest as EncounterSnapshot;
-    local.actors["a1"] = { id: "a1", speaking: true, emotion: "hijacked", replyId: "hijacked", cueId: "hijacked" };
-    expect(resolveActorColour(local.actors["a1"]?.speaking === true)).toBe(SPEAKING_ACTOR_COLOUR);
+    local.actors.a1 = { id: "a1", speaking: true, emotion: "hijacked", replyId: "hijacked", cueId: "hijacked" };
+    expect(resolveActorColour(local.actors.a1?.speaking === true)).toBe(SPEAKING_ACTOR_COLOUR);
     expect(server.getStateJSON()).toBe(before);
-    expect(JSON.parse(server.getStateJSON()).actors["a1"].speaking).toBe(false);
+    expect(JSON.parse(server.getStateJSON()).actors.a1.speaking).toBe(false);
   }, 30000);
 
   it("page-local turn-field mutation leaves server state untouched; the turn indicator is pure server state", async () => {    const server = await createEncounterServer();
@@ -171,27 +174,27 @@ describe("sync-probe server authority", () => {
     connection.onState((snapshot) => {
       latest = snapshot;
     });
-    await waitFor(() => latest?.actors?.["a1"] !== undefined, 5000, "a1 snapshot");
+    await waitFor(() => latest?.actors?.a1 !== undefined, 5000, "a1 snapshot");
     const before = server.getStateJSON();
 
     // Page-side mutation of the local turn fields: forge a turn the server never opened.
     const local = latest as EncounterSnapshot;
     local.turnId = 99;
     local.turnOwner = "actor";
-    local.actors["a1"] = { id: "a1", speaking: true, emotion: "hijacked", replyId: "page-forged", cueId: "page-forged" };
+    local.actors.a1 = { id: "a1", speaking: true, emotion: "hijacked", replyId: "page-forged", cueId: "page-forged" };
     const learnerEntry = local.learners[connection.sessionId];
     if (learnerEntry) {
       learnerEntry.speaking = true;
     }
     // The indicator resolver still derives from whatever server state it is given,
     // but the forgery never reaches the server: state is byte-identical.
-    expect(resolveTurnIndicatorColour(local.turnOwner, local.actors["a1"]?.speaking === true)).toBe(
+    expect(resolveTurnIndicatorColour(local.turnOwner, local.actors.a1?.speaking === true)).toBe(
       ACTOR_TURN_COLOUR,
     );
     expect(server.getStateJSON()).toBe(before);
     expect(JSON.parse(server.getStateJSON()).turnId).toBe(0);
     expect(JSON.parse(server.getStateJSON()).turnOwner).toBe("none");
-    expect(JSON.parse(server.getStateJSON()).actors["a1"].replyId).not.toBe("page-forged");
+    expect(JSON.parse(server.getStateJSON()).actors.a1.replyId).not.toBe("page-forged");
 
     // Purity: the resolver is a pure function of server turn state.
     expect(resolveTurnIndicatorColour("actor", true)).toBe(ACTOR_TURN_COLOUR);
@@ -207,12 +210,12 @@ describe("sync-probe server authority", () => {
 
 describe("sync-probe C4 emotion tint and cue mouth amplitude", () => {
   it("tint is a pure function of the server emotion", () => {
-    expect(resolveActorTint("neutral")).toBe(EMOTION_TINTS["neutral"]);
-    expect(resolveActorTint("reassured")).toBe(EMOTION_TINTS["reassured"]);
-    expect(resolveActorTint("concerned")).toBe(EMOTION_TINTS["concerned"]);
-    expect(resolveActorTint("anxious")).toBe(EMOTION_TINTS["anxious"]);
+    expect(resolveActorTint("neutral")).toBe(EMOTION_TINTS.neutral);
+    expect(resolveActorTint("reassured")).toBe(EMOTION_TINTS.reassured);
+    expect(resolveActorTint("concerned")).toBe(EMOTION_TINTS.concerned);
+    expect(resolveActorTint("anxious")).toBe(EMOTION_TINTS.anxious);
     // Unknown server values fall back to neutral; the resolver reads no page state.
-    expect(resolveActorTint("page-forged")).toBe(EMOTION_TINTS["neutral"]);
+    expect(resolveActorTint("page-forged")).toBe(EMOTION_TINTS.neutral);
     expect(new Set(Object.values(EMOTION_TINTS)).size).toBe(4);
   });
 
@@ -235,5 +238,34 @@ describe("sync-probe C4 emotion tint and cue mouth amplitude", () => {
       }
     }
     expect(resolveCueEnvelope("unknown-future-cue")).toBe(DEFAULT_CUE_ENVELOPE);
+  });
+});
+
+describe("sync-probe C6 station phase label and ring", () => {
+  it("phase label is a pure function of server phase + remaining seconds", () => {
+    expect(resolvePhaseLabel("doorway", 3)).toBe("doorway 3s");
+    expect(resolvePhaseLabel("encounter", 20)).toBe("encounter 20s");
+    expect(resolvePhaseLabel("encounter", 0)).toBe("encounter 0s");
+    expect(resolvePhaseLabel("note", 1)).toBe("note 1s");
+    expect(resolvePhaseLabel("closed", 0)).toBe("closed 0s");
+    // Non-numeric remaining (old server / brief mode) renders the phase alone.
+    expect(resolvePhaseLabel("brief", undefined)).toBe("brief");
+    expect(resolvePhaseLabel("encounter", Number.NaN)).toBe("encounter");
+    // Fractional seconds floor; negatives clamp to 0.
+    expect(resolvePhaseLabel("doorway", 2.9)).toBe("doorway 2s");
+    // A page-local clock value never enters: same inputs always give the same label.
+    expect(resolvePhaseLabel("note", 2)).toBe(resolvePhaseLabel("note", 2));
+    expect(resolvePhaseLabel("note", 2)).not.toBe(resolvePhaseLabel("note", 1));
+  });
+
+  it("phase ring colour is a pure function of the server phase", () => {
+    expect(resolvePhaseColour("doorway")).toBe(PHASE_COLOURS.doorway);
+    expect(resolvePhaseColour("encounter")).toBe(PHASE_COLOURS.encounter);
+    expect(resolvePhaseColour("note")).toBe(PHASE_COLOURS.note);
+    expect(resolvePhaseColour("closed")).toBe(PHASE_COLOURS.closed);
+    expect(resolvePhaseColour("brief")).toBe(PHASE_COLOURS.brief);
+    expect(new Set(Object.values(PHASE_COLOURS)).size).toBe(5);
+    // Unknown server values fall back; the resolver reads no page state.
+    expect(resolvePhaseColour("page-forged")).toBe(BASE_TURN_COLOUR);
   });
 });

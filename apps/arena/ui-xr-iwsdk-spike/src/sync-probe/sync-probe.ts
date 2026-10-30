@@ -24,11 +24,14 @@ import {
   PROBE_ACTOR_IDS,
   quantizePoseComponent,
   resolveActorColour,
+  resolvePhaseColour,
+  resolvePhaseLabel,
   resolveTurnIndicatorColour,
   sweepYawDegrees,
   yawQuaternionDegrees,
 } from "./probe-state.js";
 import { C4MouthRender, type SyncProbeCueObservation } from "./probe-c4.js";
+import { createPhaseRing, observedPhaseFrom, observedTurnFrom, runC3TurnScript, runC6PreEncounterProbe } from "./probe-c6.js";
 import { parseProbeQuery } from "./probe-query.js";
 
 interface ProbePose {
@@ -77,6 +80,8 @@ interface SyncProbeEvidence {
   selectedLocal: string[];
   selectMisses: number;
   phase: string;
+  /** C6 (phase, remainingS) appended when the SERVER phase/remaining changes. */
+  phasesObserved: Array<{ phase: string; remainingS: number | null; atMs: number }>;
   done: boolean;
   error: string | null;
 }
@@ -117,6 +122,7 @@ function createEvidence(): SyncProbeEvidence {
     selectedLocal: [],
     selectMisses: 0,
     phase: "boot",
+    phasesObserved: [],
     done: false,
     error: null,
   };
@@ -196,7 +202,7 @@ async function main(): Promise<void> {
     const position = ACTOR_POSITIONS[id] ?? [0, 1, -2];
     mesh.position.set(position[0], position[1], position[2]);
     mesh.name = `sync-probe.actor.${id}`;
-    mesh.userData["actorId"] = id;
+    mesh.userData.actorId = id;
     scene.add(mesh);
     actorMeshes.set(id, mesh);
   }
@@ -216,6 +222,8 @@ async function main(): Promise<void> {
     indicatorMeshes.set(id, indicator);
   }
 
+  const phaseRing = createPhaseRing(scene);
+
   // C4 mouth bars: one thin bar per actor, rendered ONLY from server state.
   // Scale = page-local cue envelope amplitude for the server cueId, animated
   // only while the server says that actor is speaking; colour = pure function
@@ -234,6 +242,9 @@ async function main(): Promise<void> {
   // Last observed (turnId, replyId, speaking) per actor: turnsObserved grows
   // only when the SERVER's values change. Read-only to the harness.
   const lastTurnSeen = new Map<string, { turnId: number; replyId: string; speaking: boolean }>();
+  // Last observed (phase, remainingS): phasesObserved grows only when the
+  // SERVER's phase values change. Read-only to the harness.
+  let lastPhaseSeen: { phase: string; remainingS: number | null } | null = null;
   connection.onState((snapshot) => {
     probe.lastServerState = snapshot;
     const actors = (snapshot.actors ?? {}) as Record<
@@ -242,6 +253,20 @@ async function main(): Promise<void> {
     >;
     const turnOwner = typeof snapshot.turnOwner === "string" ? snapshot.turnOwner : "none";
     const turnId = typeof snapshot.turnId === "number" ? snapshot.turnId : 0;
+    // C6: phase label + ring follow the SERVER only (pure functions of
+    // phase/remainingS). The pre-sync push (no server fields) is skipped.
+    const phaseField = (snapshot as { phase?: unknown }).phase;
+    const remainingField = (snapshot as { phaseRemainingS?: unknown }).phaseRemainingS;
+    if (typeof phaseField === "string") {
+      const serverPhase = phaseField;
+      const serverRemaining = typeof remainingField === "number" ? remainingField : null;
+      if (lastPhaseSeen === null || lastPhaseSeen.phase !== serverPhase || lastPhaseSeen.remainingS !== serverRemaining) {
+        lastPhaseSeen = { phase: serverPhase, remainingS: serverRemaining };
+        probe.phasesObserved.push({ phase: serverPhase, remainingS: serverRemaining, atMs: Number(performance.now().toFixed(2)) });
+      }
+      const ringMaterial = phaseRing.material as THREE.MeshBasicMaterial;
+      ringMaterial.color.setHex(resolvePhaseColour(serverPhase));
+    }
     for (const [id, mesh] of actorMeshes) {
       const speaking = actors[id]?.speaking === true;
       const material = mesh.material as THREE.MeshStandardMaterial;
@@ -271,6 +296,16 @@ async function main(): Promise<void> {
   probe.phase = "connected";
   setStatus("sync-probe connected, waiting for session");
 
+  if (query.script === "c6") {
+    // Gating probe at connect (doorway): before any XR setup.
+    await runC6PreEncounterProbe({
+      sent: () => probe.sent,
+      enqueueSelectA1: () => enqueueIntent("select-actor", { actorId: "a1" }),
+      waitForSettled: (target) => waitFor(() => probe.acks + probe.rejects >= target, 15000, "pre-encounter select-actor settled"),
+      setStatus,
+    });
+  }
+
   function enqueueIntent(kind: IntentKind, payload: Record<string, unknown>): void {
     callIndex += 1;
     const seq = callIndex;
@@ -281,7 +316,12 @@ async function main(): Promise<void> {
     probe.sent += 1;
     probe.sentSeqs.push(seq);
     probe.sentByKind[kind] = (probe.sentByKind[kind] ?? 0) + 1;
-    (probe.sentSeqsByKind[kind] ??= []).push(seq);
+    let kindSeqs = probe.sentSeqsByKind[kind];
+    if (kindSeqs === undefined) {
+      kindSeqs = [];
+      probe.sentSeqsByKind[kind] = kindSeqs;
+    }
+    kindSeqs.push(seq);
     tail = tail.then(async () => {
       try {
         const result = await connection.sendIntent(kind, payload);
@@ -303,7 +343,6 @@ async function main(): Promise<void> {
     });
   }
 
-  let latestViewerPosition: { x: number; y: number; z: number } | null = null;
   let lastPoseSendAt = 0;
   let referenceSpace: XRReferenceSpace | null = null;
   let presenting = false;
@@ -330,8 +369,8 @@ async function main(): Promise<void> {
       return;
     }
     probe.selectedLocal.push(actorId);
-    if (query.script === "c3") {
-      // C3 mode: select-actor ONLY. Utterance intents come from the scripted
+    if (query.script === "c3" || query.script === "c6") {
+      // C3/C6 mode: select-actor ONLY. Utterance intents come from the scripted
       // turn sequence below, never from the trigger.
       enqueueIntent("select-actor", { actorId });
       return;
@@ -372,7 +411,6 @@ async function main(): Promise<void> {
       const viewerPose = frame.getViewerPose(referenceSpace);
       const position = viewerPose?.transform.position;
       if (position) {
-        latestViewerPosition = { x: position.x, y: position.y, z: position.z };
         if (now - lastPoseSendAt >= POSE_INTERVAL_MS) {
           lastPoseSendAt = now;
           enqueueIntent("pose", {
@@ -433,13 +471,21 @@ async function main(): Promise<void> {
     setStatus("sync-probe in emulated immersive-vr");
 
     await waitFor(
-      () => probe.lastServerState?.actors?.["a1"] !== undefined && probe.lastServerState?.actors?.["a2"] !== undefined,
+      () => probe.lastServerState?.actors?.a1 !== undefined && probe.lastServerState?.actors?.a2 !== undefined,
       15000,
       "probe actors in snapshot",
     );
 
     const rci = device.remote;
     await rci.dispatch("set_connected", { device: "controller-right", connected: true });
+
+    // One intent through the sequential queue; resolves once acked/rejected.
+    // Defined before the sweep; the turn scripts below share it.
+    async function sendIntentAndSettle(kind: IntentKind, payload: Record<string, unknown>): Promise<void> {
+      const target = probe.sent + 1;
+      enqueueIntent(kind, payload);
+      await waitFor(() => probe.acks + probe.rejects >= target, 15000, `${kind} settled`);
+    }
 
     // Fixed script part 1: head yaw sweep 0 -> +30 -> -30 -> 0 over 6 s.
     const SWEEP_STEPS = 120;
@@ -479,65 +525,28 @@ async function main(): Promise<void> {
       await waitFor(() => probe.acks + probe.rejects >= expectedAcks, 10000, `select intents for ${actorId}`);
     }
 
-    // One intent through the sequential queue; resolves once it is acked/rejected.
-    async function sendIntentAndSettle(kind: IntentKind, payload: Record<string, unknown>): Promise<void> {
-      const target = probe.sent + 1;
-      enqueueIntent(kind, payload);
-      await waitFor(() => probe.acks + probe.rejects >= target, 15000, `${kind} settled`);
-    }
+    const observedTurn = (): { turnId: number; owner: string; a1Speaking: boolean } =>
+      observedTurnFrom(probe.lastServerState);
 
-    const observedTurn = (): { turnId: number; owner: string; a1Speaking: boolean } => {
-      const state = probe.lastServerState;
-      return {
-        turnId: typeof state?.turnId === "number" ? state.turnId : -1,
-        owner: typeof state?.turnOwner === "string" ? state.turnOwner : "",
-        a1Speaking: state?.actors?.["a1"]?.speaking === true,
-      };
-    };
+    const observedPhase = (): { phase: string; remainingS: number | null } =>
+      observedPhaseFrom(probe.lastServerState);
+
+    const turnScript = (): Promise<void> => runC3TurnScript({ sendIntentAndSettle, observedTurn, waitFor });
 
     if (query.script === "c3") {
-      // C3 script: select a1 ONCE via trigger (select-actor only in c3 mode),
-      // then three learner utterance pairs. The interrupt waits on observed
-      // server state: turn 2 must be speaking before the interrupting start.
+      // C3: select a1 ONCE via trigger, then the shared turn script.
       setStatus("sync-probe c3 turn script");
       await aimAndTrigger("a1", 1);
-
-      await sendIntentAndSettle("utterance-start", {});
-      await sendIntentAndSettle("utterance-end", {});
-      await waitFor(() => {
-        const turn = observedTurn();
-        return turn.turnId === 1 && turn.a1Speaking;
-      }, 20000, "turn 1 speaking");
-      await waitFor(() => {
-        const turn = observedTurn();
-        return turn.turnId === 1 && !turn.a1Speaking && turn.owner === "none";
-      }, 20000, "turn 1 completed on server clock");
-
-      await sendIntentAndSettle("utterance-start", {});
-      await sendIntentAndSettle("utterance-end", {});
-      await waitFor(() => {
-        const turn = observedTurn();
-        return turn.turnId === 2 && turn.a1Speaking;
-      }, 20000, "turn 2 speaking");
-
-      await sendIntentAndSettle("utterance-start", {});
-      // Hold the interrupting utterance until the page has rendered the
-      // interrupt from server state. Ending it one RTT later lets both changes
-      // coalesce into one 50 ms schema patch (Quest c4 quest2 never saw the
-      // interrupt emotion).
-      await waitFor(() => {
-        const turn = observedTurn();
-        return turn.turnId === 2 && !turn.a1Speaking && turn.owner === "learner";
-      }, 20000, "interrupt rendered");
-      await sendIntentAndSettle("utterance-end", {});
-      await waitFor(() => {
-        const turn = observedTurn();
-        return turn.turnId === 3 && turn.a1Speaking;
-      }, 20000, "turn 3 speaking");
-      await waitFor(() => {
-        const turn = observedTurn();
-        return turn.turnId === 3 && !turn.a1Speaking && turn.owner === "none";
-      }, 20000, "turn 3 completed on server clock");
+      await turnScript();
+    } else if (query.script === "c6") {
+      // C6: pre-encounter probe ran at connect; wait encounter, trigger a1,
+      // run the shared C3 script, wait closed. Label is pure server state.
+      await waitFor(() => observedPhase().phase === "encounter", 30000, "encounter phase");
+      setStatus(`sync-probe c6 ${resolvePhaseLabel(observedPhase().phase, observedPhase().remainingS)} turn script`);
+      await aimAndTrigger("a1", 1);
+      await turnScript();
+      setStatus(`sync-probe c6 ${resolvePhaseLabel(observedPhase().phase, observedPhase().remainingS)} waiting closed`);
+      await waitFor(() => observedPhase().phase === "closed", 60000, "closed phase");
     } else {
       for (const actorId of PROBE_ACTOR_IDS) {
         // C3 semantics: the second trigger first closes the learner's open

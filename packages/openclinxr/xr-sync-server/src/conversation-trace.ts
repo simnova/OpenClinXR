@@ -100,14 +100,18 @@ export const PROBE_CASE_EMOTION_POLICY: CaseEmotionPolicy = {
 
 /** Trace event kinds. turn-completed is server-generated (seq null). C5 adds
  * observer-joined/observer-left presence events (seq null, actorId "", turnId
- * null, no session id); the reducer ignores them for turns/emotions. */
+ * null, no session id); the reducer ignores them for turns/emotions. C6 adds
+ * phase-changed (seq null, actorId "", turnId null, phase set); the reducer
+ * closes an open turn as "closed-by-phase" when the new phase is not
+ * "encounter". */
 export type ConversationTraceEventKind =
   | "select-actor"
   | "utterance-start"
   | "utterance-end"
   | "turn-completed"
   | "observer-joined"
-  | "observer-left";
+  | "observer-left"
+  | "phase-changed";
 
 /** One conversation event, in application order. Actor-agnostic: the learner
  * appears as utterance events with no sessionId; utterance-end names the
@@ -122,6 +126,8 @@ export interface ConversationTraceEvent {
   /** Turn the event belongs to: interrupted turn (interrupting utterance-start),
    * opened turn (utterance-end), completed turn (turn-completed); else null. */
   turnId: number | null;
+  /** C6 station phase for "phase-changed" events; undefined for all other kinds. */
+  phase?: string;
 }
 
 /** One server-driven actor turn, recomputed from events alone. */
@@ -132,7 +138,7 @@ export interface ConversationTraceTurn {
   cueId: string;
   /** Seq of the utterance-end intent that opened the turn. */
   startSeq: number;
-  end: "open" | "completed" | "interrupted";
+  end: "open" | "completed" | "interrupted" | "closed-by-phase";
   /** Seq of the interrupting utterance-start, or null when completed/open. */
   endSeq: number | null;
 }
@@ -252,6 +258,19 @@ export function reduceConversationEvents(events: readonly ConversationTraceEvent
         // C5 presence only: no turns, no emotions, no selection change.
         break;
       }
+      case "phase-changed": {
+        // C6: leaving the encounter with a turn open ends it as
+        // "closed-by-phase" (shared reducer, same as live). Entering a phase
+        // (including "encounter") never opens or completes a turn.
+        if (event.phase !== "encounter" && openTurnId !== null) {
+          const record = turns.find((entry) => entry.turnId === openTurnId);
+          if (record && record.end === "open") {
+            record.end = "closed-by-phase";
+          }
+          openTurnId = null;
+        }
+        break;
+      }
     }
   }
   return { turns, emotions };
@@ -271,6 +290,7 @@ export interface ReplayableConversationTrace {
     kind: string;
     actorId: string;
     turnId: number | null;
+    phase?: string;
   }[];
 }
 
@@ -281,7 +301,8 @@ function isTraceEventKind(kind: string): kind is ConversationTraceEventKind {
     kind === "utterance-end" ||
     kind === "turn-completed" ||
     kind === "observer-joined" ||
-    kind === "observer-left"
+    kind === "observer-left" ||
+    kind === "phase-changed"
   );
 }
 
@@ -293,7 +314,11 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
     if (!isTraceEventKind(event.kind)) {
       throw new Error(`unknown conversation trace event kind: ${event.kind}`);
     }
-    return { seq: event.seq, kind: event.kind, actorId: event.actorId, turnId: event.turnId };
+    const out: ConversationTraceEvent = { seq: event.seq, kind: event.kind, actorId: event.actorId, turnId: event.turnId };
+    if (event.phase !== undefined) {
+      out.phase = event.phase;
+    }
+    return out;
   });
   const { turns, emotions } = reduceConversationEvents(events);
   return {

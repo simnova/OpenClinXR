@@ -34,6 +34,7 @@ export const EncounterState = schema(
   {
     serverTick: t.number(),
     phase: t.string(),
+    phaseRemainingS: t.number(),
     turnId: t.number(),
     turnOwner: t.string(),
     actors: t.map(ActorState),
@@ -51,6 +52,8 @@ export type EncounterStateInstance = SchemaType<typeof EncounterState>;
 export interface EncounterSnapshot {
   serverTick: number;
   phase: string;
+  /** C6 integer seconds left in the current phase (0 when closed; 0 when no timing). */
+  phaseRemainingS: number;
   turnId: number;
   turnOwner: string;
   actors: Record<string, { id: string; speaking: boolean; emotion: string; replyId: string; cueId: string }>;
@@ -78,5 +81,5 @@ export function snapshotState(state: EncounterStateInstance): EncounterSnapshot 
       speaking: learner.speaking,
     };
   }
-  return { serverTick: state.serverTick, phase: state.phase, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount };
+  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount };
 }

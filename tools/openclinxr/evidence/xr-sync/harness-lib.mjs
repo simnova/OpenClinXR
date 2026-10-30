@@ -28,6 +28,10 @@ export function usage() {
     "  node c3-run.mjs --mode quest --serial <serial> --out <dir>",
     "  node c4-run.mjs --mode host --out <dir>",
     "  node c4-run.mjs --mode quest --serial <serial> --out <dir>",
+    "  node c5-run.mjs --mode host --out <dir>",
+    "  node c5-run.mjs --mode quest --serial <serial> --out <dir>",
+    "  node c6-run.mjs --mode host --out <dir>",
+    "  node c6-run.mjs --mode quest --serial <serial> --out <dir>",
   ].join("\n");
 }
 
@@ -345,9 +349,12 @@ async function runQuestProbeInner({ pageUrl, outDir, serial }) {
  * the snapshot-catchup check). Used VERBATIM by c3-run.mjs (regression) and
  * c4-run.mjs (C4 keeps every C3 assertion): callers pass their own `check`
  * so assertion names, pass logic, and detail strings cannot drift between
- * runners. Quest behaviour above is untouched.
+ * runners. Quest behaviour above is untouched. C6 passes { expectedRejects: 1 }
+ * for its pre-encounter phase-gating probe (a rejected intent is never
+ * applied or counted, so the applied counts are unchanged; defaults to 0,
+ * which keeps the C3/C4/C5 assertion names byte-identical).
  */
-export function runC3CoreChecks(check, { probe, probeStats, serverState, expectedReplyIds, bundleCheck, pageErrors }) {
+export function runC3CoreChecks(check, { probe, probeStats, serverState, expectedReplyIds, bundleCheck, pageErrors, expectedRejects = 0 }) {
   const turns = probeStats.turns ?? [];
 
   // A1: server turn log ends, ids, and actor.
@@ -376,21 +383,26 @@ export function runC3CoreChecks(check, { probe, probeStats, serverState, expecte
     `got=${turns.map((t) => t.replyId).join(",")} want=${expectedReplyIds.join(",")}`,
   );
 
-  // A4: server intent counts and in-order acks.
+  // A4: server intent counts and in-order acks. Rejected intents are never
+  // applied (not counted, lastSeq untouched), so with expectedRejects > 0 the
+  // applied counts are unchanged and only the reject accounting differs.
   const counts = probeStats.intentCounts ?? {};
   const sentSeqs = probe.sentSeqs ?? [];
   const ackSeqs = probe.ackSeqs ?? [];
+  const ackedInOrder =
+    ackSeqs.length > 0 && ackSeqs.every((seq, i) => (i === 0 || seq > ackSeqs[i - 1]) && sentSeqs.includes(seq));
   const inOrder =
     sentSeqs.length > 0 &&
-    sentSeqs.length === ackSeqs.length &&
-    sentSeqs.every((seq, i) => seq === i + 1 && ackSeqs[i] === seq);
+    sentSeqs.length === ackSeqs.length + expectedRejects &&
+    sentSeqs.every((seq, i) => seq === i + 1) &&
+    ackedInOrder;
   check(
-    "A4 server intents start3/end3/select1/rejects0, every seq acked in order",
+    `A4 server intents start3/end3/select1/rejects${expectedRejects}, every seq acked in order`,
     counts["utterance-start"] === 3 &&
       counts["utterance-end"] === 3 &&
       counts["select-actor"] === 1 &&
-      probe.rejects === 0 &&
-      (probe.rejectDetails ?? []).length === 0 &&
+      probe.rejects === expectedRejects &&
+      (probe.rejectDetails ?? []).length === expectedRejects &&
       inOrder,
     `counts=${JSON.stringify(counts)} rejects=${probe.rejects} sent=${sentSeqs.length} acks=${ackSeqs.length}`,
   );

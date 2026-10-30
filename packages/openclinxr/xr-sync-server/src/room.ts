@@ -20,8 +20,11 @@ import {
   type LearnerStateInstance,
 } from "./schema.js";
 import { OBSERVER_READ_ONLY_REASON, parseEncounterRole } from "./observer.js";
+import * as PhaseClock from "./phase-clock.js";
+import type { StationTiming } from "./phase-clock.js";
+import type { EncounterRoomOptions, ProbeSelection, RoomProbeStats, TurnRecord } from "./room-types.js";
 import { KNOWN_ACTOR_IDS, parseExtraActorIds } from "./roster.js";
-import { INTENT_KINDS, type AckMessage, type IntentKind, type IntentMessage, type RejectMessage } from "./protocol.js";
+import { INTENT_KINDS, type AckMessage, type IntentMessage, type RejectMessage } from "./protocol.js";
 // Wire protocol types live in protocol.js; re-exported here so the package
 // "." surface and existing room.js importers keep working unchanged.
 export type { AckMessage, IntentKind, IntentMessage, RejectMessage } from "./protocol.js";
@@ -30,44 +33,6 @@ export type { AckMessage, IntentKind, IntentMessage, RejectMessage } from "./pro
 export const ENCOUNTER_ROOM_NAME = "encounter";
 /** Seconds a dropped client keeps its seat, learner entry, and lastSeq. */
 export const RECONNECT_ALLOWANCE_SECONDS = 30;
-
-/** One server-driven actor turn, in application order. Server-side only, never synced. */
-export interface TurnRecord {
-  turnId: number;
-  actorId: string;
-  replyId: string;
-  /** Seq of the utterance-end intent that opened the turn. */
-  startSeq: number;
-  end: "open" | "completed" | "interrupted";
-  /** Seq of the interrupting utterance-start, or null when completed/open. */
-  endSeq: number | null;
-}
-
-/** One applied select-actor intent, in application order. Server-side only, never synced. */
-export interface ProbeSelection {
-  sessionId: string;
-  actorId: string;
-  seq: number;
-}
-
-/** Read-only probe observability for the C2 headset harness. Never sent on the wire. */
-export interface RoomProbeStats {
-  intentCounts: Record<string, number>;
-  selections: ProbeSelection[];
-  /** C3 actor-turn log; every entry is a copy, never a live reference. */
-  turns: TurnRecord[];
-  /** C5 host-clock ms per opened turn (Date.now at turn open), keyed by turnId. Probe stats only, never in the trace. */
-  turnOpenedAtMs: Record<number, number>;
-}
-
-/** Options accepted at room creation (forwarded from joinOrCreate). */
-export interface EncounterRoomOptions {
-  actors?: unknown;
-  /** Directory for the review-safe conversation trace file (server-side only). */
-  traceDir?: unknown;
-  /** C5 join role: "learner" (default) | "observer". Other roles refused at join. */
-  role?: unknown;
-}
 
 /** Latest live room, set in onCreate. Single-room C1 helper for tests/ops. */
 let latestRoom: EncounterRoom | undefined;
@@ -106,6 +71,20 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   private observers = new Set<string>();
   /** C5 host-clock ms per opened turn (Date.now at turn open). Never synced, never in the trace. */
   private turnOpenedAtMs = new Map<number, number>();
+  /**
+   * C6 server-bound station timing (null = brief, C1..C5 behaviour). Bound
+   * per server by a ConfiguredEncounterRoom subclass (see server.ts), never
+   * from client roomOptions. A module cell cannot do this: it is consumed by
+   * the first room only, so a second room on the same server would lose its
+   * clock (and two servers in one process would overwrite each other).
+   */
+  protected stationTiming: StationTiming | null = null;
+  /** C6 server-bound trace directory (null disables persistence). Same binding as stationTiming. */
+  protected stationTraceDir: string | null = null;
+  /** C6 station phase clock (null when no timing: C1..C5 brief behaviour). Driven by this.clock. */
+  private phaseClock: { stop(): void } | null = null;
+  /** C6 host-clock ms per entered phase (Date.now at phase enter). Probe only, never in the trace. */
+  private phaseChangedAtMs = new Map<string, number>();
 
   /** Read-only copy of probe stats for the harness. Never sent on the wire. */
   getProbeStats(): RoomProbeStats {
@@ -114,6 +93,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       selections: this.selectionLog.map((entry) => ({ ...entry })),
       turns: this.turnLog.map((entry) => ({ ...entry })),
       turnOpenedAtMs: Object.fromEntries(this.turnOpenedAtMs) as Record<number, number>,
+      phaseChangedAtMs: Object.fromEntries(this.phaseChangedAtMs) as Record<string, number>,
     };
   }
 
@@ -131,13 +111,16 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
 
   override onCreate(options?: EncounterRoomOptions): void {
     latestRoom = this;
-    this.traceDir = typeof options?.traceDir === "string" ? options.traceDir : null;
+    // Server-bound config only: client roomOptions.timing / .phase /
+    // .traceDir are never read (a client traceDir must not choose the
+    // server's trace write directory).
+    this.traceDir = this.stationTraceDir;
     this.setState(new EncounterState());
     this.state.serverTick = 0;
-    this.state.phase = "brief";
     this.state.turnId = 0;
     this.state.turnOwner = "none";
     this.state.observerCount = 0;
+    this.state.phaseRemainingS = 0;
     this.state.actors = new MapSchema<ActorStateInstance>();
     this.state.learners = new MapSchema<LearnerStateInstance>();
     const roster = new Set<string>(KNOWN_ACTOR_IDS);
@@ -153,6 +136,23 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       actor.cueId = "";
       this.state.actors.set(id, actor);
     }
+
+    // C6 station clock from the server binding; client roomOptions.timing /
+    // roomOptions.phase are ignored (see phase-clock.ts).
+    this.phaseClock = PhaseClock.attachStationPhaseClock(
+      {
+        clock: this.clock,
+        state: this.state,
+        tracer: this.tracer,
+        turnLog: this.turnLog,
+        getOpenTurn: () => this.openTurn,
+        clearPhaseTurn: () => {
+          this.openTurn = null;
+        },
+        phaseChangedAtMs: this.phaseChangedAtMs,
+      },
+      this.stationTiming,
+    );
 
     this.onMessage("intent", (client, message: IntentMessage) => {
       this.handleIntent(client, message);
@@ -236,6 +236,8 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   }
 
   override onDispose(): void {
+    this.phaseClock?.stop();
+    this.phaseClock = null;
     this.flushConversationTrace();
   }
 
@@ -254,6 +256,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     // or mutation, is never counted, and never touches serverTick. The seq
     // echoes the envelope when well-formed so the client can settle.
     if (this.observers.has(client.sessionId)) {
+      // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["seq"] on this Record.
       const seq = isRecord(message) && Number.isInteger(message["seq"]) ? (message["seq"] as number) : 0;
       this.reject(client, seq, OBSERVER_READ_ONLY_REASON);
       return;
@@ -280,6 +283,12 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       return;
     }
     const intentSeq = seq as number;
+    // C6 phase gate (brief mode has none: C1..C5 behaviour).
+    const gated = PhaseClock.phaseGateReason(this.phaseClock !== null, this.state.phase, kind as string);
+    if (gated !== null) {
+      this.reject(client, intentSeq, gated);
+      return;
+    }
     const applied =
       kind === "pose"
         ? this.applyPose(client, learner, intentSeq, payload)

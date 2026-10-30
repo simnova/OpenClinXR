@@ -105,7 +105,7 @@ export const EMOTION_TINTS: Record<string, number> = {
 };
 
 export function resolveActorTint(emotion: string): number {
-  return EMOTION_TINTS[emotion] ?? EMOTION_TINTS["neutral"]!;
+  return EMOTION_TINTS[emotion] ?? EMOTION_TINTS.neutral;
 }
 
 /** Page-local mouth envelope for one server cue: peak amplitude and oscillation rate. */
@@ -145,4 +145,33 @@ export function resolveMouthAmplitude(cueId: string, speaking: boolean, tMs: num
   }
   const envelope = resolveCueEnvelope(cueId);
   return envelope.peak * (0.6 + 0.4 * Math.sin((2 * Math.PI * envelope.hz * tMs) / 1000));
+}
+
+/**
+ * C6 phase-colour ring, derived ONLY from the server phase. Pure function of
+ * server state: a page-local phase value can never move it. Unknown phases
+ * fall back to the base turn colour so a future server phase still renders.
+ */
+export const PHASE_COLOURS: Record<string, number> = {
+  brief: 0x2a3f3a,
+  doorway: 0xe0a458,
+  encounter: 0x6fd08c,
+  note: 0x4fc3f7,
+  closed: 0x5a5a5a,
+};
+
+export function resolvePhaseColour(phase: string): number {
+  return PHASE_COLOURS[phase] ?? BASE_TURN_COLOUR;
+}
+
+/**
+ * C6 phase label, derived ONLY from the server phase + remaining seconds.
+ * Pure function of (phase, phaseRemainingS): no page-local timing enters, so
+ * a page-local clock can never move the label without the server.
+ */
+export function resolvePhaseLabel(phase: string, remainingS: unknown): string {
+  if (typeof remainingS === "number" && Number.isFinite(remainingS)) {
+    return `${phase} ${Math.max(0, Math.floor(remainingS))}s`;
+  }
+  return `${phase}`;
 }
