@@ -1464,12 +1464,12 @@ describe("workspace architecture rules", () => {
     const catalogVersion = (_dep: string, fallback: string) =>
       expect.stringMatching(new RegExp(`^(?:${fallback.replace(/\./g, "\\.")}|catalog:)$`));
     expect(manifest.dependencies).toMatchObject({
-      "@iwsdk/core": "0.4.2",
-      "@iwsdk/xr-input": "0.4.2",
+      "@iwsdk/core": "1.1.0-rc.2",
+      "@iwsdk/xr-input": "1.1.0-rc.2",
       "three": catalogVersion("three", "0.184.0"),
     });
     expect(manifest.devDependencies).toMatchObject({
-      "@iwsdk/vite-plugin-dev": "0.3.1",
+      "@iwsdk/vite-plugin-dev": "1.1.0-rc.2",
       "@iwsdk/vite-plugin-uikitml": "0.4.2",
       "@types/three": catalogVersion("@types/three", "0.184.0"),
       "typescript": catalogVersion("typescript", "6.0.3"),
@@ -1478,8 +1478,9 @@ describe("workspace architecture rules", () => {
     });
     expect(manifest.devDependencies?.["vite"]).toMatch(/^(?:8\.|catalog:)/);
     expect(manifest.dependencies?.["@iwsdk/vite-plugin-dev"]).toBeUndefined();
-    // Licensed IWSDK 0.4.2/0.3.1 route: scene-composition is not installed (genuinely
-    // unused, publishes no 0.4-line); allow-list entry kept for resolver stability.
+    // Licensed IWSDK 1.1.0-rc.2 route (operator Q1 2026-10-30, all MIT):
+    // scene-composition is installed again — ee9084c89 dropped it without review.
+    // Allow-list entry kept for resolver stability.
     expect(Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }).filter((dependency) =>
       dependency.startsWith("@iwsdk/")
       && ![

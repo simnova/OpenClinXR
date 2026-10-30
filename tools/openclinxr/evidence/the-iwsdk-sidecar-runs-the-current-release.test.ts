@@ -10,21 +10,21 @@ import { describe, expect, it } from "vitest";
  * latest version of IWSDK") reduced to the one thing that was blocking it. #454 fixed the
  * instrument that was lying about it; this is the bump the instrument now demands.
  *
- * ## MEASURED (orchestrator, 2026-08-19)
+ * ## MEASURED (operator Q1 review, 2026-10-30)
  *
- *   pnpm iwsdk:npm-currentness:validate  ->  EXIT 1, six blockers, five of them
- *     npm_latest_version_moved:<pkg>:snapshot_0.5.1_live_0.5.3
- *     npm_metadata_snapshot_too_old:captured_2026-08-02_age_days_17_max_days_14
+ *   npm `latest` dist-tag: @iwsdk/core, xr-input, scene-composition, locomotor,
+ *   vite-plugin-dev, reference = 1.1.0-rc.2; glxf, vite-plugin-gltf-optimizer,
+ *   vite-plugin-uikitml, vite-plugin-metaspatial = 0.4.2. All MIT (hzdb unchanged).
  *
- * KNOWN-GOOD COLUMN (SS9h) — the spike on 0.5.1, measured before any edit. The bump must hold
- * every one of these, and the `done_when` re-runs all three:
+ * KNOWN-GOOD COLUMN (SS9h) — the spike on 1.1.0-rc.2, measured before any edit beyond
+ * the pin bump and its ~15-line API migration (ai.tools extension, workspace/https
+ * opt-outs, UIKitDocument cast):
  *
- *   | measure                        | on 0.5.1        |
+ *   | measure                        | on 1.1.0-rc.2   |
  *   |--------------------------------|-----------------|
  *   | `pnpm typecheck` (spike)       | EXIT 0          |
- *   | `pnpm build` (spike)           | EXIT 0, 1.35 s  |
- *   | `dist/assets/iwsdk-vendor-*.js`| 6,842.37 kB     |
- *   | `pnpm test` (spike)            | 36 passed       |
+ *   | `pnpm build` (spike)           | EXIT 0, 1.87 s  |
+ *   | `pnpm test` (spike)            | 43 passed       |
  *
  * ## THE TRAP THIS SLICE MUST NOT WALK INTO — measured, not predicted
  *
@@ -47,13 +47,13 @@ import { describe, expect, it } from "vitest";
  * And `expected_latest_version` is NOT the pin: `@iwsdk/vite-plugin-dev` is reviewed at 0.5.3 and
  * still PINNED at 0.5.1. Conflating those two columns is the whole trap.
  *
- * ## WHY vite-plugin-dev STAYS PINNED
+ * ## WHY vite-plugin-dev IS REVIEWED AT LATEST DESPITE ITS VITE PEER
  *
- * Measured: `@iwsdk/vite-plugin-dev@0.5.3` peers `vite: "^7.0.0"` — UNCHANGED from 0.5.1. The
- * repo catalog is vite `8.0.16` (`pnpm-workspace.yaml:14`). `@iwsdk/core@0.5.3` and
- * `@iwsdk/scene-composition@0.5.3` declare NO peers; `@iwsdk/xr-input@0.5.3` peers only
- * `three: ">=0.160.0"` and the catalog is `0.184.0`. So the three runtime packages move and the
- * dev plugin does not. All four are MIT.
+ * Measured 2026-10-30: `@iwsdk/vite-plugin-dev@1.1.0-rc.2` peers `vite: "^7.0.0"` —
+ * UNCHANGED across every reviewed release. The repo catalog is vite `8.1.6`. Operator Q1
+ * explicitly moved every @iwsdk pin to latest, so the dev plugin moves too and the peer
+ * conflict is reviewed-and-accepted rather than adopted silently: clause (3) pins the
+ * version AND keeps the peer fact on the record. All moved packages are MIT.
  *
  * ## TWO FINDINGS FROM #454's RETRO, BOTH INHERITED HERE
  *
@@ -70,9 +70,9 @@ import { describe, expect, it } from "vitest";
  *
  * ## WHICH ARE REDS AND WHICH ARE NETS (#227)
  *
- *   (1) RED   — the three runtime pins are 0.5.1 today.
- *   (2) RED   — the newest snapshot records 0.5.1 and is 17 days old.
- *   (3) NET   — vite-plugin-dev stays 0.5.1. Passes today, must keep passing.
+ *   (1) RED   — the three runtime pins are 1.1.0-rc.2 today.
+ *   (2) RED   — the newest snapshot records 1.1.0-rc.2 and is not stale.
+ *   (3) NET   — the dev plugin is reviewed at latest with its vite ^7 peer on the record.
  *   (4) NET   — the ui-xr fence. Passes today, must keep passing.
  *   (5) RED   — the age bound is not exported and carries no derivation.
  *   (6) GUARD — the fixture axes are distinct.
@@ -87,8 +87,7 @@ import { describe, expect, it } from "vitest";
  *
  * NOT TESTED:
  *   - Anything in a headset, or in a browser. `pnpm build` and `pnpm test` are the bar here.
- *   - That 0.5.3 is BETTER. Only that the spike still typechecks, builds and passes 36 tests on it.
- *   - `@iwsdk/vite-plugin-dev` on vite 8. Unchanged peer, still blocked, still recorded.
+ *   - That 1.1.0-rc.2 is BETTER. Only that the spike still typechecks, builds and passes 43 tests on it.
  *   - `apps/ui-xr`. Vanilla three.js, sidecar-only, fence up.
  *   - Bundle SIZE as a budget. The known-good column records 6,842.37 kB as a FACT to compare
  *     against, not a ceiling to defend — a legitimate upstream change may move it either way.
@@ -102,9 +101,10 @@ const RUNNER = join(HERE, "iwsdk-npm-currentness-check.ts");
 /** Computed so TypeScript cannot resolve a not-yet-exported symbol at compile time (#383/#352). */
 const SPECIFIER = ["./iwsdk-npm-currentness", "check.js"].join("-");
 
-const TARGET = "0.5.3";
+const TARGET = "1.1.0-rc.2";
 const RUNTIME_PACKAGES = ["@iwsdk/core", "@iwsdk/xr-input", "@iwsdk/scene-composition"] as const;
-const PINNED_BEHIND = "@iwsdk/vite-plugin-dev";
+const REVIEWED_DEV_PLUGIN = "@iwsdk/vite-plugin-dev";
+const REVIEWED_DEV_PLUGIN_PIN = "1.1.0-rc.2";
 
 /**
  * npm release history for @iwsdk/core, last 10 releases, measured 2026-08-19:
@@ -140,15 +140,15 @@ const mod = await (async () => {
 })();
 
 describe("the IWSDK sidecar runs the current release", () => {
-  it("(1) RED: the three runtime packages are pinned at 0.5.3", () => {
+  it("(1) RED: the three runtime packages are pinned at 1.1.0-rc.2", () => {
     const deps = allDeps(readManifest(SPIKE));
     for (const name of RUNTIME_PACKAGES) {
-      expect(deps[name], `${name} must be pinned at ${TARGET} — npm published it on 2026-08-11`).toBe(TARGET);
+      expect(deps[name], `${name} must be pinned at ${TARGET} — npm latest measured 2026-10-30`).toBe(TARGET);
     }
   });
 
   it("(2) RED: the newest snapshot records the current release and is not stale", () => {
-    // Refuses (a). Bumping the pins while leaving a 17-day-old 0.5.1 snapshot on disk means the
+    // Refuses (a). Bumping the pins while leaving a stale snapshot on disk means the
     // gate that motivated this slice still exits 1.
     const { file, data } = newestSnapshot();
     const byName = new Map(data.packages.map((p) => [p.name, p.latestVersion]));
@@ -162,12 +162,17 @@ describe("the IWSDK sidecar runs the current release", () => {
     );
   });
 
-  it("(3) COUNTERWEIGHT: the dev plugin stays pinned — its vite peer is unchanged at 0.5.3", () => {
-    // Refuses (c). Measured: @iwsdk/vite-plugin-dev@0.5.3 still peers vite ^7.0.0 against a
-    // catalog on 8.0.16. Bumping it "for consistency" adopts a peer conflict for no gain.
+  it("(3) COUNTERWEIGHT: the dev plugin is reviewed at latest with its vite peer on the record", () => {
+    // Refuses (c). Operator Q1 (2026-10-30) moved every @iwsdk pin to latest, so the dev
+    // plugin is reviewed at 1.1.0-rc.2 rather than held behind — but the adoption is
+    // recorded, not silent: 1.1.0-rc.2 still peers vite ^7.0.0 against a catalog on 8.x.
+    // A future bump that drops this assertion adopts an unreviewed peer conflict.
     const deps = allDeps(readManifest(SPIKE));
-    expect(deps[PINNED_BEHIND], `${PINNED_BEHIND} stays at 0.5.1 until its vite peer accepts 8.x`).toBe(
-      "0.5.1",
+    expect(
+      deps[REVIEWED_DEV_PLUGIN],
+      `${REVIEWED_DEV_PLUGIN} reviewed at ${REVIEWED_DEV_PLUGIN_PIN} per Q1; vite ^7 peer still live`,
+    ).toBe(
+      REVIEWED_DEV_PLUGIN_PIN,
     );
   });
 
@@ -198,7 +203,7 @@ describe("the IWSDK sidecar runs the current release", () => {
   });
 
   it("(6) VACUITY GUARD: the axes under test are distinct and the inputs are really there", () => {
-    expect(RUNTIME_PACKAGES).not.toContain(PINNED_BEHIND);
+    expect(RUNTIME_PACKAGES).not.toContain(REVIEWED_DEV_PLUGIN);
     expect(CADENCE_MEDIAN_DAYS).toBeLessThan(CADENCE_MEAN_DAYS);
     expect(readFileSync(RUNNER, "utf8").length, "the runner is readable, so absence is real").toBeGreaterThan(0);
     expect(newestSnapshot().data.packages.length, "the snapshot has packages to check").toBeGreaterThan(0);

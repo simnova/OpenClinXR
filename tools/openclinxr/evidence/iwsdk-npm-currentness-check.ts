@@ -135,14 +135,14 @@ export function resolveRepoViteVersion(manifestVersion: string): string {
 }
 
 const expectedPackages: ExpectedIwsdkPackage[] = [
-  { name: "@iwsdk/core", latestVersion: "0.5.3", license: "MIT" },
-  { name: "@iwsdk/xr-input", latestVersion: "0.5.3", license: "MIT" },
-  { name: "@iwsdk/scene-composition", latestVersion: "0.5.3", license: "MIT" },
-  { name: "@iwsdk/locomotor", latestVersion: "0.5.3", license: "MIT" },
+  { name: "@iwsdk/core", latestVersion: "1.1.0-rc.2", license: "MIT" },
+  { name: "@iwsdk/xr-input", latestVersion: "1.1.0-rc.2", license: "MIT" },
+  { name: "@iwsdk/scene-composition", latestVersion: "1.1.0-rc.2", license: "MIT" },
+  { name: "@iwsdk/locomotor", latestVersion: "1.1.0-rc.2", license: "MIT" },
   { name: "@iwsdk/glxf", latestVersion: "0.4.2", license: "MIT" },
   {
     name: "@iwsdk/vite-plugin-dev",
-    latestVersion: "0.5.3",
+    latestVersion: "1.1.0-rc.2",
     license: "MIT",
     expectedPeerDependencies: { vite: "^7.0.0" },
   },
@@ -164,10 +164,10 @@ const expectedPackages: ExpectedIwsdkPackage[] = [
     license: "MIT",
     expectedPeerDependencies: { vite: "^7.0.0" },
   },
-  { name: "@iwsdk/reference", latestVersion: "0.5.3", license: "MIT" },
+  { name: "@iwsdk/reference", latestVersion: "1.1.0-rc.2", license: "MIT" },
   {
     name: "@meta-quest/hzdb",
-    latestVersion: "1.3.2",
+    latestVersion: "1.10.0",
     license: "Meta Platform Technologies SDK License",
   },
 ];

@@ -4,24 +4,24 @@ import { type CompileUIKitOptions, compileUIKit } from "@iwsdk/vite-plugin-uikit
 import { defineConfig } from "vitest/config";
 
 /**
- * IWSDK 0.3.1 (licensed MIT pin) natively types `ai.tools` (`AiTool` includes
- * `'codex'`), so the local `tools?: string[]` extension required by 0.5.x —
- * which dropped `tools` from `AiOptions` — is removed. 0.3.1 has no
- * `workspace` or `https` options: `ai.mode: 'agent'` already implies a
- * headless managed Playwright runtime, and the plugin never generates TLS
- * certificates, so plain HTTP holds without an opt-out flag.
+ * IWSDK 1.1.0-rc.2 (licensed MIT pin) types `ai` as `{ mode, screenshotSize }`
+ * only — `tools` is not in `AiOptions` (same as 0.5.x, which dropped it; 0.3.1
+ * had it natively). The sidecar passes `tools: ["codex"]` at runtime, so the
+ * local extension is restored. `workspace` and `https` exist in 1.1.0-rc.2.
  */
-type OpenClinXrIwsdkSpikeDevPluginOptions = DevPluginOptions;
+type OpenClinXrIwsdkSpikeDevPluginOptions = DevPluginOptions & {
+  ai?: NonNullable<DevPluginOptions["ai"]> & {
+    tools?: string[];
+  };
+};
 
 /**
  * Quest-friendly portless defaults:
- * - Plain HTTP (Vite `server` omits `https`; the 0.3.1 plugin has no `https`
- *   option and never issues self-signed certs) so Quest Browser via
- *   `adb reverse` can load `http://localhost:<port>` without a
- *   self-signed-cert "Privacy error" (localhost is a secure context for WebXR).
- * - No `workspace` block: 0.3.1 predates the managed-workspace option.
- *   `ai.mode: 'agent'` keeps the Playwright runtime headless with a fixed
- *   viewport; nothing auto-launches a desktop browser.
+ * - `https: false` so Quest Browser via `adb reverse` can load `http://localhost:<port>`
+ *   without a self-signed-cert "Privacy error" (localhost is a secure context for WebXR).
+ * - IWSDK 1.1.0-rc.2 defaults https:true for self-signed certs; that works for managed
+ *   Playwright (auto-accepts cert) but blocks Quest Browser shell smoke.
+ * - `workspace.open: false` avoids auto-launching a desktop browser on every portless start.
  */
 export const openClinXrIwsdkSpikeDevPluginOptions = Object.freeze({
   emulator: {
@@ -38,6 +38,12 @@ export const openClinXrIwsdkSpikeDevPluginOptions = Object.freeze({
       height: 500,
     },
   },
+  workspace: {
+    open: false,
+    headless: true,
+  },
+  /** Prefer HTTP for Quest USB reverse + CDP smoke; override via Vite server.https if needed. */
+  https: false,
   verbose: true,
 } satisfies OpenClinXrIwsdkSpikeDevPluginOptions);
 

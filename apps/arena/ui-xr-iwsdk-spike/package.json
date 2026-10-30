@@ -13,22 +13,23 @@
     "test": "vitest run --root ."
   },
   "dependencies": {
-    "@iwsdk/core": "0.4.2",
-    "@iwsdk/xr-input": "0.4.2",
+    "@iwsdk/core": "1.1.0-rc.2",
+    "@iwsdk/scene-composition": "1.1.0-rc.2",
+    "@iwsdk/xr-input": "1.1.0-rc.2",
     "@openclinxr/iwsdk-spike": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
     "three": "catalog:"
   },
   "devDependencies": {
-    "@iwsdk/vite-plugin-dev": "0.3.1",
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
+    "@iwsdk/vite-plugin-dev": "1.1.0-rc.2",
     "@iwsdk/vite-plugin-uikitml": "0.4.2",
     "@pmndrs/uikit": "1.0.74",
     "@pmndrs/uikitml": "0.1.12",
     "@types/three": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:",
-    "@cellix/config-vitest": "workspace:*",
-    "@cellix/config-typescript": "workspace:*"
+    "vitest": "catalog:"
   }
 }

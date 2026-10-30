@@ -205,8 +205,8 @@ describe("the IWSDK currentness gate can expire", () => {
     ).toContain("ready_for_runtime_adoption: false");
     expect(
       readFileSync(join(REPO_ROOT, "apps/arena/ui-xr-iwsdk-spike/package.json"), "utf8"),
-      `the dev plugin peers vite ^7.0.0 — locked licensed hold 0.3.1 in this slice`,
-    ).toContain('"@iwsdk/vite-plugin-dev": "0.3.1"');
+      `the dev plugin peers vite ^7.0.0 — reviewed at 1.1.0-rc.2 per operator Q1 2026-10-30, peer accepted on the record`,
+    ).toContain('"@iwsdk/vite-plugin-dev": "1.1.0-rc.2"');
   });
 
   it("(5) VACUITY GUARD: the two fixtures differ on the axis under test", () => {

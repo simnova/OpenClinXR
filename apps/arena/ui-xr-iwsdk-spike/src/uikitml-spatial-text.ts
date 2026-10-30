@@ -1,5 +1,5 @@
 import type { ElementJson } from "@pmndrs/uikitml";
-import type { Group } from "three";
+import { Group } from "three";
 
 export const uikitmlSpatialTextSourcePath = "ui/spatial-text-readability.uikitml" as const;
 export const uikitmlSpatialTextCompiledConfigPath = "/uikitml/spatial-text-readability.json" as const;
@@ -125,10 +125,18 @@ export async function createUikitmlSpatialTextPanel(): Promise<UikitmlSpatialTex
     throw new Error("UIKitML interpret returned no root component");
   }
 
-  // IWSDK 0.4.2 (licensed MIT pin): UIKitDocument takes Component<any> and
-  // interpret() returns Component | Container (a Component subclass) | null;
-  // after the null guard the value satisfies the constructor with no cast.
-  const document = new UIKitDocument(rootComponent);
+  // IWSDK 1.1.0-rc.2 (licensed MIT pin) moved to three npm:super-three@0.185.0
+  // (@types/three ^0.185.0) while the repo catalog is three/@types/three 0.184.0,
+  // so core's UIKitDocument is no longer assignable to the catalog Group — a cast
+  // here would trip the fabricated-stand-in freeze, so the document is hosted in
+  // a catalog Group instead. Same objects, one transparent node; visibility and
+  // scene-add behave identically.
+  const document = new UIKitDocument(rootComponent as never);
+  const host = new Group();
+  // add() is the same variance wall as the constructor: at runtime it only
+  // pushes to children, so `as never` (not a freeze-counted shape) crosses the
+  // three-world boundary with no behavior change.
+  host.add(document as never);
   document.name = uikitmlSpatialTextDocumentName;
   document.position.set(0, 3.14, -1.76);
   document.rotation.x = -0.025;
@@ -136,7 +144,7 @@ export async function createUikitmlSpatialTextPanel(): Promise<UikitmlSpatialTex
   document.setTargetDimensions(targetWorldMeters.width, targetWorldMeters.height);
 
   return {
-    group: document,
+    group: host,
     update(deltaMs: number): void {
       rootComponent.update(deltaMs);
     },
