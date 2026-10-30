@@ -3,8 +3,6 @@ import { dirname, join, relative, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
-const BLOCK_COMMENT = /\/\*[\s\S]*?\*\//gu;
-const LINE_COMMENT = /^[ \t]*\/\/.*$/gmu;
 
 /**
  * # THE DEFECT, MEASURED 2026-08-19 on main 559c033a — do not re-derive these counts
@@ -141,14 +139,74 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const HELPER_REL = "tools/openclinxr/evidence/lib/portless-server.ts";
 
-/** Comment-stripped source. A symbol in a docstring is not a call site (the #397 trap).
- * String literals are deliberately NOT stripped here: the shared comment+string
- * stripper misfires on this file's own doc prose (`"` + backtick adjacency at
- * :15 flips template pairing and un-strips the header). Fixture strings that
- * must not read as call sites split the token instead (browser-boot-inventory
- * marker) — the call syntax they EMIT into fixture files is unaffected. */
+/** Code-shaped source: comments plus string/template-literal contents removed,
+ * template `${...}` expressions KEPT (they are code). A symbol in a docstring
+ * or in a fixture marker string is not a call site (the #397 trap, extended to
+ * the browser-boot-inventory marker, which is back to the plain literal).
+ * Single-pass scan so quotes inside comments — or comment markers inside
+ * strings — cannot flip pairing the way sequential regex stripping did on this
+ * file's own doc prose. NOT TESTED: regex literals containing comment markers
+ * or quotes (no call site in scope uses one). */
+function stripToCode(src: string): string {
+  let out = "";
+  const tpl: Array<{ braces: number | null }> = [];
+  let state: "code" | "line" | "block" | "sq" | "dq" | "tpl" = "code";
+  let i = 0;
+  const n = src.length;
+  while (i < n) {
+    const c = src[i] ?? "";
+    const nxt = i + 1 < n ? (src[i + 1] ?? "") : "";
+    if (state === "code") {
+      if (c === "/" && nxt === "/") { state = "line"; out += " "; i += 2; continue; }
+      if (c === "/" && nxt === "*") { state = "block"; out += " "; i += 2; continue; }
+      if (c === "'") { state = "sq"; out += "''"; i += 1; continue; }
+      if (c === '"') { state = "dq"; out += '""'; i += 1; continue; }
+      if (c === "`") { tpl.push({ braces: null }); state = "tpl"; out += "``"; i += 1; continue; }
+      if (c === "{" && tpl.length > 0 && tpl[tpl.length - 1]?.braces !== null) {
+        (tpl[tpl.length - 1] as { braces: number }).braces += 1;
+      }
+      if (c === "}" && tpl.length > 0 && tpl[tpl.length - 1]?.braces !== null) {
+        const top = tpl[tpl.length - 1] as { braces: number };
+        if (top.braces === 0) { top.braces = null as unknown as number; state = "tpl"; }
+        else top.braces -= 1;
+      }
+      out += c;
+      i += 1;
+      continue;
+    }
+    if (state === "tpl") {
+      if (c === "\\") { i += 2; continue; }
+      if (c === "$" && nxt === "{") {
+        (tpl[tpl.length - 1] as { braces: number }).braces = 0;
+        state = "code";
+        out += "${";
+        i += 2;
+        continue;
+      }
+      if (c === "`") { tpl.pop(); state = "code"; i += 1; continue; }
+      i += 1;
+      continue;
+    }
+    if (state === "sq" || state === "dq") {
+      if (c === "\\") { i += 2; continue; }
+      if ((state === "sq" && c === "'") || (state === "dq" && c === '"')) state = "code";
+      i += 1;
+      continue;
+    }
+    if (state === "line") {
+      if (c === "\n") { state = "code"; out += "\n"; }
+      i += 1;
+      continue;
+    }
+    // block comment
+    if (c === "*" && nxt === "/") { state = "code"; i += 2; continue; }
+    i += 1;
+  }
+  return out;
+}
+
 function codeOf(rel: string): string {
-  return readFileSync(join(REPO_ROOT, rel), "utf8").replace(BLOCK_COMMENT, "").replace(LINE_COMMENT, "");
+  return stripToCode(readFileSync(join(REPO_ROOT, rel), "utf8"));
 }
 
 /** Every tracked file that mentions the symbol at all — prose included; filtered below. */
@@ -246,6 +304,35 @@ describe("every dev-server teardown goes through the fixed helper", () => {
       .filter(({ code }) => !ANY_TEARDOWN.test(code))
       .map(({ rel }) => rel);
     expect(naked, `spawns a dev server and never tears it down by any route`).toEqual([]);
+  });
+
+  it("(6) COUNTERWEIGHT: call-shaped text inside a string literal is not a spawn site", () => {
+    // The browser-boot-inventory fixture marker is back to the plain literal;
+    // the classifier must not count string-held text (or comments) as a site.
+    // Every token mention below lives inside a string literal in THIS file's
+    // own source, so this file stays out of the classifier population too.
+    const doubleQuoted = 'const marker = "spawnPortlessDevServer()";\n';
+    const singleQuoted = "const marker = 'spawnPortlessDevServer()';\n";
+    const template = "const marker = `spawnPortlessDevServer()`;\n";
+    const lineComment = "// spawnPortlessDevServer()\nconst x = 1;\n";
+    const blockComment = "/* spawnPortlessDevServer() */\nconst x = 1;\n";
+    for (const src of [doubleQuoted, singleQuoted, template, lineComment, blockComment]) {
+      expect(stripToCode(src).includes("spawnPortlessDevServer(")).toBe(false);
+    }
+    // Template `${...}` expressions ARE code and must survive stripping.
+    // (Assembled by concatenation so this file's own source keeps the token
+    // inside string literals only.)
+    const expr = "const m = `${" + "spawnPortlessDevServer()" + "}`;\n";
+    expect(stripToCode(expr).includes("spawnPortlessDevServer(")).toBe(true);
+  });
+
+  it("(7) COUNTERWEIGHT: real call code without teardown is still flagged", () => {
+    // A fixture source that really calls with no teardown must read as naked
+    // under clause (4)'s own predicate — the string-strip must not hide it.
+    const src = "import { spawnPortlessDevServer } from './x.js';\nconst s = await spawnPortlessDevServer();\n";
+    const code = stripToCode(src);
+    expect(code.includes("spawnPortlessDevServer(")).toBe(true);
+    expect(ANY_TEARDOWN.test(code)).toBe(false);
   });
 
   it("(5) KNOWN-GOOD: the one correct site exists and the classifier can discriminate", () => {
