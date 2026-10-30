@@ -2,10 +2,8 @@ import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import {
-  listShippedCastScenarioIds,
-  resolveScenarioActorCast,
-} from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+import { listShippedCastScenarioIds } from "@openclinxr/asset-registry";
+import { resolveScenarioActorCast } from "@openclinxr/asset-registry/runtime-bundles";
 
 /**
  * OBSERVABLE: two shipped clinical roles are not literally the same body.
