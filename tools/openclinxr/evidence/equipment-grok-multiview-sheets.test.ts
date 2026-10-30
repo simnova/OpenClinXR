@@ -49,7 +49,7 @@ function manifest(): PackManifest {
 
 function packDirs(): string[] {
   const packs = join(ROOT, "packs");
-  if (!existsSync(packs)) return [];
+  if (!existsSync(packs)) throw new Error(`missing artifact: ${packs}`);
   return readdirSync(packs).sort();
 }
 
