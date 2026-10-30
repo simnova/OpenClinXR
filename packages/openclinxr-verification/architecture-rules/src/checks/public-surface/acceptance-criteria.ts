@@ -13,7 +13,7 @@ import {
 } from "./gates.js";
 import type { ApprovalRow, GateResult, RawInventoryRow } from "./gates.js";
 import { measureSurface } from "./resolve.js";
-import type { SurfaceReport } from "./resolve.js";
+import type { PackageSurface, SurfaceReport } from "./resolve.js";
 
 /**
  * PSR-00B acceptance: plan criteria 3, 4, 5, 6 and 12 (plan:117-128).
@@ -118,8 +118,24 @@ function p90Of(sorted: number[]): number {
   return sorted[rank - 1] ?? 0;
 }
 
+/**
+ * A private test-only evidence sidecar (`*-evidence`, operator-approved 2026-10-30): it holds
+ * tests moved out of root tools/ so turbo caches them, and publishes nothing. Any symbol or
+ * wildcard on any entrypoint makes it an ordinary package again.
+ */
+export function isEvidenceSidecar(pkg: PackageSurface): boolean {
+  if (!/-evidence$/.test(pkg.packageDir)) return false;
+  return pkg.entrypoints.every(
+    (entry) => entry.symbols.length === 0 && entry.wildcardDeclarations === 0 && entry.typeWildcardDeclarations === 0,
+  );
+}
+
+/** Median/p90/maxRoot over packages with a public surface; evidence sidecars are left out. */
 export function rootQuantiles(report: SurfaceReport): { median: number; p90: number; maxRoot: number } {
-  const roots = report.packages.map((pkg) => pkg.rootSymbols).sort((left, right) => left - right);
+  const roots = report.packages
+    .filter((pkg) => !isEvidenceSidecar(pkg))
+    .map((pkg) => pkg.rootSymbols)
+    .sort((left, right) => left - right);
   return { median: medianOf(roots), p90: p90Of(roots), maxRoot: roots[roots.length - 1] ?? 0 };
 }
 
