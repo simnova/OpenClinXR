@@ -134,6 +134,7 @@
       "cache": true,
       "inputs": [
         "packages/cellix/config-vitest/src/**",
+        "packages/openclinxr/agent-loop/src/**",
         "packages/openclinxr/arena/model-vetting/**",
         "packages/openclinxr/asset-registry/src/**",
         "packages/openclinxr/capability-gateway/src/**",
@@ -151,6 +152,7 @@
         "tools/openclinxr/evidence/**",
         "tools/openclinxr/evidence/browser-boot-inventory/**",
         "tools/openclinxr/factory/**",
+        "tools/openclinxr/mouth-solver/**",
         "tools/openclinxr/openclaw/**",
         "tsconfig.tools-relaxed.json",
         "vitest.config.ts"

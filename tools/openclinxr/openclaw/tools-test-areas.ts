@@ -57,6 +57,13 @@ export function pathAreaOf(repoRel: string): Exclude<ToolsTestArea, "serial"> {
 const SLOT_IMPORT_MARKERS: readonly RegExp[] = [
   /(?:\bfrom\s*|\bimport\s*\(?\s*|\brequire\(\s*)["'][^"'\n]*(?:compute-slots|slotted-playwright)[^"'\n]*["']/,
 ];
+
+/**
+ * Checked in the test file only, not its closure: a test that itself spawns
+ * python3/node/pnpm/npx/vitest per case spends seconds of CPU per case and
+ * times out under parallel workers. Shared helpers that spawn once are fine.
+ */
+const TEST_FILE_SPAWN_MARKER = /\b(?:spawn|spawnSync|execFile|execFileSync|execa)\(\s*["'](?:python3?|node|pnpm|npx|vitest)["']/;
 /** Code markers, matched after comments and strings are stripped. */
 const SLOT_CALL_MARKERS: readonly RegExp[] = [
   /chromium\.launch\w*\(/,
@@ -159,6 +166,11 @@ function fileHasSlotMarker(file: string, packageNames: readonly string[]): boole
 
 /** True when the test file's value-import closure reaches a shared slot. */
 export function usesSharedSlot(absTestFile: string, packageNames: readonly string[]): boolean {
+  try {
+    if (TEST_FILE_SPAWN_MARKER.test(readFileSync(absTestFile, "utf8"))) return true;
+  } catch {
+    // unreadable: fall through to the closure scan
+  }
   for (const file of importClosureOf(absTestFile)) {
     if (fileHasSlotMarker(file, packageNames)) return true;
   }

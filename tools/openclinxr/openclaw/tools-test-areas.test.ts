@@ -40,6 +40,15 @@ describe("usesSharedSlot", () => {
     expect(usesSharedSlot(path.join(dir, "e.test.ts"), [])).toBe(true);
   });
 
+  it("marks a test that spawns python3 or a nested vitest by literal name", () => {
+    const dir = fixture({
+      "f.test.ts": `import { execFileSync } from "node:child_process";\nexecFileSync("python3", ["m.py"]);`,
+      "g.test.ts": `import { spawnSync } from "node:child_process";\nspawnSync("pnpm", ["exec", "vitest"]);`,
+    });
+    expect(usesSharedSlot(path.join(dir, "f.test.ts"), [])).toBe(true);
+    expect(usesSharedSlot(path.join(dir, "g.test.ts"), [])).toBe(true);
+  });
+
   it("leaves a test parallel when slot words appear only in comments or strings", () => {
     const dir = fixture({
       "d.test.ts": `// chromium.launch( is not called here\nconst s = "spawn(blender";\nexport {};`,
