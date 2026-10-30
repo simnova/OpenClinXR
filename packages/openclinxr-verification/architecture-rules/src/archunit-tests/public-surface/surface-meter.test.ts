@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 59 roots and 159 declared entrypoints", () => {
+  it("(1) the live tree discovers 59 roots and 160 declared entrypoints", () => {
     const report = measureSurface();
     // 2026-10-07 mouth-station pilot (MADR 0060/0061, integration branch station-mouth): the
     // objective package @openclinxr/station-mouth-objective adds one root (49 -> 50); its surface
