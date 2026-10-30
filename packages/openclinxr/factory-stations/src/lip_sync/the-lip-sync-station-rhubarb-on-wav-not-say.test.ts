@@ -45,6 +45,10 @@ import { writeLipSyncFixtureWav } from "@openclinxr/factory-stations";
 
 const SRC = dirname(fileURLToPath(import.meta.url));
 
+// Clauses (5) and (6) spawn the real rhubarb binary: 4-6 s alone on this machine, longer under
+// load. The vitest 5 s default timed them out on every factory-stations push.
+const RHUBARB_SPAWN_TIMEOUT_MS = 60_000;
+
 describe("the lip_sync station rhubarb on wav not say", () => {
   it("(0) COUNTERWEIGHT: planLipSync still names rhubarb as the baker", () => {
     const planned = planLipSync({ actorId: "actor_a", visemeBank: "mpfb_phonemes" });
@@ -82,7 +86,7 @@ describe("the lip_sync station rhubarb on wav not say", () => {
     delete process.env["OPENCLINXR_LIP_SYNC_FIXTURE"];
     const result = await runLipSync({ actorId: "lip_sync", visemeBank: "mpfb_phonemes" }, { utterance: "hello", outDir });
     expect(JSON.parse(readFileSync(result.manifestArtifactPath, "utf8"))).toMatchObject({ wavPath: dummy });
-  });
+  }, RHUBARB_SPAWN_TIMEOUT_MS);
 
   it("(4) missing wavPath without fixture flag throws", async () => {
     delete process.env["OPENCLINXR_LIP_SYNC_FIXTURE"];
@@ -131,7 +135,7 @@ describe("the lip_sync station rhubarb on wav not say", () => {
     delete process.env["OPENCLINXR_LIP_SYNC_DETERMINISTIC_PCM"];
     const emptyDir = await mkdtemp(join(tmpdir(), "lip-sync-pcm-empty-"));
     await expect(runLipSync({ actorId: "lip_sync", visemeBank: "mpfb_phonemes" }, { utterance: "hi", outDir: emptyDir })).rejects.toThrow(/needs wavPath/);
-  });
+  }, RHUBARB_SPAWN_TIMEOUT_MS);
 
   it("(7) PCM flag + empty outDir runs the real Rhubarb binary end to end", { timeout: 60000 }, async () => {
     // MEASURED S7 2026-09-19. Deterministic 440 Hz sine (~1.0 s) through
