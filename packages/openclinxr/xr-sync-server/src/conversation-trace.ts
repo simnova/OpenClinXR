@@ -102,13 +102,14 @@ export const PROBE_CASE_EMOTION_POLICY: CaseEmotionPolicy = {
 export type ConversationTraceEventKind = "select-actor" | "utterance-start" | "utterance-end" | "turn-completed";
 
 /** One conversation event, in application order. Actor-agnostic: the learner
- * appears as utterance events with actorId "" and no sessionId. */
+ * appears as utterance events with no sessionId; utterance-end names the
+ * actor the reply targets (a roster id, never learner identity). */
 export interface ConversationTraceEvent {
   /** Intent seq that produced this event; null for server-generated turn-completed. */
   seq: number | null;
   kind: ConversationTraceEventKind;
   /** Selected actor (select-actor), completed turn's actor (turn-completed),
-   * or "" for actor-agnostic learner speech (utterance-start/end). */
+   * the reply target (utterance-end), or "" for learner speech (utterance-start). */
   actorId: string;
   /** Turn the event belongs to: interrupted turn (interrupting utterance-start),
    * opened turn (utterance-end), completed turn (turn-completed); else null. */
@@ -201,7 +202,9 @@ export function reduceConversationEvents(events: readonly ConversationTraceEvent
         break;
       }
       case "utterance-end": {
-        const actorId = currentActor;
+        // The room records the turn's target actor (a roster id) so a payload
+        // actorId override replays; older events with "" fall back to the selection.
+        const actorId = event.actorId !== "" ? event.actorId : currentActor;
         if (!actorId) {
           break;
         }

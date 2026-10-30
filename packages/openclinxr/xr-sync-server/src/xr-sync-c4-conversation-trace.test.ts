@@ -214,6 +214,19 @@ describe("xr-sync-server C4 turn content and conversation trace", () => {
     expect(fromTampered.emotions).toEqual(live.emotions);
   }, 40000);
 
+  it("replay follows a payload actorId override, not only the last selection (root, post-author)", async () => {
+    const { server, connection } = await boot();
+    await connection.sendIntent("select-actor", { actorId: "a1" });
+    await connection.sendIntent("utterance-start", {});
+    await connection.sendIntent("utterance-end", { actorId: "a2" });
+    const live = trace(server);
+    expect(live.turns[0]?.actorId).toBe("a2");
+    expect(state(server).actors["a2"]?.speaking).toBe(true);
+    const replayed = replayConversationTrace(live) as ConversationTraceShape;
+    expect(replayed.turns).toEqual(live.turns);
+    expect(replayed.emotions).toEqual(live.emotions);
+  });
+
   it("counterweight: the page cannot author cue or emotion", async () => {
     const { server, connection } = await boot();
     await connection.sendIntent("select-actor", { actorId: "a1" });

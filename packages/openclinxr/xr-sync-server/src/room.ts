@@ -459,7 +459,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     actor.cueId = reply.cueId;
     const acknowledgement: EmotionEventKind = "learner_acknowledgement";
     actor.emotion = this.tracer.transition(actorId, acknowledgement, turnId).to;
-    this.tracer.push({ seq, kind: "utterance-end", actorId: "", turnId });
+    this.tracer.push({ seq, kind: "utterance-end", actorId, turnId });
     this.state.turnOwner = "actor";
     const record: TurnRecord = { turnId, actorId, replyId: reply.id, startSeq: seq, end: "open", endSeq: null };
     this.turnLog.push(record);
