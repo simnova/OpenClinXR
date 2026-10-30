@@ -2,8 +2,8 @@ import { readdirSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { inflateSync } from "node:zlib";
-import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { roomNodeIO } from "./room-gl-io.js";
 
 /**
  * MADR 0056 decided that room realism is a MATERIAL problem, not a geometry problem, and ranked
@@ -192,7 +192,7 @@ type Row = {
   undecodable: number;
 };
 
-const io = new NodeIO();
+const io = roomNodeIO();
 
 async function measure(file: string): Promise<Row> {
   const doc = await io.read(join(REPO_ROOT, ENV_DIR, file));

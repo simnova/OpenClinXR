@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { NodeIO } from "@gltf-transform/core";
+import { readRoomGlb, roomNodeIO } from "./room-gl-io.js";
 
 /**
  * **The room baker's own docstring records a probe it does not reproduce, and it logs nothing that
@@ -144,7 +144,7 @@ async function shippedMeans(): Promise<Record<string, number>> {
       + "import it (D1, same shape as #528's live-scenario-actor-cast.ts). Do not add `sharp`.",
     );
   }
-  const doc = await new NodeIO().read(`${ENV}/${ROOM}`);
+  const doc = await readRoomGlb(`${ENV}/${ROOM}`);
   const out: Record<string, number> = {};
   for (const t of doc.getRoot().listTextures()) {
     const n = t.getName() ?? "";
@@ -181,7 +181,7 @@ describe("the room bake reports what it baked", () => {
 
   it("(3) COUNTERWEIGHT: geometry is untouched — textures only", async () => {
     // Rooms campaign CLOSED. Opening the shell would let the light out and satisfy (2); refused.
-    const doc = await new NodeIO().read(`${ENV}/${ROOM}`);
+    const doc = await readRoomGlb(`${ENV}/${ROOM}`);
     const live: Record<string, string> = {};
     for (const me of doc.getRoot().listMeshes()) for (const p of me.listPrimitives()) {
       const a = p.getAttribute("POSITION")!.getArray() as Float32Array;
@@ -206,7 +206,7 @@ describe("the room bake reports what it baked", () => {
   it("(5) COUNTERWEIGHT: exactly ONE room was re-emitted", async () => {
     // The 14-room rewrite happens only after this one grades. A bank-wide re-emit before a pixel
     // grade is the failure #534 already paid for: contract-green, product unchanged, 14x the churn.
-    const io = new NodeIO();
+    const io = roomNodeIO();
     const { readdirSync } = await import("node:fs");
     const changed: string[] = [];
     for (const g of readdirSync(ENV).filter((f) => f.startsWith("infinigen-") && f.endsWith(".glb"))) {
