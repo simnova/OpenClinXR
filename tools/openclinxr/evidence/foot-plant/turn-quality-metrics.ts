@@ -219,8 +219,7 @@ export const PLANT_EPISODE_LIFT_METERS = 0.008;
  *
  * ## CHANGED 2026-09-24: the anchor used to reset ONLY when the reported `stanceFoot` name
  * changed. Measured on a real capture: within one unbroken "right" streak the toe jumped 0.109 m
- * then 0.191 m in single frames (`.openclinxr/evidence/foot-plant-video/foot-plant-video.json`,
- * samples 43 and 46) while still reported "right" — two real footfalls of the same foot, not one
+ * then 0.191 m in single frames (foot-plant-video capture, samples 43 and 46 — the capture
  * held stance, so the old anchor kept measuring across both landings and reported a ~0.28 m
  * "slide" that was mostly step travel. The stance SOURCE (`frame.stanceFoot`) was already correct
  * — this was a grouping bug in how the metric turned that label into episodes. Now the anchor also

@@ -25,8 +25,10 @@ import { measureRun } from "../slide-phase/standing-pitch-measure.js";
 type Vec3 = { x: number; y: number; z: number };
 
 const STEP_DT_S = 1 / 30;
-const AFTER_CONFIGS = ["default", "plan-only", "plan-footbase", "2.0", "3.7", "6.0"] as const;
-/** Pre-fix baseline capture dirs per after-config. */
+const AFTER_CONFIGS = ["default", "plan-only", "plan-footbase"] as const;
+/** Pre-fix baseline capture dirs per after-config.
+ * Version route dirs (2.0/3.7/6.0) were machine-local captures, gitignored, never in
+ * HEAD — their configs are dropped here (ci-w8); re-add with --before dirs when present. */
 const BEFORE_DIRS: Record<string, string[]> = {
   default: [".openclinxr/evidence/standing-pitch/captures/default"],
   "plan-only": [".openclinxr/evidence/standing-pitch/captures/plan-only"],
@@ -34,9 +36,6 @@ const BEFORE_DIRS: Record<string, string[]> = {
     ".openclinxr/evidence/standing-pitch/captures/plan-footbase",
     ".openclinxr/evidence/foot-base-routes/sc05",
   ],
-  "2.0": [".openclinxr/evidence/foot-base-routes/2.0"],
-  "3.7": [".openclinxr/evidence/foot-base-routes/3.7"],
-  "6.0": [".openclinxr/evidence/foot-base-routes/6.0"],
 };
 
 function arg(name: string): string | null {

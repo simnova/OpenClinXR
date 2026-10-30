@@ -9,9 +9,11 @@
  * Usage:
  *   export OPENCLINXR_JOB_TMP="$(mktemp -d "${TMPDIR:-/tmp}/openclinxr-foot-base-divergence-$$-XXXXXX")"
  *   pnpm tsx tools/openclinxr/evidence/slide-phase/foot-base-divergence.ts \
- *     --before=.openclinxr/evidence/foot-base/before/sc05-run0.json \
- *     --after=.openclinxr/evidence/foot-base/after/sc05-run0.json \
- *     --tap=.openclinxr/evidence/foot-base/after/tap-sc05-run0.json \
+ *     --before=<job-tmp>/foot-base/before/sc05-run0.json \
+ *     --after=<job-tmp>/foot-base/after/sc05-run0.json \
+ *     --tap=<job-tmp>/foot-base/after/tap-sc05-run0.json \
+ *     (inputs are caller-supplied captures; the evidence-path inputs once cited here are
+ *     machine-local, gitignored, never in HEAD — ci-w8) \
  *     --out="${OPENCLINXR_JOB_TMP:?}/foot-base/divergence.json"
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";

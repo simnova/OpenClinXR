@@ -14,7 +14,7 @@ import { ARRIVAL_CLOSE_MAX_STEP_METERS, applyLocal, copyVec, writeToeLocalClampe
  *
  * ## CHANGED: `applySettlingStepTurnPose` is RETIRED from the case-owned bedside approach's
  * settling call site (`case-owned-approach-frame-mod.ts`'s `applyCaseOwnedStanceLock`). Measured
- * on it (`.openclinxr/evidence/foot-plant-video/foot-plant-video.json`,
+ * on it (foot-plant-video capture samples, see
  * `tools/openclinxr/evidence/foot-plant/turn-quality-metrics.ts`): floorPenetrationM -0.036,
  * minStepLiftM 0.006 over 4 episodes (lift decaying 0.027 -> 0.006 as the toe never fully
  * returns to rest between swaps), plantedSlideM 0.110 — a swivel, not a step, because with the

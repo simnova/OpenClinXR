@@ -34,7 +34,7 @@ describe("footstep-plan query flags", () => {
     expect(gated("?footstepPlan=1&footstepRouteM=2")).toBe(2);
     expect(gated("?footstepPlan=1&footstepRouteM=4.5")).toBe(4.5);
     expect(gated("?footstepPlan=1")).toBeNull();
-    expect(gated("?footstepPlan=0&footstepRouteM=2")).toBeNull(); // default-flip: opt-out restores inert route (evidence: .openclinxr/evidence/default-readiness/RESULT.json, .openclinxr/evidence/rig-aware/RESULT.json)
+    expect(gated("?footstepPlan=0&footstepRouteM=2")).toBeNull(); // default-flip: opt-out restores inert route (evidence: .openclinxr/evidence/default-readiness/RESULT.json; the rig-aware RESULT never landed in HEAD, ci-w8)
     expect(gated("?footstepPlan=1&footstepRouteM=7")).toBeNull();
   });
 });

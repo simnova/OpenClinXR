@@ -24,11 +24,13 @@
  * Usage:
  *   pnpm tsx tools/openclinxr/evidence/slide-phase/step-asymmetry.ts \
  *     --route=sc05:.openclinxr/evidence/step-asym/pre/sc05 \
- *     --route=2.0:.openclinxr/evidence/step-asym/pre/2.0 \
+ *     (version route dirs are machine-local, gitignored, never in HEAD — ci-w8;
+ *     pass --route=label:dir explicitly with job-local dirs) \
  *     --contact-json=packages/openclinxr/factory-stations/src/motion_retarget/physician-walk-contact-phases.json \
- *     --out=.openclinxr/evidence/step-asym/measure.json
+ *     --out="${OPENCLINXR_JOB_TMP:?}/step-asym/measure.json"
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { FOOT_BASE_PLANT_PHASE, footBaseScheduleStance } from "@openclinxr/xr-humanoid-animation/foot-base";
 import { CAPTURE_FPS, computeRunSeam, type LiveSeamRunFile } from "./live-seam.js";
@@ -281,7 +283,9 @@ async function main(): Promise<void> {
     "contact-json",
     "packages/openclinxr/factory-stations/src/motion_retarget/physician-walk-contact-phases.json",
   );
-  const outPath = arg("out", ".openclinxr/evidence/step-asym/measure.json");
+  // Default report path is job-local: the evidence-path default once cited here is a
+  // machine-local capture output, gitignored, never in HEAD (ci-w8).
+  const outPath = arg("out", path.join(process.env.OPENCLINXR_JOB_TMP ?? tmpdir(), "step-asym", "measure.json"));
   const contact = JSON.parse(await readFile(contactPath, "utf8")) as {
     left: { stepLengthM: number; contactFraction: number };
     right: { stepLengthM: number; contactFraction: number };

@@ -4,7 +4,12 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 const capture = "tools/openclinxr/evidence/room-ward-finish-chain/ward-finish-chain-capture.ts";
-const buildManifest = JSON.parse(readFileSync(".openclinxr/evidence/cornice-flush/build-manifest.json", "utf8")) as {
+// Build manifest is machine-local (gitignored, never in HEAD — ci-w8): pass it explicitly.
+const manifestArg = process.argv[2];
+if (!manifestArg) {
+  throw new Error("usage: tsx cornice-flush-capture.ts <build-manifest.json> (machine-local build manifest)");
+}
+const buildManifest = JSON.parse(readFileSync(manifestArg, "utf8")) as {
   results: Record<string, { finalGlb: string }>;
 };
 const rooms = {

@@ -45,9 +45,8 @@
  *   pnpm tsx tools/openclinxr/evidence/slide-phase/heel-audit.ts \
  *     --route=sc05:.openclinxr/evidence/foot-base-routes/sc05 \
  *     --route=sc05:.openclinxr/evidence/foot-base-routes/after7/sc05 \
- *     --route=2.0:.openclinxr/evidence/foot-base-routes/2.0 \
- *     --route=3.7:.openclinxr/evidence/foot-base-routes/3.7 \
- *     --route=6.0:.openclinxr/evidence/foot-base-routes/6.0 \
+ *     (version route dirs 2.0/3.7/6.0 are machine-local captures, gitignored, never in
+ *     HEAD — ci-w8 dropped their example lines; pass --route=label:dir explicitly) \
  *     --out=.openclinxr/evidence/heel-audit/measure.json \
  *     [--bound-glb=...] [--clip=openclinxr_retarget_walk_source]
  *

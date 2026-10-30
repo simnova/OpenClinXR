@@ -11,6 +11,7 @@
  */
 import { execFileSync } from "node:child_process";
 import { copyFile, mkdir, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
@@ -22,7 +23,9 @@ export const SHIPPED_PRIMARY_CARE_GLB =
 
 export const ROOM_BAKE_HARNESS_DIR = ".openclinxr/evidence/room-bake-harness";
 
-export const DEFAULT_HARNESS_REPORT = path.join(ROOM_BAKE_HARNESS_DIR, "report.json");
+// Default report path is job-local: the evidence-path default once cited here names a
+// machine-local capture output, gitignored, never in HEAD (ci-w8). Pass --report explicitly.
+export const DEFAULT_HARNESS_REPORT = path.join(tmpdir(), "openclinxr-room-bake-harness", "report.json");
 
 /** Single-room baker. This harness does not run the fleet bake. */
 export const ROOM_BAKE_CLI = "tools/openclinxr/asset-pipeline/environment/room-bake-cli.ts";
@@ -414,7 +417,7 @@ function usage(): string {
     "  --samples <n>           Cycles samples (default 32)",
     "  --resolution <px>       Bake resolution (default 1024; floor stays at least 4096)",
     "  --output <glb>          Treatment GLB path (default: .openclinxr/evidence/room-bake-harness/)",
-    "  --report <path>         Mean-luminance JSON (default: .openclinxr/evidence/room-bake-harness/report.json)",
+    "  --report <path>         Mean-luminance JSON (default: os-tmpdir openclinxr-room-bake-harness/report.json)",
   ].join("\n");
 }
 

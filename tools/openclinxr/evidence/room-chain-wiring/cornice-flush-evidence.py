@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import os
+import sys
 import hashlib
 import runpy
 from pathlib import Path
@@ -206,7 +208,12 @@ def main() -> None:
     result["selection"] = {"reference": "Coordinator ward 01/02 targets -12/-5; frozen crop measurements also recorded separately",
                            "meanAbsoluteError": scores, "eligible": eligible,
                            "chosen": min(eligible, key=scores.get) if eligible else None}
-    build_manifest = json.loads((ROOT / ".openclinxr/evidence/cornice-flush/build-manifest.json").read_text())
+    # Build manifest is machine-local (gitignored, never in HEAD -- ci-w8): pass it
+    # as argv[1] or CORNICE_BUILD_MANIFEST.
+    manifest_arg = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("CORNICE_BUILD_MANIFEST")
+    if not manifest_arg:
+        raise SystemExit("cornice-flush-evidence.py requires a machine-local build manifest: argv[1] or CORNICE_BUILD_MANIFEST")
+    build_manifest = json.loads(Path(manifest_arg).read_text())
     (EVIDENCE / "build-manifest.json").write_text(json.dumps(build_manifest, indent=2) + "\n")
     chosen = result["selection"]["chosen"]
     if chosen:
