@@ -152,11 +152,6 @@
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/library-figure-finish-parity.test.ts",
-      "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
-      "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
-    },
-    {
       "path": "tools/openclinxr/evidence/library-humanoid-staged.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
@@ -288,12 +283,12 @@
     },
     {
       "path": "tools/openclinxr/evidence/a-garment-deforms-like-the-body-under-it.test.ts",
-      "reason": "ci-w1 classifier migration is green (garment/body populations select correctly): the known-good column fails on asset data — the MPFB rail transferred-weight band holds 316 verts vs the > 500 needed to compare. Restoring the band population is an asset fix.",
+      "reason": "ci-w1 classifier migration is green (garment/body populations select correctly): the known-good column fails on asset data \u2014 the MPFB rail transferred-weight band holds 316 verts vs the > 500 needed to compare. Restoring the band population is an asset fix.",
       "card": "ci-w1: restore the transferred-weight band population above 500 verts"
     },
     {
       "path": "tools/openclinxr/evidence/a-layered-garment-is-separated-from-the-one-beneath.test.ts",
-      "reason": "ci-w1 classifier migration is green (makeclothesGarmentSlug selects the nurse scrub shirt; no name miss): the unlayered control drifted — nurse scrub_shirt SHA 5702d9c49974cf6b vs pinned 3a2431b31f225830 (coat added or shirt rebaked). Ruling the control is a product decision.",
+      "reason": "ci-w1 classifier migration is green (makeclothesGarmentSlug selects the nurse scrub shirt; no name miss): the unlayered control drifted \u2014 nurse scrub_shirt SHA 5702d9c49974cf6b vs pinned 3a2431b31f225830 (coat added or shirt rebaked). Ruling the control is a product decision.",
       "card": "ci-w1: rule whether the nurse control wears a coat (re-pin) or must stay unlayered"
     },
     {
@@ -322,33 +317,23 @@
       "card": "ci-w1: declare per-role palettes including the ED gown; resolve scrub white vs locked teal"
     },
     {
-      "path": "tools/openclinxr/evidence/garment-selection-by-role.test.ts",
-      "reason": "ci-w1 helper migration is green (hm08 slot reads isUpper; counterweight green): 0 hm08 rows are measured (casting/catalog gap — the Anny rail has no nurse row to compare). Restoring casting rows is a data fix.",
-      "card": "ci-w1: restore hm08 casting rows so role selection is measurable"
-    },
-    {
       "path": "tools/openclinxr/evidence/garments-are-flat-shaded-and-the-body-is-not.test.ts",
       "reason": "ci-w1 classifier migration is green (body column passes via the classifier; no name miss): 3 garments never smoothed, 1 hard-edge set smoothed away, and female_tight_jeans is not in the baseline (7 remeshed-flag rows). Shading + baseline admission are asset fixes.",
       "card": "ci-w1: smooth the 3 never-smoothed garments; admit female_tight to the baseline"
     },
     {
-      "path": "tools/openclinxr/evidence/garments-keep-their-authored-texture.test.ts",
-      "reason": "ci-w1 classifier migration is green (isWearable/makeclothesGarmentSlug select correctly; toigo 2b white-factor unchanged): legacy gowns are newly visible and need an authored-state ruling (unclassified material in all 4 clauses). The ruling is a product decision.",
-      "card": "ci-w1: rule the authored state of the newly-visible legacy gowns"
-    },
-    {
       "path": "tools/openclinxr/evidence/hairline-is-a-line-not-a-sawtooth.test.ts",
-      "reason": "ci-w1 classifier migration is green (hair class selects all fitted hair; no name miss): 8 bodies report scalpPrims=0 (aisha and the child exempt) — the scalp region is absent where fitted hair should have replaced it or is missing. Hair-mechanism gap, not a name miss.",
+      "reason": "ci-w1 classifier migration is green (hair class selects all fitted hair; no name miss): 8 bodies report scalpPrims=0 (aisha and the child exempt) \u2014 the scalp region is absent where fitted hair should have replaced it or is missing. Hair-mechanism gap, not a name miss.",
       "card": "ci-w1: restore the scalp region / fitted-hair assignment on the 8 bodies"
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-material-region-hygiene.test.ts",
-      "reason": "ci-w1 classifier migration is green (garment/face region selection holds; no name miss): the nurse neck opening 1.487 sits below the clavicle 1.532 — neck/shoulder paint regressed vs #73. Restoring the paint is an asset fix.",
+      "reason": "ci-w1 classifier migration is green (garment/face region selection holds; no name miss): the nurse neck opening 1.487 sits below the clavicle 1.532 \u2014 neck/shoulder paint regressed vs #73. Restoring the paint is an asset fix.",
       "card": "ci-w1: restore the nurse neck opening above the clavicle line"
     },
     {
       "path": "tools/openclinxr/evidence/makeclothes-library-consumed.test.ts",
-      "reason": "ci-w1 helper migration is green (isLegacySurfaceDerivedMeshName replaces the /openclinxr_real_garment_/ literal): the runtime-resolve counterweight fails — no comparator resolves a library GLB (the artifact exists but the runtime cannot reach it). Wiring the runtime to the library rail is a separate slice.",
+      "reason": "ci-w1 helper migration is green (isLegacySurfaceDerivedMeshName replaces the /openclinxr_real_garment_/ literal): the runtime-resolve counterweight fails \u2014 no comparator resolves a library GLB (the artifact exists but the runtime cannot reach it). Wiring the runtime to the library rail is a separate slice.",
       "card": "ci-w1: wire the runtime comparator to the MakeClothes library rail"
     },
     {
@@ -435,6 +420,16 @@
       "path": "tools/openclinxr/evidence/humanoid-vetting/the-vetted-humanoid-glb-is-the-subject-alone.test.ts",
       "reason": "ci-w1 helper migration is green (subject-alone classification reads makeclothesGarmentSlug; tee literal replaced): nurse live bytes 8775848 vs ladder raw rung 8396376 (rebake drift). Re-pinning the rung bytes is a data fix.",
       "card": "ci-w1: re-pin ladder raw-rung bytes after the rebake"
+    },
+    {
+      "path": "tools/openclinxr/evidence/every-shipped-humanoid-resolves-the-reference-it-was-baked-from.test.ts",
+      "reason": "ci-w1 classifier migration is green (no name miss \u2014 the failing subject is enumerated, not skipped): 1 shipped humanoid names a baked-from reference with no manifest, so both phenotype readers fall back (eye colour empty, skin tone default). Writing the missing manifest from the authoring case is a data fix.",
+      "card": "ci-w1: write the missing baked-from manifest from the case that authored the reference"
+    },
+    {
+      "path": "tools/openclinxr/evidence/the-waistband-ratio-is-bounded-not-merely-recorded.test.ts",
+      "reason": "ci-w1 classifier migration is green (rings found via the shared classifier; no name miss): the artifact scanned 19 GLBs but 20 ship today, and the regen writer fail-closes on the child NULL hem ring (HB-07 breaker) \u2014 fresh rows would honestly RED the 4x bound. Re-measuring the artifact is a data fix gated on the child hem geometry.",
+      "card": "ci-w1: re-measure the waistband-ratio artifact for all 20 GLBs once the child hem ring exists"
     }
   ]
 }

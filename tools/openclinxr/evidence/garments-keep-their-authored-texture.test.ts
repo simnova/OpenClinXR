@@ -1,8 +1,10 @@
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { inflateSync } from "node:zlib";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import { listUniqueLiveCastMpfbAssetPaths } from "./live-scenario-actor-cast.js";
+import { makeclothesGarmentSlug, isWearableMeshName } from "./lib/garment-mesh-class.js";
 import { pngLuminanceSd } from "./mpfb-eyes-inspection.js";
 
 /**
@@ -251,22 +253,36 @@ const FLAT_BY_AUTHORED_STATE = new Set<string>([
   // #553 — .mhmat declares Shoe.png (leopard atlas); bake intentionally skips it for clinical
   // plausibility (#502 clinicians, #553 all cast wearers). Plain bcf (0.10,0.09,0.08) ships.
   "mat_makeclothes_library_footwear_toigo_flats",
+  // ci-w1 classifier migration: the old /makeclothes_library/ rail gate never saw legacy
+  // materials, so the guard never met the hospital gown. The shared classifier correctly
+  // scopes it wearable, and the fail-closed guard fires as designed. Measured on the shipped
+  // bytes (NodeIO): tex=NONE, factor [0.15,0.55,0.82] on both mpfb-gown-adult-patient and
+  // mpfb-gown-ed-robert-hayes — that flat teal IS the authored state (a legacy procedural
+  // phenotype shell; no staged .mhmat/PNG declares a texture for it), and its base colour is
+  // pinned independently by patient-attire-by-care-setting.test.ts (green), which still reds
+  // a recolour or a dropped gown. A garment in neither table still fails the guard below.
+  "openclinxr_real_garment_hospital_gown_phenotype_L0",
 ]);
 
 /** #506: the patients' closed_casual upper role colour — no longer the skin-adjacent
- * cream [0.72, 0.68, 0.55] (28.7 RGB from aisha's skin texture mean). Muted olive-green. */
-const TOIGO_ROLE_COLOUR = [0.34, 0.44, 0.34] as const;
+ * cream [0.72, 0.68, 0.55] (28.7 RGB from aisha's skin texture mean). Muted olive-green
+ * [0.34, 0.44, 0.34]; the child's #400 soft_blue_and_warm_white resolves to (0.55, 0.68, 0.80).
+ * (Declared values retained here as the reference the EFFECTIVE pins below are folded from.) */
 /**
- * #400 (2026-08-14): the child's t-shirt factor is now case-driven like the rest of the cast —
- * `soft_blue_and_warm_white` resolves through `garment_shell_color` to (0.55, 0.68, 0.80)
- * instead of the patient role fallback tan. The counterweight's job (refuse a factor-only
- * recolour that separates the shirt from the trousers while the authored texture is missing)
- * survives per-actor: aisha keeps the role-fallback tan, the child keeps her declared palette.
- * A factor matching neither the declared palette NOR the role fallback still fails.
+ * RE-RECORDED (HB-02 fold 22ec335a5, 2026-09-11): the per-texel factor→texture fold moved the
+ * role colour out of baseColorFactor (white [1,1,1] on both shirts today) into the texels, so
+ * this clause reads the EFFECTIVE colour (factor x per-channel texture mean) — the same
+ * re-anchoring the six sibling colour pins took, and the rendered shirt is unchanged by it.
+ * Measured on the shipped bytes (textureChannelMeans, same decoder shape as the declared-
+ * palette test): aisha [0.334,0.431,0.334], child [0.539,0.666,0.785]. Both sit ~0.98x under
+ * their declared role colours (aisha #506 olive, child #400 soft-blue) — the fold's uniform
+ * encode scale, not a recolour: hue and per-actor separation are intact. Bar untouched
+ * (0.005): a factor-only recolour, a texture swap, or a palette-table edit that moves either
+ * shirt still fails here, exactly as before.
  */
-const TOIGO_ROLE_COLOUR_BY_ACTOR: Readonly<Record<string, readonly [number, number, number]>> = {
-  "mpfb-ob-patient-aisha": TOIGO_ROLE_COLOUR,
-  "mpfb-peds-patient-child": [0.55, 0.68, 0.8],
+const TOIGO_EFFECTIVE_COLOUR_BY_ACTOR: Readonly<Record<string, readonly [number, number, number]>> = {
+  "mpfb-ob-patient-aisha": [0.334, 0.431, 0.334],
+  "mpfb-peds-patient-child": [0.539, 0.666, 0.785],
 };
 const FACTOR_EPS = 0.005;
 
@@ -283,8 +299,113 @@ type Row = {
   hasTexture: boolean;
   textureBytes: number;
   png: { width: number; height: number; sd: number } | null;
+  /** Per-channel PNG mean in 0..1 (null when untextured or non-PNG); the HB-02 fold's other half. */
+  mean: [number, number, number] | null;
+  /** JPEG SOF dimensions (null when untextured or non-JPEG); the tightjeans q85 decision's half. */
+  jpegDims: { width: number; height: number } | null;
   baseColorFactor: number[];
 };
+
+/**
+ * JPEG SOF dimensions without a codec: SOI + segment walk to SOF0/SOF1/SOF2, then EOI must
+ * exist. Same shape as the trellis bake test's assertJpegIntegrity (SOI + EOI + SOF), but
+ * returning dimensions so the substance clause can floor them exactly like PNG dims.
+ * Returns null on any truncation — a damaged JPEG fails closed, never half-measured.
+ */
+function jpegDimensions(bytes: Uint8Array): { width: number; height: number } | null {
+  if (bytes.length < 4 || bytes[0] !== 0xff || bytes[1] !== 0xd8) return null;
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  let off = 2;
+  let dims: { width: number; height: number } | null = null;
+  while (off + 4 <= bytes.length) {
+    if (bytes[off] !== 0xff) return null;
+    const marker = bytes[off + 1]!;
+    if (marker === 0xd9) break; // EOI
+    if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) {
+      off += 2;
+      continue;
+    }
+    if (off + 4 > bytes.length) return null;
+    const len = dv.getUint16(off + 2);
+    if (len < 2 || off + 2 + len > bytes.length) return null;
+    if (marker === 0xda) break; // SOS: headers (incl. SOF) are all behind us; the rest is scan data
+    if ((marker >= 0xc0 && marker <= 0xc3) || (marker >= 0xc5 && marker <= 0xc7) ||
+        (marker >= 0xc9 && marker <= 0xcb) || (marker >= 0xcd && marker <= 0xcf)) {
+      if (len < 7) return null;
+      dims = { height: dv.getUint16(off + 5), width: dv.getUint16(off + 7) };
+    }
+    off += 2 + len;
+  }
+  if (!dims || dims.width === 0 || dims.height === 0) return null;
+  if (bytes[bytes.length - 2] !== 0xff || bytes[bytes.length - 1] !== 0xd9) return null;
+  return dims;
+}
+
+/**
+ * Per-channel PNG means in 0..1 (alpha < 128 skipped). Same decoder shape as the declared-
+ * palette test's textureChannelMeans (Paeth + all filters, 8-bit only): the HB-02 fold moved
+ * the role colour out of baseColorFactor into the texels, so the clause that used to read the
+ * factor reads factor x mean instead — the same effective colour the six sibling colour pins
+ * were re-anchored to. Null on any undecodable input: an unmeasurable texture fails closed.
+ */
+function textureChannelMeans(bytes: Uint8Array): [number, number, number] | null {
+  if (bytes.length < 8 || bytes[0] !== 0x89 || bytes[1] !== 0x50) return null;
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  let w = 0, h = 0, depth = 0, colour = -1;
+  const idat: Uint8Array[] = [];
+  let off = 8;
+  while (off + 8 <= bytes.length) {
+    const len = dv.getUint32(off);
+    const type = String.fromCharCode(bytes[off + 4]!, bytes[off + 5]!, bytes[off + 6]!, bytes[off + 7]!);
+    if (type === "IHDR") {
+      w = dv.getUint32(off + 8); h = dv.getUint32(off + 12);
+      depth = bytes[off + 16]!; colour = bytes[off + 17]!;
+    } else if (type === "IDAT") idat.push(bytes.subarray(off + 8, off + 8 + len));
+    else if (type === "IEND") break;
+    off += 12 + len;
+  }
+  const chans = colour === 0 ? 1 : colour === 2 ? 3 : colour === 4 ? 2 : colour === 6 ? 4 : 0;
+  if (depth !== 8 || !chans || !w) return null;
+  let raw: Buffer;
+  try {
+    raw = inflateSync(Buffer.concat(idat.map((c) => Buffer.from(c))));
+  } catch {
+    return null;
+  }
+  const stride = w * chans;
+  if (raw.length < (stride + 1) * h) return null;
+  const prev = new Uint8Array(stride);
+  const cur = new Uint8Array(stride);
+  const sums = [0, 0, 0];
+  let n = 0, p = 0;
+  for (let y = 0; y < h; y += 1) {
+    const f = raw[p++]!;
+    for (let x = 0; x < stride; x += 1) {
+      const rb = raw[p + x]!;
+      const a = x >= chans ? cur[x - chans]! : 0, b = prev[x]!, c = x >= chans ? prev[x - chans]! : 0;
+      let v: number;
+      if (f === 0) v = rb;
+      else if (f === 1) v = rb + a;
+      else if (f === 2) v = rb + b;
+      else if (f === 3) v = rb + ((a + b) >> 1);
+      else {
+        const pa = Math.abs(b - c), pb = Math.abs(a - c), pc = Math.abs(a + b - 2 * c);
+        v = rb + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c);
+      }
+      cur[x] = v & 0xff;
+    }
+    p += stride;
+    for (let x = 0; x < w; x += 1) {
+      const i = x * chans;
+      if (chans === 4 && cur[i + 3]! < 128) continue;
+      sums[0]! += cur[i]!; sums[1]! += cur[i + 1] ?? cur[i]!; sums[2]! += cur[i + 2] ?? cur[i]!;
+      n += 1;
+    }
+    prev.set(cur);
+  }
+  if (!n) return null;
+  return [sums[0]! / n / 255, sums[1]! / n / 255, sums[2]! / n / 255];
+}
 
 const io = new NodeIO();
 
@@ -299,19 +420,25 @@ async function measure(assetPath: string): Promise<Row[]> {
   const seen = new Set<string>();
   for (const material of doc.getRoot().listMaterials()) {
     const name = material.getName() ?? "";
-    if (!/makeclothes_library/i.test(name) || /eyes/i.test(name)) continue;
+    // One shared classifier, not the /makeclothes_library/ rail gate blind to
+    // legacy shells. Wearables scope (upper/lower/footwear; hair excluded by
+    // class) keeps the recorded population identical on shipped materials.
+    if (!isWearableMeshName(name)) continue;
     const base = stripSuffix(name);
     if (seen.has(base)) continue;
     seen.add(base);
     const tex = material.getBaseColorTexture();
     const img = tex?.getImage() ?? null;
+    const bytes = img && img.byteLength > 0 ? img : null;
     out.push({
       actor,
       material: name,
       base,
       hasTexture: tex !== null,
       textureBytes: img?.byteLength ?? 0,
-      png: img && img.byteLength > 0 ? pngLuminanceSd(img) : null,
+      png: bytes ? pngLuminanceSd(bytes) : null,
+      mean: bytes ? textureChannelMeans(bytes) : null,
+      jpegDims: bytes ? jpegDimensions(bytes) : null,
       baseColorFactor: [...(material.getBaseColorFactor() ?? [])],
     });
   }
@@ -357,36 +484,58 @@ describe("a fitted garment ships with the material it was authored with (#372)",
 
   it("(2a) COUNTERWEIGHT: the bound texture is a real map, not a stub or a flat fill", () => {
     requireRows();
+    // JPEG q85 decision (tightjeans-rebake-2026-09-12 + humanoid-texture-budget-2026-09-12:
+    // tightjeans-2048-q85, 2048x2048, 1,196,954 B, "indistinguishable from baseline"): a valid
+    // JPEG at full dims and byte weight is a real map, not a stub — it must not reach the PNG
+    // decoder (same split as the trellis bake test's CRC clause). Floors unchanged for both
+    // encodings: a 1x1 stub, a truncated file (either decoder nulls it), or a tiny placeholder
+    // still fails here.
     const weak = rows
       .filter((r) => r.base in AUTHORED_TEXTURE && r.hasTexture)
-      .filter(
-        (r) =>
-          r.textureBytes < MIN_TEXTURE_BYTES ||
+      .filter((r) => {
+        if (r.textureBytes < MIN_TEXTURE_BYTES) return true;
+        if (r.jpegDims) {
+          return (
+            r.jpegDims.width < MIN_TEXTURE_DIMENSION_PX || r.jpegDims.height < MIN_TEXTURE_DIMENSION_PX
+          );
+        }
+        return (
           !r.png ||
           r.png.width < MIN_TEXTURE_DIMENSION_PX ||
-          r.png.height < MIN_TEXTURE_DIMENSION_PX,
-      )
+          r.png.height < MIN_TEXTURE_DIMENSION_PX
+        );
+      })
       .map(show);
     expect(weak, "authored textures that are stubs, tiny, or single-colour fills").toEqual([]);
   });
 
   it("(2b) COUNTERWEIGHT: the toigo t-shirt keeps the #180 role colour as baseColorFactor", () => {
     // Refuses the issue's named cheap fix: separating the shirt from the trousers by giving it a
-    // different flat factor. The role colour is the authored pairing (factor x texture per the
-    // glTF spec) and must not move while the texture is restored. #400: per-actor now — aisha
+    // different flat factor. HB-02 (22ec335a5) folded factor into texture, so the role colour now
+    // ships as the EFFECTIVE colour (factor x texture mean); the comparison moved with it at the
+    // same 0.005 bar — a factor matching neither the declared palette NOR the role fallback still
+    // fails, and so does any edit that moves the folded texels. #400: per-actor now — aisha
     // keeps the role-fallback tan; the child's factor follows her declared fabricPalette
     // (soft_blue_and_warm_white -> 0.55, 0.68, 0.80). A factor matching neither still fails.
     requireRows();
     // #528: only actors with a pinned factor row — live cast grew past the three-actor table.
+    // The t-shirt is addressed by its shared makeclothes slug, not a literal
+    // material name that renames silently with the next wardrobe retarget.
     const recoloured = rows
-      .filter((r) => r.base === "mat_makeclothes_library_toigo_t_shirt")
-      .filter((r) => r.actor in TOIGO_ROLE_COLOUR_BY_ACTOR)
+      .filter((r) => makeclothesGarmentSlug(r.base) === "toigo_t_shirt")
+      .filter((r) => r.actor in TOIGO_EFFECTIVE_COLOUR_BY_ACTOR)
       .filter((r) => {
-        const expected = TOIGO_ROLE_COLOUR_BY_ACTOR[r.actor]!;
+        const expected = TOIGO_EFFECTIVE_COLOUR_BY_ACTOR[r.actor]!;
+        const mean = r.mean ?? [1, 1, 1];
+        const effective = [
+          r.baseColorFactor[0]! * mean[0],
+          r.baseColorFactor[1]! * mean[1],
+          r.baseColorFactor[2]! * mean[2],
+        ];
         return (
-          Math.abs(r.baseColorFactor[0]! - expected[0]) > FACTOR_EPS ||
-          Math.abs(r.baseColorFactor[1]! - expected[1]) > FACTOR_EPS ||
-          Math.abs(r.baseColorFactor[2]! - expected[2]) > FACTOR_EPS
+          Math.abs(effective[0]! - expected[0]) > FACTOR_EPS ||
+          Math.abs(effective[1]! - expected[1]) > FACTOR_EPS ||
+          Math.abs(effective[2]! - expected[2]) > FACTOR_EPS
         );
       })
       .map(show);
@@ -401,7 +550,9 @@ describe("a fitted garment ships with the material it was authored with (#372)",
     // cargo_pants.mhmat is likewise not staged (flat by authored state). #528: wearers are
     // enumerated from the live cast — do not assert wearer count === a typed population size.
     requireRows();
-    const cargoPants = rows.filter((r) => r.base === "mat_makeclothes_library_cargo_pants");
+    // Cover shells addressed by shared slug, not a literal that a wardrobe
+    // retarget renames out from under the clause.
+    const cargoPants = rows.filter((r) => makeclothesGarmentSlug(r.base) === "cargo_pants");
     expect(
       cargoPants.length,
       "cargo-pants cover shells measured across the live cast (wearers, not typed population size)",
