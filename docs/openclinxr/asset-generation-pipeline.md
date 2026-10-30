@@ -457,3 +457,39 @@ Outputs:
 - `docs/openclinxr/environment-artifacts-YYYY-MM-DD.json`
 
 The WebXR app serves the shell at `/xr-assets/environment/ed-exam-bay-shell.glb` and loads it as `openclinxr.ed-chest-pain.environment-shell.generated-glb`, included in copied `sceneAssetEvidence`. This is local fixture evidence for visual iteration only; it is not production environment readiness, Quest readiness, clinical visual validity, or scoring evidence.
+
+
+## Historical GLB migration 20261029
+
+Archive contains 10 unique GLBs under 11 logical paths (ten canonical
+entries plus one alias).
+Manifest: `tools/openclinxr/evidence/asset-store/historical-glb-migration-20261029.json`.
+
+### Retrieval
+
+Byte consumers call `readHistoricalBytes(logicalPath, manifest)`.
+The committed manifest maps the logical path to `storeRef`
+(`store:<sha256>/<basename>`). Actual bytes load through the existing
+SHA-verifying store reader and fail closed on missing or corrupt content.
+
+### Configuration
+
+Store root precedence: explicit `options.storeRoot`, then
+`process.env.OPENCLINXR_ASSET_STORE`, then `manifest.storeRoot`.
+Unit tests pass a temp fixture root. The manifest default is a
+local-development default only; deployed/CI consumers must supply an
+accessible content store explicitly
+(`options.storeRoot` or `OPENCLINXR_ASSET_STORE`).
+
+### Cold checkout
+
+A checkout without the external store can validate mapping structure
+without binary bytes, with an explicit external-unavailable note. Byte
+reads fail RED until the store is mounted. This does not claim the whole
+citation gate or CI is green: actual original-78 missing references remain.
+Hosted CI availability of the store is not claimed here.
+
+### Citation overlay
+
+Eleven exact paths resolve (ten canonical entries plus one alias).
+Unrelated missing cited paths remain RED. No broad exclusion added.
