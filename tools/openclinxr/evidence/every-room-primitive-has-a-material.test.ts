@@ -93,16 +93,18 @@ const ENV = "apps/ui-xr/public/xr-assets/environment";
 const ARTIFACT = "tools/openclinxr/evidence/room-primitive-material-probe.json";
 const PRIMARY = "infinigen-primary-care-clinic.glb";
 
-/** Historical defect counts; authorized seed-205 ward replacement tightens its pin to zero. */
+/** Historical defect counts. Fleet regeneration authored materials into every
+ * file (measured 0 material-less primitives in all 14 files); the pin follows
+ * the landed bytes. Zero is the strict direction: any future material-less
+ * primitive fails. */
 const NO_MATERIAL_IN_FILE: Record<string, number> = {
-  "infinigen-adult-ed-abdominal-bay.glb": 1, "infinigen-behavioral-health-private.glb": 1,
-  "infinigen-ed-exam-bay.glb": 1, "infinigen-ed-stroke-bay.glb": 1,
-  // Seed-205 chain authors every material: tighten the historical known-defect pin.
-  "infinigen-inpatient-ward.glb": 0, "infinigen-ob-triage.glb": 1,
-  "infinigen-oncology-consult.glb": 1, "infinigen-pediatric-fever-urgent-care.glb": 1,
-  "infinigen-pediatric-urgent-care-bay.glb": 1, "infinigen-primary-care-clinic.glb": 1,
-  "infinigen-stepdown.glb": 1, "infinigen-surgical-ward.glb": 1,
-  "infinigen-telehealth-home-visit.glb": 1, "infinigen-urgent-care-clinic.glb": 1,
+  "infinigen-adult-ed-abdominal-bay.glb": 0, "infinigen-behavioral-health-private.glb": 0,
+  "infinigen-ed-exam-bay.glb": 0, "infinigen-ed-stroke-bay.glb": 0,
+  "infinigen-inpatient-ward.glb": 0, "infinigen-ob-triage.glb": 0,
+  "infinigen-oncology-consult.glb": 0, "infinigen-pediatric-fever-urgent-care.glb": 0,
+  "infinigen-pediatric-urgent-care-bay.glb": 0, "infinigen-primary-care-clinic.glb": 0,
+  "infinigen-stepdown.glb": 0, "infinigen-surgical-ward.glb": 0,
+  "infinigen-telehealth-home-visit.glb": 0, "infinigen-urgent-care-clinic.glb": 0,
 };
 
 type GraphPrim = {
