@@ -1,0 +1,35 @@
+{
+  "name": "@openclinxr/xr-sync-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "lint": "biome lint --no-errors-on-unmatched .",
+    "typecheck": "cellix-tsc --noEmit -p tsconfig.vitest.json",
+    "test": "vitest run --root .",
+    "build": "cellix-tsc --build",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@colyseus/core": "0.18.10",
+    "@colyseus/ws-transport": "0.18.4",
+    "@colyseus/schema": "5.0.43"
+  },
+  "devDependencies": {
+    "@colyseus/sdk": "0.18.8",
+    "@openclinxr/xr-sync-client": "workspace:*",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "@cellix/config-vitest": "workspace:*",
+    "@cellix/config-typescript": "workspace:*"
+  },
+  "files": [
+    "dist"
+  ]
+}

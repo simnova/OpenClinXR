@@ -93,7 +93,9 @@ Prefer slices connecting packages into end-to-end local skeleton.
 
 ## Approved Boundaries
 
-Unless Patrick expands scope: no unapproved cloud/paid APIs/production deployment; no Redis/Colyseus/Web3; no Quest readiness without worn-headset evidence; no clinical validity/licensure/scoring claims; no durable clinical-event API unless approved.
+Unless Patrick expands scope: no unapproved cloud/paid APIs/production deployment; no Redis/Web3; no Quest readiness without worn-headset evidence; no clinical validity/licensure/scoring claims; no durable clinical-event API unless approved.
+
+Scope expansion, Patrick 2026-10-30: "maintain a split between server and headset (allowing strengths of both) - try incorporating colyseus as part of this to keep serverside state management and coordination and sync with headset - build up capabilities slowly and prove things work - but this should keep what happens in webxr lean." Colyseus (MIT) is approved for server-authoritative encounter state in `packages/openclinxr/xr-sync-server`; the headset uses only the thin client in `packages/openclinxr/xr-sync-client`. `@openclinxr/session-state` stays framework-free.
 
 ## IWSDK Sidecar
 

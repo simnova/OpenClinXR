@@ -1,0 +1,36 @@
+{
+  "package": "xr-sync-server",
+  "name": "@openclinxr/xr-sync-server",
+  "entrypoint": "packages/openclinxr/xr-sync-server/src/index.ts",
+  "purpose": "Server-authoritative encounter sync over Colyseus: validated intents in, ack or reject out, state via schema patches.",
+  "exports": [
+    "AckMessage",
+    "ENCOUNTER_ROOM_NAME",
+    "EncounterServer",
+    "EncounterServerOptions",
+    "IntentKind",
+    "IntentMessage",
+    "RejectMessage",
+    "createEncounterServer"
+  ],
+  "exportSummaries": {
+    "AckMessage": "Server reply for an applied intent, carrying the round-trip terminus.",
+    "ENCOUNTER_ROOM_NAME": "Matchmaking name clients join to reach the authoritative encounter room.",
+    "EncounterServer": "Handle to a running encounter server with its bound address.",
+    "EncounterServerOptions": "Options for booting an in-process encounter server.",
+    "IntentKind": "Client-to-server intent kinds.",
+    "IntentMessage": "Wire envelope for one client intent.",
+    "RejectMessage": "Server reply for a rejected intent.",
+    "createEncounterServer": "Boot one encounter room on an HTTP and WebSocket transport, then listen."
+  },
+  "workspaceDependencies": [],
+  "tests": [
+    "src/xr-sync-server.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/xr-sync-server test",
+    "typecheck": "pnpm --filter @openclinxr/xr-sync-server typecheck",
+    "build": "pnpm --filter @openclinxr/xr-sync-server build",
+    "lint": "pnpm --filter @openclinxr/xr-sync-server lint"
+  }
+}

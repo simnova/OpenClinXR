@@ -124,7 +124,8 @@ describe("compiler-resolved surface meter", () => {
     // psr-c6-mouth review at the station-mouth final land.
     // 2026-10-07 mouth-station registry (@openclinxr/station-mouth-registry) adds one root (53 -> 54), pending the psr-c6-mouth review at the station-mouth final land.
     // 2026-10-15 xr-capacity evidence package (@openclinxr/xr-capacity) adds one root (54 -> 55); its surface is the reviewed capacity evidence seam.
-    expect(report.totals.roots).toBe(55);
+    // 2026-10-30 colyseus sync C1 (@openclinxr/xr-sync-server, @openclinxr/xr-sync-client) adds two roots (55 -> 57); host-only server-authoritative encounter state plus the lean headset client, pending psr admission at the C1 land.
+    expect(report.totals.roots).toBe(57);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -166,7 +167,9 @@ describe("compiler-resolved surface meter", () => {
     // keys in its package.json (140 -> 152); no other package.json `exports` map changes.
     // 2026-10-21 rest browser-safe ./route-catalog subpath adds one declared entrypoint
     // (152 -> 153); roots unchanged at 55. Discovery count, not a numerical budget.
-    expect(report.totals.entrypoints).toBe(153);
+    // 2026-10-30 colyseus sync C1: xr-sync-server and xr-sync-client each publish
+    // one "." entrypoint (153 -> 155); no other package.json `exports` map changes.
+    expect(report.totals.entrypoints).toBe(155);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -195,7 +198,8 @@ describe("compiler-resolved surface meter", () => {
     const report = measureSurface();
     // 2026-10-07 mouth-station registry adds one root (53 -> 54), pending the psr-c6-mouth review at the station-mouth final land.
     // 2026-10-15 xr-capacity evidence package adds one root (54 -> 55).
-    expect(report.packages.length).toBe(55);
+    // 2026-10-30 colyseus sync C1 adds two roots (xr-sync-server, xr-sync-client; 55 -> 57).
+    expect(report.packages.length).toBe(57);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {

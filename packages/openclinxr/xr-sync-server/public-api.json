@@ -1,0 +1,14 @@
+{
+  "entrypoints": {
+    ".": [
+      "AckMessage",
+      "ENCOUNTER_ROOM_NAME",
+      "EncounterServer",
+      "EncounterServerOptions",
+      "IntentKind",
+      "IntentMessage",
+      "RejectMessage",
+      "createEncounterServer"
+    ]
+  }
+}

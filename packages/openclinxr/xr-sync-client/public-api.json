@@ -1,0 +1,16 @@
+{
+  "entrypoints": {
+    ".": [
+      "AckResult",
+      "EncounterSnapshot",
+      "IntentKind",
+      "IntentPayload",
+      "IntentResult",
+      "RejectResult",
+      "SnapshotActor",
+      "SnapshotLearner",
+      "SyncConnection",
+      "connect"
+    ]
+  }
+}

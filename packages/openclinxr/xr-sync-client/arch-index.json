@@ -1,0 +1,40 @@
+{
+  "package": "xr-sync-client",
+  "name": "@openclinxr/xr-sync-client",
+  "entrypoint": "packages/openclinxr/xr-sync-client/src/index.ts",
+  "purpose": "Lean headset sync client: intents out with per-intent ack or reject, encounter state in via reflection-decoded patches.",
+  "exports": [
+    "AckResult",
+    "EncounterSnapshot",
+    "IntentKind",
+    "IntentPayload",
+    "IntentResult",
+    "RejectResult",
+    "SnapshotActor",
+    "SnapshotLearner",
+    "SyncConnection",
+    "connect"
+  ],
+  "exportSummaries": {
+    "AckResult": "Resolved outcome for an applied intent, with round-trip time.",
+    "EncounterSnapshot": "Plain view of synced encounter state delivered to onState.",
+    "IntentKind": "Client-to-server intent kinds, mirroring the server contract.",
+    "IntentPayload": "JSON payload carried by one intent.",
+    "IntentResult": "Either outcome of one sent intent.",
+    "RejectResult": "Resolved outcome for a rejected intent.",
+    "SnapshotActor": "Plain view of one synced actor.",
+    "SnapshotLearner": "Plain view of one synced learner, including intent cursor.",
+    "SyncConnection": "Live headset-side connection: intents out, snapshots in.",
+    "connect": "Join the encounter room at url and wire intent, snapshot, and reconnect handling."
+  },
+  "workspaceDependencies": [],
+  "tests": [
+    "src/client-connect.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/xr-sync-client test",
+    "typecheck": "pnpm --filter @openclinxr/xr-sync-client typecheck",
+    "build": "pnpm --filter @openclinxr/xr-sync-client build",
+    "lint": "pnpm --filter @openclinxr/xr-sync-client lint"
+  }
+}

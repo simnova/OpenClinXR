@@ -64,10 +64,12 @@ overrides:
 # which clears the high-severity tmp advisory before the normal maturity window.
 minimumReleaseAgeExclude:
   - "tmp@0.2.7"
+  - '@colyseus/schema@5.0.43'
 
 allowBuilds:
   esbuild: true
   mongodb-memory-server: true
+  msgpackr-extract: false
   protobufjs: true
   sharp: true
 
