@@ -1,7 +1,6 @@
 {
   "schemaVersion": "openclinxr.stage2-multiview.v1",
   "environmentId": "stepdown_room_v1",
-  "glb": "/Volumes/files/src/openclinxr-wt/cornice-flush/.openclinxr/evidence/cornice-ab/stepdown_room_v1/v4-flush/infinigen-stepdown.chain.glb",
   "mechanism": "playwright-route-override",
   "poseSource": {
     "kind": "explicit",
