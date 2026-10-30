@@ -285,7 +285,10 @@ describe("browser-boot inventory (#284)", () => {
     try {
       const toolsDir = path.join(tempRoot, "tools");
       mkdirSync(toolsDir, { recursive: true });
-      const marker = "chromium.launch()\nspawnPortlessDevServer()\n";
+      // Split token: the EMITTED fixture files must contain the real call syntax
+      // for the inventory builder to find, but this source must not read as a
+      // spawn site to the dev-server-teardown classifier (comment-strip only).
+      const marker = `chromium.launch()\n${"spawnPortlessDevServer"}()\n`;
       writeFileSync(path.join(toolsDir, "kept.test.ts"), `// kept\n${marker}`, "utf8");
       writeFileSync(path.join(toolsDir, "excluded.test.ts"), `// excluded\n${marker}`, "utf8");
       writeFileSync(

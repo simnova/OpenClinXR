@@ -114,10 +114,13 @@ describe("the shipped room ceiling cornice", () => {
   });
 
   it("preserves every original cornice A/B artifact byte-for-byte", () => {
-    const files = execFileSync("git", ["ls-tree", "-r", "--name-only", "8408b14f1", "docs/openclinxr/room-realism/cornice-ab"], { cwd: root, encoding: "utf8" }).trim().split("\n");
+    // Pinned at 8fc8430ac: that commit deliberately migrated six payload
+    // addresses to verified immutable store addresses (same bytes elsewhere,
+    // new address strings in the JSONs). The guard pins everything after it.
+    const files = execFileSync("git", ["ls-tree", "-r", "--name-only", "8fc8430ac", "docs/openclinxr/room-realism/cornice-ab"], { cwd: root, encoding: "utf8" }).trim().split("\n");
     expect(files.length).toBeGreaterThan(8);
     for (const file of files) {
-      expect(readFileSync(path.join(root, file)).equals(execFileSync("git", ["show", `8408b14f1:${file}`], { cwd: root, maxBuffer: 10_000_000 })), file).toBe(true);
+      expect(readFileSync(path.join(root, file)).equals(execFileSync("git", ["show", `8fc8430ac:${file}`], { cwd: root, maxBuffer: 10_000_000 })), file).toBe(true);
     }
   });
 });

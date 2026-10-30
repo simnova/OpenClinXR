@@ -3,6 +3,8 @@ import { dirname, join, relative, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
+const BLOCK_COMMENT = /\/\*[\s\S]*?\*\//gu;
+const LINE_COMMENT = /^[ \t]*\/\/.*$/gmu;
 
 /**
  * # THE DEFECT, MEASURED 2026-08-19 on main 559c033a — do not re-derive these counts
@@ -139,10 +141,12 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const HELPER_REL = "tools/openclinxr/evidence/lib/portless-server.ts";
 
-const BLOCK_COMMENT = /\/\*[\s\S]*?\*\//gu;
-const LINE_COMMENT = /^[ \t]*\/\/.*$/gmu;
-
-/** Comment-stripped source. A symbol in a docstring is not a call site (the #397 trap). */
+/** Comment-stripped source. A symbol in a docstring is not a call site (the #397 trap).
+ * String literals are deliberately NOT stripped here: the shared comment+string
+ * stripper misfires on this file's own doc prose (`"` + backtick adjacency at
+ * :15 flips template pairing and un-strips the header). Fixture strings that
+ * must not read as call sites split the token instead (browser-boot-inventory
+ * marker) — the call syntax they EMIT into fixture files is unaffected. */
 function codeOf(rel: string): string {
   return readFileSync(join(REPO_ROOT, rel), "utf8").replace(BLOCK_COMMENT, "").replace(LINE_COMMENT, "");
 }
