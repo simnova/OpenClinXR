@@ -2,6 +2,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { isUpperGarmentName } from "./garment-slot.ts";
+import { isTrouserMeshName } from "./lib/garment-mesh-class.js";
 
 /**
  * #427 — the shared waistband-ring instrument. ONE copy for every consumer.
@@ -26,13 +27,15 @@ export const REPO_ROOT = pathResolve(HERE, "../../..");
 export const GENERATED_HUMANOIDS = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 
 /**
- * #427 — the E5 enumeration: a shipped trouser mesh is any material whose name carries
- * pants/trousers/cargo. This deliberately replaces the narrower /cargo_pants/ matcher,
- * which went blind when kevin's trousers were renamed scrub_pants (the waistband contract
- * was measuring 2 of 7 shipped trouser actors without noticing).
+ * #427 — the E5 enumeration: a shipped trouser mesh is a lower-slot garment of
+ * the trouser kind (not a gown or skirt), per the one shared classifier. This
+ * deliberately replaces the narrower /cargo_pants/ matcher, which went blind
+ * when kevin's trousers were renamed scrub_pants (the waistband contract was
+ * measuring 2 of 7 shipped trouser actors without noticing), and the
+ * /pants|trouser|cargo/ broadening, which could not tell a gown from trousers.
  */
 export function isPantsName(materialName: string): boolean {
-  return /pants|trouser|cargo/i.test(materialName);
+  return isTrouserMeshName(materialName);
 }
 
 export type Ring = { verts: number; hfMedian: number; hfP95: number; span: number };

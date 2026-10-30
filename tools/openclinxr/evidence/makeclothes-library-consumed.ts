@@ -8,7 +8,8 @@
  * Does NOT treat the cagematch probe under makeclothes-anny-reference/ as a library entry.
  * Does NOT invent producedByStage strings — the CLI stamps them.
  *
- * Runtime resolution is mirrored from apps/ui-xr/src/main.ts (static path table) so we
+ * Runtime resolution is mirrored from packages/openclinxr/xr-asset-loading/src/variant-paths.ts
+ * (extracted verbatim from apps/ui-xr/src/main.ts by fd1a9e016) so we
  * do not boot the full app for this contract.
  */
 
@@ -25,7 +26,10 @@ import {
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
-const MAIN_TS = path.join(REPO_ROOT, "apps/ui-xr/src/main.ts");
+// Re-pointed (fd1a9e016 extracted the comparator block verbatim from main.ts into
+// @openclinxr/xr-asset-loading): the runtime resolution this reader mirrors now lives here.
+// Still resolves reom_local_fitted_garment_patient -> makeclothes library GLB (verified).
+const MAIN_TS = path.join(REPO_ROOT, "packages/openclinxr/xr-asset-loading/src/variant-paths.ts");
 
 export type LibraryEntry = {
   garmentId: string;
@@ -75,7 +79,8 @@ function isGarmentMeshName(name: string): boolean {
 }
 
 /**
- * Parse comparator → public path from main.ts without executing the app.
+ * Parse comparator → public path from variant-paths.ts without executing the app.
+ * (fd1a9e016: extracted verbatim from main.ts into @openclinxr/xr-asset-loading.)
  * Matches lines like:
  *   if (humanoidSourceComparator === "reom_local_fitted_garment_patient" ...
  *     return '/xr-assets/humanoids/candidates/….glb';
@@ -89,7 +94,9 @@ export function parseComparatorPathsFromMain(source: string): {
   const re =
     /humanoidSourceComparator\s*===\s*"([a-z0-9_]+)"[\s\S]{0,400}?return\s+['"](\/xr-assets\/humanoids\/candidates\/[^'"]+\.glb)['"]/gi;
   let m: RegExpExecArray | null;
-  while ((m = re.exec(source)) !== null) {
+  for (;;) {
+    m = re.exec(source);
+    if (m === null) break;
     out.push({ comparatorId: m[1]!, resolvedPath: m[2]! });
   }
   return out;

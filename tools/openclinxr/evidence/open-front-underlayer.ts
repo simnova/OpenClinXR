@@ -12,9 +12,22 @@
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { NodeIO, type Document } from "@gltf-transform/core";
+import {
+  classifyGarmentMeshName,
+  classifyLowerGarmentKind,
+} from "./lib/garment-mesh-class.js";
 import { maxOf, minMaxXyz, minOf } from "./min-max-bounds.js";
 
-const GARMENT_MESH_RE = /openclinxr_real_garment/i;
+/** Outer shells: fitted uppers plus gowns, on the legacy rail and the
+ * makeclothes rail alike. One shared classifier, not the legacy-only
+ * /openclinxr_real_garment/ matcher blind to every MPFB actor. Declared layer
+ * shells stay excluded (they drape open by design — their opening is not a hem). */
+function isOuterShellMesh(name: string): boolean {
+  const cls = classifyGarmentMeshName(name);
+  if (cls === "upper") return true;
+  if (cls === "lower" && classifyLowerGarmentKind(name) === "gown") return true;
+  return false;
+}
 const DECLARED_ANY_RE = /openclinxr_declared_upper_layers__/i;
 const LOWER_PAINT_MAT_RE = /openclinxr_role_mesh_clothing_.*_lower/i;
 const TOP_PAINT_MAT_RE = /openclinxr_role_mesh_clothing_.*_(top|soft_trim)/i;
@@ -166,7 +179,7 @@ function collectShells(document: Document): Shell[] {
   const shells: Shell[] = [];
   for (const mesh of document.getRoot().listMeshes()) {
     const meshName = mesh.getName() || "";
-    if (!GARMENT_MESH_RE.test(meshName)) continue;
+    if (!isOuterShellMesh(meshName)) continue;
     if (DECLARED_ANY_RE.test(meshName)) continue;
 
     for (const prim of mesh.listPrimitives()) {
@@ -224,7 +237,7 @@ function collectBody(document: Document): {
   const tris: BodyTri[] = [];
   for (const mesh of document.getRoot().listMeshes()) {
     const name = mesh.getName() || "";
-    if (GARMENT_MESH_RE.test(name) || DECLARED_ANY_RE.test(name)) continue;
+    if (isOuterShellMesh(name) || DECLARED_ANY_RE.test(name)) continue;
     for (const prim of mesh.listPrimitives()) {
       const mat = prim.getMaterial()?.getName() || "";
       const arr = prim.getAttribute("POSITION")?.getArray();

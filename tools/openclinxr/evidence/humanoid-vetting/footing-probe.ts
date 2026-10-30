@@ -1,4 +1,5 @@
 import { NodeIO } from "@gltf-transform/core";
+import { classifyGarmentMeshName } from "../lib/garment-mesh-class.js";
 
 /**
  * HB-04 footing probe (HB-01 method): per-primitive world minY via node world
@@ -56,7 +57,9 @@ function applyY(m: number[], x: number, y: number, z: number): number {
   return m1 * x + m5 * y + m9 * z + m13;
 }
 
-const isFootwear = (name: string): boolean => /footwear|shoe|boot|slipper/i.test(name);
+/** Footwear meshes and nodes via the one shared classifier, not a private
+ * /footwear|shoe|boot|slipper/ match blind to the next footwear rename. */
+const isFootwear = (name: string): boolean => classifyGarmentMeshName(name) === "footwear";
 
 let globalMinY = Infinity;
 let footwearMinY = Infinity;

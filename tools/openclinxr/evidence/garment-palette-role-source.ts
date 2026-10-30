@@ -18,6 +18,7 @@ import {
   listShippedCastScenarioIds,
   resolveScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+import { isFittedGarmentMeshName } from "./lib/garment-mesh-class.js";
 
 export type GarmentMaterial = {
   materialName: string;
@@ -59,7 +60,6 @@ const AUTOMATE_BLENDER = path.join(
   repoRoot,
   "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
 );
-const REAL_GARMENT = /openclinxr_real_garment_/i;
 const DECLARED = /declared_upper_layers/i;
 const COLOR_EPS = 0.005;
 
@@ -104,7 +104,11 @@ async function readGarmentMaterials(glbAbs: string): Promise<GarmentMaterial[]> 
   const out: GarmentMaterial[] = [];
   for (const mat of document.getRoot().listMaterials()) {
     const materialName = mat.getName() || "";
-    if (!REAL_GARMENT.test(materialName) || DECLARED.test(materialName)) continue;
+    // One shared classifier, not the legacy-only /openclinxr_real_garment_/ matcher
+    // that missed every makeclothes rail material. Fitted uppers and lowers read as
+    // the role-coloured garments; footwear/hair/eyes/body never do. Declared layer
+    // shells stay excluded (they carry no role colour).
+    if (!isFittedGarmentMeshName(materialName) || DECLARED.test(materialName)) continue;
     const c = mat.getBaseColorFactor();
     out.push({
       materialName,
