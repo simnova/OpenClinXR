@@ -26,6 +26,16 @@ import {
   listShippedCastScenarioIds,
   resolveScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+// Re-exported for the co-located RETIRED tests (#275/#219): they must reach these symbols
+// without adding a cross-boundary edge of their own — this file's actor-casting.js edge is
+// already in the shrink-only freeze, so re-exporting through it adds zero new reaches.
+export {
+  listShippedCastScenarioIds,
+  resolveScenarioActorCast,
+  LIBRARY_ADULT_HEAVY_MALE_GLB,
+  LIBRARY_ADULT_LEAN_FEMALE_GLB,
+} from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+import { isUpperMeshName } from "./lib/garment-mesh-class.js";
 import {
   hm08BodyClassCastRoles,
   resolveAnnyGarmentLayers,
@@ -41,14 +51,12 @@ export const CANDIDATES_DIR = path.join(
 );
 export const CATALOG_PATH = path.join(CANDIDATES_DIR, "body-param-catalog.json");
 
-/** Upper-garment name tokens shared with garment-covers-its-region.ts (scrub/shirt/
- * garment/gown). The cover-shell mesh is named makeclothes_library_civilian_shirt_*
- * so it reads as an upper garment on every consumer classifier. */
+/** Upper-garment mesh names via the one shared classifier (scrub/shirt/
+ * garment/gown slot, legacy and makeclothes, including the cover shell
+ * `makeclothes_library_civilian_shirt_*`). Replaces the file-local token list
+ * so this consumer cannot drift from the contract. */
 function isUpperGarmentMeshName(name: string): boolean {
-  const tokens = name.toLowerCase().split(/[^a-z0-9]+/u).filter(Boolean);
-  return tokens.some(
-    (t) => t === "scrub" || t === "scrubs" || t.includes("shirt") || t === "garment" || t === "gown",
-  );
+  return isUpperMeshName(name);
 }
 
 export type AnnyRailRow = {

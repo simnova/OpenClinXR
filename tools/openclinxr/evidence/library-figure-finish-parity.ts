@@ -18,6 +18,11 @@ import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
   resolveScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+// Re-exported for the co-located RETIRED test (#219): same freeze rationale as
+// garment-selection-by-role.ts — this file's actor-casting.js edge is already frozen.
+export {
+  resolveScenarioActorCast,
+} from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import {
   resolveHumanoidVariantOrCastPath,
 } from "@openclinxr/xr-scene";
@@ -144,7 +149,13 @@ async function dumpLiveFigureFinish(page: Page, actorIds: readonly string[]): Pr
     }
 
     function isFootwearName(name) {
-      return /footwear|shoe|boot|slipper|sandal|sneaker|sock/i.test(String(name || ""));
+      // Self-contained: this body runs inside page.evaluate, where the
+      // module-scope classifier import is unreachable (closure does not cross
+      // the page boundary). Tokens mirror the footwear rule in
+      // lib/garment-mesh-class.js by hand; keep them in sync.
+      // Narrower than the old /footwear|shoe|boot|.../ literal on purpose:
+      // bare "boot" false-positives "bootcut" jeans.
+      return /footwear|_shoes?(_|\.|$)|_boots?(_|\.|$)|_slipper(_|\.|$)/i.test(String(name || ""));
     }
 
     // Collect actor roots (deepest openClinXrActorPosture or first openClinXrActorId carriers with skin).
