@@ -61,11 +61,15 @@ const readManifest = (): { entries?: Entry[] } | null => {
 
 /** The bank is the population — never a hardcoded list, or the gallery silently omits new encounters. */
 const shippedEncounterIds = (): string[] => {
-  const dir = join(REPO, ".openclinxr/evidence/ui-xr-environment-room/latest");
+  // ADAPTED 2026-10-26 (ci-w7): the capture dir `.openclinxr/evidence/ui-xr-environment-room/latest`
+  // is gitignored worktree-local and absent on clean checkouts, so enumerating from it reds
+  // everywhere. The newer work's shipped encounter set lives in the generated learner bundles
+  // (the same authority `generic-cue-prop-removal` enumerates); the manifest's 15 entries
+  // (docs/encounters, b41503160) cover exactly these 15. Bundle dirs, never a literal list.
+  const dir = join(REPO, "apps/ui-xr/public/xr-assets/generated");
   if (!existsSync(dir)) throw new Error("missing artifact");
   return require("node:fs").readdirSync(dir)
-    .filter((f: string) => f.endsWith("-room.png"))
-    .map((f: string) => f.replace("-room.png", ""))
+    .filter((f: string) => existsSync(join(dir, f, "learner-runtime-bundle.v1.json")))
     .sort();
 };
 

@@ -109,11 +109,15 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
 const SCENARIO = "telehealth_diabetes_health_literacy_v1";
 const STILL = join(HERE, "stills/telehealth-room-isolated.png");
 const INSPECT = join(HERE, "telehealth-room-inspect.json");
-/** The existing full-HUD capture — the thing this slice is NOT allowed to just rename. */
-const EXISTING_HUD_CAPTURE = join(
+/**
+ * ADAPTED 2026-10-30 (ci-w7): the scene-overview capture dir is gitignored worktree-local and
+ * absent on clean checkouts. The newer work's current full-room capture of this station is the
+ * tracked fleet-regen sheet (547fb18a9 batch 1; telehealth re-promoted d8e610e32 + 6571e4acd).
+ * A sheet is a before/after composite — still image content, still bound by the sd calibration.
+ */
+const REGEN_SHEET = join(
   REPO_ROOT,
-  ".openclinxr/evidence/ui-xr-environment-room/latest",
-  `${SCENARIO}-room.png`,
+  "docs/openclinxr/room-realism/rooms-regen/sheets/telehealth_home_visit_v1/before-after-sheet.png",
 );
 
 /** #431: blanks read 0.96 / 1.82; content 26.90-45.56; the #442 stills 59.79-59.85. */
@@ -201,15 +205,31 @@ describe("the telehealth room is inspectable without the exam HUD", () => {
     }
   });
 
-  it("(5) KNOWN-GOOD: the existing full-HUD capture is present and reads as content", () => {
-    // Reads the existing artifact and the calibration, not the absent pair, so it passes today
-    // and keeps passing: if the room capture ever stops producing a real frame, this goes red
-    // first and clause (2)'s band is revealed as untrustworthy rather than silently wrong.
+  it("(5) KNOWN-GOOD: the regen sheet for this station is present and reads as content", async () => {
+    // Was: the scene-overview full-HUD capture (dead dir). Now: the tracked fleet-regen
+    // before/after sheet for telehealth_home_visit_v1. Reads the existing artifact and the
+    // #431/#442 calibration, not the absent pair, so it passes today and keeps passing: if room
+    // capture output ever stops producing real frames, this goes red first and clause (2)'s band
+    // is revealed as untrustworthy rather than silently wrong.
     expect(
-      existsSync(EXISTING_HUD_CAPTURE),
-      `the scene-overview capture this slice replaces must exist for the comparison to be real`,
+      existsSync(REGEN_SHEET),
+      `the regen sheet for this station must exist for the comparison to be real`,
     ).toBe(true);
-    expect(statSync(EXISTING_HUD_CAPTURE).size, "existing capture bytes").toBeGreaterThanOrEqual(MIN_STILL_BYTES);
+    expect(statSync(REGEN_SHEET).size, "regen sheet bytes").toBeGreaterThanOrEqual(MIN_STILL_BYTES);
+    const { decodePng } = await import("./decode-png.js") as {
+      decodePng: (b: Uint8Array) => { w: number; h: number; lum: Float32Array } | null;
+    };
+    const sheet = readFileSync(REGEN_SHEET);
+    const d = decodePng(new Uint8Array(sheet.buffer, sheet.byteOffset, sheet.byteLength));
+    expect(d, "regen sheet is not a decodable PNG").not.toBeNull();
+    const unit = d!.lum.slice(0, 1024).reduce((a, v) => Math.max(a, v), 0) <= 1.0001 ? 255 : 1;
+    let mean = 0;
+    for (let i = 0; i < d!.lum.length; i += 1) mean += d!.lum[i]!;
+    mean /= d!.lum.length;
+    let variance = 0;
+    for (let i = 0; i < d!.lum.length; i += 1) variance += (d!.lum[i]! - mean) ** 2;
+    const sd = Math.sqrt(variance / d!.lum.length) * unit;
+    expect(sd, `regen sheet reads blank; content band per #431/#442 sits far above ${MIN_CONTENT_SD}`).toBeGreaterThan(MIN_CONTENT_SD);
     expect(MIN_CONTENT_SD, "the sd floor sits an order of magnitude above #431's blanks (0.96, 1.82)")
       .toBeGreaterThan(1.82 * 4);
   });
