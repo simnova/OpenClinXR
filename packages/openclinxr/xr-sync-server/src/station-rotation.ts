@@ -21,6 +21,7 @@
  */
 import { matchMaker } from "@colyseus/core";
 import { randomUUID } from "node:crypto";
+import type { SessionReviewCollector } from "./session-review-index.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -170,6 +171,8 @@ export interface StationBinding {
   appliedPoseByStation: Map<string, number>;
   /** C8 rotation fault seam (server-config only; product path leaves it off). */
   rotationFaults: RotationFaults;
+  /** C9 held review entries + write-once flag (lazily attached on first close). */
+  review?: SessionReviewCollector;
 }
 
 /** C8: record one applied pose for the station (exact F3 cross-check source). */
@@ -249,6 +252,8 @@ export interface RotationStep {
   stationId?: string;
   /** C8: record one review-safe rotation-failed trace event (no identity). */
   onRotationFailed?: (failedStationId: string) => void;
+  /** C9: per-participant rotation outcome (role-aware; drives the incomplete-index rule). */
+  onParticipantFailed?: (failed: { sessionId: string; role: "learner" | "observer" }) => void;
   /** C8 test seam: fake matchmaking (product path uses the real matchMaker). */
   deps?: RotationMatchMaker;
 }
@@ -347,6 +352,7 @@ export async function driveStationRotation(step: RotationStep): Promise<boolean>
           // Client send is best-effort; the trace still records the failure.
         }
         step.onRotationFailed?.(failedStationId);
+        step.onParticipantFailed?.({ sessionId: participant.sessionId, role: participant.role ?? "learner" });
         continue;
       }
     }
@@ -398,6 +404,8 @@ export interface RoomRotationHost {
   closedAt: number | undefined;
   binding: StationBinding;
   onRotationFailed(stationId: string): void;
+  /** C9: per-participant rotation outcome (forwarded to the driver step). */
+  onParticipantFailed?: (failed: { sessionId: string; role: "learner" | "observer" }) => void;
   rotationStarted: boolean;
   setRotationStarted(value: boolean): void;
 }
@@ -430,6 +438,7 @@ export async function driveRoomRotation(host: RoomRotationHost, roomName: string
       binding: host.binding,
       stationId: host.stationId,
       onRotationFailed: host.onRotationFailed,
+      ...(host.onParticipantFailed ? { onParticipantFailed: host.onParticipantFailed } : {}),
     });
     if (!rotated) {
       host.setRotationStarted(false);

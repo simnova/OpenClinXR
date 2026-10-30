@@ -34,11 +34,11 @@ import {
   clearStationNoncesOnDispose,
   configureStationRoom,
   consumeRotateTokenForJoin,
-  driveRoomRotation,
   recordStationPose,
   stationNonceCounts,
   type StationBinding,
 } from "./station-rotation.js";
+import { handleStationClosed } from "./session-review-index.js";
 
 /** Matchmaking name clients join to reach the authoritative encounter room. */
 export const ENCOUNTER_ROOM_NAME = "encounter";
@@ -274,25 +274,26 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     clearStationNoncesOnDispose(this.stationBinding);
   }
 
-  /** C8 rotation: learners + observers move together; role preserved. */
+  /** C9: hold this station's review data, rotate, then write the session index once. */
   private async rotateStation(): Promise<void> {
-    await driveRoomRotation(
+    await handleStationClosed(
       {
         stations: this.stationBinding.stations,
         stationIndex: this.state.stationIndex,
         stationId: this.state.stationId,
+        roomId: this.roomId,
         clients: this.clients,
         isObserver: (id) => this.observers.has(id),
         actorIds: [...this.state.actors.keys()],
         closedAt: this.phaseChangedAtMs.get("closed"),
         binding: this.stationBinding,
-        onRotationFailed: () =>
-          this.tracer.push({ seq: null, kind: "rotation-failed", actorId: "", turnId: null }),
+        traceDir: this.stationTraceDir,
+        traceSnapshot: () => this.tracer.snapshot(),
+        flushTrace: () => this.flushConversationTrace(),
+        onRotationFailed: () => this.tracer.push({ seq: null, kind: "rotation-failed", actorId: "", turnId: null }),
         rotationStarted: this.rotationStarted,
         setRotationStarted: (value) => { this.rotationStarted = value; },
-      },
-      ENCOUNTER_ROOM_NAME,
-    );
+      }, ENCOUNTER_ROOM_NAME);
   }
 
   private dropLearner(sessionId: string): void {
