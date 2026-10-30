@@ -110,7 +110,6 @@
       "totalDeltaRad": 0.15952340885996819
     }
   ],
-  "output": ".openclinxr/evidence/kimodo-stop/mpfb-peds-patient-child-stop/nolock_bound.glb",
   "generatedAt": "2026-10-10T00:16:09.888473+00:00",
   "log": "actor_armature=mpfb_peds_patient_child_standard_rig pose_bones=137\nyaw_correction_degrees=0.0\nswing_pairs=19 rest_only=['neck', 'head']\nhip_height_ratio=0.664859\nframe0_pose_applied_for_verification\nretargeted_frames=132\ndriven=20 real=20 expected_keyframes_per_bone=132"
 }
