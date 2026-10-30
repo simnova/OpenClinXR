@@ -68,7 +68,18 @@ const LEGITIMATE_ROWS: Array<[string, string]> = [
 // never blind-reset.
 const PHYS_TOOL = "tools/openclinxr/mouth-solver/seat-teeth-ff1-open08.ts";
 
-// Exact known normal albedo producer tool path + helper paths (producer
+// Exact known texture-grade tool path (ci-w11 D2 grade-tara-oversize-textures.py)
+// + its committed graded-tightjeans input. Hashes asserted via the receipt's
+// own textureGrade.toolSha256 / gradedTightjeansSha256 below, never blind-reset.
+const GRADE_TOOL = "tools/openclinxr/evidence/humanoid-vetting/grade-tara-oversize-textures.py";
+
+// Exact known chest-anchor tool path (ci-w11 D3 separate_chest_anchor_joints.mjs).
+// Hash asserted via the receipt's own chestAnchorReseparation.toolSha256 below.
+const CHEST_TOOL = "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs";
+
+// Exact known orphan-prune tool + version + flags (ci-w11 D1 gltf-transform prune,
+// same flags as #555). Version asserted via the receipt's own orphanPrune.toolVersion.
+const PRUNE_FLAGS = ["--keep-attributes", "true", "--keep-indices", "true"] as const;
 // bake-humanoid-albedo.ts bakeGlbAlbedo). Hashes are asserted via the
 // receipt's own albedoRepair.producerSha256 / helperSha256 below, never
 // blind-reset.
@@ -151,6 +162,35 @@ describe("mouth executor", () => {
         outputSha256: string;
         outputBytes: number;
         bakedBodyRow?: unknown;
+      };
+      textureGrade?: {
+        tool: string;
+        toolSha256: string;
+        gradedTightjeans: string;
+        gradedTightjeansSha256: string;
+        gradedTightjeansBytes: number;
+        inputSha256: string;
+        inputBytes: number;
+        outputSha256: string;
+        outputBytes: number;
+      };
+      chestAnchorReseparation?: {
+        tool: string;
+        toolSha256: string;
+        halfSpanM: number;
+        inputSha256: string;
+        inputBytes: number;
+        outputSha256: string;
+        outputBytes: number;
+      };
+      orphanPrune?: {
+        tool: string;
+        toolVersion: string;
+        toolFlags: string;
+        inputSha256: string;
+        inputBytes: number;
+        outputSha256: string;
+        outputBytes: number;
       };
     };
     const stamp = pre.garmentProvenanceStamp;
@@ -242,6 +282,88 @@ describe("mouth executor", () => {
         expect(sha256(bakedBytes)).toBe(albedo.outputSha256);
         expect(bakedBytes.length).toBe(albedo.outputBytes);
         replayBytes = bakedBytes;
+      }
+      // 3e. Optional textureGrade post-stage (86b0 -> 2b2f, normal D2 grade CLI).
+      const grade = pre.textureGrade;
+      if (grade) {
+        if (
+          !grade.tool || !grade.toolSha256 || !grade.gradedTightjeans || !grade.gradedTightjeansSha256 ||
+          !grade.inputSha256 || !grade.outputSha256 || !grade.inputBytes || !grade.outputBytes
+        ) {
+          throw new Error("receipt textureGrade missing fields");
+        }
+        expect(grade.tool).toBe(GRADE_TOOL);
+        expect(sha256(readFileSync(path.join(REPO, GRADE_TOOL)))).toBe(grade.toolSha256);
+        expect(sha256(readFileSync(path.join(REPO, grade.gradedTightjeans)))).toBe(grade.gradedTightjeansSha256);
+        expect(grade.inputSha256).toBe(sha256(replayBytes));
+        expect(grade.inputBytes).toBe(replayBytes.length);
+        const gradeIn = path.join(dir, "grade-in.glb");
+        const gradeOut = path.join(dir, "grade-out.glb");
+        writeFileSync(gradeIn, Buffer.from(replayBytes));
+        execFileSync(
+          "mise",
+          ["exec", "--", "python3", path.join(REPO, GRADE_TOOL), "--input", gradeIn, "--output", gradeOut, "--report", path.join(dir, "grade-report.json")],
+          { cwd: REPO, stdio: "pipe", timeout: 300_000 },
+        );
+        const gradedBytes = readFileSync(gradeOut);
+        expect(sha256(gradedBytes)).toBe(grade.outputSha256);
+        expect(gradedBytes.length).toBe(grade.outputBytes);
+        replayBytes = gradedBytes;
+      }
+      // 3f. Optional chestAnchorReseparation post-stage (2b2f -> c197, normal D3 CLI).
+      const chest = pre.chestAnchorReseparation;
+      if (chest) {
+        if (
+          !chest.tool || !chest.toolSha256 || !chest.halfSpanM ||
+          !chest.inputSha256 || !chest.outputSha256 || !chest.inputBytes || !chest.outputBytes
+        ) {
+          throw new Error("receipt chestAnchorReseparation missing fields");
+        }
+        expect(chest.tool).toBe(CHEST_TOOL);
+        expect(sha256(readFileSync(path.join(REPO, CHEST_TOOL)))).toBe(chest.toolSha256);
+        expect(chest.inputSha256).toBe(sha256(replayBytes));
+        expect(chest.inputBytes).toBe(replayBytes.length);
+        const chestIn = path.join(dir, "chest-in.glb");
+        const chestOut = path.join(dir, "chest-out.glb");
+        writeFileSync(chestIn, Buffer.from(replayBytes));
+        execFileSync(
+          "node",
+          [path.join(REPO, CHEST_TOOL), "--input", chestIn, "--output", chestOut, "--report", path.join(dir, "chest-report.json"), "--half-span-m", String(chest.halfSpanM)],
+          { cwd: REPO, stdio: "pipe", timeout: 300_000 },
+        );
+        const chestBytes = readFileSync(chestOut);
+        expect(sha256(chestBytes)).toBe(chest.outputSha256);
+        expect(chestBytes.length).toBe(chest.outputBytes);
+        replayBytes = chestBytes;
+      }
+      // 3g. Optional orphanPrune post-stage (c197 -> ebbd, gltf-transform prune CLI).
+      const prune = pre.orphanPrune;
+      if (prune) {
+        if (
+          !prune.tool || !prune.toolVersion || !prune.inputSha256 ||
+          !prune.outputSha256 || !prune.inputBytes || !prune.outputBytes
+        ) {
+          throw new Error("receipt orphanPrune missing fields");
+        }
+        expect(prune.tool).toBe("gltf-transform prune");
+        const pruneVersion = execFileSync("pnpm", ["exec", "gltf-transform", "--version"], {
+          cwd: REPO, encoding: "utf8",
+        });
+        expect(pruneVersion).toContain(prune.toolVersion);
+        expect(prune.inputSha256).toBe(sha256(replayBytes));
+        expect(prune.inputBytes).toBe(replayBytes.length);
+        const pruneIn = path.join(dir, "prune-in.glb");
+        const pruneOut = path.join(dir, "prune-out.glb");
+        writeFileSync(pruneIn, Buffer.from(replayBytes));
+        execFileSync(
+          "pnpm",
+          ["exec", "gltf-transform", "prune", pruneIn, pruneOut, ...PRUNE_FLAGS],
+          { cwd: REPO, stdio: "pipe", timeout: 300_000 },
+        );
+        const prunedBytes = readFileSync(pruneOut);
+        expect(sha256(prunedBytes)).toBe(prune.outputSha256);
+        expect(prunedBytes.length).toBe(prune.outputBytes);
+        replayBytes = prunedBytes;
       }
       // Final top linkage: the receipt top must equal the last recorded stage output.
       expect(sha256(replayBytes)).toBe(pre.outputSha256);
