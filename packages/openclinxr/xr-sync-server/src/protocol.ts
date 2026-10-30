@@ -6,12 +6,13 @@
  */
 
 /** Client-to-server intent kinds. The only message type that may mutate state. */
-export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end";
+export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end" | "note-submit";
 export const INTENT_KINDS: ReadonlySet<string> = new Set([
   "pose",
   "select-actor",
   "utterance-start",
   "utterance-end",
+  "note-submit",
 ]);
 
 /** Wire envelope for one client intent. Validated before anything is applied. */

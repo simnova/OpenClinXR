@@ -21,10 +21,10 @@
  */
 import { MapSchema } from "@colyseus/schema";
 import type { Client } from "@colyseus/core";
-import type { EmotionTransition } from "@openclinxr/conversation-policy";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { CONVERSATION_TRACE_SCHEMA, type ConversationTraceEvent } from "./conversation-trace.js";
+import type { ConversationTraceEvent } from "./conversation-trace.js";
+import { loadReplayStationTrace, type LoadedReplayStation } from "./station-replay-loading.js";
 import { ActorState, EncounterState, LearnerState, type ActorStateInstance, type LearnerStateInstance } from "./schema.js";
 import { EncounterRoom } from "./room.js";
 import type { EncounterRoomOptions } from "./room-types.js";
@@ -60,68 +60,21 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-/** One validated replayable station: its index entry plus its recorded trace. */
-export interface LoadedReplayStation {
-  stationId: string;
-  stationIndex: number;
-  stationCount: number;
-  entry: SessionReviewStationEntry;
-  events: ConversationTraceEvent[];
-  turns: { turnId: number; actorId: string; replyId: string; cueId: string; end: string }[];
-  emotions: EmotionTransition[];
-}
-
 /** Per-server loaded replay data: the validated index plus every named trace. */
 export interface LoadedStationReplay {
   stations: Map<string, LoadedReplayStation>;
-}
-
-function isReplayTraceEventKind(kind: unknown): boolean {
-  return (
-    kind === "select-actor" ||
-    kind === "utterance-start" ||
-    kind === "utterance-end" ||
-    kind === "turn-completed" ||
-    kind === "observer-joined" ||
-    kind === "observer-left" ||
-    kind === "phase-changed" ||
-    kind === "rotation-failed"
-  );
-}
-
-/** Loose replay-file shapes for validation (dot access keeps useLiteralKeys quiet). */
-interface RawReplayTrace {
-  schema?: unknown;
-  events?: unknown;
-  turns?: unknown;
-  emotions?: unknown;
-}
-
-interface RawReplayEvent {
-  seq?: unknown;
-  kind?: unknown;
-  actorId?: unknown;
-  turnId?: unknown;
-  phase?: unknown;
-}
-
-interface RawReplayTurn {
-  turnId?: unknown;
-  actorId?: unknown;
-  replyId?: unknown;
-  cueId?: unknown;
-  end?: unknown;
-}
-
-interface RawReplayEmotion {
-  to?: unknown;
+  /** C11 per-station load failures (trace content only): a bad trace refuses
+   * only its own station's join with its stored error, never the whole dir. */
+  failures: Map<string, string>;
 }
 
 /**
  * Load and validate a replay directory: the C9 review index plus every trace
- * file it names. Schema tags are checked; a malformed or missing file throws
+ * file it names. Schema tags are checked; a malformed or missing INDEX throws
  * a named error (the room turns it into a refused join, never a partial
- * replay). Turns and emotions are kept AS RECORDED from the trace file.
+ * replay). A malformed or short trace refuses only its own station (C11):
+ * the error is stored against that station and every other station still
+ * replays. Turns and emotions are kept AS RECORDED from the trace file.
  */
 export function loadStationReplayDir(dir: string): LoadedStationReplay {
   let indexRaw: string;
@@ -143,6 +96,8 @@ export function loadStationReplayDir(dir: string): LoadedStationReplay {
     throw new Error("replay-bad-index: review index names no stations");
   }
   const stations = new Map<string, LoadedReplayStation>();
+  const failures = new Map<string, string>();
+  const stationCount = typeof index.stationCount === "number" ? index.stationCount : index.stations.length;
   for (const entry of index.stations) {
     if (!isRecord(entry) || typeof entry.stationId !== "string" || entry.stationId === "") {
       throw new Error("replay-bad-index: station entry without a stationId");
@@ -150,79 +105,16 @@ export function loadStationReplayDir(dir: string): LoadedStationReplay {
     if (typeof entry.traceFile !== "string" || entry.traceFile === "") {
       throw new Error(`replay-bad-index: station ${entry.stationId} names no trace file`);
     }
-    let traceRaw: string;
+    // C11: a bad TRACE refuses only its own station (the error is stored
+    // against it and surfaces at join); every other station still replays.
     try {
-      traceRaw = readFileSync(join(dir, entry.traceFile), "utf8");
-    } catch {
-      throw new Error(`replay-missing-trace: ${join(dir, entry.traceFile)}`);
+      const station = loadReplayStationTrace(dir, entry as SessionReviewStationEntry, stationCount);
+      stations.set(station.stationId, station);
+    } catch (error) {
+      failures.set(entry.stationId, error instanceof Error ? error.message : String(error));
     }
-    let trace: RawReplayTrace;
-    try {
-      trace = JSON.parse(traceRaw) as RawReplayTrace;
-    } catch {
-      throw new Error(`replay-bad-trace: ${entry.traceFile} is not JSON`);
-    }
-    if (trace.schema !== CONVERSATION_TRACE_SCHEMA) {
-      throw new Error(`replay-bad-trace-schema: ${entry.traceFile}`);
-    }
-    const rawEvents = trace.events;
-    const rawTurns = trace.turns;
-    const rawEmotions = trace.emotions;
-    if (!Array.isArray(rawEvents) || !Array.isArray(rawTurns) || !Array.isArray(rawEmotions)) {
-      throw new Error(`replay-bad-trace: ${entry.traceFile} misses events/turns/emotions`);
-    }
-    const events: ConversationTraceEvent[] = [];
-    for (const raw of rawEvents) {
-      const item = raw as RawReplayEvent;
-      if (typeof raw !== "object" || raw === null || !isReplayTraceEventKind(item.kind)) {
-        throw new Error(`replay-bad-trace: ${entry.traceFile} holds an unknown event kind`);
-      }
-      const event: ConversationTraceEvent = {
-        seq: typeof item.seq === "number" ? item.seq : null,
-        kind: item.kind as ConversationTraceEvent["kind"],
-        actorId: typeof item.actorId === "string" ? item.actorId : "",
-        turnId: typeof item.turnId === "number" ? item.turnId : null,
-      };
-      if (typeof item.phase === "string") {
-        event.phase = item.phase;
-      }
-      events.push(event);
-    }
-    const turns = [];
-    for (const raw of rawTurns) {
-      const item = raw as RawReplayTurn;
-      // Turns drive playback (actor, recorded ids, ends): a turn without an
-      // actor cannot replay, so the trace is refused with a named error.
-      if (typeof raw !== "object" || raw === null || typeof item.turnId !== "number" || typeof item.actorId !== "string" || item.actorId === "") {
-        throw new Error(`replay-bad-trace: ${entry.traceFile} holds a malformed turn`);
-      }
-      turns.push({
-        turnId: item.turnId,
-        actorId: item.actorId,
-        replyId: typeof item.replyId === "string" ? item.replyId : "",
-        cueId: typeof item.cueId === "string" ? item.cueId : "",
-        end: typeof item.end === "string" ? item.end : "",
-      });
-    }
-    const emotions: EmotionTransition[] = [];
-    for (const raw of rawEmotions) {
-      const item = raw as RawReplayEmotion;
-      if (typeof raw !== "object" || raw === null || typeof item.to !== "string") {
-        throw new Error(`replay-bad-trace: ${entry.traceFile} holds a malformed emotion`);
-      }
-      emotions.push(raw as unknown as EmotionTransition);
-    }
-    stations.set(entry.stationId, {
-      stationId: entry.stationId,
-      stationIndex: typeof entry.stationIndex === "number" ? entry.stationIndex : 0,
-      stationCount: typeof index.stationCount === "number" ? index.stationCount : index.stations.length,
-      entry,
-      events,
-      turns,
-      emotions,
-    });
   }
-  return { stations };
+  return { stations, failures };
 }
 
 /** Per-server replay binding closed over by the replay room class. */
@@ -231,6 +123,8 @@ export interface StationReplayBinding {
   /** Boot-time load failure, refused at join with this named error. */
   loadError: string | null;
   stepMs: number;
+  /** C11 per-station trace failures (a bad trace refuses only its station). */
+  stationFailures: Map<string, string>;
 }
 
 function replayStationIdOf(options: unknown): string {
@@ -268,7 +162,10 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       }
       const station = binding.replay.stations.get(stationId);
       if (!station) {
-        throw new Error(`replay-unknown-station: ${stationId.slice(0, 64)}`);
+        // C11: a per-station trace failure refuses only that station (with
+        // its stored load error); anything else is an unknown station.
+        const failure = binding.stationFailures.get(stationId);
+        throw new Error(failure ?? `replay-unknown-station: ${stationId.slice(0, 64)}`);
       }
       this.replayStation = station;
       this.replayTurnsById = new Map(station.turns.map((turn) => [turn.turnId, turn]));
@@ -285,6 +182,8 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       this.state.mode = "replay";
       this.state.lastTurnEnd = "";
       this.state.replayDone = false;
+      this.state.noteStatus = "none";
+      this.state.noteChars = 0;
       this.state.actors = new MapSchema<ActorStateInstance>();
       // The replayed cast is the recorded cast: distinct turn actorIds in
       // first-appearance order. No live defaults, no reviewer-provisioned
@@ -378,11 +277,13 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       super.onDispose();
     }
 
-    /** Next recorded emotion "to" value in event order; current when exhausted. */
-    private consumeReplayEmotion(fallback: string): string {
+    /** Next recorded emotion "to" value in event order. The load-time
+     * emotion-count check makes exhaustion unreachable: assert, never fall
+     * back to the live value (a silent fallback would replay a wrong state). */
+    private consumeReplayEmotion(): string {
       const next = this.replayStation?.emotions[this.replayEmotionCursor];
       if (!next) {
-        return fallback;
+        throw new Error("replay-emotion-exhausted");
       }
       this.replayEmotionCursor += 1;
       return next.to;
@@ -439,7 +340,7 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
             actor.speaking = true;
             actor.replyId = entry.replyId;
             actor.cueId = entry.cueId;
-            actor.emotion = this.consumeReplayEmotion(actor.emotion);
+            actor.emotion = this.consumeReplayEmotion();
             this.state.turnOwner = "actor";
             this.replayOpenTurn = { turnId: entry.turnId, actorId };
           }
@@ -451,7 +352,7 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
             const actor = this.state.actors.get(this.replayOpenTurn.actorId);
             if (actor) {
               actor.speaking = false;
-              actor.emotion = this.consumeReplayEmotion(actor.emotion);
+              actor.emotion = this.consumeReplayEmotion();
             }
             this.state.lastTurnEnd = entry?.end ?? "interrupted";
             this.state.turnOwner = "learner";
@@ -480,6 +381,13 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
         }
         case "observer-left": {
           this.state.observerCount = Math.max(0, this.state.observerCount - 1);
+          break;
+        }
+        case "note-submitted": {
+          // C11: the recorded accepted-note length replays into state; the
+          // note text was never recorded and is never replayed.
+          this.state.noteStatus = "submitted";
+          this.state.noteChars = typeof event.chars === "number" ? event.chars : 0;
           break;
         }
         default: {

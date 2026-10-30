@@ -52,6 +52,10 @@ export const EncounterState = schema(
     lastTurnEnd: t.string(),
     /** C10 true after the last recorded event has played into state. */
     replayDone: t.boolean(),
+    /** C11 patient-note status ("none" before the first accepted note, "submitted" after). */
+    noteStatus: t.string(),
+    /** C11 length of the held note (0 when none). */
+    noteChars: t.number(),
   },
   "EncounterState",
 );
@@ -87,6 +91,10 @@ export interface EncounterSnapshot {
   lastTurnEnd: string;
   /** C10 true after the last recorded event has played into state. */
   replayDone: boolean;
+  /** C11 patient-note status ("none" before the first accepted note, "submitted" after). */
+  noteStatus: string;
+  /** C11 length of the held note (0 when none). */
+  noteChars: number;
 }
 
 export function snapshotState(state: EncounterStateInstance): EncounterSnapshot {
@@ -105,5 +113,5 @@ export function snapshotState(state: EncounterStateInstance): EncounterSnapshot 
       speaking: learner.speaking,
     };
   }
-  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount, stationId: state.stationId, stationIndex: state.stationIndex, stationCount: state.stationCount, mode: state.mode, lastTurnEnd: state.lastTurnEnd, replayDone: state.replayDone };
+  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount, stationId: state.stationId, stationIndex: state.stationIndex, stationCount: state.stationCount, mode: state.mode, lastTurnEnd: state.lastTurnEnd, replayDone: state.replayDone, noteStatus: state.noteStatus, noteChars: state.noteChars };
 }

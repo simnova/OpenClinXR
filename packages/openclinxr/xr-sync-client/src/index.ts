@@ -10,7 +10,7 @@ import { Client, type Room } from "@colyseus/sdk";
 import type { ConnectOptions } from "./options.js";
 
 /** Client-to-server intent kinds, mirroring the server contract. */
-export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end";
+export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end" | "note-submit";
 
 /** JSON payload carried by one intent. */
 export type IntentPayload = Record<string, unknown>;
@@ -82,6 +82,10 @@ export interface EncounterSnapshot {
   lastTurnEnd?: string;
   /** C10 true after the last recorded event played (absent on old servers). */
   replayDone?: boolean;
+  /** C11 patient-note status ("none" | "submitted"; absent on old servers). */
+  noteStatus?: string;
+  /** C11 length of the held note (0 when none; absent on old servers). */
+  noteChars?: number;
 }
 
 /** Live headset-side connection: intents out, snapshots in. */
