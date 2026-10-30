@@ -200,9 +200,7 @@ for roughly half the stance now (shipped control: 0.000). L sticks better than R
 1.116 m/s (ratio 1.23); the timeScale target (<= 1.1) is not met — same family as the
 walk-playback finding (prescribed speed exceeds what the feet cancel), narrowed from
 2.43x to 1.23x but still a runtime calibration question, out of scope here.
-Renders (side view 0.5x, uncommitted, git-ignored beside the captures):
-.openclinxr/evidence/loco-ground/lockOff-candidate-{1,2,3}/loco-ground-lockOff-0.5x.mp4
-beside .openclinxr/evidence/loco-ground/lockOff-shipped-1/loco-ground-lockOff-0.5x.mp4.
+Renders (side view 0.5x, uncommitted, git-ignored beside the captures, none in HEAD — ci-w8).
 
 ## Verdict
 
@@ -210,6 +208,6 @@ Lane C cagematch decision with evidence: no library clip passes as is (table abo
 the symmetrised Walk candidate passes the gate 9/9 at source and 8/9 bound (seam only),
 and live it plays at full amplitude with symmetric strides — the runtime timeScale
 (1.63 vs <= 1.1 target) remains a calibration question for the runtime lane. Machine
-record: .openclinxr/evidence/clip-census/report.json. The shipped physician GLB and its
+record was the clip-census report (machine-local, gitignored, never landed in HEAD — ci-w8). The shipped physician GLB and its
 clip are untouched; GLBs and generated clips stay uncommitted with paths + sha256
 recorded here.

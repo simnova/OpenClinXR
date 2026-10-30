@@ -3,7 +3,8 @@
 Physician SC-05 stepping turn. Verdict: **PASS-WITH-ONE-BAR-FAIL** — the
 solver-attributable distortion is eliminated on every bar; bar c fails its
 strict number on ambient breathing-scale oscillation present with and without
-the fix. Full numbers: `.openclinxr/evidence/turn-leg-snaps/report.json`.
+the fix. Full numbers were in the turn-leg-snaps report (machine-local, gitignored,
+never landed in HEAD — ci-w8).
 
 ## Cause
 
@@ -18,8 +19,7 @@ scale plus the non-uniform breathing root scale through rotated joints), so it
 is never exactly unit here — measured 0.99995..1.00034 across one traced run,
 with all 142 hip/knee deltas non-unit.
 
-One-run per-write trace
-(`.openclinxr/evidence/turn-leg-snaps/stage2-cause/sc05-run0.trace.json`,
+One-run per-write trace (machine-local stage2-cause trace, never in HEAD — ci-w8;
 `normWrites` on both legs x 2 passes): the first write off unit by more than
 1e-6 is frame 0, left leg, pass 0, hip — 1.0 to 1.0006725 from inputs
 parentQ 1.0003362 and delta 1.0 (1.0003362^2 = 1.0006725 exactly). Hold-sets

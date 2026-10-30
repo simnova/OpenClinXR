@@ -69,9 +69,9 @@ and child the morph stays inside the radius, the pin holds, and C clears both ba
 
 ## Artefacts
 
-- `.openclinxr/evidence/inertialize/report.json` (schema
+- the inertialize cagematch report (schema
   `openclinxr.inertialize-cagematch.v1`, verdict + per-treatment metrics + method meta;
-  git-ignored generated evidence, as are the three copied stop GLBs beside it).
+  machine-local generated evidence, never in HEAD — ci-w8 — as are the three scratch stop GLBs beside it).
 - `tools/openclinxr/evidence/foot-plant/inertialize/inertialize.ts` (the port),
   `cagematch.ts` (the harness; rerun with
   `npx tsx tools/openclinxr/evidence/foot-plant/inertialize/cagematch.ts`).

@@ -173,8 +173,8 @@ any number in [0.8, 6.0] with the plan flag required; G4 probe
 `footstepProbeExitDelay` holds a recorded crossing late (default 0).
 
 Final gates (`footstepPlan=1&fixedClock=1`, n=3; commits ffe980a6d,
-c23414d68, 67e72194f; full rows in
-`.openclinxr/evidence/footstep-plan/parity-result/RESULT.json`):
+c23414d68, 67e72194f; full rows were in the parity RESULT — machine-local,
+gitignored, never landed in HEAD, ci-w8):
 
 | route | exit (was) | end-stance | arrival | slide/m | G1/G2/G3 |
 |---|---|---|---|---|---|

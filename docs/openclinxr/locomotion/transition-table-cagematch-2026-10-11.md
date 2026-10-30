@@ -119,9 +119,9 @@ carry-through post-bind.
 
 ## Artefacts
 
-- `.openclinxr/evidence/transition-table/report.json` (schema
+- the transition-table cagematch report (schema
   `openclinxr.transition-table-cagematch.v1`, round 2 verdict + per-phase table;
-  git-ignored generated evidence, as are the 8 npz / joints / bound GLBs beside it).
+  machine-local generated evidence, never in HEAD — ci-w8 — as are the 8 npz / joints / bound GLBs beside it).
 - `tools/openclinxr/evidence/foot-plant/transition-table/` (sampler, constraint
   builder, bind driver, finger stamp, harness; tracked).
 - Rerun: builder (kimodo venv python) -> generate x8 -> bind driver (exports, binds,
