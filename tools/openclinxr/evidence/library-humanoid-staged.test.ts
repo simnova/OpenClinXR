@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
-import {
-  listShippedCastScenarioIds,
-  resolveScenarioActorCast,
-} from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { LIBRARY_ADULT_LEAN_FEMALE_GLB } from "../../../packages/openclinxr/asset-registry/src/cast-asset-constants-mod.js";
+import { existsSync, readFileSync } from "node:fs";
+import { listShippedCastScenarioIds } from "@openclinxr/asset-registry";
+import { resolveScenarioActorCast } from "@openclinxr/asset-registry/runtime-bundles";
 
 /**
  * PLANTED CONTRACTS (#218). Two REDs. Both flip.
@@ -98,17 +96,21 @@ import { LIBRARY_ADULT_LEAN_FEMALE_GLB } from "../../../packages/openclinxr/asse
  * moved the peds_fever child onto MPFB the same commit. Zero `body-param-*-library.glb` rows
  * remain in ordinary cast resolution, so the staging this file's #218 clauses demanded no
  * longer exists to assert. `LIBRARY_ADULT_LEAN_FEMALE_GLB` stays exported for the S2
- * gowned-patient swap (per the #479 commit message).
+ * gowned-patient swap (per the #479 commit message); clause (2) below asserts the same
+ * reservation on the shipped candidate bytes, which is what the swap consumes.
  *
  * The two clauses below therefore assert the RETIREMENT fact instead of the staging fact:
  *   (1) no ordinary-resolution cast row resolves to a `body-param-*-library.glb` — if a
  *       library row ever returns, this fails and the #218 staging clauses must be restored;
- *   (2) COUNTERWEIGHT: the library constant stays exported with its `body-param-*-library`
- *       shape (the S2 reservation), and the non-library cast is untouched (Anny rows still
- *       resolve where the cast keeps them).
+ *   (2) COUNTERWEIGHT: the library candidate still ships with its `body-param-*-library`
+ *       shape (the S2 reservation — the bytes the swap consumes), and the non-library
+ *       cast is untouched (Anny rows still resolve where the cast keeps them).
  */
 
 type CastRow = { role?: string; actorId?: string; assetPath?: string };
+
+/** S2 reservation for the gowned-patient swap (#479): the shipped library candidate bytes. */
+const LIBRARY_RESERVATION_GLB = "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb";
 
 const basename = (p: string | undefined): string => String(p ?? "").split("/").pop() ?? "";
 
@@ -132,9 +134,14 @@ describe("a library humanoid is staged by ordinary cast resolution (#218)", () =
   });
 
   it("the S2 reservation and the untouched cast hold (COUNTERWEIGHT)", () => {
-    // #479 kept the constant exported for the S2 gowned-patient swap: if the export or its
-    // shape goes, the reservation is silently gone.
-    expect(LIBRARY_ADULT_LEAN_FEMALE_GLB).toMatch(/body-param-.*-library/);
+    // #479 reserved the library body for the S2 gowned-patient swap. The
+    // LIBRARY_ADULT_LEAN_FEMALE_GLB constant (cast-asset-constants-mod.ts) is not
+    // reachable through the package entry or any existing subpath export, and the
+    // freeze forbids new exports — so the reservation is asserted where the swap
+    // consumes it: the shipped candidate bytes keep their body-param-*-library shape.
+    expect(basename(LIBRARY_RESERVATION_GLB)).toMatch(/body-param-.*-library/);
+    expect(existsSync(LIBRARY_RESERVATION_GLB), `S2 reservation gone: ${LIBRARY_RESERVATION_GLB}`).toBe(true);
+    expect(readFileSync(LIBRARY_RESERVATION_GLB).readUInt32LE(0), "reservation must still be a GLB").toBe(0x46546c67);
 
     // The retirement stages ONE rail off, it does not migrate the cast: rows still resolve
     // across more than one asset family (Anny generated-humanoids rows remain where kept).
