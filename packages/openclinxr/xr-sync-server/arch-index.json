@@ -23,10 +23,13 @@
     "RejectMessage": "Server reply for a rejected intent.",
     "createEncounterServer": "Boot one encounter room on an HTTP and WebSocket transport, then listen."
   },
-  "workspaceDependencies": [],
+  "workspaceDependencies": [
+    "@openclinxr/conversation-policy"
+  ],
   "tests": [
     "src/xr-sync-c2-probe.test.ts",
     "src/xr-sync-c3-actor-turn.test.ts",
+    "src/xr-sync-c4-conversation-trace.test.ts",
     "src/xr-sync-server.test.ts"
   ],
   "commands": {
@@ -34,5 +37,8 @@
     "typecheck": "pnpm --filter @openclinxr/xr-sync-server typecheck",
     "build": "pnpm --filter @openclinxr/xr-sync-server build",
     "lint": "pnpm --filter @openclinxr/xr-sync-server lint"
+  },
+  "ceilings": {
+    "testInternalImports": 2
   }
 }

@@ -13,6 +13,7 @@ export const ActorState = schema(
     speaking: t.boolean(),
     emotion: t.string(),
     replyId: t.string(),
+    cueId: t.string(),
   },
   "ActorState",
 );
@@ -44,3 +45,35 @@ export const EncounterState = schema(
 export type ActorStateInstance = SchemaType<typeof ActorState>;
 export type LearnerStateInstance = SchemaType<typeof LearnerState>;
 export type EncounterStateInstance = SchemaType<typeof EncounterState>;
+
+/** Plain-object view of authoritative state, for tests and operators. */
+export interface EncounterSnapshot {
+  serverTick: number;
+  phase: string;
+  turnId: number;
+  turnOwner: string;
+  actors: Record<string, { id: string; speaking: boolean; emotion: string; replyId: string; cueId: string }>;
+  learners: Record<
+    string,
+    { sessionId: string; headX: number; headY: number; headZ: number; lastSeq: number; speaking: boolean }
+  >;
+}
+
+export function snapshotState(state: EncounterStateInstance): EncounterSnapshot {
+  const actors: EncounterSnapshot["actors"] = {};
+  for (const [id, actor] of state.actors) {
+    actors[id] = { id: actor.id, speaking: actor.speaking, emotion: actor.emotion, replyId: actor.replyId, cueId: actor.cueId };
+  }
+  const learners: EncounterSnapshot["learners"] = {};
+  for (const [sessionId, learner] of state.learners) {
+    learners[sessionId] = {
+      sessionId: learner.sessionId,
+      headX: learner.headX,
+      headY: learner.headY,
+      headZ: learner.headZ,
+      lastSeq: learner.lastSeq,
+      speaking: learner.speaking,
+    };
+  }
+  return { serverTick: state.serverTick, phase: state.phase, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners };
+}

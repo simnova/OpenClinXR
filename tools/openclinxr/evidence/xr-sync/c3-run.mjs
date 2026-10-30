@@ -22,9 +22,10 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  adb,
   collectBundleSentry,
+  collectQuestCleanupLists,
   parseArgs,
+  runC3CoreChecks,
   runHostProbe,
   runQuestProbe,
   startStaticServer,
@@ -118,105 +119,28 @@ async function main(argv) {
       }
     };
 
-    const turns = run.probeStats.turns ?? [];
-
-    // A1: server turn log ends, ids, and actor.
-    check(
-      "A1 server turns end [completed,interrupted,completed], ids [1,2,3], all a1",
-      JSON.stringify(turns.map((t) => t.end)) === JSON.stringify(["completed", "interrupted", "completed"]) &&
-        JSON.stringify(turns.map((t) => t.turnId)) === JSON.stringify([1, 2, 3]) &&
-        turns.every((t) => t.actorId === "a1"),
-      turns.map((t) => `${t.turnId}:${t.actorId}:${t.replyId}:${t.end}`).join(" ") || "no turns",
-    );
-
-    // A2: interrupt ordering from server data (endSeq of turn 2 == page's 3rd
-    // utterance-start seq, and strictly before turn 3's startSeq).
-    const utteranceStarts = (probe.sentSeqsByKind ?? {})["utterance-start"] ?? [];
-    const thirdStart = utteranceStarts[2];
-    check(
-      "A2 turns[1].endSeq is page 3rd utterance-start and < turns[2].startSeq",
-      turns.length === 3 && turns[1].endSeq === thirdStart && turns[1].endSeq < turns[2].startSeq,
-      `endSeq=${turns[1]?.endSeq} thirdStart=${thirdStart} nextStart=${turns[2]?.startSeq}`,
-    );
-
-    // A3: replay check against the server's own table/picker (never hard-coded).
-    check(
-      "A3 replyIds equal server table/picker sequence",
-      JSON.stringify(turns.map((t) => t.replyId)) === JSON.stringify(expectedReplyIds),
-      `got=${turns.map((t) => t.replyId).join(",")} want=${expectedReplyIds.join(",")}`,
-    );
-
-    // A4: server intent counts and in-order acks.
-    const counts = run.probeStats.intentCounts ?? {};
-    const sentSeqs = probe.sentSeqs ?? [];
-    const ackSeqs = probe.ackSeqs ?? [];
-    const inOrder =
-      sentSeqs.length > 0 &&
-      sentSeqs.length === ackSeqs.length &&
-      sentSeqs.every((seq, i) => seq === i + 1 && ackSeqs[i] === seq);
-    check(
-      "A4 server intents start3/end3/select1/rejects0, every seq acked in order",
-      counts["utterance-start"] === 3 &&
-        counts["utterance-end"] === 3 &&
-        counts["select-actor"] === 1 &&
-        probe.rejects === 0 &&
-        (probe.rejectDetails ?? []).length === 0 &&
-        inOrder,
-      `counts=${JSON.stringify(counts)} rejects=${probe.rejects} sent=${sentSeqs.length} acks=${ackSeqs.length}`,
-    );
-
-    // A5: final server state.
-    const learnerIds = Object.keys(run.serverState.learners ?? {});
-    const learner = learnerIds.length === 1 ? run.serverState.learners[learnerIds[0]] : null;
-    check(
-      "A5 final server state turnOwner none, a1 silent, learner silent, turnId 3",
-      run.serverState.turnOwner === "none" &&
-        run.serverState.actors?.a1?.speaking === false &&
-        learner?.speaking === false &&
-        run.serverState.turnId === 3,
-      `owner=${run.serverState.turnOwner} a1=${run.serverState.actors?.a1?.speaking} learner=${learner?.speaking} turnId=${run.serverState.turnId}`,
-    );
-
-    // A6 (page-reported): the page observed every server turn transition.
-    const observed = probe.turnsObserved ?? [];
-    const trueFor = (tid) => observed.some((o) => o.turnId === tid && o.speaking === true);
-    const trueAt3 = observed.find((o) => o.turnId === 3 && o.speaking === true);
-    const falseAfter3 = observed.some((o) => o.turnId === 3 && o.speaking === false && trueAt3 && o.atMs > trueAt3.atMs);
-    check(
-      "A6 (page-reported) turnsObserved has speaking=true for 1,2,3 and speaking=false after 3",
-      trueFor(1) && trueFor(2) && trueFor(3) && falseAfter3,
-      `observed=${observed.length} true123=${[trueFor(1), trueFor(2), trueFor(3)].join(",")} falseAfter3=${falseAfter3}`,
-    );
-
-    // A7: reply text lives on the server only (no text field was added to schema).
-    check(
-      "A7 bundle/source free of server imports and reply-table text",
-      run.bundleCheck.hits.length === 0,
-      run.bundleCheck.hits.join(" | ").slice(0, 300) || "clean",
-    );
-
-    check("probe completed without error", probe.done === true && probe.error == null, probe.error ?? "done");
-    check("no page errors", run.pageErrors.length === 0, run.pageErrors.join(" | ").slice(0, 300) || "0 pageerrors");
-    check(
-      "page snapshot caught up to final seq (page-reported)",
-      probe.lastServerState?.learners?.[learnerIds[0]]?.lastSeq === probe.sent,
-      `snapshotSeq=${probe.lastServerState?.learners?.[learnerIds[0]]?.lastSeq} sent=${probe.sent}`,
-    );
+    // A1-A7 + probe-done/pageerrors/snapshot: shared verbatim with c4-run.mjs.
+    runC3CoreChecks(check, {
+      probe,
+      probeStats: run.probeStats,
+      serverState: run.serverState,
+      expectedReplyIds,
+      bundleCheck: run.bundleCheck,
+      pageErrors: run.pageErrors,
+    });
 
     if (options.mode === "quest") {
-      run.adbReverseList = await adb(options.serial, ["reverse", "--list"]);
-      run.adbForwardList = await adb(options.serial, ["forward", "--list"]);
-      const leaked =
-        run.adbReverseList.includes(`${staticServer.port}`) ||
-        run.adbReverseList.includes(`${syncServer.port}`) ||
-        run.adbReverseList.includes("tcp:9222") ||
-        run.adbForwardList.includes(`${staticServer.port}`) ||
-        run.adbForwardList.includes(`${syncServer.port}`) ||
-        run.adbForwardList.includes("tcp:9222");
+      const { adbReverseList, adbForwardList, leaked } = await collectQuestCleanupLists({
+        staticPort: staticServer.port,
+        syncPort: syncServer.port,
+        serial: options.serial,
+      });
+      run.adbReverseList = adbReverseList;
+      run.adbForwardList = adbForwardList;
       check(
         "A8 adb reverse/forward lists contain neither run port nor tcp:9222 after cleanup",
         !leaked,
-        `reverse=${(run.adbReverseList ?? "").slice(0, 200)} forward=${(run.adbForwardList ?? "").slice(0, 200)}`,
+        `reverse=${(adbReverseList ?? "").slice(0, 200)} forward=${(adbForwardList ?? "").slice(0, 200)}`,
       );
     }
   } catch (error) {

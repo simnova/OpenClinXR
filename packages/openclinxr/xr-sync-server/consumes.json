@@ -56,6 +56,28 @@
     ]
   },
   {
+    "provider": "@openclinxr/conversation-policy",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "CaseEmotionPolicy",
+        "kind": "type"
+      },
+      {
+        "name": "EmotionEngine",
+        "kind": "runtime"
+      },
+      {
+        "name": "EmotionEventKind",
+        "kind": "type"
+      },
+      {
+        "name": "EmotionTransition",
+        "kind": "type"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-sync-server",
     "entrypoint": ".",
     "names": [

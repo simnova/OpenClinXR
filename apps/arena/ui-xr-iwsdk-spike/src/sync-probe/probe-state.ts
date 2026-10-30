@@ -92,3 +92,57 @@ export function summarizeMs(samples: number[]): SummaryStats {
     max: Number((sorted[sorted.length - 1] ?? 0).toFixed(2)),
   };
 }
+
+/**
+ * C4 rendered emotion tint, derived ONLY from the server's actor emotion.
+ * Pure function of server state: a page-local emotion value can never move it.
+ */
+export const EMOTION_TINTS: Record<string, number> = {
+  neutral: 0x8fa8a0,
+  reassured: 0x6fd08c,
+  concerned: 0xe0a458,
+  anxious: 0xd05a5a,
+};
+
+export function resolveActorTint(emotion: string): number {
+  return EMOTION_TINTS[emotion] ?? EMOTION_TINTS["neutral"]!;
+}
+
+/** Page-local mouth envelope for one server cue: peak amplitude and oscillation rate. */
+export interface CueEnvelope {
+  peak: number;
+  hz: number;
+}
+
+/**
+ * Page-local cue envelope catalog keyed by server cueId. The server is
+ * authoritative for WHICH cue (and WHEN it speaks); the page owns only HOW a
+ * cue looks as a mouth bar. Unknown cues fall back to DEFAULT_CUE_ENVELOPE so
+ * a new server cue still moves the mouth while the server says speaking.
+ */
+export const CUE_ENVELOPES: Record<string, CueEnvelope> = {
+  "cue-greeting-01": { peak: 0.9, hz: 2.2 },
+  "cue-followup-02": { peak: 0.7, hz: 3.1 },
+  "cue-recap-03": { peak: 0.8, hz: 2.6 },
+};
+
+export const DEFAULT_CUE_ENVELOPE: CueEnvelope = { peak: 0.6, hz: 2.0 };
+
+export function resolveCueEnvelope(cueId: string): CueEnvelope {
+  return CUE_ENVELOPES[cueId] ?? DEFAULT_CUE_ENVELOPE;
+}
+
+/**
+ * Mouth-bar amplitude for one actor frame. Pure function of (server cueId,
+ * server speaking, frame time): 0 whenever the server says the actor is NOT
+ * speaking, whatever cueId the page holds. While speaking the amplitude stays
+ * strictly positive (0.6 + 0.4 * sin in [0.2, 1] of peak) so silent frames are
+ * distinguishable from speaking frames.
+ */
+export function resolveMouthAmplitude(cueId: string, speaking: boolean, tMs: number): number {
+  if (!speaking) {
+    return 0;
+  }
+  const envelope = resolveCueEnvelope(cueId);
+  return envelope.peak * (0.6 + 0.4 * Math.sin((2 * Math.PI * envelope.hz * tMs) / 1000));
+}

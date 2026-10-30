@@ -2,12 +2,16 @@ import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { Server } from "@colyseus/core";
 import { WebSocketTransport } from "@colyseus/ws-transport";
-import { ENCOUNTER_ROOM_NAME, EncounterRoom, getLatestRoom, snapshotState, type RoomProbeStats } from "./room.js";
+import { ENCOUNTER_ROOM_NAME, EncounterRoom, getLatestRoom, type RoomProbeStats } from "./room.js";
+import { snapshotState } from "./schema.js";
+import type { ConversationTrace } from "./conversation-trace.js";
 
 /** Options for booting an in-process encounter server. */
 export interface EncounterServerOptions {
   /** Port to bind. Defaults to 0 (ephemeral, read back from `port`). */
   port?: number;
+  /** Directory for the review-safe conversation trace file (<roomId>.conversation-trace.json), written on room dispose and again on close (same content). Omit to disable. */
+  traceDir?: string;
 }
 
 /** Handle to a running encounter server with its bound address. */
@@ -18,6 +22,8 @@ export interface EncounterServer {
   getStateJSON(): string;
   /** Read-only probe stats (intent counts, selection sequence, C3 turn log) of the latest live room. */
   getProbeStats(): RoomProbeStats;
+  /** C4 live conversation trace (review-safe: no sessionId, no reply text). */
+  getConversationTrace(): ConversationTrace;
   close(): Promise<void>;
 }
 
@@ -29,7 +35,11 @@ export async function createEncounterServer(
   const server = new Server({
     transport: new WebSocketTransport({ server: httpServer }),
   });
-  server.define(ENCOUNTER_ROOM_NAME, EncounterRoom);
+  server.define(
+    ENCOUNTER_ROOM_NAME,
+    EncounterRoom,
+    options.traceDir ? { traceDir: options.traceDir } : undefined,
+  );
   await server.listen(options.port ?? 0);
   const address = httpServer.address() as AddressInfo | null;
   const port = address?.port ?? options.port ?? 0;
@@ -51,7 +61,17 @@ export async function createEncounterServer(
       }
       return room.getProbeStats();
     },
+    getConversationTrace(): ConversationTrace {
+      const room = getLatestRoom();
+      if (!room) {
+        throw new Error("no live encounter room");
+      }
+      return room.getConversationTrace();
+    },
     async close(): Promise<void> {
+      // Flush the trace file before shutdown (same content the room writes on
+      // dispose; covers rooms that have not disposed yet).
+      getLatestRoom()?.flushConversationTrace();
       await server.gracefullyShutdown(false);
     },
   };

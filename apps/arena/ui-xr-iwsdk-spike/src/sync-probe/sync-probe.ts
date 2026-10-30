@@ -28,6 +28,7 @@ import {
   sweepYawDegrees,
   yawQuaternionDegrees,
 } from "./probe-state.js";
+import { C4MouthRender, type SyncProbeCueObservation } from "./probe-c4.js";
 import { parseProbeQuery } from "./probe-query.js";
 
 interface ProbePose {
@@ -64,6 +65,14 @@ interface SyncProbeEvidence {
   rttMs: number[];
   lastServerState: EncounterSnapshot | null;
   turnsObserved: SyncProbeTurnObservation[];
+  /** C4 (turnId, cueId) appended when the SERVER's turn/cue changes. */
+  cuesObserved: SyncProbeCueObservation[];
+  /** C4 server emotion values appended when the SERVER's emotion changes. */
+  emotionsObserved: string[];
+  /** C4 frames with mouth amplitude > 0 while the server says silent (must stay 0). */
+  mouthActiveWhileSilentFrames: number;
+  /** C4 frames with mouth amplitude > 0 while the server says speaking. */
+  mouthActiveSpeakingFrames: number;
   frameMs: number[];
   selectedLocal: string[];
   selectMisses: number;
@@ -100,6 +109,10 @@ function createEvidence(): SyncProbeEvidence {
     rttMs: [],
     lastServerState: null,
     turnsObserved: [],
+    cuesObserved: [],
+    emotionsObserved: [],
+    mouthActiveWhileSilentFrames: 0,
+    mouthActiveSpeakingFrames: 0,
     frameMs: [],
     selectedLocal: [],
     selectMisses: 0,
@@ -203,6 +216,12 @@ async function main(): Promise<void> {
     indicatorMeshes.set(id, indicator);
   }
 
+  // C4 mouth bars: one thin bar per actor, rendered ONLY from server state.
+  // Scale = page-local cue envelope amplitude for the server cueId, animated
+  // only while the server says that actor is speaking; colour = pure function
+  // of the server emotion. No local intent state ever drives the bar.
+  const c4Mouth = new C4MouthRender(scene, PROBE_ACTOR_IDS, ACTOR_POSITIONS);
+
   let connection: SyncConnection;
   try {
     const options: ConnectOptions = { roomOptions: { actors: [...PROBE_ACTOR_IDS] } };
@@ -217,7 +236,10 @@ async function main(): Promise<void> {
   const lastTurnSeen = new Map<string, { turnId: number; replyId: string; speaking: boolean }>();
   connection.onState((snapshot) => {
     probe.lastServerState = snapshot;
-    const actors = (snapshot.actors ?? {}) as Record<string, { speaking?: unknown; replyId?: unknown } | undefined>;
+    const actors = (snapshot.actors ?? {}) as Record<
+      string,
+      { speaking?: unknown; replyId?: unknown; cueId?: unknown; emotion?: unknown } | undefined
+    >;
     const turnOwner = typeof snapshot.turnOwner === "string" ? snapshot.turnOwner : "none";
     const turnId = typeof snapshot.turnId === "number" ? snapshot.turnId : 0;
     for (const [id, mesh] of actorMeshes) {
@@ -236,6 +258,10 @@ async function main(): Promise<void> {
         probe.turnsObserved.push({ turnId, replyId, speaking, atMs: Number(performance.now().toFixed(2)) });
       }
     }
+    // C4: cue + emotion follow the SERVER only.
+    const delta = c4Mouth.observe(actors, turnId);
+    probe.cuesObserved.push(...delta.cues);
+    probe.emotionsObserved.push(...delta.emotions);
   });
 
   // Sequential intent queue: arrival order == call order == seq order, so every
@@ -330,6 +356,18 @@ async function main(): Promise<void> {
     const now = performance.now();
     probe.frameMs.push(Number((now - lastFrameAt).toFixed(2)));
     lastFrameAt = now;
+    // C4 mouth animation: amplitude is a pure function of the SERVER's
+    // (cueId, speaking) for each actor. A local utterance state must never
+    // move the bar: the resolver returns 0 whenever server speaking is
+    // false, so any local drive would surface as
+    // mouthActiveWhileSilentFrames > 0.
+    const serverActors = (probe.lastServerState?.actors ?? {}) as Record<
+      string,
+      { speaking?: unknown; cueId?: unknown } | undefined
+    >;
+    c4Mouth.update(serverActors, now);
+    probe.mouthActiveWhileSilentFrames = c4Mouth.silentFrames;
+    probe.mouthActiveSpeakingFrames = c4Mouth.speakingFrames;
     if (presenting && poseStreaming && frame && referenceSpace) {
       const viewerPose = frame.getViewerPose(referenceSpace);
       const position = viewerPose?.transform.position;

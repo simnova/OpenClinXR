@@ -41,6 +41,8 @@ export interface SnapshotActor {
   emotion: string;
   /** C3 server-driven reply id ("" before the actor's first turn). */
   replyId: string;
+  /** C4 server-driven cue id ("" before the actor's first turn). */
+  cueId: string;
 }
 
 /** Plain view of one synced learner, including intent cursor. */

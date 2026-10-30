@@ -17,11 +17,17 @@ import {
   ACTOR_TURN_COLOUR,
   BASE_ACTOR_COLOUR,
   BASE_TURN_COLOUR,
+  CUE_ENVELOPES,
+  DEFAULT_CUE_ENVELOPE,
+  EMOTION_TINTS,
   LEARNER_TURN_COLOUR,
   PROBE_ACTOR_IDS,
   SPEAKING_ACTOR_COLOUR,
   quantizePoseComponent,
   resolveActorColour,
+  resolveActorTint,
+  resolveCueEnvelope,
+  resolveMouthAmplitude,
   resolveTurnIndicatorColour,
   summarizeMs,
   sweepYawDegrees,
@@ -150,14 +156,13 @@ describe("sync-probe server authority", () => {
     // Page-side mutation of the local copy (the strongest thing the page can do
     // outside intents): flip the snapshot and re-derive colour from it.
     const local = latest as EncounterSnapshot;
-    local.actors["a1"] = { id: "a1", speaking: true, emotion: "hijacked", replyId: "hijacked" };
+    local.actors["a1"] = { id: "a1", speaking: true, emotion: "hijacked", replyId: "hijacked", cueId: "hijacked" };
     expect(resolveActorColour(local.actors["a1"]?.speaking === true)).toBe(SPEAKING_ACTOR_COLOUR);
     expect(server.getStateJSON()).toBe(before);
     expect(JSON.parse(server.getStateJSON()).actors["a1"].speaking).toBe(false);
   }, 30000);
 
-  it("page-local turn-field mutation leaves server state untouched; the turn indicator is pure server state", async () => {
-    const server = await createEncounterServer();
+  it("page-local turn-field mutation leaves server state untouched; the turn indicator is pure server state", async () => {    const server = await createEncounterServer();
     servers.push(server);
     const connection: SyncConnection = await connect(server.url, { roomOptions: { actors: ["a1"] } });
     leavers.push(() => connection.leave());
@@ -173,7 +178,7 @@ describe("sync-probe server authority", () => {
     const local = latest as EncounterSnapshot;
     local.turnId = 99;
     local.turnOwner = "actor";
-    local.actors["a1"] = { id: "a1", speaking: true, emotion: "hijacked", replyId: "page-forged" };
+    local.actors["a1"] = { id: "a1", speaking: true, emotion: "hijacked", replyId: "page-forged", cueId: "page-forged" };
     const learnerEntry = local.learners[connection.sessionId];
     if (learnerEntry) {
       learnerEntry.speaking = true;
@@ -198,4 +203,37 @@ describe("sync-probe server authority", () => {
     expect(BASE_TURN_COLOUR).not.toBe(LEARNER_TURN_COLOUR);
     expect(LEARNER_TURN_COLOUR).not.toBe(ACTOR_TURN_COLOUR);
   }, 30000);
+});
+
+describe("sync-probe C4 emotion tint and cue mouth amplitude", () => {
+  it("tint is a pure function of the server emotion", () => {
+    expect(resolveActorTint("neutral")).toBe(EMOTION_TINTS["neutral"]);
+    expect(resolveActorTint("reassured")).toBe(EMOTION_TINTS["reassured"]);
+    expect(resolveActorTint("concerned")).toBe(EMOTION_TINTS["concerned"]);
+    expect(resolveActorTint("anxious")).toBe(EMOTION_TINTS["anxious"]);
+    // Unknown server values fall back to neutral; the resolver reads no page state.
+    expect(resolveActorTint("page-forged")).toBe(EMOTION_TINTS["neutral"]);
+    expect(new Set(Object.values(EMOTION_TINTS)).size).toBe(4);
+  });
+
+  it("mouth amplitude is 0 whenever the server says silent, whatever cueId the page holds", () => {
+    const cueIds = [...Object.keys(CUE_ENVELOPES), "page-forged", ""];
+    for (const cueId of cueIds) {
+      for (const tMs of [0, 123, 1000, 4321]) {
+        expect(resolveMouthAmplitude(cueId, false, tMs)).toBe(0);
+      }
+    }
+  });
+
+  it("mouth amplitude is strictly positive while the server says speaking", () => {
+    const cueIds = [...Object.keys(CUE_ENVELOPES), "unknown-future-cue", ""];
+    for (const cueId of cueIds) {
+      for (const tMs of [0, 123, 1000, 4321, 99999]) {
+        const amplitude = resolveMouthAmplitude(cueId, true, tMs);
+        expect(amplitude).toBeGreaterThan(0);
+        expect(amplitude).toBeLessThanOrEqual((resolveCueEnvelope(cueId).peak));
+      }
+    }
+    expect(resolveCueEnvelope("unknown-future-cue")).toBe(DEFAULT_CUE_ENVELOPE);
+  });
 });
