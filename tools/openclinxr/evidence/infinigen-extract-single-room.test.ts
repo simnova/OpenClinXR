@@ -51,7 +51,17 @@ describe("Infinigen extract single room from multi-room shell (#236)", () => {
     expect(r.extractedWallCount!).toBeLessThanOrEqual(8);
     expect(r.hasFloor).toBe(true);
     expect(r.hasCeiling).toBe(true);
-    expect(r.exportPath && existsSync(r.exportPath)).toBe(true);
+    // ADAPTED 2026-10-26 (ci-w7): the cached record's exportPath is an absolute path into a dead
+    // sibling worktree (src-openclinxr/issue-346) — unresolvable by construction on any other
+    // checkout. The durable bytes of the same extract are the tracked #346 decimation-stage
+    // output (85ec1942b pre-fix measurement + grade gallery; the test header's ADDED (#346)
+    // section names this stage). The guard binds the record's structural claims to those bytes:
+    // 2 walls, 1,580 tris, floor + ceiling, door aperture.
+    const DECIMATED = ".openclinxr/evidence/room-decimate/extracted-room-decimated.glb";
+    expect(existsSync(DECIMATED), "the tracked decimation-stage bytes of this extract are gone").toBe(true);
+    expect(r.extractedWallCount, "record no longer describes the 2-wall bedroom extract").toBe(2);
+    expect(r.rawTriangleCount, "record no longer describes the 1,580-tri furniture-free shell").toBe(1580);
+    expect(r.doorOpeningSurvives, "record no longer carries the door-aperture survival claim").toBe(true);
   }, 3_600_000);
 });
 

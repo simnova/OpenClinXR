@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
 
 /**
  * PLANTED CONTRACTS (#239). Deeper post-opt ladder toward station band (MADR 0050).
@@ -12,72 +13,47 @@ import { existsSync, readFileSync } from "node:fs";
  * Record raw → stage1 → stage2(+), feature survival (non-zero extent, not collapsed).
  *
  * Header IMMUTABLE — append ## FIXED (#239).
+ *
+ * ## RETIRED (ci-w7, 2026-10-30)
+ *
+ * The spike-era subjects this ladder guarded no longer exist: the issue-235/issue-237 raw TRELLIS
+ * GLBs (wall-clock, bedside-monitor, ecg-cart raws) were worktree-local, never tracked, and the
+ * ladder report in this checkout is an empty "awaiting ≥2 source GLBs" shell. The deliberate
+ * successor is the factory R5-BEST chain (86acc9cae, 2026-10-02, MADR 0059): स्टेशन bake with
+ * recorded raw → postopt treatment columns (raw 11,990,792 faces, island filter 35 → 7 kept,
+ * final 37,828 tris — inside the old 60k soft target), frozen and published to the runtime.
+ * Per the brief, a retired guard asserts the retirement fact: the superseding records exist and
+ * the shipped bytes still match the successor's pin. Never plain-deleted: the file stays as the
+ * marker that #239's ladder must not be re-planted against the dead spike inputs.
  */
 
-type LadderRung = {
-  label: string;
-  ratio: number;
-  triangleCount: number;
-  bytes: number;
-  path: string;
-};
+const WIRING = "docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/factory-wiring";
+const FREEZE = "tools/openclinxr/asset-pipeline/trellis/equipment-freezes/ecg-cart.freeze.json";
+const SHIPPED_CART = "apps/ui-xr/public/xr-assets/medical-equipment/ecg-cart.glb";
 
-type SubjectLadder = {
-  subjectId: string;
-  rungs: LadderRung[];
-  bestUnderSoftTarget: boolean; // ≤60k
-  bestUnderHardCeiling: boolean; // ≤180k
-  featureSurvival: "ok" | "collapsed" | "unknown";
-};
-
-type Report = {
-  subjects: SubjectLadder[];
-  softTarget: number;
-  hardCeiling: number;
-  claimScope: string[];
-  notEvidenceFor: string[];
-};
-
-type Inspect = () => Promise<Report>;
-const load = () =>
-  import("./trellis-deeper-postopt.js") as Promise<Record<string, unknown>>;
-
-describe("TRELLIS deeper post-opt ladder to station band (#239)", () => {
-  it("ladder report covers ≥2 equipment subjects with multi-rung counts", async () => {
-    const mod = await load();
-    const inspect = mod["inspectTrellisDeeperPostopt"] as Inspect | undefined;
-    expect(inspect).toBeTypeOf("function");
-    const r = await inspect!();
-    expect(r.softTarget).toBe(60_000);
-    expect(r.hardCeiling).toBe(180_000);
-    expect(r.subjects.length).toBeGreaterThanOrEqual(2);
-    for (const s of r.subjects) {
-      expect(s.rungs.length).toBeGreaterThanOrEqual(2);
-      // rungs should be non-increasing tris
-      for (let i = 1; i < s.rungs.length; i++) {
-        expect(s.rungs[i].triangleCount).toBeLessThanOrEqual(s.rungs[i - 1].triangleCount);
-      }
+describe("TRELLIS deeper post-opt ladder to station band (#239) — RETIRED", () => {
+  it("the spike ladder is superseded by the factory R5-BEST wired records (86acc9cae)", () => {
+    for (const f of [`${WIRING}/bake-measure.json`, `${WIRING}/components.json`, `${WIRING}/measurement.json`, FREEZE]) {
+      expect(existsSync(f), `successor record missing: ${f}`).toBe(true);
     }
-    expect(r.notEvidenceFor.join(" ")).toMatch(/quest|clinical|adopt/i);
-  }, 600_000);
+    const bake = JSON.parse(readFileSync(`${WIRING}/bake-measure.json`, "utf8")) as {
+      subjectId?: string; verdict?: string; rawTriangleCount?: number;
+    };
+    expect(bake.subjectId, "successor bake names no subject").toBe("ecg-cart");
+    expect(bake.verdict, "successor bake reached no measured verdict").toBe("mesh_exported");
+    const components = JSON.parse(readFileSync(`${WIRING}/components.json`, "utf8")) as unknown;
+    expect(components, "successor postopt treatment record is empty").not.toBeNull();
+  });
 
-  it("at least one subject reaches soft ≤60k with featureSurvival ok, or all documented under hard ceiling with survival (COUNTERWEIGHT)", async () => {
-    const mod = await load();
-    const inspect = mod["inspectTrellisDeeperPostopt"] as Inspect;
-    const r = await inspect();
-    const okSoft = r.subjects.filter((s) => s.bestUnderSoftTarget && s.featureSurvival === "ok");
-    const okHard = r.subjects.filter((s) => s.bestUnderHardCeiling && s.featureSurvival === "ok");
-    if (okSoft.length === 0) {
-      // Allow hard-ceiling-only if survival holds for all attempted subjects
-      expect(okHard.length).toBe(r.subjects.length);
-      expect(existsSync(".openclinxr/evidence/issue-239/ladder-report.json")).toBe(true);
-    } else {
-      expect(okSoft.length).toBeGreaterThanOrEqual(1);
-    }
-    // Every subject must have a written ladder path on disk
-    for (const s of r.subjects) {
-      const last = s.rungs[s.rungs.length - 1];
-      expect(existsSync(last.path), last.path).toBe(true);
-    }
-  }, 600_000);
+  it("the shipped cart still matches the successor's measured pin (COUNTERWEIGHT)", () => {
+    // If the successor regresses (records deleted or cart re-baked unpinned), this fails.
+    const measurement = JSON.parse(readFileSync(`${WIRING}/measurement.json`, "utf8")) as {
+      sha256?: string; bytes?: number; triangles?: number;
+    };
+    const live = readFileSync(SHIPPED_CART);
+    expect(createHash("sha256").update(live).digest("hex")).toBe(measurement.sha256);
+    expect(live.byteLength).toBe(measurement.bytes);
+    expect(measurement.triangles, "successor final must sit inside the old 60k soft target")
+      .toBeLessThanOrEqual(60_000);
+  });
 });

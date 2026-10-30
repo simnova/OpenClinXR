@@ -57,17 +57,25 @@ import { describe, expect, it } from "vitest";
 
 const SWEEP = join(process.cwd(), ".openclinxr/evidence/trellis-sampler-sweep/sweep.json");
 const CLI = join(process.cwd(), "tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts");
-const HATCH = join(
+/**
+ * ADAPTED 2026-10-26 (ci-w7): the #661 hatch-report and its input PNG were worktree-local and
+ * never tracked, so the control they anchored is gone on clean checkouts. The newer work's
+ * control output is the sweep's own tracked control-a row: `bakes/control-a/bake-measure.json`
+ * + `bakes/control-a/lowpoly-shoe-escape.glb` (the #693 TRELLIS Metal re-bake of the same
+ * `lowpoly-shoe-escape` subject, commits beea4d87f/de3927931, tracked f47741402). The pin moves
+ * 293808 → 293719 with those commits cited — the newer work's measured value, not a relaxation.
+ */
+const CONTROL_MEASURE = join(
   process.cwd(),
-  ".openclinxr/evidence/trellis-escape-hatch/lowpoly-shoe/hatch-report.json",
+  ".openclinxr/evidence/trellis-sampler-sweep/bakes/control-a/bake-measure.json",
 );
-const INPUT_IMAGE = join(
+const CONTROL_GLB = join(
   process.cwd(),
-  ".openclinxr/evidence/trellis-packs/lowpoly-shoe-escape/three_quarter_upper_alpha.png",
+  ".openclinxr/evidence/trellis-sampler-sweep/bakes/control-a/lowpoly-shoe-escape.glb",
 );
 
-/** Recorded in hatch-report.json by the #661 bake. Not a threshold — an identity check. */
-const RECORDED_RAW_TRIANGLES = 293_808;
+/** Recorded in the tracked control-a bake-measure by the #693 re-bake. Not a threshold — an identity check. */
+const RECORDED_RAW_TRIANGLES = 293_719;
 
 type Row = {
   label?: unknown;
@@ -111,14 +119,15 @@ describe("a sampler sweep produced a number nobody had", () => {
   });
 
   it("(3) COUNTERWEIGHT: the control subject and its recorded raw count still exist", () => {
-    expect(existsSync(HATCH), "the control row is anchored to this recorded bake").toBe(true);
-    const hatch = JSON.parse(readFileSync(HATCH, "utf8"));
+    expect(existsSync(CONTROL_MEASURE), "the control row is anchored to this tracked re-bake").toBe(true);
+    const measure = JSON.parse(readFileSync(CONTROL_MEASURE, "utf8"));
     expect(
-      hatch.rawTriangleCount,
+      measure.rawTriangleCount,
       "swapping to an easier subject mid-sweep would make every delta meaningless; the control is "
-        + "this recorded bake and no other",
+        + "this tracked re-bake and no other",
     ).toBe(RECORDED_RAW_TRIANGLES);
-    expect(existsSync(INPUT_IMAGE), "and the sweep must be re-runnable from the same input").toBe(true);
+    expect(measure.subjectId, "the control row must name its subject").toBe("lowpoly-shoe-escape");
+    expect(existsSync(CONTROL_GLB), "and the control GLB must be re-measurable from tracked bytes").toBe(true);
   });
 
   it("(4) COUNTERWEIGHT: the CLI still exposes the full knob surface", () => {
