@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -143,6 +144,7 @@ type Ledger = {
     classification?: string;
   };
   phaseRelease?: { mr01?: string; mr02?: string; mr03?: string };
+  reAttestation?: { note?: string; lane?: string; date?: string; afterCommits?: string[] };
   topics?: Topic[];
 };
 
@@ -300,6 +302,43 @@ describe("the entrypoint current state matches landed evidence", () => {
     for (const path of [ENTRYPOINT, LEDGER_JSON, LEDGER_MD, PROPOSAL]) {
       const rel = path.slice(REPO.length + 1);
       expect(review?.outputSha256?.[rel], `accepted review output binding stale/missing for ${rel}`).toBe(sha256File(path));
+    }
+  });
+
+  it("(8) re-attestation binds the refresh to real deliberate commits (ci-closure lane 2026-10-30)", () => {
+    const re = ledger().reAttestation;
+    expect(re?.lane).toBe("ci-closure");
+    expect(re?.date).toBe("2026-10-30");
+    expect(String(re?.note)).toContain("re-attested by ci-closure lane 2026-10-30 after");
+    const after = re?.afterCommits ?? [];
+    expect(after.length, "re-attestation cites no commits").toBeGreaterThan(0);
+    for (const sha of after) {
+      expect(sha, "re-attestation cites a non-sha").toMatch(/^[0-9a-f]{40}$/u);
+      const kind = execFileSync("git", ["-C", REPO, "cat-file", "-t", sha], {
+        encoding: "utf8",
+      }).trim();
+      expect(kind, `re-attestation cites non-commit ${sha}`).toBe("commit");
+      expect(String(re?.note), `cited commit ${sha.slice(0, 8)} not named in the note`).toContain(
+        sha.slice(0, 8),
+      );
+    }
+    // Every refreshed source's newest deliberate commit must be cited: a source
+    // change without a cited commit reds here, as does a fabricated sha above.
+    const cited = new Set(after);
+    for (const rel of [
+      "tools/openclinxr/evidence/motion-backend-bakeoff/report.json",
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+      "apps/ui-xr/src/static-assets.test.ts",
+      "packages/openclinxr/factory-stations/src/motion_retarget/run.ts",
+    ]) {
+      const newest = execFileSync("git", ["-C", REPO, "log", "--format=%H", "-1", "--", rel], {
+        encoding: "utf8",
+      }).trim();
+      expect(newest, `no commit touches ${rel}`).toMatch(/^[0-9a-f]{40}$/u);
+      expect(
+        cited.has(newest),
+        `${rel} last changed at ${newest.slice(0, 9)} with no cited attestation commit — re-attest, do not hand-edit`,
+      ).toBe(true);
     }
   });
 

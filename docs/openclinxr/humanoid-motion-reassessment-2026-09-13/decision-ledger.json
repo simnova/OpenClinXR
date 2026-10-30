@@ -6,9 +6,15 @@
   "authorityNote": "ENTRYPOINT, full design, and superseded brief are archive-candidate / agentInstructionWeight none. Owner may approve factual ENTRYPOINT edits without reclassifying the registry. Full design stays read-only in MR-01.",
   "inputIdentity": {
     "actorPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-    "reportActorSha256": "b744d3d5295e2d4840ceae586924727725667cb0260a5b1f3ee68dd2e72e136f",
-    "diskActorSha256": "8409334c30861e07d7bb180b2b8f7e5d48c277bc91c4a5df8f0cb0475869c541",
-    "classification": "identity-stale"
+    "reportActorSha256": "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9",
+    "diskActorSha256": "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9",
+    "classification": "current-actor-bound"
+  },
+  "reAttestation": {
+    "note": "re-attested by ci-closure lane 2026-10-30 after cf0325e8 (report.json re-measured on the Sep28 nurse actor), 9f2934536 (nurse actor last changed), b3641f1b7 (fence test exam-table asset-hash line; fence guard verified intact) and a2fec46f3 (retarget runner public-surface cut; adapter string plus fresh_subprocess verified intact); hashes measured, not typed",
+    "lane": "ci-closure",
+    "date": "2026-10-30",
+    "afterCommits": ["cf0325e8c5e3bac7f1baea69c8b75b80ea59f635", "9f2934536de8b011a894036e5dcd7212594804b1", "b3641f1b78295357ca36f16e8604e8004d84576f", "a2fec46f39d5e212c8378970e94a1380a398b85e"]
   },
   "phaseRelease": {
     "mr01": "worker_review_clause_7_planted_owner_acceptance_blocked",
@@ -114,7 +120,7 @@
       "status": "retained",
       "currentSource": {
         "path": "tools/openclinxr/evidence/motion-backend-bakeoff/report.json",
-        "sha256": "051db578810c4b0378ecdd55b64ba5460e08c468db1f254a6538e0548776b0b7"
+        "sha256": "ead747a7dd8cda740607c0ac2cfa77b45afe4270a96b38f776de5b9fa3aca3aa"
       },
       "caller": {
         "kind": "none",
@@ -163,7 +169,7 @@
     },
     {
       "id": "evidence-vs-obsolete-failures",
-      "claim": "Bake-off task tsk_37785faf55d16dc6 landed with report.verdict other: neither arm produced the requested clutch; pulse descriptor had no pulse goal. That is completed-inconclusive, not a current-actor quality grade and not an architecture winner. Current ENTRYPOINT instruction now cites that verdict, the reassessment ledger, and registry precedence; historical stale one-line and bake-off-first order are retained as blockquotes only. Actor bytes vs report actor digest remain identity-stale (report b744d3d5 vs disk 8409334c); classification follows the live compare and must not be greened by editing hashes.",
+      "claim": "Bake-off task tsk_37785faf55d16dc6 landed with report.verdict other: neither arm produced the requested clutch; pulse descriptor had no pulse goal. That is completed-inconclusive, not a current-actor quality grade and not an architecture winner. Current ENTRYPOINT instruction now cites that verdict, the reassessment ledger, and registry precedence; historical stale one-line and bake-off-first order are retained as blockquotes only. Actor bytes vs report actor digest are current-actor-bound since the 2026-10-30 bake-off re-measure (report 4f0a8c1d vs disk 4f0a8c1d; re-attested by ci-closure lane 2026-10-30 after cf0325e8/9f2934536); classification follows the live compare",
       "class": "observed",
       "status": "retained",
       "currentSource": {
@@ -186,7 +192,7 @@
       "status": "retained",
       "currentSource": {
         "path": "apps/ui-xr/src/static-assets.test.ts",
-        "sha256": "5e9a70e32868ec1a975837f9179c32736146b44df073e9acaa9255112bd39047"
+        "sha256": "92dbc1ce7f9065cf324f132c0c8f90dd8b76ca321656c5b4e4b3342c6b2fad7a"
       },
       "caller": {
         "kind": "none",
@@ -259,7 +265,7 @@
       "status": "unknown",
       "currentSource": {
         "path": "packages/openclinxr/factory-stations/src/motion_retarget/run.ts",
-        "sha256": "9209cd6c72a43d53005067ae790e1055f85a8839e201450767e5ba0168838411"
+        "sha256": "47e5f1f2b5eb5afeb709bc747dec19cf7ced93c215519a74b013a701095477d0"
       },
       "caller": {
         "kind": "production",

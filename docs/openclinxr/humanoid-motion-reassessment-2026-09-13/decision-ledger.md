@@ -13,11 +13,16 @@ This file is worker-reconciled against live consumers. Independent claim-to-cons
 Computed from `report.json` `actorAssetSha256` vs sha256 of
 `apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb`.
 
-Report `b744d3d5295e2d4840ceae586924727725667cb0260a5b1f3ee68dd2e72e136f`,
-disk `8409334c30861e07d7bb180b2b8f7e5d48c277bc91c4a5df8f0cb0475869c541`,
-classification `identity-stale`.
-If those hashes later match, classification must become `current-actor-bound`. Do not freeze stale.
-Do not edit those hashes to green a capture. A later actor rebake already made identity stale again; rewriting hashes would bind retained images to new inputs.
+Report `4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9`,
+disk `4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9`,
+classification `current-actor-bound`.
+If those hashes later diverge, classification must become `identity-stale`. Do not freeze stale.
+Re-attested by ci-closure lane 2026-10-30 after cf0325e8 (report.json re-measured
+2026-10-30 on the Sep28 nurse actor) and 9f2934536 (nurse actor last changed):
+the Oct30 capture was measured against the current actor, so recording these
+hashes binds retained images to the inputs they were measured on — not greened
+by editing. Any later actor rebake re-opens identity-stale; rewriting hashes
+without a re-measure would bind retained images to new inputs.
 
 Bake-off `verdict` is `other` in `report.json`: landed, inconclusive, no winner.
 Neither requested clutch succeeded; the runtime pulse descriptor lacked a pulse goal.
