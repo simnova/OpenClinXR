@@ -10,7 +10,7 @@
   "poseDerivation": {
     "schemaVersion": "openclinxr.room-derived-evidence-poses.v1",
     "environmentId": "telehealth_home_visit_v1",
-    "sourceGlb": "/Volumes/files/src/openclinxr-wt/rooms-defects/.openclinxr/evidence/rooms-defects/telehealth_home_visit_v1/infinigen-telehealth-home-visit-v1.chain.glb",
+    "sourceGlb": "store:98e48550a8d84e78e3a9c850324dac1a0fe51345c1bf44faa21574e998144c40/infinigen-telehealth-home-visit-v1.chain.glb",
     "sourceGlbSha256": "98e48550a8d84e78e3a9c850324dac1a0fe51345c1bf44faa21574e998144c40",
     "roomBounds": {
       "min": [
