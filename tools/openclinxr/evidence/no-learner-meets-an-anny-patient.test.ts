@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   listShippedCastScenarioIds,
+  MPFB_GOWN_ADULT_PATIENT_GLB,
+  MPFB_GOWN_ED_ROBERT_HAYES_GLB,
   resolveScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import {
-  MPFB_GOWN_ADULT_PATIENT_GLB,
-} from "../../../packages/openclinxr/asset-registry/src/cast-asset-constants.js";
 
 /**
  * Campaign #478 lane **L6** — the recast. This is the slice that moves the tally.
@@ -114,12 +113,16 @@ describe("no learner meets a patient on the Anny rail", () => {
   it("(2) RED: every gowned-station patient resolves to the GOWNED MPFB asset", () => {
     // Refuses (b). The pool already holds MPFB adults in street clothes and scrubs; any of them
     // clears "not Anny" and puts a gowned-station patient in the wrong wardrobe.
+    // 69f2c7075: the ED patient resolves to the case-bound MPFB_GOWN_ED_ROBERT_HAYES_GLB
+    // instead (same-scenario provenance) — still a gowned MPFB body, so the RED follows
+    // the resolver's gown constants rather than one filename.
+    const GOWN_BODIES = [MPFB_GOWN_ADULT_PATIENT_GLB, MPFB_GOWN_ED_ROBERT_HAYES_GLB];
     const wasAnny = allCastRows().filter(({ row }) => row.role === "patient");
-    const gowned = wasAnny.filter(({ row }) => basename(row.assetPath) === MPFB_GOWN_ADULT_PATIENT_GLB);
+    const gowned = wasAnny.filter(({ row }) => GOWN_BODIES.some((g) => basename(row.assetPath) === g));
     expect(
       gowned.length,
-      `${gowned.length} of ${wasAnny.length} patients resolve to ${MPFB_GOWN_ADULT_PATIENT_GLB};\n`
-        + `  the seven that were Anny-cast must land on the gowned asset by NAME, not merely off Anny`,
+      `${gowned.length} of ${wasAnny.length} patients resolve to a gowned MPFB asset;\n`
+        + `  the seven that were Anny-cast must land on the gowned assets by NAME, not merely off Anny`,
     ).toBeGreaterThanOrEqual(7);
   });
 
