@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.humanoid-body-signature-pre-fix.v1",
   "issue": 276,
-  "measuredAt": "2026-08-12T00:43:26.917Z",
+  "measuredAt": "2026-10-30T07:13:35.748Z",
   "scanRoot": "apps/ui-xr/public/generated-humanoids",
   "assets": [
     {
@@ -41,31 +41,112 @@
       "bodyClassKey": "13872|26692|1.66"
     },
     {
-      "file": "mpfb-ob-patient-aisha.glb",
+      "file": "mpfb-clinical-nurse-adult.glb",
+      "bodyMeshName": "mpfb_ed_chest_pain_nurse_adult_body",
+      "triangles": 12833,
+      "vertices": 8437,
+      "heightMeters": 1.7599140958773205,
+      "bodySha256": "f6cfd1ac5c2231b22e73ab4bc24d6b1ba7cf0ba8f0a90e4a92f797c88c3033f9",
+      "bodyClassKey": "8437|12833|1.76"
+    },
+    {
+      "file": "mpfb-clinical-physician-adult.glb",
+      "bodyMeshName": "mpfb_ward_delirium_senior_resident_adult_body",
+      "triangles": 12890,
+      "vertices": 8466,
+      "heightMeters": 1.7219357019057497,
+      "bodySha256": "d05159ad90a5184dc30fbaba56f9c77c66009ce79f1f434768479a151c5a5399",
+      "bodyClassKey": "8466|12890|1.72"
+    },
+    {
+      "file": "mpfb-family-partner-adult.glb",
+      "bodyMeshName": "mpfb_ed_chest_pain_spouse_adult_body",
+      "triangles": 13357,
+      "vertices": 8869,
+      "heightMeters": 1.659876835932664,
+      "bodySha256": "b680d161886730ed4fc91ed8c6d3112a6d503bc04b591c03cf415e8e8aaf09d6",
+      "bodyClassKey": "8869|13357|1.66"
+    },
+    {
+      "file": "mpfb-gown-adult-patient.glb",
+      "bodyMeshName": "mpfb_robert_reference_body",
+      "triangles": 14928,
+      "vertices": 9791,
+      "heightMeters": 1.775567544584419,
+      "bodySha256": "639a66b50baacb8c54beed9dacc2674d9f9c7481c5f0654d370244ecf55c2001",
+      "bodyClassKey": "9791|14928|1.78"
+    },
+    {
+      "file": "mpfb-gown-ed-robert-hayes.glb",
+      "bodyMeshName": "mpfb_robert_reference_body",
+      "triangles": 14928,
+      "vertices": 9797,
+      "heightMeters": 1.7755792197499431,
+      "bodySha256": "723257ca8d2fde9cdb003b5ba425a127dac8135214f31cfec825fca93b570fa5",
+      "bodyClassKey": "9797|14928|1.78"
+    },
+    {
+      "file": "mpfb-gown-inspect.glb",
       "bodyMeshName": "mpfb_ob_patient_aisha_body",
-      "triangles": 26756,
-      "vertices": 15418,
+      "triangles": 4149,
+      "vertices": 3219,
+      "heightMeters": 1.6658859994495288,
+      "bodySha256": "43e7aa4daa3206a2dbdde610251448d0b0beee560b69ae97fcdaa5586cf40bfc",
+      "bodyClassKey": "3219|4149|1.67"
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "bodyMeshName": "mpfb_ob_patient_aisha_v1_body",
+      "triangles": 10705,
+      "vertices": 7006,
       "heightMeters": 1.6658903360366821,
-      "bodySha256": "c0f2774a68d56b338d4d82f5ddccbbc7ea382d7c3250bf99f08c357570ae6cd4",
-      "bodyClassKey": "15418|26756|1.67"
+      "bodySha256": "433b4cd4f2c7ebf13385960f78646820ecf51dbbbeadc98b5851c879d1b577b5",
+      "bodyClassKey": "7006|10705|1.67"
     },
     {
       "file": "mpfb-peds-nurse-kevin.glb",
       "bodyMeshName": "mpfb_peds_nurse_kevin_body",
+      "triangles": 8049,
+      "vertices": 5539,
+      "heightMeters": 1.7644702005563886,
+      "bodySha256": "7e999671eb79297064ba718f8c095474f5cbfd71b1b8076c36149e028663aa7c",
+      "bodyClassKey": "5539|8049|1.76"
+    },
+    {
+      "file": "mpfb-peds-parent-aisha.glb",
+      "bodyMeshName": "mpfb_parent_tara_johnson_v1_body",
       "triangles": 26756,
-      "vertices": 15689,
-      "heightMeters": 1.760076550213853,
-      "bodySha256": "0023adb5d69cc1548c93a1d7865f1d41cf913b934a2ae97a4ecb78775f4c0004",
-      "bodyClassKey": "15689|26756|1.76"
+      "vertices": 15949,
+      "heightMeters": 1.6599166126034106,
+      "bodySha256": "433df4a06354251c9be79737431b5404abae6440df5ad9e623236651406be3e2",
+      "bodyClassKey": "15949|26756|1.66"
     },
     {
       "file": "mpfb-peds-patient-child.glb",
       "bodyMeshName": "mpfb_peds_patient_child_body",
       "triangles": 26756,
-      "vertices": 15384,
-      "heightMeters": 1.2410178188438294,
-      "bodySha256": "d0997a6cc32f66ac8cce84af73b309b41a7a3998c293d83ea98d2f5786ab07a4",
-      "bodyClassKey": "15384|26756|1.24"
+      "vertices": 15656,
+      "heightMeters": 1.249911614744633,
+      "bodySha256": "1aa970ecaeeabec5d52388b7df711ec0191d4bd6129231d6e493881c0a977489",
+      "bodyClassKey": "15656|26756|1.25"
+    },
+    {
+      "file": "mpfb-street-adult-male.glb",
+      "bodyMeshName": "mpfb_adult_male_street_casual_body",
+      "triangles": 26756,
+      "vertices": 15969,
+      "heightMeters": 1.7644702005563886,
+      "bodySha256": "1814fcd4755feefe2813caaab1ff5455e9e8d86f20fb579947f9d1eded83b033",
+      "bodyClassKey": "15969|26756|1.76"
+    },
+    {
+      "file": "mpfb-viseme-inspect.glb",
+      "bodyMeshName": "mpfb_ob_patient_aisha_body",
+      "triangles": 10705,
+      "vertices": 7006,
+      "heightMeters": 1.6658903360366821,
+      "bodySha256": "433b4cd4f2c7ebf13385960f78646820ecf51dbbbeadc98b5851c879d1b577b5",
+      "bodyClassKey": "7006|10705|1.67"
     },
     {
       "file": "peds_anxious_parent.glb",
@@ -75,6 +156,15 @@
       "heightMeters": 1.659999966621399,
       "bodySha256": "58901e54e2574ea7c9d5c559e726da5a88873a35a05292bfec680375b5d0bcf8",
       "bodyClassKey": "13884|26692|1.66"
+    },
+    {
+      "file": "peds_fever_patient_child.glb",
+      "bodyMeshName": "peds_fever_patient_child.anny_base",
+      "triangles": 26692,
+      "vertices": 13914,
+      "heightMeters": 1.25,
+      "bodySha256": "a9e26ae6d92c62a36b9a8b26ff6ce71a23ff51f854f361879ce661efdb85e07b",
+      "bodyClassKey": "13914|26692|1.25"
     },
     {
       "file": "peds_nurse_kevin.glb",
@@ -110,6 +200,19 @@
         "adult_male_street_casual.glb",
         "ed_chest_pain_adult_cast.glb",
         "ed_chest_pain_nurse_adult.glb"
+      ]
+    },
+    {
+      "bodyClassKey": "7006|10705|1.67",
+      "triangles": 10705,
+      "vertices": 7006,
+      "heightMeters": 1.6658903360366821,
+      "distinctSha256": [
+        "433b4cd4f2c7ebf13385960f78646820ecf51dbbbeadc98b5851c879d1b577b5"
+      ],
+      "assets": [
+        "mpfb-ob-patient-aisha.glb",
+        "mpfb-viseme-inspect.glb"
       ]
     },
     {
@@ -149,6 +252,18 @@
       ]
     },
     {
+      "bodyClassKey": "13914|26692|1.25",
+      "triangles": 26692,
+      "vertices": 13914,
+      "heightMeters": 1.25,
+      "distinctSha256": [
+        "a9e26ae6d92c62a36b9a8b26ff6ce71a23ff51f854f361879ce661efdb85e07b"
+      ],
+      "assets": [
+        "peds_fever_patient_child.glb"
+      ]
+    },
+    {
       "bodyClassKey": "14268|27420|1.25",
       "triangles": 27420,
       "vertices": 14268,
@@ -161,39 +276,123 @@
       ]
     },
     {
-      "bodyClassKey": "15384|26756|1.24",
+      "bodyClassKey": "15656|26756|1.25",
       "triangles": 26756,
-      "vertices": 15384,
-      "heightMeters": 1.2410178188438294,
+      "vertices": 15656,
+      "heightMeters": 1.249911614744633,
       "distinctSha256": [
-        "d0997a6cc32f66ac8cce84af73b309b41a7a3998c293d83ea98d2f5786ab07a4"
+        "1aa970ecaeeabec5d52388b7df711ec0191d4bd6129231d6e493881c0a977489"
       ],
       "assets": [
         "mpfb-peds-patient-child.glb"
       ]
     },
     {
-      "bodyClassKey": "15418|26756|1.67",
+      "bodyClassKey": "15949|26756|1.66",
       "triangles": 26756,
-      "vertices": 15418,
-      "heightMeters": 1.6658903360366821,
+      "vertices": 15949,
+      "heightMeters": 1.6599166126034106,
       "distinctSha256": [
-        "c0f2774a68d56b338d4d82f5ddccbbc7ea382d7c3250bf99f08c357570ae6cd4"
+        "433df4a06354251c9be79737431b5404abae6440df5ad9e623236651406be3e2"
       ],
       "assets": [
-        "mpfb-ob-patient-aisha.glb"
+        "mpfb-peds-parent-aisha.glb"
       ]
     },
     {
-      "bodyClassKey": "15689|26756|1.76",
+      "bodyClassKey": "15969|26756|1.76",
       "triangles": 26756,
-      "vertices": 15689,
-      "heightMeters": 1.760076550213853,
+      "vertices": 15969,
+      "heightMeters": 1.7644702005563886,
       "distinctSha256": [
-        "0023adb5d69cc1548c93a1d7865f1d41cf913b934a2ae97a4ecb78775f4c0004"
+        "1814fcd4755feefe2813caaab1ff5455e9e8d86f20fb579947f9d1eded83b033"
+      ],
+      "assets": [
+        "mpfb-street-adult-male.glb"
+      ]
+    },
+    {
+      "bodyClassKey": "3219|4149|1.67",
+      "triangles": 4149,
+      "vertices": 3219,
+      "heightMeters": 1.6658859994495288,
+      "distinctSha256": [
+        "43e7aa4daa3206a2dbdde610251448d0b0beee560b69ae97fcdaa5586cf40bfc"
+      ],
+      "assets": [
+        "mpfb-gown-inspect.glb"
+      ]
+    },
+    {
+      "bodyClassKey": "5539|8049|1.76",
+      "triangles": 8049,
+      "vertices": 5539,
+      "heightMeters": 1.7644702005563886,
+      "distinctSha256": [
+        "7e999671eb79297064ba718f8c095474f5cbfd71b1b8076c36149e028663aa7c"
       ],
       "assets": [
         "mpfb-peds-nurse-kevin.glb"
+      ]
+    },
+    {
+      "bodyClassKey": "8437|12833|1.76",
+      "triangles": 12833,
+      "vertices": 8437,
+      "heightMeters": 1.7599140958773205,
+      "distinctSha256": [
+        "f6cfd1ac5c2231b22e73ab4bc24d6b1ba7cf0ba8f0a90e4a92f797c88c3033f9"
+      ],
+      "assets": [
+        "mpfb-clinical-nurse-adult.glb"
+      ]
+    },
+    {
+      "bodyClassKey": "8466|12890|1.72",
+      "triangles": 12890,
+      "vertices": 8466,
+      "heightMeters": 1.7219357019057497,
+      "distinctSha256": [
+        "d05159ad90a5184dc30fbaba56f9c77c66009ce79f1f434768479a151c5a5399"
+      ],
+      "assets": [
+        "mpfb-clinical-physician-adult.glb"
+      ]
+    },
+    {
+      "bodyClassKey": "8869|13357|1.66",
+      "triangles": 13357,
+      "vertices": 8869,
+      "heightMeters": 1.659876835932664,
+      "distinctSha256": [
+        "b680d161886730ed4fc91ed8c6d3112a6d503bc04b591c03cf415e8e8aaf09d6"
+      ],
+      "assets": [
+        "mpfb-family-partner-adult.glb"
+      ]
+    },
+    {
+      "bodyClassKey": "9791|14928|1.78",
+      "triangles": 14928,
+      "vertices": 9791,
+      "heightMeters": 1.775567544584419,
+      "distinctSha256": [
+        "639a66b50baacb8c54beed9dacc2674d9f9c7481c5f0654d370244ecf55c2001"
+      ],
+      "assets": [
+        "mpfb-gown-adult-patient.glb"
+      ]
+    },
+    {
+      "bodyClassKey": "9797|14928|1.78",
+      "triangles": 14928,
+      "vertices": 9797,
+      "heightMeters": 1.7755792197499431,
+      "distinctSha256": [
+        "723257ca8d2fde9cdb003b5ba425a127dac8135214f31cfec825fca93b570fa5"
+      ],
+      "assets": [
+        "mpfb-gown-ed-robert-hayes.glb"
       ]
     }
   ],

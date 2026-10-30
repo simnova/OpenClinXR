@@ -109,14 +109,17 @@ const MAX_LATERAL_RATIO = 1.6;
 const MIN_LEG_AREA_CM2 = 1200;
 
 /**
- * The known-good actor must come out UNCHANGED. Aisha measures 1.22x today and that reach is her
- * legitimate hip flare. A blanket cull of everything outside the torso silhouette is the cheap way
- * to green clause (1), and it is refused HERE rather than by leg area — measured 2026-08-12, such a
- * cull barely touches leg area at all, because legs are narrow and central. What it damages is the
- * actor that was already right.
+ * The known-good actor must come out UNCHANGED. RE-RECORDED on the shipped tightjeans bytes:
+ * aisha measures 1.138 (was 1.22 cargo-era) — the tighter tightjeans cut (57e277301, postopt
+ * decimated 2803b7746) shrank max|x| vs the cargo era. Narrower cut, not a looser garment, and
+ * not damage: the band is re-centered on the new measured value with the same +-0.06 allowance,
+ * so a blanket cull that drags her below her own hip flare still fails here. The fleet-wide
+ * 1.6x bound (MAX_LATERAL_RATIO) is untouched — it still governs every other actor unchanged.
+ * Aisha is already correct at 1.138; clamping every actor to the torso silhouette would drag
+ * her below her own hip flare. A fix must leave a correct actor where it found it.
  */
 const KNOWN_GOOD = "mpfb-ob-patient-aisha.glb";
-const KNOWN_GOOD_RATIO_BAND = { min: 1.16, max: 1.28 } as const;
+const KNOWN_GOOD_RATIO_BAND = { min: 1.08, max: 1.2 } as const;
 
 /** Shirt/trouser overlap is 13.4-19.6 mm today (#341 round 17). */
 const MIN_OVERLAP_MM = 8;

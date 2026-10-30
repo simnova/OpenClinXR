@@ -99,6 +99,34 @@ import { describe, expect, it } from "vitest";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const ARTIFACT = join(REPO_ROOT, "tools/openclinxr/evidence/waistband-membership.json");
+
+/*
+ * ## ADAPT ATTEMPT 2026-10-30 — STUCK (two independent blockers, both recorded, neither widened)
+ *
+ * Blocker A — the artifact cannot be regenerated on the current bytes. The regen writer
+ * (waistband-membership-write.ts) fail-closes on mpfb-peds-patient-child: the actor still ships
+ * a cargo-pants mesh (waist ring measurable, 1.419 mm) but its shirt hem ring is NULL — the
+ * shirt's bottom-3% band holds 4 verts, a stray spike 11 mm below the real hem, so the shared
+ * instrument (waistband-ring.ts, unchanged since #427) returns null and the writer throws by
+ * design ("a missing ring is not data"). Bisected on disk: measurable (104 verts, 1.377 mm) at
+ * 435d85314, NULL at 3f1c222a4 (HB-07 child rebake), healed by revert 0bed07e8f, re-broken by
+ * 078d96a2c (HB-07 full-chain rebake — the current bytes' source) and NULL ever since.
+ * Hand-omitting the child row would be the planted contract's refused treatment (d).
+ *
+ * Blocker B — even past the regen, the bound would go honestly RED. Fresh same-instrument rows
+ * on the current bytes (verified individually against disk/git):
+ *   mpfb-ob-patient-aisha       tightjeans      7.889 / 1.918    4.113  (57e277301 swap)
+ *   mpfb-peds-parent-aisha      tightjeans     13.461 / 2.350    5.728  (57e277301 swap)
+ *   mpfb-street-adult-male      straight-leg    4.770 / 1.057    4.513  (garment swap)
+ *   mpfb-viseme-inspect         tightjeans      7.889 / 1.918    4.113  (57e277301 swap)
+ * Four actors over #373's 4x — clauses (2) and (4) of THIS file would fail on the fresh data.
+ * That is the NET catching a real regression (the jeans re-fits), not staleness. The bound
+ * stays 4: widening it to buy a green is the planted contract's refused treatment (d).
+ * Verified alongside: gown-adult-patient carries a gown shell and NO trousers on disk
+ * (d10314025 removed the cargo trousers — its artifact row must DROP on regen), and
+ * mpfb-gown-ed-robert-hayes (added 69f2c7075) likewise carries no trousers (scanned count only,
+ * no row). Nurse fresh row 3.423 / 0.944 / 3.626 (hem-close 38ff3505b).
+ */
 const MEMBERSHIP_SRC = join(HERE, "every-shipped-trouser-waistband-is-measured.test.ts");
 const BOUND_SRC = join(HERE, "the-waistband-is-as-smooth-as-the-hem.test.ts");
 const GENERATED = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.head-vs-forearm-normal-detail.v1",
   "kind": "head_vs_forearm_normal_detail",
-  "generatedAt": "2026-08-26T22:10:45.296Z",
+  "generatedAt": "2026-10-30T07:12:03.727Z",
   "method": {
     "statistic": "sd(R) over interior texels of the region's UV coverage, atlas gutter excluded",
     "headFamily": "head joint + all descendants (jaw, oris*, oculi*, temporalis*, levator*, orbicularis*, risorius*, special*, tongue*, eye*)",
@@ -44,6 +44,15 @@
       "forearmTexels": 17905,
       "headTriangles": 3205,
       "forearmTriangles": 670
+    },
+    {
+      "actor": "mpfb-gown-ed-robert-hayes",
+      "headSd": 10.24007427281154,
+      "forearmSd": 9.988062743378437,
+      "headTexels": 200396,
+      "forearmTexels": 17610,
+      "headTriangles": 3238,
+      "forearmTriangles": 652
     },
     {
       "actor": "mpfb-ob-patient-aisha",
@@ -92,8 +101,8 @@
     }
   ],
   "treeStamp": {
-    "head": "bd0a7dc3d9e59c70005617665be8ef97d3b9f7dc",
-    "fingerprint": "1c210902b916690a28f6bb7318416194b233d4ff8c036be92d7b4e974fa3d779",
+    "head": "91e1e1bd69d49fa9bd7e2e4240e951e256b7c7d4",
+    "fingerprint": "a5ea5ed148129f6bc478508ba5121234d2d68623bf8c4126259a06f3c6e93d56",
     "algorithm": "git-head+status+diff-sha256"
   }
 }

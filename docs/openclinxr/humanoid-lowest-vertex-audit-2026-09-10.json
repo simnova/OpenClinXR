@@ -1,10 +1,10 @@
 {
   "title": "HB-01 lowest-vertex audit",
-  "measured": "2026-09-11",
+  "measured": "2026-09-11; robert-hayes row appended 2026-10-30 (69f2c7075 added the GLB; regen per the audit method, no producer script exists)",
   "method": "NodeIO read of shipped GLB bytes in apps/ui-xr/public/generated-humanoids; per-primitive world minY via node world matrix; glTF up axis is +Y so minY is the sole height (card names Blender-scene bmin.z; both mean the boot sole). Grade-engine note: finished_figure_grade.choose_grade_engine falls back to BLENDER_WORKBENCH which ignores Principled Base Color; record the engine before any colour finding.",
   "icosphereExportedIntoAnyGlb": false,
   "hiddenShellIsGlobalMinimumInAnyGlb": false,
-  "glbCount": 19,
+  "glbCount": 20,
   "glbFiles": [
     "adult_male_street_casual.glb",
     "ed_chest_pain_adult_cast.glb",
@@ -14,6 +14,7 @@
     "mpfb-clinical-physician-adult.glb",
     "mpfb-family-partner-adult.glb",
     "mpfb-gown-adult-patient.glb",
+    "mpfb-gown-ed-robert-hayes.glb",
     "mpfb-gown-inspect.glb",
     "mpfb-ob-patient-aisha.glb",
     "mpfb-peds-nurse-kevin.glb",
@@ -26,7 +27,7 @@
     "peds_nurse_kevin.glb",
     "peds_patient_child.glb"
   ],
-  "causeStatement": "No shipped GLB exports the MPFB Icosphere; no openclinxr_hidden_* cover shell is the global minimum in any body. 17 of 19 bodies have the footwear mesh as the global minimum. The 2 exceptions are VISIBLE bare-skin sole vertices below embedded slipper shells, not invisible helpers. The 158px float in the published still is therefore NOT reproduced by the GLB bytes: it came from the Blender-side unparented Icosphere at z=-1 already fixed in 8f615ceb, not from exported geometry.",
+  "causeStatement": "No shipped GLB exports the MPFB Icosphere; no openclinxr_hidden_* cover shell is the global minimum in any body. 18 of 20 bodies have the footwear mesh as the global minimum. The 2 exceptions are VISIBLE bare-skin sole vertices below embedded slipper shells, not invisible helpers. The 158px float in the published still is therefore NOT reproduced by the GLB bytes: it came from the Blender-side unparented Icosphere at z=-1 already fixed in 8f615ceb, not from exported geometry.",
   "bodies": [
     {
       "file": "adult_male_street_casual.glb",
@@ -1797,6 +1798,280 @@
             0,
             1.57058,
             0.076
+          ],
+          "isFootwear": false
+        }
+      ]
+    },
+    {
+      "file": "mpfb-gown-ed-robert-hayes.glb",
+      "globalMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_robert_reference_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": -0.000003,
+        "minVertexIndex": 266,
+        "minWorld": [
+          0.24143,
+          0,
+          0.14935
+        ],
+        "isFootwear": true
+      },
+      "footwearMinimum": {
+        "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_robert_reference_mesh",
+        "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+        "alphaMode": "OPAQUE",
+        "triCount": 1004,
+        "minY": -0.000003,
+        "minVertexIndex": 266,
+        "minWorld": [
+          0.24143,
+          0,
+          0.14935
+        ],
+        "isFootwear": true
+      },
+      "hasFootwearMesh": true,
+      "globalIsFootwear": true,
+      "deltaGlobalMinusFootwearM": 0,
+      "offendingPrimitiveVisible": true,
+      "exceptionReason": null,
+      "primitives": [
+        {
+          "mesh": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_robert_reference_mesh",
+          "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+          "alphaMode": "OPAQUE",
+          "triCount": 1004,
+          "minY": -0.000003,
+          "minVertexIndex": 266,
+          "minWorld": [
+            0.24143,
+            0,
+            0.14935
+          ],
+          "isFootwear": true
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "mpfb_skin_robert_reference",
+          "alphaMode": "OPAQUE",
+          "triCount": 9810,
+          "minY": -0.000003,
+          "minVertexIndex": 5894,
+          "minWorld": [
+            0.17366,
+            0,
+            0.13565
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "openclinxr_hidden_foot_mpfb_robert_reference_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 400,
+          "minY": -0.000003,
+          "minVertexIndex": 357,
+          "minWorld": [
+            0.17366,
+            0,
+            0.13565
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "openclinxr_hidden_foot_mpfb_robert_reference_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 2093,
+          "minY": 0.001952,
+          "minVertexIndex": 1288,
+          "minWorld": [
+            0.16295,
+            0.00195,
+            0.17769
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "openclinxr_hidden_orphan_mpfb_robert_reference_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 72,
+          "minY": 0.003306,
+          "minVertexIndex": 77,
+          "minWorld": [
+            0.18451,
+            0.00331,
+            0.19171
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "openclinxr_hidden_lower_mpfb_robert_reference_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 82,
+          "minY": 0.099622,
+          "minVertexIndex": 103,
+          "minWorld": [
+            0.16581,
+            0.09962,
+            0.00248
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "openclinxr_hidden_lower_mpfb_robert_reference_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 495,
+          "minY": 0.103424,
+          "minVertexIndex": 177,
+          "minWorld": [
+            -0.21173,
+            0.10342,
+            -0.02405
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_real_garment_hospital_gown_mesh",
+          "material": "openclinxr_real_garment_hospital_gown_phenotype_L0.001",
+          "alphaMode": "OPAQUE",
+          "triCount": 6832,
+          "minY": 0.56,
+          "minVertexIndex": 0,
+          "minWorld": [
+            0.24511,
+            0.56,
+            0
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_declared_upper_layers__hospital_gown_mesh",
+          "triCount": 1,
+          "minY": 0.976566,
+          "minVertexIndex": 0,
+          "minWorld": [
+            0,
+            0.97657,
+            0.13046
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "openclinxr_hidden_upper_mpfb_robert_reference_body_mesh",
+          "alphaMode": "MASK",
+          "triCount": 1818,
+          "minY": 1.062247,
+          "minVertexIndex": 1154,
+          "minWorld": [
+            0.09215,
+            1.06225,
+            -0.0533
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "mpfb_robert_reference_body",
+          "material": "openclinxr_hidden_upper_mpfb_robert_reference_body_mesh.001",
+          "alphaMode": "MASK",
+          "triCount": 158,
+          "minY": 1.158135,
+          "minVertexIndex": 74,
+          "minWorld": [
+            0,
+            1.15813,
+            0.13816
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mesh",
+          "material": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 3154,
+          "minY": 1.503868,
+          "minVertexIndex": 1387,
+          "minWorld": [
+            -0.06336,
+            1.50387,
+            0.13188
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_tongue_mpfb_robert_reference_mesh",
+          "material": "mat_openclinxr_hm08_tongue_mpfb_robert_reference_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 422,
+          "minY": 1.570583,
+          "minVertexIndex": 132,
+          "minWorld": [
+            0,
+            1.57058,
+            0.07596
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_hm08_teeth_mpfb_robert_reference_mesh",
+          "material": "mat_openclinxr_hm08_teeth_mpfb_robert_reference_mesh",
+          "alphaMode": "OPAQUE",
+          "triCount": 190,
+          "minY": 1.571265,
+          "minVertexIndex": 89,
+          "minWorld": [
+            0,
+            1.57126,
+            0.13384
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "makeclothes_library_eyes_low_poly_mpfb_robert_reference_mesh",
+          "material": "mat_makeclothes_library_eyes_robert_reference",
+          "alphaMode": "OPAQUE",
+          "triCount": 172,
+          "minY": 1.651745,
+          "minVertexIndex": 3,
+          "minWorld": [
+            0.02532,
+            1.65174,
+            0.12826
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh",
+          "material": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 297,
+          "minY": 1.654775,
+          "minVertexIndex": 503,
+          "minWorld": [
+            -0.03274,
+            1.65478,
+            0.13951
+          ],
+          "isFootwear": false
+        },
+        {
+          "mesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh",
+          "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mat",
+          "alphaMode": "OPAQUE",
+          "triCount": 12122,
+          "minY": 1.667672,
+          "minVertexIndex": 8955,
+          "minWorld": [
+            0.05019,
+            1.66767,
+            0.13468
           ],
           "isFootwear": false
         }
