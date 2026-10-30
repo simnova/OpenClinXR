@@ -3,7 +3,7 @@ import test from 'node:test';
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { InvocationDeadline } from './deadline.js';
+import { InvocationDeadline } from '../../../../../../../tools/openclinxr/evidence/quest-capacity/stage2/deadline.js';
 test('late constructor cannot start another stage and its owned late resource is actually disposed',async()=>{
   const bound=new InvocationDeadline(performance.now(),80);let disposed=0,opened=false;
   const construction=new Promise<{close():Promise<void>}>(yes=>setTimeout(()=>{opened=true;yes({close:async()=>{opened=false;disposed++;}});},30));

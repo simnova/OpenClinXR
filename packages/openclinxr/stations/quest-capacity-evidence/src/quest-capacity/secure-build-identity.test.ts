@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { makeRun, type CapacityRun } from "@openclinxr/xr-capacity";
-import { checkCampaignBuildIdentity, parseServedAppIdentity } from "./secure-build-identity.js";
+import { checkCampaignBuildIdentity, parseServedAppIdentity } from "../../../../../../tools/openclinxr/evidence/quest-capacity/secure-build-identity.js";
 const identity = { revision: "abcdef123456", buildHash: `sha256:${"a".repeat(64)}` };
 function run(id = "identity-fixture"): CapacityRun {
   return makeRun({ id, environment: { runtime: "chromium", device: "test-host", os: "test-os", browser: "test-browser", ...identity }, configuration: { workloadHash: "fixed-fixture", capabilityHash: "fixed-capabilities", seed: 1729, axes: {} } });

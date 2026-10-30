@@ -1,0 +1,15 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/quest-capacity/**",
+        "$TURBO_ROOT$/apps/ui-xr/package.json",
+        "$TURBO_ROOT$/apps/arena/ui-xr-iwsdk-spike/package.json"
+      ]
+    }
+  }
+}

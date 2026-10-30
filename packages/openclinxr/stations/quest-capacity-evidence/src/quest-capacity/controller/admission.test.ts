@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {test} from 'vitest';
-import {persistControllerSourceAdmission,type ControllerAdmissionOptions,type ControllerSourceAdmission} from './admission.js';
+import {persistControllerSourceAdmission,type ControllerAdmissionOptions,type ControllerSourceAdmission} from '../../../../../../../tools/openclinxr/evidence/quest-capacity/controller/admission.js';
 const fixture=()=>{
  const calls:string[]=[],receipts:ControllerSourceAdmission[]=[],url='http://127.0.0.1:12345/?purpose=readiness&mode=ON&nonce=admission-fixture';
  const targetInfo={targetId:'actual-fixture-owned-target',type:'page',url};

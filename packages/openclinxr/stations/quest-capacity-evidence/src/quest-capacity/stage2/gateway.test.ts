@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { STAGE2_CONFIG } from '@openclinxr/xr-capacity/stage2';
-import { GatewayStartError, serverSources, sha, sourceDigest, startStage2Gateway } from './gateway.js';
+import { GatewayStartError, serverSources, sha, sourceDigest, startStage2Gateway } from '../../../../../../../tools/openclinxr/evidence/quest-capacity/stage2/gateway.js';
 const python = process.env['STAGE2_PYTHON'];
 const identity = {browserBundleSha256:'0'.repeat(64),serverSourceSha256:'',protocolSha256:'0'.repeat(64),fixtureConfigSha256:sha(JSON.stringify(STAGE2_CONFIG)),graderSourceSha256:'0'.repeat(64)};
 const binding = {runNonce:'pure-http-no-media',peerTicket:'ticket',uplinkSourceId:'up',downlinkSourceId:'down'};

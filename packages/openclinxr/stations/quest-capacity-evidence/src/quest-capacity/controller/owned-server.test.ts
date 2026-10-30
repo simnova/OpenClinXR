@@ -6,8 +6,8 @@ import {createConnection,type Socket} from 'node:net';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {test} from 'vitest';
-import {closeControllerResources,controllerDeadline} from './cleanup.js';
-import {closeControllerServer,controllerServer,controllerServerClosed} from './serve.js';
+import {closeControllerResources,controllerDeadline} from '../../../../../../../tools/openclinxr/evidence/quest-capacity/controller/cleanup.js';
+import {closeControllerServer,controllerServer,controllerServerClosed} from '../../../../../../../tools/openclinxr/evidence/quest-capacity/controller/serve.js';
 
 const pause=(ms:number)=>new Promise<void>(done=>setTimeout(done,ms));
 const connections=(server:Server)=>new Promise<number>((done,reject)=>server.getConnections((error,count)=>error?reject(error):done(count)));

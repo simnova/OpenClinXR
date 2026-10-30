@@ -2,13 +2,13 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { spawnSync } from "node:child_process";
 import { cp, mkdir, mkdtemp, readFile, rm, truncate, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { evaluateRun, parseRunRecord, runHostWorkloads, type CapacityRun } from "@openclinxr/xr-capacity";
-import { readLocalJson } from "./artifacts.js";
-import { runLoopback } from "./loopback.js";
+import { readLocalJson } from "../../../../../../tools/openclinxr/evidence/quest-capacity/artifacts.js";
+import { runLoopback } from "../../../../../../tools/openclinxr/evidence/quest-capacity/loopback.js";
 
-const root = fileURLToPath(new URL("../../../../", import.meta.url));
-const cli = fileURLToPath(new URL("cli.ts", import.meta.url));
+const root = repoRoot();
+const cli = join(root, "tools/openclinxr/evidence/quest-capacity/cli.ts");
 let temp = "";
 
 interface TestEnvelope {

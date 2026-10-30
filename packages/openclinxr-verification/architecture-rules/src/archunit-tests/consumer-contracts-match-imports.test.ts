@@ -1247,8 +1247,11 @@ describe("consumer contracts match imports", () => {
     // actor-audio-runtime seam fires.
     const allowlist = readAllowlist(root);
     // 2026-10-30 makeclothes evidence sidecar adds two rows (operator-approved limit raise).
+    // 2026-10-30 quest-capacity evidence sidecar adds two rows (operator-approved limit raise).
     expect(allowlist.map((r) => `${r.provider}${r.entrypoint}`).sort()).toEqual([
       "@openclinxr/station-mouth-registry.",
+      "@openclinxr/xr-capacity.",
+      "@openclinxr/xr-capacity./stage2",
       "@openclinxr/xr-dialogue.",
       "@openclinxr/xr-dialogue./actor-audio-runtime",
       "@openclinxr/xr-dialogue./package-actor-turn",

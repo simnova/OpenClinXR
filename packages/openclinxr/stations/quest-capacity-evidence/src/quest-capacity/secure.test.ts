@@ -3,10 +3,12 @@ import { connect } from "node:http2";
 import type { TLSSocket } from "node:tls";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { WebSocket } from "ws";
-import { startSecureServices } from "./secure-services.js";
-import { localAppOrigin } from "./secure-routes.js";
-import { IMAGE_FIXTURES } from "./secure-image.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { startSecureServices } from "../../../../../../tools/openclinxr/evidence/quest-capacity/secure-services.js";
+import { localAppOrigin } from "../../../../../../tools/openclinxr/evidence/quest-capacity/secure-routes.js";
+import { IMAGE_FIXTURES } from "../../../../../../tools/openclinxr/evidence/quest-capacity/secure-image.js";
 // Tests deliberately pin the one self-signed test certificate without modifying system trust.
 function request(service: Awaited<ReturnType<typeof startSecureServices>>, path: string, method = "GET", payload?: Buffer) {
   return new Promise<{ status: number; bytes: Buffer; version: string }>((resolve, reject) => {
@@ -63,7 +65,7 @@ describe("bounded secure local services", () => {
     await new Promise<void>((resolve, reject) => { const socket = new WebSocket(service.manifest.wssUrl, { rejectUnauthorized: false, origin: "https://unallowed.example" }); socket.once("open", () => { socket.close(); reject(new Error("Unallowed origin accepted")); }); socket.once("error", () => resolve()); });
   });
   it("pins explicit empty ICE configuration and bounds signaling", async () => {
-    const source = await readFile(new URL("./secure/rtc_peer.py", import.meta.url), "utf8");
+    const source = await readFile(join(repoRoot(), "tools/openclinxr/evidence/quest-capacity/secure/rtc_peer.py"), "utf8");
     expect(source).toContain("RTCConfiguration(iceServers=[])"); expect(source).toContain("asyncio.wait_for");
     const offer = new URL(service.manifest.rtcOfferUrl); expect((await request(service, offer.pathname + offer.search, "POST", Buffer.from('{"type":"offer","sdp":""}'))).status).toBe(400);
   });

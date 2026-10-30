@@ -3,7 +3,7 @@ import test from 'node:test';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { assertCampaignGo, claimCampaign, claimSlot, LAUNCH_FLAGS, PLAN_SHA256, type CampaignGo, type Stage2Manifest } from './campaign-policy.js';
+import { assertCampaignGo, claimCampaign, claimSlot, LAUNCH_FLAGS, PLAN_SHA256, type CampaignGo, type Stage2Manifest } from '../../../../../../../tools/openclinxr/evidence/quest-capacity/stage2/campaign-policy.js';
 import { STAGE2_PROTOCOL_SHA256 } from '@openclinxr/xr-capacity/stage2';
 const identity={browserBundleSha256:'1'.repeat(64),serverSourceSha256:'2'.repeat(64),protocolSha256:STAGE2_PROTOCOL_SHA256,fixtureConfigSha256:'3'.repeat(64),graderSourceSha256:'4'.repeat(64)};
 const manifest:Stage2Manifest={schema:'quest-stage2-host-source-manifest.v1',identity,workletSha256:'5'.repeat(64),files:{},served:{}};

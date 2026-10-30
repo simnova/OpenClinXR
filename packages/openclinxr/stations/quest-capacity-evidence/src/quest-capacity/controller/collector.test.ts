@@ -1,5 +1,5 @@
-import {readFile} from 'node:fs/promises';import {createHash} from 'node:crypto';import {createRequire} from 'node:module';import {dirname,join} from 'node:path';import {fileURLToPath,pathToFileURL} from 'node:url';import {describe,it,expect} from 'vitest';
-const directory=dirname(fileURLToPath(import.meta.url)),sha=(b:Uint8Array|string)=>createHash('sha256').update(b).digest('hex');
+import {readFile} from 'node:fs/promises';import {createHash} from 'node:crypto';import {createRequire} from 'node:module';import {join} from 'node:path';import {pathToFileURL} from 'node:url';import {describe,it,expect} from 'vitest';import {repoRoot} from '@openclinxr/factory-station-core/runner';
+const directory=join(repoRoot(),'tools/openclinxr/evidence/quest-capacity/controller'),sha=(b:Uint8Array|string)=>createHash('sha256').update(b).digest('hex');
 interface FixtureBundler {build(options:{stdin:{contents:string;loader:'ts';resolveDir:string};bundle:true;platform:'node';format:'esm';write:false;plugins:Array<{name:string;setup(builder:{onResolve(options:{filter:RegExp},callback:(args:{path:string})=>{path:string;namespace:string}):void;onLoad(options:{filter:RegExp;namespace:string},callback:(args:{path:string})=>{contents:string;loader:'js'}):void}):void}>}):Promise<{outputFiles:Array<{contents:Uint8Array}>}>}
 describe('real collector catch/finally with in-memory imports; zero browser/CDP/server/device operations',()=>{
  it.each(['none','page','browser','server'])('keeps original error and writes honest receipt after independent %s close fault',async(failed)=>{

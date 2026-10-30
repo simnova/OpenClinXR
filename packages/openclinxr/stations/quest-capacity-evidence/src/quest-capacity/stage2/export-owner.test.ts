@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {InvocationDeadline} from './deadline.js';
-import {ExportOwner} from './export-owner.js';
-import {chainInput,digest} from './export.js';
-import {KnownBudget} from './memory.js';
-import type {ExportFile} from './persist.js';
+import {InvocationDeadline} from '../../../../../../../tools/openclinxr/evidence/quest-capacity/stage2/deadline.js';
+import {ExportOwner} from '../../../../../../../tools/openclinxr/evidence/quest-capacity/stage2/export-owner.js';
+import {chainInput,digest} from '../../../../../../../tools/openclinxr/evidence/quest-capacity/stage2/export.js';
+import {KnownBudget} from '../../../../../../../tools/openclinxr/evidence/quest-capacity/stage2/memory.js';
+import type {ExportFile} from '../../../../../../../tools/openclinxr/evidence/quest-capacity/stage2/persist.js';
 const binding={runNonce:'owner-test',identitySha256:'b'.repeat(64)};
 const deferred=()=>{let resolve:()=>void=()=>undefined;const promise=new Promise<void>(yes=>{resolve=yes;});return{promise,resolve};};
 const tick=()=>new Promise<void>(yes=>setImmediate(yes));

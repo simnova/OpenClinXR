@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {chainInput,digest} from './export.js';
-import {KnownBudget} from './memory.js';
-import {DurableExport,type ExportFile} from './persist.js';
+import {chainInput,digest} from '../../../../../../../tools/openclinxr/evidence/quest-capacity/stage2/export.js';
+import {KnownBudget} from '../../../../../../../tools/openclinxr/evidence/quest-capacity/stage2/memory.js';
+import {DurableExport,type ExportFile} from '../../../../../../../tools/openclinxr/evidence/quest-capacity/stage2/persist.js';
 
 const binding={runNonce:'writer-test',identitySha256:'a'.repeat(64)};
 async function unit(){const value={...binding,sequence:0,offset:0,length:7,data:'{"a":1}',sha256:await digest('{"a":1}'),final:true};return{...value,chainSha256:await digest(chainInput('0'.repeat(64),value))};}
