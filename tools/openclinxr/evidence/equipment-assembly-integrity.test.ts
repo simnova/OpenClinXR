@@ -195,7 +195,11 @@ describe("real equipment GLBs are assembled objects (#168)", () => {
     expect(broken, `equipment that is not one object:\n${broken.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it("the ECG cart's parts share a ground plane and footprint", async () => {
+  // DEFERRED 2026-10-30 per operator Q3: "don't care about ECG cart being multiparts
+  // at this time". it.fails so this flips red if the cart becomes multi-part again.
+  // NOT deferred: clause (1) privacy_curtain isAssembled=false and clause (3)
+  // PROVENANCE 11-declared-vs-10-present stay red — Q3 covers the ECG cart only.
+  it.fails("the ECG cart's parts share a ground plane and footprint", async () => {
     // Kills the cheap satisfaction of the first contract: dropping the cart from
     // REAL_EQUIPMENT_GLTF_BY_ID so nothing is checked. The cart is named here specifically.
     const mod = await load();

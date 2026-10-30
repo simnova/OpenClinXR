@@ -335,6 +335,11 @@
       "path": "tools/openclinxr/evidence/the-iwsdk-spike-proves-the-package-runs.test.ts",
       "reason": "Clause (2) only: the checked-in Chromium receipt browser-proof-042.json executed @iwsdk/core 0.4.2 and pins its dist SHA to the installed package. ci-w5 f0638c7a0 moved the spike to 1.1.0-rc.2 (operator decision, IWSDK latest), so the installed SHA no longer matches. Clauses (1),(3),(4),(5) pass on the new pin. Needs a fresh headless-Chromium capture of a Vite bundle on 1.1.0-rc.2; the receipt producer is not in the repo.",
       "card": "ci-closure: recapture the IWSDK Chromium receipt on 1.1.0-rc.2 (producer missing)"
+    },
+    {
+      "path": "tools/openclinxr/evidence/equipment-assembly-integrity.test.ts",
+      "reason": "Measured 2026-10-30 in ci-w5: 2 failed + 1 expected fail, independent of the Q3 ECG deferral. Clause (1) fails only on privacy_curtain_equipment, which resolves to multiple disconnected part clusters (no single connected component) despite 0.000m max vertical gap and no orphan parts. Clause (3) fails on PROVENANCE.md declaring 11 GLBs with 10 present. Clause (2) ECG cart (1 part, needs >2) is DEFERRED per operator Q3 2026-10-30 via it.fails, not a hard fail. Listed so the pre-commit related-test gate excludes this planted-red file.",
+      "card": "unfiled: privacy_curtain single-component assembly verdict and PROVENANCE 11-declared-vs-10-present ledger correction"
     }
   ]
 }
