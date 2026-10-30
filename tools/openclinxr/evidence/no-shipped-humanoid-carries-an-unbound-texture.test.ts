@@ -40,20 +40,49 @@ import { describe, expect, it } from "vitest";
  *   Pinned invariants held: boundTextures 4, boundBytes 3168198, meshes 10, materials 17,
  *   tris 131328, joints 137, animations 2. Shoe.png not re-consumed.
  *   Evidence: tools/openclinxr/evidence/unbound-texture-prune.json
+ *
+ * ## ADAPTED (ci-w11) 2026-10-30 — appended; the planted header and both blocks above are immutable.
+ * afe8abced reintroduced orphans (not Shoe: skin-normal maps orphaned by the 2026-10-10
+ * normalTexture strips, a T-shirt_basic.png duplicate on tara, and a dead T-shirt material on
+ * the gown). Five files, 5144449 B total:
+ *
+ *   asset                        file      orphan
+ *   mpfb-family-partner-adult    10529116  1091596  skin-normal
+ *   mpfb-gown-adult-patient      20462500  1063690  image + dead T-shirt material (392852) + 923 dead accessors
+ *   mpfb-ob-patient-aisha        10069400  1080156  skin-normal
+ *   mpfb-peds-parent-aisha       19888836   744895  T-shirt_basic.png duplicate
+ *   mpfb-peds-patient-child      11743228  1164112  skin-normal
+ *
+ *   tool: gltf-transform prune 4.3.0 (same CLI + flags as #555) — Texture removals 1/2/1/1/1,
+ *   orphanBytesAfter 0 on all five. Post-prune bytes: 9277296 / 6763692 / 8828240 / 18441636 /
+ *   10418728. Gown freed 13698808: the orphan image + the unreferenced material + ~12 MB of
+ *   dead accessors; meshes 10, tris 40277, joints 138, animations 4 unchanged, materials 17->16
+ *   (the dead material). All other files: every geometry/rig/animation invariant unchanged.
+ *   PINNED re-based to the deliberate pre-prune state (citations on the PINNED block) and the
+ *   floor re-derived from measured per-pinned-file orphans (700K under min 744895). Shoe still
+ *   refused: bound bytes stay <= pin on both aishas.
+ *   Evidence: tools/openclinxr/evidence/unbound-texture-prune-2026-10-30.json
  */
 
 const DIR = "apps/ui-xr/public/generated-humanoids";
 /** Pinned from HEAD. A prune must not move any of these. */
+// ci-w11 2026-10-30 re-pin: the #598 pins below were superseded by deliberate rebakes
+// (tightjeans re-bake 2803b7746, HB-02 42c42140a, walk graft 91aa4b5d3, 7d71273e3/9f2934536,
+// 10768617f; tara full-res afe8abced; own D2 grade 5792dd39c and D3 repairs 344853d7d/c35888280).
+// Re-pinned to the measured pre-prune deliberate state (rotation: ALSO update these four numbers
+// after any future deliberate rebake, citing its commit — never to match a regression).
 const PINNED = {
-  // #598 re-pinned 2026-08-23: full shoe-swap rebake (flats→mj_cloth_shoes). Old:
-  // fileBytes 24291640, boundTextures 4, boundBytes 3168198, tris 131328.
-  "mpfb-ob-patient-aisha.glb":  { fileBytes: 11395580, textures: 5, boundTextures: 5, boundBytes: 4580867, meshes: 10, materials: 17, tris: 74642, joints: 137, animations: 2 },
-  // #598 re-pinned 2026-08-23: same rebake. Old: fileBytes 24291644, boundTextures 4,
-  // boundBytes 3168198, tris 131328.
-  "mpfb-peds-parent-aisha.glb": { fileBytes: 11456228, textures: 5, boundTextures: 5, boundBytes: 4598965, meshes: 10, materials: 17, tris: 74732, joints: 137, animations: 2 },
+  // ci-w11 re-pin 2026-10-30, measured pre-prune. Old #598: fileBytes 11395580, textures 5,
+  // boundTextures 5, boundBytes 4580867, tris 74642, animations 2.
+  "mpfb-ob-patient-aisha.glb":  { fileBytes: 10069400, textures: 5, boundTextures: 5, boundBytes: 4246964, meshes: 10, materials: 17, tris: 69067, joints: 137, animations: 3 },
+  // ci-w11 re-pin 2026-10-30, measured pre-prune (post-afe8abced full-res hair + D2 grade).
+  // Old #598: fileBytes 11456228, textures 5, boundTextures 5, boundBytes 4598965, tris 74732.
+  "mpfb-peds-parent-aisha.glb": { fileBytes: 19888836, textures: 12, boundTextures: 11, boundBytes: 10641749, meshes: 10, materials: 17, tris: 73012, joints: 137, animations: 2 },
 } as const;
-/** Derived from the measurement, not chosen: the orphan is 7.41 MB, so the file must lose most of it. */
-const MIN_BYTES_FREED = 7_000_000;
+/** Re-derived 2026-10-30 from measurement, not chosen: pre-prune per-pinned-file orphans are
+ * ob 1080156 / pp 744895, so each PINNED file must lose at least 700 KB. The old 7M floor died
+ * with the 7.41 MB Shoe orphans (deliberate rebake chain above + #555 prune). */
+const MIN_BYTES_FREED = 700_000;
 
 type Shape = { textures: number; boundTextures: number; boundBytes: number; orphanBytes: number; meshes: number; materials: number; tris: number; joints: number; animations: number };
 
