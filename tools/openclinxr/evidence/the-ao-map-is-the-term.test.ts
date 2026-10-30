@@ -185,6 +185,8 @@ describe("the AO map is the term", () => {
         "#529 capture-time sha"],
       ["4239db019bebaf0e0d15d412abd950667adc694cdc8a3ae9d2a53a929203c115",
         "#537 texture-only re-emit, commit 7621241a - authorised bounded exception, mesh hashes unchanged"],
+      ["1d8ff5991eb93e15f9bff5159771891990287caff8b8b6efce4fe820caaa3009",
+        "#547fb18a9 promote regeneration batch 1 (2026-10-01) - sanctioned room regen, BATCH-01.md + registry entry; mesh+texture rebake"],
     ]);
     expect(existsSync(GLB), "the shipped room GLB must still exist").toBe(true);
     const live = createHash("sha256").update(readFileSync(GLB)).digest("hex");

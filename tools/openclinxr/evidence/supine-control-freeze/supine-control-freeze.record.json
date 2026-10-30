@@ -3,12 +3,12 @@
   "scenarioId": "ward_delirium_med_rec_v1",
   "assetSha256ByPath": {
     "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": "8816c56eceafd02398077b623975d8948c09549fd9d43bce489040c8c58d42ea",
-    "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "4c459f7f2f2953019e397e324416ff78f973a139e12ac86669681cb6622f70f2",
-    "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": "cd74e84ef558f9a3c428f8da7b7458fb2e0621448125e7ce1a6c136a9b247b1e",
-    "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "d99e55ff594247af91d53ec5d0f4192a39bc898174f5d11b40da7a7c7d709276",
-    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "4ca47db44375865bf51806abadccc1ac08c0a47a3a7a1835c77e1ce9dc830eaf",
+    "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "c7def44bda87d5d115d53c794f546ec6bf1b5ae655865f00df4262cdf538e6ab",
+    "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": "e8896ed8905266c54ec87191a50c48e73e755f9b887a527190b0ed7fba5bca27",
+    "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "88f094703dfc96811af56c6bb6070933f654a6a58c8ded3e5feac296e5561406",
+    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "6d078108a2372092bb267df33618966d0f232243e28c966eeb65d4b4242da3de",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9",
-    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "6b2e9ca42f0c0f2bc9b67962ce252cafb1112bdf34d874ed62878417511bc4b4",
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
     "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "0de69b66a569d457c11985895f76b24a4c0cc99adc530720ee0e4ecaa78a22de"
   },
   "staged": {
@@ -17,15 +17,15 @@
     "clearanceAboveDeckMeters": 0.25
   },
   "producedFrom": {
-    "observedBy": "factory:room:promote deterministic asset promotion",
-    "observedAtIso": "2026-10-01T22:16:22.940Z",
-    "reason": "Room-chain promotion changed the installed apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb bytes; provenance and byte counts were re-derived by the supported producer.",
+    "observedBy": "ci-w2-stale-producer-evidence worker (foreground re-baseline)",
+    "observedAtIso": "2026-10-30T04:21:02.174Z",
+    "reason": "Record pinned pre-Sep25 actor bytes and pre-Oct1 room bytes; superseded by deliberate landed slices: walk-clip bind Sep25, teeth retreat Sep28, CC-BY scrub extras Sep20, room re-promotion Oct1, mouth/albedo Oct, physician walk-channel repair Oct29. Recomputed from current disk bytes.",
     "byteCountByPath": {
       "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9221980,
       "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9308164,
-      "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": 4062632,
-      "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 19149628,
-      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 10529172,
+      "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": 9000208,
+      "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 20462724,
+      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 10529144,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 8775848,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 9618436,
       "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 7894888
