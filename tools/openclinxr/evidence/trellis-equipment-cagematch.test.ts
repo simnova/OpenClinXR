@@ -265,9 +265,22 @@ describe("can TRELLIS.2 produce a usable clinical prop (#164)", () => {
       ).toBe(true);
     }
 
-    // The shipped cart must be exactly what #168 landed.
+    // The shipped cart reference path must be exactly what #168 landed.
+    // (Its partCount assertion lives in the Q3-deferred clause below — operator
+    // 2026-10-30: "don't care about ECG cart being multiparts at this time".)
     expect(run.reference.path.includes("medical-equipment"), "the reference is not the shipped cart").toBe(true);
-    expect(run.reference.partCount, "the shipped cart lost its parts").toBeGreaterThan(2);
     expect(run.backend.length, "the compute backend was not recorded").toBeGreaterThan(0);
+  }, 3_600_000);
+
+  // DEFERRED 2026-10-30 per operator Q3: "don't care about ECG cart being multiparts
+  // at this time". Split out of the licence counterweight above so that counterweight
+  // keeps enforcing; it.fails so this flips red if the cart becomes multi-part again.
+  it.fails("the shipped parametric ECG cart reference is multi-part", async () => {
+    const mod = await load();
+    const inspect = mod["inspectTrellisEquipmentCagematch"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const run = await inspect!();
+    expect(run.reference.partCount, "the shipped cart lost its parts").toBeGreaterThan(2);
   }, 3_600_000);
 });

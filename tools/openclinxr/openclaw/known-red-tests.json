@@ -3,7 +3,7 @@
   "tests": [
     {
       "path": "tools/openclinxr/evidence/generator-sweep-harness.test.ts",
-      "reason": "Fails on origin/main. Before the one-line globalThis.self polyfill the sweep throws ReferenceError self is not defined in three GLTFLoader. After that line the loader runs and two assertions still fail on unchanged origin/main data: unaccounted fallback ids crutches_equipment, goniometer_equipment, and ice_pack_equipment are declared on the knee scenario and absent from station-equipment-catalog (catalog unchanged vs HEAD); hospital_bed_equipment meshCount is 2 because the tracked hospital-bed GLB has 2 meshes, while the test requires meshCount greater than 3. This merge does not change the catalog, the builders, or the GLB.",
+      "reason": "Fails on origin/main. Re-measured 2026-10-30 in ci-w5: crutches_equipment, goniometer_equipment and ice_pack_equipment now resolve to parametric source with family orthopedic_kit (11/5/6 meshes; builders route them to buildOrthopedicKitFamilyEquipment) and the #202 accounted-for clause PASSES — that half of the old reason is stale. hospital_bed_equipment still measures meshCount 2 (tracked hospital-bed GLB has 2 meshes) but is DEFERRED per operator Q4 2026-10-30 via it.fails, not a hard fail. The remaining hard red is the (#198) support-surfaces clause on stretcher_equipment (meshCount 1: tracked stretcher-sketchfab-ccby.glb is a single mesh; out of operator-deferral scope, stays red). Three other clauses time out at 900s only under machine-wide browser-capture slot contention, not on assertions.",
       "card": "unfiled: distinct equipment-family builders for the three clinic ids, and a bed gate that accepts the shipped 2-mesh GLB while still rejecting the 56-triangle pole"
     },
     {

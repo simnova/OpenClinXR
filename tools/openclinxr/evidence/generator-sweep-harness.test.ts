@@ -569,7 +569,10 @@ describe("the in-process generators are swept in a harness (#194)", () => {
     // surfaces remain non-fallback and mutually distinct (asserted above). The old
     // residual "≥12 still fallback" is retired — that was the #198 before-column,
     // not a permanent product invariant.
+    // hospital_bed_equipment is DEFERRED per operator Q4 2026-10-30 (see the it.fails
+    // clause below) and skipped here so the other support surfaces keep enforcing.
     for (const id of SUPPORT) {
+      if (id === "hospital_bed_equipment") continue;
       const row = equipment.find((r) => r.subjectId === id)!;
       expect(row.meshCount, `${id} should be multi-mesh`).toBeGreaterThan(3);
     }
@@ -577,5 +580,20 @@ describe("the in-process generators are swept in a harness (#194)", () => {
     expect(report.contactSheetPaths.length, "no contact sheet was produced for the orchestrator to grade")
       .toBeGreaterThanOrEqual(2);
     expect(report.notEvidenceFor.join(" ").toLowerCase()).toContain("clinical");
+  }, 900_000);
+
+  // DEFERRED 2026-10-30 per operator Q4: "don't care about hospital bed meshes - we are
+  // likely going to rebuild that for realism later". Split out of the support-surfaces
+  // clause above so stretcher/side_rails keep enforcing; it.fails so this flips red when
+  // the rebuilt bed lands above the floor.
+  it.fails("hospital_bed_equipment is multi-mesh", async () => {
+    const mod = await load();
+    const inspect = mod["inspectGeneratorSweep"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!();
+    const equipment = report.ledger.filter((r) => r.subjectFamily === "equipment");
+    const row = equipment.find((r) => r.subjectId === "hospital_bed_equipment")!;
+    expect(row.meshCount, `hospital_bed_equipment should be multi-mesh`).toBeGreaterThan(3);
   }, 900_000);
 });

@@ -256,7 +256,10 @@ describe("a room has contact shadows", () => {
     expect(lost, "rooms that lost base-colour textures").toEqual([]);
   });
 
-  it("(4) NET known-good: contact shadows are not modelled as geometry", () => {
+  // DEFERRED 2026-10-30 per operator Q2: "don't care about shipped room triangle
+  // budget at this time we'll optimize later". it.fails so this flips red when
+  // rooms come back under budget.
+  it.fails("(4) NET known-good: contact shadows are not modelled as geometry", () => {
     // Refuses satisfying "add contact shadows" with dark polygons in the corners.
     requireRows();
     const grew = rows.filter((r) => r.triangles > MAX_TRIANGLES).map((r) => `${r.file}: tris=${r.triangles}`);
