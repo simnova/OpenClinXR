@@ -4,7 +4,7 @@
   "scenarioId": "peds_asthma_parent_anxiety_v1",
   "actorId": "nurse_kevin_lee_v1",
   "actorRole": "nurse",
-  "assetPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_nurse_kevin.glb",
+  "assetPath": "store:e8b5f9ea84cce53f944138426f24c7aaeb21cc6b20aa0983122504dbb6fb9292/peds_nurse_kevin.glb",
   "riggingReportPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_nurse_kevin_rigging_report.json",
   "sourceManifestPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_nurse_kevin.anny_manifest.json",
   "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",

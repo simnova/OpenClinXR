@@ -7,7 +7,7 @@
   "outputs": {
     "objPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_patient_child.anny_base.obj",
     "sourceManifestPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_patient_child.anny_manifest.json",
-    "glbPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_patient_child.glb",
+    "glbPath": "store:5c87e7805139bab8cc5db2729ae5dc1c51673e18b3a2651bb327cf119cb58269/peds_patient_child.glb",
     "riggingReportPath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_patient_child_rigging_report.json",
     "provenancePath": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-288/cases/peds_asthma_parent_anxiety_v1/stage-world-compile/bakes/peds_patient_child.provenance.json",
     "optimizationReportPath": null
