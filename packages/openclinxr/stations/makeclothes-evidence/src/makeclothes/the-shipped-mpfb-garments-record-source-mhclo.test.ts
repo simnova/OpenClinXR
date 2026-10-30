@@ -1,11 +1,11 @@
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import { hasValidProvenance, proceduralGownSourceHash } from "./garment-provenance-stamp.ts";
-import { isLegacyRecordedProceduralGown } from "./recorded-garment-provenance.ts";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { hasValidProvenance, proceduralGownSourceHash } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/garment-provenance-stamp.ts";
+import { isLegacyRecordedProceduralGown } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/recorded-garment-provenance.ts";
 
 /**
  * After the 2026-09-20 fleet stamp, every shipped MPFB garment mesh that the
@@ -22,8 +22,7 @@ import { isLegacyRecordedProceduralGown } from "./recorded-garment-provenance.ts
  * notEvidenceFor: gown-class swap; how garments look; any GPL clearance.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO = pathResolve(HERE, "../../../..");
+const REPO = repoRoot();
 const DIR = join(REPO, "apps/ui-xr/public/generated-humanoids");
 const SKIP = /eyes|hair|eyelash|eyebrow|teeth|tongue/i;
 const GARMENT = /real_garment|makeclothes_library/i;

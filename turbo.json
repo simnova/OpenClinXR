@@ -250,12 +250,9 @@
       "cache": true,
       "inputs": [
         "packages/cellix/config-vitest/src/**",
-        "packages/openclinxr/asset-registry/src/**",
-        "packages/openclinxr/scenario-fixtures/src/**",
         "tools/openclinxr/asset-pipeline/**",
-        "tools/openclinxr/evidence/**",
+        "tools/openclinxr/evidence/browser-boot-inventory.ts",
         "tools/openclinxr/evidence/browser-boot-inventory/**",
-        "tools/openclinxr/mouth-solver/**",
         "tools/openclinxr/openclaw/project-test-scope.ts",
         "tools/openclinxr/openclaw/run-tools-tests.ts",
         "tools/openclinxr/openclaw/tools-test-areas.ts",

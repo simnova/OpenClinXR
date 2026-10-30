@@ -20,17 +20,16 @@ import { createHash } from "node:crypto";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import {
   loadProducerPreimage,
   producerArgvFromReceipt,
   readProducerReceipt,
-} from "./producer-preimage.js";
-import { readSeatStageReceipt } from "./seat-stage-receipt.js";
+} from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/producer-preimage.js";
+import { readSeatStageReceipt } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/seat-stage-receipt.js";
 
-const HERE = path.dirname(fileURLToPath(import.meta.url));
-const REPO = path.resolve(HERE, "../../../..");
+const REPO = repoRoot();
 const GLB_REL = "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb";
 const RECEIPT_REL = `${GLB_REL.slice(0, -".glb".length)}.provenance.json`;
 const PRODUCER_REL = "tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts";

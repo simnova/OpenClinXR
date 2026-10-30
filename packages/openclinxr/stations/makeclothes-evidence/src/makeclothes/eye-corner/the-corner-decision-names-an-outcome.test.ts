@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * The corner decision names an outcome (tsk_269eccc5a315a65f).
@@ -27,8 +27,7 @@ import { describe, expect, it } from "vitest";
  * the named decision matches. Pure JSON: no store dependency.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../../../..");
+const REPO_ROOT = repoRoot();
 const DECISION = join(
   REPO_ROOT,
   "tools/openclinxr/asset-pipeline/makeclothes/eye-corner/corner-decision.json",

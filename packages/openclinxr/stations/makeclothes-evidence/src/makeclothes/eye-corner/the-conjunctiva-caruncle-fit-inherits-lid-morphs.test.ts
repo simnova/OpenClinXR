@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * The conjunctiva+caruncle fit binds a community .mhclo to lid-margin body
@@ -24,8 +24,7 @@ import { describe, expect, it } from "vitest";
  *   lives in corner-sheet.png. Never opens the gitignored realism GLB.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../../../..");
+const REPO_ROOT = repoRoot();
 const MANIFEST = join(
   REPO_ROOT,
   "tools/openclinxr/asset-pipeline/makeclothes/eye-corner/manifest.json",

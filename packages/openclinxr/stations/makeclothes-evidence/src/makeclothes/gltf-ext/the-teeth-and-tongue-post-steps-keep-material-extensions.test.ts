@@ -1,16 +1,15 @@
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS, KHRMaterialsUnlit, Unlit } from "@gltf-transform/extensions";
 import { describe, expect, it, beforeAll, afterAll } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
-const HERE = path.dirname(fileURLToPath(import.meta.url));
-const MAKECLOTHES_DIR = path.resolve(HERE, "..");
-const REPO_ROOT = path.resolve(MAKECLOTHES_DIR, "../../../..");
-const TEETH_STATION = path.join(MAKECLOTHES_DIR, "teeth-rest-clearance.ts");
-const TONGUE_STATION = path.join(MAKECLOTHES_DIR, "tongue-forward-place.ts");
+const TOOLS_MAKECLOTHES = path.join(repoRoot(), "tools/openclinxr/asset-pipeline/makeclothes");
+const REPO_ROOT = repoRoot();
+const TEETH_STATION = path.join(TOOLS_MAKECLOTHES, "teeth-rest-clearance.ts");
+const TONGUE_STATION = path.join(TOOLS_MAKECLOTHES, "tongue-forward-place.ts");
 const SHIPPED_PATIENT = path.join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb");
 
 let tempDir: string;
@@ -132,7 +131,7 @@ describe("teeth and tongue post-steps keep material extensions", () => {
   });
 
   it("produces roundtrip-report.json", async () => {
-    const reportPath = path.join(HERE, "roundtrip-report.json");
+    const reportPath = path.join(TOOLS_MAKECLOTHES, "gltf-ext", "roundtrip-report.json");
     expect(existsSync(reportPath)).toBe(true);
     const report = JSON.parse(readFileSync(reportPath, "utf8"));
     expect(report).toBeDefined();

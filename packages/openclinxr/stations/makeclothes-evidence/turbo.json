@@ -1,0 +1,22 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/makeclothes/**",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_07_01_walk.bvh",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/realism-head/eyes/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/fixtures/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/lib/garment-mesh-class.js",
+        "$TURBO_ROOT$/docs/openclinxr/humanoid-basecolorfactor-audit-2026-09-10.json",
+        "$TURBO_ROOT$/docs/openclinxr/humanoid-lowest-vertex-audit-2026-09-10.json",
+        "$TURBO_ROOT$/docs/openclinxr/humanoid-glb-bake-and-vetting-2026-09-10.md",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/**"
+      ]
+    }
+  }
+}

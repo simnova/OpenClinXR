@@ -13,20 +13,19 @@
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { classifyHairLicence } from "./hair-licence-classify.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { classifyHairLicence } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/hair-licence-classify.js";
 import {
   isPermittedGarmentLicense,
   readMhcloLicense,
   resolveGarmentLicense,
-} from "./fit-cli.js";
-import { resolveLicencePrecedence } from "./licence-precedence.js";
-import { packSlugFromPath, type CatalogueEntry } from "./makehuman-catalogue.js";
+} from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/fit-cli.js";
+import { resolveLicencePrecedence } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/licence-precedence.js";
+import { packSlugFromPath, type CatalogueEntry } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/makehuman-catalogue.js";
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = join(HERE, "../../../..");
+const REPO_ROOT = repoRoot();
 
 function silentMhclo(uuid: string): string {
   return [

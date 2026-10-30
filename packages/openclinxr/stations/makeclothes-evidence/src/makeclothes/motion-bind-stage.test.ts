@@ -18,7 +18,7 @@ import {
   inspectMotionBindOutput,
   isRetargetClipName,
   PREEXISTING_CLIPS,
-} from "./motion-bind-cli.js";
+} from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/motion-bind-cli.js";
 
 describe("motion-bind stage emits a non-empty retarget clip", () => {
   it("inspect helper treats a missing file as zero clips (the fail shape)", async () => {

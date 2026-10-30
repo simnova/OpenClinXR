@@ -28,8 +28,9 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
-const REPO = join(import.meta.dirname, "../../../..");
+const REPO = repoRoot();
 const GENERATED = join(REPO, "apps/ui-xr/public/generated-humanoids");
 const AUDIT_PATH = join(
   REPO,

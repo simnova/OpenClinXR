@@ -1,8 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * The forward-place station must match any tongue mesh and refuse on zero or many.
@@ -16,8 +16,7 @@ import { describe, expect, it } from "vitest";
  *   how anything looks (pixel grade). No GLB is written by this test.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../../..");
+const REPO_ROOT = repoRoot();
 const STATION = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts");
 const SHIPPED_PATIENT = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb");
 

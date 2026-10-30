@@ -15,15 +15,14 @@
  *   pixels (the stills session grades those), clinical validity.
  */
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import { applyDialogueVisemeTimelineToRoot } from "@openclinxr/xr-dialogue/viseme-runtime";
-import { planRimSeat } from "./seat-teeth-on-lip-rim.ts";
-import { loadProducerPreimage, readProducerReceipt } from "./producer-preimage.ts";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { planRimSeat } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts";
+import { loadProducerPreimage, readProducerReceipt } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/producer-preimage.ts";
 
-const HERE = path.dirname(fileURLToPath(import.meta.url));
-const REPO = path.resolve(HERE, "../../../..");
+const REPO = repoRoot();
 const GLB_REL = "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb";
 const RECEIPT_REL = `${GLB_REL.slice(0, -".glb".length)}.provenance.json`;
 const ISOLATED = ["sil", "PP", "FF", "TH", "DD", "kk", "CH", "SS", "nn", "RR", "aa", "E", "I", "O", "U"];

@@ -1,9 +1,9 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * The lash blink-follow post-step (T2b selective-detach-drop + A3) gives the
@@ -30,8 +30,7 @@ import { describe, expect, it } from "vitest";
  *   looks (pixel grade lives in lash-sheet.png).
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../../../..");
+const REPO_ROOT = repoRoot();
 const TOOL = join(
   REPO_ROOT,
   "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/lash_blink_follow.py",
@@ -49,7 +48,7 @@ const REPORT = join(
   "tools/openclinxr/evidence/realism-head/eyes/geometric-eye-g4-report.json",
 );
 const BAKE = "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-lidconform.glb";
-const CONTROL = pathResolve(
+const CONTROL = join(
   REPO_ROOT,
   "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
 );

@@ -1,10 +1,10 @@
 import { execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * The bake knows the .mhclo at fit time and discards it. This station stamps
@@ -15,8 +15,7 @@ import { describe, expect, it } from "vitest";
  * notEvidenceFor: how the garment looks; swapping the peds upper shell for a gown.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../../..");
+const REPO_ROOT = repoRoot();
 const STATION = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/garment-provenance-stamp.ts");
 const TSHIRT = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb");
 const SHIPPED = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb");

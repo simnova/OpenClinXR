@@ -22,10 +22,12 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import { classifyGarmentMeshName } from "../../evidence/lib/garment-mesh-class.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { classifyGarmentMeshName } from "../../../../../../tools/openclinxr/evidence/lib/garment-mesh-class.js";
 
-const GLB_DIR = "apps/ui-xr/public/generated-humanoids";
-const AUDIT_PATH = "docs/openclinxr/humanoid-lowest-vertex-audit-2026-09-10.json";
+const ROOT = repoRoot();
+const GLB_DIR = join(ROOT, "apps/ui-xr/public/generated-humanoids");
+const AUDIT_PATH = join(ROOT, "docs/openclinxr/humanoid-lowest-vertex-audit-2026-09-10.json");
 
 interface AuditBody {
   file: string;

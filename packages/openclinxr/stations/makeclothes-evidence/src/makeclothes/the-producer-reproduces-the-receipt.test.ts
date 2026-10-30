@@ -12,18 +12,16 @@
  */
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { run } from "@openclinxr/station-mouth-registry";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import {
   loadProducerPreimage,
   readProducerReceipt,
-} from "./producer-preimage.js";
-import { readSeatStageReceipt } from "./seat-stage-receipt.js";
+} from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/producer-preimage.js";
+import { readSeatStageReceipt } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/seat-stage-receipt.js";
 
-const HERE = path.dirname(fileURLToPath(import.meta.url));
-const REPO = path.resolve(HERE, "../../../..");
+const REPO = repoRoot();
 const GLB_REL = "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb";
 const RECEIPT_REL = `${GLB_REL.slice(0, -".glb".length)}.provenance.json`;
 

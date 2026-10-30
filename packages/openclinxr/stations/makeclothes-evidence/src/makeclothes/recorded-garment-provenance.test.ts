@@ -5,7 +5,7 @@ import {
   RECORDED_ADULT_PRODUCER_TOOL,
   RECORDED_ED_INPUT_GLB,
   RECORDED_GOWN_GENERATOR_TOOL,
-} from "./recorded-garment-provenance.ts";
+} from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/recorded-garment-provenance.ts";
 
 /** Recorded-provenance consumer tests: RECORDED attribution only. */
 const ADULT_PATH = "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb";

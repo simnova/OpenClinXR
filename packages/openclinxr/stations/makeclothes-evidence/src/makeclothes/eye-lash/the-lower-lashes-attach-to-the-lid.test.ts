@@ -1,10 +1,10 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
-import { materializeSingleFile } from "../../../evidence/fixtures/ci-cleanup-inputs.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { materializeSingleFile } from "../../../../../../../tools/openclinxr/evidence/fixtures/ci-cleanup-inputs.js";
 
 /**
  * CARD tsk_0a4a6ccf5ebb0da0 (lash-tick): the lower lashes attach to the lid.
@@ -30,8 +30,7 @@ import { materializeSingleFile } from "../../../evidence/fixtures/ci-cleanup-inp
  * lash-tick store sheet (human-graded).
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../../../..");
+const REPO_ROOT = repoRoot();
 const TOOL = join(
   REPO_ROOT,
   "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/lash_blink_follow.py",
