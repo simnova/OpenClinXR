@@ -113,9 +113,16 @@ export async function runC7Script(deps: C7ScriptDeps): Promise<void> {
     // new room.
     setPoseStreaming(false);
     setStatus(`sync-probe c7 ${stationLabelOf(snapshot())} waiting closed`);
+    // The server rotates only at "closed", so seeing the next station also
+    // proves this one closed. Rotation can replace the closed snapshot within
+    // one poll (host measured 26 ms closed-to-doorway), so a wait on the
+    // current snapshot alone misses it.
+    const nextStation = stations[index + 1];
     await waitFor(
-      () =>
-        observedStationFrom(snapshot() as C7StationView).stationId === want && phaseLabelOf(snapshot()).phase === "closed",
+      () => {
+        const current = observedStationFrom(snapshot() as C7StationView).stationId;
+        return (current === want && phaseLabelOf(snapshot()).phase === "closed") || (nextStation !== undefined && current === nextStation);
+      },
       90000,
       `station ${want} closed phase`,
     );
