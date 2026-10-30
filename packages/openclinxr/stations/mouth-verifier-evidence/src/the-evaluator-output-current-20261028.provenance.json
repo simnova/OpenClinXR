@@ -6,7 +6,7 @@
   "generation": "Actual public evaluate on committed source59 after successful build closure; original path placeholders and recursive wallClockMs=0 only. No invented output fields.",
   "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
   "glbSHA256": "86b0f17dccaa09ff4f75fbe32ad74c7bcc8fd56cd8e264e056f46473288aec4b",
-  "historicalFixturePreserved": "tools/openclinxr/mouth-solver/the-evaluator-output-is-unchanged.fixture.json",
+  "historicalFixturePreserved": "packages/openclinxr/stations/mouth-verifier-evidence/src/the-evaluator-output-is-unchanged.fixture.json",
   "historicalFixtureSHA256": "6337dd72a2ae5c8e4f9d6349c7b8e21b2e926fd80258d830993d725f6a0a0a57",
   "m3ParityClaim": "none; production lip-rounding postdates the historical fixture",
   "normalization": "wallClockMs=0, glbPath=<GLB>, trackPath=<TRACK>",

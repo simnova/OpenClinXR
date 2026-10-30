@@ -1,0 +1,42 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "mouth-verifier-evidence-sidecar-v1",
+  "reviewedBy": "Independent Claude subagent review (fresh context, not an author) of the staged mouth-verifier-evidence sidecar change, 2026-10-30: APPROVE, 7/7 checks pass (tests changed only import specifier and data-path prefixes; fixtures byte-identical; ./evidence-mouth exports exactly the 3 consumed names; raises 55->56 roots and 153->155 entrypoints re-derived; turbo inputs cover the GLB and metrics.json; no relative module imports; turbo test/typecheck/lint 20/20 green)",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "f07b3e84811772e6c171fa561581d8b0f59bf1fc978112bfec446275e3ec5df9",
+  "packages": [
+    "packages/openclinxr/stations/mouth-verifier"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": "./evidence-mouth",
+      "symbol": "evaluate",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/stations/mouth-verifier-evidence",
+      "rationale": "packages/openclinxr/stations/mouth-verifier-evidence/src/mouth-evaluator.test.ts:20 and src/the-evaluator-output-is-unchanged.test.ts:17 import evaluate from @openclinxr/station-mouth-verifier/evidence-mouth (evidence-class consumer row; the name stays on \".\" for tools/openclinxr/mouth-solver).",
+      "reviewedBy": "Independent Claude subagent review (fresh context, not an author) of the staged mouth-verifier-evidence sidecar change, 2026-10-30: APPROVE, 7/7 checks pass (tests changed only import specifier and data-path prefixes; fixtures byte-identical; ./evidence-mouth exports exactly the 3 consumed names; raises 55->56 roots and 153->155 entrypoints re-derived; turbo inputs cover the GLB and metrics.json; no relative module imports; turbo test/typecheck/lint 20/20 green)"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": "./evidence-mouth",
+      "symbol": "probePremise",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/stations/mouth-verifier-evidence",
+      "rationale": "packages/openclinxr/stations/mouth-verifier-evidence/src/mouth-evaluator.test.ts:20 imports probePremise from @openclinxr/station-mouth-verifier/evidence-mouth (evidence-class consumer row; the name stays on \".\" for tools/openclinxr/mouth-solver).",
+      "reviewedBy": "Independent Claude subagent review (fresh context, not an author) of the staged mouth-verifier-evidence sidecar change, 2026-10-30: APPROVE, 7/7 checks pass (tests changed only import specifier and data-path prefixes; fixtures byte-identical; ./evidence-mouth exports exactly the 3 consumed names; raises 55->56 roots and 153->155 entrypoints re-derived; turbo inputs cover the GLB and metrics.json; no relative module imports; turbo test/typecheck/lint 20/20 green)"
+    },
+    {
+      "package": "packages/openclinxr/stations/mouth-verifier",
+      "entrypoint": "./evidence-mouth",
+      "symbol": "readEvaluatorTrack",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "packages/openclinxr/stations/mouth-verifier-evidence",
+      "rationale": "packages/openclinxr/stations/mouth-verifier-evidence/src/mouth-evaluator.test.ts:20 and src/the-evaluator-output-is-unchanged.test.ts:17 import readEvaluatorTrack from @openclinxr/station-mouth-verifier/evidence-mouth (evidence-class consumer row; the name stays on \".\" for tools/openclinxr/mouth-solver).",
+      "reviewedBy": "Independent Claude subagent review (fresh context, not an author) of the staged mouth-verifier-evidence sidecar change, 2026-10-30: APPROVE, 7/7 checks pass (tests changed only import specifier and data-path prefixes; fixtures byte-identical; ./evidence-mouth exports exactly the 3 consumed names; raises 55->56 roots and 153->155 entrypoints re-derived; turbo inputs cover the GLB and metrics.json; no relative module imports; turbo test/typecheck/lint 20/20 green)"
+    }
+  ]
+}

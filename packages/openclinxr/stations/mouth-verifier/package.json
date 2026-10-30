@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./evidence-mouth": {
+      "types": "./dist/evidence-mouth.d.ts",
+      "default": "./dist/evidence-mouth.js"
     }
   },
   "scripts": {

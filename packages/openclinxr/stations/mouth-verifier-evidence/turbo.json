@@ -1,0 +1,13 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+        "$TURBO_ROOT$/docs/openclinxr/mouth-dynamics/teeth-gap/fixed-capture/metrics.json"
+      ]
+    }
+  }
+}

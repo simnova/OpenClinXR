@@ -21,6 +21,11 @@
       "loadHeadlessScene",
       "probePremise",
       "readEvaluatorTrack"
+    ],
+    "./evidence-mouth": [
+      "evaluate",
+      "probePremise",
+      "readEvaluatorTrack"
     ]
   }
 }

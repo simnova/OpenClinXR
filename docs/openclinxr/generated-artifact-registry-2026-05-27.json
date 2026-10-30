@@ -42,7 +42,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1966,
+    "keep-evidence": 1967,
     "ignore-local-cache": 2787,
     "keep-current": 264,
     "keep-template": 17,
@@ -26739,6 +26739,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/mouth-verifier-evidence-sidecar-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Mouth-verifier evidence sidecar admission: admits the ./evidence-mouth names (evaluate, probePremise, readEvaluatorTrack) that @openclinxr/station-mouth-verifier-evidence tests import."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/psr-01f.json",

@@ -27,7 +27,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2787
 - keep-compatibility-input: 24
 - keep-current: 264
-- keep-evidence: 1966
+- keep-evidence: 1967
 - keep-template: 17
 
 ## Cleanup Actions
@@ -3872,6 +3872,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/package-public-surface-reduction/admissions/foot-base-v1.json` - keep-evidence; keep; Foot-base admission: admits the footBase=1 flag parser, schedule constants and roles, and the stride-retarget step/state the slice tests pin through ./foot-base.
 - `docs/openclinxr/package-public-surface-reduction/admissions/footstep-plan-v1.json` - keep-evidence; keep; Footstep-plan admission: admits the stride-plan, blend, capture, and flag-parser reads the footstep-plan tests pin through the ./footstep-plan subpath.
 - `docs/openclinxr/package-public-surface-reduction/admissions/live-voice-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/package-public-surface-reduction/admissions/mouth-verifier-evidence-sidecar-v1.json` - keep-evidence; keep; Mouth-verifier evidence sidecar admission: admits the ./evidence-mouth names (evaluate, probePremise, readEvaluatorTrack) that @openclinxr/station-mouth-verifier-evidence tests import.
 - `docs/openclinxr/package-public-surface-reduction/admissions/psr-01f.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/rest-route-catalog-v1.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/admissions/room-chain-wiring-v1.json` - keep-evidence; keep; Independently signed room-chain subpath admission bound to the exact source candidate and explicitly activated.

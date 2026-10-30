@@ -1,0 +1,48 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/station-mouth-verifier",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "evaluate",
+        "kind": "runtime"
+      },
+      {
+        "name": "probePremise",
+        "kind": "runtime"
+      },
+      {
+        "name": "readEvaluatorTrack",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/station-mouth-verifier",
+    "entrypoint": "./evidence-mouth",
+    "names": [
+      {
+        "name": "evaluate",
+        "kind": "runtime"
+      },
+      {
+        "name": "probePremise",
+        "kind": "runtime"
+      },
+      {
+        "name": "readEvaluatorTrack",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

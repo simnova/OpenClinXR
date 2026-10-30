@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 55 roots and 152 declared entrypoints", () => {
+  it("(1) the live tree discovers 58 roots and 158 declared entrypoints", () => {
     const report = measureSurface();
     // 2026-10-07 mouth-station pilot (MADR 0060/0061, integration branch station-mouth): the
     // objective package @openclinxr/station-mouth-objective adds one root (49 -> 50); its surface
@@ -125,7 +125,10 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-07 mouth-station registry (@openclinxr/station-mouth-registry) adds one root (53 -> 54), pending the psr-c6-mouth review at the station-mouth final land.
     // 2026-10-15 xr-capacity evidence package (@openclinxr/xr-capacity) adds one root (54 -> 55); its surface is the reviewed capacity evidence seam.
     // 2026-10-30 colyseus sync C1 (@openclinxr/xr-sync-server, @openclinxr/xr-sync-client) adds two roots (55 -> 57); host-only server-authoritative encounter state plus the lean headset client, pending psr admission at the C1 land.
-    expect(report.totals.roots).toBe(57);
+    // 2026-10-30 root tests -> station evidence sidecars (operator-approved 2026-10-30): the
+    // private sidecar @openclinxr/station-mouth-verifier-evidence adds one root that publishes
+    // nothing (57 -> 58).
+    expect(report.totals.roots).toBe(58);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -172,7 +175,11 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-30 colyseus sync C2: xr-sync-client publishes one class-pure
     // "./headset" subpath so the headset app binds the client without mixing
     // "." across consumer classes (155 -> 156); roots unchanged at 57.
-    expect(report.totals.entrypoints).toBe(156);
+    // 2026-10-30 root tests -> station evidence sidecars (operator-approved 2026-10-30):
+    // station-mouth-verifier adds ./evidence-mouth (evaluate, probePremise, readEvaluatorTrack)
+    // for its sidecar, and the sidecar, with no exports map, is discovered as one implicit "."
+    // that publishes nothing (156 -> 158).
+    expect(report.totals.entrypoints).toBe(158);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -202,7 +209,8 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-07 mouth-station registry adds one root (53 -> 54), pending the psr-c6-mouth review at the station-mouth final land.
     // 2026-10-15 xr-capacity evidence package adds one root (54 -> 55).
     // 2026-10-30 colyseus sync C1 adds two roots (xr-sync-server, xr-sync-client; 55 -> 57).
-    expect(report.packages.length).toBe(57);
+    // 2026-10-30 station-mouth-verifier-evidence sidecar adds one root (57 -> 58), operator-approved 2026-10-30.
+    expect(report.packages.length).toBe(58);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {

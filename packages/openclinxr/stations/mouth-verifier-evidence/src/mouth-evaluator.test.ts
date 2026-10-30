@@ -17,12 +17,12 @@
  * band on every frame.]
  */
 
-import { evaluate, probePremise, readEvaluatorTrack } from "@openclinxr/station-mouth-verifier";
+import { evaluate, probePremise, readEvaluatorTrack } from "@openclinxr/station-mouth-verifier/evidence-mouth";
 import { describe, expect, it } from "vitest";
 
-const GLB = new URL("../../../apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb", import.meta.url).pathname;
+const GLB = new URL("../../../../../apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb", import.meta.url).pathname;
 const TRACK_PATH = new URL(
-  "../../../docs/openclinxr/mouth-dynamics/teeth-gap/fixed-capture/metrics.json",
+  "../../../../../docs/openclinxr/mouth-dynamics/teeth-gap/fixed-capture/metrics.json",
   import.meta.url,
 ).pathname;
 
