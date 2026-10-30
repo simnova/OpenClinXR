@@ -28,6 +28,13 @@ import {
 } from "../../asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts";
 import { MOUTH_OPEN_CAP } from "@openclinxr/xr-dialogue/evidence-viseme";
 import { lowerArchByJoint, planRimSeat } from "../../asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts";
+import {
+  CLOSED_VISEMES,
+  DY_MM as FF1_DY_MM,
+  DZ_MM as FF1_DZ_MM,
+  OPEN_GAIN as FF1_OPEN_GAIN,
+  OPEN_VISEMES as FF1_OPEN_VISEMES,
+} from "../../mouth-solver/seat-teeth-ff1-open08.js";
 import { loadHeadlessScene } from "../../mouth-solver/headless-scene.ts";
 import {
   loadProducerPreimage,
@@ -84,6 +91,12 @@ const FF_COVER_MIN_CLEARANCE_MM = 0;
 const FF_COVER_NEIGHBOR_JUMP_MM = 0;
 /** Honest seated rest rim gap: producer-measured after seat + pullback (+ drop). */
 const HONEST_REST_GAP_MM = 5.575;
+/** Live rest gap after the ff1 physical correction (ci-w4): the Oct mouth campaign's ff1
+ * stage (seat-teeth-ff1-open08.ts, Oct 21, live lineage ba3e8229e) seats teeth +3.12 mm
+ * head-up, opening the live-measured gap 5.575 -> 6.204 (measured with this clause's own
+ * rim instrument at ±0.1 mm). The PLAN value above is pre-ff1 and unchanged; only the
+ * live measurement follows the second stage. */
+const HONEST_REST_GAP_LIVE_MM = 6.204;
 /** Pre-image rest rim gap: input characteristic, pinned, not a target. */
 const PRE_IMAGE_REST_GAP_MM = 10.666;
 /** Pullback census on the pre-image plan: crossing verts, worst drop. */
@@ -404,6 +417,31 @@ describe("parent fitted teeth follow the lip viseme", () => {
     const pre = readProducerReceipt(REPO, RECEIPT_REL);
     const preTmp = loadProducerPreimage(REPO, GLB_REL, pre.preImageSha256, pre.preImageBytes);
     const { plan, newBase, newJoints, newWeights, newDeltas, newBodyFf } = await planRimSeat(preTmp, RIM_REST_TARGET_MM, false, DOWN_GAIN, REST_DROP_MM, FF_LIP_CONTACT);
+    // ADAPTED (ci-w4): the Oct mouth campaign appended a deterministic second producer stage
+    // AFTER the rim seat — seat-teeth-ff1-open08.ts (Oct 21, live lineage ba3e8229e): rigid
+    // +3.12 mm Y / +0.16 mm Z on the teeth base, open-vowel deltas x0.8, FF/PP x1.0. The live
+    // bytes went through BOTH stages, so the replay must too; comparing the rim-seat output
+    // directly to live now misses by exactly the ff1 shift (measured: Y -3.12 mm, Z -0.16 mm).
+    // The stage knobs are pinned as literals (this file's convention) AND asserted against the
+    // stage's exports, so a future producer change fails here instead of silently following.
+    expect(FF1_DY_MM).toBe(3.12);
+    expect(FF1_DZ_MM).toBe(0.16);
+    expect(FF1_OPEN_GAIN).toBe(0.8);
+    expect([...FF1_OPEN_VISEMES]).toEqual(["viseme_aa", "viseme_E", "viseme_I", "viseme_O", "viseme_U"]);
+    expect([...CLOSED_VISEMES]).toEqual(["viseme_FF", "viseme_PP"]);
+    const ff1Base = Float32Array.from(newBase);
+    for (let v = 0; v < ff1Base.length / 3; v += 1) {
+      ff1Base[v * 3 + 1] = (ff1Base[v * 3 + 1] ?? 0) + FF1_DY_MM / 1000;
+      ff1Base[v * 3 + 2] = (ff1Base[v * 3 + 2] ?? 0) + FF1_DZ_MM / 1000;
+    }
+    const ff1Deltas: Record<string, Float32Array> = {};
+    for (const name of VISEME_ORDER) {
+      const gain = (FF1_OPEN_VISEMES as readonly string[]).includes(name) ? FF1_OPEN_GAIN : 1.0;
+      const src = newDeltas[name]!;
+      const out = Float32Array.from(src);
+      if (gain !== 1) for (let k = 0; k < out.length; k += 1) out[k] = (out[k] ?? 0) * gain;
+      ff1Deltas[name] = out;
+    }
     expect(plan.rimCount).toBe(76);
     expect(plan.rimTriangles).toBe(96);
     expect(plan.rigid).toBe(true);
@@ -451,10 +489,10 @@ describe("parent fitted teeth follow the lip viseme", () => {
     const jointArray = Array.from(loaded.teethJoints as ArrayLike<number>);
     expect(newJoints).toEqual(jointArray);
     expect(Array.from(Float32Array.from(newWeights))).toEqual(Array.from(loaded.teethWeights as ArrayLike<number>));
-    expect(Array.from(newBase)).toEqual(Array.from(loaded.teethPos));
+    expect(Array.from(ff1Base)).toEqual(Array.from(loaded.teethPos));
     const dict = loaded.teeth.morphTargetDictionary ?? {};
     for (const name of VISEME_ORDER) {
-      const produced = newDeltas[name];
+      const produced = ff1Deltas[name];
       expect(produced).toBeDefined();
       expect(Array.from(produced!)).toEqual(Array.from(loaded.teethTargets[dict[name]!]!));
     }
@@ -539,7 +577,7 @@ describe("parent fitted teeth follow the lip viseme", () => {
     expect(lowerArch.length).toBe(2180);
     expect(upperArch.length).toBe(2314);
     for (const name of VISEME_ORDER) {
-      const delta = newDeltas[name]!;
+      const delta = ff1Deltas[name]!;
       expect(delta).toBeDefined();
       for (const vertex of upperArch) {
         expect(delta[vertex * 3] ?? 0).toBe(0);
@@ -708,13 +746,16 @@ describe("parent fitted teeth follow the lip viseme", () => {
       }
       return sum / (loaded.lowerShell.length || 1);
     };
-    expect(Math.abs(rimGapAtRest() - HONEST_REST_GAP_MM / 1000)).toBeLessThanOrEqual(1e-4);
+    expect(Math.abs(rimGapAtRest() - HONEST_REST_GAP_LIVE_MM / 1000)).toBeLessThanOrEqual(1e-4);
     applyVisemeWeights(loaded.teeth, { viseme_sil: 1 });
     applyVisemeWeights(loaded.body, { viseme_sil: 1 });
     applyJawOpenToRoot(loaded.root, 0);
     expect(loaded.teeth.morphTargetInfluences.every((weight: number) => weight === 0)).toBe(true);
-    expect(Math.abs(rimGapAtRest() - HONEST_REST_GAP_MM / 1000)).toBeLessThanOrEqual(1e-4);
-  });
+    expect(Math.abs(rimGapAtRest() - HONEST_REST_GAP_LIVE_MM / 1000)).toBeLessThanOrEqual(1e-4);
+    // ci-w4: explicit timeout like every sibling clause (300s/120s above). The default 5 s
+    // does not cover two pre-image loads plus NodeIO plus the rim computation under suite
+    // load (measured 5.5 s); the assertions above are unchanged.
+  }, 120_000);
 
   it("writes the teeth viseme_aa weight from the dialogue applier and does not force mouth-open to 1", () => {
     loaded.teeth.morphTargetInfluences.fill(0);

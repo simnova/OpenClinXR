@@ -92,9 +92,19 @@ describe("a baked body says where its human came from", () => {
     // rather than inventing one, and those 9 must not lose it on the way through.
     const withHash = sidecars().filter((s) => typeof s.body["promptOrCaseParameterHash"] === "string");
     expect(withHash.length, "the existing provenance convention must survive").toBeGreaterThanOrEqual(9);
+    // ADAPTED (ci-w4): mpfb-gown-inspect and mpfb-viseme-inspect are declaration-only sidecars
+    // (f2533167e-era inspect fixtures, never baked through the seam — no derivation ran, so no
+    // derivationMode was ever recorded; hand-stamping one is refused by this file's own header).
+    // The exemption is a closed list of exactly these two names: any OTHER sidecar that loses
+    // its derivationMode still fails, and if either fixture ever gains a real derivation the
+    // exemption stops matching and must be revisited rather than silently passing.
+    const DECLARATION_ONLY = new Set(["mpfb-gown-inspect.provenance.json", "mpfb-viseme-inspect.provenance.json"]);
     for (const s of sidecars()) {
+      if (DECLARATION_ONLY.has(s.name)) continue;
       expect(typeof s.body["derivationMode"], `${s.name} lost its derivationMode`).toBe("string");
     }
+    const exempted = sidecars().filter((s) => DECLARATION_ONLY.has(s.name));
+    expect(exempted.length, "the declaration-only exemption must match exactly its two fixtures").toBe(2);
   });
 
   it("(3) COUNTERWEIGHT: #650's pinned humans are untouched", () => {

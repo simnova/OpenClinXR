@@ -115,15 +115,21 @@ const ED_STATION = [
 /** `asset-generation-pipeline.md:87`, authored, not chosen here. */
 const STATION_BUDGET_TRIS = 180_000;
 
-/** Mesh counts on dbabd957. Deleting a mesh is the cheapest way to clear clause (1). */
+/** Mesh counts on dbabd957. Deleting a mesh is the cheapest way to clear clause (1).
+ * RE-RECORDED (ci-w4): the approved supine fix 4aaf5ba16 (2026-10-08) deliberately removed the
+ * gown patient's tee mesh (11 -> 10); the floor follows the deliberate state, so deleting ANY
+ * further mesh still fails clause (2). */
 const SHIPPED_MESH_COUNT: Readonly<Record<string, number>> = {
-  "mpfb-gown-adult-patient": 11, "mpfb-clinical-nurse-adult": 10,
+  "mpfb-gown-adult-patient": 10, "mpfb-clinical-nurse-adult": 10,
   "mpfb-family-partner-adult": 10, "mpfb-clinical-physician-adult": 11,
 };
 
-/** Primitives carrying TEXCOORD_0 on dbabd957. Dropping UVs is the second cheapest. */
+/** Primitives carrying TEXCOORD_0 on dbabd957. Dropping UVs is the second cheapest.
+ * RE-RECORDED (ci-w4): the same tee removal took one UV prim with it (gown 16 -> 15,
+ * measured 2026-10-30 with this file's own instrument; nurse 17, family 17, physician 18
+ * today, all above their floors). Dropping any further UV prim still fails clause (3). */
 const SHIPPED_UV_PRIMITIVES: Readonly<Record<string, number>> = {
-  "mpfb-gown-adult-patient": 16, "mpfb-clinical-nurse-adult": 15,
+  "mpfb-gown-adult-patient": 15, "mpfb-clinical-nurse-adult": 15,
   "mpfb-family-partner-adult": 15, "mpfb-clinical-physician-adult": 16,
 };
 

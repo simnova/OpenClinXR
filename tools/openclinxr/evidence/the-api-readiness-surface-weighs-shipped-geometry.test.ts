@@ -99,13 +99,35 @@ function edRow(): Row {
 }
 
 describe("the API readiness surface weighs shipped geometry (#705)", () => {
-  it("(1) the ED station is not devReady, and names the budget as the reason", () => {
+  /**
+   * RE-RECORDED (ci-w4): the deliberate case-bound recast 69f2c7075 (robert ->>
+   * mpfb-gown-ed-robert-hayes.glb, 39,122 tris) plus the producer regeneration 1f71e5afc
+   * (`tools/openclinxr/measure-station-geometry.ts`) moved ED's measured total to
+   * 39,122 + 38,958 + 39,974 = 118,054, + 54,000 declared remainder = 172,054 — UNDER the
+   * authored 180,000. The honest verdict flipped from `station_triangle_budget_exceeded`
+   * to fail-closed `station_triangle_measurements_incomplete` (env/equipment manifests have
+   * no demonstrated join to shipped GLBs). The clause still proves the surface WEIGHS
+   * measured geometry: the total is 172,054, not the 108,000 declarations-only sum, and a
+   * typed blocker — not silence — keeps devReady false. A future rebake that pushes the
+   * measured total back over 180,000 must restore `station_triangle_budget_exceeded`.
+   */
+  it("(1) the ED station is not devReady, and names an honest measured-geometry reason", () => {
     const row = edRow();
     expect(
+      row.stationBudget.totalTriangles,
+      "ED must weigh the measured artifact (118,054 over three shipped GLBs + 54,000 declared "
+        + "remainder = 172,054), not the 108,000 declarations-only sum",
+    ).toBe(172_054);
+    expect(
       row.stationBudget.blockers,
-      "ED's three shipped actors measure 137,338 and the station 191,338 against 180,000, while this "
-        + "surface sums 108,000 of declarations",
-    ).toContain("station_triangle_budget_exceeded");
+      "ED's measured total is under budget but env/equipment counts are still declared, so the "
+        + "fail-closed measurements_incomplete blocker must name that",
+    ).toContain("station_triangle_measurements_incomplete");
+    expect(
+      row.stationBudget.blockers,
+      "172,054 measured is under the 180,000 ceiling — budget_exceeded must be absent, and its "
+        + "return on a future over-budget rebake is what keeps this clause honest",
+    ).not.toContain("station_triangle_budget_exceeded");
     expect(row.devReady, "devReady is gated on stationBudget.blockers being empty").toBe(false);
   });
 
@@ -151,7 +173,7 @@ describe("the API readiness surface weighs shipped geometry (#705)", () => {
     const row = edRow();
     expect(
       row.stationBudget.maxVisibleTriangles,
-      "raising the authored ceiling past 191,338 keeps clause (1) green forever and changes what the "
+      "raising the authored ceiling past the measured 172,054 keeps clause (1) green forever and changes what the "
         + "factory promises rather than what it measures",
     ).toBe(180_000);
     const edScenario = scenarioBank.find((sc) => sc.scenarioId === ED);

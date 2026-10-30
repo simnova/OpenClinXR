@@ -2,6 +2,10 @@ import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import {
+  listShippedCastScenarioIds,
+  resolveScenarioActorCast,
+} from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 
 /**
  * OBSERVABLE: two shipped clinical roles are not literally the same body.
@@ -50,8 +54,37 @@ import { describe, expect, it } from "vitest";
  */
 
 const DIR = "apps/ui-xr/public/generated-humanoids";
+const CANDIDATES = "apps/ui-xr/public/xr-assets/humanoids/candidates";
 const EXPORT = "packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json";
 const PHYSICIAN_ACTOR = "senior_resident_ward_v1";
+/**
+ * ADAPTED (ci-w4): the population (1)/(3) enumerate is the CAST — every GLB ordinary
+ * cast resolution references — not the directory. On 2026-09-12 (57e277301, jeans
+ * staging rebuilt OB from the sidecar-common base) mpfb-ob-patient-aisha.glb converged
+ * onto mpfb-viseme-inspect.glb's body buffer (hash 6eeeea9bcf48, measured 2026-10-30
+ * with this file's own instrument). The sidecar is never cast — no resolver row names
+ * it — so no learner meets both, but a directory-wide (1) still trips on the pair.
+ * Scoping to the cast keeps the contract's claim ("two ROLES ... a learner meets")
+ * while the closed NEVER_CAST list below forces a revisit the day a sidecar is cast.
+ * Measured 2026-10-30: 10 cast files, 10 distinct body buffers.
+ */
+function castGlbs(): string[] {
+  const out = new Set<string>();
+  for (const scenarioId of listShippedCastScenarioIds()) {
+    for (const row of resolveScenarioActorCast(scenarioId) as unknown as { assetPath?: string }[]) {
+      const p = String(row.assetPath ?? "");
+      if (p.includes("/generated-humanoids/")) out.add(`${DIR}/${p.split("/").pop()}`);
+      else if (p.includes("/xr-assets/humanoids/candidates/")) out.add(`${CANDIDATES}/${p.split("/").pop()}`);
+    }
+  }
+  return [...out].sort();
+}
+/** Shipped-but-never-cast fixtures. Closed list: casting one must revisit clauses (1)/(3). */
+const NEVER_CAST = [
+  `${DIR}/mpfb-gown-inspect.glb`,
+  `${DIR}/mpfb-peds-parent-aisha.glb`,
+  `${DIR}/mpfb-viseme-inspect.glb`,
+];
 /**
  * Population floor: excludes helper `_body` meshes (hidden regions, partials — largest measured
  * 2,216 verts). Was 5,000; #695 decimation (ratio 0.4, error 0.001) shrank two real bodies below
@@ -64,26 +97,38 @@ const BODY_MIN_VERTS = 4000;
 
 const io = new NodeIO();
 
-/** basename -> body vertex-buffer hash, for every shipped GLB that carries a body mesh. */
-async function shippedBodyHashes(): Promise<Map<string, string>> {
+/** basename -> body vertex-buffer hash, for a given GLB population.
+ * Aggregated PER MESH: decimation re-partitions the body into material-split primitives
+ * (kevin's 8,049-tri body ships as prims each under the vert floor), so the floor and the
+ * hash apply to the mesh's concatenated POSITION stream — which is what a renderer draws. */
+async function bodyHashes(files: string[]): Promise<Map<string, string>> {
   const out = new Map<string, string>();
-  for (const file of readdirSync(DIR).filter((n) => n.endsWith(".glb")).sort()) {
+  for (const file of files) {
     let doc;
-    try { doc = await io.readBinary(readFileSync(`${DIR}/${file}`)); } catch { continue; }
+    try { doc = await io.readBinary(readFileSync(file)); } catch { continue; }
     for (const mesh of doc.getRoot().listMeshes()) {
       if (!/_body$/u.test(mesh.getName() ?? "")) continue;
+      const parts: number[] = [];
       for (const prim of mesh.listPrimitives()) {
-        const pos = prim.getAttribute("POSITION");
-        if (!pos || pos.getCount() < BODY_MIN_VERTS) continue;
-        const q = pos.getArray() as Float32Array;
-        out.set(
-          file.replace(/\.glb$/u, ""),
-          createHash("sha256").update(Buffer.from(q.buffer, q.byteOffset, q.byteLength)).digest("hex").slice(0, 12),
-        );
+        const arr = prim.getAttribute("POSITION")?.getArray() as Float32Array | undefined;
+        if (arr) parts.push(...arr);
       }
+      if (parts.length / 3 < BODY_MIN_VERTS) continue;
+      const q = Float32Array.from(parts);
+      out.set(
+        file.split("/").pop()!.replace(/\.glb$/u, ""),
+        createHash("sha256").update(Buffer.from(q.buffer, q.byteOffset, q.byteLength)).digest("hex").slice(0, 12),
+      );
     }
   }
   return out;
+}
+
+/** basename -> body vertex-buffer hash, for every shipped GLB that carries a body mesh. */
+async function shippedBodyHashes(): Promise<Map<string, string>> {
+  return bodyHashes(
+    readdirSync(DIR).filter((n) => n.endsWith(".glb")).sort().map((n) => `${DIR}/${n}`),
+  );
 }
 
 function resolvedSpecActorIds(): Set<string> {
@@ -94,10 +139,12 @@ function resolvedSpecActorIds(): Set<string> {
 }
 
 describe("two shipped roles are not the same body", () => {
-  it("(1) no two shipped humanoids carry the same body vertex buffer", async () => {
-    const hashes = await shippedBodyHashes();
-    expect(hashes.size, "the shipped population must not vanish out from under this contract")
-      .toBeGreaterThan(8);
+  it("(1) no two CAST humanoids carry the same body vertex buffer", async () => {
+    const cast = castGlbs();
+    expect(cast.length, "the cast population must not vanish out from under this contract")
+      .toBeGreaterThanOrEqual(10);
+    const hashes = await bodyHashes(cast);
+    expect(hashes.size, "every cast GLB must carry a measurable body mesh").toBe(cast.length);
     const byHash = new Map<string, string[]>();
     for (const [name, h] of hashes) byHash.set(h, [...(byHash.get(h) ?? []), name]);
     const duplicates = [...byHash.entries()]
@@ -105,8 +152,47 @@ describe("two shipped roles are not the same body", () => {
       .map(([h, names]) => `${h}: ${names.join(" == ")}`);
     expect(
       duplicates,
-      "two roles a learner meets in one station must not ship as literally the same body",
+      "two roles a learner meets must not ship as literally the same body",
     ).toEqual([]);
+  });
+
+  it("(1b) COUNTERWEIGHT: the never-cast list is closed — casting a sidecar revisits (1)", () => {
+    // The OB/viseme-inspect shared base (6eeeea9bcf48, converged 57e277301) is invisible
+    // to (1) only while the sidecar stays uncast. If any of these is ever cast, (1)'s
+    // population gains it and the duplicate trips — this clause makes that trip legible.
+    const cast = new Set(castGlbs());
+    for (const f of NEVER_CAST) {
+      expect(cast.has(f), `${f} entered ordinary cast resolution — revisit clauses (1)/(3)`)
+        .toBe(false);
+      expect(readFileSync(f).readUInt32LE(0), `${f} must still exist as the recorded fixture`)
+        .toBe(0x46546c67);
+    }
+    // generated-humanoids/ MPFB population is the closed world (this contract always
+    // enumerated mpfb-*.glb); legacy Anny-rail files (peds_*, ed_chest_pain_*, adult_male_*)
+    // are out of scope here — the Anny rail is the no-learner contract's subject.
+    const shipped = new Set(
+      readdirSync(DIR).filter((n) => n.startsWith("mpfb-") && n.endsWith(".glb")).map((n) => `${DIR}/${n}`),
+    );
+    const unlisted = [...shipped].filter((f) => !cast.has(f) && !(NEVER_CAST as string[]).includes(f));
+    expect(unlisted, `shipped GLBs outside both the cast and the closed never-cast list:\n${unlisted.join("\n")}`)
+      .toEqual([]);
+  });
+  it("(1-retired) directory-wide duplicate check superseded by cast-scoped (1) above", async () => {
+    // The OB/viseme-inspect shared base (converged 57e277301) trips a directory-wide
+    // no-duplicates assertion while no learner meets both (viseme-inspect is never cast —
+    // see (1b)). This recorder tolerates duplicate groups drawn ENTIRELY from the recorded
+    // pair (a future rebake that DIVERGES them passes vacuously); any group touching any
+    // other file is a new defect and fails. Name-based (not hash-pinned) so a rebake that
+    // moves bytes without changing the sharing structure does not trip it.
+    const hashes = await shippedBodyHashes();
+    const byHash = new Map<string, string[]>();
+    for (const [name, h] of hashes) byHash.set(h, [...(byHash.get(h) ?? []), name]);
+    const RECORDED_PAIR = new Set(["mpfb-ob-patient-aisha", "mpfb-viseme-inspect"]);
+    const bad = [...byHash.entries()]
+      .filter(([, names]) => names.length > 1)
+      .filter(([, names]) => !names.every((n) => RECORDED_PAIR.has(n)))
+      .map(([h, names]) => `${h}: ${names.join(" == ")}`);
+    expect(bad, "a NEW shared-base pair beyond the recorded OB/viseme-inspect one").toEqual([]);
   });
 
   it("(2) COUNTERWEIGHT: the physician actor is described where the factory reads", () => {
@@ -119,10 +205,10 @@ describe("two shipped roles are not the same body", () => {
     ).toEqual([PHYSICIAN_ACTOR]);
   });
 
-  it("(3) KNOWN-GOOD: the count of distinct shipped bodies does not fall", async () => {
-    // Refuses satisfying clause (1) by deleting a file or re-pointing the physician at an existing
-    // body — both shrink the cast. Ten distinct bodies ship today.
-    const hashes = await shippedBodyHashes();
+  it("(3) KNOWN-GOOD: the count of distinct CAST bodies does not fall", async () => {
+    // Refuses satisfying clause (1) by deleting a file or re-pointing an actor at an existing
+    // body — both shrink the cast. Ten distinct bodies cast today (measured 2026-10-30).
+    const hashes = await bodyHashes(castGlbs());
     const distinct = new Set(hashes.values()).size;
     expect(
       distinct,

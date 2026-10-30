@@ -63,12 +63,31 @@ const ED_STATION = [
  * Shipped mesh counts at the planting commit. These are a FLOOR for clause (3), not a target: the
  * counterweight refuses "delete the garments to hit the budget", and any correct decimation leaves
  * the mesh count alone while reducing triangles.
+ *
+ * ADAPTED (ci-w4): mpfb-gown-adult-patient 11 -> 10 — the approved supine fix 4aaf5ba16
+ * (2026-10-08) deliberately removed the tee mesh. The floor follows the deliberate state;
+ * deleting ANY further mesh (garment, hair, eye, brow, lash) still fails this clause.
  */
 const SHIPPED_MESH_COUNT: Readonly<Record<string, number>> = {
-  "mpfb-gown-adult-patient": 11,
+  "mpfb-gown-adult-patient": 10,
   "mpfb-clinical-nurse-adult": 10,
   "mpfb-family-partner-adult": 10,
   "mpfb-clinical-physician-adult": 11,
+};
+
+/**
+ * Shipped normal-map state. ADAPTED (ci-w4): two ED actors deliberately ship WITHOUT a
+ * normal map — the gown patient (unbound 1814a43c1, 2026-10-10, factory-skin-publication
+ * proof) and the family partner (unbound fc57e5a9d, same proof lane). The clause pins the
+ * newer state per-actor: nurse and physician must KEEP theirs (a silent future unbind
+ * still fails), and the two recorded normal-free actors are named so a future rebake
+ * that restores/drops maps without updating this record fails loudly.
+ */
+const SHIPPED_HAS_NORMAL_MAP: Readonly<Record<string, boolean>> = {
+  "mpfb-gown-adult-patient": false,
+  "mpfb-clinical-nurse-adult": true,
+  "mpfb-family-partner-adult": false,
+  "mpfb-clinical-physician-adult": true,
 };
 
 type Asset = { tris: number; meshes: number; hasNormalMap: boolean };
@@ -162,9 +181,11 @@ describe("a humanoid bake is judged before it is shipped", () => {
       const a = await readAsset(name);
       expect(
         a.hasNormalMap,
-        `${name}: these assets already carry a normal map that three.js consumes without TANGENT `
-          + "(114265f4); a new bake must not silently drop the one already doing work",
-      ).toBe(true);
+        `${name}: the recorded normal-map state is ${SHIPPED_HAS_NORMAL_MAP[name]} `
+          + "(gown 1814a43c1, family fc57e5a9d — deliberate factory-skin-publication "
+          + "unbinds; nurse/physician maps still doing work since 114265f4). A new bake "
+          + "must not silently change which actors carry one",
+      ).toBe(SHIPPED_HAS_NORMAL_MAP[name]);
     }
   });
 
