@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { inflateSync } from "node:zlib";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { classifyGarmentMeshName } from "./lib/garment-mesh-class.js";
 
 /**
  * **Every MPFB actor ships a 1024² skin normal map, correctly bound, containing essentially nothing.**
@@ -263,7 +264,8 @@ function albedoLuminanceSd(png: Decoded): number {
 async function measure(actor: string): Promise<SkinRow | null> {
   const doc = await io.read(join(GENERATED, `${actor}.glb`));
   for (const material of doc.getRoot().listMaterials()) {
-    if (!/^mpfb_skin_/.test(material.getName() ?? "")) continue;
+    // Skin materials via the shared body class, not a /^mpfb_skin_/ literal.
+    if (classifyGarmentMeshName(material.getName() ?? "") !== "body") continue;
     const normal = material.getNormalTexture();
     const base = material.getBaseColorTexture();
     const normalImage = normal?.getImage();

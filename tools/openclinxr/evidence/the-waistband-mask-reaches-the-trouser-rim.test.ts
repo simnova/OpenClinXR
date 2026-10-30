@@ -3,6 +3,10 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import {
+  isTrouserMeshName,
+  isUpperMeshName,
+} from "./lib/garment-mesh-class.js";
 
 /**
  * Round 9 closed the waistband gap — the distance between the top of the lower body-hide mask and the
@@ -115,16 +119,19 @@ async function measure(rel: string): Promise<Row | null> {
   // primitives — a base poke-mask and a `.001` carrying round 9's RENDER_TRUTH_REHIDE band —
   // and only the second reaches the rim. `find` returns the first and reports a 24-56 mm
   // phantom gap. See the header.
-  const topOf = (re: RegExp): number =>
-    bands.filter((b) => !b.hidden && re.test(b.name)).reduce((m, b) => Math.max(m, b.hi), -Infinity);
-  const botOf = (re: RegExp): number =>
-    bands.filter((b) => !b.hidden && re.test(b.name)).reduce((m, b) => Math.min(m, b.lo), Infinity);
-  const pantsTop = topOf(/cargo_pants/);
+  // Channels via the one shared classifier, not /cargo_pants/ and
+  // /t_shirt|scrub|sweater/ literals (the former missed scrub/jeans refits and
+  // unmeasured those actors; the latter counted scrub TROUSERS as shirt).
+  const topOf = (pred: (name: string) => boolean): number =>
+    bands.filter((b) => !b.hidden && pred(b.name)).reduce((m, b) => Math.max(m, b.hi), -Infinity);
+  const botOf = (pred: (name: string) => boolean): number =>
+    bands.filter((b) => !b.hidden && pred(b.name)).reduce((m, b) => Math.min(m, b.lo), Infinity);
+  const pantsTop = topOf(isTrouserMeshName);
   // #180: the nurse's upper is now the scrub shirt — include it so the overlap clause
   // keeps measuring the nurse. #199 (2026-08-14) replaced the scrub with the CC0
   // fisherman sweater — include it too, or the nurse's row returns null and the
   // vacuity guard fails while the product is fine.
-  const shirtBot = botOf(/t_shirt|scrub|sweater/);
+  const shirtBot = botOf(isUpperMeshName);
   const lowerMaskTop = bands
     .filter((b) => b.hidden && /hidden_lower/.test(b.name))
     .reduce((m, b) => Math.max(m, b.hi), -Infinity);

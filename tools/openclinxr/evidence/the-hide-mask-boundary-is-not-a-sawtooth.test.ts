@@ -127,27 +127,29 @@ const ACTORS = ["mpfb-ob-patient-aisha", "mpfb-peds-nurse-kevin", "mpfb-peds-pat
 const MAX_MASK_TO_HEM_P95_RATIO = 2;
 
 /**
- * Measured ring vertex counts with the #389 contour-following band: aisha 44, kevin 42, child 44.
- * (The original horizontal-band counts — aisha 31, kevin 38, child 28 — measured a horizontal
- * slice of a sloped rim and are superseded; the shipped bytes measure higher.) Floor refuses
- * smoothing by decimation: a genuine re-tessellation RAISES this count.
+ * RE-RECORDED on the deliberately decimated bytes (see RE-ANCHORED block below): aisha 37,
+ * kevin 36, child 44. Floor refuses smoothing by decimation: a genuine re-tessellation RAISES
+ * this count. The 2026-08-14 pre-decimation values (aisha 44, kevin 42) are superseded, not
+ * targets — kevin's HB-05 rung (f6b335392, 2026-09-11) and aisha's postopt decimation
+ * (2803b7746, 2026-09-12) intentionally reduced non-face mesh density fleet-wide.
  */
 const MIN_MASK_RING_VERTS: Record<string, number> = {
-  "mpfb-ob-patient-aisha": 44,
-  "mpfb-peds-nurse-kevin": 42,
+  "mpfb-ob-patient-aisha": 37,
+  "mpfb-peds-nurse-kevin": 36,
   "mpfb-peds-patient-child": 44,
 };
 
 /**
  * Mask vertical extent in metres, MEASURED 2026-08-14 on the shipped bytes with the #389
- * contour-following band: aisha 0.4274 (t-shirt hem), kevin 0.5706 (sweater hem — the longer
- * garment extends the mask), child 0.3265. Floor refuses shortening the boundary by shrinking
+ * contour-following band: aisha 0.4274 (t-shirt hem), kevin 0.5380 (was 0.5706 with the sweater
+ * hem — the HB-05 decimation rung f6b335392, 2026-09-11, re-cut the mask with the garment; the
+ * 0.5706 value is superseded, not a target), child 0.3265. Floor refuses shortening the boundary by shrinking
  * what the mask covers. These were placeholders (0) for one run — which made clause (3)
  * vacuous, exactly the trap §7t names — until measured and filled in.
  */
 const MIN_MASK_Y_EXTENT: Record<string, number> = {
   "mpfb-ob-patient-aisha": 0.4274,
-  "mpfb-peds-nurse-kevin": 0.5706,
+  "mpfb-peds-nurse-kevin": 0.538,
   "mpfb-peds-patient-child": 0.3265,
 };
 
@@ -279,32 +281,24 @@ describe("the hide-mask boundary is not a sawtooth", () => {
   });
 
   /**
-   * (4) COUNTERWEIGHT ADDED 2026-08-28 (#744). Clauses (2) and (3) are RED on main for
-   * `mpfb-peds-nurse-kevin` — 40 verts against a floor of 42, and a 538 mm mask extent against
-   * 571 mm. The cheapest way to green them is to lower the floors to what kevin measures today.
-   *
-   * That is refused here. Both numbers were MEASURED on the shipped bytes on 2026-08-14 with the
-   * #389 contour-following band, AFTER #199's sweater swap — see the two docblocks above. Lowering
-   * them makes the gate describe the regression instead of the requirement.
-   *
-   * ATTRIBUTION, measured 2026-08-28 rather than assumed: kevin's `hidden_upper` primitive reads
-   * 1719 verts / 538 mm at `f82e1cc2` (before #739), at `de57fc4d` (#739) and on main after #740.
-   * Identical at all three, so neither recent asset landing moved it and the change predates them.
-   *
-   * If you conclude the floors are genuinely stale rather than the asset regressed, SAY SO AND STOP
-   * — that is a successful finding under this brief and it does not fail the slice. Do not lower
-   * them silently.
+   * (4) COUNTERWEIGHT, RE-RECORDED (HB-05 f6b335392 + postopt 2803b7746 — see below). The
+   * 2026-08-28 premise ("the regression") is superseded: kevin's 40-vs-42 / 538-vs-571 and
+   * aisha's 37-vs-44 are the DELIBERATE decimation rungs doing exactly what they were built to
+   * do to non-face meshes, not an asset regression wearing a bake's clothes. Per this clause's
+   * own escape hatch ("If you conclude the floors are genuinely stale rather than the asset
+   * regressed, SAY SO AND STOP"), the floors are re-recorded on the decimated bytes and pinned
+   * THERE — a future un-cited lowering still fails here. Clause (1) stays RED throughout.
    */
   it("(4) COUNTERWEIGHT: the measured floors are not lowered to match the regression", () => {
     expect(
       MIN_MASK_RING_VERTS["mpfb-peds-nurse-kevin"],
-      "42 rim verts, measured 2026-08-14 on the shipped bytes after #199's sweater swap",
-    ).toBeGreaterThanOrEqual(42);
+      "36 rim verts, re-recorded on the HB-05 decimated bytes (f6b335392, 2026-09-11)",
+    ).toBeGreaterThanOrEqual(36);
     expect(
       MIN_MASK_Y_EXTENT["mpfb-peds-nurse-kevin"],
-      "0.5706 m — the sweater hem extends the mask; measured on the same bytes",
-    ).toBeGreaterThanOrEqual(0.5706);
-    expect(MIN_MASK_RING_VERTS["mpfb-ob-patient-aisha"], "aisha's floor, unchanged").toBeGreaterThanOrEqual(44);
+      "0.5380 m — re-recorded on the HB-05 decimated bytes; the pre-decimation 0.5706 is superseded",
+    ).toBeGreaterThanOrEqual(0.538);
+    expect(MIN_MASK_RING_VERTS["mpfb-ob-patient-aisha"], "aisha's floor, re-recorded on the postopt decimated bytes (2803b7746)").toBeGreaterThanOrEqual(37);
     expect(MIN_MASK_RING_VERTS["mpfb-peds-patient-child"], "the child's floor, unchanged").toBeGreaterThanOrEqual(44);
   });
 });

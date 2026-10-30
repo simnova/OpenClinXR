@@ -69,9 +69,13 @@ const REPO = join(import.meta.dirname, "../../..");
 const GLB = join(REPO, "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb");
 const REPORT = join(REPO, "tools/openclinxr/evidence/gown-shard-mechanism-measurement.json");
 
-/** The graded asset. Counterweight (3) pins it: this slice measures and changes no bytes. */
-const GLB_SHA256 = "7bd12d06aec497a939aa62301c73274cf23e6dd7b1da6d5c085db6c17f57fd4a";
-const GLB_BYTES = 7_116_988;
+/** The graded asset. Counterweight (3) pins it: this slice measures and changes no bytes.
+ * RE-RECORDED 2026-10-30 on the current shipped bytes: gown rebake d10314025 (supine support,
+ * 2026-10-08) + fleet re-materialize a55067d11 (#740, garment textures restored) + byte-lineage
+ * correction 1814a43c1 (2026-10-10, immediate producer of these bytes). The 2026-08-27 values
+ * (7bd12d06, 7,116,988) described the pre-rebake asset and are superseded, not targets. */
+const GLB_SHA256 = "88f094703dfc96811af56c6bb6070933f654a6a58c8ded3e5feac296e5561406";
+const GLB_BYTES = 20_462_724;
 
 const MECHANISMS = ["interpenetration", "degenerate_triangles", "inward_facing_normals", "none_of_these", "inconclusive_blocked", "other"] as const;
 const CONCENTRATED = new Set(["interpenetration", "degenerate_triangles", "inward_facing_normals"]);

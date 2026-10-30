@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { NodeIO } from "@gltf-transform/core";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { isTrouserMeshName } from "./lib/garment-mesh-class.js";
 
 /**
  * INVERTED GUARD: `mpfb-gown-adult-patient` ships no pants-class lower garment, and if that
@@ -57,8 +58,11 @@ const ENUMERATION = join(
   REPO, "tools/openclinxr/evidence/overlapping-garments-do-not-interpenetrate.test.ts",
 );
 
-/** The lower-garment CLASS, copied deliberately from the enumeration this guard covers. */
-const PANTS_CLASS = /(cargo|scrub|trouser)_pants/i;
+/** The lower-garment CLASS, the same predicate as the enumeration this guard
+ * covers (overlapping-garments-do-not-interpenetrate.test.ts) — a guard judged
+ * by a different predicate than its enumeration would drift apart from it.
+ * Shared classifier, not a copied /(cargo|scrub|trouser)_pants/ literal. */
+const isPantsClass = (name: string): boolean => isTrouserMeshName(name);
 
 /** The nine members of ACTORS as of ca2d5d79, after #684 removed the gowned patient. */
 const STILL_ENUMERATED = [
@@ -69,7 +73,7 @@ const STILL_ENUMERATED = [
 
 async function pantsClassMaterialCount(asset: string): Promise<number> {
   const doc = await new NodeIO().read(join(GENERATED, `${asset}.glb`));
-  return doc.getRoot().listMaterials().filter((m) => PANTS_CLASS.test(m.getName())).length;
+  return doc.getRoot().listMaterials().filter((m) => isPantsClass(m.getName())).length;
 }
 
 describe("the gown patient left the dressed set and something must notice if it returns (#685)", () => {
@@ -77,7 +81,7 @@ describe("the gown patient left the dressed set and something must notice if it 
     const count = await pantsClassMaterialCount(SUBJECT);
     expect(
       count,
-      `${SUBJECT} now ships ${count} pants-class material(s) matching ${PANTS_CLASS}. It was `
+      `${SUBJECT} now ships ${count} pants-class material(s) per the shared trouser class. It was `
         + "REMOVED from ACTORS in overlapping-garments-do-not-interpenetrate.test.ts by #684 on the "
         + "ground that it has none. RESTORATION: re-add \"" + SUBJECT + "\" to that ACTORS list and "
         + "re-pin its BASELINE row { cuffReachMm, shoeTris } against a fresh measurement of the "
@@ -96,7 +100,7 @@ describe("the gown patient left the dressed set and something must notice if it 
     );
     expect(
       counts.filter(([, n]) => n === 0).map(([a]) => a),
-      `these assets are still listed in ACTORS but carry no material matching ${PANTS_CLASS}. `
+      `these assets are still listed in ACTORS but carry no trouser-class material per the shared classifier. `
         + "Either the selector broke or the wardrobe changed. If a wardrobe change is genuine, that "
         + "asset needs its own guard here before it leaves the enumeration — do not simply delete "
         + "it from ACTORS, which is the defect this file was written to prevent.",

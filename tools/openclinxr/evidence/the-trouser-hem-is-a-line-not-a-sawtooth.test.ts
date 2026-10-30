@@ -3,6 +3,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { isTrouserMeshName } from "./lib/garment-mesh-class.js";
 
 /**
  * **The adults' trouser hems have ~10 mm teeth at the ankle. The child's, from the same garment and
@@ -78,6 +79,28 @@ import { describe, expect, it } from "vitest";
  *     render. He is measured here but not asserted on.
  */
 
+/*
+ * ═══════════════════════════════════════════════════════════════════════════════════════════════
+ * ## RE-ANCHORED (tightjeans re-fit 57e277301 + postopt decimation 2803b7746, 2026-09-12)
+ * appended; the planted header above is immutable (cargo-era numbers are history, not targets).
+ *
+ * Aisha no longer wears cargo pants: 57e277301 keyed punkduck female_tight_jeans onto
+ * mpfb-ob-patient-aisha (verified on disk - no cargo mesh remains), and 2803b7746 applied the
+ * fp-r0.4 postopt decimation to the re-baked body. The cargo-era RED premise (9.58 mm worst step
+ * vs 5.31 mm allowed) describes a garment that no longer ships on this actor, so clause (1)'s
+ * `it.fails` wrapper ("Expect test to fail") now fails instead: the tightjeans hem measures
+ * 2.78 mm worst adjacent step against 7.50 mm allowed (3x the child's 1.88 mm, stature-scaled
+ * 1.6871/1.2676) with this file's own instrument. The clause is REPLANTED on the tightjeans
+ * garment - same assertion, `it` wrapper, NET status - not deleted: a future re-fit that
+ * re-raggeds the hem still reds it. Clause (3) still pins the child (1.88 mm <= 1.32*3).
+ *
+ * Clause (2)'s cargo-era floors are re-recorded on the shipped tightjeans bytes: 73 hem verts
+ * (was 107) and hem world Y 0.0758 m (was 0.1010 - the jeans leg runs 25 mm longer, not
+ * shorter). Floor function unchanged (0.8x verts, +-10 mm Y): a fix may still not coarsen the
+ * ring or shorten the trousers to escape the band.
+ * ═══════════════════════════════════════════════════════════════════════════════════════════════
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 /** Overridable so a destructive probe can point the same logic at doctored assets. */
@@ -94,12 +117,13 @@ const ALLOWANCE = 3;
 /** Today's measured hem vertex counts must not collapse — a fix may not delete the ragged ring. */
 const VERT_TOLERANCE = 0.2;
 /**
- * Nor may the trousers get shorter to escape the band. Measured 2026-08-14: aisha's hem sits at
- * world Y **0.1010 m** (the child's at 0.1000) — at the ankle, not the floor. My first draft of this
+ * Nor may the trousers get shorter to escape the band. RE-RECORDED on the shipped tightjeans
+ * bytes (57e277301 + 2803b7746, 2026-09-12): aisha's hem sits at world Y **0.0758 m** (cargo-era
+ * 0.1010 is superseded — the jeans leg runs longer, not shorter). My first draft of this
  * clause pinned it against 0.0 without measuring and the counterweight failed on its own tree, which
  * is the §7t "vacuous or wrong proof" case caught by running it.
  */
-const AISHA_HEM_Y_M = 0.1010;
+const AISHA_HEM_Y_M = 0.0758;
 const HEM_Y_TOLERANCE_M = 0.01;
 
 type Hem = { verts: number; meanStepM: number; maxStepM: number; hemY: number; stature: number };
@@ -119,7 +143,9 @@ async function measureHem(id: string): Promise<Hem | null> {
         if (pos[i]! < lo) lo = pos[i]!;
         if (pos[i]! > hi) hi = pos[i]!;
       }
-      if (/cargo_pants/iu.test(mesh.getName())) pants = pos;
+      // The trouser leg via the shared classifier — /cargo_pants/ missed
+      // refits like female_tight_jeans and silently unmeasured them.
+      if (isTrouserMeshName(mesh.getName())) pants = pos;
     }
   }
   if (!pants) return null;
@@ -174,7 +200,10 @@ function allowedMaxStep(s: Hem, k: Hem): number {
 }
 
 describe("the trouser hem is a line not a sawtooth", () => {
-  it.fails("(1) RED: the adult hem's worst local step is within the child's, size-scaled", () => {
+  it("(1) NET (tightjeans re-fit 57e277301): the adult hem's worst local step is within the child's, size-scaled", () => {
+    // RE-ANCHORED (see header block): aisha now wears tightjeans, and the tightjeans hem clears
+    // the child-scaled bound (2.78 vs 7.50 mm). Same assertion as the cargo-era RED, `it`
+    // wrapper — a re-fit that re-raggeds the hem still fails this.
     const { s, k } = requireMeasured();
     const allowed = allowedMaxStep(s, k);
     expect(
@@ -184,16 +213,18 @@ describe("the trouser hem is a line not a sawtooth", () => {
   });
 
   it("(2) COUNTERWEIGHT: the hem is not deleted or raised to escape the band", () => {
+    // Re-recorded on the shipped tightjeans bytes (57e277301 + 2803b7746): 73 hem verts and hem
+    // world Y 0.0758 m. Floor function unchanged — still refuses coarsening or shortening.
     // Refuses (b). The cheapest way to remove teeth is to remove the vertices carrying them, or to
     // shorten the trousers above the ragged ring. Both are pinned against today's shipped values.
     const { s } = requireMeasured();
     expect(
       s.verts,
-      `${SUBJECT} hem vertex count ${s.verts} against 107 measured 2026-08-14 (a fix may not coarsen the ring)`,
-    ).toBeGreaterThanOrEqual(Math.round(107 * (1 - VERT_TOLERANCE)));
+      `${SUBJECT} hem vertex count ${s.verts} against 73 measured on the shipped tightjeans bytes (57e277301 + 2803b7746; cargo-era 107 is superseded — a fix may not coarsen the ring)`,
+    ).toBeGreaterThanOrEqual(Math.round(73 * (1 - VERT_TOLERANCE)));
     expect(
       Math.abs(s.hemY - AISHA_HEM_Y_M),
-      `${SUBJECT} hem world Y ${s.hemY.toFixed(4)} against ${AISHA_HEM_Y_M} measured 2026-08-14 — trousers may not be shortened to escape the hem band`,
+      `${SUBJECT} hem world Y ${s.hemY.toFixed(4)} against ${AISHA_HEM_Y_M} measured on the shipped tightjeans bytes — trousers may not be shortened to escape the hem band`,
     ).toBeLessThanOrEqual(HEM_Y_TOLERANCE_M);
   });
 

@@ -117,12 +117,16 @@ const MPFB_STREET_GLB = "mpfb-street-adult-male.glb";
 const MPFB_STREET_RUNTIME_PATH = `/generated-humanoids/${MPFB_STREET_GLB}`;
 const ANNY_STREET_RUNTIME_PATH = "/generated-humanoids/adult_male_street_casual.glb";
 
-/** The four `street_casual` patient slots, measured on 5294a8a5. */
+/** The five `street_casual` patient slots, measured on 5294a8a5 (+1 knee slot, 13e052491).
+ * The knee scenario's environmentId sports_medicine_clinic_room_v1 hits the "clinic"
+ * fallback substring in actor-casting.ts:130 -> street_casual -> MPFB street body.
+ * That is #444's design working, not a new mapping. */
 const STREET_SLOTS: readonly (readonly [string, string])[] = [
   ["telehealth_diabetes_health_literacy_v1", "patient_luis_martinez_v1"],
   ["clinic_abdominal_pain_interpreter_v1", "patient_lucia_morales_v1"],
   ["oncology_bad_news_family_v1", "patient_david_miller_v1"],
   ["primary_care_dyslipidemia_joint_pain_v1", "patient_mario_guzman_v1"],
+  ["clinic_knee_pain_return_to_play_v1", "patient_jordan_cole_v1"],
 ];
 
 type Slot = { sid: string; actorId: string; role: string; runtimeAssetPath: string };
@@ -159,7 +163,7 @@ function requireSlots(): Slot[] {
 }
 
 describe("the street_casual patients are cast on the MPFB rail", () => {
-  it("(1) RED: the registry resolver casts all four street patients to the MPFB body", () => {
+  it("(1) RED: the registry resolver casts all five street patients to the MPFB body", () => {
     const wrong = requireSlots()
       .filter(isStreet)
       .filter((s) => s.runtimeAssetPath !== MPFB_STREET_RUNTIME_PATH)
@@ -170,7 +174,7 @@ describe("the street_casual patients are cast on the MPFB rail", () => {
     ).toEqual([]);
   });
 
-  it("(2) RED: the ui-xr runtime mirror casts the same four to the same body", () => {
+  it("(2) RED: the ui-xr runtime mirror casts the same five to the same body", () => {
     // The mirror is what the running app calls. Greening (1) alone leaves the learner on Anny.
     const all = requireSlots();
     const wrong = all
@@ -202,10 +206,10 @@ describe("the street_casual patients are cast on the MPFB rail", () => {
     expect(moved, `a non-street slot was pointed at the street patient's body`).toEqual([]);
   });
 
-  it("(5) VACUITY GUARD: exactly four street slots exist and the target asset is real", async () => {
+  it("(5) VACUITY GUARD: exactly five street slots exist and the target asset is real", async () => {
     // Reads the population and the asset, not the mapping, so it passes today and keeps passing.
     const street = requireSlots().filter(isStreet);
-    expect(street.length, "the four street_casual patient slots must all still exist").toBe(4);
+    expect(street.length, "the five street_casual patient slots must all still exist").toBe(5);
     const glb = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids", MPFB_STREET_GLB);
     expect(existsSync(glb), `${MPFB_STREET_GLB} must exist — casting at a missing file is worse than Anny`).toBe(true);
     const doc = await new NodeIO().read(glb);

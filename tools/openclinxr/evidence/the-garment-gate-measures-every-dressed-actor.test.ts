@@ -3,6 +3,10 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import {
+  classifyGarmentMeshName,
+  isTrouserMeshName,
+} from "./lib/garment-mesh-class.js";
 
 /**
  * **`overlapping-garments-do-not-interpenetrate` is RED on main, and the cheapest way to green it is
@@ -110,8 +114,9 @@ async function dressedActors(): Promise<Dressed[]> {
         const name = prim.getMaterial()?.getName() ?? "";
         const tris = Math.round((prim.getIndices()?.getCount() ?? 0) / 3);
         // The garment CLASS, not one id — naming one id is how this went stale (§8b: cap the class).
-        if (/(cargo|scrub|trouser)_pants/iu.test(name)) lowerTris += tris;
-        if (/footwear/iu.test(name)) footwearTris += tris;
+        // Same trouser scope as the interpenetration gate it guards (see its FIXED block).
+        if (isTrouserMeshName(name)) lowerTris += tris;
+        if (classifyGarmentMeshName(name) === "footwear") footwearTris += tris;
       }
     }
     if (lowerTris > 0 && footwearTris > 0) out.push({ id: f.replace(/\.glb$/u, ""), lowerTris, footwearTris });

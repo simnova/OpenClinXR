@@ -3,6 +3,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import {
+  classifyGarmentMeshName,
+  classifyLowerGarmentKind,
+} from "./lib/garment-mesh-class.js";
 
 /**
  * Campaign #478 lane L5 — the gown shell SPLITS AT THE CROTCH and reads as a bodysuit.
@@ -105,10 +109,20 @@ type Shell = { pts: number[][]; hem: number; top: number; bodyY0: number; bodyY1
 async function readShell(p: string): Promise<Shell | null> {
   if (!existsSync(p)) throw new Error("missing artifact");
   const doc = await new NodeIO().read(p);
-  const collect = (re: RegExp): number[][] => {
+  // Shell + body via the one shared classifier. The shell scope (fitted upper
+  // or gown) matches /real_garment/ on these two GLBs exactly; the body class
+  // matches /anny_base|_body$/ — and survives the next rename, unlike both.
+  const isShellMesh = (meshName: string): boolean => {
+    const cls = classifyGarmentMeshName(meshName);
+    if (cls === "upper") return true;
+    if (cls === "lower" && classifyLowerGarmentKind(meshName) === "gown") return true;
+    return false;
+  };
+  const isBodyMesh = (meshName: string): boolean => classifyGarmentMeshName(meshName) === "body";
+  const collect = (pred: (meshName: string) => boolean): number[][] => {
     const out: number[][] = [];
     for (const mesh of doc.getRoot().listMeshes()) {
-      if (!re.test(mesh.getName() ?? "")) continue;
+      if (!pred(mesh.getName() ?? "")) continue;
       for (const prim of mesh.listPrimitives()) {
         const a = prim.getAttribute("POSITION");
         if (!a) continue;
@@ -123,16 +137,16 @@ async function readShell(p: string): Promise<Shell | null> {
   };
   // The builder names procedural garments by `gname`, never by `kind` — matching /gown/ finds only
   // the 3-vertex declaration marker. That trap cost #480 a defective clause; do not reintroduce it.
-  const pts = collect(/real_garment/);
-  const body = collect(/anny_base|_body$/);
+  const pts = collect(isShellMesh);
+  const body = collect(isBodyMesh);
   if (!pts.length || !body.length) return null;
-  const ys = pts.map((p) => p[1]!);
+  const ys = pts.map((q) => q[1]!);
   return {
     pts,
     hem: Math.min(...ys),
     top: Math.max(...ys),
-    bodyY0: Math.min(...body.map((p) => p[1]!)),
-    bodyY1: Math.max(...body.map((p) => p[1]!)),
+    bodyY0: Math.min(...body.map((q) => q[1]!)),
+    bodyY1: Math.max(...body.map((q) => q[1]!)),
   };
 }
 
