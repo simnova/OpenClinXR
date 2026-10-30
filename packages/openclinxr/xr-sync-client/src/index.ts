@@ -66,6 +66,8 @@ export interface EncounterSnapshot {
   turnOwner: string;
   actors: Record<string, SnapshotActor>;
   learners: Record<string, SnapshotLearner>;
+  /** C5 connected faculty observers (read-only). Present once the server counts them. */
+  observerCount?: number;
 }
 
 /** Live headset-side connection: intents out, snapshots in. */

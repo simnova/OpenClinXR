@@ -30,6 +30,7 @@
     "src/xr-sync-c2-probe.test.ts",
     "src/xr-sync-c3-actor-turn.test.ts",
     "src/xr-sync-c4-conversation-trace.test.ts",
+    "src/xr-sync-c5-observer.test.ts",
     "src/xr-sync-server.test.ts"
   ],
   "commands": {

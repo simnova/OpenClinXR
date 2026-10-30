@@ -38,6 +38,7 @@ export const EncounterState = schema(
     turnOwner: t.string(),
     actors: t.map(ActorState),
     learners: t.map(LearnerState),
+    observerCount: t.number(),
   },
   "EncounterState",
 );
@@ -57,6 +58,8 @@ export interface EncounterSnapshot {
     string,
     { sessionId: string; headX: number; headY: number; headZ: number; lastSeq: number; speaking: boolean }
   >;
+  /** C5 connected faculty observers (read-only, no learners[] entry). */
+  observerCount: number;
 }
 
 export function snapshotState(state: EncounterStateInstance): EncounterSnapshot {
@@ -75,5 +78,5 @@ export function snapshotState(state: EncounterStateInstance): EncounterSnapshot 
       speaking: learner.speaking,
     };
   }
-  return { serverTick: state.serverTick, phase: state.phase, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners };
+  return { serverTick: state.serverTick, phase: state.phase, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount };
 }

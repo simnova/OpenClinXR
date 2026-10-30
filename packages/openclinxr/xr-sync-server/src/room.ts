@@ -19,17 +19,17 @@ import {
   type EncounterStateInstance,
   type LearnerStateInstance,
 } from "./schema.js";
+import { OBSERVER_READ_ONLY_REASON, parseEncounterRole } from "./observer.js";
+import { KNOWN_ACTOR_IDS, parseExtraActorIds } from "./roster.js";
+import { INTENT_KINDS, type AckMessage, type IntentKind, type IntentMessage, type RejectMessage } from "./protocol.js";
+// Wire protocol types live in protocol.js; re-exported here so the package
+// "." surface and existing room.js importers keep working unchanged.
+export type { AckMessage, IntentKind, IntentMessage, RejectMessage } from "./protocol.js";
 
 /** Matchmaking name clients join to reach the authoritative encounter room. */
 export const ENCOUNTER_ROOM_NAME = "encounter";
 /** Seconds a dropped client keeps its seat, learner entry, and lastSeq. */
 export const RECONNECT_ALLOWANCE_SECONDS = 30;
-
-/** Maximum extra probe actors a room may provision beyond the known encounter roster. */
-export const MAX_EXTRA_ACTOR_IDS = 8;
-
-export const KNOWN_ACTOR_IDS = ["physician", "patient"] as const;
-export type KnownActorId = (typeof KNOWN_ACTOR_IDS)[number];
 
 /** One server-driven actor turn, in application order. Server-side only, never synced. */
 export interface TurnRecord {
@@ -56,6 +56,8 @@ export interface RoomProbeStats {
   selections: ProbeSelection[];
   /** C3 actor-turn log; every entry is a copy, never a live reference. */
   turns: TurnRecord[];
+  /** C5 host-clock ms per opened turn (Date.now at turn open), keyed by turnId. Probe stats only, never in the trace. */
+  turnOpenedAtMs: Record<number, number>;
 }
 
 /** Options accepted at room creation (forwarded from joinOrCreate). */
@@ -63,35 +65,8 @@ export interface EncounterRoomOptions {
   actors?: unknown;
   /** Directory for the review-safe conversation trace file (server-side only). */
   traceDir?: unknown;
-}
-
-/** Client-to-server intent kinds. The only message type that may mutate state. */
-export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end";
-const INTENT_KINDS: ReadonlySet<string> = new Set([
-  "pose",
-  "select-actor",
-  "utterance-start",
-  "utterance-end",
-]);
-
-/** Wire envelope for one client intent. Validated before anything is applied. */
-export interface IntentMessage {
-  kind?: unknown;
-  seq?: unknown;
-  clientTs?: unknown;
-  payload?: unknown;
-}
-
-/** Server reply for an applied intent, carrying the round-trip terminus. */
-export interface AckMessage {
-  seq: number;
-  serverTs: number;
-}
-
-/** Server reply for a rejected intent. State is unchanged when this is sent. */
-export interface RejectMessage {
-  seq: number;
-  reason: string;
+  /** C5 join role: "learner" (default) | "observer". Other roles refused at join. */
+  role?: unknown;
 }
 
 /** Latest live room, set in onCreate. Single-room C1 helper for tests/ops. */
@@ -107,36 +82,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
-}
-
-/**
- * Parse optional extra probe actor ids from room options. Invalid entries are
- * ignored; the known encounter roster is always present. Bounded so a probe
- * page can provision its own actors (e.g. a1/a2) without changing defaults.
- */
-function parseExtraActorIds(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  const ids: string[] = [];
-  for (const entry of value) {
-    if (typeof entry !== "string") {
-      continue;
-    }
-    if (!/^[A-Za-z0-9_-]{1,64}$/.test(entry)) {
-      continue;
-    }
-    if (KNOWN_ACTOR_IDS.includes(entry as KnownActorId)) {
-      continue;
-    }
-    if (!ids.includes(entry)) {
-      ids.push(entry);
-    }
-    if (ids.length >= MAX_EXTRA_ACTOR_IDS) {
-      break;
-    }
-  }
-  return ids;
 }
 
 /** Server-authoritative encounter room. Clients send intents; only ack/reject go back as messages. */
@@ -157,6 +102,10 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   private tracer = new ConversationTracer();
   /** Directory for the persisted conversation trace file; null disables persistence. */
   private traceDir: string | null = null;
+  /** C5 connected faculty observers (read-only, no learners[] entry, no reconnection seat). */
+  private observers = new Set<string>();
+  /** C5 host-clock ms per opened turn (Date.now at turn open). Never synced, never in the trace. */
+  private turnOpenedAtMs = new Map<number, number>();
 
   /** Read-only copy of probe stats for the harness. Never sent on the wire. */
   getProbeStats(): RoomProbeStats {
@@ -164,6 +113,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       intentCounts: { ...this.intentCounts },
       selections: this.selectionLog.map((entry) => ({ ...entry })),
       turns: this.turnLog.map((entry) => ({ ...entry })),
+      turnOpenedAtMs: Object.fromEntries(this.turnOpenedAtMs) as Record<number, number>,
     };
   }
 
@@ -187,6 +137,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     this.state.phase = "brief";
     this.state.turnId = 0;
     this.state.turnOwner = "none";
+    this.state.observerCount = 0;
     this.state.actors = new MapSchema<ActorStateInstance>();
     this.state.learners = new MapSchema<LearnerStateInstance>();
     const roster = new Set<string>(KNOWN_ACTOR_IDS);
@@ -222,7 +173,25 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     });
   }
 
-  override onJoin(client: Client): void {
+  override onAuth(client: Client, options?: EncounterRoomOptions): boolean {
+    void client;
+    // Refuse unknown roles here so the SDK join rejects. Learner (default)
+    // and observer pass; anything else throws.
+    parseEncounterRole(options);
+    return true;
+  }
+
+  override onJoin(client: Client, options?: EncounterRoomOptions): void {
+    // Role re-parsed at join (onAuth already refused unknown roles; this
+    // throw is the backstop when onAuth is bypassed).
+    const role = parseEncounterRole(options);
+    if (role === "observer") {
+      // Faculty observer: counted, traced, never a learner seat.
+      this.observers.add(client.sessionId);
+      this.state.observerCount = this.observers.size;
+      this.tracer.push({ seq: null, kind: "observer-joined", actorId: "", turnId: null });
+      return;
+    }
     // Same sessionId can re-appear after a reconnection: never reset progress.
     if (!this.state.learners.has(client.sessionId)) {
       const learner = new LearnerState();
@@ -237,6 +206,14 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   }
 
   override async onDrop(client: Client): Promise<void> {
+    // C5: observer drops need no reconnection seat: remove immediately and
+    // trace presence. Chosen because observers hold no progress (no learner
+    // entry, no lastSeq, no selection) so there is nothing to resume.
+    if (this.observers.delete(client.sessionId)) {
+      this.state.observerCount = this.observers.size;
+      this.tracer.push({ seq: null, kind: "observer-left", actorId: "", turnId: null });
+      return;
+    }
     // Unclean disconnect: hold the seat so the learner entry and lastSeq
     // survive a reconnect within the allowance.
     try {
@@ -248,6 +225,13 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
 
   override onLeave(client: Client): void {
     // Effective leave (consented, or reconnection allowance expired).
+    // Observer guard first: delete returns true only once, so a drop+leave
+    // pair emits exactly one observer-left.
+    if (this.observers.delete(client.sessionId)) {
+      this.state.observerCount = this.observers.size;
+      this.tracer.push({ seq: null, kind: "observer-left", actorId: "", turnId: null });
+      return;
+    }
     this.dropLearner(client.sessionId);
   }
 
@@ -266,6 +250,14 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   }
 
   private handleIntent(client: Client, message: IntentMessage): void {
+    // C5 read-only gate: every observer intent rejects before any validation
+    // or mutation, is never counted, and never touches serverTick. The seq
+    // echoes the envelope when well-formed so the client can settle.
+    if (this.observers.has(client.sessionId)) {
+      const seq = isRecord(message) && Number.isInteger(message["seq"]) ? (message["seq"] as number) : 0;
+      this.reject(client, seq, OBSERVER_READ_ONLY_REASON);
+      return;
+    }
     const learner = this.state.learners.get(client.sessionId);
     if (!learner) {
       return;
@@ -463,6 +455,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     this.state.turnOwner = "actor";
     const record: TurnRecord = { turnId, actorId, replyId: reply.id, startSeq: seq, end: "open", endSeq: null };
     this.turnLog.push(record);
+    this.turnOpenedAtMs.set(turnId, Date.now());
     const timer = this.clock.setTimeout(() => {
       if (this.openTurn?.turnId !== turnId) {
         return;

@@ -98,8 +98,16 @@ export const PROBE_CASE_EMOTION_POLICY: CaseEmotionPolicy = {
   ],
 };
 
-/** Trace event kinds. turn-completed is server-generated (seq null). */
-export type ConversationTraceEventKind = "select-actor" | "utterance-start" | "utterance-end" | "turn-completed";
+/** Trace event kinds. turn-completed is server-generated (seq null). C5 adds
+ * observer-joined/observer-left presence events (seq null, actorId "", turnId
+ * null, no session id); the reducer ignores them for turns/emotions. */
+export type ConversationTraceEventKind =
+  | "select-actor"
+  | "utterance-start"
+  | "utterance-end"
+  | "turn-completed"
+  | "observer-joined"
+  | "observer-left";
 
 /** One conversation event, in application order. Actor-agnostic: the learner
  * appears as utterance events with no sessionId; utterance-end names the
@@ -239,6 +247,11 @@ export function reduceConversationEvents(events: readonly ConversationTraceEvent
         }
         break;
       }
+      case "observer-joined":
+      case "observer-left": {
+        // C5 presence only: no turns, no emotions, no selection change.
+        break;
+      }
     }
   }
   return { turns, emotions };
@@ -262,7 +275,14 @@ export interface ReplayableConversationTrace {
 }
 
 function isTraceEventKind(kind: string): kind is ConversationTraceEventKind {
-  return kind === "select-actor" || kind === "utterance-start" || kind === "utterance-end" || kind === "turn-completed";
+  return (
+    kind === "select-actor" ||
+    kind === "utterance-start" ||
+    kind === "utterance-end" ||
+    kind === "turn-completed" ||
+    kind === "observer-joined" ||
+    kind === "observer-left"
+  );
 }
 
 export function replayConversationTrace(trace: ReplayableConversationTrace): ConversationTrace {
