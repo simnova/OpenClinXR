@@ -11,6 +11,13 @@
       "SnapshotLearner",
       "SyncConnection",
       "connect"
+    ],
+    "./headset": [
+      "ConnectOptions",
+      "EncounterSnapshot",
+      "IntentKind",
+      "SyncConnection",
+      "connect"
     ]
   }
 }

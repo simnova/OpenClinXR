@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XR Sync Probe</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #0d1715; color: #e8f2ec; font-family: system-ui, sans-serif; }
+      #sync-probe-canvas { width: 800px; height: 600px; display: block; }
+      #sync-probe-status { padding: 8px 12px; font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <canvas id="sync-probe-canvas" width="800" height="600" aria-label="XR sync probe scene"></canvas>
+    <div id="sync-probe-status">sync-probe booting</div>
+    <script type="module" src="/src/sync-probe/sync-probe.ts"></script>
+  </body>
+</html>

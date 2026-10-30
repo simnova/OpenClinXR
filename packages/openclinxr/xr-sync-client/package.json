@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./headset": {
+      "types": "./dist/headset.d.ts",
+      "default": "./dist/headset.js"
     }
   },
   "scripts": {

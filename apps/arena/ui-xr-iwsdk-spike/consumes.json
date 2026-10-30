@@ -32,5 +32,47 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/xr-sync-client",
+    "entrypoint": "./headset",
+    "names": [
+      {
+        "name": "connect",
+        "kind": "runtime"
+      },
+      {
+        "name": "ConnectOptions",
+        "kind": "type"
+      },
+      {
+        "name": "EncounterSnapshot",
+        "kind": "type"
+      },
+      {
+        "name": "IntentKind",
+        "kind": "type"
+      },
+      {
+        "name": "SyncConnection",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-sync-server",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createEncounterServer",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "EncounterServer",
+        "kind": "type",
+        "via": "own-test"
+      }
+    ]
   }
 ]

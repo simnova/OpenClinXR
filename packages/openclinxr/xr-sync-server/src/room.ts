@@ -15,8 +15,29 @@ export const ENCOUNTER_ROOM_NAME = "encounter";
 /** Seconds a dropped client keeps its seat, learner entry, and lastSeq. */
 export const RECONNECT_ALLOWANCE_SECONDS = 30;
 
+/** Maximum extra probe actors a room may provision beyond the known encounter roster. */
+export const MAX_EXTRA_ACTOR_IDS = 8;
+
 export const KNOWN_ACTOR_IDS = ["physician", "patient"] as const;
 export type KnownActorId = (typeof KNOWN_ACTOR_IDS)[number];
+
+/** One applied select-actor intent, in application order. Server-side only, never synced. */
+export interface ProbeSelection {
+  sessionId: string;
+  actorId: string;
+  seq: number;
+}
+
+/** Read-only probe observability for the C2 headset harness. Never sent on the wire. */
+export interface RoomProbeStats {
+  intentCounts: Record<string, number>;
+  selections: ProbeSelection[];
+}
+
+/** Options accepted at room creation (forwarded from joinOrCreate). */
+export interface EncounterRoomOptions {
+  actors?: unknown;
+}
 
 /** Client-to-server intent kinds. The only message type that may mutate state. */
 export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end";
@@ -73,6 +94,36 @@ function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
+/**
+ * Parse optional extra probe actor ids from room options. Invalid entries are
+ * ignored; the known encounter roster is always present. Bounded so a probe
+ * page can provision its own actors (e.g. a1/a2) without changing defaults.
+ */
+function parseExtraActorIds(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  const ids: string[] = [];
+  for (const entry of value) {
+    if (typeof entry !== "string") {
+      continue;
+    }
+    if (!/^[A-Za-z0-9_-]{1,64}$/.test(entry)) {
+      continue;
+    }
+    if (KNOWN_ACTOR_IDS.includes(entry as KnownActorId)) {
+      continue;
+    }
+    if (!ids.includes(entry)) {
+      ids.push(entry);
+    }
+    if (ids.length >= MAX_EXTRA_ACTOR_IDS) {
+      break;
+    }
+  }
+  return ids;
+}
+
 export function snapshotState(state: EncounterStateInstance): EncounterSnapshot {
   const actors: EncounterSnapshot["actors"] = {};
   for (const [id, actor] of state.actors) {
@@ -95,15 +146,31 @@ export function snapshotState(state: EncounterStateInstance): EncounterSnapshot 
 export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   /** Per-client selected actor. Server-side only, never synced. */
   private selectedActor = new Map<string, string>();
+  /** Applied (acked) intents by kind, in arrival order. Probe observability only. */
+  private intentCounts: Record<string, number> = { pose: 0, "select-actor": 0, "utterance-start": 0, "utterance-end": 0 };
+  /** Applied select-actor intents in application order. Probe observability only. */
+  private selectionLog: ProbeSelection[] = [];
 
-  override onCreate(): void {
+  /** Read-only copy of probe stats for the harness. Never sent on the wire. */
+  getProbeStats(): RoomProbeStats {
+    return {
+      intentCounts: { ...this.intentCounts },
+      selections: this.selectionLog.map((entry) => ({ ...entry })),
+    };
+  }
+
+  override onCreate(options?: EncounterRoomOptions): void {
     latestRoom = this;
     this.setState(new EncounterState());
     this.state.serverTick = 0;
     this.state.phase = "brief";
     this.state.actors = new MapSchema<ActorStateInstance>();
     this.state.learners = new MapSchema<LearnerStateInstance>();
-    for (const id of KNOWN_ACTOR_IDS) {
+    const roster = new Set<string>(KNOWN_ACTOR_IDS);
+    for (const id of parseExtraActorIds(options?.actors)) {
+      roster.add(id);
+    }
+    for (const id of roster) {
       const actor = new ActorState();
       actor.id = id;
       actor.speaking = false;
@@ -200,6 +267,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     if (!applied) {
       return;
     }
+    this.intentCounts[kind as string] = (this.intentCounts[kind as string] ?? 0) + 1;
     learner.lastSeq = intentSeq;
     this.state.serverTick += 1;
     const ack: AckMessage = { seq: intentSeq, serverTs: Date.now() };
@@ -250,6 +318,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       return false;
     }
     this.selectedActor.set(client.sessionId, actorId);
+    this.selectionLog.push({ sessionId: client.sessionId, actorId, seq });
     return true;
   }
 

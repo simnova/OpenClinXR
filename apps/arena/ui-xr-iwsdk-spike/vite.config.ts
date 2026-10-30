@@ -58,12 +58,17 @@ export const openClinXrIwsdkSpikeBuildOutput = Object.freeze({
       {
         name: "three-vendor",
         test: /node_modules[\\/](?:\.pnpm[\\/])?three/,
-        priority: 20,
+        priority: 40,
       },
       {
         name: "vendor",
         test: /node_modules/,
         priority: 10,
+      },
+      {
+        name: "sync-xr",
+        test: /xr-sync-client/,
+        priority: 35,
       },
     ],
   },
@@ -117,10 +122,15 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: openClinXrIwsdkSpikeChunkSizeWarningLimitKb,
+    manifest: true,
     modulePreload: {
       resolveDependencies: resolveOpenClinXrIwsdkSpikeModulePreloads,
     },
     rolldownOptions: {
+      input: {
+        main: fileURLToPath(new URL("./index.html", import.meta.url)),
+        "sync-probe": fileURLToPath(new URL("./sync-probe.html", import.meta.url)),
+      },
       output: openClinXrIwsdkSpikeBuildOutput,
     },
   },

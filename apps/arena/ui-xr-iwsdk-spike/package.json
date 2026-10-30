@@ -18,16 +18,20 @@
     "@iwsdk/xr-input": "1.1.0-rc.2",
     "@openclinxr/iwsdk-spike": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
+    "@openclinxr/xr-sync-client": "workspace:*",
     "three": "catalog:"
   },
   "devDependencies": {
     "@cellix/config-typescript": "workspace:*",
     "@cellix/config-vitest": "workspace:*",
+    "@colyseus/sdk": "0.18.8",
     "@iwsdk/vite-plugin-dev": "1.1.0-rc.2",
     "@iwsdk/vite-plugin-uikitml": "0.4.2",
+    "@openclinxr/xr-sync-server": "workspace:*",
     "@pmndrs/uikit": "1.0.74",
     "@pmndrs/uikitml": "0.1.12",
     "@types/three": "catalog:",
+    "iwer": "2.3.0",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"

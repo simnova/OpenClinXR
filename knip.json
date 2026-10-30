@@ -45,6 +45,9 @@
     "apps/ui-xr": {
       "ignoreDependencies": ["@openclinxr/xr-capacity"]
     },
+    "apps/arena/ui-xr-iwsdk-spike": {
+      "entry": ["src/main.ts", "src/sync-probe/sync-probe.ts"]
+    },
     "packages/openclinxr/xr-capacity": {
       "entry": [
         "src/controller/entry.ts",

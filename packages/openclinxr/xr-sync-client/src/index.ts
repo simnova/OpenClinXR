@@ -7,6 +7,7 @@
  * Do not add imports.
  */
 import { Client, type Room } from "@colyseus/sdk";
+import type { ConnectOptions } from "./options.js";
 
 /** Client-to-server intent kinds, mirroring the server contract. */
 export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end";
@@ -94,9 +95,9 @@ function toSnapshot(state: unknown): EncounterSnapshot | undefined {
 }
 
 /** Join the encounter room at url and wire intent, snapshot, and reconnect handling. */
-export async function connect(url: string): Promise<SyncConnection> {
+export async function connect(url: string, options: ConnectOptions = {}): Promise<SyncConnection> {
   const client = new Client(url);
-  const initialRoom = await client.joinOrCreate<Room>(ROOM_NAME, {});
+  const initialRoom = await client.joinOrCreate<Room>(ROOM_NAME, options.roomOptions ?? {});
   return createConnection(client, initialRoom);
 }
 

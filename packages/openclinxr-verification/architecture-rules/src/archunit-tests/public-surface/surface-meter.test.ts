@@ -169,7 +169,10 @@ describe("compiler-resolved surface meter", () => {
     // (152 -> 153); roots unchanged at 55. Discovery count, not a numerical budget.
     // 2026-10-30 colyseus sync C1: xr-sync-server and xr-sync-client each publish
     // one "." entrypoint (153 -> 155); no other package.json `exports` map changes.
-    expect(report.totals.entrypoints).toBe(155);
+    // 2026-10-30 colyseus sync C2: xr-sync-client publishes one class-pure
+    // "./headset" subpath so the headset app binds the client without mixing
+    // "." across consumer classes (155 -> 156); roots unchanged at 57.
+    expect(report.totals.entrypoints).toBe(156);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {

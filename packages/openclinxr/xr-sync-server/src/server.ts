@@ -16,6 +16,8 @@ export interface EncounterServer {
   url: string;
   /** Stable-serialized authoritative state of the latest live room. */
   getStateJSON(): string;
+  /** Read-only probe stats (intent counts, selection sequence) of the latest live room. */
+  getProbeStats(): { intentCounts: Record<string, number>; selections: Array<{ sessionId: string; actorId: string; seq: number }> };
   close(): Promise<void>;
 }
 
@@ -41,6 +43,13 @@ export async function createEncounterServer(
         throw new Error("no live encounter room");
       }
       return JSON.stringify(snapshotState(room.state));
+    },
+    getProbeStats(): { intentCounts: Record<string, number>; selections: Array<{ sessionId: string; actorId: string; seq: number }> } {
+      const room = getLatestRoom();
+      if (!room) {
+        throw new Error("no live encounter room");
+      }
+      return room.getProbeStats();
     },
     async close(): Promise<void> {
       await server.gracefullyShutdown(false);
