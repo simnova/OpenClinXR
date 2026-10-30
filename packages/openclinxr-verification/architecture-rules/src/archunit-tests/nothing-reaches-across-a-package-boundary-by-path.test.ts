@@ -303,7 +303,6 @@ const FROZEN: readonly string[] = [
   "tools/openclinxr/evidence/natural-blink-emotion/speech-emotion-video/page.mjs -> ../../../../../packages/openclinxr/xr-pose/src/clinical-idle-posture.ts",
   "tools/openclinxr/evidence/no-actor-can-be-cast-onto-the-anny-rail.test.ts -> ../../../packages/openclinxr/scenario-fixtures/src/index.js",
   "tools/openclinxr/evidence/no-learner-meets-an-anny-patient.test.ts -> ../../../packages/openclinxr/asset-registry/src/actor-casting.js",
-  "tools/openclinxr/evidence/no-learner-meets-an-anny-patient.test.ts -> ../../../packages/openclinxr/asset-registry/src/cast-asset-constants.js",
   "tools/openclinxr/evidence/no-shipped-actor-wears-the-colour-of-their-skin.test.ts -> ../../../packages/openclinxr/asset-registry/src/actor-casting.ts",
   "tools/openclinxr/evidence/no-shipped-humanoid-is-anny-and-every-face-has-units.test.ts -> ../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js",
   "tools/openclinxr/evidence/patient-attire-by-care-setting.ts -> ../../../packages/openclinxr/asset-registry/src/actor-casting.js",
