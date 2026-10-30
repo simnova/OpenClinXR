@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.kimodo-stop-oneshot-metrics.v1",
-  "glbPath": ".openclinxr/evidence/kimodo-stop/mpfb-peds-patient-child-stop.glb",
+  "glbPath": "store:b369097473603542bf2586a178d6963b16edc03bb622d5a99112b032ce80276d/mpfb-peds-patient-child-stop.glb",
   "stopClip": "openclinxr_retarget_kimodo_stop_child_seed42",
   "knownGoodClip": "kimodo_source",
   "knownGoodSource": {

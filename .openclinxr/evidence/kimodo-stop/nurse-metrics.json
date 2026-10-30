@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.kimodo-stop-oneshot-metrics.v1",
-  "glbPath": ".openclinxr/evidence/kimodo-stop/mpfb-clinical-nurse-adult-stop.glb",
+  "glbPath": "store:dfaa355de96b30f9ccb45535ce3b62a01e7dc35659cbad127706cea649a6a701/mpfb-clinical-nurse-adult-stop.glb",
   "stopClip": "openclinxr_retarget_kimodo_stop_nurse_seed42",
   "knownGoodClip": "kimodo_source",
   "knownGoodSource": {

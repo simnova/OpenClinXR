@@ -326,9 +326,9 @@
   },
   "crossRigSignature": "Max toe step lands on toe1-1.R at 2708-2833 ms on all six bound clips (early decel). Lock amplifies a mild decel-onset discontinuity ~10x.",
   "artifacts": [
-    ".openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop.glb",
-    ".openclinxr/evidence/kimodo-stop/mpfb-clinical-nurse-adult-stop.glb",
-    ".openclinxr/evidence/kimodo-stop/mpfb-peds-patient-child-stop.glb",
+    "store:3134786118fbcbc2645e9a5950c3d26371c9d6b9dbe9ae4376d39bc895a6c3e0/mpfb-clinical-physician-adult-stop.glb",
+    "store:dfaa355de96b30f9ccb45535ce3b62a01e7dc35659cbad127706cea649a6a701/mpfb-clinical-nurse-adult-stop.glb",
+    "store:b369097473603542bf2586a178d6963b16edc03bb622d5a99112b032ce80276d/mpfb-peds-patient-child-stop.glb",
     ".openclinxr/evidence/kimodo-stop/physician-stop-strip.png",
     ".openclinxr/evidence/kimodo-stop/physician-nolock-strip.png",
     ".openclinxr/evidence/kimodo-stop/nurse-stop-strip.png",

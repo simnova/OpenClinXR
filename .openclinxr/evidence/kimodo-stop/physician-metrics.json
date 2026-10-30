@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.kimodo-stop-oneshot-metrics.v1",
-  "glbPath": ".openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop.glb",
+  "glbPath": "store:3134786118fbcbc2645e9a5950c3d26371c9d6b9dbe9ae4376d39bc895a6c3e0/mpfb-clinical-physician-adult-stop.glb",
   "stopClip": "openclinxr_retarget_kimodo_stop_physician_seed42",
   "knownGoodClip": "kimodo_source",
   "knownGoodSource": {
