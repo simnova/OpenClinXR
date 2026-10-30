@@ -33,10 +33,18 @@ const SWEEP = "tools/openclinxr/evidence/station-luminance-sweep.json";
 const GATE = "tools/openclinxr/evidence/the-luminance-gate-only-claims-what-it-can-see.test.ts";
 const NOTE = "tools/openclinxr/evidence/primary-care-zero-median-2026-09-12.md";
 const STATION = "primary_care_dyslipidemia_joint_pain_v1";
+/** Committed 0-fixture (ci-w8): a real recorded 0 the live sweep no longer carries. */
+const ZERO_FIXTURE = "tools/openclinxr/evidence/luminance-gate/zero-median-fixture.json";
 
 /** Mirrors the gate's clause (2) read: optional chain off the sweep table. */
 const readDark = (stations: Record<string, { median: number }>): number | undefined =>
   stations[STATION]?.median;
+
+const fixtureStations = (): Record<string, { median: number }> => {
+  if (!existsSync(ZERO_FIXTURE)) throw new Error(`${ZERO_FIXTURE} missing — TRACKED path required`);
+  return (JSON.parse(readFileSync(ZERO_FIXTURE, "utf8")) as { stations: Record<string, { median: number }> })
+    .stations;
+};
 
 const sweepStations = (): Record<string, { median: number }> => {
   if (!existsSync(SWEEP)) throw new Error(`${SWEEP} missing — TRACKED path required (#396)`);
@@ -46,16 +54,24 @@ const sweepStations = (): Record<string, { median: number }> => {
 
 describe("the luminance gate tells a zero median from a missing one", () => {
   it("(0) VACUITY GUARD: the instrument fixtures really are a 0 and an absence", () => {
-    const s = sweepStations();
+    // 2026-10-30 (ci-w8): the live sweep row moved 0 -> 199 at cf0325e8c (stations render now),
+    // so the live row can no longer serve as the 0 fixture. The 0 side now comes from the
+    // committed zero-median fixture — a real recorded 0 — while clause (1) keeps reading the
+    // live sweep for the presence check. The absent side stays the empty-table probe.
+    const f = fixtureStations();
     expect(
-      STATION in s,
-      `${STATION} is absent from ${SWEEP} — the 0-vs-absent distinction needs a recorded 0`,
+      STATION in f,
+      `${STATION} is absent from ${ZERO_FIXTURE} — the 0-vs-absent distinction needs a recorded 0`,
     ).toBe(true);
-    expect(s[STATION]?.median, "the tracked sweep row is no longer 0 — the premise moved").toBe(0);
+    expect(f[STATION]?.median, "the committed 0-fixture is no longer 0 — the premise moved").toBe(0);
     expect(
       readDark({}),
       "the absent-row fixture does not read as absent — the probe is miswired",
     ).toBeUndefined();
+    expect(
+      typeof readDark(f) === "number",
+      "the probe must read the fixture 0 as present (a number), not as absent",
+    ).toBe(true);
   });
 
   it("(1) RED: a recorded median of 0 is present, not missing", () => {

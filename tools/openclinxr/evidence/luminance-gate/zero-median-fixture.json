@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "openclinxr.zero-median-fixture.v1",
+  "purpose": "Vacuity-guard fixture for the-luminance-gate-tells-a-zero-median-from-a-missing-one (clause 0): a committed, real recorded 0. The live sweep row this guard used to read moved 0 -> 199 when cf0325e8c re-ran the sweep on the current runtime (2026-10-30, stations render now), so the live row can no longer prove the instrument distinguishes 0 from absent. This fixture pins the 0 side of that distinction; the absent side stays the empty-table probe in the test.",
+  "stations": {
+    "primary_care_dyslipidemia_joint_pain_v1": {
+      "median": 0
+    }
+  }
+}

@@ -56,6 +56,17 @@ import { describe, expect, it } from "vitest";
  *   frames a human graded equally good differ in median by 3.7x.
  * notEvidenceFor: whether any station looks right; whether any is too dark or too bright; the framing;
  *   what a correct view metric would be.
+ *
+ * ## FIXED (2026-10-30, ci-w8) — clauses (1) and (3) flipped it.fails -> it.
+ *
+ * The sweep was re-run on the current runtime at `cf0325e8c` ("Re-measure bakeoff, runtime-goal
+ * eval and luminance sweep ... stamps the current main.ts head", 2026-10-30): all 15 stations
+ * read 152-218 (primary_care 199, ward_delirium 199, dimmest telehealth 152). The black frames
+ * are gone because stations now render — clause (1) clears floor 10 on every station and clause
+ * (3) clears 2x floor (152 >= 20) with room to spare. Both now PASS as plain `it`, which is the
+ * all-green state the header's treatment table calls ALL PASS. Clause (2) stays it.fails: the two
+ * good frames now read 199/199 (ratio 1.0 < 3.0), so the known-good spread column still refuses a
+ * per-station brightness band — the contract's point survives the re-measurement.
  */
 
 const SWEEP = "tools/openclinxr/evidence/station-luminance-sweep.json";
@@ -70,7 +81,8 @@ const stations = (): Record<string, { median: number }> => {
 };
 
 describe("the luminance gate only claims what it can see", () => {
-  it.fails("(1) every shipped station rendered something rather than a black frame", () => {
+  // FIXED 2026-10-30 (ci-w8, cf0325e8c re-run: all stations 152-218) — was it.fails.
+  it("(1) every shipped station rendered something rather than a black frame", () => {
     const s = stations();
     expect(Object.keys(s).length, "the sweep must cover the whole shipped bank").toBeGreaterThanOrEqual(14);
     for (const [id, row] of Object.entries(s)) {
@@ -104,7 +116,8 @@ describe("the luminance gate only claims what it can see", () => {
     ).toBeGreaterThanOrEqual(GOOD_FRAME_SPREAD_RATIO);
   });
 
-  it.fails("(3) COUNTERWEIGHT: the floor stays a render-failure detector, not a quality bar", () => {
+  // FIXED 2026-10-30 (ci-w8, cf0325e8c re-run: dimmest station 152 >= 2x floor 20) — was it.fails.
+  it("(3) COUNTERWEIGHT: the floor stays a render-failure detector, not a quality bar", () => {
     // Refuses the cheap fix of ratcheting this floor upward until it "grades" the bank. Every shipped
     // station must clear it with room to spare; a floor that any real render sits close to has become
     // the quality bar this contract exists to refuse.
