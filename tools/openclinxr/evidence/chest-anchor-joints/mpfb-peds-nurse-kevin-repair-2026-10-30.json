@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "openclinxr.generated-humanoid-chest-anchor-animation-repair.v1",
+  "repairCollapsedAnimations": true,
+  "separationApplied": false,
+  "stage": "post_blender_glb_chest_anchor_animation_repair",
+  "restPreservedExactly": true,
+  "joints": {
+    "breast.L": {
+      "beforeX": 0.085,
+      "afterX": 0.085
+    },
+    "breast.R": {
+      "beforeX": -0.085,
+      "afterX": -0.085
+    }
+  },
+  "chestSpanM": {
+    "before": 0.17,
+    "after": 0.17
+  },
+  "clavicleSpanM": 0.04650145769119263,
+  "maxChestSeparationM": 0.25,
+  "animationChannelsRepaired": [
+    {
+      "animation": "openclinxr_retarget_walk_source",
+      "joint": "breast.L",
+      "keyframes": 2
+    },
+    {
+      "animation": "openclinxr_retarget_walk_source",
+      "joint": "breast.R",
+      "keyframes": 2
+    }
+  ],
+  "animationChannelsUnchanged": [
+    {
+      "animation": "ClinicalIdleConversation",
+      "joint": "breast.L",
+      "keyframes": 2,
+      "reason": "already_at_rest"
+    },
+    {
+      "animation": "ClinicalIdleConversation",
+      "joint": "breast.R",
+      "keyframes": 2,
+      "reason": "already_at_rest"
+    }
+  ],
+  "claimScope": "mpfb_shipped_rig_collapsed_walk_sampler_restoration_to_own_rest",
+  "notEvidenceFor": [
+    "what_any_still_shows",
+    "b_plus_visual_realism_gate",
+    "quest_readiness",
+    "clinical_validity",
+    "chest_anchor_height",
+    "other_rigs"
+  ],
+  "inputPath": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+  "outputPath": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+  "generatedAt": "2026-10-30T18:29:19.679Z"
+}
