@@ -1,6 +1,5 @@
 {
   "schemaVersion": "openclinxr.stage2-multiview.v1",
-  "glb": "/Volumes/files/src/openclinxr-wt/ao-cycles-bake/.openclinxr/evidence/ao-cycles-bake-chain/infinigen-inpatient-ward.chain.glb",
   "captures": [
     {
       "id": "runtime-01-toward-door",

@@ -53,7 +53,6 @@
   "timing": {
    "hardwareSixPoseS": 11,
    "softwareSixPoseS": 34,
-   "glb": ".openclinxr/evidence/ward-finish-chain-timing-cold1/infinigen-inpatient-ward.chain.glb (11440952 bytes)",
    "note": "end-to-end: portless server + page load + 6 screenshots; software run via uncommitted .openclinxr copy with --disable-gpu, deleted after"
   },
   "pixelDiffHwVsSwMean255": {

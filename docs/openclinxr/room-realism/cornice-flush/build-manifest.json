@@ -61,7 +61,6 @@
       }
     },
     "inpatient_ward_room_v1/v4-flush-tbar": {
-      "finalGlb": "/Volumes/files/src/openclinxr-wt/cornice-flush/.openclinxr/evidence/cornice-flush/inpatient_ward_room_v1/v4-flush-tbar/infinigen-inpatient-ward.chain.glb",
       "glbSha256": "19c475e314269e53639bc440ee9e45765b742eb85aeb877ea3b5ec866149a31b",
       "cache": {
         "room_generate": {
@@ -182,7 +181,6 @@
       }
     },
     "stepdown_room_v1/v4-flush-tbar": {
-      "finalGlb": "/Volumes/files/src/openclinxr-wt/cornice-flush/.openclinxr/evidence/cornice-flush/stepdown_room_v1/v4-flush-tbar/infinigen-stepdown.chain.glb",
       "glbSha256": "2b0f205e9a44c47532a0d02b584a468475db8aa2601a24fe167a17cb1706a0be",
       "cache": {
         "room_generate": {
