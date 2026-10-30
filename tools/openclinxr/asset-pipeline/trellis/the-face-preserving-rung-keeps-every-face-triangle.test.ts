@@ -13,6 +13,15 @@
  * Face = meshes whose name matches /eye|brow|lash|teeth|tongue/i, the same
  * rule HB-03 used. Known-good: HB-03's five raw-rung bodies (retention 1,
  * joints 137, inside budget).
+ *
+ * ## DEMOTED ROW (ci-w9 P3)
+ *
+ * peds-parent-aisha's Sep11 fp-r0.4 output did not survive the Sep30 mouth
+ * rebuild (afe8abced): its row no longer promotes a rung and instead records
+ * a measured noSurvivingRungReason, keeping ratio-1 and 137-joint floors on
+ * the re-measured source (face 33360, tris 73012). previousFaceBefore preserves
+ * the pre-rebuild 52778. This is a deliberate rebuild, not a silent loss, so
+ * the row is re-pinned — not DEFECT.
  */
 import { describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
@@ -52,6 +61,8 @@ type FacePreservingBodyRow = {
   promoted: boolean;
   promotionNote: string;
   noSurvivingRungReason?: string;
+  remeasureNote?: string;
+  previousFaceBefore?: number;
 };
 type FacePreservingReport = {
   bodies: FacePreservingBodyRow[];
@@ -165,6 +176,35 @@ describe("the face-preserving rung keeps every face triangle", () => {
     expect(report.budgets.propShare).toBe(40000);
     expect(report.budgets.skeletonHard).toBe(180000);
     expect(report.budgets.acceptableSingleProp).toBe(120000);
+  });
+
+  it("the demoted row preserves its pre-rebuild face as history", () => {
+    const row = report.bodies.find((candidate) => candidate.body === "mpfb-peds-parent-aisha.glb");
+    expect(row, "peds-parent row exists in the HB-05 report").toBeDefined();
+    expect(row!.promoted).toBe(false);
+    expect(row!.noSurvivingRungReason ?? "").not.toBe("");
+    expect(row!.previousFaceBefore).toBe(52778);
+    expect(row!.faceBefore).toBe(33360);
+    expect(row!.faceAfter).toBe(33360);
+  });
+
+  it("every re-measured row cites a superseding commit that touched its GLB", () => {
+    expect(String((report as { generated?: unknown }).generated)).toContain("repin-decimation-rows.py");
+    for (const row of report.bodies) {
+      const note = row.remeasureNote;
+      if (!note) continue;
+      const tokens = note.match(/\b[0-9a-f]{7,40}\b/g) ?? [];
+      expect(tokens.length, `${row.body}: remeasureNote cites no commit`).toBeGreaterThan(0);
+      const history = execFileSync("git", ["log", "--format=%H", "--", `apps/ui-xr/public/generated-humanoids/${row.body}`], {
+        cwd: ROOT,
+        encoding: "utf8",
+      }) as unknown as string;
+      const full = history.trim().split("\n");
+      const cited = tokens.filter((t) => full.some((h) => h.startsWith(t)));
+      expect(cited.length, `${row.body}: remeasureNote cites no commit from this body's history`).toBeGreaterThan(0);
+      const fabricated = tokens.filter((t) => /[a-f]/.test(t) && !full.some((h) => h.startsWith(t)));
+      expect(fabricated, `${row.body}: remeasureNote cites unknown commits`).toEqual([]);
+    }
   });
 
   it("the committed mode reproduces the viseme-inspect rung from the promoted (tightjeans) lineage (minimal falsifier)", async () => {

@@ -22,12 +22,23 @@
  * without a promoted HB-05 row keep asserting against the HB-03 row. Nothing
  * below is deleted or weakened: the same clauses run, only the record they read
  * for promoted bodies moved forward. The rung-id counterweight keeps checking
- * HB-03 rows against the ladder's RATIOS in vr-postopt-ladder.ts; for HB-05
- * rows it checks the fp-r id against FACE_PRESERVING_RATIOS in
+ * HB-03 rows against the ladder's RATIOS in vr-postopt-ladder.ts; for bodies
+ * present in the HB-05 report (promoted or demoted) it checks the HB-05 row's
+ * fp-r id against FACE_PRESERVING_RATIOS in
  * tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts.
+ *
+ * ## DEMOTED ROW (ci-w9 P3)
+ *
+ * The Sep30 mouth rebuild (afe8abced) gave peds-parent-aisha rebuilt geometry,
+ * so its HB-05 row no longer promotes a decimated rung: it records a measured
+ * noSurvivingRungReason and keeps ratio-1 / 137-joint floors on the re-measured
+ * source. This file therefore asserts the re-pinned HB-03 row for that body
+ * (after-values equal the live bytes, history preserved in previousFaceBefore
+ * and remeasureNote), and the rung check reads its rung from the HB-05 report.
  */
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
@@ -56,6 +67,7 @@ type LadderBodyRow = {
   jointCountAfter: number;
   jointCountExpected: number;
   promoted: boolean;
+  remeasureNote?: string;
 };
 type LadderReport = { bodies: LadderBodyRow[]; rungIds: string[] };
 type Hb05BodyRow = {
@@ -73,6 +85,7 @@ type Hb05BodyRow = {
   jointCountAfter: number;
   jointCountExpected: number;
   promoted: boolean;
+  remeasureNote?: string;
 };
 type Hb05Report = { bodies: Hb05BodyRow[] };
 
@@ -119,16 +132,16 @@ describe("the decimated humanoid keeps its face and rig", () => {
   const report = JSON.parse(readFileSync(REPORT_PATH, "utf8")) as LadderReport;
   const hb05 = JSON.parse(readFileSync(HB05_REPORT_PATH, "utf8")) as Hb05Report;
   const rows = currentRows(report, hb05);
-  const hb05Promoted = new Set(hb05.bodies.filter((row) => row.promoted).map((row) => row.body));
 
   it("every reported rung id exists in the ladder source's own rung list (counterweight)", () => {
     const sourceIds = ladderRungIdsFromSource();
     expect(report.rungIds).toEqual(sourceIds);
     expect(report.bodies.length).toBeGreaterThan(0);
     const faceIds = facePreservingRungIdsFromSource();
+    const hb05ByBody = new Map(hb05.bodies.map((row) => [row.body, row]));
     for (const row of report.bodies) {
-      if (hb05Promoted.has(row.body)) {
-        const hb05Row = hb05.bodies.find((candidate) => candidate.body === row.body)!;
+      const hb05Row = hb05ByBody.get(row.body);
+      if (hb05Row) {
         expect(faceIds, `${row.body}: rung ${hb05Row.chosenRungId} is not a face-preserving rung`).toContain(hb05Row.chosenRungId);
       } else {
         expect(sourceIds, `${row.body}: rung ${row.chosenRungId} is not a ladder rung`).toContain(row.chosenRungId);
@@ -163,4 +176,26 @@ describe("the decimated humanoid keeps its face and rig", () => {
       expect(live.tris).toBe(row.triangleCountAfter);
     }
   }, 120_000);
+
+  it("every re-measured row cites a superseding commit that touched its GLB", () => {
+    const repin = path.join(ROOT, "tools/openclinxr/asset-pipeline/trellis/repin-decimation-rows.py");
+    expect(existsSync(repin), `re-pin producer missing: ${repin}`).toBe(true);
+    expect(String((report as { generated?: unknown }).generated)).toContain("repin-decimation-rows.py");
+    expect(String((hb05 as { generated?: unknown }).generated)).toContain("repin-decimation-rows.py");
+    for (const row of rows) {
+      const note = row.remeasureNote;
+      if (!note) continue;
+      const tokens = note.match(/\b[0-9a-f]{7,40}\b/g) ?? [];
+      expect(tokens.length, `${row.body}: remeasureNote cites no commit`).toBeGreaterThan(0);
+      const history = execFileSync("git", ["log", "--format=%H", "--", `apps/ui-xr/public/generated-humanoids/${row.body}`], {
+        cwd: ROOT,
+        encoding: "utf8",
+      }) as unknown as string;
+      const full = history.trim().split("\n");
+      const cited = tokens.filter((t) => full.some((h) => h.startsWith(t)));
+      expect(cited.length, `${row.body}: remeasureNote cites no commit from this body's history`).toBeGreaterThan(0);
+      const fabricated = tokens.filter((t) => /[a-f]/.test(t) && !full.some((h) => h.startsWith(t)));
+      expect(fabricated, `${row.body}: remeasureNote cites unknown commits`).toEqual([]);
+    }
+  });
 });
