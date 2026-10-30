@@ -72,7 +72,7 @@ function trackStations(connection: SyncConnection): string[] {
   return seen;
 }
 
-function traceFiles(dir: string): Array<{ stationId?: string; raw: string; events: Array<{ kind: string }> }> {
+function traceFiles(dir: string): Array<{ stationId: string | undefined; raw: string; events: Array<{ kind: string }> }> {
   return readdirSync(dir)
     .filter((f) => f.endsWith(".conversation-trace.json"))
     .map((f) => {
