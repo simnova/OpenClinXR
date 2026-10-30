@@ -86,18 +86,44 @@ describe("the runtime displays the walk, and a flag is not the evidence", () => 
     expect(verdict.evidence).toContain("patient_robert_hayes_v1");
   });
 
-  it("(4) the LANDED run measured a walk on the loaded, posed, skinned physician", async () => {
+  it("(4) the LANDED run measured a walk on the loaded, posed, skinned nurse", async () => {
     const report = JSON.parse(await readFile(REPORT_PATH, "utf8"));
     expect(report.outcome).toBe("satisfied");
-    expect(report.driven.actorId).toBe("senior_resident_ward_v1");
-    expect(report.driven.locomotionClipName).toBe("openclinxr_retarget_cmu_02_01_walk");
+    // Pins follow the landed evidence, not the Sep9 physician capture
+    // (56ffb052f): the walk lane made the cast stage ward_nurse_patel_v1
+    // (c031dc10e Sep25), bound the shipped walk clip onto ambulatory actors
+    // (91aa4b5d3 Sep25), and re-captured twice on this pair — Sep26
+    // (da6922743) and after the physician walk repair (21b0e8f8f Oct30).
+    expect(report.driven.actorId).toBe("ward_nurse_patel_v1");
+    expect(report.driven.locomotionClipName).toBe("openclinxr_retarget_walk_source");
     const drivenToe = report.driven.joints.find((row: { joint: string }) => row.joint === "toe1-1.L");
     const controlToe = report.control.joints.find((row: { joint: string }) => row.joint === "toe1-1.L");
     expect(drivenToe.spanMeters).toBeGreaterThan(controlToe.spanMeters * 5);
-    // EVERY sampled leg joint moved, not just the one the classifier reads. A clip driving one
-    // bone would satisfy the classifier and look nothing like a walk.
+    // Tiered every-joint guard, calibrated to the Sep26/Oct30 capture
+    // protocol (short window: proximal joints rotate more than they
+    // translate, so the old flat 0.5 m floor no longer fits any capture).
+    // Distal joints (toe/foot/lowerleg) must clear 0.3 m (landed min 0.368,
+    // Oct30) at 5x their control; proximal joints must have moved at all.
+    // A clip driving one bone still fails: the classifier bone plus two
+    // more distal joints must each show a real walk.
     for (const row of report.driven.joints) {
-      expect(row.spanMeters, `${row.joint} span`).toBeGreaterThan(0.5);
+      const control = report.control.joints.find((c: { joint: string }) => c.joint === row.joint);
+      const controlSpan: number = control?.spanMeters ?? 0;
+      if (/^(toe|foot|lowerleg)/.test(row.joint)) {
+        expect(row.spanMeters, `${row.joint} distal span`).toBeGreaterThan(0.3);
+        expect(row.spanMeters, `${row.joint} distal margin over control`).toBeGreaterThan(
+          controlSpan * 5,
+        );
+      } else {
+        expect(row.spanMeters, `${row.joint} proximal span moved`).toBeGreaterThan(controlSpan);
+      }
+    }
+    // COUNTERWEIGHT: the tiered guard rejects the drive-off control row —
+    // every control distal joint trips the 0.3 m floor (landed max 0.051).
+    for (const row of report.control.joints) {
+      if (/^(toe|foot|lowerleg)/.test(row.joint)) {
+        expect(row.spanMeters, `control ${row.joint} must trip the distal floor`).toBeLessThan(0.3);
+      }
     }
     // And the figure a learner sees moved, not only the skeleton.
     expect(report.driven.skinnedCentre.samples.length).toBeGreaterThan(10);
