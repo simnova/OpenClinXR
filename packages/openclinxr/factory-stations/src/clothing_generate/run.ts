@@ -1,5 +1,5 @@
-import { factoryStationSchemas } from "@openclinxr/factory-station-core";
-import { planFromCatalog, type StationPlanResult, type StationRunner } from "@openclinxr/factory-station-core";
+import { factoryStationSchemas } from "@openclinxr/factory-station-core/runner";
+import { planFromCatalog, type StationPlanResult, type StationRunner } from "@openclinxr/factory-station-core/runner";
 
 export function planClothingGenerate(input: unknown): StationPlanResult {
   return planFromCatalog("clothing_generate", input, (value) => ({

@@ -3,7 +3,7 @@
 // case-inputs.json (no case is named here).
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { repoRoot } from "@openclinxr/factory-station-core";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { runFitForStage } from "./fit-bake.js";
 import {
   caseValue,

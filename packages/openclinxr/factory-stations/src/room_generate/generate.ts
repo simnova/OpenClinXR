@@ -3,7 +3,7 @@ import { homedir } from "node:os";
 import path from "node:path";
 import type { BlenderDevice, ComputeProcessResult } from "@openclinxr/compute-services-spec/contracts";
 import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
-import { repoRoot } from "@openclinxr/factory-station-core";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 export const ROOM_GENERATE_MODULE_REL =
   "packages/openclinxr/factory-stations/src/room_generate/infinigen_generate";

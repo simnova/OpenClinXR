@@ -1,5 +1,5 @@
-import type { ProductionStationId } from "@openclinxr/factory-station-core";
-import type { StationRunner } from "@openclinxr/factory-station-core";
+import type { ProductionStationId } from "@openclinxr/factory-station-core/runner";
+import type { StationRunner } from "@openclinxr/factory-station-core/runner";
 import { bodyParamRunner } from "./body_param/run.js";
 import { clothingConsumeRunner } from "./clothing_consume/run.js";
 import { clothingGenerateRunner } from "./clothing_generate/run.js";

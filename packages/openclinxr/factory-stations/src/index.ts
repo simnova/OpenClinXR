@@ -10,7 +10,7 @@
 /** Persist a validated station payload onto a compile-node spec. No baker spawn. */
 export {
   applyStationPayloadToCompileSpec,
-} from "@openclinxr/factory-station-core";
+} from "@openclinxr/factory-station-core/runner";
 export {
   planBodyParam,
   runBodyParam,
@@ -26,7 +26,7 @@ export type {
   StandardResult,
   StationJsonSchema,
   StationPropertySchema,
-} from "@openclinxr/factory-station-core";
+} from "@openclinxr/factory-station-core/runner";
 /**
  * The catalog itself: every production station id, the schema record keyed by id,
  * and the id list in catalog order.
@@ -35,7 +35,7 @@ export {
   factoryStationSchemas,
   PRODUCTION_STATION_IDS,
   productionStationIds,
-} from "@openclinxr/factory-station-core";
+} from "@openclinxr/factory-station-core/runner";
 export {
   planClothingConsume,
   runClothingConsume,

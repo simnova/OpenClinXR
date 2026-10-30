@@ -1,10 +1,10 @@
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { factoryStationSchemas } from "@openclinxr/factory-station-core";
-import { repoRoot } from "@openclinxr/factory-station-core";
-import { planFromCatalog, type StationPlanResult, type StationRunner } from "@openclinxr/factory-station-core";
-import { spawnBlenderProcess } from "@openclinxr/factory-station-core";
+import { factoryStationSchemas } from "@openclinxr/factory-station-core/runner";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { planFromCatalog, type StationPlanResult, type StationRunner } from "@openclinxr/factory-station-core/runner";
+import { spawnBlenderProcess } from "@openclinxr/factory-station-core/runner";
 
 export const CLOTHING_CONSUME_STAGE_REL =
   "packages/openclinxr/factory-stations/src/clothing_consume/fit_stage.py";

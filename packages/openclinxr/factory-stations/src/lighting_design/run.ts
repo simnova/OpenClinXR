@@ -1,9 +1,9 @@
 import { existsSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { factoryStationSchemas } from "@openclinxr/factory-station-core";
-import { repoRoot } from "@openclinxr/factory-station-core";
-import type { StationPlanResult, StationRunner } from "@openclinxr/factory-station-core";
-import { spawnBlenderProcess } from "@openclinxr/factory-station-core";
+import { factoryStationSchemas } from "@openclinxr/factory-station-core/runner";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import type { StationPlanResult, StationRunner } from "@openclinxr/factory-station-core/runner";
+import { spawnBlenderProcess } from "@openclinxr/factory-station-core/runner";
 
 /**
  * lighting_design: deterministic lighting-rig factory station (no LLM in the

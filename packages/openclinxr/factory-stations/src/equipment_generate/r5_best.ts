@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { repoRoot } from "@openclinxr/factory-station-core";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * R5-BEST export treatment for equipment_generate (MADR 0059 round 5b).

@@ -6,7 +6,7 @@
 import { copyFileSync, existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
-import { repoRoot } from "@openclinxr/factory-station-core";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import {
   FIT_DIR_REL,
   FIT_REL,

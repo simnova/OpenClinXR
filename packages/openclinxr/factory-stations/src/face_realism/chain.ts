@@ -2,7 +2,7 @@
 // fixture-scale input staging (synthetic subject, flat AO) behind it.
 import { copyFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { repoRoot } from "@openclinxr/factory-station-core";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import {
   type ChainStage,
   readJsonFile,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { factoryStationSchemas } from "@openclinxr/factory-station-core";
+import { factoryStationSchemas } from "@openclinxr/factory-station-core/runner";
 import { planClothingConsume, refitContractFrom } from "./run.js";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";

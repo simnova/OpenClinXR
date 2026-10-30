@@ -8,7 +8,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { repoRoot } from "@openclinxr/factory-station-core";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import {
   buildStage4Gate,
   FACE_TARGET_LOADER_FILE,

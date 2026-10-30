@@ -3,8 +3,8 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
-import { factoryStationSchemas } from "@openclinxr/factory-station-core";
-import { planFromCatalog, type StationPlanResult, type StationRunner } from "@openclinxr/factory-station-core";
+import { factoryStationSchemas } from "@openclinxr/factory-station-core/runner";
+import { planFromCatalog, type StationPlanResult, type StationRunner } from "@openclinxr/factory-station-core/runner";
 import {
   SPEECH_SYNTH_MODEL_REVISION,
   synthesizeSpeechWav,

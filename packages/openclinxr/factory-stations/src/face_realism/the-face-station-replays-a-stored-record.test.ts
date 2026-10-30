@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { factoryStationSchemas, PRODUCTION_STATION_IDS } from "@openclinxr/factory-station-core";
+import { factoryStationSchemas, PRODUCTION_STATION_IDS } from "@openclinxr/factory-station-core/runner";
 import { stationRunners } from "../station-runners.js";
 import { planFaceRealism } from "./plan.js";
 import {

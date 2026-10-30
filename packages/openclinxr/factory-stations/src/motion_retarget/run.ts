@@ -1,9 +1,9 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { factoryStationSchemas } from "@openclinxr/factory-station-core";
-import { repoRoot } from "@openclinxr/factory-station-core";
-import { planFromCatalog, type StationPlanResult, type StationRunner } from "@openclinxr/factory-station-core";
-import { spawnBlenderProcess } from "@openclinxr/factory-station-core";
+import { factoryStationSchemas } from "@openclinxr/factory-station-core/runner";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { planFromCatalog, type StationPlanResult, type StationRunner } from "@openclinxr/factory-station-core/runner";
+import { spawnBlenderProcess } from "@openclinxr/factory-station-core/runner";
 import { gateWalkClip, MPFB_WALK_JOINTS } from "./walk_symmetry_gate.js";
 import type { WalkGateJoints, WalkGateReport } from "./walk_symmetry_gate.js";
 

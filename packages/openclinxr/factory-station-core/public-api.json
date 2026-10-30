@@ -1,6 +1,7 @@
 {
   "entrypoints": {
-    ".": [
+    ".": [],
+    "./runner": [
       "FactoryStationSchema",
       "PRODUCTION_STATION_IDS",
       "ProductionStationId",

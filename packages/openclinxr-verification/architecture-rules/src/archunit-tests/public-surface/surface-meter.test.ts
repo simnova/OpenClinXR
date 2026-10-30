@@ -129,8 +129,9 @@ describe("compiler-resolved surface meter", () => {
     // private sidecar @openclinxr/station-mouth-verifier-evidence adds one root that publishes
     // nothing (57 -> 58).
     // 2026-10-30 factory-station-core split (operator-approved 2026-10-30): the station-agnostic
-    // core @openclinxr/factory-station-core adds one root that publishes one "." entrypoint
-    // (58 -> 59).
+    // core @openclinxr/factory-station-core adds one root that publishes nothing at "."
+    // (58 -> 59); its 17 names live on the "./runner" subpath (precedent: compute-slots
+    // ./slots, compute-services-spec ./contracts, service-local-compute ./local).
     expect(report.totals.roots).toBe(59);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
@@ -183,8 +184,9 @@ describe("compiler-resolved surface meter", () => {
     // for its sidecar, and the sidecar, with no exports map, is discovered as one implicit "."
     // that publishes nothing (156 -> 158).
     // 2026-10-30 factory-station-core split (operator-approved 2026-10-30): the core root
-    // publishes one "." entrypoint (158 -> 159); no other package.json `exports` map changes.
-    expect(report.totals.entrypoints).toBe(159);
+    // publishes an empty "." plus the "./runner" subpath carrying its 17 names
+    // (158 -> 160); no other package.json `exports` map changes.
+    expect(report.totals.entrypoints).toBe(160);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {

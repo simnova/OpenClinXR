@@ -21,7 +21,7 @@
   },
   {
     "provider": "@openclinxr/factory-station-core",
-    "entrypoint": ".",
+    "entrypoint": "./runner",
     "names": [
       {
         "name": "factoryStationSchemas",

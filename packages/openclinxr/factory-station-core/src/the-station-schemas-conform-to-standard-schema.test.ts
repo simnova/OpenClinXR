@@ -1,6 +1,6 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { describe, expect, it } from "vitest";
-import { factoryStationSchemas, PRODUCTION_STATION_IDS } from "./index.js";
+import { factoryStationSchemas, PRODUCTION_STATION_IDS } from "./runner.js";
 
 /**
  * factory-stations publishes `~standard` and has since it was written, but it was shaped like

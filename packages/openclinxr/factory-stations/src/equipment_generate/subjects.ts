@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { repoRoot } from "@openclinxr/factory-station-core";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 const STANDARD_VIEW_NAMES = [
   "front.png",

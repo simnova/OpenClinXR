@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { factoryStationSchemas } from "@openclinxr/factory-station-core";
+import { factoryStationSchemas } from "@openclinxr/factory-station-core/runner";
 import { designLightingRig, LIGHTING_RIG_STAGE_REL, planLightingDesign } from "./run.js";
 
 /**
