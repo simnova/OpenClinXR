@@ -66,13 +66,13 @@
   "independentSemanticReview": {
     "status": "accepted",
     "reviewerName": "ci-closure lane (Claude Code session)",
-    "reviewerSessionId": "38d7f37b-43b1-4276-bb98-f29b80beeb8a",
-    "reviewRecord": "2026-10-30 re-attestation review of the ci-w9 P5 ledger refresh (author: opencode session ses_e71eb6643ffe9kAMxM54Kkp572, distinct from this reviewer). Checked each changed field against disk at origin/main 665c41696: inputIdentity report and disk actor sha256 both equal live mpfb-clinical-nurse-adult.glb (4f0a8c1d) and bake-off report.json actorAssetSha256 (written by cf0325e8c); classification current-actor-bound follows that equal compare; all 19 topic currentSource.sha256 values equal live file hashes (rig-capability-identity ead747a7 after cf0325e8c, physics-touch-fence 92dbc1ce after b3641f1b7, open-decision-package-adapter 47e5f1f2 after a2fec46f3); cited commits resolve. No threshold or compare logic changed; clause (8) added. Known follow-on: ci-w11 rewrites the nurse GLB keyframes, which will stale the actor binding until the bake-off is re-measured. Prior review retained in priorIndependentSemanticReviews.",
-    "reviewedAt": "2026-10-30T19:02:54.315Z",
+    "reviewerSessionId": "513a8728-ffb0-4e24-baa1-1f7c1e2671eb",
+    "reviewRecord": "2026-10-30 re-attestation review of the ci-w11b C1 ledger refresh (author: opencode session ses_e713a6ed7ffeig2RM6fJaUHSWS, distinct from this reviewer). Checked each changed field against disk on branch ci/w11-glb-defects at worker head 2276e79fd (base 65d10f084), before merging origin/main: inputIdentity report and disk actor sha256 both equal live mpfb-clinical-nurse-adult.glb (3241acc6, written by ci-w11 D3 d0e2104d3) and bake-off report.json / runtime-goal-eval.json actorAssetSha256 (re-measured by capture.mts and runtime-goal-eval.mts in 6aa3518d4, digest lines only); classification current-actor-bound follows that equal compare; rig-capability-identity currentSource report.json 23675a54 and open-decision-package-adapter run.ts 03ecfbca equal live file hashes (run.ts moved by main-side 9f8196c4a factory-station-core runner move); the four afterCommits resolve. No threshold or compare logic changed. Prior reviews retained in priorIndependentSemanticReviews.",
+    "reviewedAt": "2026-10-30T23:15:41.896Z",
     "outputSha256": {
       "docs/openclinxr/humanoid-motion-ENTRYPOINT.md": "1288fff4c72ff4ca158c31a7757e17999d8bf1f4db006a8b4449b8bef5993802",
-      "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.json": "17b56062eb45027931d2921ecfd77876c8a52115d56fce3f686cae9366ac2b65",
-      "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.md": "3fa1cd932cbfa57a1f60569e91bcb917d628ca9d5be1bddbb07a211dbb4ac866",
+      "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.json": "3e2a4b360871025c9949298b24fed1aa3c19f38fd1429d6f974c0b9756343396",
+      "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.md": "bf36b781c32e1797f998724c080a9263a342c5068055098ac0744c3ff0e45615",
       "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/comparison-proposal.md": "e6be31bc925a0206794b1a6b3cd9fa5a28a6cc87a660b9c6c9d24d573d81b3db"
     }
   },
@@ -82,6 +82,19 @@
   },
   "ownerAcceptanceLifecycle": "Worker leaves clause (7) planted and review pending. After worker returns review, owner verifies actual worker session against board and reviewer identity against retained independent session output, conducts independent claim-by-claim review, records accepted output hashes and flips owner clause only then. live plus actual suite must pass before proofs.set; forged labels are not identity proof.",
   "priorIndependentSemanticReviews": [
+    {
+      "status": "accepted",
+      "reviewerName": "ci-closure lane (Claude Code session)",
+      "reviewerSessionId": "38d7f37b-43b1-4276-bb98-f29b80beeb8a",
+      "reviewRecord": "2026-10-30 re-attestation review of the ci-w9 P5 ledger refresh (author: opencode session ses_e71eb6643ffe9kAMxM54Kkp572, distinct from this reviewer). Checked each changed field against disk at origin/main 665c41696: inputIdentity report and disk actor sha256 both equal live mpfb-clinical-nurse-adult.glb (4f0a8c1d) and bake-off report.json actorAssetSha256 (written by cf0325e8c); classification current-actor-bound follows that equal compare; all 19 topic currentSource.sha256 values equal live file hashes (rig-capability-identity ead747a7 after cf0325e8c, physics-touch-fence 92dbc1ce after b3641f1b7, open-decision-package-adapter 47e5f1f2 after a2fec46f3); cited commits resolve. No threshold or compare logic changed; clause (8) added. Known follow-on: ci-w11 rewrites the nurse GLB keyframes, which will stale the actor binding until the bake-off is re-measured. Prior review retained in priorIndependentSemanticReviews.",
+      "reviewedAt": "2026-10-30T19:02:54.315Z",
+      "outputSha256": {
+        "docs/openclinxr/humanoid-motion-ENTRYPOINT.md": "1288fff4c72ff4ca158c31a7757e17999d8bf1f4db006a8b4449b8bef5993802",
+        "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.json": "17b56062eb45027931d2921ecfd77876c8a52115d56fce3f686cae9366ac2b65",
+        "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/decision-ledger.md": "3fa1cd932cbfa57a1f60569e91bcb917d628ca9d5be1bddbb07a211dbb4ac866",
+        "docs/openclinxr/humanoid-motion-reassessment-2026-09-13/comparison-proposal.md": "e6be31bc925a0206794b1a6b3cd9fa5a28a6cc87a660b9c6c9d24d573d81b3db"
+      }
+    },
     {
       "status": "accepted",
       "reviewerName": "bind-audit",
