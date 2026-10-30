@@ -4,6 +4,7 @@ import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { makeclothesGarmentSlug } from "./lib/garment-mesh-class.js";
 
 /**
  * **A garment can carry a locked clinical colour, or it can carry its own authored texture. It cannot
@@ -222,7 +223,7 @@ async function readGarments(): Promise<Garment[]> {
     const img = m.getBaseColorTexture()?.getImage();
     const stats = img ? textureStats(img) : null;
     out.push({
-      name: name.replace(/^mat_makeclothes_library_/u, ""),
+      name: name.replace(/^mat_/u, ""),
       factor, locked,
       hasTexture: Boolean(img),
       texMean: stats?.mean ?? 1,
@@ -236,8 +237,8 @@ async function readGarments(): Promise<Garment[]> {
 const garments = await readGarments();
 const locked = garments.filter((g) => g.locked);
 /** #550: wardrobe retarget — sweater/cargo_pants gone; scrub_shirt + scrub_pants ship. */
-const scrubShirt = garments.find((g) => /scrub_shirt/u.test(g.name));
-const scrubPants = garments.find((g) => /scrub_pants/u.test(g.name));
+const scrubShirt = garments.find((g) => makeclothesGarmentSlug(g.name) === "scrub_shirt");
+const scrubPants = garments.find((g) => makeclothesGarmentSlug(g.name) === "scrub_pants");
 
 /**
  * An empty enumeration must FAIL, never pass vacuously (SS7t). Plain `it` on purpose: an `it.fails`

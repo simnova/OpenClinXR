@@ -42,6 +42,7 @@
 import { createHash } from "node:crypto";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { classifyGarmentMeshName, isFittedGarmentMeshName } from "./lib/garment-mesh-class.js";
 
 const DIR = "apps/ui-xr/public/generated-humanoids/";
 const MIN_CONTRAST = 60;      // between today's 28.7 and the shipped control's 163.9
@@ -60,11 +61,11 @@ async function readActor(file: string): Promise<Actor> {
     const n = m.getName();
     const p = m.listPrimitives()[0];
     const verts = m.listPrimitives().reduce((t, q) => t + (q.getAttribute("POSITION")?.getCount() ?? 0), 0);
-    if (/cargo_pants|bootcut_jeans_pants|toigo_t_shirt/.test(n)) {
+    if (isFittedGarmentMeshName(n)) {
       const f = p?.getMaterial()?.getBaseColorFactor();
       if (f) garments.push({ name: n, rgb: [f[0]! * 255, f[1]! * 255, f[2]! * 255], verts });
     }
-    if (/_body$|^mpfb$/.test(n)) {
+    if (classifyGarmentMeshName(n) === "body") {
       const img = p?.getMaterial()?.getBaseColorTexture()?.getImage();
       if (img) {
         skinSha = createHash("sha256").update(Buffer.from(img)).digest("hex").slice(0, 16);
@@ -84,8 +85,8 @@ describe("#506 a patient's clothes are distinguishable from her skin", () => {
   it("the control pair is real — both actors ship and wear the same two garments", async () => {
     const ob = await readActor("mpfb-ob-patient-aisha.glb");
     const fam = await readActor("mpfb-family-partner-adult.glb");
-    expect(ob.garments.length, "OB patient cargo_pants + toigo_t_shirt").toBe(2);
-    expect(fam.garments.length, "family partner bootcut_jeans_pants + toigo_t_shirt").toBe(2);
+    expect(ob.garments.length, "OB patient lower + toigo_t_shirt").toBe(2);
+    expect(fam.garments.length, "family partner lower + toigo_t_shirt").toBe(2);
   });
 
   it("(1) the OB patient's garments contrast with her own skin", async () => {

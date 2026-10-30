@@ -52,12 +52,16 @@ import { NodeIO } from "@gltf-transform/core";
 import { existsSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { classifyGarmentMeshName } from "./lib/garment-mesh-class.js";
 
 const REPO = resolve(import.meta.dirname, "../../..");
 const DIR = resolve(REPO, "apps/ui-xr/public/generated-humanoids");
 
-/** Materials whose surface is a worn garment. Derived from the names the fleet actually ships. */
-const GARMENT = /footwear|shoe|shirt/i;
+/** Materials whose surface is a worn garment. One shared classifier, not a private regex. */
+const isGarmentMaterial = (name: string): boolean => {
+  const cls = classifyGarmentMeshName(name);
+  return cls === "upper" || cls === "lower" || cls === "footwear";
+};
 /** The known-good column: these kept their textures through the same bake. */
 const KEPT_TEXTURE = /skin|eyes/i;
 
@@ -86,7 +90,7 @@ describe("#740 a shipped garment keeps its base-colour texture", () => {
     const rows = await surveyMaterials();
     // Guards against a vacuous pass on an empty survey: 22 garment materials shipped when this was
     // measured, so finding none means the extraction is wrong, not that the fleet is clean.
-    const garments = rows.filter((r) => GARMENT.test(r.material));
+    const garments = rows.filter((r) => isGarmentMaterial(r.material));
     expect(garments.length, "garment materials found").toBeGreaterThanOrEqual(20);
     const bare = garments
       .filter((r) => !r.hasTexture)
@@ -108,7 +112,7 @@ describe("#740 a shipped garment keeps its base-colour texture", () => {
     // exactly what the shoe already shows — [0.1,0.09,0.08] standing in for a lost material. Any
     // garment that passes clause (1) must do it with a texture, not a factor.
     const rows = await surveyMaterials();
-    for (const r of rows.filter((x) => GARMENT.test(x.material) && x.hasTexture)) {
+    for (const r of rows.filter((x) => isGarmentMaterial(x.material) && x.hasTexture)) {
       expect(r.factor.slice(0, 3).every((c) => c <= 1.0001), `${r.material} factor in range`).toBe(true);
     }
   });

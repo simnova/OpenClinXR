@@ -265,6 +265,21 @@
       "path": "tools/openclinxr/evidence/a-dispatch-verdict-comes-from-the-newest-session.test.ts",
       "reason": "hx-paths triage (lane manager, measured at base 4b108ef17): 2 of 4 fail in any lane worktree without dispatch history. rowsFor reads the lane-local .openclinxr/openclaw/worker-sessions.jsonl ledger; absent (ENOENT), the known-good column and counterweight read UNKNOWN instead of FAILED. Fails identically on clean tree; not caused by the change under test.",
       "card": "tsk_51e97960788d09fa"
+    },
+    {
+      "path": "tools/openclinxr/evidence/a-locked-clinical-colour-survives-its-garment-texture.test.ts",
+      "reason": "ci-w1 classifier migration is green (makeclothesGarmentSlug selects the scrub shirt; detection fixed). The asset is red: makeclothes_library_scrub_shirt renders [1,1,1] white against locked clinical teal [0.05,0.48,0.52], and no textured locked garment exists (0 vs >= 1 counterweight). Recolouring the scrub or deleting weave is a product decision, not a name fix.",
+      "card": "ci-w1: decide the locked scrub-shirt colour/texture fix (recolour garment vs unlock clinical colour)"
+    },
+    {
+      "path": "tools/openclinxr/evidence/a-patients-clothes-are-not-the-colour-of-her-skin.test.ts",
+      "reason": "ci-w1 classifier migration is green (bootcut_jeans control and female_tight patient both visible; no name miss). The data is red: control contrast 109.3 below the 120 floor, OB skin SHA changed so the re-tint guard trips, and cargo_pants was renamed to female_tight_jeans_pants (vertex count undefined vs 7978). Raising contrast without re-tinting skin is a product decision.",
+      "card": "ci-w1: decide the control/patient contrast fix without re-tinting skin"
+    },
+    {
+      "path": "tools/openclinxr/evidence/a-shipped-garment-keeps-its-base-colour-texture.test.ts",
+      "reason": "ci-w1 classifier migration truthfully expands the population (the old /footwear|shoe|shirt/ regex never saw lower garments): 9 bare garment materials including lower-garment mats carry no baseColorTexture. Authoring the missing textures is an asset fix, not a name fix.",
+      "card": "ci-w1: author base-colour textures for the 9 bare garment materials"
     }
   ]
 }
