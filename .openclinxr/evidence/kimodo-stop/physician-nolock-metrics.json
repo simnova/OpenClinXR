@@ -4,8 +4,6 @@
   "stopClip": "openclinxr_retarget_kimodo_stop_physician_seed42_nolock",
   "knownGoodClip": "kimodo_source",
   "knownGoodSource": {
-    "joints": ".openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop/joints.json",
-    "contacts": ".openclinxr/evidence/kimodo-stop/mpfb-clinical-physician-adult-stop/contacts.json",
     "units": "meters",
     "axis": "Z-up",
     "fps": 30

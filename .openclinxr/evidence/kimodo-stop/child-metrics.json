@@ -4,8 +4,6 @@
   "stopClip": "openclinxr_retarget_kimodo_stop_child_seed42",
   "knownGoodClip": "kimodo_source",
   "knownGoodSource": {
-    "joints": ".openclinxr/evidence/kimodo-stop/mpfb-peds-patient-child-stop/joints.json",
-    "contacts": ".openclinxr/evidence/kimodo-stop/mpfb-peds-patient-child-stop/contacts.json",
     "units": "meters",
     "axis": "Z-up",
     "fps": 30
