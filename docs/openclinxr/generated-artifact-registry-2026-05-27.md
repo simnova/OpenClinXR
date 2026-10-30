@@ -27,7 +27,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2787
 - keep-compatibility-input: 24
 - keep-current: 264
-- keep-evidence: 1965
+- keep-evidence: 1966
 - keep-template: 17
 
 ## Cleanup Actions
@@ -3907,6 +3907,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/package-public-surface-reduction/evidence/psr-10.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-08-residual.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-ci-closure-20261020.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-xr-sync-c1-20261030.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-compute-services.json` - keep-evidence; keep; Pending independent review of compute-services public-surface measurements; preserves the exact candidate measurements for coordinator review.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-compute-slots.json` - keep-evidence; keep; Independently reviewed compute-slots public-surface measurements; preserves quantitative targets and historical exceptions.
 - `docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-live-voice.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.

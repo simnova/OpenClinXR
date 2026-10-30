@@ -42,7 +42,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1965,
+    "keep-evidence": 1966,
     "ignore-local-cache": 2787,
     "keep-current": 264,
     "keep-template": 17,
@@ -27068,6 +27068,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Independently reviewed xr-dialogue consumer-split root-surface exception (exact measurements)."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-xr-sync-c1-20261030.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-room-chain-wiring.json",
