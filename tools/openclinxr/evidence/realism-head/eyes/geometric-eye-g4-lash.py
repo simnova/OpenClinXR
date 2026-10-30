@@ -30,12 +30,16 @@ import numpy as np
 
 HERE = Path(__file__).parent
 M = 1000.0
-STORE = Path("/Volumes/files/openclinxr-assets/store/lid-conform")
-BAKE = STORE / "aisha-lidconform.glb"
+# ci-w6: all four paths overridable via env so the lash blink-follow test can
+# re-run this producer into a tmpdir and compare against the tracked report.
+# Defaults preserve the original in-place behavior byte-for-byte.
+STORE = Path(os.environ.get("G4_LASH_STORE", "/Volumes/files/openclinxr-assets/store/lid-conform"))
+BAKE = Path(os.environ.get("G4_LASH_BAKE", str(STORE / "aisha-lidconform.glb")))
 TOOL = Path("tools/openclinxr/asset-pipeline/makeclothes/eye-lash/lash_blink_follow.py")
-REFIT = HERE / "geometric-eye-g3-refit.json"
-REPORT = HERE / "geometric-eye-g4-report.json"
-TMP = Path(tempfile.mkdtemp(prefix="g4lash_"))
+REFIT = Path(os.environ.get("G4_LASH_REFIT", str(HERE / "geometric-eye-g3-refit.json")))
+REPORT = Path(os.environ.get("G4_LASH_REPORT", str(HERE / "geometric-eye-g4-report.json")))
+TMP = Path(os.environ.get("G4_LASH_TMP", tempfile.mkdtemp(prefix="g4lash_")))
+TMP.mkdir(parents=True, exist_ok=True)
 POST = TMP / "g4-postrefit.glb"
 OUT = TMP / "g4-lash-t2b.glb"
 

@@ -15,11 +15,25 @@ import { describe, expect, it } from "vitest";
  * comps in the graded box, >=90% lower-margin recall per eye, 0
  * mobile-zone outsiders at closure 1.0, film edges an order thinner.
  *
- * claimScope: tearline byte + pixel measurement on the two pinned GLBs and
- * the two pinned 1280 front renders below.
+ * claimScope: tearline byte + pixel measurement on the pinned fixed GLB and
+ * the two pinned 1280 front renders below; the base GLB half of the original
+ * RED is retired (see ## ADAPTED).
  * notEvidenceFor: clinical_validity, production_asset_readiness; how
  * anything else looks (pixel grade lives in the store sheet crops).
  * Neither input GLB is ever written.
+ *
+ * ## ADAPTED (ci-w6-head-realism-adapt, 2026-10-30)
+ *
+ * The RED base bake (realism-95 .openclinxr/realism-spike/eyeshell/final.glb)
+ * was scratch in a removed worktree and tearline-report.json records no base
+ * sha, so no verifiable equivalent exists (ci-w3 confirmed the same). The
+ * geometry half of RED (tearTris 240, tearTargets 0, film maxEdgeP90Mm > 9.0,
+ * g3.R maxBelowMm > 9.0, measured 2026-10-15) is retired to this header; the
+ * pixel half still runs on the pinned store base PNG. The newer eye work
+ * (eye-geo G0-G6, commit 65c0fd397) built a new anterior eye rather than
+ * re-baking this experiment, so the store fixed GLB below remains the newest
+ * tearline output and GREEN still guards it. Counterweight (8) proves the
+ * instrument refuses untreated input, so GREEN cannot pass vacuously.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -27,10 +41,6 @@ const REPO_ROOT = pathResolve(HERE, "../../../../..");
 const TOOL_DIR = join(
   REPO_ROOT,
   "tools/openclinxr/asset-pipeline/realism-head/tearline",
-);
-const BASE_GLB = pathResolve(
-  REPO_ROOT,
-  "../realism-95/.openclinxr/realism-spike/eyeshell/final.glb",
 );
 const FIXED_GLB =
   "/Volumes/files/openclinxr-assets/store/tearline/tearline-fixed.glb";
@@ -109,7 +119,7 @@ function grey(png: string, extra: string[]): {
 
 describe("the tearline stays in the lid crease", () => {
   it("(1) pinned inputs exist with the recorded sha256", () => {
-    for (const p of [BASE_GLB, FIXED_GLB, BASE_PNG, FIXED_PNG]) {
+    for (const p of [FIXED_GLB, BASE_PNG, FIXED_PNG]) {
       expect(existsSync(p), p).toBe(true);
     }
     expect(sha256File(FIXED_GLB)).toBe(REPORT.outputs.fixedGlb.sha256);
@@ -136,12 +146,10 @@ describe("the tearline stays in the lid crease", () => {
     }
   });
 
-  it("(3) RED: base bake shows the wedge (geometry + pixels)", () => {
-    const m = measure(BASE_GLB);
-    expect(m.tearTris).toBe(240);
-    expect(m.tearTargets).toBe(0);
-    expect(m.film.maxEdgeP90Mm).toBeGreaterThan(9.0);
-    expect(m.g3.R.maxBelowMm).toBeGreaterThan(9.0);
+  it("(3) RED: base render shows the wedge pixels (geometry retired, see header)", () => {
+    // Geometry RED retired with the base GLB (scratch in a removed worktree,
+    // no base sha in the report). The pixel half below still runs: the store
+    // base PNG pinned in (1) shows the detached grey comp.
     const g = grey(BASE_PNG, []);
     expect(g.comps).toBe(3);
     expect(g.detached).toBe(1);
@@ -179,5 +187,16 @@ describe("the tearline stays in the lid crease", () => {
       expect(m.g3[side]!.mobileOutsideVerts).toBe(0);
       expect(m.g3[side]!.maxBelowMm).toBeLessThanOrEqual(3.5);
     }
+  });
+
+  it("(8) COUNTERWEIGHT: the instrument refuses an untreated body, so GREEN is not vacuous", () => {
+    // The shipped OB control carries no tearline mesh: measure_tearline.py
+    // raises StopIteration instead of reporting film numbers. If a refactor
+    // ever made the instrument pass untreated input, this clause fails.
+    const CONTROL = pathResolve(
+      REPO_ROOT,
+      "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+    );
+    expect(() => measure(CONTROL)).toThrow();
   });
 });

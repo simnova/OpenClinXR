@@ -1,9 +1,12 @@
 /**
  * Producer determinism (mouth-tuning skill section 4, D1/D9): the committed
  * producer run twice from the committed pre-image GLB yields byte-identical
- * output whose hash equals the receipt's outputSha256. The pre-image comes
- * from git history (the revision whose bytes hash to the receipt's
- * preImageSha256), not from disk: disk holds the seated output.
+ * output whose hash equals the receipt's recorded SEAT STAGE (ci-w6
+ * adaptation, see readSeatStageReceipt: the receipt is now multi-stage and
+ * its top-level outputSha256 is the post-albedo FINAL bytes, three deliberate
+ * stages past seating). The pre-image comes from git history (the revision
+ * whose bytes hash to the receipt's preImageSha256), not from disk: disk
+ * holds the seated output.
  *
  * The producer argv is derived from the receipt's latest
  * seat-teeth-on-lip-rim.ts sourceNotes entry, never hand-copied here: a new
@@ -24,12 +27,21 @@ import {
   producerArgvFromReceipt,
   readProducerReceipt,
 } from "./producer-preimage.js";
+import { readSeatStageReceipt } from "./seat-stage-receipt.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../../..");
 const GLB_REL = "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb";
 const RECEIPT_REL = `${GLB_REL.slice(0, -".glb".length)}.provenance.json`;
 const PRODUCER_REL = "tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts";
+
+/**
+ * Seat-stage byte length, measured by running the producer (argv derived from
+ * the receipt, same as this test) on the git pre-image 202ec91134a7 on
+ * 2026-10-30: output 5cab6676… (40345712 B), matching the receipt's
+ * seat-stage pin. The receipt records the seat sha but no seat byte length.
+ */
+const SEAT_STAGE_BYTES = 40345712;
 
 function sha256(bytes: Buffer | Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
@@ -44,8 +56,9 @@ function runProducer(glbPath: string): void {
 }
 
 describe("rim-seat producer determinism", () => {
-  it("two runs from the git pre-image are byte-identical and match the receipt", () => {
+  it("two runs from the git pre-image are byte-identical and match the receipt seat stage", () => {
     const pre = readProducerReceipt(REPO, RECEIPT_REL);
+    const seat = readSeatStageReceipt(REPO, RECEIPT_REL);
     const prePath = loadProducerPreimage(REPO, GLB_REL, pre.preImageSha256, pre.preImageBytes);
     const preBytes = readFileSync(prePath);
     const dir = mkdtempSync(path.join(tmpdir(), "rim-seat-determinism-"));
@@ -58,7 +71,7 @@ describe("rim-seat producer determinism", () => {
     const a = readFileSync(outA);
     const b = readFileSync(outB);
     expect(Buffer.compare(a, b)).toBe(0);
-    expect(sha256(a)).toBe(pre.outputSha256);
-    expect(a.length).toBe(pre.outputBytes);
+    expect(sha256(a)).toBe(seat.seatStageSha256);
+    expect(a.length).toBe(SEAT_STAGE_BYTES);
   }, 600_000);
 });
