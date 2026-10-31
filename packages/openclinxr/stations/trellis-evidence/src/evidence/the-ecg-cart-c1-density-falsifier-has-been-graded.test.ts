@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -30,7 +31,7 @@ import { describe, expect, it } from "vitest";
  * circular jack bores vs C0 lumpy stretch. Report beats_control. SHA freeze unchanged.
  */
 
-const REPO = join(import.meta.dirname, "../../..");
+const REPO = repoRoot();
 const CONTROL = join(REPO, "tools/openclinxr/asset-pipeline/trellis/ecg-cart-c0-c1-control.json");
 const REPORT = join(REPO, "tools/openclinxr/asset-pipeline/trellis/ecg-cart-c1-c0-report.json");
 const STILL_C0 = join(REPO, "tools/openclinxr/asset-pipeline/trellis/ecg-cart-c1-c0-renders/c0-champion.png");

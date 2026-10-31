@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { isAbsolute, resolve } from "node:path";
@@ -49,7 +50,7 @@ import { describe, expect, it } from "vitest";
  * sources and subjects unchanged).
  */
 
-const ROOT = process.cwd();
+const ROOT = repoRoot();
 const CENSUS = resolve(ROOT, "tools/openclinxr/asset-pipeline/trellis/census/fleet-census-2026-08-26.json");
 // The runner writes the report to .openclinxr/evidence/trellis-fleet-recreation/ (gitignored);
 // the contract reads the byte-identical TRACKED mirror so a fresh checkout is not a trap (#712).
@@ -143,7 +144,7 @@ describe("the derived trellis fleet has terminal measured dispositions", () => {
   });
 
   it("(6) COUNTERWEIGHT: nothing in this contract hardcodes the subject count", () => {
-    const src = readFileSync(resolve(ROOT, "tools/openclinxr/evidence/the-derived-trellis-fleet-has-terminal-measured-dispositions.test.ts"), "utf8");
+    const src = readFileSync(resolve(ROOT, "packages/openclinxr/stations/trellis-evidence/src/evidence/the-derived-trellis-fleet-has-terminal-measured-dispositions.test.ts"), "utf8");
     const body = src.slice(src.indexOf("describe("));
     expect(
       /toBe\(\s*11\s*\)|toHaveLength\(\s*11\s*\)/.test(body),

@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -63,7 +64,7 @@ import { describe, expect, it } from "vitest";
  * .openclinxr/evidence/ed-patient-upper-body/scene-sample.json).
  */
 
-const ROOT = process.cwd();
+const ROOT = repoRoot();
 const MEASUREMENT = join(ROOT, ".openclinxr/evidence/ed-patient-upper-body/scene-sample.json");
 // Re-homed 2026-10-30: the old `latest/` dir is gitignored (.gitignore `.openclinxr/`),
 // so a PNG there has no land path (#64) — clause (4) went red on environment drift,
@@ -147,7 +148,7 @@ describe("the ED patient upper body is not shattered", () => {
   });
 
   it("(5) COUNTERWEIGHT: this card does not absorb its neighbours", () => {
-    const src = readFileSync(join(ROOT, "tools/openclinxr/evidence/the-ed-patient-upper-body-is-not-shattered.test.ts"), "utf8");
+    const src = readFileSync(join(ROOT, "packages/openclinxr/stations/trellis-evidence/src/evidence/the-ed-patient-upper-body-is-not-shattered.test.ts"), "utf8");
     // Search the CLAUSE BODIES only. A first draft scanned from `describe(` and matched its own
     // regex literal — a self-referencing guard that fails on the file it is guarding. Same family as
     // establishing absence from a truncated grep: the instrument was inside its own search space.

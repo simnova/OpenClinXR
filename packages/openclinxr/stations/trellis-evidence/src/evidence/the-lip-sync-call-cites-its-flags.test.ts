@@ -1,6 +1,6 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -71,8 +71,7 @@ import { describe, expect, it } from "vitest";
  * faceunits01, neither of which is staged. E6.3 remains blocked on #327.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const ARTIFACT = join(REPO_ROOT, "tools/openclinxr/evidence/lip-sync-call-citation.json");
 
 /** Measured from source 2026-08-18. Sizes, not targets — they identify the right lists. */
