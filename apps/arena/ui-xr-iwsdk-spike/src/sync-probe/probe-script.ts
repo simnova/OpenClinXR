@@ -44,10 +44,9 @@ import { createC17Evidence, runC17Script, type C17Evidence } from "./probe-c17.j
 import { createC18Evidence, runC18Script, type C18Evidence } from "./probe-c18.js";
 import { createC19Evidence, runC19Script, type C19Evidence } from "./probe-c19.js";
 import { createC20Evidence, c20CenterFor, runC20Script, type C20Evidence, type C20ScriptDeps } from "./probe-c20.js";
-import { createC21Evidence, runC21Script } from "./probe-c21.js";
+import { createC21Evidence, runC21Script, runC22Probe } from "./probe-c21.js";
 import { PROBE_ACTOR_IDS, resolvePhaseLabel } from "./probe-state.js";
 import { parseC11NoteMaxChars } from "./probe-query.js";
-
 /** Aim-and-trigger driver: aim the right controller, pull the trigger. */
 export type AimAndTrigger = (actorId: string, expectedIntents: number) => Promise<void>;
 
@@ -69,10 +68,9 @@ export interface ProbeScriptDeps {
   c12: C12LobbyEvidence;
   c13: C13Evidence;
   c14: C14Evidence;
-  intentCounts(): { sent: number; acks: number; rejects: number };
+  intentCounts(): { sent: number; acks: number; rejects: number; rejectDetails: Array<{ seq: number; reason: string }> };
   setCommandedAim(aim: AimPose | null): void;
 }
-
 /** Run the ?script= driver (verbatim arms from sync-probe.ts). */
 export async function runProbeScript(deps: ProbeScriptDeps): Promise<void> {
   const { waitFor, sendIntentAndSettle, aimAndTrigger, getSnapshot, setStatus } = deps;
@@ -494,6 +492,8 @@ export async function runProbeScript(deps: ProbeScriptDeps): Promise<void> {
       await runC20Script(flow);
     }
     publishC20();
+  } else if (deps.script === "c22") {
+    await runC22Probe(deps);
   } else {
     for (const actorId of PROBE_ACTOR_IDS) {
       const learnerOpen = deps.getSessionLearnerSpeaking();

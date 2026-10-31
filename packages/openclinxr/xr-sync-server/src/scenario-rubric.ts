@@ -73,7 +73,11 @@ export function parseScenarioRubricBank(value: unknown): Map<string, ReviewRubri
         throw new Error(`bad-scenarios: scenarios[${index}] (${scenarioId.slice(0, 64)}) duplicate rubricId ${id.slice(0, 64)}`);
       }
       seen.add(id);
-      rubric.push({ id, label: item["label"] as string });
+      const requiredTraceTags = item["requiredTraceTags"];
+      if (!Array.isArray(requiredTraceTags) || requiredTraceTags.some((tag) => typeof tag !== "string")) {
+        throw new Error(`bad-scenarios: scenarios[${index}] (${scenarioId.slice(0, 64)}) reviewRubric entries need requiredTraceTags: string[]`);
+      }
+      rubric.push({ id, label: item["label"] as string, requiredTraceTags: [...requiredTraceTags] as string[] });
     }
     bank.set(scenarioId, rubric);
   });

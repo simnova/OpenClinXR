@@ -27,9 +27,8 @@ import { replayBaselineForCast } from "./conversation-trace-cast.js";
 import {
   type FacultyScoreBinding,
   handleReplayReviewIntent,
-  readScoreChecked,
 } from "./faculty-score.js";
-import { replayRubricCoverageCounts } from "./replay-rubric-coverage.js";
+import { replayRubricCoverageCounts, replayScoreChecked } from "./replay-rubric-coverage.js";
 import {
   isReviewLobbyRequest,
   setupLobbyState,
@@ -116,9 +115,10 @@ function setReplayRubricState(state: { replayRubric: unknown }, rubric: { id: st
 function setReplayRubricCoverageState(
   state: { replayRubricCoverage: unknown },
   coverage: Array<{ rubricId: string; observedTags: string[]; missingTags: string[] }> | null,
+  rubric: Array<{ id: string; requiredTraceTags?: string[] }> | null = null,
 ): void {
   const rows = new ArraySchema<ReplayRubricCoverageStateInstance>();
-  for (const entry of replayRubricCoverageCounts(coverage ?? [])) {
+  for (const entry of replayRubricCoverageCounts(coverage ?? [], rubric ?? undefined)) {
     const row = new ReplayRubricCoverageState();
     row.id = entry.id;
     row.observedCount = entry.observedCount;
@@ -234,14 +234,14 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       }
       this.state.learners = new MapSchema<LearnerStateInstance>();
       // C13: a re-opened station seeds its checked count from disk (0 when unscored).
-      this.state.scoreChecked = readScoreChecked(binding.score.scoreDir, station.stationId);
       // C20: the replayed station's scenario checklist for the headset ([] when
       // the station's scenario is not in the bank); scoring below validates
       // against this same rubric.
       const scenarioBank = binding.score.scenarioRubrics ?? null;
       const scenarioResolved = scenarioBank !== null ? stationScenarioRubric(binding.replay, scenarioBank, station.stationId) : null;
+      this.state.scoreChecked = replayScoreChecked(binding.score.scoreDir, station.stationId, scenarioBank, scenarioResolved);
       setReplayRubricState(this.state, scenarioResolved?.rubric ?? null);
-      setReplayRubricCoverageState(this.state, scenarioResolved === null ? null : station.entry.rubricCoverage ?? []);
+      setReplayRubricCoverageState(this.state, scenarioResolved === null ? null : station.entry.rubricCoverage ?? [], scenarioResolved?.rubric ?? null);
       // One station per room: lock at create so a concurrent reviewer of a
       // different station creates anew instead of sharing this room. The
       // creating client's seat is already reserved, so it still joins.

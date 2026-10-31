@@ -112,6 +112,8 @@ export interface EncounterSnapshot {
   replayRubric?: Array<{ id: string; label: string }>;
   /** C21 persisted trace evidence counts aligned with replayRubric. */
   replayRubricCoverage?: Array<{ id: string; observedCount: number; requiredCount: number }>;
+  /** C22 scenario-owned learner history topics ([] off a cast station). */
+  topicMenu?: string[];
 }
 
 /** Live headset-side connection: intents out, snapshots in. */

@@ -39,7 +39,7 @@ const blueprint = {
   requiredSafetyCriticalTraceTags: [],
 };
 
-function producedTags(trace) {
+export function producedTags(trace) {
   const out = new Set();
   for (const event of trace.events ?? []) {
     if (typeof event.tag === "string") out.add(event.tag);
@@ -48,12 +48,12 @@ function producedTags(trace) {
   return out;
 }
 
-function split(required, produced) {
+export function split(required, produced) {
   const unique = [...new Set(required)];
   return { observed: unique.filter((tag) => produced.has(tag)), missing: unique.filter((tag) => !produced.has(tag)) };
 }
 
-function expectedCoverage(scenario, trace) {
+export function expectedCoverage(scenario, trace) {
   const produced = producedTags(trace);
   const station = split(scenario.requiredTraceTags, produced);
   return {
@@ -254,4 +254,4 @@ async function main(argv) {
   process.exit(process.exitCode ?? 0);
 }
 
-await main(process.argv.slice(2));
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main(process.argv.slice(2));

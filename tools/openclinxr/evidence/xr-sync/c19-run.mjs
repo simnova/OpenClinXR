@@ -85,7 +85,7 @@ const SCHEDULE_TICK_MS = 1000;
 const UUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 const REPLAY_STEP_MS = 300;
 
-function observerStationOf(snapshot) {
+export function observerStationOf(snapshot) {
   return typeof snapshot?.stationId === "string" ? snapshot.stationId : "";
 }
 
@@ -691,5 +691,7 @@ async function main(argv) {
   process.exitCode = exitCode;
 }
 
-await main(process.argv.slice(2));
-process.exit(process.exitCode ?? 0);
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  await main(process.argv.slice(2));
+  process.exit(process.exitCode ?? 0);
+}

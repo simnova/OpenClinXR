@@ -14,6 +14,7 @@ import type { ConversationTracer } from "./conversation-tracer.js";
 import { CAST_OPENING_CUE_ID, openingCaption, type CastVoiceActor } from "./scenario-cast.js";
 import type { LearnerStateInstance } from "./schema.js";
 import type { TurnRecord } from "./room-types.js";
+import { validateTopicTag } from "./topic-menu.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -53,6 +54,8 @@ export interface ActorTurnBindings {
   actorTurnCounts: Map<string, number>;
   /** C17 cast voice for this room's station (null/undefined off a cast station: C3 behaviour). */
   castVoice?: CastVoice | null;
+  /** C22 current cast station's scenario topic menu; null off a cast station. */
+  topicMenu?: readonly string[] | null;
   turnOpenedAtMs: Map<number, number>;
   getOpenTurn(): { turnId: number; actorId: string; timer: { clear(): void } } | null;
   setOpenTurn(turn: { turnId: number; actorId: string; timer: { clear(): void } } | null): void;
@@ -145,6 +148,11 @@ export function applyUtteranceIntent(
     bindings.setTurnOwner("learner");
     return true;
   }
+  const topic = validateTopicTag((payload ?? {}) as Record<string, unknown>, bindings.topicMenu ?? null);
+  if (!topic.ok) {
+    bindings.reject(client, seq, topic.reason);
+    return false;
+  }
   if (!learner.speaking) {
     bindings.reject(client, seq, "no-open-utterance");
     return false;
@@ -182,7 +190,7 @@ export function applyUtteranceIntent(
   actor.caption = opening !== undefined ? openingCaption(opening.displayName, opening.openingUtterance) : "";
   const acknowledgement: EmotionEventKind = "learner_acknowledgement";
   actor.emotion = bindings.tracer.transition(actorId, acknowledgement, turnId).to;
-  bindings.tracer.push({ seq, kind: "utterance-end", actorId, turnId });
+  bindings.tracer.push({ seq, kind: "utterance-end", actorId, turnId, ...(topic.tag === undefined ? {} : { tag: topic.tag }) });
   bindings.setTurnOwner("actor");
   const record: TurnRecord = { turnId, actorId, replyId, startSeq: seq, end: "open", endSeq: null };
   bindings.turnLog.push(record);

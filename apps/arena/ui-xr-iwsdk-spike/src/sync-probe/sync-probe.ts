@@ -552,7 +552,7 @@ async function main(): Promise<void> {
       c12: probe.c12,
       c13: probe.c13,
       c14: probe.c14,
-      intentCounts: () => ({ sent: probe.sent, acks: probe.acks, rejects: probe.rejects }),
+      intentCounts: () => ({ sent: probe.sent, acks: probe.acks, rejects: probe.rejects, rejectDetails: probe.rejectDetails }),
       setCommandedAim: (aim) => {
         commandedAim = aim;
       },

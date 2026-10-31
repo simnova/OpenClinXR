@@ -28,6 +28,7 @@ import { applyPoseIntent, applySelectActorIntent } from "./learner-intents.js";
 import { createScheduleDriver } from "./scenario-schedule.js";
 import { DEFAULT_NOTE_MAX_CHARS, validateNoteSubmit } from "./patient-note.js";
 import { applyUtteranceIntent } from "./actor-turns.js";
+import { setTopicMenuState, topicMenuForCast } from "./topic-menu.js";
 import {
   assertStationJoinAllowed,
   clearStationNoncesOnDispose,
@@ -169,6 +170,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     const cast = castForStation(this.stationBinding.scenarioCasts, station.stationIndex);
     this.state.scenarioId = cast?.scenarioId ?? "";
     this.state.scenarioTitle = cast?.scenarioTitle ?? "";
+    setTopicMenuState(this.state, topicMenuForCast(cast));
     this.state.actors = new MapSchema<ActorStateInstance>();
     if (cast !== null) {
       populateCastRoster(this.state.actors, cast);
@@ -472,6 +474,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         },
         reject: this.reject.bind(this),
         castVoice: this.castVoice === null ? null : { actors: this.castVoice },
+        topicMenu: this.castVoice === null ? null : [...this.state.topicMenu],
       },
       client,
       learner,

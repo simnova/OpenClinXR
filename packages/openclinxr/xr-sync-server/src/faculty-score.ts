@@ -39,6 +39,8 @@ export const SCORE_WRITE_FAILED_REASON = "score-write-failed";
 export interface ReviewRubricItem {
   id: string;
   label: string;
+  /** C21/C22 scenario-bank trace requirements; absent on the C13 server rubric. */
+  requiredTraceTags?: string[];
 }
 
 /** Per-server score binding closed over by the replay room class. */

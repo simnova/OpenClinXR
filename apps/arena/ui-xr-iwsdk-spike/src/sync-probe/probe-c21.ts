@@ -1,6 +1,7 @@
 /** C21 extension of the C20 replay/scoring flow: visible observed/required counts. */
 import type { C13RubricItem } from "./probe-c13.js";
 import { type C20Evidence, type C20ScriptDeps, createC20Evidence, runC20Script } from "./probe-c20.js";
+export { runC22Probe } from "./probe-c22.js";
 
 export interface C21CoverageItem {
   id: string;
