@@ -4,7 +4,7 @@ import {
   decideRoute,
   detectMarkerPlants,
   type HeelAuditFrame,
-} from "./heel-audit.js";
+} from "../../../../../../tools/openclinxr/evidence/slide-phase/heel-audit.js";
 
 const V = (x: number, y: number, z = 0) => ({ x, y, z });
 

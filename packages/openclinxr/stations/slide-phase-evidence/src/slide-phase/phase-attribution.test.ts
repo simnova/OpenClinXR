@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { binByNormPhase, detectLiftOffs, meanPhaseCurve, PHASE_BINS, resampleSegment, rmse, rmseIntersection, rmseShiftTolerant } from "./phase-attribution.js";
+import { binByNormPhase, detectLiftOffs, meanPhaseCurve, PHASE_BINS, resampleSegment, rmse, rmseIntersection, rmseShiftTolerant } from "../../../../../../tools/openclinxr/evidence/slide-phase/phase-attribution.js";
 
 describe("phase attribution helpers", () => {
   it("detects lift-off as the contact -> airborne edge", () => {

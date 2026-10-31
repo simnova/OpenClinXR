@@ -3,7 +3,7 @@ import {
   computeSlidePhase,
   type SlidePhaseFrame,
   type SlidePhaseRunFile,
-} from "./slide-phase-analyze.js";
+} from "../../../../../../tools/openclinxr/evidence/slide-phase/slide-phase-analyze.js";
 
 const toe = (x: number, y: number, z: number) => ({ x, y, z });
 const slot = (x: number, z: number, yaw = 0) => ({ x, y: 0, z, yaw });
