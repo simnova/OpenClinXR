@@ -32,6 +32,9 @@ export const INVALID_SCORE_REASON = "invalid-score";
 /** Reject reason for a lobby select while a launch is already in flight. */
 export const LAUNCH_PENDING_REASON = "launch-pending";
 
+/** Reject reason when an accepted score could not be written to scoreDir. */
+export const SCORE_WRITE_FAILED_REASON = "score-write-failed";
+
 /** One rubric checklist entry (server config only). */
 export interface ReviewRubricItem {
   id: string;
@@ -158,17 +161,18 @@ export function buildFacultyScore(stationId: string, rubric: ReviewRubricItem[],
 }
 
 /**
- * Best-effort score persistence: one <stationId>.faculty-score.json in
- * scoreDir (mkdir -p), written synchronously per accepted submit (last wins).
- * Failures never propagate; probe evidence must not break the ack path. The
- * caller acks only after this returns.
+ * Score persistence: one <stationId>.faculty-score.json in scoreDir (mkdir -p),
+ * written synchronously per accepted submit (last wins). Returns false when the
+ * write fails; the caller then rejects score-write-failed so a reviewer is never
+ * told a score was saved when it was not.
  */
-export function writeFacultyScore(scoreDir: string, stationId: string, file: FacultyScoreFile): void {
+export function writeFacultyScore(scoreDir: string, stationId: string, file: FacultyScoreFile): boolean {
   try {
     mkdirSync(scoreDir, { recursive: true });
     writeFileSync(join(scoreDir, scoreFileName(stationId)), `${JSON.stringify(file)}\n`, "utf8");
+    return true;
   } catch {
-    // Probe evidence only.
+    return false;
   }
 }
 
@@ -267,7 +271,10 @@ export function handleReplayReviewIntent(
       return;
     }
     const file = buildFacultyScore(stationId, score.rubric, verdict.checked);
-    writeFacultyScore(score.scoreDir, stationId, file);
+    if (!writeFacultyScore(score.scoreDir, stationId, file)) {
+      client.send("reject", { seq, reason: SCORE_WRITE_FAILED_REASON });
+      return;
+    }
     state.scoreChecked = file.checkedCount;
     const learner = state.learners.get(client.sessionId);
     if (learner) {
