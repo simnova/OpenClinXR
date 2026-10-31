@@ -232,7 +232,7 @@ describe("projectArchiveExcludes (authoritative project router patterns)", () =>
   it("discovery args carry manual, root, shared worktree, and project archive excludes", () => {
     const shared = ["**/.claude/worktrees/**", "**/.grok/worktrees/**"];
     const all = [...MANUAL_EXCLUDES, ...ROOT_CONFIG_EXCLUDES, ...shared, ...PROJECT_ARCHIVE_EXCLUDES];
-    expect(all).toHaveLength(9 + 3 + 2 + 2);
+    expect(all).toHaveLength(8 + 3 + 2 + 2);
     const args = buildDiscoveryArgs(all);
     expect(args.slice(0, 3)).toEqual(["list", "tools", "--filesOnly"]);
     for (const e of all) expect(args).toContain(e);
@@ -261,12 +261,11 @@ describe("requireNonEmptyManifest", () => {
 });
 
 describe("parity with current CI", () => {
-  it("preserves all 9 manual //#test:tools excludes verbatim", () => {
+  it("preserves all 8 manual //#test:tools excludes verbatim", () => {
     expect([...MANUAL_EXCLUDES]).toEqual([
       "tools/openclinxr/evidence/blueprint-voice-simulation-spike.test.ts",
       "tools/openclinxr/evidence/check-github-pages-site.test.ts",
       "tools/openclinxr/evidence/iwsdk-evidence-contract-check.test.ts",
-      "tools/openclinxr/evidence/iwsdk-workspace-posture-check.test.ts",
       "tools/openclinxr/evidence/model-vetting-actor-player-runtime-evidence.test.ts",
       "tools/openclinxr/evidence/model-vetting-capture-manifest.test.ts",
       "tools/openclinxr/evidence/model-vetting-runtime-hook-bindings.test.ts",

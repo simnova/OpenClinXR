@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-31T00:34:02.647Z",
+  "generatedAt": "2026-10-31T15:49:15.973Z",
   "method": "static import-graph scan of tools/**/*.test.ts; value imports only; call detection after stripping comments and string literals",
   "primitives": [
     "spawnPortlessDevServer (lib/portless-server.ts — boots a Vite dev server)",
     "chromium.launch (playwright — boots a headless Chrome shell)"
   ],
-  "totalTestFiles": 894,
+  "totalTestFiles": 829,
   "browserBootingTestFiles": 62,
   "excludedAmongBrowserBooting": 0,
   "minBrowsersPerSuiteRun": 61,
@@ -1247,10 +1247,6 @@
     {
       "testFile": "tools/openclinxr/evidence/iwsdk-evidence-contract-check.test.ts",
       "reason": "IWSDK sidecar MCP tooling inventory — execs the IWSDK toolchain"
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/iwsdk-workspace-posture-check.test.ts",
-      "reason": "IWSDK workspace posture report — execs the IWSDK toolchain"
     },
     {
       "testFile": "tools/openclinxr/evidence/model-vetting-actor-player-runtime-evidence.test.ts",

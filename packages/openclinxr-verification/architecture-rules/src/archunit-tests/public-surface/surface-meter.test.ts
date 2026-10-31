@@ -167,7 +167,16 @@ describe("compiler-resolved surface meter", () => {
     // nothing (70 -> 71).
     // 2026-10-31 root batch lip-sync (operator-approved 2026-10-31): the private
     // sidecar @openclinxr/lip-sync-evidence adds one root that publishes nothing (71 -> 72).
-    expect(report.totals.roots).toBe(72);
+    // 2026-10-31 runtime-scene evidence sidecar (operator-approved 2026-10-31): the
+    // private sidecar @openclinxr/runtime-scene-evidence adds one root that publishes
+    // nothing (72 -> 73).
+    // 2026-10-31 rig-fit evidence sidecar (operator-approved 2026-10-31): the
+    // private sidecar @openclinxr/rig-fit-evidence adds one root that publishes
+    // nothing (73 -> 74).
+    // 2026-10-31 anny-phenotype evidence sidecar (operator-approved 2026-10-31): the
+    // private sidecar @openclinxr/anny-phenotype-evidence adds one root that publishes
+    // nothing (74 -> 75).
+    expect(report.totals.roots).toBe(75);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -258,7 +267,16 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-31 root batch lip-sync (operator-approved 2026-10-31): the sidecar,
     // with no exports map, is discovered as one implicit "." that publishes nothing
     // (173 -> 174).
-    expect(report.totals.entrypoints).toBe(174);
+    // 2026-10-31 runtime-scene evidence sidecar (operator-approved 2026-10-31): the
+    // sidecar, with no exports map, is discovered as one implicit "." that
+    // publishes nothing (174 -> 175).
+    // 2026-10-31 rig-fit evidence sidecar (operator-approved 2026-10-31): the
+    // sidecar, with no exports map, is discovered as one implicit "." that
+    // publishes nothing (175 -> 176).
+    // 2026-10-31 anny-phenotype evidence sidecar (operator-approved 2026-10-31): the
+    // sidecar, with no exports map, is discovered as one implicit "." that
+    // publishes nothing (176 -> 177).
+    expect(report.totals.entrypoints).toBe(177);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -302,7 +320,10 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-31 humanoid-vetting evidence sidecar adds one root (69 -> 70), operator-approved 2026-10-30.
     // 2026-10-31 room-generate evidence sidecar adds one root (70 -> 71), operator-approved 2026-10-31.
     // 2026-10-31 root batch lip-sync sidecar adds one root (71 -> 72), operator-approved 2026-10-31.
-    expect(report.packages.length).toBe(72);
+    // 2026-10-31 runtime-scene evidence sidecar adds one root (72 -> 73), operator-approved 2026-10-31.
+    // 2026-10-31 rig-fit evidence sidecar adds one root (73 -> 74), operator-approved 2026-10-31.
+    // 2026-10-31 anny-phenotype evidence sidecar adds one root (74 -> 75), operator-approved 2026-10-31.
+    expect(report.packages.length).toBe(75);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {

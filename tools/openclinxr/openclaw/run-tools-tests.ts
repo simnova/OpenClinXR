@@ -1,6 +1,6 @@
 /**
  * Run every tools/ test under its authored framework.
- * Manifest: live `vitest list tools --filesOnly` minus the 9 manual, 3 root,
+ * Manifest: live `vitest list tools --filesOnly` minus the 8 manual, 3 root,
  * 2 shared worktree, and 2 project archive excludes. `node:test` files run
  * under `node --test`; the rest run under Vitest with exact node-file
  * excludes. Both groups always run; combined exit is nonzero if either
@@ -44,7 +44,6 @@ export const MANUAL_EXCLUDES: readonly string[] = [
   "tools/openclinxr/evidence/blueprint-voice-simulation-spike.test.ts",
   "tools/openclinxr/evidence/check-github-pages-site.test.ts",
   "tools/openclinxr/evidence/iwsdk-evidence-contract-check.test.ts",
-  "tools/openclinxr/evidence/iwsdk-workspace-posture-check.test.ts",
   "tools/openclinxr/evidence/model-vetting-actor-player-runtime-evidence.test.ts",
   "tools/openclinxr/evidence/model-vetting-capture-manifest.test.ts",
   "tools/openclinxr/evidence/model-vetting-runtime-hook-bindings.test.ts",

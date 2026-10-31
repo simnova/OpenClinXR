@@ -116,11 +116,11 @@ export type BrowserBootInventory = {
   /** Sum of closureServerCallSites — static worst case. */
   staticUpperBoundServers: number;
   rows: BrowserBootInventoryRow[];
-  /** The 13 files already excluded from //#test:tools — the known-good precedent. */
+  /** The 12 files already excluded from //#test:tools — the known-good precedent. */
   testToolsExclusions: TestToolsExclusion[];
 };
 
-/** Known-good column: why each of the 13 existing excludes was excluded (read from source). */
+/** Known-good column: why each of the 12 existing excludes was excluded (read from source). */
 export const TEST_TOOLS_EXCLUSION_REASONS: Readonly<Record<string, string>> = {
   "tools/openclinxr/evidence/blueprint-voice-simulation-spike.test.ts":
     "voice-simulation SPIKE (unproven lane-C class); builds external-provider voice simulation plans",
@@ -128,8 +128,6 @@ export const TEST_TOOLS_EXCLUSION_REASONS: Readonly<Record<string, string>> = {
     "validates the LIVE GitHub Pages site — network-dependent",
   "tools/openclinxr/evidence/iwsdk-evidence-contract-check.test.ts":
     "IWSDK sidecar MCP tooling inventory — execs the IWSDK toolchain",
-  "tools/openclinxr/evidence/iwsdk-workspace-posture-check.test.ts":
-    "IWSDK workspace posture report — execs the IWSDK toolchain",
   "tools/openclinxr/evidence/model-vetting-actor-player-runtime-evidence.test.ts":
     "model-vetting runtime evidence class — asserts on docs snapshots of hardware/headset-gated evidence",
   "tools/openclinxr/evidence/model-vetting-capture-manifest.test.ts":

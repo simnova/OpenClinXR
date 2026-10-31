@@ -163,7 +163,6 @@
       "inputs": [
         "packages/cellix/config-vitest/src/**",
         "packages/openclinxr/agent-loop/src/**",
-        "packages/openclinxr/scenario-fixtures/src/**",
         "tests/openclinxr/helpers/assembled-exam-harness.ts",
         "tools/openclinxr/asset-pipeline/**",
         "tools/openclinxr/evidence/**",
@@ -203,7 +202,6 @@
         "apps/api/src/scenario-promotion-bridge.ts",
         "apps/arena/mock-realtime-voice-server/src/**",
         "apps/arena/model-vetting-studio/src/**",
-        "apps/arena/ui-xr-iwsdk-spike/src/**",
         "packages/cellix/config-vitest/src/**",
         "packages/openclinxr-verification/architecture-rules/src/**",
         "packages/openclinxr/agent-loop/src/**",
@@ -215,7 +213,6 @@
         "packages/openclinxr/factory-stations/src/**",
         "packages/openclinxr/graphql/src/**",
         "packages/openclinxr/model-gateway/src/**",
-        "packages/openclinxr/motion-compiler/src/**",
         "packages/openclinxr/rest/src/**",
         "packages/openclinxr/scenario-fixtures/src/**",
         "packages/openclinxr/scenario-runtime/src/**",

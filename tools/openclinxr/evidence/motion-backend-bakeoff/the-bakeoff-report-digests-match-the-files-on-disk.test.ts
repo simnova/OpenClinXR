@@ -16,7 +16,7 @@ import { describe, expect, it } from "vitest";
  *                harness               18bffc2e664c6c36...   STALE
  *
  * The same class as runtime-goal-eval.json (guarded) and the planted root RED
- * tools/openclinxr/evidence/the-bakeoff-report-names-the-tree-it-captured.test.ts (it.fails).
+ * packages/openclinxr/stations/rig-fit-evidence/src/motion-bakeoff/the-bakeoff-report-names-the-tree-it-captured.test.ts (it.fails).
  * This file is the freeze-compliant plant in the card write-root.
  *
  * Recapture is out of scope. Hand-editing both digests flips both REDs without a new capture.

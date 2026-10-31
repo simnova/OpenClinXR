@@ -119,7 +119,11 @@ export function evaluateSnapshotFreshness(input: {
 
 /** pnpm-workspace.yaml default catalog — what a bare `catalog:` reference resolves to. */
 function readCatalogViteVersion(): string {
-  const yaml = readFileSync("pnpm-workspace.yaml", "utf8");
+  // Resolved against this module, not process.cwd(): the file sits three levels
+  // under the repo root, and callers (CLI from root, sidecar tests from their
+  // package dir) run with different cwds. (2026-10-31 runtime-scene sidecar move.)
+  const yamlPath = new URL("../../../pnpm-workspace.yaml", import.meta.url);
+  const yaml = readFileSync(yamlPath, "utf8");
   const version = /^\s+vite:\s*"([^"]+)"/mu.exec(yaml)?.[1];
   if (!version) {
     throw new Error("pnpm-workspace.yaml has no catalog vite version to resolve `catalog:` against");

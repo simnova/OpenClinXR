@@ -1248,12 +1248,14 @@ describe("consumer contracts match imports", () => {
     const allowlist = readAllowlist(root);
     // 2026-10-30 makeclothes evidence sidecar adds two rows (operator-approved limit raise).
     // 2026-10-30 quest-capacity evidence sidecar adds two rows (operator-approved limit raise).
+    // 2026-10-31 runtime-scene evidence sidecar adds one row (operator-approved 2026-10-31).
     expect(allowlist.map((r) => `${r.provider}${r.entrypoint}`).sort()).toEqual([
       "@openclinxr/station-mouth-registry.",
       "@openclinxr/xr-capacity.",
       "@openclinxr/xr-capacity./stage2",
       "@openclinxr/xr-dialogue.",
       "@openclinxr/xr-dialogue./actor-audio-runtime",
+      "@openclinxr/xr-dialogue./evidence-viseme",
       "@openclinxr/xr-dialogue./package-actor-turn",
       "@openclinxr/xr-dialogue./viseme-runtime",
     ]);

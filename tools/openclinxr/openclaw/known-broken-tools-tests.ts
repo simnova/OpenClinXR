@@ -30,7 +30,6 @@ export const KNOWN_BROKEN_TOOLS_TESTS: readonly string[] = [
   "tools/openclinxr/evidence/blueprint-voice-simulation-spike.test.ts",
   "tools/openclinxr/evidence/check-github-pages-site.test.ts",
   "tools/openclinxr/evidence/iwsdk-evidence-contract-check.test.ts",
-  "tools/openclinxr/evidence/iwsdk-workspace-posture-check.test.ts",
   "tools/openclinxr/evidence/model-vetting-actor-player-runtime-evidence.test.ts",
   "tools/openclinxr/evidence/model-vetting-capture-manifest.test.ts",
   "tools/openclinxr/evidence/model-vetting-runtime-hook-bindings.test.ts",

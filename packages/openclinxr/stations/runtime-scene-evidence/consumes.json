@@ -1,0 +1,58 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "repoRoot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": "./evidence-viseme",
+    "names": [
+      {
+        "name": "applyBlinkClosureToRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "applyGeneratedScalarVisemeToRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveMorphIndex",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "INFINIGEN_ENVIRONMENT_ASSETS",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveLocalEnvironmentRuntimeAssetFileName",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveLocalEquipmentRuntimeAssetFileName",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

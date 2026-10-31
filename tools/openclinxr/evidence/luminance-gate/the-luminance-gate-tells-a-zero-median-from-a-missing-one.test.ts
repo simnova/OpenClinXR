@@ -30,7 +30,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const SWEEP = "tools/openclinxr/evidence/station-luminance-sweep.json";
-const GATE = "tools/openclinxr/evidence/the-luminance-gate-only-claims-what-it-can-see.test.ts";
+const GATE = "packages/openclinxr/stations/runtime-scene-evidence/src/runtime-scene/the-luminance-gate-only-claims-what-it-can-see.test.ts";
 const NOTE = "tools/openclinxr/evidence/primary-care-zero-median-2026-09-12.md";
 const STATION = "primary_care_dyslipidemia_joint_pain_v1";
 /** Committed 0-fixture (ci-w8): a real recorded 0 the live sweep no longer carries. */
