@@ -47,6 +47,7 @@ describe("teeth and tongue post-steps keep material extensions", () => {
     expect(existsSync(SHIPPED_PATIENT)).toBe(true);
   });
 
+  // Two child tsx processes, each allowed 120 s; the 5 s default timed out at load 25.
   it("both steps round-trip material extensions when extension is present", async () => {
     // First, let's add KHR_materials_unlit to a material in the temp GLB to simulate
     // what materialize_mpfb_humanoid_candidate.py does for eyeshell
@@ -128,7 +129,7 @@ describe("teeth and tongue post-steps keep material extensions", () => {
     
     // The fix should make this pass - both steps should preserve KHR_materials_unlit
     expect(hasUnlitAfterTongue).toBe(true);
-  });
+  }, 240_000);
 
   it("produces roundtrip-report.json", async () => {
     const reportPath = path.join(TOOLS_MAKECLOTHES, "gltf-ext", "roundtrip-report.json");
