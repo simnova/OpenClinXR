@@ -21,6 +21,7 @@ import * as PhaseClock from "./phase-clock.js";
 import type { StationTiming } from "./phase-clock.js";
 import type { EncounterRoomOptions, ProbeSelection, RoomProbeStats, TurnRecord } from "./room-types.js";
 import { populateActorRoster } from "./roster.js";
+import { castForStation, populateCastRoster } from "./scenario-cast.js";
 import { INTENT_KINDS, type AckMessage, type IntentMessage, type RejectMessage } from "./protocol.js";
 // Wire protocol types live in protocol.js; re-exported here so the package
 // "." surface and existing room.js importers keep working unchanged.
@@ -100,7 +101,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   /** C6 host-clock ms per entered phase (Date.now at phase enter). Probe only, never in the trace. */
   private phaseChangedAtMs = new Map<string, number>();
   /** C7 per-server station binding (stations + single-use nonces), shared by reference. */
-  protected stationBinding: StationBinding = { stations: null, examBlueprint: null, creationNonces: new Map(), joinNonces: new Set(), appliedPoseByStation: new Map(), rotationFaults: { failNext: 0, bogusRotate: false } };
+  protected stationBinding: StationBinding = { stations: null, examBlueprint: null, scenarioCasts: null, creationNonces: new Map(), joinNonces: new Set(), appliedPoseByStation: new Map(), rotationFaults: { failNext: 0, bogusRotate: false } };
   /** C7 rotation guard: closed fires once per room; this is the backstop. */
   private rotationStarted = false;
 
@@ -151,8 +152,18 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     const blueprint = this.stationBinding.examBlueprint;
     this.state.blueprintId = blueprint?.blueprintId ?? "";
     this.state.stationLabel = blueprint?.labels.get(station.stationId) ?? "";
+    // C16: a cast station replaces the roster with the slot's scenario cast
+    // (first and every rotation: onCreate runs per room). Without scenarios,
+    // the C15 behaviour is unchanged.
+    const cast = castForStation(this.stationBinding.scenarioCasts, station.stationIndex);
+    this.state.scenarioId = cast?.scenarioId ?? "";
+    this.state.scenarioTitle = cast?.scenarioTitle ?? "";
     this.state.actors = new MapSchema<ActorStateInstance>();
-    populateActorRoster(this.state.actors, options);
+    if (cast !== null) {
+      populateCastRoster(this.state.actors, cast);
+    } else {
+      populateActorRoster(this.state.actors, options);
+    }
     this.state.learners = new MapSchema<LearnerStateInstance>();
 
     // C6 station clock from the server binding; client roomOptions.timing /

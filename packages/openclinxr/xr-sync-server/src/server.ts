@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import type { ExamBlueprint } from "@openclinxr/shared-schemas";
+import type { ExamBlueprint, Scenario } from "@openclinxr/shared-schemas";
 import { Server } from "@colyseus/core";
 import { WebSocketTransport } from "@colyseus/ws-transport";
 import { ENCOUNTER_ROOM_NAME, EncounterRoom, getLatestRoom } from "./room.js";
@@ -17,6 +17,7 @@ import { parseNoteMaxChars } from "./patient-note.js";
 import { parseStationTiming, type StationTiming } from "./phase-clock.js";
 import { parseStationIds, type StationBinding } from "./station-rotation.js";
 import { parseExamBlueprint } from "./exam-blueprint.js";
+import { parseScenarioCasts, type ScenarioCast } from "./scenario-cast.js";
 import type { RoomProbeStats } from "./room-types.js";
 import { snapshotState } from "./schema.js";
 import type { ConversationTrace } from "./conversation-trace.js";
@@ -47,6 +48,13 @@ export interface EncounterServerOptions {
    * index records its id. Refuses boot together with stations or timing.
    */
   examBlueprint?: ExamBlueprint;
+  /**
+   * C16 per-slot scenario casts (@openclinxr/shared-schemas Scenario[],
+   * scenarios[i] fills the blueprint's sorted slot i). Server config only.
+   * Refuses boot together with a missing examBlueprint, a length mismatch
+   * against the slot count, or any non-approved scenario.
+   */
+  scenarios?: Scenario[];
   /**
    * C8 rotation fault seam (server config only, never client-settable; the
    * product path leaves it unset). Forces the next N seat reservations to
@@ -124,6 +132,16 @@ export async function createEncounterServer(
     stations = parsed.stations;
     examBlueprint = { blueprintId: parsed.blueprintId, labels: parsed.labels };
   }
+  // C16: the session casts each station from its scenario when given
+  // (scenarios[i] fills the sorted slot i). Without a blueprint, or on a
+  // slot-count or approval mismatch, boot refuses naming "scenarios".
+  let scenarioCasts: ScenarioCast[] | null = null;
+  if (options.scenarios !== undefined) {
+    if (options.examBlueprint === undefined) {
+      throw new Error("bad-scenarios: scenarios require examBlueprint");
+    }
+    scenarioCasts = parseScenarioCasts(options.scenarios, stations ?? []);
+  }
   const noteMaxChars = parseNoteMaxChars(options.noteMaxChars);
   const traceDir = typeof options.traceDir === "string" ? options.traceDir : null;
   // Per-server room subclass: timing + traceDir + stations are bound in the
@@ -135,6 +153,7 @@ export async function createEncounterServer(
   const binding: StationBinding = {
     stations,
     examBlueprint,
+    scenarioCasts,
     creationNonces: new Map(),
     joinNonces: new Set(),
     appliedPoseByStation: new Map(),

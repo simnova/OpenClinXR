@@ -22,6 +22,7 @@
 import { matchMaker } from "@colyseus/core";
 import { randomUUID } from "node:crypto";
 import type { SessionReviewCollector } from "./session-review-index.js";
+import type { ScenarioCast } from "./scenario-cast.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -182,6 +183,8 @@ export interface StationBinding {
   review?: SessionReviewCollector;
   /** C15 factory blueprint identity + per-station labels (null without a blueprint). */
   examBlueprint: { blueprintId: string; labels: ReadonlyMap<string, string> } | null;
+  /** C16 per-slot scenario casts (null without scenarios; scenarios[i] fills stations[i]). */
+  scenarioCasts: ScenarioCast[] | null;
 }
 
 /** C8: record one applied pose for the station (exact F3 cross-check source). */

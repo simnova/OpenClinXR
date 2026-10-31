@@ -347,7 +347,7 @@ async function main(): Promise<void> {
   probe.phase = "connected";
   setStatus("sync-probe connected, waiting for session");
 
-  if (query.script === "c6" || query.script === "c7" || query.script === "c8" || query.script === "c15") {
+  if (query.script === "c6" || query.script === "c7" || query.script === "c8" || query.script === "c15" || query.script === "c16") {
     // Gating probe at connect (doorway): before any XR setup.
     await runC6PreEncounterProbe({
       sent: () => probe.sent,
@@ -360,7 +360,7 @@ async function main(): Promise<void> {
   let lastPoseSendAt = 0;
   let referenceSpace: XRReferenceSpace | null = null;
   let presenting = false;
-  let poseStreaming = query.script !== "c10" && query.script !== "c12" && query.script !== "c13" && query.script !== "c14" && query.script !== "c15";
+  let poseStreaming = query.script !== "c10" && query.script !== "c12" && query.script !== "c13" && query.script !== "c14" && query.script !== "c15" && query.script !== "c16";
 
   function onSelectEvent(event: Event): void {
     const source = (event as XRInputSourceEvent).inputSource;
@@ -500,7 +500,7 @@ async function main(): Promise<void> {
     setStatus("sync-probe in emulated immersive-vr");
 
     const needActors =
-      query.script === "c10"
+      query.script === "c10" || query.script === "c16"
         ? () => Object.keys(probe.lastServerState?.actors ?? {}).length > 0
         : query.script === "c12" || query.script === "c13" || query.script === "c14"
           ? () => ((probe.lastServerState as { lobbyStations?: unknown[] } | null)?.lobbyStations?.length ?? 0) > 0
@@ -514,7 +514,7 @@ async function main(): Promise<void> {
     // Skipped for ?script=c7/c8: the sweep generates head-pose evidence only,
     // and station-1's encounter window must fit setup + trigger + the shared
     // C3 turn script. The C3 utterance script itself is never forked.
-    const SWEEP_STEPS = query.script === "c7" || query.script === "c8" || query.script === "c10" || query.script === "c11" || query.script === "c12" || query.script === "c13" || query.script === "c14" || query.script === "c15" ? 0 : 120;
+    const SWEEP_STEPS = query.script === "c7" || query.script === "c8" || query.script === "c10" || query.script === "c11" || query.script === "c12" || query.script === "c13" || query.script === "c14" || query.script === "c15" || query.script === "c16" ? 0 : 120;
     for (let step = 0; step < SWEEP_STEPS; step += 1) {
       const yaw = sweepYawDegrees(step * 50);
       const quat = yawQuaternionDegrees(yaw);

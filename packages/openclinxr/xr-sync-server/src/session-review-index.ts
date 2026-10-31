@@ -30,6 +30,7 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { castForStation } from "./scenario-cast.js";
 import {
   CONVERSATION_TRACE_FILE_SUFFIX,
   type ConversationTrace,
@@ -52,6 +53,8 @@ export interface SessionReviewStationEntry {
   stationIndex: number;
   /** C15 the slot's blueprint label (present only when the session ran from a blueprint). */
   stationLabel?: string;
+  /** C16 the slot's scenario id (present only when the session ran with scenarios). */
+  scenarioId?: string;
   /** Basename of the station's <roomId>.conversation-trace.json in traceDir. */
   traceFile: string;
   /** Phase names from the trace's phase-changed events, in order. */
@@ -104,6 +107,7 @@ export function stationReviewFromTrace(
   roomId: string,
   trace: ConversationTrace,
   stationLabel?: string,
+  scenarioId?: string,
 ): SessionReviewStationEntry {
   const noteEvents = trace.events.filter((event) => event.kind === "note-submitted");
   const lastNoteChars = noteEvents.length > 0 ? (noteEvents[noteEvents.length - 1] as { chars?: unknown }).chars : undefined;
@@ -111,6 +115,7 @@ export function stationReviewFromTrace(
     stationId,
     stationIndex,
     ...(stationLabel === undefined ? {} : { stationLabel }),
+    ...(scenarioId === undefined ? {} : { scenarioId }),
     traceFile: `${roomId}${CONVERSATION_TRACE_FILE_SUFFIX}`,
     phases: trace.events.filter((event) => event.kind === "phase-changed").map((event) => event.phase ?? ""),
     turnCount: trace.turns.length,
@@ -226,9 +231,10 @@ export async function handleStationClosed(host: StationCloseReviewHost, roomName
     persistPatientNote(host.traceDir, host.roomId, host.stationId, host.noteText);
   }
   const blueprint = host.binding.examBlueprint ?? null;
+  const cast = castForStation(host.binding.scenarioCasts, host.stationIndex);
   collector.entries.set(
     host.stationIndex,
-    stationReviewFromTrace(host.stationId, host.stationIndex, host.roomId, host.traceSnapshot(), blueprint?.labels.get(host.stationId)),
+    stationReviewFromTrace(host.stationId, host.stationIndex, host.roomId, host.traceSnapshot(), blueprint?.labels.get(host.stationId), cast?.scenarioId ?? undefined),
   );
   let learnerFailures = 0;
   let stationCreateFailed = false;

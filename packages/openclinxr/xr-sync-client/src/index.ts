@@ -100,6 +100,10 @@ export interface EncounterSnapshot {
   blueprintId?: string;
   /** C15 current slot label ("" without a blueprint; absent on old servers). */
   stationLabel?: string;
+  /** C16 scenario id of the current station ("" without scenarios; absent on old servers). */
+  scenarioId?: string;
+  /** C16 scenario title of the current station ("" without scenarios; absent on old servers). */
+  scenarioTitle?: string;
 }
 
 /** Live headset-side connection: intents out, snapshots in. */
