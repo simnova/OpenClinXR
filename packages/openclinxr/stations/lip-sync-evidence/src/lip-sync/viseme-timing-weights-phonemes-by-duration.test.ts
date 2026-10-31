@@ -1,9 +1,9 @@
 import { readFileSync, readdirSync, existsSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { applyDialogueVisemeTimelineToRoot } from "../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.js";
-import { phonemesForText } from "../../../packages/openclinxr/xr-dialogue/src/dialogue-visemes.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { applyDialogueVisemeTimelineToRoot } from "../../../../../../packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.js";
+import { phonemesForText } from "../../../../../../packages/openclinxr/xr-dialogue/src/dialogue-visemes.js";
 
 /**
  * **Every phoneme holds for exactly the same length of time.** A stop consonant and a stressed vowel
@@ -92,8 +92,7 @@ import { phonemesForText } from "../../../packages/openclinxr/xr-dialogue/src/di
  * progress 1, so the treatment-(b) over-run does not occur and remains NOT TESTED above.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const BUNDLES = join(REPO_ROOT, "apps/ui-xr/public/xr-assets/generated");
 
 /** Sampling resolution across the utterance. 400 samples over ~10 phones is ~40 per phone. */

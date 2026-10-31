@@ -1,0 +1,35 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/xr-dialogue/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-dialogue/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/factory-station-core/dist/runner.js",
+        "$TURBO_ROOT$/packages/openclinxr/factory-station-core/package.json",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/generated/**",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/**",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb",
+        "$TURBO_ROOT$/apps/ui-xr/public/lip-sync-cues/utterance-6539634edf.mouth-cues.json",
+        "$TURBO_ROOT$/.openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-lip-sync/utterance-6539634edf.mouth-cues.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/viseme-runtime-application.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/mouth-open-cap.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/mouth-open-sweep-sheet.png",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/mouth-open-sweep.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/open-mouth-interior.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/mouth-open-channel.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/parent-visemes02.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/stills/mouth-open-rest.png",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/stills/mouth-open-at-cap.png",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/stills/mouth-open-full-request.png",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/stills/parent-visemes02-rest.png",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/stills/parent-visemes02-aa-full.png",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/stills/speaking-parent-not-speaking.png",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/stills/speaking-parent-speaking.png"
+      ]
+    }
+  }
+}

@@ -1,7 +1,8 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * #460 — cap FACS `mouth-open` at 0.3, the last weight where the parent's face survives.
@@ -75,14 +76,18 @@ import { describe, expect, it } from "vitest";
  *   - Quest, on-device rendering, frame budget.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
-const LEDGER = join(HERE, "mouth-open-cap.json");
-const SWEEP_SHEET = join(HERE, "mouth-open-sweep-sheet.png");
-const SWEEP_LEDGER = join(HERE, "mouth-open-sweep.json");
+const REPO_ROOT = repoRoot();
+const LEDGER = join(REPO_ROOT, "tools/openclinxr/evidence/mouth-open-cap.json");
+const SWEEP_SHEET = join(REPO_ROOT, "tools/openclinxr/evidence/mouth-open-sweep-sheet.png");
+const SWEEP_LEDGER = join(REPO_ROOT, "tools/openclinxr/evidence/mouth-open-sweep.json");
 const APPLY = join(REPO_ROOT, "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts");
-/** Computed so TypeScript cannot resolve a not-yet-exported symbol at compile time (#383/#352). */
-const SPECIFIER = ["../../../packages/openclinxr/xr-dialogue/src/viseme-morph", "apply.js"].join("-");
+/** A runtime file URL so TypeScript cannot resolve a not-yet-exported symbol at compile time
+ * (#383/#352), and so the specifier survives any Vite root: a relative dynamic import that
+ * escapes the Vite root is rewritten against the server root (measured 2026-10-31: the 6-up
+ * relative form resolves to /packages/... under the sidecar root but works from the repo root). */
+const SPECIFIER = pathToFileURL(
+  join(REPO_ROOT, "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts"),
+).href;
 
 /** The graded cap. Chosen from rendered evidence, not picked by the orchestrator. */
 const CAP = 0.3;

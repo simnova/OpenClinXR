@@ -1,8 +1,8 @@
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { NodeIO, type Node, type Primitive } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import { driveVisemeTimeline, type VisemeFrame } from "../../../packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { driveVisemeTimeline, type VisemeFrame } from "../../../../../../packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.js";
 
 /**
  * **OBSERVABLE: the lip-sync driver opens the jaw, so a spoken vowel parts the lips.**
@@ -79,8 +79,7 @@ import { driveVisemeTimeline, type VisemeFrame } from "../../../packages/opencli
  *   coarticulation or jaw timing realism; any clinical or readiness claim.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO = pathResolve(HERE, "../../..");
+const REPO = repoRoot();
 const GLB = join(REPO, "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb");
 
 /** 0.5 * teeth AABB height — open-mouth-interior.json, measured, an input not an effect. */

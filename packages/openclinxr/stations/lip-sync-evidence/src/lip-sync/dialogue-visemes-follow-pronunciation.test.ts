@@ -1,8 +1,8 @@
 import { readFileSync, readdirSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { visemesForText } from "../../../packages/openclinxr/xr-dialogue/src/dialogue-visemes.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { visemesForText } from "../../../../../../packages/openclinxr/xr-dialogue/src/dialogue-visemes.js";
 
 /**
  * **Every actor's mouth is driven by English SPELLING, not pronunciation.** `phonemesForText`
@@ -79,8 +79,7 @@ import { visemesForText } from "../../../packages/openclinxr/xr-dialogue/src/dia
  *     mouth animates to; a correct phoneme sequence that collapses wrongly must still fail.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const BUNDLES = join(REPO_ROOT, "apps/ui-xr/public/xr-assets/generated");
 
 /** Same pronunciation. Any correct mapping gives both members the same viseme sequence. */

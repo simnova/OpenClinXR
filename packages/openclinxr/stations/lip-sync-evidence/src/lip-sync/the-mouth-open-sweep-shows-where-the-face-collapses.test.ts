@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * #459 — the parent's mid-face collapses when `mouth-open` is driven to 1.0.
@@ -79,11 +79,11 @@ import { describe, expect, it } from "vitest";
  *   - Quest, browser-on-device, frame budget.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const SHEET = join(HERE, "mouth-open-sweep-sheet.png");
-const LEDGER = join(HERE, "mouth-open-sweep.json");
-const REST_STILL = join(HERE, "stills/speaking-parent-not-speaking.png");
-const OPEN_STILL = join(HERE, "stills/speaking-parent-speaking.png");
+const REPO_ROOT = repoRoot();
+const SHEET = join(REPO_ROOT, "tools/openclinxr/evidence/mouth-open-sweep-sheet.png");
+const LEDGER = join(REPO_ROOT, "tools/openclinxr/evidence/mouth-open-sweep.json");
+const REST_STILL = join(REPO_ROOT, "tools/openclinxr/evidence/stills/speaking-parent-not-speaking.png");
+const OPEN_STILL = join(REPO_ROOT, "tools/openclinxr/evidence/stills/speaking-parent-speaking.png");
 
 /** The sweep the superagent specified. Not a threshold — a set of samples for the grader. */
 const WEIGHTS = [0, 0.3, 0.6, 1.0] as const;

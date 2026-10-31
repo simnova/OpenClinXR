@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { NodeIO, type Primitive } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * **OBSERVABLE: when an actor says "aa", the lips part far enough that the teeth behind them
@@ -88,10 +88,10 @@ import { describe, expect, it } from "vitest";
  * (notEvidenceFor). The #551 guard is restored to the positive assertion in the same slice.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
+const REPO = REPO_ROOT;
 const GLB = join(REPO, "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb");
-const STAGE_A = join(HERE, "open-mouth-interior.json");
+const STAGE_A = join(REPO, "tools/openclinxr/evidence/open-mouth-interior.json");
 
 /** #551 measured, reproduced live by this file on HEAD 81d06dd6. */
 const MEASURED_AA_GAP = 0.023833762854337692;
