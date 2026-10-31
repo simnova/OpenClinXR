@@ -11,6 +11,7 @@
  */
 import * as THREE from "three";
 import type { IntentKind } from "@openclinxr/xr-sync-client/headset";
+import type { AimPose } from "./probe-c7.js";
 
 /** One lobby tile, copied from the server lobbyStations entry. */
 export interface C12LobbyTile {
@@ -182,6 +183,41 @@ export function markTileTriggerSettled(evidence: C12LobbyEvidence, acks: number,
   if (acks === 1 && rejects === 0) {
     evidence.selectAcked = true;
   }
+}
+
+export interface C12SelectEventDeps {
+  /** The select Event from the XR session (right-controller `select`). */
+  event: Event;
+  /** Currently commanded controller aim (null when unset). */
+  aim: AimPose | null;
+  /** C12 lobby evidence (hit tile, trigger, select sent). */
+  c12: C12LobbyEvidence;
+  /** Send select-station through the page intent queue (trigger path only). */
+  enqueue(kind: IntentKind, payload: Record<string, unknown>): void;
+  /** Record a local selection (tile hit, before the intent settles). */
+  pushLocal(id: string): void;
+}
+
+/**
+ * C12 select-event entry: the trigger picks a station tile and the
+ * select-station intent leaves through the lobby handler only (the script
+ * never calls it directly). Moved verbatim from sync-probe.ts (C13 line
+ * budget). Returns true when handled, false on a miss.
+ */
+export function handleC12SelectEvent(deps: C12SelectEventDeps): boolean {
+  return handleLobbyTrigger({
+    event: deps.event,
+    aim: deps.aim,
+    onHit: (stationId) => {
+      deps.c12.hitTileId = stationId;
+      deps.c12.triggerFired = true;
+      deps.pushLocal(stationId);
+      deps.c12.selectSent = true;
+    },
+    sendSelect: (stationId) => {
+      deps.enqueue("select-station", { stationId });
+    },
+  });
 }
 
 export interface C12ScriptDeps {

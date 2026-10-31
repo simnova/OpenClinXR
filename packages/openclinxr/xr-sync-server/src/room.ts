@@ -341,6 +341,12 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       return;
     }
     const intentSeq = seq as number;
+    // C13 review intents live only in replay rooms: a live learner sending
+    // one gets a clean reject (never routed into the utterance engine).
+    if (kind === "return-to-lobby" || kind === "score-station") {
+      this.reject(client, intentSeq, "unknown-kind");
+      return;
+    }
     // C6 phase gate (brief mode has none: C1..C5 behaviour).
     const gated = PhaseClock.phaseGateReason(this.phaseClock !== null, this.state.phase, kind as string);
     if (gated !== null) {

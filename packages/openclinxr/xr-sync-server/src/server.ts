@@ -10,6 +10,7 @@ import {
   type LoadedStationReplay,
   type StationReplayBinding,
 } from "./station-replay.js";
+import { parseReviewRubric, parseScoreDir } from "./faculty-score.js";
 import { parseNoteMaxChars } from "./patient-note.js";
 import { parseStationTiming, type StationTiming } from "./phase-clock.js";
 import { parseStationIds, type StationBinding } from "./station-rotation.js";
@@ -62,6 +63,17 @@ export interface EncounterServerOptions {
    * only). Defaults to 300.
    */
   replayStepMs?: number;
+  /**
+   * C13 faculty-score directory: <stationId>.faculty-score.json files are
+   * written beside (never inside) the replay directory. Server config only.
+   * Omit to disable scoring (score-station rejects "scoring-disabled").
+   */
+  scoreDir?: string;
+  /**
+   * C13 faculty review rubric ([{ id, label }], unique non-empty ids).
+   * Server config only. Omit to disable scoring. Throws at boot on invalid.
+   */
+  reviewRubric?: { id: string; label: string }[];
 }
 
 /** Handle to a running encounter server with its bound address. */
@@ -128,7 +140,7 @@ export async function createEncounterServer(
     } catch (error) {
       loadError = error instanceof Error ? error.message : String(error);
     }
-    const replayBinding: StationReplayBinding = { replay, loadError, stepMs, stationFailures: replay?.failures ?? new Map() };
+    const replayBinding: StationReplayBinding = { replay, loadError, stepMs, stationFailures: replay?.failures ?? new Map(), score: { scoreDir: parseScoreDir(options.scoreDir), rubric: parseReviewRubric(options.reviewRubric) } };
     server.define(ENCOUNTER_ROOM_NAME, createStationReplayRoomClass(replayBinding));
   } else {
     server.define(ENCOUNTER_ROOM_NAME, ConfiguredEncounterRoom);

@@ -16,13 +16,16 @@ import { ArraySchema, MapSchema } from "@colyseus/schema";
 import { matchMaker } from "@colyseus/core";
 import type { Client } from "@colyseus/core";
 import {
+  LobbyScoreState,
   LobbyStationState,
   type ActorStateInstance,
   type EncounterStateInstance,
   type LearnerStateInstance,
+  type LobbyScoreStateInstance,
   type LobbyStationStateInstance,
 } from "./schema.js";
 import type { LoadedStationReplay } from "./station-replay.js";
+import { LAUNCH_PENDING_REASON, type LobbyScore } from "./faculty-score.js";
 
 /** Reject reason for every non-select intent in the lobby. */
 export const LOBBY_READ_ONLY_REASON = "lobby-read-only";
@@ -69,8 +72,8 @@ export function validateLobbySelect(replay: LoadedStationReplay, stationId: stri
   return { ok: true };
 }
 
-/** Fill a fresh EncounterState as a lobby: mode lobby, index stations in order. */
-export function setupLobbyState(state: EncounterStateInstance, replay: LoadedStationReplay): void {
+/** Fill a fresh EncounterState as a lobby: mode lobby, index stations in order. Scores are read from disk by the caller when the lobby opens (a new server over the same scoreDir shows earlier scores). */
+export function setupLobbyState(state: EncounterStateInstance, replay: LoadedStationReplay, scores: LobbyScore[] = []): void {
   state.serverTick = 0;
   state.turnId = 0;
   state.turnOwner = "none";
@@ -98,6 +101,16 @@ export function setupLobbyState(state: EncounterStateInstance, replay: LoadedSta
     row.noteChars = entry.noteChars;
     state.lobbyStations.push(row);
   }
+  // C13 score badges, in index order. lobbyStations rows are unchanged (no
+  // score fields on them); reviewers read badges from lobbyScores.
+  state.lobbyScores = new ArraySchema<LobbyScoreStateInstance>();
+  for (const score of scores) {
+    const badge = new LobbyScoreState();
+    badge.stationId = score.stationId;
+    badge.checkedCount = score.checkedCount;
+    state.lobbyScores.push(badge);
+  }
+  state.scoreChecked = 0;
 }
 
 /**
@@ -116,4 +129,85 @@ export async function launchLobbyStationReplay(roomName: string, stationId: stri
     reservation = await matchMaker.reserveSeatFor(next, { replayStationId: stationId });
   }
   client.send("rotate", reservation);
+}
+
+/**
+ * C13 return-to-lobby: open a fresh lobby room for THIS client only and send
+ * it via the same rotate mechanism as the C12 launch (one mechanism, no
+ * second path). The fresh lobby reads its score badges from disk, so scores
+ * submitted in the replay just left are visible on return.
+ */
+export async function launchReplayReturnToLobby(roomName: string, client: Client): Promise<void> {
+  const next = await matchMaker.createRoom(roomName, { reviewLobby: true });
+  let reservation: unknown;
+  try {
+    reservation = await matchMaker.reserveSeatFor(next, { reviewLobby: true });
+  } catch {
+    reservation = await matchMaker.reserveSeatFor(next, { reviewLobby: true });
+  }
+  client.send("rotate", reservation);
+}
+
+/** Narrow room surface the lobby select handler mutates. */
+export interface LobbySelectRoom {
+  state: EncounterStateInstance;
+  launchPending: boolean;
+  replay: LoadedStationReplay | null;
+}
+
+/**
+ * C12 lobby intent gate (moved here from station-replay.ts for the file-size
+ * gate; same behaviour plus the C13 launch-pending carry-over): select-station
+ * validates + launches, everything else rejects lobby-read-only. A lobby
+ * launches at most once: a select while a launch is in flight rejects
+ * launch-pending (two concurrent selects settle exactly one ack). The launch
+ * callback performs the rotate send; onFailed runs when it throws (the flag
+ * resets so the reviewer can retry, and the client sees rotation-failed).
+ */
+export function handleLobbySelectIntent(
+  room: LobbySelectRoom,
+  client: Client,
+  message: unknown,
+  launch: (stationId: string, onFailed: () => void) => void,
+): void {
+  if (!isRecord(message)) {
+    client.send("reject", { seq: 0, reason: LOBBY_READ_ONLY_REASON });
+    return;
+  }
+  // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["seq"] on this Record.
+  const seq = Number.isInteger(message["seq"]) ? (message["seq"] as number) : 0;
+  // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["kind"] on this Record.
+  const kind = message["kind"];
+  if (kind !== "select-station") {
+    client.send("reject", { seq, reason: LOBBY_READ_ONLY_REASON });
+    return;
+  }
+  if (room.launchPending) {
+    client.send("reject", { seq, reason: LAUNCH_PENDING_REASON });
+    return;
+  }
+  const replay = room.replay;
+  if (replay === null) {
+    client.send("reject", { seq, reason: LOBBY_UNKNOWN_STATION_REASON });
+    return;
+  }
+  // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["payload"] on this Record.
+  const stationId = lobbySelectStationIdOf(message["payload"]);
+  const verdict = validateLobbySelect(replay, stationId);
+  if (!verdict.ok) {
+    client.send("reject", { seq, reason: verdict.reason });
+    return;
+  }
+  room.launchPending = true;
+  const learner = room.state.learners.get(client.sessionId);
+  if (learner) {
+    learner.lastSeq = seq;
+  }
+  room.state.serverTick += 1;
+  client.send("ack", { seq, serverTs: Date.now() });
+  // Launch THIS client's replay only (never a broadcast): the client
+  // consumes the seat like a C7 rotation on the same connection.
+  launch(stationId, () => {
+    room.launchPending = false;
+  });
 }
