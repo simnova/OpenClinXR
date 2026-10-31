@@ -63,10 +63,11 @@ declare global {
 }
 
 /** Live C20 evidence for the trigger handler (set once the script starts). */
-let liveEvidence: { c20: C20Evidence; scoring: boolean; rubric: C13RubricItem[]; toggled: string[] } | null = null;
+type PanelRenderer = (stationId: string, rubric: C13RubricItem[], toggled: string[]) => string[];
+let liveEvidence: { c20: C20Evidence; scoring: boolean; rubric: C13RubricItem[]; toggled: string[]; renderPanel: PanelRenderer } | null = null;
 
 /** Point the trigger handler at the script's evidence (called once, before any trigger). */
-export function setC20Live(state: { c20: C20Evidence; scoring: boolean; rubric: C13RubricItem[]; toggled: string[] }): void {
+export function setC20Live(state: { c20: C20Evidence; scoring: boolean; rubric: C13RubricItem[]; toggled: string[]; renderPanel: PanelRenderer }): void {
   liveEvidence = state;
 }
 
@@ -199,7 +200,7 @@ export function handleC20Trigger(deps: C20TriggerDeps): boolean {
   const current = live.c20.stations.at(-1);
   if (current) {
     current.toggledIds = [...live.toggled];
-    renderC20Panel(current.stationId, live.rubric, live.toggled);
+    live.renderPanel(current.stationId, live.rubric, live.toggled);
   }
   pushLocal(tileId);
   return true;
@@ -234,6 +235,9 @@ export interface C20ScriptDeps {
   scene: THREE.Scene;
   /** Station ids to score, in server lobby order (passed in, never re-read). */
   stationIds: string[];
+  /** C21 extension hooks; C20 callers omit both and retain the original flow. */
+  renderPanel?: PanelRenderer;
+  onReplayRubric?: (stationId: string, rubric: C13RubricItem[], snapshot: unknown) => void;
 }
 
 /**
@@ -248,7 +252,8 @@ export async function runC20Script(deps: C20ScriptDeps): Promise<void> {
   const { waitFor, aimAndTriggerTile, aimLobbyAndTrigger, getSnapshot, setStatus, evidence, counts, scene, stationIds } = deps;
   const snapshot = (): { replayDone?: unknown; mode?: unknown; replayRubric?: unknown; stationId?: unknown; lobbyScores?: unknown } =>
     (getSnapshot() as { replayDone?: unknown; mode?: unknown; replayRubric?: unknown; stationId?: unknown; lobbyScores?: unknown } | null) ?? {};
-  const live = { c20: evidence, scoring: false, rubric: [] as C13RubricItem[], toggled: [] as string[] };
+  const renderPanel = deps.renderPanel ?? renderC20Panel;
+  const live = { c20: evidence, scoring: false, rubric: [] as C13RubricItem[], toggled: [] as string[], renderPanel };
   setC20Live(live);
   if (stationIds.length === 0) {
     throw new Error("c20 script needs at least one lobby station");
@@ -270,6 +275,7 @@ export async function runC20Script(deps: C20ScriptDeps): Promise<void> {
       throw new Error(`c20 script saw an empty replayRubric for ${stationId}`);
     }
     live.rubric = rubric;
+    deps.onReplayRubric?.(stationId, rubric, snapshot());
     live.toggled = [];
     setC20RubricTiles(scene, rubric);
     const current = evidence.stations.at(-1);
@@ -278,7 +284,7 @@ export async function runC20Script(deps: C20ScriptDeps): Promise<void> {
     }
     await waitFor(() => snapshot().replayDone === true, 120000, `c20 replayDone ${stationId}`);
     if (current) {
-      current.renderedIds = renderC20Panel(stationId, rubric, live.toggled);
+      current.renderedIds = renderPanel(stationId, rubric, live.toggled);
     }
     setStatus(`sync-probe c20 scoring ${stationId} (${rubric.length} items)`);
     for (let index = 0; index < rubric.length; index += 1) {
@@ -292,7 +298,7 @@ export async function runC20Script(deps: C20ScriptDeps): Promise<void> {
     await waitFor(() => live.toggled.length === Math.ceil(rubric.length / 2), 15000, `even rubric tiles toggled ${stationId}`);
     if (current) {
       current.toggledIds = [...live.toggled];
-      current.renderedIds = renderC20Panel(stationId, rubric, live.toggled);
+      current.renderedIds = renderPanel(stationId, rubric, live.toggled);
     }
     const beforeScore = counts();
     await aimAndTriggerTile("c13:submit", 1);

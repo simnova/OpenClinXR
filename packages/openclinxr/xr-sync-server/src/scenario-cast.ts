@@ -17,8 +17,8 @@
  */
 
 import type { CaseEmotionPolicy } from "@openclinxr/conversation-policy";
-import { ActorState, type ActorStateInstance } from "./schema.js";
 import type { ScheduledScenarioEntry } from "./scheduled-event.js";
+import { ActorState, type ActorStateInstance } from "./schema.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -52,6 +52,32 @@ export interface ScenarioCast {
   emotionPolicy: CaseEmotionPolicy | null;
   /** The scenario's eventSchedule: server-clock interjections for this station (empty when none). */
   schedule: ScheduledScenarioEntry[];
+  /** C21 station-wide trace tags required by this scenario. */
+  requiredTraceTags: string[];
+  /** C21 per-item trace requirements in review rubric order (labels stay out of the review index). */
+  reviewRubric: Array<{ rubricId: string; requiredTraceTags: string[] }>;
+}
+
+function readStringArray(value: unknown, path: string): string[] {
+  if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string")) {
+    throw new Error(`bad-scenarios: ${path} must be an array of strings`);
+  }
+  return [...value] as string[];
+}
+
+function readTraceRubric(value: unknown, index: number): ScenarioCast["reviewRubric"] {
+  if (!Array.isArray(value)) {
+    throw new Error(`bad-scenarios: scenarios[${index}].reviewRubric must be an array`);
+  }
+  return value.map((raw, rubricIndex) => {
+    if (!isRecord(raw) || typeof raw["rubricId"] !== "string" || (raw["rubricId"] as string) === "") {
+      throw new Error(`bad-scenarios: scenarios[${index}].reviewRubric[${rubricIndex}].rubricId must be a non-empty string`);
+    }
+    return {
+      rubricId: raw["rubricId"] as string,
+      requiredTraceTags: readStringArray(raw["requiredTraceTags"], `scenarios[${index}].reviewRubric[${rubricIndex}].requiredTraceTags`),
+    };
+  });
 }
 
 /** Extract one station's cast from a scenario value (throws naming "scenarios" on invalid). */
@@ -98,7 +124,17 @@ function castForScenario(value: unknown, index: number): ScenarioCast {
     isRecord(policy) && typeof policy["baseline"] === "string" && (policy["baseline"] as string).length > 0
       ? (policy["baseline"] as string)
       : "neutral";
-  return { scenarioId, scenarioTitle: title, actorIds, baselineEmotion: baseline, castActors, emotionPolicy: readEmotionPolicy(policy), schedule: readScenarioSchedule(value["eventSchedule"], actorIds, index, scenarioId) };
+  return {
+    scenarioId,
+    scenarioTitle: title,
+    actorIds,
+    baselineEmotion: baseline,
+    castActors,
+    emotionPolicy: readEmotionPolicy(policy),
+    schedule: readScenarioSchedule(value["eventSchedule"], actorIds, index, scenarioId),
+    requiredTraceTags: readStringArray(value["requiredTraceTags"], `scenarios[${index}].requiredTraceTags`),
+    reviewRubric: readTraceRubric(value["reviewRubric"], index),
+  };
 }
 
 /** Read a scenario eventSchedule value (every refusal names "scenarios"). */

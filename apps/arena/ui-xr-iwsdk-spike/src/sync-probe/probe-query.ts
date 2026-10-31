@@ -11,7 +11,7 @@ export interface ProbeQuery {
   autostart: boolean;
   /** Quest mode: install the IWER runtime even when a native runtime is present. */
   forceIwer: boolean;
-  /** Probe script: "c2" (sweep + select each actor), "c3" (server-driven actor turn), "c6" (phase-gated C3 inside the encounter window), "c7" (C3 script once per station with server rotation), "c8" (c7 loop with pose streaming on + observer badge), "c10" (faculty replay of one recorded station), "c11" (C3 script once + patient-note submits in the note phase), "c12" (review lobby: trigger station-2, watch its replay), "c13" (c12 flow + rubric score submit + return to lobby), "c14" (c13 flow + lobby sign-off finalize), "c15" (C3 script once per blueprint station with server rotation + label panel), "c16" (cast select + C3 script once per scenario-cast station with server rotation + cast panel), "c17" (every cast actor's opening line + caption per scenario-cast station with server rotation + caption panel), or "c18" (faculty replay of one recorded cast station with the replyId/emotion panel), or "c19" (server-clock schedule watch per scenario-cast station with server rotation + scheduled panel), or "c20" (review lobby: score every replayed cast station against its own scenario rubric with the checklist panel). */
+  /** Named deterministic probe script (C21 adds persisted observed/required counts to the C20 checklist flow). */
   script: ProbeScript;
   /** C10/C18 faculty replay: the recorded station id to replay (from ?replayStationId=; "" otherwise). */
   replayStationId: string;
@@ -35,6 +35,7 @@ const KNOWN_SCRIPTS: ReadonlySet<string> = new Set([
   "c18",
   "c19",
   "c20",
+  "c21",
 ]);
 
 /** Parse the probe query string. Throws on missing/invalid ?sync=. */

@@ -30,17 +30,18 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { castForStation } from "./scenario-cast.js";
 import {
   CONVERSATION_TRACE_FILE_SUFFIX,
   type ConversationTrace,
 } from "./conversation-trace.js";
 import { PATIENT_NOTE_FILE_SUFFIX, persistPatientNote } from "./patient-note.js";
+import { castForStation } from "./scenario-cast.js";
 import {
   driveRoomRotation,
   type RotationLearner,
   type StationBinding,
 } from "./station-rotation.js";
+import { type TraceTagCoverageScenario, type TraceTagRubricCoverage, traceTagCoverage } from "./trace-tag-coverage.js";
 
 /** Schema tag written into every exam session review index file. */
 export const SESSION_REVIEW_INDEX_SCHEMA = "openclinxr.xr-sync.exam-session-review-index.v1";
@@ -70,6 +71,12 @@ export interface SessionReviewStationEntry {
   noteChars: number;
   /** C11 basename of the station's <roomId>.patient-note.json, or null when no note was accepted. */
   noteFile: string | null;
+  /** C21 required tags produced by this station's trace (cast stations only). */
+  observedTraceTags?: string[];
+  /** C21 required tags absent from this station's trace (cast stations only). */
+  missingRequiredTraceTags?: string[];
+  /** C21 per-rubric tag evidence in scenario rubric order, without labels. */
+  rubricCoverage?: TraceTagRubricCoverage[];
 }
 
 /** Persisted exam session review index (review-safe: no identity, no text). */
@@ -108,9 +115,11 @@ export function stationReviewFromTrace(
   trace: ConversationTrace,
   stationLabel?: string,
   scenarioId?: string,
+  coverageScenario?: TraceTagCoverageScenario,
 ): SessionReviewStationEntry {
   const noteEvents = trace.events.filter((event) => event.kind === "note-submitted");
   const lastNoteChars = noteEvents.length > 0 ? (noteEvents[noteEvents.length - 1] as { chars?: unknown }).chars : undefined;
+  const coverage = coverageScenario === undefined ? undefined : traceTagCoverage(trace, coverageScenario);
   return {
     stationId,
     stationIndex,
@@ -124,6 +133,7 @@ export function stationReviewFromTrace(
     notePresent: noteEvents.length > 0,
     noteChars: typeof lastNoteChars === "number" ? lastNoteChars : 0,
     noteFile: noteEvents.length > 0 ? `${roomId}${PATIENT_NOTE_FILE_SUFFIX}` : null,
+    ...(coverage === undefined ? {} : coverage),
   };
 }
 
@@ -234,7 +244,15 @@ export async function handleStationClosed(host: StationCloseReviewHost, roomName
   const cast = castForStation(host.binding.scenarioCasts, host.stationIndex);
   collector.entries.set(
     host.stationIndex,
-    stationReviewFromTrace(host.stationId, host.stationIndex, host.roomId, host.traceSnapshot(), blueprint?.labels.get(host.stationId), cast?.scenarioId ?? undefined),
+    stationReviewFromTrace(
+      host.stationId,
+      host.stationIndex,
+      host.roomId,
+      host.traceSnapshot(),
+      blueprint?.labels.get(host.stationId),
+      cast?.scenarioId ?? undefined,
+      cast ?? undefined,
+    ),
   );
   let learnerFailures = 0;
   let stationCreateFailed = false;

@@ -43,7 +43,8 @@ import { createC16Evidence, runC16Script, type C16Evidence } from "./probe-c16.j
 import { createC17Evidence, runC17Script, type C17Evidence } from "./probe-c17.js";
 import { createC18Evidence, runC18Script, type C18Evidence } from "./probe-c18.js";
 import { createC19Evidence, runC19Script, type C19Evidence } from "./probe-c19.js";
-import { createC20Evidence, c20CenterFor, runC20Script, type C20Evidence } from "./probe-c20.js";
+import { createC20Evidence, c20CenterFor, runC20Script, type C20Evidence, type C20ScriptDeps } from "./probe-c20.js";
+import { createC21Evidence, runC21Script } from "./probe-c21.js";
 import { PROBE_ACTOR_IDS, resolvePhaseLabel } from "./probe-state.js";
 import { parseC11NoteMaxChars } from "./probe-query.js";
 
@@ -435,20 +436,16 @@ export async function runProbeScript(deps: ProbeScriptDeps): Promise<void> {
       evidence: c19,
       publish: publishC19,
     });
-  } else if (deps.script === "c20") {
-    // C20 scenario-rubric scoring: the lobby tiles (C12 flow verbatim), then
-    // every station in server order is replayed and scored against its own
-    // scenario rubric (checklist from the SERVER replayRubric, same ceiling
-    // rationale as the C16-C19 modules: probe-c20 owns and publishes
-    // window.__syncProbeC20 itself).
-    const c20: C20Evidence = createC20Evidence();
+  } else if (deps.script === "c20" || deps.script === "c21") {
+    const c20: C20Evidence = deps.script === "c21" ? createC21Evidence() : createC20Evidence();
     const publishC20 = (): void => {
       window.__syncProbeC20 = c20;
-      // The harness reads window.__syncProbe (harness-lib is shared and
-      // frozen); sync-probe.ts sits at its file-size ceiling and cannot grow
-      // a c20 field, so the C20 module attaches its data-only evidence here.
       if (window.__syncProbe !== undefined) {
         Object.assign(window.__syncProbe, { c20 });
+        if (deps.script === "c21") {
+          window.__syncProbeC21 = c20 as ReturnType<typeof createC21Evidence>;
+          Object.assign(window.__syncProbe, { c21: c20 });
+        }
       }
     };
     publishC20();
@@ -477,7 +474,7 @@ export async function runProbeScript(deps: ProbeScriptDeps): Promise<void> {
       settled: () => deps.intentCounts().acks + deps.intentCounts().rejects,
       waitFor,
     });
-    await runC20Script({
+    const flow: C20ScriptDeps = {
       waitFor,
       aimAndTriggerTile: (tileId, expectedIntents) => aimScoreAndTrigger(tileId, expectedIntents),
       aimLobbyAndTrigger: async (stationId) => {
@@ -490,12 +487,15 @@ export async function runProbeScript(deps: ProbeScriptDeps): Promise<void> {
       counts: () => ({ acks: deps.intentCounts().acks, rejects: deps.intentCounts().rejects }),
       scene: deps.scene,
       stationIds: deps.c12.tiles.map((tile) => tile.stationId),
-    });
+    };
+    if (deps.script === "c21") {
+      await runC21Script({ ...flow, evidence: c20 as ReturnType<typeof createC21Evidence> });
+    } else {
+      await runC20Script(flow);
+    }
     publishC20();
   } else {
     for (const actorId of PROBE_ACTOR_IDS) {
-      // C3 semantics: the second trigger first closes the learner's open
-      // utterance, so it sends 3 intents (end, select, start) instead of 2.
       const learnerOpen = deps.getSessionLearnerSpeaking();
       await aimAndTrigger(actorId, learnerOpen ? 3 : 2);
     }

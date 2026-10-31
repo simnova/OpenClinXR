@@ -378,7 +378,7 @@ async function main(): Promise<void> {
         ? handleC12SelectEvent({ event, aim: commandedAim, c12: probe.c12, enqueue: enqueueIntent, pushLocal: (id: string) => probe.selectedLocal.push(id) })
         : query.script === "c13"
           ? handleC13Trigger({ event, aim: commandedAim, c12: probe.c12, c13: probe.c13, enqueue: enqueueIntent, pushLocal: (id: string) => probe.selectedLocal.push(id) })
-          : query.script === "c20"
+          : query.script === "c20" || query.script === "c21"
             ? handleC20Trigger({ event, aim: commandedAim, enqueue: enqueueIntent, pushLocal: (id: string) => probe.selectedLocal.push(id) })
             : handleC14Trigger({ event, aim: commandedAim, c12: probe.c12, c13: probe.c13, c14: probe.c14, enqueue: enqueueIntent, pushLocal: (id: string) => probe.selectedLocal.push(id) });
       if (!handled) {
