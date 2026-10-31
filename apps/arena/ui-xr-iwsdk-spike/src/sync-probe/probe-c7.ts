@@ -161,8 +161,15 @@ export interface AimAndTriggerDeps {
  * Fixed script driver: aim the right controller at one actor and pull the
  * trigger. Moved verbatim from sync-probe.ts (C10 line budget): behaviour is
  * identical, dependencies are explicit parameters.
+ *
+ * Bind the driver to one page's dispatch/aim/counters (moved from
+ * sync-probe.ts so the trigger path stays identical for every script).
  */
-export async function aimAndTriggerActor(deps: AimAndTriggerDeps, actorId: string, expectedIntents: number): Promise<void> {
+export function createAimAndTrigger(
+  deps: AimAndTriggerDeps,
+): (actorId: string, expectedIntents: number) => Promise<void> {
+  return (actorId, expectedIntents) => aimAndTriggerActor(deps, actorId, expectedIntents);
+}export async function aimAndTriggerActor(deps: AimAndTriggerDeps, actorId: string, expectedIntents: number): Promise<void> {
   const center = deps.actorCenter(actorId);
   await deps.dispatch("look_at", {
     device: "controller-right",

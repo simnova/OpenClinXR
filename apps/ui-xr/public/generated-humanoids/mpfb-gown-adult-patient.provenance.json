@@ -135,8 +135,8 @@
   "publicRenderCleared": false,
   "publicRenderBlockedBy": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json \u2014 the hm08 basemesh AGPL/CC0 contradiction is unresolved upstream"
  },
- "outputSha256": "88f094703dfc96811af56c6bb6070933f654a6a58c8ded3e5feac296e5561406",
- "outputBytes": 20462724,
+ "outputSha256": "e5620a7c8ef8d41aebc4766b9a8375a9c6bf0106cacee268cdd34ea14b9020f3",
+ "outputBytes": 6763692,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:06:25.232Z",
@@ -285,6 +285,22 @@
     "all-pose garment coverage",
     "clinical realism",
     "public-render clearance"
+   ]
+  },
+  {
+   "kind": "prune_unbound_textures",
+   "tool": "gltf-transform prune 4.3.0 (pnpm exec gltf-transform prune <input> <output> --keep-attributes true --keep-indices true), same tool and flags as #555",
+   "at": "2026-10-30T18:55:00Z",
+   "inputSha256": "32c56ead912e3202b573aa215f077f1d6bae88edca7c331afe547f16a05bb1c3",
+   "inputBytes": 20462500,
+   "outputSha256": "e5620a7c8ef8d41aebc4766b9a8375a9c6bf0106cacee268cdd34ea14b9020f3",
+   "outputBytes": 6763692,
+   "method": "pruned unreferenced image mpfb-gown-adult-patient (1063690 B) plus the unreferenced T-shirt material carrying T-shirt_basic (392852 B) plus 923 dead accessors; file 20462500 -> 6763692 B",
+   "boundInvariantsHeld": "boundTextures 3, boundBytes 2874795, meshes 10, materials 16, tris 40277, joints 138, animations 4",
+   "claimScope": "dead image and material bytes removed; no rebake",
+   "notEvidenceFor": [
+    "the gown patient's missing t-shirt texture (same card's second proof, not this one)",
+    "how anything looks"
    ]
   }
  ],

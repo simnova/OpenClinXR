@@ -155,7 +155,13 @@ export function attachStationPhaseClock(
  * only during "encounter" (pose is accepted in every phase). Returns the
  * reject reason, or null when the intent may proceed.
  */
+/** Minimal server snapshot surface the phase waits read. C11: note-submit is
+ * owned by the patient-note applier (accepted only in "note"), so the
+ * encounter gate never sees it. */
 export function phaseGateReason(clockRunning: boolean, phase: string, kind: string): string | null {
+  if (kind === "note-submit") {
+    return null;
+  }
   if (clockRunning && kind !== "pose" && phase !== "encounter") {
     return OUTSIDE_ENCOUNTER_PHASE_REASON;
   }

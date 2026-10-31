@@ -16,5 +16,29 @@
     "entrypoint": "./package-actor-turn",
     "classes": ["package", "runtime-app"],
     "reason": "live voice turn seam: the unscripted-turn client (requestUnscriptedLiveTurn plus input types) serves the apps/ui-xr runtime call site while the same entrypoint keeps serving package consumers (xr-actor-dialogue, xr-humanoid-animation, mouth-verifier) and the lip-sync-tier-select own-test; a new runtime-app-only subpath is refused by the pinned factory manifest, so no class-pure split is available"
+  },
+  {
+    "provider": "@openclinxr/station-mouth-registry",
+    "entrypoint": ".",
+    "classes": ["package", "tools"],
+    "reason": "makeclothes evidence sidecar (2026-10-30 station split, operator-approved limit raise): the-producer-reproduces-the-receipt test binds `run` to reproduce the seat-teeth receipt's solverId while seat-teeth station tooling binds the same name under tools; one shared single-name seam, so no class-pure split is warranted"
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": "./viseme-runtime",
+    "classes": ["package", "tools"],
+    "reason": "makeclothes evidence sidecar (2026-10-30 station split, operator-approved limit raise): the tongue-th-morph test binds applyDialogueVisemeTimelineToRoot to drive the runtime wire while teeth/tongue station tooling binds sibling runtime names under tools; no class-pure split is warranted"
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": ".",
+    "classes": ["evidence", "package"],
+    "reason": "quest-capacity evidence sidecar (2026-10-30 station split, operator-approved limit raise): the moved cli and secure-build-identity tests bind evaluateRun, makeRun, parseRunRecord, runHostWorkloads (plus the CapacityRun type) to reproduce capacity runs while quest-capacity evidence tooling binds the same names under evidence; one shared small-capacity seam, so no class-pure split is warranted"
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./stage2",
+    "classes": ["evidence", "package"],
+    "reason": "quest-capacity evidence sidecar (2026-10-30 station split, operator-approved limit raise): the moved stage2 tests bind STAGE2_CONFIG, STAGE2_PROTOCOL_SHA256 and Stage2Budget to pin the frozen stage2 protocol while quest-capacity evidence tooling binds the same names under evidence; one shared small-protocol seam, so no class-pure split is warranted"
   }
 ]

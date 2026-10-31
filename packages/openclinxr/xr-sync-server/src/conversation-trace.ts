@@ -104,7 +104,10 @@ export const PROBE_CASE_EMOTION_POLICY: CaseEmotionPolicy = {
  * phase-changed (seq null, actorId "", turnId null, phase set); the reducer
  * closes an open turn as "closed-by-phase" when the new phase is not
  * "encounter". C8 adds rotation-failed (seq null, actorId "", turnId null,
- * no identity); the reducer ignores it like presence. */
+ * no identity); the reducer ignores it like presence. C11 adds
+ * note-submitted (the learner's patient note was accepted in the note phase;
+ * chars set, the note TEXT never enters the trace); the reducer ignores it
+ * for turns/emotions. */
 export type ConversationTraceEventKind =
   | "select-actor"
   | "utterance-start"
@@ -113,7 +116,8 @@ export type ConversationTraceEventKind =
   | "observer-joined"
   | "observer-left"
   | "phase-changed"
-  | "rotation-failed";
+  | "rotation-failed"
+  | "note-submitted";
 
 /** One conversation event, in application order. Actor-agnostic: the learner
  * appears as utterance events with no sessionId; utterance-end names the
@@ -130,6 +134,8 @@ export interface ConversationTraceEvent {
   turnId: number | null;
   /** C6 station phase for "phase-changed" events; undefined for all other kinds. */
   phase?: string;
+  /** C11 accepted-note length for "note-submitted" events; undefined otherwise. The note text never enters the trace. */
+  chars?: number;
 }
 
 /** One server-driven actor turn, recomputed from events alone. */
@@ -259,8 +265,10 @@ export function reduceConversationEvents(events: readonly ConversationTraceEvent
       }
       case "observer-joined":
       case "observer-left":
-      case "rotation-failed": {
-        // C5 presence / C8 rotation failure: no turns, no emotions, no selection change.
+      case "rotation-failed":
+      case "note-submitted": {
+        // C5 presence / C8 rotation failure / C11 accepted note: no turns,
+        // no emotions, no selection change.
         break;
       }
       case "phase-changed": {
@@ -298,6 +306,7 @@ export interface ReplayableConversationTrace {
     actorId: string;
     turnId: number | null;
     phase?: string;
+    chars?: unknown;
   }[];
 }
 
@@ -310,7 +319,8 @@ function isTraceEventKind(kind: string): kind is ConversationTraceEventKind {
     kind === "observer-joined" ||
     kind === "observer-left" ||
     kind === "rotation-failed" ||
-    kind === "phase-changed"
+    kind === "phase-changed" ||
+    kind === "note-submitted"
   );
 }
 
@@ -325,6 +335,9 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
     const out: ConversationTraceEvent = { seq: event.seq, kind: event.kind, actorId: event.actorId, turnId: event.turnId };
     if (event.phase !== undefined) {
       out.phase = event.phase;
+    }
+    if (typeof event.chars === "number") {
+      out.chars = event.chars;
     }
     return out;
   });

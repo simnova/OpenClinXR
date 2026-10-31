@@ -1,0 +1,52 @@
+{
+  "tool": "grade-tara-oversize-textures.py",
+  "input": "/Users/patrick/.grok/worktrees/ci-w11-glb-defects/apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+  "output": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+  "before": {
+    "tightjeans": {
+      "bytes": 5441511,
+      "dims": [
+        2048,
+        2048
+      ],
+      "mime": "image/png"
+    },
+    "AuburnHair": {
+      "bytes": 8344296,
+      "dims": [
+        3600,
+        3600
+      ],
+      "mime": "image/png"
+    },
+    "BakedHairNORMAL": {
+      "bytes": 10260549,
+      "dims": [
+        3600,
+        3600
+      ],
+      "mime": "image/png"
+    }
+  },
+  "after": {
+    "tightjeans": {
+      "bytes": 1196954,
+      "mime": "image/jpeg"
+    },
+    "AuburnHair": {
+      "bytes": 1308440,
+      "mime": "image/png"
+    },
+    "BakedHairNORMAL": {
+      "bytes": 517964,
+      "mime": "image/jpeg"
+    }
+  },
+  "postGradeMaxMedian": 2.1114,
+  "threshold": 3.0,
+  "notes": [
+    "tightjeans bytes are the committed 2026-09-12 grade, reused exactly",
+    "AuburnHair keeps PNG: material alphaMode=MASK, alpha load-bearing",
+    "BakedHairNORMAL alpha asserted all-opaque before JPEG conversion"
+  ]
+}

@@ -1,10 +1,8 @@
 import { MapSchema } from "@colyseus/schema";
 import { Room } from "@colyseus/core";
 import type { Client } from "@colyseus/core";
-import type { EmotionEventKind } from "@openclinxr/conversation-policy";
 import {
   ConversationTracer,
-  pickC3Reply,
   type ConversationTrace,
 } from "./conversation-trace.js";
 // C3 reply table + picker live in conversation-trace.js (single source shared
@@ -12,7 +10,6 @@ import {
 // (C4 RED, evidence harness dist imports) keep working.
 export { C3_REPLY_TABLE, pickC3Reply, type C3ScriptedReply } from "./conversation-trace.js";
 import {
-  ActorState,
   EncounterState,
   LearnerState,
   type ActorStateInstance,
@@ -23,12 +20,14 @@ import { OBSERVER_READ_ONLY_REASON, parseEncounterRole, rejectNotJoined } from "
 import * as PhaseClock from "./phase-clock.js";
 import type { StationTiming } from "./phase-clock.js";
 import type { EncounterRoomOptions, ProbeSelection, RoomProbeStats, TurnRecord } from "./room-types.js";
-import { KNOWN_ACTOR_IDS, parseExtraActorIds } from "./roster.js";
+import { populateActorRoster } from "./roster.js";
 import { INTENT_KINDS, type AckMessage, type IntentMessage, type RejectMessage } from "./protocol.js";
 // Wire protocol types live in protocol.js; re-exported here so the package
 // "." surface and existing room.js importers keep working unchanged.
 export type { AckMessage, IntentKind, IntentMessage, RejectMessage } from "./protocol.js";
 import { applyPoseIntent, applySelectActorIntent } from "./learner-intents.js";
+import { DEFAULT_NOTE_MAX_CHARS, validateNoteSubmit } from "./patient-note.js";
+import { applyUtteranceIntent } from "./actor-turns.js";
 import {
   assertStationJoinAllowed,
   clearStationNoncesOnDispose,
@@ -92,6 +91,10 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   protected stationTiming: StationTiming | null = null;
   /** C6 server-bound trace directory (null disables persistence). Same binding as stationTiming. */
   protected stationTraceDir: string | null = null;
+  /** C11 server-bound patient-note bound (null uses the module default). Same binding as stationTiming. */
+  protected stationNoteMaxChars: number | null = null;
+  /** C11 held learner patient note text (server-side only: never synced, never traced). */
+  private noteText: string | null = null;
   /** C6 station phase clock (null when no timing: C1..C5 brief behaviour). Driven by this.clock. */
   private phaseClock: { stop(): void } | null = null;
   /** C6 host-clock ms per entered phase (Date.now at phase enter). Probe only, never in the trace. */
@@ -126,6 +129,11 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   }
 
   override onCreate(options?: EncounterRoomOptions): void {
+    // C12: a review lobby belongs on a replay server only. A reviewer
+    // pointed at a live server must never get a live learner seat.
+    if (isRecord(options) && (options as Record<string, unknown>)["reviewLobby"] === true) {
+      throw new Error("review-lobby-live-refused: join a replay server with reviewLobby");
+    }
     latestRoom = this;
     // Server-bound config only: client roomOptions.timing / .phase /
     // .traceDir / .stationId / .stationIndex are never read.
@@ -134,25 +142,13 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     this.state.serverTick = 0;
     this.state.turnId = 0;
     this.state.turnOwner = "none";
-    this.state.observerCount = 0;
+    this.state.observerCount = 0; this.state.noteStatus = "none"; this.state.noteChars = 0;
     this.state.phaseRemainingS = 0;
     // C7 station assignment: server binding + creation nonce only (never client roomOptions).
     const station = configureStationRoom(this.stationBinding, options, this.state, this.tracer);
     this.state.actors = new MapSchema<ActorStateInstance>();
+    populateActorRoster(this.state.actors, options);
     this.state.learners = new MapSchema<LearnerStateInstance>();
-    const roster = new Set<string>(KNOWN_ACTOR_IDS);
-    for (const id of parseExtraActorIds(options?.actors)) {
-      roster.add(id);
-    }
-    for (const id of roster) {
-      const actor = new ActorState();
-      actor.id = id;
-      actor.speaking = false;
-      actor.emotion = "neutral";
-      actor.replyId = "";
-      actor.cueId = "";
-      this.state.actors.set(id, actor);
-    }
 
     // C6 station clock from the server binding; client roomOptions.timing /
     // roomOptions.phase are ignored (see phase-clock.ts). C7 rotation fires
@@ -201,6 +197,11 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
 
   override onAuth(client: Client, options?: EncounterRoomOptions): boolean {
     void client;
+    // C12 backstop: reviewLobby on a live server refuses even when the room
+    // already exists (onCreate covers the first join).
+    if (isRecord(options) && (options as Record<string, unknown>)["reviewLobby"] === true) {
+      throw new Error("review-lobby-live-refused: join a replay server with reviewLobby");
+    }
     // Refuse unknown roles here so the SDK join rejects. Learner (default)
     // and observer pass; anything else throws.
     parseEncounterRole(options);
@@ -290,6 +291,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         traceDir: this.stationTraceDir,
         traceSnapshot: () => this.tracer.snapshot(),
         flushTrace: () => this.flushConversationTrace(),
+        noteText: this.noteText,
         onRotationFailed: () => this.tracer.push({ seq: null, kind: "rotation-failed", actorId: "", turnId: null }),
         rotationStarted: this.rotationStarted,
         setRotationStarted: (value) => { this.rotationStarted = value; },
@@ -339,6 +341,12 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       return;
     }
     const intentSeq = seq as number;
+    // C13/C14 review intents live only in replay rooms: a live learner sending
+    // one gets a clean reject (never routed into the utterance engine).
+    if (kind === "return-to-lobby" || kind === "score-station" || kind === "finalize-review") {
+      this.reject(client, intentSeq, "unknown-kind");
+      return;
+    }
     // C6 phase gate (brief mode has none: C1..C5 behaviour).
     const gated = PhaseClock.phaseGateReason(this.phaseClock !== null, this.state.phase, kind as string);
     if (gated !== null) {
@@ -357,7 +365,9 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         ? applyPoseIntent(bindings, client, learner, intentSeq, payload)
         : kind === "select-actor"
           ? applySelectActorIntent(bindings, client, intentSeq, payload)
-          : this.applyUtterance(client, learner, intentSeq, kind, payload);
+          : kind === "note-submit"
+            ? this.applyNote(client, intentSeq, payload)
+            : this.applyUtterance(client, learner, intentSeq, kind, payload);
     if (!applied) {
       return;
     }
@@ -371,26 +381,18 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     // broadcast: see DESTRUCTIVE_PROBE_ANCHOR (T6 probe) in onCreate.
   }
 
-  /**
-   * End the open actor turn as interrupted (learner started speaking again).
-   * The cancelled server-clock timer must never fire later and flip anything.
-   */
-  private interruptOpenTurn(endSeq: number): void {
-    const open = this.openTurn;
-    if (!open) {
-      return;
+  /** C11 patient-note application: validated in the note module, held here. */
+  private applyNote(client: Client, seq: number, payload: unknown): boolean {
+    const validated = validateNoteSubmit(this.state.phase, this.stationNoteMaxChars ?? DEFAULT_NOTE_MAX_CHARS, payload);
+    if (typeof validated !== "string") {
+      this.reject(client, seq, validated.reason);
+      return false;
     }
-    open.timer.clear();
-    this.openTurn = null;
-    const actor = this.state.actors.get(open.actorId);
-    if (actor) {
-      actor.speaking = false;
-    }
-    const record = this.turnLog.find((entry) => entry.turnId === open.turnId);
-    if (record && record.end === "open") {
-      record.end = "interrupted";
-      record.endSeq = endSeq;
-    }
+    this.noteText = validated;
+    this.state.noteStatus = "submitted";
+    this.state.noteChars = validated.length;
+    this.tracer.push({ seq, kind: "note-submitted", actorId: "", turnId: null, chars: validated.length });
+    return true;
   }
 
   private applyUtterance(
@@ -400,100 +402,34 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     kind: string,
     payload: unknown,
   ): boolean {
-    // C3/C4: client-supplied reply/turn/cue/emotion fields are ignored; only `actorId` is read.
-    let actorId = this.selectedActor.get(client.sessionId);
-    if (payload !== undefined) {
-      if (!isRecord(payload)) {
-        this.reject(client, seq, "bad-utterance-payload");
-        return false;
-      }
-      const { actorId: payloadActorId } = payload;
-      if (payloadActorId !== undefined) {
-        if (typeof payloadActorId !== "string") {
-          this.reject(client, seq, "bad-utterance-payload");
-          return false;
-        }
-        actorId = payloadActorId;
-      }
-    }
-    if (kind === "utterance-start") {
-      if (learner.speaking) {
-        this.reject(client, seq, "utterance-already-open");
-        return false;
-      }
-      if (actorId === undefined || !this.state.actors.has(actorId)) {
-        this.reject(client, seq, "no-actor-selected");
-        return false;
-      }
-      const spokenOver = this.state.actors.get(actorId);
-      if (!spokenOver) {
-        this.reject(client, seq, "unknown-actor");
-        return false;
-      }
-      // C4: an utterance-start that interrupts an open actor turn emits a
-      // learner_interruption emotion transition (turnIndex = interrupted
-      // turn); a non-interrupting start emits no emotion event. The learner
-      // appears as an actor-agnostic trace event (no sessionId).
-      const interrupted = this.openTurn;
-      if (interrupted) {
-        const interruption: EmotionEventKind = "learner_interruption";
-        const spokenActor = this.state.actors.get(interrupted.actorId);
-        if (spokenActor) {
-          spokenActor.emotion = this.tracer.transition(interrupted.actorId, interruption, interrupted.turnId).to;
-        }
-        this.tracer.push({ seq, kind: "utterance-start", actorId: "", turnId: interrupted.turnId });
-      } else {
-        this.tracer.push({ seq, kind: "utterance-start", actorId: "", turnId: null });
-      }
-      this.interruptOpenTurn(seq);
-      learner.speaking = true;
-      this.state.turnOwner = "learner";
-      return true;
-    }
-    if (!learner.speaking) {
-      this.reject(client, seq, "no-open-utterance");
-      return false;
-    }
-    if (actorId === undefined || !this.state.actors.has(actorId)) {
-      this.reject(client, seq, "no-actor-selected");
-      return false;
-    }
-    const actor = this.state.actors.get(actorId);
-    if (!actor) {
-      this.reject(client, seq, "unknown-actor");
-      return false;
-    }
-    learner.speaking = false;
-    const turnCount = (this.actorTurnCounts.get(actorId) ?? 0) + 1;
-    this.actorTurnCounts.set(actorId, turnCount);
-    const reply = pickC3Reply(turnCount);
-    const turnId = this.state.turnId + 1;
-    this.state.turnId = turnId;
-    actor.speaking = true;
-    actor.replyId = reply.id;
-    // C4: each actor turn carries renderable content from the scripted table:
-    // the cueId (audio/viseme cue) plus the EmotionEngine transition for the
-    // utterance-end's learner_acknowledgement (turnIndex = the opened turn).
-    actor.cueId = reply.cueId;
-    const acknowledgement: EmotionEventKind = "learner_acknowledgement";
-    actor.emotion = this.tracer.transition(actorId, acknowledgement, turnId).to;
-    this.tracer.push({ seq, kind: "utterance-end", actorId, turnId });
-    this.state.turnOwner = "actor";
-    const record: TurnRecord = { turnId, actorId, replyId: reply.id, startSeq: seq, end: "open", endSeq: null };
-    this.turnLog.push(record);
-    this.turnOpenedAtMs.set(turnId, Date.now());
-    const timer = this.clock.setTimeout(() => {
-      if (this.openTurn?.turnId !== turnId) {
-        return;
-      }
-      this.openTurn = null;
-      actor.speaking = false;
-      this.state.turnOwner = "none";
-      record.end = "completed";
-      // C4: the room adds only the clock timer that emits turn-completed.
-      this.tracer.push({ seq: null, kind: "turn-completed", actorId, turnId });
-    }, reply.durationMs);
-    this.openTurn = { turnId, actorId, timer };
-    return true;
+    return applyUtteranceIntent(
+      {
+        actors: this.state.actors,
+        selectedActor: this.selectedActor,
+        turnId: this.state.turnId,
+        setTurnId: (id) => {
+          this.state.turnId = id;
+        },
+        turnOwner: this.state.turnOwner,
+        setTurnOwner: (owner) => {
+          this.state.turnOwner = owner;
+        },
+        tracer: this.tracer,
+        clock: this.clock,
+        turnLog: this.turnLog,
+        actorTurnCounts: this.actorTurnCounts,
+        turnOpenedAtMs: this.turnOpenedAtMs,
+        getOpenTurn: () => this.openTurn,
+        setOpenTurn: (turn) => {
+          this.openTurn = turn;
+        },
+        reject: this.reject.bind(this),
+      },
+      client,
+      learner,
+      seq,
+      kind,
+      payload,
+    );
   }
 }

@@ -1,0 +1,21 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/slide-phase/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/foot-plant/bound-clip-foot-track.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/asset-store/resolve-store-ref.ts",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/dist/approach-executor.js",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/xr-humanoid-animation/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-humanoid-animation/dist/foot-base.js",
+        "$TURBO_ROOT$/packages/openclinxr/xr-humanoid-animation/package.json"
+      ]
+    }
+  }
+}

@@ -29,6 +29,9 @@ export interface C10ReplayEvidence {
   stationId: string;
   replayDone: boolean;
   lastTurnEnd: string;
+  /** C11 replayed patient-note state (noteStatus/noteChars from the recorded note-submitted). */
+  noteStatus: string;
+  noteChars: number;
   /** performance.now() ms of the first snapshot received. */
   firstSnapshotAtMs: number | null;
   /** performance.now() ms of the last snapshot that changed replay state. */
@@ -48,6 +51,8 @@ export interface C10ReplayView {
   stationId?: unknown;
   replayDone?: unknown;
   lastTurnEnd?: unknown;
+  noteStatus?: unknown;
+  noteChars?: unknown;
   actors?: Record<string, { id: string; speaking: boolean; emotion: string; replyId: string; cueId: string } | undefined>;
 }
 
@@ -73,6 +78,8 @@ export function createC10ReplayObserver(probe: C10ProbeEvidence): (snapshot: unk
     stationId: "",
     replayDone: false,
     lastTurnEnd: "",
+    noteStatus: "none",
+    noteChars: 0,
     firstSnapshotAtMs: null,
     lastChangeAtMs: null,
   };
@@ -101,6 +108,12 @@ export function createC10ReplayObserver(probe: C10ProbeEvidence): (snapshot: unk
     }
     if (typeof s.lastTurnEnd === "string") {
       seen.lastTurnEnd = s.lastTurnEnd;
+    }
+    if (typeof s.noteStatus === "string") {
+      seen.noteStatus = s.noteStatus;
+    }
+    if (typeof s.noteChars === "number") {
+      seen.noteChars = s.noteChars;
     }
     if (typeof s.phase === "string" && s.phase !== "" && seen.phases.at(-1) !== s.phase) {
       seen.phases.push(s.phase);

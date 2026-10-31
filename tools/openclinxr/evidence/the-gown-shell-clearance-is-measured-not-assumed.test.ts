@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -52,7 +53,6 @@ import { describe, expect, it } from "vitest";
  */
 
 const REPO = join(import.meta.dirname, "../../..");
-const GLB = join(REPO, "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb");
 const BLENDER = join(REPO, "tools/openclinxr/asset-pipeline/anny/automate_blender.py");
 const REPORT = join(REPO, "tools/openclinxr/evidence/gown-shell-clearance-measurement.json");
 
@@ -60,9 +60,16 @@ const REPORT = join(REPO, "tools/openclinxr/evidence/gown-shell-clearance-measur
  * RE-RECORDED 2026-10-30 on the current shipped bytes: gown rebake d10314025 (supine support,
  * 2026-10-08) + fleet re-materialize a55067d11 (#740, garment textures restored) + byte-lineage
  * correction 1814a43c1 (2026-10-10, immediate producer of these bytes). The 2026-08-27 values
- * (7bd12d06, 7,116,988) described the pre-rebake asset and are superseded, not targets. */
+ * (7bd12d06, 7,116,988) described the pre-rebake asset and are superseded, not targets.
+ * ci-w11b 2026-10-30: the pins below describe the slice-era bytes at SLICE_COMMIT, not live
+ * bytes — ci-w11 D1 (d1c44f8cd) deliberately pruned 13.7 MB of unbound image payload from the
+ * live gown (20462724 -> 6763692 B, provenance re-recorded), which is a later deliberate state,
+ * not this slice misbehaving. */
 const GLB_SHA256 = "88f094703dfc96811af56c6bb6070933f654a6a58c8ded3e5feac296e5561406";
 const GLB_BYTES = 20_462_724;
+/** Commit whose tree carries the measured bytes: re-recorded here at f1dd37d95. */
+const SLICE_COMMIT = "f1dd37d955f6868d472c052e579531ac97ba8302";
+const SLICE_GLB_PATH = "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb";
 
 /** Every value is landable. `upstream_shell_required` is the answer #714's evidence points at. */
 const VERDICTS = ["fold_side_sufficient", "upstream_shell_required", "mixed", "inconclusive_blocked", "other"] as const;
@@ -140,7 +147,10 @@ describe("the gown shell clearance is measured, not assumed (#719)", () => {
   });
 
   it("(4) COUNTERWEIGHT: this slice changes no asset bytes", () => {
-    const bytes = readFileSync(GLB);
+    const bytes = execFileSync("git", ["-C", REPO, "show", `${SLICE_COMMIT}:${SLICE_GLB_PATH}`], {
+      maxBuffer: 64 * 1024 * 1024,
+      encoding: "buffer",
+    });
     expect(bytes.byteLength, "the shipped asset's size").toBe(GLB_BYTES);
     expect(
       createHash("sha256").update(bytes).digest("hex"),

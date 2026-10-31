@@ -228,5 +228,15 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/station-face-realism",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "faceRealismRunner",
+        "kind": "runtime"
+      }
+    ]
   }
 ]

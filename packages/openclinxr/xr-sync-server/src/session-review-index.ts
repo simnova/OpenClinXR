@@ -34,6 +34,7 @@ import {
   CONVERSATION_TRACE_FILE_SUFFIX,
   type ConversationTrace,
 } from "./conversation-trace.js";
+import { PATIENT_NOTE_FILE_SUFFIX, persistPatientNote } from "./patient-note.js";
 import {
   driveRoomRotation,
   type RotationLearner,
@@ -58,6 +59,12 @@ export interface SessionReviewStationEntry {
   turnEnds: string[];
   /** True when the station trace holds an observer-joined event. */
   observerPresent: boolean;
+  /** C11 true when the station trace holds a note-submitted event. */
+  notePresent: boolean;
+  /** C11 length of the last accepted note (0 when none). */
+  noteChars: number;
+  /** C11 basename of the station's <roomId>.patient-note.json, or null when no note was accepted. */
+  noteFile: string | null;
 }
 
 /** Persisted exam session review index (review-safe: no identity, no text). */
@@ -93,6 +100,8 @@ export function stationReviewFromTrace(
   roomId: string,
   trace: ConversationTrace,
 ): SessionReviewStationEntry {
+  const noteEvents = trace.events.filter((event) => event.kind === "note-submitted");
+  const lastNoteChars = noteEvents.length > 0 ? (noteEvents[noteEvents.length - 1] as { chars?: unknown }).chars : undefined;
   return {
     stationId,
     stationIndex,
@@ -101,6 +110,9 @@ export function stationReviewFromTrace(
     turnCount: trace.turns.length,
     turnEnds: trace.turns.map((turn) => turn.end),
     observerPresent: trace.events.some((event) => event.kind === "observer-joined"),
+    notePresent: noteEvents.length > 0,
+    noteChars: typeof lastNoteChars === "number" ? lastNoteChars : 0,
+    noteFile: noteEvents.length > 0 ? `${roomId}${PATIENT_NOTE_FILE_SUFFIX}` : null,
   };
 }
 
@@ -153,6 +165,8 @@ export interface StationCloseReviewHost {
   traceSnapshot(): ConversationTrace;
   /** Persist the live trace now (same content the dispose write leaves). */
   flushTrace(): void;
+  /** C11 held patient-note text (null when no note was accepted this station). */
+  noteText: string | null;
   onRotationFailed(stationId: string): void;
   rotationStarted: boolean;
   setRotationStarted(value: boolean): void;
@@ -167,6 +181,11 @@ export interface StationCloseReviewHost {
 export async function handleStationClosed(host: StationCloseReviewHost, roomName: string): Promise<void> {
   const stations = host.stations;
   if (stations === null || host.traceDir === null) {
+    // C11: a held note still persists when persistence is enabled (traceDir
+    // set) even without stations; without a traceDir there is nothing to link.
+    if (host.traceDir !== null && host.noteText !== null) {
+      persistPatientNote(host.traceDir, host.roomId, host.stationId, host.noteText);
+    }
     await driveRoomRotation(
       {
         stations,
@@ -192,7 +211,11 @@ export async function handleStationClosed(host: StationCloseReviewHost, roomName
   const collector = collectorFor(host.binding);
   // Trace on disk BEFORE the index: flush the live room now, then hold its
   // snapshot (the rotated-out room may dispose before the index is written).
+  // C11: the patient note persists right after the trace it links to.
   host.flushTrace();
+  if (host.noteText !== null) {
+    persistPatientNote(host.traceDir, host.roomId, host.stationId, host.noteText);
+  }
   collector.entries.set(
     host.stationIndex,
     stationReviewFromTrace(host.stationId, host.stationIndex, host.roomId, host.traceSnapshot()),

@@ -21,12 +21,31 @@
  */
 import { MapSchema } from "@colyseus/schema";
 import type { Client } from "@colyseus/core";
-import type { EmotionTransition } from "@openclinxr/conversation-policy";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { CONVERSATION_TRACE_SCHEMA, type ConversationTraceEvent } from "./conversation-trace.js";
+import type { ConversationTraceEvent } from "./conversation-trace.js";
+import { loadReplayStationTrace, type LoadedReplayStation } from "./station-replay-loading.js";
 import { ActorState, EncounterState, LearnerState, type ActorStateInstance, type LearnerStateInstance } from "./schema.js";
-import { EncounterRoom } from "./room.js";
+import { EncounterRoom, ENCOUNTER_ROOM_NAME } from "./room.js";
+import {
+  isReviewLobbyRequest,
+  setupLobbyState,
+} from "./review-lobby.js";
+import {
+  handleReplayReviewIntent,
+  readScoreChecked,
+  type FacultyScoreBinding,
+} from "./faculty-score.js";
+import {
+  handleLobbyIntentWithFinalize,
+  isReviewFinalized,
+  launchLobbyReplayFor,
+  launchReplayReturnFor,
+  readValidLobbyScores,
+  rejectReplayGuardedIntent,
+} from "./review-packet.js";
+/** Reject reason every replay-room intent receives (C13 review intents excepted). */
+export { REPLAY_READ_ONLY_REASON } from "./faculty-score.js";
 import type { EncounterRoomOptions } from "./room-types.js";
 import { parseEncounterRole } from "./observer.js";
 import {
@@ -36,11 +55,7 @@ import {
   type SessionReviewStationEntry,
 } from "./session-review-index.js";
 
-/** Reject reason every replay-room intent receives. The room is read-only. */
-export const REPLAY_READ_ONLY_REASON = "replay-read-only";
-
-/** Default ms between recorded events when replayStepMs is not configured. */
-export const DEFAULT_REPLAY_STEP_MS = 300;
+/** Default ms between recorded events when replayStepMs is not configured. */export const DEFAULT_REPLAY_STEP_MS = 300;
 
 /**
  * Validate server replay step config. Returns the step when configured, the
@@ -60,68 +75,25 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-/** One validated replayable station: its index entry plus its recorded trace. */
-export interface LoadedReplayStation {
-  stationId: string;
-  stationIndex: number;
-  stationCount: number;
-  entry: SessionReviewStationEntry;
-  events: ConversationTraceEvent[];
-  turns: { turnId: number; actorId: string; replyId: string; cueId: string; end: string }[];
-  emotions: EmotionTransition[];
-}
-
 /** Per-server loaded replay data: the validated index plus every named trace. */
 export interface LoadedStationReplay {
   stations: Map<string, LoadedReplayStation>;
-}
-
-function isReplayTraceEventKind(kind: unknown): boolean {
-  return (
-    kind === "select-actor" ||
-    kind === "utterance-start" ||
-    kind === "utterance-end" ||
-    kind === "turn-completed" ||
-    kind === "observer-joined" ||
-    kind === "observer-left" ||
-    kind === "phase-changed" ||
-    kind === "rotation-failed"
-  );
-}
-
-/** Loose replay-file shapes for validation (dot access keeps useLiteralKeys quiet). */
-interface RawReplayTrace {
-  schema?: unknown;
-  events?: unknown;
-  turns?: unknown;
-  emotions?: unknown;
-}
-
-interface RawReplayEvent {
-  seq?: unknown;
-  kind?: unknown;
-  actorId?: unknown;
-  turnId?: unknown;
-  phase?: unknown;
-}
-
-interface RawReplayTurn {
-  turnId?: unknown;
-  actorId?: unknown;
-  replyId?: unknown;
-  cueId?: unknown;
-  end?: unknown;
-}
-
-interface RawReplayEmotion {
-  to?: unknown;
+  /** C11 per-station load failures (trace content only): a bad trace refuses
+   * only its own station's join with its stored error, never the whole dir. */
+  failures: Map<string, string>;
+  /** C12 index complete flag, copied for the lobby state. */
+  complete: boolean;
+  /** C12 lobby entries in index order, copied from the review index. */
+  lobbyStations: { stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number }[];
 }
 
 /**
  * Load and validate a replay directory: the C9 review index plus every trace
- * file it names. Schema tags are checked; a malformed or missing file throws
+ * file it names. Schema tags are checked; a malformed or missing INDEX throws
  * a named error (the room turns it into a refused join, never a partial
- * replay). Turns and emotions are kept AS RECORDED from the trace file.
+ * replay). A malformed or short trace refuses only its own station (C11):
+ * the error is stored against that station and every other station still
+ * replays. Turns and emotions are kept AS RECORDED from the trace file.
  */
 export function loadStationReplayDir(dir: string): LoadedStationReplay {
   let indexRaw: string;
@@ -143,6 +115,9 @@ export function loadStationReplayDir(dir: string): LoadedStationReplay {
     throw new Error("replay-bad-index: review index names no stations");
   }
   const stations = new Map<string, LoadedReplayStation>();
+  const failures = new Map<string, string>();
+  const stationCount = typeof index.stationCount === "number" ? index.stationCount : index.stations.length;
+  const lobbyStations: LoadedStationReplay["lobbyStations"] = [];
   for (const entry of index.stations) {
     if (!isRecord(entry) || typeof entry.stationId !== "string" || entry.stationId === "") {
       throw new Error("replay-bad-index: station entry without a stationId");
@@ -150,79 +125,24 @@ export function loadStationReplayDir(dir: string): LoadedStationReplay {
     if (typeof entry.traceFile !== "string" || entry.traceFile === "") {
       throw new Error(`replay-bad-index: station ${entry.stationId} names no trace file`);
     }
-    let traceRaw: string;
-    try {
-      traceRaw = readFileSync(join(dir, entry.traceFile), "utf8");
-    } catch {
-      throw new Error(`replay-missing-trace: ${join(dir, entry.traceFile)}`);
-    }
-    let trace: RawReplayTrace;
-    try {
-      trace = JSON.parse(traceRaw) as RawReplayTrace;
-    } catch {
-      throw new Error(`replay-bad-trace: ${entry.traceFile} is not JSON`);
-    }
-    if (trace.schema !== CONVERSATION_TRACE_SCHEMA) {
-      throw new Error(`replay-bad-trace-schema: ${entry.traceFile}`);
-    }
-    const rawEvents = trace.events;
-    const rawTurns = trace.turns;
-    const rawEmotions = trace.emotions;
-    if (!Array.isArray(rawEvents) || !Array.isArray(rawTurns) || !Array.isArray(rawEmotions)) {
-      throw new Error(`replay-bad-trace: ${entry.traceFile} misses events/turns/emotions`);
-    }
-    const events: ConversationTraceEvent[] = [];
-    for (const raw of rawEvents) {
-      const item = raw as RawReplayEvent;
-      if (typeof raw !== "object" || raw === null || !isReplayTraceEventKind(item.kind)) {
-        throw new Error(`replay-bad-trace: ${entry.traceFile} holds an unknown event kind`);
-      }
-      const event: ConversationTraceEvent = {
-        seq: typeof item.seq === "number" ? item.seq : null,
-        kind: item.kind as ConversationTraceEvent["kind"],
-        actorId: typeof item.actorId === "string" ? item.actorId : "",
-        turnId: typeof item.turnId === "number" ? item.turnId : null,
-      };
-      if (typeof item.phase === "string") {
-        event.phase = item.phase;
-      }
-      events.push(event);
-    }
-    const turns = [];
-    for (const raw of rawTurns) {
-      const item = raw as RawReplayTurn;
-      // Turns drive playback (actor, recorded ids, ends): a turn without an
-      // actor cannot replay, so the trace is refused with a named error.
-      if (typeof raw !== "object" || raw === null || typeof item.turnId !== "number" || typeof item.actorId !== "string" || item.actorId === "") {
-        throw new Error(`replay-bad-trace: ${entry.traceFile} holds a malformed turn`);
-      }
-      turns.push({
-        turnId: item.turnId,
-        actorId: item.actorId,
-        replyId: typeof item.replyId === "string" ? item.replyId : "",
-        cueId: typeof item.cueId === "string" ? item.cueId : "",
-        end: typeof item.end === "string" ? item.end : "",
-      });
-    }
-    const emotions: EmotionTransition[] = [];
-    for (const raw of rawEmotions) {
-      const item = raw as RawReplayEmotion;
-      if (typeof raw !== "object" || raw === null || typeof item.to !== "string") {
-        throw new Error(`replay-bad-trace: ${entry.traceFile} holds a malformed emotion`);
-      }
-      emotions.push(raw as unknown as EmotionTransition);
-    }
-    stations.set(entry.stationId, {
-      stationId: entry.stationId,
-      stationIndex: typeof entry.stationIndex === "number" ? entry.stationIndex : 0,
-      stationCount: typeof index.stationCount === "number" ? index.stationCount : index.stations.length,
-      entry,
-      events,
-      turns,
-      emotions,
+    const typed = entry as unknown as SessionReviewStationEntry;
+    lobbyStations.push({
+      stationId: typed.stationId,
+      stationIndex: typeof typed.stationIndex === "number" ? typed.stationIndex : lobbyStations.length,
+      turnCount: typeof typed.turnCount === "number" ? typed.turnCount : 0,
+      notePresent: typed.notePresent === true,
+      noteChars: typeof typed.noteChars === "number" ? typed.noteChars : 0,
     });
+    // C11: a bad TRACE refuses only its own station (the error is stored
+    // against it and surfaces at join); every other station still replays.
+    try {
+      const station = loadReplayStationTrace(dir, entry as SessionReviewStationEntry, stationCount);
+      stations.set(station.stationId, station);
+    } catch (error) {
+      failures.set(entry.stationId, error instanceof Error ? error.message : String(error));
+    }
   }
-  return { stations };
+  return { stations, failures, complete: index.complete === true, lobbyStations };
 }
 
 /** Per-server replay binding closed over by the replay room class. */
@@ -231,6 +151,12 @@ export interface StationReplayBinding {
   /** Boot-time load failure, refused at join with this named error. */
   loadError: string | null;
   stepMs: number;
+  /** C14 replay directory (note files for the review packet; null when unset). */
+  replayDir: string | null;
+  /** C11 per-station trace failures (a bad trace refuses only its station). */
+  stationFailures: Map<string, string>;
+  /** C13 faculty score binding (scoreDir + rubric, server config only). */
+  score: FacultyScoreBinding;
 }
 
 function replayStationIdOf(options: unknown): string {
@@ -257,10 +183,38 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
     private replayEmotionCursor = 0;
     private replayOpenTurn: { turnId: number; actorId: string } | null = null;
     private replayTimer: { clear(): void } | null = null;
+    /** C13 per-lobby launch guard: a lobby launches at most once. */
+    private lobbyLaunchPending = false;
+    /** C14 per-replay-room return guard: a lobby launches back at most once. */
+    private replayReturnGuard = { returnPending: false };
 
     override onCreate(options?: EncounterRoomOptions): void {
       if (binding.loadError !== null || binding.replay === null) {
         throw new Error(binding.loadError ?? "replay-unavailable");
+      }
+      // C12 lobby: a reviewer lists the index stations, then picks one.
+      // The lobby lives in its own locked room; the pick reserves a fresh
+      // replay room for that station and sends the seat to this client only.
+      if (isReviewLobbyRequest(options)) {
+        const replay = binding.replay;
+        this.replayStation = null;
+        this.setState(new EncounterState());
+        // C13 badges are read from disk when the lobby opens (a new server
+        // over the same scoreDir shows earlier scores); C14 adds the
+        // finalized flag from the packet on disk. Forged score files are
+        // ignored by the strict reader (same validator as finalize).
+        setupLobbyState(this.state, replay, readValidLobbyScores(binding.score.scoreDir, replay.lobbyStations.map((entry) => entry.stationId), binding.score.rubric), isReviewFinalized(binding.score.scoreDir));
+        void this.setPrivate(true);
+        this.lock();
+        this.onMessage("intent", (client, message: unknown) => {
+          this.handleLobbyIntent(client, message);
+        });
+        this.onMessage("*", (_client, type) => {
+          if (type === "intent") {
+            return;
+          }
+        });
+        return;
       }
       const stationId = replayStationIdOf(options);
       if (stationId === "") {
@@ -268,7 +222,10 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       }
       const station = binding.replay.stations.get(stationId);
       if (!station) {
-        throw new Error(`replay-unknown-station: ${stationId.slice(0, 64)}`);
+        // C11: a per-station trace failure refuses only that station (with
+        // its stored load error); anything else is an unknown station.
+        const failure = binding.stationFailures.get(stationId);
+        throw new Error(failure ?? `replay-unknown-station: ${stationId.slice(0, 64)}`);
       }
       this.replayStation = station;
       this.replayTurnsById = new Map(station.turns.map((turn) => [turn.turnId, turn]));
@@ -285,6 +242,8 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       this.state.mode = "replay";
       this.state.lastTurnEnd = "";
       this.state.replayDone = false;
+      this.state.noteStatus = "none";
+      this.state.noteChars = 0;
       this.state.actors = new MapSchema<ActorStateInstance>();
       // The replayed cast is the recorded cast: distinct turn actorIds in
       // first-appearance order. No live defaults, no reviewer-provisioned
@@ -307,15 +266,23 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
         this.state.actors.set(id, actor);
       }
       this.state.learners = new MapSchema<LearnerStateInstance>();
+      // C13: a re-opened station seeds its checked count from disk (0 when unscored).
+      this.state.scoreChecked = readScoreChecked(binding.score.scoreDir, station.stationId);
       // One station per room: lock at create so a concurrent reviewer of a
       // different station creates anew instead of sharing this room. The
       // creating client's seat is already reserved, so it still joins.
       void this.setPrivate(true);
       this.lock();
       this.onMessage("intent", (client, message: unknown) => {
-        // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["seq"] on this Record.
-        const seq = isRecord(message) && Number.isInteger(message["seq"]) ? (message["seq"] as number) : 0;
-        client.send("reject", { seq, reason: REPLAY_READ_ONLY_REASON });
+        // C14 guards (one return-to-lobby per room; locked scores) run before
+        // the C13 review handler; every other intent still rejects
+        // replay-read-only (see faculty-score.ts).
+        if (rejectReplayGuardedIntent(this.replayReturnGuard, binding.score, client, message)) {
+          return;
+        }
+        handleReplayReviewIntent(this.state, binding.score, station.stationId, client, message, (onFailed) => {
+          launchReplayReturnFor(ENCOUNTER_ROOM_NAME, this.replayReturnGuard, station.stationId, client, onFailed);
+        });
       });
       // Explicit catch-all: unknown client message types are dropped on the
       // floor, mirroring the live room (state flows only through patches).
@@ -337,6 +304,10 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       void client;
       // Refuse unknown roles here so the SDK join rejects, mirroring live.
       parseEncounterRole(options);
+      // C12 lobby rooms admit their own reviewLobby joins (no station seat).
+      if (isReviewLobbyRequest(options)) {
+        return true;
+      }
       // Backstop for direct joins: the room serves exactly its own station.
       const station = this.replayStation;
       if (station === null || replayStationIdOf(options) !== station.stationId) {
@@ -349,6 +320,8 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       void options;
       // Reviewers hold a learner seat for snapshot normalcy only: every
       // intent still rejects replay-read-only and lastSeq never advances.
+      // Lobby reviewers share the same seat shape; a select-station ack
+      // advances lastSeq like a live applied intent.
       if (!this.state.learners.has(client.sessionId)) {
         const learner = new LearnerState();
         learner.sessionId = client.sessionId;
@@ -359,6 +332,30 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
         learner.speaking = false;
         this.state.learners.set(client.sessionId, learner);
       }
+    }
+
+    /** C12 lobby select gate plus the C14 finalize sign-off (see review-packet.ts). */
+    private handleLobbyIntent(client: Client, message: unknown): void {
+      const room = this;
+      handleLobbyIntentWithFinalize(
+        {
+          state: room.state,
+          get launchPending(): boolean {
+            return room.lobbyLaunchPending;
+          },
+          set launchPending(value: boolean) {
+            room.lobbyLaunchPending = value;
+          },
+          replay: binding.replay,
+        },
+        binding.score,
+        binding.replayDir,
+        client,
+        message,
+        (stationId, onFailed) => {
+          launchLobbyReplayFor(ENCOUNTER_ROOM_NAME, stationId, client, onFailed);
+        },
+      );
     }
 
     override onLeave(client: Client): void {
@@ -378,11 +375,13 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       super.onDispose();
     }
 
-    /** Next recorded emotion "to" value in event order; current when exhausted. */
-    private consumeReplayEmotion(fallback: string): string {
+    /** Next recorded emotion "to" value in event order. The load-time
+     * emotion-count check makes exhaustion unreachable: assert, never fall
+     * back to the live value (a silent fallback would replay a wrong state). */
+    private consumeReplayEmotion(): string {
       const next = this.replayStation?.emotions[this.replayEmotionCursor];
       if (!next) {
-        return fallback;
+        throw new Error("replay-emotion-exhausted");
       }
       this.replayEmotionCursor += 1;
       return next.to;
@@ -439,7 +438,7 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
             actor.speaking = true;
             actor.replyId = entry.replyId;
             actor.cueId = entry.cueId;
-            actor.emotion = this.consumeReplayEmotion(actor.emotion);
+            actor.emotion = this.consumeReplayEmotion();
             this.state.turnOwner = "actor";
             this.replayOpenTurn = { turnId: entry.turnId, actorId };
           }
@@ -451,7 +450,7 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
             const actor = this.state.actors.get(this.replayOpenTurn.actorId);
             if (actor) {
               actor.speaking = false;
-              actor.emotion = this.consumeReplayEmotion(actor.emotion);
+              actor.emotion = this.consumeReplayEmotion();
             }
             this.state.lastTurnEnd = entry?.end ?? "interrupted";
             this.state.turnOwner = "learner";
@@ -480,6 +479,13 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
         }
         case "observer-left": {
           this.state.observerCount = Math.max(0, this.state.observerCount - 1);
+          break;
+        }
+        case "note-submitted": {
+          // C11: the recorded accepted-note length replays into state; the
+          // note text was never recorded and is never replayed.
+          this.state.noteStatus = "submitted";
+          this.state.noteChars = typeof event.chars === "number" ? event.chars : 0;
           break;
         }
         default: {

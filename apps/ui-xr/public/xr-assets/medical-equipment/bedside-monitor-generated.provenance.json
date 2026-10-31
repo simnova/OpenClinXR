@@ -1,34 +1,35 @@
 {
   "schemaVersion": "openclinxr.medical-equipment-provenance.v1",
-  "derivationMode": "trellis_decimation_promote",
+  "derivationMode": "trellis_escape_hatch_optimize_promote",
   "scenarioId": null,
   "assetId": "bedside_monitor_equipment",
   "assetPath": "apps/ui-xr/public/xr-assets/medical-equipment/bedside-monitor-generated.glb",
-  "sourceRecordPath": ".openclinxr/evidence/issue-250/decimation-report.json",
-  "generatorMode": "trellis_metal_image_to_mesh_via_trellis2_apple_then_decimation_ladder",
+  "sourceRecordPath": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261030/bedside-monitor/optimize/iteration-report.json",
+  "generatorMode": "trellis_metal_escape_hatch_single_alpha_view_then_iterate_optimize_station60k",
   "sourceKind": "trellis_generated_derivative",
   "usesRealTrellisForwardPass": true,
   "backgroundRemovalUsed": false,
   "textureMode": "trellis_baked_material",
   "animationMode": "none_static_equipment",
-  "optimizationMode": "decimation_global_simplify_retargeted_60000",
+  "optimizationMode": "iterate_optimize_direct_high_error_station60k",
   "realismGrade": null,
   "promotionStatus": "runtime_candidate_not_readiness_gate_pass",
   "sourceOriginChain": {
     "sourceTopologyMode": "trellis_metal_image_to_shape_to_mesh_to_glb_v1",
-    "rawGlbPath": ".openclinxr/evidence/issue-237/bedside-monitor/bedside-monitor.glb",
-    "rawTriangleCount": null,
-    "rawBytes": null,
-    "rawGeneratedBy": "TRELLIS.2 Metal pipeline (pedronaugusto/trellis2-apple) on Apple Silicon, image-to-3D",
-    "currentStateGlbPath": ".openclinxr/evidence/issue-239/bedside-monitor/bedside-monitor-r0.02.glb",
-    "currentStateTriangleCount": 106025,
-    "ladderReportPath": ".openclinxr/evidence/issue-250/decimation-report.json",
-    "chosenRung": "global-simplify-retargeted.glb",
+    "inputImagePath": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261030/bedside-monitor/three_quarter_upper_alpha.png",
+    "inputPackDescriptionPath": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261030/bedside-monitor/description.md",
+    "rawGlbPath": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261030/bedside-monitor/bedside-monitor-escape.glb",
+    "rawSha256": "baa9a0193797b2cd4428545c243fae73481ba26593f03208bca6ab766087dc73",
+    "rawTriangleCount": 281340,
+    "rawBytes": 18001472,
+    "rawBakeMeasurePath": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261030/bedside-monitor/bake-measure.json",
+    "rawGeneratedBy": "TRELLIS.2 Metal pipeline (pedronaugusto/trellis2-apple), escape-hatch station (pnpm factory:trellis:bake --subject bedside-monitor-escape --seed 42 --hf-demo), 1024_cascade, texture 2048, no remesh; baked 2026-08-13 from an Imagine pack on a flat black void",
+    "ladderReportPath": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261030/bedside-monitor/optimize/iteration-report.json",
+    "chosenRung": "iter1-station60k.glb",
+    "chosenRungSha256": "8ce3490720ffa0950f776c0a25a7a444cd9607aaebc8c6c1a51123f871fdabb5",
     "chosenRungTriangleCount": 60000,
-    "chosenRungBytes": 8375032,
-    "chosenRungMinSilhouetteIoU": 0.9854,
-    "chosenRungExteriorAreaRetained": 0.9992,
-    "derivationNote": "Issue #250 measured the untried MADR 0050 steps 2-4 paths plus the global-simplify control: the #239 ladder flattened at 106,025 tris because lockBorder=true stalls this open-shell mesh near 67k boundary edges. The direct-target global simplify (meshopt simplify, error 0.005, no lockBorder) reached exactly 60,000 tris with min silhouette IoU 0.9854 and exterior area retained 0.9992, so the monitor clears the 60k per-asset ceiling WITHOUT a budget exception. This promote copies the decimated output byte-identical (sha256 cff08df0...) from .openclinxr/evidence/issue-250/outputs/ into the tracked medical-equipment library; no re-bake, no re-decimation."
+    "chosenRungBytes": 11020864,
+    "derivationNote": "2026-10-30 bx_audit trial rendered the #253 bake (sha 7eeba9c5) with a ground quad welded to its base and a screen of dark and pale texture shards; both are in that bake's texture atlas (ground shadow square in the top-left atlas tile, pale patches across the screen tile), and its raw GLB is gone from .openclinxr/evidence/issue-237. The escape-hatch bake of the same subject was made from a reference on a black void with no floor and renders with no ground and an even dark screen. tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts reduced it to the 60,000-tri station rung (same ceiling as #253), then finalize-equipment-glb-cli removed 1 degenerate triangle and 3 orphan vertices."
   },
   "licenseChain": {
     "status": "verified_at_pipeline_setup_not_reverified_at_promote",
@@ -41,9 +42,9 @@
       "Background removal (RMBG-2.0, CC BY-NC 4.0) was SKIPPED; the Mac pipeline path contains no background remover."
     ],
     "notRun": [
+      "background_removal",
       "licence_text_reenumeration",
-      "mesh_regeneration_from_trellis_package",
-      "background_removal"
+      "mesh_regeneration_from_trellis_package"
     ],
     "explicitUnknown": [
       "Whether the generated GLB is a 'derivative work of the DINO Materials' (DINOv3 pretrain used inside shape generation, custom licence permitting commercial use) is a lawyer question recorded unanswered in MADR 0049; only the GLB is shipped, never model weights.",
@@ -52,34 +53,52 @@
     "notes": "Local Apple-Silicon TRELLIS generation only; no cloud/paid APIs. Do not treat this record as a full licence enumeration of every transitive dependency."
   },
   "derivativeLineage": {
-    "status": "trellis_decimation_promote_derivative",
+    "status": "trellis_escape_hatch_optimize_derivative",
     "caseId": null,
     "assetId": "bedside_monitor_equipment",
-    "reuseKey": "bedside_monitor_equipment:trellis_global_simplify_60000",
-    "rawGlb": ".openclinxr/evidence/issue-237/bedside-monitor/bedside-monitor.glb",
-    "decimationPath": "trellis_decimation_ladder_via_issue_239_then_global_simplify_via_issue_250",
-    "method": "copy_byte_identical_decimated_rung_to_tracked_library",
-    "promotedFrom": ".openclinxr/evidence/issue-250/outputs/global-simplify-retargeted.glb",
+    "reuseKey": "bedside_monitor_equipment:trellis_escape_hatch_station60k",
+    "rawGlb": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261030/bedside-monitor/bedside-monitor-escape.glb",
+    "decimationPath": "iterate_optimize_direct_high_error_station60k",
+    "method": "iterate_optimize_rung_then_finalize_station",
+    "promotedFrom": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261030/bedside-monitor/optimize/iter1-station60k.glb",
     "lineageSteps": [
-      "issue-237: TRELLIS Metal image-to-shape-to-mesh-to-GLB bake (raw bedside-monitor.glb).",
-      "issue-239: decimation ladder r0.02 rung (bedside-monitor-r0.02.glb) — flattened at 106,025 tris under lockBorder.",
-      "issue-250: decimation measurement — global-simplify-retargeted.glb reaches 60,000 tris with exterior preserved (silhouette IoU 0.9854, exterior area 0.9992); no budget exception needed.",
-      "issue-253: promoted byte-identical into apps/ui-xr/public/xr-assets/medical-equipment/ and wired bedside_monitor_equipment to resolve source 'gltf'."
+      "2026-08-13: escape-hatch Imagine pack (thick-volume description, flat black void) -> TRELLIS Metal bake bedside-monitor-escape.glb (281,340 tris).",
+      "2026-10-30: iterate-optimize.ts direct high-error target 60,000 -> iter1-station60k.glb (60,000 tris, featureSurvival ok, AABB volume ratio to raw recorded in the iteration report).",
+      "2026-10-30: finalize-equipment-glb-cli.ts -> shipped GLB (59,998 tris).",
+      "Replaces the #253 bake (7eeba9c54f0408cab2eb697d0a2a42742f424daf439ae4562a13430d74e37b13) after bx_audit 2026-10-30 found the baked ground quad and screen shards."
     ],
-    "publishedAs": null
+    "publishedAs": null,
+    "replaced": {
+      "sha256": "7eeba9c54f0408cab2eb697d0a2a42742f424daf439ae4562a13430d74e37b13",
+      "reason": "baked ground quad and screen texture shards (bx_audit trial 2026-10-30, findings on origin wt/bx-audit-trial 2c1ce8daa)"
+    }
   },
   "finalizeStation": {
     "tool": "tools/openclinxr/asset-pipeline/equipment/finalize-equipment-glb-cli.ts",
-    "appliedAt": "2026-09-16T00:00:00.000Z",
-    "measuredBefore": { "sha256": "cff08df0a94ee25651d02c4667fe94232aff659d2702b04084c99c7440953f3b", "bytes": 8375032, "triangles": 60000, "vertices": 136548 },
-    "measuredAfter": { "sha256": "7eeba9c54f0408cab2eb697d0a2a42742f424daf439ae4562a13430d74e37b13", "bytes": 6790504, "triangles": 59985, "vertices": 87037 },
-    "degenerateTrianglesRemoved": 15,
-    "orphanedVerticesRemoved": 49511,
-    "bytesSavedPct": 18.9,
-    "claimScope": "removed 15 zero-area triangles and 49,511 of 136,548 vertices (36.3%) referenced by NO triangle in this decimation-ladder output; AABB, silhouette, and every real (non-degenerate) triangle unchanged",
-    "notEvidenceFor": ["visual_realism_change", "clinical_validity", "quest_readiness"]
+    "appliedAt": "2026-10-30T00:00:00.000Z",
+    "measuredBefore": {
+      "sha256": "8ce3490720ffa0950f776c0a25a7a444cd9607aaebc8c6c1a51123f871fdabb5",
+      "bytes": 11020864,
+      "triangles": 59999,
+      "vertices": 59722
+    },
+    "measuredAfter": {
+      "sha256": "63a2275539fe3545536a1c5078911a6765e2db9975ee4dfbfaa021be39d375da",
+      "bytes": 11020760,
+      "triangles": 59998,
+      "vertices": 59719
+    },
+    "degenerateTrianglesRemoved": 1,
+    "orphanedVerticesRemoved": 3,
+    "bytesSavedPct": 0,
+    "claimScope": "removed 1 zero-area triangle and 3 unreferenced vertices; every real triangle unchanged",
+    "notEvidenceFor": [
+      "visual_realism_change",
+      "clinical_validity",
+      "quest_readiness"
+    ]
   },
-  "toolVersion": "openclinxr-trellis-promote-v1",
+  "toolVersion": "openclinxr-trellis-escape-hatch-promote-v1",
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
     "quest_readiness",
@@ -90,16 +109,15 @@
     "scene_placement_readiness"
   ],
   "sourceNotes": [
-    "Issue #235/#237: TRELLIS Metal image-to-shape-to-mesh-to-GLB pipeline completed on Apple Silicon (raw bedside monitor bake).",
-    "Issue #239: decimation ladder r0.02 rung reached 106,025 tris — over the 60,000-triangle per-asset ceiling.",
-    "Issue #250: measured the untried MADR 0050 steps 2-4 paths plus the global-simplify control; the direct-target global simplify reached exactly 60,000 tris (8,375,032 bytes) with min silhouette IoU 0.9854 and exterior area retained 0.9992, so the monitor clears the per-asset ceiling without a budget exception.",
-    "Issue #253: promoted byte-identical into apps/ui-xr/public/xr-assets/medical-equipment/ and wired bedside_monitor_equipment to resolve source 'gltf'.",
+    "Escape-hatch TRELLIS Metal bake of the bedside monitor from a single upper three-quarter alpha view (2026-08-13, seed 42).",
+    "Optimized to the 60,000-triangle station rung by iterate-optimize.ts, then finalize-equipment-glb-cli.ts.",
+    "Replaces the #237/#239/#250/#253 bake, whose texture atlas carried a ground shadow quad and pale screen shards (bx_audit 2026-10-30).",
     "Static equipment; no rigging, no animation, no skinning."
   ],
   "claimScope": "local_tracked_equipment_glb_wiring_not_readiness",
   "promotionGates": false,
-  "outputSha256": "7eeba9c54f0408cab2eb697d0a2a42742f424daf439ae4562a13430d74e37b13",
-  "outputBytes": 6790504,
-  "generatedAt": "2026-08-09T00:00:00.000Z",
-  "method": "copy_byte_identical_decimated_rung_to_tracked_library"
+  "outputSha256": "63a2275539fe3545536a1c5078911a6765e2db9975ee4dfbfaa021be39d375da",
+  "outputBytes": 11020760,
+  "generatedAt": "2026-10-30T00:00:00.000Z",
+  "method": "iterate_optimize_rung_then_finalize_station"
 }

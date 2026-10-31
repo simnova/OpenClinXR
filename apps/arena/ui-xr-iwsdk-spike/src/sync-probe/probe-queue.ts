@@ -4,9 +4,28 @@
  * Split out of sync-probe.ts for the file-size gate. Arrival order == call
  * order == seq order, so every sent seq is acked in order on a healthy
  * server. The queue updates the shared probe counters; the page owns the
- * connection and the wait helper.
+ * connection. The poll-until wait helper lives here too (moved from
+ * sync-probe.ts): the queue's settle waits build on it.
  */
 import type { IntentKind, SyncConnection } from "@openclinxr/xr-sync-client/headset";
+
+/** Poll-until helper: resolves when condition holds, throws past the deadline. */
+export async function waitFor(
+  condition: () => boolean,
+  timeoutMs: number,
+  label: string,
+): Promise<void> {
+  const deadline = performance.now() + timeoutMs;
+  for (;;) {
+    if (condition()) {
+      return;
+    }
+    if (performance.now() > deadline) {
+      throw new Error(`timed out waiting for ${label}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+}
 
 /** Minimal probe counters the queue updates (SyncProbeEvidence subset). */
 export interface IntentQueueProbe {
@@ -30,7 +49,7 @@ export interface IntentQueue {
 export function createIntentQueue(
   connection: SyncConnection,
   probe: IntentQueueProbe,
-  waitFor: (condition: () => boolean, timeoutMs: number, label: string) => Promise<void>,
+  waitForSettle: (condition: () => boolean, timeoutMs: number, label: string) => Promise<void>,
 ): IntentQueue {
   let callIndex = 0;
   let tail: Promise<void> = Promise.resolve();
@@ -76,8 +95,27 @@ export function createIntentQueue(
   async function sendIntentAndSettle(kind: IntentKind, payload: Record<string, unknown>): Promise<void> {
     const target = probe.sent + 1;
     enqueueIntent(kind, payload);
-    await waitFor(() => probe.acks + probe.rejects >= target, 15000, `${kind} settled`);
+    await waitForSettle(() => probe.acks + probe.rejects >= target, 15000, `${kind} settled`);
   }
 
   return { enqueueIntent, sendIntentAndSettle };
+}
+
+export interface IntentDrainDeps {
+  sent(): number;
+  settled(): number;
+  learnerCaughtUp(): boolean;
+  skipLearnerCatchUp: boolean;
+  waitFor(condition: () => boolean, timeoutMs: number, label: string): Promise<void>;
+}
+
+/**
+ * Script tail: every sent intent settled, then the server learner caught up
+ * to the last seq (replay rooms never advance a learner seat, so c10 skips).
+ */
+export async function drainIntents(deps: IntentDrainDeps): Promise<void> {
+  await deps.waitFor(() => deps.sent() > 0 && deps.settled() >= deps.sent(), 15000, "intent drain");
+  if (!deps.skipLearnerCatchUp) {
+    await deps.waitFor(() => deps.learnerCaughtUp(), 10000, "server learner caught up");
+  }
 }

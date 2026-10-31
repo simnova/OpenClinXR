@@ -93,22 +93,35 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // RE-PINNED (applied): treatment (d) chosen — mouth/viseme commits ec55570e9 +
   // d33b3d2b7 + ae7396f2f on the shipped bodies + 2e437c255; every row rebaked after
   // its pin. Re-recorded to live tree bytes; future churn governed by clauses (1)-(3).
-  "mpfb-ob-patient-aisha": "88070603c7b39b8bf433f088ac390c056bb69d9937bf2284845f1a541fc5f091",
+  // ci-w11b re-pinned 2026-10-30: OB D1 orphan prune (d1c44f8cd, 10069400 -> 8828240 B)
+  // + D3 chest re-separation (8f20686c3) + ci-w12 D1 gravid re-apply on the pruned
+  // base (21fad089f, 1104 displacements, anchors verified +-0.085); was
+  // 88070603c7b39b8bf433f088ac390c056bb69d9937bf2284845f1a541fc5f091.
+  "mpfb-ob-patient-aisha": "1b8a8ef4f548bfcd71305a30f8eae2e90f19a22176fb80e2e461f755010540ac",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
   // table (drift at HEAD, pre-existing); was d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1.
-  "mpfb-peds-parent-aisha": "86b0f17dccaa09ff4f75fbe32ad74c7bcc8fd56cd8e264e056f46473288aec4b",
+  // ci-w11b re-pinned 2026-10-30: ci-w11 D2 graded tara's 3 dwarfing textures in
+  // place (85468f2f5, 11.88x -> 2.11x peer ratio); was
+  // 86b0f17dccaa09ff4f75fbe32ad74c7bcc8fd56cd8e264e056f46473288aec4b.
+  "mpfb-peds-parent-aisha": "ebbd55df60bac05218d8d0b89ef33f67923bc90ab3caf774bd760e76d7643ecb",
   // #598 re-pinned 2026-08-23: worktree kevin bytes already differed from the prior pin
   // (was 0817dbd1932448185037c35487c9a25f5b9e70cbf6f558fa67098e104a955d72); this slice did
   // not rebake kevin — only re-recorded the on-disk hash so the table matches the tree.
-  "mpfb-peds-nurse-kevin": "0de69b66a569d457c11985895f76b24a4c0cc99adc530720ee0e4ecaa78a22de",
+  // ci-w11b re-pinned 2026-10-30: ci-w11 D3 repaired midline breast keyframes
+  // (c743aab61, rests already +-0.085); was
+  // 0de69b66a569d457c11985895f76b24a4c0cc99adc530720ee0e4ecaa78a22de.
+  "mpfb-peds-nurse-kevin": "540e8b317196f592a5a6ed1697864eb8af511f08df8191119e802eaf88798aa1",
   // #502 re-pinned 2026-08-21: the clinician footwear leopard "Shoe" texture was stripped to
   // the flat dark factor (gown-patient precedent); the viseme morph targets and every other
   // buffer are untouched.
   // #598 re-pinned 2026-08-23: flats → mj_cloth_shoes; was 8c8547ff6153f5d1fedb1b1dcdde5193d2bec6e5e31e617d25213ccfbaf7d409.
   // #568 re-pinned 2026-08-26: inherited brown iris removed (nurse_maria_authors nothing) so
   // the role fallback blue reaches the shipped GLB; was 34dbfc569a51e2902b54c5453bf0adb67f9b4d5d299a563a910cc1ae7434b432.
-  "mpfb-clinical-nurse-adult": "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9",
+  // ci-w11b re-pinned 2026-10-30: ci-w11 D3 repaired midline breast keyframes
+  // (d0e2104d3, rests already +-0.085); was
+  // 4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9.
+  "mpfb-clinical-nurse-adult": "3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb",
   // #504 re-pinned 2026-08-21: the physician's coat was pushed out 15 mm (wardrobe layer
   // separation); the viseme morph targets and every other buffer are untouched.
   // #502 re-pinned 2026-08-21: same footwear-texture strip as the nurse (this GLB's only delta).

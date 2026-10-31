@@ -6,15 +6,20 @@
   "authorityNote": "ENTRYPOINT, full design, and superseded brief are archive-candidate / agentInstructionWeight none. Owner may approve factual ENTRYPOINT edits without reclassifying the registry. Full design stays read-only in MR-01.",
   "inputIdentity": {
     "actorPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-    "reportActorSha256": "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9",
-    "diskActorSha256": "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9",
+    "reportActorSha256": "3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb",
+    "diskActorSha256": "3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb",
     "classification": "current-actor-bound"
   },
   "reAttestation": {
-    "note": "re-attested by ci-closure lane 2026-10-30 after cf0325e8 (report.json re-measured on the Sep28 nurse actor), 9f2934536 (nurse actor last changed), b3641f1b7 (fence test exam-table asset-hash line; fence guard verified intact) and a2fec46f3 (retarget runner public-surface cut; adapter string plus fresh_subprocess verified intact); hashes measured, not typed",
+    "note": "re-attested by ci-closure lane 2026-10-30 after 6aa3518d4 (report.json + runtime-goal-eval.json re-measured on the D3-repaired nurse actor 3241acc6), d0e2104d3 (nurse actor D3 midline breast keyframe repair), b3641f1b7 (fence test exam-table asset-hash line; fence guard verified intact) and 9f8196c4a (factory-station-core runner public-surface move; adapter string plus fresh_subprocess verified intact); hashes measured, not typed",
     "lane": "ci-closure",
     "date": "2026-10-30",
-    "afterCommits": ["cf0325e8c5e3bac7f1baea69c8b75b80ea59f635", "9f2934536de8b011a894036e5dcd7212594804b1", "b3641f1b78295357ca36f16e8604e8004d84576f", "a2fec46f39d5e212c8378970e94a1380a398b85e"]
+    "afterCommits": [
+      "6aa3518d44c1932789b19935311dd94aed0d283d",
+      "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760",
+      "b3641f1b78295357ca36f16e8604e8004d84576f",
+      "9f8196c4ac4551a29e6b8cf347a70ca3baede3cf"
+    ]
   },
   "phaseRelease": {
     "mr01": "worker_review_clause_7_planted_owner_acceptance_blocked",
@@ -120,7 +125,7 @@
       "status": "retained",
       "currentSource": {
         "path": "tools/openclinxr/evidence/motion-backend-bakeoff/report.json",
-        "sha256": "ead747a7dd8cda740607c0ac2cfa77b45afe4270a96b38f776de5b9fa3aca3aa"
+        "sha256": "23675a54b759ead203e4caa63992d38c3b5ea3c787ce43b34661b457f8123847"
       },
       "caller": {
         "kind": "none",
@@ -265,7 +270,7 @@
       "status": "unknown",
       "currentSource": {
         "path": "packages/openclinxr/factory-stations/src/motion_retarget/run.ts",
-        "sha256": "47e5f1f2b5eb5afeb709bc747dec19cf7ced93c215519a74b013a701095477d0"
+        "sha256": "03ecfbcac99d17659583dbb0811a3a45ea2a480a8d7ec2bcbae472447d3d9068"
       },
       "caller": {
         "kind": "production",

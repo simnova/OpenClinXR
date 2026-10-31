@@ -61,6 +61,11 @@
       "entry": [
         "src/fixed-clock-query-flag-mod.ts"
       ]
+    },
+    "packages/openclinxr/xr-sync-server": {
+      "entry": [
+        "src/dev-server.ts"
+      ]
     }
   },
   "ignore": [
@@ -100,6 +105,7 @@
     "agent-browser",
     "blender",
     "gh",
+    "portless",
     "python3"
   ],
   "rules": {
@@ -132,6 +138,7 @@
     "packages/openclinxr/shared-schemas/src/schemas.ts": ["duplicates", "exports", "types"],
     "packages/cellix/provider-contracts/src/index.ts": ["duplicates"],
     "packages/openclinxr/motion-compiler/package.json": ["dependencies"],
+    "packages/openclinxr/stations/slide-phase-evidence/package.json": ["dependencies"],
     "packages/openclinxr/test-harness/src/benchmark-report.ts": ["types"],
     "tools/agent-factory/agent-loop-plan.ts": ["types"],
     "tools/agent-factory/agent-roster.ts": ["types"],

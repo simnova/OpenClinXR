@@ -90,7 +90,7 @@
   "adult": {
    "bytes": 8775848,
    "file": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-   "sha256": "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9",
+   "sha256": "3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb",
    "skinPrim": {
     "mat": 4,
     "name": "mpfb_skin_ed_chest_pain_nurse_adult",
@@ -115,7 +115,7 @@
   "pedsKevin": {
    "bytes": 7894888,
    "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
-   "sha256": "0de69b66a569d457c11985895f76b24a4c0cc99adc530720ee0e4ecaa78a22de",
+   "sha256": "540e8b317196f592a5a6ed1697864eb8af511f08df8191119e802eaf88798aa1",
    "skinPrim": {
     "mat": 4,
     "name": "mpfb_skin_peds_nurse_kevin",

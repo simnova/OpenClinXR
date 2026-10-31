@@ -1246,10 +1246,16 @@ describe("consumer contracts match imports", () => {
     // The shared-seam excuse is load-bearing: without the allowlist the
     // actor-audio-runtime seam fires.
     const allowlist = readAllowlist(root);
+    // 2026-10-30 makeclothes evidence sidecar adds two rows (operator-approved limit raise).
+    // 2026-10-30 quest-capacity evidence sidecar adds two rows (operator-approved limit raise).
     expect(allowlist.map((r) => `${r.provider}${r.entrypoint}`).sort()).toEqual([
+      "@openclinxr/station-mouth-registry.",
+      "@openclinxr/xr-capacity.",
+      "@openclinxr/xr-capacity./stage2",
       "@openclinxr/xr-dialogue.",
       "@openclinxr/xr-dialogue./actor-audio-runtime",
       "@openclinxr/xr-dialogue./package-actor-turn",
+      "@openclinxr/xr-dialogue./viseme-runtime",
     ]);
     for (const row of allowlist) expect(row.reason.trim() !== "").toBe(true);
     expect(checkMixedClassEntrypoints(root, consumers, [], index).join("\n")).toContain(
