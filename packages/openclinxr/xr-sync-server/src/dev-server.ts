@@ -15,15 +15,17 @@ function fail(message: string): never {
   process.exit(1);
 }
 
+// biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["PORT"] on process.env.
 const rawPort = process.env["PORT"];
-const port = rawPort === undefined ? Number.NaN : Number(rawPort);
-if (rawPort === undefined || rawPort.trim() === "" || !Number.isInteger(port) || port <= 0) {
+const port = rawPort !== undefined && /^[1-9][0-9]*$/.test(rawPort) ? Number(rawPort) : Number.NaN;
+if (!Number.isInteger(port) || port > 65535) {
   fail(
-    `refusing to start: PORT must be a positive integer (got ${JSON.stringify(rawPort ?? null)}). ` +
+    `refusing to start: PORT must be an integer 1-65535 (got ${JSON.stringify(rawPort ?? null)}). ` +
       "Portless assigns PORT; a dev server on port 0 defeats portless.",
   );
 }
 
+// biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["XR_SYNC_INSTANCE"] on process.env.
 const rawInstance = process.env["XR_SYNC_INSTANCE"] ?? process.argv[2] ?? "local";
 const instance = rawInstance.startsWith("xr-sync-") ? rawInstance : `xr-sync-${rawInstance}`;
 
