@@ -71,7 +71,7 @@ import { NodeIO } from "@gltf-transform/core";
 import { KHRTextureTransform } from "@gltf-transform/extensions";
 import { describe, expect, it } from "vitest";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
-import { regionLuminance } from "../../../../../../tools/openclinxr/evidence/lib/png-region-luminance.js";
+import { regionLuminance } from "@openclinxr/png-measure/evidence-png";
 
 const REPO = repoRoot();
 const BANK = resolve(REPO, "apps/ui-xr/public/xr-assets/environment");

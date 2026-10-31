@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 76 roots and 178 declared entrypoints", () => {
+  it("(1) the live tree discovers 77 roots and 181 declared entrypoints", () => {
     const report = measureSurface();
     // 2026-10-07 mouth-station pilot (MADR 0060/0061, integration branch station-mouth): the
     // objective package @openclinxr/station-mouth-objective adds one root (49 -> 50); its surface
@@ -179,7 +179,11 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-31 model-vetting evidence sidecar (operator-approved 2026-10-31): the
     // private sidecar @openclinxr/model-vetting-evidence adds one root that publishes
     // nothing (75 -> 76).
-    expect(report.totals.roots).toBe(76);
+    // 2026-10-31 png-measure split (operator-approved 2026-10-31): the library
+    // @openclinxr/png-measure adds one root (76 -> 77); its five general PNG-measurement
+    // names live on "." and the capture-grading verdict on "./evidence-capture"
+    // (precedent: xr-dialogue "./evidence-viseme").
+    expect(report.totals.roots).toBe(77);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -282,7 +286,11 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-31 model-vetting evidence sidecar (operator-approved 2026-10-31): the
     // sidecar, with no exports map, is discovered as one implicit "." that
     // publishes nothing (177 -> 178).
-    expect(report.totals.entrypoints).toBe(178);
+    // 2026-10-31 png-measure split (operator-approved 2026-10-31): "." plus the
+    // class-pure "./evidence-capture" subpath for the capture-grading verdict, plus
+    // "./evidence-png" for the station sidecar tests so "." serves only the tools
+    // re-export shims (178 -> 181); no other package.json `exports` map changes.
+    expect(report.totals.entrypoints).toBe(181);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -330,7 +338,8 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-31 rig-fit evidence sidecar adds one root (73 -> 74), operator-approved 2026-10-31.
     // 2026-10-31 anny-phenotype evidence sidecar adds one root (74 -> 75), operator-approved 2026-10-31.
     // 2026-10-31 model-vetting evidence sidecar adds one root (75 -> 76), operator-approved 2026-10-31.
-    expect(report.packages.length).toBe(76);
+    // 2026-10-31 png-measure split adds one root (76 -> 77), operator-approved 2026-10-31.
+    expect(report.packages.length).toBe(77);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {

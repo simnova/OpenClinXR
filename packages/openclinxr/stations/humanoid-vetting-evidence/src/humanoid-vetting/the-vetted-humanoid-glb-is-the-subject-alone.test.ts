@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { decodePng } from "../../../../../../tools/openclinxr/evidence/decode-png.js";
+import { decodePng } from "@openclinxr/png-measure/evidence-png";
 import { makeclothesGarmentSlug } from "../../../../../../tools/openclinxr/evidence/lib/garment-mesh-class.js";
 
 /**

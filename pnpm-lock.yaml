@@ -119,6 +119,9 @@ importers:
       '@openclinxr/motion-compiler':
         specifier: workspace:*
         version: link:packages/openclinxr/motion-compiler
+      '@openclinxr/png-measure':
+        specifier: workspace:*
+        version: link:packages/openclinxr/png-measure
       '@openclinxr/rest':
         specifier: workspace:*
         version: link:packages/openclinxr/rest
@@ -1256,6 +1259,24 @@ importers:
         specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.1.6(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
+  packages/openclinxr/png-measure:
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.1.6(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+
   packages/openclinxr/rest:
     dependencies:
       '@openclinxr/asset-registry':
@@ -1611,6 +1632,9 @@ importers:
       '@openclinxr/factory-station-core':
         specifier: workspace:*
         version: link:../../factory-station-core
+      '@openclinxr/png-measure':
+        specifier: workspace:*
+        version: link:../../png-measure
       '@openclinxr/xr-asset-loading':
         specifier: workspace:*
         version: link:../../xr-asset-loading
@@ -1962,6 +1986,9 @@ importers:
       '@openclinxr/factory-station-core':
         specifier: workspace:*
         version: link:../../factory-station-core
+      '@openclinxr/png-measure':
+        specifier: workspace:*
+        version: link:../../png-measure
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2071,6 +2098,9 @@ importers:
       '@openclinxr/factory-station-core':
         specifier: workspace:*
         version: link:../../factory-station-core
+      '@openclinxr/png-measure':
+        specifier: workspace:*
+        version: link:../../png-measure
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*

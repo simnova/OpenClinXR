@@ -215,7 +215,7 @@ describe("the telehealth room is inspectable without the exam HUD", () => {
       `the regen sheet for this station must exist for the comparison to be real`,
     ).toBe(true);
     expect(statSync(REGEN_SHEET).size, "regen sheet bytes").toBeGreaterThanOrEqual(MIN_STILL_BYTES);
-    const { decodePng } = await import("../../../../../../tools/openclinxr/evidence/decode-png.js") as {
+    const { decodePng } = await import("@openclinxr/png-measure/evidence-png") as {
       decodePng: (b: Uint8Array) => { w: number; h: number; lum: Float32Array } | null;
     };
     const sheet = readFileSync(REGEN_SHEET);

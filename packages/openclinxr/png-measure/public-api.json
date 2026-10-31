@@ -1,0 +1,20 @@
+{
+  "entrypoints": {
+    ".": [
+      "DecodedPng",
+      "RegionFractions",
+      "RegionLuminance",
+      "decodePng",
+      "regionLuminance"
+    ],
+    "./evidence-capture": [
+      "CaptureFrameClass",
+      "UNIFORM_SD_CEILING",
+      "classifyCaptureFrame"
+    ],
+    "./evidence-png": [
+      "decodePng",
+      "regionLuminance"
+    ]
+  }
+}

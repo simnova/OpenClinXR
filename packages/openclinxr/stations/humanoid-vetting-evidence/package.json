@@ -11,6 +11,7 @@
   "dependencies": {
     "@openclinxr/compute-slots": "workspace:*",
     "@openclinxr/factory-station-core": "workspace:*",
+    "@openclinxr/png-measure": "workspace:*",
     "@openclinxr/xr-asset-loading": "workspace:*",
     "@openclinxr/xr-scene": "workspace:*"
   },

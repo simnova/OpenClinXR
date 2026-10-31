@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
-import { decodePng } from "../../../../../../tools/openclinxr/evidence/decode-png.js";
+import { decodePng } from "@openclinxr/png-measure/evidence-png";
 
 /**
  * **OBSERVABLE: a generated room's baked occlusion map is OCCLUSION, not the room's own darkness.**
