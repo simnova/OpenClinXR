@@ -1,9 +1,9 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { decodePng } from "../decode-png.js";
-import { shippedStationIds } from "../ui-xr-environment-room-capture.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { decodePng } from "../../../../../../tools/openclinxr/evidence/decode-png.js";
+import { shippedStationIds } from "../../../../../../tools/openclinxr/evidence/ui-xr-environment-room-capture.js";
 import {
   CELLS_DIR_REL,
   CONTACT_SHEET_CELL_HEIGHT,
@@ -15,7 +15,7 @@ import {
   GRADE_SET_REL,
   parseGradeSetCellHeadline,
   parseGradeSetStations,
-} from "./assemble-station-room-grade-set.js";
+} from "../../../../../../tools/openclinxr/evidence/station-capture/assemble-station-room-grade-set.js";
 
 /**
  * OBSERVABLE: the fifteen stations rendered (sweep report, 4.0 min, env ids
@@ -40,10 +40,7 @@ import {
  * notEvidenceFor: pixel grade of any room; capture-code / predicate / budget changes.
  */
 
-const REPO_ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../..",
-);
+const REPO_ROOT = repoRoot();
 const GRADE_SET_PATH = path.join(REPO_ROOT, GRADE_SET_REL);
 const CONTACT_SHEET_PATH = path.join(REPO_ROOT, CONTACT_SHEET_REL);
 

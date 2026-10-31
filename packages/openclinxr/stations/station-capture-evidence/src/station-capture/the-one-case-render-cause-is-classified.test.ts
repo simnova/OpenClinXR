@@ -1,13 +1,13 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import {
   parseDiagnosticsFromTimeoutMessage,
   PREDICATE_ERROR_CLASS,
   RENDER_CAUSE_REPORT_REL,
   TIMEOUT_CLASSES,
-} from "./classify-one-render.js";
+} from "../../../../../../tools/openclinxr/evidence/station-capture/classify-one-render.js";
 
 /**
  * OBSERVABLE: render 0 of 15 is a bare Playwright timeout. The diagnostic bag
@@ -20,11 +20,7 @@ import {
  * IMMUTABLE diagnosis. Flip `it.fails` -> `it` and append a `## FIXED` block.
  */
 
-const REPORT_PATH = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../../",
-  RENDER_CAUSE_REPORT_REL,
-);
+const REPORT_PATH = join(repoRoot(), RENDER_CAUSE_REPORT_REL);
 
 describe("the one-case render cause is classified", () => {
   it("(0) VACUITY GUARD: the parser distinguishes the three timeout classes", () => {

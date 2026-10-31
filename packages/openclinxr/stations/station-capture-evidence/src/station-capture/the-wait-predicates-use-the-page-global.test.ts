@@ -1,11 +1,11 @@
 import { readFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import {
   waitForHumanoidAssetsLoaded,
   waitForStationShell,
-} from "../ui-xr-environment-room-capture.js";
+} from "../../../../../../tools/openclinxr/evidence/ui-xr-environment-room-capture.js";
 
 /**
  * OBSERVABLE: station-environment wait predicates named the types-only alias
@@ -30,7 +30,7 @@ import {
  */
 
 const CAPTURE_SOURCE = readFileSync(
-  path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../ui-xr-environment-room-capture.ts"),
+  join(repoRoot(), "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"),
   "utf8",
 );
 

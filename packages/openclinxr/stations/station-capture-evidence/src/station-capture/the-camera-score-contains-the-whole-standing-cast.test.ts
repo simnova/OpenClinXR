@@ -4,7 +4,7 @@ import {
   cameraScoreIsBetter,
   legacyPrimaryOnlyScoreIsBetter,
   type CameraCandidateScore,
-} from "./camera-candidate-scoring.js";
+} from "../../../../../../tools/openclinxr/evidence/station-capture/camera-candidate-scoring.js";
 
 type Box = { min: [number, number, number]; max: [number, number, number] };
 

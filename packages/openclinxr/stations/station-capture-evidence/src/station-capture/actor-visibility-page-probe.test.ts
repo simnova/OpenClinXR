@@ -3,7 +3,7 @@ import {
   ACTOR_VISIBILITY_BROWSER_FUNCTION_SOURCE,
   measureActorVisibility,
   type ActorVisibilityOccluder,
-} from "./actor-visibility-page-probe.js";
+} from "../../../../../../tools/openclinxr/evidence/station-capture/actor-visibility-page-probe.js";
 
 describe("actor visibility probe", () => {
   it("rejects a partition-hidden actor that the old wall-and-door-only check accepts", () => {

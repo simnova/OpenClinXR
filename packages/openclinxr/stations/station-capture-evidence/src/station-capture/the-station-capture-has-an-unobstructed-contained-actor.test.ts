@@ -1,16 +1,16 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { decodePng } from "../decode-png.js";
-import { shippedStationIds } from "../ui-xr-environment-room-capture.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { decodePng } from "../../../../../../tools/openclinxr/evidence/decode-png.js";
+import { shippedStationIds } from "../../../../../../tools/openclinxr/evidence/ui-xr-environment-room-capture.js";
 import {
   CONTACT_SHEET_CELL_HEIGHT,
   CONTACT_SHEET_CELL_WIDTH,
   CONTACT_SHEET_COLUMNS,
   CONTACT_SHEET_LABEL_HEIGHT,
   CONTACT_SHEET_MIN_BYTES,
-} from "./assemble-station-room-grade-set.js";
+} from "../../../../../../tools/openclinxr/evidence/station-capture/assemble-station-room-grade-set.js";
 import {
   ACTOR_CELLS_DIR_REL,
   CLEAR_CELLS_DIR_REL,
@@ -26,7 +26,7 @@ import {
   parseBeforeStations,
   parseClearHeadline,
   parseClearStations,
-} from "./occlusion-and-containment-metrics.js";
+} from "../../../../../../tools/openclinxr/evidence/station-capture/occlusion-and-containment-metrics.js";
 
 /**
  * OBSERVABLE: two 2026-09-12 actor frames still pass framesActors (a head-band
@@ -71,10 +71,7 @@ import {
  *   Quest readiness.
  */
 
-const REPO_ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../..",
-);
+const REPO_ROOT = repoRoot();
 const REPORT_PATH = path.join(REPO_ROOT, CLEAR_REPORT_REL);
 const CONTACT_SHEET_PATH = path.join(REPO_ROOT, CLEAR_CONTACT_SHEET_REL);
 

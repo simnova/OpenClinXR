@@ -1,9 +1,9 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { decodePng } from "../decode-png.js";
-import { shippedStationIds } from "../ui-xr-environment-room-capture.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { decodePng } from "../../../../../../tools/openclinxr/evidence/decode-png.js";
+import { shippedStationIds } from "../../../../../../tools/openclinxr/evidence/ui-xr-environment-room-capture.js";
 import {
   CELLS_DIR_REL,
   CONTACT_SHEET_CELL_HEIGHT,
@@ -11,7 +11,7 @@ import {
   CONTACT_SHEET_COLUMNS,
   CONTACT_SHEET_LABEL_HEIGHT,
   CONTACT_SHEET_MIN_BYTES,
-} from "./assemble-station-room-grade-set.js";
+} from "../../../../../../tools/openclinxr/evidence/station-capture/assemble-station-room-grade-set.js";
 import {
   BEIGE_CEILING,
   FRAMING_REPORT_REL,
@@ -22,7 +22,7 @@ import {
   measureInteriorCenter,
   parseFramingHeadline,
   parseFramingStations,
-} from "./interior-frame-metrics.js";
+} from "../../../../../../tools/openclinxr/evidence/station-capture/interior-frame-metrics.js";
 
 /**
  * OBSERVABLE: 2 of 15 station-environment captures at native 1440×900 show only
@@ -67,10 +67,7 @@ import {
  *   Quest readiness; whether the rooms read as clinically plausible spaces.
  */
 
-const REPO_ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../..",
-);
+const REPO_ROOT = repoRoot();
 const REPORT_PATH = path.join(REPO_ROOT, FRAMING_REPORT_REL);
 const CONTACT_SHEET_PATH = path.join(REPO_ROOT, INTERIOR_CONTACT_SHEET_REL);
 const DOORWAY_CELLS_DIR = path.join(REPO_ROOT, CELLS_DIR_REL);

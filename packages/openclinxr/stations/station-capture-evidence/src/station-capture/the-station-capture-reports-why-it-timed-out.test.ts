@@ -1,10 +1,13 @@
 import { readFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 const captureModule = await import(
-  new URL("../ui-xr-environment-room-capture.js", import.meta.url).href
+  new URL(
+    "../../../../../../tools/openclinxr/evidence/ui-xr-environment-room-capture.js",
+    import.meta.url,
+  ).href
 );
 const {
   attachStationCapturePageDiagnostics,
@@ -55,7 +58,7 @@ const {
 
 const PLAYWRIGHT_TIMEOUT = "page.waitForFunction: Timeout 180000ms exceeded.";
 const CAPTURE_SOURCE = readFileSync(
-  path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../ui-xr-environment-room-capture.ts"),
+  join(repoRoot(), "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"),
   "utf8",
 );
 

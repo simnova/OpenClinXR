@@ -1,16 +1,16 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { decodePng } from "../decode-png.js";
-import { shippedStationIds } from "../ui-xr-environment-room-capture.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { decodePng } from "../../../../../../tools/openclinxr/evidence/decode-png.js";
+import { shippedStationIds } from "../../../../../../tools/openclinxr/evidence/ui-xr-environment-room-capture.js";
 import {
   CONTACT_SHEET_CELL_HEIGHT,
   CONTACT_SHEET_CELL_WIDTH,
   CONTACT_SHEET_COLUMNS,
   CONTACT_SHEET_LABEL_HEIGHT,
   CONTACT_SHEET_MIN_BYTES,
-} from "./assemble-station-room-grade-set.js";
+} from "../../../../../../tools/openclinxr/evidence/station-capture/assemble-station-room-grade-set.js";
 import {
   ACTOR_CELLS_DIR_REL,
   ACTOR_CONTACT_SHEET_REL,
@@ -22,8 +22,8 @@ import {
   measureActorFrame,
   parseActorFramingHeadline,
   parseActorFramingStations,
-} from "./actor-frame-metrics.js";
-import { measureInteriorCenter } from "./interior-frame-metrics.js";
+} from "../../../../../../tools/openclinxr/evidence/station-capture/actor-frame-metrics.js";
+import { measureInteriorCenter } from "../../../../../../tools/openclinxr/evidence/station-capture/interior-frame-metrics.js";
 
 /**
  * OBSERVABLE: the interior-2026-09-12 oncology frame photographs a doorway-side
@@ -63,10 +63,7 @@ import { measureInteriorCenter } from "./interior-frame-metrics.js";
  *   legally; whether the rooms read as clinically plausible spaces; Quest readiness.
  */
 
-const REPO_ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../..",
-);
+const REPO_ROOT = repoRoot();
 const REPORT_PATH = path.join(REPO_ROOT, ACTOR_FRAMING_REPORT_REL);
 const CONTACT_SHEET_PATH = path.join(REPO_ROOT, ACTOR_CONTACT_SHEET_REL);
 

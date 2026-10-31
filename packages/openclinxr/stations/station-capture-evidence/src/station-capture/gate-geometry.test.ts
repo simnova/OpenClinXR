@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import {
   ACTOR_VISIBILITY_BROWSER_FUNCTION_SOURCE,
   cameraViewProjectionMatrices,
@@ -15,7 +15,7 @@ import {
   NEAR_OCCLUSION_MATRIX_BROWSER_FUNCTION_SOURCE,
   PROJECT_BOX_BROWSER_FUNCTION_SOURCE,
   projectBoxFromMatrices,
-} from "./gate-geometry.js";
+} from "../../../../../../tools/openclinxr/evidence/station-capture/gate-geometry.js";
 
 describe("shared staging gate geometry", () => {
   it("serializes the exact visibility implementation used offline", () => {
@@ -40,8 +40,7 @@ describe("shared staging gate geometry", () => {
   it.each(["ed_chest_pain_priority_v1", "peds_fever_v1", "ward_delirium_med_rec_v1"])(
     "reproduces browser visibility, near and containment for saved %s snapshot",
     (caseId) => {
-      const here = path.dirname(fileURLToPath(import.meta.url));
-      const saved = JSON.parse(readFileSync(path.join(here, "../../staging-solver/test-fixtures", `${caseId}.json`), "utf8")) as {
+      const saved = JSON.parse(readFileSync(path.join(repoRoot(), "tools/openclinxr/staging-solver/test-fixtures", `${caseId}.json`), "utf8")) as {
         camera: GateCamera; actors: GateActor[]; occluders: GateOccluder[];
       };
       const browserVisibility = Function(`return (${ACTOR_VISIBILITY_BROWSER_FUNCTION_SOURCE})`)() as typeof measureActorVisibility;

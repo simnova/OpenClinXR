@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import * as THREE from "three";
 import { describe, expect, it } from "vitest";
-import { CAMERA_SWEEP_SCENE_SOURCE } from "./camera-sweep-scene.js";
+import { CAMERA_SWEEP_SCENE_SOURCE } from "../../../../../../tools/openclinxr/evidence/station-capture/camera-sweep-scene.js";
 
 function runActualCollector(scene: THREE.Scene): { occluders: Array<{ name: string }> } | { error: string } {
   const context = vm.createContext({ __openClinXrDebugScene: scene, Math, Object, Array, Infinity, NaN, isFinite }, { name: "s83" });

@@ -28,10 +28,10 @@
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
-const REPO = resolve(fileURLToPath(new URL(".", import.meta.url)), "../../../..");
+const REPO = repoRoot();
 const CLIENT_ENTRY = resolve(REPO, "apps/ui-xr/src/main.ts");
 const ADMISSION_ENTRY = resolve(
   REPO,

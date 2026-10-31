@@ -1,15 +1,15 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { shippedStationIds } from "../ui-xr-environment-room-capture.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { shippedStationIds } from "../../../../../../tools/openclinxr/evidence/ui-xr-environment-room-capture.js";
 import {
   isAllowedSweepClass,
   parseRenderedHeadline,
   parseStationRows,
   SWEEP_OUTCOMES,
   SWEEP_REPORT_REL,
-} from "./sweep-renders-after-client-graph-fix.js";
+} from "../../../../../../tools/openclinxr/evidence/station-capture/sweep-renders-after-client-graph-fix.js";
 
 /**
  * OBSERVABLE: after the client-graph fix, one station (ed_chest_pain_priority_v2)
@@ -33,11 +33,7 @@ import {
  * notEvidenceFor: pixel grade of any rendered room; wait-budget changes; repairs.
  */
 
-const REPORT_PATH = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../../",
-  SWEEP_REPORT_REL,
-);
+const REPORT_PATH = join(repoRoot(), SWEEP_REPORT_REL);
 
 describe("the fifteen stations are counted after the client-graph fix", () => {
   it("(0) VACUITY GUARD: the headline is the row count, not a restated 15", () => {
