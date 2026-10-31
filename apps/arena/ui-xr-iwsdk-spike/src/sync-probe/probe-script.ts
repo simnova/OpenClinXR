@@ -9,6 +9,7 @@
  * renderers stay wired for every script; the dispatcher only picks the
  * driver. All waits read SERVER state; no page-local timing enters.
  */
+
 import type * as THREE from "three";
 import type { IntentKind } from "@openclinxr/xr-sync-client/headset";
 import { createC3ScriptHelpers } from "./probe-c6.js";
@@ -42,6 +43,8 @@ import { createC16Evidence, runC16Script, type C16Evidence } from "./probe-c16.j
 import { createC17Evidence, runC17Script, type C17Evidence } from "./probe-c17.js";
 import { createC18Evidence, runC18Script, type C18Evidence } from "./probe-c18.js";
 import { createC19Evidence, runC19Script, type C19Evidence } from "./probe-c19.js";
+import { createC20Evidence, c20CenterFor, runC20Script, type C20Evidence, type C20ScriptDeps } from "./probe-c20.js";
+import { createC21Evidence, runC21Script } from "./probe-c21.js";
 import { PROBE_ACTOR_IDS, resolvePhaseLabel } from "./probe-state.js";
 import { parseC11NoteMaxChars } from "./probe-query.js";
 
@@ -433,10 +436,66 @@ export async function runProbeScript(deps: ProbeScriptDeps): Promise<void> {
       evidence: c19,
       publish: publishC19,
     });
+  } else if (deps.script === "c20" || deps.script === "c21") {
+    const c20: C20Evidence = deps.script === "c21" ? createC21Evidence() : createC20Evidence();
+    const publishC20 = (): void => {
+      window.__syncProbeC20 = c20;
+      if (window.__syncProbe !== undefined) {
+        Object.assign(window.__syncProbe, { c20 });
+        if (deps.script === "c21") {
+          window.__syncProbeC21 = c20 as ReturnType<typeof createC21Evidence>;
+          Object.assign(window.__syncProbe, { c21: c20 });
+        }
+      }
+    };
+    publishC20();
+    await waitFor(() => deps.c12.tiles.length > 0, 15000, "c20 lobby tiles tracked");
+    setLobbyTileMeshes(buildLobbyTiles(deps.scene, deps.c12.tiles));
+    const aimLobbyAndTrigger = createAimAndTrigger({
+      dispatch: (method: string, params: Record<string, unknown>) => deps.dispatch(method, params),
+      actorCenter: (id) => {
+        const index = deps.c12.tiles.findIndex((t) => t.stationId === id);
+        return tileCenterFor(Math.max(0, index), Math.max(1, deps.c12.tiles.length));
+      },
+      setCommandedAim: (aim) => {
+        deps.setCommandedAim(aim);
+      },
+      sent: () => deps.intentCounts().sent,
+      settled: () => deps.intentCounts().acks + deps.intentCounts().rejects,
+      waitFor,
+    });
+    const aimScoreAndTrigger = createAimAndTrigger({
+      dispatch: (method: string, params: Record<string, unknown>) => deps.dispatch(method, params),
+      actorCenter: (id) => c20CenterFor(id),
+      setCommandedAim: (aim) => {
+        deps.setCommandedAim(aim);
+      },
+      sent: () => deps.intentCounts().sent,
+      settled: () => deps.intentCounts().acks + deps.intentCounts().rejects,
+      waitFor,
+    });
+    const flow: C20ScriptDeps = {
+      waitFor,
+      aimAndTriggerTile: (tileId, expectedIntents) => aimScoreAndTrigger(tileId, expectedIntents),
+      aimLobbyAndTrigger: async (stationId) => {
+        await aimLobbyAndTrigger(stationId, 1);
+        markTileTriggerSettled(deps.c12, deps.intentCounts().acks, deps.intentCounts().rejects);
+      },
+      getSnapshot,
+      setStatus,
+      evidence: c20,
+      counts: () => ({ acks: deps.intentCounts().acks, rejects: deps.intentCounts().rejects }),
+      scene: deps.scene,
+      stationIds: deps.c12.tiles.map((tile) => tile.stationId),
+    };
+    if (deps.script === "c21") {
+      await runC21Script({ ...flow, evidence: c20 as ReturnType<typeof createC21Evidence> });
+    } else {
+      await runC20Script(flow);
+    }
+    publishC20();
   } else {
     for (const actorId of PROBE_ACTOR_IDS) {
-      // C3 semantics: the second trigger first closes the learner's open
-      // utterance, so it sends 3 intents (end, select, start) instead of 2.
       const learnerOpen = deps.getSessionLearnerSpeaking();
       await aimAndTrigger(actorId, learnerOpen ? 3 : 2);
     }

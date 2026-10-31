@@ -6,12 +6,15 @@ import { WebSocketTransport } from "@colyseus/ws-transport";
 import { ENCOUNTER_ROOM_NAME, EncounterRoom, getLatestRoom } from "./room.js";
 import {
   createStationReplayRoomClass,
+  type StationReplayBinding,
+} from "./station-replay.js";
+import {
   loadStationReplayDir,
   parseReplayStepMs,
   type LoadedStationReplay,
-  type StationReplayBinding,
-} from "./station-replay.js";
+} from "./station-replay-loading.js";
 import { parseReviewRubric, parseScoreDir } from "./faculty-score.js";
+import { parseScenarioRubricBank } from "./scenario-rubric.js";
 import { assertScoreDirOutsideReplayDir } from "./review-packet.js";
 import { parseNoteMaxChars } from "./patient-note.js";
 import { parseStationTiming, type StationTiming } from "./phase-clock.js";
@@ -53,6 +56,10 @@ export interface EncounterServerOptions {
    * scenarios[i] fills the blueprint's sorted slot i). Server config only.
    * Refuses boot together with a missing examBlueprint, a length mismatch
    * against the slot count, or any non-approved scenario.
+   * C20: on a REPLAY server (with replayDir) scenarios is instead a
+   * per-station rubric bank keyed by scenarioId (each scenario needs a
+   * non-empty reviewRubric of unique rubricIds; duplicates refused); it
+   * refuses boot together with reviewRubric and never needs examBlueprint.
    */
   scenarios?: Scenario[];
   /**
@@ -134,9 +141,12 @@ export async function createEncounterServer(
   }
   // C16: the session casts each station from its scenario when given
   // (scenarios[i] fills the sorted slot i). Without a blueprint, or on a
-  // slot-count or approval mismatch, boot refuses naming "scenarios".
+  // slot-count or approval mismatch, boot refuses naming "scenarios". Live
+  // servers only: on a replay server scenarios is a per-station rubric bank
+  // (see the replay branch below), never a slot cast.
+  const replayDir = typeof options.replayDir === "string" ? options.replayDir : null;
   let scenarioCasts: ScenarioCast[] | null = null;
-  if (options.scenarios !== undefined) {
+  if (replayDir === null && options.scenarios !== undefined) {
     if (options.examBlueprint === undefined) {
       throw new Error("bad-scenarios: scenarios require examBlueprint");
     }
@@ -163,7 +173,6 @@ export async function createEncounterServer(
       failNextCreate: options.rotationFaults?.failNextStationCreate ?? 0,
     },
   };
-  const replayDir = typeof options.replayDir === "string" ? options.replayDir : null;
   class ConfiguredEncounterRoom extends EncounterRoom {
     protected override stationTiming = timing;
     protected override stationTraceDir = traceDir;
@@ -189,7 +198,14 @@ export async function createEncounterServer(
     const scoreDir = parseScoreDir(options.scoreDir);
     // C14: the score packet lives beside the replay dir, never equal to or inside it.
     assertScoreDirOutsideReplayDir(replayDir, scoreDir);
-    const replayBinding: StationReplayBinding = { replay, loadError, stepMs, replayDir, stationFailures: replay?.failures ?? new Map(), score: { scoreDir, rubric: parseReviewRubric(options.reviewRubric) } };
+    // C20: a replay server with a scenarios bank scores each station against
+    // its own scenario rubric; scenarios together with a server-wide
+    // reviewRubric refuses boot (the message names both).
+    if (options.scenarios !== undefined && options.reviewRubric !== undefined) {
+      throw new Error("bad-replay-config: scenarios (per-station rubric bank) cannot be combined with reviewRubric (server-wide rubric)");
+    }
+    const scenarioRubrics = options.scenarios !== undefined ? parseScenarioRubricBank(options.scenarios) : null;
+    const replayBinding: StationReplayBinding = { replay, loadError, stepMs, replayDir, stationFailures: replay?.failures ?? new Map(), score: scenarioRubrics !== null ? { scoreDir, rubric: null, scenarioRubrics } : { scoreDir, rubric: parseReviewRubric(options.reviewRubric) } };
     server.define(ENCOUNTER_ROOM_NAME, createStationReplayRoomClass(replayBinding));
   } else {
     server.define(ENCOUNTER_ROOM_NAME, ConfiguredEncounterRoom);

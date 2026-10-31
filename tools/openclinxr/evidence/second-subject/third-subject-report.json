@@ -383,7 +383,7 @@
    "evidence": "tools/openclinxr/asset-pipeline/skin/families/tone-check.py:152-156 has tone_anchors_Lab for warm_light+warm_medium only; tone-check.py:161-163 declares nearest.warm_light_child=young; stages-a.ts:68-71 throws when the case tone has no anchor.",
    "evidence_kind": "observed",
    "artifacts": [
-    "/Users/patrick/.grok/worktrees/src-openclinxr/third/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+    "/Volumes/files/openclinxr-assets/store/worktree-pins-20261031/third/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
     "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run1/h1-stage1-tone-run1.log",
     "/Volumes/files/openclinxr-assets/store/face-station-cases/peds_asthma_parent_anxiety_v1/run2/h1-stage1-tone-run2.log"
    ],

@@ -21,6 +21,85 @@ import type { EmotionTransition } from "@openclinxr/conversation-policy";
 import { CONVERSATION_TRACE_SCHEMA, type ConversationTraceEvent } from "./conversation-trace.js";
 import { readCastContext } from "./conversation-trace-cast.js";
 import type { SessionReviewStationEntry } from "./session-review-index.js";
+import {
+  SESSION_REVIEW_INDEX_FILE,
+  SESSION_REVIEW_INDEX_SCHEMA,
+  type SessionReviewIndex,
+} from "./session-review-index.js";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+/** Per-server loaded replay data: the validated index plus every named trace. */
+export interface LoadedStationReplay {
+  stations: Map<string, LoadedReplayStation>;
+  /** C11 per-station load failures (trace content only): a bad trace refuses
+   * only its own station's join with its stored error, never the whole dir. */
+  failures: Map<string, string>;
+  /** C12 index complete flag, copied for the lobby state. */
+  complete: boolean;
+  /** C12 lobby entries in index order, copied from the review index. */
+  lobbyStations: { stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number }[];
+}
+
+/**
+ * Load and validate a replay directory: the C9 review index plus every trace
+ * file it names. Schema tags are checked; a malformed or missing INDEX throws
+ * a named error (the room turns it into a refused join, never a partial
+ * replay). A malformed or short trace refuses only its own station (C11):
+ * the error is stored against that station and every other station still
+ * replays. Turns and emotions are kept AS RECORDED from the trace file.
+ */
+export function loadStationReplayDir(dir: string): LoadedStationReplay {
+  let indexRaw: string;
+  try {
+    indexRaw = readFileSync(join(dir, SESSION_REVIEW_INDEX_FILE), "utf8");
+  } catch {
+    throw new Error(`replay-no-index: ${join(dir, SESSION_REVIEW_INDEX_FILE)}`);
+  }
+  let index: SessionReviewIndex;
+  try {
+    index = JSON.parse(indexRaw) as SessionReviewIndex;
+  } catch {
+    throw new Error("replay-bad-index: review index is not JSON");
+  }
+  if (!isRecord(index) || index.schema !== SESSION_REVIEW_INDEX_SCHEMA) {
+    throw new Error(`replay-bad-index-schema: ${(index as { schema?: unknown } | null)?.schema}`);
+  }
+  if (!Array.isArray(index.stations) || index.stations.length === 0) {
+    throw new Error("replay-bad-index: review index names no stations");
+  }
+  const stations = new Map<string, LoadedReplayStation>();
+  const failures = new Map<string, string>();
+  const stationCount = typeof index.stationCount === "number" ? index.stationCount : index.stations.length;
+  const lobbyStations: LoadedStationReplay["lobbyStations"] = [];
+  for (const entry of index.stations) {
+    if (!isRecord(entry) || typeof entry.stationId !== "string" || entry.stationId === "") {
+      throw new Error("replay-bad-index: station entry without a stationId");
+    }
+    if (typeof entry.traceFile !== "string" || entry.traceFile === "") {
+      throw new Error(`replay-bad-index: station ${entry.stationId} names no trace file`);
+    }
+    const typed = entry as unknown as SessionReviewStationEntry;
+    lobbyStations.push({
+      stationId: typed.stationId,
+      stationIndex: typeof typed.stationIndex === "number" ? typed.stationIndex : lobbyStations.length,
+      turnCount: typeof typed.turnCount === "number" ? typed.turnCount : 0,
+      notePresent: typed.notePresent === true,
+      noteChars: typeof typed.noteChars === "number" ? typed.noteChars : 0,
+    });
+    // C11: a bad TRACE refuses only its own station (the error is stored
+    // against it and surfaces at join); every other station still replays.
+    try {
+      const station = loadReplayStationTrace(dir, entry as SessionReviewStationEntry, stationCount);
+      stations.set(station.stationId, station);
+    } catch (error) {
+      failures.set(entry.stationId, error instanceof Error ? error.message : String(error));
+    }
+  }
+  return { stations, failures, complete: index.complete === true, lobbyStations };
+}
 
 /** One validated replayable station: its index entry plus its recorded trace. */
 export interface LoadedReplayStation {

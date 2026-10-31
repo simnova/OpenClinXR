@@ -19,25 +19,21 @@
  * different stations never share a room (every joinOrCreate creates anew).
  * Unknown or missing replayStationId refuses the join with a named error.
  */
-import { MapSchema } from "@colyseus/schema";
+
 import type { Client } from "@colyseus/core";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { ArraySchema, MapSchema } from "@colyseus/schema";
 import type { ConversationTraceEvent } from "./conversation-trace.js";
 import { replayBaselineForCast } from "./conversation-trace-cast.js";
-import { loadReplayStationTrace, type LoadedReplayStation } from "./station-replay-loading.js";
-import { applyScheduledReplayEvent } from "./station-replay-loading.js";
-import { ActorState, EncounterState, LearnerState, type ActorStateInstance, type LearnerStateInstance } from "./schema.js";
-import { EncounterRoom, ENCOUNTER_ROOM_NAME } from "./room.js";
+import {
+  type FacultyScoreBinding,
+  handleReplayReviewIntent,
+  readScoreChecked,
+} from "./faculty-score.js";
+import { replayRubricCoverageCounts } from "./replay-rubric-coverage.js";
 import {
   isReviewLobbyRequest,
   setupLobbyState,
 } from "./review-lobby.js";
-import {
-  handleReplayReviewIntent,
-  readScoreChecked,
-  type FacultyScoreBinding,
-} from "./faculty-score.js";
 import {
   handleLobbyIntentWithFinalize,
   isReviewFinalized,
@@ -46,92 +42,27 @@ import {
   readValidLobbyScores,
   rejectReplayGuardedIntent,
 } from "./review-packet.js";
+import { ENCOUNTER_ROOM_NAME, EncounterRoom } from "./room.js";
+import { ActorState, type ActorStateInstance, EncounterState, LearnerState, type LearnerStateInstance, ReplayRubricCoverageState, type ReplayRubricCoverageStateInstance, ReplayRubricState, type ReplayRubricStateInstance } from "./schema.js";
+import type { LoadedReplayStation, LoadedStationReplay } from "./station-replay-loading.js";
+import { applyScheduledReplayEvent } from "./station-replay-loading.js";
+
 /** Reject reason every replay-room intent receives (C13 review intents excepted). */
 export { REPLAY_READ_ONLY_REASON } from "./faculty-score.js";
-import type { EncounterRoomOptions } from "./room-types.js";
+
 import { parseEncounterRole } from "./observer.js";
+import type { EncounterRoomOptions } from "./room-types.js";
 import {
-  SESSION_REVIEW_INDEX_FILE,
-  SESSION_REVIEW_INDEX_SCHEMA,
-  type SessionReviewIndex,
-  type SessionReviewStationEntry,
-} from "./session-review-index.js";
+  handleScenarioScoreIntent,
+  readScenarioLobbyScores,
+  stationScenarioRubric,
+} from "./scenario-rubric.js";
 
 /** Default ms between recorded replay events (see station-replay-loading.ts). */
 export { DEFAULT_REPLAY_STEP_MS, parseReplayStepMs } from "./station-replay-loading.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
-}
-
-/** Per-server loaded replay data: the validated index plus every named trace. */
-export interface LoadedStationReplay {
-  stations: Map<string, LoadedReplayStation>;
-  /** C11 per-station load failures (trace content only): a bad trace refuses
-   * only its own station's join with its stored error, never the whole dir. */
-  failures: Map<string, string>;
-  /** C12 index complete flag, copied for the lobby state. */
-  complete: boolean;
-  /** C12 lobby entries in index order, copied from the review index. */
-  lobbyStations: { stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number }[];
-}
-
-/**
- * Load and validate a replay directory: the C9 review index plus every trace
- * file it names. Schema tags are checked; a malformed or missing INDEX throws
- * a named error (the room turns it into a refused join, never a partial
- * replay). A malformed or short trace refuses only its own station (C11):
- * the error is stored against that station and every other station still
- * replays. Turns and emotions are kept AS RECORDED from the trace file.
- */
-export function loadStationReplayDir(dir: string): LoadedStationReplay {
-  let indexRaw: string;
-  try {
-    indexRaw = readFileSync(join(dir, SESSION_REVIEW_INDEX_FILE), "utf8");
-  } catch {
-    throw new Error(`replay-no-index: ${join(dir, SESSION_REVIEW_INDEX_FILE)}`);
-  }
-  let index: SessionReviewIndex;
-  try {
-    index = JSON.parse(indexRaw) as SessionReviewIndex;
-  } catch {
-    throw new Error("replay-bad-index: review index is not JSON");
-  }
-  if (!isRecord(index) || index.schema !== SESSION_REVIEW_INDEX_SCHEMA) {
-    throw new Error(`replay-bad-index-schema: ${(index as { schema?: unknown } | null)?.schema}`);
-  }
-  if (!Array.isArray(index.stations) || index.stations.length === 0) {
-    throw new Error("replay-bad-index: review index names no stations");
-  }
-  const stations = new Map<string, LoadedReplayStation>();
-  const failures = new Map<string, string>();
-  const stationCount = typeof index.stationCount === "number" ? index.stationCount : index.stations.length;
-  const lobbyStations: LoadedStationReplay["lobbyStations"] = [];
-  for (const entry of index.stations) {
-    if (!isRecord(entry) || typeof entry.stationId !== "string" || entry.stationId === "") {
-      throw new Error("replay-bad-index: station entry without a stationId");
-    }
-    if (typeof entry.traceFile !== "string" || entry.traceFile === "") {
-      throw new Error(`replay-bad-index: station ${entry.stationId} names no trace file`);
-    }
-    const typed = entry as unknown as SessionReviewStationEntry;
-    lobbyStations.push({
-      stationId: typed.stationId,
-      stationIndex: typeof typed.stationIndex === "number" ? typed.stationIndex : lobbyStations.length,
-      turnCount: typeof typed.turnCount === "number" ? typed.turnCount : 0,
-      notePresent: typed.notePresent === true,
-      noteChars: typeof typed.noteChars === "number" ? typed.noteChars : 0,
-    });
-    // C11: a bad TRACE refuses only its own station (the error is stored
-    // against it and surfaces at join); every other station still replays.
-    try {
-      const station = loadReplayStationTrace(dir, entry as SessionReviewStationEntry, stationCount);
-      stations.set(station.stationId, station);
-    } catch (error) {
-      failures.set(entry.stationId, error instanceof Error ? error.message : String(error));
-    }
-  }
-  return { stations, failures, complete: index.complete === true, lobbyStations };
 }
 
 /** Per-server replay binding closed over by the replay room class. */
@@ -155,6 +86,46 @@ function replayStationIdOf(options: unknown): string {
   // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["replayStationId"] on this Record.
   const value = options["replayStationId"];
   return typeof value === "string" ? value : "";
+}
+
+/** True when the intent message asks to score the station. */
+function isScoreStationIntent(message: unknown): boolean {
+  if (!isRecord(message)) {
+    return false;
+  }
+  // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["kind"] on this Record.
+  return message["kind"] === "score-station";
+}
+
+/**
+ * Fill replay-room state.replayRubric with the station's scenario checklist
+ * (labels reach headset state only, never a persisted file). Null rubric
+ * means the station has no scenario rubric: the state carries [].
+ */
+function setReplayRubricState(state: { replayRubric: unknown }, rubric: { id: string; label: string }[] | null): void {
+  const rows = new ArraySchema<ReplayRubricStateInstance>();
+  for (const entry of rubric ?? []) {
+    const row = new ReplayRubricState();
+    row.id = entry.id;
+    row.label = entry.label;
+    rows.push(row);
+  }
+  (state as { replayRubric: typeof rows }).replayRubric = rows;
+}
+
+function setReplayRubricCoverageState(
+  state: { replayRubricCoverage: unknown },
+  coverage: Array<{ rubricId: string; observedTags: string[]; missingTags: string[] }> | null,
+): void {
+  const rows = new ArraySchema<ReplayRubricCoverageStateInstance>();
+  for (const entry of replayRubricCoverageCounts(coverage ?? [])) {
+    const row = new ReplayRubricCoverageState();
+    row.id = entry.id;
+    row.observedCount = entry.observedCount;
+    row.requiredCount = entry.requiredCount;
+    rows.push(row);
+  }
+  (state as { replayRubricCoverage: typeof rows }).replayRubricCoverage = rows;
 }
 
 /**
@@ -191,8 +162,17 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
         // C13 badges are read from disk when the lobby opens (a new server
         // over the same scoreDir shows earlier scores); C14 adds the
         // finalized flag from the packet on disk. Forged score files are
-        // ignored by the strict reader (same validator as finalize).
-        setupLobbyState(this.state, replay, readValidLobbyScores(binding.score.scoreDir, replay.lobbyStations.map((entry) => entry.stationId), binding.score.rubric), isReviewFinalized(binding.score.scoreDir));
+        // ignored by the strict reader (same validator as finalize). C20: on
+        // a scenarios-bank server each badge validates against its own
+        // station's scenario rubric.
+        const stationIds = replay.lobbyStations.map((entry) => entry.stationId);
+        const scenarioBank = binding.score.scenarioRubrics ?? null;
+        const scores = scenarioBank !== null
+          ? readScenarioLobbyScores(binding.score.scoreDir, stationIds, (id) => stationScenarioRubric(replay, scenarioBank, id))
+          : readValidLobbyScores(binding.score.scoreDir, stationIds, binding.score.rubric);
+        setupLobbyState(this.state, replay, scores, isReviewFinalized(binding.score.scoreDir));
+        setReplayRubricState(this.state, null);
+        setReplayRubricCoverageState(this.state, null);
         void this.setPrivate(true);
         this.lock();
         this.onMessage("intent", (client, message: unknown) => {
@@ -255,6 +235,13 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       this.state.learners = new MapSchema<LearnerStateInstance>();
       // C13: a re-opened station seeds its checked count from disk (0 when unscored).
       this.state.scoreChecked = readScoreChecked(binding.score.scoreDir, station.stationId);
+      // C20: the replayed station's scenario checklist for the headset ([] when
+      // the station's scenario is not in the bank); scoring below validates
+      // against this same rubric.
+      const scenarioBank = binding.score.scenarioRubrics ?? null;
+      const scenarioResolved = scenarioBank !== null ? stationScenarioRubric(binding.replay, scenarioBank, station.stationId) : null;
+      setReplayRubricState(this.state, scenarioResolved?.rubric ?? null);
+      setReplayRubricCoverageState(this.state, scenarioResolved === null ? null : station.entry.rubricCoverage ?? []);
       // One station per room: lock at create so a concurrent reviewer of a
       // different station creates anew instead of sharing this room. The
       // creating client's seat is already reserved, so it still joins.
@@ -263,8 +250,22 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       this.onMessage("intent", (client, message: unknown) => {
         // C14 guards (one return-to-lobby per room; locked scores) run before
         // the C13 review handler; every other intent still rejects
-        // replay-read-only (see faculty-score.ts).
+        // replay-read-only (see faculty-score.ts). C20: on a scenarios-bank
+        // server, score-station validates against the station's own scenario
+        // rubric (see scenario-rubric.ts).
         if (rejectReplayGuardedIntent(this.replayReturnGuard, binding.score, client, message)) {
+          return;
+        }
+        if (scenarioBank !== null && isScoreStationIntent(message)) {
+          handleScenarioScoreIntent(
+            this.state,
+            binding.score.scoreDir ?? "",
+            station.stationId,
+            station.scenarioId,
+            scenarioResolved?.rubric ?? null,
+            client,
+            message,
+          );
           return;
         }
         handleReplayReviewIntent(this.state, binding.score, station.stationId, client, message, (onFailed) => {
@@ -324,6 +325,7 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
     /** C12 lobby select gate plus the C14 finalize sign-off (see review-packet.ts). */
     private handleLobbyIntent(client: Client, message: unknown): void {
       const room = this;
+      const scenarioBank = binding.score.scenarioRubrics ?? null;
       handleLobbyIntentWithFinalize(
         {
           state: room.state,
@@ -342,6 +344,12 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
         (stationId, onFailed) => {
           launchLobbyReplayFor(ENCOUNTER_ROOM_NAME, stationId, client, onFailed);
         },
+        // C20: on a scenarios-bank server the sign-off validates each station
+        // against its own scenario rubric (packet totalPossible is the sum of
+        // the per-station rubric sizes).
+        scenarioBank === null
+          ? undefined
+          : (id) => stationScenarioRubric(binding.replay, scenarioBank, id),
       );
     }
 

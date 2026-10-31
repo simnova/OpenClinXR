@@ -12,6 +12,7 @@
  * (see room.ts): a reviewer pointed at the wrong server must never get a
  * live learner seat.
  */
+
 import { ArraySchema, MapSchema } from "@colyseus/schema";
 import { matchMaker } from "@colyseus/core";
 import type { Client } from "@colyseus/core";
@@ -24,7 +25,7 @@ import {
   type LobbyScoreStateInstance,
   type LobbyStationStateInstance,
 } from "./schema.js";
-import type { LoadedStationReplay } from "./station-replay.js";
+import type { LoadedStationReplay } from "./station-replay-loading.js";
 import { LAUNCH_PENDING_REASON, type LobbyScore } from "./faculty-score.js";
 
 /** Reject reason for every non-select intent in the lobby. */

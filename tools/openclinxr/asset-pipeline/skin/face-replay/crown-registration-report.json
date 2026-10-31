@@ -283,7 +283,7 @@
    "crown_presence_bound": 0.433,
    "crown_presence_pass": false,
    "crown_presence_note": "miss: warm skin under this rig always exceeds R-G>25 (goal-front itself 1.0 in the same crop; b2s1 light skin 0.0); r1 defect 0.8662 vs hb1 0.8646 look identical to this threshold yet hb1 crop mean [200.8,169.4,139.4] vs r1 [137.7,67.9,48.7] (much lighter, chroma matched).",
-   "front_render": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2hb1/render/body2-hb1-socket-front.png",
+   "front_render": "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-hb1-front.png",
    "yaw25_render": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2hb1/render/body2-hb1-socket-yaw25.png",
    "yaw40_render": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2hb1/render/body2-hb1-socket-yaw40.png",
    "store_front": "/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-hb1-front.png",

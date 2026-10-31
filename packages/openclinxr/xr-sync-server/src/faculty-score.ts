@@ -45,6 +45,12 @@ export interface ReviewRubricItem {
 export interface FacultyScoreBinding {
   scoreDir: string | null;
   rubric: ReviewRubricItem[] | null;
+  /**
+   * C20 per-scenario rubric bank (scenarioId -> rubric, server config only).
+   * Set only on a replay server booted with scenarios and no reviewRubric;
+   * null on every other server (the C13 single-rubric path is unchanged).
+   */
+  scenarioRubrics?: Map<string, ReviewRubricItem[]> | null;
 }
 
 /** One lobby score badge: a station with a score file on disk. */
@@ -57,6 +63,12 @@ export interface LobbyScore {
 export interface FacultyScoreFile {
   schema: string;
   stationId: string;
+  /**
+   * C20 the station's own scenario id (present only on scores written against
+   * a scenarios bank; absent on C13 single-rubric scores so their exact JSON
+   * is unchanged).
+   */
+  scenarioId?: string;
   items: { id: string; checked: boolean }[];
   checkedCount: number;
   rubricSize: number;
@@ -149,11 +161,21 @@ export function validateScoreItems(
   return { ok: true, checked };
 }
 
-/** Build the review-safe score file (rubric order; no identity, no timestamps, no labels). */
-export function buildFacultyScore(stationId: string, rubric: ReviewRubricItem[], checked: boolean[]): FacultyScoreFile {
+/**
+ * Build the review-safe score file (rubric order; no identity, no
+ * timestamps, no labels). C20: pass the station's scenarioId to name the
+ * scenario in the file (omitted when undefined so C13 files are unchanged).
+ */
+export function buildFacultyScore(
+  stationId: string,
+  rubric: ReviewRubricItem[],
+  checked: boolean[],
+  scenarioId?: string,
+): FacultyScoreFile {
   return {
     schema: FACULTY_SCORE_SCHEMA,
     stationId,
+    ...(scenarioId === undefined ? {} : { scenarioId }),
     items: rubric.map((entry, index) => ({ id: entry.id, checked: checked[index] === true })),
     checkedCount: checked.filter((value) => value).length,
     rubricSize: rubric.length,

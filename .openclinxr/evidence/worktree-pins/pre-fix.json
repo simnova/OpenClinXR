@@ -1,0 +1,924 @@
+{
+ "schema": "openclinxr.worktree-pins.pre-fix.v1",
+ "measuredAt": "2026-10-31T15:50:23-04:00/16:10:41-04:00 (first move window), second window for arena+tools-extra",
+ "tree": "17da56ed9b0d9b789d377303ae0367eb3757fbcc (origin/main at worktree add)",
+ "census": {
+  "trackedFilesCiting": 173,
+  "trackedFilesCitingSource": "git ls-files -z | xargs -0 grep -lE 'grok/worktrees/src-openclinxr/' | wc -l",
+  "citationOccurrences": 1863,
+  "citationOccurrencesSource": "git ls-files -z | xargs -0 grep -ohE 'grok/worktrees/src-openclinxr/' | wc -l",
+  "nonMarkdownCitingFiles": 166,
+  "testFilesCitingDirectly": 10
+ },
+ "method": "mv the cited, idle worktree dirs to ~/.grok/worktrees/src-openclinxr-hold-pins (pgrep -f and lsof +D empty for each), run every test file that names a citing file by basename (package tests) or by dir/basename or a specific basename (tools tests), compare per-file status with a run taken with the dirs in place, then mv back and rerun the reds.",
+ "movedDirs": [
+  "third",
+  "browform",
+  "catchroom",
+  "childin",
+  "detailbands",
+  "eyereal",
+  "eyeshade",
+  "issue-349",
+  "issue-355",
+  "issue-368",
+  "issue-583",
+  "station-skin-int",
+  "stationchild",
+  "realism-95",
+  "true-station-reply-capture",
+  "facefit2",
+  "issue-665",
+  "site-hair1",
+  "hair-tgt2"
+ ],
+ "testFilesMeasured": 169,
+ "preExistingFailuresBothWays": [
+  "apps/arena/ui-xr-iwsdk-spike/src/sidecar-state.test.ts",
+  "tools/openclinxr/evidence/ecg-cart-grades/the-ecg-cart-g1-4view-bake-has-been-graded.test.ts"
+ ],
+ "redOnlyWithDirsMoved": [
+  "packages/openclinxr/stations/face-realism-evidence/src/a-donor-island-lands-only-where-it-is-registered.test.ts",
+  "packages/openclinxr/stations/face-realism-evidence/src/the-station-runs-on-a-child-case.test.ts"
+ ],
+ "classification": [
+  {
+   "verdict": "TEST-READ",
+   "report": "tools/openclinxr/evidence/second-subject/third-subject-report.json",
+   "field": "findings[id=F3-tone-anchor].artifacts[0]",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/third/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+   "sha256": "402d736df2b040cec87695eedbb944bb2d83360e411280707a994d2579bf39c3",
+   "shaSource": "third-subject-report.json findings F3 observed_value",
+   "reader": "packages/openclinxr/stations/face-realism-evidence/src/the-station-runs-on-a-child-case.test.ts:347 existsSync(artifact)",
+   "redWithDirsMoved": "the station runs on a child case (8): observed artifact exists: .../third/.../tone-report.json: expected false to be true"
+  },
+  {
+   "verdict": "TEST-READ",
+   "report": "tools/openclinxr/asset-pipeline/skin/face-replay/crown-registration-report.json",
+   "field": "hb1.body2.front_render",
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2hb1/render/body2-hb1-socket-front.png",
+   "sha256": "5b260e3d03c0ae5e24c8bee60f5c726bff6206c6b35c51525db1577857c8eb26",
+   "shaSource": "crown-registration-report.json store_shas[/Volumes/files/openclinxr-assets/store/crown-registered/body2-crownreg-hb1-front.png]; shasum -a 256 of the worktree file matches",
+   "reader": "packages/openclinxr/stations/face-realism-evidence/src/a-donor-island-lands-only-where-it-is-registered.test.ts:184 crownPresence(hb1.front_render) opens the PNG",
+   "redWithDirsMoved": "the hb1 registration report lands body2 tone-matched with a clean crown: PIL FileNotFoundError on body2-hb1-socket-front.png"
+  }
+ ],
+ "testReadCitations": 2,
+ "provenanceOnlyCitations": 1861,
+ "provenanceOnlySource": "1863 occurrences - 2 TEST-READ; includes the 10 test files that hold worktree constants behind existsSync skips (green both ways)",
+ "knownGoodControl": {
+  "test": "packages/openclinxr/stations/face-realism-evidence/src/the-child-case-has-station-inputs.test.ts",
+  "reads": "join(repoRoot, tools/openclinxr/evidence/second-subject/third-subject-report.json):131",
+  "dirsPresent": "passed",
+  "dirsMoved": "passed"
+ },
+ "restoredRerun": "both reds green with dirs restored: 2 files, 15 tests passed",
+ "notTested": "tests that name a citing file only through a computed path with a generic basename (report.json, manifest.json, pre-fix.json) outside the measured set; worktrees cited by tracked files but already gone (rechain, issue-255, lidrepin, issue-360, issue-702, ...) could not be moved, and any test reading them is either skip-gated or already red on main",
+ "rows": [
+  {
+   "test": "apps/api/src/scenario-promotion-path.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "apps/arena/ui-xr-iwsdk-spike/src/sidecar-state.test.ts",
+   "dirsPresent": "failed",
+   "dirsMoved": "failed"
+  },
+  {
+   "test": "apps/ui-xr/src/static-assets.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/agent-loop/src/measured-before-rule.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/arena/model-vetting/src/cagematch-report.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/arena/model-vetting/src/model-vetting.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/arena/physics-touch-contract/src/__tests__/physics-ui-xr-bind.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/asset-registry/src/asset-writer.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/capability-gateway/src/asset-generation-jobs.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/capability-gateway/src/the-animation-generation-job-publishes-the-motion-glb.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/clothing_consume/the-rig-refit-lands-on-animated-figures.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/equipment_generate/the-equipment-station-publishes-a-runtime-asset-url.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/motion_retarget/root-location-frame.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/room_chain/the-room-chain-stage-cache.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/room_clinic_finish/the-room-clinic-finish-ceiling-grid-and-flat-troffer.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/room_clinic_finish/the-room-clinic-finish-ceiling-troffer-and-floor-uv.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/room_clinic_finish/the-room-clinic-finish-cove-base.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/room_clinic_finish/the-room-clinic-finish-floor-tile.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/room_clinic_finish/the-room-clinic-finish-imports-its-input-glb.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/room_clinic_finish/the-room-clinic-finish-ward-door.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/room_generate/the-room-occlusion-bakes-with-cycles.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/room_generate/the-room-occlusion-box-projects-its-ao-uv.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/room_generate/the-room-occlusion-separates-coplanar-groups.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/room_generate/the-shell-bake-gives-skirting-its-own-matte-role.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/room_generate/the-shell-bake-gives-trim-a-real-bake.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/room_generate/the-shell-bake-runs-before-the-extract.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/factory-stations/src/the-factory-station-schemas-validate.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/scenario-fixtures/src/the-touch-response-clip-follows-the-region.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/shared-schemas/src/the-factory-station-schemas-validate.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/a-donor-island-lands-only-where-it-is-registered.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "failed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/a-registered-scalp-source-lifts-the-painted-scalp-refusal.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/a-stored-chroma-field-brings-body2-regions-to-the-goal.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/derive-refuses-a-non-body-skin-and-aisha-replays-for-real.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-beard-shadow-layer-is-identity-at-zero-and-matches-the-goal.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-brow-follows-the-case-brow-form.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-cheek-brightness-cause-is-found-one-layer-at-a-time.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-child-case-has-station-inputs.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-colour-solve-replays-without-a-render.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-detail-bands-report-holds.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-detail-bands-spare-the-lips.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-face-station-completes-the-child-case.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-face-station-executes-the-chain.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-face-station-replays-a-stored-record.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-face-station-runs-seven-stages-from-a-case.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-field-covers-the-forehead.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-forehead-sheen-matches-the-goals.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-hand-steps-replay-from-the-chain-manifest.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-lateral-skin-gates-cancel-the-photo-key.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-mask-finds-the-lip-line-and-the-chin.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-nearest-family-wins-over-a-flattening-multiply.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-pore-grain-peaks-at-the-goal-frequency.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-regional-shading-layer-is-found-by-ablation.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-renders-ride-the-lidconform-bake.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-room-exposure-comes-from-the-shirt.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-scalp-region-matches-the-forehead.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-second-body-cites-the-chain-and-not-the-parent-sheet.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-skin-chain-takes-the-child-case.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-skin-detail-bands-match-the-goal.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-skin-families-are-recorded-and-leak-gated.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-skin-gates-are-split-by-what-light-can-change.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-skin-layers-are-identity-at-zero-weight.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-skin-maps-follow-the-morphed-mesh.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-station-bakes-the-fitted-face.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-station-chains-compose-and-colour.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-station-passes-the-skin-card-flags.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-station-reruns-body2-from-the-case-id.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-station-runs-every-manifest-stage.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-station-runs-on-a-child-case.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "failed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-station-ships-one-brow-by-case.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/face-realism-evidence/src/the-tone-is-solved-per-region-and-a-painted-scalp-refuses.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-corner/the-conjunctiva-caruncle-fit-inherits-lid-morphs.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/the-lash-alpha-card-follows-blink.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/the-lower-lashes-attach-to-the-lid.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/gltf-ext/the-teeth-and-tongue-post-steps-keep-material-extensions.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/mouth-executor/src/executor.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/quest-capacity-evidence/src/quest-capacity/cli.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/quest-capacity-evidence/src/quest-capacity/controller/collector.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/eye-realism/the-eye-realism-bisect-names-each-factor.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/eye-realism/the-eye-runtime-shading-passes-gates.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/iris-neutral/a-brown-iris-renders-brown-not-red.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/lid-conform/body2-canthus-seat-and-lift.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/lid-conform/lid-conform-takes-its-subject-from-the-case.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/lid-conform/the-child-lid-conforms-to-its-age-sized-globe.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/lid-conform/the-lid-ring-sits-on-the-globe.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/sclera-shade/the-iris-spare-scales-with-lid-occlusion.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/sclera-shade/the-sclera-lid-shadow-bake-report.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/sclera-shade/the-sclera-shades-like-the-goal-photo.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/sclera-shade/the-shell-alpha-readback-names-a-verdict.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/sclera-shade/the-shell-shades-the-upper-sclera-on-both-subjects.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/tearline/the-tearline-stays-in-the-lid-crease.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/evidence/realism-head/eyes/the-compat-report-names-the-producer-manifests.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/evidence/realism-head/eyes/the-g3-lid-refit-seals-the-new-profile.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/evidence/realism-head/eyes/the-g4-lash-reseat-follows-blink.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/evidence/realism-head/eyes/the-g5-catchlight-reproves-the-recipe.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/evidence/realism-head/eyes/the-g6-child-head-carries-the-proportional-anterior.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/evidence/realism-head/eyes/the-g6-full-head-carries-the-anterior-segment.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/evidence/realism-head/eyes/the-geometric-iris-disc-holds-centre-and-limbus.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/evidence/realism-head/eyes/the-iris-upgrade-renders-fibre-and-a-dot.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/evidence/realism-head/globe/the-lid-opening-shows-no-body-skin.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/evidence/realism-head/mouth/the-mouth-report-names-the-producer-manifests.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/realism-head-evidence/src/evidence/realism-head/shell/the-shell-and-tearline-are-lid-bound.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/room-generate-evidence/src/room-generate/the-runtime-consumes-the-baked-occlusion.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/room-generate-evidence/src/room-generate/the-telehealth-room-is-inspectable-without-the-hud.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/scene-closure-evidence/src/scene-closure/proofs/sc-05/current-main-browser-foot-truth/the-current-main-browser-foot-truth.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/trellis-evidence/src/evidence/a-controlled-trellis-conditioning-run-records-four-comparable-arms.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/trellis-evidence/src/evidence/a-sampler-sweep-produced-a-number-nobody-had.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/trellis-evidence/src/evidence/a-trellis-bake-can-set-its-sampler.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/trellis-evidence/src/evidence/the-bake-resolution-has-never-been-varied-against-the-streaks.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/trellis-evidence/src/evidence/the-bake-stage-has-run-on-a-subject-where-the-map-wins.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/trellis-evidence/src/evidence/the-derived-trellis-fleet-has-terminal-measured-dispositions.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/trellis-evidence/src/evidence/the-optimize-path-can-bake-before-it-decimates.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/stations/trellis-evidence/src/trellis/trellis-hatch-cli.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/ui-route-admin/src/runtime-selection-review-packet-panel.test.tsx",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/voice-gateway/src/grok-voice-provider.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/xr-dialogue/src/lip-sync-tier-select.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/xr-dialogue/src/live-stt-rate-independence.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/xr-humanoid-animation/src/an-owned-chain-survives-the-posture-pass.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/xr-scene/src/cornea-env/catchlight-room-key.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/xr-scene/src/cornea-env/the-cornea-env-intensity-changes-the-globe.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/xr-scene/src/cornea-env/the-key-catchlight-is-falsified-by-rig.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/xr-scene/src/eye-shader/the-eye-shader-runs-in-the-runtime.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/xr-scene/src/eye-shader/the-iris-parallax-matches-a-refraction-render.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/xr-scene/src/skin-shader/the-cavity-darkens-specular-not-albedo.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/xr-scene/src/skin-shader/the-skin-lut-is-identity-on-flat-skin.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/xr-scene/src/skin-shader/the-skin-renders-at-skin-ior.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/xr-scene/src/skin-shader/the-skin-shader-flag-is-read-back.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "packages/openclinxr/xr-station/src/station-equipment.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/asset-pipeline/eyes/the-eye-mesh-decision-names-an-outcome.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/asset-pipeline/skin/coherent-normal/tests/test_bind_unittest.py",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/asset-pipeline/skin/factory-finish/finalize.test.py",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/a-gitignored-proof-target-is-caught-before-the-worker-runs.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/a-graded-image-says-which-commit-produced-it.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/an-authored-eye-colour-is-one-the-factory-can-build.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/anny-candidate-preflight.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/casual-top-is-a-real-garment.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/docs-hygiene-skips-worktree-sessions.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/ecg-cart-grades/the-ecg-cart-g1-4view-bake-has-been-graded.test.ts",
+   "dirsPresent": "failed",
+   "dirsMoved": "failed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/face-defects/the-open-defect-table-has-one-row-each.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/face-gate/the-face-gate-clauses-name-their-source.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/face-regression/the-face-regression-step0-defects.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/fixtures/ecg-controls/ecg-input-bootstrap.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/footwear-is-a-real-garment.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/infinigen-extract-single-room.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/luminance-gate/the-luminance-gate-tells-a-zero-median-from-a-missing-one.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/no-shipped-station-captures-darker-than-it-did.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/quest-capacity/audio-frame-tags/native-operator/test_run_graph.py",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/retarget-drives-the-library-rig.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/shipped-blink-closure/the-shipped-blink-gap-has-a-measured-cause.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/station-reply-mouth-capture/the-station-reply-mouth-capture-writes-control-and-treatment.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/the-asset-adjacent-bind-report-names-the-shipped-clip.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/the-audit-does-not-claim-a-verification-it-never-checked.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/the-darkness-gate-knows-which-tree-it-measured.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/the-iwsdk-lists-agree-with-what-the-spike-ships.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/the-luminance-gate-only-claims-what-it-can-see.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/the-luminance-gate-tells-a-zero-median-from-a-missing-one.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/the-mouth-open-morph-is-capped-where-the-face-survives.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/the-mouth-open-sweep-shows-where-the-face-collapses.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/the-rapier-character-controller-grounds-a-standing-actor.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/trellis-bake-cli.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/trellis-live-bake-gate.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/evidence/trellis-monitor-decimation.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/factory/encounter-asset-generation-worker.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/factory/encounter-local-launch-selection.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/factory/encounter-runtime-handoff-adapter.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/openclaw/a-slice-is-not-dispatched-into-the-same-wall-twice.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/openclaw/no-hardcoded-worktree-roots.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/openclaw/the-supervisor-reports-what-is-not-self-correcting.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/openclaw/worktree-promote.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  },
+  {
+   "test": "tools/openclinxr/openclaw/worktree-prune.test.ts",
+   "dirsPresent": "passed",
+   "dirsMoved": "passed"
+  }
+ ]
+}

@@ -40,6 +40,8 @@
     "src/xr-sync-c18-cast-trace-replay.test.ts",
     "src/xr-sync-c19-scenario-schedule.test.ts",
     "src/xr-sync-c2-probe.test.ts",
+    "src/xr-sync-c20-scenario-rubric.test.ts",
+    "src/xr-sync-c21-trace-tag-coverage.test.ts",
     "src/xr-sync-c3-actor-turn.test.ts",
     "src/xr-sync-c4-conversation-trace.test.ts",
     "src/xr-sync-c5-observer.test.ts",
