@@ -222,6 +222,44 @@ describe("real equipment GLBs are assembled objects (#168)", () => {
     ).toHaveLength(0);
   }, 900_000);
 
+  it("every IV pole part is mounted: one touch-graph from the pole within 5 mm (bx_audit 2026-10-30)", async () => {
+    // bx_audit on main 0cbf775dd: the pump box hung 7.5 cm off the pole with no clamp, its status
+    // screen floated in front of the pump, and the bag hook sat above the pole top. The 0.08 m
+    // gap + XZ-overlap gate above admits all three. 5 mm admits a seam and nothing that reads as air.
+    const mod = (await load()) as {
+      inspectEquipmentGlbAssembly?: (input: { equipmentId: string; glbFileName: string }) => Promise<EquipmentAssembly>;
+    };
+    const pole = await mod.inspectEquipmentGlbAssembly!({
+      equipmentId: "iv_stand_equipment",
+      glbFileName: "iv-pole-with-pump.glb",
+    });
+    const TOUCH_METERS = 0.005;
+    const parts = pole.parts;
+    const sep = (a: PartPlacement, b: PartPlacement) => Math.max(
+      Math.max(0, a.worldMin.x - b.worldMax.x, b.worldMin.x - a.worldMax.x),
+      Math.max(0, a.worldMin.y - b.worldMax.y, b.worldMin.y - a.worldMax.y),
+      Math.max(0, a.worldMin.z - b.worldMax.z, b.worldMin.z - a.worldMax.z),
+    );
+    const root = parts.find((p) => p.name === "iv_pole_with_pump");
+    expect(root, "the pole part is missing").toBeDefined();
+    expect(parts.map((p) => p.name)).toEqual(expect.arrayContaining(["iv_infusion_pump", "pump_status_screen", "iv_bag_hook"]));
+    const reached = new Set([root!.name]);
+    for (let grew = true; grew;) {
+      grew = false;
+      for (const p of parts) {
+        if (reached.has(p.name)) continue;
+        if (parts.some((q) => reached.has(q.name) && sep(p, q) <= TOUCH_METERS)) {
+          reached.add(p.name);
+          grew = true;
+        }
+      }
+    }
+    const floating = parts
+      .filter((p) => !reached.has(p.name))
+      .map((p) => `${p.name} (nearest ${Math.min(...parts.filter((q) => q !== p).map((q) => sep(p, q))).toFixed(4)} m)`);
+    expect(floating, `IV pole parts not mounted to the pole:\n${floating.join("\n")}`).toHaveLength(0);
+  }, 120_000);
+
   it("the IV pole and the parametric mounts are unaffected (COUNTERWEIGHT)", async () => {
     // The IV pole renders correctly today and must keep doing so; the sixteen parametric kinds are
     // the fallback that six PROVENANCE-declared-but-absent assets already rely on.

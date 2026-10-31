@@ -461,12 +461,19 @@ clear_scene()
 metal = material("iv_pole_brushed_metal", (0.62, 0.64, 0.66, 1.0))
 plastic = material("infusion_pump_plastic", (0.86, 0.87, 0.82, 1.0))
 screen = material("pump_status_screen", (0.02, 0.12, 0.09, 1.0))
+# Pole radius 0.025, top at z=1.85. Cube scale is full extent (size=1). bx_audit 2026-10-30
+# measured the pump 7.5 cm off the pole, its screen 3.25 cm in front of the pump face and the
+# hook 1.75 cm above the pole top; every part below now touches the part it hangs from.
 cylinder("iv_pole_with_pump", (0, 0, 0.95), 0.025, 1.8, metal)
-cube("iv_infusion_pump", (0.18, -0.03, 1.10), (0.16, 0.07, 0.20), plastic)
-cube("pump_status_screen", (0.18, -0.105, 1.15), (0.11, 0.015, 0.045), screen)
+# Clamp wraps the pole (x 0..0.075 overlaps the pole's +x half) and meets the pump's -x face.
+cube("iv_pump_pole_clamp", (0.0375, -0.03, 1.10), (0.075, 0.05, 0.06), metal)
+cube("iv_infusion_pump", (0.155, -0.03, 1.10), (0.16, 0.07, 0.20), plastic)
+# Screen sits on the pump's front face (y=-0.065).
+cube("pump_status_screen", (0.155, -0.0725, 1.15), (0.11, 0.015, 0.045), screen)
 for angle_name, x, y in [("front", 0, -0.32), ("back", 0, 0.32), ("left", -0.32, 0), ("right", 0.32, 0)]:
     cube(f"iv_pole_base_leg_{angle_name}", (x / 2, y / 2, 0.06), (abs(x) or 0.045, abs(y) or 0.045, 0.035), metal)
-cube("iv_bag_hook", (0, 0, 1.88), (0.20, 0.025, 0.025), metal)
+# Hook crossbar passes through the pole top (z 1.8275..1.8525).
+cube("iv_bag_hook", (0, 0, 1.84), (0.20, 0.025, 0.025), metal)
 export(config["ivPoleWithPumpGlbPath"])
 `;
 }
