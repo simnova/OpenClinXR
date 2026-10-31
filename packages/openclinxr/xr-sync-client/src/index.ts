@@ -108,6 +108,8 @@ export interface EncounterSnapshot {
   scenarioTitle?: string;
   /** C19 last schedule eventId that fired on this station ("" before any fire; absent on old servers). */
   lastScheduledEventId?: string;
+  /** C20 the replayed station's scenario rubric checklist (replay only; [] without a scenario rubric; absent on old servers). */
+  replayRubric?: Array<{ id: string; label: string }>;
 }
 
 /** Live headset-side connection: intents out, snapshots in. */

@@ -39,6 +39,7 @@ import { createC12LobbyEvidence, createC12LobbyTracker, handleC12SelectEvent, ty
 import { createC13Evidence, createC13Tracker, handleC13Trigger, type C13Evidence } from "./probe-c13.js";
 import { createC14Evidence, createC14Tracker, handleC14Trigger, type C14Evidence } from "./probe-c14.js";
 import { createC15Evidence, trackC15Snapshot, type C15Evidence } from "./probe-c15.js";
+import { handleC20Trigger } from "./probe-c20.js";
 import { runProbeScript } from "./probe-script.js";
 import { attachC8RotationFailed, createC8ObserverTracker, pushC8StationObservation } from "./probe-c8.js";
 import { createIntentQueue, drainIntents, waitFor } from "./probe-queue.js";
@@ -377,7 +378,9 @@ async function main(): Promise<void> {
         ? handleC12SelectEvent({ event, aim: commandedAim, c12: probe.c12, enqueue: enqueueIntent, pushLocal: (id: string) => probe.selectedLocal.push(id) })
         : query.script === "c13"
           ? handleC13Trigger({ event, aim: commandedAim, c12: probe.c12, c13: probe.c13, enqueue: enqueueIntent, pushLocal: (id: string) => probe.selectedLocal.push(id) })
-          : handleC14Trigger({ event, aim: commandedAim, c12: probe.c12, c13: probe.c13, c14: probe.c14, enqueue: enqueueIntent, pushLocal: (id: string) => probe.selectedLocal.push(id) });
+          : query.script === "c20"
+            ? handleC20Trigger({ event, aim: commandedAim, enqueue: enqueueIntent, pushLocal: (id: string) => probe.selectedLocal.push(id) })
+            : handleC14Trigger({ event, aim: commandedAim, c12: probe.c12, c13: probe.c13, c14: probe.c14, enqueue: enqueueIntent, pushLocal: (id: string) => probe.selectedLocal.push(id) });
       if (!handled) {
         probe.selectMisses += 1;
       }

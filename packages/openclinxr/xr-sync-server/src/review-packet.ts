@@ -41,7 +41,8 @@ import {
 import { PATIENT_NOTE_SCHEMA } from "./patient-note.js";
 import { handleLobbySelectIntent, launchLobbyStationReplay, launchReplayReturnToLobby, type LobbySelectRoom } from "./review-lobby.js";
 import type { EncounterStateInstance } from "./schema.js";
-import type { LoadedStationReplay } from "./station-replay.js";
+import type { LoadedStationReplay } from "./station-replay-loading.js";
+import { buildScenarioReviewPacket, writeScenarioReviewPacket } from "./scenario-rubric.js";
 
 /** Schema tag written into the persisted faculty review packet. */
 export const REVIEW_PACKET_SCHEMA = "openclinxr.xr-sync.faculty-review-packet.v1";
@@ -241,6 +242,11 @@ function kindOf(message: unknown): string {
  * when any station is unscored (no packet), a reject when already signed
  * off. The finalized flag lands in state BEFORE the ack so the next
  * snapshot already carries it.
+ *
+ * C20: pass resolveScenarioRubric on a scenarios-bank server to validate
+ * each station against its own scenario rubric (the packet's totalPossible
+ * is then the sum of the per-station rubric sizes); omit it for the C13/C14
+ * single-rubric path (unchanged).
  */
 export function handleLobbyFinalizeIntent(
   state: EncounterStateInstance,
@@ -249,14 +255,38 @@ export function handleLobbyFinalizeIntent(
   replayDir: string | null,
   client: Client,
   message: unknown,
+  resolveScenarioRubric?: (stationId: string) => { scenarioId: string; rubric: ReviewRubricItem[] } | null,
 ): void {
   const seq = seqOf(message);
-  if (score.scoreDir === null || score.rubric === null || replay === null || replayDir === null) {
+  if (score.scoreDir === null || replay === null || replayDir === null) {
+    client.send("reject", { seq, reason: SCORING_DISABLED_REASON });
+    return;
+  }
+  if (resolveScenarioRubric === undefined && score.rubric === null) {
     client.send("reject", { seq, reason: SCORING_DISABLED_REASON });
     return;
   }
   if (isReviewFinalized(score.scoreDir)) {
     client.send("reject", { seq, reason: REVIEW_FINALIZED_REASON });
+    return;
+  }
+  if (resolveScenarioRubric !== undefined) {
+    const built = buildScenarioReviewPacket(replayDir, replay, score.scoreDir, resolveScenarioRubric);
+    if (!built.ok) {
+      client.send("reject", { seq, reason: built.reason });
+      return;
+    }
+    if (!writeScenarioReviewPacket(score.scoreDir, built.packet)) {
+      client.send("reject", { seq, reason: SCORE_WRITE_FAILED_REASON });
+      return;
+    }
+    const learner = state.learners.get(client.sessionId);
+    if (learner) {
+      learner.lastSeq = seq;
+    }
+    state.serverTick += 1;
+    state.reviewFinalized = true;
+    client.send("ack", { seq, serverTs: Date.now() });
     return;
   }
   const built = buildReviewPacket(replayDir, replay, score);
@@ -289,9 +319,10 @@ export function handleLobbyIntentWithFinalize(
   client: Client,
   message: unknown,
   launch: (stationId: string, onFailed: () => void) => void,
+  resolveScenarioRubric?: (stationId: string) => { scenarioId: string; rubric: ReviewRubricItem[] } | null,
 ): void {
   if (kindOf(message) === "finalize-review") {
-    handleLobbyFinalizeIntent(room.state, score, room.replay, replayDir, client, message);
+    handleLobbyFinalizeIntent(room.state, score, room.replay, replayDir, client, message, resolveScenarioRubric);
     return;
   }
   handleLobbySelectIntent(room, client, message, launch);
