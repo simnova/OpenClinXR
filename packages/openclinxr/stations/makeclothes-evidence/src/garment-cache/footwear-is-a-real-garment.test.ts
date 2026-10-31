@@ -1,9 +1,9 @@
-import { dirname, resolve as pathResolve } from "node:path";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { join } from "node:path";
 import { existsSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
+import { mainWorktreeRoot } from "../../../../../../tools/openclinxr/evidence/provider-cache/main-worktree-root.js";
 
 /**
  * #295 graded the learner-visible library figures and named "brown blob shoes with pale toes
@@ -150,8 +150,7 @@ import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
  * not claim to fix; report it as residual poke-through.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const CANDIDATES = `${REPO_ROOT}/apps/ui-xr/public/xr-assets/humanoids/candidates`;
 const CATALOG = `${CANDIDATES}/body-param-catalog.json`;
 

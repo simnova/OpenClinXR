@@ -1,9 +1,9 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { mainWorktreeRoot } from "../../../../../../tools/openclinxr/evidence/provider-cache/main-worktree-root.js";
 
 /**
  * E5 slice, 2026-08-21 — THE CLASS INVENTORY'S POPULATION GUARD IS BLIND.
@@ -97,8 +97,7 @@ import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
  *     string-matching the JSON.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const CACHE = join(mainWorktreeRoot(REPO_ROOT), ".openclinxr-local/provider-cache");
 const INVENTORY = join(REPO_ROOT, "tools/openclinxr/evidence/garment-class-inventory.json");
 
@@ -138,7 +137,9 @@ type Enumerator = {
  * chooses the filename's home under `tools/openclinxr/evidence/` and records it.
  */
 async function loadEnumerator(): Promise<Enumerator> {
-  return (await import("./cached-garment-population.ts")) as unknown as Enumerator;
+  return (await import(
+    "../../../../../../tools/openclinxr/evidence/cached-garment-population.js"
+  )) as unknown as Enumerator;
 }
 
 describe("the class inventory notices a newly cached garment", () => {

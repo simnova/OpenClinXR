@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { mainWorktreeRoot } from "../../../../../../tools/openclinxr/evidence/provider-cache/main-worktree-root.js";
 
 /**
  * E6 slice 1 (#423) — INDEX PREFLIGHT ON THE STAGED CC0 VISEME PACK.
@@ -78,8 +78,7 @@ import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
  *   - visemes01 (22 Microsoft) and faceunits01 (52 ARKit) — neither is staged on this machine.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const CACHE_ROOT = mainWorktreeRoot(REPO_ROOT);
 const PACK = join(CACHE_ROOT, ".openclinxr-local/provider-cache/visemes/makehuman-visemes02/targets/visemes");
 const PREFLIGHT = join(REPO_ROOT, "tools/openclinxr/evidence/visemes02-preflight.json");

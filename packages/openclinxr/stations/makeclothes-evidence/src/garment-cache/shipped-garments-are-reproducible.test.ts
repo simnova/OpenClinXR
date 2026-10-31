@@ -1,9 +1,9 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
-import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { mainWorktreeRoot } from "../../../../../../tools/openclinxr/evidence/provider-cache/main-worktree-root.js";
 
 /**
  * The factory cannot reproduce its own shipped output. Both garments on the library bodies exist ONLY
@@ -97,8 +97,7 @@ import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
  * have no `.mhclo` in any cached pack.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const CACHE_ROOT = mainWorktreeRoot(REPO_ROOT);
 
 const LIBRARY_BODIES = [

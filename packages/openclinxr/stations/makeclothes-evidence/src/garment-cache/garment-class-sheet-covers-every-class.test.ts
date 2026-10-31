@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * E1 slice 3 — THE PORTFOLIO GATE. A labelled contact sheet the ORCHESTRATOR grades.
@@ -64,8 +64,7 @@ import { describe, expect, it } from "vitest";
  *     gets looked at before it is believed.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const INVENTORY = join(REPO_ROOT, "tools/openclinxr/evidence/garment-class-inventory.json");
 const SHEET = join(REPO_ROOT, "tools/openclinxr/evidence/garment-class-sheet.png");
 const SHEET_INDEX = join(REPO_ROOT, "tools/openclinxr/evidence/garment-class-sheet.json");

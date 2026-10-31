@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { HELPER_STRIP_VERTEX, maxBodyVertexRef } from "./lib/mhclo-topology.js";
-import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { HELPER_STRIP_VERTEX, maxBodyVertexRef } from "../../../../../../tools/openclinxr/evidence/lib/mhclo-topology.js";
+import { mainWorktreeRoot } from "../../../../../../tools/openclinxr/evidence/provider-cache/main-worktree-root.js";
 
 /**
  * S0 of the superagent plan, 2026-08-18 — GOWN HELPER-REF PREFLIGHT.
@@ -67,8 +67,7 @@ import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
  *   OBJ vertex count (refused quantity): 768 — distinct from maxVertRef.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const CACHE = join(mainWorktreeRoot(REPO_ROOT), ".openclinxr-local/provider-cache/garments/sources");
 const GOWN_MHCLO = join(CACHE, "makehuman-community-crude-gown/crudegown.mhclo");
 const TOIGO_MHCLO = join(CACHE, "makehuman-shirts01/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo");

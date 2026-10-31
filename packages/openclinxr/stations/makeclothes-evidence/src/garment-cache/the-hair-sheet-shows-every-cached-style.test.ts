@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { mainWorktreeRoot } from "../../../../../../tools/openclinxr/evidence/provider-cache/main-worktree-root.js";
 
 /**
  * # THE GAP, MEASURED 2026-08-19 on main 56a97b41 — do not re-derive these rows
@@ -107,11 +107,10 @@ import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
  *   - Eyes, eyebrows, faceunits, MB-Lab, CharMorph. Separate lanes, unstarted.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
-const INVENTORY = join(HERE, "hair-pack-licence-inventory.json");
-const SHEET = join(HERE, "hair-style-sheet.png");
-const SIDECAR = join(HERE, "hair-style-sheet.json");
+const REPO_ROOT = repoRoot();
+const INVENTORY = join(REPO_ROOT, "tools/openclinxr/evidence/hair-pack-licence-inventory.json");
+const SHEET = join(REPO_ROOT, "tools/openclinxr/evidence/hair-style-sheet.png");
+const SIDECAR = join(REPO_ROOT, "tools/openclinxr/evidence/hair-style-sheet.json");
 
 /** #431: blanks read 0.96 / 1.82; content 26.90-45.56; #442's stills 59.79-59.85. */
 const MIN_CONTENT_SD = 8;

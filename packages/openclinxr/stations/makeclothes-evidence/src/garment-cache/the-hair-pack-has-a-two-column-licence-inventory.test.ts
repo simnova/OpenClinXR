@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { HELPER_STRIP_VERTEX } from "./lib/mhclo-topology.js";
-import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { HELPER_STRIP_VERTEX } from "../../../../../../tools/openclinxr/evidence/lib/mhclo-topology.js";
+import { mainWorktreeRoot } from "../../../../../../tools/openclinxr/evidence/provider-cache/main-worktree-root.js";
 
 /**
  * # THE GAP, MEASURED 2026-08-19 on main 41cb8231 — do not re-derive these rows
@@ -133,9 +133,8 @@ import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
  *   Row order: alphabetical by style (deterministic).
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
-const INVENTORY = join(HERE, "hair-pack-licence-inventory.json");
+const REPO_ROOT = repoRoot();
+const INVENTORY = join(REPO_ROOT, "tools/openclinxr/evidence/hair-pack-licence-inventory.json");
 const CACHE = join(mainWorktreeRoot(REPO_ROOT), ".openclinxr-local/provider-cache/hair/sources");
 const MAPPING = join(REPO_ROOT, "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py");
 
