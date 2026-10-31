@@ -5,7 +5,7 @@ import {
   detectPlants,
   type LiveSeamFrame,
   type LiveSeamRunFile,
-} from "./live-seam.js";
+} from "../../../../../../tools/openclinxr/evidence/slide-phase/live-seam.js";
 
 const toe = (x: number, y: number, z: number) => ({ x, y, z });
 const slot = (x: number, z: number, yaw = 0) => ({ x, y: 0, z, yaw });

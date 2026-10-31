@@ -13,7 +13,7 @@ import {
   trunkLeanDeg,
   wrapDeg,
   yawFromMatrix,
-} from "./upper-body-meter.js";
+} from "../../../../../../tools/openclinxr/evidence/slide-phase/upper-body-meter.js";
 
 const D2R = Math.PI / 180;
 

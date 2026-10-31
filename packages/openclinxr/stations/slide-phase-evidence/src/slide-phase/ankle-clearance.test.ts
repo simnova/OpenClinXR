@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { analyzeSwings, angleAtAnkleDeg, resampleSwing, rmseIntersection } from "./ankle-clearance.js";
+import { analyzeSwings, angleAtAnkleDeg, resampleSwing, rmseIntersection } from "../../../../../../tools/openclinxr/evidence/slide-phase/ankle-clearance.js";
 
 describe("ankle-clearance instrument", () => {
   it("measures a right angle as 90 deg", () => {
