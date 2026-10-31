@@ -3,7 +3,7 @@ import {
   computeTurnQuality,
   MAX_TOE_STEP_PER_FRAME_FLAG_METERS,
   type TurnQualityInput,
-} from "./turn-quality-metrics.js";
+} from "../../../../../../tools/openclinxr/evidence/foot-plant/turn-quality-metrics.js";
 
 /**
  * `maxToeStepPerFrameM` is a defect FLAG, not a pass/fail gate: it names a single-frame XZ toe

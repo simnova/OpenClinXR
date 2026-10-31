@@ -1,15 +1,16 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { planBedsideApproach } from "../../../../packages/openclinxr/asset-registry/src/bedside-approach-path.js";
+import { planBedsideApproach } from "../../../../../../packages/openclinxr/asset-registry/src/bedside-approach-path.js";
 import {
   footSlideMeters,
   stepBedsideApproach,
-} from "../../../../packages/openclinxr/asset-registry/src/approach-executor.js";
+} from "../../../../../../packages/openclinxr/asset-registry/src/approach-executor.js";
 import {
   ED_STRETCHER_DECK_BOUNDS,
   bedsideTargetForClinician,
-} from "../../../../packages/openclinxr/asset-registry/src/index.js";
-import { jointWorldTrack, parseBvh } from "./bvh-foot-plant.js";
+} from "../../../../../../packages/openclinxr/asset-registry/src/index.js";
+import { jointWorldTrack, parseBvh } from "../../../../../../tools/openclinxr/evidence/foot-plant/bvh-foot-plant.js";
 
 /**
  * Does a locomotion clip actually fix step 4's failing foot-slide number?
@@ -30,7 +31,7 @@ import { jointWorldTrack, parseBvh } from "./bvh-foot-plant.js";
  * barely touch the floor" and is simply the wrong joint. Measured before it became a conclusion.
  */
 const CLIP_PATH = path.resolve(
-  process.cwd(),
+  repoRoot(),
   "tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_02_01_walk.bvh",
 );
 

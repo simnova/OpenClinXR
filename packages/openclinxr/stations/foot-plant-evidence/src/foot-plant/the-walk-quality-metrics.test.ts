@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   computeWalkQuality,
   type QualityInput,
-} from "./walk-quality-metrics.js";
+} from "../../../../../../tools/openclinxr/evidence/foot-plant/walk-quality-metrics.js";
 
 /**
  * The walk-quality metrics pass a clean walk and fail a lurching one.

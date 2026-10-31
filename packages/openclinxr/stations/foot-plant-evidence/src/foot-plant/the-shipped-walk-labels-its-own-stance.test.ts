@@ -1,9 +1,10 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import path from "node:path";
 import * as THREE from "three";
 import { describe, expect, it } from "vitest";
 import { FOOT_CONTACT_HEIGHT_METERS } from "@openclinxr/asset-registry/approach-executor";
 import { playLocomotionClip } from "@openclinxr/xr-humanoid-animation/locomotion-clip-playback";
-import { boundClipJointTrack, type BoundClipTrack } from "./bound-clip-foot-track.js";
+import { boundClipJointTrack, type BoundClipTrack } from "../../../../../../tools/openclinxr/evidence/foot-plant/bound-clip-foot-track.js";
 
 /**
  * The shipped physician walk labels its own stance from its own motion.
@@ -65,7 +66,7 @@ import { boundClipJointTrack, type BoundClipTrack } from "./bound-clip-foot-trac
  */
 
 const PHYSICIAN_GLB = path.resolve(
-  process.cwd(),
+  repoRoot(),
   "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
 );
 const CLIP = "openclinxr_retarget_walk_source";

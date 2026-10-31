@@ -4,8 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import { Accessor, Document, NodeIO } from "@gltf-transform/core";
 import { afterEach, describe, expect, it } from "vitest";
-import { measureBoundClipFootPlant } from "./bound-clip-foot-plant.js";
-import { boundClipJointTrack } from "./bound-clip-foot-track.js";
+import { measureBoundClipFootPlant } from "../../../../../../tools/openclinxr/evidence/foot-plant/bound-clip-foot-plant.js";
+import { boundClipJointTrack } from "../../../../../../tools/openclinxr/evidence/foot-plant/bound-clip-foot-track.js";
 
 /** A rig where root "root" carries joint "foot" 0->2 m over 1 s on clip WALK. */
 async function walkGlb(clipName: string, filePath: string): Promise<void> {

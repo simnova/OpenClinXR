@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -5,7 +6,7 @@ import {
   DISPLAYED_WALK_REPORT_PATH,
   classifyDisplayedWalk,
   type DisplayedWalkPass,
-} from "./displayed-walk-on-the-loaded-physician.js";
+} from "../../../../../../tools/openclinxr/evidence/foot-plant/displayed-walk-on-the-loaded-physician.js";
 
 /**
  * Brief §7 step 5: "Capture actual displayed motion, not merely successful loading or a
@@ -17,7 +18,7 @@ import {
  * suite, and its numbers are bound to the scenario and actor it names.
  */
 
-const REPORT_PATH = path.resolve(process.cwd(), DISPLAYED_WALK_REPORT_PATH);
+const REPORT_PATH = path.resolve(repoRoot(), DISPLAYED_WALK_REPORT_PATH);
 
 function passWithToeSpan(spanMeters: number, playing: boolean): DisplayedWalkPass {
   return {

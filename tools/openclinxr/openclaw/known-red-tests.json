@@ -62,7 +62,7 @@
       "card": "unfiled: Kevin body mesh height is null on the shipped GLB"
     },
     {
-      "path": "tools/openclinxr/evidence/foot-plant/the-runtime-displays-the-walk.test.ts",
+      "path": "packages/openclinxr/stations/foot-plant-evidence/src/foot-plant/the-runtime-displays-the-walk.test.ts",
       "reason": "The tracked report docs/openclinxr/evidence/displayed-walk-on-the-loaded-physician.json already records driven actor ward_nurse_patel_v1 on origin/main. Clause 4 expects senior_resident_ward_v1. The report file is not in this merge.",
       "card": "unfiled: retarget the displayed-walk pin to the actor the landed report measured"
     },

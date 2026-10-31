@@ -1,8 +1,9 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { FOOT_CONTACT_HEIGHT_METERS } from "../../../../packages/openclinxr/asset-registry/src/approach-executor.js";
-import { measureStanceGroundAdvance } from "../../../../packages/openclinxr/xr-humanoid-animation/src/case-owned-approach-runtime.js";
-import { boundClipJointTrack } from "./bound-clip-foot-track.js";
+import { FOOT_CONTACT_HEIGHT_METERS } from "../../../../../../packages/openclinxr/asset-registry/src/approach-executor.js";
+import { measureStanceGroundAdvance } from "../../../../../../packages/openclinxr/xr-humanoid-animation/src/case-owned-approach-runtime.js";
+import { boundClipJointTrack } from "../../../../../../tools/openclinxr/evidence/foot-plant/bound-clip-foot-track.js";
 
 /**
  * The shipped physician walk travels opposite the way the rest toes point.
@@ -35,7 +36,7 @@ import { boundClipJointTrack } from "./bound-clip-foot-track.js";
  */
 
 const PHYSICIAN_GLB = path.resolve(
-  process.cwd(),
+  repoRoot(),
   "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
 );
 const CLIP = "openclinxr_retarget_walk_source";

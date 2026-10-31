@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseFixedClockEnabled,
   readFixedClockEnabled,
-} from "../../../../packages/openclinxr/xr-humanoid-animation/dist/fixed-clock-query-flag-mod.js";
+} from "../../../../../../packages/openclinxr/xr-humanoid-animation/dist/fixed-clock-query-flag-mod.js";
 
 describe("fixed-clock query flag", () => {
   it("reads fixedClock=1 as true", () => {

@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-10-31T00:20:13.527Z",
+  "generatedAt": "2026-10-31T00:34:02.647Z",
   "method": "static import-graph scan of tools/**/*.test.ts; value imports only; call detection after stripping comments and string literals",
   "primitives": [
     "spawnPortlessDevServer (lib/portless-server.ts — boots a Vite dev server)",
     "chromium.launch (playwright — boots a headless Chrome shell)"
   ],
-  "totalTestFiles": 909,
-  "browserBootingTestFiles": 63,
+  "totalTestFiles": 894,
+  "browserBootingTestFiles": 62,
   "excludedAmongBrowserBooting": 0,
-  "minBrowsersPerSuiteRun": 62,
-  "minServersPerSuiteRun": 61,
-  "staticUpperBoundBrowsers": 175,
-  "staticUpperBoundServers": 176,
+  "minBrowsersPerSuiteRun": 61,
+  "minServersPerSuiteRun": 60,
+  "staticUpperBoundBrowsers": 173,
+  "staticUpperBoundServers": 174,
   "rows": [
     {
       "testFile": "tools/openclinxr/dark-factory/the-multi-case-rollup-publishes-only-explicitly.test.ts",
@@ -371,25 +371,6 @@
       ],
       "launcherModules": [
         "tools/openclinxr/evidence/fixture-surface-distinct.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "closureServerCallSites": 2,
-      "closureBrowserCallSites": 2,
-      "invokedPathServerCallSites": 1,
-      "invokedPathBrowserCallSites": 1
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/foot-plant/the-runtime-displays-the-walk.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 19,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/foot-plant/displayed-walk-on-the-loaded-physician.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/foot-plant/displayed-walk-on-the-loaded-physician.ts",
         "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
       ],
       "closureServerCallSites": 2,

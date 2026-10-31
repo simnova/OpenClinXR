@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseSteppingTurnEnabled,
   readSteppingTurnEnabled,
-} from "../../../../packages/openclinxr/xr-humanoid-animation/dist/stepping-turn-query-flag-mod.js";
+} from "../../../../../../packages/openclinxr/xr-humanoid-animation/dist/stepping-turn-query-flag-mod.js";
 
 /**
  * Unit test for the stepping-turn `steppingTurn=0` opt-out query parser.

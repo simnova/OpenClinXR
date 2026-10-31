@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { mkdtemp, readFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -7,9 +8,9 @@ import {
   composeWithGroundAdvance,
   groundSpeedFromStance,
   measureReplacementWalkApproach,
-} from "../licence/the-replacement-walk-preserves-approach-behaviour.js";
-import { measureBoundClipFootPlant } from "./bound-clip-foot-plant.js";
-import { boundClipJointTrack } from "./bound-clip-foot-track.js";
+} from "../../../../../../tools/openclinxr/evidence/licence/the-replacement-walk-preserves-approach-behaviour.js";
+import { measureBoundClipFootPlant } from "../../../../../../tools/openclinxr/evidence/foot-plant/bound-clip-foot-plant.js";
+import { boundClipJointTrack } from "../../../../../../tools/openclinxr/evidence/foot-plant/bound-clip-foot-track.js";
 
 /**
  * Two things are proved here and they need different evidence.
@@ -23,14 +24,14 @@ import { boundClipJointTrack } from "./bound-clip-foot-track.js";
  * names a file nobody has — which is visible rather than silent.
  */
 
-const REPORT_PATH = path.resolve(process.cwd(), "docs/openclinxr/evidence/bound-clip-foot-plant.json");
+const REPORT_PATH = path.resolve(repoRoot(), "docs/openclinxr/evidence/bound-clip-foot-plant.json");
 /** SC-04's landed report, which carries the REPLACEMENT clip's measurement beside the CMU control. */
 const SC04_REPORT_PATH = path.resolve(
-  process.cwd(),
+  repoRoot(),
   "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-04.json",
 );
 const PHYSICIAN_GLB = path.resolve(
-  process.cwd(),
+  repoRoot(),
   "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
 );
 

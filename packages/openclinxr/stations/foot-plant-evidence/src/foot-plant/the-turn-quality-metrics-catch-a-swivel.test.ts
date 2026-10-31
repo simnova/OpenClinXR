@@ -6,7 +6,7 @@ import {
   RESIDUAL_TURN_MAX_DEG,
   STEP_LIFT_MIN_METERS,
   type TurnQualityInput,
-} from "./turn-quality-metrics.js";
+} from "../../../../../../tools/openclinxr/evidence/foot-plant/turn-quality-metrics.js";
 
 /**
  * The turn-quality metrics pass a natural stepping turn and fail a swivel — the defect this card

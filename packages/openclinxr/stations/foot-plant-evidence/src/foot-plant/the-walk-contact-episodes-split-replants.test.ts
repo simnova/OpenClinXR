@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { contactEpisodes } from "./ccd-stance-lock/ccd-browser-metrics.js";
-import { computeTurnQuality, type TurnQualityFrame } from "./turn-quality-metrics.js";
+import { contactEpisodes } from "../../../../../../tools/openclinxr/evidence/foot-plant/ccd-stance-lock/ccd-browser-metrics.js";
+import { computeTurnQuality, type TurnQualityFrame } from "../../../../../../tools/openclinxr/evidence/foot-plant/turn-quality-metrics.js";
 
 function frame(
   sample: number,

@@ -1,0 +1,95 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "bedsideTargetForClinician",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "ED_STRETCHER_DECK_BOUNDS",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./approach-executor",
+    "names": [
+      {
+        "name": "FOOT_CONTACT_HEIGHT_METERS",
+        "kind": "runtime"
+      },
+      {
+        "name": "FOOT_CONTACT_HEIGHT_METERS",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "footSlideMeters",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "stepBedsideApproach",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./bedside-approach-path",
+    "names": [
+      {
+        "name": "planBedsideApproach",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "repoRoot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./case-owned-approach-runtime",
+    "names": [
+      {
+        "name": "measureStanceGroundAdvance",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-humanoid-animation",
+    "entrypoint": "./locomotion-clip-playback",
+    "names": [
+      {
+        "name": "playLocomotionClip",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

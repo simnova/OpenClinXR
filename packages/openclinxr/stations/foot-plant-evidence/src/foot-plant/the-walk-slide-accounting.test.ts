@@ -3,7 +3,7 @@ import {
   computeWalkSlideAccounting,
   INSTRUMENT_BAR_METERS,
   type AccountingFrame,
-} from "./walk-slide-accounting.js";
+} from "../../../../../../tools/openclinxr/evidence/foot-plant/walk-slide-accounting.js";
 
 /**
  * The slide accounting decomposes exactly on series with known answers.

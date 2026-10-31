@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseCcdStanceLockEnabled,
   readCcdStanceLockEnabled,
-} from "../../../../packages/openclinxr/xr-humanoid-animation/dist/ccd-stance-lock-query-flag-mod.js";
+} from "../../../../../../packages/openclinxr/xr-humanoid-animation/dist/ccd-stance-lock-query-flag-mod.js";
 
 /**
  * Unit test for the CCD stance-lock `ccdStanceLock=1` opt-in query parser.
