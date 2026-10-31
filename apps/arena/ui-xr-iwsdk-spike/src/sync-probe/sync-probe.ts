@@ -31,17 +31,19 @@ import {
 } from "./probe-state.js";
 import { C4MouthRender, type SyncProbeCueObservation } from "./probe-c4.js";
 import { createPhaseRing, runC6PreEncounterProbe } from "./probe-c6.js";
-import { createAimAndTrigger, type AimPose } from "./probe-c7.js";
+import { createAimAndTrigger, createNeedActors, type AimPose } from "./probe-c7.js";
 import { createC10ReplayObserver, type C10ReplayEvidence } from "./probe-c10.js";
 import { createC11NoteEvidence, createC11NoteTracker } from "./probe-c11.js";
 import type { C11NoteEvidence } from "./probe-c11.js";
 import { createC12LobbyEvidence, createC12LobbyTracker, handleC12SelectEvent, type C12LobbyEvidence } from "./probe-c12.js";
 import { createC13Evidence, createC13Tracker, handleC13Trigger, type C13Evidence } from "./probe-c13.js";
 import { createC14Evidence, createC14Tracker, handleC14Trigger, type C14Evidence } from "./probe-c14.js";
+import { createC15Evidence, trackC15Snapshot, type C15Evidence } from "./probe-c15.js";
 import { runProbeScript } from "./probe-script.js";
 import { attachC8RotationFailed, createC8ObserverTracker, pushC8StationObservation } from "./probe-c8.js";
 import { createIntentQueue, drainIntents, waitFor } from "./probe-queue.js";
 import { parseC13Rubric, parseProbeQuery } from "./probe-query.js";
+import { HEAD_SWEEP_SCRIPTS, LOBBY_SCRIPTS, NO_LEARNER_CATCH_UP_SCRIPTS, POSE_OFF_SCRIPTS, PRE_ENCOUNTER_PROBE_SCRIPTS, REPLAY_SCRIPTS, RUBRIC_SCRIPTS, SELECT_ONLY_TRIGGER_SCRIPTS } from "./probe-scripts.js";
 
 interface ProbePose {
   x: number;
@@ -104,6 +106,7 @@ interface SyncProbeEvidence {
   c12: C12LobbyEvidence; // C12 review-lobby evidence (tiles, trigger hit, select ack, modes).
   c13: C13Evidence; // C13 faculty-score evidence (rubric toggles, submit, return, badges).
   c14: C14Evidence; // C14 sign-off evidence (sign-off trigger, finalize sent, finalized flag, badge).
+  c15: C15Evidence; // C15 blueprint labels rendered (one entry per station, in rotation order).
   done: boolean;
   error: string | null;
 }
@@ -154,6 +157,7 @@ function createEvidence(): SyncProbeEvidence {
     c12: createC12LobbyEvidence(),
     c13: createC13Evidence(),
     c14: createC14Evidence(),
+    c15: createC15Evidence(),
     done: false,
     error: null,
   };
@@ -186,7 +190,7 @@ async function main(): Promise<void> {
     fail(error instanceof Error ? error.message : String(error));
     return;
   }
-  if (query.script === "c13" || query.script === "c14") {
+  if (RUBRIC_SCRIPTS.has(query.script)) {
     probe.c13.rubric = parseC13Rubric(window.location.search);
   }
 
@@ -257,9 +261,9 @@ async function main(): Promise<void> {
   try {
     const options: ConnectOptions = {
       roomOptions:
-        query.script === "c10"
+        REPLAY_SCRIPTS.has(query.script)
           ? { actors: [...PROBE_ACTOR_IDS], replayStationId: query.replayStationId }
-          : query.script === "c12" || query.script === "c13" || query.script === "c14"
+          : LOBBY_SCRIPTS.has(query.script)
             ? { reviewLobby: true }
             : { actors: [...PROBE_ACTOR_IDS] },
     };
@@ -301,6 +305,7 @@ async function main(): Promise<void> {
     trackC12Lobby(snapshot);
     trackC13(snapshot);
     trackC14(snapshot);
+    trackC15Snapshot(probe, snapshot);
     // C6: phase label + ring follow the SERVER only (pure functions of
     // phase/remainingS). The pre-sync push (no server fields) is skipped.
     const phaseField = (snapshot as { phase?: unknown }).phase;
@@ -343,7 +348,7 @@ async function main(): Promise<void> {
   probe.phase = "connected";
   setStatus("sync-probe connected, waiting for session");
 
-  if (query.script === "c6" || query.script === "c7" || query.script === "c8") {
+  if (PRE_ENCOUNTER_PROBE_SCRIPTS.has(query.script)) {
     // Gating probe at connect (doorway): before any XR setup.
     await runC6PreEncounterProbe({
       sent: () => probe.sent,
@@ -356,7 +361,7 @@ async function main(): Promise<void> {
   let lastPoseSendAt = 0;
   let referenceSpace: XRReferenceSpace | null = null;
   let presenting = false;
-  let poseStreaming = query.script !== "c10" && query.script !== "c12" && query.script !== "c13" && query.script !== "c14";
+  let poseStreaming = !POSE_OFF_SCRIPTS.has(query.script);
 
   function onSelectEvent(event: Event): void {
     const source = (event as XRInputSourceEvent).inputSource;
@@ -367,7 +372,7 @@ async function main(): Promise<void> {
     // through the lobby handler only (the script never calls it directly).
     // C13 continues after the replay with rubric/submit/back tiles; C14 adds
     // the sign-off tile after the return to lobby.
-    if (query.script === "c12" || query.script === "c13" || query.script === "c14") {
+    if (LOBBY_SCRIPTS.has(query.script)) {
       const handled = query.script === "c12"
         ? handleC12SelectEvent({ event, aim: commandedAim, c12: probe.c12, enqueue: enqueueIntent, pushLocal: (id: string) => probe.selectedLocal.push(id) })
         : query.script === "c13"
@@ -394,7 +399,7 @@ async function main(): Promise<void> {
       return;
     }
     probe.selectedLocal.push(actorId);
-    if (query.script === "c3" || query.script === "c6" || query.script === "c7" || query.script === "c8") {
+    if (SELECT_ONLY_TRIGGER_SCRIPTS.has(query.script)) {
       // C3/C6/C7 mode: select-actor ONLY. Utterance intents come from the scripted
       // turn sequence below, never from the trigger.
       enqueueIntent("select-actor", { actorId });
@@ -495,12 +500,7 @@ async function main(): Promise<void> {
     presenting = true;
     setStatus("sync-probe in emulated immersive-vr");
 
-    const needActors =
-      query.script === "c10"
-        ? () => Object.keys(probe.lastServerState?.actors ?? {}).length > 0
-        : query.script === "c12" || query.script === "c13" || query.script === "c14"
-          ? () => ((probe.lastServerState as { lobbyStations?: unknown[] } | null)?.lobbyStations?.length ?? 0) > 0
-          : () => probe.lastServerState?.actors?.["a1"] !== undefined && probe.lastServerState?.actors?.["a2"] !== undefined;
+    const needActors = createNeedActors(() => probe.lastServerState, query.script);
     await waitFor(needActors, 15000, "probe actors in snapshot");
 
     const rci = device.remote;
@@ -510,7 +510,7 @@ async function main(): Promise<void> {
     // Skipped for ?script=c7/c8: the sweep generates head-pose evidence only,
     // and station-1's encounter window must fit setup + trigger + the shared
     // C3 turn script. The C3 utterance script itself is never forked.
-    const SWEEP_STEPS = query.script === "c7" || query.script === "c8" || query.script === "c10" || query.script === "c11" || query.script === "c12" || query.script === "c13" || query.script === "c14" ? 0 : 120;
+    const SWEEP_STEPS = HEAD_SWEEP_SCRIPTS.has(query.script) ? 120 : 0;
     for (let step = 0; step < SWEEP_STEPS; step += 1) {
       const yaw = sweepYawDegrees(step * 50);
       const quat = yawQuaternionDegrees(yaw);
@@ -563,7 +563,7 @@ async function main(): Promise<void> {
       sent: () => probe.sent,
       settled: () => probe.acks + probe.rejects,
       learnerCaughtUp: () => probe.lastServerState?.learners?.[connection.sessionId]?.lastSeq === probe.sent,
-      skipLearnerCatchUp: query.script === "c10" || query.script === "c12" || query.script === "c13" || query.script === "c14",
+      skipLearnerCatchUp: NO_LEARNER_CATCH_UP_SCRIPTS.has(query.script),
       waitFor,
     });
 

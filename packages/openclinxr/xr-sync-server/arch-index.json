@@ -24,7 +24,8 @@
     "createEncounterServer": "Boot one encounter room on an HTTP and WebSocket transport, then listen."
   },
   "workspaceDependencies": [
-    "@openclinxr/conversation-policy"
+    "@openclinxr/conversation-policy",
+    "@openclinxr/shared-schemas"
   ],
   "tests": [
     "src/xr-sync-c10-station-replay.test.ts",
@@ -33,6 +34,9 @@
     "src/xr-sync-c13-faculty-score.test.ts",
     "src/xr-sync-c13-score-write-failure.test.ts",
     "src/xr-sync-c14-review-signoff.test.ts",
+    "src/xr-sync-c15-exam-blueprint.test.ts",
+    "src/xr-sync-c16-scenario-cast.test.ts",
+    "src/xr-sync-c17-scenario-voice.test.ts",
     "src/xr-sync-c2-probe.test.ts",
     "src/xr-sync-c3-actor-turn.test.ts",
     "src/xr-sync-c4-conversation-trace.test.ts",

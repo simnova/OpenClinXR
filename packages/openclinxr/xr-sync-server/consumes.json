@@ -10,6 +10,56 @@
     ]
   },
   {
+    "provider": "@openclinxr/conversation-policy",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "CaseEmotionPolicy",
+        "kind": "type"
+      },
+      {
+        "name": "EmotionEngine",
+        "kind": "runtime"
+      },
+      {
+        "name": "EmotionEventKind",
+        "kind": "type"
+      },
+      {
+        "name": "EmotionTransition",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "clinicKneePainScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ExamBlueprint",
+        "kind": "type"
+      },
+      {
+        "name": "Scenario",
+        "kind": "type"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-sync-client",
     "entrypoint": ".",
     "names": [
@@ -51,28 +101,6 @@
       },
       {
         "name": "SyncConnection",
-        "kind": "type"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/conversation-policy",
-    "entrypoint": ".",
-    "names": [
-      {
-        "name": "CaseEmotionPolicy",
-        "kind": "type"
-      },
-      {
-        "name": "EmotionEngine",
-        "kind": "runtime"
-      },
-      {
-        "name": "EmotionEventKind",
-        "kind": "type"
-      },
-      {
-        "name": "EmotionTransition",
         "kind": "type"
       }
     ]

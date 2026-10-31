@@ -30,6 +30,7 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { castForStation } from "./scenario-cast.js";
 import {
   CONVERSATION_TRACE_FILE_SUFFIX,
   type ConversationTrace,
@@ -50,6 +51,10 @@ export const SESSION_REVIEW_INDEX_FILE = "exam-session.review-index.json";
 export interface SessionReviewStationEntry {
   stationId: string;
   stationIndex: number;
+  /** C15 the slot's blueprint label (present only when the session ran from a blueprint). */
+  stationLabel?: string;
+  /** C16 the slot's scenario id (present only when the session ran with scenarios). */
+  scenarioId?: string;
   /** Basename of the station's <roomId>.conversation-trace.json in traceDir. */
   traceFile: string;
   /** Phase names from the trace's phase-changed events, in order. */
@@ -72,6 +77,8 @@ export interface SessionReviewIndex {
   schema: string;
   complete: boolean;
   stationCount: number;
+  /** C15 the blueprint id (present only when the session ran from a blueprint). */
+  blueprintId?: string;
   stations: SessionReviewStationEntry[];
 }
 
@@ -99,12 +106,16 @@ export function stationReviewFromTrace(
   stationIndex: number,
   roomId: string,
   trace: ConversationTrace,
+  stationLabel?: string,
+  scenarioId?: string,
 ): SessionReviewStationEntry {
   const noteEvents = trace.events.filter((event) => event.kind === "note-submitted");
   const lastNoteChars = noteEvents.length > 0 ? (noteEvents[noteEvents.length - 1] as { chars?: unknown }).chars : undefined;
   return {
     stationId,
     stationIndex,
+    ...(stationLabel === undefined ? {} : { stationLabel }),
+    ...(scenarioId === undefined ? {} : { scenarioId }),
     traceFile: `${roomId}${CONVERSATION_TRACE_FILE_SUFFIX}`,
     phases: trace.events.filter((event) => event.kind === "phase-changed").map((event) => event.phase ?? ""),
     turnCount: trace.turns.length,
@@ -121,12 +132,14 @@ export function buildSessionReviewIndex(
   stations: string[],
   entries: Map<number, SessionReviewStationEntry>,
   complete: boolean,
+  blueprintId?: string,
 ): SessionReviewIndex {
   const ordered = [...entries.values()].sort((a, b) => a.stationIndex - b.stationIndex);
   return {
     schema: SESSION_REVIEW_INDEX_SCHEMA,
     complete,
     stationCount: stations.length,
+    ...(blueprintId === undefined ? {} : { blueprintId }),
     stations: ordered.map((entry) => ({ ...entry, phases: [...entry.phases], turnEnds: [...entry.turnEnds] })),
   };
 }
@@ -212,13 +225,16 @@ export async function handleStationClosed(host: StationCloseReviewHost, roomName
   // Trace on disk BEFORE the index: flush the live room now, then hold its
   // snapshot (the rotated-out room may dispose before the index is written).
   // C11: the patient note persists right after the trace it links to.
+  // C15: the blueprint id + slot label ride the entries (absent otherwise).
   host.flushTrace();
   if (host.noteText !== null) {
     persistPatientNote(host.traceDir, host.roomId, host.stationId, host.noteText);
   }
+  const blueprint = host.binding.examBlueprint ?? null;
+  const cast = castForStation(host.binding.scenarioCasts, host.stationIndex);
   collector.entries.set(
     host.stationIndex,
-    stationReviewFromTrace(host.stationId, host.stationIndex, host.roomId, host.traceSnapshot()),
+    stationReviewFromTrace(host.stationId, host.stationIndex, host.roomId, host.traceSnapshot(), blueprint?.labels.get(host.stationId), cast?.scenarioId ?? undefined),
   );
   let learnerFailures = 0;
   let stationCreateFailed = false;
@@ -257,7 +273,7 @@ export async function handleStationClosed(host: StationCloseReviewHost, roomName
   }
   const traceDir = host.traceDir;
   if (host.stationIndex >= stations.length - 1) {
-    writeSessionReviewIndexFile(traceDir, buildSessionReviewIndex(stations, collector.entries, true));
+    writeSessionReviewIndexFile(traceDir, buildSessionReviewIndex(stations, collector.entries, true, blueprint?.blueprintId));
     collector.written = true;
     return;
   }
@@ -266,7 +282,7 @@ export async function handleStationClosed(host: StationCloseReviewHost, roomName
   // covers the stations that ran (the entries held so far).
   const learnerCount = host.clients.filter((client) => !host.isObserver(client.sessionId)).length;
   if (stationCreateFailed || (learnerCount > 0 && learnerFailures >= learnerCount)) {
-    writeSessionReviewIndexFile(traceDir, buildSessionReviewIndex(stations, collector.entries, false));
+    writeSessionReviewIndexFile(traceDir, buildSessionReviewIndex(stations, collector.entries, false, blueprint?.blueprintId));
     collector.written = true;
   }
 }

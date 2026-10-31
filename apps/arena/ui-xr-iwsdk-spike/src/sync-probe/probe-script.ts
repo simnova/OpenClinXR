@@ -37,6 +37,9 @@ import {
   signoffCenter,
   type C14Evidence,
 } from "./probe-c14.js";
+import { runC15Script } from "./probe-c15.js";
+import { createC16Evidence, runC16Script, type C16Evidence } from "./probe-c16.js";
+import { createC17Evidence, runC17Script, type C17Evidence } from "./probe-c17.js";
 import { PROBE_ACTOR_IDS, resolvePhaseLabel } from "./probe-state.js";
 import { parseC11NoteMaxChars } from "./probe-query.js";
 
@@ -270,6 +273,102 @@ export async function runProbeScript(deps: ProbeScriptDeps): Promise<void> {
       setStatus,
       evidence: deps.c14,
       counts: () => ({ acks: deps.intentCounts().acks, rejects: deps.intentCounts().rejects }),
+    });
+  } else if (deps.script === "c15") {
+    // C15 blueprint session: the shared C3 turn script once per blueprint
+    // station (server rotation), with the station label panel tracked.
+    await runC15Script({
+      waitFor,
+      sendIntentAndSettle,
+      aimAndTrigger,
+      enqueueSelectA1: () => deps.enqueueSelectA1(),
+      settlePreProbe: async () => {
+        const target = deps.intentCounts().sent;
+        await waitFor(
+          () => deps.intentCounts().acks + deps.intentCounts().rejects >= target,
+          15000,
+          "station pre-encounter settled",
+        );
+      },
+      getSnapshot,
+      setStatus,
+      setPoseStreaming: (enabled) => {
+        deps.setPoseStreaming(enabled);
+      },
+    });
+  } else if (deps.script === "c16") {
+    // C16 scenario-cast session: one cast-actor select + the C3 turn script
+    // per cast station (server rotation), with the cast panel tracked in the
+    // C16 evidence surface (sync-probe.ts sits at its file-size ceiling, so
+    // probe-c16 owns and publishes window.__syncProbeC16 itself).
+    const c16: C16Evidence = createC16Evidence();
+    const publishC16 = (): void => {
+      window.__syncProbeC16 = c16;
+      // The harness reads window.__syncProbe (harness-lib is shared and
+      // frozen); sync-probe.ts sits at its file-size ceiling and cannot grow
+      // a c16 field, so the C16 module attaches its data-only evidence here.
+      if (window.__syncProbe !== undefined) {
+        Object.assign(window.__syncProbe, { c16 });
+      }
+    };
+    publishC16();
+    await runC16Script({
+      waitFor,
+      sendIntentAndSettle,
+      counts: () => deps.intentCounts(),
+      enqueueSelectA1: () => deps.enqueueSelectA1(),
+      settlePreProbe: async () => {
+        const target = deps.intentCounts().sent;
+        await waitFor(
+          () => deps.intentCounts().acks + deps.intentCounts().rejects >= target,
+          15000,
+          "station pre-encounter settled",
+        );
+      },
+      getSnapshot,
+      setStatus,
+      setPoseStreaming: (enabled) => {
+        deps.setPoseStreaming(enabled);
+      },
+      evidence: c16,
+      publish: publishC16,
+    });
+  } else if (deps.script === "c17") {
+    // C17 scenario-voice session: every cast actor's opening line + caption
+    // per cast station (server rotation), with the caption panel tracked in
+    // the C17 evidence surface (same ceiling rationale as the C16 module: it
+    // owns and publishes window.__syncProbeC17 itself).
+    const c17: C17Evidence = createC17Evidence();
+    const publishC17 = (): void => {
+      window.__syncProbeC17 = c17;
+      // The harness reads window.__syncProbe (harness-lib is shared and
+      // frozen); sync-probe.ts sits at its file-size ceiling and cannot grow
+      // a c17 field, so the C17 module attaches its data-only evidence here.
+      if (window.__syncProbe !== undefined) {
+        Object.assign(window.__syncProbe, { c17 });
+      }
+    };
+    publishC17();
+    await runC17Script({
+      waitFor,
+      sendIntentAndSettle,
+      counts: () => deps.intentCounts(),
+      enqueueSelectA1: () => deps.enqueueSelectA1(),
+      settlePreProbe: async () => {
+        const target = deps.intentCounts().sent;
+        await waitFor(
+          () => deps.intentCounts().acks + deps.intentCounts().rejects >= target,
+          15000,
+          "station pre-encounter settled",
+        );
+      },
+      getSnapshot,
+      setStatus,
+      setPoseStreaming: (enabled) => {
+        deps.setPoseStreaming(enabled);
+      },
+      evidence: c17,
+      publish: publishC17,
     });
   } else {
     for (const actorId of PROBE_ACTOR_IDS) {

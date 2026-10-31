@@ -72,7 +72,7 @@ export interface StationPhaseBindings {
     phaseRemainingS: number;
     turnOwner: string;
     learners: { values(): Iterable<{ speaking: boolean }> };
-    actors: { get(id: string): { speaking: boolean } | undefined };
+    actors: { get(id: string): { speaking: boolean; caption: string } | undefined };
   };
   tracer: { push(event: ConversationTraceEvent): void };
   turnLog: { turnId: number; end: string }[];
@@ -128,6 +128,8 @@ export function attachStationPhaseClock(
         const actor = bindings.state.actors.get(open.actorId);
         if (actor) {
           actor.speaking = false;
+          // C17: a phase-closed reply ends with no caption (same as completion).
+          actor.caption = "";
         }
         const record = bindings.turnLog.find((entry) => entry.turnId === open.turnId);
         if (record && record.end === "open") {

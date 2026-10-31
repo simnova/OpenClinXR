@@ -2737,6 +2737,9 @@ importers:
       '@openclinxr/conversation-policy':
         specifier: workspace:*
         version: link:../conversation-policy
+      '@openclinxr/shared-schemas':
+        specifier: workspace:*
+        version: link:../shared-schemas
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2747,6 +2750,9 @@ importers:
       '@colyseus/sdk':
         specifier: 0.18.8
         version: 0.18.8(@colyseus/core@0.18.10)(typescript@6.0.3)(zod@4.6.6)
+      '@openclinxr/scenario-fixtures':
+        specifier: workspace:*
+        version: link:../scenario-fixtures
       '@openclinxr/xr-sync-client':
         specifier: workspace:*
         version: link:../xr-sync-client

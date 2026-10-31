@@ -14,6 +14,8 @@ export const ActorState = schema(
     emotion: t.string(),
     replyId: t.string(),
     cueId: t.string(),
+    /** C17 learner-visible caption of the current reply ("" when silent or off a cast station). */
+    caption: t.string(),
   },
   "ActorState",
 );
@@ -86,6 +88,14 @@ export const EncounterState = schema(
     lobbyScores: t.array(LobbyScoreState),
     /** C14 true once the reviewer signed off (the packet exists in scoreDir; lobby rooms only). */
     reviewFinalized: t.boolean(),
+    /** C15 factory blueprint id ("" without a blueprint). */
+    blueprintId: t.string(),
+    /** C15 current slot label ("" without a blueprint). */
+    stationLabel: t.string(),
+    /** C16 scenario id of the current station ("" without scenarios). */
+    scenarioId: t.string(),
+    /** C16 scenario title of the current station ("" without scenarios). */
+    scenarioTitle: t.string(),
   },
   "EncounterState",
 );
@@ -104,7 +114,7 @@ export interface EncounterSnapshot {
   phaseRemainingS: number;
   turnId: number;
   turnOwner: string;
-  actors: Record<string, { id: string; speaking: boolean; emotion: string; replyId: string; cueId: string }>;
+  actors: Record<string, { id: string; speaking: boolean; emotion: string; replyId: string; cueId: string; caption: string }>;
   learners: Record<
     string,
     { sessionId: string; headX: number; headY: number; headZ: number; lastSeq: number; speaking: boolean }
@@ -137,12 +147,20 @@ export interface EncounterSnapshot {
   lobbyScores: { stationId: string; checkedCount: number }[];
   /** C14 true once the reviewer signed off (the packet exists in scoreDir; lobby rooms only). */
   reviewFinalized: boolean;
+  /** C15 factory blueprint id ("" without a blueprint). */
+  blueprintId: string;
+  /** C15 current slot label ("" without a blueprint). */
+  stationLabel: string;
+  /** C16 scenario id of the current station ("" without scenarios). */
+  scenarioId: string;
+  /** C16 scenario title of the current station ("" without scenarios). */
+  scenarioTitle: string;
 }
 
 export function snapshotState(state: EncounterStateInstance): EncounterSnapshot {
   const actors: EncounterSnapshot["actors"] = {};
   for (const [id, actor] of state.actors) {
-    actors[id] = { id: actor.id, speaking: actor.speaking, emotion: actor.emotion, replyId: actor.replyId, cueId: actor.cueId };
+    actors[id] = { id: actor.id, speaking: actor.speaking, emotion: actor.emotion, replyId: actor.replyId, cueId: actor.cueId, caption: actor.caption };
   }
   const learners: EncounterSnapshot["learners"] = {};
   for (const [sessionId, learner] of state.learners) {
@@ -155,5 +173,5 @@ export function snapshotState(state: EncounterStateInstance): EncounterSnapshot 
       speaking: learner.speaking,
     };
   }
-  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount, stationId: state.stationId, stationIndex: state.stationIndex, stationCount: state.stationCount, mode: state.mode, lastTurnEnd: state.lastTurnEnd, replayDone: state.replayDone, noteStatus: state.noteStatus, noteChars: state.noteChars, sessionComplete: state.sessionComplete, lobbyStations: [...state.lobbyStations].map((entry) => ({ stationId: entry.stationId, stationIndex: entry.stationIndex, turnCount: entry.turnCount, notePresent: entry.notePresent, noteChars: entry.noteChars })), scoreChecked: state.scoreChecked, lobbyScores: [...state.lobbyScores].map((entry) => ({ stationId: entry.stationId, checkedCount: entry.checkedCount })), reviewFinalized: state.reviewFinalized };
+  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount, stationId: state.stationId, stationIndex: state.stationIndex, stationCount: state.stationCount, mode: state.mode, lastTurnEnd: state.lastTurnEnd, replayDone: state.replayDone, noteStatus: state.noteStatus, noteChars: state.noteChars, sessionComplete: state.sessionComplete, lobbyStations: [...state.lobbyStations].map((entry) => ({ stationId: entry.stationId, stationIndex: entry.stationIndex, turnCount: entry.turnCount, notePresent: entry.notePresent, noteChars: entry.noteChars })), scoreChecked: state.scoreChecked, lobbyScores: [...state.lobbyScores].map((entry) => ({ stationId: entry.stationId, checkedCount: entry.checkedCount })), reviewFinalized: state.reviewFinalized, blueprintId: state.blueprintId, stationLabel: state.stationLabel, scenarioId: state.scenarioId, scenarioTitle: state.scenarioTitle };
 }

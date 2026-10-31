@@ -179,8 +179,10 @@ describe("#506 a patient's clothes are distinguishable from her skin", () => {
     // 57e277301 re-recorded 2026-09-12: the cargo shell is staged as female_tight_jeans on the
     // adult-female MPFB actors (OB lower 8262 -> 2906 after the 2803b7746 fp-r0.4 postopt
     // decimation); the toigo upper re-fit 5400 -> 1192. Same two slots, new meshes + counts.
-    expect(byName["makeclothes_library_female_tight_jeans_pants"], "tight_jeans lower must not be removed").toBe(2906);
-    expect(byName["makeclothes_library_toigo_t_shirt"], "t_shirt must not be removed").toBe(1192);
+    // mesh-defects 2026-10-31: gravidGarmentRestore put back the full-resolution #581 primitives
+    // (57e277301) because the decimated pair folded under the gravid field; was 2906 / 1192.
+    expect(byName["makeclothes_library_female_tight_jeans_pants"], "tight_jeans lower must not be removed").toBe(8432);
+    expect(byName["makeclothes_library_toigo_t_shirt"], "t_shirt must not be removed").toBe(5400);
   });
 });
 

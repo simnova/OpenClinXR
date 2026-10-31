@@ -97,7 +97,10 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // + D3 chest re-separation (8f20686c3) + ci-w12 D1 gravid re-apply on the pruned
   // base (21fad089f, 1104 displacements, anchors verified +-0.085); was
   // 88070603c7b39b8bf433f088ac390c056bb69d9937bf2284845f1a541fc5f091.
-  "mpfb-ob-patient-aisha": "1b8a8ef4f548bfcd71305a30f8eae2e90f19a22176fb80e2e461f755010540ac",
+  // mesh-defects re-pinned 2026-10-31: replace-garment-primitive.ts swapped in the
+  // full-resolution #581 tee and jeans from 57e277301 (gravidGarmentRestore in the sidecar);
+  // was 1b8a8ef4f548bfcd71305a30f8eae2e90f19a22176fb80e2e461f755010540ac.
+  "mpfb-ob-patient-aisha": "e7dc79e691c3898681cbea39fb4736892746fc177fb8e4d01036a4960d5e52f0",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
   // table (drift at HEAD, pre-existing); was d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1.
