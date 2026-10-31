@@ -1655,8 +1655,20 @@ export async function refreshPublicActorPlacements(
   const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as EncounterRuntimeAssetBundle["sceneManifest"];
   bundle.sceneManifest.actorPlacements = actorPlacements;
   bundle.sceneManifest.equipmentPlacements = runtimeEquipmentPlacementsForScenario(preset);
+  // ci-w16: six shipped bundles (ward_delirium_med_rec_v1 among them) predate
+  // dialogueTurns and omit the REQUIRED field (runtime-bundles.ts). The learner
+  // runtime throws in caseAudio.select on the missing array, fails the static
+  // load, and silently measures the stale local_fixture_fallback instead — so a
+  // placement fix in the shipped bundle never reaches the runtime. Fill a missing
+  // array with the same producer every other bundle uses; never overwrite present turns.
+  if (!Array.isArray(bundle.sceneManifest.dialogueTurns)) {
+    bundle.sceneManifest.dialogueTurns = runtimeDialogueTurnsForScenario(preset);
+  }
   manifest.actorPlacements = actorPlacements;
   manifest.equipmentPlacements = runtimeEquipmentPlacementsForScenario(preset);
+  if (!Array.isArray((manifest as { dialogueTurns?: unknown }).dialogueTurns)) {
+    (manifest as { dialogueTurns?: unknown }).dialogueTurns = runtimeDialogueTurnsForScenario(preset);
+  }
   await writeFile(bundlePath, `${JSON.stringify(bundle, null, 2)}\n`, "utf8");
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 }
@@ -1677,9 +1689,14 @@ function runtimeEquipmentPlacementsForScenario(
     {
       // The real clock GLB's face lies in XY. Mount it on the back wall so it faces the room;
       // the historical x-wall placement showed its 3 cm edge as a metre-high black spear.
+      // ci-w16: ward side rails at the anchor1 default (0.95, 0, 0.98) stand inside the senior
+      // resident at plant (0.5, 0, 0.5) — measured f=0.429 standing (#183). #183 owns the fix to
+      // prop placement, never actors, so the ward rails take the clear anchor3 slot instead.
       position: equipmentId === "wall_clock_equipment"
         ? { x: -1.75, y: 1.55, z: -1.42 }
-        : placementAnchors[index % placementAnchors.length] ?? placementAnchors[0],
+        : preset.scenarioId === "ward_delirium_med_rec_v1" && equipmentId === "side_rails_equipment"
+          ? { x: -0.1, y: 0, z: -0.95 }
+          : placementAnchors[index % placementAnchors.length] ?? placementAnchors[0],
       label: equipmentDisplayLabel(equipmentId),
       interactionCueIds: [`${equipmentId}:selectable_equipment_reference`, `${equipmentId}:clinical_workflow_cue`],
     },

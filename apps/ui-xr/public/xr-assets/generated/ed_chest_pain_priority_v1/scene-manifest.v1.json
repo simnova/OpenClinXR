@@ -217,14 +217,15 @@
         "x": 0.45,
         "y": 0,
         "z": -0.2
-      }
+      },
+      "supportInstanceId": "ed_exam_bay_v1:stretcher"
     },
     "nurse_maria_alvarez_v1": {
       "slotKind": "clinical_team",
       "position": {
         "x": -0.95,
         "y": 0,
-        "z": -0.95
+        "z": -1.4
       },
       "scale": {
         "x": 1,
@@ -235,6 +236,11 @@
       "labelPrefix": "Team",
       "posture": "standing",
       "placementProvenance": "authored_intent",
+      "plantOffsetMeters": {
+        "x": -0.95,
+        "y": 0,
+        "z": -1.4
+      },
       "headingRadians": 1.57
     },
     "spouse_anna_hayes_v1": {
@@ -253,32 +259,37 @@
       "labelPrefix": "Family",
       "posture": "standing",
       "placementProvenance": "authored_intent",
+      "plantOffsetMeters": {
+        "x": -1.6,
+        "y": 0,
+        "z": -0.95
+      },
       "headingRadians": 1.57
     }
   },
   "equipmentPlacements": {
     "ecg_cart_equipment": {
       "position": {
-        "x": -2.15,
+        "x": 1.6,
         "y": 0,
-        "z": 0.55
+        "z": 0.28
       },
-      "label": "12-lead ECG",
+      "label": "Ecg Cart",
       "interactionCueIds": [
-        "selectable_equipment_reference",
-        "clinical_workflow_cue"
+        "ecg_cart_equipment:selectable_equipment_reference",
+        "ecg_cart_equipment:clinical_workflow_cue"
       ]
     },
     "iv_stand_equipment": {
       "position": {
-        "x": -1.85,
+        "x": 0.95,
         "y": 0,
-        "z": 0.95
+        "z": 0.98
       },
-      "label": "IV pump",
+      "label": "Iv Stand",
       "interactionCueIds": [
-        "selectable_equipment_reference",
-        "clinical_workflow_cue"
+        "iv_stand_equipment:selectable_equipment_reference",
+        "iv_stand_equipment:clinical_workflow_cue"
       ]
     }
   },

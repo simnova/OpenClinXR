@@ -58,7 +58,9 @@ export const wardDeliriumScenario = draftScenario({
         culturalLanguageNotes: ["family collateral partnership", "avoid blame", "ask permission before using phone list"],
       },
       ),
-      placement: { supportSurface: "none", plantOffsetMeters: { x: -1.4, y: 0, z: 0.5 }, headingRadians: 2.271 },
+      // ci-w16: plant z 0.5 -> 1.1 (nurse -> 1.0 below). The daughter's animated reach
+      // spans Z to 1.01 at plant 0.5, so 1.0 leaves no margin; south-side bedside kept.
+      placement: { supportSurface: "none", plantOffsetMeters: { x: -1.4, y: 0, z: 1.1 }, headingRadians: 2.271 },
     },
     {
       ...actor(
@@ -80,7 +82,9 @@ export const wardDeliriumScenario = draftScenario({
         culturalLanguageNotes: ["closed-loop team communication", "ward safety language", "respect nursing observations"],
       },
       ),
-      placement: { supportSurface: "none", plantOffsetMeters: { x: -0.45, y: 0, z: 0.5 }, headingRadians: 3.142 },
+      // ci-w16: plant z 0.5 -> 1.0 (stepdown precedent 28fe9ec55, same plant-aligned
+      // support geometry; measured ward overlap was 0.454-0.460 against the 0.18 bound).
+      placement: { supportSurface: "none", plantOffsetMeters: { x: -0.45, y: 0, z: 1.0 }, headingRadians: 3.142 },
     },
     {
       // #665 — the senior resident's described identity. This actor had NO

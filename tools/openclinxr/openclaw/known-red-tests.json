@@ -82,11 +82,6 @@
       "card": "unfiled: room-chain promote check must diff only the paths the stage writes"
     },
     {
-      "path": "tools/openclinxr/evidence/actor-furniture-clearance.test.ts",
-      "reason": "Clause (1) no-actor-inside-a-support-surface is red on main: measured 2026-10-30 at 5e366c73f plus ci-w12 D2, ed_chest_pain_priority_v1/v2 nurse_maria_alvarez_v1 and ward_delirium_med_rec_v1 ward_nurse_patel_v1 + daughter_lena_ellis_v1 stand inside a support surface. Stepdown nurse fixed by ci-w12 D2. The earlier browserPageWindow ReferenceError no longer reproduces (the walk completes all 15 stations).",
-      "card": "ci-closure: stage ED and ward staff clear of the stretcher/bed through placement data"
-    },
-    {
       "path": "tools/openclinxr/evidence/actor-garment-presence-in-scene.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"

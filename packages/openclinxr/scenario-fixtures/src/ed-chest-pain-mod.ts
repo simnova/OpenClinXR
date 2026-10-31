@@ -209,9 +209,11 @@ export const edChestPainScenario: Scenario = {
       hiddenFacts: ["Repeat blood pressure is falling and patient looks worse at minute seven"],
       // The narrow bay needs a side-on bedside yaw: both patient and learner remain in the
       // nurse's forward hemisphere without forcing the overview camera into the stretcher.
+      // ci-w16: plant z -0.95 -> -1.40 — the v2 animated pose reaches maxZ -0.31 against the
+      // stretcher edge (-0.59); south-side bedside kept, heading unchanged.
       placement: {
         supportSurface: "none",
-        plantOffsetMeters: { x: -0.95, y: 0, z: -0.95 },
+        plantOffsetMeters: { x: -0.95, y: 0, z: -1.4 },
         headingRadians: 1.57,
       },
     },
