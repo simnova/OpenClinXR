@@ -320,6 +320,21 @@
       "path": "tools/openclinxr/evidence/the-iwsdk-spike-proves-the-package-runs.test.ts",
       "reason": "Clause (2) only: the checked-in Chromium receipt browser-proof-042.json executed @iwsdk/core 0.4.2 and pins its dist SHA to the installed package. ci-w5 f0638c7a0 moved the spike to 1.1.0-rc.2 (operator decision, IWSDK latest), so the installed SHA no longer matches. Clauses (1),(3),(4),(5) pass on the new pin. Needs a fresh headless-Chromium capture of a Vite bundle on 1.1.0-rc.2; the receipt producer is not in the repo.",
       "card": "ci-closure: recapture the IWSDK Chromium receipt on 1.1.0-rc.2 (producer missing)"
+    },
+    {
+      "path": "tools/openclinxr/evidence/model-vetting-snapshots/model-vetting-capture-manifest.test.ts",
+      "reason": "Fails identically at the evidence root and in tools/openclinxr/evidence/model-vetting-snapshots/: 4 of 5 clauses ENOENT on docs/openclinxr/model-vetting-report-peds-asthma-parent-anxiety-2026-06-05.json, which is not tracked in git (only the capture-artifact-map is) and is absent in worktrees. The missing-artifact validation clause passes.",
+      "card": "unfiled: commit or generate the model-vetting docs snapshots, or gate the manifest tests on their presence"
+    },
+    {
+      "path": "tools/openclinxr/evidence/model-vetting-snapshots/model-vetting-runtime-hook-bindings.test.ts",
+      "reason": "Fails identically at the evidence root and in tools/openclinxr/evidence/model-vetting-snapshots/: 2 of 3 clauses ENOENT on docs/openclinxr/model-vetting-runtime-mapping-evidence-peds-asthma-parent-anxiety-2026-06-05.json, which is not tracked in git and is absent in worktrees. The script-surface clause passes.",
+      "card": "unfiled: commit or generate the model-vetting docs snapshots, or gate the hook-bindings tests on their presence"
+    },
+    {
+      "path": "tools/openclinxr/evidence/model-vetting-snapshots/model-vetting-runtime-mapping-evidence.test.ts",
+      "reason": "Fails identically at the evidence root and in tools/openclinxr/evidence/model-vetting-snapshots/: 1 of 2 clauses ENOENT on docs/openclinxr/model-vetting-report-peds-asthma-parent-anxiety-2026-06-05.json, which is not tracked in git and is absent in worktrees. The script-surface clause passes.",
+      "card": "unfiled: commit or generate the model-vetting docs snapshots, or gate the runtime-mapping tests on their presence"
     }
   ]
 }

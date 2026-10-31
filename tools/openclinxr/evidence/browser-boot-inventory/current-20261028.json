@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-31T15:49:15.973Z",
+  "generatedAt": "2026-10-31T22:42:45.921Z",
   "method": "static import-graph scan of tools/**/*.test.ts; value imports only; call detection after stripping comments and string literals",
   "primitives": [
     "spawnPortlessDevServer (lib/portless-server.ts — boots a Vite dev server)",
     "chromium.launch (playwright — boots a headless Chrome shell)"
   ],
-  "totalTestFiles": 829,
+  "totalTestFiles": 763,
   "browserBootingTestFiles": 62,
   "excludedAmongBrowserBooting": 0,
   "minBrowsersPerSuiteRun": 61,
@@ -1253,16 +1253,16 @@
       "reason": "model-vetting runtime evidence class — asserts on docs snapshots of hardware/headset-gated evidence"
     },
     {
-      "testFile": "tools/openclinxr/evidence/model-vetting-capture-manifest.test.ts",
-      "reason": "model-vetting capture manifest — asserts on gitignored cagematch artifacts absent in worktrees"
+      "testFile": "tools/openclinxr/evidence/model-vetting-snapshots/model-vetting-capture-manifest.test.ts",
+      "reason": "reason not recorded — read the file header"
     },
     {
-      "testFile": "tools/openclinxr/evidence/model-vetting-runtime-hook-bindings.test.ts",
-      "reason": "model-vetting runtime hook bindings evidence — docs-snapshot assertions"
+      "testFile": "tools/openclinxr/evidence/model-vetting-snapshots/model-vetting-runtime-hook-bindings.test.ts",
+      "reason": "reason not recorded — read the file header"
     },
     {
-      "testFile": "tools/openclinxr/evidence/model-vetting-runtime-mapping-evidence.test.ts",
-      "reason": "model-vetting runtime mapping evidence — docs-snapshot assertions"
+      "testFile": "tools/openclinxr/evidence/model-vetting-snapshots/model-vetting-runtime-mapping-evidence.test.ts",
+      "reason": "reason not recorded — read the file header"
     },
     {
       "testFile": "tools/openclinxr/openclaw/agentic-hook-runner.test.ts",

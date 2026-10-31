@@ -206,7 +206,6 @@
         "packages/openclinxr-verification/architecture-rules/src/**",
         "packages/openclinxr/agent-loop/src/**",
         "packages/openclinxr/arena/iwsdk-spike/**",
-        "packages/openclinxr/arena/model-vetting/**",
         "packages/openclinxr/asset-registry/src/**",
         "packages/openclinxr/capability-gateway/src/**",
         "packages/openclinxr/exam-assembly/src/**",

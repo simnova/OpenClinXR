@@ -1,0 +1,40 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "repoRoot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/model-vetting",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "AnnyLikePreflightReport",
+        "kind": "type"
+      },
+      {
+        "name": "buildModelVettingReportFromAnnyPreflight",
+        "kind": "runtime"
+      },
+      {
+        "name": "validateModelVettingReport",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

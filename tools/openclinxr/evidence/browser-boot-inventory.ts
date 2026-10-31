@@ -130,12 +130,6 @@ export const TEST_TOOLS_EXCLUSION_REASONS: Readonly<Record<string, string>> = {
     "IWSDK sidecar MCP tooling inventory — execs the IWSDK toolchain",
   "tools/openclinxr/evidence/model-vetting-actor-player-runtime-evidence.test.ts":
     "model-vetting runtime evidence class — asserts on docs snapshots of hardware/headset-gated evidence",
-  "tools/openclinxr/evidence/model-vetting-capture-manifest.test.ts":
-    "model-vetting capture manifest — asserts on gitignored cagematch artifacts absent in worktrees",
-  "tools/openclinxr/evidence/model-vetting-runtime-hook-bindings.test.ts":
-    "model-vetting runtime hook bindings evidence — docs-snapshot assertions",
-  "tools/openclinxr/evidence/model-vetting-runtime-mapping-evidence.test.ts":
-    "model-vetting runtime mapping evidence — docs-snapshot assertions",
   "tools/openclinxr/factory/encounter-asset-generation-queue.test.ts":
     "factory asset-generation QUEUE — orchestrates character/animation/environment generation and asset-bake (the #273 class)",
   "tools/openclinxr/factory/encounter-publication-payloads.test.ts":

@@ -267,9 +267,9 @@ describe("parity with current CI", () => {
       "tools/openclinxr/evidence/check-github-pages-site.test.ts",
       "tools/openclinxr/evidence/iwsdk-evidence-contract-check.test.ts",
       "tools/openclinxr/evidence/model-vetting-actor-player-runtime-evidence.test.ts",
-      "tools/openclinxr/evidence/model-vetting-capture-manifest.test.ts",
-      "tools/openclinxr/evidence/model-vetting-runtime-hook-bindings.test.ts",
-      "tools/openclinxr/evidence/model-vetting-runtime-mapping-evidence.test.ts",
+      "tools/openclinxr/evidence/model-vetting-snapshots/model-vetting-capture-manifest.test.ts",
+      "tools/openclinxr/evidence/model-vetting-snapshots/model-vetting-runtime-hook-bindings.test.ts",
+      "tools/openclinxr/evidence/model-vetting-snapshots/model-vetting-runtime-mapping-evidence.test.ts",
       "tools/openclinxr/openclaw/agentic-hook-runner.test.ts",
     ]);
   });
