@@ -1,6 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: the factory publishes the body cells it can build, the way it already publishes irises.
@@ -47,9 +49,10 @@ import { describe, expect, it } from "vitest";
  *   as NOT TESTED and which this slice does not build.
  */
 
-const MAKECLOTHES = "packages/openclinxr/factory-stations/src/body_param";
-const MANIFEST = "packages/openclinxr/asset-registry/src/body-cell-capability-manifest.json";
-const IRIS_MANIFEST = "packages/openclinxr/asset-registry/src/iris-capability-manifest.json";
+const REPO_ROOT = repoRoot();
+const MAKECLOTHES = join(REPO_ROOT, "packages/openclinxr/factory-stations/src/body_param");
+const MANIFEST = join(REPO_ROOT, "packages/openclinxr/asset-registry/src/body-cell-capability-manifest.json");
+const IRIS_MANIFEST = join(REPO_ROOT, "packages/openclinxr/asset-registry/src/iris-capability-manifest.json");
 
 type Option = { id: string; ageBand?: string; sex?: string; ageMacro?: number; genderMacro?: number; licence?: string };
 

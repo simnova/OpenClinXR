@@ -163,7 +163,6 @@
       "inputs": [
         "packages/cellix/config-vitest/src/**",
         "packages/openclinxr/agent-loop/src/**",
-        "packages/openclinxr/scenario-fixtures/src/**",
         "tests/openclinxr/helpers/assembled-exam-harness.ts",
         "tools/openclinxr/asset-pipeline/**",
         "tools/openclinxr/evidence/**",

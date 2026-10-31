@@ -1,9 +1,9 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { mainWorktreeRoot } from "../../../../../../tools/openclinxr/evidence/provider-cache/main-worktree-root.js";
 
 /**
  * 2026-08-21 — THE CASE'S `eye_color` NEVER REACHES THE IRIS SELECTOR. Product, not instrument.
@@ -78,8 +78,7 @@ import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
  *     given a successor card — the instrument-guard class is closed per the 2026-08-21 review.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const ANNY = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/anny");
 const CALL_SITE = join(REPO_ROOT, "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py");
 const BANK = join(REPO_ROOT, "packages/openclinxr/scenario-fixtures/src/pediatric-asthma-mod.ts"); // PSR-08 facade: case lives in -mod, entry is keep-only re-export

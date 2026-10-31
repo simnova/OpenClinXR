@@ -1,7 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * **Every child phenotype in the bank is unbuildable on the Anny rail. Every adult builds.**
@@ -110,8 +109,7 @@ import { describe, expect, it } from "vitest";
  * generator refused both children and measured the two adults at 166.0 / 176.0 cm.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const ANNY_DIR = `${REPO_ROOT}/tools/openclinxr/asset-pipeline/anny`;
 /** Overridable so a destructive probe can point the same logic at a doctored export. */
 const EXPORT =

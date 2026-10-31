@@ -1,8 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * 2026-08-21 — THE FACTORY REFUSES WHAT IT CANNOT BUILD BUT NEVER PUBLISHES WHAT IT CAN.
@@ -59,8 +59,7 @@ import { describe, expect, it } from "vitest";
  *     decision nobody in this loop may take. Clause (4) pins it as a free string.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO = pathResolve(HERE, "../../..");
+const REPO = repoRoot();
 const ANNY = join(REPO, "tools/openclinxr/asset-pipeline/anny");
 const MANIFEST = join(REPO, "packages/openclinxr/asset-registry/src/iris-capability-manifest.json");
 const RESOLVED = join(REPO, "packages/openclinxr/asset-registry/src/resolved-phenotype-field.ts");

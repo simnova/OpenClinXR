@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: G1 PACK_A #232 rebuilt a photoreal cluttered cart. Next TREE
@@ -15,7 +15,7 @@ import { describe, expect, it } from "vitest";
  * resolves viewCount 4 via factory:trellis:bake --dry-run.
  */
 
-const REPO = join(dirname(fileURLToPath(import.meta.url)), "../../..");
+const REPO = repoRoot();
 const PACK = join(REPO, "tools/openclinxr/asset-pipeline/trellis/packs/ecg-cart-imagine-box");
 const VIEWS = ["front.png", "side.png", "three_quarter_left.png", "three_quarter_right.png"] as const;
 

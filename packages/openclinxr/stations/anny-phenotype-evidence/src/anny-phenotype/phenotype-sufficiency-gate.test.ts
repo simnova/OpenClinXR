@@ -1,7 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * #291's refuse gate checks that a phenotype is PRESENT. It does not check that it is SUFFICIENT —
@@ -125,7 +124,7 @@ import { describe, expect, it } from "vitest";
 
 // Tree-relative so the contract proof re-runs against the WORKTREE it runs in, not
 // the main checkout (see ## FIXED (#294) above).
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+const REPO_ROOT = repoRoot();
 const ANNY_DIR = `${REPO_ROOT}/tools/openclinxr/asset-pipeline/anny`;
 
 type Outcome = { refused: boolean; hash: string | null };

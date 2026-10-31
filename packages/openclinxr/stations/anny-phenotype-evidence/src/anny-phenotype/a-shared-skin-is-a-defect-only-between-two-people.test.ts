@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { readdirSync } from "node:fs";
-import { dirname, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { NodeIO } from "@gltf-transform/core";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * **Six contracts are red on main and five of them are the same instrument defect: a hand-typed
@@ -127,9 +127,8 @@ import { NodeIO } from "@gltf-transform/core";
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
-const GENERATED = "apps/ui-xr/public/generated-humanoids";
+const REPO_ROOT = repoRoot();
+const GENERATED = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 
 /** The four contracts under measurement. Named files only — never a directory sweep (#195). */
 const SIBLINGS = [

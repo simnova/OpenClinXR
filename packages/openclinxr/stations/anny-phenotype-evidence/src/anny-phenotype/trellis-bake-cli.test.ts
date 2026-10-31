@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * PLANTED CONTRACTS (#238). Factory CLI: pnpm factory:trellis:bake --subject <id>
@@ -19,7 +20,7 @@ import { join } from "node:path";
  * Header IMMUTABLE — append ## FIXED (#238).
  */
 
-const ROOT = process.cwd();
+const ROOT = repoRoot();
 
 describe("factory TRELLIS bake CLI (#238)", () => {
   it("pnpm factory:trellis:bake --help and --dry-run document isolation and subjects", () => {

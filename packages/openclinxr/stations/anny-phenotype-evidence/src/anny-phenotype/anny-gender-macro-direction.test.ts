@@ -1,7 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * The Anny rail's gender mapping is INVERTED and COMPRESSED against Anny's own axis.
@@ -79,8 +78,7 @@ import { describe, expect, it } from "vitest";
  * correction #294 made for the identical defect. All numbers in the measured table above are untouched.
  */
 
-const HERE = resolve(fileURLToPath(import.meta.url), "..");
-const REPO_ROOT = resolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 
 // Tree-relative so the contract proof re-runs against the WORKTREE it runs in, not
 // the main checkout (see ## FIXED (#299) below — same defect #294 fixed).

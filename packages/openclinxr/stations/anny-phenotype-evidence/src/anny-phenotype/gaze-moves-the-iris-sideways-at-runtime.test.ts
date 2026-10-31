@@ -1,8 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * **MADR 0052's 08:00 tick asks for eyes "confirmed live, not merely present in the file". The probe
@@ -91,9 +91,9 @@ import { describe, expect, it } from "vitest";
  * discriminates. The three `it.fails` clauses are flipped to `it`; every assertion is unchanged.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const PROBE = join(HERE, "gaze-eye-rotation-live.ts");
-const SUBJECT = join(HERE, "../../../apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb");
+const REPO_ROOT = repoRoot();
+const PROBE = join(REPO_ROOT, "tools/openclinxr/evidence/gaze-eye-rotation-live.ts");
+const SUBJECT = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb");
 /**
  * The probe is a SCRIPT, not a module — importing it runs `main()` and its catch calls
  * `process.exit(1)`. So it is spawned and its `EYE_ROTATION_MECHANISM {json}` lines parsed, which is
@@ -119,7 +119,7 @@ function runProbe(): Reading[] | null {
   let stdout: string;
   try {
     stdout = execFileSync("pnpm", ["exec", "tsx", PROBE, SUBJECT], {
-      cwd: join(HERE, "../../.."),
+      cwd: REPO_ROOT,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
     });

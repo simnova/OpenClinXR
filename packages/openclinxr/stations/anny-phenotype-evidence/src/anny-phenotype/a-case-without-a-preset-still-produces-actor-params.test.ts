@@ -1,8 +1,8 @@
 import { execFileSync } from "node:child_process";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { buildActorPhenotypeExport } from "../../../packages/openclinxr/scenario-fixtures/src/actor-phenotype-export.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { buildActorPhenotypeExport } from "../../../../scenario-fixtures/src/actor-phenotype-export.js";
 
 /**
  * OBSERVABLE: a case whose actor carries an authored phenotype produces actor params WITHOUT anyone
@@ -53,8 +53,8 @@ import { buildActorPhenotypeExport } from "../../../packages/openclinxr/scenario
  * clothing, or any clinical claim. Producing params is station one of eight.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const ANNY_DIR = resolve(HERE, "..", "asset-pipeline", "anny");
+const REPO_ROOT = repoRoot();
+const ANNY_DIR = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/anny");
 
 const WITHOUT_PRESET = { caseId: "peds_fever_v1", actorId: "patient_noah_chen_v1" };
 const WITH_PRESET = { caseId: "peds_asthma_parent_anxiety_v1", actorId: "patient_maya_johnson_v1" };

@@ -1,11 +1,10 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { dirname, resolve } from "node:path";
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
-import { extractLandmarks } from "./anny-mpfb-landmark-compare.ts";
+import { extractLandmarks } from "../../../../../../tools/openclinxr/evidence/anny-mpfb-landmark-compare.js";
 
 /**
  * A tracked Anny reference is supposed to BE its actor's authored phenotype. Two of them are not —
@@ -79,8 +78,7 @@ import { extractLandmarks } from "./anny-mpfb-landmark-compare.ts";
  * the parent's authored phenotype is clinically right, only that her body should match it.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const GEN = `${REPO_ROOT}/apps/ui-xr/public/generated-humanoids`;
 const ANNY_DIR = `${REPO_ROOT}/tools/openclinxr/asset-pipeline/anny`;
 

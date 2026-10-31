@@ -1,7 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * The Anny rail maps authored `height_cm` to Anny's height macro with a hand-fitted linear formula,
@@ -93,8 +92,7 @@ import { describe, expect, it } from "vitest";
  * The `it.fails` markers on (1) and (2) were flipped to `it`; all three contracts pass.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const ANNY_DIR = `${REPO_ROOT}/tools/openclinxr/asset-pipeline/anny`;
 
 /** ±1 cm: an external floor — ordinary stadiometer tolerance — not fitted to the observed gap. */

@@ -1,8 +1,10 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
-import { extractLandmarks } from "./anny-mpfb-landmark-compare.ts";
+import { extractLandmarks } from "../../../../../../tools/openclinxr/evidence/anny-mpfb-landmark-compare.js";
 
 /**
  * #297's landmark instrument measures stature EXACTLY and waist girth increasingly WRONG.
@@ -91,7 +93,7 @@ import { extractLandmarks } from "./anny-mpfb-landmark-compare.ts";
  * not cross-checked against anny and may carry a similar definitional offset.
  */
 
-const OUT_DIR = "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-298";
+const OUT_DIR = join(repoRoot(), ".openclinxr/evidence/issue-298");
 const BAND_M = 0.02; // MADR 0051 §5 — ordinary tape tolerance, an external floor, not fitted.
 
 type Subject = { tag: string; weight: number; nativeWaist: number; nativeStature: number };
@@ -159,7 +161,7 @@ describe("the mesh waist girth agrees with anny's own anthropometry", () => {
 
   it("(4) NET: #297's arm exclusion still holds — a fix must not re-admit arm geometry", () => {
     const objText = readFileSync(
-      "/Volumes/files/src/openclinxr/apps/ui-xr/public/generated-humanoids/adult_male_street_casual.anny_base.obj",
+      join(repoRoot(), "apps/ui-xr/public/generated-humanoids/adult_male_street_casual.anny_base.obj"),
       "utf8",
     );
     const L = extractLandmarks("adult_male_street_casual", objText) as unknown as Record<string, number>;
