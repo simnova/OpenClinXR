@@ -1,11 +1,11 @@
 {
-  "currentFixtureSHA256": "a7ad8e023d40235f6b5224ad0913b1b90cfebe5f110928ac17f6c62259fbf0fb",
+  "currentFixtureSHA256": "5b22344f7242abf51cdceec0f115aba21a371e0967fefe4dd9b3bcaf57a5e108",
   "evaluator": "public evaluate() from @openclinxr/station-mouth-verifier via tools/openclinxr/mouth-solver/evaluate.ts",
   "fixtureDate": "2026-10-28",
   "fixturePath": "the-evaluator-output-current-20261028.fixture.json",
   "generation": "Actual public evaluate on committed source59 after successful build closure; original path placeholders and recursive wallClockMs=0 only. No invented output fields.",
   "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
-  "glbSHA256": "86b0f17dccaa09ff4f75fbe32ad74c7bcc8fd56cd8e264e056f46473288aec4b",
+  "glbSHA256": "57eace5c903f490d22c0d961ca5e4946436227c22cc1c50e38151754487c1591",
   "historicalFixturePreserved": "packages/openclinxr/stations/mouth-verifier-evidence/src/the-evaluator-output-is-unchanged.fixture.json",
   "historicalFixtureSHA256": "6337dd72a2ae5c8e4f9d6349c7b8e21b2e926fd80258d830993d725f6a0a0a57",
   "m3ParityClaim": "none; production lip-rounding postdates the historical fixture",
@@ -17,7 +17,7 @@
   },
   "sourceCommit": "78f9218a6a88c27ab7e47ce8bdddd4048a1c06e4",
   "track": "docs/openclinxr/mouth-dynamics/teeth-gap/fixed-capture/metrics.json",
-  "trackSHA256": "32eeb2c1d31b200a3279019c762102b8a0dcde1c8aee117defb608c7224e954f",
+  "trackSHA256": "f7f4e5a5c306c9e26709cc5d2b94c910f2014e0eeb63da9f4ac67776d03ccd8f",
   "runtimeSourcePinsBounded": {
     "packages/openclinxr/stations/mouth-verifier/src/index.ts": "d2746719126b7be736be8a9ce8ffa088e74bae5f1d6b5dba7ca336f76ae34410",
     "packages/openclinxr/stations/mouth-verifier/src/evaluator.ts": "0c75f10b1cc0c2a6cadc3579e6d6dfef9bcdaf401ad7fa13d2b25bdd8894bbe3",
@@ -45,5 +45,16 @@
     ],
     "historicalFixtureByteExact": true,
     "diagnosticMockShipped": false
-  }
+  },
+  "repins": [
+    {
+      "date": "2026-10-31",
+      "why": "mesh-defects: hairPositionRestore moved the parent bob hair top +14.6 mm; the head-focus camera unions hair points, so the fixed capture was recaptured (mouth-dynamics-capture.ts --fixed-gap --aligner rhubarb) and this fixture regenerated from the same public evaluate()",
+      "previous": {
+        "currentFixtureSHA256": "a7ad8e023d40235f6b5224ad0913b1b90cfebe5f110928ac17f6c62259fbf0fb",
+        "glbSHA256": "86b0f17dccaa09ff4f75fbe32ad74c7bcc8fd56cd8e264e056f46473288aec4b",
+        "trackSHA256": "32eeb2c1d31b200a3279019c762102b8a0dcde1c8aee117defb608c7224e954f"
+      }
+    }
+  ]
 }

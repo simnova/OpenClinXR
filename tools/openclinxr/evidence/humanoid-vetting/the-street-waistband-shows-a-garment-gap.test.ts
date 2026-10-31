@@ -79,7 +79,9 @@ describe("the street waistband shows a garment gap", () => {
     const fit = await measureWaistFit(GLB, "mpfb-street-adult-male");
     expect(fit.upperName, "upper is toigo t-shirt").toMatch(/t_shirt/i);
     expect(fit.lowerName, "lower is still straight-leg jeans").toMatch(/straight_leg_jeans/i);
-    expect(fit.overlaps.length, "31 comparable buckets").toBe(31);
+    // 31 -> 33 (mesh-defects 2026-10-31): the snap-collapsed jeans left two angular buckets
+    // without a lower rim; the jeansReplace stage restores them (family-partner reads 32).
+    expect(fit.overlaps.length, "33 comparable buckets").toBe(33);
     expect(fit.gapped, "no angular bucket gapped").toBe(0);
     const minMm = Math.min(...fit.overlaps) * 1000;
     expect(minMm, "min overlap is the #320 5 mm margin").toBeCloseTo(5.0, 1);

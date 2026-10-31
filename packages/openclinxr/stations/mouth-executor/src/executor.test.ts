@@ -80,6 +80,10 @@ const CHEST_TOOL = "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_j
 // Exact known orphan-prune tool + version + flags (ci-w11 D1 gltf-transform prune,
 // same flags as #555). Version asserted via the receipt's own orphanPrune.toolVersion.
 const PRUNE_FLAGS = ["--keep-attributes", "true", "--keep-indices", "true"] as const;
+
+// Exact known hair restore tool (mesh-defects 2026-10-31). Hash asserted via the
+// receipt's own hairPositionRestore.toolSha256 below.
+const HAIR_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/restore-mesh-positions.ts";
 // bake-humanoid-albedo.ts bakeGlbAlbedo). Hashes are asserted via the
 // receipt's own albedoRepair.producerSha256 / helperSha256 below, never
 // blind-reset.
@@ -187,6 +191,17 @@ describe("mouth executor", () => {
         tool: string;
         toolVersion: string;
         toolFlags: string;
+        inputSha256: string;
+        inputBytes: number;
+        outputSha256: string;
+        outputBytes: number;
+      };
+      hairPositionRestore?: {
+        tool: string;
+        toolSha256: string;
+        mesh: string;
+        sourceRevision: string;
+        sourceSha256: string;
         inputSha256: string;
         inputBytes: number;
         outputSha256: string;
@@ -364,6 +379,35 @@ describe("mouth executor", () => {
         expect(sha256(prunedBytes)).toBe(prune.outputSha256);
         expect(prunedBytes.length).toBe(prune.outputBytes);
         replayBytes = prunedBytes;
+      }
+      // 3h. Optional hairPositionRestore post-stage (ebbd -> 57ea, restore-mesh-positions CLI).
+      const hair = pre.hairPositionRestore;
+      if (hair) {
+        if (
+          !hair.tool || !hair.toolSha256 || !hair.mesh || !hair.sourceRevision || !hair.sourceSha256 ||
+          !hair.inputSha256 || !hair.outputSha256 || !hair.inputBytes || !hair.outputBytes
+        ) {
+          throw new Error("receipt hairPositionRestore missing fields");
+        }
+        expect(hair.tool).toBe(HAIR_TOOL);
+        expect(sha256(readFileSync(path.join(REPO, HAIR_TOOL)))).toBe(hair.toolSha256);
+        expect(hair.inputSha256).toBe(sha256(replayBytes));
+        expect(hair.inputBytes).toBe(replayBytes.length);
+        const source = execFileSync("git", ["show", hair.sourceRevision], { cwd: REPO, maxBuffer: 1024 * 1024 * 512 });
+        expect(sha256(source)).toBe(hair.sourceSha256);
+        const hairSrc = path.join(dir, "hair-source.glb");
+        const hairGlb = path.join(dir, "hair.glb");
+        writeFileSync(hairSrc, source);
+        writeFileSync(hairGlb, Buffer.from(replayBytes));
+        execFileSync(
+          "pnpm",
+          ["exec", "tsx", path.join(REPO, HAIR_TOOL), hairGlb, "--from", hairSrc, "--mesh", hair.mesh],
+          { cwd: REPO, stdio: "pipe", timeout: 300_000 },
+        );
+        const hairBytes = readFileSync(hairGlb);
+        expect(sha256(hairBytes)).toBe(hair.outputSha256);
+        expect(hairBytes.length).toBe(hair.outputBytes);
+        replayBytes = hairBytes;
       }
       // Final top linkage: the receipt top must equal the last recorded stage output.
       expect(sha256(replayBytes)).toBe(pre.outputSha256);

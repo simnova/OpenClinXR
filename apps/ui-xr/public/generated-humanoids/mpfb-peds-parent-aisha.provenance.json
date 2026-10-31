@@ -87,11 +87,12 @@
     "2026-10-30 ci-w11 D2 (texture-grade, not rebake): graded the 3 dwarfing textures in place via tools/openclinxr/evidence/humanoid-vetting/grade-tara-oversize-textures.py. tightjeans 5441511 B PNG -> 1196954 B (byte-exact reuse of committed tightjeans-2048-q85.jpg); AuburnHair 8344296 B 3600px RGBA -> 1308440 B 1024px PNG (stays PNG: material alphaMode=MASK cutoff 0.2, alpha load-bearing); BakedHairNORMAL 10260549 B 3600px -> 517964 B 2048px JPEG q85 (alpha asserted all-opaque before conversion). File 40911888 -> 19889056 B (-21022832). Max/median 11.88x -> 2.11x, under the 3.0x gate. No geometry, material, joint, animation, or other-texture byte touched (buffer surgery; meshes 10, materials 17, tris 73012, joints 137, animations 2, orphan 744895 preserved for the D1 prune). Report: tools/openclinxr/evidence/humanoid-vetting/tara-grade-2026-10-30.json. Gate: tools/openclinxr/evidence/humanoid-vetting/no-shipped-humanoid-texture-dwarfs-its-peers.test.ts. runtimeRole unchanged (intermediate_bake).",
     "2026-10-30 ci-w11 D3 (chest-anchor re-separation, post-bake stage, not rebake): default mode: rest 0.00000 -> +-0.085 (afe8abced/ceabb545e-era rebakes had zeroed the #0 separation); moved 2 ClinicalIdleConversation keyframes per joint with the rests. y/z untouched. Applied on the D2-graded bytes (5792dd39c). Tool: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs (half-span 0.085, uniform with nurse known-good 1f5519d2).",
     "2026-10-30 ci-w11 D1 (orphan prune, not rebake): gltf-transform prune 4.3.0, same tool and flags as #555. Removed unreferenced T-shirt_basic.png duplicate (744895 B; the bound T-shirt_basic.png at 590538 B is kept). File 19888836 -> 18441636 B. Bound invariants held: boundTextures 11, boundBytes 10641749, meshes 10, materials 17, tris 73012, joints 137, animations 2.",
-    "2026-10-30 ci-w11b (pre-image pointer restored, not rebake): preImageSha256/preImageBytes return to 202ec91134a7/40215924 (the seat producer's true input at 46a609068; its output 5cab6676/40345712 B is the seat-stage pin the garment stamp input and mouth-physical baseline both record). The ci-w11 pointer at 2b2f098e (D2-graded bytes) is post-seat — the tongue already carries viseme_TH there and the mouth-closedform tuning (bound to 202ec911) refuses it — so the seat chain could not reproduce from it. Verified by re-running the seat producer CLI on the 202ec911 bytes: output 5cab66767a6b/40345712 B byte-exact. D2/D3/D1 above remain post-seat stages on the shipped bytes."
+    "2026-10-30 ci-w11b (pre-image pointer restored, not rebake): preImageSha256/preImageBytes return to 202ec91134a7/40215924 (the seat producer's true input at 46a609068; its output 5cab6676/40345712 B is the seat-stage pin the garment stamp input and mouth-physical baseline both record). The ci-w11 pointer at 2b2f098e (D2-graded bytes) is post-seat — the tongue already carries viseme_TH there and the mouth-closedform tuning (bound to 202ec911) refuses it — so the seat chain could not reproduce from it. Verified by re-running the seat producer CLI on the 202ec911 bytes: output 5cab66767a6b/40345712 B byte-exact. D2/D3/D1 above remain post-seat stages on the shipped bytes.",
+    "2026-10-31 mesh-defects (hair position restore, not rebake): c240327c3 (a teeth commit) rewrote only the bob hair POSITION accessor (mean dy -13.8 mm, -4 to -27 mm, non-rigid; NORMAL/TEXCOORD_0/JOINTS_0/WEIGHTS_0/indices/targets unchanged) and body crown skin rose above the hair (20 of 657 crown samples). restore-mesh-positions.ts copies the hair POSITION from c240327c3^ onto the d1c44f8cd bytes; every other accessor is byte-identical to the input. Crown skin above hair 20 -> 0. A full rebake was not used: it would discard the recorded post-bake mouth stages (sourceNotes 5-22), several of which are not re-derivable. Test: tools/openclinxr/evidence/humanoid-vetting/shipped-jeans-and-bob-keep-their-surfaces.test.ts. Stills: /Volumes/files/openclinxr-assets/store/mesh-defects-20261030/humanoids/parent-hair-restore/stills/."
   ],
   "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
   "promotionGates": false,
-  "outputSha256": "ebbd55df60bac05218d8d0b89ef33f67923bc90ab3caf774bd760e76d7643ecb",
+  "outputSha256": "57eace5c903f490d22c0d961ca5e4946436227c22cc1c50e38151754487c1591",
   "outputBytes": 18441636,
   "fitTimeLower": {
     "garment": "punkduck_female_tight_jeans",
@@ -868,5 +869,19 @@
     "outputBytes": 18441636,
     "commit": "d1c44f8cd (ci-w11 D1)",
     "claimScope": "orphan prune only: removed unreferenced T-shirt_basic.png duplicate (744895 B); bound textures/bytes, meshes, materials, tris, joints, animations hold"
+  },
+  "hairPositionRestore": {
+    "tool": "tools/openclinxr/asset-pipeline/makeclothes/restore-mesh-positions.ts",
+    "toolSha256": "76f39d96a6b40c4a5173310768fc059aafbedbcbef2776a9f37d5ac1d40d994d",
+    "mesh": "makeclothes_library_hair_",
+    "sourceRevision": "c240327c3^:apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+    "sourceSha256": "7ce9529e9d2a628098ed104056ee3ff197307e449e3ff27ec89cd0f836402b22",
+    "sourceBytes": 39891160,
+    "inputSha256": "ebbd55df60bac05218d8d0b89ef33f67923bc90ab3caf774bd760e76d7643ecb",
+    "inputBytes": 18441636,
+    "outputSha256": "57eace5c903f490d22c0d961ca5e4946436227c22cc1c50e38151754487c1591",
+    "outputBytes": 18441636,
+    "commit": "mesh-defects 2026-10-31",
+    "claimScope": "hair POSITION only: c240327c3 lowered the bob non-rigidly (mean dy -13.8 mm) with no recorded tool; the tool refuses unless NORMAL, TEXCOORD_0, JOINTS_0, WEIGHTS_0, indices and targets are identical; crown skin above hair 20 -> 0"
   }
 }
