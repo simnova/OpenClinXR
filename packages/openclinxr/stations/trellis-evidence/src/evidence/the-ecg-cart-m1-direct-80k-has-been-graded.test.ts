@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -29,7 +30,7 @@ import { describe, expect, it } from "vitest";
  * stills not replaced (M1 not a clear win over C1 59187).
  */
 
-const REPO = join(import.meta.dirname, "../../..");
+const REPO = repoRoot();
 const CONTROL = join(REPO, "tools/openclinxr/asset-pipeline/trellis/ecg-cart-c0-c1-control.json");
 const CAMERA = join(REPO, "tools/openclinxr/asset-pipeline/trellis/ecg-cart-camera-freeze.json");
 const REPORT = join(REPO, "tools/openclinxr/asset-pipeline/trellis/ecg-cart-m1-80k-report.json");

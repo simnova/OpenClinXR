@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -79,7 +80,7 @@ import { describe, expect, it } from "vitest";
  * this sweep was produced by a text-only worker and the render is the only oracle.
  */
 
-const REPO = join(import.meta.dirname, "../../..");
+const REPO = repoRoot();
 const SWEEP = join(REPO, "tools/openclinxr/asset-pipeline/trellis/boxy-subject-bake-sweep.json");
 const SHOE_SWEEP = join(REPO, "tools/openclinxr/asset-pipeline/trellis/shoe-rung-sweep.json");
 

@@ -26,12 +26,13 @@
  *
  * THIS HEADER IS IMMUTABLE. Flip the assertion and append a `## FIXED (#743)` block below.
  */
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const REPO = resolve(import.meta.dirname, "../../..");
+const REPO = repoRoot();
 const AUDIT = resolve(REPO, "tools/openclinxr/openclaw/supervisor-audit.ts");
 
 function subjectMatches(pattern: string): number {
