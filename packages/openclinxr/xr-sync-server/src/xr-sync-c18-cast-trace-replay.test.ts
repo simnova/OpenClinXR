@@ -22,7 +22,7 @@ import { createEncounterServer, type EncounterServer } from "./index.js";
 // Fixture note: knee copied with status "approved" (C16 precedent). Timings are illustrative test values.
 
 const TIMING = { doorwaySeconds: 1, encounterSeconds: 9, noteSeconds: 1, breakAfterStationOrders: [] };
-const KNEE_APPROVED = { ...clinicKneePainScenario, status: "approved" };
+const KNEE_APPROVED = { ...clinicKneePainScenario, status: "approved" as const };
 const CHEST = edChestPainScenario;
 const INDEX_FILE = "exam-session.review-index.json";
 const TRACE_SUFFIX = ".conversation-trace.json";

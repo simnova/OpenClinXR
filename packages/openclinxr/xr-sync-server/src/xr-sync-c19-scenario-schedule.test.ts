@@ -159,7 +159,7 @@ describe("xr-sync-server C19 scenario event schedule", () => {
       events?: Array<Record<string, unknown>>;
     });
     const slotA = traces.find((t) => t.stationId === "slot-a");
-    expect(slotA?.events?.filter((e) => e.kind === "scheduled-event")).toEqual([
+    expect(slotA?.events?.filter((e) => e["kind"] === "scheduled-event")).toEqual([
       expect.objectContaining({ kind: "scheduled-event", actorId: entry.actorId, eventId: entry.eventId, tag: entry.tag }),
     ]);
   }, 20000);

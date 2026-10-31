@@ -19,7 +19,7 @@ import { createEncounterServer, type EncounterServer } from "./index.js";
 // transition, so a knee actor stays at baseline "anxious" after a turn; the C4 probe policy would move it.
 
 const TIMING = { doorwaySeconds: 1, encounterSeconds: 20, noteSeconds: 1, breakAfterStationOrders: [] };
-const KNEE_APPROVED = { ...clinicKneePainScenario, status: "approved" };
+const KNEE_APPROVED = { ...clinicKneePainScenario, status: "approved" as const };
 const CHEST = edChestPainScenario;
 
 function blueprint(): Record<string, unknown> {
