@@ -59,6 +59,32 @@ function sha256Hex(bytes: Uint8Array): string {
 	return createHash("sha256").update(bytes).digest("hex");
 }
 
+/**
+ * Shared hashing/sorting primitives for the refresh CLI
+ * (tools/openclinxr/evidence/room-frames-refresh.ts imports these; the
+ * validator below is the consumer, so writer and reader cannot drift).
+ */
+export type SourcePin = { readonly path: string; readonly sha256: string };
+
+/** Raw SHA-256 hex of bytes (per-PNG entries, capture-manifest pinning). */
+export function hashBytes(bytes: Uint8Array): string {
+	return sha256Hex(bytes);
+}
+
+/** Canonical pin order: ascending by path (same order the digest covers). */
+export function sortSourcePins(pins: ReadonlyArray<SourcePin>): SourcePin[] {
+	return [...pins].sort((a, b) => (a.path < b.path ? -1 : 1));
+}
+
+/** Digest over `path:sha` lines in canonical order (same join as validation). */
+export function computeSourcePinsDigest(
+	pins: ReadonlyArray<SourcePin>,
+): string {
+	return createHash("sha256")
+		.update(sortSourcePins(pins).map((p) => `${p.path}:${p.sha256}\n`).join(""))
+		.digest("hex");
+}
+
 function isRoomFile(name: string): boolean {
 	return name.endsWith(ROOM_FRAME_SUFFIX);
 }
