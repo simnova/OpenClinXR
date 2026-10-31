@@ -16,7 +16,7 @@ import { appendFile, mkdir, open, readdir, readFile, stat, unlink } from "node:f
 import { homedir, hostname } from "node:os";
 import path from "node:path";
 
-const DEFAULT_SIZES = { blender: 2, "browser-capture": 1, gpu: 1 } as const;
+const DEFAULT_SIZES = { blender: 2, "browser-capture": 1, gpu: 1, heavy: 2 } as const;
 const activeClaims = new Map<string, ActiveClaim>();
 const activeTickets = new Set<string>();
 const heldPools = new AsyncLocalStorage<Map<string, ReentrantHold>>();

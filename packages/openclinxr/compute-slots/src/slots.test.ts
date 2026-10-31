@@ -27,6 +27,7 @@ it("reports the default machine pools when the lock root is empty", () => {
     { pool: "blender", size: 2 },
     { pool: "browser-capture", size: 1 },
     { pool: "gpu", size: 1 },
+    { pool: "heavy", size: 2 },
   ]);
 });
 

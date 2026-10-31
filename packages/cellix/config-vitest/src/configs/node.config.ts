@@ -4,6 +4,11 @@ import { baseConfig, createDefaultTypecheckConfig, defaultTestIncludePatterns } 
 
 export { worktreeExcludePatterns };
 
+// A job runner that shares the machine with other jobs sets CELLIX_VITEST_MAX_WORKERS;
+// unset or invalid leaves vitest's own default.
+const envMaxWorkers = Number(process.env["CELLIX_VITEST_MAX_WORKERS"]);
+const maxWorkersFromEnv = Number.isSafeInteger(envMaxWorkers) && envMaxWorkers >= 1 ? { maxWorkers: envMaxWorkers } : {};
+
 export const nodeConfig = mergeConfig(
   baseConfig,
   defineConfig({
@@ -19,6 +24,7 @@ export const nodeConfig = mergeConfig(
       ],
       environment: "node",
       testTimeout: 5000,
+      ...maxWorkersFromEnv,
       coverage: {
         excludeAfterRemap: true,
         exclude: [

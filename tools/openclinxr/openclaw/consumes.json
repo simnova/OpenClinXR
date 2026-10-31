@@ -1,0 +1,16 @@
+[
+  {
+    "provider": "@openclinxr/compute-slots",
+    "entrypoint": "./slots",
+    "names": [
+      {
+        "name": "readComputeSlotsStatus",
+        "kind": "runtime"
+      },
+      {
+        "name": "withComputeSlot",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

@@ -49,6 +49,10 @@
     "CI",
     "NODE_ENV"
   ],
+  "globalPassThroughEnv": [
+    "CELLIX_VITEST_MAX_WORKERS",
+    "OPENCLINXR_HEAVY_SLOT_HELD"
+  ],
   "tasks": {
     "build": {
       "dependsOn": [
