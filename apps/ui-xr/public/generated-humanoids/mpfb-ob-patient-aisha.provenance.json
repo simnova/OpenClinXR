@@ -82,12 +82,13 @@
   "2026-10-10: JSON-only removal of normalTexture on material mpfb_skin_ob_patient_aisha_v1. BIN chunk unchanged. Top-level outputSha256 and outputBytes re-recorded to the edited GLB. Shoulder clothing holes were not edited.",
   "2026-10-30 ci-w11 D3 (chest-anchor re-separation, post-bake stage, not rebake): default mode: rest 0.00000 -> +-0.085 (rebakes 32e58c3ff/91aa4b5d3/7d71273e3/9f2934536/10768617f had zeroed the #0 separation); moved 2 ClinicalIdleConversation + 2 openclinxr_retarget_walk_source keyframes per joint with the rests. y/z untouched. Tool: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs (half-span 0.085, uniform with nurse known-good 1f5519d2).",
   "2026-10-30 ci-w11 D1 (orphan prune, not rebake): gltf-transform prune 4.3.0, same tool and flags as #555 (evidence tools/openclinxr/evidence/unbound-texture-prune.json). Removed unreferenced mpfb-ob-patient-aisha.skin-normal (1080156 B, orphaned by the 2026-10-10 normalTexture strip). File 10069400 -> 8828240 B. Bound invariants held: boundTextures 5, boundBytes 4246964, meshes 10, materials 17, tris 69067, joints 137, animations 3.",
-  "2026-10-30 ci-w11b: ci-w12 D1 gravid station re-applied on the ci-w11 D1-pruned + D3-repaired bytes (cherry-pick c9d73bff3 binary conflict resolved by regeneration, never hand-merged bytes): 1104 recorded displacements via tools/openclinxr/asset-pipeline/makeclothes/apply-gravid-treatment.ts on the 8828240 B pruned base (topology match, max delta 101.3 mm). Chest anchors verified still +-0.085 post-apply; pregnancy contract the-case-declared-pregnancy-reaches-a-vertex.test.ts green (abdomen 319.2 within pin). outputSha256/outputBytes re-recorded in the same change that moved the bytes."
+  "2026-10-30 ci-w11b: ci-w12 D1 gravid station re-applied on the ci-w11 D1-pruned + D3-repaired bytes (cherry-pick c9d73bff3 binary conflict resolved by regeneration, never hand-merged bytes): 1104 recorded displacements via tools/openclinxr/asset-pipeline/makeclothes/apply-gravid-treatment.ts on the 8828240 B pruned base (topology match, max delta 101.3 mm). Chest anchors verified still +-0.085 post-apply; pregnancy contract the-case-declared-pregnancy-reaches-a-vertex.test.ts green (abdomen 319.2 within pin). outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+  "2026-10-31 mesh-defects (gravid garment restore, not rebake): 21fad089f re-applied the #581 gravid field to the fp-r0.4 decimated garments (t-shirt 1192 verts, jeans 2906). Every moved vertex landed exactly on the #581 surface, but the decimated triangles (edges to 141 mm tee / 360 mm jeans) could not carry the 77 mm belly drape: spiked tee hem, front waistband folded inward, hidden body showing through the jeans. replace-garment-primitive.ts swaps in the full-resolution tee (5400 verts / 2700 tris) and jeans (8432 / 4216) from the #581 treated bake 57e277301 (raw pin cfdcd5a3, body p95 0 mm, same joint list, same materials; UVs equal on every unmoved decimated vertex, so the HB-02 albedo maps unchanged). Body, rig, clips, teeth, chest anchors untouched. The waist-fit row stays a declared skip: measureWaistAt's 12% rim band finds fewer than 12 comparable buckets on the 57e277301 bake as well, because the front hem drops over the belly. Stills: /Volumes/files/openclinxr-assets/store/mesh-defects-20261031/humanoids/ob-waist-refit/stills/."
  ],
  "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
  "promotionGates": false,
- "outputSha256": "1b8a8ef4f548bfcd71305a30f8eae2e90f19a22176fb80e2e461f755010540ac",
- "outputBytes": 8828240,
+ "outputSha256": "e7dc79e691c3898681cbea39fb4736892746fc177fb8e4d01036a4960d5e52f0",
+ "outputBytes": 9589372,
  "fitTimeLower": {
   "garment": "punkduck_female_tight_jeans",
   "sourceObjFaces": 2108,
@@ -145,5 +146,53 @@
    "channels": 411,
    "reason": "rebound with corrected --source-orientation: travel MISMATCHES rest (restZ=0.0660, advanceForwardZ=-0.9989, windowFrames=18, mps=0.439)"
   }
- ]
+ ],
+ "gravidGarmentRestore": {
+  "tools": [
+   "tools/openclinxr/asset-pipeline/makeclothes/replace-garment-primitive.ts"
+  ],
+  "toolSha256": {
+   "tools/openclinxr/asset-pipeline/makeclothes/replace-garment-primitive.ts": "079294863e31f3e0bc9792c59592b52508d69e952df1f441ffd957ec1e7a811a"
+  },
+  "argv": [
+   "replace-garment-primitive.ts <glb> --from <source> --mesh t_shirt",
+   "replace-garment-primitive.ts <glb> --from <source> --mesh tight_jeans"
+  ],
+  "source": {
+   "revision": "57e277301:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+   "path": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261031/humanoids/ob-waist-refit/source-57e277301.glb",
+   "sha256": "cfdcd5a3c2828daa5fa1a26d651271b1c46d89260c1d24693bc0ba1b17c0f31a",
+   "bytes": 17002120,
+   "note": "#581 treated bake (pregnancy_target.py 34wk/0.85); the recorded-gravid-treatment.json field was derived from it"
+  },
+  "bodyP95M": 0,
+  "garments": {
+   "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_v1_mesh": {
+    "verticesBefore": 1192,
+    "verticesAfter": 5400,
+    "trisAfter": 2700
+   },
+   "makeclothes_library_female_tight_jeans_pants_mpfb_ob_patient_aisha_v1_mesh": {
+    "verticesBefore": 2906,
+    "verticesAfter": 8432,
+    "trisAfter": 4216
+   }
+  },
+  "inputSha256": "1b8a8ef4f548bfcd71305a30f8eae2e90f19a22176fb80e2e461f755010540ac",
+  "inputBytes": 8828240,
+  "stages": [
+   {
+    "path": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261031/humanoids/ob-waist-refit/stage1-tee.glb",
+    "sha256": "16d78122de2d34de68a923b27cb7fdb0516f776bd16f501fab73d40029f0c329",
+    "bytes": 9124744
+   },
+   {
+    "path": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261031/humanoids/ob-waist-refit/stage2-jeans.glb",
+    "sha256": "e7dc79e691c3898681cbea39fb4736892746fc177fb8e4d01036a4960d5e52f0",
+    "bytes": 9589372
+   }
+  ],
+  "reproduction": "byte-identical to the shipped file",
+  "why": "the gravid field needs the garment density it was derived on; re-decimating would fold the drape again"
+ }
 }

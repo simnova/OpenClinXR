@@ -55,9 +55,9 @@
    "chosenRungId": "fp-r0.4",
    "rungTechnique": "selective weld+simplifyPrimitive ratio 0.4 error 0.01 on every non-face mesh (face meshes /eye|brow|lash|teeth|tongue/i untouched); 1-triangle gown marker never simplified",
    "triangleCountBefore": 92430,
-   "triangleCountAfter": 69067,
+   "triangleCountAfter": 72946,
    "bytesBefore": 13170972,
-   "bytesAfter": 8828240,
+   "bytesAfter": 9589372,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "faceBefore": 52778,
    "faceAfter": 52778,
@@ -101,7 +101,7 @@
    ],
    "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
    "lineageNote": "tightjeans re-bake output; second fp-r0.4 pass (2803b774) then albedo bake (42c42140)",
-   "remeasureNote": "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical at the decimation grain (tris 69067 / face 52778 / joints 137 all hold; the gravid displacement field moves verts within the same topology). Superseding commits d1c44f8cd (ci-w11 D1 orphan prune, 10069400 -> 8828240 B) and 21fad089f (ci-w12 D1 gravid re-apply on the pruned base, 1104 displacements, anchors verified +-0.085). Prior re-measure (10768617 normal-off proof) preserved in git history."
+   "remeasureNote": "Re-measured 2026-10-31 (mesh-defects gravid garment restore): the decimated t-shirt and tight jeans folded under the gravid field re-applied by 21fad089f, so replace-garment-primitive.ts swapped in the full-resolution primitives from the 57e277301 treated bake (tee 1079 -> 2700 tris, jeans 1958 -> 4216). Every other mesh keeps its fp-r0.4 output: tris 69067 -> 72946, bytes 8828240 -> 9589372, face 52778 and joints 137 hold. Previous re-measure (ci-w11b, d1c44f8cd prune + 21fad089f gravid re-apply) preserved in git history."
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",

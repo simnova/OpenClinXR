@@ -74,7 +74,10 @@ const DIR = "apps/ui-xr/public/generated-humanoids";
 const PINNED = {
   // ci-w11 re-pin 2026-10-30, measured pre-prune. Old #598: fileBytes 11395580, textures 5,
   // boundTextures 5, boundBytes 4580867, tris 74642, animations 2.
-  "mpfb-ob-patient-aisha.glb":  { fileBytes: 10069400, textures: 5, boundTextures: 5, boundBytes: 4246964, meshes: 10, materials: 17, tris: 69067, joints: 137, animations: 3 },
+  // mesh-defects re-pin 2026-10-31: gravidGarmentRestore (sidecar) swapped the fp-r0.4 tee and
+  // jeans for the full-resolution #581 primitives from 57e277301 (+761132 B, +3879 tris; textures
+  // untouched). Pre-prune pin carried forward by the same deltas; was fileBytes 10069400, tris 69067.
+  "mpfb-ob-patient-aisha.glb":  { fileBytes: 10830532, textures: 5, boundTextures: 5, boundBytes: 4246964, meshes: 10, materials: 17, tris: 72946, joints: 137, animations: 3 },
   // ci-w11 re-pin 2026-10-30, measured pre-prune (post-afe8abced full-res hair + D2 grade).
   // Old #598: fileBytes 11456228, textures 5, boundTextures 5, boundBytes 4598965, tris 74732.
   "mpfb-peds-parent-aisha.glb": { fileBytes: 19888836, textures: 12, boundTextures: 11, boundBytes: 10641749, meshes: 10, materials: 17, tris: 73012, joints: 137, animations: 2 },
