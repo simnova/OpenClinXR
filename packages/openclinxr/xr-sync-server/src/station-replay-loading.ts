@@ -19,6 +19,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { EmotionTransition } from "@openclinxr/conversation-policy";
 import { CONVERSATION_TRACE_SCHEMA, type ConversationTraceEvent } from "./conversation-trace.js";
+import { readCastContext } from "./conversation-trace-cast.js";
 import type { SessionReviewStationEntry } from "./session-review-index.js";
 
 /** One validated replayable station: its index entry plus its recorded trace. */
@@ -30,6 +31,10 @@ export interface LoadedReplayStation {
   events: ConversationTraceEvent[];
   turns: { turnId: number; actorId: string; replyId: string; cueId: string; end: string }[];
   emotions: EmotionTransition[];
+  /** C18 the slot's scenario id ("" off a cast station). */
+  scenarioId: string;
+  /** C18 recorded cast context (undefined off-cast). */
+  cast?: { scenarioId: string; actors: string[]; baseline: string; emotionPolicy: { baseline: string; upperBound: string; lowerBound: string; transitions: unknown[] } };
 }
 
 function isReplayTraceEventKind(kind: unknown): boolean {
@@ -49,6 +54,8 @@ function isReplayTraceEventKind(kind: unknown): boolean {
 /** Loose replay-file shapes for validation (dot access keeps useLiteralKeys quiet). */
 interface RawReplayTrace {
   schema?: unknown;
+  scenarioId?: unknown;
+  cast?: unknown;
   events?: unknown;
   turns?: unknown;
   emotions?: unknown;
@@ -209,6 +216,22 @@ export function loadReplayStationTrace(
   if (emotions.length < required) {
     throw new Error(`replay-bad-trace: ${entry.traceFile} holds fewer emotions than its events consume (needs ${required}, has ${emotions.length})`);
   }
+  // C18: the recorded cast context (absent off-cast / pre-C18). Validated here
+  // so a malformed cast refuses only its own station; review-safe by
+  // construction (ids, baseline, policy only — never utterance text).
+  const scenarioId = typeof (trace as { scenarioId?: unknown }).scenarioId === "string" ? (trace as { scenarioId: string }).scenarioId : "";
+  const shared = readCastContext(trace.cast, entry.traceFile);
+  const cast = shared === undefined ? undefined : {
+    scenarioId: shared.scenarioId,
+    actors: [...shared.actors],
+    baseline: shared.baseline,
+    emotionPolicy: {
+      baseline: shared.emotionPolicy.baseline as string,
+      upperBound: shared.emotionPolicy.upperBound as string,
+      lowerBound: shared.emotionPolicy.lowerBound as string,
+      transitions: [...shared.emotionPolicy.transitions] as unknown[],
+    },
+  };
   return {
     stationId: entry.stationId,
     stationIndex: typeof entry.stationIndex === "number" ? entry.stationIndex : 0,
@@ -217,5 +240,7 @@ export function loadReplayStationTrace(
     events,
     turns,
     emotions,
+    scenarioId,
+    ...(cast === undefined ? {} : { cast }),
   };
 }

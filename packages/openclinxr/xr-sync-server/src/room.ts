@@ -169,10 +169,15 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       populateCastRoster(this.state.actors, cast);
       // C17: the station's cast voice (first reply per actor) and emotion
       // policy ride this room only (per-station rooms, so per-station voice).
+      // C18: the tracer records the same cast (scenario id, roster, policy +
+      // baseline) so the persisted trace recomputes the live replyIds/cues
+      // and emotions from recorded data alone (no scenario bank, no text).
       this.castVoice = new Map(cast.castActors.map((entry) => [entry.actorId, entry]));
-      this.tracer.setStationEmotionPolicy(stationEmotionPolicy(cast));
+      const policy = stationEmotionPolicy(cast);
+      this.tracer.setStationCast({ scenarioId: cast.scenarioId, actors: [...cast.actorIds], baseline: policy.baseline as string, emotionPolicy: policy });
     } else {
       populateActorRoster(this.state.actors, options);
+      this.tracer.setStationCast(null);
     }
     this.state.learners = new MapSchema<LearnerStateInstance>();
 

@@ -24,6 +24,7 @@ import type { Client } from "@colyseus/core";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ConversationTraceEvent } from "./conversation-trace.js";
+import { replayBaselineForCast } from "./conversation-trace-cast.js";
 import { loadReplayStationTrace, type LoadedReplayStation } from "./station-replay-loading.js";
 import { ActorState, EncounterState, LearnerState, type ActorStateInstance, type LearnerStateInstance } from "./schema.js";
 import { EncounterRoom, ENCOUNTER_ROOM_NAME } from "./room.js";
@@ -246,21 +247,19 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       this.state.noteChars = 0;
       this.state.actors = new MapSchema<ActorStateInstance>();
       // The replayed cast is the recorded cast: distinct turn actorIds in
-      // first-appearance order. No live defaults, no reviewer-provisioned
-      // extras: an always-neutral extra actor flaps cross-actor observers
-      // (every snapshot compares each actor against one last emotion), so the
-      // room carries exactly the actors that speak.
+      // first-appearance order, starting at the recorded baseline (C18).
       const roster = new Set<string>();
       for (const turn of station.turns) {
         if (turn.actorId !== "" && !roster.has(turn.actorId)) {
           roster.add(turn.actorId);
         }
       }
+      const castBaseline = replayBaselineForCast(station.cast);
       for (const id of roster) {
         const actor = new ActorState();
         actor.id = id;
         actor.speaking = false;
-        actor.emotion = "neutral";
+        actor.emotion = castBaseline;
         actor.replyId = "";
         actor.cueId = "";
         this.state.actors.set(id, actor);

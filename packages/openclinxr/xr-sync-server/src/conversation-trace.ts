@@ -21,7 +21,17 @@ import {
 } from "@openclinxr/conversation-policy";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  CAST_TRACE_OPENING_CUE_ID,
+  castOpeningReplyId,
+  cloneCastContext,
+  isCastOpening,
+  readCastContext,
+  transitionWithCastHold,
+  type ConversationCastContext,
+} from "./conversation-trace-cast.js";
 
+export type { ConversationCastContext } from "./conversation-trace-cast.js";
 /** Learner speech completed: the acknowledgement that opens an actor reply. */
 const LEARNER_ACKNOWLEDGEMENT: EmotionEventKind = "learner_acknowledgement";
 /** Learner speech started over an open actor turn. */
@@ -29,7 +39,6 @@ const LEARNER_INTERRUPTION: EmotionEventKind = "learner_interruption";
 
 /** Schema tag written into every persisted conversation trace file. */
 export const CONVERSATION_TRACE_SCHEMA = "openclinxr.xr-sync.conversation-trace.v1";
-
 /** C3 server-side scripted actor reply: an id the page renders, text kept
  * server-side, a server-clock duration, and the audio/viseme cue the page
  * renders as a mouth bar while the reply speaks. */
@@ -153,11 +162,16 @@ export interface ConversationTraceTurn {
 
 /** Review-safe persisted conversation: schema tag, raw events, and the
  * recomputed derived views (turns + emotions). Derived views are fully
- * determined by events; replay ignores the stored copies. */
+ * determined by events (+ the recorded cast context on a cast station);
+ * replay ignores the stored copies. */
 export interface ConversationTrace {
   schema: string;
   /** C7 station that recorded this trace ("" when no stations). Partition key: turns and phase events stay in their station. */
   stationId: string;
+  /** C18 the slot's scenario id ("" off a cast station). */
+  scenarioId: string;
+  /** C18 cast context for the reducer (present only on a cast station). */
+  cast?: ConversationCastContext;
   events: ConversationTraceEvent[];
   turns: ConversationTraceTurn[];
   emotions: EmotionTransition[];
@@ -171,35 +185,43 @@ export interface ReducedConversation {
 
 /**
  * Pure shared reducer: events in, turns + emotions out. No clock, no RNG, no
- * network. The room records events (adding only the clock-timer
- * turn-completed) and replayConversationTrace runs this over the file's events,
- * so both compute identical derived views from identical events.
+ * network. The room records events and replayConversationTrace runs this over
+ * the file's events, so both compute identical derived views.
  *
- * Turn indexing mirrors the room: an utterance-end opens turn N+1 on the
- * currently selected actor (selected by the latest select-actor event); an
- * utterance-start while a turn is open interrupts it. Emotion transitions use
- * one EmotionEngine per actor from the probe policy: utterance-end emits
- * learner_acknowledgement (before the reply opens, turnIndex = new turn),
- * an interrupting utterance-start emits learner_interruption
- * (turnIndex = interrupted turn); a non-interrupting utterance-start emits
- * nothing.
+ * Turn indexing mirrors the room: utterance-end opens turn N+1 on the
+ * selected actor; utterance-start while open interrupts it. Emotions use one
+ * engine per actor: utterance-end emits acknowledgement, interrupting start
+ * emits interruption, a non-interrupting start emits nothing.
+ *
+ * C18: with a cast the reducer is cast-aware from recorded data only:
+ * first turn per rostered actor uses `${actorId}:opening` + cue-opening-01,
+ * emotions resolve against the recorded policy from its baseline. Without a
+ * cast the C3 table + probe policy apply (off-cast unchanged).
  */
-export function reduceConversationEvents(events: readonly ConversationTraceEvent[]): ReducedConversation {
+export function reduceConversationEvents(
+  events: readonly ConversationTraceEvent[],
+  cast?: ConversationCastContext,
+): ReducedConversation {
   let currentActor: string | null = null;
   const actorTurnCounts = new Map<string, number>();
   const engines = new Map<string, EmotionEngine>();
   const turns: ConversationTraceTurn[] = [];
   const emotions: EmotionTransition[] = [];
   let openTurnId: number | null = null;
+  const policy = cast?.emotionPolicy ?? PROBE_CASE_EMOTION_POLICY;
+  const baseline = (cast?.baseline ?? PROBE_CASE_EMOTION_POLICY.baseline) as EmotionEngine["currentEmotion"];
+  const castActors = cast !== undefined ? new Set(cast.actors) : null;
 
   const engineFor = (actorId: string): EmotionEngine => {
     let engine = engines.get(actorId);
     if (!engine) {
-      engine = new EmotionEngine(PROBE_CASE_EMOTION_POLICY.baseline);
+      engine = new EmotionEngine(baseline);
       engines.set(actorId, engine);
     }
     return engine;
   };
+  const transitionFor = (actorId: string, kind: EmotionEventKind, turnIndex: number): EmotionTransition =>
+    transitionWithCastHold(engineFor(actorId), policy, kind, turnIndex);
 
   for (const event of events) {
     switch (event.kind) {
@@ -217,9 +239,7 @@ export function reduceConversationEvents(events: readonly ConversationTraceEvent
             record.endSeq = event.seq;
           }
           if (record) {
-            emotions.push(
-              engineFor(record.actorId).transition({ kind: LEARNER_INTERRUPTION }, PROBE_CASE_EMOTION_POLICY, openTurnId),
-            );
+            emotions.push(transitionFor(record.actorId, LEARNER_INTERRUPTION, openTurnId));
           }
           openTurnId = null;
         }
@@ -234,21 +254,25 @@ export function reduceConversationEvents(events: readonly ConversationTraceEvent
         }
         const turnCount = (actorTurnCounts.get(actorId) ?? 0) + 1;
         actorTurnCounts.set(actorId, turnCount);
+        // C18: the recorded cast marks opening turns (live: `${actorId}:opening`
+        // with the stable opening cue). Later turns use the C3 table at the
+        // same 1-based per-actor count the live room uses.
+        const isOpening = isCastOpening(castActors, actorId, turnCount);
         const reply = pickC3Reply(turnCount);
+        const replyId = isOpening ? castOpeningReplyId(actorId) : reply.id;
+        const cueId = isOpening ? CAST_TRACE_OPENING_CUE_ID : reply.cueId;
         const turnId = turns.length + 1;
         turns.push({
           turnId,
           actorId,
-          replyId: reply.id,
-          cueId: reply.cueId,
+          replyId,
+          cueId,
           startSeq: event.seq ?? 0,
           end: "open",
           endSeq: null,
         });
         openTurnId = turnId;
-        emotions.push(
-          engineFor(actorId).transition({ kind: LEARNER_ACKNOWLEDGEMENT }, PROBE_CASE_EMOTION_POLICY, turnId),
-        );
+        emotions.push(transitionFor(actorId, LEARNER_ACKNOWLEDGEMENT, turnId));
         break;
       }
       case "turn-completed": {
@@ -290,16 +314,23 @@ export function reduceConversationEvents(events: readonly ConversationTraceEvent
 }
 
 /**
- * Replay a persisted (or live) trace from its events alone: turns and emotions
- * are RECOMPUTED, never echoed, so a tampered derived field replays to the
- * untampered value. The input shape is deliberately loose (kind: string):
- * only events are read; stored turns/emotions are ignored. Unknown schema
- * tags and unknown event kinds throw rather than replaying corruptly.
+ * Replay a persisted (or live) trace from its events: turns and emotions are
+ * RECOMPUTED, never echoed. Only events (+ recorded C18 cast) are read.
+ * Unknown schemas or event kinds throw.
  */
 export interface ReplayableConversationTrace {
   schema: string;
   /** C7 station partition key; optional for C4/C6 files, preserved when present. */
   stationId?: string;
+  /** C18 the slot's scenario id; optional for pre-C18 files, preserved when present. */
+  scenarioId?: string;
+  /** C18 recorded cast context; optional for pre-C18/off-cast files. */
+  cast?: {
+    scenarioId?: unknown;
+    actors?: unknown;
+    baseline?: unknown;
+    emotionPolicy?: unknown;
+  };
   events: readonly {
     seq: number | null;
     kind: string;
@@ -341,14 +372,21 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
     }
     return out;
   });
-  const { turns, emotions } = reduceConversationEvents(events);
-  return {
+  const cast = readCastContext(trace.cast, "trace");
+  const scenarioId = typeof trace.scenarioId === "string" ? trace.scenarioId : (cast?.scenarioId ?? "");
+  const { turns, emotions } = reduceConversationEvents(events, cast);
+  const out: ConversationTrace = {
     schema: CONVERSATION_TRACE_SCHEMA,
     stationId: typeof trace.stationId === "string" ? trace.stationId : "",
+    scenarioId,
     events,
     turns,
     emotions,
   };
+  if (cast !== undefined) {
+    out.cast = cast;
+  }
+  return out;
 }
 
 /** Persisted-file name suffix for the review-safe conversation trace. */
@@ -366,12 +404,15 @@ export class ConversationTracer {
   private engines = new Map<string, EmotionEngine>();
   /** C7 station partition key for the owning room ("" when no stations). */
   private stationId = "";
+  /** C18 the slot's scenario id ("" off a cast station). */
+  private scenarioId = "";
+  /** C18 recorded cast context for the reducer (undefined off-cast). */
+  private castContext: ConversationCastContext | undefined = undefined;
   /**
    * C17 emotion policy for the owning room (PROBE policy unless the room sets
-   * its cast station's policy). Live transitions resolve against it; the
-   * shared pure reducer (snapshot/replay) always uses the PROBE policy, so a
-   * cast session's persisted emotions replay to the probe values (documented
-   * divergence; non-cast replay is unchanged).
+   * its cast station's policy). Live transitions resolve against it; C18 the
+   * shared pure reducer resolves against the recorded cast context, so a
+   * cast session's persisted emotions match the live values.
    */
   private emotionPolicy: CaseEmotionPolicy = PROBE_CASE_EMOTION_POLICY;
   /** C17 engine starting emotion (PROBE baseline unless the room sets its cast baseline). */
@@ -388,6 +429,26 @@ export class ConversationTracer {
     this.emotionBaseline = policy.baseline;
   }
 
+  /** C18: bind the owning room's cast (scenario id, roster, policy + baseline). Null clears back to off-cast. */
+  setStationCast(cast: { scenarioId: string; actors: string[]; baseline: string; emotionPolicy: CaseEmotionPolicy } | null): void {
+    if (cast === null) {
+      this.scenarioId = "";
+      this.castContext = undefined;
+      this.emotionPolicy = PROBE_CASE_EMOTION_POLICY;
+      this.emotionBaseline = PROBE_CASE_EMOTION_POLICY.baseline;
+      return;
+    }
+    this.scenarioId = cast.scenarioId;
+    this.emotionPolicy = cast.emotionPolicy;
+    this.emotionBaseline = cast.emotionPolicy.baseline;
+    this.castContext = cloneCastContext({
+      scenarioId: cast.scenarioId,
+      actors: [...cast.actors],
+      baseline: cast.baseline,
+      emotionPolicy: cast.emotionPolicy,
+    });
+  }
+
   /** Append one conversation event, in application order. */
   push(event: ConversationTraceEvent): void {
     this.events.push(event);
@@ -400,31 +461,25 @@ export class ConversationTracer {
       engine = new EmotionEngine(this.emotionBaseline);
       this.engines.set(actorId, engine);
     }
-    // C17: no matching (from, triggeredBy) rule in the station policy means
-    // the emotion is unchanged (the engine's clamp must not move a baseline
-    // the policy never transitions away from, e.g. knee "anxious"). For the
-    // PROBE policy every live (from, kind) pair either matches or already
-    // sits inside its bounds, so non-cast behaviour is identical.
-    const current = engine.currentEmotion;
-    const matched = this.emotionPolicy.transitions.some(
-      (rule) => rule.from === current && rule.triggeredBy === kind,
-    );
-    if (!matched) {
-      return { from: current, to: current, trigger: kind, changed: false, turnIndex };
-    }
-    return engine.transition({ kind }, this.emotionPolicy, turnIndex);
+    // C17/C18 no-match hold lives in conversation-trace-cast.ts (single source).
+    return transitionWithCastHold(engine, this.emotionPolicy, kind, turnIndex);
   }
 
   /** Live trace view: events copied, turns + emotions recomputed by the reducer. */
   snapshot(): ConversationTrace {
-    const { turns, emotions } = reduceConversationEvents(this.events);
-    return {
+    const { turns, emotions } = reduceConversationEvents(this.events, this.castContext);
+    const out: ConversationTrace = {
       schema: CONVERSATION_TRACE_SCHEMA,
       stationId: this.stationId,
+      scenarioId: this.scenarioId,
       events: this.events.map((event) => ({ ...event })),
       turns,
       emotions,
     };
+    if (this.castContext !== undefined) {
+      out.cast = cloneCastContext(this.castContext);
+    }
+    return out;
   }
 
   /**

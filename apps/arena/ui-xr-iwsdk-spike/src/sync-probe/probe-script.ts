@@ -40,6 +40,7 @@ import {
 import { runC15Script } from "./probe-c15.js";
 import { createC16Evidence, runC16Script, type C16Evidence } from "./probe-c16.js";
 import { createC17Evidence, runC17Script, type C17Evidence } from "./probe-c17.js";
+import { createC18Evidence, runC18Script, type C18Evidence } from "./probe-c18.js";
 import { PROBE_ACTOR_IDS, resolvePhaseLabel } from "./probe-state.js";
 import { parseC11NoteMaxChars } from "./probe-query.js";
 
@@ -369,6 +370,31 @@ export async function runProbeScript(deps: ProbeScriptDeps): Promise<void> {
       },
       evidence: c17,
       publish: publishC17,
+    });
+  } else if (deps.script === "c18") {
+    // C18 faculty replay of a recorded cast station: the C10 flow verbatim
+    // (one select-actor that must reject read-only, then watch the recorded
+    // station) plus the visible replyId/emotion panel tracked in the C18
+    // evidence surface (same ceiling rationale as the C16/C17 modules: it
+    // owns and publishes window.__syncProbeC18 itself).
+    const c18: C18Evidence = createC18Evidence();
+    const publishC18 = (): void => {
+      window.__syncProbeC18 = c18;
+      // The harness reads window.__syncProbe (harness-lib is shared and
+      // frozen); sync-probe.ts sits at its file-size ceiling and cannot grow
+      // a c18 field, so the C18 module attaches its data-only evidence here.
+      if (window.__syncProbe !== undefined) {
+        Object.assign(window.__syncProbe, { c18 });
+      }
+    };
+    publishC18();
+    await runC18Script({
+      waitFor,
+      sendIntentAndSettle,
+      getSnapshot,
+      setStatus,
+      evidence: c18,
+      publish: publishC18,
     });
   } else {
     for (const actorId of PROBE_ACTOR_IDS) {

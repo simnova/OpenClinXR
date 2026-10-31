@@ -11,9 +11,9 @@ export interface ProbeQuery {
   autostart: boolean;
   /** Quest mode: install the IWER runtime even when a native runtime is present. */
   forceIwer: boolean;
-  /** Probe script: "c2" (sweep + select each actor), "c3" (server-driven actor turn), "c6" (phase-gated C3 inside the encounter window), "c7" (C3 script once per station with server rotation), "c8" (c7 loop with pose streaming on + observer badge), "c10" (faculty replay of one recorded station), "c11" (C3 script once + patient-note submits in the note phase), "c12" (review lobby: trigger station-2, watch its replay), "c13" (c12 flow + rubric score submit + return to lobby), "c14" (c13 flow + lobby sign-off finalize), "c15" (C3 script once per blueprint station with server rotation + label panel), "c16" (cast select + C3 script once per scenario-cast station with server rotation + cast panel), or "c17" (every cast actor's opening line + caption per scenario-cast station with server rotation + caption panel). */
+  /** Probe script: "c2" (sweep + select each actor), "c3" (server-driven actor turn), "c6" (phase-gated C3 inside the encounter window), "c7" (C3 script once per station with server rotation), "c8" (c7 loop with pose streaming on + observer badge), "c10" (faculty replay of one recorded station), "c11" (C3 script once + patient-note submits in the note phase), "c12" (review lobby: trigger station-2, watch its replay), "c13" (c12 flow + rubric score submit + return to lobby), "c14" (c13 flow + lobby sign-off finalize), "c15" (C3 script once per blueprint station with server rotation + label panel), "c16" (cast select + C3 script once per scenario-cast station with server rotation + cast panel), "c17" (every cast actor's opening line + caption per scenario-cast station with server rotation + caption panel), or "c18" (faculty replay of one recorded cast station with the replyId/emotion panel). */
   script: ProbeScript;
-  /** C10 faculty replay: the recorded station id to replay (from ?replayStationId=; "" otherwise). */
+  /** C10/C18 faculty replay: the recorded station id to replay (from ?replayStationId=; "" otherwise). */
   replayStationId: string;
 }
 
@@ -32,6 +32,7 @@ const KNOWN_SCRIPTS: ReadonlySet<string> = new Set([
   "c15",
   "c16",
   "c17",
+  "c18",
 ]);
 
 /** Parse the probe query string. Throws on missing/invalid ?sync=. */
@@ -47,8 +48,8 @@ export function parseProbeQuery(search: string): ProbeQuery {
   }
   const script = scriptParam as ProbeScript;
   const replayStationId = params.get("replayStationId") ?? "";
-  if (scriptParam === "c10" && replayStationId === "") {
-    throw new Error("?script=c10 requires ?replayStationId=<recorded station id>");
+  if ((scriptParam === "c10" || scriptParam === "c18") && replayStationId === "") {
+    throw new Error(`?script=${scriptParam} requires ?replayStationId=<recorded station id>`);
   }
   return {
     syncUrl,
