@@ -119,6 +119,7 @@ function median(values: number[]): number {
 }
 
 describe("the vetted humanoid GLB is the subject alone", () => {
+  // 60 s: ~4.9 s idle, past the 5 s default under hook load (lip-sync pre-push 2026-10-31).
   it("HB-04-required-behavior", () => {
     expect(existsSync(REPORT), `${REPORT} must exist and be TRACKED — a deliverable under a gitignored path has no land path (#64)`).toBe(true);
     const report = JSON.parse(readFileSync(REPORT, "utf8")) as {
@@ -238,7 +239,7 @@ describe("the vetted humanoid GLB is the subject alone", () => {
     // (6) engine recorded.
     expect(String(report.renderer ?? ""), "report records the engine that rendered the grade").toMatch(/three\.js|Chromium/i);
     expect(String(report.harness?.webglRenderer ?? ""), "report names the WebGL renderer string").toMatch(/ANGLE|SwiftShader|Metal|Mali|Adreno/i);
-  });
+  }, 60_000);
 
   it("the retired gate keeps its inverted guard naming this file", () => {
     expect(existsSync(SUPERSEDED_FROM), "the retired gate is superseded, never deleted").toBe(true);
