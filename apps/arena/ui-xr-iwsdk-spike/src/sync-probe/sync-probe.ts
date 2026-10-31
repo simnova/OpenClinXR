@@ -31,11 +31,18 @@ import {
   yawQuaternionDegrees,
 } from "./probe-state.js";
 import { C4MouthRender, type SyncProbeCueObservation } from "./probe-c4.js";
-import { createPhaseRing, observedPhaseFrom, observedTurnFrom, runC3TurnScript, runC6PreEncounterProbe } from "./probe-c6.js";
-import { runC7Script } from "./probe-c7.js";
+import { createC3ScriptHelpers, createPhaseRing, runC6PreEncounterProbe } from "./probe-c6.js";
+import { createAimAndTrigger, type AimPose, runC7Script } from "./probe-c7.js";
+import { createC10ReplayObserver, runC10Script, type C10ReplayEvidence } from "./probe-c10.js";
+import {
+  createC11NoteEvidence,
+  createC11NoteTracker,
+  runC11Script,
+  type C11NoteEvidence,
+} from "./probe-c11.js";
 import { attachC8RotationFailed, createC8ObserverTracker, pushC8StationObservation } from "./probe-c8.js";
-import { createIntentQueue } from "./probe-queue.js";
-import { parseProbeQuery } from "./probe-query.js";
+import { createIntentQueue, drainIntents, waitFor } from "./probe-queue.js";
+import { parseC11NoteMaxChars, parseProbeQuery } from "./probe-query.js";
 
 interface ProbePose {
   x: number;
@@ -93,6 +100,8 @@ interface SyncProbeEvidence {
   rotationFaileds: Array<{ stationId: string; atMs: number }>;
   /** C7 page load id, set once at load (proves no reload across rotation). */
   pageLoadId: string;
+  c10: C10ReplayEvidence | null; // C10 replay observations (RED-identical recording + envelope + timing).
+  c11: C11NoteEvidence; // C11 patient-note evidence (sent texts + server noteStatus/noteChars reads).
   done: boolean;
   error: string | null;
 }
@@ -138,6 +147,8 @@ function createEvidence(): SyncProbeEvidence {
     observerCountsObserved: [],
     rotationFaileds: [],
     pageLoadId: "",
+    c10: null,
+  c11: createC11NoteEvidence(),
     done: false,
     error: null,
   };
@@ -160,19 +171,6 @@ function fail(message: string): void {
   probe.done = true;
   probe.phase = "failed";
   setStatus(`sync-probe failed: ${message}`);
-}
-
-async function waitFor(condition: () => boolean, timeoutMs: number, label: string): Promise<void> {
-  const deadline = performance.now() + timeoutMs;
-  for (;;) {
-    if (condition()) {
-      return;
-    }
-    if (performance.now() > deadline) {
-      throw new Error(`timed out waiting for ${label}`);
-    }
-    await new Promise((resolve) => setTimeout(resolve, 50));
-  }
 }
 
 async function main(): Promise<void> {
@@ -249,7 +247,9 @@ async function main(): Promise<void> {
 
   let connection: SyncConnection;
   try {
-    const options: ConnectOptions = { roomOptions: { actors: [...PROBE_ACTOR_IDS] } };
+    const options: ConnectOptions = {
+      roomOptions: { actors: [...PROBE_ACTOR_IDS], ...(query.script === "c10" ? { replayStationId: query.replayStationId } : {}) },
+    };
     connection = await connect(query.syncUrl, options);
   } catch (error) {
     fail(`connect failed: ${error instanceof Error ? error.message : String(error)}`);
@@ -266,6 +266,8 @@ async function main(): Promise<void> {
   // SERVER's station changes (rotation). Read-only to the harness.
   let lastStationSeen: string | null = null;
   const trackC8Observer = createC8ObserverTracker(probe);
+  const trackC10Replay = createC10ReplayObserver(probe);
+  const trackC11Note = createC11NoteTracker();
   attachC8RotationFailed(connection, probe);
   connection.onState((snapshot) => {
     probe.lastServerState = snapshot;
@@ -278,6 +280,8 @@ async function main(): Promise<void> {
     // C7: stationsObserved grows only when the SERVER station changes.
     lastStationSeen = pushC8StationObservation(probe, lastStationSeen, snapshot);
     trackC8Observer(snapshot);
+    trackC10Replay(snapshot);
+    trackC11Note(snapshot);
     // C6: phase label + ring follow the SERVER only (pure functions of
     // phase/remainingS). The pre-sync push (no server fields) is skipped.
     const phaseField = (snapshot as { phase?: unknown }).phase;
@@ -333,7 +337,7 @@ async function main(): Promise<void> {
   let lastPoseSendAt = 0;
   let referenceSpace: XRReferenceSpace | null = null;
   let presenting = false;
-  let poseStreaming = true;
+  let poseStreaming = query.script !== "c10";
 
   function onSelectEvent(event: Event): void {
     const source = (event as XRInputSourceEvent).inputSource;
@@ -374,7 +378,7 @@ async function main(): Promise<void> {
     enqueueIntent("utterance-start", {});
   }
 
-  let commandedAim: { origin: { x: number; y: number; z: number }; direction: { x: number; y: number; z: number } } | null = null;
+  let commandedAim: AimPose | null = null;
   let xrSession: XRSession | null = null;
 
   let lastFrameAt = performance.now();
@@ -457,11 +461,11 @@ async function main(): Promise<void> {
     presenting = true;
     setStatus("sync-probe in emulated immersive-vr");
 
-    await waitFor(
-      () => probe.lastServerState?.actors?.a1 !== undefined && probe.lastServerState?.actors?.a2 !== undefined,
-      15000,
-      "probe actors in snapshot",
-    );
+    const needActors =
+      query.script === "c10"
+        ? () => Object.keys(probe.lastServerState?.actors ?? {}).length > 0
+        : () => probe.lastServerState?.actors?.a1 !== undefined && probe.lastServerState?.actors?.a2 !== undefined;
+    await waitFor(needActors, 15000, "probe actors in snapshot");
 
     const rci = device.remote;
     await rci.dispatch("set_connected", { device: "controller-right", connected: true });
@@ -470,7 +474,7 @@ async function main(): Promise<void> {
     // Skipped for ?script=c7/c8: the sweep generates head-pose evidence only,
     // and station-1's encounter window must fit setup + trigger + the shared
     // C3 turn script. The C3 utterance script itself is never forked.
-    const SWEEP_STEPS = query.script === "c7" || query.script === "c8" ? 0 : 120;
+    const SWEEP_STEPS = query.script === "c7" || query.script === "c8" || query.script === "c10" || query.script === "c11" ? 0 : 120;
     for (let step = 0; step < SWEEP_STEPS; step += 1) {
       const yaw = sweepYawDegrees(step * 50);
       const quat = yawQuaternionDegrees(yaw);
@@ -479,41 +483,22 @@ async function main(): Promise<void> {
     }
 
     // Fixed script part 2: aim right controller at each actor and pull trigger.
-    async function aimAndTrigger(actorId: string, expectedIntents: number): Promise<void> {
-      const center = ACTOR_POSITIONS[actorId] ?? [0, 1, -2];
-      await rci.dispatch("look_at", {
-        device: "controller-right",
-        target: { x: center[0], y: center[1], z: center[2] },
-      });
-      const transform = (await rci.dispatch("get_transform", {
-        device: "controller-right",
-      })) as { position: { x: number; y: number; z: number }; orientation: { x: number; y: number; z: number; w: number } };
-      const aimQuat = new THREE.Quaternion(
-        transform.orientation.x,
-        transform.orientation.y,
-        transform.orientation.z,
-        transform.orientation.w,
-      );
-      const aimDir = new THREE.Vector3(0, 0, -1).applyQuaternion(aimQuat);
-      commandedAim = {
-        origin: { x: transform.position.x, y: transform.position.y, z: transform.position.z },
-        direction: { x: aimDir.x, y: aimDir.y, z: aimDir.z },
-      };
-      const expectedAcks = probe.sent + expectedIntents;
-      await rci.dispatch("_select_press", { device: "controller-right" });
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      await rci.dispatch("_select_release", { device: "controller-right" });
-      await new Promise((resolve) => setTimeout(resolve, 400));
-      await waitFor(() => probe.acks + probe.rejects >= expectedAcks, 10000, `select intents for ${actorId}`);
-    }
+    const aimAndTrigger = createAimAndTrigger({
+      dispatch: (method: string, params: Record<string, unknown>) => rci.dispatch(method, params),
+      actorCenter: (id) => ACTOR_POSITIONS[id] ?? [0, 1, -2],
+      setCommandedAim: (aim) => {
+        commandedAim = aim;
+      },
+      sent: () => probe.sent,
+      settled: () => probe.acks + probe.rejects,
+      waitFor,
+    });
 
-    const observedTurn = (): { turnId: number; owner: string; a1Speaking: boolean } =>
-      observedTurnFrom(probe.lastServerState);
-
-    const observedPhase = (): { phase: string; remainingS: number | null } =>
-      observedPhaseFrom(probe.lastServerState);
-
-    const turnScript = (): Promise<void> => runC3TurnScript({ sendIntentAndSettle, observedTurn, waitFor });
+    const { observedPhase, turnScript } = createC3ScriptHelpers({
+      sendIntentAndSettle,
+      getSnapshot: () => probe.lastServerState,
+      waitFor,
+    });
 
     if (query.script === "c3") {
       // C3: select a1 ONCE via trigger, then the shared turn script.
@@ -548,6 +533,19 @@ async function main(): Promise<void> {
         },
         keepPoseAcrossRotation: query.script === "c8",
       });
+    } else if (query.script === "c10") {
+      // C10 faculty replay: one select-actor (rejected read-only), then watch.
+      await runC10Script({ waitFor, sendIntentAndSettle, getSnapshot: () => probe.lastServerState });
+    } else if (query.script === "c11") {
+      // C11 patient note: one-station C3 script, then note-submits in the note phase.
+      await runC11Script({
+        waitFor,
+        sendIntentAndSettle,
+        getSnapshot: () => probe.lastServerState,
+        setStatus,
+        noteMaxChars: parseC11NoteMaxChars(window.location.search),
+        note: probe.c11,
+      });
     } else {
       for (const actorId of PROBE_ACTOR_IDS) {
         // C3 semantics: the second trigger first closes the learner's open
@@ -558,18 +556,16 @@ async function main(): Promise<void> {
     }
 
     // Fixed script ends: stop the pose stream FIRST so the tail is deterministic,
-    // then drain every in-flight intent and wait for the server to catch up.
+    // then drain (replay rooms reject every intent, so c10 skips the learner catch-up).
     poseStreaming = false;
     await new Promise((resolve) => setTimeout(resolve, 300));
-
-    // Drain: every sent intent settled, server learner caught up to the last seq.
-    await waitFor(() => probe.sent > 0 && probe.acks + probe.rejects >= probe.sent, 15000, "intent drain");
-    const finalSeq = probe.sent;
-    await waitFor(
-      () => probe.lastServerState?.learners?.[connection.sessionId]?.lastSeq === finalSeq,
-      10000,
-      "server learner caught up",
-    );
+    await drainIntents({
+      sent: () => probe.sent,
+      settled: () => probe.acks + probe.rejects,
+      learnerCaughtUp: () => probe.lastServerState?.learners?.[connection.sessionId]?.lastSeq === probe.sent,
+      skipLearnerCatchUp: query.script === "c10",
+      waitFor,
+    });
 
     probe.phase = "complete";
     setStatus("sync-probe script complete");

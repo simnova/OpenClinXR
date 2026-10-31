@@ -1,0 +1,23 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/trellis/**",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/makeclothes/body-param-cli.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/fixtures/issue-697-conditioning-report.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/fixtures/issue-255-multiview-report.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/blender/run_bake_isolated.py",
+        "$TURBO_ROOT$/packages/openclinxr/factory-stations/src/equipment_generate/run.ts",
+        "$TURBO_ROOT$/docs/openclinxr/humanoid-albedo-bake-2026-09-10.json",
+        "$TURBO_ROOT$/docs/openclinxr/humanoid-postopt-ladder-2026-09-10.json",
+        "$TURBO_ROOT$/docs/openclinxr/humanoid-postopt-ladder-face-preserving-2026-09-11.json",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/**",
+        "$TURBO_ROOT$/.openclinxr/evidence/trellis-sampler-sweep/**"
+      ]
+    }
+  }
+}

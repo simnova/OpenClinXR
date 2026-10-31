@@ -121,14 +121,26 @@ type ActorRow = {
   framesAdvanced: number;
 };
 
-const report: { actors?: ActorRow[] } | null = existsSync(ARTIFACT)
-  ? ((JSON.parse(readFileSync(ARTIFACT, "utf8")) as { report?: { actors?: ActorRow[] } }).report ?? null)
-  : null;
-const actors: ActorRow[] = report?.actors ?? [];
+/**
+ * Measure rather than assume the producer test ran first in this suite.
+ * `measureActorFloorContact()` serves the stamped artifact when it is fresh and
+ * re-measures (one Vite boot) when the tree stamp moved or the report is absent,
+ * so this costs one cached read in the common case and one live walk on a clean
+ * tree. Same self-measure pattern as the-seated-patient-reaches-the-floor.test.ts.
+ */
+const floorModule = (await import("./actor-floor-contact-all-stations.js")) as {
+  measureActorFloorContact?: () => Promise<{ actors?: ActorRow[] }>;
+};
+const measured = await floorModule.measureActorFloorContact?.();
+const actors: ActorRow[] = measured?.actors
+  ?? (existsSync(ARTIFACT)
+    ? ((JSON.parse(readFileSync(ARTIFACT, "utf8")) as { report?: { actors?: ActorRow[] } }).report?.actors ?? [])
+    : []);
 
 /**
- * SS7t: an empty or missing report must FAIL, never pass vacuously. The artifact is produced
- * by `actor-floor-contact-all-stations`; run that first if this refuses.
+ * SS7t: an empty or missing report must FAIL, never pass vacuously. The module above
+ * re-measures live when the artifact is absent or stale, so this fires only when the
+ * live walk itself produced no actors — which is a measurement defect, not an ordering one.
  */
 function requireActors(): ActorRow[] {
   expect(

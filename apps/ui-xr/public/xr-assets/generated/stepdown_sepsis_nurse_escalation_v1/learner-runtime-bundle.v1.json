@@ -314,14 +314,15 @@
           "x": 0.45,
           "y": 0,
           "z": -0.2
-        }
+        },
+        "supportInstanceId": "stepdown_room_v1:stretcher"
       },
       "stepdown_nurse_rivera_v1": {
         "slotKind": "clinical_team",
         "position": {
           "x": -0.45,
           "y": 0,
-          "z": 0.5
+          "z": 1
         },
         "scale": {
           "x": 1,
@@ -332,6 +333,11 @@
         "labelPrefix": "Team",
         "posture": "standing",
         "placementProvenance": "authored_intent",
+        "plantOffsetMeters": {
+          "x": -0.45,
+          "y": 0,
+          "z": 1
+        },
         "headingRadians": 3.142
       },
       "respiratory_therapist_ng_v1": {
@@ -350,15 +356,20 @@
         "labelPrefix": "Respiratory",
         "posture": "standing",
         "placementProvenance": "authored_intent",
+        "plantOffsetMeters": {
+          "x": -0.45,
+          "y": 0,
+          "z": -1.1
+        },
         "headingRadians": 0
       }
     },
     "equipmentPlacements": {
       "monitor_equipment": {
         "position": {
-          "x": -1.65,
+          "x": 1.6,
           "y": 0,
-          "z": -1.15
+          "z": 0.28
         },
         "label": "Monitor",
         "interactionCueIds": [

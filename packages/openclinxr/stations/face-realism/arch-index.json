@@ -1,0 +1,18 @@
+{
+  "package": "stations/face-realism",
+  "name": "@openclinxr/station-face-realism",
+  "entrypoint": "packages/openclinxr/stations/face-realism/src/index.ts",
+  "purpose": "Root entrypoint publishes no symbols.",
+  "exports": [],
+  "exportSummaries": {},
+  "workspaceDependencies": [
+    "@openclinxr/factory-station-core"
+  ],
+  "tests": [],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/station-face-realism test",
+    "typecheck": "pnpm --filter @openclinxr/station-face-realism typecheck",
+    "build": "pnpm --filter @openclinxr/station-face-realism build",
+    "lint": "pnpm --filter @openclinxr/station-face-realism lint"
+  }
+}

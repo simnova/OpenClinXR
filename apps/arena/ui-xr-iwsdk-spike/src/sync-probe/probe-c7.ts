@@ -8,6 +8,7 @@
  * SERVER state only; no page-local timing enters.
  */
 import type { IntentKind } from "@openclinxr/xr-sync-client/headset";
+import * as THREE from "three";
 import { observedPhaseFrom, observedTurnFrom, runC3TurnScript } from "./probe-c6.js";
 import { resolvePhaseLabel, resolveStationLabel } from "./probe-state.js";
 
@@ -139,4 +140,59 @@ export async function runC7Script(deps: C7ScriptDeps): Promise<void> {
       setPoseStreaming(true);
     }
   }
+}
+
+/** Commanded controller aim (origin + direction) the select handler reads. */
+export interface AimPose {
+  origin: { x: number; y: number; z: number };
+  direction: { x: number; y: number; z: number };
+}
+
+export interface AimAndTriggerDeps {
+  dispatch(method: string, params: Record<string, unknown>): Promise<unknown>;
+  actorCenter(actorId: string): [number, number, number];
+  setCommandedAim(aim: AimPose | null): void;
+  sent(): number;
+  settled(): number;
+  waitFor(condition: () => boolean, timeoutMs: number, label: string): Promise<void>;
+}
+
+/**
+ * Fixed script driver: aim the right controller at one actor and pull the
+ * trigger. Moved verbatim from sync-probe.ts (C10 line budget): behaviour is
+ * identical, dependencies are explicit parameters.
+ *
+ * Bind the driver to one page's dispatch/aim/counters (moved from
+ * sync-probe.ts so the trigger path stays identical for every script).
+ */
+export function createAimAndTrigger(
+  deps: AimAndTriggerDeps,
+): (actorId: string, expectedIntents: number) => Promise<void> {
+  return (actorId, expectedIntents) => aimAndTriggerActor(deps, actorId, expectedIntents);
+}export async function aimAndTriggerActor(deps: AimAndTriggerDeps, actorId: string, expectedIntents: number): Promise<void> {
+  const center = deps.actorCenter(actorId);
+  await deps.dispatch("look_at", {
+    device: "controller-right",
+    target: { x: center[0], y: center[1], z: center[2] },
+  });
+  const transform = (await deps.dispatch("get_transform", {
+    device: "controller-right",
+  })) as { position: { x: number; y: number; z: number }; orientation: { x: number; y: number; z: number; w: number } };
+  const aimQuat = new THREE.Quaternion(
+    transform.orientation.x,
+    transform.orientation.y,
+    transform.orientation.z,
+    transform.orientation.w,
+  );
+  const aimDir = new THREE.Vector3(0, 0, -1).applyQuaternion(aimQuat);
+  deps.setCommandedAim({
+    origin: { x: transform.position.x, y: transform.position.y, z: transform.position.z },
+    direction: { x: aimDir.x, y: aimDir.y, z: aimDir.z },
+  });
+  const expectedAcks = deps.sent() + expectedIntents;
+  await deps.dispatch("_select_press", { device: "controller-right" });
+  await new Promise((resolve) => setTimeout(resolve, 600));
+  await deps.dispatch("_select_release", { device: "controller-right" });
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  await deps.waitFor(() => deps.settled() >= expectedAcks, 10000, `select intents for ${actorId}`);
 }

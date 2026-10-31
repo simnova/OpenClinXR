@@ -46,6 +46,16 @@ export const EncounterState = schema(
     stationIndex: t.number(),
     /** C7 station count (0 when no stations). */
     stationCount: t.number(),
+    /** C10 replay mode ("replay" in replay rooms; "" in live rooms: C1..C9 behaviour). */
+    mode: t.string(),
+    /** C10 last recorded turn end ("completed" | "interrupted" | "closed-by-phase"; "" before the first end). */
+    lastTurnEnd: t.string(),
+    /** C10 true after the last recorded event has played into state. */
+    replayDone: t.boolean(),
+    /** C11 patient-note status ("none" before the first accepted note, "submitted" after). */
+    noteStatus: t.string(),
+    /** C11 length of the held note (0 when none). */
+    noteChars: t.number(),
   },
   "EncounterState",
 );
@@ -75,6 +85,16 @@ export interface EncounterSnapshot {
   stationIndex: number;
   /** C7 station count (0 when no stations). */
   stationCount: number;
+  /** C10 replay mode ("replay" in replay rooms; "" in live rooms). */
+  mode: string;
+  /** C10 last recorded turn end ("" before the first end). */
+  lastTurnEnd: string;
+  /** C10 true after the last recorded event has played into state. */
+  replayDone: boolean;
+  /** C11 patient-note status ("none" before the first accepted note, "submitted" after). */
+  noteStatus: string;
+  /** C11 length of the held note (0 when none). */
+  noteChars: number;
 }
 
 export function snapshotState(state: EncounterStateInstance): EncounterSnapshot {
@@ -93,5 +113,5 @@ export function snapshotState(state: EncounterStateInstance): EncounterSnapshot 
       speaking: learner.speaking,
     };
   }
-  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount, stationId: state.stationId, stationIndex: state.stationIndex, stationCount: state.stationCount };
+  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount, stationId: state.stationId, stationIndex: state.stationIndex, stationCount: state.stationCount, mode: state.mode, lastTurnEnd: state.lastTurnEnd, replayDone: state.replayDone, noteStatus: state.noteStatus, noteChars: state.noteChars };
 }

@@ -107,8 +107,10 @@ describe("sync-probe pure probe logic", () => {
 
   it("query parsing accepts loopback ws and the probe flags", () => {
     const query = parseProbeQuery("?sync=ws://127.0.0.1:4567&iwer=1&autostart=1");
-    expect(query).toEqual({ syncUrl: "ws://127.0.0.1:4567", useIwer: true, autostart: true, forceIwer: false, script: "c2" });
+    expect(query).toEqual({ syncUrl: "ws://127.0.0.1:4567", useIwer: true, autostart: true, forceIwer: false, script: "c2", replayStationId: "" });
     expect(parseProbeQuery("?sync=ws://127.0.0.1:4567&script=c3").script).toBe("c3");
+    expect(parseProbeQuery("?sync=ws://127.0.0.1:4567&script=c10&replayStationId=station-2")).toMatchObject({ script: "c10", replayStationId: "station-2" });
+    expect(() => parseProbeQuery("?sync=ws://127.0.0.1:4567&script=c10")).toThrow();
     expect(() => parseProbeQuery("?iwer=1")).toThrow();
     expect(() => parseProbeQuery("?sync=https://example.com/x")).toThrow();
     expect(() => parseProbeQuery("?sync=ws://127.0.0.1:4567&script=c9")).toThrow();

@@ -3,6 +3,14 @@ import type { AddressInfo } from "node:net";
 import { Server } from "@colyseus/core";
 import { WebSocketTransport } from "@colyseus/ws-transport";
 import { ENCOUNTER_ROOM_NAME, EncounterRoom, getLatestRoom } from "./room.js";
+import {
+  createStationReplayRoomClass,
+  loadStationReplayDir,
+  parseReplayStepMs,
+  type LoadedStationReplay,
+  type StationReplayBinding,
+} from "./station-replay.js";
+import { parseNoteMaxChars } from "./patient-note.js";
 import { parseStationTiming, type StationTiming } from "./phase-clock.js";
 import { parseStationIds, type StationBinding } from "./station-rotation.js";
 import type { RoomProbeStats } from "./room-types.js";
@@ -34,7 +42,26 @@ export interface EncounterServerOptions {
    * fail (exercises retry + rotation-failed) and/or sends a bogus rotate
    * payload (exercises the client consume-fail path). Test-only.
    */
-  rotationFaults?: { failNextReservations?: number; sendBogusRotate?: boolean };
+  rotationFaults?: { failNextReservations?: number; sendBogusRotate?: boolean; failNextStationCreate?: number };
+  /**
+   * C11 patient-note bound: the longest accepted note text in chars (server
+   * config only, never client roomOptions.noteMaxChars). Defaults to 2000
+   * when unset (a harness-oriented bound, not a Step 2 CS figure). Throws at
+   * boot on invalid (fail fast, never per intent).
+   */
+  noteMaxChars?: number;
+  /**
+   * C10 faculty station replay (directory holding a C9
+   * exam-session.review-index.json plus the per-station traces it names).
+   * Server config only: a client joins with roomOptions.replayStationId.
+   * When set, this server serves replay rooms only (never live rooms).
+   */
+  replayDir?: string;
+  /**
+   * C10 ms between recorded replay events on the room clock (server config
+   * only). Defaults to 300.
+   */
+  replayStepMs?: number;
 }
 
 /** Handle to a running encounter server with its bound address. */
@@ -59,6 +86,7 @@ export async function createEncounterServer(
   const httpServer = createServer();
   const timing = parseStationTiming(options.timing);
   const stations = parseStationIds(options.stations);
+  const noteMaxChars = parseNoteMaxChars(options.noteMaxChars);
   const traceDir = typeof options.traceDir === "string" ? options.traceDir : null;
   // Per-server room subclass: timing + traceDir + stations are bound in the
   // closure and read in onCreate via the protected hook. Every room on this
@@ -74,20 +102,68 @@ export async function createEncounterServer(
     rotationFaults: {
       failNext: options.rotationFaults?.failNextReservations ?? 0,
       bogusRotate: options.rotationFaults?.sendBogusRotate ?? false,
+      failNextCreate: options.rotationFaults?.failNextStationCreate ?? 0,
     },
   };
+  const replayDir = typeof options.replayDir === "string" ? options.replayDir : null;
   class ConfiguredEncounterRoom extends EncounterRoom {
     protected override stationTiming = timing;
     protected override stationTraceDir = traceDir;
+    protected override stationNoteMaxChars = noteMaxChars;
     protected override stationBinding: StationBinding = binding;
   }
   const server = new Server({
     transport: new WebSocketTransport({ server: httpServer }),
   });
-  server.define(ENCOUNTER_ROOM_NAME, ConfiguredEncounterRoom);
+  if (replayDir !== null) {
+    // C10 faculty replay server: the C9 review index + traces are loaded and
+    // validated once at boot (a malformed or missing file refuses each join
+    // with a named error, never a partial replay). The replay room is defined
+    // under the same room name; no live room exists on this server.
+    const stepMs = parseReplayStepMs(options.replayStepMs);
+    let replay: LoadedStationReplay | null = null;
+    let loadError: string | null = null;
+    try {
+      replay = loadStationReplayDir(replayDir);
+    } catch (error) {
+      loadError = error instanceof Error ? error.message : String(error);
+    }
+    const replayBinding: StationReplayBinding = { replay, loadError, stepMs, stationFailures: replay?.failures ?? new Map() };
+    server.define(ENCOUNTER_ROOM_NAME, createStationReplayRoomClass(replayBinding));
+  } else {
+    server.define(ENCOUNTER_ROOM_NAME, ConfiguredEncounterRoom);
+  }
   await server.listen(options.port ?? 0);
   const address = httpServer.address() as AddressInfo | null;
   const port = address?.port ?? options.port ?? 0;
+
+  // C11: on a replay-only server there is no live room by construction (the
+  // replay rooms hold no live state). Name the replay server in the error so
+  // operators stop looking for a live encounter room that can never exist.
+  // The check ignores getLatestRoom: a stale live room from an earlier server
+  // in the same process must not leak into a replay handle.
+  if (replayDir !== null) {
+    const replayError = "no live encounter room: this is a replay server (join a replayStationId room to review)";
+    return {
+      port,
+      url: `ws://127.0.0.1:${port}`,
+      getStateJSON(): string {
+        throw new Error(replayError);
+      },
+      getProbeStats(): RoomProbeStats {
+        throw new Error(replayError);
+      },
+      getConversationTrace(): ConversationTrace {
+        throw new Error(replayError);
+      },
+      getStationPoseCounts(): Record<string, number> {
+        return {};
+      },
+      async close(): Promise<void> {
+        await server.gracefullyShutdown(false);
+      },
+    };
+  }
 
   return {
     port,

@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 59 roots and 160 declared entrypoints", () => {
+  it("(1) the live tree discovers 65 roots and 167 declared entrypoints", () => {
     const report = measureSurface();
     // 2026-10-07 mouth-station pilot (MADR 0060/0061, integration branch station-mouth): the
     // objective package @openclinxr/station-mouth-objective adds one root (49 -> 50); its surface
@@ -132,7 +132,22 @@ describe("compiler-resolved surface meter", () => {
     // core @openclinxr/factory-station-core adds one root that publishes nothing at "."
     // (58 -> 59); its 17 names live on the "./runner" subpath (precedent: compute-slots
     // ./slots, compute-services-spec ./contracts, service-local-compute ./local).
-    expect(report.totals.roots).toBe(59);
+    // 2026-10-30 trellis evidence sidecar (operator-approved 2026-10-30): the private
+    // sidecar @openclinxr/trellis-evidence adds one root that publishes nothing (59 -> 60).
+    // 2026-10-30 face-realism station split (operator-approved 2026-10-30): the
+    // @openclinxr/station-face-realism station adds one root that publishes nothing at "."
+    // (60 -> 61) and the private sidecar @openclinxr/station-face-realism-evidence adds
+    // one more root that publishes nothing (61 -> 62).
+    // 2026-10-30 scene-closure evidence sidecar (operator-approved 2026-10-30): the
+    // private sidecar @openclinxr/scene-closure-evidence adds one root that publishes
+    // nothing (62 -> 63).
+    // 2026-10-30 makeclothes evidence sidecar (operator-approved 2026-10-30): the
+    // private sidecar @openclinxr/makeclothes-evidence adds one root that publishes
+    // nothing (63 -> 64).
+    // 2026-10-30 realism-head evidence sidecar (operator-approved 2026-10-30): the
+    // private sidecar @openclinxr/realism-head-evidence adds one root that publishes
+    // nothing (64 -> 65).
+    expect(report.totals.roots).toBe(65);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -186,7 +201,23 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-30 factory-station-core split (operator-approved 2026-10-30): the core root
     // publishes an empty "." plus the "./runner" subpath carrying its 17 names
     // (158 -> 160); no other package.json `exports` map changes.
-    expect(report.totals.entrypoints).toBe(160);
+    // 2026-10-30 trellis evidence sidecar (operator-approved 2026-10-30): the sidecar,
+    // with no exports map, is discovered as one implicit "." that publishes nothing
+    // (160 -> 161).
+    // 2026-10-30 face-realism station split (operator-approved 2026-10-30): the station
+    // root publishes an empty "." plus the "./runner" subpath, and the evidence sidecar,
+    // with no exports map, is discovered as one implicit "." that publishes nothing
+    // (161 -> 164); no other package.json `exports` map changes.
+    // 2026-10-30 scene-closure evidence sidecar (operator-approved 2026-10-30): the
+    // sidecar, with no exports map, is discovered as one implicit "." that
+    // publishes nothing (164 -> 165).
+    // 2026-10-30 makeclothes evidence sidecar (operator-approved 2026-10-30): the
+    // sidecar, with no exports map, is discovered as one implicit "." that
+    // publishes nothing (165 -> 166).
+    // 2026-10-30 realism-head evidence sidecar (operator-approved 2026-10-30): the
+    // sidecar, with no exports map, is discovered as one implicit "." that
+    // publishes nothing (166 -> 167).
+    expect(report.totals.entrypoints).toBe(167);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -218,7 +249,12 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-30 colyseus sync C1 adds two roots (xr-sync-server, xr-sync-client; 55 -> 57).
     // 2026-10-30 station-mouth-verifier-evidence sidecar adds one root (57 -> 58), operator-approved 2026-10-30.
     // 2026-10-30 factory-station-core split adds one root (58 -> 59), operator-approved 2026-10-30.
-    expect(report.packages.length).toBe(59);
+    // 2026-10-30 trellis evidence sidecar adds one root (59 -> 60), operator-approved 2026-10-30.
+    // 2026-10-30 face-realism station split adds two roots (60 -> 62), operator-approved 2026-10-30.
+    // 2026-10-30 scene-closure evidence sidecar adds one root (62 -> 63), operator-approved 2026-10-30.
+    // 2026-10-30 makeclothes evidence sidecar adds one root (63 -> 64), operator-approved 2026-10-30.
+    // 2026-10-30 realism-head evidence sidecar adds one root (64 -> 65), operator-approved 2026-10-30.
+    expect(report.packages.length).toBe(65);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {

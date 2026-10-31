@@ -415,7 +415,7 @@ def main():
             "goal_body2": {"path": GOAL_BODY2},
             "goal_aisha": {"path": GOAL_AISHA},
             "rig": {"path": "apps/ui-xr/public/xr-assets/lighting/ob_triage_room_v1.rig.json"},
-            "case_report": {"path": "packages/openclinxr/factory-stations/src/face_realism/case-run-report.json",
+            "case_report": {"path": "packages/openclinxr/stations/face-realism/src/case-run-report.json",
                             "note": "latest runs: body2/run2 + aisha/run2"},
         },
         "thresholds": {

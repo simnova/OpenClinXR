@@ -1,0 +1,17 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/**",
+        "$TURBO_ROOT$/docs/openclinxr/scene-closure-2026-09-09/**",
+        "$TURBO_ROOT$/packages/openclinxr/stations/scene-closure-evidence/src/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/fixtures/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/scene-closure/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/scene-closure-research/**"
+      ]
+    }
+  }
+}

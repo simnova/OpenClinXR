@@ -17,11 +17,6 @@
       "card": "unfiled: re-pin or fix blueprint voice runtimeRouting against the scenario runtime already on main"
     },
     {
-      "path": "tools/openclinxr/evidence/scene-closure/the-measurement-rubric-rejects-broken-controls.test.ts",
-      "reason": "SC-00 expect(blockedGrade.ok).toBe(false) received true. measurement-rubric.ts, rubric-controls.ts, bedside-target.ts, approach-executor.ts, and bedside-approach-path.ts match origin/main. The staged descriptor edit adds FAMILY_CHAIR to one shell fixture list. Those controls read ED_STRETCHER_DECK_BOUNDS, not fixture slots. The red is origin/main grader behavior, pulled in because environment-descriptors.ts is staged.",
-      "card": "unfiled: SC-00 thin-obstacle control grades ok on origin/main rubric bytes"
-    },
-    {
       "path": "tools/openclinxr/factory/the-placement-node-carries-the-authored-offset.test.ts",
       "reason": "Imports findScenarioFixtureById from scenario-fixtures/src/index.js. That name is not a root export on origin/main. The index.ts change in this merge only adds AuthoredStagingCamera and authoredStagingCameraForScenario. Pointing the import at scenario-bank.js is a new cross-package src specifier, and the shrink-only freeze refuses a new specifier until the reach is removed. The import stays on index.js. The red is the missing root export, pulled in because scenario-fixtures index.ts is staged.",
       "card": "unfiled: export findScenarioFixtureById through a reviewed admission, or stop this test from reaching scenario-fixtures src by path"
@@ -82,14 +77,9 @@
       "card": "unfiled: room-chain promote check must diff only the paths the stage writes"
     },
     {
-      "path": "tools/openclinxr/evidence/actor-floor-contact-all-stations.test.ts",
-      "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
-      "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
-    },
-    {
       "path": "tools/openclinxr/evidence/actor-furniture-clearance.test.ts",
-      "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
-      "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
+      "reason": "Clause (1) no-actor-inside-a-support-surface is red on main: measured 2026-10-30 at 5e366c73f plus ci-w12 D2, ed_chest_pain_priority_v1/v2 nurse_maria_alvarez_v1 and ward_delirium_med_rec_v1 ward_nurse_patel_v1 + daughter_lena_ellis_v1 stand inside a support surface. Stepdown nurse fixed by ci-w12 D2. The earlier browserPageWindow ReferenceError no longer reproduces (the walk completes all 15 stations).",
+      "card": "ci-closure: stage ED and ward staff clear of the stretcher/bed through placement data"
     },
     {
       "path": "tools/openclinxr/evidence/actor-garment-presence-in-scene.test.ts",

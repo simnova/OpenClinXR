@@ -1,0 +1,23 @@
+{
+  "name": "@openclinxr/station-face-realism-evidence",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "biome lint --no-errors-on-unmatched .",
+    "typecheck": "cellix-tsc --noEmit -p tsconfig.vitest.json",
+    "test": "vitest run --root ."
+  },
+  "dependencies": {
+    "@openclinxr/factory-station-core": "workspace:*",
+    "@openclinxr/station-face-realism": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "@cellix/config-vitest": "workspace:*",
+    "@cellix/config-typescript": "workspace:*",
+    "@gltf-transform/core": "^4.3.0"
+  }
+}

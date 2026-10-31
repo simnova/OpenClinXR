@@ -110,7 +110,7 @@ content — not missing product. Do not treat the names below as a commission li
   then promoted byte-identical here (issue #253). Full chain in the sidecar
   `bedside-monitor-generated.provenance.json`.
 - `clinic-chair-kenney-cc0.glb` (issue #646) is a **Kenney Furniture Kit CC0
-  derivative**: raw `chair.glb` from the unedited staging kit
+  derivative**: raw chair source file from the unedited staging kit
   (`.openclinxr/staging/equipment/kenney-furniture-kit/`, 140 assets, CC0, no
   attribution obligation) normalized by `kenney-promote-cli.ts`
   (`tools/openclinxr/asset-pipeline/equipment/`): largest horizontal surface

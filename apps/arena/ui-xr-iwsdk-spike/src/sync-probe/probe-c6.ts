@@ -106,6 +106,31 @@ export interface C6PreProbeDeps {
   setStatus(text: string): void;
 }
 
+export interface C3ScriptHelperDeps {
+  sendIntentAndSettle(kind: IntentKind, payload: Record<string, unknown>): Promise<void>;
+  getSnapshot(): unknown;
+  waitFor(condition: () => boolean, timeoutMs: number, label: string): Promise<void>;
+}
+
+/**
+ * Shared C3 script closures (observed turn/phase + the turn script) built from
+ * one snapshot reader. The page builds these once instead of holding three
+ * separate closures.
+ */
+export function createC3ScriptHelpers(deps: C3ScriptHelperDeps): {
+  observedTurn(): { turnId: number; owner: string; a1Speaking: boolean };
+  observedPhase(): { phase: string; remainingS: number | null };
+  turnScript(): Promise<void>;
+} {
+  const observedTurn = (): { turnId: number; owner: string; a1Speaking: boolean } =>
+    observedTurnFrom(deps.getSnapshot() as Parameters<typeof observedTurnFrom>[0]);
+  const observedPhase = (): { phase: string; remainingS: number | null } =>
+    observedPhaseFrom(deps.getSnapshot() as Parameters<typeof observedPhaseFrom>[0]);
+  const turnScript = (): Promise<void> =>
+    runC3TurnScript({ sendIntentAndSettle: deps.sendIntentAndSettle, observedTurn, waitFor: deps.waitFor });
+  return { observedTurn, observedPhase, turnScript };
+}
+
 /**
  * C6 phase-gating probe: one select-actor while the server is still in
  * doorway (the page join created the room, so the clock just started). It

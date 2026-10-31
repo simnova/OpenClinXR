@@ -1,0 +1,130 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/api",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createApiApp",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "bedsideTargetForClinician",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "ED_STRETCHER_DECK_BOUNDS",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./approach-executor",
+    "names": [
+      {
+        "name": "CLINICIAN_WALK_SPEED_MPS",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "FOOT_CONTACT_HEIGHT_METERS",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "footSlideMeters",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./bedside-approach-path",
+    "names": [
+      {
+        "name": "planBedsideApproach",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "repoRoot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/rest",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ApiPersistenceSink",
+        "kind": "type",
+        "via": "path-reach"
+      },
+      {
+        "name": "ApiScenarioReviewDecisionRecord",
+        "kind": "type",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "scenarioBank",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "Scenario",
+        "kind": "type",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-station",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createAssembledStationApiClient",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  }
+]

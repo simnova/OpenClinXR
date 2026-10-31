@@ -32,7 +32,7 @@ import sys
 from pathlib import Path
 
 CARD = "tsk_3dc1802d0ca2b36c"
-FACE_REL = "packages/openclinxr/factory-stations/src/face_realism/case-inputs.json"
+FACE_REL = "packages/openclinxr/stations/face-realism/src/case-inputs.json"
 CASES_DIR = "/Volumes/files/openclinxr-assets/store/face-station-cases"
 ZERO = "0" * 64
 PIN_KEYS = ("stage3_beard", "stage3_detail")

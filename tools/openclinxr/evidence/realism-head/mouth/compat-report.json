@@ -55,7 +55,7 @@
     {
       "label": "control",
       "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-      "sha256": "88070603c7b39b8bf433f088ac390c056bb69d9937bf2284845f1a541fc5f091",
+      "sha256": "1b8a8ef4f548bfcd71305a30f8eae2e90f19a22176fb80e2e461f755010540ac",
       "verdict": "control_clean",
       "visemes": ["viseme_aa", "viseme_CH", "viseme_DD", "viseme_E", "viseme_FF", "viseme_I", "viseme_kk", "viseme_nn", "viseme_O", "viseme_PP", "viseme_RR", "viseme_sil", "viseme_SS", "viseme_TH", "viseme_U"],
       "jawJoints": ["jaw"],
