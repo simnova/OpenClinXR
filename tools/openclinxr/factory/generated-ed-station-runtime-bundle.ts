@@ -1654,7 +1654,12 @@ export async function refreshPublicActorPlacements(
   const bundle = JSON.parse(await readFile(bundlePath, "utf8")) as LearnerRuntimeAssetBundle;
   const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as EncounterRuntimeAssetBundle["sceneManifest"];
   bundle.sceneManifest.actorPlacements = actorPlacements;
-  bundle.sceneManifest.equipmentPlacements = runtimeEquipmentPlacementsForScenario(preset);
+  // ci-w16 handback r2: actor refresh leaves equipmentPlacements untouched. #183 owns
+  // prop placement (shipped bundles + case-runtime-equipment-mod.ts); the generic
+  // placementAnchors in runtimeEquipmentPlacementsForScenario never carried the #183
+  // ED positions, so rewriting equipment here reverted 4b91746fe (ecg_cart back to
+  // (1.6, 0.28), iv_stand to (0.95, 0.98)). Equipment has its own refresh mode
+  // (--refresh-public-equipment via the canonical case equipment module).
   // ci-w16: six shipped bundles (ward_delirium_med_rec_v1 among them) predate
   // dialogueTurns and omit the REQUIRED field (runtime-bundles.ts). The learner
   // runtime throws in caseAudio.select on the missing array, fails the static
@@ -1665,7 +1670,7 @@ export async function refreshPublicActorPlacements(
     bundle.sceneManifest.dialogueTurns = runtimeDialogueTurnsForScenario(preset);
   }
   manifest.actorPlacements = actorPlacements;
-  manifest.equipmentPlacements = runtimeEquipmentPlacementsForScenario(preset);
+  // (equipmentPlacements untouched — see above)
   if (!Array.isArray((manifest as { dialogueTurns?: unknown }).dialogueTurns)) {
     (manifest as { dialogueTurns?: unknown }).dialogueTurns = runtimeDialogueTurnsForScenario(preset);
   }
@@ -1689,14 +1694,15 @@ function runtimeEquipmentPlacementsForScenario(
     {
       // The real clock GLB's face lies in XY. Mount it on the back wall so it faces the room;
       // the historical x-wall placement showed its 3 cm edge as a metre-high black spear.
-      // ci-w16: ward side rails at the anchor1 default (0.95, 0, 0.98) stand inside the senior
-      // resident at plant (0.5, 0, 0.5) — measured f=0.429 standing (#183). #183 owns the fix to
-      // prop placement, never actors, so the ward rails take the clear anchor3 slot instead.
+      // ci-w16 handback r2: no scenarioId conditional here. Moving a prop to clear an actor
+      // is the world satisfying a gate (FORBID). side_rails_equipment has no
+      // support-relative mechanism in this producer (equipment placements are literal
+      // positions; supportInstanceId is actor-only), so it rides its default anchor like
+      // every other staged prop. If the prop gate reds on it, that is a recorded DEFECT
+      // in the prop's placement, never an actor move.
       position: equipmentId === "wall_clock_equipment"
         ? { x: -1.75, y: 1.55, z: -1.42 }
-        : preset.scenarioId === "ward_delirium_med_rec_v1" && equipmentId === "side_rails_equipment"
-          ? { x: -0.1, y: 0, z: -0.95 }
-          : placementAnchors[index % placementAnchors.length] ?? placementAnchors[0],
+        : placementAnchors[index % placementAnchors.length] ?? placementAnchors[0],
       label: equipmentDisplayLabel(equipmentId),
       interactionCueIds: [`${equipmentId}:selectable_equipment_reference`, `${equipmentId}:clinical_workflow_cue`],
     },

@@ -458,26 +458,26 @@
     "equipmentPlacements": {
       "ecg_cart_equipment": {
         "position": {
-          "x": 1.6,
+          "x": -2.15,
           "y": 0,
-          "z": 0.28
+          "z": 0.55
         },
-        "label": "Ecg Cart",
+        "label": "12-lead ECG",
         "interactionCueIds": [
-          "ecg_cart_equipment:selectable_equipment_reference",
-          "ecg_cart_equipment:clinical_workflow_cue"
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
         ]
       },
       "iv_stand_equipment": {
         "position": {
-          "x": 0.95,
+          "x": -1.85,
           "y": 0,
-          "z": 0.98
+          "z": 0.95
         },
-        "label": "Iv Stand",
+        "label": "IV pump",
         "interactionCueIds": [
-          "iv_stand_equipment:selectable_equipment_reference",
-          "iv_stand_equipment:clinical_workflow_cue"
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
         ]
       }
     },

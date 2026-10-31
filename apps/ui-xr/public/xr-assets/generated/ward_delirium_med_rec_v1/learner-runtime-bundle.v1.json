@@ -359,32 +359,6 @@
         "headingRadians": -2.271
       }
     },
-    "equipmentPlacements": {
-      "hospital_bed_equipment": {
-        "position": {
-          "x": 1.6,
-          "y": 0,
-          "z": 0.28
-        },
-        "label": "Hospital Bed",
-        "interactionCueIds": [
-          "hospital_bed_equipment:selectable_equipment_reference",
-          "hospital_bed_equipment:clinical_workflow_cue"
-        ]
-      },
-      "side_rails_equipment": {
-        "position": {
-          "x": -0.1,
-          "y": 0,
-          "z": -0.95
-        },
-        "label": "Side Rails",
-        "interactionCueIds": [
-          "side_rails_equipment:selectable_equipment_reference",
-          "side_rails_equipment:clinical_workflow_cue"
-        ]
-      }
-    },
     "dialogueTurns": [
       {
         "traceTag": "orientation_assessment",
