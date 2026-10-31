@@ -1,0 +1,22 @@
+# Proof run 2026-10-31: 19 cited worktree dirs moved to ~/.grok/worktrees/src-openclinxr-hold-pins, fix in place, then moved back.
+
+ RUN  v4.1.5 /Users/patrick/.grok/worktrees/worktree-pins/packages/openclinxr/stations/face-realism-evidence
+
+Traceback (most recent call last):
+  File "/Users/patrick/.grok/worktrees/worktree-pins/tools/openclinxr/asset-pipeline/skin/face-replay/face_replay_compose.py", line 1272, in <module>
+    main()
+    ~~~~^^
+  File "/Users/patrick/.grok/worktrees/worktree-pins/tools/openclinxr/asset-pipeline/skin/face-replay/face_replay_compose.py", line 1268, in main
+    compose(args)
+    ~~~~~~~^^^^^^
+  File "/Users/patrick/.grok/worktrees/worktree-pins/tools/openclinxr/asset-pipeline/skin/face-replay/face_replay_compose.py", line 1137, in compose
+    raise RuntimeError(
+    ...<2 lines>...
+        "no registered scalp source; refuse")
+RuntimeError: CROWN_STEP_OVER_BOUND max 10.566 > bound 8.000: no registered scalp source; refuse
+
+ Test Files  4 passed (4)
+      Tests  25 passed (25)
+   Start at  16:22:35
+   Duration  6.92s (transform 299ms, setup 0ms, import 425ms, tests 7.12s, environment 1ms)
+

@@ -1,0 +1,42 @@
+(node:80893) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `pnpm --trace-warnings ...` to show where the warning was created)
+(node:80896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ RUN  v4.1.5 /Users/patrick/.grok/worktrees/worktree-pins/packages/openclinxr/stations/face-realism-evidence
+
+(node:80902) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/no-test-read-path-lies-in-an-agent-worktree.test.ts (4 tests | 1 failed) 9ms
+     × CLAUSE.1: every selected string stays outside homedir()/.grok/worktrees 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/no-test-read-path-lies-in-an-agent-worktree.test.ts > no test-read path lies in an agent worktree > CLAUSE.1: every selected string stays outside homedir()/.grok/worktrees
+AssertionError: test-read paths outside agent worktrees: expected [ …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "tools/openclinxr/evidence/second-subject/third-subject-report.json :: findings[evidence_kind==\"observed\"].artifacts[] :: /Users/patrick/.grok/worktrees/src-openclinxr/third/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
++   "tools/openclinxr/asset-pipeline/skin/face-replay/crown-registration-report.json :: hb1.body2.front_render :: /Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/crownreg/body2hb1/render/body2-hb1-socket-front.png",
++ ]
+
+ ❯ src/no-test-read-path-lies-in-an-agent-worktree.test.ts:159:67
+    157|       }
+    158|     }
+    159|     expect(violations, "test-read paths outside agent worktrees").toEq…
+       |                                                                   ^
+    160|   });
+    161|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  16:18:33
+   Duration  205ms (transform 62ms, setup 0ms, import 81ms, tests 9ms, environment 0ms)
+

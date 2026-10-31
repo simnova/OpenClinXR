@@ -1,0 +1,48 @@
+=== PROBE: reintroduce FIX.1 worktree path via exact string replacement ===
+
+=== BEFORE (fixed path present): grep -n tone-report.json third-subject-report.json ===
+71:     "stdout": "wrote tone-report.json; lip gate 2.04 vs 39.73; ear gate 0.42 vs 38.90",
+386:    "/Volumes/files/openclinxr-assets/store/worktree-pins-20261031/third/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+
+=== substitution: replaced the store path above with ===
+/Users/patrick/.grok/worktrees/src-openclinxr/third/tools/openclinxr/asset-pipeline/skin/families/tone-report.json
+
+=== AFTER (worktree path reintroduced): grep -n tone-report.json third-subject-report.json ===
+71:     "stdout": "wrote tone-report.json; lip gate 2.04 vs 39.73; ear gate 0.42 vs 38.90",
+386:    "/Users/patrick/.grok/worktrees/src-openclinxr/third/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
+
+=== guard run with worktree path present (MUST FAIL; tail) ===
+- Expected
++ Received
+
+- []
++ [
++   "tools/openclinxr/evidence/second-subject/third-subject-report.json :: findings[evidence_kind==\"observed\"].artifacts[] :: /Users/patrick/.grok/worktrees/src-openclinxr/third/tools/openclinxr/asset-pipeline/skin/families/tone-report.json",
++ ]
+
+ ❯ src/no-test-read-path-lies-in-an-agent-worktree.test.ts:159:67
+    157|       }
+    158|     }
+    159|     expect(violations, "test-read paths outside agent worktrees").toEq…
+       |                                                                   ^
+    160|   });
+    161|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  16:19:34
+   Duration  192ms (transform 67ms, setup 0ms, import 87ms, tests 9ms, environment 0ms)
+
+=== restore from /tmp/third-subject-fixed-backup.json; git diff of the file after restore ===
+-    "/Users/patrick/.grok/worktrees/src-openclinxr/third/tools/openclinxr/asset-pipeline/skin/families/tone-report.json
++    "/Volumes/files/openclinxr-assets/store/worktree-pins-20261031/third/tools/openclinxr/asset-pipeline/skin/families/
+(matches the FIX.1 diff: same single changed line)
+
+=== guard run after restore (MUST PASS; tail) ===
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  16:19:45
+   Duration  195ms (transform 67ms, setup 0ms, import 87ms, tests 9ms, environment 0ms)
