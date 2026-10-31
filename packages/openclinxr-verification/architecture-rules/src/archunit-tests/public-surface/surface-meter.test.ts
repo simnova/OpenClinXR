@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 69 roots and 171 declared entrypoints", () => {
+  it("(1) the live tree discovers 70 roots and 172 declared entrypoints", () => {
     const report = measureSurface();
     // 2026-10-07 mouth-station pilot (MADR 0060/0061, integration branch station-mouth): the
     // objective package @openclinxr/station-mouth-objective adds one root (49 -> 50); its surface
@@ -159,7 +159,10 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-30 slide-phase evidence sidecar (operator-approved 2026-10-30): the
     // private sidecar @openclinxr/slide-phase-evidence adds one root that publishes
     // nothing (68 -> 69).
-    expect(report.totals.roots).toBe(69);
+    // 2026-10-31 humanoid-vetting evidence sidecar (operator-approved 2026-10-30): the
+    // private sidecar @openclinxr/humanoid-vetting-evidence adds one root that publishes
+    // nothing (69 -> 70).
+    expect(report.totals.roots).toBe(70);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -241,7 +244,10 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-30 slide-phase evidence sidecar (operator-approved 2026-10-30): the
     // sidecar, with no exports map, is discovered as one implicit "." that
     // publishes nothing (170 -> 171).
-    expect(report.totals.entrypoints).toBe(171);
+    // 2026-10-31 humanoid-vetting evidence sidecar (operator-approved 2026-10-30): the
+    // sidecar, with no exports map, is discovered as one implicit "." that
+    // publishes nothing (171 -> 172).
+    expect(report.totals.entrypoints).toBe(172);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -282,7 +288,8 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-30 station-capture evidence sidecar adds one root (66 -> 67), operator-approved 2026-10-30.
     // 2026-10-30 foot-plant evidence sidecar adds one root (67 -> 68), operator-approved 2026-10-30.
     // 2026-10-30 slide-phase evidence sidecar adds one root (68 -> 69), operator-approved 2026-10-30.
-    expect(report.packages.length).toBe(69);
+    // 2026-10-31 humanoid-vetting evidence sidecar adds one root (69 -> 70), operator-approved 2026-10-30.
+    expect(report.packages.length).toBe(70);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {

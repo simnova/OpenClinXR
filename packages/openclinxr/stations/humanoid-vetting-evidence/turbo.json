@@ -1,0 +1,34 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/**",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.js",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/makeclothes/eyebrow_strand_reduction.py",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/makeclothes/apply-waist-meet-glb.ts",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/makeclothes/eyebrow_strand_reduction.py",
+        "$TURBO_ROOT$/packages/openclinxr/factory-stations/src/body_param/garment_ops.py",
+        "$TURBO_ROOT$/packages/openclinxr/factory-stations/src/body_param/paths.py",
+        "$TURBO_ROOT$/packages/openclinxr/compute-slots/dist/slots.js",
+        "$TURBO_ROOT$/packages/openclinxr/compute-slots/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/xr-asset-loading/dist/index.js",
+        "$TURBO_ROOT$/packages/openclinxr/xr-asset-loading/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/xr-scene/dist/index.js",
+        "$TURBO_ROOT$/packages/openclinxr/xr-scene/package.json",
+        "$TURBO_ROOT$/docs/openclinxr/humanoid-vetting-2026-09-10.json",
+        "$TURBO_ROOT$/docs/openclinxr/humanoid-postopt-ladder-2026-09-10.json",
+        "$TURBO_ROOT$/docs/openclinxr/humanoid-vetting-captures/**",
+        "$TURBO_ROOT$/docs/openclinxr/third-party-asset-licence-ledger.md",
+        "$TURBO_ROOT$/docs/assets/speech-emotion-blink-closed-2026-09-18.png",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/**",
+        "$TURBO_ROOT$/apps/ui-xr/public/lip-sync-cues/**",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/humanoids/candidates/**"
+      ]
+    }
+  }
+}
