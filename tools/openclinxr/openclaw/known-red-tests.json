@@ -320,11 +320,6 @@
       "path": "tools/openclinxr/evidence/the-iwsdk-spike-proves-the-package-runs.test.ts",
       "reason": "Clause (2) only: the checked-in Chromium receipt browser-proof-042.json executed @iwsdk/core 0.4.2 and pins its dist SHA to the installed package. ci-w5 f0638c7a0 moved the spike to 1.1.0-rc.2 (operator decision, IWSDK latest), so the installed SHA no longer matches. Clauses (1),(3),(4),(5) pass on the new pin. Needs a fresh headless-Chromium capture of a Vite bundle on 1.1.0-rc.2; the receipt producer is not in the repo.",
       "card": "ci-closure: recapture the IWSDK Chromium receipt on 1.1.0-rc.2 (producer missing)"
-    },
-    {
-      "path": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-waist-fit-record-matches-the-shipped-bytes.test.ts",
-      "reason": "Fails on origin/main 7546dc488 before and after the humanoid-vetting sidecar move (moves only): the tracked mpfb-ob-patient-aisha.glb (md5 9e34670f, re-applied by 21fad089f) measures 8 comparable buckets, below the measurable floor, while the waist-fit record row expects 28 buckets / 0 gapped. The shared checkout carries an uncommitted aisha GLB (md5 de9b94fd) that passes; it is not on main.",
-      "card": "unfiled: re-measure the aisha waist-fit row against the tracked GLB, or land the de9b94fd GLB with its record"
     }
   ]
 }

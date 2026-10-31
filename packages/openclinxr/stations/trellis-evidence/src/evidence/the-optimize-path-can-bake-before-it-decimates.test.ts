@@ -1,3 +1,4 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -63,7 +64,7 @@ import { describe, expect, it } from "vitest";
  *   `lowpoly-shoe` is representative of organic subjects generally.
  */
 
-const REPO = join(import.meta.dirname, "../../..");
+const REPO = repoRoot();
 const SWEEP = join(REPO, "tools/openclinxr/asset-pipeline/trellis/shoe-rung-sweep.json");
 const OPTIMIZE = join(REPO, "tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts");
 const BAKE_SCRIPT = "tools/openclinxr/asset-pipeline/trellis/bake-probe/hl_bake.py";
