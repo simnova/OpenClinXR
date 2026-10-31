@@ -196,25 +196,76 @@ export function readScoreChecked(scoreDir: string | null, stationId: string): nu
  * Read the lobby score badges from disk, in index order: one entry per index
  * station with a readable score file. A new server over the same scoreDir
  * shows earlier scores; a missing or unreadable file means unscored.
+ *
+ * C14: when the rubric is supplied, a forged file is ignored too (same
+ * validator as finalize): checkedCount must agree with items, stationId must
+ * name its own station, and items must match the rubric ids in rubric order.
  */
-export function readLobbyScores(scoreDir: string | null, stationIds: string[]): LobbyScore[] {
+export function readLobbyScores(scoreDir: string | null, stationIds: string[], rubric?: ReviewRubricItem[] | null): LobbyScore[] {
   if (scoreDir === null) {
     return [];
   }
   const scores: LobbyScore[] = [];
   for (const stationId of stationIds) {
     try {
-      const parsed = JSON.parse(readFileSync(join(scoreDir, scoreFileName(stationId)), "utf8")) as {
-        checkedCount?: unknown;
-      };
-      if (typeof parsed?.checkedCount === "number") {
-        scores.push({ stationId, checkedCount: parsed.checkedCount });
+      const parsed: unknown = JSON.parse(readFileSync(join(scoreDir, scoreFileName(stationId)), "utf8"));
+      if (rubric !== undefined && rubric !== null) {
+        if (!isValidFacultyScoreFile(parsed, stationId, rubric)) {
+          continue;
+        }
+        scores.push({ stationId, checkedCount: (parsed as FacultyScoreFile).checkedCount });
+        continue;
+      }
+      const checked = (parsed as { checkedCount?: unknown })?.checkedCount;
+      if (typeof checked === "number") {
+        scores.push({ stationId, checkedCount: checked });
       }
     } catch {
       // Unscored or unreadable: no badge.
     }
   }
   return scores;
+}
+
+/**
+ * C14 strict score-file validator (shared by the lobby badges and finalize):
+ * schema tag, own station id, items exactly the rubric ids in rubric order
+ * with boolean flags, checkedCount agreeing with items, rubricSize agreeing
+ * with the rubric. Anything else is a forged file: no badge, no finalize.
+ */
+export function isValidFacultyScoreFile(
+  parsed: unknown,
+  stationId: string,
+  rubric: ReviewRubricItem[],
+): parsed is FacultyScoreFile {
+  if (!isRecord(parsed)) {
+    return false;
+  }
+  // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["schema"] on this Record.
+  if (parsed["schema"] !== FACULTY_SCORE_SCHEMA) {
+    return false;
+  }
+  // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["stationId"] on this Record.
+  if (parsed["stationId"] !== stationId) {
+    return false;
+  }
+  // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["items"] on this Record.
+  const items = parsed["items"];
+  if (!Array.isArray(items) || items.length !== rubric.length) {
+    return false;
+  }
+  let checked = 0;
+  for (let index = 0; index < rubric.length; index += 1) {
+    const row = items[index] as { id?: unknown; checked?: unknown } | null;
+    if (typeof row !== "object" || row === null || row.id !== rubric[index]?.id || typeof row.checked !== "boolean") {
+      return false;
+    }
+    if (row.checked === true) {
+      checked += 1;
+    }
+  }
+  // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["checkedCount"] on this Record.
+  return parsed["checkedCount"] === checked && parsed["rubricSize"] === rubric.length;
 }
 
 /** Reject reason every replay-room intent receives, unless it is a C13 review intent. */

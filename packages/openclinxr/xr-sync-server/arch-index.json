@@ -32,6 +32,7 @@
     "src/xr-sync-c12-review-lobby.test.ts",
     "src/xr-sync-c13-faculty-score.test.ts",
     "src/xr-sync-c13-score-write-failure.test.ts",
+    "src/xr-sync-c14-review-signoff.test.ts",
     "src/xr-sync-c2-probe.test.ts",
     "src/xr-sync-c3-actor-turn.test.ts",
     "src/xr-sync-c4-conversation-trace.test.ts",

@@ -11,6 +11,7 @@ import {
   type StationReplayBinding,
 } from "./station-replay.js";
 import { parseReviewRubric, parseScoreDir } from "./faculty-score.js";
+import { assertScoreDirOutsideReplayDir } from "./review-packet.js";
 import { parseNoteMaxChars } from "./patient-note.js";
 import { parseStationTiming, type StationTiming } from "./phase-clock.js";
 import { parseStationIds, type StationBinding } from "./station-rotation.js";
@@ -140,7 +141,10 @@ export async function createEncounterServer(
     } catch (error) {
       loadError = error instanceof Error ? error.message : String(error);
     }
-    const replayBinding: StationReplayBinding = { replay, loadError, stepMs, stationFailures: replay?.failures ?? new Map(), score: { scoreDir: parseScoreDir(options.scoreDir), rubric: parseReviewRubric(options.reviewRubric) } };
+    const scoreDir = parseScoreDir(options.scoreDir);
+    // C14: the score packet lives beside the replay dir, never equal to or inside it.
+    assertScoreDirOutsideReplayDir(replayDir, scoreDir);
+    const replayBinding: StationReplayBinding = { replay, loadError, stepMs, replayDir, stationFailures: replay?.failures ?? new Map(), score: { scoreDir, rubric: parseReviewRubric(options.reviewRubric) } };
     server.define(ENCOUNTER_ROOM_NAME, createStationReplayRoomClass(replayBinding));
   } else {
     server.define(ENCOUNTER_ROOM_NAME, ConfiguredEncounterRoom);

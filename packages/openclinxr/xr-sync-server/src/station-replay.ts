@@ -28,18 +28,22 @@ import { loadReplayStationTrace, type LoadedReplayStation } from "./station-repl
 import { ActorState, EncounterState, LearnerState, type ActorStateInstance, type LearnerStateInstance } from "./schema.js";
 import { EncounterRoom, ENCOUNTER_ROOM_NAME } from "./room.js";
 import {
-  handleLobbySelectIntent,
   isReviewLobbyRequest,
-  launchLobbyStationReplay,
-  launchReplayReturnToLobby,
   setupLobbyState,
 } from "./review-lobby.js";
 import {
   handleReplayReviewIntent,
-  readLobbyScores,
   readScoreChecked,
   type FacultyScoreBinding,
 } from "./faculty-score.js";
+import {
+  handleLobbyIntentWithFinalize,
+  isReviewFinalized,
+  launchLobbyReplayFor,
+  launchReplayReturnFor,
+  readValidLobbyScores,
+  rejectReplayGuardedIntent,
+} from "./review-packet.js";
 /** Reject reason every replay-room intent receives (C13 review intents excepted). */
 export { REPLAY_READ_ONLY_REASON } from "./faculty-score.js";
 import type { EncounterRoomOptions } from "./room-types.js";
@@ -147,6 +151,8 @@ export interface StationReplayBinding {
   /** Boot-time load failure, refused at join with this named error. */
   loadError: string | null;
   stepMs: number;
+  /** C14 replay directory (note files for the review packet; null when unset). */
+  replayDir: string | null;
   /** C11 per-station trace failures (a bad trace refuses only its station). */
   stationFailures: Map<string, string>;
   /** C13 faculty score binding (scoreDir + rubric, server config only). */
@@ -179,6 +185,8 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
     private replayTimer: { clear(): void } | null = null;
     /** C13 per-lobby launch guard: a lobby launches at most once. */
     private lobbyLaunchPending = false;
+    /** C14 per-replay-room return guard: a lobby launches back at most once. */
+    private replayReturnGuard = { returnPending: false };
 
     override onCreate(options?: EncounterRoomOptions): void {
       if (binding.loadError !== null || binding.replay === null) {
@@ -192,8 +200,10 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
         this.replayStation = null;
         this.setState(new EncounterState());
         // C13 badges are read from disk when the lobby opens (a new server
-        // over the same scoreDir shows earlier scores).
-        setupLobbyState(this.state, replay, readLobbyScores(binding.score.scoreDir, replay.lobbyStations.map((entry) => entry.stationId)));
+        // over the same scoreDir shows earlier scores); C14 adds the
+        // finalized flag from the packet on disk. Forged score files are
+        // ignored by the strict reader (same validator as finalize).
+        setupLobbyState(this.state, replay, readValidLobbyScores(binding.score.scoreDir, replay.lobbyStations.map((entry) => entry.stationId), binding.score.rubric), isReviewFinalized(binding.score.scoreDir));
         void this.setPrivate(true);
         this.lock();
         this.onMessage("intent", (client, message: unknown) => {
@@ -264,17 +274,14 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       void this.setPrivate(true);
       this.lock();
       this.onMessage("intent", (client, message: unknown) => {
-        // C13 review intents (return-to-lobby, score-station) are allowed;
-        // every other intent still rejects replay-read-only (see faculty-score.ts).
+        // C14 guards (one return-to-lobby per room; locked scores) run before
+        // the C13 review handler; every other intent still rejects
+        // replay-read-only (see faculty-score.ts).
+        if (rejectReplayGuardedIntent(this.replayReturnGuard, binding.score, client, message)) {
+          return;
+        }
         handleReplayReviewIntent(this.state, binding.score, station.stationId, client, message, (onFailed) => {
-          void launchReplayReturnToLobby(ENCOUNTER_ROOM_NAME, client).catch(() => {
-            onFailed();
-            try {
-              client.send("rotation-failed", { stationId: station.stationId });
-            } catch {
-              // Best-effort; the ack already settled the intent.
-            }
-          });
+          launchReplayReturnFor(ENCOUNTER_ROOM_NAME, this.replayReturnGuard, station.stationId, client, onFailed);
         });
       });
       // Explicit catch-all: unknown client message types are dropped on the
@@ -327,10 +334,10 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       }
     }
 
-    /** C12 lobby intent gate: select-station validates + launches, everything else is read-only (see review-lobby.ts). */
+    /** C12 lobby select gate plus the C14 finalize sign-off (see review-packet.ts). */
     private handleLobbyIntent(client: Client, message: unknown): void {
       const room = this;
-      handleLobbySelectIntent(
+      handleLobbyIntentWithFinalize(
         {
           state: room.state,
           get launchPending(): boolean {
@@ -341,17 +348,12 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
           },
           replay: binding.replay,
         },
+        binding.score,
+        binding.replayDir,
         client,
         message,
         (stationId, onFailed) => {
-          void launchLobbyStationReplay(ENCOUNTER_ROOM_NAME, stationId, client).catch(() => {
-            onFailed();
-            try {
-              client.send("rotation-failed", { stationId });
-            } catch {
-              // Best-effort; the ack already settled the intent.
-            }
-          });
+          launchLobbyReplayFor(ENCOUNTER_ROOM_NAME, stationId, client, onFailed);
         },
       );
     }

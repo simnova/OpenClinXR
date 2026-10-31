@@ -72,8 +72,8 @@ export function validateLobbySelect(replay: LoadedStationReplay, stationId: stri
   return { ok: true };
 }
 
-/** Fill a fresh EncounterState as a lobby: mode lobby, index stations in order. Scores are read from disk by the caller when the lobby opens (a new server over the same scoreDir shows earlier scores). */
-export function setupLobbyState(state: EncounterStateInstance, replay: LoadedStationReplay, scores: LobbyScore[] = []): void {
+/** Fill a fresh EncounterState as a lobby: mode lobby, index stations in order. Scores are read from disk by the caller when the lobby opens (a new server over the same scoreDir shows earlier scores); reviewFinalized is true when the packet is already on disk. */
+export function setupLobbyState(state: EncounterStateInstance, replay: LoadedStationReplay, scores: LobbyScore[] = [], reviewFinalized = false): void {
   state.serverTick = 0;
   state.turnId = 0;
   state.turnOwner = "none";
@@ -102,7 +102,8 @@ export function setupLobbyState(state: EncounterStateInstance, replay: LoadedSta
     state.lobbyStations.push(row);
   }
   // C13 score badges, in index order. lobbyStations rows are unchanged (no
-  // score fields on them); reviewers read badges from lobbyScores.
+  // score fields on them); reviewers read badges from lobbyScores. C14: the
+  // finalized flag mirrors the packet on disk.
   state.lobbyScores = new ArraySchema<LobbyScoreStateInstance>();
   for (const score of scores) {
     const badge = new LobbyScoreState();
@@ -110,6 +111,7 @@ export function setupLobbyState(state: EncounterStateInstance, replay: LoadedSta
     badge.checkedCount = score.checkedCount;
     state.lobbyScores.push(badge);
   }
+  state.reviewFinalized = reviewFinalized;
   state.scoreChecked = 0;
 }
 

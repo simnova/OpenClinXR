@@ -30,6 +30,13 @@ import {
   setC13TileMeshes,
   type C13Evidence,
 } from "./probe-c13.js";
+import {
+  buildC14Tiles,
+  runC14Signoff,
+  setC14TileMeshes,
+  signoffCenter,
+  type C14Evidence,
+} from "./probe-c14.js";
 import { PROBE_ACTOR_IDS, resolvePhaseLabel } from "./probe-state.js";
 import { parseC11NoteMaxChars } from "./probe-query.js";
 
@@ -53,6 +60,7 @@ export interface ProbeScriptDeps {
   c11Note: C11NoteEvidence;
   c12: C12LobbyEvidence;
   c13: C13Evidence;
+  c14: C14Evidence;
   intentCounts(): { sent: number; acks: number; rejects: number };
   setCommandedAim(aim: AimPose | null): void;
 }
@@ -193,6 +201,74 @@ export async function runProbeScript(deps: ProbeScriptDeps): Promise<void> {
       getSnapshot,
       setStatus,
       evidence: deps.c13,
+      counts: () => ({ acks: deps.intentCounts().acks, rejects: deps.intentCounts().rejects }),
+    });
+  } else if (deps.script === "c14") {
+    // C14 sign-off: the C13 flow verbatim (lobby tiles, station-2 trigger
+    // through onSelectEvent, launched replay watch, two rubric toggles,
+    // submit, back to lobby with the station-2 badge), then the sign-off
+    // tile (finalize-review through the trigger) and the finalized wait.
+    await waitFor(() => deps.c12.tiles.length > 0, 15000, "c14 lobby tiles tracked");
+    setLobbyTileMeshes(buildLobbyTiles(deps.scene, deps.c12.tiles));
+    const aimLobbyAndTrigger = createAimAndTrigger({
+      dispatch: (method: string, params: Record<string, unknown>) => deps.dispatch(method, params),
+      actorCenter: (id) => {
+        const index = deps.c12.tiles.findIndex((t) => t.stationId === id);
+        return tileCenterFor(Math.max(0, index), Math.max(1, deps.c12.tiles.length));
+      },
+      setCommandedAim: (aim) => {
+        deps.setCommandedAim(aim);
+      },
+      sent: () => deps.intentCounts().sent,
+      settled: () => deps.intentCounts().acks + deps.intentCounts().rejects,
+      waitFor,
+    });
+    await runC12Script({
+      waitFor,
+      aimAndTriggerTile: async (stationId) => {
+        await aimLobbyAndTrigger(stationId, 1);
+        markTileTriggerSettled(deps.c12, deps.intentCounts().acks, deps.intentCounts().rejects);
+      },
+      getSnapshot,
+      setStatus,
+      evidence: deps.c12,
+    });
+    setC13TileMeshes(buildC13Tiles(deps.scene, deps.c13.rubric));
+    const aimScoreAndTrigger = createAimAndTrigger({
+      dispatch: (method: string, params: Record<string, unknown>) => deps.dispatch(method, params),
+      actorCenter: (id) => c13CenterFor(id, deps.c13.rubric),
+      setCommandedAim: (aim) => {
+        deps.setCommandedAim(aim);
+      },
+      sent: () => deps.intentCounts().sent,
+      settled: () => deps.intentCounts().acks + deps.intentCounts().rejects,
+      waitFor,
+    });
+    await runC13Script({
+      waitFor,
+      aimAndTriggerTile: (tileId, expectedIntents) => aimScoreAndTrigger(tileId, expectedIntents),
+      getSnapshot,
+      setStatus,
+      evidence: deps.c13,
+      counts: () => ({ acks: deps.intentCounts().acks, rejects: deps.intentCounts().rejects }),
+    });
+    setC14TileMeshes(buildC14Tiles(deps.scene));
+    const aimSignoffAndTrigger = createAimAndTrigger({
+      dispatch: (method: string, params: Record<string, unknown>) => deps.dispatch(method, params),
+      actorCenter: () => signoffCenter(),
+      setCommandedAim: (aim) => {
+        deps.setCommandedAim(aim);
+      },
+      sent: () => deps.intentCounts().sent,
+      settled: () => deps.intentCounts().acks + deps.intentCounts().rejects,
+      waitFor,
+    });
+    await runC14Signoff({
+      waitFor,
+      aimAndTriggerTile: (tileId, expectedIntents) => aimSignoffAndTrigger(tileId, expectedIntents),
+      getSnapshot,
+      setStatus,
+      evidence: deps.c14,
       counts: () => ({ acks: deps.intentCounts().acks, rejects: deps.intentCounts().rejects }),
     });
   } else {

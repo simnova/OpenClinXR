@@ -341,9 +341,9 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       return;
     }
     const intentSeq = seq as number;
-    // C13 review intents live only in replay rooms: a live learner sending
+    // C13/C14 review intents live only in replay rooms: a live learner sending
     // one gets a clean reject (never routed into the utterance engine).
-    if (kind === "return-to-lobby" || kind === "score-station") {
+    if (kind === "return-to-lobby" || kind === "score-station" || kind === "finalize-review") {
       this.reject(client, intentSeq, "unknown-kind");
       return;
     }

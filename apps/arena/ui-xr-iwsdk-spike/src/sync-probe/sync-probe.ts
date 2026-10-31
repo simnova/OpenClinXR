@@ -37,6 +37,7 @@ import { createC11NoteEvidence, createC11NoteTracker } from "./probe-c11.js";
 import type { C11NoteEvidence } from "./probe-c11.js";
 import { createC12LobbyEvidence, createC12LobbyTracker, handleC12SelectEvent, type C12LobbyEvidence } from "./probe-c12.js";
 import { createC13Evidence, createC13Tracker, handleC13Trigger, type C13Evidence } from "./probe-c13.js";
+import { createC14Evidence, createC14Tracker, handleC14Trigger, type C14Evidence } from "./probe-c14.js";
 import { runProbeScript } from "./probe-script.js";
 import { attachC8RotationFailed, createC8ObserverTracker, pushC8StationObservation } from "./probe-c8.js";
 import { createIntentQueue, drainIntents, waitFor } from "./probe-queue.js";
@@ -102,6 +103,7 @@ interface SyncProbeEvidence {
   c11: C11NoteEvidence; // C11 patient-note evidence (sent texts + server noteStatus/noteChars reads).
   c12: C12LobbyEvidence; // C12 review-lobby evidence (tiles, trigger hit, select ack, modes).
   c13: C13Evidence; // C13 faculty-score evidence (rubric toggles, submit, return, badges).
+  c14: C14Evidence; // C14 sign-off evidence (sign-off trigger, finalize sent, finalized flag, badge).
   done: boolean;
   error: string | null;
 }
@@ -151,6 +153,7 @@ function createEvidence(): SyncProbeEvidence {
   c11: createC11NoteEvidence(),
     c12: createC12LobbyEvidence(),
     c13: createC13Evidence(),
+    c14: createC14Evidence(),
     done: false,
     error: null,
   };
@@ -183,7 +186,7 @@ async function main(): Promise<void> {
     fail(error instanceof Error ? error.message : String(error));
     return;
   }
-  if (query.script === "c13") {
+  if (query.script === "c13" || query.script === "c14") {
     probe.c13.rubric = parseC13Rubric(window.location.search);
   }
 
@@ -256,7 +259,7 @@ async function main(): Promise<void> {
       roomOptions:
         query.script === "c10"
           ? { actors: [...PROBE_ACTOR_IDS], replayStationId: query.replayStationId }
-          : query.script === "c12" || query.script === "c13"
+          : query.script === "c12" || query.script === "c13" || query.script === "c14"
             ? { reviewLobby: true }
             : { actors: [...PROBE_ACTOR_IDS] },
     };
@@ -280,6 +283,7 @@ async function main(): Promise<void> {
   const trackC11Note = createC11NoteTracker();
   const trackC12Lobby = createC12LobbyTracker(probe.c12);
   const trackC13 = createC13Tracker(probe);
+  const trackC14 = createC14Tracker(probe);
   attachC8RotationFailed(connection, probe);
   connection.onState((snapshot) => {
     probe.lastServerState = snapshot;
@@ -296,6 +300,7 @@ async function main(): Promise<void> {
     trackC11Note(snapshot);
     trackC12Lobby(snapshot);
     trackC13(snapshot);
+    trackC14(snapshot);
     // C6: phase label + ring follow the SERVER only (pure functions of
     // phase/remainingS). The pre-sync push (no server fields) is skipped.
     const phaseField = (snapshot as { phase?: unknown }).phase;
@@ -351,20 +356,23 @@ async function main(): Promise<void> {
   let lastPoseSendAt = 0;
   let referenceSpace: XRReferenceSpace | null = null;
   let presenting = false;
-  let poseStreaming = query.script !== "c10" && query.script !== "c12" && query.script !== "c13";
+  let poseStreaming = query.script !== "c10" && query.script !== "c12" && query.script !== "c13" && query.script !== "c14";
 
   function onSelectEvent(event: Event): void {
     const source = (event as XRInputSourceEvent).inputSource;
     if (source?.handedness !== "right") {
       return;
     }
-    // C12/C13 lobby: the trigger picks a station tile and sends select-station
+    // C12/C13/C14 lobby: the trigger picks a station tile and sends select-station
     // through the lobby handler only (the script never calls it directly).
-    // C13 continues after the replay with rubric/submit/back tiles.
-    if (query.script === "c12" || query.script === "c13") {
+    // C13 continues after the replay with rubric/submit/back tiles; C14 adds
+    // the sign-off tile after the return to lobby.
+    if (query.script === "c12" || query.script === "c13" || query.script === "c14") {
       const handled = query.script === "c12"
         ? handleC12SelectEvent({ event, aim: commandedAim, c12: probe.c12, enqueue: enqueueIntent, pushLocal: (id: string) => probe.selectedLocal.push(id) })
-        : handleC13Trigger({ event, aim: commandedAim, c12: probe.c12, c13: probe.c13, enqueue: enqueueIntent, pushLocal: (id: string) => probe.selectedLocal.push(id) });
+        : query.script === "c13"
+          ? handleC13Trigger({ event, aim: commandedAim, c12: probe.c12, c13: probe.c13, enqueue: enqueueIntent, pushLocal: (id: string) => probe.selectedLocal.push(id) })
+          : handleC14Trigger({ event, aim: commandedAim, c12: probe.c12, c13: probe.c13, c14: probe.c14, enqueue: enqueueIntent, pushLocal: (id: string) => probe.selectedLocal.push(id) });
       if (!handled) {
         probe.selectMisses += 1;
       }
@@ -490,7 +498,7 @@ async function main(): Promise<void> {
     const needActors =
       query.script === "c10"
         ? () => Object.keys(probe.lastServerState?.actors ?? {}).length > 0
-        : query.script === "c12" || query.script === "c13"
+        : query.script === "c12" || query.script === "c13" || query.script === "c14"
           ? () => ((probe.lastServerState as { lobbyStations?: unknown[] } | null)?.lobbyStations?.length ?? 0) > 0
           : () => probe.lastServerState?.actors?.["a1"] !== undefined && probe.lastServerState?.actors?.["a2"] !== undefined;
     await waitFor(needActors, 15000, "probe actors in snapshot");
@@ -502,7 +510,7 @@ async function main(): Promise<void> {
     // Skipped for ?script=c7/c8: the sweep generates head-pose evidence only,
     // and station-1's encounter window must fit setup + trigger + the shared
     // C3 turn script. The C3 utterance script itself is never forked.
-    const SWEEP_STEPS = query.script === "c7" || query.script === "c8" || query.script === "c10" || query.script === "c11" || query.script === "c12" || query.script === "c13" ? 0 : 120;
+    const SWEEP_STEPS = query.script === "c7" || query.script === "c8" || query.script === "c10" || query.script === "c11" || query.script === "c12" || query.script === "c13" || query.script === "c14" ? 0 : 120;
     for (let step = 0; step < SWEEP_STEPS; step += 1) {
       const yaw = sweepYawDegrees(step * 50);
       const quat = yawQuaternionDegrees(yaw);
@@ -540,6 +548,7 @@ async function main(): Promise<void> {
       c11Note: probe.c11,
       c12: probe.c12,
       c13: probe.c13,
+      c14: probe.c14,
       intentCounts: () => ({ sent: probe.sent, acks: probe.acks, rejects: probe.rejects }),
       setCommandedAim: (aim) => {
         commandedAim = aim;
@@ -554,7 +563,7 @@ async function main(): Promise<void> {
       sent: () => probe.sent,
       settled: () => probe.acks + probe.rejects,
       learnerCaughtUp: () => probe.lastServerState?.learners?.[connection.sessionId]?.lastSeq === probe.sent,
-      skipLearnerCatchUp: query.script === "c10" || query.script === "c12" || query.script === "c13",
+      skipLearnerCatchUp: query.script === "c10" || query.script === "c12" || query.script === "c13" || query.script === "c14",
       waitFor,
     });
 
