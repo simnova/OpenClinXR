@@ -1,0 +1,77 @@
+# handoff: tools-test-split
+
+## Mechanical (gathered by commands, verify with git before acting)
+
+### Worktrees
+
+- path: /Users/patrick/.grok/worktrees/station-station-capture
+  branch: station/station-capture
+  HEAD: 06f80ff812703d86f92a0e70ac933d9ac1cb7081
+  dirty files: 0
+  commits ahead of origin/main: 3
+    - 06f80ff812703d86f92a0e70ac933d9ac1cb7081 Regenerate the browser-boot inventory after the station-capture move
+    - fb41662067818b6e43fc19688a5f603a3d183131 station(station-capture): move 14 evidence tests into @openclinxr/station-capture-evidence sidecar
+    - 980b777b28c1ad98b62d2fd4eae427c97e0e9ea9 station(quest-capacity): move 14 evidence tests into @openclinxr/quest-capacity-evidence sidecar
+- path: /Users/patrick/.grok/worktrees/station-foot-plant
+  branch: station/foot-plant
+  HEAD: 06f80ff812703d86f92a0e70ac933d9ac1cb7081
+  dirty files: 0
+  commits ahead of origin/main: 3
+    - 06f80ff812703d86f92a0e70ac933d9ac1cb7081 Regenerate the browser-boot inventory after the station-capture move
+    - fb41662067818b6e43fc19688a5f603a3d183131 station(station-capture): move 14 evidence tests into @openclinxr/station-capture-evidence sidecar
+    - 980b777b28c1ad98b62d2fd4eae427c97e0e9ea9 station(quest-capacity): move 14 evidence tests into @openclinxr/quest-capacity-evidence sidecar
+- path: /Users/patrick/.grok/worktrees/station-humanoid-vetting
+  branch: station/humanoid-vetting
+  HEAD: 980b777b28c1ad98b62d2fd4eae427c97e0e9ea9
+  dirty files: 0
+  commits ahead of origin/main: 1
+    - 980b777b28c1ad98b62d2fd4eae427c97e0e9ea9 station(quest-capacity): move 14 evidence tests into @openclinxr/quest-capacity-evidence sidecar
+
+### Worker processes
+
+- pid 74905, cwd /Users/patrick/.grok/worktrees/station-foot-plant, worktree /Users/patrick/.grok/worktrees/station-foot-plant
+
+### RESULT files (last line each)
+
+- .openclinxr/openclaw/ceo/st-station-capture/RESULT.md: - D3 asks to "update root-test-file-freeze counts for the tests leaving tools/": the freeze counts root-level files only and all 14 moves are subdir-level, so the correct update is none (measurement still 556, honesty clause green) — same as the quest-capacity precedent.
+
+### Open board cards (listed only, board not polled)
+
+(no --card given)
+
+## Decisions and why
+- Operator 2026-10-30: "Yes, station by station", "keep going", limit raises approved ("go ahead and loosen the limit as long as it stays supporting this effort (I APPROVE)"). Workers Muse Contributor only; never --no-verify; never commit in the shared checkout.
+- Station shape: real station code -> packages/openclinxr/stations/<id> ("." publishes nothing, names on ./runner); tests -> private <id>-evidence sidecar with turbo test inputs naming every read path. Trellis and scene-closure are TEST-ONLY sidecars: code/CLIs/.py stay in tools/ because station code, package.json scripts and asset-registry reference them by path.
+- Parent 2026-10-30: never land with criterion 6 red. Structural fix LANDED 8c8db1021: publish-nothing *-evidence dirs leave the criterion-6 median/p90/maxRoot sample (independent review APPROVE; 9 clauses; weakening probes red). No red window happened (trellis stopped pre-commit).
+- File-cache review (my additions on branch tools/serial-pools-file-cache, ~/.grok/worktrees/tools-file-cache): K2b keys absolute out-of-repo literals (asset store) by presence/size/mtime; files whose every test skipped are never recorded. Known gap K4 (runtime-built paths) documented.
+- Parent decisions: split serial by pool YES, per-file cache YES, known-red exit 0 NO.
+
+- 2026-10-30 18:xx (session f6580c4e): load-flake bounds landed d46a91fce (route-telemetry 10->60 s, xr-capacity worklet x3 15->60 s, transport-probes 5->60 s; lip_sync (5)/(6) got 60 s in 5e366c73f from another session). After that the stack push went green first try at load 36.
+- Landing race: pre-push takes ~20-25 min; other sessions land in between and the push fails `cannot lock ref`. A retry after rebase is fast (turbo cache). push-queue.sh retries 5x, gated on 5-min load < 25.
+- Stacking: land several station commits as ONE push from the top worktree (one hook run). Re-derive surface-meter counts at each restack: roots/entrypoints add per sidecar (+1/+1), per station split (+2/+3).
+- makeclothes: sidecar needed two consumer-contract allowlist rows (station-mouth-registry ".", xr-dialogue "./viseme-runtime"; package+tools) and the pinned list update; operator-approved limit raise for this effort.
+- tsconfig.json in a sidecar must be plain JSON: a `//` comment fails both tsconfig-conventions clauses ("could not parse as JSON").
+- A fresh worktree's node/pnpm calls silently do nothing until MISE_TRUSTED_CONFIG_PATHS=$HOME/.grok/worktrees is exported (mise shim refuses untrusted mise.toml). Never call bare python3 (Xcode licence prompt hangs).
+
+- 2026-10-30 20:0x (session a287eebe): parent correction: GT4 is not of record if load > 20 during a pass; quest-capacity push does not wait on GT4. GT4 killed at load 43; rerun gt4b.sh gates 5-min load < 20, samples 1-min load per pass, labels CONFOUNDED.
+- A browser-booting test leaving tools/ reds browser-boot-inventory.test.ts (staleness guard); regenerate current-20261028.json in the same push (06f80ff81). The station brief now carries this as T4/G6.
+- `sysctl -n vm.loadavg` prints `{ 1m 5m 15m }`: awk $2 is 1-min, $3 is 5-min. Session a287eebe gated quest-capacity and station-capture pushes on 1-min < 25 by mistake (both pushes green); scripts now use $3.
+- 2026-10-31 orchestrator: heavy-job cap on main 7546dc488 (hooks queue on a 2-slot heavy pool; `pnpm compute:slots` shows holders). Before each push: rebase origin/main, `pnpm install --frozen-lockfile --prefer-offline`, `mise trust <wt>/mise.toml` (scripts do all three).
+- Parent 22:0x: gate for every commit/push is 5-min load < 45 (baseline 50-60 tonight: fileproviderd, Spotlight, xr-sync) plus cross-lane lock `mkdir /private/tmp/openclinxr-push.lock` held for the whole hook run (retry 60 s; rmdir after, also on failure; owner in openclinxr-push.lock.owner). Hook timeout = retry. Scratchpad lock.zsh implements it; push-queue.sh and backup-push.sh source it.
+- Parent 21:3x: never cancel a backup push because a main land is queued; queue both, whichever passes pre-push first wins.
+- Operator directive 2026-10-30 (via parent), verbatim: "be sure to periodically publish to main so that if this computer dies effort is not lost entirely". Applied: land each green station on main at once (never red); unlanded worker work goes to origin `wt/tools-split-<station>` at every worker round end and before any long wait (normal hooks); handoff text rides in that backup commit as .openclinxr/handoffs/tools-test-split.handoff.txt (.txt: a new .md would need doc-registry registration). Tool: scratchpad backup-push.sh <commit> <suffix> (snapshot via temp GIT_INDEX_FILE + commit-tree, so the worker checkout is untouched; pushes from ~/.grok/worktrees/tools-split-backup).
+
+## Gates and their sources
+- Criterion 6: `pnpm run arch:public-surface:acceptance | grep 'criterion 6'` must read ok before each land.
+- GT2 per station: turbo test twice on the sidecar with a fresh TURBO_CACHE_DIR; 2nd run FULL TURBO. face-realism: cold 545 s, warm 2.45 s (8/8). makeclothes: cold 17.7 s, warm 1.1 s (20/20), touched input misses.
+- Station worker gates: brief at .openclinxr/openclaw/ceo/st-<station>.md (G1 turbo --env-mode=loose, G2 cache proof, G3 arch meter clauses, G4 criterion 6, G5 pnpm architecture).
+
+## Store paths this lane owns
+- none. Scratchpad (session a287eebe) /private/tmp/claude-501/-Volumes-files-src-openclinxr/a287eebe-c77d-45ae-88da-30de0f7a3648/scratchpad: push-queue.sh (5-min gate), gt4b.sh, gt4.log, push-queue.log(.raw).
+
+## Next action
+State at 01:50, 2026-10-31 (session a287eebe). Landed: 878f0a38a quest-capacity, a4fcf45a6 + 38dd2c959 station-capture, a4de4c159 foot-plant, a99818018 slide-phase, a28ab23ff humanoid-vetting (known-red entry for the-waist-fit-record test: red on origin/main, tracked aisha GLB 9e34670f). Backups on origin: wt/tools-split-{handoff,slide-phase,humanoid-vetting}.
+1. GT4 rerun at a28ab23ff (01:46-03:50): cold wall 7404 s, rc=1, 0/8 cached, CONFOUNDED (1-min load 99 in the first minutes, then 7-16; likely the cold run's own parallel tasks). 4 of 8 root pools fail (evidence 29 files/54 tests, serial-browser 6/6, serial-blender 1/1, serial-spawn 1/1), and turbo never caches a failed task, so a warm pass re-runs those pools (~2 h). Warm pass stopped. A warm time of record needs those 4 pools green or their known-reds excluded from the exit code (parent decided earlier: known-red exit 0 NO). serial-browser is the long pole (~2 h single-file serial).
+2. Station queue is empty of named stations. The 561 root tests at tools/openclinxr/evidence/ need a grouping decision before more sidecars (parent/operator call).
+3. Open follow-ups: aisha waist-fit row vs tracked GLB (known-red card); HB-04 vetted-glb test runs 4.9 s against the 5 s default timeout; xr-pose supine-support-contact timed out once at load 40; shared checkout holds an uncommitted aisha GLB de9b94fd.
+4. Stale local branch to delete after confirming a28ab23ff contains it: hv-staged-backup (in station-humanoid-vetting worktree).
