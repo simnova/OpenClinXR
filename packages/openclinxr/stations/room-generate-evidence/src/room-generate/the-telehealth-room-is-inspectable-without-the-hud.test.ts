@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * # THE OBSERVATION, AND WHY IT IS NOT YET A DEFECT — measured 2026-08-19 on main 8ce57382
@@ -103,12 +103,11 @@ import { describe, expect, it } from "vitest";
  *   - **Quest budget, clinical realism, learner readiness.** None of them.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 
 const SCENARIO = "telehealth_diabetes_health_literacy_v1";
-const STILL = join(HERE, "stills/telehealth-room-isolated.png");
-const INSPECT = join(HERE, "telehealth-room-inspect.json");
+const STILL = join(REPO_ROOT, "tools/openclinxr/evidence/stills/telehealth-room-isolated.png");
+const INSPECT = join(REPO_ROOT, "tools/openclinxr/evidence/telehealth-room-inspect.json");
 /**
  * ADAPTED 2026-10-30 (ci-w7): the scene-overview capture dir is gitignored worktree-local and
  * absent on clean checkouts. The newer work's current full-room capture of this station is the
@@ -216,7 +215,7 @@ describe("the telehealth room is inspectable without the exam HUD", () => {
       `the regen sheet for this station must exist for the comparison to be real`,
     ).toBe(true);
     expect(statSync(REGEN_SHEET).size, "regen sheet bytes").toBeGreaterThanOrEqual(MIN_STILL_BYTES);
-    const { decodePng } = await import("./decode-png.js") as {
+    const { decodePng } = await import("../../../../../../tools/openclinxr/evidence/decode-png.js") as {
       decodePng: (b: Uint8Array) => { w: number; h: number; lum: Float32Array } | null;
     };
     const sheet = readFileSync(REGEN_SHEET);

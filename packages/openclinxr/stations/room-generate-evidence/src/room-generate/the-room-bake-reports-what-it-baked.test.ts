@@ -1,7 +1,9 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { readRoomGlb } from "./room-gl-io.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { readRoomGlb } from "../../../../../../tools/openclinxr/evidence/room-gl-io.js";
 
 /**
  * (Historical header preserved — see ADAPTED note at the end.)
@@ -36,9 +38,9 @@ import { readRoomGlb } from "./room-gl-io.js";
  *   whether any room looks CORRECT; quest_readiness.
  */
 
-const ENV = "apps/ui-xr/public/xr-assets/environment";
+const ENV = join(repoRoot(), "apps/ui-xr/public/xr-assets/environment");
 const ROOM = "infinigen-primary-care-clinic.glb";
-const REPORT = "docs/openclinxr/room-realism/rooms-regen/RESULTS.json";
+const REPORT = join(repoRoot(), "docs/openclinxr/room-realism/rooms-regen/RESULTS.json");
 /** Current-byte authority: re-derived pins live here, updated by the d8e610e32 re-promote. */
 const PROVENANCE = `${ENV}/PROVENANCE.md`;
 
@@ -75,7 +77,7 @@ function report(): RegenReport {
 
 /** Independent measurement, same technique as the cave probe: decode the shipped PNG, mean 0..255. */
 async function shippedAlbedoMeans(room = ROOM): Promise<Record<string, number>> {
-  const { decodePng } = await import("./decode-png.js") as {
+  const { decodePng } = await import("../../../../../../tools/openclinxr/evidence/decode-png.js") as {
     decodePng: (b: Uint8Array) => { w: number; h: number; lum: Float32Array } | null;
   };
   const doc = await readRoomGlb(`${ENV}/${room}`);

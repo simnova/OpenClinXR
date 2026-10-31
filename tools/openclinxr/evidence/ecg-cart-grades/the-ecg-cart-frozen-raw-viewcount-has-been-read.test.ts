@@ -1,4 +1,3 @@
-import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -25,7 +24,7 @@ import { describe, expect, it } from "vitest";
  * export SHA-matches the freeze. viewCount null, missingBakeMeasure true. G1 remains eligible.
  */
 
-const REPO = repoRoot();
+const REPO = join(import.meta.dirname, "../../../..");
 const CONTROL = join(REPO, "tools/openclinxr/asset-pipeline/trellis/ecg-cart-c0-c1-control.json");
 const REPORT = join(REPO, "tools/openclinxr/asset-pipeline/trellis/ecg-cart-raw-viewcount-report.json");
 

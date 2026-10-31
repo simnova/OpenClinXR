@@ -1,9 +1,9 @@
 import { existsSync, readdirSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { KHRTextureTransform } from "@gltf-transform/extensions";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * Every shipped environment renders as an untextured, unlit hull. The reflex is to blame polygon
@@ -85,8 +85,7 @@ import { describe, expect, it } from "vitest";
  * Geometry untouched; no light nodes shipped; no triangle budget changed.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const ENV_DIR = "apps/ui-xr/public/xr-assets/environment";
 
 /** A texture with one colour is a fill. The eyes contract (#340) uses the same discriminator. */
