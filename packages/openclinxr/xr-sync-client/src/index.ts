@@ -10,7 +10,7 @@ import { Client, type Room } from "@colyseus/sdk";
 import type { ConnectOptions } from "./options.js";
 
 /** Client-to-server intent kinds, mirroring the server contract. */
-export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end" | "note-submit";
+export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end" | "note-submit" | "select-station" | "return-to-lobby" | "score-station" | "finalize-review";
 
 /** JSON payload carried by one intent. */
 export type IntentPayload = Record<string, unknown>;
@@ -86,6 +86,16 @@ export interface EncounterSnapshot {
   noteStatus?: string;
   /** C11 length of the held note (0 when none; absent on old servers). */
   noteChars?: number;
+  /** C12 true when the recorded session ran to completion (lobby only). */
+  sessionComplete?: boolean;
+  /** C12 one entry per index station, in index order (lobby only). */
+  lobbyStations?: Array<{ stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number }>;
+  /** C13 checked rubric count for the replayed station (replay only). */
+  scoreChecked?: number;
+  /** C13 one badge per scored index station, in index order (lobby only). */
+  lobbyScores?: Array<{ stationId: string; checkedCount: number }>;
+  /** C14 true once the reviewer signed off (the packet exists in scoreDir; lobby only). */
+  reviewFinalized?: boolean;
 }
 
 /** Live headset-side connection: intents out, snapshots in. */

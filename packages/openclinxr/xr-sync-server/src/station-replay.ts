@@ -26,7 +26,26 @@ import { join } from "node:path";
 import type { ConversationTraceEvent } from "./conversation-trace.js";
 import { loadReplayStationTrace, type LoadedReplayStation } from "./station-replay-loading.js";
 import { ActorState, EncounterState, LearnerState, type ActorStateInstance, type LearnerStateInstance } from "./schema.js";
-import { EncounterRoom } from "./room.js";
+import { EncounterRoom, ENCOUNTER_ROOM_NAME } from "./room.js";
+import {
+  isReviewLobbyRequest,
+  setupLobbyState,
+} from "./review-lobby.js";
+import {
+  handleReplayReviewIntent,
+  readScoreChecked,
+  type FacultyScoreBinding,
+} from "./faculty-score.js";
+import {
+  handleLobbyIntentWithFinalize,
+  isReviewFinalized,
+  launchLobbyReplayFor,
+  launchReplayReturnFor,
+  readValidLobbyScores,
+  rejectReplayGuardedIntent,
+} from "./review-packet.js";
+/** Reject reason every replay-room intent receives (C13 review intents excepted). */
+export { REPLAY_READ_ONLY_REASON } from "./faculty-score.js";
 import type { EncounterRoomOptions } from "./room-types.js";
 import { parseEncounterRole } from "./observer.js";
 import {
@@ -36,11 +55,7 @@ import {
   type SessionReviewStationEntry,
 } from "./session-review-index.js";
 
-/** Reject reason every replay-room intent receives. The room is read-only. */
-export const REPLAY_READ_ONLY_REASON = "replay-read-only";
-
-/** Default ms between recorded events when replayStepMs is not configured. */
-export const DEFAULT_REPLAY_STEP_MS = 300;
+/** Default ms between recorded events when replayStepMs is not configured. */export const DEFAULT_REPLAY_STEP_MS = 300;
 
 /**
  * Validate server replay step config. Returns the step when configured, the
@@ -66,6 +81,10 @@ export interface LoadedStationReplay {
   /** C11 per-station load failures (trace content only): a bad trace refuses
    * only its own station's join with its stored error, never the whole dir. */
   failures: Map<string, string>;
+  /** C12 index complete flag, copied for the lobby state. */
+  complete: boolean;
+  /** C12 lobby entries in index order, copied from the review index. */
+  lobbyStations: { stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number }[];
 }
 
 /**
@@ -98,6 +117,7 @@ export function loadStationReplayDir(dir: string): LoadedStationReplay {
   const stations = new Map<string, LoadedReplayStation>();
   const failures = new Map<string, string>();
   const stationCount = typeof index.stationCount === "number" ? index.stationCount : index.stations.length;
+  const lobbyStations: LoadedStationReplay["lobbyStations"] = [];
   for (const entry of index.stations) {
     if (!isRecord(entry) || typeof entry.stationId !== "string" || entry.stationId === "") {
       throw new Error("replay-bad-index: station entry without a stationId");
@@ -105,6 +125,14 @@ export function loadStationReplayDir(dir: string): LoadedStationReplay {
     if (typeof entry.traceFile !== "string" || entry.traceFile === "") {
       throw new Error(`replay-bad-index: station ${entry.stationId} names no trace file`);
     }
+    const typed = entry as unknown as SessionReviewStationEntry;
+    lobbyStations.push({
+      stationId: typed.stationId,
+      stationIndex: typeof typed.stationIndex === "number" ? typed.stationIndex : lobbyStations.length,
+      turnCount: typeof typed.turnCount === "number" ? typed.turnCount : 0,
+      notePresent: typed.notePresent === true,
+      noteChars: typeof typed.noteChars === "number" ? typed.noteChars : 0,
+    });
     // C11: a bad TRACE refuses only its own station (the error is stored
     // against it and surfaces at join); every other station still replays.
     try {
@@ -114,7 +142,7 @@ export function loadStationReplayDir(dir: string): LoadedStationReplay {
       failures.set(entry.stationId, error instanceof Error ? error.message : String(error));
     }
   }
-  return { stations, failures };
+  return { stations, failures, complete: index.complete === true, lobbyStations };
 }
 
 /** Per-server replay binding closed over by the replay room class. */
@@ -123,8 +151,12 @@ export interface StationReplayBinding {
   /** Boot-time load failure, refused at join with this named error. */
   loadError: string | null;
   stepMs: number;
+  /** C14 replay directory (note files for the review packet; null when unset). */
+  replayDir: string | null;
   /** C11 per-station trace failures (a bad trace refuses only its station). */
   stationFailures: Map<string, string>;
+  /** C13 faculty score binding (scoreDir + rubric, server config only). */
+  score: FacultyScoreBinding;
 }
 
 function replayStationIdOf(options: unknown): string {
@@ -151,10 +183,38 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
     private replayEmotionCursor = 0;
     private replayOpenTurn: { turnId: number; actorId: string } | null = null;
     private replayTimer: { clear(): void } | null = null;
+    /** C13 per-lobby launch guard: a lobby launches at most once. */
+    private lobbyLaunchPending = false;
+    /** C14 per-replay-room return guard: a lobby launches back at most once. */
+    private replayReturnGuard = { returnPending: false };
 
     override onCreate(options?: EncounterRoomOptions): void {
       if (binding.loadError !== null || binding.replay === null) {
         throw new Error(binding.loadError ?? "replay-unavailable");
+      }
+      // C12 lobby: a reviewer lists the index stations, then picks one.
+      // The lobby lives in its own locked room; the pick reserves a fresh
+      // replay room for that station and sends the seat to this client only.
+      if (isReviewLobbyRequest(options)) {
+        const replay = binding.replay;
+        this.replayStation = null;
+        this.setState(new EncounterState());
+        // C13 badges are read from disk when the lobby opens (a new server
+        // over the same scoreDir shows earlier scores); C14 adds the
+        // finalized flag from the packet on disk. Forged score files are
+        // ignored by the strict reader (same validator as finalize).
+        setupLobbyState(this.state, replay, readValidLobbyScores(binding.score.scoreDir, replay.lobbyStations.map((entry) => entry.stationId), binding.score.rubric), isReviewFinalized(binding.score.scoreDir));
+        void this.setPrivate(true);
+        this.lock();
+        this.onMessage("intent", (client, message: unknown) => {
+          this.handleLobbyIntent(client, message);
+        });
+        this.onMessage("*", (_client, type) => {
+          if (type === "intent") {
+            return;
+          }
+        });
+        return;
       }
       const stationId = replayStationIdOf(options);
       if (stationId === "") {
@@ -206,15 +266,23 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
         this.state.actors.set(id, actor);
       }
       this.state.learners = new MapSchema<LearnerStateInstance>();
+      // C13: a re-opened station seeds its checked count from disk (0 when unscored).
+      this.state.scoreChecked = readScoreChecked(binding.score.scoreDir, station.stationId);
       // One station per room: lock at create so a concurrent reviewer of a
       // different station creates anew instead of sharing this room. The
       // creating client's seat is already reserved, so it still joins.
       void this.setPrivate(true);
       this.lock();
       this.onMessage("intent", (client, message: unknown) => {
-        // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["seq"] on this Record.
-        const seq = isRecord(message) && Number.isInteger(message["seq"]) ? (message["seq"] as number) : 0;
-        client.send("reject", { seq, reason: REPLAY_READ_ONLY_REASON });
+        // C14 guards (one return-to-lobby per room; locked scores) run before
+        // the C13 review handler; every other intent still rejects
+        // replay-read-only (see faculty-score.ts).
+        if (rejectReplayGuardedIntent(this.replayReturnGuard, binding.score, client, message)) {
+          return;
+        }
+        handleReplayReviewIntent(this.state, binding.score, station.stationId, client, message, (onFailed) => {
+          launchReplayReturnFor(ENCOUNTER_ROOM_NAME, this.replayReturnGuard, station.stationId, client, onFailed);
+        });
       });
       // Explicit catch-all: unknown client message types are dropped on the
       // floor, mirroring the live room (state flows only through patches).
@@ -236,6 +304,10 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       void client;
       // Refuse unknown roles here so the SDK join rejects, mirroring live.
       parseEncounterRole(options);
+      // C12 lobby rooms admit their own reviewLobby joins (no station seat).
+      if (isReviewLobbyRequest(options)) {
+        return true;
+      }
       // Backstop for direct joins: the room serves exactly its own station.
       const station = this.replayStation;
       if (station === null || replayStationIdOf(options) !== station.stationId) {
@@ -248,6 +320,8 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       void options;
       // Reviewers hold a learner seat for snapshot normalcy only: every
       // intent still rejects replay-read-only and lastSeq never advances.
+      // Lobby reviewers share the same seat shape; a select-station ack
+      // advances lastSeq like a live applied intent.
       if (!this.state.learners.has(client.sessionId)) {
         const learner = new LearnerState();
         learner.sessionId = client.sessionId;
@@ -258,6 +332,30 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
         learner.speaking = false;
         this.state.learners.set(client.sessionId, learner);
       }
+    }
+
+    /** C12 lobby select gate plus the C14 finalize sign-off (see review-packet.ts). */
+    private handleLobbyIntent(client: Client, message: unknown): void {
+      const room = this;
+      handleLobbyIntentWithFinalize(
+        {
+          state: room.state,
+          get launchPending(): boolean {
+            return room.lobbyLaunchPending;
+          },
+          set launchPending(value: boolean) {
+            room.lobbyLaunchPending = value;
+          },
+          replay: binding.replay,
+        },
+        binding.score,
+        binding.replayDir,
+        client,
+        message,
+        (stationId, onFailed) => {
+          launchLobbyReplayFor(ENCOUNTER_ROOM_NAME, stationId, client, onFailed);
+        },
+      );
     }
 
     override onLeave(client: Client): void {

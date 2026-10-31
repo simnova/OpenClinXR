@@ -1,0 +1,25 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/**",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_02_01_walk.bvh",
+        "$TURBO_ROOT$/docs/openclinxr/evidence/bound-clip-foot-plant.json",
+        "$TURBO_ROOT$/docs/openclinxr/evidence/displayed-walk-on-the-loaded-physician.json",
+        "$TURBO_ROOT$/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-04.json",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/xr-humanoid-animation/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-humanoid-animation/dist/ccd-stance-lock-query-flag-mod.js",
+        "$TURBO_ROOT$/packages/openclinxr/xr-humanoid-animation/dist/fixed-clock-query-flag-mod.js",
+        "$TURBO_ROOT$/packages/openclinxr/xr-humanoid-animation/dist/stepping-turn-query-flag-mod.js",
+        "$TURBO_ROOT$/packages/openclinxr/xr-humanoid-animation/package.json"
+      ]
+    }
+  }
+}

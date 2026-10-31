@@ -30,6 +30,26 @@ export const LearnerState = schema(
   "LearnerState",
 );
 
+export const LobbyStationState = schema(
+  {
+    stationId: t.string(),
+    stationIndex: t.number(),
+    turnCount: t.number(),
+    notePresent: t.boolean(),
+    noteChars: t.number(),
+  },
+  "LobbyStationState",
+);
+
+/** C13 one lobby score badge: a station with a faculty score file on disk. */
+export const LobbyScoreState = schema(
+  {
+    stationId: t.string(),
+    checkedCount: t.number(),
+  },
+  "LobbyScoreState",
+);
+
 export const EncounterState = schema(
   {
     serverTick: t.number(),
@@ -56,6 +76,16 @@ export const EncounterState = schema(
     noteStatus: t.string(),
     /** C11 length of the held note (0 when none). */
     noteChars: t.number(),
+    /** C12 true when the recorded session ran to completion (lobby rooms only). */
+    sessionComplete: t.boolean(),
+    /** C12 one entry per index station, in index order (lobby rooms only). */
+    lobbyStations: t.array(LobbyStationState),
+    /** C13 checked rubric count for the replayed station (replay rooms only). */
+    scoreChecked: t.number(),
+    /** C13 one badge per scored index station, in index order (lobby rooms only). */
+    lobbyScores: t.array(LobbyScoreState),
+    /** C14 true once the reviewer signed off (the packet exists in scoreDir; lobby rooms only). */
+    reviewFinalized: t.boolean(),
   },
   "EncounterState",
 );
@@ -63,6 +93,8 @@ export const EncounterState = schema(
 export type ActorStateInstance = SchemaType<typeof ActorState>;
 export type LearnerStateInstance = SchemaType<typeof LearnerState>;
 export type EncounterStateInstance = SchemaType<typeof EncounterState>;
+export type LobbyStationStateInstance = SchemaType<typeof LobbyStationState>;
+export type LobbyScoreStateInstance = SchemaType<typeof LobbyScoreState>;
 
 /** Plain-object view of authoritative state, for tests and operators. */
 export interface EncounterSnapshot {
@@ -95,6 +127,16 @@ export interface EncounterSnapshot {
   noteStatus: string;
   /** C11 length of the held note (0 when none). */
   noteChars: number;
+  /** C12 true when the recorded session ran to completion (lobby rooms only). */
+  sessionComplete: boolean;
+  /** C12 one entry per index station, in index order (lobby rooms only). */
+  lobbyStations: { stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number }[];
+  /** C13 checked rubric count for the replayed station (replay rooms only). */
+  scoreChecked: number;
+  /** C13 one badge per scored index station, in index order (lobby rooms only). */
+  lobbyScores: { stationId: string; checkedCount: number }[];
+  /** C14 true once the reviewer signed off (the packet exists in scoreDir; lobby rooms only). */
+  reviewFinalized: boolean;
 }
 
 export function snapshotState(state: EncounterStateInstance): EncounterSnapshot {
@@ -113,5 +155,5 @@ export function snapshotState(state: EncounterStateInstance): EncounterSnapshot 
       speaking: learner.speaking,
     };
   }
-  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount, stationId: state.stationId, stationIndex: state.stationIndex, stationCount: state.stationCount, mode: state.mode, lastTurnEnd: state.lastTurnEnd, replayDone: state.replayDone, noteStatus: state.noteStatus, noteChars: state.noteChars };
+  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount, stationId: state.stationId, stationIndex: state.stationIndex, stationCount: state.stationCount, mode: state.mode, lastTurnEnd: state.lastTurnEnd, replayDone: state.replayDone, noteStatus: state.noteStatus, noteChars: state.noteChars, sessionComplete: state.sessionComplete, lobbyStations: [...state.lobbyStations].map((entry) => ({ stationId: entry.stationId, stationIndex: entry.stationIndex, turnCount: entry.turnCount, notePresent: entry.notePresent, noteChars: entry.noteChars })), scoreChecked: state.scoreChecked, lobbyScores: [...state.lobbyScores].map((entry) => ({ stationId: entry.stationId, checkedCount: entry.checkedCount })), reviewFinalized: state.reviewFinalized };
 }

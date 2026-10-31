@@ -1,0 +1,66 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "repoRoot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "CapacityRun",
+        "kind": "type"
+      },
+      {
+        "name": "evaluateRun",
+        "kind": "runtime"
+      },
+      {
+        "name": "makeRun",
+        "kind": "runtime"
+      },
+      {
+        "name": "parseRunRecord",
+        "kind": "runtime"
+      },
+      {
+        "name": "runHostWorkloads",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-capacity",
+    "entrypoint": "./stage2",
+    "names": [
+      {
+        "name": "STAGE2_CONFIG",
+        "kind": "runtime"
+      },
+      {
+        "name": "STAGE2_PROTOCOL_SHA256",
+        "kind": "runtime"
+      },
+      {
+        "name": "Stage2Budget",
+        "kind": "runtime"
+      }
+    ]
+  }
+]
