@@ -158,6 +158,8 @@ export async function refineCameraForOcclusionAndContainment(
 
     const wallBoxes = [];
     const doorBoxes = [];
+    const wallMeshList = [];
+    const doorMeshList = [];
     const roomSurfaceKind = function (mesh) {
       let p = mesh;
       while (p && p !== roomRoot) {
@@ -173,7 +175,7 @@ export async function refineCameraForOcclusionAndContainment(
       const kind = roomSurfaceKind(o);
       if (kind === "wall") {
         const box = worldBoxOf(o);
-        if (box) wallBoxes.push(box);
+        if (box) { wallBoxes.push(box); wallMeshList.push(o); }
       }
     });
     scene.traverse(function (o) {
@@ -181,7 +183,7 @@ export async function refineCameraForOcclusionAndContainment(
       if (o.visible === false) return;
       if (!/door_leaf|fixture-slot.door/i.test(o.name || "")) return;
       const box = worldBoxOf(o);
-      if (box) doorBoxes.push(box);
+      if (box) { doorBoxes.push(box); doorMeshList.push(o); }
     });
     const placards = [];
     scene.traverse(function (o) {
@@ -371,10 +373,104 @@ export async function refineCameraForOcclusionAndContainment(
     const ceilingY = interior.max[1] - 0.45;
     const sideStandoff = 0.9;
     const depthStandoff = 0.22;
-    const xMin = interior.min[0] + sideStandoff;
-    const xMax = interior.max[0] - sideStandoff;
-    const zMin = interior.min[2] + depthStandoff;
-    const zMax = interior.max[2] - depthStandoff;
+    // ci-w17: keep refined eyes inside the room CAVITY, never in the plaster.
+    // interior unions every non-exterior room mesh, so its faces sit on wall
+    // OUTER surfaces (and on whatever sticks out furthest: the ward floor field
+    // runs 0.32 m past the south wall). Admitting candidates down to
+    // interior+0.22 m therefore seats eyes inside the wall slab: the ward orbit
+    // pick (-1.34,1.52,-2.51) sits 96 mm behind the south inner face (live
+    // triangle raycast: all 144 viewport cells hit bedroom_00wall within
+    // 0.34 m, nearest inward normal +z at z=-2.415), where the south leaf
+    // backface-culls and the bare east plaster fills the frame while every AABB
+    // probe reads clear (visibility skips containing boxes, near-occlusion reads
+    // exit distances) -> nearOcclusion=0.0000. Cavity faces are measured live,
+    // not fitted: per horizontal side, the outer face is the extreme wall-box
+    // face and the inner face is the extreme wall/door-triangle coordinate of
+    // the meshes touching that side. No station constants, no scenario branch.
+    const SIDE_TOUCH = 0.3;
+    const CAVITY_EPS = 0.001;
+    let outerMinX = Infinity, outerMaxX = -Infinity;
+    let outerMinZ = Infinity, outerMaxZ = -Infinity;
+    let wi;
+    for (wi = 0; wi < wallBoxes.length; wi++) {
+      const wb = wallBoxes[wi];
+      if (wb.min[0] < outerMinX) outerMinX = wb.min[0];
+      if (wb.max[0] > outerMaxX) outerMaxX = wb.max[0];
+      if (wb.min[2] < outerMinZ) outerMinZ = wb.min[2];
+      if (wb.max[2] > outerMaxZ) outerMaxZ = wb.max[2];
+    }
+    const sideMembers = function (list, boxes, axis, side, outer) {
+      const out = [];
+      for (let k = 0; k < list.length; k++) {
+        const b = boxes[k];
+        if (!b) continue;
+        const face = side < 0 ? b.min[axis] : b.max[axis];
+        if (Math.abs(face - outer) <= SIDE_TOUCH) out.push(list[k]);
+      }
+      return out;
+    };
+    const innerFaceOf = function (axis, side, outer) {
+      const members = sideMembers(wallMeshList, wallBoxes, axis, side, outer)
+        .concat(sideMembers(doorMeshList, doorBoxes, axis, side, outer));
+      // Only the triangles forming the wall on THIS side bound the cavity:
+      // a shell mesh spans the whole room, so unfiltered extremes would read
+      // the far side (the minZ side would return the north wall). Keep ONLY
+      // triangles whose every vertex sits within one slab-plus-trim window of
+      // the outer face: an any-vertex test keeps whole-room-spanning shell
+      // triangles (measured: x0 inner read +2.15, the EAST face, emptying the
+      // candidate box and pinning refine to keep-unimproved). Corners of
+      // adjoining walls span two faces and drop out, which is correct.
+      const WIN = 0.35;
+      let inner = side < 0 ? -Infinity : Infinity;
+      let found = false;
+      for (let k = 0; k < members.length; k++) {
+        const mesh = members[k];
+        if (mesh.isSkinnedMesh) continue;
+        const geom = mesh.geometry;
+        if (!geom || !geom.attributes || !geom.attributes.position) continue;
+        mesh.updateMatrixWorld(true);
+        const me = mesh.matrixWorld.elements;
+        const pos = geom.attributes.position;
+        const idx = geom.index ? geom.index.array : null;
+        const n = idx ? idx.length : pos.count;
+        const wOf = function (vi) {
+          const vx = pos.getX(vi), vy = pos.getY(vi), vz = pos.getZ(vi);
+          return axis === 0
+            ? me[0] * vx + me[4] * vy + me[8] * vz + me[12]
+            : me[2] * vx + me[6] * vy + me[10] * vz + me[14];
+        };
+        for (let t = 0; t + 2 < n; t += 3) {
+          const a = idx ? idx[t] : t, b = idx ? idx[t + 1] : t + 1, c = idx ? idx[t + 2] : t + 2;
+          if (a === undefined || b === undefined || c === undefined) continue;
+          const wa = wOf(a), wb = wOf(b), wc = wOf(c);
+          let near = false;
+          if (side < 0) near = wa <= outer + WIN && wb <= outer + WIN && wc <= outer + WIN;
+          else near = wa >= outer - WIN && wb >= outer - WIN && wc >= outer - WIN;
+          if (!near) continue;
+          if (side < 0) {
+            const m = Math.max(wa, wb, wc);
+            if (m > inner) inner = m;
+          } else {
+            const m = Math.min(wa, wb, wc);
+            if (m < inner) inner = m;
+          }
+          found = true;
+        }
+      }
+      return found ? inner : null;
+    };
+    const cavityX0 = innerFaceOf(0, -1, outerMinX);
+    const cavityX1 = innerFaceOf(0, 1, outerMaxX);
+    const cavityZ0 = innerFaceOf(2, -1, outerMinZ);
+    const cavityZ1 = innerFaceOf(2, 1, outerMaxZ);
+    let xMin = interior.min[0] + sideStandoff;
+    let xMax = interior.max[0] - sideStandoff;
+    let zMin = interior.min[2] + depthStandoff;
+    let zMax = interior.max[2] - depthStandoff;
+    if (cavityX0 !== null && xMin < cavityX0 + CAVITY_EPS) xMin = cavityX0 + CAVITY_EPS;
+    if (cavityX1 !== null && xMax > cavityX1 - CAVITY_EPS) xMax = cavityX1 - CAVITY_EPS;
+    if (cavityZ0 !== null && zMin < cavityZ0 + CAVITY_EPS) zMin = cavityZ0 + CAVITY_EPS;
+    if (cavityZ1 !== null && zMax > cavityZ1 - CAVITY_EPS) zMax = cavityZ1 - CAVITY_EPS;
     const eyeYs = [1.52, 1.68, 1.84, 2.0, 2.16].map(function (y) {
       let ey = y;
       if (ey > ceilingY) ey = ceilingY;
