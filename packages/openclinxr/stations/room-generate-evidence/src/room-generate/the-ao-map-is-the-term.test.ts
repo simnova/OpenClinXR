@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * **ONE DISCRIMINATOR: is the wall speckle the AO map, or something else?** Superagent-directed
@@ -91,7 +93,7 @@ import { describe, expect, it } from "vitest";
  *   quest_readiness; clinical_validity.
  */
 
-const ARTIFACT = "tools/openclinxr/evidence/interior-wall-ao-probe.json";
+const ARTIFACT = join(repoRoot(), "tools/openclinxr/evidence/interior-wall-ao-probe.json");
 
 /** Landed in #525 at `366c0949`. A BEFORE-column, never re-measured by this slice (§9s). */
 const LANDED_IBL_SD = 34.71;
@@ -179,7 +181,7 @@ describe("the AO map is the term", () => {
     // The successor sha is named here with its commit. The clause keeps its teeth: any sha outside
     // this list still fails. It is NOT widened to "any sha", and the probe's own recorded value is
     // NOT edited to match — editing evidence to fit the tree is what makes an artifact worthless.
-    const GLB = "apps/ui-xr/public/xr-assets/environment/infinigen-primary-care-clinic.glb";
+    const GLB = join(repoRoot(), "apps/ui-xr/public/xr-assets/environment/infinigen-primary-care-clinic.glb");
     const SANCTIONED = new Map<string, string>([
       ["a76a71eaa660d856c1bccd039e14fe48f3041901b0f9126ecd55a61d9e36fdf8",
         "#529 capture-time sha"],
@@ -209,7 +211,7 @@ describe("the AO map is the term", () => {
     expect(off.camera, "both cells must be rendered from the SAME camera").toBe(on.camera);
     for (const c of [on, off]) {
       expect(typeof c.image, `${c.id} must name an image`).toBe("string");
-      const img = `tools/openclinxr/evidence/${c.image}`;
+      const img = `${repoRoot()}/tools/openclinxr/evidence/${c.image}`;
       expect(existsSync(img), `${c.id} image missing at ${img}`).toBe(true);
       // A byte floor proves a renderer ran and nothing more (§8n). I grade the pixels.
       expect(statSync(img).size, `${c.id} image is too small to be a render`).toBeGreaterThan(20_000);

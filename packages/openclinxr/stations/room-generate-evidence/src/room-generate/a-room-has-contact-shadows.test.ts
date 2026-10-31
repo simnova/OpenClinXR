@@ -1,9 +1,9 @@
 import { readdirSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { inflateSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
-import { roomNodeIO } from "./room-gl-io.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { roomNodeIO } from "../../../../../../tools/openclinxr/evidence/room-gl-io.js";
 
 /**
  * MADR 0056 decided that room realism is a MATERIAL problem, not a geometry problem, and ranked
@@ -91,8 +91,7 @@ import { roomNodeIO } from "./room-gl-io.js";
  * untouched; tris and base-colour counts unchanged.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const ENV_DIR = "apps/ui-xr/public/xr-assets/environment";
 
 /** A real AO bake spans open surface to deep contact. A flat fill has sd 0. */

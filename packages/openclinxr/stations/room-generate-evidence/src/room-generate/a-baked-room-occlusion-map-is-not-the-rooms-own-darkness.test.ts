@@ -1,9 +1,11 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createHash } from "node:crypto";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
-import { decodePng } from "./decode-png.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { decodePng } from "../../../../../../tools/openclinxr/evidence/decode-png.js";
 
 /**
  * **OBSERVABLE: a generated room's baked occlusion map is OCCLUSION, not the room's own darkness.**
@@ -85,9 +87,9 @@ import { decodePng } from "./decode-png.js";
  *   the right remedy; the runtime aoMap term; other texture slots; Quest readiness; clinical validity.
  */
 
-const ENV = "apps/ui-xr/public/xr-assets/environment";
+const ENV = join(repoRoot(), "apps/ui-xr/public/xr-assets/environment");
 const HAND_BUILT = "ed-exam-bay-shell.glb";
-const BAKER = "packages/openclinxr/factory-stations/src/room_generate/room-occlusion-bake.py";
+const BAKER = join(repoRoot(), "packages/openclinxr/factory-stations/src/room_generate/room-occlusion-bake.py");
 
 /** The known-good wall, pinned by clause (3). Measured on HEAD 81d06dd6. */
 const KNOWN_GOOD_WALL = "ed_bay_soft_blue_wall";
@@ -343,11 +345,11 @@ describe("a baked room occlusion map is not the room's own darkness", () => {
 
     // Detector proof: these predicates must FLAG a planted cheat, or the clause is decoration.
     const synthetic: AoMap[] = [
-      { glb: "a.glb", material: "m1", mean: 216, sd: 62, black: 0.05, strength: 1, sha: "deadbeefdeadbeef", greyscale: true },
-      { glb: "b.glb", material: "m2", mean: 216, sd: 62, black: 0.05, strength: 1, sha: "deadbeefdeadbeef", greyscale: true },
-      { glb: "c.glb", material: "m3", mean: 216, sd: 62, black: 0.05, strength: 0, sha: "0123456789abcdef", greyscale: true },
+      { glb: "a.glb", material: "m1", mean: 216, sd: 62, black: 0.05, strength: 1, sha: "deadbeefdeadbeef", greyscale: true, fillerFraction: 0, meanExcludingFiller: 216 },
+      { glb: "b.glb", material: "m2", mean: 216, sd: 62, black: 0.05, strength: 1, sha: "deadbeefdeadbeef", greyscale: true, fillerFraction: 0, meanExcludingFiller: 216 },
+      { glb: "c.glb", material: "m3", mean: 216, sd: 62, black: 0.05, strength: 0, sha: "0123456789abcdef", greyscale: true, fillerFraction: 0, meanExcludingFiller: 216 },
       // epsilon strength: renders no occlusion, and `> 0` used to let it through.
-      { glb: "d.glb", material: "m4", mean: 216, sd: 62, black: 0.05, strength: 0.000001, sha: "fedcba9876543210", greyscale: true },
+      { glb: "d.glb", material: "m4", mean: 216, sd: 62, black: 0.05, strength: 0.000001, sha: "fedcba9876543210", greyscale: true, fillerFraction: 0, meanExcludingFiller: 216 },
     ];
     expect(duplicateShaGroups(synthetic).length, "the duplicate detector must flag a planted copy").toBe(1);
     expect(silenced(synthetic).length, "the silence detector must flag BOTH strength-0 and epsilon-strength maps").toBe(2);

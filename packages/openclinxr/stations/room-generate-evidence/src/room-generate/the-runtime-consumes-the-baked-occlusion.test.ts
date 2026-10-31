@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * 2026-08-21 — R1 of the room-realism review. THE AO MAPS EXIST; NOBODY HAS MEASURED THE RUNTIME.
@@ -78,8 +78,7 @@ import { describe, expect, it } from "vitest";
  * loader default works; no intensity tune.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO = pathResolve(HERE, "../../..");
+const REPO = repoRoot();
 const REPORT = join(REPO, "tools/openclinxr/evidence/room-occlusion-runtime-report.json");
 const ENV = join(REPO, "apps/ui-xr/public/xr-assets/environment");
 

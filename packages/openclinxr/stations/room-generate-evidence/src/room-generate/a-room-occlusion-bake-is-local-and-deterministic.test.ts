@@ -1,5 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * **LOCALITY FIXTURE — phase A of issue-526.** The planted contract
@@ -49,8 +51,8 @@ import { describe, expect, it } from "vitest";
  * packages/openclinxr/factory-stations/src/room_generate/the-room-occlusion-bakes-with-cycles.test.ts.
  */
 
-const ARTIFACT = "tools/openclinxr/evidence/issue-526/locality-fixture.json";
-const FRESH_ARTIFACT = ".openclinxr/evidence/issue-526/locality-fixture.json";
+const ARTIFACT = join(repoRoot(), "tools/openclinxr/evidence/issue-526/locality-fixture.json");
+const FRESH_ARTIFACT = join(repoRoot(), ".openclinxr/evidence/issue-526/locality-fixture.json");
 
 type FixtureRun = {
   nearWall?: number;
