@@ -344,7 +344,7 @@
       }
     },
     "peds_patient_child": {
-      "glb_sha256": "a969db3ba0a63d43597b5c3007a6e520a85c46bec9e28c97aa88638500ed79b1",
+      "glb_sha256": "2be7623bb00bbd9396b2319fed0d9714c6548ef247bbca38a9589a224b7c794f",
       "skin_tone_rgb": [0.84, 0.70, 0.60],
       "overrides": {
         "lips": { "ratio": 1.0 },
@@ -353,7 +353,7 @@
         "brow_form": { "dL": 0.0, "dC": 0.0 }
       },
       "sources": {
-        "glb_sha256": "measured: shasum -a 256 apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (== face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb byte-identical copy); the GLB the child stage 3 uses per case-inputs.json:cases.peds_asthma_parent_anxiety_v1.stage3_glb",
+        "glb_sha256": "measured: shasum -a 256 apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (== face-station-cases/peds_asthma_parent_anxiety_v1/inputs/mpfb-peds-patient-child.glb byte-identical copy); the GLB the child stage 3 uses per case-inputs.json:cases.peds_asthma_parent_anxiety_v1.stage3_glb. Re-measured 2026-10-30 (ci-w11b) after d1c44f8cd (ci-w11 D1 prune of unbound images) + c743aab61 (ci-w11 D3 chest-anchor keyframe repair).",
         "skin_tone_rgb": "phenotype tone source: tools/openclinxr/asset-pipeline/reference-set/reference_constants.json:5 warm_light_child [0.84, 0.70, 0.60] (== materialize_mpfb_humanoid_candidate.py:378 peds_patient_child tone rgb)",
         "lips.ratio": "measurement: 1.0 = no-op, as body2 records (child has no lip chroma target; no goal-derived lip ratio exists)",
         "symmetrise.strength": "operator/consult decision: 1.0 default per S/sym/fix_sym.py (same as aisha and body2; recorded per subject)",

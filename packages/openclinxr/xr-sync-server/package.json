@@ -10,6 +10,8 @@
     }
   },
   "scripts": {
+    "dev": "node dist/dev-server.js",
+    "dev:portless": "INSTANCE=\"${XR_SYNC_INSTANCE:-$(basename \"$(git rev-parse --show-toplevel)\")}\"; case \"$INSTANCE\" in xr-sync-*) NAME=\"$INSTANCE\";; *) NAME=\"xr-sync-$INSTANCE\";; esac; XR_SYNC_INSTANCE=\"$NAME\" portless \"$NAME\" node dist/dev-server.js \"$NAME\"",
     "lint": "biome lint --no-errors-on-unmatched .",
     "typecheck": "cellix-tsc --noEmit -p tsconfig.vitest.json",
     "test": "vitest run --root .",

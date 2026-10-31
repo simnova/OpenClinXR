@@ -1,0 +1,25 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/**",
+        "$TURBO_ROOT$/packages/openclinxr/factory-stations/arch-index.json",
+        "$TURBO_ROOT$/packages/openclinxr/stations/face-realism/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-scene/src/eye-shader/eye-sclera-shade.ts",
+        "$TURBO_ROOT$/packages/openclinxr/xr-scene/src/isolated-subject-material-variants.ts",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/realism-head/lid-conform/**",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/reference-set/**",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/skin/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/blender/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/face-defects/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/face-fit/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/face-gate/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/face-shape-clauses/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/second-subject/**"
+      ]
+    }
+  }
+}

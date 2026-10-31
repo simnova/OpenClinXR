@@ -24,7 +24,7 @@
   "peds_patient_child.glb"
  ],
  "bodyCount": 20,
- "materialRowCount": 265,
+ "materialRowCount": 264,
  "refusalRule": "baseColorFactor != [1,1,1] on a material WITH baseColorTexture and no recorded reason = refusal",
  "factorSpreadTexturedNonWhite": {
   "0.34,0.44,0.34": [
@@ -673,7 +673,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -693,7 +693,7 @@
     "literal": "return (0.18, 0.13, 0.10, 1.0)  # nurse / default — mid-dark brown"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, nurse/default role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:159. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:240.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -713,7 +713,7 @@
     "literal": "_GARMENT_COLOR_SCRUB = (0.05, 0.48, 0.52, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). scrub lower, locked scrub colour (untextured cover shell or pre-strip fit). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -734,7 +734,7 @@
    },
    "path": "garment_shell_color scrub lock :1781-1785 -> garment_material_from_declared role_colour -> GARMENT_FACTOR_PATCH :1062-1068 -> patch_glb_base_color_factors :1073-1107",
    "reason": "Untextured role colour [0.05,0.48,0.52]: the factor IS the albedo (no texture to multiply). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711. HB-02 left it unbaked (nothing to fold); recorded in docs/openclinxr/humanoid-albedo-bake-2026-09-10.json. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -751,7 +751,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -773,7 +773,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -795,7 +795,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -817,7 +817,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -839,7 +839,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -861,7 +861,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -883,7 +883,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -905,7 +905,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -922,7 +922,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -942,7 +942,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -962,7 +962,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -982,7 +982,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -1002,7 +1002,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes nurse/fam-partner/gown (rests already +-0.085)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1377,7 +1377,7 @@
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Fitted library garment; no tint authored. Factor absent = glTF default white; the baseColorTexture carries the look. Fit recorded in 13a94960 (feat(humanoid): fit family-partner lower from pants02 bootcut mhclo). Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1394,7 +1394,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1414,7 +1414,7 @@
     "literal": "return (0.16, 0.11, 0.09, 1.0)  # dark brown — the dominant natural shade"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, family role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:156. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:237.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1429,7 +1429,7 @@
    },
    "kind": "baked albedo: HB-02 per-texel fold of muted_rose_and_neutral palette closed_casual x authored weave",
    "decision": "resolved",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1446,7 +1446,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1468,7 +1468,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1490,7 +1490,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1512,7 +1512,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1534,7 +1534,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1556,7 +1556,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1578,7 +1578,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1600,7 +1600,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1617,7 +1617,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1637,7 +1637,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1657,7 +1657,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1677,7 +1677,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1697,7 +1697,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "fc57e5a9d6018e59d5199c9b295aa01b0bb55f79 2026-10-11 tsk_f0666356c7f64d6c: family normalTexture surgical unbind; BIN intact; sidecars re-recorded"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -1714,7 +1714,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -1734,22 +1734,7 @@
     "literal": "return (0.13, 0.09, 0.07, 1.0)  # near-black"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, patient role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:158. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:239.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
-  },
-  {
-   "body": "mpfb-gown-adult-patient.glb",
-   "material": "mat_makeclothes_library_toigo_t_shirt",
-   "baseColorFactor": null,
-   "hasBaseColorTexture": true,
-   "reason": "Baked white by the HB-02 albedo station (bakeGlbAlbedo on the shipped bytes; t-shirt texel x factor folded into the 2048x2048 texture, factor reset to white). Pre-bake factor (0.34, 0.44, 0.34, 1.0) from tools/openclinxr/asset-pipeline/anny/automate_blender.py:1764; recorded in docs/openclinxr/humanoid-albedo-bake-2026-09-10.json. Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "origin": {
-    "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 1764,
-    "literal": "(0.34, 0.44, 0.34, 1.0)"
-   },
-   "kind": "baked albedo: HB-02 per-texel fold of olive palette closed_casual x authored weave",
-   "decision": "resolved",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -1766,7 +1751,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -1788,7 +1773,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -1810,7 +1795,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -1832,7 +1817,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -1854,7 +1839,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -1876,7 +1861,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -1898,7 +1883,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -1920,7 +1905,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -1937,7 +1922,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -1957,7 +1942,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -1977,7 +1962,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -1997,7 +1982,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -2017,7 +2002,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -2037,7 +2022,7 @@
     "literal": "_GARMENT_COLOR_GOWN = (0.15, 0.55, 0.82, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1710. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1793.",
-   "bodyLastChanged": "1814a43c19a4d2b4ce1b1c4d410efa802cf1927e 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2666,7 +2651,7 @@
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Fitted library garment; no tint authored. Factor absent = glTF default white; the baseColorTexture carries the look. Fit recorded in tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-fit-time.json. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2683,7 +2668,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2703,7 +2688,7 @@
     "literal": "return (0.13, 0.09, 0.07, 1.0)  # near-black"
    },
    "reason": "Role-driven hair colour from embed_library_hair hair_color. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:239.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2718,7 +2703,7 @@
    },
    "kind": "baked albedo: HB-02 per-texel fold of olive_knit_and_cream_casual palette closed_casual x authored weave",
    "decision": "resolved",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2733,7 +2718,7 @@
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2753,7 +2738,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2773,7 +2758,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2793,7 +2778,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2813,7 +2798,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2833,7 +2818,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2853,7 +2838,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2873,7 +2858,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2890,7 +2875,7 @@
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2910,7 +2895,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Authored brow colour. Factor IS the albedo (no texture to multiply). Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2930,7 +2915,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Authored lash colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2950,7 +2935,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Authored teeth colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2970,7 +2955,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Authored tongue colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "10768617fd155a1568a4d3b275068b42c9cbeeb2 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "21fad089fe2428edb057b6f2d6df93e3064f8f33 2026-10-30 ci-w12 D1: re-apply recorded #581 gravid treatment to OB patient; re-pin street-male baseline to f82e1cc2e"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -2987,7 +2972,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3007,7 +2992,7 @@
     "literal": "return (0.18, 0.13, 0.10, 1.0)  # nurse / default — mid-dark brown"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, nurse/default role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:159. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:240.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3027,7 +3012,7 @@
     "literal": "_GARMENT_COLOR_SCRUB = (0.05, 0.48, 0.52, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). scrub lower, locked scrub colour (untextured cover shell or pre-strip fit). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3043,7 +3028,7 @@
    },
    "path": "garment_shell_color scrub lock :1781-1785 -> garment_material_from_declared role_colour -> GARMENT_FACTOR_PATCH :1062-1068 -> patch_glb_base_color_factors :1073-1107",
    "reason": "No tint to resolve before bake: factor absent = glTF default white and the baseColorTexture carries the look. Lineage: HB-02 baked pre-bake factor (0.05, 0.48, 0.52, 1.0) from tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711 into the texture (docs/openclinxr/humanoid-albedo-bake-2026-09-10.json); HB-05 face-preserving write normalized the explicit white default to absent (semantically identical). Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3060,7 +3045,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3082,7 +3067,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3104,7 +3089,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3126,7 +3111,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3148,7 +3133,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3170,7 +3155,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3192,7 +3177,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3214,7 +3199,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3231,7 +3216,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3251,7 +3236,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3271,7 +3256,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3291,7 +3276,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3311,7 +3296,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "c743aab613fd1db7129704f4e37d30035b6bfc26 2026-10-30 fix(ci-w11-D3): repair midline breast keyframes kevin/child + fam-partner/ob motion-bind candidates"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3326,7 +3311,7 @@
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Fitted library garment; no tint authored. Factor absent = glTF default white; the baseColorTexture carries the look. Fit recorded in tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-fit-time.json. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3343,7 +3328,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3356,37 +3341,22 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
    "material": "mat_makeclothes_library_toigo_t_shirt",
-   "baseColorFactor": [
-    1,
-    1,
-    1,
-    1
-   ],
+   "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "kind": "baked albedo: HB-02 per-texel fold of muted_rose_and_neutral palette closed_casual x authored weave",
-   "decision": "resolved",
+   "reason": "Baked white by the HB-02 albedo station (bakeGlbAlbedo on the shipped bytes; t-shirt texel x factor folded into the 2048x2048 texture, factor reset to white). Pre-bake factor (0.62, 0.28, 0.38, 1.0) from tools/openclinxr/asset-pipeline/anny/automate_blender.py:1750; recorded in docs/openclinxr/humanoid-albedo-bake-2026-09-10.json. Re-measured 2026-10-30: the live factor is white, whose setter in the tree is the undotted HB-02 bake reset (tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts:307,312 `[1, 1, 1, 1]`) or the materializer white fallback (tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1129); no dotted triple the mechanical literal check can cite exists, so the row honestly declares no literal — the refusal clause decides (white rows are refusal-exempt, the byte-match clause still pins the value). Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
    "origin": {
     "file": "",
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "path": "garment_shell_color palette table (role fallback :1811-1813) -> GARMENT_FACTOR_PATCH -> patch_glb",
-   "reason": "Baked white by the HB-02 albedo station (bakeGlbAlbedo on the shipped bytes; t-shirt texel x factor folded into the 2048x2048 texture, factor reset to white). Pre-bake factor (0.62, 0.28, 0.38, 1.0) from tools/openclinxr/asset-pipeline/anny/automate_blender.py:1750; recorded in docs/openclinxr/humanoid-albedo-bake-2026-09-10.json. Re-measured 2026-10-30: the live factor is white, whose setter in the tree is the undotted HB-02 bake reset (tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts:307,312 `[1, 1, 1, 1]`) or the materializer white fallback (tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1129); no dotted triple the mechanical literal check can cite exists, so the row honestly declares no literal — the refusal clause decides (white rows are refusal-exempt, the byte-match clause still pins the value).",
-   "bakeSource": {
-    "station": "tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts",
-    "report": "docs/openclinxr/humanoid-albedo-bake-2026-09-10.json",
-    "preBakeOrigin": {
-     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-     "line": 1750,
-     "literal": "(0.62, 0.28, 0.38, 1.0)"
-    }
-   },
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "kind": "baked albedo: HB-02 per-texel fold of muted_rose_and_neutral palette closed_casual x authored weave",
+   "decision": "resolved",
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3399,7 +3369,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3419,7 +3389,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3439,7 +3409,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3459,7 +3429,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3479,7 +3449,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3499,7 +3469,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3519,7 +3489,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3539,7 +3509,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3552,7 +3522,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3565,7 +3535,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3578,7 +3548,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3596,7 +3566,7 @@
     "line": 237,
     "literal": "return (0.16, 0.11, 0.09, 1.0)  # dark brown — the dominant natural shade"
    },
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3614,7 +3584,7 @@
     "line": 7091,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "bodyLastChanged": "ceabb545e897d3459c3e0cb267e1f4f01efbe1c4 2026-10-25 fix: restore the pediatric parent albedo through the linear bake station"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3634,7 +3604,7 @@
     "literal": "\"closed_casual\": (0.55, 0.68, 0.80, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lower cover shell = garment_shell_color(_lower_kind,role,palette) (untextured; library trouser replaced by LOWER GATE). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1756. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1839.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3651,7 +3621,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3671,7 +3641,7 @@
     "literal": "return (0.13, 0.09, 0.07, 1.0)  # near-black"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, patient role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:158. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:239.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3687,7 +3657,7 @@
    },
    "path": "garment_shell_color palette table -> GARMENT_FACTOR_PATCH -> patch_glb",
    "reason": "No tint to resolve before bake: factor absent = glTF default white and the baseColorTexture carries the look. Lineage: HB-02 baked the palette factor into the texture (docs/openclinxr/humanoid-albedo-bake-2026-09-10.json); a later glTF write normalized the explicit white default to absent (semantically identical). Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3704,7 +3674,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3726,7 +3696,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3748,7 +3718,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3770,7 +3740,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3792,7 +3762,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3814,7 +3784,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3836,7 +3806,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3858,7 +3828,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3875,7 +3845,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3895,7 +3865,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3915,7 +3885,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3935,7 +3905,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3955,7 +3925,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "281364d881d4e892c5c87905189c2b68250a8b35 2026-10-10 worker: in-scope file commit"
+   "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -3972,7 +3942,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -3992,7 +3962,7 @@
     "literal": "return (0.13, 0.09, 0.07, 1.0)  # near-black"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, patient role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:158. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:239.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4009,7 +3979,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4030,7 +4000,7 @@
    },
    "path": "garment_shell_color palette table :1769-1800 -> GARMENT_FACTOR_PATCH -> patch_glb",
    "reason": "Wardrobe decision, not a station default: olive_knit_and_cream_casual palette closed_casual x authored weave. Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1764; shipped via GARMENT_FACTOR_PATCH + patch_glb_base_color_factors. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1847.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4047,7 +4017,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4069,7 +4039,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4091,7 +4061,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4113,7 +4083,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4135,7 +4105,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4157,7 +4127,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4179,7 +4149,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4201,7 +4171,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4218,7 +4188,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4238,7 +4208,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4258,7 +4228,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4278,7 +4248,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4298,7 +4268,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "9f2934536de8b011a894036e5dcd7212594804b1 2026-09-28 fix(#741): re-apply teeth retreat within tongue headroom, add pre-push instrument step"
+   "bodyLastChanged": "8f20686c37830032679b822b965b92912e183a14 2026-10-30 fix(ci-w11-D3): re-separate chest anchors ob/pp/street (rest 0 to +-0.085, midline keyframes moved)"
   },
   {
    "body": "mpfb-viseme-inspect.glb",

@@ -57,7 +57,7 @@
    "triangleCountBefore": 92430,
    "triangleCountAfter": 69067,
    "bytesBefore": 13170972,
-   "bytesAfter": 10069416,
+   "bytesAfter": 8828240,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "faceBefore": 52778,
    "faceAfter": 52778,
@@ -101,7 +101,7 @@
    ],
    "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
    "lineageNote": "tightjeans re-bake output; second fp-r0.4 pass (2803b774) then albedo bake (42c42140)",
-   "remeasureNote": "Re-measured 2026-10-30: bytes drift, geometry identical. Superseding commit 10768617 (2026-10-10 aisha normal-off proof, sidecar re-recorded)."
+   "remeasureNote": "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical at the decimation grain (tris 69067 / face 52778 / joints 137 all hold; the gravid displacement field moves verts within the same topology). Superseding commits d1c44f8cd (ci-w11 D1 orphan prune, 10069400 -> 8828240 B) and 21fad089f (ci-w12 D1 gravid re-apply on the pruned base, 1104 displacements, anchors verified +-0.085). Prior re-measure (10768617 normal-off proof) preserved in git history."
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -146,7 +146,7 @@
    "triangleCountBefore": 92430,
    "triangleCountAfter": 73012,
    "bytesBefore": 13222500,
-   "bytesAfter": 40911888,
+   "bytesAfter": 18441636,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "faceBefore": 33360,
    "faceAfter": 33360,
@@ -192,7 +192,7 @@
    "lineageNote": "tightjeans re-bake output; second fp-r0.4 pass (2803b774) then albedo bake (42c42140)",
    "noSurvivingRungReason": "The Sep11 fp-r0.4 rung output did not survive the Sep30 mouth rebuild afe8abced (fitted CC0 teeth 192->7120 tris, coverage-reduced brow 35334->8988 per the #597 strand budget, mesh renaming) plus the Oct mouth program; Oct24 lineage ba3e8229e and Oct25 albedo ceabb545e kept the rebuilt geometry (face 33360 / tris 73012 / joints 137 stable since Sep30). Face-retention ratio 1 and the 137-joint invariant now floor this re-measured source; historical pre-rebuild face 52778 preserved in previousFaceBefore.",
    "previousFaceBefore": 52778,
-   "remeasureNote": "Re-measured 2026-10-30: deliberate mouth-program rebuild, NOT a silent loss. Joints 137 throughout; teeth gained triangles. Superseding geometry commit afe8abced (2026-09-30), bytes commit ceabb545e (2026-10-25)."
+   "remeasureNote": "Re-measured 2026-10-30 (ci-w11b): bytes-only drift on the rebuilt source (tris 73012 / face 33360 / joints 137 stable since Sep30). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 19888836 -> 18441636 B). Prior re-measure (deliberate mouth-program rebuild afe8abced / ceabb545e) preserved in git history."
   },
   {
    "body": "mpfb-viseme-inspect.glb",

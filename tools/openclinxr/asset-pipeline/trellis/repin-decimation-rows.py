@@ -61,55 +61,55 @@ def commit_oneline(sha):
 
 # body -> {field: new_value} plus provenance notes. Every after-value is
 # asserted against a fresh live measurement before the row is touched.
+# ci-w11b 2026-10-30: ci-w11 D1 (d1c44f8cd) pruned 5.14 MB of unbound image
+# payload fleet-wide and ci-w12 D1 (21fad089f) re-applied the recorded gravid
+# treatment on the pruned OB base. All five rows below are bytes-only drift:
+# tris/face/joints/hand hold at their pinned values (asserted per row).
 PLAN = {
-    # --- HB-03 rows (bytes/tris only; face+faceBefore+joints untouched) ---
-    "mpfb-clinical-physician-adult.glb": {
-        "bytesAfter": 9618436,
-        "note": ("Re-measured 2026-10-30: bytes-only drift, geometry identical "
-                 "(tris/face/joints match). Superseding commit ef50adee3 "
-                 "(2026-10-29 physician walk-channel repair + scene-freeze regen)."),
-    },
+    # --- HB-03 rows (bytes only; tris/face/hand/joints asserted unchanged) ---
     "mpfb-family-partner-adult.glb": {
-        "bytesAfter": 10529144,
+        "bytesAfter": 9277296,
+        "triangleCountAfter": 39974,
         "handBodyMeshAfter": 13357,
-        "note": ("Re-measured 2026-10-30: bytes + body-mesh drift, face/joints "
-                 "identical. Superseding commit fc57e5a9 (2026-10-11 family "
-                 "normalTexture surgical unbind, sidecars re-recorded)."),
+        "note": ("Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
+                 "(tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding "
+                 "commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior "
+                 "re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."),
     },
     "mpfb-gown-adult-patient.glb": {
-        "bytesAfter": 20462724,
+        "bytesAfter": 6763692,
         "triangleCountAfter": 40277,
-        "textSubs": {"promotionNote": [("64140 <= 80000", "40277 <= 80000")]},
-        "note": ("Re-measured 2026-10-30: Oct8 supine rebake re-based the body "
-                 "(tris 64140->42693 at d10314025, ->40277 at 4aaf5ba16; bytes "
-                 "final at 1814a43c 2026-10-10). Face 14357 and 138 joints "
-                 "unchanged throughout; ratio-1 floor and joint invariant hold "
-                 "on the re-measured source."),
+        "handBodyMeshAfter": 14928,
+        "note": ("Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
+                 "(tris 40277 / face 14357 / hand 14928 / joints 138 all hold). Superseding "
+                 "commit d1c44f8cd (ci-w11 D1 orphan prune incl. a dead T-shirt material, "
+                 "20462724 -> 6763692 B). Prior re-measure (d10314025/4aaf5ba16 supine "
+                 "rebake, 1814a43c1 byte-lineage) preserved in git history."),
     },
-    # --- HB-05 rows (bytes only except peds-parent) ---
-    "mpfb-gown-inspect.glb": {
-        "bytesAfter": 7922732,
-        "note": ("Re-measured 2026-10-30: +284B metadata drift, geometry identical. "
-                 "Superseding commit 9f2934536 (2026-09-28 #741 teeth-retreat re-apply)."),
+    "mpfb-peds-patient-child.glb": {
+        "bytesAfter": 10418728,
+        "triangleCountAfter": 77422,
+        "handBodyMeshAfter": 26756,
+        "note": ("Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
+                 "(tris 77422 / face 39260 / hand 26756 / joints 137 all hold). Superseding "
+                 "commit d1c44f8cd (ci-w11 D1 orphan prune, 11743252 -> 10418728 B). Prior "
+                 "re-measures (walk bind 91aa4b5d3, travel 7d71273e3, teeth 9f2934536) "
+                 "preserved in git history."),
     },
+    # --- HB-05 rows ---
     "mpfb-ob-patient-aisha.glb": {
-        "bytesAfter": 10069416,
-        "note": ("Re-measured 2026-10-30: bytes drift, geometry identical. "
-                 "Superseding commit 10768617 (2026-10-10 aisha normal-off proof, "
-                 "sidecar re-recorded)."),
-    },
-    "mpfb-peds-nurse-kevin.glb": {
-        "bytesAfter": 7894888,
-        "note": ("Re-measured 2026-10-30: bytes drift, geometry identical. "
-                 "Superseding commit 9f2934536 (2026-09-28 #741 teeth-retreat re-apply)."),
-    },
-    "mpfb-viseme-inspect.glb": {
-        "bytesAfter": 13933096,
-        "note": ("Re-measured 2026-10-30: +280B metadata drift, geometry identical. "
-                 "Superseding commit 9f2934536 (2026-09-28 #741 teeth-retreat re-apply)."),
+        "bytesAfter": 8828240,
+        "triangleCountAfter": 69067,
+        "note": ("Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
+                 "at the decimation grain (tris 69067 / face 52778 / joints 137 all hold; "
+                 "the gravid displacement field moves verts within the same topology). "
+                 "Superseding commits d1c44f8cd (ci-w11 D1 orphan prune, 10069400 -> "
+                 "8828240 B) and 21fad089f (ci-w12 D1 gravid re-apply on the pruned base, "
+                 "1104 displacements, anchors verified +-0.085). Prior re-measure "
+                 "(10768617 normal-off proof) preserved in git history."),
     },
     "mpfb-peds-parent-aisha.glb": {
-        "bytesAfter": 40911888,
+        "bytesAfter": 18441636,
         "triangleCountAfter": 73012,
         "faceBefore": 33360,
         "faceAfter": 33360,
@@ -122,9 +122,11 @@ PLAN = {
             "and the 137-joint invariant now floor this re-measured source; historical "
             "pre-rebuild face 52778 preserved in previousFaceBefore."),
         "previousFaceBefore": 52778,
-        "note": ("Re-measured 2026-10-30: deliberate mouth-program rebuild, NOT a silent loss. "
-                 "Joints 137 throughout; teeth gained triangles. Superseding geometry commit "
-                 "afe8abced (2026-09-30), bytes commit ceabb545e (2026-10-25)."),
+        "note": ("Re-measured 2026-10-30 (ci-w11b): bytes-only drift on the rebuilt source "
+                 "(tris 73012 / face 33360 / joints 137 stable since Sep30). Superseding commit "
+                 "d1c44f8cd (ci-w11 D1 orphan prune, 19888836 -> 18441636 B). Prior re-measure "
+                 "(deliberate mouth-program rebuild afe8abced / ceabb545e) preserved in git "
+                 "history."),
     },
 }
 
@@ -137,8 +139,6 @@ def main():
         for body, plan in PLAN.items():
             if body not in rows:
                 continue
-            if key == "HB03" and body == "mpfb-peds-parent-aisha.glb":
-                continue  # historical record only; the HB-05 row governs this body
             row = rows[body]
             m = live(body)
             for field in ("bytesAfter", "triangleCountAfter", "faceAfter", "faceBefore",

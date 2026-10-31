@@ -1,0 +1,132 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "factoryStationSchemas",
+        "kind": "runtime"
+      },
+      {
+        "name": "PRODUCTION_STATION_IDS",
+        "kind": "runtime"
+      },
+      {
+        "name": "repoRoot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/station-face-realism",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "assertNoModelStage",
+        "kind": "runtime"
+      },
+      {
+        "name": "cfgPinOrNull",
+        "kind": "runtime"
+      },
+      {
+        "name": "EYE_SHADE_ATTEN",
+        "kind": "runtime"
+      },
+      {
+        "name": "EYE_SHADE_BAND_M",
+        "kind": "runtime"
+      },
+      {
+        "name": "EYE_SHADE_DARKEN",
+        "kind": "runtime"
+      },
+      {
+        "name": "EYE_SHADE_REPORT_REL",
+        "kind": "runtime"
+      },
+      {
+        "name": "FACE_REALISM_FIXTURE_ALBEDO_REL",
+        "kind": "runtime"
+      },
+      {
+        "name": "faceRealismModelCallCount",
+        "kind": "runtime"
+      },
+      {
+        "name": "faceRealismRunner",
+        "kind": "runtime"
+      },
+      {
+        "name": "pinGate",
+        "kind": "runtime"
+      },
+      {
+        "name": "planChainManifest",
+        "kind": "runtime"
+      },
+      {
+        "name": "planFaceRealism",
+        "kind": "runtime"
+      },
+      {
+        "name": "planFaceRealismStation",
+        "kind": "runtime"
+      },
+      {
+        "name": "prepareFixtureReplayDir",
+        "kind": "runtime"
+      },
+      {
+        "name": "replayEyeShade",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveRunDir",
+        "kind": "runtime"
+      },
+      {
+        "name": "runFaceRealism",
+        "kind": "runtime"
+      },
+      {
+        "name": "runReplayChain",
+        "kind": "runtime"
+      },
+      {
+        "name": "runStage3Chain",
+        "kind": "runtime"
+      },
+      {
+        "name": "runStage5",
+        "kind": "runtime"
+      },
+      {
+        "name": "sanitizedFaceRealismEnv",
+        "kind": "runtime"
+      },
+      {
+        "name": "stage3EntryKind",
+        "kind": "runtime"
+      },
+      {
+        "name": "stage4OutputStem",
+        "kind": "runtime"
+      },
+      {
+        "name": "toneAnchorGate",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

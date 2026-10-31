@@ -1,0 +1,34 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "factoryStationSchemas",
+        "kind": "runtime"
+      },
+      {
+        "name": "repoRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "StationPlanResult",
+        "kind": "type"
+      },
+      {
+        "name": "StationRunner",
+        "kind": "type"
+      }
+    ]
+  }
+]

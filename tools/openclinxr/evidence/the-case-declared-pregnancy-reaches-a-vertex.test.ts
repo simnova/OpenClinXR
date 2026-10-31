@@ -124,7 +124,7 @@ const UNCHANGED_MM = 4; // chest/hip must not move: this is what refuses whole-b
  *  facts as the planted table under today's union-of-primitives instrument. */
 const BASELINE: Record<string, { chest: number; abdomen: number; hip: number }> = {
   "mpfb-ob-patient-aisha.glb": { chest: 192.5, abdomen: 246.5, hip: 216.5 },
-  "mpfb-street-adult-male.glb": { chest: 198, abdomen: 243.4, hip: 215.4 },
+  "mpfb-street-adult-male.glb": { chest: 215, abdomen: 240.6, hip: 207.8 }, // ci-w12 re-recorded 2026-10-30: chest 198 -> 215.0 first appears at f82e1cc2e (2026-08-27 #683 fitted-eyelash regen of all 12 GLBs) and is stable through every later fleet commit (a55067d11, 91b126070, 9f2934536); restoring 198 would revert the body to pre-eyelash bytes. Abdomen/hip measured at the same rev.
   // #568 re-recorded 2026-08-26: family partner rebaked through the current materializer
   // (#670 pins gender 0.0 from the case; the pre-#670 bake used the neutral macro), which
   // narrowed the chest; was 190/233.7/207.

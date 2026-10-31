@@ -13,12 +13,13 @@ This file is worker-reconciled against live consumers. Independent claim-to-cons
 Computed from `report.json` `actorAssetSha256` vs sha256 of
 `apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb`.
 
-Report `4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9`,
-disk `4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9`,
+Report `3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb`,
+disk `3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb`,
 classification `current-actor-bound`.
 If those hashes later diverge, classification must become `identity-stale`. Do not freeze stale.
-Re-attested by ci-closure lane 2026-10-30 after cf0325e8 (report.json re-measured
-2026-10-30 on the Sep28 nurse actor) and 9f2934536 (nurse actor last changed):
+Re-attested by ci-closure lane 2026-10-30 after 6aa3518d4 (report.json +
+runtime-goal-eval.json re-measured 2026-10-30 on the D3-repaired nurse actor)
+and d0e2104d3 (nurse actor last changed):
 the Oct30 capture was measured against the current actor, so recording these
 hashes binds retained images to the inputs they were measured on — not greened
 by editing. Any later actor rebake re-opens identity-stale; rewriting hashes

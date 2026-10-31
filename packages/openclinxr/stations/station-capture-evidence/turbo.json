@@ -1,0 +1,37 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/**",
+        "$TURBO_ROOT$/tools/openclinxr/staging-solver/test-fixtures/**",
+        "$TURBO_ROOT$/docs/openclinxr/humanoid-vetting-captures/**",
+        "$TURBO_ROOT$/apps/ui-xr/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/conversation-policy/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/exam-assembly/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/scenario-fixtures/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/shared-schemas/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-actor-dialogue/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-asset-loading/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-capture-evidence/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-dialogue/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-exam-flow/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-humanoid-animation/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-locomotion/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-pose/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-runtime-state/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-runtime-wiring/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-scene/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-scene-cues/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-station/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-station-room/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-trace-readiness/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/**/package.json"
+      ]
+    }
+  }
+}

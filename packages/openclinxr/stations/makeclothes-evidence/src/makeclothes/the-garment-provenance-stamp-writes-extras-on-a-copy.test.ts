@@ -1,0 +1,118 @@
+import { execFileSync } from "node:child_process";
+import { copyFileSync, existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { NodeIO } from "@gltf-transform/core";
+import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+
+/**
+ * The bake knows the .mhclo at fit time and discards it. This station stamps
+ * sourceMhclo/licence/garmentClass onto a COPY. It must not rewrite shipped bytes
+ * on --dry, and it must not call a t-shirt a gown.
+ *
+ * claimScope: extras on a temp copy; clauses 2/3 use the t-shirt-bearing peds-parent GLB.
+ * notEvidenceFor: how the garment looks; swapping the peds upper shell for a gown.
+ */
+
+const REPO_ROOT = repoRoot();
+const STATION = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/garment-provenance-stamp.ts");
+const TSHIRT = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb");
+const SHIPPED = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb");
+const NURSE = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");
+
+describe("garment-provenance-stamp writes extras on a copy", () => {
+  it("(1) --dry on the shipped gown patient writes nothing", () => {
+    expect(existsSync(SHIPPED), "required fixture SHIPPED").toBe(true);
+    const before = readFileSync(SHIPPED);
+    const out = execFileSync("pnpm", ["exec", "tsx", STATION, SHIPPED, "--dry"], {
+      cwd: REPO_ROOT,
+      encoding: "utf8",
+      timeout: 120_000,
+    });
+    const report = JSON.parse(out) as { action: string; meshes: unknown[] };
+    expect(report.action).toMatch(/no write/);
+    expect(report.meshes.length).toBeGreaterThan(0);
+    expect(readFileSync(SHIPPED).equals(before), "shipped GLB bytes unchanged").toBe(true);
+  });
+
+  it("(2) a temp copy receives sourceMhclo extras and the t-shirt is not classed gown", async () => {
+    expect(existsSync(TSHIRT), "required fixture TSHIRT").toBe(true);
+    const dir = mkdtempSync(join(tmpdir(), "ocxr-garment-stamp-"));
+    const copy = join(dir, "gown-copy.glb");
+    copyFileSync(TSHIRT, copy);
+    execFileSync("pnpm", ["exec", "tsx", STATION, copy], {
+      cwd: REPO_ROOT,
+      encoding: "utf8",
+      timeout: 120_000,
+    });
+    const doc = await new NodeIO().read(copy);
+    const tshirt = doc.getRoot().listMeshes().find((m) => /toigo_t_shirt/i.test(m.getName()));
+    expect(tshirt, "t-shirt mesh").toBeTruthy();
+    const extras = (tshirt?.getExtras() ?? {}) as {
+      sourceMhclo?: string;
+      licence?: string;
+      garmentClass?: string;
+    };
+    expect(extras.sourceMhclo).toMatch(/toigo_t_shirt/);
+    expect(extras.licence).toBe("CC0");
+    expect(extras.garmentClass).toBe("tshirt");
+    expect(extras.garmentClass).not.toBe("gown");
+  });
+
+  it("(3) does not overwrite sourceMhclo that fit_stage already wrote", async () => {
+    expect(existsSync(TSHIRT), "required fixture TSHIRT").toBe(true);
+    const dir = mkdtempSync(join(tmpdir(), "ocxr-garment-stamp-keep-"));
+    const copy = join(dir, "gown-copy.glb");
+    copyFileSync(TSHIRT, copy);
+    const io = new NodeIO();
+    const planted = await io.read(copy);
+    const tshirt = planted.getRoot().listMeshes().find((m) => /toigo_t_shirt/i.test(m.getName()));
+    expect(tshirt, "t-shirt mesh").toBeTruthy();
+    tshirt?.setExtras({
+      ...(tshirt.getExtras() ?? {}),
+      sourceMhclo: "bake-known-from-fit-stage.mhclo",
+      licence: "CC0",
+      garmentClass: "tshirt",
+    });
+    await io.write(copy, planted);
+    const out = execFileSync("pnpm", ["exec", "tsx", STATION, copy], {
+      cwd: REPO_ROOT,
+      encoding: "utf8",
+      timeout: 120_000,
+    });
+    const report = JSON.parse(out) as { meshes: Array<{ mesh: string; skippedExisting?: boolean }> };
+    expect(
+      report.meshes.some((m) => /toigo_t_shirt/i.test(m.mesh) && m.skippedExisting === true),
+      "t-shirt skipped as existing",
+    ).toBe(true);
+    const after = await new NodeIO().read(copy);
+    const extras = (after.getRoot().listMeshes().find((m) => /toigo_t_shirt/i.test(m.getName()))?.getExtras() ??
+      {}) as { sourceMhclo?: string };
+    expect(extras.sourceMhclo).toBe("bake-known-from-fit-stage.mhclo");
+  });
+
+  it("(4) a nurse copy records WojackOWL CC-BY scrubs, not a gown class", async () => {
+    expect(existsSync(NURSE), "required fixture NURSE").toBe(true);
+    const dir = mkdtempSync(join(tmpdir(), "ocxr-garment-stamp-nurse-"));
+    const copy = join(dir, "nurse-copy.glb");
+    copyFileSync(NURSE, copy);
+    execFileSync("pnpm", ["exec", "tsx", STATION, copy], {
+      cwd: REPO_ROOT,
+      encoding: "utf8",
+      timeout: 120_000,
+    });
+    const doc = await new NodeIO().read(copy);
+    const shirt = doc.getRoot().listMeshes().find((m) => /scrub_shirt/i.test(m.getName()));
+    expect(shirt, "scrub shirt mesh").toBeTruthy();
+    const extras = (shirt?.getExtras() ?? {}) as {
+      sourceMhclo?: string;
+      licence?: string;
+      garmentClass?: string;
+    };
+    expect(extras.sourceMhclo).toBe("Scrub_Shirt.mhclo");
+    expect(extras.licence).toBe("CC-BY");
+    expect(extras.garmentClass).toBe("scrub_shirt");
+    expect(extras.garmentClass).not.toBe("gown");
+  });
+});

@@ -69,8 +69,8 @@ def _case_brow_form(subject: str) -> str:
         if (root / "pnpm-workspace.yaml").exists():
             break
         root = root.parent
-    inputs_path = (root / "packages" / "openclinxr" / "factory-stations"
-                   / "src" / "face_realism" / "case-inputs.json")
+    inputs_path = (root / "packages" / "openclinxr" / "stations"
+                   / "face-realism" / "src" / "case-inputs.json")
     doc = json.loads(inputs_path.read_text())
     for _case_id, rec in doc.get("cases", {}).items():
         chain_subject = (rec.get("chain_subject") or {}).get("value")

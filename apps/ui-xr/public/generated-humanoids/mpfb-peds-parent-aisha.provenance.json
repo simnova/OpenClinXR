@@ -83,12 +83,16 @@
     "2026-10-06 ff-cover-behind (operator: upper incisors visible resting on the lower lip, lip behind the incisor front face; sound/motion sync): seat-teeth-on-lip-rim.ts --ff-lip-contact now runs a cover-behind tuck after the contact fixed point (contact pins unchanged: ffGap 12.530 to 0.232, 4 passes, 322 verts, worst correction 17.587mm): each in-span lower-lip patch vert ahead of (incisor front face - 0.5mm) retreats along head-forward by iterated quadratic falloff (face-pullback rule, 16-pass bound, 1um stop) with a lateral cosine skirt to zero at the commissure (measured span/commissure, C1 both ends; commissure untouched); 102 verts, worst 8.384mm, 7 passes, final edge gap 0.034mm, min clearance -0.001mm, mesh-neighbor jump 4.22mm. Rim transfer recomputes lower-teeth FF from the covered rim; other 14 visemes bitwise; upper-arch base/skinning/morphs still pre-image verbatim. Same pre-image 202ec91134a7, same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215. Runtime cue lead 1/3s (RUNTIME_CUE_LEAD_S, jaw group-delay closed form 2/6, internal only): jaw aperture lag +333.3ms to +33.3ms, lip-gap blend +266.7ms to -66.7ms; lip weights bit-equal modulo the 10-frame lead, contact reach >= 0.9, jitter outside contact 0.171862 unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
     "2026-10-06 ff-pressed-lips (operator: FF stays pressed lips on this rig [DECISION], PP seal unchanged): seat-teeth-on-lip-rim.ts --ff-lip-contact retires the ae7396f2f cover-behind tuck (11.95mm span-edge jump at 2.34x the 5.102 SS max, 2 LM-interior inverted tris, 14.2mm Z trough behind a 5.17mm Y slit) and the 69a2fb016 incisal-edge contact (10.55mm own cliff, 2.07x SS). Single press solve instead: lower outer curtain edge (nearest-to-upper-edge non-head vert in the central half-span band, forward of the incisor face, below the upper edge) meets the upper-lip edge (dominant-head, in-span, forward, min-y) to the 0.2mm render target, full 3D, 1 pass (before 1.542 to after 0.249, worst correction 1.342mm over a 1184-vert domain). Cosine BFS-ring falloff (rung-3 set {8,10,12}, committed 8 by the 3.0mm predicted-jump budget, predicted 0.303) with head-joint verts pinned at 0, so upper lip/nose/scalp never ride; the mouth aperture is a mesh hole, so the pressed boundary rings meet across it with no shared edge. Total FF adjacent vector jump 3.346mm (0.66x SS, was 2.34x), LM-interior inversions 0, whole-body 0. Rim transfer recomputes lower-teeth FF from the pressed rim; teeth base/skinning, all vowel deltas, body PP and every non-FF morph are bitwise identical to the ae7396f2f bytes. Same pre-image 202ec91134a7 (recovered: 46a609068, predates the GLB path rename; producer-preimage.ts now follows renames, depth 32), same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215, honest rest 5.575mm, rigid. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
     "2026-10-07 tongue-TH (operator option C: TH shows the tongue tip between the incisors): seat-teeth-on-lip-rim.ts always solves a viseme_TH POSITION delta on openclinxr_fitted_tongue_mpfb_parent_tara_johnson_v1_mesh via tools/openclinxr/asset-pipeline/makeclothes/tongue-th-morph.ts (tip = max bind-z vert 116 of 253; front 30% of bind length at full weight, cosine falloff to the root; per-vertex inverse of the blended skinning rotation through the head world frame so the skinned tip lands on target). Same pre-image 202ec91134a7, same --target-gap-mm 3.743, --down-gain 1.25, --rest-drop-mm 4.215, --ff-lip-contact (plan pins unchanged: rim 76/tris 96, rigid, ffGap 0.249, honest rest 5.575; body and teeth accessors byte-identical to the ff-pressed-lips bytes). Tip lands centered on the edge span, midway between the incisal edges (-18.979/-32.742), 2.5mm ahead of the incisal face (residual 0.000mm); clearances upper 1.876 / lower 3.913 / lip 5.735mm, inverted tris 0. The tongue carries no other target, so other visemes resolve to nothing on it. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
-    "2026-10-21 physical correction: normal seat-teeth-ff1-open08.ts on the metadata-stamped 53d input produces 2e2561 with teeth matching the independently checked 3557 reference. Historical seating and garment-stamp receipts remain separate stages. Physical/lip-sync scope only; existing gum-detail appearance caveat and all readiness restrictions remain."
+    "2026-10-21 physical correction: normal seat-teeth-ff1-open08.ts on the metadata-stamped 53d input produces 2e2561 with teeth matching the independently checked 3557 reference. Historical seating and garment-stamp receipts remain separate stages. Physical/lip-sync scope only; existing gum-detail appearance caveat and all readiness restrictions remain.",
+    "2026-10-30 ci-w11 D2 (texture-grade, not rebake): graded the 3 dwarfing textures in place via tools/openclinxr/evidence/humanoid-vetting/grade-tara-oversize-textures.py. tightjeans 5441511 B PNG -> 1196954 B (byte-exact reuse of committed tightjeans-2048-q85.jpg); AuburnHair 8344296 B 3600px RGBA -> 1308440 B 1024px PNG (stays PNG: material alphaMode=MASK cutoff 0.2, alpha load-bearing); BakedHairNORMAL 10260549 B 3600px -> 517964 B 2048px JPEG q85 (alpha asserted all-opaque before conversion). File 40911888 -> 19889056 B (-21022832). Max/median 11.88x -> 2.11x, under the 3.0x gate. No geometry, material, joint, animation, or other-texture byte touched (buffer surgery; meshes 10, materials 17, tris 73012, joints 137, animations 2, orphan 744895 preserved for the D1 prune). Report: tools/openclinxr/evidence/humanoid-vetting/tara-grade-2026-10-30.json. Gate: tools/openclinxr/evidence/humanoid-vetting/no-shipped-humanoid-texture-dwarfs-its-peers.test.ts. runtimeRole unchanged (intermediate_bake).",
+    "2026-10-30 ci-w11 D3 (chest-anchor re-separation, post-bake stage, not rebake): default mode: rest 0.00000 -> +-0.085 (afe8abced/ceabb545e-era rebakes had zeroed the #0 separation); moved 2 ClinicalIdleConversation keyframes per joint with the rests. y/z untouched. Applied on the D2-graded bytes (5792dd39c). Tool: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs (half-span 0.085, uniform with nurse known-good 1f5519d2).",
+    "2026-10-30 ci-w11 D1 (orphan prune, not rebake): gltf-transform prune 4.3.0, same tool and flags as #555. Removed unreferenced T-shirt_basic.png duplicate (744895 B; the bound T-shirt_basic.png at 590538 B is kept). File 19888836 -> 18441636 B. Bound invariants held: boundTextures 11, boundBytes 10641749, meshes 10, materials 17, tris 73012, joints 137, animations 2.",
+    "2026-10-30 ci-w11b (pre-image pointer restored, not rebake): preImageSha256/preImageBytes return to 202ec91134a7/40215924 (the seat producer's true input at 46a609068; its output 5cab6676/40345712 B is the seat-stage pin the garment stamp input and mouth-physical baseline both record). The ci-w11 pointer at 2b2f098e (D2-graded bytes) is post-seat — the tongue already carries viseme_TH there and the mouth-closedform tuning (bound to 202ec911) refuses it — so the seat chain could not reproduce from it. Verified by re-running the seat producer CLI on the 202ec911 bytes: output 5cab66767a6b/40345712 B byte-exact. D2/D3/D1 above remain post-seat stages on the shipped bytes."
   ],
   "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
   "promotionGates": false,
-  "outputSha256": "86b0f17dccaa09ff4f75fbe32ad74c7bcc8fd56cd8e264e056f46473288aec4b",
-  "outputBytes": 40911888,
+  "outputSha256": "ebbd55df60bac05218d8d0b89ef33f67923bc90ab3caf774bd760e76d7643ecb",
+  "outputBytes": 18441636,
   "fitTimeLower": {
     "garment": "punkduck_female_tight_jeans",
     "sourceObjFaces": 2108,
@@ -829,5 +833,40 @@
         }
       ]
     }
+  },
+  "textureGrade": {
+    "tool": "tools/openclinxr/evidence/humanoid-vetting/grade-tara-oversize-textures.py",
+    "toolSha256": "4c7e29a115e7498f2b9768e6d531ad8e594111deb92dd5cf8a81dd6c54a34b19",
+    "gradedTightjeans": "tools/openclinxr/evidence/humanoid-vetting/tightjeans-2048-q85.jpg",
+    "gradedTightjeansSha256": "03f4b5e89b391ddd8b80f753ed4db56a2829eebae4380fb7c4a37bb9d5cde3e7",
+    "gradedTightjeansBytes": 1196954,
+    "inputSha256": "86b0f17dccaa09ff4f75fbe32ad74c7bcc8fd56cd8e264e056f46473288aec4b",
+    "inputBytes": 40911888,
+    "outputSha256": "2b2f098e8b79efa57591c9aeb9e4994c20678098790ed2cbad5d435e2f1a7920",
+    "outputBytes": 19889056,
+    "commit": "85468f2f5 (ci-w11 D2)",
+    "claimScope": "texture-grade only: 3 dwarfing images re-encoded in place; no geometry, material, joint, animation, or other-texture byte touched"
+  },
+  "chestAnchorReseparation": {
+    "tool": "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
+    "toolSha256": "478e04cd2d22927b5bb72f26c8783eead11dee2d82cd333a81459e2f391e7634",
+    "halfSpanM": 0.085,
+    "inputSha256": "2b2f098e8b79efa57591c9aeb9e4994c20678098790ed2cbad5d435e2f1a7920",
+    "inputBytes": 19889056,
+    "outputSha256": "c197b44bd7e9dd850db2cab87b365881ae238dfcb5fda0f0d3f431fe4dca5bf5",
+    "outputBytes": 19888836,
+    "commit": "8f20686c3 (ci-w11 D3)",
+    "claimScope": "chest-anchor re-separation only: breast.L/R rest x to +-0.085, 2 moved ClinicalIdleConversation keyframes per joint; y/z untouched"
+  },
+  "orphanPrune": {
+    "tool": "gltf-transform prune",
+    "toolVersion": "4.3.0",
+    "toolFlags": "--keep-attributes true --keep-indices true",
+    "inputSha256": "c197b44bd7e9dd850db2cab87b365881ae238dfcb5fda0f0d3f431fe4dca5bf5",
+    "inputBytes": 19888836,
+    "outputSha256": "ebbd55df60bac05218d8d0b89ef33f67923bc90ab3caf774bd760e76d7643ecb",
+    "outputBytes": 18441636,
+    "commit": "d1c44f8cd (ci-w11 D1)",
+    "claimScope": "orphan prune only: removed unreferenced T-shirt_basic.png duplicate (744895 B); bound textures/bytes, meshes, materials, tris, joints, animations hold"
   }
 }
