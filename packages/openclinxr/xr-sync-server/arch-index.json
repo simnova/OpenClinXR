@@ -43,6 +43,7 @@
     "src/xr-sync-c8-observer-rotation.test.ts",
     "src/xr-sync-c8-rotation-hardening.test.ts",
     "src/xr-sync-c9-session-review-index.test.ts",
+    "src/xr-sync-loopback-bind.test.ts",
     "src/xr-sync-server.test.ts"
   ],
   "commands": {

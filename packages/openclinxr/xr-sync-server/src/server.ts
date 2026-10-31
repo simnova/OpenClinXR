@@ -145,7 +145,9 @@ export async function createEncounterServer(
   } else {
     server.define(ENCOUNTER_ROOM_NAME, ConfiguredEncounterRoom);
   }
-  await server.listen(options.port ?? 0);
+  // Loopback only: the url dials 127.0.0.1, and a wildcard bind lets another
+  // process take 127.0.0.1:<port> on macOS and answer this server's clients.
+  await server.listen(options.port ?? 0, "127.0.0.1");
   const address = httpServer.address() as AddressInfo | null;
   const port = address?.port ?? options.port ?? 0;
 
