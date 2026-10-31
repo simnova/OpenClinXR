@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: a full viseme timeline is baked for every case and nothing loads it, so a learner sees
@@ -42,7 +43,7 @@ import { describe, expect, it } from "vitest";
  *   Rhubarb owns and this does not re-measure.
  */
 
-const REPO = join(import.meta.dirname, "../../..");
+const REPO = repoRoot();
 const CUES = join(REPO, ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-lip-sync/utterance-6539634edf.mouth-cues.json");
 const REPORT = join(REPO, "tools/openclinxr/evidence/viseme-runtime-application.json");
 const WIRE = join(REPO, "packages/openclinxr/xr-dialogue/src/viseme-runtime-wire.ts");

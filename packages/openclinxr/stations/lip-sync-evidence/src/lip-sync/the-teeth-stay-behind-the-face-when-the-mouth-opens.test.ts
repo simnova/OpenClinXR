@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { NodeIO } from "@gltf-transform/core";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * #738 / asset-pipeline-lead.
@@ -72,8 +74,9 @@ import { describe, expect, it } from "vitest";
  * Clause (1) flipped `it.fails` -> `it`.
  */
 
-const GLB = "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb";
-const CAP_SOURCE = "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
+const REPO_ROOT = repoRoot();
+const GLB = join(REPO_ROOT, "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-peds-parent-aisha.motion-bind.glb");
+const CAP_SOURCE = join(REPO_ROOT, "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts");
 const BODY = "mpfb_peds_anxious_parent_body";
 const SKIN_MAT = "mpfb_skin_peds_anxious_parent";
 const TEETH = "openclinxr_hm08_teeth_mpfb_peds_anxious_parent_mesh";

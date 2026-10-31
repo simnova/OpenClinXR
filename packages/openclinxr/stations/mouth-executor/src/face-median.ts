@@ -5,7 +5,7 @@
  * The tools module re-exports this file; behavior is unchanged.
  *
  * This is the same computation as the #739 population gate
- * (tools/openclinxr/evidence/every-humanoids-teeth-stay-behind-its-own-face.test.ts),
+ * (packages/openclinxr/stations/lip-sync-evidence/src/lip-sync/every-humanoids-teeth-stay-behind-its-own-face.test.ts),
  * factored so the producer imports it instead of reimplementing it: teeth AABB
  * (max z, y band, x half-width) over every teeth primitive, skin median z inside
  * that band with the `mouth-open` morph at weight w, margins median minus teeth

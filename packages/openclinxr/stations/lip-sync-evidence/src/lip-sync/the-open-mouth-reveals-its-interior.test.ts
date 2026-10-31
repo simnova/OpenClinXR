@@ -1,5 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * **OBSERVABLE: when an actor says "aa", a learner can see into the mouth.**
@@ -62,7 +64,8 @@ import { describe, expect, it } from "vitest";
  * numbers; `open-mouth-interior.json` is regenerated on the baked GLB.
  */
 
-const ARTIFACT = "tools/openclinxr/evidence/open-mouth-interior.json";
+const REPO_ROOT = repoRoot();
+const ARTIFACT = join(REPO_ROOT, "tools/openclinxr/evidence/open-mouth-interior.json");
 
 /** #0 measured on the baked inspect GLB — pinned so a silent remeasure rewrite cannot relabel the open mouth as sealed. */
 const MEASURED_AA_GAP = 0.023833762854337692;
@@ -139,7 +142,7 @@ describe("the open mouth reveals its interior", () => {
   it("(3) COUNTERWEIGHT: the teeth are not deleted, hidden, or replaced to reach a verdict", async () => {
     // The three cheap greens this refuses: drop the teeth mesh so nothing is expected; mark it
     // invisible and call the question moot; swap the inspect GLB for one baked to pass.
-    const GLB = "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb";
+    const GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb");
     expect(existsSync(GLB), "the inspect GLB must still exist").toBe(true);
     const { NodeIO } = await import("@gltf-transform/core");
     const doc = await new NodeIO().read(GLB);

@@ -1,5 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * #730 / xr-systems-architect.
@@ -79,8 +81,9 @@ import { describe, expect, it } from "vitest";
  * `openclinxr_cheek_tension -> null`. Frames are graded by the orchestrator.
  */
 
-const REPORT = "tools/openclinxr/evidence/mouth-open-channel.json";
-const CAP_SOURCE = "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
+const REPO_ROOT = repoRoot();
+const REPORT = join(REPO_ROOT, "tools/openclinxr/evidence/mouth-open-channel.json");
+const CAP_SOURCE = join(REPO_ROOT, "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts");
 
 /** Read the graded cap from its source rather than restating it (SS9h known-good). */
 function gradedCap(): number {

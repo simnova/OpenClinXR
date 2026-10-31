@@ -777,7 +777,7 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[], commi
         "exec",
         "vitest",
         "run",
-        "tools/openclinxr/evidence/every-humanoids-teeth-stay-behind-its-own-face.test.ts",
+        "packages/openclinxr/stations/lip-sync-evidence/src/lip-sync/every-humanoids-teeth-stay-behind-its-own-face.test.ts",
       ],
       reason:
         "a rewritten humanoid GLB can silently drop the #739 teeth retreat — the instrument must run before the bytes leave the machine",

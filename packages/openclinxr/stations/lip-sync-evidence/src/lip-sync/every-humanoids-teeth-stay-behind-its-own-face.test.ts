@@ -1,6 +1,8 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { NodeIO } from "@gltf-transform/core";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * #739 / asset-pipeline-lead.
@@ -81,8 +83,9 @@ import { describe, expect, it } from "vitest";
  * Clauses (1) and (2) flipped `it.fails` -> `it`.
  */
 
-const DIR = "apps/ui-xr/public/generated-humanoids";
-const CAP_SOURCE = "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
+const REPO_ROOT = repoRoot();
+const DIR = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
+const CAP_SOURCE = join(REPO_ROOT, "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts");
 
 /** The runtime's morph weight, read from source so a re-sweep binds automatically. */
 function runtimeCap(): number {

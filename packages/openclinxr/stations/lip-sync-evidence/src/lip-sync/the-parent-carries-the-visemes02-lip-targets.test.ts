@@ -1,8 +1,8 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * #462 — the visemes02 bake works and the shipped parent never got it. D1/D11.
@@ -77,13 +77,12 @@ import { describe, expect, it } from "vitest";
  * kept (resolver-swap refusal).
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const GEN = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 const PARENT = join(GEN, "mpfb-peds-parent-aisha.glb");
 const INSPECT = join(GEN, "mpfb-viseme-inspect.glb");
 const APPLY = join(REPO_ROOT, "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts");
-const LEDGER = join(HERE, "parent-visemes02.json");
+const LEDGER = join(REPO_ROOT, "tools/openclinxr/evidence/parent-visemes02.json");
 
 /** The 15 targets the proven E6.3 bake emits, read off the inspect GLB, not typed by me. */
 const EXPECTED_VISEME_COUNT = 15;

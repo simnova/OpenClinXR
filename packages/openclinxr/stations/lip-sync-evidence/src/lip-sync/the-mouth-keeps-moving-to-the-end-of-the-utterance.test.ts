@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: the mouth follows the baked timeline for about a second and then holds silence for the
@@ -89,7 +90,7 @@ import { describe, expect, it } from "vitest";
  * The mouth keeps moving to the end of the utterance.
  */
 
-const REPO = join(import.meta.dirname, "../../..");
+const REPO = repoRoot();
 const APPLIED = join(REPO, "tools/openclinxr/evidence/viseme-runtime-application.json");
 const CUES_SRC = join(REPO, ".openclinxr/evidence/issue-288/cases/ed_stroke_alert_handoff_v1/stage-lip-sync/utterance-6539634edf.mouth-cues.json");
 const CUES_SERVED = join(REPO, "apps/ui-xr/public/lip-sync-cues/utterance-6539634edf.mouth-cues.json");
