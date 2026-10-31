@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * 2026-08-21 — AN INTERIOR WALL RENDERS AT LUMINANCE 8.9. NOTHING DOWNSTREAM OF THAT IS GRADEABLE.
@@ -88,8 +88,7 @@ import { describe, expect, it } from "vitest";
  * wallBandMeanL on primary-care interior framing. No room GLB change; no capture-only fill.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO = pathResolve(HERE, "../../..");
+const REPO = repoRoot();
 const SHEET = join(REPO, "tools/openclinxr/evidence/interior-wall-lighting-variants.json");
 const MAIN = join(REPO, "apps/ui-xr/src/main.ts");
 const CAPTURE_SHADOW = join(REPO, "packages/openclinxr/xr-station/src/capture-shadow-map.ts");

@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { loadPredicateReference } from "./room-bake/predicate-reference/predicate-reference.js";
-import { reportForGlb, runPredicate } from "./room-extract-predicate.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { loadPredicateReference } from "../../../../../../tools/openclinxr/evidence/room-bake/predicate-reference/predicate-reference.js";
+import { reportForGlb, runPredicate } from "../../../../../../tools/openclinxr/evidence/room-extract-predicate.js";
 
 /**
  * **Room predicate — a deterministic extract-time gate for which extracted Infinigen room
@@ -45,15 +45,14 @@ import { reportForGlb, runPredicate } from "./room-extract-predicate.js";
  * notEvidenceFor: the remaining 12 station rooms, interior framing, Quest readiness.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const ENV_DIR = join(REPO_ROOT, "apps/ui-xr/public/xr-assets/environment");
 
 const ED_GLB = join(ENV_DIR, "infinigen-ed-exam-bay.glb");
 const PEDS_GLB = join(ENV_DIR, "infinigen-pediatric-urgent-care-bay.glb");
 
-const ED_REFERENCE_JSON = join(HERE, "room-bake/predicate-reference/ed-exam-bay.b27f423b1.json");
-const PEDS_REFERENCE_JSON = join(HERE, "room-bake/predicate-reference/pediatric-urgent-care-bay.719cadf82.json");
+const ED_REFERENCE_JSON = join(REPO_ROOT, "tools/openclinxr/evidence/room-bake/predicate-reference/ed-exam-bay.b27f423b1.json");
+const PEDS_REFERENCE_JSON = join(REPO_ROOT, "tools/openclinxr/evidence/room-bake/predicate-reference/pediatric-urgent-care-bay.719cadf82.json");
 
 // Approved published-file fingerprints (apps/ui-xr/src/static-assets.test.ts
 // generatedSceneAssetHashes — Oct1 authority, unchanged by this repair).

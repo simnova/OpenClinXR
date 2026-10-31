@@ -1,0 +1,42 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/environment/**",
+        "$TURBO_ROOT$/apps/ui-xr/src/main.ts",
+        "$TURBO_ROOT$/packages/openclinxr/factory-stations/src/room_chain/recipes.ts",
+        "$TURBO_ROOT$/packages/openclinxr/factory-stations/src/room_generate/room-occlusion-bake.py",
+        "$TURBO_ROOT$/packages/openclinxr/xr-runtime-state/src/infinigen-environment-assets.ts",
+        "$TURBO_ROOT$/packages/openclinxr/xr-station/src/capture-shadow-map.ts",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/environment/room_extract_predicate.py",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/decode-png.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/room-extract-predicate.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/room-gl-io.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/room-bake/room-interior-clear.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/room-bake/predicate-reference/predicate-reference.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/room-bake/predicate-reference/ed-exam-bay.b27f423b1.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/room-bake/predicate-reference/pediatric-urgent-care-bay.719cadf82.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/issue-526/locality-fixture.json",
+        "$TURBO_ROOT$/.openclinxr/evidence/issue-526/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/lib/png-region-luminance.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/interior-wall-lighting-variants.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/room-primitive-material-probe.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/interior-wall-ao-probe.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/interior-wall-ao-probe/ibl_ao0.png",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/interior-wall-ao-probe/ibl_ao1.png",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/room-occlusion-runtime-report.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/stills/telehealth-room-isolated.png",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/telehealth-room-inspect.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/wall-roughness-probe.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/wall-roughness/wall_rough_010.png",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/wall-roughness/wall_rough_070.png",
+        "$TURBO_ROOT$/docs/openclinxr/room-realism/rooms-regen/RESULTS.json",
+        "$TURBO_ROOT$/docs/openclinxr/room-realism/rooms-regen/sheets/telehealth_home_visit_v1/before-after-sheet.png"
+      ]
+    }
+  }
+}

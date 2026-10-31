@@ -1,5 +1,7 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * **The wall receives 0.168 of its own albedo while the ceiling receives 0.816, and roughness is the
@@ -79,7 +81,7 @@ import { describe, expect, it } from "vitest";
  *   the other 13 rooms; whether marble should be smooth as authored.
  */
 
-const ARTIFACT = "tools/openclinxr/evidence/wall-roughness-probe.json";
+const ARTIFACT = join(repoRoot(), "tools/openclinxr/evidence/wall-roughness-probe.json");
 
 /** Measured INSIDE UV coverage on the shipped GLB. The #536 lesson: never a whole-atlas mean. */
 const ALBEDO = { wall: 190.5, ceiling: 254.8, floor: 247.0 } as const;
@@ -144,7 +146,7 @@ describe("the wall receives what its roughness allows", () => {
 
   it("(4) COUNTERWEIGHT: no asset was edited — this is a runtime override", async () => {
     // Rooms campaign is CLOSED. Editing roughness in the GLB satisfies (1)(2)(3) and is refused.
-    const GLB = "apps/ui-xr/public/xr-assets/environment/infinigen-primary-care-clinic.glb";
+    const GLB = join(repoRoot(), "apps/ui-xr/public/xr-assets/environment/infinigen-primary-care-clinic.glb");
     expect(existsSync(GLB), "the shipped room GLB must still exist").toBe(true);
     const { NodeIO } = await import("@gltf-transform/core");
     const { KHRTextureTransform } = await import("@gltf-transform/extensions");
@@ -160,7 +162,7 @@ describe("the wall receives what its roughness allows", () => {
   it("(5) VACUITY: a real image at a stated camera", () => {
     const p = probe();
     if (!p.image) return; // clause (1) owns the missing-artifact failure
-    const img = `tools/openclinxr/evidence/${p.image}`;
+    const img = `${repoRoot()}/tools/openclinxr/evidence/${p.image}`;
     expect(existsSync(img), `image missing at ${img}`).toBe(true);
     // A byte floor proves a renderer ran and nothing more. I grade the pixels.
     expect(statSync(img).size, "too small to be a render").toBeGreaterThan(20_000);

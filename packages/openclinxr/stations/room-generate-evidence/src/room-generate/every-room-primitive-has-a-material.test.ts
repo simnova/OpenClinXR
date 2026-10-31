@@ -1,8 +1,10 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * **14 of 15 shipped room shells render roughly a third of their geometry as void, and it has been
@@ -89,8 +91,8 @@ import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
  *   quest_readiness; clinical_validity; whether the walls look CORRECT, only that they are surfaces.
  */
 
-const ENV = "apps/ui-xr/public/xr-assets/environment";
-const ARTIFACT = "tools/openclinxr/evidence/room-primitive-material-probe.json";
+const ENV = join(repoRoot(), "apps/ui-xr/public/xr-assets/environment");
+const ARTIFACT = join(repoRoot(), "tools/openclinxr/evidence/room-primitive-material-probe.json");
 const PRIMARY = "infinigen-primary-care-clinic.glb";
 
 /** Historical defect counts. Fleet regeneration authored materials into every

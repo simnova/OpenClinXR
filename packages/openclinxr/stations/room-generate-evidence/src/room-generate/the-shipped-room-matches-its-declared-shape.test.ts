@@ -1,10 +1,10 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { KHRTextureTransform } from "@gltf-transform/extensions";
 import { describe, expect, it } from "vitest";
-import { measureInteriorClear } from "./room-bake/room-interior-clear.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { measureInteriorClear } from "../../../../../../tools/openclinxr/evidence/room-bake/room-interior-clear.js";
 
 /**
  * **The ED room's generator config declares an aspect ratio it does not get, and the proof that the
@@ -75,8 +75,7 @@ import { measureInteriorClear } from "./room-bake/room-interior-clear.js";
  *   - **The other 14 stations.** Only the ED room ships from this config today.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const ENV_DIR = join(REPO_ROOT, "apps/ui-xr/public/xr-assets/environment");
 const ROOM = join(ENV_DIR, "infinigen-ed-exam-bay.glb");
 const RECIPES_SRC = join(REPO_ROOT, "packages/openclinxr/factory-stations/src/room_chain/recipes.ts");

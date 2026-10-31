@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { KHRTextureTransform } from "@gltf-transform/extensions";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * **The room I landed in #405 renders as a BLACK FRAME in its own station, and the contract was green.**
@@ -97,8 +97,7 @@ import { describe, expect, it } from "vitest";
  *   - **The other 13 environmentIds.** They render the procedural box and have no hull at all.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const PUBLIC = join(REPO_ROOT, "apps/ui-xr/public");
 const MODULE_SRC = join(REPO_ROOT, "packages/openclinxr/xr-runtime-state/src/infinigen-environment-assets.ts");
 
