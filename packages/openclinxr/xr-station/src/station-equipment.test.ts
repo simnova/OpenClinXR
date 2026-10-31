@@ -297,6 +297,13 @@ describe("Sketchfab CC-BY bank support-surface wiring (2026-08-12)", () => {
     );
   });
 
+  // ci-w14: VitalsMonitor split out of the curtain composite into its own bank entry.
+  it("declares vital_signs_monitor_equipment in REAL_EQUIPMENT_GLTF_BY_ID", () => {
+    expect(REAL_EQUIPMENT_GLTF_BY_ID["vital_signs_monitor_equipment"]).toBe(
+      "vitals-monitor-sketchfab-ccby.glb",
+    );
+  });
+
   it("resolves hospital_bed_equipment as gltf source", () => {
     const plan = planStationEquipmentMounts({
       scenarioId: "ed_chest_pain_priority_v2",

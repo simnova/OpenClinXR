@@ -81,7 +81,13 @@ const generatedSceneAssetHashes = {
   "medical-equipment/hospital-bed-sketchfab-ccby.glb": "d429b23ec21148c527121386d94675ef66aaa2c8171743314fe2834143ad5903",
   "medical-equipment/stretcher-sketchfab-ccby.glb": "6c7ce26cbee8ee38e8118abfddccbb7fc0f36626a85f1952eee9b9fff551221a",
   "medical-equipment/exam-table-sketchfab-ccby.glb": "8f7feeff376cc87c0d0ef466085c63eff553d0408b649cdac895f4854d9569d6",
-  "medical-equipment/privacy-curtain-monitor-sketchfab-ccby.glb": "b320a807a789561a34222a7c3d4573842679f8cf6b1921263d015c59fcc210aa",
+  // ci-w14: curtain composite split — curtain keeps this file with 28 parts /
+  // one touch-connected component; the 2-part VitalsMonitor subtree is now its
+  // own bank entry (gltf-transform subtree detach + dispose + prune, no
+  // re-authored geometry). Both keep the composite's GLB-local frame, so
+  // mounting the monitor at the curtain's slot reproduces the old layout.
+  "medical-equipment/privacy-curtain-monitor-sketchfab-ccby.glb": "25786367cc9c5fa8bfe20b13910a526e3afc84fec4e6d7f7988c56ecff8fccb8",
+  "medical-equipment/vitals-monitor-sketchfab-ccby.glb": "8238578e92b20de7da01014cf6d862448e65cf89f3e4d3e22dd6af7840f389cb",
   "environment/pediatric_urgent_care_bay_environment.glb": "9c431d8e158cbb7486de557ffaed02e79a0bac9681704b80449ace7dc4af8c62",
   "environment/infinigen-ed-exam-bay.glb": "60f4e7468b56d4891f195e2853d6294634b549050364e345f52c3d9c45713d47",
   "environment/infinigen-pediatric-urgent-care-bay.glb": "3d5e58ce0a4154f90d6a245be6b88b440e71fe926e8d009164c094be48020a71",

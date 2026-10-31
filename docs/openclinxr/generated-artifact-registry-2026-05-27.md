@@ -3067,6 +3067,8 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `apps/ui-xr/public/xr-assets/medical-equipment/privacy-curtain-monitor-sketchfab-ccby.provenance.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/medical-equipment/stretcher-sketchfab-ccby.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/medical-equipment/stretcher-sketchfab-ccby.provenance.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/medical-equipment/vitals-monitor-sketchfab-ccby.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/medical-equipment/vitals-monitor-sketchfab-ccby.provenance.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/medical-equipment/wall-clock-analog.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/medical-equipment/wall-clock-analog.provenance.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/optimized/hunyuan3d-mlx-2.0/champion.glb` - keep-current; keep; Hunyuan 80,000-triangle grade target; US-hosted deployment only.

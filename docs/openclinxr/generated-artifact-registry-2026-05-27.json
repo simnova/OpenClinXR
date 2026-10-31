@@ -44,7 +44,7 @@
   "counts": {
     "keep-evidence": 1967,
     "ignore-local-cache": 2787,
-    "keep-current": 264,
+    "keep-current": 266,
     "keep-template": 17,
     "keep-compatibility-input": 24
   },
@@ -21205,6 +21205,20 @@
     },
     {
       "path": "apps/ui-xr/public/xr-assets/medical-equipment/privacy-curtain-monitor-sketchfab-ccby.provenance.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/medical-equipment/vitals-monitor-sketchfab-ccby.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/medical-equipment/vitals-monitor-sketchfab-ccby.provenance.json",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
