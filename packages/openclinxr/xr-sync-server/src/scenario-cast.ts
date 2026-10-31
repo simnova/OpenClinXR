@@ -16,18 +16,39 @@
  * actors[].actorId roster.
  */
 
+import type { CaseEmotionPolicy } from "@openclinxr/conversation-policy";
 import { ActorState, type ActorStateInstance } from "./schema.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-/** One station's scenario cast: identity, exact roster, starting emotion. */
+/** One cast actor's voice: identity + scenario opening line for its first reply. */
+export interface CastVoiceActor {
+  actorId: string;
+  displayName: string;
+  /** Scenario openingUtterance ("" when the scenario names none; caption keeps the "<name>: " shape). */
+  openingUtterance: string;
+}
+
+/** Stable named cue for a cast actor's opening reply (one cue for every opening). */
+export const CAST_OPENING_CUE_ID = "cue-opening-01";
+
+/** Learner-visible caption mirroring the scenario-fixtures "<displayName>: <caption>" format (not imported). */
+export function openingCaption(displayName: string, openingUtterance: string): string {
+  return `${displayName}: ${openingUtterance}`;
+}
+
+/** One station's scenario cast: identity, exact roster, starting emotion, voice, policy. */
 export interface ScenarioCast {
   scenarioId: string;
   scenarioTitle: string;
   actorIds: string[];
   baselineEmotion: string;
+  /** Per-actor voice lines (same order as the scenario roster, deduped by actorId). */
+  castActors: CastVoiceActor[];
+  /** The scenario's emotionPolicy (null when the scenario names none). */
+  emotionPolicy: CaseEmotionPolicy | null;
 }
 
 /** Extract one station's cast from a scenario value (throws naming "scenarios" on invalid). */
@@ -54,6 +75,7 @@ function castForScenario(value: unknown, index: number): ScenarioCast {
     throw new Error(`bad-scenarios: scenarios[${index}] (${scenarioId.slice(0, 64)}) must name at least one actor`);
   }
   const actorIds: string[] = [];
+  const castActors: CastVoiceActor[] = [];
   for (const entry of actors) {
     if (!isRecord(entry) || typeof entry["actorId"] !== "string" || (entry["actorId"] as string).length === 0) {
       throw new Error(`bad-scenarios: scenarios[${index}] actors[].actorId must be a non-empty string`);
@@ -61,6 +83,11 @@ function castForScenario(value: unknown, index: number): ScenarioCast {
     const id = entry["actorId"] as string;
     if (!actorIds.includes(id)) {
       actorIds.push(id);
+      const displayName = typeof entry["displayName"] === "string" && (entry["displayName"] as string).length > 0
+        ? (entry["displayName"] as string)
+        : id;
+      const opening = typeof entry["openingUtterance"] === "string" ? (entry["openingUtterance"] as string) : "";
+      castActors.push({ actorId: id, displayName, openingUtterance: opening });
     }
   }
   const policy = value["emotionPolicy"];
@@ -68,7 +95,37 @@ function castForScenario(value: unknown, index: number): ScenarioCast {
     isRecord(policy) && typeof policy["baseline"] === "string" && (policy["baseline"] as string).length > 0
       ? (policy["baseline"] as string)
       : "neutral";
-  return { scenarioId, scenarioTitle: title, actorIds, baselineEmotion: baseline };
+  return { scenarioId, scenarioTitle: title, actorIds, baselineEmotion: baseline, castActors, emotionPolicy: readEmotionPolicy(policy) };
+}
+
+/** Read a scenario emotionPolicy value (null unless it carries baseline + bounds + a transition list). */
+function readEmotionPolicy(value: unknown): CaseEmotionPolicy | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+  const baseline = value["baseline"];
+  const upperBound = value["upperBound"];
+  const lowerBound = value["lowerBound"];
+  const transitions = value["transitions"];
+  if (typeof baseline !== "string" || typeof upperBound !== "string" || typeof lowerBound !== "string") {
+    return null;
+  }
+  if (!Array.isArray(transitions)) {
+    return null;
+  }
+  return { baseline, upperBound, lowerBound, transitions } as CaseEmotionPolicy;
+}
+
+/**
+ * C17 emotion policy for one station: the cast scenario's own policy, or an
+ * empty-transitions policy at the cast baseline when the scenario names none
+ * (no transition ever matches, so the emotion never moves).
+ */
+export function stationEmotionPolicy(cast: ScenarioCast): CaseEmotionPolicy {
+  if (cast.emotionPolicy !== null) {
+    return cast.emotionPolicy;
+  }
+  return { baseline: cast.baselineEmotion as CaseEmotionPolicy["baseline"], upperBound: "anxious", lowerBound: "reassured", transitions: [] };
 }
 
 /**
@@ -110,6 +167,7 @@ export function populateCastRoster(actors: Map<string, ActorStateInstance>, cast
     actor.emotion = cast.baselineEmotion;
     actor.replyId = "";
     actor.cueId = "";
+    actor.caption = "";
     actors.set(id, actor);
   }
 }

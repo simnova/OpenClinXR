@@ -10,8 +10,33 @@
 import type { IntentKind } from "@openclinxr/xr-sync-client/headset";
 import * as THREE from "three";
 import { observedPhaseFrom, observedTurnFrom, runC3TurnScript } from "./probe-c6.js";
+import { DYNAMIC_ACTOR_SCRIPTS, LOBBY_SCRIPTS, type ProbeScript } from "./probe-scripts.js";
 import { resolvePhaseLabel, resolveStationLabel } from "./probe-state.js";
 
+/** Minimal server snapshot surface the actor-readiness wait reads. */
+export interface C7ActorView {
+  actors?: Record<string, unknown>;
+  lobbyStations?: unknown;
+}
+
+/**
+ * Probe actor-readiness waiter for a script: dynamic cast/replay rooms wait
+ * for any rostered actor, lobby rooms wait for lobby tiles, and every other
+ * script waits for the a1/a2 roster. Moved verbatim from sync-probe.ts for
+ * the file-size gate (same three arms, same order).
+ */
+export function createNeedActors(getSnapshot: () => C7ActorView | null | undefined, script: ProbeScript): () => boolean {
+  if (DYNAMIC_ACTOR_SCRIPTS.has(script)) {
+    return () => Object.keys(getSnapshot()?.actors ?? {}).length > 0;
+  }
+  if (LOBBY_SCRIPTS.has(script)) {
+    return () => ((getSnapshot()?.lobbyStations as unknown[] | undefined)?.length ?? 0) > 0;
+  }
+  return () => {
+    const actors = getSnapshot()?.actors as Record<string, unknown> | undefined;
+    return actors?.["a1"] !== undefined && actors?.["a2"] !== undefined;
+  };
+}
 /** Minimal server snapshot surface the station waits read. */
 export interface C7StationView {
   stationId?: unknown;

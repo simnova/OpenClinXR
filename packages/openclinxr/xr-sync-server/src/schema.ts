@@ -14,6 +14,8 @@ export const ActorState = schema(
     emotion: t.string(),
     replyId: t.string(),
     cueId: t.string(),
+    /** C17 learner-visible caption of the current reply ("" when silent or off a cast station). */
+    caption: t.string(),
   },
   "ActorState",
 );
@@ -112,7 +114,7 @@ export interface EncounterSnapshot {
   phaseRemainingS: number;
   turnId: number;
   turnOwner: string;
-  actors: Record<string, { id: string; speaking: boolean; emotion: string; replyId: string; cueId: string }>;
+  actors: Record<string, { id: string; speaking: boolean; emotion: string; replyId: string; cueId: string; caption: string }>;
   learners: Record<
     string,
     { sessionId: string; headX: number; headY: number; headZ: number; lastSeq: number; speaking: boolean }
@@ -158,7 +160,7 @@ export interface EncounterSnapshot {
 export function snapshotState(state: EncounterStateInstance): EncounterSnapshot {
   const actors: EncounterSnapshot["actors"] = {};
   for (const [id, actor] of state.actors) {
-    actors[id] = { id: actor.id, speaking: actor.speaking, emotion: actor.emotion, replyId: actor.replyId, cueId: actor.cueId };
+    actors[id] = { id: actor.id, speaking: actor.speaking, emotion: actor.emotion, replyId: actor.replyId, cueId: actor.cueId, caption: actor.caption };
   }
   const learners: EncounterSnapshot["learners"] = {};
   for (const [sessionId, learner] of state.learners) {

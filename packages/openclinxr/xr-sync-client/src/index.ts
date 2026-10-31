@@ -43,6 +43,8 @@ export interface SnapshotActor {
   replyId: string;
   /** C4 server-driven cue id ("" before the actor's first turn). */
   cueId: string;
+  /** C17 learner-visible caption of the current reply ("" when silent). */
+  caption?: string;
 }
 
 /** Plain view of one synced learner, including intent cursor. */

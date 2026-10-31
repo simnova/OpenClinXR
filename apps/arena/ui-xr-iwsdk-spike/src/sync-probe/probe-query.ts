@@ -3,6 +3,7 @@
  * (Architecture gate: apps/ modules must not mix a parse…/validate…/assert…/is…
  * function with other exports.)
  */
+import type { ProbeScript } from "./probe-scripts.js";
 
 export interface ProbeQuery {
   syncUrl: string;
@@ -10,11 +11,28 @@ export interface ProbeQuery {
   autostart: boolean;
   /** Quest mode: install the IWER runtime even when a native runtime is present. */
   forceIwer: boolean;
-  /** Probe script: "c2" (sweep + select each actor), "c3" (server-driven actor turn), "c6" (phase-gated C3 inside the encounter window), "c7" (C3 script once per station with server rotation), "c8" (c7 loop with pose streaming on + observer badge), "c10" (faculty replay of one recorded station), "c11" (C3 script once + patient-note submits in the note phase), "c12" (review lobby: trigger station-2, watch its replay), "c13" (c12 flow + rubric score submit + return to lobby), "c14" (c13 flow + lobby sign-off finalize), "c15" (C3 script once per blueprint station with server rotation + label panel), or "c16" (cast select + C3 script once per scenario-cast station with server rotation + cast panel). */
-  script: "c2" | "c3" | "c6" | "c7" | "c8" | "c10" | "c11" | "c12" | "c13" | "c14" | "c15" | "c16";
+  /** Probe script: "c2" (sweep + select each actor), "c3" (server-driven actor turn), "c6" (phase-gated C3 inside the encounter window), "c7" (C3 script once per station with server rotation), "c8" (c7 loop with pose streaming on + observer badge), "c10" (faculty replay of one recorded station), "c11" (C3 script once + patient-note submits in the note phase), "c12" (review lobby: trigger station-2, watch its replay), "c13" (c12 flow + rubric score submit + return to lobby), "c14" (c13 flow + lobby sign-off finalize), "c15" (C3 script once per blueprint station with server rotation + label panel), "c16" (cast select + C3 script once per scenario-cast station with server rotation + cast panel), or "c17" (every cast actor's opening line + caption per scenario-cast station with server rotation + caption panel). */
+  script: ProbeScript;
   /** C10 faculty replay: the recorded station id to replay (from ?replayStationId=; "" otherwise). */
   replayStationId: string;
 }
+
+/** Every ?script= value the probe page accepts (single source for the validator). */
+const KNOWN_SCRIPTS: ReadonlySet<string> = new Set([
+  "c2",
+  "c3",
+  "c6",
+  "c7",
+  "c8",
+  "c10",
+  "c11",
+  "c12",
+  "c13",
+  "c14",
+  "c15",
+  "c16",
+  "c17",
+]);
 
 /** Parse the probe query string. Throws on missing/invalid ?sync=. */
 export function parseProbeQuery(search: string): ProbeQuery {
@@ -24,9 +42,10 @@ export function parseProbeQuery(search: string): ProbeQuery {
     throw new Error(`invalid or missing ?sync= ws url: ${syncUrl.slice(0, 80)}`);
   }
   const scriptParam = params.get("script") ?? "c2";
-  if (scriptParam !== "c2" && scriptParam !== "c3" && scriptParam !== "c6" && scriptParam !== "c7" && scriptParam !== "c8" && scriptParam !== "c10" && scriptParam !== "c11" && scriptParam !== "c12" && scriptParam !== "c13" && scriptParam !== "c14" && scriptParam !== "c15" && scriptParam !== "c16") {
+  if (!KNOWN_SCRIPTS.has(scriptParam)) {
     throw new Error(`invalid ?script= value: ${scriptParam.slice(0, 20)}`);
   }
+  const script = scriptParam as ProbeScript;
   const replayStationId = params.get("replayStationId") ?? "";
   if (scriptParam === "c10" && replayStationId === "") {
     throw new Error("?script=c10 requires ?replayStationId=<recorded station id>");
@@ -36,7 +55,7 @@ export function parseProbeQuery(search: string): ProbeQuery {
     useIwer: params.get("iwer") === "1",
     autostart: params.get("autostart") === "1",
     forceIwer: params.get("forceIwer") === "1",
-    script: scriptParam,
+    script,
     replayStationId,
   };
 }

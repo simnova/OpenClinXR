@@ -366,10 +366,26 @@ export class ConversationTracer {
   private engines = new Map<string, EmotionEngine>();
   /** C7 station partition key for the owning room ("" when no stations). */
   private stationId = "";
+  /**
+   * C17 emotion policy for the owning room (PROBE policy unless the room sets
+   * its cast station's policy). Live transitions resolve against it; the
+   * shared pure reducer (snapshot/replay) always uses the PROBE policy, so a
+   * cast session's persisted emotions replay to the probe values (documented
+   * divergence; non-cast replay is unchanged).
+   */
+  private emotionPolicy: CaseEmotionPolicy = PROBE_CASE_EMOTION_POLICY;
+  /** C17 engine starting emotion (PROBE baseline unless the room sets its cast baseline). */
+  private emotionBaseline: CaseEmotionPolicy["baseline"] = PROBE_CASE_EMOTION_POLICY.baseline;
 
   /** C7: bind the owning room's station before any event is pushed. */
   setStationId(stationId: string): void {
     this.stationId = stationId;
+  }
+
+  /** C17: bind the owning room's emotion policy + engine baseline (cast stations). */
+  setStationEmotionPolicy(policy: CaseEmotionPolicy): void {
+    this.emotionPolicy = policy;
+    this.emotionBaseline = policy.baseline;
   }
 
   /** Append one conversation event, in application order. */
@@ -381,10 +397,22 @@ export class ConversationTracer {
   transition(actorId: string, kind: EmotionEventKind, turnIndex: number): EmotionTransition {
     let engine = this.engines.get(actorId);
     if (!engine) {
-      engine = new EmotionEngine(PROBE_CASE_EMOTION_POLICY.baseline);
+      engine = new EmotionEngine(this.emotionBaseline);
       this.engines.set(actorId, engine);
     }
-    return engine.transition({ kind }, PROBE_CASE_EMOTION_POLICY, turnIndex);
+    // C17: no matching (from, triggeredBy) rule in the station policy means
+    // the emotion is unchanged (the engine's clamp must not move a baseline
+    // the policy never transitions away from, e.g. knee "anxious"). For the
+    // PROBE policy every live (from, kind) pair either matches or already
+    // sits inside its bounds, so non-cast behaviour is identical.
+    const current = engine.currentEmotion;
+    const matched = this.emotionPolicy.transitions.some(
+      (rule) => rule.from === current && rule.triggeredBy === kind,
+    );
+    if (!matched) {
+      return { from: current, to: current, trigger: kind, changed: false, turnIndex };
+    }
+    return engine.transition({ kind }, this.emotionPolicy, turnIndex);
   }
 
   /** Live trace view: events copied, turns + emotions recomputed by the reducer. */

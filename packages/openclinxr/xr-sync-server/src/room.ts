@@ -21,7 +21,7 @@ import * as PhaseClock from "./phase-clock.js";
 import type { StationTiming } from "./phase-clock.js";
 import type { EncounterRoomOptions, ProbeSelection, RoomProbeStats, TurnRecord } from "./room-types.js";
 import { populateActorRoster } from "./roster.js";
-import { castForStation, populateCastRoster } from "./scenario-cast.js";
+import { castForStation, populateCastRoster, stationEmotionPolicy, type CastVoiceActor } from "./scenario-cast.js";
 import { INTENT_KINDS, type AckMessage, type IntentMessage, type RejectMessage } from "./protocol.js";
 // Wire protocol types live in protocol.js; re-exported here so the package
 // "." surface and existing room.js importers keep working unchanged.
@@ -104,6 +104,12 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   protected stationBinding: StationBinding = { stations: null, examBlueprint: null, scenarioCasts: null, creationNonces: new Map(), joinNonces: new Set(), appliedPoseByStation: new Map(), rotationFaults: { failNext: 0, bogusRotate: false } };
   /** C7 rotation guard: closed fires once per room; this is the backstop. */
   private rotationStarted = false;
+  /**
+   * C17 cast voice for this room's station (per-actor opening lines; null off
+   * a cast station). Bound in onCreate: rooms are per-station, so the first
+   * reply per actor per station is the scenario opening.
+   */
+  private castVoice: Map<string, CastVoiceActor> | null = null;
 
   /** Read-only copy of probe stats for the harness. Never sent on the wire. */
   getProbeStats(): RoomProbeStats {
@@ -161,6 +167,10 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     this.state.actors = new MapSchema<ActorStateInstance>();
     if (cast !== null) {
       populateCastRoster(this.state.actors, cast);
+      // C17: the station's cast voice (first reply per actor) and emotion
+      // policy ride this room only (per-station rooms, so per-station voice).
+      this.castVoice = new Map(cast.castActors.map((entry) => [entry.actorId, entry]));
+      this.tracer.setStationEmotionPolicy(stationEmotionPolicy(cast));
     } else {
       populateActorRoster(this.state.actors, options);
     }
@@ -440,6 +450,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
           this.openTurn = turn;
         },
         reject: this.reject.bind(this),
+        castVoice: this.castVoice === null ? null : { actors: this.castVoice },
       },
       client,
       learner,

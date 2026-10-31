@@ -10,6 +10,7 @@
 import type { Client } from "@colyseus/core";
 import type { EmotionEventKind } from "@openclinxr/conversation-policy";
 import { pickC3Reply, type ConversationTracer } from "./conversation-trace.js";
+import { CAST_OPENING_CUE_ID, openingCaption, type CastVoiceActor } from "./scenario-cast.js";
 import type { LearnerStateInstance } from "./schema.js";
 import type { TurnRecord } from "./room-types.js";
 
@@ -23,6 +24,13 @@ export interface TurnActorState {
   emotion: string;
   replyId: string;
   cueId: string;
+  /** C17 learner-visible caption of the current reply ("" when silent). */
+  caption: string;
+}
+
+/** C17 cast voice for one station: per-actor opening lines (null off a cast station). */
+export interface CastVoice {
+  actors: { get(id: string): CastVoiceActor | undefined; has(id: string): boolean };
 }
 
 /** Room clock surface the reply timer uses. */
@@ -42,6 +50,8 @@ export interface ActorTurnBindings {
   clock: TurnClock;
   turnLog: TurnRecord[];
   actorTurnCounts: Map<string, number>;
+  /** C17 cast voice for this room's station (null/undefined off a cast station: C3 behaviour). */
+  castVoice?: CastVoice | null;
   turnOpenedAtMs: Map<number, number>;
   getOpenTurn(): { turnId: number; actorId: string; timer: { clear(): void } } | null;
   setOpenTurn(turn: { turnId: number; actorId: string; timer: { clear(): void } } | null): void;
@@ -65,6 +75,8 @@ function interruptOpenTurn(
   const actor = bindings.actors.get(open.actorId);
   if (actor) {
     actor.speaking = false;
+    // C17: the caption belongs to the reply; an interrupted reply shows none.
+    actor.caption = "";
   }
   const record = bindings.turnLog.find((entry) => entry.turnId === open.turnId);
   if (record && record.end === "open") {
@@ -148,20 +160,30 @@ export function applyUtteranceIntent(
   learner.speaking = false;
   const turnCount = (bindings.actorTurnCounts.get(actorId) ?? 0) + 1;
   bindings.actorTurnCounts.set(actorId, turnCount);
-  const reply = pickC3Reply(turnCount);
+  // C17: on a cast station an actor's FIRST reply in the station is its
+  // scenario opening line (replyId `${actorId}:opening`, learner-visible
+  // caption, stable named cue, C3 first-row duration). Later turns fall back
+  // to the C3 table with an empty caption. Off a cast station this is the C3
+  // table from the first turn.
+  const opening = turnCount === 1 ? bindings.castVoice?.actors.get(actorId) : undefined;
+  const table = pickC3Reply(turnCount);
+  const replyId = opening !== undefined ? `${actorId}:opening` : table.id;
+  const cueId = opening !== undefined ? CAST_OPENING_CUE_ID : table.cueId;
+  const durationMs = opening !== undefined ? pickC3Reply(1).durationMs : table.durationMs;
   const turnId = bindings.turnId + 1;
   bindings.setTurnId(turnId);
   actor.speaking = true;
-  actor.replyId = reply.id;
+  actor.replyId = replyId;
   // C4: each actor turn carries renderable content from the scripted table:
   // the cueId (audio/viseme cue) plus the EmotionEngine transition for the
   // utterance-end's learner_acknowledgement (turnIndex = the opened turn).
-  actor.cueId = reply.cueId;
+  actor.cueId = cueId;
+  actor.caption = opening !== undefined ? openingCaption(opening.displayName, opening.openingUtterance) : "";
   const acknowledgement: EmotionEventKind = "learner_acknowledgement";
   actor.emotion = bindings.tracer.transition(actorId, acknowledgement, turnId).to;
   bindings.tracer.push({ seq, kind: "utterance-end", actorId, turnId });
   bindings.setTurnOwner("actor");
-  const record: TurnRecord = { turnId, actorId, replyId: reply.id, startSeq: seq, end: "open", endSeq: null };
+  const record: TurnRecord = { turnId, actorId, replyId, startSeq: seq, end: "open", endSeq: null };
   bindings.turnLog.push(record);
   bindings.turnOpenedAtMs.set(turnId, Date.now());
   const timer = bindings.clock.setTimeout(() => {
@@ -170,11 +192,13 @@ export function applyUtteranceIntent(
     }
     bindings.setOpenTurn(null);
     actor.speaking = false;
+    // C17: the caption clears when the reply ends (it names the reply, not the actor).
+    actor.caption = "";
     bindings.setTurnOwner("none");
     record.end = "completed";
     // C4: the room adds only the clock timer that emits turn-completed.
     bindings.tracer.push({ seq: null, kind: "turn-completed", actorId, turnId });
-  }, reply.durationMs);
+  }, durationMs);
   bindings.setOpenTurn({ turnId, actorId, timer });
   return true;
 }
