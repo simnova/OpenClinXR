@@ -9,7 +9,8 @@
  */
 import type { Client } from "@colyseus/core";
 import type { EmotionEventKind } from "@openclinxr/conversation-policy";
-import { pickC3Reply, type ConversationTracer } from "./conversation-trace.js";
+import { pickC3Reply } from "./conversation-trace.js";
+import type { ConversationTracer } from "./conversation-tracer.js";
 import { CAST_OPENING_CUE_ID, openingCaption, type CastVoiceActor } from "./scenario-cast.js";
 import type { LearnerStateInstance } from "./schema.js";
 import type { TurnRecord } from "./room-types.js";

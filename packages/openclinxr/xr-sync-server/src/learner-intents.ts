@@ -7,7 +7,7 @@
  * per-kind validation and mutation through narrow structural bindings.
  */
 import type { Client } from "@colyseus/core";
-import type { ConversationTracer } from "./conversation-trace.js";
+import type { ConversationTracer } from "./conversation-tracer.js";
 import type { ProbeSelection } from "./room-types.js";
 import type { LearnerStateInstance } from "./schema.js";
 

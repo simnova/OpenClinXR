@@ -26,6 +26,7 @@ import { join } from "node:path";
 import type { ConversationTraceEvent } from "./conversation-trace.js";
 import { replayBaselineForCast } from "./conversation-trace-cast.js";
 import { loadReplayStationTrace, type LoadedReplayStation } from "./station-replay-loading.js";
+import { applyScheduledReplayEvent } from "./station-replay-loading.js";
 import { ActorState, EncounterState, LearnerState, type ActorStateInstance, type LearnerStateInstance } from "./schema.js";
 import { EncounterRoom, ENCOUNTER_ROOM_NAME } from "./room.js";
 import {
@@ -56,21 +57,8 @@ import {
   type SessionReviewStationEntry,
 } from "./session-review-index.js";
 
-/** Default ms between recorded events when replayStepMs is not configured. */export const DEFAULT_REPLAY_STEP_MS = 300;
-
-/**
- * Validate server replay step config. Returns the step when configured, the
- * default when absent. Throws on invalid (fail fast at boot, never per join).
- */
-export function parseReplayStepMs(value: unknown): number {
-  if (value === undefined) {
-    return DEFAULT_REPLAY_STEP_MS;
-  }
-  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
-    throw new Error("bad-replay-step-ms: replayStepMs must be a finite number > 0");
-  }
-  return value;
-}
+/** Default ms between recorded replay events (see station-replay-loading.ts). */
+export { DEFAULT_REPLAY_STEP_MS, parseReplayStepMs } from "./station-replay-loading.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -488,7 +476,12 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
           break;
         }
         default: {
-          // select-actor and rotation-failed carry no replayed state.
+          // C19: the recorded scheduled interjection replays (replyId/cueId
+          // from trace.turns); select-actor and rotation-failed carry no state.
+          const scheduled = applyScheduledReplayEvent(this.state, this.replayTurnsById, event);
+          if (scheduled !== null) {
+            this.replayOpenTurn = scheduled;
+          }
           break;
         }
       }

@@ -1,10 +1,8 @@
 import { MapSchema } from "@colyseus/schema";
 import { Room } from "@colyseus/core";
 import type { Client } from "@colyseus/core";
-import {
-  ConversationTracer,
-  type ConversationTrace,
-} from "./conversation-trace.js";
+import type { ConversationTrace } from "./conversation-trace.js";
+import { ConversationTracer } from "./conversation-tracer.js";
 // C3 reply table + picker live in conversation-trace.js (single source shared
 // with the trace reducer); re-exported here so existing room.js importers
 // (C4 RED, evidence harness dist imports) keep working.
@@ -27,6 +25,7 @@ import { INTENT_KINDS, type AckMessage, type IntentMessage, type RejectMessage }
 // "." surface and existing room.js importers keep working unchanged.
 export type { AckMessage, IntentKind, IntentMessage, RejectMessage } from "./protocol.js";
 import { applyPoseIntent, applySelectActorIntent } from "./learner-intents.js";
+import { createScheduleDriver } from "./scenario-schedule.js";
 import { DEFAULT_NOTE_MAX_CHARS, validateNoteSubmit } from "./patient-note.js";
 import { applyUtteranceIntent } from "./actor-turns.js";
 import {
@@ -110,6 +109,12 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
    * reply per actor per station is the scenario opening.
    */
   private castVoice: Map<string, CastVoiceActor> | null = null;
+  /**
+   * C19 scenario schedule driver for this room's station (timers on the room
+   * clock; null off a cast station). Started at encounter start, cleared at
+   * phase close and room dispose.
+   */
+  private scheduleDriver: { startEncounter(): void; clear(): void } | null = null;
 
   /** Read-only copy of probe stats for the harness. Never sent on the wire. */
   getProbeStats(): RoomProbeStats {
@@ -180,6 +185,14 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       this.tracer.setStationCast(null);
     }
     this.state.learners = new MapSchema<LearnerStateInstance>();
+    // C19: a cast station runs its scenario's eventSchedule on the room
+    // clock (no schedule, no timers off a cast station). Entries with
+    // atSecond >= the encounter length never fire (see the driver).
+    this.state.lastScheduledEventId = "";
+    // C19: a cast station runs its scenario's eventSchedule on the room clock
+    // (null, no timers off a cast station). Entries with atSecond >= the
+    // encounter length never fire (see the driver).
+    this.scheduleDriver = createScheduleDriver(this.clock, this.state, this.state.actors, this.tracer, this.turnLog, this.turnOpenedAtMs, { get: () => this.openTurn, set: (turn) => { this.openTurn = turn; } }, cast?.schedule ?? null, this.stationTiming?.encounterSeconds ?? 0);
 
     // C6 station clock from the server binding; client roomOptions.timing /
     // roomOptions.phase are ignored (see phase-clock.ts). C7 rotation fires
@@ -195,6 +208,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
           this.openTurn = null;
         },
         phaseChangedAtMs: this.phaseChangedAtMs,
+        schedule: this.scheduleDriver,
         onClosed: () => {
           void this.rotateStation();
         },
@@ -300,6 +314,8 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   }
 
   override onDispose(): void {
+    this.scheduleDriver?.clear();
+    this.scheduleDriver = null;
     this.phaseClock?.stop();
     this.phaseClock = null;
     this.flushConversationTrace();

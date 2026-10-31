@@ -41,6 +41,7 @@ import { runC15Script } from "./probe-c15.js";
 import { createC16Evidence, runC16Script, type C16Evidence } from "./probe-c16.js";
 import { createC17Evidence, runC17Script, type C17Evidence } from "./probe-c17.js";
 import { createC18Evidence, runC18Script, type C18Evidence } from "./probe-c18.js";
+import { createC19Evidence, runC19Script, type C19Evidence } from "./probe-c19.js";
 import { PROBE_ACTOR_IDS, resolvePhaseLabel } from "./probe-state.js";
 import { parseC11NoteMaxChars } from "./probe-query.js";
 
@@ -395,6 +396,42 @@ export async function runProbeScript(deps: ProbeScriptDeps): Promise<void> {
       setStatus,
       evidence: c18,
       publish: publishC18,
+    });
+  } else if (deps.script === "c19") {
+    // C19 server-clock schedule watch: no learner intent per station (the
+    // connect-time doorway probe is the only intent), watch each scheduled
+    // interjection on the server clock with the panel tracked in the C19
+    // evidence surface (same ceiling rationale as the C16/C17/C18 modules: it
+    // owns and publishes window.__syncProbeC19 itself).
+    const c19: C19Evidence = createC19Evidence();
+    const publishC19 = (): void => {
+      window.__syncProbeC19 = c19;
+      // The harness reads window.__syncProbe (harness-lib is shared and
+      // frozen); sync-probe.ts sits at its file-size ceiling and cannot grow
+      // a c19 field, so the C19 module attaches its data-only evidence here.
+      if (window.__syncProbe !== undefined) {
+        Object.assign(window.__syncProbe, { c19 });
+      }
+    };
+    publishC19();
+    await runC19Script({
+      waitFor,
+      enqueueSelectA1: () => deps.enqueueSelectA1(),
+      settlePreProbe: async () => {
+        const target = deps.intentCounts().sent;
+        await waitFor(
+          () => deps.intentCounts().acks + deps.intentCounts().rejects >= target,
+          15000,
+          "station pre-encounter settled",
+        );
+      },
+      getSnapshot,
+      setStatus,
+      setPoseStreaming: (enabled) => {
+        deps.setPoseStreaming(enabled);
+      },
+      evidence: c19,
+      publish: publishC19,
     });
   } else {
     for (const actorId of PROBE_ACTOR_IDS) {

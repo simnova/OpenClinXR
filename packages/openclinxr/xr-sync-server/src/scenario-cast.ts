@@ -18,6 +18,7 @@
 
 import type { CaseEmotionPolicy } from "@openclinxr/conversation-policy";
 import { ActorState, type ActorStateInstance } from "./schema.js";
+import type { ScheduledScenarioEntry } from "./scheduled-event.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -49,6 +50,8 @@ export interface ScenarioCast {
   castActors: CastVoiceActor[];
   /** The scenario's emotionPolicy (null when the scenario names none). */
   emotionPolicy: CaseEmotionPolicy | null;
+  /** The scenario's eventSchedule: server-clock interjections for this station (empty when none). */
+  schedule: ScheduledScenarioEntry[];
 }
 
 /** Extract one station's cast from a scenario value (throws naming "scenarios" on invalid). */
@@ -95,7 +98,40 @@ function castForScenario(value: unknown, index: number): ScenarioCast {
     isRecord(policy) && typeof policy["baseline"] === "string" && (policy["baseline"] as string).length > 0
       ? (policy["baseline"] as string)
       : "neutral";
-  return { scenarioId, scenarioTitle: title, actorIds, baselineEmotion: baseline, castActors, emotionPolicy: readEmotionPolicy(policy) };
+  return { scenarioId, scenarioTitle: title, actorIds, baselineEmotion: baseline, castActors, emotionPolicy: readEmotionPolicy(policy), schedule: readScenarioSchedule(value["eventSchedule"], actorIds, index, scenarioId) };
+}
+
+/** Read a scenario eventSchedule value (every refusal names "scenarios"). */
+function readScenarioSchedule(value: unknown, actorIds: string[], index: number, scenarioId: string): ScheduledScenarioEntry[] {
+  if (value === undefined) {
+    return [];
+  }
+  if (!Array.isArray(value)) {
+    throw new Error(`bad-scenarios: scenarios[${index}] (${scenarioId.slice(0, 64)}) eventSchedule must be an array`);
+  }
+  const seen = new Set<string>();
+  const schedule: ScheduledScenarioEntry[] = [];
+  for (const raw of value) {
+    if (!isRecord(raw) || typeof raw["eventId"] !== "string" || (raw["eventId"] as string).length === 0) {
+      throw new Error(`bad-scenarios: scenarios[${index}] eventSchedule[].eventId must be a non-empty string`);
+    }
+    const eventId = raw["eventId"] as string;
+    if (seen.has(eventId)) {
+      throw new Error(`bad-scenarios: scenarios[${index}] eventSchedule eventId "${eventId.slice(0, 64)}" is not unique`);
+    }
+    seen.add(eventId);
+    if (!Number.isInteger(raw["atSecond"]) || (raw["atSecond"] as number) < 0) {
+      throw new Error(`bad-scenarios: scenarios[${index}] eventSchedule "${eventId.slice(0, 64)}" atSecond must be an integer >= 0`);
+    }
+    if (typeof raw["actorId"] !== "string" || !actorIds.includes(raw["actorId"] as string)) {
+      throw new Error(`bad-scenarios: scenarios[${index}] eventSchedule "${eventId.slice(0, 64)}" actorId must be in the cast`);
+    }
+    if (typeof raw["tag"] !== "string" || (raw["tag"] as string).length === 0) {
+      throw new Error(`bad-scenarios: scenarios[${index}] eventSchedule "${eventId.slice(0, 64)}" tag must be a non-empty string`);
+    }
+    schedule.push({ eventId, atSecond: raw["atSecond"] as number, actorId: raw["actorId"] as string, tag: raw["tag"] as string });
+  }
+  return schedule;
 }
 
 /** Read a scenario emotionPolicy value (null unless it carries baseline + bounds + a transition list). */

@@ -79,6 +79,8 @@ export interface StationPhaseBindings {
   getOpenTurn(): { turnId: number; actorId: string; timer: { clear(): void } } | null;
   clearPhaseTurn(): void;
   phaseChangedAtMs: Map<string, number>;
+  /** C19 schedule driver: started at encounter start, cleared on every non-encounter phase. */
+  schedule?: { startEncounter(): void; clear(): void } | null;
   /** C7 rotation driver: invoked once when the station enters "closed". */
   onClosed?: () => void;
 }
@@ -114,6 +116,9 @@ export function attachStationPhaseClock(
     // derives the same closed-by-phase end from the phase-changed event alone.
     // No-op when nothing is open (including the initial "doorway" enter).
     onLeaveEncounter: () => {
+      // C19: leaving the encounter clears pending schedule timers (the phase
+      // clock stops driving interjections the moment the encounter ends).
+      bindings.schedule?.clear();
       let wasOpen = false;
       for (const learner of bindings.state.learners.values()) {
         if (learner.speaking) {
@@ -142,6 +147,11 @@ export function attachStationPhaseClock(
       }
     },
     now: () => Date.now(),
+    // C19 scenario schedule: timers start at encounter start (server clock);
+    // leaving the encounter clears them (same hook that closes open turns).
+    onEnterEncounter: () => {
+      bindings.schedule?.startEncounter();
+    },
     // C7 rotation fires on the station's "closed" phase-changed, on the room
     // clock. C8 rotates learners + observers together (see room.rotateStation).
     onClosed: () => {
@@ -178,6 +188,8 @@ export interface PhaseClockHooks {
   tracePhase(phase: StationPhase, atMs: number): void;
   /** Room closes learner utterances / the open actor turn for a non-encounter phase. */
   onLeaveEncounter(): void;
+  /** C19 schedule driver: started at encounter start (timers on the room clock). */
+  onEnterEncounter?(): void;
   /** C7 rotation driver: invoked once when the station enters "closed". */
   onClosed?: () => void;
   now(): number;
@@ -261,6 +273,9 @@ export class StationPhaseClock {
       // turn can be open yet); the shared reducer derives the same
       // "closed-by-phase" end from the phase-changed event alone.
       this.hooks.onLeaveEncounter();
+    } else {
+      // C19: the scenario schedule starts on the room clock at encounter start.
+      this.hooks.onEnterEncounter?.();
     }
     const next = this.nextAfter(phase);
     if (next === null) {

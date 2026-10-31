@@ -19,12 +19,9 @@ import {
   type EmotionEventKind,
   type EmotionTransition,
 } from "@openclinxr/conversation-policy";
-import { mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
 import {
   CAST_TRACE_OPENING_CUE_ID,
   castOpeningReplyId,
-  cloneCastContext,
   isCastOpening,
   readCastContext,
   transitionWithCastHold,
@@ -116,17 +113,13 @@ export const PROBE_CASE_EMOTION_POLICY: CaseEmotionPolicy = {
  * no identity); the reducer ignores it like presence. C11 adds
  * note-submitted (the learner's patient note was accepted in the note phase;
  * chars set, the note TEXT never enters the trace); the reducer ignores it
- * for turns/emotions. */
+ * for turns/emotions. C19 adds scheduled-event (a server-clock cast
+ * interjection: actorId + turnId + eventId + tag, never text); the reducer
+ * opens one turn with replyId `scheduled:<eventId>`. */
 export type ConversationTraceEventKind =
-  | "select-actor"
-  | "utterance-start"
-  | "utterance-end"
-  | "turn-completed"
-  | "observer-joined"
-  | "observer-left"
-  | "phase-changed"
-  | "rotation-failed"
-  | "note-submitted";
+  | "select-actor" | "utterance-start" | "utterance-end" | "turn-completed"
+  | "observer-joined" | "observer-left" | "phase-changed" | "rotation-failed"
+  | "note-submitted" | "scheduled-event";
 
 /** One conversation event, in application order. Actor-agnostic: the learner
  * appears as utterance events with no sessionId; utterance-end names the
@@ -145,6 +138,8 @@ export interface ConversationTraceEvent {
   phase?: string;
   /** C11 accepted-note length for "note-submitted" events; undefined otherwise. The note text never enters the trace. */
   chars?: number;
+  /** C19 schedule entry id + trace tag for "scheduled-event" events; undefined otherwise. Never text. */
+  eventId?: string; tag?: string;
 }
 
 /** One server-driven actor turn, recomputed from events alone. */
@@ -287,6 +282,17 @@ export function reduceConversationEvents(
         }
         break;
       }
+      case "scheduled-event": {
+        // C19: the server-clock interjection opens one turn with replyId
+        // `scheduled:<eventId>` (empty cue, no emotion: nothing was
+        // acknowledged or interrupted). Later turn-completed / interrupt /
+        // phase-close handling is generic above and below.
+        const scheduledId = typeof event.eventId === "string" ? event.eventId : "";
+        const scheduledTurnId = turns.length + 1;
+        turns.push({ turnId: scheduledTurnId, actorId: event.actorId, replyId: `scheduled:${scheduledId}`, cueId: "", startSeq: event.seq ?? 0, end: "open", endSeq: null });
+        openTurnId = scheduledTurnId;
+        break;
+      }
       case "observer-joined":
       case "observer-left":
       case "rotation-failed":
@@ -338,20 +344,17 @@ export interface ReplayableConversationTrace {
     turnId: number | null;
     phase?: string;
     chars?: unknown;
+    eventId?: unknown;
+    tag?: unknown;
   }[];
 }
 
 function isTraceEventKind(kind: string): kind is ConversationTraceEventKind {
   return (
-    kind === "select-actor" ||
-    kind === "utterance-start" ||
-    kind === "utterance-end" ||
-    kind === "turn-completed" ||
-    kind === "observer-joined" ||
-    kind === "observer-left" ||
-    kind === "rotation-failed" ||
-    kind === "phase-changed" ||
-    kind === "note-submitted"
+    kind === "select-actor" || kind === "utterance-start" || kind === "utterance-end" ||
+    kind === "turn-completed" || kind === "observer-joined" || kind === "observer-left" ||
+    kind === "rotation-failed" || kind === "phase-changed" || kind === "note-submitted" ||
+    kind === "scheduled-event"
   );
 }
 
@@ -369,6 +372,12 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
     }
     if (typeof event.chars === "number") {
       out.chars = event.chars;
+    }
+    if (typeof event.eventId === "string") {
+      out.eventId = event.eventId;
+    }
+    if (typeof event.tag === "string") {
+      out.tag = event.tag;
     }
     return out;
   });
@@ -392,108 +401,3 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
 /** Persisted-file name suffix for the review-safe conversation trace. */
 export const CONVERSATION_TRACE_FILE_SUFFIX = ".conversation-trace.json";
 
-/**
- * Live conversation tracer owned by one encounter room: appends
- * actor-agnostic events, resolves per-actor emotion transitions from the
- * probe policy, derives the trace view with the shared pure reducer, and
- * persists the review-safe file. The room adds only the clock timer that
- * emits turn-completed; everything else here is shared with replay.
- */
-export class ConversationTracer {
-  private events: ConversationTraceEvent[] = [];
-  private engines = new Map<string, EmotionEngine>();
-  /** C7 station partition key for the owning room ("" when no stations). */
-  private stationId = "";
-  /** C18 the slot's scenario id ("" off a cast station). */
-  private scenarioId = "";
-  /** C18 recorded cast context for the reducer (undefined off-cast). */
-  private castContext: ConversationCastContext | undefined = undefined;
-  /**
-   * C17 emotion policy for the owning room (PROBE policy unless the room sets
-   * its cast station's policy). Live transitions resolve against it; C18 the
-   * shared pure reducer resolves against the recorded cast context, so a
-   * cast session's persisted emotions match the live values.
-   */
-  private emotionPolicy: CaseEmotionPolicy = PROBE_CASE_EMOTION_POLICY;
-  /** C17 engine starting emotion (PROBE baseline unless the room sets its cast baseline). */
-  private emotionBaseline: CaseEmotionPolicy["baseline"] = PROBE_CASE_EMOTION_POLICY.baseline;
-
-  /** C7: bind the owning room's station before any event is pushed. */
-  setStationId(stationId: string): void {
-    this.stationId = stationId;
-  }
-
-  /** C17: bind the owning room's emotion policy + engine baseline (cast stations). */
-  setStationEmotionPolicy(policy: CaseEmotionPolicy): void {
-    this.emotionPolicy = policy;
-    this.emotionBaseline = policy.baseline;
-  }
-
-  /** C18: bind the owning room's cast (scenario id, roster, policy + baseline). Null clears back to off-cast. */
-  setStationCast(cast: { scenarioId: string; actors: string[]; baseline: string; emotionPolicy: CaseEmotionPolicy } | null): void {
-    if (cast === null) {
-      this.scenarioId = "";
-      this.castContext = undefined;
-      this.emotionPolicy = PROBE_CASE_EMOTION_POLICY;
-      this.emotionBaseline = PROBE_CASE_EMOTION_POLICY.baseline;
-      return;
-    }
-    this.scenarioId = cast.scenarioId;
-    this.emotionPolicy = cast.emotionPolicy;
-    this.emotionBaseline = cast.emotionPolicy.baseline;
-    this.castContext = cloneCastContext({
-      scenarioId: cast.scenarioId,
-      actors: [...cast.actors],
-      baseline: cast.baseline,
-      emotionPolicy: cast.emotionPolicy,
-    });
-  }
-
-  /** Append one conversation event, in application order. */
-  push(event: ConversationTraceEvent): void {
-    this.events.push(event);
-  }
-
-  /** Resolve one emotion transition for an actor, advancing its engine. */
-  transition(actorId: string, kind: EmotionEventKind, turnIndex: number): EmotionTransition {
-    let engine = this.engines.get(actorId);
-    if (!engine) {
-      engine = new EmotionEngine(this.emotionBaseline);
-      this.engines.set(actorId, engine);
-    }
-    // C17/C18 no-match hold lives in conversation-trace-cast.ts (single source).
-    return transitionWithCastHold(engine, this.emotionPolicy, kind, turnIndex);
-  }
-
-  /** Live trace view: events copied, turns + emotions recomputed by the reducer. */
-  snapshot(): ConversationTrace {
-    const { turns, emotions } = reduceConversationEvents(this.events, this.castContext);
-    const out: ConversationTrace = {
-      schema: CONVERSATION_TRACE_SCHEMA,
-      stationId: this.stationId,
-      scenarioId: this.scenarioId,
-      events: this.events.map((event) => ({ ...event })),
-      turns,
-      emotions,
-    };
-    if (this.castContext !== undefined) {
-      out.cast = cloneCastContext(this.castContext);
-    }
-    return out;
-  }
-
-  /**
-   * Best-effort trace persistence: one <roomId>.conversation-trace.json in
-   * dir (mkdir -p), written synchronously so room dispose leaves the file
-   * behind. Failures never propagate; probe evidence must not break dispose
-   * or server close.
-   */
-  persist(dir: string, roomId: string): void {
-    try {
-      mkdirSync(dir, { recursive: true });
-      writeFileSync(join(dir, `${roomId}${CONVERSATION_TRACE_FILE_SUFFIX}`), `${JSON.stringify(this.snapshot())}\n`, "utf8");
-    } catch {
-      // Probe evidence only.
-    }
-  }
-}

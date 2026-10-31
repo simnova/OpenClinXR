@@ -47,7 +47,8 @@ function isReplayTraceEventKind(kind: unknown): boolean {
     kind === "observer-left" ||
     kind === "phase-changed" ||
     kind === "rotation-failed" ||
-    kind === "note-submitted"
+    kind === "note-submitted" ||
+    kind === "scheduled-event"
   );
 }
 
@@ -68,6 +69,8 @@ interface RawReplayEvent {
   turnId?: unknown;
   phase?: unknown;
   chars?: unknown;
+  eventId?: unknown;
+  tag?: unknown;
 }
 
 interface RawReplayTurn {
@@ -141,7 +144,6 @@ export function loadReplayStationTrace(
   entry: SessionReviewStationEntry,
   stationCount: number,
 ): LoadedReplayStation {
-  const stationId = entry.stationId;
   let traceRaw: string;
   try {
     traceRaw = readFileSync(join(dir, entry.traceFile), "utf8");
@@ -182,6 +184,14 @@ export function loadReplayStationTrace(
     // note text itself was never recorded and is never replayed.
     if (typeof item.chars === "number") {
       event.chars = item.chars;
+    }
+    // C19: the scheduled interjection replays its entry id + tag (ids only,
+    // never text); the replyId comes from the recorded turn like every turn.
+    if (typeof item.eventId === "string") {
+      event.eventId = item.eventId;
+    }
+    if (typeof item.tag === "string") {
+      event.tag = item.tag;
     }
     events.push(event);
   }
@@ -243,4 +253,55 @@ export function loadReplayStationTrace(
     scenarioId,
     ...(cast === undefined ? {} : { cast }),
   };
+}
+
+/** Default ms between recorded replay events when replayStepMs is not configured. */
+export const DEFAULT_REPLAY_STEP_MS = 300;
+
+/**
+ * Validate server replay step config. Returns the step when configured, the
+ * default when absent. Throws on invalid (fail fast at boot, never per join).
+ */
+export function parseReplayStepMs(value: unknown): number {
+  if (value === undefined) {
+    return DEFAULT_REPLAY_STEP_MS;
+  }
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    throw new Error("bad-replay-step-ms: replayStepMs must be a finite number > 0");
+  }
+  return value;
+}
+
+/** Minimal replay-room state surface a scheduled interjection replays into. */
+export interface ScheduledReplayState {
+  turnId: number;
+  turnOwner: string;
+  actors: { get(id: string): { speaking: boolean; replyId: string; cueId: string; emotion: string } | undefined };
+}
+
+/**
+ * C19 faculty replay of one scheduled interjection: the recorded turn plays
+ * into schema state AS RECORDED (replyId/cueId from trace.turns, no emotion
+ * consumed — the live interjection emitted no transition). Returns the open
+ * turn for the caller to hold, or null when the event is not scheduled.
+ */
+export function applyScheduledReplayEvent(
+  state: ScheduledReplayState,
+  turnsById: ReadonlyMap<number, LoadedReplayStation["turns"][number]>,
+  event: ConversationTraceEvent,
+): { turnId: number; actorId: string } | null {
+  if (event.kind !== "scheduled-event" || event.turnId === null) {
+    return null;
+  }
+  const entry = turnsById.get(event.turnId);
+  const actor = entry && entry.actorId !== "" ? state.actors.get(entry.actorId) : undefined;
+  if (!entry || !actor) {
+    return null;
+  }
+  state.turnId = entry.turnId;
+  actor.speaking = true;
+  actor.replyId = entry.replyId;
+  actor.cueId = entry.cueId;
+  state.turnOwner = "actor";
+  return { turnId: entry.turnId, actorId: entry.actorId };
 }

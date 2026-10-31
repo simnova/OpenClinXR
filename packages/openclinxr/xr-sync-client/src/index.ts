@@ -106,6 +106,8 @@ export interface EncounterSnapshot {
   scenarioId?: string;
   /** C16 scenario title of the current station ("" without scenarios; absent on old servers). */
   scenarioTitle?: string;
+  /** C19 last schedule eventId that fired on this station ("" before any fire; absent on old servers). */
+  lastScheduledEventId?: string;
 }
 
 /** Live headset-side connection: intents out, snapshots in. */
