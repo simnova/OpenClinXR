@@ -1,9 +1,9 @@
 {
   "schemaVersion": "openclinxr.room-frames-fixture.v1",
   "generatedFrom": {
-    "captureManifestSha256": "63464ffd35759768ff720853d3836bdc63d1ad996f0ffb592b95954c6dc025eb",
-    "capturedAt": "2026-10-31T18:45:34.748Z",
-    "captureCommit": "8fbd1aa17b74f9d2db5135cfa018685306f3d9ee"
+    "captureManifestSha256": "4236f11b19741441068c11a7b1bf6448353253b9341db32104b3d9f9f05f41ae",
+    "capturedAt": "2026-10-31T20:24:35.394Z",
+    "captureCommit": "05d2375850bb5911a85f8c1644fb9b440c0557e1"
   },
   "sourcePins": [
     {
@@ -4996,7 +4996,7 @@
     },
     {
       "path": "tools/openclinxr/evidence/station-capture/refine-camera-for-occlusion-and-containment.ts",
-      "sha256": "e9d2e7a6f19cce94d61a04514dc8bf9836ad6f8f6950fda7bed587c04a931b64"
+      "sha256": "0c6891ce3903414abcc7d49729ee2410602fc2f1a15dea9c1abfd9554252c9b1"
     },
     {
       "path": "tools/openclinxr/evidence/station-capture/run-camera-sweep.ts",
@@ -5011,97 +5011,97 @@
       "sha256": "0dcd06c66f5acd0ccc42401c8d1fed8ee1351f889861ca13ecc8c79fec1a9f95"
     }
   ],
-  "sourcePinsDigest": "c61d9a474a97f630170ea71cb38ad69d54b2c2705dc661ca96d3d9aa8c3f0290",
+  "sourcePinsDigest": "b7ef3b26989c1f6e384b6a6de7eb7b85d0db9ea759951d1df3b8889e6621511a",
   "entries": [
     {
       "scenarioId": "adult_abdominal_pain_v1",
       "file": "adult_abdominal_pain_v1-room.png",
-      "sha256": "440bf3f0ca7442c9eb4c63781a1b050d96c71b0bf63c75a70bf6cc5adb5b9c20",
-      "size": 657537
+      "sha256": "ecd43983ebee4614c1f597e3f1668c0191bfaa4a9d5b1c21e97c1e1d331c5048",
+      "size": 658747
     },
     {
       "scenarioId": "clinic_abdominal_pain_interpreter_v1",
       "file": "clinic_abdominal_pain_interpreter_v1-room.png",
-      "sha256": "081d178cb935121c9c37d249f42608e56c8aa6ba930d80bfbd0bebb9dd5499d6",
-      "size": 733652
+      "sha256": "86dc5da6dd799481d17170f4fbbbb57cebea84b69825c213d214620143318c7a",
+      "size": 731849
     },
     {
       "scenarioId": "ed_chest_pain_priority_v1",
       "file": "ed_chest_pain_priority_v1-room.png",
-      "sha256": "0f0334d2171fe6c2152f79f1676fbe69e3fb5095ba7f6a4fcb3dc59008d1299e",
-      "size": 777637
+      "sha256": "da99c709708591ed28c7fe96f5d5788ad1a13f5635e1ee15440dae2be2cbd720",
+      "size": 777159
     },
     {
       "scenarioId": "ed_chest_pain_priority_v2",
       "file": "ed_chest_pain_priority_v2-room.png",
-      "sha256": "e67c226ca7bbd1264968eaaded8c34215ffea24c51d72cb8525a527e337d6a93",
-      "size": 756954
+      "sha256": "e59ca50d552d637d32c26c925cba84acd2a796297d6d2d280f282f157fd193ea",
+      "size": 768332
     },
     {
       "scenarioId": "ed_stroke_alert_handoff_v1",
       "file": "ed_stroke_alert_handoff_v1-room.png",
-      "sha256": "f6d0b764c2d6a215564b1d2cace06c6b41f04211081f0ef1fdd44be62a8b2579",
-      "size": 766095
+      "sha256": "79f86d7fce4116d3db821f70c9b2fc9b6c5dd65ce708d8e0c1d19cf75d5caed1",
+      "size": 765466
     },
     {
       "scenarioId": "ob_headache_preeclampsia_triage_v1",
       "file": "ob_headache_preeclampsia_triage_v1-room.png",
-      "sha256": "6153086c983d67f6eb6942e41aa56e87be8f339eb07915d8b0e8d5930b681510",
-      "size": 797176
+      "sha256": "c37408a2b2e691c771a9beedfbac255f534d6b8688cb7b7022f57534ad3b6720",
+      "size": 798631
     },
     {
       "scenarioId": "oncology_bad_news_family_v1",
       "file": "oncology_bad_news_family_v1-room.png",
-      "sha256": "f9daf971a7b5af645d7cba6def9cfe6d3b8fe3ce74f70503b36b4213b45a5642",
-      "size": 790142
+      "sha256": "13a5028ec487cc36abca6ec0a4c2945443186c1bb6f1d5330ecd47ccaad8d943",
+      "size": 789728
     },
     {
       "scenarioId": "peds_asthma_parent_anxiety_v1",
       "file": "peds_asthma_parent_anxiety_v1-room.png",
-      "sha256": "2e45b65ef6ba0a8c860c68e7a1ef64de73599f47375d67ce1526810e7f9de179",
-      "size": 646474
+      "sha256": "ca89017b138ff7ce36f2f6ced42391cc2a6121736ff4d5703b9b21202653b334",
+      "size": 658090
     },
     {
       "scenarioId": "peds_fever_v1",
       "file": "peds_fever_v1-room.png",
-      "sha256": "69900ccac5034eb34e2efbfe5bf0a2ab00490d2f724e22e52ef23c2cdf26770e",
-      "size": 821586
+      "sha256": "c5048246d2efbc4437853a10fdf4b7dc37e17bea93a8388803117b34cd232635",
+      "size": 821567
     },
     {
       "scenarioId": "postop_fever_consult_pressure_v1",
       "file": "postop_fever_consult_pressure_v1-room.png",
-      "sha256": "6d681d759fd13b0933fc4993a7827c5fbccd051ec2ab62d073469fd0e86b168a",
-      "size": 738511
+      "sha256": "775ecb8eacd90a5e7b24ed050c0443b90f3b87d5b5c41fff3d32c5ab0a157e85",
+      "size": 739471
     },
     {
       "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
       "file": "primary_care_dyslipidemia_joint_pain_v1-room.png",
-      "sha256": "ea63755f8eaa592b40c7539a3e26901cf2e9db93c4316d966ee2c6f484dca3ff",
-      "size": 793649
+      "sha256": "39bab07403b98bd321f021ed06619a345f882da05f6a924b8f64b55cfff18687",
+      "size": 793716
     },
     {
       "scenarioId": "psych_suicidal_ideation_safety_v1",
       "file": "psych_suicidal_ideation_safety_v1-room.png",
-      "sha256": "55e684eee7f367fc56f7fea98bef75aec1b165f55eef2c352257df66173bb036",
-      "size": 636846
+      "sha256": "5545d34f4bb1cc71f08246442a5b203793bb9e4f88e256de0f9e6a447473c531",
+      "size": 636273
     },
     {
       "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
       "file": "stepdown_sepsis_nurse_escalation_v1-room.png",
-      "sha256": "406daf38ea02ca7f02a96ca231271498e6254735854177b8696248a4832c27ea",
-      "size": 689080
+      "sha256": "40b49856504d29075b12160a6d9d1a017c662aa83c29e7cc91098d1b29683255",
+      "size": 689340
     },
     {
       "scenarioId": "telehealth_diabetes_health_literacy_v1",
       "file": "telehealth_diabetes_health_literacy_v1-room.png",
-      "sha256": "e7e396fd4a6c3cad07ccafb6059c54797b0eeb6af339b1b8911995b327aae770",
-      "size": 670337
+      "sha256": "46f20ca1b0860e94a59d15044214574defb8c9bc3ab14aa5f70a9d2b87779876",
+      "size": 670177
     },
     {
       "scenarioId": "ward_delirium_med_rec_v1",
       "file": "ward_delirium_med_rec_v1-room.png",
-      "sha256": "ef44e9862ef44a02b72edf5b074d1279117b7f3569c9e82439375d69591e25c3",
-      "size": 478249
+      "sha256": "928f17880881462bca49cb15a8f6c3a27e69d8d2e452a7102f08c713f83b3b99",
+      "size": 690228
     }
   ]
 }
