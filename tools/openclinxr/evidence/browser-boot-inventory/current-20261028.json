@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-10-30T17:53:19.854Z",
+  "generatedAt": "2026-10-31T00:20:13.527Z",
   "method": "static import-graph scan of tools/**/*.test.ts; value imports only; call detection after stripping comments and string literals",
   "primitives": [
     "spawnPortlessDevServer (lib/portless-server.ts — boots a Vite dev server)",
     "chromium.launch (playwright — boots a headless Chrome shell)"
   ],
-  "totalTestFiles": 1052,
-  "browserBootingTestFiles": 70,
+  "totalTestFiles": 909,
+  "browserBootingTestFiles": 63,
   "excludedAmongBrowserBooting": 0,
-  "minBrowsersPerSuiteRun": 69,
-  "minServersPerSuiteRun": 68,
-  "staticUpperBoundBrowsers": 215,
-  "staticUpperBoundServers": 211,
+  "minBrowsersPerSuiteRun": 62,
+  "minServersPerSuiteRun": 61,
+  "staticUpperBoundBrowsers": 175,
+  "staticUpperBoundServers": 176,
   "rows": [
     {
       "testFile": "tools/openclinxr/dark-factory/the-multi-case-rollup-publishes-only-explicitly.test.ts",
@@ -876,163 +876,6 @@
       "invokedPathBrowserCallSites": 1
     },
     {
-      "testFile": "tools/openclinxr/evidence/station-capture/the-fifteen-station-rooms-are-one-contact-sheet.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 22,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/station-capture/assemble-station-room-grade-set.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/station-capture/assemble-station-room-grade-set.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts",
-        "tools/openclinxr/evidence/isolated-subject-harness.ts"
-      ],
-      "closureServerCallSites": 7,
-      "closureBrowserCallSites": 8,
-      "invokedPathServerCallSites": 1,
-      "invokedPathBrowserCallSites": 2
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/station-capture/the-fifteen-stations-are-counted-after-the-client-graph-fix.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 19,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "closureServerCallSites": 1,
-      "closureBrowserCallSites": 1,
-      "invokedPathServerCallSites": 1,
-      "invokedPathBrowserCallSites": 1
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/station-capture/the-one-case-render-cause-is-classified.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 18,
-      "directLaunchers": [],
-      "launcherModules": [
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "closureServerCallSites": 1,
-      "closureBrowserCallSites": 1,
-      "invokedPathServerCallSites": 0,
-      "invokedPathBrowserCallSites": 0
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/station-capture/the-station-capture-contains-standing-actors-on-all-four-edges.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 25,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/station-capture/assemble-station-room-grade-set.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/station-capture/assemble-station-room-grade-set.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts",
-        "tools/openclinxr/evidence/isolated-subject-harness.ts"
-      ],
-      "closureServerCallSites": 7,
-      "closureBrowserCallSites": 8,
-      "invokedPathServerCallSites": 1,
-      "invokedPathBrowserCallSites": 2
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/station-capture/the-station-capture-frames-actors-head-to-foot.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 24,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/station-capture/assemble-station-room-grade-set.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/station-capture/assemble-station-room-grade-set.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts",
-        "tools/openclinxr/evidence/isolated-subject-harness.ts"
-      ],
-      "closureServerCallSites": 7,
-      "closureBrowserCallSites": 8,
-      "invokedPathServerCallSites": 1,
-      "invokedPathBrowserCallSites": 2
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/station-capture/the-station-capture-frames-the-room-interior.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 23,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/station-capture/assemble-station-room-grade-set.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/station-capture/assemble-station-room-grade-set.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts",
-        "tools/openclinxr/evidence/isolated-subject-harness.ts"
-      ],
-      "closureServerCallSites": 7,
-      "closureBrowserCallSites": 8,
-      "invokedPathServerCallSites": 1,
-      "invokedPathBrowserCallSites": 2
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/station-capture/the-station-capture-has-an-unobstructed-contained-actor.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 25,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/station-capture/assemble-station-room-grade-set.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/station-capture/assemble-station-room-grade-set.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts",
-        "tools/openclinxr/evidence/isolated-subject-harness.ts"
-      ],
-      "closureServerCallSites": 7,
-      "closureBrowserCallSites": 8,
-      "invokedPathServerCallSites": 1,
-      "invokedPathBrowserCallSites": 2
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/station-capture/the-wait-predicates-use-the-page-global.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 17,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "closureServerCallSites": 1,
-      "closureBrowserCallSites": 1,
-      "invokedPathServerCallSites": 1,
-      "invokedPathBrowserCallSites": 1
-    },
-    {
       "testFile": "tools/openclinxr/evidence/station-room-not-empty.test.ts",
       "excludedFromTestTools": false,
       "acquisitionMode": "own",
@@ -1185,6 +1028,26 @@
       "closureBrowserCallSites": 2,
       "invokedPathServerCallSites": 2,
       "invokedPathBrowserCallSites": 2
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/the-ob-nurse-stands-on-the-floor.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 44,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/actor-floor-contact-all-stations.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/actor-floor-contact-all-stations.ts",
+        "tools/openclinxr/evidence/declared-actors-rendered.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 3,
+      "closureBrowserCallSites": 3,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
     },
     {
       "testFile": "tools/openclinxr/evidence/the-room-camera-lands-in-the-same-place-twice.test.ts",
