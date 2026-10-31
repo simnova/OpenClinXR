@@ -37,6 +37,7 @@ import {
   signoffCenter,
   type C14Evidence,
 } from "./probe-c14.js";
+import { runC15Script } from "./probe-c15.js";
 import { PROBE_ACTOR_IDS, resolvePhaseLabel } from "./probe-state.js";
 import { parseC11NoteMaxChars } from "./probe-query.js";
 
@@ -270,6 +271,28 @@ export async function runProbeScript(deps: ProbeScriptDeps): Promise<void> {
       setStatus,
       evidence: deps.c14,
       counts: () => ({ acks: deps.intentCounts().acks, rejects: deps.intentCounts().rejects }),
+    });
+  } else if (deps.script === "c15") {
+    // C15 blueprint session: the shared C3 turn script once per blueprint
+    // station (server rotation), with the station label panel tracked.
+    await runC15Script({
+      waitFor,
+      sendIntentAndSettle,
+      aimAndTrigger,
+      enqueueSelectA1: () => deps.enqueueSelectA1(),
+      settlePreProbe: async () => {
+        const target = deps.intentCounts().sent;
+        await waitFor(
+          () => deps.intentCounts().acks + deps.intentCounts().rejects >= target,
+          15000,
+          "station pre-encounter settled",
+        );
+      },
+      getSnapshot,
+      setStatus,
+      setPoseStreaming: (enabled) => {
+        deps.setPoseStreaming(enabled);
+      },
     });
   } else {
     for (const actorId of PROBE_ACTOR_IDS) {

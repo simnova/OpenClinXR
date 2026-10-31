@@ -100,7 +100,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   /** C6 host-clock ms per entered phase (Date.now at phase enter). Probe only, never in the trace. */
   private phaseChangedAtMs = new Map<string, number>();
   /** C7 per-server station binding (stations + single-use nonces), shared by reference. */
-  protected stationBinding: StationBinding = { stations: null, creationNonces: new Map(), joinNonces: new Set(), appliedPoseByStation: new Map(), rotationFaults: { failNext: 0, bogusRotate: false } };
+  protected stationBinding: StationBinding = { stations: null, examBlueprint: null, creationNonces: new Map(), joinNonces: new Set(), appliedPoseByStation: new Map(), rotationFaults: { failNext: 0, bogusRotate: false } };
   /** C7 rotation guard: closed fires once per room; this is the backstop. */
   private rotationStarted = false;
 
@@ -146,6 +146,11 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     this.state.phaseRemainingS = 0;
     // C7 station assignment: server binding + creation nonce only (never client roomOptions).
     const station = configureStationRoom(this.stationBinding, options, this.state, this.tracer);
+    // C15: the blueprint id + current slot label ride the synced state (""
+    // without a blueprint). Rotation rooms re-resolve here per station.
+    const blueprint = this.stationBinding.examBlueprint;
+    this.state.blueprintId = blueprint?.blueprintId ?? "";
+    this.state.stationLabel = blueprint?.labels.get(station.stationId) ?? "";
     this.state.actors = new MapSchema<ActorStateInstance>();
     populateActorRoster(this.state.actors, options);
     this.state.learners = new MapSchema<LearnerStateInstance>();

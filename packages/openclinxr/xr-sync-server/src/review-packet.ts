@@ -24,7 +24,7 @@
  *   launch-pending: a second return-to-lobby while one is in flight
  *     (one launch per replay room, mirroring the C12/C13 lobby guard).
  */
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { join, resolve, sep } from "node:path";
 import type { Client } from "@colyseus/core";
 import {
@@ -338,14 +338,23 @@ export function rejectReplayGuardedIntent(
 /**
  * C14 boot guard: the score packet lives BESIDE the replay directory, never
  * equal to or inside it (the replay dir stays byte-identical). Throws a
- * named error; createEncounterServer rejects.
+ * named error; createEncounterServer rejects. C15: paths are compared by
+ * real path (realpathSync for paths that exist, resolve otherwise), so a
+ * scoreDir that is a symlink resolving inside replayDir is refused too.
  */
 export function assertScoreDirOutsideReplayDir(replayDir: string | null, scoreDir: string | null): void {
   if (replayDir === null || scoreDir === null) {
     return;
   }
-  const resolved = resolve(scoreDir);
-  const base = resolve(replayDir);
+  const canonical = (candidate: string): string => {
+    try {
+      return realpathSync(candidate);
+    } catch {
+      return resolve(candidate);
+    }
+  };
+  const resolved = canonical(scoreDir);
+  const base = canonical(replayDir);
   if (resolved === base || resolved.startsWith(`${base}${sep}`)) {
     throw new Error(`bad-score-dir: scoreDir must not equal or sit inside replayDir`);
   }

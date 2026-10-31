@@ -10,8 +10,8 @@ export interface ProbeQuery {
   autostart: boolean;
   /** Quest mode: install the IWER runtime even when a native runtime is present. */
   forceIwer: boolean;
-  /** Probe script: "c2" (sweep + select each actor), "c3" (server-driven actor turn), "c6" (phase-gated C3 inside the encounter window), "c7" (C3 script once per station with server rotation), "c8" (c7 loop with pose streaming on + observer badge), "c10" (faculty replay of one recorded station), "c11" (C3 script once + patient-note submits in the note phase), "c12" (review lobby: trigger station-2, watch its replay), "c13" (c12 flow + rubric score submit + return to lobby), or "c14" (c13 flow + lobby sign-off finalize). */
-  script: "c2" | "c3" | "c6" | "c7" | "c8" | "c10" | "c11" | "c12" | "c13" | "c14";
+  /** Probe script: "c2" (sweep + select each actor), "c3" (server-driven actor turn), "c6" (phase-gated C3 inside the encounter window), "c7" (C3 script once per station with server rotation), "c8" (c7 loop with pose streaming on + observer badge), "c10" (faculty replay of one recorded station), "c11" (C3 script once + patient-note submits in the note phase), "c12" (review lobby: trigger station-2, watch its replay), "c13" (c12 flow + rubric score submit + return to lobby), "c14" (c13 flow + lobby sign-off finalize), or "c15" (C3 script once per blueprint station with server rotation + label panel). */
+  script: "c2" | "c3" | "c6" | "c7" | "c8" | "c10" | "c11" | "c12" | "c13" | "c14" | "c15";
   /** C10 faculty replay: the recorded station id to replay (from ?replayStationId=; "" otherwise). */
   replayStationId: string;
 }
@@ -24,7 +24,7 @@ export function parseProbeQuery(search: string): ProbeQuery {
     throw new Error(`invalid or missing ?sync= ws url: ${syncUrl.slice(0, 80)}`);
   }
   const scriptParam = params.get("script") ?? "c2";
-  if (scriptParam !== "c2" && scriptParam !== "c3" && scriptParam !== "c6" && scriptParam !== "c7" && scriptParam !== "c8" && scriptParam !== "c10" && scriptParam !== "c11" && scriptParam !== "c12" && scriptParam !== "c13" && scriptParam !== "c14") {
+  if (scriptParam !== "c2" && scriptParam !== "c3" && scriptParam !== "c6" && scriptParam !== "c7" && scriptParam !== "c8" && scriptParam !== "c10" && scriptParam !== "c11" && scriptParam !== "c12" && scriptParam !== "c13" && scriptParam !== "c14" && scriptParam !== "c15") {
     throw new Error(`invalid ?script= value: ${scriptParam.slice(0, 20)}`);
   }
   const replayStationId = params.get("replayStationId") ?? "";

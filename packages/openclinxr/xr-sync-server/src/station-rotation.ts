@@ -180,6 +180,8 @@ export interface StationBinding {
   rotationFaults: RotationFaults;
   /** C9 held review entries + write-once flag (lazily attached on first close). */
   review?: SessionReviewCollector;
+  /** C15 factory blueprint identity + per-station labels (null without a blueprint). */
+  examBlueprint: { blueprintId: string; labels: ReadonlyMap<string, string> } | null;
 }
 
 /** C8: record one applied pose for the station (exact F3 cross-check source). */

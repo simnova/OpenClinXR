@@ -96,6 +96,10 @@ export interface EncounterSnapshot {
   lobbyScores?: Array<{ stationId: string; checkedCount: number }>;
   /** C14 true once the reviewer signed off (the packet exists in scoreDir; lobby only). */
   reviewFinalized?: boolean;
+  /** C15 factory blueprint id ("" without a blueprint; absent on old servers). */
+  blueprintId?: string;
+  /** C15 current slot label ("" without a blueprint; absent on old servers). */
+  stationLabel?: string;
 }
 
 /** Live headset-side connection: intents out, snapshots in. */

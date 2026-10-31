@@ -2737,6 +2737,9 @@ importers:
       '@openclinxr/conversation-policy':
         specifier: workspace:*
         version: link:../conversation-policy
+      '@openclinxr/shared-schemas':
+        specifier: workspace:*
+        version: link:../shared-schemas
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*

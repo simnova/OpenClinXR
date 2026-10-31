@@ -38,6 +38,7 @@ import type { C11NoteEvidence } from "./probe-c11.js";
 import { createC12LobbyEvidence, createC12LobbyTracker, handleC12SelectEvent, type C12LobbyEvidence } from "./probe-c12.js";
 import { createC13Evidence, createC13Tracker, handleC13Trigger, type C13Evidence } from "./probe-c13.js";
 import { createC14Evidence, createC14Tracker, handleC14Trigger, type C14Evidence } from "./probe-c14.js";
+import { createC15Evidence, trackC15Snapshot, type C15Evidence } from "./probe-c15.js";
 import { runProbeScript } from "./probe-script.js";
 import { attachC8RotationFailed, createC8ObserverTracker, pushC8StationObservation } from "./probe-c8.js";
 import { createIntentQueue, drainIntents, waitFor } from "./probe-queue.js";
@@ -104,6 +105,7 @@ interface SyncProbeEvidence {
   c12: C12LobbyEvidence; // C12 review-lobby evidence (tiles, trigger hit, select ack, modes).
   c13: C13Evidence; // C13 faculty-score evidence (rubric toggles, submit, return, badges).
   c14: C14Evidence; // C14 sign-off evidence (sign-off trigger, finalize sent, finalized flag, badge).
+  c15: C15Evidence; // C15 blueprint labels rendered (one entry per station, in rotation order).
   done: boolean;
   error: string | null;
 }
@@ -154,6 +156,7 @@ function createEvidence(): SyncProbeEvidence {
     c12: createC12LobbyEvidence(),
     c13: createC13Evidence(),
     c14: createC14Evidence(),
+    c15: createC15Evidence(),
     done: false,
     error: null,
   };
@@ -301,6 +304,7 @@ async function main(): Promise<void> {
     trackC12Lobby(snapshot);
     trackC13(snapshot);
     trackC14(snapshot);
+    trackC15Snapshot(probe, snapshot);
     // C6: phase label + ring follow the SERVER only (pure functions of
     // phase/remainingS). The pre-sync push (no server fields) is skipped.
     const phaseField = (snapshot as { phase?: unknown }).phase;
@@ -343,7 +347,7 @@ async function main(): Promise<void> {
   probe.phase = "connected";
   setStatus("sync-probe connected, waiting for session");
 
-  if (query.script === "c6" || query.script === "c7" || query.script === "c8") {
+  if (query.script === "c6" || query.script === "c7" || query.script === "c8" || query.script === "c15") {
     // Gating probe at connect (doorway): before any XR setup.
     await runC6PreEncounterProbe({
       sent: () => probe.sent,
@@ -356,7 +360,7 @@ async function main(): Promise<void> {
   let lastPoseSendAt = 0;
   let referenceSpace: XRReferenceSpace | null = null;
   let presenting = false;
-  let poseStreaming = query.script !== "c10" && query.script !== "c12" && query.script !== "c13" && query.script !== "c14";
+  let poseStreaming = query.script !== "c10" && query.script !== "c12" && query.script !== "c13" && query.script !== "c14" && query.script !== "c15";
 
   function onSelectEvent(event: Event): void {
     const source = (event as XRInputSourceEvent).inputSource;
@@ -394,7 +398,7 @@ async function main(): Promise<void> {
       return;
     }
     probe.selectedLocal.push(actorId);
-    if (query.script === "c3" || query.script === "c6" || query.script === "c7" || query.script === "c8") {
+    if (query.script === "c3" || query.script === "c6" || query.script === "c7" || query.script === "c8" || query.script === "c15") {
       // C3/C6/C7 mode: select-actor ONLY. Utterance intents come from the scripted
       // turn sequence below, never from the trigger.
       enqueueIntent("select-actor", { actorId });
@@ -510,7 +514,7 @@ async function main(): Promise<void> {
     // Skipped for ?script=c7/c8: the sweep generates head-pose evidence only,
     // and station-1's encounter window must fit setup + trigger + the shared
     // C3 turn script. The C3 utterance script itself is never forked.
-    const SWEEP_STEPS = query.script === "c7" || query.script === "c8" || query.script === "c10" || query.script === "c11" || query.script === "c12" || query.script === "c13" || query.script === "c14" ? 0 : 120;
+    const SWEEP_STEPS = query.script === "c7" || query.script === "c8" || query.script === "c10" || query.script === "c11" || query.script === "c12" || query.script === "c13" || query.script === "c14" || query.script === "c15" ? 0 : 120;
     for (let step = 0; step < SWEEP_STEPS; step += 1) {
       const yaw = sweepYawDegrees(step * 50);
       const quat = yawQuaternionDegrees(yaw);

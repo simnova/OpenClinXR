@@ -56,6 +56,16 @@
     ]
   },
   {
+    "provider": "@openclinxr/shared-schemas",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "ExamBlueprint",
+        "kind": "type"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/conversation-policy",
     "entrypoint": ".",
     "names": [

@@ -22,7 +22,8 @@
     "@colyseus/core": "0.18.10",
     "@colyseus/schema": "5.0.43",
     "@colyseus/ws-transport": "0.18.4",
-    "@openclinxr/conversation-policy": "workspace:*"
+    "@openclinxr/conversation-policy": "workspace:*",
+    "@openclinxr/shared-schemas": "workspace:*"
   },
   "devDependencies": {
     "@colyseus/sdk": "0.18.8",
