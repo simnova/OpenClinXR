@@ -5,8 +5,10 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   collectBundleSentry,
+  collectQuestCleanupLists,
   parseArgs,
   runHostProbe,
+  runQuestProbe,
   startStaticServer,
   summarize,
 } from "./harness-lib.mjs";
@@ -50,12 +52,12 @@ async function waitFor(condition, timeoutMs, label) {
 
 async function main(argv) {
   const options = parseArgs(argv);
-  if (options.mode !== "host") throw new Error("C22 worker evidence is HOST-only; root owns Quest runs");
   const outDir = resolve(options.out);
   const traceDir = join(outDir, "trace");
   await mkdir(traceDir, { recursive: true });
   const run = {
     mode: options.mode,
+    serial: options.mode === "quest" ? options.serial : null,
     script: "c22",
     timingOverride: TIMING,
     assertions: [],
@@ -88,9 +90,11 @@ async function main(argv) {
     }));
     syncServer = await createEncounterServer({ traceDir, examBlueprint: blueprint, scenarios });
     staticServer = await startStaticServer(APP_DIST);
-    const params = new URLSearchParams({ sync: syncServer.url, iwer: "1", autostart: "1", script: "c22" });
+    const params = new URLSearchParams({ sync: syncServer.url, iwer: "1", autostart: "1", script: "c22", ...(options.mode === "quest" ? { forceIwer: "1" } : {}) });
     run.pageUrl = `http://127.0.0.1:${staticServer.port}/sync-probe.html?${params}`;
-    const outcome = await runHostProbe({ pageUrl: run.pageUrl, outDir });
+    const outcome = options.mode === "host"
+      ? await runHostProbe({ pageUrl: run.pageUrl, outDir })
+      : await runQuestProbe({ pageUrl: run.pageUrl, outDir, serial: options.serial });
     run.probe = outcome.probe;
     run.pageErrors = outcome.pageErrors;
     run.consoleErrors = outcome.consoleErrors;
@@ -129,7 +133,13 @@ async function main(argv) {
     run.finalStation = observerStationOf(JSON.parse(syncServer.getStateJSON()));
     run.bundleCheck = await collectBundleSentry({ appDist: APP_DIST, appSrcSyncProbe: APP_SRC });
     check("thin page bundle has no server imports", run.bundleCheck.hits.length === 0, run.bundleCheck.hits.join(" | "));
-    check("page completed with only expected rejects", outcome.probe.done === true && outcome.probe.error == null && outcome.probe.rejects === scenarios.length && outcome.pageErrors.length === 0 && outcome.consoleErrors.length === 0, JSON.stringify({ done: outcome.probe.done, error: outcome.probe.error, rejects: outcome.probe.rejects, pageErrors: outcome.pageErrors, consoleErrors: outcome.consoleErrors }));
+    check("page completed with only expected rejects", outcome.probe.done === true && outcome.probe.error == null && outcome.probe.rejects === scenarios.length && outcome.pageErrors.length === 0, JSON.stringify({ done: outcome.probe.done, error: outcome.probe.error, rejects: outcome.probe.rejects, pageErrors: outcome.pageErrors, consoleErrors: outcome.consoleErrors }));
+    if (options.mode === "quest") {
+      const lists = await collectQuestCleanupLists({ staticPort: staticServer.port, syncPort: syncServer.port, serial: options.serial });
+      run.adbReverseList = lists.adbReverseList;
+      run.adbForwardList = lists.adbForwardList;
+      check("A8 Quest port cleanup", !lists.leaked, `reverse=${lists.adbReverseList} forward=${lists.adbForwardList}`);
+    }
   } catch (error) {
     process.exitCode = 1;
     run.fatal = String(error?.stack ?? error).slice(0, 1600);
