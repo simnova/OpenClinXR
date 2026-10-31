@@ -1,0 +1,136 @@
+{
+ "profile": "game",
+ "eps": 0.000212,
+ "tol": 0.004236,
+ "gap": 0.02118,
+ "pass": false,
+ "errors": [
+  "openclinxr_real_garment_peds_upper_v1_mesh: 3 back-to-back faces on the same vertices",
+  "openclinxr_real_garment_peds_upper_v1_mesh: 9 faces pointing into the part (0.17% of its surface), at edges of opposite winding",
+  "openclinxr_real_garment_peds_upper_v1_mesh__under_scrub_top: 3 back-to-back faces on the same vertices"
+ ],
+ "warnings": [
+  "openclinxr_declared_upper_layers__scrub_top+scrub_pocket: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "openclinxr_declared_upper_layers__scrub_top+scrub_pocket: no material or an empty material slot",
+  "openclinxr_footwear_clinical_shoe_L: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "openclinxr_footwear_clinical_shoe_R: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "openclinxr_real_garment_peds_upper_v1_mesh: 12 edges shared by 3 or more faces",
+  "openclinxr_real_garment_peds_upper_v1_mesh: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "openclinxr_real_garment_peds_upper_v1_mesh__under_scrub_top: 6 edges shared by 3 or more faces",
+  "openclinxr_real_garment_peds_upper_v1_mesh__under_scrub_top: no UV map (fine for flat colors; textures and lightmaps need one)"
+ ],
+ "per_object": {
+  "openclinxr_declared_upper_layers__scrub_top+scrub_pocket": {
+   "tris": 1,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "openclinxr_declared_upper_layers__scrub_top+scrub_pocket: no UV map (fine for flat colors; textures and lightmaps need one)",
+    "openclinxr_declared_upper_layers__scrub_top+scrub_pocket: no material or an empty material slot"
+   ]
+  },
+  "openclinxr_footwear_clinical_shoe_L": {
+   "tris": 80,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "openclinxr_footwear_clinical_shoe_L: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  },
+  "openclinxr_footwear_clinical_shoe_R": {
+   "tris": 80,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "openclinxr_footwear_clinical_shoe_R: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  },
+  "ed_chest_pain_nurse_adult.anny_base.001": {
+   "tris": 26692,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_real_garment_peds_upper_v1_mesh": {
+   "tris": 3834,
+   "parts": 1,
+   "errors": [
+    "openclinxr_real_garment_peds_upper_v1_mesh: 3 back-to-back faces on the same vertices",
+    "openclinxr_real_garment_peds_upper_v1_mesh: 9 faces pointing into the part (0.17% of its surface), at edges of opposite winding"
+   ],
+   "warnings": [
+    "openclinxr_real_garment_peds_upper_v1_mesh: 12 edges shared by 3 or more faces",
+    "openclinxr_real_garment_peds_upper_v1_mesh: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ],
+   "inward_faces_at": [
+    [
+     -0.1558,
+     -0.0145,
+     1.3436
+    ],
+    [
+     0.0015,
+     -0.0005,
+     0.8501
+    ],
+    [
+     0.0119,
+     -0.0027,
+     0.8576
+    ],
+    [
+     0.0055,
+     -0.0031,
+     0.874
+    ],
+    [
+     -0.0084,
+     -0.0036,
+     0.8576
+    ],
+    [
+     0.0099,
+     -0.0051,
+     0.8598
+    ],
+    [
+     -0.0064,
+     -0.006,
+     0.8598
+    ],
+    [
+     -0.0055,
+     -0.0031,
+     0.874
+    ],
+    [
+     -0.0134,
+     -0.0016,
+     0.8725
+    ]
+   ]
+  },
+  "openclinxr_real_garment_peds_upper_v1_mesh__under_scrub_top": {
+   "tris": 3879,
+   "parts": 1,
+   "errors": [
+    "openclinxr_real_garment_peds_upper_v1_mesh__under_scrub_top: 3 back-to-back faces on the same vertices"
+   ],
+   "warnings": [
+    "openclinxr_real_garment_peds_upper_v1_mesh__under_scrub_top: 6 edges shared by 3 or more faces",
+    "openclinxr_real_garment_peds_upper_v1_mesh__under_scrub_top: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+ "seconds": 2.1,
+ "mesh_names": [
+  "openclinxr_declared_upper_layers__scrub_top+scrub_pocket",
+  "openclinxr_footwear_clinical_shoe_L",
+  "openclinxr_footwear_clinical_shoe_R",
+  "ed_chest_pain_nurse_adult.anny_base.001",
+  "openclinxr_real_garment_peds_upper_v1_mesh",
+  "openclinxr_real_garment_peds_upper_v1_mesh__under_scrub_top"
+ ]
+}

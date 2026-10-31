@@ -1,0 +1,131 @@
+{
+ "profile": "game",
+ "eps": 0.000206,
+ "tol": 0.004119,
+ "gap": 0.020595,
+ "pass": false,
+ "errors": [
+  "iv_infusion_pump: unapplied scale [0.16, 0.07, 0.2]",
+  "pump_status_screen: unapplied scale [0.11, 0.015, 0.045]",
+  "iv_pole_base_leg_front: unapplied scale [0.045, 0.32, 0.035]",
+  "iv_pole_base_leg_back: unapplied scale [0.045, 0.32, 0.035]",
+  "iv_pole_base_leg_left: unapplied scale [0.32, 0.045, 0.035]",
+  "iv_pole_base_leg_right: unapplied scale [0.32, 0.045, 0.035]",
+  "iv_bag_hook: unapplied scale [0.2, 0.025, 0.025]",
+  "iv_infusion_pump: floating, 0.0752 from the nearest part",
+  "pump_status_screen: floating, 0.134 from the nearest part",
+  "iv_bag_hook: floating, 0.078 from the nearest part"
+ ],
+ "warnings": [
+  "iv_pole_with_pump: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "iv_infusion_pump: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "pump_status_screen: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "iv_pole_base_leg_front: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "iv_pole_base_leg_back: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "iv_pole_base_leg_left: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "iv_pole_base_leg_right: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "iv_bag_hook: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "iv_pole_base_leg_back <-> iv_pole_base_leg_front: 8 back-to-back touching faces",
+  "iv_pole_base_leg_left <-> iv_pole_base_leg_right: 8 back-to-back touching faces"
+ ],
+ "per_object": {
+  "iv_pole_with_pump": {
+   "tris": 60,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "iv_pole_with_pump: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  },
+  "iv_infusion_pump": {
+   "tris": 12,
+   "parts": 1,
+   "errors": [
+    "iv_infusion_pump: unapplied scale [0.16, 0.07, 0.2]",
+    "iv_infusion_pump: floating, 0.0752 from the nearest part"
+   ],
+   "warnings": [
+    "iv_infusion_pump: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  },
+  "pump_status_screen": {
+   "tris": 12,
+   "parts": 1,
+   "errors": [
+    "pump_status_screen: unapplied scale [0.11, 0.015, 0.045]",
+    "pump_status_screen: floating, 0.134 from the nearest part"
+   ],
+   "warnings": [
+    "pump_status_screen: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  },
+  "iv_pole_base_leg_front": {
+   "tris": 12,
+   "parts": 1,
+   "errors": [
+    "iv_pole_base_leg_front: unapplied scale [0.045, 0.32, 0.035]"
+   ],
+   "warnings": [
+    "iv_pole_base_leg_front: no UV map (fine for flat colors; textures and lightmaps need one)",
+    "iv_pole_base_leg_back <-> iv_pole_base_leg_front: 8 back-to-back touching faces"
+   ]
+  },
+  "iv_pole_base_leg_back": {
+   "tris": 12,
+   "parts": 1,
+   "errors": [
+    "iv_pole_base_leg_back: unapplied scale [0.045, 0.32, 0.035]"
+   ],
+   "warnings": [
+    "iv_pole_base_leg_back: no UV map (fine for flat colors; textures and lightmaps need one)",
+    "iv_pole_base_leg_back <-> iv_pole_base_leg_front: 8 back-to-back touching faces"
+   ]
+  },
+  "iv_pole_base_leg_left": {
+   "tris": 12,
+   "parts": 1,
+   "errors": [
+    "iv_pole_base_leg_left: unapplied scale [0.32, 0.045, 0.035]"
+   ],
+   "warnings": [
+    "iv_pole_base_leg_left: no UV map (fine for flat colors; textures and lightmaps need one)",
+    "iv_pole_base_leg_left <-> iv_pole_base_leg_right: 8 back-to-back touching faces"
+   ]
+  },
+  "iv_pole_base_leg_right": {
+   "tris": 12,
+   "parts": 1,
+   "errors": [
+    "iv_pole_base_leg_right: unapplied scale [0.32, 0.045, 0.035]"
+   ],
+   "warnings": [
+    "iv_pole_base_leg_right: no UV map (fine for flat colors; textures and lightmaps need one)",
+    "iv_pole_base_leg_left <-> iv_pole_base_leg_right: 8 back-to-back touching faces"
+   ]
+  },
+  "iv_bag_hook": {
+   "tris": 12,
+   "parts": 1,
+   "errors": [
+    "iv_bag_hook: unapplied scale [0.2, 0.025, 0.025]",
+    "iv_bag_hook: floating, 0.078 from the nearest part"
+   ],
+   "warnings": [
+    "iv_bag_hook: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+ "seconds": 0.1,
+ "mesh_names": [
+  "iv_pole_with_pump",
+  "iv_infusion_pump",
+  "pump_status_screen",
+  "iv_pole_base_leg_front",
+  "iv_pole_base_leg_back",
+  "iv_pole_base_leg_left",
+  "iv_pole_base_leg_right",
+  "iv_bag_hook"
+ ]
+}

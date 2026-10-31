@@ -1,0 +1,34 @@
+{
+ "makeclothes_library_female_tight_jeans_pants <-> mpfb_ob_patient_aisha_v1_body": {
+  "pairs": 1,
+  "sep_lt_1um": 0,
+  "sep_1_10um": 0,
+  "sep_gt_10um": 1,
+  "coincident_opposite_facing": 0
+ },
+ "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_v1_mesh <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_v1_mesh": {
+  "pairs": 507,
+  "sep_lt_1um": 1,
+  "sep_1_10um": 42,
+  "sep_gt_10um": 464,
+  "coincident_opposite_facing": 0,
+  "coincident_uv_delta_median": 0.0388,
+  "coincident_uv_delta_gt_0.01": 1
+ },
+ "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_v1_mesh <-> openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_v1_mesh": {
+  "pairs": 15061,
+  "sep_lt_1um": 594,
+  "sep_1_10um": 5059,
+  "sep_gt_10um": 9408,
+  "coincident_opposite_facing": 0,
+  "coincident_uv_delta_median": 0.0,
+  "coincident_uv_delta_gt_0.01": 0
+ },
+ "mpfb_ob_patient_aisha_v1_body <-> mpfb_ob_patient_aisha_v1_body": {
+  "pairs": 1,
+  "sep_lt_1um": 0,
+  "sep_1_10um": 1,
+  "sep_gt_10um": 0,
+  "coincident_opposite_facing": 0
+ }
+}

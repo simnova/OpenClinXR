@@ -1,0 +1,140 @@
+{
+ "profile": "game",
+ "eps": 0.000203,
+ "tol": 0.004061,
+ "gap": 0.020304,
+ "pass": false,
+ "errors": [
+  "openclinxr_real_garment_peds_upper_v1_mesh: 23 duplicate faces",
+  "openclinxr_real_garment_peds_upper_v1_mesh: 32 back-to-back faces on the same vertices"
+ ],
+ "warnings": [
+  "openclinxr_footwear_casual_shoe_L: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "openclinxr_footwear_casual_shoe_R: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "openclinxr_declared_upper_layers__casual_top+open_cardigan: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "openclinxr_declared_upper_layers__casual_top+open_cardigan: no material or an empty material slot",
+  "openclinxr_real_garment_peds_upper_v1_mesh__under_casual_top: 3 edges shared by 3 or more faces",
+  "openclinxr_real_garment_peds_upper_v1_mesh__under_casual_top: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "openclinxr_real_garment_peds_upper_v1_mesh: 12 faces pointing into the part (0.08% of its surface): engines cull them, leaving sliver holes",
+  "openclinxr_real_garment_peds_upper_v1_mesh: 238 edges shared by 3 or more faces",
+  "openclinxr_real_garment_peds_upper_v1_mesh: no UV map (fine for flat colors; textures and lightmaps need one)"
+ ],
+ "per_object": {
+  "openclinxr_footwear_casual_shoe_L": {
+   "tris": 80,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "openclinxr_footwear_casual_shoe_L: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  },
+  "openclinxr_footwear_casual_shoe_R": {
+   "tris": 80,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "openclinxr_footwear_casual_shoe_R: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  },
+  "openclinxr_declared_upper_layers__casual_top+open_cardigan": {
+   "tris": 1,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "openclinxr_declared_upper_layers__casual_top+open_cardigan: no UV map (fine for flat colors; textures and lightmaps need one)",
+    "openclinxr_declared_upper_layers__casual_top+open_cardigan: no material or an empty material slot"
+   ]
+  },
+  "openclinxr_real_garment_peds_upper_v1_mesh__under_casual_top": {
+   "tris": 4068,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "openclinxr_real_garment_peds_upper_v1_mesh__under_casual_top: 3 edges shared by 3 or more faces",
+    "openclinxr_real_garment_peds_upper_v1_mesh__under_casual_top: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  },
+  "openclinxr_real_garment_peds_upper_v1_mesh": {
+   "tris": 7954,
+   "parts": 1,
+   "errors": [
+    "openclinxr_real_garment_peds_upper_v1_mesh: 23 duplicate faces",
+    "openclinxr_real_garment_peds_upper_v1_mesh: 32 back-to-back faces on the same vertices"
+   ],
+   "warnings": [
+    "openclinxr_real_garment_peds_upper_v1_mesh: 12 faces pointing into the part (0.08% of its surface): engines cull them, leaving sliver holes",
+    "openclinxr_real_garment_peds_upper_v1_mesh: 238 edges shared by 3 or more faces",
+    "openclinxr_real_garment_peds_upper_v1_mesh: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ],
+   "inward_faces_at": [
+    [
+     -0.4348,
+     -0.3402,
+     0.9746
+    ],
+    [
+     -0.4648,
+     -0.3207,
+     0.9197
+    ],
+    [
+     -0.4403,
+     -0.3615,
+     0.9308
+    ],
+    [
+     0.4591,
+     -0.3504,
+     0.9473
+    ],
+    [
+     0.4316,
+     -0.3275,
+     0.9655
+    ],
+    [
+     0.4403,
+     -0.3615,
+     0.9308
+    ],
+    [
+     0.468,
+     -0.2753,
+     0.9206
+    ],
+    [
+     0.4721,
+     -0.2987,
+     0.919
+    ],
+    [
+     -0.451,
+     -0.3524,
+     0.9244
+    ],
+    [
+     0.451,
+     -0.3524,
+     0.9244
+    ]
+   ]
+  },
+  "peds_anxious_parent.anny_base.001": {
+   "tris": 26692,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+ "seconds": 2.5,
+ "mesh_names": [
+  "openclinxr_footwear_casual_shoe_L",
+  "openclinxr_footwear_casual_shoe_R",
+  "openclinxr_declared_upper_layers__casual_top+open_cardigan",
+  "openclinxr_real_garment_peds_upper_v1_mesh__under_casual_top",
+  "openclinxr_real_garment_peds_upper_v1_mesh",
+  "peds_anxious_parent.anny_base.001"
+ ]
+}

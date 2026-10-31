@@ -1,0 +1,39 @@
+{
+ "profile": "game",
+ "eps": 0.000258,
+ "tol": 0.005169,
+ "gap": 0.025843,
+ "pass": true,
+ "errors": [],
+ "warnings": [
+  "BedFrame_Bedframe_0: 8 edges shared by 3 or more faces",
+  "Mattress_Mattress_0: 8 edges shared by 3 or more faces",
+  "Mattress_Mattress_0, between its own parts: 24 back-to-back touching faces"
+ ],
+ "per_object": {
+  "BedFrame_Bedframe_0": {
+   "tris": 494,
+   "parts": 3,
+   "errors": [],
+   "warnings": [
+    "BedFrame_Bedframe_0: 8 edges shared by 3 or more faces"
+   ]
+  },
+  "Mattress_Mattress_0": {
+   "tris": 1000,
+   "parts": 3,
+   "errors": [],
+   "warnings": [
+    "Mattress_Mattress_0: 8 edges shared by 3 or more faces",
+    "Mattress_Mattress_0, between its own parts: 24 back-to-back touching faces"
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/xr-assets/medical-equipment/hospital-bed-sketchfab-ccby.glb",
+ "seconds": 0.2,
+ "mesh_names": [
+  "BedFrame_Bedframe_0",
+  "Mattress_Mattress_0"
+ ]
+}

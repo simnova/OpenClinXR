@@ -1,0 +1,158 @@
+{
+ "profile": "game",
+ "eps": 0.000216,
+ "tol": 0.004327,
+ "gap": 0.021635,
+ "pass": false,
+ "errors": [
+  "makeclothes_library_straight_leg_jeans_pants: 9 duplicate faces",
+  "makeclothes_library_straight_leg_jeans_pants: 20 back-to-back faces on the same vertices",
+  "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual <-> mpfb_adult_male_street_casual_body: 2 coplanar overlapping faces (z-fighting)",
+  "makeclothes_library_hair_mhair02_mpfb_adult_male_street_casual_mesh, between its own parts: 7 coplanar overlapping faces (z-fighting)",
+  "makeclothes_library_hair_mhair02_mpfb_adult_male_street_casual_mesh <-> mpfb_adult_male_street_casual_body: 4 coplanar overlapping faces (z-fighting)",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh, between its own parts: 234 coplanar overlapping faces (z-fighting)",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh, between its own parts: 1290 coplanar overlapping faces (z-fighting)"
+ ],
+ "warnings": [
+  "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual: 160 edges shared by 3 or more faces",
+  "makeclothes_library_straight_leg_jeans_pants: 2 faces pointing into the part (0.09% of its surface): engines cull them, leaving sliver holes",
+  "makeclothes_library_straight_leg_jeans_pants: 18 edges shared by 3 or more faces",
+  "makeclothes_library_straight_leg_jeans_pants: 1 loose vertices or edges",
+  "makeclothes_library_straight_leg_jeans_pants: 3587 zero-area faces",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh: 1 edge shared by 3 or more faces",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh: 1 face pointing into the part (0.01% of its surface): engines cull them, leaving sliver holes",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh: 250 edges shared by 3 or more faces",
+  "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual <-> mpfb_adult_male_street_casual_body: 28 back-to-back touching faces",
+  "mpfb_adult_male_street_casual_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh: 1 back-to-back touching face",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh, between its own parts: 13 back-to-back touching faces"
+ ],
+ "per_object": {
+  "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual": {
+   "tris": 30768,
+   "parts": 2,
+   "errors": [
+    "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual <-> mpfb_adult_male_street_casual_body: 2 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual: 160 edges shared by 3 or more faces",
+    "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual <-> mpfb_adult_male_street_casual_body: 28 back-to-back touching faces"
+   ]
+  },
+  "makeclothes_library_hair_mhair02_mpfb_adult_male_street_casual_mesh": {
+   "tris": 3460,
+   "parts": 75,
+   "errors": [
+    "makeclothes_library_hair_mhair02_mpfb_adult_male_street_casual_mesh, between its own parts: 7 coplanar overlapping faces (z-fighting)",
+    "makeclothes_library_hair_mhair02_mpfb_adult_male_street_casual_mesh <-> mpfb_adult_male_street_casual_body: 4 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": []
+  },
+  "makeclothes_library_straight_leg_jeans_pants": {
+   "tris": 2092,
+   "parts": 2,
+   "errors": [
+    "makeclothes_library_straight_leg_jeans_pants: 9 duplicate faces",
+    "makeclothes_library_straight_leg_jeans_pants: 20 back-to-back faces on the same vertices"
+   ],
+   "warnings": [
+    "makeclothes_library_straight_leg_jeans_pants: 2 faces pointing into the part (0.09% of its surface): engines cull them, leaving sliver holes",
+    "makeclothes_library_straight_leg_jeans_pants: 18 edges shared by 3 or more faces",
+    "makeclothes_library_straight_leg_jeans_pants: 1 loose vertices or edges",
+    "makeclothes_library_straight_leg_jeans_pants: 3587 zero-area faces"
+   ],
+   "inward_faces_at": [
+    [
+     -0.1459,
+     -0.1105,
+     0.9579
+    ],
+    [
+     0.1473,
+     -0.1104,
+     0.9497
+    ]
+   ]
+  },
+  "makeclothes_library_toigo_t_shirt": {
+   "tris": 2700,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "mpfb_adult_male_street_casual_body_mesh.low-poly": {
+   "tris": 172,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh": {
+   "tris": 28698,
+   "parts": 1130,
+   "errors": [
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh, between its own parts: 234 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh: 1 edge shared by 3 or more faces",
+    "mpfb_adult_male_street_casual_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh: 1 back-to-back touching face",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh, between its own parts: 13 back-to-back touching faces"
+   ]
+  },
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh": {
+   "tris": 16625,
+   "parts": 301,
+   "errors": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh, between its own parts: 1290 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh: 1 face pointing into the part (0.01% of its surface): engines cull them, leaving sliver holes",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh: 250 edges shared by 3 or more faces"
+   ],
+   "inward_faces_at": [
+    [
+     -0.0364,
+     -0.1491,
+     1.6559
+    ]
+   ]
+  },
+  "openclinxr_hm08_teeth_mpfb_adult_male_street_casual_mesh": {
+   "tris": 192,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_hm08_tongue_mpfb_adult_male_street_casual_mesh": {
+   "tris": 448,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "mpfb_adult_male_street_casual_body": {
+   "tris": 26756,
+   "parts": 1,
+   "errors": [
+    "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual <-> mpfb_adult_male_street_casual_body: 2 coplanar overlapping faces (z-fighting)",
+    "makeclothes_library_hair_mhair02_mpfb_adult_male_street_casual_mesh <-> mpfb_adult_male_street_casual_body: 4 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual <-> mpfb_adult_male_street_casual_body: 28 back-to-back touching faces",
+    "mpfb_adult_male_street_casual_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh: 1 back-to-back touching face"
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb",
+ "seconds": 9.8,
+ "mesh_names": [
+  "makeclothes_library_footwear_culturalibre_male_boots_mpfb_adult_male_street_casual",
+  "makeclothes_library_hair_mhair02_mpfb_adult_male_street_casual_mesh",
+  "makeclothes_library_straight_leg_jeans_pants",
+  "makeclothes_library_toigo_t_shirt",
+  "mpfb_adult_male_street_casual_body_mesh.low-poly",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_adult_male_street_casual_mesh",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh",
+  "openclinxr_hm08_teeth_mpfb_adult_male_street_casual_mesh",
+  "openclinxr_hm08_tongue_mpfb_adult_male_street_casual_mesh",
+  "mpfb_adult_male_street_casual_body"
+ ]
+}

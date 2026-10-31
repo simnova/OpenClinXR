@@ -1,0 +1,16 @@
+{
+ "openclinxr_real_garment_peds_upper_v1_mesh__under_casual_top <-> openclinxr_real_garment_peds_upper_v1_mesh__under_casual_top": {
+  "pairs": 5,
+  "sep_lt_1um": 5,
+  "sep_1_10um": 0,
+  "sep_gt_10um": 0,
+  "coincident_opposite_facing": 1
+ },
+ "openclinxr_real_garment_peds_upper_v1_mesh <-> openclinxr_real_garment_peds_upper_v1_mesh": {
+  "pairs": 72,
+  "sep_lt_1um": 54,
+  "sep_1_10um": 1,
+  "sep_gt_10um": 17,
+  "coincident_opposite_facing": 30
+ }
+}

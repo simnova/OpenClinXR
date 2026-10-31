@@ -1,0 +1,9 @@
+{
+ "openclinxr_real_garment_peds_upper_v1_mesh <-> openclinxr_real_garment_peds_upper_v1_mesh": {
+  "pairs": 5,
+  "sep_lt_1um": 4,
+  "sep_1_10um": 0,
+  "sep_gt_10um": 1,
+  "coincident_opposite_facing": 4
+ }
+}

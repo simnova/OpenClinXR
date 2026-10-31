@@ -1,0 +1,116 @@
+{
+ "profile": "game",
+ "eps": 0.000152,
+ "tol": 0.003042,
+ "gap": 0.015209,
+ "pass": false,
+ "errors": [
+  "mpfb_peds_patient_child_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh: 15 coplanar overlapping faces (z-fighting)",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh, between its own parts: 324 coplanar overlapping faces (z-fighting)",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mesh, between its own parts: 1304 coplanar overlapping faces (z-fighting)"
+ ],
+ "warnings": [
+  "makeclothes_library_cargo_pants_mpfb_peds_patient_child: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "makeclothes_library_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mesh: 1 edge shared by 3 or more faces",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mesh: 258 edges of opposite winding where faces fold over at a seam; look at it with back-face culling",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mesh: 229 edges shared by 3 or more faces",
+  "mpfb_peds_patient_child_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh: 5 back-to-back touching faces",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh, between its own parts: 9 back-to-back touching faces"
+ ],
+ "per_object": {
+  "makeclothes_library_cargo_pants_mpfb_peds_patient_child": {
+   "tris": 2726,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "makeclothes_library_cargo_pants_mpfb_peds_patient_child: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  },
+  "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_patient_child": {
+   "tris": 1004,
+   "parts": 4,
+   "errors": [],
+   "warnings": []
+  },
+  "makeclothes_library_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mesh": {
+   "tris": 4975,
+   "parts": 3,
+   "errors": [],
+   "warnings": [
+    "makeclothes_library_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mesh: 1 edge shared by 3 or more faces"
+   ]
+  },
+  "makeclothes_library_toigo_t_shirt": {
+   "tris": 2700,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "mpfb_peds_patient_child_body_mesh.low-poly": {
+   "tris": 172,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh": {
+   "tris": 21816,
+   "parts": 1212,
+   "errors": [
+    "mpfb_peds_patient_child_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh: 15 coplanar overlapping faces (z-fighting)",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh, between its own parts: 324 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "mpfb_peds_patient_child_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh: 5 back-to-back touching faces",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh, between its own parts: 9 back-to-back touching faces"
+   ]
+  },
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mesh": {
+   "tris": 16628,
+   "parts": 307,
+   "errors": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mesh, between its own parts: 1304 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mesh: 258 edges of opposite winding where faces fold over at a seam; look at it with back-face culling",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mesh: 229 edges shared by 3 or more faces"
+   ]
+  },
+  "openclinxr_hm08_teeth_mpfb_peds_patient_child_mesh": {
+   "tris": 192,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_hm08_tongue_mpfb_peds_patient_child_mesh": {
+   "tris": 448,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "mpfb_peds_patient_child_body": {
+   "tris": 26756,
+   "parts": 1,
+   "errors": [
+    "mpfb_peds_patient_child_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh: 15 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "mpfb_peds_patient_child_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh: 5 back-to-back touching faces"
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+ "seconds": 7.7,
+ "mesh_names": [
+  "makeclothes_library_cargo_pants_mpfb_peds_patient_child",
+  "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_patient_child",
+  "makeclothes_library_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mesh",
+  "makeclothes_library_toigo_t_shirt",
+  "mpfb_peds_patient_child_body_mesh.low-poly",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mesh",
+  "openclinxr_hm08_teeth_mpfb_peds_patient_child_mesh",
+  "openclinxr_hm08_tongue_mpfb_peds_patient_child_mesh",
+  "mpfb_peds_patient_child_body"
+ ]
+}

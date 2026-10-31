@@ -1,0 +1,87 @@
+{
+ "profile": "game",
+ "eps": 0.000137,
+ "tol": 0.002732,
+ "gap": 0.013661,
+ "pass": false,
+ "errors": [
+  "geometry_0: 80 duplicate faces",
+  "geometry_0: 569 back-to-back faces on the same vertices"
+ ],
+ "warnings": [
+  "geometry_0: 651 faces pointing into the part (0.08% of its surface): engines cull them, leaving sliver holes",
+  "geometry_0: 1425 edges shared by 3 or more faces"
+ ],
+ "per_object": {
+  "geometry_0": {
+   "tris": 33858,
+   "parts": 12,
+   "errors": [
+    "geometry_0: 80 duplicate faces",
+    "geometry_0: 569 back-to-back faces on the same vertices"
+   ],
+   "warnings": [
+    "geometry_0: 651 faces pointing into the part (0.08% of its surface): engines cull them, leaving sliver holes",
+    "geometry_0: 1425 edges shared by 3 or more faces"
+   ],
+   "inward_faces_at": [
+    [
+     0.0356,
+     0.0038,
+     0.3778
+    ],
+    [
+     0.0361,
+     0.0047,
+     0.3775
+    ],
+    [
+     0.0349,
+     0.0047,
+     0.3782
+    ],
+    [
+     -0.0318,
+     -0.0269,
+     0.4445
+    ],
+    [
+     -0.0131,
+     -0.0012,
+     0.0071
+    ],
+    [
+     -0.171,
+     0.0008,
+     0.287
+    ],
+    [
+     -0.1726,
+     0.0006,
+     0.2811
+    ],
+    [
+     -0.013,
+     -0.0002,
+     0.0071
+    ],
+    [
+     -0.1726,
+     0.0011,
+     0.285
+    ],
+    [
+     0.0354,
+     0.0075,
+     0.3783
+    ]
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/xr-assets/medical-equipment/wall-clock-analog.glb",
+ "seconds": 1.0,
+ "mesh_names": [
+  "geometry_0"
+ ]
+}

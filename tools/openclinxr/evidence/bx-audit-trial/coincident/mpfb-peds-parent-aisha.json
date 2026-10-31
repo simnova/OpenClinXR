@@ -1,0 +1,38 @@
+{
+ "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh <-> makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh": {
+  "pairs": 308,
+  "sep_lt_1um": 295,
+  "sep_1_10um": 2,
+  "sep_gt_10um": 11,
+  "coincident_opposite_facing": 220,
+  "coincident_uv_delta_median": 0.6833,
+  "coincident_uv_delta_gt_0.01": 287
+ },
+ "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base <-> mpfb_parent_tara_johnson_v1_body_mesh.teeth_base": {
+  "pairs": 358,
+  "sep_lt_1um": 340,
+  "sep_1_10um": 12,
+  "sep_gt_10um": 6,
+  "coincident_opposite_facing": 190,
+  "coincident_uv_delta_median": 0.1655,
+  "coincident_uv_delta_gt_0.01": 268
+ },
+ "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh": {
+  "pairs": 43,
+  "sep_lt_1um": 1,
+  "sep_1_10um": 4,
+  "sep_gt_10um": 38,
+  "coincident_opposite_facing": 1,
+  "coincident_uv_delta_median": 0.0002,
+  "coincident_uv_delta_gt_0.01": 0
+ },
+ "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh <-> openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh": {
+  "pairs": 15029,
+  "sep_lt_1um": 580,
+  "sep_1_10um": 5038,
+  "sep_gt_10um": 9411,
+  "coincident_opposite_facing": 0,
+  "coincident_uv_delta_median": 0.0,
+  "coincident_uv_delta_gt_0.01": 0
+ }
+}

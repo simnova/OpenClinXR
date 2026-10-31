@@ -1,0 +1,240 @@
+{
+ "profile": "game",
+ "eps": 0.000348,
+ "tol": 0.006965,
+ "gap": 0.034824,
+ "pass": false,
+ "errors": [
+  "defaultMaterial: floating, 0.541 from the nearest part",
+  "defaultMaterial.001: floating, 0.541 from the nearest part"
+ ],
+ "warnings": [
+  "defaultMaterial, between its own parts: 80 back-to-back touching faces",
+  "defaultMaterial.001, between its own parts: 2 back-to-back touching faces"
+ ],
+ "per_object": {
+  "defaultMaterial.003": {
+   "tris": 60,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.009": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.008": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.007": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.006": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.005": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.004": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.020": {
+   "tris": 96,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.021": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.022": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.023": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.024": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.025": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.026": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.027": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.028": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.029": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.002": {
+   "tris": 508,
+   "parts": 5,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.010": {
+   "tris": 96,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.011": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.012": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.013": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.014": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.015": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.016": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.017": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.018": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial.019": {
+   "tris": 154,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "defaultMaterial": {
+   "tris": 3998,
+   "parts": 19,
+   "errors": [
+    "defaultMaterial: floating, 0.541 from the nearest part"
+   ],
+   "warnings": [
+    "defaultMaterial, between its own parts: 80 back-to-back touching faces"
+   ]
+  },
+  "defaultMaterial.001": {
+   "tris": 358,
+   "parts": 5,
+   "errors": [
+    "defaultMaterial.001: floating, 0.541 from the nearest part"
+   ],
+   "warnings": [
+    "defaultMaterial.001, between its own parts: 2 back-to-back touching faces"
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/xr-assets/medical-equipment/privacy-curtain-monitor-sketchfab-ccby.glb",
+ "seconds": 0.7,
+ "mesh_names": [
+  "defaultMaterial.003",
+  "defaultMaterial.009",
+  "defaultMaterial.008",
+  "defaultMaterial.007",
+  "defaultMaterial.006",
+  "defaultMaterial.005",
+  "defaultMaterial.004",
+  "defaultMaterial.020",
+  "defaultMaterial.021",
+  "defaultMaterial.022",
+  "defaultMaterial.023",
+  "defaultMaterial.024",
+  "defaultMaterial.025",
+  "defaultMaterial.026",
+  "defaultMaterial.027",
+  "defaultMaterial.028",
+  "defaultMaterial.029",
+  "defaultMaterial.002",
+  "defaultMaterial.010",
+  "defaultMaterial.011",
+  "defaultMaterial.012",
+  "defaultMaterial.013",
+  "defaultMaterial.014",
+  "defaultMaterial.015",
+  "defaultMaterial.016",
+  "defaultMaterial.017",
+  "defaultMaterial.018",
+  "defaultMaterial.019",
+  "defaultMaterial",
+  "defaultMaterial.001"
+ ]
+}

@@ -1,0 +1,122 @@
+{
+ "profile": "game",
+ "eps": 0.0002,
+ "tol": 0.004004,
+ "gap": 0.02002,
+ "pass": false,
+ "errors": [
+  "mpfb_ed_chest_pain_spouse_adult_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh: 1 coplanar overlapping face (z-fighting)",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh, between its own parts: 295 coplanar overlapping faces (z-fighting)",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh, between its own parts: 370 coplanar overlapping faces (z-fighting)"
+ ],
+ "warnings": [
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh: 1 face pointing into the part (0.01% of its surface): engines cull them, leaving sliver holes",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh: 615 edges shared by 3 or more faces",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh: 19 edges of opposite winding where faces fold over at a seam; look at it with back-face culling",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh: 54 edges shared by 3 or more faces",
+  "mpfb_ed_chest_pain_spouse_adult_body: 1 edge shared by 3 or more faces",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh, between its own parts: 15 back-to-back touching faces",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh, between its own parts: 2 back-to-back touching faces"
+ ],
+ "per_object": {
+  "makeclothes_library_bootcut_jeans_pants": {
+   "tris": 5708,
+   "parts": 12,
+   "errors": [],
+   "warnings": []
+  },
+  "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_spouse_adult": {
+   "tris": 1004,
+   "parts": 4,
+   "errors": [],
+   "warnings": []
+  },
+  "makeclothes_library_hair_toigo_curled_under_bob_mpfb_ed_chest_pain_spouse_adult_mesh": {
+   "tris": 2260,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "makeclothes_library_toigo_t_shirt": {
+   "tris": 2700,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "mpfb_ed_chest_pain_spouse_adult_body_mesh.low-poly": {
+   "tris": 172,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh": {
+   "tris": 10027,
+   "parts": 2237,
+   "errors": [
+    "mpfb_ed_chest_pain_spouse_adult_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh: 1 coplanar overlapping face (z-fighting)",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh, between its own parts: 295 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh: 1 face pointing into the part (0.01% of its surface): engines cull them, leaving sliver holes",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh: 615 edges shared by 3 or more faces",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh, between its own parts: 15 back-to-back touching faces"
+   ],
+   "inward_faces_at": [
+    [
+     0.0437,
+     -0.1339,
+     1.5718
+    ]
+   ]
+  },
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh": {
+   "tris": 3015,
+   "parts": 973,
+   "errors": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh, between its own parts: 370 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh: 19 edges of opposite winding where faces fold over at a seam; look at it with back-face culling",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh: 54 edges shared by 3 or more faces",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh, between its own parts: 2 back-to-back touching faces"
+   ]
+  },
+  "openclinxr_hm08_teeth_mpfb_ed_chest_pain_spouse_adult_mesh": {
+   "tris": 192,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_hm08_tongue_mpfb_ed_chest_pain_spouse_adult_mesh": {
+   "tris": 430,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "mpfb_ed_chest_pain_spouse_adult_body": {
+   "tris": 13357,
+   "parts": 1,
+   "errors": [
+    "mpfb_ed_chest_pain_spouse_adult_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh: 1 coplanar overlapping face (z-fighting)"
+   ],
+   "warnings": [
+    "mpfb_ed_chest_pain_spouse_adult_body: 1 edge shared by 3 or more faces"
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+ "seconds": 4.9,
+ "mesh_names": [
+  "makeclothes_library_bootcut_jeans_pants",
+  "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ed_chest_pain_spouse_adult",
+  "makeclothes_library_hair_toigo_curled_under_bob_mpfb_ed_chest_pain_spouse_adult_mesh",
+  "makeclothes_library_toigo_t_shirt",
+  "mpfb_ed_chest_pain_spouse_adult_body_mesh.low-poly",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh",
+  "openclinxr_hm08_teeth_mpfb_ed_chest_pain_spouse_adult_mesh",
+  "openclinxr_hm08_tongue_mpfb_ed_chest_pain_spouse_adult_mesh",
+  "mpfb_ed_chest_pain_spouse_adult_body"
+ ]
+}

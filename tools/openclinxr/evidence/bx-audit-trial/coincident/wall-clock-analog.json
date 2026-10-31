@@ -1,0 +1,11 @@
+{
+ "geometry_0 <-> geometry_0": {
+  "pairs": 2792,
+  "sep_lt_1um": 1658,
+  "sep_1_10um": 689,
+  "sep_gt_10um": 445,
+  "coincident_opposite_facing": 1390,
+  "coincident_uv_delta_median": 0.4539,
+  "coincident_uv_delta_gt_0.01": 1395
+ }
+}

@@ -1,0 +1,127 @@
+{
+ "profile": "game",
+ "eps": 0.000222,
+ "tol": 0.004439,
+ "gap": 0.022194,
+ "pass": true,
+ "errors": [],
+ "warnings": [
+  "Base_CreamColor_0 <-> Base_Material.005_0: 4 back-to-back touching faces"
+ ],
+ "per_object": {
+  "Base_CreamColor_0": {
+   "tris": 1154,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "Base_CreamColor_0 <-> Base_Material.005_0: 4 back-to-back touching faces"
+   ]
+  },
+  "Base_Material.005_0": {
+   "tris": 2014,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "Base_CreamColor_0 <-> Base_Material.005_0: 4 back-to-back touching faces"
+   ]
+  },
+  "Base_Material.006_0": {
+   "tris": 264,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "Base_Material.007_0": {
+   "tris": 80,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "Base_Material.008_0": {
+   "tris": 394,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "Base_Material.009_0": {
+   "tris": 394,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "Base_Material.010_0": {
+   "tris": 394,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "Base_Material.011_0": {
+   "tris": 394,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "Base_Material.012_0": {
+   "tris": 394,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "Base_Material.013_0": {
+   "tris": 394,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "Base_Material.014_0": {
+   "tris": 394,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "Base_Material.015_0": {
+   "tris": 394,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "Base_Material.016_0": {
+   "tris": 412,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "Base_Material.017_0": {
+   "tris": 54,
+   "parts": 3,
+   "errors": [],
+   "warnings": []
+  },
+  "Base_Material.018_0": {
+   "tris": 810,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/xr-assets/medical-equipment/exam-table-sketchfab-ccby.glb",
+ "seconds": 0.7,
+ "mesh_names": [
+  "Base_CreamColor_0",
+  "Base_Material.005_0",
+  "Base_Material.006_0",
+  "Base_Material.007_0",
+  "Base_Material.008_0",
+  "Base_Material.009_0",
+  "Base_Material.010_0",
+  "Base_Material.011_0",
+  "Base_Material.012_0",
+  "Base_Material.013_0",
+  "Base_Material.014_0",
+  "Base_Material.015_0",
+  "Base_Material.016_0",
+  "Base_Material.017_0",
+  "Base_Material.018_0"
+ ]
+}

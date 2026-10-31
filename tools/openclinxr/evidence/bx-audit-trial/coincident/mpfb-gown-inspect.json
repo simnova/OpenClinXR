@@ -1,0 +1,34 @@
+{
+ "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh": {
+  "pairs": 516,
+  "sep_lt_1um": 1,
+  "sep_1_10um": 42,
+  "sep_gt_10um": 473,
+  "coincident_opposite_facing": 0,
+  "coincident_uv_delta_median": 0.0388,
+  "coincident_uv_delta_gt_0.01": 1
+ },
+ "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh <-> openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh": {
+  "pairs": 15056,
+  "sep_lt_1um": 596,
+  "sep_1_10um": 5050,
+  "sep_gt_10um": 9410,
+  "coincident_opposite_facing": 0,
+  "coincident_uv_delta_median": 0.0,
+  "coincident_uv_delta_gt_0.01": 0
+ },
+ "openclinxr_real_garment_from_phenotype_hospital_gown <-> openclinxr_real_garment_from_phenotype_hospital_gown": {
+  "pairs": 86,
+  "sep_lt_1um": 56,
+  "sep_1_10um": 0,
+  "sep_gt_10um": 30,
+  "coincident_opposite_facing": 26
+ },
+ "mpfb_ob_patient_aisha_body.001 <-> openclinxr_real_garment_from_phenotype_hospital_gown": {
+  "pairs": 1,
+  "sep_lt_1um": 0,
+  "sep_1_10um": 0,
+  "sep_gt_10um": 1,
+  "coincident_opposite_facing": 0
+ }
+}

@@ -1,0 +1,122 @@
+{
+ "profile": "game",
+ "eps": 0.0002,
+ "tol": 0.004008,
+ "gap": 0.02004,
+ "pass": false,
+ "errors": [
+  "makeclothes_library_female_tight_jeans_pants <-> mpfb_ob_patient_aisha_body: 1 coplanar overlapping face (z-fighting)",
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh: 7 coplanar overlapping faces (z-fighting)",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh, between its own parts: 473 coplanar overlapping faces (z-fighting)",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh, between its own parts: 1170 coplanar overlapping faces (z-fighting)"
+ ],
+ "warnings": [
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh: 3 edges shared by 3 or more faces",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh: 257 edges of opposite winding where faces fold over at a seam; look at it with back-face culling",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh: 245 edges shared by 3 or more faces",
+  "mpfb_ob_patient_aisha_body: 3 edges shared by 3 or more faces",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh, between its own parts: 4 back-to-back touching faces",
+  "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh <-> openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh: 4 back-to-back touching faces"
+ ],
+ "per_object": {
+  "makeclothes_library_female_tight_jeans_pants": {
+   "tris": 1958,
+   "parts": 10,
+   "errors": [
+    "makeclothes_library_female_tight_jeans_pants <-> mpfb_ob_patient_aisha_body: 1 coplanar overlapping face (z-fighting)"
+   ],
+   "warnings": []
+  },
+  "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha": {
+   "tris": 558,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh": {
+   "tris": 1988,
+   "parts": 3,
+   "errors": [
+    "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh: 7 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh: 3 edges shared by 3 or more faces"
+   ]
+  },
+  "makeclothes_library_toigo_t_shirt": {
+   "tris": 1079,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "mpfb_ob_patient_aisha_body_mesh.low-poly": {
+   "tris": 172,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh": {
+   "tris": 35332,
+   "parts": 1266,
+   "errors": [
+    "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh: 7 coplanar overlapping faces (z-fighting)",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh, between its own parts: 473 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh, between its own parts: 4 back-to-back touching faces"
+   ]
+  },
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh": {
+   "tris": 16626,
+   "parts": 303,
+   "errors": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh, between its own parts: 1170 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh: 257 edges of opposite winding where faces fold over at a seam; look at it with back-face culling",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh: 245 edges shared by 3 or more faces"
+   ]
+  },
+  "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh": {
+   "tris": 192,
+   "parts": 2,
+   "errors": [],
+   "warnings": [
+    "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh <-> openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh: 4 back-to-back touching faces"
+   ]
+  },
+  "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh": {
+   "tris": 448,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh <-> openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh: 4 back-to-back touching faces"
+   ]
+  },
+  "mpfb_ob_patient_aisha_body": {
+   "tris": 10705,
+   "parts": 1,
+   "errors": [
+    "makeclothes_library_female_tight_jeans_pants <-> mpfb_ob_patient_aisha_body: 1 coplanar overlapping face (z-fighting)"
+   ],
+   "warnings": [
+    "mpfb_ob_patient_aisha_body: 3 edges shared by 3 or more faces"
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
+ "seconds": 8.1,
+ "mesh_names": [
+  "makeclothes_library_female_tight_jeans_pants",
+  "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha",
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+  "makeclothes_library_toigo_t_shirt",
+  "mpfb_ob_patient_aisha_body_mesh.low-poly",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+  "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+  "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+  "mpfb_ob_patient_aisha_body"
+ ]
+}

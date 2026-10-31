@@ -1,0 +1,115 @@
+{
+ "profile": "game",
+ "eps": 0.000199,
+ "tol": 0.003989,
+ "gap": 0.019947,
+ "pass": false,
+ "errors": [
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh: 2 duplicate faces",
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh, between its own parts: 36 coplanar overlapping faces (z-fighting)",
+  "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base, between its own parts: 160 coplanar overlapping faces (z-fighting)",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh, between its own parts: 35 coplanar overlapping faces (z-fighting)",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh, between its own parts: 1181 coplanar overlapping faces (z-fighting)"
+ ],
+ "warnings": [
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh: 1 edge shared by 3 or more faces",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh: 254 edges of opposite winding where faces fold over at a seam; look at it with back-face culling",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh: 252 edges shared by 3 or more faces",
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh, between its own parts: 207 back-to-back touching faces",
+  "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base, between its own parts: 62 back-to-back touching faces"
+ ],
+ "per_object": {
+  "makeclothes_library_female_tight_jeans_pants": {
+   "tris": 4216,
+   "parts": 10,
+   "errors": [],
+   "warnings": []
+  },
+  "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": {
+   "tris": 1004,
+   "parts": 4,
+   "errors": [],
+   "warnings": []
+  },
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh": {
+   "tris": 4975,
+   "parts": 3,
+   "errors": [
+    "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh, between its own parts: 36 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh: 1 edge shared by 3 or more faces",
+    "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh, between its own parts: 207 back-to-back touching faces"
+   ]
+  },
+  "makeclothes_library_toigo_t_shirt": {
+   "tris": 2700,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "mpfb_parent_tara_johnson_v1_body_mesh.low-poly": {
+   "tris": 172,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base": {
+   "tris": 7120,
+   "parts": 33,
+   "errors": [
+    "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base, between its own parts: 160 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base, between its own parts: 62 back-to-back touching faces"
+   ]
+  },
+  "mpfb_parent_tara_johnson_v1_body_mesh.tongue01": {
+   "tris": 448,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh": {
+   "tris": 8987,
+   "parts": 322,
+   "errors": [
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh, between its own parts: 35 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": []
+  },
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh": {
+   "tris": 16628,
+   "parts": 302,
+   "errors": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh: 2 duplicate faces",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh, between its own parts: 1181 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh: 254 edges of opposite winding where faces fold over at a seam; look at it with back-face culling",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh: 252 edges shared by 3 or more faces"
+   ]
+  },
+  "mpfb_parent_tara_johnson_v1_body": {
+   "tris": 26756,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+ "seconds": 3.9,
+ "mesh_names": [
+  "makeclothes_library_female_tight_jeans_pants",
+  "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh",
+  "makeclothes_library_toigo_t_shirt",
+  "mpfb_parent_tara_johnson_v1_body_mesh.low-poly",
+  "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base",
+  "mpfb_parent_tara_johnson_v1_body_mesh.tongue01",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh",
+  "mpfb_parent_tara_johnson_v1_body"
+ ]
+}

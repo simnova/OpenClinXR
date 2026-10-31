@@ -1,0 +1,27 @@
+{
+ "profile": "game",
+ "eps": 0.000103,
+ "tol": 0.002057,
+ "gap": 0.010285,
+ "pass": true,
+ "errors": [],
+ "warnings": [
+  "clinic-chair-kenney-cc0: no UV map (fine for flat colors; textures and lightmaps need one)"
+ ],
+ "per_object": {
+  "clinic-chair-kenney-cc0": {
+   "tris": 162,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "clinic-chair-kenney-cc0: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/xr-assets/medical-equipment/clinic-chair-kenney-cc0.glb",
+ "seconds": 0.4,
+ "mesh_names": [
+  "clinic-chair-kenney-cc0"
+ ]
+}

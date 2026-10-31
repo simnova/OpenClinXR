@@ -1,0 +1,32 @@
+# bx_audit.deliverable(profile="game") on shipped GLBs, 2026-10-30
+
+Source: scenario-labs/skills @ 7f4b801c (MIT), skills/dcc/blender/scenario-blender-expert/scripts/bx_audit.py, Blender 5.2.2 headless.
+Set: 20 GLBs in apps/ui-xr/public/generated-humanoids + 10 in xr-assets/medical-equipment, at main 0cbf775dd. 24 of 30 fail the game profile; 6 pass.
+Raw reports + scripts: /private/tmp/claude-501/-Volumes-files-src-openclinxr/57db6c23-5419-4e11-aa19-7e17843b76f7/scratchpad/run/{out,z,ab,fl}
+
+Verification method
+- z-fighting: re-measured each flagged pair's plane separation and the texel each face shows. Runtime depth: near 0.1, far 100 (apps/ui-xr/src/main.ts:2888), 24-bit, so a 10 um gap resolves out to ~4 m. Only coincident pairs (<1 um) with UV delta >0.01 can show. For those, A/B Workbench render deleting one side vs the other, same camera.
+- inward faces: every flagged material is doubleSided=true; three.js flips back-face normals, so nothing is culled.
+- floating: highlighted renders.
+
+| GLB | finding (bx_audit error) | verdict | existing gate |
+|---|---|---|---|
+| 12 MPFB humanoids | eyelash own-part z-fighting (12 to 1304 faces) | FP: coincident pairs show identical texels (UV delta median 0.0) | none needed |
+| 12 MPFB humanoids | eyebrow own-part + eyebrow<->body z-fighting (1 to 480) | FP: 0 body pairs under 1 um; own-part coincident pairs 1-3 per mesh, A/B diff 0 px | garment_coverage.py covers garment<->body only |
+| mpfb-street-adult-male | jeans 9 duplicate + 20 back-to-back faces, 76 coincident pairs w/ different UV | CONFIRMED: back-pocket white triangle changes with tie winner (A/B diff 1.2% px back view) | none |
+| mpfb-peds-parent-aisha | teeth_base 160 z-fight, bob hair 36 z-fight | FP for z-fight: A/B diff 0 / 0.04% px. Bob shows scalp-coloured patches at crown in both A and B (texture/UV defect bx_audit does not detect) | none |
+| mpfb-*/peds_* (scrub/cargo pants, boots, mhair02) | 1-8 coincident faces | FP: A/B diff 0 px | none |
+| 6 Anny-rail humanoids (peds_upper garment) | 3-42 back-to-back / duplicate, 9 inward faces | FP: no UV, flat colour, doubleSided; same shading either side | none |
+| wall-clock-analog | 80 duplicate, 569 back-to-back | FP for visible artifact: A/B diff 0.01% px | none |
+| bedside-monitor-generated | 192 dup, 867 b2b, 3014 inward (0.83%), 52 floating fragments | z-fight FP (A/B 0.05% px); inward FP (doubleSided); fragments not visible in render (coincident with main shell). Render shows a baked ground quad and dark texture shards bx_audit does not name | none |
+| ecg-cart, ecg-cart-12-lead | 1 dup, 8 b2b, 127 inward (0.34%) | FP: A/B 0.02% px; doubleSided | none |
+| iv-pole-with-pump | infusion pump floating 7.5 cm from pole, screen 13 cm, hook 7.8 cm | CONFIRMED: pump box hangs off the pole with no clamp in render | none |
+| iv-pole-with-pump | 7 unapplied scale | FP: glTF node scale, three.js applies it | none |
+| privacy-curtain-monitor | 2 parts floating 0.54 m | FP: free-standing monitor stand bundled with curtain (bx_audit says gate props separately) | none |
+| mpfb-gown-inspect | declared_upper_layers floating 3.3 cm | FP: intentional metadata micro-tri (automate_blender.py:4112) | n/a |
+
+Precision: 2 confirmed defects in 30 GLBs (jeans pocket, IV pump). ~25 error lines out of ~85 are z-fighting, nearly all FP at runtime depth precision because eps = 0.01% of the bounding diagonal (0.2 mm on a human).
+
+Visemes: bx_rig.VISEMES_15 = (sil PP FF TH DD kk CH SS nn RR aa E I O U) equals mouth-verifier PROBE_OVR_TOKENS (packages/openclinxr/stations/mouth-verifier/src/probe.ts:36) as a set. Our morph names carry a `viseme_` prefix, so shape_report needs a rename map.
+
+Decision: decline vendoring as a station gate. Floating-part check is the one with signal; a station gate would need eps tied to runtime depth precision, a doubleSided-aware winding check, and per-prop gating, which is most of the code.

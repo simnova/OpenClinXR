@@ -1,0 +1,153 @@
+{
+ "profile": "game",
+ "eps": 0.000216,
+ "tol": 0.004326,
+ "gap": 0.021628,
+ "pass": false,
+ "errors": [
+  "makeclothes_library_scrub_pants: 2 back-to-back faces on the same vertices",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mesh: 1 duplicate face",
+  "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin <-> mpfb_peds_nurse_kevin_body: 1 coplanar overlapping face (z-fighting)",
+  "makeclothes_library_hair_mhair02_mpfb_peds_nurse_kevin_mesh, between its own parts: 1 coplanar overlapping face (z-fighting)",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh, between its own parts: 234 coplanar overlapping faces (z-fighting)",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mesh, between its own parts: 1289 coplanar overlapping faces (z-fighting)"
+ ],
+ "warnings": [
+  "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin: 160 edges shared by 3 or more faces",
+  "makeclothes_library_scrub_pants: 2 faces pointing into the part (0.02% of its surface): engines cull them, leaving sliver holes",
+  "makeclothes_library_scrub_pants: 1 edge shared by 3 or more faces",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh: 1 edge shared by 3 or more faces",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mesh: 1 face pointing into the part (0.01% of its surface): engines cull them, leaving sliver holes",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mesh: 250 edges shared by 3 or more faces",
+  "mpfb_peds_nurse_kevin_body: 11 edges shared by 3 or more faces",
+  "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin <-> mpfb_peds_nurse_kevin_body: 6 back-to-back touching faces",
+  "mpfb_peds_nurse_kevin_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh: 1 back-to-back touching face",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh, between its own parts: 13 back-to-back touching faces"
+ ],
+ "per_object": {
+  "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin": {
+   "tris": 9230,
+   "parts": 2,
+   "errors": [
+    "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin <-> mpfb_peds_nurse_kevin_body: 1 coplanar overlapping face (z-fighting)"
+   ],
+   "warnings": [
+    "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin: 160 edges shared by 3 or more faces",
+    "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin <-> mpfb_peds_nurse_kevin_body: 6 back-to-back touching faces"
+   ]
+  },
+  "makeclothes_library_hair_mhair02_mpfb_peds_nurse_kevin_mesh": {
+   "tris": 1037,
+   "parts": 75,
+   "errors": [
+    "makeclothes_library_hair_mhair02_mpfb_peds_nurse_kevin_mesh, between its own parts: 1 coplanar overlapping face (z-fighting)"
+   ],
+   "warnings": []
+  },
+  "makeclothes_library_scrub_pants": {
+   "tris": 808,
+   "parts": 1,
+   "errors": [
+    "makeclothes_library_scrub_pants: 2 back-to-back faces on the same vertices"
+   ],
+   "warnings": [
+    "makeclothes_library_scrub_pants: 2 faces pointing into the part (0.02% of its surface): engines cull them, leaving sliver holes",
+    "makeclothes_library_scrub_pants: 1 edge shared by 3 or more faces"
+   ],
+   "inward_faces_at": [
+    [
+     0.0035,
+     -0.0223,
+     0.8442
+    ],
+    [
+     0.0024,
+     -0.0122,
+     0.8443
+    ]
+   ]
+  },
+  "makeclothes_library_scrub_shirt": {
+   "tris": 2814,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "mpfb_peds_nurse_kevin_body_mesh.low-poly": {
+   "tris": 172,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh": {
+   "tris": 28698,
+   "parts": 1130,
+   "errors": [
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh, between its own parts: 234 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh: 1 edge shared by 3 or more faces",
+    "mpfb_peds_nurse_kevin_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh: 1 back-to-back touching face",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh, between its own parts: 13 back-to-back touching faces"
+   ]
+  },
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mesh": {
+   "tris": 16625,
+   "parts": 301,
+   "errors": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mesh: 1 duplicate face",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mesh, between its own parts: 1289 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mesh: 1 face pointing into the part (0.01% of its surface): engines cull them, leaving sliver holes",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mesh: 250 edges shared by 3 or more faces"
+   ],
+   "inward_faces_at": [
+    [
+     -0.0364,
+     -0.1491,
+     1.6559
+    ]
+   ]
+  },
+  "openclinxr_hm08_teeth_mpfb_peds_nurse_kevin_mesh": {
+   "tris": 192,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_hm08_tongue_mpfb_peds_nurse_kevin_mesh": {
+   "tris": 448,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "mpfb_peds_nurse_kevin_body": {
+   "tris": 8049,
+   "parts": 1,
+   "errors": [
+    "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin <-> mpfb_peds_nurse_kevin_body: 1 coplanar overlapping face (z-fighting)"
+   ],
+   "warnings": [
+    "mpfb_peds_nurse_kevin_body: 11 edges shared by 3 or more faces",
+    "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin <-> mpfb_peds_nurse_kevin_body: 6 back-to-back touching faces",
+    "mpfb_peds_nurse_kevin_body <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh: 1 back-to-back touching face"
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+ "seconds": 4.2,
+ "mesh_names": [
+  "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin",
+  "makeclothes_library_hair_mhair02_mpfb_peds_nurse_kevin_mesh",
+  "makeclothes_library_scrub_pants",
+  "makeclothes_library_scrub_shirt",
+  "mpfb_peds_nurse_kevin_body_mesh.low-poly",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mesh",
+  "openclinxr_hm08_teeth_mpfb_peds_nurse_kevin_mesh",
+  "openclinxr_hm08_tongue_mpfb_peds_nurse_kevin_mesh",
+  "mpfb_peds_nurse_kevin_body"
+ ]
+}

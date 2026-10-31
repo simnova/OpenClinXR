@@ -1,0 +1,27 @@
+{
+ "makeclothes_library_bootcut_jeans_pants <-> makeclothes_library_bootcut_jeans_pants": {
+  "pairs": 5,
+  "sep_lt_1um": 0,
+  "sep_1_10um": 0,
+  "sep_gt_10um": 5,
+  "coincident_opposite_facing": 0
+ },
+ "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh": {
+  "pairs": 309,
+  "sep_lt_1um": 3,
+  "sep_1_10um": 18,
+  "sep_gt_10um": 288,
+  "coincident_opposite_facing": 0,
+  "coincident_uv_delta_median": 0.0001,
+  "coincident_uv_delta_gt_0.01": 1
+ },
+ "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh <-> openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh": {
+  "pairs": 439,
+  "sep_lt_1um": 6,
+  "sep_1_10um": 38,
+  "sep_gt_10um": 395,
+  "coincident_opposite_facing": 2,
+  "coincident_uv_delta_median": 0.0,
+  "coincident_uv_delta_gt_0.01": 0
+ }
+}

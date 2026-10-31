@@ -1,0 +1,27 @@
+{
+ "makeclothes_library_cargo_pants_mpfb_peds_patient_child <-> makeclothes_library_cargo_pants_mpfb_peds_patient_child": {
+  "pairs": 6,
+  "sep_lt_1um": 0,
+  "sep_1_10um": 2,
+  "sep_gt_10um": 4,
+  "coincident_opposite_facing": 0
+ },
+ "openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_03_mpfb_peds_patient_child_mesh": {
+  "pairs": 378,
+  "sep_lt_1um": 1,
+  "sep_1_10um": 30,
+  "sep_gt_10um": 347,
+  "coincident_opposite_facing": 0,
+  "coincident_uv_delta_median": 0.0062,
+  "coincident_uv_delta_gt_0.01": 0
+ },
+ "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mesh <-> openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mesh": {
+  "pairs": 15777,
+  "sep_lt_1um": 706,
+  "sep_1_10um": 5697,
+  "sep_gt_10um": 9374,
+  "coincident_opposite_facing": 0,
+  "coincident_uv_delta_median": 0.0,
+  "coincident_uv_delta_gt_0.01": 0
+ }
+}

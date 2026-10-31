@@ -1,0 +1,57 @@
+{
+ "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin <-> makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin": {
+  "pairs": 17,
+  "sep_lt_1um": 0,
+  "sep_1_10um": 2,
+  "sep_gt_10um": 15,
+  "coincident_opposite_facing": 0
+ },
+ "makeclothes_library_footwear_culturalibre_male_boots_mpfb_peds_nurse_kevin <-> mpfb_peds_nurse_kevin_body": {
+  "pairs": 2,
+  "sep_lt_1um": 0,
+  "sep_1_10um": 0,
+  "sep_gt_10um": 2,
+  "coincident_opposite_facing": 0
+ },
+ "makeclothes_library_hair_mhair02_mpfb_peds_nurse_kevin_mesh <-> makeclothes_library_hair_mhair02_mpfb_peds_nurse_kevin_mesh": {
+  "pairs": 1,
+  "sep_lt_1um": 0,
+  "sep_1_10um": 0,
+  "sep_gt_10um": 1,
+  "coincident_opposite_facing": 0
+ },
+ "makeclothes_library_scrub_pants <-> makeclothes_library_scrub_pants": {
+  "pairs": 6,
+  "sep_lt_1um": 6,
+  "sep_1_10um": 0,
+  "sep_gt_10um": 0,
+  "coincident_opposite_facing": 4,
+  "coincident_uv_delta_median": 0.0091,
+  "coincident_uv_delta_gt_0.01": 2
+ },
+ "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mesh": {
+  "pairs": 290,
+  "sep_lt_1um": 3,
+  "sep_1_10um": 14,
+  "sep_gt_10um": 273,
+  "coincident_opposite_facing": 2,
+  "coincident_uv_delta_median": 0.0006,
+  "coincident_uv_delta_gt_0.01": 1
+ },
+ "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mesh <-> openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mesh": {
+  "pairs": 15459,
+  "sep_lt_1um": 530,
+  "sep_1_10um": 4887,
+  "sep_gt_10um": 10042,
+  "coincident_opposite_facing": 0,
+  "coincident_uv_delta_median": 0.0,
+  "coincident_uv_delta_gt_0.01": 0
+ },
+ "mpfb_peds_nurse_kevin_body <-> mpfb_peds_nurse_kevin_body": {
+  "pairs": 2,
+  "sep_lt_1um": 0,
+  "sep_1_10um": 0,
+  "sep_gt_10um": 2,
+  "coincident_opposite_facing": 0
+ }
+}

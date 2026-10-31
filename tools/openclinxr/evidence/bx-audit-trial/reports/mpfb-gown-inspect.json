@@ -1,0 +1,190 @@
+{
+ "profile": "game",
+ "eps": 0.000201,
+ "tol": 0.004026,
+ "gap": 0.020131,
+ "pass": false,
+ "errors": [
+  "openclinxr_real_garment_from_phenotype_hospital_gown: 14 duplicate faces",
+  "openclinxr_real_garment_from_phenotype_hospital_gown: 57 back-to-back faces on the same vertices",
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh: 8 coplanar overlapping faces (z-fighting)",
+  "mpfb_ob_patient_aisha_body.001 <-> openclinxr_real_garment_from_phenotype_hospital_gown: 2 coplanar overlapping faces (z-fighting)",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh, between its own parts: 480 coplanar overlapping faces (z-fighting)",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh, between its own parts: 1167 coplanar overlapping faces (z-fighting)",
+  "openclinxr_declared_upper_layers__hospital_gown: floating, 0.0328 from the nearest part"
+ ],
+ "warnings": [
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh: 2 edges shared by 3 or more faces",
+  "openclinxr_declared_upper_layers__hospital_gown: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "openclinxr_declared_upper_layers__hospital_gown: no material or an empty material slot",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh: 255 edges of opposite winding where faces fold over at a seam; look at it with back-face culling",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh: 246 edges shared by 3 or more faces",
+  "openclinxr_real_garment_from_phenotype_hospital_gown: 8 faces pointing into the part (0.02% of its surface): engines cull them, leaving sliver holes",
+  "openclinxr_real_garment_from_phenotype_hospital_gown: 153 edges shared by 3 or more faces",
+  "openclinxr_real_garment_from_phenotype_hospital_gown: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "mpfb_ob_patient_aisha_body.001: 14 edges shared by 3 or more faces",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh, between its own parts: 5 back-to-back touching faces",
+  "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh <-> openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh: 4 back-to-back touching faces"
+ ],
+ "per_object": {
+  "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha": {
+   "tris": 923,
+   "parts": 4,
+   "errors": [],
+   "warnings": []
+  },
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh": {
+   "tris": 745,
+   "parts": 3,
+   "errors": [
+    "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh: 8 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh: 2 edges shared by 3 or more faces"
+   ]
+  },
+  "makeclothes_library_toigo_t_shirt": {
+   "tris": 2265,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_declared_upper_layers__hospital_gown": {
+   "tris": 1,
+   "parts": 1,
+   "errors": [
+    "openclinxr_declared_upper_layers__hospital_gown: floating, 0.0328 from the nearest part"
+   ],
+   "warnings": [
+    "openclinxr_declared_upper_layers__hospital_gown: no UV map (fine for flat colors; textures and lightmaps need one)",
+    "openclinxr_declared_upper_layers__hospital_gown: no material or an empty material slot"
+   ]
+  },
+  "mpfb_ob_patient_aisha_body_mesh.low-poly": {
+   "tris": 172,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh": {
+   "tris": 35332,
+   "parts": 1266,
+   "errors": [
+    "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh: 8 coplanar overlapping faces (z-fighting)",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh, between its own parts: 480 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh, between its own parts: 5 back-to-back touching faces"
+   ]
+  },
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh": {
+   "tris": 16626,
+   "parts": 302,
+   "errors": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh, between its own parts: 1167 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh: 255 edges of opposite winding where faces fold over at a seam; look at it with back-face culling",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh: 246 edges shared by 3 or more faces"
+   ]
+  },
+  "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh": {
+   "tris": 192,
+   "parts": 2,
+   "errors": [],
+   "warnings": [
+    "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh <-> openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh: 4 back-to-back touching faces"
+   ]
+  },
+  "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh": {
+   "tris": 448,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh <-> openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh: 4 back-to-back touching faces"
+   ]
+  },
+  "openclinxr_real_garment_from_phenotype_hospital_gown": {
+   "tris": 8445,
+   "parts": 1,
+   "errors": [
+    "openclinxr_real_garment_from_phenotype_hospital_gown: 14 duplicate faces",
+    "openclinxr_real_garment_from_phenotype_hospital_gown: 57 back-to-back faces on the same vertices",
+    "mpfb_ob_patient_aisha_body.001 <-> openclinxr_real_garment_from_phenotype_hospital_gown: 2 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_real_garment_from_phenotype_hospital_gown: 8 faces pointing into the part (0.02% of its surface): engines cull them, leaving sliver holes",
+    "openclinxr_real_garment_from_phenotype_hospital_gown: 153 edges shared by 3 or more faces",
+    "openclinxr_real_garment_from_phenotype_hospital_gown: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ],
+   "inward_faces_at": [
+    [
+     0.3059,
+     -0.0733,
+     1.1871
+    ],
+    [
+     0.1417,
+     -0.1921,
+     1.1619
+    ],
+    [
+     -0.2386,
+     -0.0651,
+     1.2901
+    ],
+    [
+     -0.1653,
+     -0.1981,
+     1.2042
+    ],
+    [
+     -0.2259,
+     0.0567,
+     1.2514
+    ],
+    [
+     -0.2227,
+     0.0524,
+     1.2486
+    ],
+    [
+     -0.2201,
+     0.0613,
+     1.2602
+    ],
+    [
+     0.1211,
+     -0.1831,
+     1.1644
+    ]
+   ]
+  },
+  "mpfb_ob_patient_aisha_body.001": {
+   "tris": 4149,
+   "parts": 1,
+   "errors": [
+    "mpfb_ob_patient_aisha_body.001 <-> openclinxr_real_garment_from_phenotype_hospital_gown: 2 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "mpfb_ob_patient_aisha_body.001: 14 edges shared by 3 or more faces"
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
+ "seconds": 4.8,
+ "mesh_names": [
+  "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha",
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+  "makeclothes_library_toigo_t_shirt",
+  "openclinxr_declared_upper_layers__hospital_gown",
+  "mpfb_ob_patient_aisha_body_mesh.low-poly",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+  "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+  "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+  "openclinxr_real_garment_from_phenotype_hospital_gown",
+  "mpfb_ob_patient_aisha_body.001"
+ ]
+}

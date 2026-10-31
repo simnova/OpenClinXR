@@ -1,0 +1,89 @@
+{
+ "profile": "game",
+ "eps": 0.000121,
+ "tol": 0.002415,
+ "gap": 0.012077,
+ "pass": false,
+ "errors": [
+  "geometry_0: 1 duplicate face",
+  "geometry_0: 8 back-to-back faces on the same vertices",
+  "geometry_0: 127 faces pointing into the part (0.34% of its surface), at edges of opposite winding"
+ ],
+ "warnings": [
+  "geometry_0: 150 edges shared by 3 or more faces",
+  "geometry_0: 8 detached fragments (7.2% of its faces), nearest 0.00268 from the rest"
+ ],
+ "per_object": {
+  "geometry_0": {
+   "tris": 37819,
+   "parts": 40,
+   "errors": [
+    "geometry_0: 1 duplicate face",
+    "geometry_0: 8 back-to-back faces on the same vertices",
+    "geometry_0: 127 faces pointing into the part (0.34% of its surface), at edges of opposite winding"
+   ],
+   "warnings": [
+    "geometry_0: 150 edges shared by 3 or more faces",
+    "geometry_0: 8 detached fragments (7.2% of its faces), nearest 0.00268 from the rest"
+   ],
+   "inward_faces_at": [
+    [
+     -0.215,
+     -0.1929,
+     0.1487
+    ],
+    [
+     0.219,
+     -0.1909,
+     0.1306
+    ],
+    [
+     -0.1904,
+     -0.1929,
+     0.1487
+    ],
+    [
+     -0.1664,
+     -0.1927,
+     0.1487
+    ],
+    [
+     0.2232,
+     -0.1858,
+     0.1371
+    ],
+    [
+     0.1705,
+     -0.1895,
+     0.4765
+    ],
+    [
+     -0.1442,
+     -0.1925,
+     0.1488
+    ],
+    [
+     0.2215,
+     0.1034,
+     -0.3318
+    ],
+    [
+     0.2184,
+     0.102,
+     -0.3331
+    ],
+    [
+     -0.1229,
+     -0.1927,
+     0.1488
+    ]
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+ "seconds": 1.6,
+ "mesh_names": [
+  "geometry_0"
+ ]
+}

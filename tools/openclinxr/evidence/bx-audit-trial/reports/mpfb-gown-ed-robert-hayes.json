@@ -1,0 +1,143 @@
+{
+ "profile": "game",
+ "eps": 0.000218,
+ "tol": 0.004358,
+ "gap": 0.021788,
+ "pass": false,
+ "errors": [
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh, between its own parts: 117 coplanar overlapping faces (z-fighting)",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh, between its own parts: 14 coplanar overlapping faces (z-fighting)"
+ ],
+ "warnings": [
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mesh: 2 edges shared by 3 or more faces",
+  "openclinxr_declared_upper_layers__hospital_gown: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "openclinxr_declared_upper_layers__hospital_gown: no material or an empty material slot",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh: 4 faces pointing into the part (0.06% of its surface): engines cull them, leaving sliver holes",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh: 731 edges shared by 3 or more faces",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh: 3 edges of opposite winding where faces fold over at a seam; look at it with back-face culling",
+  "openclinxr_real_garment_from_phenotype_hospital_gown: 16 edges shared by 3 or more faces",
+  "openclinxr_real_garment_from_phenotype_hospital_gown: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh, between its own parts: 22 back-to-back touching faces",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh, between its own parts: 4 back-to-back touching faces",
+  "openclinxr_declared_upper_layers__hospital_gown: not touching, 0.00882 from the nearest part"
+ ],
+ "per_object": {
+  "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_robert_reference": {
+   "tris": 1004,
+   "parts": 4,
+   "errors": [],
+   "warnings": []
+  },
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mesh": {
+   "tris": 3154,
+   "parts": 3,
+   "errors": [],
+   "warnings": [
+    "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mesh: 2 edges shared by 3 or more faces"
+   ]
+  },
+  "openclinxr_declared_upper_layers__hospital_gown": {
+   "tris": 1,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "openclinxr_declared_upper_layers__hospital_gown: no UV map (fine for flat colors; textures and lightmaps need one)",
+    "openclinxr_declared_upper_layers__hospital_gown: no material or an empty material slot",
+    "openclinxr_declared_upper_layers__hospital_gown: not touching, 0.00882 from the nearest part"
+   ]
+  },
+  "mpfb_robert_reference_body_mesh.low-poly": {
+   "tris": 172,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh": {
+   "tris": 12122,
+   "parts": 1553,
+   "errors": [
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh, between its own parts: 117 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh: 4 faces pointing into the part (0.06% of its surface): engines cull them, leaving sliver holes",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh: 731 edges shared by 3 or more faces",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh, between its own parts: 22 back-to-back touching faces"
+   ],
+   "inward_faces_at": [
+    [
+     -0.0206,
+     -0.1506,
+     1.6761
+    ],
+    [
+     -0.0402,
+     -0.1445,
+     1.6734
+    ],
+    [
+     0.0496,
+     -0.1374,
+     1.6744
+    ],
+    [
+     0.0272,
+     -0.1465,
+     1.6704
+    ]
+   ]
+  },
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh": {
+   "tris": 297,
+   "parts": 159,
+   "errors": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh, between its own parts: 14 coplanar overlapping faces (z-fighting)"
+   ],
+   "warnings": [
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh: 3 edges of opposite winding where faces fold over at a seam; look at it with back-face culling",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh, between its own parts: 4 back-to-back touching faces"
+   ]
+  },
+  "openclinxr_hm08_teeth_mpfb_robert_reference_mesh": {
+   "tris": 190,
+   "parts": 2,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_hm08_tongue_mpfb_robert_reference_mesh": {
+   "tris": 422,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_real_garment_from_phenotype_hospital_gown": {
+   "tris": 6832,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "openclinxr_real_garment_from_phenotype_hospital_gown: 16 edges shared by 3 or more faces",
+    "openclinxr_real_garment_from_phenotype_hospital_gown: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  },
+  "mpfb_robert_reference_body.002": {
+   "tris": 14928,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.glb",
+ "seconds": 3.2,
+ "mesh_names": [
+  "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_robert_reference",
+  "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mesh",
+  "openclinxr_declared_upper_layers__hospital_gown",
+  "mpfb_robert_reference_body_mesh.low-poly",
+  "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh",
+  "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh",
+  "openclinxr_hm08_teeth_mpfb_robert_reference_mesh",
+  "openclinxr_hm08_tongue_mpfb_robert_reference_mesh",
+  "openclinxr_real_garment_from_phenotype_hospital_gown",
+  "mpfb_robert_reference_body.002"
+ ]
+}

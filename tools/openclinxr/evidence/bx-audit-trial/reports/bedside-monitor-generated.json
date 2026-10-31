@@ -1,0 +1,97 @@
+{
+ "profile": "game",
+ "eps": 0.000163,
+ "tol": 0.003255,
+ "gap": 0.016274,
+ "pass": false,
+ "errors": [
+  "geometry_0: 192 duplicate faces",
+  "geometry_0: 867 back-to-back faces on the same vertices",
+  "geometry_0: 3014 faces pointing into the part (0.83% of its surface), at edges of opposite winding",
+  "geometry_0: 52 floating fragments (1% of its faces), nearest 0.0163 from the rest"
+ ],
+ "warnings": [
+  "geometry_0: 1689 edges shared by 3 or more faces",
+  "geometry_0: 5 zero-area faces",
+  "geometry_0, between its own parts: 1 back-to-back touching face",
+  "geometry_0: 167 detached fragments (3.2% of its faces), nearest 0.00327 from the rest",
+  "geometry_0: 2 parts enclosed inside another part (hidden geometry)"
+ ],
+ "per_object": {
+  "geometry_0": {
+   "tris": 58916,
+   "parts": 407,
+   "errors": [
+    "geometry_0: 192 duplicate faces",
+    "geometry_0: 867 back-to-back faces on the same vertices",
+    "geometry_0: 3014 faces pointing into the part (0.83% of its surface), at edges of opposite winding",
+    "geometry_0: 52 floating fragments (1% of its faces), nearest 0.0163 from the rest"
+   ],
+   "warnings": [
+    "geometry_0: 1689 edges shared by 3 or more faces",
+    "geometry_0: 5 zero-area faces",
+    "geometry_0, between its own parts: 1 back-to-back touching face",
+    "geometry_0: 167 detached fragments (3.2% of its faces), nearest 0.00327 from the rest",
+    "geometry_0: 2 parts enclosed inside another part (hidden geometry)"
+   ],
+   "inward_faces_at": [
+    [
+     -0.2989,
+     -0.0408,
+     0.2631
+    ],
+    [
+     -0.2759,
+     -0.0211,
+     0.1601
+    ],
+    [
+     -0.2932,
+     0.3335,
+     -0.1058
+    ],
+    [
+     -0.0778,
+     -0.0299,
+     0.3022
+    ],
+    [
+     0.3227,
+     -0.0725,
+     0.1317
+    ],
+    [
+     -0.0766,
+     -0.0278,
+     0.3058
+    ],
+    [
+     -0.1601,
+     -0.0211,
+     0.1594
+    ],
+    [
+     -0.2917,
+     0.3359,
+     -0.1037
+    ],
+    [
+     -0.2746,
+     0.3359,
+     -0.1041
+    ],
+    [
+     -0.0982,
+     0.0259,
+     0.242
+    ]
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/xr-assets/medical-equipment/bedside-monitor-generated.glb",
+ "seconds": 6.0,
+ "mesh_names": [
+  "geometry_0"
+ ]
+}

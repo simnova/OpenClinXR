@@ -1,0 +1,27 @@
+{
+ "profile": "game",
+ "eps": 0.000231,
+ "tol": 0.004628,
+ "gap": 0.02314,
+ "pass": true,
+ "errors": [],
+ "warnings": [
+  "Stretcher_Material #82_0: 48 detached fragments (95% of its faces), nearest 0.00721 from the rest"
+ ],
+ "per_object": {
+  "Stretcher_Material #82_0": {
+   "tris": 2245,
+   "parts": 49,
+   "errors": [],
+   "warnings": [
+    "Stretcher_Material #82_0: 48 detached fragments (95% of its faces), nearest 0.00721 from the rest"
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/xr-assets/medical-equipment/stretcher-sketchfab-ccby.glb",
+ "seconds": 0.2,
+ "mesh_names": [
+  "Stretcher_Material #82_0"
+ ]
+}

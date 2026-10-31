@@ -1,0 +1,18 @@
+{
+ "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh <-> openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_robert_reference_mesh": {
+  "pairs": 140,
+  "sep_lt_1um": 0,
+  "sep_1_10um": 5,
+  "sep_gt_10um": 135,
+  "coincident_opposite_facing": 0
+ },
+ "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh <-> openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh": {
+  "pairs": 20,
+  "sep_lt_1um": 2,
+  "sep_1_10um": 0,
+  "sep_gt_10um": 18,
+  "coincident_opposite_facing": 2,
+  "coincident_uv_delta_median": 0.0,
+  "coincident_uv_delta_gt_0.01": 0
+ }
+}

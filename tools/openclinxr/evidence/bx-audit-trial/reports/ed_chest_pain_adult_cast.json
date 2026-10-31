@@ -1,0 +1,72 @@
+{
+ "profile": "game",
+ "eps": 0.000212,
+ "tol": 0.004238,
+ "gap": 0.021188,
+ "pass": false,
+ "errors": [
+  "openclinxr_real_garment_peds_upper_v1_mesh: 5 back-to-back faces on the same vertices"
+ ],
+ "warnings": [
+  "openclinxr_declared_upper_layers__hospital_gown: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "openclinxr_declared_upper_layers__hospital_gown: no material or an empty material slot",
+  "openclinxr_footwear_hospital_slipper_L: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "openclinxr_footwear_hospital_slipper_R: no UV map (fine for flat colors; textures and lightmaps need one)",
+  "openclinxr_real_garment_peds_upper_v1_mesh: 29 edges shared by 3 or more faces",
+  "openclinxr_real_garment_peds_upper_v1_mesh: no UV map (fine for flat colors; textures and lightmaps need one)"
+ ],
+ "per_object": {
+  "openclinxr_declared_upper_layers__hospital_gown": {
+   "tris": 1,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "openclinxr_declared_upper_layers__hospital_gown: no UV map (fine for flat colors; textures and lightmaps need one)",
+    "openclinxr_declared_upper_layers__hospital_gown: no material or an empty material slot"
+   ]
+  },
+  "openclinxr_footwear_hospital_slipper_L": {
+   "tris": 80,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "openclinxr_footwear_hospital_slipper_L: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  },
+  "openclinxr_footwear_hospital_slipper_R": {
+   "tris": 80,
+   "parts": 1,
+   "errors": [],
+   "warnings": [
+    "openclinxr_footwear_hospital_slipper_R: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  },
+  "ed_chest_pain_adult_cast.anny_base.001": {
+   "tris": 26692,
+   "parts": 1,
+   "errors": [],
+   "warnings": []
+  },
+  "openclinxr_real_garment_peds_upper_v1_mesh": {
+   "tris": 5350,
+   "parts": 1,
+   "errors": [
+    "openclinxr_real_garment_peds_upper_v1_mesh: 5 back-to-back faces on the same vertices"
+   ],
+   "warnings": [
+    "openclinxr_real_garment_peds_upper_v1_mesh: 29 edges shared by 3 or more faces",
+    "openclinxr_real_garment_peds_upper_v1_mesh: no UV map (fine for flat colors; textures and lightmaps need one)"
+   ]
+  }
+ },
+ "skipped": [],
+ "glb": "/Volumes/files/src/openclinxr-wt-bxaudit/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+ "seconds": 2.0,
+ "mesh_names": [
+  "openclinxr_declared_upper_layers__hospital_gown",
+  "openclinxr_footwear_hospital_slipper_L",
+  "openclinxr_footwear_hospital_slipper_R",
+  "ed_chest_pain_adult_cast.anny_base.001",
+  "openclinxr_real_garment_peds_upper_v1_mesh"
+ ]
+}
