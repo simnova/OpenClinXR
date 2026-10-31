@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: the runtime-goal arm reaches its target with a wrist residual of 0.00 m while the
@@ -85,7 +86,7 @@ import { describe, expect, it } from "vitest";
  * goal-pointing logic are untouched.
  */
 
-const ROOT = join(import.meta.dirname, "../../..");
+const ROOT = repoRoot();
 const EVAL = join(ROOT, "tools/openclinxr/evidence/motion-backend-bakeoff/runtime-goal-eval.json");
 const HARNESS = join(ROOT, "tools/openclinxr/evidence/motion-backend-bakeoff/harness.html");
 const ACTOR = join(ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");

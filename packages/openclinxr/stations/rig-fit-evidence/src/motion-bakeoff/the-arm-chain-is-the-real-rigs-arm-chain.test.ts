@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { solveArmChain, type ChainJoint } from "../../../packages/openclinxr/motion-compiler/src/ik/solve-chain.js";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { solveArmChain, type ChainJoint } from "../../../../../../packages/openclinxr/motion-compiler/src/ik/solve-chain.js";
 
 /**
  * OBSERVABLE: on the rig that actually ships, the IK solver bends the forearm at its TWIST segment
@@ -77,7 +78,7 @@ import { solveArmChain, type ChainJoint } from "../../../packages/openclinxr/mot
  * contract change, not this card's.
  */
 
-const ROOT = join(import.meta.dirname, "../../..");
+const ROOT = repoRoot();
 const ANNY = join(ROOT, "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb");
 const MPFB = join(ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");
 

@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: the humanoid motion design commits ~48 slices to baking per-encounter behaviour into a
@@ -43,7 +44,7 @@ import { describe, expect, it } from "vitest";
  * is unchanged.
  */
 
-const REPO = join(import.meta.dirname, "../../..");
+const REPO = repoRoot();
 const REPORT = join(REPO, "tools/openclinxr/evidence/motion-backend-bakeoff/report.json");
 
 /** Escape values FIRST. A bake-off that clears nothing is a result, not a failure to report. */

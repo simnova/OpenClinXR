@@ -1,0 +1,23 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+        "$TURBO_ROOT$/packages/openclinxr/motion-compiler/src/ik/solve-chain.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/motion-backend-bakeoff/baked_tracks__pulse_presentation.png",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/motion-backend-bakeoff/baked_tracks__rock_plus_clutch.png",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/motion-backend-bakeoff/harness.html",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/motion-backend-bakeoff/report.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/motion-backend-bakeoff/runtime-goal-descriptor.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/motion-backend-bakeoff/runtime-goal-eval.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/motion-backend-bakeoff/runtime_goals__pulse_presentation.png",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/motion-backend-bakeoff/runtime_goals__rock_plus_clutch.png"
+      ]
+    }
+  }
+}

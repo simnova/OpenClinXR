@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: the bake-off's committed evidence describes a tree that is two fixes old. report.json
@@ -45,7 +46,7 @@ import { describe, expect, it } from "vitest";
  * These expected-fail clauses now pass; flipped so the next drift fails them.
  */
 
-const ROOT = join(import.meta.dirname, "../../..");
+const ROOT = repoRoot();
 const DIR = join(ROOT, "tools/openclinxr/evidence/motion-backend-bakeoff");
 const REPORT = join(DIR, "report.json");
 const ACTOR = join(ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");

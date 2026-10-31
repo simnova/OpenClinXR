@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: the bake-off's verdict was measured against a tree that had no runtime-goal arm, and
@@ -68,7 +69,7 @@ import { describe, expect, it } from "vitest";
  * runtime pulse goal — both out of scope for this card. The report's `notes` array records this.
  */
 
-const ROOT = join(import.meta.dirname, "../../..");
+const ROOT = repoRoot();
 const DIR = join(ROOT, "tools/openclinxr/evidence/motion-backend-bakeoff");
 const REPORT = join(DIR, "report.json");
 const HARNESS = join(DIR, "harness.html");

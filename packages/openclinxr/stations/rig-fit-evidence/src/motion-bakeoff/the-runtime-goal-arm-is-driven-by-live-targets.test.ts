@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: the bake-off compares two backends and only one of them exists.
@@ -47,7 +48,7 @@ import { describe, expect, it } from "vitest";
  * worlds 0.120 m apart, wrist moved 0.120 m toward B, solverBlend === 1 on every entry.
  */
 
-const REPO = join(import.meta.dirname, "../../..");
+const REPO = repoRoot();
 const DIR = join(REPO, "tools/openclinxr/evidence/motion-backend-bakeoff");
 const DESCRIPTOR = join(DIR, "runtime-goal-descriptor.json");
 const RESULT = join(DIR, "runtime-goal-eval.json");

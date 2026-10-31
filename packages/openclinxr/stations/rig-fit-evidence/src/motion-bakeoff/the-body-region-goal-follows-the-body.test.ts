@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: the runtime-goal arm's `body_region_contact` goal is pinned to a fixed WORLD point, so
@@ -58,7 +59,7 @@ import { describe, expect, it } from "vitest";
  * the runtime arm already carried is unchanged.
  */
 
-const ROOT = join(import.meta.dirname, "../../..");
+const ROOT = repoRoot();
 const DIR = join(ROOT, "tools/openclinxr/evidence/motion-backend-bakeoff");
 const EVAL = join(DIR, "runtime-goal-eval.json");
 const DESCRIPTOR = join(DIR, "runtime-goal-descriptor.json");

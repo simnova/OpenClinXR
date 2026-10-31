@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: the shipped MPFB rig's two chest anchor joints are the SAME POINT on the midline, so
@@ -61,7 +62,7 @@ import { describe, expect, it } from "vitest";
  * Runtime, goal tracking (5524da80) and elbow clamp (1bab31eb) untouched, as carded.
  */
 
-const ROOT = join(import.meta.dirname, "../../..");
+const ROOT = repoRoot();
 const ACTOR = join(ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");
 
 /**

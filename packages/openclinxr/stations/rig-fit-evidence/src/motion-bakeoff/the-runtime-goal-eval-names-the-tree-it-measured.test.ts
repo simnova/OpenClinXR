@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: runtime-goal-eval.json is a measurement CACHED TO DISK, and nothing refuses it when
@@ -59,7 +60,7 @@ import { describe, expect, it } from "vitest";
  * residual ~1e-6 m, and the target-to-breastR distance spread is 0.00 m across the 12 frames.
  */
 
-const ROOT = join(import.meta.dirname, "../../..");
+const ROOT = repoRoot();
 const EVAL = join(ROOT, "tools/openclinxr/evidence/motion-backend-bakeoff/runtime-goal-eval.json");
 const ACTOR = join(ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");
 
