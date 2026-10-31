@@ -104,7 +104,10 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // ci-w11b re-pinned 2026-10-30: ci-w11 D2 graded tara's 3 dwarfing textures in
   // place (85468f2f5, 11.88x -> 2.11x peer ratio); was
   // 86b0f17dccaa09ff4f75fbe32ad74c7bcc8fd56cd8e264e056f46473288aec4b.
-  "mpfb-peds-parent-aisha": "ebbd55df60bac05218d8d0b89ef33f67923bc90ab3caf774bd760e76d7643ecb",
+  // mesh-defects re-pinned 2026-10-31: restore-mesh-positions.ts put back the bob hair
+  // POSITION that c240327c3 lowered (hairPositionRestore in the sidecar); was
+  // ebbd55df60bac05218d8d0b89ef33f67923bc90ab3caf774bd760e76d7643ecb.
+  "mpfb-peds-parent-aisha": "57eace5c903f490d22c0d961ca5e4946436227c22cc1c50e38151754487c1591",
   // #598 re-pinned 2026-08-23: worktree kevin bytes already differed from the prior pin
   // (was 0817dbd1932448185037c35487c9a25f5b9e70cbf6f558fa67098e104a955d72); this slice did
   // not rebake kevin — only re-recorded the on-disk hash so the table matches the tree.

@@ -160,8 +160,13 @@ describe("workspace architecture rules", () => {
     const preCommitHook = readFileSync(join(workspaceRoot, ".githooks/pre-commit"), "utf8");
     const prePushHook = readFileSync(join(workspaceRoot, ".githooks/pre-push"), "utf8");
 
-    expect(rootPackage.scripts?.["hooks:pre-commit"]).toBe("tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile pre-commit");
-    expect(rootPackage.scripts?.["hooks:pre-push"]).toBe("tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile pre-push");
+    // Commit and push hooks run inside the machine-wide heavy-job slot (heavy-slot.ts), still on the hook runner.
+    expect(rootPackage.scripts?.["hooks:pre-commit"]).toBe(
+      "tsx tools/openclinxr/openclaw/heavy-slot.ts pre-commit -- tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile pre-commit",
+    );
+    expect(rootPackage.scripts?.["hooks:pre-push"]).toBe(
+      "tsx tools/openclinxr/openclaw/heavy-slot.ts pre-push -- tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile pre-push",
+    );
     expect(rootPackage.scripts?.["hooks:strict"]).toBe("tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile strict");
     expect(rootPackage.scripts?.["hooks:local-exam"]).toBe("tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile local-exam");
     expect(rootPackage.scripts?.["local:exam:smoke"]).toContain("@openclinxr/test-harness");

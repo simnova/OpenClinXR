@@ -1,5 +1,9 @@
 # @cellix/config-vitest Changelog
 
+## 1.0.0-openclinxr.3 - 2026-10-30
+
+- Still local: `nodeConfig` reads `maxWorkers` from `CELLIX_VITEST_MAX_WORKERS` (positive integer; otherwise Vitest's default), so a runner sharing the machine can cap each job's workers.
+
 ## 1.0.0-openclinxr.2 - 2026-09-02
 
 - Refreshed from CellixJS `adf3bc9deb`: ArchUnit paths excluded from default typecheck-during-test and coverage, matching upstream `node.config.ts` / `base.config.ts`.
