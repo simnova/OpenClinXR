@@ -27,7 +27,7 @@
         "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/anny/iris_palette.py",
         "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
         "$TURBO_ROOT$/tools/openclinxr/dark-factory/multi-case-runner.ts",
-        "$TURBO_ROOT$/tools/openclinxr/evidence/eye-colour-is-case-driven.test.ts",
+        "$TURBO_ROOT$/packages/openclinxr/stations/garment-surface-evidence/src/garment-surface/eye-colour-is-case-driven.test.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/garment-decile-sharpness.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/garment-hem-boundary.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/gown-fold-clamp-measurement.json",

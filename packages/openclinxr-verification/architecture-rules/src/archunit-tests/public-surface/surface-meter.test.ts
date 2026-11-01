@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 84 roots and 186 declared entrypoints", () => {
+  it("(1) the live tree discovers 85 roots and 187 declared entrypoints", () => {
     const report = measureSurface();
     // 2026-10-07 mouth-station pilot (MADR 0060/0061, integration branch station-mouth): the
     // objective package @openclinxr/station-mouth-objective adds one root (49 -> 50); its surface
@@ -203,7 +203,10 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-31 root batch gown-phenotype (operator-approved 2026-10-31): the private
     // sidecar @openclinxr/gown-phenotype-evidence adds one root that publishes
     // nothing (83 -> 84).
-    expect(report.totals.roots).toBe(84);
+    // 2026-10-31 root batch garment-surface (operator-approved 2026-10-31): the private
+    // sidecar @openclinxr/garment-surface-evidence adds one root that publishes
+    // nothing (84 -> 85).
+    expect(report.totals.roots).toBe(85);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -330,7 +333,10 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-31 root batch gown-phenotype (operator-approved 2026-10-31): the
     // sidecar, with no exports map, is discovered as one implicit "." that
     // publishes nothing (185 -> 186).
-    expect(report.totals.entrypoints).toBe(186);
+    // 2026-10-31 root batch garment-surface (operator-approved 2026-10-31): the
+    // sidecar, with no exports map, is discovered as one implicit "." that
+    // publishes nothing (186 -> 187).
+    expect(report.totals.entrypoints).toBe(187);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -386,7 +392,8 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-31 humanoid-probe evidence sidecar adds one root (81 -> 82), operator-approved 2026-10-31.
     // 2026-10-31 root batch exam-pipeline sidecar adds one root (82 -> 83), operator-approved 2026-10-31.
     // 2026-10-31 root batch gown-phenotype sidecar adds one root (83 -> 84), operator-approved 2026-10-31.
-    expect(report.packages.length).toBe(84);
+    // 2026-10-31 root batch garment-surface sidecar adds one root (84 -> 85), operator-approved 2026-10-31.
+    expect(report.packages.length).toBe(85);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {

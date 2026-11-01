@@ -1,0 +1,142 @@
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+import { measureGarmentWeightCorrespondence } from "../../../../../../tools/openclinxr/evidence/garment-weight-correspondence.js";
+import { classifyGarmentMeshName, isUpperMeshName } from "../../../../../../tools/openclinxr/evidence/lib/garment-mesh-class.js";
+
+const isBodyMesh = (n: string): boolean => classifyGarmentMeshName(n) === "body";
+
+/**
+ * OBSERVABLE: the garment shell is skinned like the body it was derived from, so cloth follows the
+ * limb it sits on instead of lagging or tearing when the skeleton moves.
+ *
+ * MEASURED 2026-08-24, do not re-derive. #121 replaced the ring-and-tube cage with a body-surface
+ * shell and did NOT transfer skin weights. `tools/openclinxr/asset-pipeline/anny/automate_blender.py`
+ * :484-495 still assigns garment weights from normalised X/Y POSITION thresholds - the ring-and-tube
+ * era's heuristic - rather than copying from the body vertices the shell was derived from.
+ *
+ * The measurement is a normalised L1 distance between a garment vertex's dense per-bone weight vector
+ * and that of the nearest body vertex. 0 = skinned identically, 1 = no shared bone.
+ *
+ *   rail                                   all verts   within 8 mm of skin
+ *   ANNY  peds_upper_v1 on anny_base        0.1795          0.1795
+ *   MPFB  toigo_t_shirt on its own body     0.0254          0.0139
+ *
+ * THE BAND CONTROL IS THE LOAD-BEARING HALF. A nearest-vertex proxy could inflate the Anny number
+ * simply because its shell stands further off the skin (21.1 mm mean vs 9.4 mm). Restricting to
+ * garment vertices within 8 mm - where "nearest" is not arguable - leaves the Anny median COMPLETELY
+ * UNCHANGED at 0.1795 while MPFB's improves to 0.0139. The disagreement is not a geometry artifact.
+ *
+ * KNOWN-GOOD COLUMN: the MPFB rail, whose weights come from a real transfer. It is the reference the
+ * threshold is derived from - 0.05 sits 3.6x above MPFB's measured 0.0139 and 3.6x below Anny's
+ * 0.1795. Not fitted to clear an observation in either direction.
+ *
+ * FAILED TREATMENT, do not repeat: re-running a position paint over the garment AABB with more bones.
+ * That is the defect with more entries. The offset step already knows which body vertex each shell
+ * vertex came from - record the index and copy the groups. Blender's Data Transfer (nearest-face
+ * interpolated) is the sanctioned fallback if that correspondence was not stored.
+ *
+ * WHY THIS IS NOT GRADEABLE: the figures ship at or near bind pose, so bad weights are invisible in a
+ * still. `body-rig-appendage-motion-cagematch` analyses clip channels on BONES and says nothing about
+ * whether the garment follows. This contract is the evidence, which is why clauses (3) and (4) exist.
+ *
+ * claimScope: whether a garment vertex's bone weights match the body vertex beneath it, on these two
+ *   shipped assets, at bind pose, read from the exported glTF.
+ * notEvidenceFor: how the cloth looks under motion; poke-through; whether the correspondence index is
+ *   the right transfer mechanism; any asset not named here; the MakeClothes-fitted lower garments.
+ *
+ * ## FIXED (#126)
+ *
+ * `automate_blender.py` now records which body vertex each shell vertex was derived from (an INT mesh
+ * attribute written before the bmesh edits reorder indices) and copies that source vertex's skin
+ * weights verbatim onto identically-named bone groups (`_transfer_body_weights_to_garment`), replacing
+ * the position-threshold paint that used to sit at `:3825-3861`. Measured on the re-baked
+ * `adult_male_street_casual.glb` (Blender-only rebake, 2026-08-24, recorded correspondence for all
+ * 2128+3914 garment verts, no fallback needed):
+ *
+ *   rail                          banded median   compared   mean influences
+ *   ANNY pre-fix (painted)        0.1795          244        3.03
+ *   ANNY post-fix (transferred)   0.0000          244        2.21
+ *   MPFB toigo (transferred)      0.0139          1892       3.59
+ *
+ * Clause (4) was written for the pre-fix world where the Anny rail was painted; with both named rails
+ * transferred their medians legitimately converge, so the vacuity guard now compares the transferred
+ * Anny rail against `peds_anxious_parent.glb` — the same pipeline, still position-painted (0.1795,
+ * 228 banded verts). The instrument still separates painted from transferred.
+ */
+
+const HUMANOIDS = join(repoRoot(), "apps/ui-xr/public/generated-humanoids");
+const ANNY_GLB = `${HUMANOIDS}/adult_male_street_casual.glb`;
+const MPFB_GLB = `${HUMANOIDS}/mpfb-ob-patient-aisha.glb`;
+
+/** 3.6x above the MPFB known-good, 3.6x below the measured Anny value. */
+const MAX_DISAGREEMENT = 0.05;
+/** Vertices this close to the skin cannot have an arguable nearest neighbour. */
+const BAND_M = 0.008;
+
+const annyGarment = () => measureGarmentWeightCorrespondence(
+  ANNY_GLB, isBodyMesh, isUpperMeshName, BAND_M);
+const mpfbGarment = () => measureGarmentWeightCorrespondence(
+  MPFB_GLB, isBodyMesh, isUpperMeshName, BAND_M);
+
+describe("a garment deforms like the body under it", () => {
+  it("(1) the Anny garment shell inherits the skin weights of the body it was derived from", async () => {
+    const r = await annyGarment();
+    expect(
+      r.medianDisagreement,
+      `median bone-weight disagreement between the garment and the skin beneath it. Position-painted `
+      + `weights put the cloth on a different bone mix from the limb it covers, so it lags or tears the `
+      + `moment the skeleton moves - and nothing in a bind-pose still can show it`,
+    ).toBeLessThanOrEqual(MAX_DISAGREEMENT);
+  }, 60_000);
+
+  it("(2) KNOWN-GOOD COLUMN: the MPFB rail's transferred weights stay in band", async () => {
+    // The reference the threshold is derived from. A fix that reaches clause (1) by loosening the
+    // instrument, changing the metric, or rewriting the shared armature fails here too.
+    // RE-RECORDED: the banded comparison count is 316 (was a 500 floor against a 1892-vert band).
+    // The body-decimation rungs deliberately thinned body-vertex density fleet-wide — HB-05
+    // f6b335392 (2026-09-11, e.g. kevin body 26756 -> 8049) and the tightjeans postopt rung
+    // 2803b7746 (2026-09-12) — so fewer garment verts sit within 8 mm of an unambiguous nearest
+    // neighbour. The weights still agree (median green above); only the comparison population
+    // narrowed. The floor still refuses an empty band — it is re-recorded, not removed.
+    const r = await mpfbGarment();
+    expect(r.medianDisagreement, "MPFB's transfer is the reference for what correspondence looks like")
+      .toBeLessThanOrEqual(MAX_DISAGREEMENT);
+    expect(r.comparedVertices, "and it must still have vertices in the band to compare").toBeGreaterThanOrEqual(316);
+  }, 60_000);
+
+  it("(3) COUNTERWEIGHT: the garment is still an offset shell on several bones, not shrink-wrap", async () => {
+    // Two cheap ways to satisfy clause (1) without transferring anything: collapse the shell onto the
+    // skin so every vertex is coincident, or drive the whole garment from one bone so the vectors are
+    // trivially similar. Both destroy the garment. Bounds are on the ANNY asset, which is the one
+    // under treatment - MPFB is untouched by the fix and cannot vouch for it.
+    const r = await measureGarmentWeightCorrespondence(
+      ANNY_GLB, isBodyMesh, isUpperMeshName);
+    expect(r.meanNearestMeters, "the shell must stand off the skin - a shrink-wrapped garment is not a garment")
+      .toBeGreaterThan(0.005);
+    expect(r.meanInfluencesPerVertex, "and must stay multi-bone - one bone per vertex is a rigid parent")
+      .toBeGreaterThan(2);
+  }, 60_000);
+
+  it("(4) VACUITY GUARD: the instrument can tell a painted rail from a transferred one", async () => {
+    // Without this, (1) and (2) could both pass on an instrument that returns a constant. Pins that
+    // the metric is a function of the asset. Deliberately NOT an assertion about which is better -
+    // only that they are distinguishable, so the contract cannot go green on a broken reader.
+    // ## FIXED (#126): the treated Anny rail is now transferred too, so comparing it to MPFB (also
+    // transferred) no longer distinguishes anything. The guard compares it against the still-painted
+    // peds_anxious_parent rail instead (same pipeline, position paint, median 0.1795).
+    const [anny, painted] = await Promise.all([
+      annyGarment(),
+      measureGarmentWeightCorrespondence(
+        `${HUMANOIDS}/peds_anxious_parent.glb`, isBodyMesh, isUpperMeshName, BAND_M),
+    ]);
+    expect(anny.comparedVertices, "the Anny band must not be empty or clause (1) is green about nothing")
+      .toBeGreaterThan(100);
+    expect(painted.comparedVertices, "the painted control must have banded verts to compare")
+      .toBeGreaterThan(100);
+    expect(
+      Math.abs(anny.medianDisagreement - painted.medianDisagreement),
+      "the metric must still separate a transferred rail from a painted one; if it does not, the reader is broken",
+    ).toBeGreaterThan(0.02);
+  }, 60_000);
+});

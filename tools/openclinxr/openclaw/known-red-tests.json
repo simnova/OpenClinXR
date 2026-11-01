@@ -262,7 +262,7 @@
       "card": "unfiled: scrub inherited git repo vars in tools-file-cache.ts git invocations"
     },
     {
-      "path": "tools/openclinxr/evidence/a-shipped-garment-keeps-its-base-colour-texture.test.ts",
+      "path": "tools/openclinxr/evidence/garment-surface-stale/a-shipped-garment-keeps-its-base-colour-texture.test.ts",
       "reason": "ci-w1 classifier migration truthfully expands the population (the old /footwear|shoe|shirt/ regex never saw lower garments): 9 bare garment materials including lower-garment mats carry no baseColorTexture. Authoring the missing textures is an asset fix, not a name fix.",
       "card": "ci-w1: author base-colour textures for the 9 bare garment materials"
     },
@@ -277,12 +277,12 @@
       "card": "ci-w1: finish the 7 sawn hems and restore nurse shoulder coverage"
     },
     {
-      "path": "tools/openclinxr/evidence/garment-palette-role-source.test.ts",
+      "path": "tools/openclinxr/evidence/garment-surface-stale/garment-palette-role-source.test.ts",
       "reason": "ci-w1 helper migration is green (role-keyed palette reads isFitted/makeclothesGarmentSlug; no name miss): co-present actors share a primary garment material (shared white primaries now visible), scrub_shirt is white vs locked teal, and gown-ed-robert-hayes records no declared fabricPalette. Declaring per-role palettes is a product decision.",
       "card": "ci-w1: declare per-role palettes including the ED gown; resolve scrub white vs locked teal"
     },
     {
-      "path": "tools/openclinxr/evidence/garments-are-flat-shaded-and-the-body-is-not.test.ts",
+      "path": "tools/openclinxr/evidence/garment-surface-stale/garments-are-flat-shaded-and-the-body-is-not.test.ts",
       "reason": "ci-w1 classifier migration is green (body column passes via the classifier; no name miss): 3 garments never smoothed, 1 hard-edge set smoothed away, and female_tight_jeans is not in the baseline (7 remeshed-flag rows). Shading + baseline admission are asset fixes.",
       "card": "ci-w1: smooth the 3 never-smoothed garments; admit female_tight to the baseline"
     },
@@ -292,12 +292,12 @@
       "card": "ci-w1: restore the nurse neck opening above the clavicle line"
     },
     {
-      "path": "tools/openclinxr/evidence/mpfb2-lower-garment-and-mask-footprint.test.ts",
+      "path": "tools/openclinxr/evidence/garment-surface-stale/mpfb2-lower-garment-and-mask-footprint.test.ts",
       "reason": "ci-w1 classifier migration is green (lower/mask populations select correctly): the aisha mask over-reaches the garment bounds by > 2mm, and the upper carries 1192 verts vs >= 4000 (#321 must hold). Mask/garment geometry gap, not a name miss.",
       "card": "ci-w1: fit the aisha mask inside garment bounds; restore upper verts"
     },
     {
-      "path": "tools/openclinxr/evidence/no-orphan-skin-slivers.test.ts",
+      "path": "tools/openclinxr/evidence/garment-surface-stale/no-orphan-skin-slivers.test.ts",
       "reason": "ci-w1 classifier migration is green (skin/garment/overlap populations select correctly): 10 orphan skin components wider than 8mm, skin below 19000 tris on 10 actors, and 3 shirt/trouser overlaps at 0.0mm (gowns). Skin/garment geometry gap, not a name miss.",
       "card": "ci-w1: clear orphan slivers without gutting skin; restore overlaps"
     },
@@ -307,7 +307,7 @@
       "card": "ci-w1: restore nurse shoulder coverage (shared with #121)"
     },
     {
-      "path": "tools/openclinxr/evidence/overlapping-garments-do-not-interpenetrate.test.ts",
+      "path": "tools/openclinxr/evidence/garment-surface-stale/overlapping-garments-do-not-interpenetrate.test.ts",
       "reason": "ci-w1 classifier migration is green (trouser/footwear populations select correctly): 1 trouser/footwear pair interpenetrates rather than layering, and the footwear-geometry counterweight trips 3 rows. Layer-order geometry gap, not a name miss.",
       "card": "ci-w1: fix the trouser/footwear layer order without inflating footwear"
     },
@@ -317,12 +317,12 @@
       "card": "ci-w1: regularize cuff rims without decimation; restore the #373 waistband"
     },
     {
-      "path": "tools/openclinxr/evidence/the-gown-drapes-below-the-hip.test.ts",
+      "path": "tools/openclinxr/evidence/garment-surface-stale/the-gown-drapes-below-the-hip.test.ts",
       "reason": "ci-w1 classifier migration is green (isGownMeshName selects the gown shells): below-hip bands are unsampleable (1 vs > 4) and no band clears the 40mm vacuity bound. Gown shell geometry gap, not a name miss.",
       "card": "ci-w1: make the gown shell drape below the hip with sampleable bands"
     },
     {
-      "path": "tools/openclinxr/evidence/the-skin-normal-map-carries-surface-detail.test.ts",
+      "path": "tools/openclinxr/evidence/garment-surface-stale/the-skin-normal-map-carries-surface-detail.test.ts",
       "reason": "ci-w1 classifier migration is green (skin vs garment populations select correctly): skin normal maps on 2 actors are mostly the flat no-op value (mirror-smooth, noise-incoherent, unbound/scaled). Rebaking the maps is an asset fix.",
       "card": "ci-w1: rebake skin normal maps with real surface detail"
     },
@@ -385,6 +385,11 @@
       "path": "tools/openclinxr/evidence/humanoid-probe/humanoid-upright-guard.test.ts",
       "reason": "2 of 5 fail (identity armature root rotation; head-above-hips-above-feet up-axis): 4 shipped GLBs carry non-identity root rotation. Failed identically at the root path pre-move (baseline 2026-10-31: same 2 clauses) with zero branch drift on the test, helpers, or GLB inputs; the file now lives at tools/openclinxr/evidence/humanoid-probe/ (it also reads gitignored staging GLBs under anny-*-current/, T7) so the pre-push sidecar stays green. Restoring identity rotation is an asset fix, out of this move slice.",
       "card": "unfiled: restore identity armature root rotation on the shipped humanoids the upright guard names"
+    },
+    {
+      "path": "tools/openclinxr/evidence/garment-surface-stale/the-waistband-mask-reaches-the-trouser-rim.test.ts",
+      "reason": "st-garment-surface: red on origin/main before move (mask over-reaches 12mm > 6mm bound on mpfb-street-adult-male.glb); stale-subdir quarantine per T12, sidecar must stay green",
+      "card": "unfiled: fit the lower hide mask inside the trouser rim (12mm over-reach vs 6mm bound on mpfb-street-adult-male)"
     }
   ]
 }

@@ -68,7 +68,7 @@ import { describe, expect, it } from "vitest";
  *   - Clauses (2), (3), (3b), (3c) of that file. Untouched and must stay so.
  */
 
-const GUARD = join(repoRoot(), "tools/openclinxr/evidence/eye-colour-is-case-driven.test.ts");
+const GUARD = join(repoRoot(), "packages/openclinxr/stations/garment-surface-evidence/src/garment-surface/eye-colour-is-case-driven.test.ts");
 const BANK = join(repoRoot(), "packages/openclinxr/scenario-fixtures/src/pediatric-asthma-mod.ts"); // PSR-08 facade: case lives in -mod, entry is keep-only re-export
 
 describe("the iris guard checks the case, not uniformity", () => {

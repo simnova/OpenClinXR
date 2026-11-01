@@ -144,6 +144,7 @@
     "packages/openclinxr/stations/exam-pipeline-evidence/package.json": ["dependencies", "devDependencies"],
     "packages/openclinxr/stations/local-runtime-evidence/package.json": ["dependencies"],
     "packages/openclinxr/stations/slide-phase-evidence/package.json": ["dependencies"],
+    "packages/openclinxr/stations/garment-surface-evidence/package.json": ["dependencies"],
     "packages/openclinxr/test-harness/src/benchmark-report.ts": ["types"],
     "tools/agent-factory/agent-loop-plan.ts": ["types"],
     "tools/agent-factory/agent-roster.ts": ["types"],

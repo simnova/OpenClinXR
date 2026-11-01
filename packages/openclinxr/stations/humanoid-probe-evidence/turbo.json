@@ -14,7 +14,7 @@
         "$TURBO_ROOT$/tools/openclinxr/evidence/shoulder-raycast-coverage.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/garment-texture-inspection.ts",
-        "$TURBO_ROOT$/tools/openclinxr/evidence/garments-are-flat-shaded-and-the-body-is-not.test.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/garment-surface-stale/garments-are-flat-shaded-and-the-body-is-not.test.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/frame-pass-timing.json",
         "$TURBO_ROOT$/tools/openclinxr/evidence/parent-drives-a-real-viseme.json",
         "$TURBO_ROOT$/tools/openclinxr/evidence/reframe-subject-in-frame.json",

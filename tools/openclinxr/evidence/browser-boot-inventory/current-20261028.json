@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-01T04:44:12.384Z",
+  "generatedAt": "2026-11-01T06:05:46.138Z",
   "method": "static import-graph scan of tools/**/*.test.ts; value imports only; call detection after stripping comments and string literals",
   "primitives": [
     "spawnPortlessDevServer (lib/portless-server.ts — boots a Vite dev server)",
     "chromium.launch (playwright — boots a headless Chrome shell)"
   ],
-  "totalTestFiles": 545,
+  "totalTestFiles": 518,
   "browserBootingTestFiles": 60,
   "excludedAmongBrowserBooting": 0,
   "minBrowsersPerSuiteRun": 59,

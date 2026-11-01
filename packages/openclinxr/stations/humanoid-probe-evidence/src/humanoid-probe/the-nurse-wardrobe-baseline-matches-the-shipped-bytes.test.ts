@@ -85,7 +85,7 @@ import { repoRoot } from "@openclinxr/factory-station-core/runner";
  */
 
 const KEVIN_GLB = join(repoRoot(), "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb");
-const RED_FILE = join(repoRoot(), "tools/openclinxr/evidence/garments-are-flat-shaded-and-the-body-is-not.test.ts");
+const RED_FILE = join(repoRoot(), "tools/openclinxr/evidence/garment-surface-stale/garments-are-flat-shaded-and-the-body-is-not.test.ts");
 const INSPECTOR = join(repoRoot(), "tools/openclinxr/evidence/garment-texture-inspection.ts");
 
 /** Independently recorded elsewhere in the tree, before this slice. Not the bake's own word. */
