@@ -7,16 +7,16 @@ import {
 } from "../checks/test-file-root-freeze.ts";
 
 /**
- * tools/openclinxr/evidence/ holds 443 .test.ts files in ONE flat directory, and the
+ * tools/openclinxr/evidence/ holds 382 .test.ts files in ONE flat directory, and the
  * repo's own delegation protocol tells every worker to plant a RED there. Seven of the
  * seventeen conflict-resolving merges in 1,500 commits were test files. Shared test files
  * are the largest serialization class in this repo at 33.1% of excess-writer events, ahead
  * of source modules at 23.9%.
  *
- * The rule freezes the root-level count at 443; it may only fall. A new root-level test
+ * The rule freezes the root-level count at 382; it may only fall. A new root-level test
  * file raises the count and fails the gate. The fix is to plant the RED in a subdirectory
  * named for its subject. A test file in a SUBDIRECTORY is never counted, so the escape
- * route is always open. The existing 443 files are NOT moved — the ratchet exists so the
+ * route is always open. The existing 382 files are NOT moved — the ratchet exists so the
  * count comes down as REDs are retired and new ones land in subdirectories.
  * (2026-10-30 station-trellis sidecar, operator-approved 2026-10-30, moved 4 trellis
  * evidence-root tests to @openclinxr/trellis-evidence: 560 -> 556.)
@@ -38,6 +38,13 @@ import {
  * (2026-10-31 root batch garment-cache, operator-approved 2026-10-31: 2 root tests
  * moved to @openclinxr/makeclothes-evidence and 7 to
  * tools/openclinxr/evidence/garment-cache/: 452 -> 443.)
+ * (2026-10-31 root batch local-runtime, operator-approved 2026-10-31: 38 root tests
+ * moved out: 443 -> 405; 36 to @openclinxr/local-runtime-evidence and 2 host-dependent
+ * files to tools/openclinxr/evidence/local-runtime/ (review fix 2026-10-31).)
+ * (2026-10-31 root batch iwsdk, operator-approved 2026-10-31: 24 root tests left the
+ * root — 20 to @openclinxr/iwsdk-evidence, 3 known-red/manual to
+ * tools/openclinxr/evidence/iwsdk/, 1 (browser-boot-inventory) returned to the root
+ * after independent review (sidecar must stay fully green); freeze 405 -> 382.)
  */
 describe("tools/openclinxr/evidence/ root test file freeze", () => {
   it("(1) root-level .test.ts count does not exceed the frozen ceiling", () => {

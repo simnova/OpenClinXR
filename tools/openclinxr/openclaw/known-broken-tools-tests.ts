@@ -28,8 +28,8 @@
 
 export const KNOWN_BROKEN_TOOLS_TESTS: readonly string[] = [
   "tools/openclinxr/evidence/blueprint-voice-simulation-spike.test.ts",
-  "tools/openclinxr/evidence/check-github-pages-site.test.ts",
-  "tools/openclinxr/evidence/iwsdk-evidence-contract-check.test.ts",
+  "tools/openclinxr/evidence/iwsdk/check-github-pages-site.test.ts",
+  "tools/openclinxr/evidence/iwsdk/iwsdk-evidence-contract-check.test.ts",
   "tools/openclinxr/evidence/model-vetting-actor-player-runtime-evidence.test.ts",
   "tools/openclinxr/evidence/model-vetting-snapshots/model-vetting-capture-manifest.test.ts",
   "tools/openclinxr/evidence/model-vetting-snapshots/model-vetting-runtime-hook-bindings.test.ts",

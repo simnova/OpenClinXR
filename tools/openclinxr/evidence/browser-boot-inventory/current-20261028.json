@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-31T22:42:45.921Z",
+  "generatedAt": "2026-11-01T00:01:10.625Z",
   "method": "static import-graph scan of tools/**/*.test.ts; value imports only; call detection after stripping comments and string literals",
   "primitives": [
     "spawnPortlessDevServer (lib/portless-server.ts — boots a Vite dev server)",
     "chromium.launch (playwright — boots a headless Chrome shell)"
   ],
-  "totalTestFiles": 763,
+  "totalTestFiles": 707,
   "browserBootingTestFiles": 62,
   "excludedAmongBrowserBooting": 0,
   "minBrowsersPerSuiteRun": 61,
@@ -1241,11 +1241,11 @@
       "reason": "voice-simulation SPIKE (unproven lane-C class); builds external-provider voice simulation plans"
     },
     {
-      "testFile": "tools/openclinxr/evidence/check-github-pages-site.test.ts",
+      "testFile": "tools/openclinxr/evidence/iwsdk/check-github-pages-site.test.ts",
       "reason": "validates the LIVE GitHub Pages site — network-dependent"
     },
     {
-      "testFile": "tools/openclinxr/evidence/iwsdk-evidence-contract-check.test.ts",
+      "testFile": "tools/openclinxr/evidence/iwsdk/iwsdk-evidence-contract-check.test.ts",
       "reason": "IWSDK sidecar MCP tooling inventory — execs the IWSDK toolchain"
     },
     {

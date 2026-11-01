@@ -102,7 +102,7 @@
     "arena:iwsdk:dev": "pnpm --filter @openclinxr/ui-xr-iwsdk-spike dev",
     "arena:voice:dev": "pnpm --filter @openclinxr/mock-realtime-voice-server dev",
     "iwsdk:verify": "pnpm --filter @openclinxr/iwsdk-spike typecheck && pnpm --filter @openclinxr/iwsdk-spike test && pnpm iwsdk:contract:tests && pnpm iwsdk:preinstall && pnpm iwsdk:preinstall:fixture && pnpm iwsdk:workspace:posture -- --approved-sidecar --approved-phase2-devtools --approved-sharp-libvips-exception --approved-uikitml-spatial-text && pnpm iwsdk:npm-currentness:validate && pnpm iwsdk:evidence:validate && pnpm xr:quest:mr:check -- --input docs/openclinxr/quest-mixed-reality-manual-template.json --output .agent-factory/quest-mixed-reality-manual-template-check.json && pnpm --filter @openclinxr/architecture-rules typecheck && pnpm --filter @openclinxr/architecture-rules test && pnpm agent:sources",
-    "iwsdk:contract:tests": "vitest run tools/openclinxr/evidence/iwsdk-operator-steering-blockers.test.ts tools/openclinxr/evidence/iwsdk-ui-xr-parity.test.ts",
+    "iwsdk:contract:tests": "vitest run packages/openclinxr/stations/iwsdk-evidence/src/iwsdk/iwsdk-operator-steering-blockers.test.ts packages/openclinxr/stations/iwsdk-evidence/src/iwsdk/iwsdk-ui-xr-parity.test.ts",
     "iwsdk:preinstall": "tsx tools/openclinxr/evidence/iwsdk-preinstall-check.ts",
     "iwsdk:preinstall:fixture": "tsx tools/openclinxr/evidence/iwsdk-preinstall-check.ts --proposal docs/openclinxr/iwsdk-first-slice-preinstall-proposal.json",
     "iwsdk:workspace:posture": "tsx tools/openclinxr/evidence/iwsdk-workspace-posture-check.ts",

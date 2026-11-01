@@ -7,7 +7,7 @@
       "card": "unfiled: distinct equipment-family builders for the three clinic ids, and a bed gate that accepts the shipped 2-mesh GLB while still rejecting the 56-triangle pole"
     },
     {
-      "path": "tools/openclinxr/evidence/no-shipped-humanoid-is-anny-and-every-face-has-units.test.ts",
+      "path": "tools/openclinxr/evidence/iwsdk/no-shipped-humanoid-is-anny-and-every-face-has-units.test.ts",
       "reason": "Clause 5 imports ED_ADULT_CAST_RUNTIME_PATH from the xr-scene root. On origin/main that name is a private const in humanoid-runtime-asset-url.ts and is not exported. That file is unchanged in this merge. The xr-scene index change only adds installStationLayoutView, which pulls this test into vitest related. Exporting the const would be a new public name.",
       "card": "unfiled: point the anny clause at the asset-registry export of ED_ADULT_CAST_RUNTIME_PATH without a new xr-scene root name"
     },
@@ -335,6 +335,16 @@
       "path": "tools/openclinxr/evidence/model-vetting-snapshots/model-vetting-runtime-mapping-evidence.test.ts",
       "reason": "Fails identically at the evidence root and in tools/openclinxr/evidence/model-vetting-snapshots/: 1 of 2 clauses ENOENT on docs/openclinxr/model-vetting-report-peds-asthma-parent-anxiety-2026-06-05.json, which is not tracked in git and is absent in worktrees. The script-surface clause passes.",
       "card": "unfiled: commit or generate the model-vetting docs snapshots, or gate the runtime-mapping tests on their presence"
+    },
+    {
+      "path": "tools/openclinxr/evidence/iwsdk/iwsdk-evidence-contract-check.test.ts",
+      "reason": "4 of 10 fail on origin/main inputs (this branch touches none of them; lockfile diff is additive-only): live builders report the installed IWSDK set at 0.5.1 with sidecar currentState phase_2_validation_sidecar_promoted, while the committed 2026-06-04 snapshot pins 0.3.1 / phase_1_approved_install_backed and the shape + validate-latest checks pin the same 0.3.1. Failed identically at the root path pre-move (baseline 2026-10-31); the file now lives at tools/openclinxr/evidence/iwsdk/ so the pre-push sidecar stays green. Re-pinning is an iwsdk-station data fix, out of this move's scope.",
+      "card": "unfiled: re-pin the IWSDK evidence-contract snapshot and 0.3.1 pins to the installed IWSDK package set (0.5.1, phase_2)"
+    },
+    {
+      "path": "tools/openclinxr/evidence/iwsdk/check-github-pages-site.test.ts",
+      "reason": "1 of 4 fails ('validates upload-path wiring and tracked GitHub doc links'): the broken-index negative probe passes validation it should fail. Failed identically at the root path pre-move (baseline 2026-10-31) with zero branch drift on the checker, site, or workflow inputs; the file now lives at tools/openclinxr/evidence/iwsdk/ so the pre-push sidecar stays green. Diagnosing the upload-path wiring is a pages/tooling fix, out of this move's scope.",
+      "card": "unfiled: diagnose the GitHub Pages upload-path wiring negative probe (broken index validates clean)"
     }
   ]
 }

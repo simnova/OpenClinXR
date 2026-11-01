@@ -140,6 +140,7 @@
     "packages/openclinxr/motion-compiler/package.json": ["dependencies"],
     "packages/openclinxr/stations/runtime-scene-evidence/package.json": ["devDependencies"],
     "packages/openclinxr/stations/anny-phenotype-evidence/package.json": ["dependencies"],
+    "packages/openclinxr/stations/local-runtime-evidence/package.json": ["dependencies"],
     "packages/openclinxr/stations/slide-phase-evidence/package.json": ["dependencies"],
     "packages/openclinxr/test-harness/src/benchmark-report.ts": ["types"],
     "tools/agent-factory/agent-loop-plan.ts": ["types"],

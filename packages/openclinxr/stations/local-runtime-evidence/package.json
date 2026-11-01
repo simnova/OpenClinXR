@@ -1,0 +1,27 @@
+{
+  "name": "@openclinxr/local-runtime-evidence",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "biome lint --no-errors-on-unmatched .",
+    "typecheck": "cellix-tsc --noEmit -p tsconfig.vitest.json",
+    "test": "vitest run --root ."
+  },
+  "dependencies": {
+    "@cellix/provider-contracts": "workspace:*",
+    "@openclinxr/capability-gateway": "workspace:*",
+    "@openclinxr/factory-station-core": "workspace:*",
+    "@openclinxr/rest": "workspace:*",
+    "@openclinxr/scenario-runtime": "workspace:*",
+    "@openclinxr/telemetry": "workspace:*",
+    "@openclinxr/voice-gateway": "workspace:*"
+  },
+  "devDependencies": {
+    "@cellix/config-typescript": "workspace:*",
+    "@cellix/config-vitest": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

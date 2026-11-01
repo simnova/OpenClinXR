@@ -1,0 +1,76 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "repoRoot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-runtime-state",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildIwsdkStationMcpSmokePlan",
+        "kind": "runtime"
+      },
+      {
+        "name": "iwsdkStationMcpSmokePlanHash",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveHumanoidVariantOrCastPath",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveLocalHumanoidRuntimeAssetUrl",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": "./scenario-bank",
+    "names": [
+      {
+        "name": "scenarioBank",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/capability-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildVisualQaRemediationWorkOrderPlans",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  }
+]

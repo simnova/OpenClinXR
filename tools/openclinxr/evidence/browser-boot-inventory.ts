@@ -124,9 +124,9 @@ export type BrowserBootInventory = {
 export const TEST_TOOLS_EXCLUSION_REASONS: Readonly<Record<string, string>> = {
   "tools/openclinxr/evidence/blueprint-voice-simulation-spike.test.ts":
     "voice-simulation SPIKE (unproven lane-C class); builds external-provider voice simulation plans",
-  "tools/openclinxr/evidence/check-github-pages-site.test.ts":
+  "tools/openclinxr/evidence/iwsdk/check-github-pages-site.test.ts":
     "validates the LIVE GitHub Pages site — network-dependent",
-  "tools/openclinxr/evidence/iwsdk-evidence-contract-check.test.ts":
+  "tools/openclinxr/evidence/iwsdk/iwsdk-evidence-contract-check.test.ts":
     "IWSDK sidecar MCP tooling inventory — execs the IWSDK toolchain",
   "tools/openclinxr/evidence/model-vetting-actor-player-runtime-evidence.test.ts":
     "model-vetting runtime evidence class — asserts on docs snapshots of hardware/headset-gated evidence",
