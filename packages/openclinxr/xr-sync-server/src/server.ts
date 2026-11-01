@@ -24,6 +24,7 @@ import { parseScenarioCasts, type ScenarioCast } from "./scenario-cast.js";
 import type { RoomProbeStats } from "./room-types.js";
 import { snapshotState } from "./schema.js";
 import type { ConversationTrace } from "./conversation-trace.js";
+import { applyDialogueSeeds } from "./topic-answers.js";
 
 /** Options for booting an in-process encounter server. */
 export interface EncounterServerOptions {
@@ -62,6 +63,8 @@ export interface EncounterServerOptions {
    * refuses boot together with reviewRubric and never needs examBlueprint.
    */
   scenarios?: Scenario[];
+  /** C23 factory dialogue seed bank. Requires live scenarios; authored text remains live-memory-only. */
+  dialogueSeeds?: unknown;
   /**
    * C8 rotation fault seam (server config only, never client-settable; the
    * product path leaves it unset). Forces the next N seat reservations to
@@ -151,6 +154,12 @@ export async function createEncounterServer(
       throw new Error("bad-scenarios: scenarios require examBlueprint");
     }
     scenarioCasts = parseScenarioCasts(options.scenarios, stations ?? []);
+  }
+  if (options.dialogueSeeds !== undefined) {
+    if (replayDir !== null || scenarioCasts === null) {
+      throw new Error("bad-dialogueSeeds: dialogueSeeds require live scenarios");
+    }
+    scenarioCasts = applyDialogueSeeds(scenarioCasts, options.dialogueSeeds);
   }
   const noteMaxChars = parseNoteMaxChars(options.noteMaxChars);
   const traceDir = typeof options.traceDir === "string" ? options.traceDir : null;

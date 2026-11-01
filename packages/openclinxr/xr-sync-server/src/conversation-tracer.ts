@@ -29,6 +29,7 @@ import {
   cloneCastContext,
   transitionWithCastHold,
 } from "./conversation-trace-cast.js";
+import type { TraceTopicAnswer } from "./topic-answers.js";
 
 /**
  * Live conversation tracer owned by one encounter room: appends
@@ -68,7 +69,7 @@ export class ConversationTracer {
   }
 
   /** C18: bind the owning room's cast (scenario id, roster, policy + baseline). Null clears back to off-cast. */
-  setStationCast(cast: { scenarioId: string; actors: string[]; baseline: string; emotionPolicy: CaseEmotionPolicy } | null): void {
+  setStationCast(cast: { scenarioId: string; actors: string[]; baseline: string; emotionPolicy: CaseEmotionPolicy; topicAnswers?: TraceTopicAnswer[] } | null): void {
     if (cast === null) {
       this.scenarioId = "";
       this.castContext = undefined;
@@ -84,6 +85,7 @@ export class ConversationTracer {
       actors: [...cast.actors],
       baseline: cast.baseline,
       emotionPolicy: cast.emotionPolicy,
+      ...(cast.topicAnswers === undefined ? {} : { topicAnswers: cast.topicAnswers }),
     });
   }
 

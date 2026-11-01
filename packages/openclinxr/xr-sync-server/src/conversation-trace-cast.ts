@@ -13,6 +13,7 @@ import type {
   EmotionEventKind,
   EmotionTransition,
 } from "@openclinxr/conversation-policy";
+import type { TraceTopicAnswer } from "./topic-answers.js";
 
 /** C18 cast context recorded in the trace (review-safe: ids + policy only). */
 export interface ConversationCastContext {
@@ -24,6 +25,8 @@ export interface ConversationCastContext {
   baseline: string;
   /** The station's emotion policy (scenario policy or empty at baseline). */
   emotionPolicy: CaseEmotionPolicy;
+  /** C23 review-safe topic-to-reply selectors (no authored line text). */
+  topicAnswers?: TraceTopicAnswer[];
 }
 
 /** Stable named cue for a cast actor's opening reply (mirrors scenario-cast). */
@@ -71,7 +74,7 @@ export function readCastContext(raw: unknown, traceFile: string): ConversationCa
   if (typeof raw !== "object" || raw === null) {
     throw new Error(`replay-bad-trace: ${traceFile} holds a malformed cast context`);
   }
-  const record = raw as { scenarioId?: unknown; actors?: unknown; baseline?: unknown; emotionPolicy?: unknown };
+  const record = raw as { scenarioId?: unknown; actors?: unknown; baseline?: unknown; emotionPolicy?: unknown; topicAnswers?: unknown };
   const { scenarioId, actors, baseline, emotionPolicy: policy } = record;
   if (
     typeof scenarioId !== "string" ||
@@ -102,6 +105,18 @@ export function readCastContext(raw: unknown, traceFile: string): ConversationCa
       lowerBound: p.lowerBound,
       transitions: [...(p.transitions as CaseEmotionPolicy["transitions"])],
     } as CaseEmotionPolicy,
+    ...(Array.isArray(record.topicAnswers)
+      ? {
+          topicAnswers: record.topicAnswers.map((answer) => {
+            if (typeof answer !== "object" || answer === null) throw new Error(`replay-bad-trace: ${traceFile} holds malformed topic answers`);
+            const item = answer as { actorId?: unknown; topicTags?: unknown; replyId?: unknown };
+            if (typeof item.actorId !== "string" || !Array.isArray(item.topicTags) || !item.topicTags.every((tag) => typeof tag === "string") || typeof item.replyId !== "string") {
+              throw new Error(`replay-bad-trace: ${traceFile} holds malformed topic answers`);
+            }
+            return { actorId: item.actorId, topicTags: [...item.topicTags] as string[], replyId: item.replyId };
+          }),
+        }
+      : {}),
   };
 }
 
@@ -122,5 +137,8 @@ export function cloneCastContext(cast: ConversationCastContext): ConversationCas
       lowerBound: cast.emotionPolicy.lowerBound,
       transitions: [...cast.emotionPolicy.transitions],
     },
+    ...(cast.topicAnswers === undefined
+      ? {}
+      : { topicAnswers: cast.topicAnswers.map((answer) => ({ ...answer, topicTags: [...answer.topicTags] })) }),
   };
 }

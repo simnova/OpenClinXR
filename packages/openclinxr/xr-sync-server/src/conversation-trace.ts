@@ -27,6 +27,7 @@ import {
   transitionWithCastHold,
   type ConversationCastContext,
 } from "./conversation-trace-cast.js";
+import { pickTopicAnswer } from "./topic-answers.js";
 
 export type { ConversationCastContext } from "./conversation-trace-cast.js";
 /** Learner speech completed: the acknowledgement that opens an actor reply. */
@@ -254,7 +255,8 @@ export function reduceConversationEvents(
         // same 1-based per-actor count the live room uses.
         const isOpening = isCastOpening(castActors, actorId, turnCount);
         const reply = pickC3Reply(turnCount);
-        const replyId = isOpening ? castOpeningReplyId(actorId) : reply.id;
+        const answer = isOpening ? undefined : pickTopicAnswer(cast?.topicAnswers, actorId, event.tag);
+        const replyId = isOpening ? castOpeningReplyId(actorId) : answer?.replyId ?? reply.id;
         const cueId = isOpening ? CAST_TRACE_OPENING_CUE_ID : reply.cueId;
         const turnId = turns.length + 1;
         turns.push({
@@ -400,4 +402,3 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
 
 /** Persisted-file name suffix for the review-safe conversation trace. */
 export const CONVERSATION_TRACE_FILE_SUFFIX = ".conversation-trace.json";
-

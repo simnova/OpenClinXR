@@ -29,6 +29,7 @@ import { createScheduleDriver } from "./scenario-schedule.js";
 import { DEFAULT_NOTE_MAX_CHARS, validateNoteSubmit } from "./patient-note.js";
 import { applyUtteranceIntent } from "./actor-turns.js";
 import { setTopicMenuState, topicMenuForCast } from "./topic-menu.js";
+import type { TopicAnswer } from "./topic-answers.js";
 import {
   assertStationJoinAllowed,
   clearStationNoncesOnDispose,
@@ -110,6 +111,8 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
    * reply per actor per station is the scenario opening.
    */
   private castVoice: Map<string, CastVoiceActor> | null = null;
+  /** C23 scenario-authored topic answers for this station (live text never traced). */
+  private topicAnswers: TopicAnswer[] = [];
   /**
    * C19 scenario schedule driver for this room's station (timers on the room
    * clock; null off a cast station). Started at encounter start, cleared at
@@ -180,8 +183,9 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       // baseline) so the persisted trace recomputes the live replyIds/cues
       // and emotions from recorded data alone (no scenario bank, no text).
       this.castVoice = new Map(cast.castActors.map((entry) => [entry.actorId, entry]));
+      this.topicAnswers = cast.topicAnswers;
       const policy = stationEmotionPolicy(cast);
-      this.tracer.setStationCast({ scenarioId: cast.scenarioId, actors: [...cast.actorIds], baseline: policy.baseline as string, emotionPolicy: policy });
+      this.tracer.setStationCast({ scenarioId: cast.scenarioId, actors: [...cast.actorIds], baseline: policy.baseline as string, emotionPolicy: policy, topicAnswers: cast.topicAnswers.map(({ actorId, topicTags, replyId }) => ({ actorId, topicTags: [...topicTags], replyId })) });
     } else {
       populateActorRoster(this.state.actors, options);
       this.tracer.setStationCast(null);
@@ -475,6 +479,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         reject: this.reject.bind(this),
         castVoice: this.castVoice === null ? null : { actors: this.castVoice },
         topicMenu: this.castVoice === null ? null : [...this.state.topicMenu],
+        topicAnswers: this.topicAnswers,
       },
       client,
       learner,

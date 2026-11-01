@@ -19,6 +19,7 @@
 import type { CaseEmotionPolicy } from "@openclinxr/conversation-policy";
 import type { ScheduledScenarioEntry } from "./scheduled-event.js";
 import { ActorState, type ActorStateInstance } from "./schema.js";
+import type { TopicAnswer } from "./topic-answers.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -56,6 +57,8 @@ export interface ScenarioCast {
   requiredTraceTags: string[];
   /** C21 per-item trace requirements in review rubric order (labels stay out of the review index). */
   reviewRubric: Array<{ rubricId: string; requiredTraceTags: string[] }>;
+  /** C23 scenario-authored answers available to the live room only. */
+  topicAnswers: TopicAnswer[];
 }
 
 function readStringArray(value: unknown, path: string): string[] {
@@ -134,6 +137,7 @@ function castForScenario(value: unknown, index: number): ScenarioCast {
     schedule: readScenarioSchedule(value["eventSchedule"], actorIds, index, scenarioId),
     requiredTraceTags: readStringArray(value["requiredTraceTags"], `scenarios[${index}].requiredTraceTags`),
     reviewRubric: readTraceRubric(value["reviewRubric"], index),
+    topicAnswers: [],
   };
 }
 

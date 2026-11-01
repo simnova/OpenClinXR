@@ -45,6 +45,7 @@ import { createC18Evidence, runC18Script, type C18Evidence } from "./probe-c18.j
 import { createC19Evidence, runC19Script, type C19Evidence } from "./probe-c19.js";
 import { createC20Evidence, c20CenterFor, runC20Script, type C20Evidence, type C20ScriptDeps } from "./probe-c20.js";
 import { createC21Evidence, runC21Script, runC22Probe } from "./probe-c21.js";
+import { runC23Probe } from "./probe-c23.js";
 import { PROBE_ACTOR_IDS, resolvePhaseLabel } from "./probe-state.js";
 import { parseC11NoteMaxChars } from "./probe-query.js";
 /** Aim-and-trigger driver: aim the right controller, pull the trigger. */
@@ -502,6 +503,8 @@ export async function runProbeScript(deps: ProbeScriptDeps): Promise<void> {
     publishC20();
   } else if (deps.script === "c22") {
     await runC22Probe(deps);
+  } else if (deps.script === "c23") {
+    await runC23Probe(deps);
   } else {
     for (const actorId of PROBE_ACTOR_IDS) {
       // C3 semantics: the second trigger first closes the learner's open

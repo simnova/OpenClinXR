@@ -45,6 +45,7 @@
     "src/xr-sync-c22-learner-topic-tags.test.ts",
     "src/xr-sync-c22-replay-alignment.test.ts",
     "src/xr-sync-c23-replay-required-count.test.ts",
+    "src/xr-sync-c23-topic-answers.test.ts",
     "src/xr-sync-c3-actor-turn.test.ts",
     "src/xr-sync-c4-conversation-trace.test.ts",
     "src/xr-sync-c5-observer.test.ts",

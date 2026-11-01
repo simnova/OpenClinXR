@@ -15,6 +15,7 @@ import { CAST_OPENING_CUE_ID, openingCaption, type CastVoiceActor } from "./scen
 import type { LearnerStateInstance } from "./schema.js";
 import type { TurnRecord } from "./room-types.js";
 import { validateTopicTag } from "./topic-menu.js";
+import { pickTopicAnswer, type TopicAnswer } from "./topic-answers.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -56,6 +57,8 @@ export interface ActorTurnBindings {
   castVoice?: CastVoice | null;
   /** C22 current cast station's scenario topic menu; null off a cast station. */
   topicMenu?: readonly string[] | null;
+  /** C23 validated answers for this station's scenario. */
+  topicAnswers?: readonly TopicAnswer[] | null;
   turnOpenedAtMs: Map<number, number>;
   getOpenTurn(): { turnId: number; actorId: string; timer: { clear(): void } } | null;
   setOpenTurn(turn: { turnId: number; actorId: string; timer: { clear(): void } } | null): void;
@@ -176,9 +179,10 @@ export function applyUtteranceIntent(
   // table from the first turn.
   const opening = turnCount === 1 ? bindings.castVoice?.actors.get(actorId) : undefined;
   const table = pickC3Reply(turnCount);
-  const replyId = opening !== undefined ? `${actorId}:opening` : table.id;
+  const answer = opening === undefined ? pickTopicAnswer(bindings.topicAnswers, actorId, topic.tag) : undefined;
+  const replyId = opening !== undefined ? `${actorId}:opening` : answer?.replyId ?? table.id;
   const cueId = opening !== undefined ? CAST_OPENING_CUE_ID : table.cueId;
-  const durationMs = opening !== undefined ? pickC3Reply(1).durationMs : table.durationMs;
+  const durationMs = opening !== undefined || answer !== undefined ? pickC3Reply(1).durationMs : table.durationMs;
   const turnId = bindings.turnId + 1;
   bindings.setTurnId(turnId);
   actor.speaking = true;
@@ -187,7 +191,11 @@ export function applyUtteranceIntent(
   // the cueId (audio/viseme cue) plus the EmotionEngine transition for the
   // utterance-end's learner_acknowledgement (turnIndex = the opened turn).
   actor.cueId = cueId;
-  actor.caption = opening !== undefined ? openingCaption(opening.displayName, opening.openingUtterance) : "";
+  actor.caption = opening !== undefined
+    ? openingCaption(opening.displayName, opening.openingUtterance)
+    : answer !== undefined
+      ? openingCaption(bindings.castVoice?.actors.get(actorId)?.displayName ?? actorId, answer.line)
+      : "";
   const acknowledgement: EmotionEventKind = "learner_acknowledgement";
   actor.emotion = bindings.tracer.transition(actorId, acknowledgement, turnId).to;
   bindings.tracer.push({ seq, kind: "utterance-end", actorId, turnId, ...(topic.tag === undefined ? {} : { tag: topic.tag }) });
