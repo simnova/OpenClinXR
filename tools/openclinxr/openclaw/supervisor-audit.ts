@@ -226,7 +226,7 @@ const HISTORY = ".openclinxr/openclaw/supervisor-audit-history.jsonl";
 const sh = (argv: string[], cwd: string): string => {
   try {
     return execFileSync(argv[0] as string, argv.slice(1),
-      { cwd, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"] });
+      { cwd, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"], env: gitEnvWithoutInheritedRepoVars() });
   } catch { return ""; }
 };
 

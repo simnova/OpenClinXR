@@ -227,14 +227,24 @@
       "card": "tsk_0e618fa5e9ac3e15"
     },
     {
-      "path": "tools/openclinxr/evidence/the-audit-does-not-claim-a-verification-it-never-checked.test.ts",
+      "path": "tools/openclinxr/openclaw/contracts/the-audit-does-not-claim-a-verification-it-never-checked.test.ts",
       "reason": "hx-paths triage (lane manager, measured at base 4b108ef17): 2 of 6 fail in any lane worktree without dispatch history. describeDispatchProofs reads the lane-local .openclinxr/openclaw/worker-sessions.jsonl ledger; absent (ENOENT), the message reports UNKNOWN instead of the asserted FAILED text. Fails identically on clean tree; not caused by the change under test.",
       "card": "tsk_51e97960788d09fa"
     },
     {
-      "path": "tools/openclinxr/evidence/a-dispatch-verdict-comes-from-the-newest-session.test.ts",
+      "path": "tools/openclinxr/openclaw/contracts/a-dispatch-verdict-comes-from-the-newest-session.test.ts",
       "reason": "hx-paths triage (lane manager, measured at base 4b108ef17): 2 of 4 fail in any lane worktree without dispatch history. rowsFor reads the lane-local .openclinxr/openclaw/worker-sessions.jsonl ledger; absent (ENOENT), the known-good column and counterweight read UNKNOWN instead of FAILED. Fails identically on clean tree; not caused by the change under test.",
       "card": "tsk_51e97960788d09fa"
+    },
+    {
+      "path": "tools/openclinxr/evidence/drain-loop/the-drain-loop-harvests-before-it-dispatches.test.ts",
+      "reason": "Red on origin/main in any fresh worktree (measured 2026-10-31 at base e4bc038c2: all 5 clauses fail): reads gitignored machine-local .openclinxr/openclaw/superagent-loop-prompt.md, absent outside the operator machine (clause 0 asserts existsSync). Moved 2026-10-31 from the evidence root to the drain-loop/ subdirectory per the root-batch T7 trap so the pre-commit openclaw suite stays green; known-red entry kept at the new path for test:touched exclusion.",
+      "card": "unfiled: gate the drain-loop harvest contract on the prompt's presence, or check the prompt in"
+    },
+    {
+      "path": "tools/openclinxr/evidence/fixture-git/fixture-git-does-not-clobber-the-outer-index.test.ts",
+      "reason": "Red on origin/main (measured 2026-10-31 at base e4bc038c2: clause 4 fails): production module tools/openclinxr/openclaw/tools-file-cache.ts shells to git without scrubbing inherited GIT_DIR/GIT_INDEX_FILE via gitEnvWithoutInheritedRepoVars(). Genuine subject RED, fails identically in fresh worktrees. Moved 2026-10-31 from the evidence root to the fixture-git/ subdirectory per the root-batch T12 trap so the pre-commit openclaw suite stays green; known-red entry kept at the new path for test:touched exclusion.",
+      "card": "unfiled: scrub inherited git repo vars in tools-file-cache.ts git invocations"
     },
     {
       "path": "tools/openclinxr/evidence/a-shipped-garment-keeps-its-base-colour-texture.test.ts",
@@ -242,7 +252,7 @@
       "card": "ci-w1: author base-colour textures for the 9 bare garment materials"
     },
     {
-      "path": "tools/openclinxr/evidence/every-shipped-trouser-waistband-is-measured.test.ts",
+      "path": "tools/openclinxr/evidence/rig-fit/every-shipped-trouser-waistband-is-measured.test.ts",
       "reason": "ci-w1 instrument migration is neutral (identical numbers via waistband-ring.ts): the directory scan finds 19 GLBs vs 20 shipped, and the nurse waistband artifact 3.341 no longer reproduces (same-instrument 3.627, drift 0.079 > 0.02). Re-measuring the artifact is a data fix.",
       "card": "ci-w1: re-measure the waistband artifact for all 20 GLBs and re-pin the nurse row"
     },
@@ -287,7 +297,7 @@
       "card": "ci-w1: fix the trouser/footwear layer order without inflating footwear"
     },
     {
-      "path": "tools/openclinxr/evidence/the-ankle-cuff-is-as-smooth-as-the-waistband.test.ts",
+      "path": "tools/openclinxr/evidence/rig-fit/the-ankle-cuff-is-as-smooth-as-the-waistband.test.ts",
       "reason": "ci-w1 helper migration is green (cuff instrument reads isPantsName from waistband-ring.ts): 1 cuff rim rougher than 3x its waistband, 2 cuff rings decimated, 3 trouser-remesh flags, and the #373 denominator regressed. Rim geometry gap, not a name miss.",
       "card": "ci-w1: regularize cuff rims without decimation; restore the #373 waistband"
     },
@@ -302,7 +312,7 @@
       "card": "ci-w1: rebake skin normal maps with real surface detail"
     },
     {
-      "path": "tools/openclinxr/evidence/the-waistband-is-as-smooth-as-the-hem.test.ts",
+      "path": "tools/openclinxr/evidence/rig-fit/the-waistband-is-as-smooth-as-the-hem.test.ts",
       "reason": "ci-w1 helper migration is green (same waistband-ring.ts enumeration both sides): the peds child has a waistband ring but no hem ring (8 of 9 both-ring actors). The missing child hem ring is an asset/casting gap.",
       "card": "ci-w1: give the peds child a measurable hem ring (or rule the exemption)"
     },
@@ -312,7 +322,7 @@
       "card": "ci-w1: write the missing baked-from manifest from the case that authored the reference"
     },
     {
-      "path": "tools/openclinxr/evidence/the-waistband-ratio-is-bounded-not-merely-recorded.test.ts",
+      "path": "tools/openclinxr/evidence/rig-fit/the-waistband-ratio-is-bounded-not-merely-recorded.test.ts",
       "reason": "ci-w1 classifier migration is green (rings found via the shared classifier; no name miss): the artifact scanned 19 GLBs but 20 ship today, and the regen writer fail-closes on the child NULL hem ring (HB-07 breaker) — fresh rows would honestly RED the 4x bound. Re-measuring the artifact is a data fix gated on the child hem geometry.",
       "card": "ci-w1: re-measure the waistband-ratio artifact for all 20 GLBs once the child hem ring exists"
     },

@@ -10,11 +10,55 @@
     ]
   },
   {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "listShippedCastScenarioIds",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "resolveScenarioActorCast",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./actor-posture",
+    "names": [
+      {
+        "name": "resolveActorPosture",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/factory-station-core",
     "entrypoint": "./runner",
     "names": [
       {
         "name": "repoRoot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-pose",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applySupinePose",
+        "kind": "runtime"
+      },
+      {
+        "name": "mpfbForearmIdleEuler",
         "kind": "runtime"
       }
     ]

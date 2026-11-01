@@ -1996,9 +1996,15 @@ importers:
 
   packages/openclinxr/stations/rig-fit-evidence:
     dependencies:
+      '@openclinxr/asset-registry':
+        specifier: workspace:*
+        version: link:../../asset-registry
       '@openclinxr/factory-station-core':
         specifier: workspace:*
         version: link:../../factory-station-core
+      '@openclinxr/xr-pose':
+        specifier: workspace:*
+        version: link:../../xr-pose
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2012,9 +2018,15 @@ importers:
       '@gltf-transform/extensions':
         specifier: ^4.3.0
         version: 4.3.0
+      '@gltf-transform/functions':
+        specifier: ^4.3.0
+        version: 4.3.0(@types/node@25.6.0)
       '@types/node':
         specifier: 'catalog:'
         version: 25.6.0
+      three:
+        specifier: 0.184.0
+        version: 0.184.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
