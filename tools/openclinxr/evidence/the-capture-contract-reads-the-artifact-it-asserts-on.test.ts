@@ -71,7 +71,10 @@ import { describe, expect, it } from "vitest";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(HERE, "../../..");
-const TARGET = join(HERE, "the-capture-records-what-it-framed.test.ts");
+const TARGET = join(
+  REPO_ROOT,
+  "packages/openclinxr/stations/humanoid-probe-evidence/src/humanoid-probe/the-capture-records-what-it-framed.test.ts",
+);
 const CAPTURE = join(HERE, "ui-xr-viseme-drive-capture.ts");
 const TRACKED = [
   "tools/openclinxr/evidence/parent-drives-a-real-viseme.json",

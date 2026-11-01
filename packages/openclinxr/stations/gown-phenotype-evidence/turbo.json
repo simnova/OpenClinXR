@@ -1,0 +1,39 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "dependsOn": [
+        "build",
+        "^build",
+        "@openclinxr/factory-station-core#build"
+      ],
+      "inputs": [
+        "$TURBO_ROOT$/tools/openclinxr/evidence/min-max-bounds.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/lib/garment-mesh-class.ts",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/anny/humanoid_provenance.py",
+        "$TURBO_ROOT$/packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/issue-746/2026-08-29T04-28-03Z/assets/mpfb-gown-adult-patient/front_lit.png",
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/.openclinxr/evidence/issue-288/multi-case-rollup.json",
+        "$TURBO_ROOT$/.openclinxr/evidence/issue-329/phenotype-macro-solve.json",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/**",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/factory-station-core/dist/runner.js",
+        "$TURBO_ROOT$/packages/openclinxr/factory-station-core/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/scenario-fixtures/src/**",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/anny/iris_palette.py",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
+        "$TURBO_ROOT$/tools/openclinxr/dark-factory/multi-case-runner.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/eye-colour-is-case-driven.test.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/garment-decile-sharpness.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/garment-hem-boundary.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/gown-fold-clamp-measurement.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/gown-shard-mechanism-measurement.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/gown-shell-clearance-measurement.json"
+      ]
+    }
+  }
+}

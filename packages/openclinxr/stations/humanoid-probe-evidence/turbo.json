@@ -1,0 +1,38 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/humanoid-proportions-probe.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/humanoid-mesh-hygiene-probe.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/garment-layer-coverage.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/garment-role-distinguish.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/shoulder-coverage.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/shoulder-raycast-coverage.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/garment-texture-inspection.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/garments-are-flat-shaded-and-the-body-is-not.test.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/frame-pass-timing.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/parent-drives-a-real-viseme.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/reframe-subject-in-frame.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/capture-aims-at-the-mouth.json",
+        "$TURBO_ROOT$/.grok/hooks/session-start-docs-hygiene.json",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/peds_patient_child.glb",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/peds_anxious_parent_rigging_report.json",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/peds_nurse_kevin_rigging_report.json",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb",
+        "$TURBO_ROOT$/packages/openclinxr/factory-station-core/dist/runner.js",
+        "$TURBO_ROOT$/packages/openclinxr/factory-station-core/package.json"
+      ]
+    }
+  }
+}

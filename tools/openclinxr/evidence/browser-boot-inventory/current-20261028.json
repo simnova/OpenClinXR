@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-01T03:12:23.811Z",
+  "generatedAt": "2026-11-01T04:44:12.384Z",
   "method": "static import-graph scan of tools/**/*.test.ts; value imports only; call detection after stripping comments and string literals",
   "primitives": [
     "spawnPortlessDevServer (lib/portless-server.ts — boots a Vite dev server)",
     "chromium.launch (playwright — boots a headless Chrome shell)"
   ],
-  "totalTestFiles": 597,
+  "totalTestFiles": 545,
   "browserBootingTestFiles": 60,
   "excludedAmongBrowserBooting": 0,
   "minBrowsersPerSuiteRun": 59,
@@ -1199,8 +1199,12 @@
       "reason": "reason not recorded — read the file header"
     },
     {
-      "testFile": "tools/openclinxr/evidence/blueprint-voice-simulation-spike.test.ts",
+      "testFile": "tools/openclinxr/evidence/exam-pipeline/blueprint-voice-simulation-spike.test.ts",
       "reason": "voice-simulation SPIKE (unproven lane-C class); builds external-provider voice simulation plans"
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/exam-pipeline/model-vetting-actor-player-runtime-evidence.test.ts",
+      "reason": "model-vetting runtime evidence class — asserts on docs snapshots of hardware/headset-gated evidence"
     },
     {
       "testFile": "tools/openclinxr/evidence/iwsdk/check-github-pages-site.test.ts",
@@ -1209,10 +1213,6 @@
     {
       "testFile": "tools/openclinxr/evidence/iwsdk/iwsdk-evidence-contract-check.test.ts",
       "reason": "IWSDK sidecar MCP tooling inventory — execs the IWSDK toolchain"
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/model-vetting-actor-player-runtime-evidence.test.ts",
-      "reason": "model-vetting runtime evidence class — asserts on docs snapshots of hardware/headset-gated evidence"
     },
     {
       "testFile": "tools/openclinxr/evidence/model-vetting-snapshots/model-vetting-capture-manifest.test.ts",

@@ -122,13 +122,13 @@ export type BrowserBootInventory = {
 
 /** Known-good column: why each of the 12 existing excludes was excluded (read from source). */
 export const TEST_TOOLS_EXCLUSION_REASONS: Readonly<Record<string, string>> = {
-  "tools/openclinxr/evidence/blueprint-voice-simulation-spike.test.ts":
+  "tools/openclinxr/evidence/exam-pipeline/blueprint-voice-simulation-spike.test.ts":
     "voice-simulation SPIKE (unproven lane-C class); builds external-provider voice simulation plans",
   "tools/openclinxr/evidence/iwsdk/check-github-pages-site.test.ts":
     "validates the LIVE GitHub Pages site — network-dependent",
   "tools/openclinxr/evidence/iwsdk/iwsdk-evidence-contract-check.test.ts":
     "IWSDK sidecar MCP tooling inventory — execs the IWSDK toolchain",
-  "tools/openclinxr/evidence/model-vetting-actor-player-runtime-evidence.test.ts":
+  "tools/openclinxr/evidence/exam-pipeline/model-vetting-actor-player-runtime-evidence.test.ts":
     "model-vetting runtime evidence class — asserts on docs snapshots of hardware/headset-gated evidence",
   "tools/openclinxr/factory/encounter-asset-generation-queue.test.ts":
     "factory asset-generation QUEUE — orchestrates character/animation/environment generation and asset-bake (the #273 class)",

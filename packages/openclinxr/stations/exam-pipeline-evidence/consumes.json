@@ -1,0 +1,60 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/exam-assembly",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createStep2CsStyleSeedBlueprint",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "repoRoot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildDynamicEncounterFactoryPlanningProjection",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "scenarioBank",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/voice-gateway",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createDefaultVoiceGateway",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  }
+]

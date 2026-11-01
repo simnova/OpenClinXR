@@ -178,7 +178,8 @@ describe("real parent speaker gate (ph341)", () => {
 const REPO = process.cwd();
 const MOUTH = "tools/openclinxr/evidence/capture-aims-at-the-mouth.json";
 const KNOWN_GOOD = "packages/openclinxr/asset-registry/src/measured-station-geometry.json";
-const OLDER_CONTRACT = "tools/openclinxr/evidence/the-capture-aims-at-the-mouth.test.ts";
+const OLDER_CONTRACT =
+  "packages/openclinxr/stations/humanoid-probe-evidence/src/humanoid-probe/the-capture-aims-at-the-mouth.test.ts";
 
 /** The producer. If it changes, a snapshot taken before the change cannot answer for it. */
 const PRODUCER = "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts";

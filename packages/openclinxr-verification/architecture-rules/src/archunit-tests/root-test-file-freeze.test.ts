@@ -7,16 +7,16 @@ import {
 } from "../checks/test-file-root-freeze.ts";
 
 /**
- * tools/openclinxr/evidence/ holds 216 .test.ts files in ONE flat directory, and the
+ * tools/openclinxr/evidence/ holds 150 .test.ts files in ONE flat directory, and the
  * repo's own delegation protocol tells every worker to plant a RED there. Seven of the
  * seventeen conflict-resolving merges in 1,500 commits were test files. Shared test files
  * are the largest serialization class in this repo at 33.1% of excess-writer events, ahead
  * of source modules at 23.9%.
  *
- * The rule freezes the root-level count at 216; it may only fall. A new root-level test
+ * The rule freezes the root-level count at 150; it may only fall. A new root-level test
  * file raises the count and fails the gate. The fix is to plant the RED in a subdirectory
  * named for its subject. A test file in a SUBDIRECTORY is never counted, so the escape
- * route is always open. The existing 216 files are NOT moved — the ratchet exists so the
+ * route is always open. The existing 150 files are NOT moved — the ratchet exists so the
  * count comes down as REDs are retired and new ones land in subdirectories.
  * (2026-10-30 station-trellis sidecar, operator-approved 2026-10-30, moved 4 trellis
  * evidence-root tests to @openclinxr/trellis-evidence: 560 -> 556.)
@@ -62,6 +62,16 @@ import {
  * 15 to @openclinxr/body-param-evidence and 6 to root subdirectories (dark-factory/,
  * cue-props/, body-param/, wardrobe/, environment-artifacts/): known-red, pre-existing-red
  * and gitignored-cache files stay out of the sidecar per T12/T6/T7: 237 -> 216.)
+ * (2026-10-31 root batch humanoid-probe, operator-approved 2026-10-31: 21 root tests
+ * moved out — 18 to @openclinxr/humanoid-probe-evidence and 3 known-red/gitignored-gated
+ * (material-region, upright-guard, cagematch-bind) to
+ * tools/openclinxr/evidence/humanoid-probe/: 216 -> 195.)
+ * (2026-10-31 root batch exam-pipeline, operator-approved 2026-10-31: 26 root tests
+ * moved, 16 to @openclinxr/exam-pipeline-evidence and 10 known-red/manual/host-dependent to
+ * tools/openclinxr/evidence/exam-pipeline/: 195 -> 169.)
+ * (2026-10-31 root batch gown-phenotype, operator-approved 2026-10-31: 19 root tests
+ * moved, 18 to @openclinxr/gown-phenotype-evidence and 1 known-red
+ * (garment-hem-boundary) to tools/openclinxr/evidence/gown-phenotype/: 169 -> 150.)
  */
 describe("tools/openclinxr/evidence/ root test file freeze", () => {
   it("(1) root-level .test.ts count does not exceed the frozen ceiling", () => {
