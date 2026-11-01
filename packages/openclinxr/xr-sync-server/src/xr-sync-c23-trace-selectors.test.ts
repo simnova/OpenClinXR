@@ -107,5 +107,13 @@ describe("xr-sync-server C23b trace selectors and seed ids", () => {
     await expect(
       bootServer({ examBlueprint: blueprint(), scenarios: [KNEE, CHEST], dialogueSeeds: [{ scenarioId: KNEE.scenarioId, seeds: [first, twin] }] }),
     ).rejects.toThrow(/dialogueSeeds/);
+    // The same seedId split across two entries for one cast scenario is still a repeat.
+    await expect(
+      bootServer({
+        examBlueprint: blueprint(),
+        scenarios: [KNEE, CHEST],
+        dialogueSeeds: [{ scenarioId: KNEE.scenarioId, seeds: [first] }, { scenarioId: KNEE.scenarioId, seeds: [twin] }],
+      }),
+    ).rejects.toThrow(/dialogueSeeds/);
   }, 20000);
 });

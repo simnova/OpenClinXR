@@ -1,4 +1,3 @@
-import type { ScenarioCast } from "./scenario-cast.js";
 
 /** One validated scenario-authored answer. Text is live-room-only and never enters the trace. */
 export interface TopicAnswer {
@@ -20,12 +19,20 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /** Validate the factory seed bank and attach only each cast scenario's authored answers. */
-export function applyDialogueSeeds(casts: ScenarioCast[], value: unknown): ScenarioCast[] {
+/** The cast fields seed validation reads (kept structural so scenario-cast.ts can import TopicAnswer one way). */
+interface SeedableCast {
+  scenarioId: string;
+  actorIds: readonly string[];
+  topicAnswers: TopicAnswer[];
+}
+
+export function applyDialogueSeeds<C extends SeedableCast>(casts: C[], value: unknown): C[] {
   if (!Array.isArray(value)) {
     throw new Error("bad-dialogueSeeds: dialogueSeeds must be an array");
   }
   const castByScenario = new Map(casts.map((cast) => [cast.scenarioId, cast]));
   const answersByScenario = new Map<string, TopicAnswer[]>();
+  const seedIdsByScenario = new Map<string, Set<string>>();
   for (const [entryIndex, rawEntry] of value.entries()) {
     if (!isRecord(rawEntry) || typeof rawEntry["scenarioId"] !== "string" || !Array.isArray(rawEntry["seeds"])) {
       throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}] must name scenarioId and a seeds array`);
@@ -36,7 +43,8 @@ export function applyDialogueSeeds(casts: ScenarioCast[], value: unknown): Scena
       continue;
     }
     const answers = answersByScenario.get(scenarioId) ?? [];
-    const seenSeedIds = new Set<string>();
+    const seenSeedIds = seedIdsByScenario.get(scenarioId) ?? new Set<string>();
+    seedIdsByScenario.set(scenarioId, seenSeedIds);
     for (const [seedIndex, rawSeed] of (rawEntry["seeds"] as unknown[]).entries()) {
       if (!isRecord(rawSeed)) {
         throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}].seeds[${seedIndex}] must be an object`);
