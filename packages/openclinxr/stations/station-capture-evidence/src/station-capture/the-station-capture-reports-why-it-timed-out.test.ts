@@ -26,7 +26,7 @@ const {
  *   render   classification: error   artifactPaths: []
  *   "Capture failed for <caseId>: page.waitForFunction: Timeout 180000ms exceeded."
  *
- * `a-capture-timeout-names-which-wait-failed.test.ts` already names WHICH wait fired and
+ * `packages/openclinxr/stations/staging-evidence/src/staging/a-capture-timeout-names-which-wait-failed.test.ts` already names WHICH wait fired and
  * preserves the Playwright Timeout string. That is necessary and not sufficient: the named
  * wait still does not say WHY the predicate never became true.
  *

@@ -1,0 +1,45 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "dependsOn": ["build", "^build", "@openclinxr/factory-station-core#build", "@openclinxr/xr-scene#build", "@openclinxr/xr-station#build"],
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/compute-slots/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/compute-slots/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/factory-station-core/dist/runner.js",
+        "$TURBO_ROOT$/packages/openclinxr/factory-station-core/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/scenario-fixtures/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/scenario-fixtures/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/shared-schemas/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/shared-schemas/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/xr-scene/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-scene/dist/index.js",
+        "$TURBO_ROOT$/packages/openclinxr/xr-scene/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/xr-station/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-station/dist/index.js",
+        "$TURBO_ROOT$/packages/openclinxr/xr-station/package.json",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/generated/**",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/humanoids/candidates/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/actor-floor-contact-all-stations.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/actor-furniture-clearance.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/actor-prop-intersection.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/declared-actors-rendered.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/doorway-overview-camera.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/fixture-surface-distinct.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/generated-scene-mode-predicate.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/lib/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/room-camera/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/shipped-head-of-bed-incline.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/station-capture/**",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/the-loaded-mesh-matches-the-cast.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/the-room-camera-lands-in-the-same-place-twice.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ]
+    }
+  }
+}

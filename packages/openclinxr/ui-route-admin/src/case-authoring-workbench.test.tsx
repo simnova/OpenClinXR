@@ -165,7 +165,7 @@ describe("CaseAuthoringWorkbench", () => {
    * facts about the room, and the facts follow the environment.
    *
    * SCOPE: the authoring surface. The runtime capture half of #69 is contracted separately in
-   * `tools/openclinxr/evidence/ui-xr-environment-room-capture.test.ts`; both are required and neither
+   * `packages/openclinxr/stations/staging-evidence/src/staging/ui-xr-environment-room-capture.test.ts`; both are required and neither
    * closes the issue alone.
    *
    * ## FIXED (#69)
