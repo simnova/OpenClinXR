@@ -145,6 +145,7 @@
     "packages/openclinxr/stations/local-runtime-evidence/package.json": ["dependencies"],
     "packages/openclinxr/stations/staging-evidence/package.json": ["dependencies", "devDependencies"],
     "packages/openclinxr/stations/slide-phase-evidence/package.json": ["dependencies"],
+    "packages/openclinxr/stations/station-capture-evidence/package.json": ["dependencies"],
     "packages/openclinxr/stations/garment-surface-evidence/package.json": ["dependencies"],
     "packages/openclinxr/stations/cast-fleet-evidence/package.json": ["dependencies"],
     "packages/openclinxr/stations/blender-bake-evidence/package.json": ["dependencies", "devDependencies"],

@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-11-01T14:43:18.207Z",
+  "generatedAt": "2026-11-01T15:56:15.979Z",
   "method": "static import-graph scan of tools/**/*.test.ts; value imports only; call detection after stripping comments and string literals",
   "primitives": [
     "spawnPortlessDevServer (lib/portless-server.ts — boots a Vite dev server)",
     "chromium.launch (playwright — boots a headless Chrome shell)"
   ],
-  "totalTestFiles": 488,
-  "browserBootingTestFiles": 49,
+  "totalTestFiles": 479,
+  "browserBootingTestFiles": 41,
   "excludedAmongBrowserBooting": 0,
-  "minBrowsersPerSuiteRun": 48,
-  "minServersPerSuiteRun": 47,
-  "staticUpperBoundBrowsers": 143,
-  "staticUpperBoundServers": 143,
+  "minBrowsersPerSuiteRun": 41,
+  "minServersPerSuiteRun": 41,
+  "staticUpperBoundBrowsers": 112,
+  "staticUpperBoundServers": 116,
   "rows": [
     {
       "testFile": "tools/openclinxr/dark-factory/the-multi-case-rollup-publishes-only-explicitly.test.ts",
@@ -31,25 +31,6 @@
       "closureBrowserCallSites": 1,
       "invokedPathServerCallSites": 1,
       "invokedPathBrowserCallSites": 0
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/articulating-head-of-bed.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 6,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/articulating-head-of-bed.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/articulating-head-of-bed.ts",
-        "tools/openclinxr/evidence/isolated-subject-harness.ts"
-      ],
-      "closureServerCallSites": 7,
-      "closureBrowserCallSites": 7,
-      "invokedPathServerCallSites": 1,
-      "invokedPathBrowserCallSites": 1
     },
     {
       "testFile": "tools/openclinxr/evidence/authored-offset/identity-counterweight.test.ts",
@@ -168,59 +149,6 @@
       "invokedPathBrowserCallSites": 0
     },
     {
-      "testFile": "tools/openclinxr/evidence/every-dev-server-teardown-goes-through-the-fixed-helper.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": false,
-      "closureSize": 1,
-      "directLaunchers": [],
-      "launcherModules": [
-        "tools/openclinxr/evidence/every-dev-server-teardown-goes-through-the-fixed-helper.test.ts"
-      ],
-      "closureServerCallSites": 1,
-      "closureBrowserCallSites": 0,
-      "invokedPathServerCallSites": 0,
-      "invokedPathBrowserCallSites": 0
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/garment-bake-matrix.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 6,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/garment-bake-matrix.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/garment-bake-matrix.ts",
-        "tools/openclinxr/evidence/isolated-subject-harness.ts"
-      ],
-      "closureServerCallSites": 6,
-      "closureBrowserCallSites": 7,
-      "invokedPathServerCallSites": 0,
-      "invokedPathBrowserCallSites": 1
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/head-focus-derivation.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 5,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/isolated-subject-harness.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/isolated-subject-harness.ts"
-      ],
-      "closureServerCallSites": 6,
-      "closureBrowserCallSites": 6,
-      "invokedPathServerCallSites": 6,
-      "invokedPathBrowserCallSites": 6
-    },
-    {
       "testFile": "tools/openclinxr/evidence/isolated-foot-grounder/report-destination-and-grading.test.ts",
       "excludedFromTestTools": false,
       "acquisitionMode": "own",
@@ -259,7 +187,7 @@
       "invokedPathBrowserCallSites": 1
     },
     {
-      "testFile": "tools/openclinxr/evidence/isolated-subject-harness.test.ts",
+      "testFile": "tools/openclinxr/evidence/isolated-subject/isolated-subject-harness.test.ts",
       "excludedFromTestTools": false,
       "acquisitionMode": "own",
       "ownsServer": true,
@@ -279,58 +207,23 @@
       "invokedPathBrowserCallSites": 7
     },
     {
-      "testFile": "tools/openclinxr/evidence/iwsdk-radial-pulse-video-capture.test.ts",
+      "testFile": "tools/openclinxr/evidence/isolated-subject/trellis-equipment-cagematch.test.ts",
       "excludedFromTestTools": false,
       "acquisitionMode": "own",
       "ownsServer": true,
       "ownsBrowser": true,
-      "closureSize": 5,
+      "closureSize": 6,
       "directLaunchers": [
-        "tools/openclinxr/evidence/iwsdk-radial-pulse-video-capture.ts"
+        "tools/openclinxr/evidence/trellis-equipment-cagematch.ts"
       ],
       "launcherModules": [
-        "tools/openclinxr/evidence/iwsdk-radial-pulse-video-capture.ts"
+        "tools/openclinxr/evidence/trellis-equipment-cagematch.ts",
+        "tools/openclinxr/evidence/isolated-subject-harness.ts"
       ],
-      "closureServerCallSites": 1,
-      "closureBrowserCallSites": 1,
-      "invokedPathServerCallSites": 1,
-      "invokedPathBrowserCallSites": 1
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/model-vetting-glb-grade-capture.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": false,
-      "ownsBrowser": true,
-      "closureSize": 12,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/model-vetting-glb-grade-capture.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/model-vetting-glb-grade-capture.ts"
-      ],
-      "closureServerCallSites": 0,
-      "closureBrowserCallSites": 1,
-      "invokedPathServerCallSites": 0,
-      "invokedPathBrowserCallSites": 1
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/review-glb-optimization-visual-cagematch.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": false,
-      "ownsBrowser": true,
-      "closureSize": 12,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/review-glb-optimization-visual-cagematch.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/review-glb-optimization-visual-cagematch.ts"
-      ],
-      "closureServerCallSites": 0,
-      "closureBrowserCallSites": 1,
-      "invokedPathServerCallSites": 0,
-      "invokedPathBrowserCallSites": 1
+      "closureServerCallSites": 8,
+      "closureBrowserCallSites": 9,
+      "invokedPathServerCallSites": 2,
+      "invokedPathBrowserCallSites": 3
     },
     {
       "testFile": "tools/openclinxr/evidence/room-chain-wiring/the-room-chain-is-the-case-room-source.test.ts",
@@ -879,45 +772,6 @@
       "closureBrowserCallSites": 3,
       "invokedPathServerCallSites": 1,
       "invokedPathBrowserCallSites": 1
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/trellis-conditioning-run.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 15,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/trellis-conditioning-run.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/trellis-conditioning-run.ts",
-        "tools/openclinxr/evidence/model-vetting-glb-grade-capture.ts",
-        "tools/openclinxr/evidence/isolated-subject-harness.ts"
-      ],
-      "closureServerCallSites": 6,
-      "closureBrowserCallSites": 8,
-      "invokedPathServerCallSites": 0,
-      "invokedPathBrowserCallSites": 1
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/trellis-equipment-cagematch.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 6,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/trellis-equipment-cagematch.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/trellis-equipment-cagematch.ts",
-        "tools/openclinxr/evidence/isolated-subject-harness.ts"
-      ],
-      "closureServerCallSites": 8,
-      "closureBrowserCallSites": 9,
-      "invokedPathServerCallSites": 2,
-      "invokedPathBrowserCallSites": 3
     },
     {
       "testFile": "tools/openclinxr/factory/the-placement-node-carries-the-authored-offset.test.ts",

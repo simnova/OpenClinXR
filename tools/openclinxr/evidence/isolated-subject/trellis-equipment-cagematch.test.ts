@@ -141,7 +141,7 @@ import { describe, expect, it } from "vitest";
  * about adopting it, replacing the parametric builders, humanoids, or rooms.
  */
 
-const load = async () => import("./trellis-equipment-cagematch.js") as Promise<Record<string, unknown>>;
+const load = async () => import("../trellis-equipment-cagematch.js") as Promise<Record<string, unknown>>;
 
 type AssetMeasure = {
   path: string;

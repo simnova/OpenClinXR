@@ -1,8 +1,7 @@
 import { readFileSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname, join, relative as pathRelative, resolve as pathResolve, sep } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, relative as pathRelative, resolve as pathResolve, sep } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import {
   deriveHeadBoxFromPoints,
@@ -10,6 +9,7 @@ import {
   type Vec3,
 } from "@openclinxr/xr-scene";
 import { beforeAll, describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * #358 — the head-focus station must frame the head on EVERY rail, not only MPFB.
@@ -44,8 +44,7 @@ import { beforeAll, describe, expect, it } from "vitest";
  * pins that the framing is the head on both rails and the framing is recorded.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
 const MPFB_SUBJECT = "mpfb-ob-patient-aisha.glb";
@@ -269,7 +268,9 @@ describe("eye mesh presence — the #358 cause, measured file-side", () => {
 
 describe("the head-focus station refuses instead of falling back (#358)", () => {
   it("focus=eyes on an Anny asset (no eye mesh) REFUSES loudly", async () => {
-    const mod = await import("./isolated-subject-harness.js") as Record<string, unknown>;
+    const mod = await import(
+      "../../../../../../tools/openclinxr/evidence/isolated-subject-harness.js"
+    ) as Record<string, unknown>;
     const probe = mod["probeHeadFocusRefusal"] as
       | ((options?: Record<string, unknown>) => Promise<{
           refused: boolean;
@@ -281,7 +282,7 @@ describe("the head-focus station refuses instead of falling back (#358)", () => 
     const outputRoot = await mkdtemp(join(tmpdir(), "openclinxr-head-focus-refusal-"));
     const producerOutputRoot = pathRelative(REPO_ROOT, outputRoot);
     try {
-      const result = await probe!({ outputRoot: producerOutputRoot });
+      const result = await probe!({ cwd: REPO_ROOT, outputRoot: producerOutputRoot });
       expect(result.subject.rail).toBe("anny");
       expect(result.subject.focus).toBe("eyes");
       expect(
@@ -295,7 +296,9 @@ describe("the head-focus station refuses instead of falling back (#358)", () => 
   }, 1_800_000);
 
   it("renders matched head crops on BOTH rails and records the framing used", async () => {
-    const mod = await import("./isolated-subject-harness.js") as Record<string, unknown>;
+    const mod = await import(
+      "../../../../../../tools/openclinxr/evidence/isolated-subject-harness.js"
+    ) as Record<string, unknown>;
     const render = mod["renderHeadFocusCrops"] as
       | ((options?: Record<string, unknown>) => Promise<{
           crops: Array<{
@@ -323,7 +326,7 @@ describe("the head-focus station refuses instead of falling back (#358)", () => 
       summary: { devServerBoots: number; browserLaunches: number };
     };
     try {
-      run = await render!({ outputRoot: producerOutputRoot }) as typeof run;
+      run = await render!({ cwd: REPO_ROOT, outputRoot: producerOutputRoot }) as typeof run;
       expect(run.crops.length, "expected one crop per rail").toBe(2);
       for (const crop of run.crops) {
         expect(["mpfb", "anny"], `unexpected rail ${crop.rail}`).toContain(crop.rail);

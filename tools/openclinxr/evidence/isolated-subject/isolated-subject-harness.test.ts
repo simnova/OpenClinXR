@@ -121,7 +121,7 @@ import { readFileSync } from "node:fs";
  * whether semi-Fowler ships, the ward bed (#159), patient attire (#160), or lighting (#162).
  */
 
-const load = async () => import("./isolated-subject-harness.js") as Promise<Record<string, unknown>>;
+const load = async () => import("../isolated-subject-harness.js") as Promise<Record<string, unknown>>;
 
 type RenderedSubject = {
   /** Stable id for the subject under test, e.g. "supine_incline_30". */
@@ -227,7 +227,7 @@ describe("a subject can be rendered in isolation, in variants (#163)", () => {
     // broken. Fourteen stations and six contracts read room captures; #133, #150 and #153 all closed
     // on them this week. The harness ADDS an isolated path, it does not replace the integrated one.
     const mod = await load();
-    const roomCapture = await import("./ui-xr-environment-room-capture.js") as Record<string, unknown>;
+    const roomCapture = await import("../ui-xr-environment-room-capture.js") as Record<string, unknown>;
     expect(
       roomCapture["captureStationEnvironmentRooms"],
       "the room-capture entry point disappeared",

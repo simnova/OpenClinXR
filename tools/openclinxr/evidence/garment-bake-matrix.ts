@@ -54,7 +54,7 @@ const REPO_ROOT = path.resolve(HERE, "../../..");
  * So the bake refuses unless explicitly asked for. This is a COST gate, not a correctness gate — the
  * sweep is real work and still runs on demand:
  *
- *     OPENCLINXR_RUN_GARMENT_BAKES=1 pnpm exec vitest run tools/openclinxr/evidence/garment-bake-matrix.test.ts
+ *     OPENCLINXR_RUN_GARMENT_BAKES=1 pnpm exec vitest run packages/openclinxr/stations/station-capture-evidence/src/isolated-subject/garment-bake-matrix.test.ts
  */
 export const GARMENT_BAKES_ENV = "OPENCLINXR_RUN_GARMENT_BAKES";
 

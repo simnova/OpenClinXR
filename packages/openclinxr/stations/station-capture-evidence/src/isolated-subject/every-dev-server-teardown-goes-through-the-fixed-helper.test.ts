@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
-import { dirname, join, relative, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * # THE DEFECT, MEASURED 2026-08-19 on main 559c033a — do not re-derive these counts
@@ -135,8 +135,7 @@ import { describe, expect, it } from "vitest";
  * The diagnosis and measured tables above remain the record — not deleted.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const HELPER_REL = "tools/openclinxr/evidence/lib/portless-server.ts";
 
 /** Code-shaped source: comments plus string/template-literal contents removed,
@@ -218,8 +217,7 @@ function candidateFiles(): string[] {
   return out
     .split("\n")
     .map((l) => l.trim())
-    .filter((l) => l.length > 0 && !l.includes("node_modules") && !l.includes("/dist/"))
-    .map((l) => relative(".", l));
+    .filter((l) => l.length > 0 && !l.includes("node_modules") && !l.includes("/dist/"));
 }
 
 /** Files with a REAL invocation, excluding the helper itself (it defines, it does not consume). */

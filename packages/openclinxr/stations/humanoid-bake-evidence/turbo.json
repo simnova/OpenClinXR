@@ -24,7 +24,7 @@
         "$TURBO_ROOT$/tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
         "$TURBO_ROOT$/tools/openclinxr/evidence/garment-hem-boundary.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/garment-surface-derived.ts",
-        "$TURBO_ROOT$/tools/openclinxr/evidence/head-focus-derivation.test.ts",
+        "$TURBO_ROOT$/packages/openclinxr/stations/station-capture-evidence/src/isolated-subject/head-focus-derivation.test.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/humanoid-proportions-probe.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/lib/garment-mesh-class.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/min-max-bounds.ts",

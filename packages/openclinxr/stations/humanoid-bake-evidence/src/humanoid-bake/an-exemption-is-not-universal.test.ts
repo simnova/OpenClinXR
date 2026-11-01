@@ -88,7 +88,7 @@ process.chdir(repoRoot());
 
 const REPO_ROOT = repoRoot();
 const GENERATED = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
-const HEAD_FOCUS = join(repoRoot(), "tools/openclinxr/evidence/head-focus-derivation.test.ts");
+const HEAD_FOCUS = join(repoRoot(), "packages/openclinxr/stations/station-capture-evidence/src/isolated-subject/head-focus-derivation.test.ts");
 
 /** The three subjects `head-focus-derivation` runs its head-box contract over. */
 const SUBJECTS = ["mpfb-ob-patient-aisha.glb", "peds_nurse_kevin.glb", "ed_chest_pain_adult_cast.glb"] as const;

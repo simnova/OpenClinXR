@@ -1,13 +1,15 @@
 import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import {
   REVIEW_GLB_OPTIMIZATION_VISUAL_CAGEMATCH_SCHEMA_VERSION,
   validateReviewGlbOptimizationVisualCagematchReport,
-} from "./review-glb-optimization-visual-cagematch.js";
+} from "../../../../../../tools/openclinxr/evidence/review-glb-optimization-visual-cagematch.js";
 
 describe("review GLB optimization visual cagematch", () => {
   it("exposes scripts for browser visual generation and validation", async () => {
-    const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
+    const rootPackage = JSON.parse(await readFile(join(repoRoot(), "package.json"), "utf8")) as {
       scripts: Record<string, string>;
     };
 

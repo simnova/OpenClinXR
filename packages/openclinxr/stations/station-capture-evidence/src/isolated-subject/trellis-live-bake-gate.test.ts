@@ -29,7 +29,7 @@ import path from "node:path";
  */
 
 const load = () =>
-  import("./trellis-metal-subject-isolation.js") as Promise<Record<string, unknown>>;
+  import("../../../../../../tools/openclinxr/evidence/trellis-metal-subject-isolation.js") as Promise<Record<string, unknown>>;
 
 type SpawnProbe = (
   subject: unknown,
@@ -152,7 +152,10 @@ describe("TRELLIS live-bake gate (#273)", () => {
 
   it("wiring (source-text): the ONLY execFile spawn site lives in runBakeProcess, reached only via the gate's allow branch", () => {
     const src = readFileSync(
-      new URL("./trellis-metal-subject-isolation.ts", import.meta.url),
+      new URL(
+        "../../../../../../tools/openclinxr/evidence/trellis-metal-subject-isolation.ts",
+        import.meta.url,
+      ),
       "utf-8",
     );
 

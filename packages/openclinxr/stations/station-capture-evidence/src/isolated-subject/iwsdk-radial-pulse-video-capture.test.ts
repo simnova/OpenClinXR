@@ -1,9 +1,11 @@
 import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import {
   buildRadialPulseCaptureReport,
   parseRadialPulseCaptureArgs,
-} from "./iwsdk-radial-pulse-video-capture.js";
+} from "../../../../../../tools/openclinxr/evidence/iwsdk-radial-pulse-video-capture.js";
 
 const phases = ["ready", "approaching", "contacting", "holding", "released"] as const;
 
@@ -65,7 +67,7 @@ describe("IWSDK radial pulse video capture", () => {
   });
 
   it("is exposed through the root package script", async () => {
-    const pkg = JSON.parse(await readFile("package.json", "utf8")) as { scripts: Record<string, string> };
+    const pkg = JSON.parse(await readFile(join(repoRoot(), "package.json"), "utf8")) as { scripts: Record<string, string> };
     expect(pkg.scripts["iwsdk:radial-pulse:capture"]).toBe(
       "tsx tools/openclinxr/evidence/iwsdk-radial-pulse-video-capture.ts",
     );
@@ -73,7 +75,7 @@ describe("IWSDK radial pulse video capture", () => {
 
   it("uses the portless helper, required demo URL, VP9 canvas recording, and awaited teardown", async () => {
     const source = await readFile(
-      "tools/openclinxr/evidence/iwsdk-radial-pulse-video-capture.ts",
+      join(repoRoot(), "tools/openclinxr/evidence/iwsdk-radial-pulse-video-capture.ts"),
       "utf8",
     );
     expect(source).toContain("spawn" + "PortlessDevServer({ filter: \"@openclinxr/ui-xr-iwsdk-spike\" })");

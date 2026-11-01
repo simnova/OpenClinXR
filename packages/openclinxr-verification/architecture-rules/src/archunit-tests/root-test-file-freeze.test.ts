@@ -7,16 +7,16 @@ import {
 } from "../checks/test-file-root-freeze.ts";
 
 /**
- * tools/openclinxr/evidence/ holds 49 .test.ts files in ONE flat directory, and the
+ * tools/openclinxr/evidence/ holds 37 .test.ts files in ONE flat directory, and the
  * repo's own delegation protocol tells every worker to plant a RED there. Seven of the
  * seventeen conflict-resolving merges in 1,500 commits were test files. Shared test files
  * are the largest serialization class in this repo at 33.1% of excess-writer events, ahead
  * of source modules at 23.9%.
  *
- * The rule freezes the root-level count at 49; it may only fall. A new root-level test
+ * The rule freezes the root-level count at 37; it may only fall. A new root-level test
  * file raises the count and fails the gate. The fix is to plant the RED in a subdirectory
  * named for its subject. A test file in a SUBDIRECTORY is never counted, so the escape
- * route is always open. The existing 49 files are NOT moved — the ratchet exists so the
+ * route is always open. The existing 37 files are NOT moved — the ratchet exists so the
  * count comes down as REDs are retired and new ones land in subdirectories.
  * (2026-10-30 station-trellis sidecar, operator-approved 2026-10-30, moved 4 trellis
  * evidence-root tests to @openclinxr/trellis-evidence: 560 -> 556.)
@@ -87,6 +87,11 @@ import {
  * (trellis-metal-mesh-bake) to tools/openclinxr/evidence/trellis-metal/: 78 -> 64.)
  * (2026-11-01 root batch blender-bake, operator-approved 2026-10-31: 15 root tests
  * moved to @openclinxr/blender-bake-evidence: 64 -> 49.)
+ * (2026-10-31 root batch isolated-subject, operator-approved 2026-10-31: 12 root tests
+ * moved, 9 to @openclinxr/station-capture-evidence and 3 (known-red isolated-subject-harness;
+ * trellis-metal-subject-isolation and trellis-equipment-cagematch, which read gitignored
+ * output or probe a live ComfyUI) to tools/openclinxr/evidence/isolated-subject/,
+ * lowering the freeze 49 -> 37.)
  */
 describe("tools/openclinxr/evidence/ root test file freeze", () => {
   it("(1) root-level .test.ts count does not exceed the frozen ceiling", () => {

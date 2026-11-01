@@ -33,7 +33,7 @@ type Report = {
 
 type Inspect = () => Promise<Report>;
 const load = () =>
-  import("./trellis-metal-subject-isolation.js") as Promise<Record<string, unknown>>;
+  import("../trellis-metal-subject-isolation.js") as Promise<Record<string, unknown>>;
 
 describe("TRELLIS Metal per-subject process isolation (#237)", () => {
   it("isolation multi-case report uses fresh subprocess per subject and covers ≥2 subjects", async () => {

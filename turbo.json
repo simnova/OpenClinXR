@@ -138,7 +138,6 @@
       "cache": true,
       "inputs": [
         "packages/cellix/config-vitest/src/**",
-        "packages/openclinxr/arena/model-vetting/**",
         "packages/openclinxr/asset-registry/src/**",
         "packages/openclinxr/capability-gateway/src/**",
         "packages/openclinxr/model-gateway/src/**",

@@ -132,7 +132,7 @@
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/isolated-subject-harness.test.ts",
+      "path": "tools/openclinxr/evidence/isolated-subject/isolated-subject-harness.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },

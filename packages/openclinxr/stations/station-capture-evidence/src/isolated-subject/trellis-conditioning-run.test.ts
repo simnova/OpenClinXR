@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ARMS, SAMPLER_PARAMETER_SHA256, decidePolicy } from "./trellis-conditioning-run.js";
+import { ARMS, SAMPLER_PARAMETER_SHA256, decidePolicy } from "../../../../../../tools/openclinxr/evidence/trellis-conditioning-run.js";
 
 const SHA256 = /^[a-f0-9]{64}$/;
 

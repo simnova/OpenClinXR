@@ -60,7 +60,9 @@ import { describe, expect, it } from "vitest";
  */
 
 const load = async () =>
-  import("./model-vetting-glb-grade-capture.js") as Promise<Record<string, unknown>>;
+  import("../../../../../../tools/openclinxr/evidence/model-vetting-glb-grade-capture.js") as Promise<
+    Record<string, unknown>
+  >;
 
 type CapturePlan = { sourceGlbPath: string; views: string[] };
 type PlanFn = (input: { glbPath: string; views: readonly string[] }) => CapturePlan;

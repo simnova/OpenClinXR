@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { garmentBakesEnabled, GARMENT_BAKES_ENV } from "./garment-bake-matrix.ts";
+import { garmentBakesEnabled, GARMENT_BAKES_ENV } from "../../../../../../tools/openclinxr/evidence/garment-bake-matrix.ts";
 
 /**
  * PLANTED CONTRACTS (#195). Three REDs. All three flip.
@@ -93,7 +93,7 @@ import { garmentBakesEnabled, GARMENT_BAKES_ENV } from "./garment-bake-matrix.ts
  */
 
 const load = async () =>
-  import("./garment-bake-matrix.js") as Promise<Record<string, unknown>>;
+  import("../../../../../../tools/openclinxr/evidence/garment-bake-matrix.js") as Promise<Record<string, unknown>>;
 
 type VariantRow = {
   variantId: string;

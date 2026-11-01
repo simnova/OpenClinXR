@@ -7,7 +7,8 @@
     "noPropertyAccessFromIndexSignature": false,
     "types": [
       "node"
-    ]
+    ],
+    "allowImportingTsExtensions": true
   },
   "include": [
     "src/**/*.ts"

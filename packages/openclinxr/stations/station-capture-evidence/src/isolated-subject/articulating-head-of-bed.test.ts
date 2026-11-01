@@ -120,7 +120,10 @@ import { describe, expect, it } from "vitest";
  * positioning correctness.
  */
 
-const load = async () => import("./articulating-head-of-bed.js") as Promise<Record<string, unknown>>;
+const load = async () =>
+  import("../../../../../../tools/openclinxr/evidence/articulating-head-of-bed.js") as Promise<
+    Record<string, unknown>
+  >;
 
 type InclineSample = {
   /** Requested incline for this sample. */

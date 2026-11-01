@@ -18,5 +18,23 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "deriveHeadBoxFromPoints",
+        "kind": "runtime"
+      },
+      {
+        "name": "isFittedHairMeshName",
+        "kind": "runtime"
+      },
+      {
+        "name": "Vec3",
+        "kind": "type"
+      }
+    ]
   }
 ]
