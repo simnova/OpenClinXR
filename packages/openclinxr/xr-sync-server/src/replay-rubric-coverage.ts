@@ -24,7 +24,7 @@ export function replayRubricCoverageCounts(
   return rubric.map((item) => ({
     id: item.id,
     observedCount: byId.get(item.id)?.observedTags.length ?? 0,
-    requiredCount: item.requiredTraceTags?.length ?? 0,
+    requiredCount: new Set(item.requiredTraceTags ?? []).size,
   }));
 }
 

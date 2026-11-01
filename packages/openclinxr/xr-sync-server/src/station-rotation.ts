@@ -21,7 +21,7 @@
  */
 import { matchMaker } from "@colyseus/core";
 import { randomUUID } from "node:crypto";
-import type { SessionReviewCollector } from "./session-review-index.js";
+import type { SessionReviewCollector } from "./session-review-types.js";
 import type { ScenarioCast } from "./scenario-cast.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {

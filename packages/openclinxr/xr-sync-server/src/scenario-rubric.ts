@@ -28,7 +28,7 @@ import {
   validateScoreItems,
   writeFacultyScore,
 } from "./faculty-score.js";
-import { REVIEW_PACKET_SCHEMA, type ReviewPacketFile, readPacketNoteText } from "./review-packet.js";
+import { REVIEW_PACKET_SCHEMA, type ReviewPacketFile, readPacketNoteText } from "./review-packet-file.js";
 import type { LoadedStationReplay } from "./station-replay-loading.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {

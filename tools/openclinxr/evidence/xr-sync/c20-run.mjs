@@ -200,11 +200,21 @@ async function main(argv) {
       }
       bank.push(fixture.status === "approved" ? fixture : { ...fixture, status: "approved" });
     }
+    if (bank[1]) {
+      bank[1] = { ...bank[1], reviewRubric: bank[1].reviewRubric.slice(0, 3) };
+    }
     run.scenarios = bank.map((s) => ({
       scenarioId: s.scenarioId,
       status: s.status,
       reviewRubric: s.reviewRubric.map((item) => ({ rubricId: item.rubricId, label: item.label })),
     }));
+    // C23 RED (carried C20 defect): with equal rubric sizes, a packet whose
+    // totalPossible is first-size x station count passes the sum check below.
+    check(
+      "C23 bank rubrics differ in size, so a summed totalPossible is distinguishable",
+      bank.length === 2 && new Set(bank.map((s) => s.reviewRubric.length)).size === bank.length,
+      `sizes=${bank.map((s) => s.reviewRubric.length).join(",")}`,
+    );
     run.scenarioApprovalOverride = bank
       .filter((s) => scenarioBank.find((f) => f.scenarioId === s.scenarioId)?.status !== "approved")
       .map((s) => s.scenarioId);
@@ -463,6 +473,13 @@ async function main(argv) {
       "C14 packet equals the expected JSON (per-station rubricSize, summed totalPossible)",
       JSON.stringify(packet) === JSON.stringify(expectedPacket),
       `got=${packetRaw.slice(0, 300)}`,
+    );
+    check(
+      "C23 packet totalPossible is the sum of the bank rubric sizes, not first size x station count",
+      packet !== null &&
+        packet.totalPossible === bank.reduce((sum, s) => sum + s.reviewRubric.length, 0) &&
+        packet.totalPossible !== (bank[0]?.reviewRubric.length ?? 0) * bank.length,
+      `totalPossible=${packet?.totalPossible} sizes=${bank.map((s) => s.reviewRubric.length).join(",")}`,
     );
     const leakedPacketLabel = bank.flatMap((s) => s.reviewRubric.map((item) => item.label)).find((label) => packetRaw.includes(label));
     check(

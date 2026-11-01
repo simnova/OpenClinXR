@@ -435,9 +435,17 @@ export async function runProbeScript(deps: ProbeScriptDeps): Promise<void> {
       publish: publishC19,
     });
   } else if (deps.script === "c20" || deps.script === "c21") {
+    // C20 scenario-rubric scoring: the lobby tiles (C12 flow verbatim), then
+    // every station in server order is replayed and scored against its own
+    // scenario rubric (checklist from the SERVER replayRubric, same ceiling
+    // rationale as the C16-C19 modules: probe-c20 owns and publishes
+    // window.__syncProbeC20 itself).
     const c20: C20Evidence = deps.script === "c21" ? createC21Evidence() : createC20Evidence();
     const publishC20 = (): void => {
       window.__syncProbeC20 = c20;
+      // The harness reads window.__syncProbe (harness-lib is shared and
+      // frozen); sync-probe.ts sits at its file-size ceiling and cannot grow
+      // a c20 field, so the C20 module attaches its data-only evidence here.
       if (window.__syncProbe !== undefined) {
         Object.assign(window.__syncProbe, { c20 });
         if (deps.script === "c21") {
@@ -496,6 +504,8 @@ export async function runProbeScript(deps: ProbeScriptDeps): Promise<void> {
     await runC22Probe(deps);
   } else {
     for (const actorId of PROBE_ACTOR_IDS) {
+      // C3 semantics: the second trigger first closes the learner's open
+      // utterance, so it sends 3 intents (end, select, start) instead of 2.
       const learnerOpen = deps.getSessionLearnerSpeaking();
       await aimAndTrigger(actorId, learnerOpen ? 3 : 2);
     }

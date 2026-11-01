@@ -75,21 +75,24 @@ export function setC20Live(state: { c20: C20Evidence; scoring: boolean; rubric: 
 export interface C20RubricView {
   mode?: unknown;
   stationId?: unknown;
+  replayDone?: unknown;
   replayRubric?: unknown;
   lobbyScores?: unknown;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
 /** Checklist entries read from a server replayRubric snapshot (order kept). Pure function. */
 export function observedRubricOf(snapshot: unknown): C13RubricItem[] {
-  const view = snapshot as C20RubricView;
-  if (!Array.isArray(view.replayRubric)) {
+  if (!isRecord(snapshot) || !Array.isArray(snapshot["replayRubric"])) {
     return [];
   }
   const rubric: C13RubricItem[] = [];
-  for (const entry of view.replayRubric) {
-    const row = entry as Record<string, unknown>;
-    if (typeof row["id"] === "string" && typeof row["label"] === "string") {
-      rubric.push({ id: row["id"] as string, label: row["label"] as string });
+  for (const entry of snapshot["replayRubric"]) {
+    if (isRecord(entry) && typeof entry["id"] === "string" && typeof entry["label"] === "string") {
+      rubric.push({ id: entry["id"], label: entry["label"] });
     }
   }
   return rubric;
@@ -165,7 +168,8 @@ export function handleC20Trigger(deps: C20TriggerDeps): boolean {
     new THREE.Vector3(aim.direction.x, aim.direction.y, aim.direction.z).normalize(),
   );
   const hits = raycaster.intersectObjects([...c20TileMeshes().values()], false);
-  const tileId = (hits[0]?.object.userData as { tileId?: unknown } | undefined)?.["tileId"];
+  const userData: unknown = hits[0]?.object.userData;
+  const tileId = isRecord(userData) ? userData["tileId"] : undefined;
   if (typeof tileId !== "string") {
     return false;
   }
@@ -250,10 +254,18 @@ export interface C20ScriptDeps {
  */
 export async function runC20Script(deps: C20ScriptDeps): Promise<void> {
   const { waitFor, aimAndTriggerTile, aimLobbyAndTrigger, getSnapshot, setStatus, evidence, counts, scene, stationIds } = deps;
-  const snapshot = (): { replayDone?: unknown; mode?: unknown; replayRubric?: unknown; stationId?: unknown; lobbyScores?: unknown } =>
-    (getSnapshot() as { replayDone?: unknown; mode?: unknown; replayRubric?: unknown; stationId?: unknown; lobbyScores?: unknown } | null) ?? {};
+  const snapshot = (): C20RubricView => {
+    const value = getSnapshot();
+    return isRecord(value) ? value : {};
+  };
   const renderPanel = deps.renderPanel ?? renderC20Panel;
-  const live = { c20: evidence, scoring: false, rubric: [] as C13RubricItem[], toggled: [] as string[], renderPanel };
+  const live: { c20: C20Evidence; scoring: boolean; rubric: C13RubricItem[]; toggled: string[]; renderPanel: PanelRenderer } = {
+    c20: evidence,
+    scoring: false,
+    rubric: [],
+    toggled: [],
+    renderPanel,
+  };
   setC20Live(live);
   if (stationIds.length === 0) {
     throw new Error("c20 script needs at least one lobby station");
@@ -325,14 +337,14 @@ export async function runC20Script(deps: C20ScriptDeps): Promise<void> {
       if (snapshot().mode !== "lobby") {
         return false;
       }
-      const badges = (snapshot().lobbyScores ?? []) as Array<{ stationId?: unknown; checkedCount?: unknown }>;
-      const badge = badges.find((entry) => entry.stationId === stationId);
-      if (badge !== undefined && badge.checkedCount === wantChecked && current) {
+      const lobbyScores = snapshot().lobbyScores;
+      const badges = Array.isArray(lobbyScores) ? lobbyScores.filter(isRecord) : [];
+      const badge = badges.find((entry) => entry["stationId"] === stationId);
+      if (badge !== undefined && badge["checkedCount"] === wantChecked && current) {
         current.badgeCheckedCount = wantChecked;
         return true;
       }
       return false;
     }, 15000, `back in lobby with the ${stationId} score badge`);
   }
-  void ({} as { kind?: IntentKind });
 }
