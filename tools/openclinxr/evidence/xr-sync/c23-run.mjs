@@ -21,6 +21,8 @@ const FIXTURES_DIST = join(ROOT, "packages/openclinxr/scenario-fixtures/dist/ind
 const APP_DIST = join(ROOT, "apps/arena/ui-xr-iwsdk-spike/dist");
 const APP_SRC = join(ROOT, "apps/arena/ui-xr-iwsdk-spike/src/sync-probe");
 const TIMING = { doorwaySeconds: 1, encounterSeconds: 20, noteSeconds: 1, breakAfterStationOrders: [] };
+// C3 contract (xr-sync-c23-topic-answers.test.ts): the actor's 4th turn takes C3 row 1, "c3-ack-open".
+const C3_FOURTH_TURN_ID = "c3-ack-open";
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
 const blueprint = {
@@ -101,7 +103,7 @@ async function main(argv) {
       stationId: "slot-a",
       actorId: firstActor.actorId,
       askedTopics: [null, ...selected.authored.map((entry) => entry.topic), selected.fallback],
-      replyIds: [`${firstActor.actorId}:opening`, ...expectedSeedTurns.map((entry) => entry.replyId), C3_REPLY_TABLE[0].id],
+      replyIds: [`${firstActor.actorId}:opening`, ...expectedSeedTurns.map((entry) => entry.replyId), C3_FOURTH_TURN_ID],
       captionsShown: [`${firstActor.displayName}: ${firstActor.openingUtterance ?? ""}`, ...expectedSeedTurns.map((entry) => entry.caption), ""],
     };
     run.expected = expected;

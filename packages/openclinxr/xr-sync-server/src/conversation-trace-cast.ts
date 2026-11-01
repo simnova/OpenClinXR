@@ -95,6 +95,11 @@ export function readCastContext(raw: unknown, traceFile: string): ConversationCa
   ) {
     throw new Error(`replay-bad-trace: ${traceFile} holds a malformed cast context`);
   }
+  // C23: a present topicAnswers must be an array of selectors; anything else
+  // would replay with C3 replyIds instead of the recorded seed replyIds.
+  if (record.topicAnswers !== undefined && !Array.isArray(record.topicAnswers)) {
+    throw new Error(`replay-bad-trace: ${traceFile} holds malformed topic answers`);
+  }
   return {
     scenarioId,
     actors: [...(actors as string[])],

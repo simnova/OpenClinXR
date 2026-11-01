@@ -36,6 +36,7 @@ export function applyDialogueSeeds(casts: ScenarioCast[], value: unknown): Scena
       continue;
     }
     const answers = answersByScenario.get(scenarioId) ?? [];
+    const seenSeedIds = new Set<string>();
     for (const [seedIndex, rawSeed] of (rawEntry["seeds"] as unknown[]).entries()) {
       if (!isRecord(rawSeed)) {
         throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}].seeds[${seedIndex}] must be an object`);
@@ -56,6 +57,10 @@ export function applyDialogueSeeds(casts: ScenarioCast[], value: unknown): Scena
       ) {
         throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}].seeds[${seedIndex}] is malformed`);
       }
+      if (seenSeedIds.has(seedId)) {
+        throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}] repeats seedId ${seedId.slice(0, 64)}`);
+      }
+      seenSeedIds.add(seedId);
       if (!cast.actorIds.includes(actorId)) {
         throw new Error(`bad-dialogueSeeds: dialogueSeeds seed actorId ${actorId.slice(0, 64)} is not in the cast`);
       }
