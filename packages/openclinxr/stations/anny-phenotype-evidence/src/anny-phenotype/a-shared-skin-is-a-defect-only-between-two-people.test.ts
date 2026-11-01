@@ -132,10 +132,10 @@ const GENERATED = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 
 /** The four contracts under measurement. Named files only — never a directory sweep (#195). */
 const SIBLINGS = [
-  "tools/openclinxr/evidence/garments-keep-their-authored-texture.test.ts",
-  "tools/openclinxr/evidence/mpfb-skin-carries-surface-relief.test.ts",
-  "tools/openclinxr/evidence/mpfb-skin-is-baked-not-painted.test.ts",
-  "tools/openclinxr/evidence/skin-atlas-has-subsurface-not-occlusion.test.ts",
+  "packages/openclinxr/stations/cast-readiness-evidence/src/cast-readiness/garments-keep-their-authored-texture.test.ts",
+  "packages/openclinxr/stations/cast-readiness-evidence/src/cast-readiness/mpfb-skin-carries-surface-relief.test.ts",
+  "packages/openclinxr/stations/cast-readiness-evidence/src/cast-readiness/mpfb-skin-is-baked-not-painted.test.ts",
+  "packages/openclinxr/stations/cast-readiness-evidence/src/cast-readiness/skin-atlas-has-subsurface-not-occlusion.test.ts",
 ];
 const CASTING = `${REPO_ROOT}/packages/openclinxr/asset-registry/src/actor-casting.ts`;
 

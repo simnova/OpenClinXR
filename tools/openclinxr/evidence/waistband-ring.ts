@@ -1,7 +1,7 @@
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
-import { isUpperGarmentName } from "./garment-slot.ts";
+import { isUpperGarmentName } from "./garment-slot.js";
 import { isTrouserMeshName } from "./lib/garment-mesh-class.js";
 
 /**

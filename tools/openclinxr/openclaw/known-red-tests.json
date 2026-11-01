@@ -207,9 +207,19 @@
       "card": "unfiled: the foot-grounder capture waits out the browser slot"
     },
     {
-      "path": "tools/openclinxr/evidence/a-stale-measurement-stops-deciding-readiness.test.ts",
+      "path": "tools/openclinxr/evidence/cast-readiness-stale/a-stale-measurement-stops-deciding-readiness.test.ts",
       "reason": "2 of 4 fail on main 4773a5bda (2026-10-08) without the shrink-a change: clause (1) 'a fresh artifact must keep every count: expected undefined to be 64802' (patient_robert_hayes_character) and clause (3) 'station_triangle_budget_exceeded' missing. The test header says it reads the BUILT dist copy, so it measures the last build, not src. Cause not diagnosed.",
       "card": "unfiled: settle the src/dist authority for the readiness verdict and re-measure the fresh counts"
+    },
+    {
+      "path": "tools/openclinxr/evidence/cast-readiness-stale/the-api-readiness-surface-weighs-shipped-geometry.test.ts",
+      "reason": "1 of 4 fails on this tree, same ED-budget mismatch measured on origin/main before the move: clause (1) expects the ED station budget to weigh the measured artifact (172054) but the verdict reports 129122. The card move is path-only (subdirectory relocation with repo-path import rewrites, no assertion change); the sum is data-driven over shipped GLB bytes versus the committed measured-geometry artifact, which the sibling #707 staleness test shows is out of sync with the bytes on disk. Cause not diagnosed.",
+      "card": "unfiled: re-measure the ED readiness budget against the current shipped GLBs and re-pin the expected total"
+    },
+    {
+      "path": "tools/openclinxr/evidence/cast-readiness-stale/the-measured-geometry-artifact-knows-when-it-is-stale.test.ts",
+      "reason": "2 of 4 fail on this tree, same failures measured on origin/main before the move: clause (1) nurse_maria_alvarez_character recorded sha256 3241acc6... does not match apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb bytes on disk 4f0a8c1d..., and clause (2) the fresh-count API reports only patient_robert_hayes_character fresh. The card move is path-only (subdirectory relocation with repo-path import rewrites, no assertion change). Cause not diagnosed.",
+      "card": "unfiled: rebake the measured-geometry artifact against the current shipped GLBs"
     },
     {
       "path": "tools/openclinxr/evidence/clinical-touch/the-shipped-ed-patient-has-a-playable-rlq-response.test.ts",

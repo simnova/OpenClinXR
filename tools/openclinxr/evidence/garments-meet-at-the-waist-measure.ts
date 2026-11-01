@@ -7,8 +7,8 @@
 import { dirname, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
-import { isUpperGarmentName } from "./garment-slot.ts";
-import { isPantsName } from "./waistband-ring.ts";
+import { isUpperGarmentName } from "./garment-slot.js";
+import { isPantsName } from "./waistband-ring.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = pathResolve(HERE, "../../..");

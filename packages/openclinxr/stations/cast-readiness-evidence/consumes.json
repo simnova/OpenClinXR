@@ -1,0 +1,77 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createEdChestPainPlaceholderManifests",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "evaluateScenarioAssetBudget",
+        "kind": "runtime",
+        "via": "path-reach"
+      },
+      {
+        "name": "listShippedCastScenarioIds",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./cast-asset-constants",
+    "names": [
+      {
+        "name": "MPFB_GOWN_ADULT_PATIENT_GLB",
+        "kind": "runtime"
+      },
+      {
+        "name": "MPFB_GOWN_ADULT_PATIENT_GLB",
+        "kind": "runtime",
+        "via": "path-reach"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./runtime-bundles",
+    "names": [
+      {
+        "name": "resolveScenarioActorCast",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "repoRoot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "resolveHumanoidVariantOrCastPath",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

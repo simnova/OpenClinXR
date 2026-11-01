@@ -7,16 +7,16 @@ import {
 } from "../checks/test-file-root-freeze.ts";
 
 /**
- * tools/openclinxr/evidence/ holds 310 .test.ts files in ONE flat directory, and the
+ * tools/openclinxr/evidence/ holds 277 .test.ts files in ONE flat directory, and the
  * repo's own delegation protocol tells every worker to plant a RED there. Seven of the
  * seventeen conflict-resolving merges in 1,500 commits were test files. Shared test files
  * are the largest serialization class in this repo at 33.1% of excess-writer events, ahead
  * of source modules at 23.9%.
  *
- * The rule freezes the root-level count at 310; it may only fall. A new root-level test
+ * The rule freezes the root-level count at 277; it may only fall. A new root-level test
  * file raises the count and fails the gate. The fix is to plant the RED in a subdirectory
  * named for its subject. A test file in a SUBDIRECTORY is never counted, so the escape
- * route is always open. The existing 310 files are NOT moved — the ratchet exists so the
+ * route is always open. The existing 277 files are NOT moved — the ratchet exists so the
  * count comes down as REDs are retired and new ones land in subdirectories.
  * (2026-10-30 station-trellis sidecar, operator-approved 2026-10-30, moved 4 trellis
  * evidence-root tests to @openclinxr/trellis-evidence: 560 -> 556.)
@@ -52,6 +52,9 @@ import {
  * moved, 37 to tools/openclinxr/openclaw/contracts/ and 2 red-gated (drain-loop,
  * fixture-git) to tools/openclinxr/evidence/drain-loop/ and
  * tools/openclinxr/evidence/fixture-git/: 349 -> 310.)
+ * (2026-10-31 root batch cast-readiness, operator-approved 2026-10-31: 33 root tests
+ * moved, 30 to @openclinxr/cast-readiness-evidence and 3 red-on-main to
+ * tools/openclinxr/evidence/cast-readiness-stale/: 310 -> 277.)
  */
 describe("tools/openclinxr/evidence/ root test file freeze", () => {
   it("(1) root-level .test.ts count does not exceed the frozen ceiling", () => {

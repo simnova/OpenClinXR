@@ -1,0 +1,57 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "dependsOn": [
+        "build",
+        "^build",
+        "@openclinxr/asset-registry#build",
+        "@openclinxr/factory-station-core#build",
+        "@openclinxr/xr-scene#build"
+      ],
+      "inputs": [
+        "$TURBO_ROOT$/.openclinxr/evidence/mpfb-eyes/*.png",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/generated/*/scene-manifest.v1.json",
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/.openclinxr/evidence/issue-276/pre-fix.json",
+        "$TURBO_ROOT$/.openclinxr/evidence/issue-276/rail-diagnosis.json",
+        "$TURBO_ROOT$/.openclinxr/evidence/mpfb-eyes/pre-fix.json",
+        "$TURBO_ROOT$/apps/api/src/app.test.ts",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/**",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/humanoids/candidates/**",
+        "$TURBO_ROOT$/apps/ui-xr/src/main.ts",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/dist/cast-asset-constants.js",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/dist/index.js",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/dist/runtime-bundles-entry.js",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/factory-station-core/dist/runner.js",
+        "$TURBO_ROOT$/packages/openclinxr/factory-station-core/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/rest/src/api-route-support.ts",
+        "$TURBO_ROOT$/packages/openclinxr/scenario-fixtures/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-dialogue/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/xr-scene/dist/index.js",
+        "$TURBO_ROOT$/packages/openclinxr/xr-scene/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/xr-scene/src/humanoid-runtime-asset-url.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/actor-identity-and-wardrobe.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/cast-identity-all-stations.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/dark-station-mechanism-report.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/decode-png.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/garment-slot.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/garments-meet-at-the-waist-measure.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/humanoid-body-signature.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/lib/garment-mesh-class.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/live-scenario-actor-cast.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/mpfb-eyes-inspection.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/parent-drives-a-real-viseme.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/scenario-actor-casting.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/station-fixture-vocabulary.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/waist-fit-coverage.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/waistband-ring.ts"
+      ]
+    }
+  }
+}

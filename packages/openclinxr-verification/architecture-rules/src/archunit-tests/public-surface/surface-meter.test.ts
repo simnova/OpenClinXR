@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 78 roots and 180 declared entrypoints", () => {
+  it("(1) the live tree discovers 79 roots and 181 declared entrypoints", () => {
     const report = measureSurface();
     // 2026-10-07 mouth-station pilot (MADR 0060/0061, integration branch station-mouth): the
     // objective package @openclinxr/station-mouth-objective adds one root (49 -> 50); its surface
@@ -185,7 +185,10 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-31 iwsdk evidence sidecar (operator-approved 2026-10-31): the
     // private sidecar @openclinxr/iwsdk-evidence adds one root that publishes
     // nothing (77 -> 78).
-    expect(report.totals.roots).toBe(78);
+    // 2026-10-31 root batch cast-readiness (operator-approved 2026-10-31): the private
+    // sidecar @openclinxr/cast-readiness-evidence adds one root that publishes
+    // nothing (78 -> 79).
+    expect(report.totals.roots).toBe(79);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -294,7 +297,10 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-31 iwsdk evidence sidecar (operator-approved 2026-10-31): the
     // sidecar, with no exports map, is discovered as one implicit "." that
     // publishes nothing (179 -> 180).
-    expect(report.totals.entrypoints).toBe(180);
+    // 2026-10-31 root batch cast-readiness (operator-approved 2026-10-31): the
+    // sidecar, with no exports map, is discovered as one implicit "." that
+    // publishes nothing (180 -> 181).
+    expect(report.totals.entrypoints).toBe(181);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -344,7 +350,8 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-31 model-vetting evidence sidecar adds one root (75 -> 76), operator-approved 2026-10-31.
     // 2026-10-31 local-runtime evidence sidecar adds one root (76 -> 77), operator-approved 2026-10-31.
     // 2026-10-31 iwsdk evidence sidecar adds one root (77 -> 78), operator-approved 2026-10-31.
-    expect(report.packages.length).toBe(78);
+    // 2026-10-31 root batch cast-readiness sidecar adds one root (78 -> 79), operator-approved 2026-10-31.
+    expect(report.packages.length).toBe(79);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {
