@@ -114,7 +114,7 @@ function fixtureRequireApplied(root: string, id: string) {
 }
 
 describe("compiler-resolved surface meter", () => {
-  it("(1) the live tree discovers 85 roots and 187 declared entrypoints", () => {
+  it("(1) the live tree discovers 88 roots and 190 declared entrypoints", () => {
     const report = measureSurface();
     // 2026-10-07 mouth-station pilot (MADR 0060/0061, integration branch station-mouth): the
     // objective package @openclinxr/station-mouth-objective adds one root (49 -> 50); its surface
@@ -206,7 +206,16 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-31 root batch garment-surface (operator-approved 2026-10-31): the private
     // sidecar @openclinxr/garment-surface-evidence adds one root that publishes
     // nothing (84 -> 85).
-    expect(report.totals.roots).toBe(85);
+    // 2026-10-31 staging evidence sidecar (operator-approved 2026-10-31): the
+    // private sidecar @openclinxr/staging-evidence adds one root that publishes
+    // nothing (85 -> 86).
+    // 2026-10-31 root batch cast-fleet (operator-approved 2026-10-31): the private
+    // sidecar @openclinxr/cast-fleet-evidence adds one root that publishes
+    // nothing (86 -> 87).
+    // 2026-11-01 root batch blender-bake (operator-approved 2026-10-31): the private
+    // sidecar @openclinxr/blender-bake-evidence adds one root that publishes
+    // nothing (87 -> 88).
+    expect(report.totals.roots).toBe(88);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -336,7 +345,16 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-31 root batch garment-surface (operator-approved 2026-10-31): the
     // sidecar, with no exports map, is discovered as one implicit "." that
     // publishes nothing (186 -> 187).
-    expect(report.totals.entrypoints).toBe(187);
+    // 2026-10-31 staging evidence sidecar (operator-approved 2026-10-31): the
+    // sidecar, with no exports map, is discovered as one implicit "." that
+    // publishes nothing (187 -> 188).
+    // 2026-10-31 root batch cast-fleet (operator-approved 2026-10-31): the sidecar,
+    // with no exports map, is discovered as one implicit "." that publishes nothing
+    // (188 -> 189).
+    // 2026-11-01 root batch blender-bake (operator-approved 2026-10-31): the
+    // sidecar, with no exports map, is discovered as one implicit "." that
+    // publishes nothing (189 -> 190).
+    expect(report.totals.entrypoints).toBe(190);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {
@@ -393,7 +411,10 @@ describe("compiler-resolved surface meter", () => {
     // 2026-10-31 root batch exam-pipeline sidecar adds one root (82 -> 83), operator-approved 2026-10-31.
     // 2026-10-31 root batch gown-phenotype sidecar adds one root (83 -> 84), operator-approved 2026-10-31.
     // 2026-10-31 root batch garment-surface sidecar adds one root (84 -> 85), operator-approved 2026-10-31.
-    expect(report.packages.length).toBe(85);
+    // 2026-10-31 staging evidence sidecar adds one root (85 -> 86), operator-approved 2026-10-31.
+    // 2026-10-31 root batch cast-fleet sidecar adds one root (86 -> 87), operator-approved 2026-10-31.
+    // 2026-11-01 root batch blender-bake sidecar adds one root (87 -> 88), operator-approved 2026-10-31.
+    expect(report.packages.length).toBe(88);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {

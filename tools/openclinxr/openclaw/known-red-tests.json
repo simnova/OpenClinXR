@@ -2,7 +2,7 @@
   "comment": "Tests that fail on main for a recorded reason. test:touched excludes them from the pre-commit related-test gate and prints each exclusion. Remove an entry in the same commit that makes the test pass.",
   "tests": [
     {
-      "path": "tools/openclinxr/evidence/generator-sweep-harness.test.ts",
+      "path": "tools/openclinxr/evidence/staging/generator-sweep-harness.test.ts",
       "reason": "Fails on origin/main. Re-measured 2026-10-30 in ci-w5: crutches_equipment, goniometer_equipment and ice_pack_equipment now resolve to parametric source with family orthopedic_kit (11/5/6 meshes; builders route them to buildOrthopedicKitFamilyEquipment) and the #202 accounted-for clause PASSES — that half of the old reason is stale. hospital_bed_equipment still measures meshCount 2 (tracked hospital-bed GLB has 2 meshes) but is DEFERRED per operator Q4 2026-10-30 via it.fails, not a hard fail. The remaining hard red is the (#198) support-surfaces clause on stretcher_equipment (meshCount 1: tracked stretcher-sketchfab-ccby.glb is a single mesh; out of operator-deferral scope, stays red). Three other clauses time out at 900s only under machine-wide browser-capture slot contention, not on assertions.",
       "card": "unfiled: distinct equipment-family builders for the three clinic ids, and a bed gate that accepts the shipped 2-mesh GLB while still rejecting the 56-triangle pole"
     },
@@ -42,7 +42,7 @@
       "card": "unfiled: promotion-path probe must send authoredContentIdentity evidence"
     },
     {
-      "path": "tools/openclinxr/evidence/real-faces-are-not-covered-by-cue-primitives.test.ts",
+      "path": "tools/openclinxr/evidence/staging/real-faces-are-not-covered-by-cue-primitives.test.ts",
       "reason": "Clause 2 requires six face-cue name strings and shouldShowProceduralHumanoidDetailCues in main.ts. Those strings are absent from origin/main main.ts and from this merge. The staged main.ts diff is the layout-camera wrap only.",
       "card": "unfiled: retarget the face-cue pin to the module that still defines those cues"
     },
@@ -82,22 +82,22 @@
       "card": "unfiled: room-chain promote check must diff only the paths the stage writes"
     },
     {
-      "path": "tools/openclinxr/evidence/actor-garment-presence-in-scene.test.ts",
+      "path": "tools/openclinxr/evidence/staging/actor-garment-presence-in-scene.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/actor-placement-ssot.test.ts",
+      "path": "tools/openclinxr/evidence/staging/actor-placement-ssot.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/actor-slot-assignment.test.ts",
+      "path": "tools/openclinxr/evidence/staging/actor-slot-assignment.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/arm-abduction-ceiling.test.ts",
+      "path": "tools/openclinxr/evidence/staging/arm-abduction-ceiling.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
@@ -107,27 +107,27 @@
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/declared-actors-rendered.test.ts",
+      "path": "tools/openclinxr/evidence/staging/declared-actors-rendered.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/declared-equipment-mounted.test.ts",
+      "path": "tools/openclinxr/evidence/staging/declared-equipment-mounted.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/generic-cue-prop-removal.test.ts",
+      "path": "tools/openclinxr/evidence/staging/generic-cue-prop-removal.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/idle-arm-hang.test.ts",
+      "path": "tools/openclinxr/evidence/staging/idle-arm-hang.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/inpatient-supine-staging.test.ts",
+      "path": "tools/openclinxr/evidence/staging/inpatient-supine-staging.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
@@ -137,62 +137,67 @@
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/per-station-actor-integrity.test.ts",
+      "path": "tools/openclinxr/evidence/staging/per-station-actor-integrity.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/room-prop-uses-real-builder.test.ts",
+      "path": "tools/openclinxr/evidence/staging/room-prop-uses-real-builder.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/seated-contact-and-flexion.test.ts",
+      "path": "tools/openclinxr/evidence/staging/seated-contact-and-flexion.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/seated-hands-rest.test.ts",
+      "path": "tools/openclinxr/evidence/staging/seated-hands-rest.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/seated-posture-survives-mixer.test.ts",
+      "path": "tools/openclinxr/evidence/staging/seated-posture-survives-mixer.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/station-room-not-empty.test.ts",
+      "path": "tools/openclinxr/evidence/staging/station-room-not-empty.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/supine-limb-rest.test.ts",
+      "path": "tools/openclinxr/evidence/staging/supine-limb-rest.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/supine-patient-on-deck.test.ts",
+      "path": "tools/openclinxr/evidence/staging/supine-patient-on-deck.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/the-seated-patient-reaches-the-floor.test.ts",
+      "path": "tools/openclinxr/evidence/staging/the-supine-head-rests-on-its-pillow.test.ts",
+      "reason": "beforeAll times out at BOOT_TIMEOUT_MS=420s: it runs TWO full sweeps inside one hook (inspectShippedHeadOfBedIncline force:true over 15 stations, then inspectSupinePatientOnDeck over ~15 stations), ~28 browser gotos at ~20s each. Isolated rerun 2026-10-31 failed 4/4 including a zero-contention run (waitedMs=1), so this is deterministic, not slot contention. The file is import-rewrite-identical to the origin/main root file (only the two helper imports rewritten). Moved 2026-11-01 from @openclinxr/staging-evidence to tools/openclinxr/evidence/staging/ per T12.",
+      "card": "unfiled: split the supine-head beforeAll into per-station its with a timeout above two full sweeps, or cache the shipped-incline sweep"
+    },
+    {
+      "path": "tools/openclinxr/evidence/staging/the-seated-patient-reaches-the-floor.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/the-arm-instrument-measures-the-same-cast-twice.test.ts",
+      "path": "tools/openclinxr/evidence/staging/the-arm-instrument-measures-the-same-cast-twice.test.ts",
       "reason": "All three tests throw ReferenceError browserPageWindow is not defined in idle-arm-hang.ts waitForHumanoidsAndFrames. The test file and idle-arm-hang.ts match origin/main. idle-arm-hang.test.ts is already on this list for the same predicate.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/the-supine-patient-rests-on-the-deck-not-above-it.test.ts",
+      "path": "tools/openclinxr/evidence/staging/the-supine-patient-rests-on-the-deck-not-above-it.test.ts",
       "reason": "The suite throws ReferenceError browserPageWindow is not defined in supine-patient-on-deck.ts waitForHumanoidsAndFrames. The test file and that helper match origin/main.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/a-seated-actor-sits-on-the-chair-she-is-planted-on.test.ts",
+      "path": "tools/openclinxr/evidence/staging/a-seated-actor-sits-on-the-chair-she-is-planted-on.test.ts",
       "reason": "All four tests hit the default 5000ms vitest timeout. inspectSeatedActorSeatPlacement launches a dev server and Chromium, and the it() calls set no timeout. The test file matches origin/main.",
       "card": "unfiled: give the seated-placement inspect a timeout longer than a dev-server boot"
     },
@@ -390,6 +395,11 @@
       "path": "tools/openclinxr/evidence/garment-surface-stale/the-waistband-mask-reaches-the-trouser-rim.test.ts",
       "reason": "st-garment-surface: red on origin/main before move (mask over-reaches 12mm > 6mm bound on mpfb-street-adult-male.glb); stale-subdir quarantine per T12, sidecar must stay green",
       "card": "unfiled: fit the lower hide mask inside the trouser rim (12mm over-reach vs 6mm bound on mpfb-street-adult-male)"
+    },
+    {
+      "path": "tools/openclinxr/evidence/chest-anchors/every-shipped-rig-has-two-chest-anchors.test.ts",
+      "reason": "st-cast-fleet: red on origin/main before move (2 clauses fail; tracked tara-run GLBs collapse). Moved 2026-11-01 from the evidence root to the chest-anchors/ subdirectory per the root-batch T12 trap so the pre-commit openclaw suite stays green; known-red entry kept at the new path for test:touched exclusion.",
+      "card": "unfiled: re-pin or retire the chest-anchor clauses against the collapsed tara-run GLBs"
     }
   ]
 }

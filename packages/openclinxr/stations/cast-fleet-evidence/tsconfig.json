@@ -1,0 +1,1 @@
+{"compilerOptions": {"exactOptionalPropertyTypes": false, "noEmit": true, "noPropertyAccessFromIndexSignature": false, "noUncheckedIndexedAccess": false, "types": ["node"]}, "exclude": ["dist"], "extends": "@cellix/config-typescript/base", "include": ["src/**/*.ts"]}

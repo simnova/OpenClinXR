@@ -58,7 +58,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", 
 // clauses (0) and (2) went red on a tree with nothing wrong in it. Clause (0) is the harness
 // column that caught it, which is why it exists. This fixture has exactly one it.fails clause
 // and its `run:` exits zero, which clause (4) needs.
-const UNFLIPPED = "tools/openclinxr/evidence/every-cast-actor-has-a-phenotype.test.ts";
+const UNFLIPPED = "packages/openclinxr/stations/cast-fleet-evidence/src/cast-fleet/every-cast-actor-has-a-phenotype.test.ts";
 const FLIPPED = "tools/openclinxr/openclaw/a-recovered-session-is-not-a-death.test.ts";
 const evaluate = (rule: string) => evaluateDoneWhenRule(ROOT, rule, "issue-570", {});
 

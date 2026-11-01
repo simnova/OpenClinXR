@@ -1,0 +1,47 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "dependsOn": ["build", "^build", "@openclinxr/compute-slots#build", "@openclinxr/factory-station-core#build", "@openclinxr/asset-registry#build"],
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/compute-slots/dist/slots.js",
+        "$TURBO_ROOT$/packages/openclinxr/compute-slots/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/factory-station-core/dist/runner.js",
+        "$TURBO_ROOT$/packages/openclinxr/factory-station-core/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/dist/index.js",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/dist/runtime-bundles-entry.js",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/shared-schemas/src/schemas.ts",
+        "$TURBO_ROOT$/tools/agent-factory/lib.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/asset-production-evidence-ladder.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/asset-production-readiness-benchmark.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/azurite-asset-upload-smoke.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/blender-asset-bake-smoke.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/comfy-humanoid-texture-bake.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/hm08-calibration-anchor.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/hm08-lying-calibration-seed.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/hm08-rig-carry-base-resolve.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/medical-equipment-artifacts.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/gltf-pipeline-smoke.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/gltf-transform-smoke.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/provenance-artifact-kind.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/room-decimate.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/blender/hm08_rig_carry_stage.py",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/blender/render_humanoid_depth_views.py",
+        "$TURBO_ROOT$/tools/openclinxr/factory/generated-human-rigging-artifacts.ts",
+        "$TURBO_ROOT$/tools/openclinxr/openclaw/runtime-humanoid-reachability.ts",
+        "$TURBO_ROOT$/docs/openclinxr/anny-skin-cagematch-probe-*.json",
+        "$TURBO_ROOT$/.openclinxr/evidence/issue-271/dimension-control-report.json",
+        "$TURBO_ROOT$/.openclinxr/evidence/issue-339/constraint-language-capability.json",
+        "$TURBO_ROOT$/.openclinxr/evidence/issue-236/extract-measure.json",
+        "$TURBO_ROOT$/.openclinxr/evidence/room-decimate/extracted-room-decimated.glb",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/**",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/humanoids/candidates/**"
+      ]
+    }
+  }
+}

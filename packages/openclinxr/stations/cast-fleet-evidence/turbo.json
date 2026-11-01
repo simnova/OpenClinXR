@@ -1,0 +1,36 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "dependsOn": ["build", "^build", "@openclinxr/xr-station#build"],
+      "inputs": [
+        "$TURBO_ROOT$/packages/openclinxr/xr-station/dist/index.js",
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/**",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/generated/**",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/humanoids/candidates/**",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/medical-equipment/**",
+        "$TURBO_ROOT$/docs/encounters/showcase-manifest.json",
+        "$TURBO_ROOT$/docs/encounters/images/**",
+        "$TURBO_ROOT$/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/factory-wiring/bake-measure.json",
+        "$TURBO_ROOT$/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/factory-wiring/components.json",
+        "$TURBO_ROOT$/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/factory-wiring/measurement.json",
+        "$TURBO_ROOT$/docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/factory-wiring/GRADE.md",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/trellis/equipment-freezes/ecg-cart.freeze.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/lib/portless-server.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/room-prop-colour-fidelity.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/trellis-metal-backend-gate.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/ui-xr-environment-room-capture.ts",
+        "$TURBO_ROOT$/.openclinxr/evidence/issue-250/pre-fix.json",
+        "$TURBO_ROOT$/.openclinxr/evidence/issue-250/decimation-report.json",
+        "$TURBO_ROOT$/packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/src/**",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/dist/index.js",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/dist/runtime-bundles-entry.js",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/package.json"
+      ]
+    }
+  }
+}
