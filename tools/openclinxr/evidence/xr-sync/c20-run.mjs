@@ -200,8 +200,11 @@ async function main(argv) {
       }
       bank.push(fixture.status === "approved" ? fixture : { ...fixture, status: "approved" });
     }
-    if (bank[1]) {
-      bank[1] = { ...bank[1], reviewRubric: bank[1].reviewRubric.slice(0, 3) };
+    // C23: when the two fixtures' rubrics are the same size, the replay bank
+    // drops the second rubric's last item so a summed totalPossible differs
+    // from first size x station count.
+    if (bank[0] && bank[1] && bank[1].reviewRubric.length === bank[0].reviewRubric.length && bank[1].reviewRubric.length > 1) {
+      bank[1] = { ...bank[1], reviewRubric: bank[1].reviewRubric.slice(0, -1) };
     }
     run.scenarios = bank.map((s) => ({
       scenarioId: s.scenarioId,
