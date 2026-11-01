@@ -1,0 +1,44 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "dependsOn": ["build", "^build", "@openclinxr/asset-registry#build", "@openclinxr/xr-scene#build"],
+      "inputs": [
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+        "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb",
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/**",
+        "$TURBO_ROOT$/.openclinxr/evidence/face-morph-census/face-morph-census.json",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/src/actor-casting.ts",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/src/case-actor-placements-mod.ts",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/src/cast-asset-constants-mod.ts",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/dist/runtime-bundles-entry.js",
+        "$TURBO_ROOT$/packages/openclinxr/asset-registry/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/xr-scene/dist/index.js",
+        "$TURBO_ROOT$/packages/openclinxr/xr-scene/package.json",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/anny/humanoid_provenance.py",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/anny/rebake_role_wardrobe_blender_only.py",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/actor-footwear-presence.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/garment-hem-boundary.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/garment-surface-derived.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/head-focus-derivation.test.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/humanoid-proportions-probe.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/lib/garment-mesh-class.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/min-max-bounds.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/open-front-underlayer.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/patient-attire-by-care-setting.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/review-glb-optimization-benchmark.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/shoulder-coverage.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/sleeve-arm-colour-match.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/sleeve-wrist-boundary.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/station-luminance-sweep.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/sweep-determinism-report.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/ui-xr-environment-room-capture.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/viseme-apply-provenance.json"
+      ]
+    }
+  }
+}

@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-11-01T02:27:05.175Z",
+  "generatedAt": "2026-11-01T03:12:23.811Z",
   "method": "static import-graph scan of tools/**/*.test.ts; value imports only; call detection after stripping comments and string literals",
   "primitives": [
     "spawnPortlessDevServer (lib/portless-server.ts — boots a Vite dev server)",
     "chromium.launch (playwright — boots a headless Chrome shell)"
   ],
-  "totalTestFiles": 649,
-  "browserBootingTestFiles": 62,
+  "totalTestFiles": 597,
+  "browserBootingTestFiles": 60,
   "excludedAmongBrowserBooting": 0,
-  "minBrowsersPerSuiteRun": 61,
-  "minServersPerSuiteRun": 60,
-  "staticUpperBoundBrowsers": 173,
-  "staticUpperBoundServers": 174,
+  "minBrowsersPerSuiteRun": 59,
+  "minServersPerSuiteRun": 58,
+  "staticUpperBoundBrowsers": 170,
+  "staticUpperBoundServers": 170,
   "rows": [
     {
       "testFile": "tools/openclinxr/dark-factory/the-multi-case-rollup-publishes-only-explicitly.test.ts",
@@ -246,6 +246,43 @@
       "invokedPathBrowserCallSites": 1
     },
     {
+      "testFile": "tools/openclinxr/evidence/body-param/the-factory-bakes-viseme-timing-for-every-speaking-actor.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 95,
+      "directLaunchers": [
+        "tools/openclinxr/dark-factory/multi-case-runner.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/dark-factory/multi-case-runner.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 1,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 0
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/body-param/the-mouth-capture-artifact-answers-for-the-current-tree.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 64,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 2,
+      "invokedPathBrowserCallSites": 2
+    },
+    {
       "testFile": "tools/openclinxr/evidence/canonical-staging-contracts/canonical-staging-contracts.test.ts",
       "excludedFromTestTools": false,
       "acquisitionMode": "own",
@@ -268,7 +305,7 @@
       "invokedPathBrowserCallSites": 2
     },
     {
-      "testFile": "tools/openclinxr/evidence/cue-props-are-not-furniture.test.ts",
+      "testFile": "tools/openclinxr/evidence/cue-props/cue-props-are-not-furniture.test.ts",
       "excludedFromTestTools": false,
       "acquisitionMode": "own",
       "ownsServer": true,
@@ -287,7 +324,7 @@
       "invokedPathBrowserCallSites": 1
     },
     {
-      "testFile": "tools/openclinxr/evidence/dark-factory-multi-case.test.ts",
+      "testFile": "tools/openclinxr/evidence/dark-factory/dark-factory-multi-case.test.ts",
       "excludedFromTestTools": false,
       "acquisitionMode": "own",
       "ownsServer": true,
@@ -585,25 +622,6 @@
       ],
       "closureServerCallSites": 1,
       "closureBrowserCallSites": 1,
-      "invokedPathServerCallSites": 1,
-      "invokedPathBrowserCallSites": 1
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/library-figure-finish-parity.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 24,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/library-figure-finish-parity.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/library-figure-finish-parity.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "closureServerCallSites": 2,
-      "closureBrowserCallSites": 2,
       "invokedPathServerCallSites": 1,
       "invokedPathBrowserCallSites": 1
     },
@@ -935,44 +953,6 @@
       "invokedPathBrowserCallSites": 1
     },
     {
-      "testFile": "tools/openclinxr/evidence/the-factory-bakes-viseme-timing-for-every-speaking-actor.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 95,
-      "directLaunchers": [
-        "tools/openclinxr/dark-factory/multi-case-runner.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/dark-factory/multi-case-runner.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "closureServerCallSites": 2,
-      "closureBrowserCallSites": 1,
-      "invokedPathServerCallSites": 1,
-      "invokedPathBrowserCallSites": 0
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/the-gauge-sees-what-the-resolver-resolves.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 95,
-      "directLaunchers": [
-        "tools/openclinxr/dark-factory/multi-case-runner.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/dark-factory/multi-case-runner.ts",
-        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
-      ],
-      "closureServerCallSites": 2,
-      "closureBrowserCallSites": 1,
-      "invokedPathServerCallSites": 1,
-      "invokedPathBrowserCallSites": 0
-    },
-    {
       "testFile": "tools/openclinxr/evidence/the-loaded-mesh-matches-the-cast.test.ts",
       "excludedFromTestTools": false,
       "acquisitionMode": "own",
@@ -989,24 +969,6 @@
       ],
       "closureServerCallSites": 4,
       "closureBrowserCallSites": 4,
-      "invokedPathServerCallSites": 2,
-      "invokedPathBrowserCallSites": 2
-    },
-    {
-      "testFile": "tools/openclinxr/evidence/the-mouth-capture-artifact-answers-for-the-current-tree.test.ts",
-      "excludedFromTestTools": false,
-      "acquisitionMode": "own",
-      "ownsServer": true,
-      "ownsBrowser": true,
-      "closureSize": 64,
-      "directLaunchers": [
-        "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts"
-      ],
-      "launcherModules": [
-        "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts"
-      ],
-      "closureServerCallSites": 2,
-      "closureBrowserCallSites": 2,
       "invokedPathServerCallSites": 2,
       "invokedPathBrowserCallSites": 2
     },

@@ -19,8 +19,8 @@ import { describe, expect, it } from "vitest";
 /** Pinned T1 texture asset sha (measured 2026-10-15, S/brow/alb-t1brow.png). */
 const T1_SHA256 = "b3b92248c9167d5652ee855a2a9f2656fe399c539f36e1379dd92dbd9d2f25e6";
 const DIR = "tools/openclinxr/evidence/brow-form";
-const GATE_A = "tools/openclinxr/evidence/every-actor-has-brows-lashes-and-teeth.test.ts";
-const GATE_B = "tools/openclinxr/evidence/the-reduced-eyebrow-still-spans-and-darkens-the-brow-band.test.ts";
+const GATE_A = "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/every-actor-has-brows-lashes-and-teeth.test.ts";
+const GATE_B = "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-reduced-eyebrow-still-spans-and-darkens-the-brow-band.test.ts";
 
 describe("the brow gate is kept or inverted (never silently dropped)", () => {
   it("(1) decision.json records decision (ii) with a reason, and no gate edit on this card", () => {

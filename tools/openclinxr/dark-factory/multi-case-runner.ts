@@ -37,7 +37,7 @@
  * artifacts) per case.
  *
  * Re-runnable: the module is importable from tools/ and invoked by the evidence test
- * `tools/openclinxr/evidence/dark-factory-multi-case.test.ts`. It also runs standalone:
+ * `tools/openclinxr/evidence/dark-factory/dark-factory-multi-case.test.ts`. It also runs standalone:
  *   pnpm exec tsx tools/openclinxr/dark-factory/multi-case-runner.ts --case <scenarioId>
  *   pnpm exec tsx tools/openclinxr/dark-factory/multi-case-runner.ts --all
  */

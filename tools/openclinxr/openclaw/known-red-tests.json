@@ -47,7 +47,7 @@
       "card": "unfiled: retarget the face-cue pin to the module that still defines those cues"
     },
     {
-      "path": "tools/openclinxr/evidence/dark-factory-multi-case.test.ts",
+      "path": "tools/openclinxr/evidence/dark-factory/dark-factory-multi-case.test.ts",
       "reason": "stepdown-sepsis.ts and ward-delirium.ts author supportSurface bed. Those files match origin/main. The staging enum is stretcher, exam_table, chair, none, so bed is rejected as an unknown value. The fever plant uses none, chair, and stretcher only.",
       "card": "unfiled: map authored supportSurface bed onto stretcher before the staging station validates it"
     },
@@ -97,7 +97,7 @@
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
     {
-      "path": "tools/openclinxr/evidence/cue-props-are-not-furniture.test.ts",
+      "path": "tools/openclinxr/evidence/cue-props/cue-props-are-not-furniture.test.ts",
       "reason": "Page predicates name browserPageWindow inside page.waitForFunction. That name is not defined in the page. waitForStationShell already reads globalThis. On 2026-10-08, after xr-humanoid-animation dist contained manifest-motion-clip-playback.js, the-seated-patient-reaches-the-floor passed the station shell and failed in waitForHumanoidsAndFrames at 6.44s, and station-room-not-empty failed the same way in waitForFrames at about 20s. declared-equipment-mounted and isolated-subject-harness failed the same ReferenceError in the prior hook. These test files match origin/main. They enter test:touched because a related capture file is staged.",
       "card": "unfiled: page predicates must read globalThis, the same way waitForStationShell does"
     },
@@ -297,7 +297,7 @@
       "card": "ci-w1: clear orphan slivers without gutting skin; restore overlaps"
     },
     {
-      "path": "tools/openclinxr/evidence/open-front-underlayer.test.ts",
+      "path": "tools/openclinxr/evidence/humanoid-bake/open-front-underlayer.test.ts",
       "reason": "ci-w1 helper migration is green (open-front instrument reads the classifier): the nurse lost #121 shoulder coverage (same paint gap as the hem counterweight). Restoring the paint is an asset fix.",
       "card": "ci-w1: restore nurse shoulder coverage (shared with #121)"
     },
@@ -327,7 +327,7 @@
       "card": "ci-w1: give the peds child a measurable hem ring (or rule the exemption)"
     },
     {
-      "path": "tools/openclinxr/evidence/every-shipped-humanoid-resolves-the-reference-it-was-baked-from.test.ts",
+      "path": "tools/openclinxr/evidence/humanoid-bake/every-shipped-humanoid-resolves-the-reference-it-was-baked-from.test.ts",
       "reason": "ci-w1 classifier migration is green (no name miss — the failing subject is enumerated, not skipped): 1 shipped humanoid names a baked-from reference with no manifest, so both phenotype readers fall back (eye colour empty, skin tone default). Writing the missing manifest from the authoring case is a data fix.",
       "card": "ci-w1: write the missing baked-from manifest from the case that authored the reference"
     },
@@ -365,6 +365,16 @@
       "path": "tools/openclinxr/evidence/iwsdk/check-github-pages-site.test.ts",
       "reason": "1 of 4 fails ('validates upload-path wiring and tracked GitHub doc links'): the broken-index negative probe passes validation it should fail. Failed identically at the root path pre-move (baseline 2026-10-31) with zero branch drift on the checker, site, or workflow inputs; the file now lives at tools/openclinxr/evidence/iwsdk/ so the pre-push sidecar stays green. Diagnosing the upload-path wiring is a pages/tooling fix, out of this move's scope.",
       "card": "unfiled: diagnose the GitHub Pages upload-path wiring negative probe (broken index validates clean)"
+    },
+    {
+      "path": "tools/openclinxr/evidence/brow-form/the-brow-gate-is-kept-or-inverted.test.ts",
+      "reason": "Clause (2) only: the operator-approved 2026-10-31 humanoid-bake sidecar move relocated the two gate files (path-only git mv plus repoRoot import anchoring; the /eyebrow/i, fitted_eyebrow and floor marker clauses still pass) so the card-scoped `git diff --numstat origin/main` byte-identity check reports them as added. The gate content is unchanged; clauses (1), (3), (4) pass.",
+      "card": "unfiled: re-pin the brow gate byte-identity check to the sidecar paths or re-scope it to the brow-form card"
+    },
+    {
+      "path": "tools/openclinxr/evidence/body-param/the-mouth-capture-artifact-answers-for-the-current-tree.test.ts",
+      "reason": "Clause (4) only, red on origin/main before the 2026-10-31 body-param move: staleMeasuredSources reports the nurse and spouse GLBs (nurse_maria_alvarez, spouse_anna_hayes) as stale against the shipped measured-geometry artifact, so the KNOWN-GOOD clause fails. Content staleness of the artifact, not the path; the file moved to tools/openclinxr/evidence/body-param/ so the body-param sidecar stays green.",
+      "card": "unfiled: re-measure the shipped mouth measured-geometry artifact for the current nurse and spouse GLBs"
     }
   ]
 }

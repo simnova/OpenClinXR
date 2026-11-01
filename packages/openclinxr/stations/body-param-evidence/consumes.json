@@ -1,0 +1,190 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/compute-slots",
+    "entrypoint": "./slots",
+    "names": [
+      {
+        "name": "withComputeSlot",
+        "kind": "runtime"
+      },
+      {
+        "name": "withComputeSlotSync",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "repoRoot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "applyStationPayloadToCompileSpec",
+        "kind": "runtime"
+      },
+      {
+        "name": "factoryStationSchemas",
+        "kind": "runtime"
+      },
+      {
+        "name": "findEquipmentSubject",
+        "kind": "runtime"
+      },
+      {
+        "name": "planBodyParam",
+        "kind": "runtime"
+      },
+      {
+        "name": "planClothingConsume",
+        "kind": "runtime"
+      },
+      {
+        "name": "planEquipmentGenerate",
+        "kind": "runtime"
+      },
+      {
+        "name": "ROOM_ALBEDO_REL",
+        "kind": "runtime"
+      },
+      {
+        "name": "ROOM_OCCLUSION_REL",
+        "kind": "runtime"
+      },
+      {
+        "name": "runBodyParam",
+        "kind": "runtime"
+      },
+      {
+        "name": "runClothingConsume",
+        "kind": "runtime"
+      },
+      {
+        "name": "runClothingGenerate",
+        "kind": "runtime"
+      },
+      {
+        "name": "runDialogueRuntime",
+        "kind": "runtime"
+      },
+      {
+        "name": "runEquipmentGenerate",
+        "kind": "runtime"
+      },
+      {
+        "name": "runLipSync",
+        "kind": "runtime"
+      },
+      {
+        "name": "runRoomGenerate",
+        "kind": "runtime"
+      },
+      {
+        "name": "runStaging",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-stations",
+    "entrypoint": "./room-chain",
+    "names": [
+      {
+        "name": "ROOM_CHAIN_RECIPES",
+        "kind": "runtime"
+      },
+      {
+        "name": "runRoomChain",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "authoredStagingCameraForScenario",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/service-local-compute",
+    "entrypoint": "./local",
+    "names": [
+      {
+        "name": "createLocalComputeServices",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-asset-loading",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "runtimeHumanoidVariantAssetPath",
+        "kind": "runtime"
+      },
+      {
+        "name": "AssetLoadingContext",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "resolveHumanoidVariantOrCastPath",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-station",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "buildDeclaredEquipmentGeometry",
+        "kind": "runtime"
+      },
+      {
+        "name": "buildStationEnvironment",
+        "kind": "runtime"
+      },
+      {
+        "name": "classifyInitialVitalsRaw",
+        "kind": "runtime"
+      },
+      {
+        "name": "stationContextForScenario",
+        "kind": "runtime"
+      },
+      {
+        "name": "InitialVitalsValueClass",
+        "kind": "type"
+      }
+    ]
+  }
+]

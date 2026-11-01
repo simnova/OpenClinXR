@@ -145,7 +145,6 @@
         "packages/openclinxr/scenario-fixtures/src/**",
         "packages/openclinxr/scenario-runtime/src/**",
         "packages/openclinxr/shared-schemas/src/**",
-        "packages/openclinxr/xr-dialogue/src/**",
         "tools/agent-factory/lib.ts",
         "tools/openclinxr/asset-pipeline/**",
         "tools/openclinxr/dark-factory/**",
