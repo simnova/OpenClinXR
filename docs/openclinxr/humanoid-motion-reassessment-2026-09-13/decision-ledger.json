@@ -11,14 +11,15 @@
     "classification": "current-actor-bound"
   },
   "reAttestation": {
-    "note": "re-attested by ci-closure lane 2026-10-30 after 6aa3518d4 (report.json + runtime-goal-eval.json re-measured on the D3-repaired nurse actor 3241acc6), d0e2104d3 (nurse actor D3 midline breast keyframe repair), b3641f1b7 (fence test exam-table asset-hash line; fence guard verified intact) and 9f8196c4a (factory-station-core runner public-surface move; adapter string plus fresh_subprocess verified intact); hashes measured, not typed",
+    "note": "re-attested by ci-closure lane 2026-10-30 after 6aa3518d4 (report.json + runtime-goal-eval.json re-measured on the D3-repaired nurse actor 3241acc6), d0e2104d3 (nurse actor D3 midline breast keyframe repair), b3641f1b7 (fence test exam-table asset-hash line; fence guard verified intact) and 9f8196c4a (factory-station-core runner public-surface move; adapter string plus fresh_subprocess verified intact) and e606a976c (static-assets pin repin for the deliberate bedside-monitor rebake 4d90da74b and IV-pump mount 481c0b60b; fence guard verified intact); hashes measured, not typed",
     "lane": "ci-closure",
     "date": "2026-10-30",
     "afterCommits": [
       "6aa3518d44c1932789b19935311dd94aed0d283d",
       "d0e2104d3bac2cd7e73bedb54c9f650acf8cb760",
       "b3641f1b78295357ca36f16e8604e8004d84576f",
-      "9f8196c4ac4551a29e6b8cf347a70ca3baede3cf"
+      "9f8196c4ac4551a29e6b8cf347a70ca3baede3cf",
+      "e606a976c7c97843869e6bb4d61c897e78440e41"
     ]
   },
   "phaseRelease": {
@@ -197,7 +198,7 @@
       "status": "retained",
       "currentSource": {
         "path": "apps/ui-xr/src/static-assets.test.ts",
-        "sha256": "92dbc1ce7f9065cf324f132c0c8f90dd8b76ca321656c5b4e4b3342c6b2fad7a"
+        "sha256": "ac817fba5b5b33957ff8915c8e2c10afba3af399ea9e1af9c8011811a1cef4a6"
       },
       "caller": {
         "kind": "none",
