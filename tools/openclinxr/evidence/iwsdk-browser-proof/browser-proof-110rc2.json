@@ -1,0 +1,35 @@
+{
+  "capturedAt": "2026-11-02T19:34:43.453Z",
+  "repoRoot": "/Users/patrick/.grok/worktrees/station-rediwsdk",
+  "licensedExpectation": {
+    "core": "1.1.0-rc.2",
+    "xrInput": "1.1.0-rc.2"
+  },
+  "sdk": {
+    "core": {
+      "version": "1.1.0-rc.2",
+      "license": "MIT",
+      "distSha256": "6b2d23309b76e93735955b6dfae5a8794139a2ab3eaf54bf42669b642be7253f"
+    },
+    "xrInput": {
+      "version": "1.1.0-rc.2",
+      "license": "MIT",
+      "distSha256": "1f4a7977c0d0726b6210e7adafc3a6e8f533fed8462b3743efb6ae30c9c2d93c"
+    }
+  },
+  "bundle": "proof-bundle.js",
+  "bundleSha256": "21d925a1aa0c9ba6c0da48c7b98cb0eb412f764fd9e6bb49215fd2515d69913e",
+  "evaluated": {
+    "via": "window.__openClinXrIwsdkProof",
+    "proof": {
+      "coreVersion": "1.1.0-rc.2",
+      "uiKitDocumentType": "function",
+      "xrInputExports": 38
+    }
+  },
+  "console": [
+    "                                                 \n▄▄▄▄▄▄  ▄▄      ▄▄   ▄▄▄▄    ▄▄▄▄▄     ▄▄   ▄▄▄ \n▀▀██▀▀  ██      ██ ▄█▀▀▀▀█   ██▀▀▀██   ██  ██▀  \n  ██    ▀█▄ ██ ▄█▀ ██▄       ██    ██  ██▄██    \n  ██     ██ ██ ██   ▀████▄   ██    ██  █████    \n  ██     ███▀▀███       ▀██  ██    ██  ██  ██▄  \n▄▄██▄▄   ███  ███  █▄▄▄▄▄█▀  ██▄▄▄██   ██   ██▄ \n▀▀▀▀▀▀   ▀▀▀  ▀▀▀   ▀▀▀▀▀    ▀▀▀▀▀     ▀▀    ▀▀                                                \n===============================================\nImmersive Web SDK v1.1.0-rc.2\nThree.js r184\nEliCS v3.4.2"
+  ],
+  "pageErrors": [],
+  "pass": true
+}

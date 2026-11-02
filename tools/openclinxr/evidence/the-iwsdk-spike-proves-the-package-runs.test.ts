@@ -58,6 +58,30 @@ function runSpikeContextProbe(): ProbeReport {
   }
 }
 
+/**
+ * Resolve the installed package's main entry through its exports map — the same method
+ * as the capture producer (iwsdk-browser-proof/capture-browser-proof.ts): resolve
+ * <specifier>/package.json from the spike root, then follow the "." export's import
+ * condition (main when no exports map exists). No hard-coded dist path: 1.1.0-rc.2 is
+ * ESM-only with an import-only exports map, so require.resolve("@iwsdk/core") throws.
+ */
+function resolveInstalledEntry(specifier: string): string {
+  const pkgJsonPath = req.resolve(`${specifier}/package.json`, { paths: [SPIKE_ROOT] } as never) as string;
+  const pkg = JSON.parse(readFileSync(pkgJsonPath, "utf8")) as { main?: unknown; exports?: unknown };
+  let target: string | undefined;
+  const dot = (pkg.exports as Record<string, unknown> | undefined)?.["."];
+  if (typeof dot === "string") {
+    target = dot;
+  } else if (dot !== null && typeof dot === "object") {
+    const conditions = dot as Record<string, unknown>;
+    if (typeof conditions["import"] === "string") target = conditions["import"];
+    else if (typeof conditions["default"] === "string") target = conditions["default"];
+  }
+  if (target === undefined && typeof pkg.main === "string") target = pkg.main;
+  if (target === undefined) throw new Error(`no entry found for ${specifier}`);
+  return join(dirname(pkgJsonPath), target.replace(/^\.\//u, ""));
+}
+
 describe("the iwsdk spike proves the package runs", () => {
   it("(1) the probe runs in the spike context; both iwsdk packages import under bare Node on the current pin", () => {
     const report = runSpikeContextProbe();
@@ -80,12 +104,15 @@ describe("the iwsdk spike proves the package runs", () => {
     expect(report.results["@iwsdk/core"]?.version, "imported core reports the current pin").toBe(CURRENT_CORE);
   });
 
-  it("(2) HISTORICAL: Chromium executed the licensed pin — exact checked-in receipt", () => {
-    // Historical execution, NOT fresh capture, NOT currentness, NOT Quest. Receipt
-    // browser-proof-042.json: real Vite bundle of the licensed pin, headless-Chromium
-    // real-DOM import, computed window.__openClinXrIwsdkProof, captured 2026-10-20
-    // (pass:true). The producer is retained for recapture on future pins; this clause
-    // pins history. Heavy browser capture stays out of the 5s unit queue.
+  // (2) HISTORICAL: the 0.4.2 receipt is preserved as recorded. ci-w5 f0638c7a0 moved the
+  // spike to 1.1.0-rc.2 (operator decision, IWSDK npm latest), so 042 executed a DIFFERENT pin
+  // than the installed packages: this clause asserts ONLY what the receipt records, never the
+  // installed tree. Re-adding an installed-package comparison here is wrong for that reason.
+  // Clause (2b) below is the current-pin replacement. Historical execution, NOT fresh capture,
+  // NOT currentness, NOT Quest. Receipt browser-proof-042.json: real Vite bundle of the 0.4.2
+  // pin, headless-Chromium real-DOM import, computed window.__openClinXrIwsdkProof, captured
+  // 2026-10-20 (pass:true). Heavy browser capture stays out of the 5s unit queue.
+  it("(2) HISTORICAL: the 0.4.2 receipt is preserved as recorded", () => {
     const receiptPath = join(HERE, "iwsdk-browser-proof/browser-proof-042.json");
     expect(existsSync(receiptPath), "checked-in browser receipt must exist").toBe(true);
     const artifact = JSON.parse(readFileSync(receiptPath, "utf8")) as {
@@ -103,13 +130,41 @@ describe("the iwsdk spike proves the package runs", () => {
     expect(artifact.evaluated?.proof?.uiKitDocumentType, "executed UIKitDocument is callable").toBe("function");
     expect(Number(artifact.evaluated?.proof?.xrInputExports ?? 0), "executed xr-input exposes exports").toBeGreaterThan(0);
     expect(String(artifact.bundleSha256 ?? ""), "receipt pins the executed bundle").toMatch(/^[0-9a-f]{64}$/u);
-    const spikeCoreDist = req.resolve("@iwsdk/core/dist/index.js", { paths: [SPIKE_ROOT] } as never) as string;
-    const spikeXrDist = req.resolve("@iwsdk/xr-input/dist/index.js", { paths: [SPIKE_ROOT] } as never) as string;
+    expect(artifact.sdk?.core?.license, "recorded core is MIT").toBe("MIT");
+  });
+
+  it("(2b) CURRENT: Chromium executed the current pin", () => {
+    // Current-pin execution, NOT fresh capture, NOT Quest. Receipt
+    // browser-proof-110rc2.json: real Vite bundle of the f0638c7a0 pin, headless-Chromium
+    // real-DOM import, computed window.__openClinXrIwsdkProof. The receipt's dist SHAs are
+    // checked against the installed entries resolved through the exports map (same method
+    // as the producer), so a wrong-pin install cannot pass. Heavy browser capture stays
+    // out of the 5s unit queue: recapture with iwsdk-browser-proof/capture-browser-proof.ts.
+    const receiptPath = join(HERE, "iwsdk-browser-proof/browser-proof-110rc2.json");
+    expect(existsSync(receiptPath), "checked-in current-pin browser receipt must exist").toBe(true);
+    const artifact = JSON.parse(readFileSync(receiptPath, "utf8")) as {
+      capturedAt?: string;
+      bundleSha256?: string;
+      sdk?: {
+        core?: { version?: string; license?: string; distSha256?: string };
+        xrInput?: { version?: string; license?: string; distSha256?: string };
+      };
+      evaluated?: { proof?: { coreVersion?: unknown; uiKitDocumentType?: unknown; xrInputExports?: unknown } | null };
+      pass?: boolean;
+    };
+    expect(artifact.pass, "recorded Chromium run passed").toBe(true);
+    expect(artifact.evaluated?.proof?.coreVersion, "executed core VERSION is the current pin").toBe(CURRENT_CORE);
+    expect(artifact.evaluated?.proof?.uiKitDocumentType, "executed UIKitDocument is callable").toBe("function");
+    expect(Number(artifact.evaluated?.proof?.xrInputExports ?? 0), "executed xr-input exposes exports").toBeGreaterThan(0);
+    expect(String(artifact.bundleSha256 ?? ""), "receipt pins the executed bundle").toMatch(/^[0-9a-f]{64}$/u);
     const { createHash } = require("node:crypto") as typeof import("node:crypto");
     const shaFile = (p: string): string => createHash("sha256").update(readFileSync(p)).digest("hex");
-    expect(artifact.sdk?.core?.distSha256, "receipt core SHA matches installed source").toBe(shaFile(spikeCoreDist));
-    expect(artifact.sdk?.xrInput?.distSha256, "receipt xr-input SHA matches installed source").toBe(shaFile(spikeXrDist));
-    expect(artifact.sdk?.core?.version, "installed core is the receipt pin").toBe(RECEIPT_CORE);
+    expect(artifact.sdk?.core?.distSha256, "receipt core SHA matches installed source").toBe(
+      shaFile(resolveInstalledEntry("@iwsdk/core")),
+    );
+    expect(artifact.sdk?.xrInput?.distSha256, "receipt xr-input SHA matches installed source").toBe(
+      shaFile(resolveInstalledEntry("@iwsdk/xr-input")),
+    );
     expect(artifact.sdk?.core?.license, "installed core is MIT").toBe("MIT");
   });
 
