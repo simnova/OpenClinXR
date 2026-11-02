@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * E2 (#419) — WHAT WEIGHT DOES `mouth-open` ACTUALLY REACH IN SPEECH?
@@ -61,9 +61,7 @@ import { describe, expect, it } from "vitest";
  * a weight and nothing else.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
-const ARTIFACT = join(REPO_ROOT, "tools/openclinxr/evidence/speaking-parent-morph-weights.json");
+const ARTIFACT = join(repoRoot(), "tools/openclinxr/evidence/speaking-parent-morph-weights.json");
 
 /** Measured from both parent GLBs 2026-08-19. */
 const EXPECTED_MORPH_COUNT = 32;

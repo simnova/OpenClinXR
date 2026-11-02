@@ -13,6 +13,8 @@
         "$TURBO_ROOT$/apps/arena/ui-xr-iwsdk-spike/package.json",
         "$TURBO_ROOT$/apps/arena/ui-xr-iwsdk-spike/src/sidecar-state.ts",
         "$TURBO_ROOT$/apps/ui-xr/package.json",
+        "$TURBO_ROOT$/apps/ui-xr/index.html",
+        "$TURBO_ROOT$/apps/ui-xr/public/licences.html",
         "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/**",
         "$TURBO_ROOT$/apps/ui-xr/public/xr-assets/**",
         "$TURBO_ROOT$/apps/ui-xr/src/main.ts",

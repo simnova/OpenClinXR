@@ -1,5 +1,4 @@
-import { dirname, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
@@ -100,8 +99,7 @@ import { describe, expect, it } from "vitest";
  * helper-stripped body and the garment placement are unchanged (regression nets green).
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const PUBLIC = `${REPO_ROOT}/apps/ui-xr/public`;
 
 const AISHA = "generated-humanoids/mpfb-ob-patient-aisha.glb";

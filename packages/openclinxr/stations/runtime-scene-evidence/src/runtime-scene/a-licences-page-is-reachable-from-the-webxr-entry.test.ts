@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: no licences page is reachable from the WebXR entry HTML.
@@ -23,7 +24,7 @@ import { describe, expect, it } from "vitest";
  * parity with the ledger is NOT TESTED here (see NOT TESTED below).
  */
 
-const REPO = process.cwd();
+const REPO = repoRoot();
 const ENTRY = join(REPO, "apps/ui-xr/index.html");
 const PUBLIC_LICENCES = join(REPO, "apps/ui-xr/public/licences.html");
 

@@ -63,10 +63,11 @@
  * chosen -3.16 corner is now rejected and the capture picks +3.27, on the cast's side of the panel.
  */
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 const KNOWN_GOOD = "ward_delirium_med_rec_v1";
 const TREATMENT = "ed_stroke_alert_handoff_v1";
-const REPORT = "tools/openclinxr/evidence/framing-rejection-report.json";
+const REPORT = `${repoRoot()}/tools/openclinxr/evidence/framing-rejection-report.json`;
 
 type Row = { median: number; p90: number; cameraInsideInterior: boolean; darkPanelPresentAndVisible: boolean;
   rejectedViewpoints: string[] };

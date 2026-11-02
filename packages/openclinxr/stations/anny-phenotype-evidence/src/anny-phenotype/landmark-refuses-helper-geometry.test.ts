@@ -1,9 +1,9 @@
-import { dirname, join, resolve as pathResolve } from "node:path";
+import { join } from "node:path";
 import { existsSync, readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
-import { parseObj } from "./anny-mpfb-landmark-compare.js";
+import { parseObj } from "../../../../../../tools/openclinxr/evidence/anny-mpfb-landmark-compare.js";
 
 /**
  * #301 measured that a raw MPFB base makes the landmark instrument measure MakeHuman's clothes and
@@ -109,9 +109,7 @@ import { parseObj } from "./anny-mpfb-landmark-compare.js";
  * (assignable, same narrowing). No assertion in the planted contract was weakened or reworded.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
-const GENERATED = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
+const GENERATED = join(repoRoot(), "apps/ui-xr/public/generated-humanoids");
 
 /** Tracked Anny references the instrument measures today. All carry zero groups (measured). */
 const TRACKED_REFERENCES = [
@@ -173,7 +171,7 @@ f 5 6 7
 type HelperReport = { hasHelperGeometry: boolean; helperGroups: string[] };
 
 async function loadDetector(): Promise<((objText: string) => HelperReport) | null> {
-  const mod = (await import("./anny-mpfb-landmark-compare.js").catch(() => null)) as {
+  const mod = (await import("../../../../../../tools/openclinxr/evidence/anny-mpfb-landmark-compare.js").catch(() => null)) as {
     detectMakeHumanHelperGeometry?: unknown;
   } | null;
   return typeof mod?.detectMakeHumanHelperGeometry === "function"

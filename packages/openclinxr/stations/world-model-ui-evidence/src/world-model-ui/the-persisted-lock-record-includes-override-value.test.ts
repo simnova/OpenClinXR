@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * World-model UI remaining: persist input has overrideValue, but
@@ -20,7 +20,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const SRC = readFileSync(
-  join(dirname(fileURLToPath(import.meta.url)), "../../../packages/openclinxr/ui-route-admin/src/faculty-compile-lock-types.ts"),
+  join(repoRoot(), "packages/openclinxr/ui-route-admin/src/faculty-compile-lock-types.ts"),
   "utf8",
 );
 

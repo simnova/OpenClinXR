@@ -7,6 +7,8 @@
         "$TURBO_EXTENDS$",
         "$TURBO_ROOT$/package.json",
         "$TURBO_ROOT$/tools/openclinxr/evidence/humanoid-proportions-probe.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/arm-metric-decomposition.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/idle-arm-hang.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/humanoid-mesh-hygiene-probe.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/garment-layer-coverage.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/garment-role-distinguish.ts",

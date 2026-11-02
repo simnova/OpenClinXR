@@ -108,7 +108,7 @@ import { isFittedNonBodyName } from "../../../../../../tools/openclinxr/evidence
  * fits under the 1,244-tris headroom left by the 28,000 bound). Clause (1) below therefore measures
  * BODY triangles only: it excludes primitives whose material names a garment, so the net keeps its
  * exact discriminator — with-helpers body (36,972) still fails, stripped body (26,756) still passes —
- * while the fitted garment's triangles are asserted by mpfb2-actor-wears-a-fitted-garment.test.ts
+ * while the fitted garment's triangles are asserted by packages/openclinxr/stations/garment-surface-evidence/src/garment-surface/mpfb2-actor-wears-a-fitted-garment.test.ts
  * counterweight (3). The bound itself is unchanged.
  *
  * ## FIXED (#391) — slot-keyed classification replaces the name-keyed vocabulary

@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * E2 / xr-systems-architect. #402. Superagent ruled CAUSE over BOUND on 2026-08-20.
@@ -85,9 +85,8 @@ import { describe, expect, it } from "vitest";
  *   - Quest, clinical validity, exam equivalence.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const PRIOR = join(HERE, "speaking-actor-head-local.json");
-const REST = join(HERE, "speaking-actor-head-rest-baseline.json");
+const PRIOR = join(repoRoot(), "tools/openclinxr/evidence/speaking-actor-head-local.json");
+const REST = join(repoRoot(), "tools/openclinxr/evidence/speaking-actor-head-rest-baseline.json");
 
 /** The capture's own "no viseme active" threshold — `ui-xr-viseme-drive-capture.ts:120,:950`. */
 const REST_INFLUENCE_MAX = 0.01;

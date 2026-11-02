@@ -1,4 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -72,7 +74,7 @@ import { describe, expect, it } from "vitest";
  * Clause (1) flipped `it.fails` -> `it`.
  */
 
-const ARTIFACT = "tools/openclinxr/evidence/garment-material-consistency.json";
+const ARTIFACT = join(repoRoot(), "tools/openclinxr/evidence/garment-material-consistency.json");
 /** `asset-registry/src/index.ts:593`. Not invented here. */
 const STATION_TEXTURE_BUDGET_MB = 64;
 /** The known-good column: the pipeline attaches this one consistently. */

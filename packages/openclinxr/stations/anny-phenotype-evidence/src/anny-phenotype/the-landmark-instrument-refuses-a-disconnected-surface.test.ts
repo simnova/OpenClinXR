@@ -6,7 +6,7 @@ import {
   parseObj,
   sharedVertexFraction,
   GENERATED_HUMANOIDS_DIR,
-} from "./anny-mpfb-landmark-compare.js";
+} from "../../../../../../tools/openclinxr/evidence/anny-mpfb-landmark-compare.js";
 
 /**
  * OBSERVABLE: the MADR 0051 §4 landmark instrument measures girths by MESH-SURFACE

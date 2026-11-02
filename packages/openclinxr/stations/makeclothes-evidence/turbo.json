@@ -17,6 +17,8 @@
         "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/**",
         "$TURBO_ROOT$/tools/openclinxr/evidence/provider-cache/main-worktree-root.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/garment-class-inventory.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/makehuman-base-viability.ts",
+        "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/anny/runtime_bone_map.json",
         "$TURBO_ROOT$/tools/openclinxr/evidence/garment-class-sheet.png",
         "$TURBO_ROOT$/tools/openclinxr/evidence/garment-class-sheet.json",
         "$TURBO_ROOT$/tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",

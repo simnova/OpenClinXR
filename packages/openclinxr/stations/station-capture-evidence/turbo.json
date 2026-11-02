@@ -83,6 +83,7 @@
         "$TURBO_ROOT$/tools/openclinxr/evidence/declared-equipment-mounted.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/every-dev-server-spawn-has-a-teardown.test.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/fixture-surface-distinct.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/framing-rejection-report.json",
         "$TURBO_ROOT$/tools/openclinxr/evidence/foot-plant/displayed-walk-on-the-loaded-physician.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/foot-plant/foot-plant-video-capture.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/foot-plant/order-driven-walker-video-capture.ts",

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: `wristLateralOffsetMeters` is not a lateral offset, and the abduction ratio divides it
@@ -54,7 +55,7 @@ import { describe, expect, it } from "vitest";
  *   is exactly what a follow-on must re-derive; that the actor coverage is complete, which #675 owns.
  */
 
-const REPO = join(import.meta.dirname, "../../..");
+const REPO = repoRoot();
 const REPORT = join(REPO, "tools/openclinxr/evidence/arm-metric-decomposition.json");
 const IDLE = join(REPO, "tools/openclinxr/evidence/idle-arm-hang.ts");
 

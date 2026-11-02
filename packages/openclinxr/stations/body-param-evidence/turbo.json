@@ -185,7 +185,10 @@
         "$TURBO_ROOT$/tools/openclinxr/factory/invoke-planned-world-compile-bakers.ts",
         "$TURBO_ROOT$/tools/openclinxr/factory/plan-equipment-would-invoke.ts",
         "$TURBO_ROOT$/tools/openclinxr/factory/recipe-cache-keys-from-compile.ts",
-        "$TURBO_ROOT$/tools/openclinxr/factory/scene-closure-case-source.ts"
+        "$TURBO_ROOT$/tools/openclinxr/factory/scene-closure-case-source.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/speaking-actor-head-local.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/speaking-actor-head-rest-baseline.json",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/speaking-parent-morph-weights.json"
       ]
     }
   }

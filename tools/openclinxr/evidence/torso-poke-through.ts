@@ -30,7 +30,7 @@
  * applied to the exported JOINTS_0/WEIGHTS_0 that the Blender function's own contract attributes
  * them with — a port, not a second classifier. The same dominant-bone reading pattern is already
  * proven in-tree (`library-body-hands-are-weighted.test.ts:147-176`,
- * `mpfb2-body-is-hidden-under-cloth.test.ts:141-154`).
+ * `packages/openclinxr/stations/garment-surface-evidence/src/garment-surface/mpfb2-body-is-hidden-under-cloth.test.ts:141-154`).
  *
  * ## THE ENVELOPE (bind pose, upper garment only)
  *

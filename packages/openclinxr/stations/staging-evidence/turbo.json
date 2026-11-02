@@ -32,6 +32,7 @@
         "$TURBO_ROOT$/tools/openclinxr/evidence/actor-furniture-clearance.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/actor-prop-intersection.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/declared-actors-rendered.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/ed-stretcher-geometry.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/doorway-overview-camera.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/fixture-surface-distinct.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/generated-scene-mode-predicate.ts",

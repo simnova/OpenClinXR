@@ -24,7 +24,7 @@ type MeasureFn = (glbPath: string) => Promise<{
   bytes: number;
 }>;
 
-const load = () => import("./room-decimate.js") as Promise<Record<string, unknown>>;
+const load = () => import("../../../../../../tools/openclinxr/evidence/room-decimate.js") as Promise<Record<string, unknown>>;
 
 /** Build a tiny in-memory GLB: 2 meshes, 1 of them UV'd, 2 materials, 1 textured. */
 async function buildFixture(): Promise<string> {

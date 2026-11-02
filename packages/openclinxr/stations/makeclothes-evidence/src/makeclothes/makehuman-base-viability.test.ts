@@ -99,7 +99,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const load = async () =>
-  import("./makehuman-base-viability.js") as Promise<Record<string, unknown>>;
+  import("../../../../../../tools/openclinxr/evidence/makehuman-base-viability.js") as Promise<Record<string, unknown>>;
 
 type GarmentCandidate = {
   candidateId: string;

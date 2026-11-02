@@ -116,7 +116,7 @@ import { describe, expect, it } from "vitest";
  */
 
 const load = async () =>
-  import("./ed-stretcher-geometry.js") as Promise<Record<string, unknown>>;
+  import("../../../../../../tools/openclinxr/evidence/ed-stretcher-geometry.js") as Promise<Record<string, unknown>>;
 
 type FixtureGeometry = {
   fixtureId: string;

@@ -1,5 +1,4 @@
-import { dirname, resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
@@ -115,8 +114,7 @@ import { describe, expect, it } from "vitest";
  * The two `it.fails` markers were flipped to `it`; all four clauses pass on the re-baked bytes.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = pathResolve(HERE, "../../..");
+const REPO_ROOT = repoRoot();
 const PUBLIC = `${REPO_ROOT}/apps/ui-xr/public`;
 
 /** Materials that represent cloth. */

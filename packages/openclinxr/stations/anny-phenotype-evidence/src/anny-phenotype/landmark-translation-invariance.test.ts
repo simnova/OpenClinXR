@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
-import { extractLandmarks } from "./anny-mpfb-landmark-compare.ts";
+import { extractLandmarks } from "../../../../../../tools/openclinxr/evidence/anny-mpfb-landmark-compare.js";
 
 /**
  * The landmark instrument's girths are NOT translation-invariant. Moving a mesh vertically — which
@@ -78,9 +78,7 @@ import { extractLandmarks } from "./anny-mpfb-landmark-compare.ts";
  * "ground only when minY < 0" is refused because contract (2) now passes.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(HERE, "../../..");
-const REFERENCE = `${REPO_ROOT}/apps/ui-xr/public/generated-humanoids/adult_male_street_casual.anny_base.obj`;
+const REFERENCE = `${repoRoot()}/apps/ui-xr/public/generated-humanoids/adult_male_street_casual.anny_base.obj`;
 
 /** Measured at dy=0 on the tracked reference. A fix must not move these. */
 const TRUTH = { shoulder: 0.550818, waist: 0.7347184027241769, hip: 0.9262306371034248 };

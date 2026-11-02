@@ -199,7 +199,6 @@
         "apps/api/src/index.ts",
         "apps/api/src/scenario-promotion-bridge.ts",
         "apps/arena/mock-realtime-voice-server/src/**",
-        "apps/arena/model-vetting-studio/src/**",
         "packages/cellix/config-vitest/src/**",
         "packages/openclinxr/agent-loop/src/**",
         "packages/openclinxr/asset-registry/src/**",

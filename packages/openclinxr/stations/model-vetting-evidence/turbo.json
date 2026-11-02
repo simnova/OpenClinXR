@@ -3,7 +3,7 @@
   "tags": ["internal"],
   "tasks": {
     "test": {
-      "dependsOn": ["build", "^build", "@openclinxr/scenario-fixtures#build", "@openclinxr/asset-registry#build"],
+      "dependsOn": ["build", "^build", "@openclinxr/scenario-fixtures#build", "@openclinxr/asset-registry#build", "@openclinxr/model-vetting#build"],
       "inputs": [
         "$TURBO_EXTENDS$",
         "$TURBO_ROOT$/package.json",
@@ -46,6 +46,14 @@
         "$TURBO_ROOT$/packages/openclinxr/arena/model-vetting/src/emotion-transition.ts",
         "$TURBO_ROOT$/packages/openclinxr/arena/model-vetting/src/morph-index.ts",
         "$TURBO_ROOT$/packages/openclinxr/arena/model-vetting/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/arena/model-vetting/dist/index.js",
+        "$TURBO_ROOT$/apps/arena/model-vetting-studio/src/candidate-capture.ts",
+        "$TURBO_ROOT$/apps/arena/model-vetting-studio/src/body-motion-probe-clip.ts",
+        "$TURBO_ROOT$/apps/arena/model-vetting-studio/src/candidate-capture-geometry.ts",
+        "$TURBO_ROOT$/apps/arena/model-vetting-studio/src/candidate-capture-views.ts",
+        "$TURBO_ROOT$/apps/arena/model-vetting-studio/src/glb-url-for-path.ts",
+        "$TURBO_ROOT$/apps/arena/model-vetting-studio/src/hide-mask-magenta.ts",
+        "$TURBO_ROOT$/apps/arena/model-vetting-studio/src/studio-state.ts",
         "$TURBO_ROOT$/packages/openclinxr/asset-registry/src/actor-casting.ts",
         "$TURBO_ROOT$/packages/openclinxr/asset-registry/src/case-actor-placements-mod.ts",
         "$TURBO_ROOT$/packages/openclinxr/asset-registry/src/cast-asset-constants-mod.ts",

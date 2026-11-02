@@ -177,7 +177,7 @@ type LocalReport = {
 };
 
 const load = async () =>
-  import("./garment-covers-its-region.js") as Promise<Record<string, unknown>>;
+  import("../../../../../../tools/openclinxr/evidence/garment-covers-its-region.js") as Promise<Record<string, unknown>>;
 
 /**
  * issue-285: the full inspect now also runs the signed-clearance and body-hide-mask

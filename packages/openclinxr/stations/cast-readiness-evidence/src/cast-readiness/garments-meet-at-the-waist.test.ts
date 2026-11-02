@@ -16,7 +16,7 @@ import { listUniqueLiveCastMpfbAssetPaths } from "../../../../../../tools/opencl
  * because they were all asking the wrong question. This one asks the right one.
  *
  * WHY THE EXISTING COVERAGE GATE IS GREEN AND THE PIXELS ARE NOT.
- * `garment-covers-its-region.test.ts` is **5/5 on current main**. It measures POKE-THROUGH — body faces
+ * `packages/openclinxr/stations/garment-surface-evidence/src/garment-surface/garment-covers-its-region.test.ts` is **5/5 on current main**. It measures POKE-THROUGH — body faces
  * protruding through a garment — and the hide mask's coverage of them. A **gap between two garments** is
  * not poke-through: no face pokes through anything, there is simply no cloth there. Different defect
  * class, structurally invisible to that instrument. This is the §6t lesson again — five gates measured

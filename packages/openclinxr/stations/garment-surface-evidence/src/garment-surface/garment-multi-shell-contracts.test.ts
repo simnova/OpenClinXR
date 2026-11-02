@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * PLANTED CONTRACTS (#210). Multi-shell garment contracts — role-distinguish + wardrobe
@@ -26,7 +28,7 @@ type Report = {
 
 type Inspect = () => Promise<Report>;
 const load = () =>
-  import("./garment-multi-shell-contracts.js") as Promise<Record<string, unknown>>;
+  import("../../../../../../tools/openclinxr/evidence/garment-multi-shell-contracts.js") as Promise<Record<string, unknown>>;
 
 describe("garment multi-shell contracts after #208 (#210)", () => {
   it("multi-shell contract migration reached a named verdict", async () => {
@@ -52,6 +54,6 @@ describe("garment multi-shell contracts after #208 (#210)", () => {
     expect(joined).toMatch(/actor-identity|wardrobe/i);
     expect(r.dualLayerAssetsChecked.length).toBeGreaterThanOrEqual(2);
     // Live contracts still green
-    expect(existsSync("tools/openclinxr/evidence/garment-role-distinguish.ts")).toBe(true);
+    expect(existsSync(join(repoRoot(), "tools/openclinxr/evidence/garment-role-distinguish.ts"))).toBe(true);
   }, 600_000);
 });

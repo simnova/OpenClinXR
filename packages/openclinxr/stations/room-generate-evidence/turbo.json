@@ -14,6 +14,7 @@
         "$TURBO_ROOT$/packages/openclinxr/xr-station/src/capture-shadow-map.ts",
         "$TURBO_ROOT$/tools/openclinxr/asset-pipeline/environment/room_extract_predicate.py",
         "$TURBO_ROOT$/tools/openclinxr/evidence/room-extract-predicate.ts",
+        "$TURBO_ROOT$/tools/openclinxr/evidence/room-decimate.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/room-gl-io.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/room-bake/room-interior-clear.ts",
         "$TURBO_ROOT$/tools/openclinxr/evidence/room-bake/predicate-reference/predicate-reference.ts",

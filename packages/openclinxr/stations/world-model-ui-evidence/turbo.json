@@ -1,0 +1,18 @@
+{
+  "extends": ["//"],
+  "tags": ["internal"],
+  "tasks": {
+    "test": {
+      "dependsOn": ["build", "^build", "@openclinxr/factory-station-core#build"],
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/factory-station-core/dist/runner.js",
+        "$TURBO_ROOT$/packages/openclinxr/factory-station-core/package.json",
+        "$TURBO_ROOT$/packages/openclinxr/ui-route-admin/src/faculty-compile-lock.tsx",
+        "$TURBO_ROOT$/packages/openclinxr/ui-route-admin/src/faculty-compile-lock-types.ts",
+        "$TURBO_ROOT$/packages/openclinxr/ui-route-admin/package.json"
+      ]
+    }
+  }
+}

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 /**
  * OBSERVABLE: the parent's speaking head excursion is attributable to a NAMED morph, measured
@@ -44,8 +44,7 @@ import { describe, expect, it } from "vitest";
  * cause of the 2.75x ratio.
  */
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const BASELINE = join(HERE, "speaking-actor-head-rest-baseline.json");
+const BASELINE = join(repoRoot(), "tools/openclinxr/evidence/speaking-actor-head-rest-baseline.json");
 
 type ActorRow = {
   actor: string;

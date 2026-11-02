@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { selectBodyMotionProbeClipName } from "../../../apps/arena/model-vetting-studio/src/candidate-capture.js";
+import { selectBodyMotionProbeClipName } from "../../../../../../apps/arena/model-vetting-studio/src/candidate-capture.js";
 
 /**
  * OBSERVABLE: body_motion_probe captures play the subject's motion clip, whatever it is called.
