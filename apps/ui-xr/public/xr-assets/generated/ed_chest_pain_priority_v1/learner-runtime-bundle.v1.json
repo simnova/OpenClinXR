@@ -436,7 +436,7 @@
         "position": {
           "x": -1.6,
           "y": 0,
-          "z": -0.95
+          "z": -1.4
         },
         "scale": {
           "x": 1,
@@ -450,7 +450,7 @@
         "plantOffsetMeters": {
           "x": -1.6,
           "y": 0,
-          "z": -0.95
+          "z": -1.4
         },
         "headingRadians": 1.57
       }

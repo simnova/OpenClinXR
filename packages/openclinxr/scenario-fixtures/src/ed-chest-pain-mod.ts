@@ -183,9 +183,12 @@ export const edChestPainScenario: Scenario = {
         culturalLanguageNotes: ["family-centered communication", "plain English", "preserve respect"],
       },
       hiddenFacts: ["Knows patient skipped blood pressure medication this week"],
+      // st-redclear: plant z -0.95 -> -1.40 — the v2 animated pose reaches maxZ -0.35 against the
+      // stretcher edge (-0.59), reading 17-20% overlap at the f=0.18 threshold. South-side bedside
+      // kept beside the patient (x unchanged), heading unchanged; mirrors the ci-w16 nurse fix.
       placement: {
         supportSurface: "none",
-        plantOffsetMeters: { x: -1.6, y: 0, z: -0.95 },
+        plantOffsetMeters: { x: -1.6, y: 0, z: -1.4 },
         headingRadians: 1.57,
       },
     },
