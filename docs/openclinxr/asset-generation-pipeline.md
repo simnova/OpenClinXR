@@ -493,3 +493,31 @@ Hosted CI availability of the store is not claimed here.
 
 Eleven exact paths resolve (ten canonical entries plus one alias).
 Unrelated missing cited paths remain RED. No broad exclusion added.
+
+## Tara factory-finish GLB archival 20261102
+
+Per the 2026-11-02 operator decision the four GLBs from run
+`tara-20261009T211555Z` are NOT repaired and NOT allowlisted. They are
+archived unrepaired to the local content store through the existing
+SHA-verifying store reader (`store:<sha256>/<basename>`, resolved by
+`tools/openclinxr/evidence/asset-store/resolve-store-ref.ts`).
+Manifest: `tools/openclinxr/evidence/asset-store/historical-glb-migration-20261102.json`.
+Store root: `/Volumes/files/openclinxr-assets/store/redtara-20261102`.
+
+Original path mapping (deleted paths on the left, store bytes on the right):
+
+- `tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/final-rest-source.glb`
+  -> `store:f97822ba39813b8e301398b8fb3eb2594270b0a0e0d6d7c226009035055ca481/final-rest-source.glb` (39399712 bytes)
+- `tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/mpfb-peds-parent-aisha.glb`
+  -> `store:f6656b88fe8c61644f2f7f07e0a04e1b334b858284b099ae2ce620b4f820ec92/mpfb-peds-parent-aisha.glb` (39300204 bytes)
+- `tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/attempt/finished.glb` and
+  `tools/openclinxr/asset-pipeline/skin/factory-finish/runs/tara-20261009T211555Z/mpfb-peds-parent-aisha.motion-bind.glb`
+  are byte-identical (`cmp`; both sha256 `d6a36ce29e5430763f04554d6352a9df525c8f72c0c92ed7d3d048148ec6beeb`, 45477004 bytes).
+  The manifest records the motion-bind basename as canonical and `finished.glb`
+  as its alias, mirroring the duplicate-alias shape of the 20261029 migration.
+
+All four `sourceCommit` values are `780d9f85c9104b0f105f337edeb7b9b4d377f63f`
+(`git log -1 --format=%H` on each path). The historical ledgers under
+`tools/openclinxr/evidence/factory-skin-publication-result/` keep their
+original path text as history; no test or code reads those files through the
+deleted paths, so no store overlay was added to them.
