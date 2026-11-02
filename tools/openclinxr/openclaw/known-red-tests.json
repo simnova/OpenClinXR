@@ -317,11 +317,6 @@
       "card": "ci-w1: give the peds child a measurable hem ring (or rule the exemption)"
     },
     {
-      "path": "tools/openclinxr/evidence/humanoid-bake/every-shipped-humanoid-resolves-the-reference-it-was-baked-from.test.ts",
-      "reason": "ci-w1 classifier migration is green (no name miss — the failing subject is enumerated, not skipped): 1 shipped humanoid names a baked-from reference with no manifest, so both phenotype readers fall back (eye colour empty, skin tone default). Writing the missing manifest from the authoring case is a data fix.",
-      "card": "ci-w1: write the missing baked-from manifest from the case that authored the reference"
-    },
-    {
       "path": "tools/openclinxr/evidence/rig-fit/the-waistband-ratio-is-bounded-not-merely-recorded.test.ts",
       "reason": "ci-w1 classifier migration is green (rings found via the shared classifier; no name miss): the artifact scanned 19 GLBs but 20 ship today, and the regen writer fail-closes on the child NULL hem ring (HB-07 breaker) — fresh rows would honestly RED the 4x bound. Re-measuring the artifact is a data fix gated on the child hem geometry.",
       "card": "ci-w1: re-measure the waistband-ratio artifact for all 20 GLBs once the child hem ring exists"
