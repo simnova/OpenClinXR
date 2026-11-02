@@ -5,11 +5,11 @@
     "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": "8816c56eceafd02398077b623975d8948c09549fd9d43bce489040c8c58d42ea",
     "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "c7def44bda87d5d115d53c794f546ec6bf1b5ae655865f00df4262cdf538e6ab",
     "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": "e8896ed8905266c54ec87191a50c48e73e755f9b887a527190b0ed7fba5bca27",
-    "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "88f094703dfc96811af56c6bb6070933f654a6a58c8ded3e5feac296e5561406",
-    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "6d078108a2372092bb267df33618966d0f232243e28c966eeb65d4b4242da3de",
-    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9",
+    "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "e5620a7c8ef8d41aebc4766b9a8375a9c6bf0106cacee268cdd34ea14b9020f3",
+    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "ee45f65c0162208d9ca37f5a116c82d11d072def31b6429a6b32c74f040ee7cd",
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
-    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "0de69b66a569d457c11985895f76b24a4c0cc99adc530720ee0e4ecaa78a22de"
+    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "540e8b317196f592a5a6ed1697864eb8af511f08df8191119e802eaf88798aa1"
   },
   "staged": {
     "posture": "supine",
@@ -17,15 +17,15 @@
     "clearanceAboveDeckMeters": 0.25
   },
   "producedFrom": {
-    "observedBy": "ci-w2-stale-producer-evidence worker (foreground re-baseline)",
-    "observedAtIso": "2026-10-30T04:21:02.174Z",
-    "reason": "Record pinned pre-Sep25 actor bytes and pre-Oct1 room bytes; superseded by deliberate landed slices: walk-clip bind Sep25, teeth retreat Sep28, CC-BY scrub extras Sep20, room re-promotion Oct1, mouth/albedo Oct, physician walk-channel repair Oct29. Recomputed from current disk bytes.",
+    "observedBy": "claude orchestrator fix-newer-reds-20261102 (foreground re-baseline)",
+    "observedAtIso": "2026-11-02T17:20:28.831Z",
+    "reason": "deliberate humanoid GLB moves after the 2026-10-30 00:34 baseline (e4213e463): ci-w11-D3 midline breast keyframe repair d0e2104d3/c743aab61 (nurse, family-partner, gown, peds-nurse-kevin) and ci-w11-D1 unbound image prune d1c44f8cd",
     "byteCountByPath": {
       "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9221980,
       "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9308164,
       "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": 9000208,
-      "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 20462724,
-      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 10529144,
+      "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 6763692,
+      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 9277296,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 8775848,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 9618436,
       "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 7894888

@@ -217,21 +217,6 @@
       "card": "unfiled: the foot-grounder capture waits out the browser slot"
     },
     {
-      "path": "tools/openclinxr/evidence/cast-readiness-stale/a-stale-measurement-stops-deciding-readiness.test.ts",
-      "reason": "2 of 4 fail on main 4773a5bda (2026-10-08) without the shrink-a change: clause (1) 'a fresh artifact must keep every count: expected undefined to be 64802' (patient_robert_hayes_character) and clause (3) 'station_triangle_budget_exceeded' missing. The test header says it reads the BUILT dist copy, so it measures the last build, not src. Cause not diagnosed.",
-      "card": "unfiled: settle the src/dist authority for the readiness verdict and re-measure the fresh counts"
-    },
-    {
-      "path": "tools/openclinxr/evidence/cast-readiness-stale/the-api-readiness-surface-weighs-shipped-geometry.test.ts",
-      "reason": "1 of 4 fails on this tree, same ED-budget mismatch measured on origin/main before the move: clause (1) expects the ED station budget to weigh the measured artifact (172054) but the verdict reports 129122. The card move is path-only (subdirectory relocation with repo-path import rewrites, no assertion change); the sum is data-driven over shipped GLB bytes versus the committed measured-geometry artifact, which the sibling #707 staleness test shows is out of sync with the bytes on disk. Cause not diagnosed.",
-      "card": "unfiled: re-measure the ED readiness budget against the current shipped GLBs and re-pin the expected total"
-    },
-    {
-      "path": "tools/openclinxr/evidence/cast-readiness-stale/the-measured-geometry-artifact-knows-when-it-is-stale.test.ts",
-      "reason": "2 of 4 fail on this tree, same failures measured on origin/main before the move: clause (1) nurse_maria_alvarez_character recorded sha256 3241acc6... does not match apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb bytes on disk 4f0a8c1d..., and clause (2) the fresh-count API reports only patient_robert_hayes_character fresh. The card move is path-only (subdirectory relocation with repo-path import rewrites, no assertion change). Cause not diagnosed.",
-      "card": "unfiled: rebake the measured-geometry artifact against the current shipped GLBs"
-    },
-    {
       "path": "tools/openclinxr/evidence/clinical-touch/the-shipped-ed-patient-has-a-playable-rlq-response.test.ts",
       "reason": "1 of 13 fails on main 4773a5bda (2026-10-08) without the shrink-a change: 'preserves every pre-existing node TRS byte-exact against the plant GLB' finds 151 nodes vs 150. Cause not diagnosed.",
       "card": "unfiled: re-establish plant/materializer byte-exactness for the RLQ node count"
@@ -260,11 +245,6 @@
       "path": "tools/openclinxr/evidence/drain-loop/the-drain-loop-harvests-before-it-dispatches.test.ts",
       "reason": "Red on origin/main in any fresh worktree (measured 2026-10-31 at base e4bc038c2: all 5 clauses fail): reads gitignored machine-local .openclinxr/openclaw/superagent-loop-prompt.md, absent outside the operator machine (clause 0 asserts existsSync). Moved 2026-10-31 from the evidence root to the drain-loop/ subdirectory per the root-batch T7 trap so the pre-commit openclaw suite stays green; known-red entry kept at the new path for test:touched exclusion.",
       "card": "unfiled: gate the drain-loop harvest contract on the prompt's presence, or check the prompt in"
-    },
-    {
-      "path": "tools/openclinxr/evidence/fixture-git/fixture-git-does-not-clobber-the-outer-index.test.ts",
-      "reason": "Red on origin/main (measured 2026-10-31 at base e4bc038c2: clause 4 fails): production module tools/openclinxr/openclaw/tools-file-cache.ts shells to git without scrubbing inherited GIT_DIR/GIT_INDEX_FILE via gitEnvWithoutInheritedRepoVars(). Genuine subject RED, fails identically in fresh worktrees. Moved 2026-10-31 from the evidence root to the fixture-git/ subdirectory per the root-batch T12 trap so the pre-commit openclaw suite stays green; known-red entry kept at the new path for test:touched exclusion.",
-      "card": "unfiled: scrub inherited git repo vars in tools-file-cache.ts git invocations"
     },
     {
       "path": "tools/openclinxr/evidence/garment-surface-stale/a-shipped-garment-keeps-its-base-colour-texture.test.ts",
@@ -382,19 +362,14 @@
       "card": "unfiled: re-pin the brow gate byte-identity check to the sidecar paths or re-scope it to the brow-form card"
     },
     {
-      "path": "tools/openclinxr/evidence/body-param/the-mouth-capture-artifact-answers-for-the-current-tree.test.ts",
-      "reason": "Clause (4) only, red on origin/main before the 2026-10-31 body-param move: staleMeasuredSources reports the nurse and spouse GLBs (nurse_maria_alvarez, spouse_anna_hayes) as stale against the shipped measured-geometry artifact, so the KNOWN-GOOD clause fails. Content staleness of the artifact, not the path; the file moved to tools/openclinxr/evidence/body-param/ so the body-param sidecar stays green.",
-      "card": "unfiled: re-measure the shipped mouth measured-geometry artifact for the current nurse and spouse GLBs"
-    },
-    {
       "path": "tools/openclinxr/evidence/humanoid-probe/humanoid-upright-guard.test.ts",
       "reason": "2 of 5 fail (identity armature root rotation; head-above-hips-above-feet up-axis): 4 shipped GLBs carry non-identity root rotation. Failed identically at the root path pre-move (baseline 2026-10-31: same 2 clauses) with zero branch drift on the test, helpers, or GLB inputs; the file now lives at tools/openclinxr/evidence/humanoid-probe/ (it also reads gitignored staging GLBs under anny-*-current/, T7) so the pre-push sidecar stays green. Restoring identity rotation is an asset fix, out of this move slice.",
       "card": "unfiled: restore identity armature root rotation on the shipped humanoids the upright guard names"
     },
     {
       "path": "tools/openclinxr/evidence/garment-surface-stale/the-waistband-mask-reaches-the-trouser-rim.test.ts",
-      "reason": "st-garment-surface: red on origin/main before move (mask over-reaches 12mm > 6mm bound on mpfb-street-adult-male.glb); stale-subdir quarantine per T12, sidecar must stay green",
-      "card": "unfiled: fit the lower hide mask inside the trouser rim (12mm over-reach vs 6mm bound on mpfb-street-adult-male)"
+      "reason": "Red since c099c2de2 (2026-10-31 jeans replacement): mpfb-street-adult-male jeans top fell 1.0748->1.0640 m while hidden_lower.001 top stayed 1.0760 m, so the mask over-reaches 12.0 mm (bound 6 mm). Shirt overlap 35.7 mm covers the band. Re-measured 2026-11-02.",
+      "card": "unfiled: trim street-male hidden_lower.001 to the replaced jeans rim (mesh lane)"
     },
     {
       "path": "tools/openclinxr/evidence/chest-anchors/every-shipped-rig-has-two-chest-anchors.test.ts",

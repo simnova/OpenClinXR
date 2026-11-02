@@ -35,6 +35,7 @@ import { isAbsolute, normalize, relative, resolve, sep } from "node:path";
 import * as ts from "typescript";
 import { importClosureOf } from "../evidence/browser-boot-inventory.js";
 import type { ToolsTestArea } from "./tools-test-areas.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 export const FILE_CACHE_VERSION = 1;
 export const FILE_CACHE_DIR_NAME = "openclinxr-tools-tests";
@@ -141,7 +142,12 @@ function sha256File(abs: string): string {
 
 function gitOutput(args: readonly string[], root: string): string | null {
   try {
-    return execFileSync("git", [...args], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    return execFileSync("git", [...args], {
+      cwd: root,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      env: gitEnvWithoutInheritedRepoVars(),
+    });
   } catch {
     return null;
   }
