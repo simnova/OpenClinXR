@@ -148,7 +148,9 @@ describe("the nurse sternal T is classified from the GLB", () => {
       // RE-PINNED: deliberate churn 32e58c3ff + 91aa4b5d3 (walk bind) + 9f2934536 (teeth retreat).
       // ci-w11b re-pinned 2026-10-30: ci-w11 D3 c743aab61 repaired midline breast keyframes
       // (rests already +-0.085; size holds at 7894888); was 0de69b66….
-      [PEDS_GLB, "pedsKevin", 7894888, "540e8b317196f592a5a6ed1697864eb8af511f08df8191119e802eaf88798aa1"],
+      // RE-PINNED for ac3490a66 (st-redgarm D1 garment smoothing): kevin
+      // 7894888 -> 16291676 B; was 540e8b31….
+      [PEDS_GLB, "pedsKevin", 16291676, "d10ae41912ba2ff455a135073c14b7b292539c92e882bb473253cfec9f682fa2"],
       // RE-PINNED: deliberate churn 8e7a1d0c2 (CC-BY scrub extras) + 91aa4b5d3 + 9f2934536.
       // ci-w11b re-pinned 2026-10-30: ci-w11 D3 d0e2104d3 repaired midline breast keyframes
       // (rests already +-0.085; size holds at 8775848); was 4f0a8c1d….
