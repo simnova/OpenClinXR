@@ -55,9 +55,9 @@
    "chosenRungId": "fp-r0.4",
    "rungTechnique": "selective weld+simplifyPrimitive ratio 0.4 error 0.01 on every non-face mesh (face meshes /eye|brow|lash|teeth|tongue/i untouched); 1-triangle gown marker never simplified",
    "triangleCountBefore": 92430,
-   "triangleCountAfter": 72946,
+   "triangleCountAfter": 73392,
    "bytesBefore": 13170972,
-   "bytesAfter": 9589372,
+   "bytesAfter": 9700420,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "faceBefore": 52778,
    "faceAfter": 52778,
@@ -101,16 +101,16 @@
    ],
    "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
    "lineageNote": "tightjeans re-bake output; second fp-r0.4 pass (2803b774) then albedo bake (42c42140)",
-   "remeasureNote": "Re-measured 2026-10-31 (mesh-defects gravid garment restore): the decimated t-shirt and tight jeans folded under the gravid field re-applied by 21fad089f, so replace-garment-primitive.ts swapped in the full-resolution primitives from the 57e277301 treated bake (tee 1079 -> 2700 tris, jeans 1958 -> 4216). Every other mesh keeps its fp-r0.4 output: tris 69067 -> 72946, bytes 8828240 -> 9589372, face 52778 and joints 137 hold. Previous re-measure (ci-w11b, d1c44f8cd prune + 21fad089f gravid re-apply) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-02 (st-redgarm D1): flats 558->1004 tris (+446; tris 72946->73392, face 52778 / joints 137 hold). Superseding commit dabe421e2 (D1 garment smooth: full-res flats transplant + 60-deg post-export smooth). Prior re-measure (ci-w11b bytes-only drift) preserved in git history."
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
    "chosenRungId": "fp-r0.3",
    "rungTechnique": "selective weld+simplifyPrimitive ratio 0.3 error 0.01 on every non-face mesh (face meshes /eye|brow|lash|teeth|tongue/i untouched); 1-triangle gown marker never simplified",
    "triangleCountBefore": 119232,
-   "triangleCountAfter": 68100,
+   "triangleCountAfter": 98102,
    "bytesBefore": 14477264,
-   "bytesAfter": 7894888,
+   "bytesAfter": 16291676,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "faceBefore": 46160,
    "faceAfter": 46160,
@@ -137,7 +137,7 @@
      "engine": "Blender EEVEE headless (baked Principled base colour, not Workbench)"
     }
    },
-   "remeasureNote": "Re-measured 2026-10-30: bytes drift, geometry identical. Superseding commit 9f2934536 (2026-09-28 #741 teeth-retreat re-apply)."
+   "remeasureNote": "Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants 810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face 46160 / joints 137 hold; still under the 120000 acceptableSingleProp budget). Superseding commit dabe421e2 (D1 garment smooth: full-res transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, ci-w11b) preserved in git history."
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",

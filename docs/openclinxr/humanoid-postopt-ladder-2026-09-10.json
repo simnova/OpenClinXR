@@ -137,7 +137,7 @@
   {
    "body": "mpfb-ob-patient-aisha.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 8828240,
+   "bytesAfter": 9700420,
    "bytesBefore": 17002120,
    "chosenRungId": "fp-r0.4",
    "faceAfter": 52778,
@@ -152,14 +152,14 @@
    "jointCountExpected": 137,
    "promoted": true,
    "promotionNote": "2026-09-12 fp-r0.4 restore after female covering lower. Fit-time jeans 4216 (2108 x 2). Shipped jeans 1986. budgets.propShare 40000 unchanged.",
-   "triangleCountAfter": 69067,
+   "triangleCountAfter": 73392,
    "triangleCountBefore": 92430,
-   "remeasureNote": "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical at the decimation grain (tris 69067 / face 52778 / joints 137 all hold; the gravid displacement field moves verts within the same topology). Superseding commits d1c44f8cd (ci-w11 D1 orphan prune, 10069400 -> 8828240 B) and 21fad089f (ci-w12 D1 gravid re-apply on the pruned base, 1104 displacements, anchors verified +-0.085). Prior re-measure (10768617 normal-off proof) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-02 (st-redgarm D1): flats 558->1004 tris (+446; tris 72946->73392, face 52778 / joints 137 hold). Superseding commit dabe421e2 (D1 garment smooth: full-res flats transplant + 60-deg post-export smooth). Prior re-measure (ci-w11b bytes-only drift) preserved in git history."
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 7894888,
+   "bytesAfter": 16291676,
    "bytesBefore": 14477264,
    "chosenRungId": "r0.1",
    "faceAfter": 46160,
@@ -183,9 +183,9 @@
    },
    "promoted": false,
    "promotionNote": "STOP branch: every in-budget rung (r0.1 at 60513 through r0.005 at 55580) keeps 5503/46160 = 0.1192 of face triangles (88% destroyed) — the ladder passes the totals check but destroys the face, so no rung is promoted and the live GLB is unchanged.",
-   "triangleCountAfter": 119232,
+   "triangleCountAfter": 98102,
    "triangleCountBefore": 119232,
-   "remeasureNote": "Re-measured 2026-10-30: bytes drift, geometry identical. Superseding commit 9f2934536 (2026-09-28 #741 teeth-retreat re-apply)."
+   "remeasureNote": "Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants 810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face 46160 / joints 137 hold; still under the 120000 acceptableSingleProp budget). Superseding commit dabe421e2 (D1 garment smooth: full-res transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, ci-w11b) preserved in git history."
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",

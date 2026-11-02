@@ -97,16 +97,28 @@ PLAN = {
                  "preserved in git history."),
     },
     # --- HB-05 rows ---
+    # st-redgarm D1 (dabe421e2) entries below: deliberate garment restores; face/joints/
+    # hand hold (asserted per row by main()). Superseding commit dabe421e2
+    # (replace-garment-primitive.ts restores pre-HB-05 full-res prims + proven 60-deg
+    # post-export smooth).
     "mpfb-ob-patient-aisha.glb": {
-        "bytesAfter": 8828240,
-        "triangleCountAfter": 69067,
-        "note": ("Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
-                 "at the decimation grain (tris 69067 / face 52778 / joints 137 all hold; "
-                 "the gravid displacement field moves verts within the same topology). "
-                 "Superseding commits d1c44f8cd (ci-w11 D1 orphan prune, 10069400 -> "
-                 "8828240 B) and 21fad089f (ci-w12 D1 gravid re-apply on the pruned base, "
-                 "1104 displacements, anchors verified +-0.085). Prior re-measure "
-                 "(10768617 normal-off proof) preserved in git history."),
+        "bytesAfter": 9700420,
+        "triangleCountAfter": 73392,
+        "note": ("Re-measured 2026-11-02 (st-redgarm D1): flats 558->1004 tris "
+                 "(+446; tris 72946->73392, face 52778 / joints 137 hold). Superseding "
+                 "commit dabe421e2 (D1 garment smooth: full-res flats transplant + "
+                 "60-deg post-export smooth). Prior re-measure (ci-w11b bytes-only drift) "
+                 "preserved in git history."),
+    },
+    "mpfb-peds-nurse-kevin.glb": {
+        "bytesAfter": 16291676,
+        "triangleCountAfter": 98102,
+        "note": ("Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants "
+                 "810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face "
+                 "46160 / joints 137 hold; still under the 120000 acceptableSingleProp "
+                 "budget). Superseding commit dabe421e2 (D1 garment smooth: full-res "
+                 "transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, "
+                 "ci-w11b) preserved in git history."),
     },
     "mpfb-peds-parent-aisha.glb": {
         "bytesAfter": 18441636,
