@@ -130,6 +130,7 @@ describe("the iwsdk spike proves the package runs", () => {
     expect(artifact.evaluated?.proof?.uiKitDocumentType, "executed UIKitDocument is callable").toBe("function");
     expect(Number(artifact.evaluated?.proof?.xrInputExports ?? 0), "executed xr-input exposes exports").toBeGreaterThan(0);
     expect(String(artifact.bundleSha256 ?? ""), "receipt pins the executed bundle").toMatch(/^[0-9a-f]{64}$/u);
+    expect(artifact.sdk?.core?.version, "recorded core version is the receipt pin").toBe(RECEIPT_CORE);
     expect(artifact.sdk?.core?.license, "recorded core is MIT").toBe("MIT");
   });
 
