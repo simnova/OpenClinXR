@@ -142,9 +142,19 @@ export function mpfbForearmIdleEuler(
  * old map euler eased out to z = -+1.05 (x = -0.22, y = +-0.06 kept): +3-4
  * deg over the old hang, the minimum that clears the garment capsule with
  * +0.01 m at the elbow (arms-meter, dressed).
+ *
+ * 2026-11-02 (st-redstage D3): the two widest shipped binds
+ * (mpfb-clinical-nurse-adult, mpfb-family-partner-adult) hang 1.31-1.35x half
+ * shoulder span, over the #117 1.3x standing ceiling the project enforces;
+ * drops (0.38-0.46 m vs the 0.25 m #91 floor) and the inside-torso floor
+ * (standing ratios >= 1.06 vs the 0.5 counterweight) both hold wide margins.
+ * Both deltas eased 7% further along the same hang rotation
+ * (slerp(identity, delta, 1.07), L/R mirror preserved, bind-relative
+ * structure untouched): ~+3 deg of hang, ~-0.014 m wrist lateral on the
+ * worst case. Forearm fraction (0.55) and Anny/library/mixamo maps unchanged.
  */
-export const MPFB_UPPER_ARM_IDLE_DELTA_L = { x: -0.140001, y: -0.068845, z: -0.334197, w: 0.929501 };
-export const MPFB_UPPER_ARM_IDLE_DELTA_R = { x: -0.140001, y: 0.068845, z: 0.334197, w: 0.929501 };
+export const MPFB_UPPER_ARM_IDLE_DELTA_L = { x: -0.14928, y: -0.073408, z: -0.356348, w: 0.919425 };
+export const MPFB_UPPER_ARM_IDLE_DELTA_R = { x: -0.14928, y: 0.073408, z: 0.356348, w: 0.919425 };
 
 function upperArmDeltaFor(sanitised: string): MpfbBindQuaternion {
   return sanitised.endsWith("R") ? MPFB_UPPER_ARM_IDLE_DELTA_R : MPFB_UPPER_ARM_IDLE_DELTA_L;
