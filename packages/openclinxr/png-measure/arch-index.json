@@ -1,0 +1,30 @@
+{
+  "package": "png-measure",
+  "name": "@openclinxr/png-measure",
+  "entrypoint": "packages/openclinxr/png-measure/src/index.ts",
+  "purpose": "General PNG measurement any consumer may use: the shared 8-bit PNG decoder and the region-aware luminance reader evidence contracts grade captures with.",
+  "exports": [
+    "DecodedPng",
+    "RegionFractions",
+    "RegionLuminance",
+    "decodePng",
+    "regionLuminance"
+  ],
+  "exportSummaries": {
+    "DecodedPng": "Decoded PNG pixels: dimensions, luminance, per-channel bytes, and the greyscale flag.",
+    "RegionFractions": "Fractional rectangle selecting the measured region; defaults to the whole image.",
+    "RegionLuminance": "Luminance summary over a region: samples, mean, sd, non-black share, median, p90.",
+    "decodePng": "Decode an 8-bit non-interlaced PNG into per-pixel luminance and channels; null when undecodable.",
+    "regionLuminance": "Summarise luminance over a rectangular region of an 8-bit PNG; null when undecodable."
+  },
+  "workspaceDependencies": [],
+  "tests": [
+    "src/entrypoints.test.ts"
+  ],
+  "commands": {
+    "test": "pnpm --filter @openclinxr/png-measure test",
+    "typecheck": "pnpm --filter @openclinxr/png-measure typecheck",
+    "build": "pnpm --filter @openclinxr/png-measure build",
+    "lint": "pnpm --filter @openclinxr/png-measure lint"
+  }
+}

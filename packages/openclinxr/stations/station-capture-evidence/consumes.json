@@ -20,6 +20,16 @@
     ]
   },
   {
+    "provider": "@openclinxr/png-measure",
+    "entrypoint": "./evidence-png",
+    "names": [
+      {
+        "name": "decodePng",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-scene",
     "entrypoint": ".",
     "names": [

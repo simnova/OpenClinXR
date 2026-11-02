@@ -9,7 +9,8 @@
     "test": "vitest run --root ."
   },
   "dependencies": {
-    "@openclinxr/factory-station-core": "workspace:*"
+    "@openclinxr/factory-station-core": "workspace:*",
+    "@openclinxr/png-measure": "workspace:*"
   },
   "devDependencies": {
     "@cellix/config-typescript": "workspace:*",

@@ -530,6 +530,50 @@
     ]
   },
   {
+    "provider": "@openclinxr/png-measure",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "DecodedPng",
+        "kind": "type"
+      },
+      {
+        "name": "decodePng",
+        "kind": "runtime"
+      },
+      {
+        "name": "RegionFractions",
+        "kind": "type"
+      },
+      {
+        "name": "regionLuminance",
+        "kind": "runtime"
+      },
+      {
+        "name": "RegionLuminance",
+        "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/png-measure",
+    "entrypoint": "./evidence-capture",
+    "names": [
+      {
+        "name": "CaptureFrameClass",
+        "kind": "type"
+      },
+      {
+        "name": "classifyCaptureFrame",
+        "kind": "runtime"
+      },
+      {
+        "name": "UNIFORM_SD_CEILING",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/rest",
     "entrypoint": ".",
     "names": [

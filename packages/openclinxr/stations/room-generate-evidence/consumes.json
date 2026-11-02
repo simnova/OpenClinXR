@@ -18,5 +18,19 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/png-measure",
+    "entrypoint": "./evidence-png",
+    "names": [
+      {
+        "name": "decodePng",
+        "kind": "runtime"
+      },
+      {
+        "name": "regionLuminance",
+        "kind": "runtime"
+      }
+    ]
   }
 ]

@@ -1,0 +1,60 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/png-measure",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "decodePng",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "regionLuminance",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/png-measure",
+    "entrypoint": "./evidence-capture",
+    "names": [
+      {
+        "name": "classifyCaptureFrame",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "UNIFORM_SD_CEILING",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/png-measure",
+    "entrypoint": "./evidence-png",
+    "names": [
+      {
+        "name": "decodePng",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "regionLuminance",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  }
+]

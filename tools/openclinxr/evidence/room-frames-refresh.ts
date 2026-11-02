@@ -53,6 +53,9 @@ const PIN_SCOPE_DIRS: readonly string[] = [
 	"packages/openclinxr/exam-assembly",
 	"packages/openclinxr/factory-station-core",
 	"packages/openclinxr/factory-stations",
+	// png-measure: the decoder and the capture classifier moved here from the pinned
+	// tools/openclinxr/evidence/decode-png.ts and lib/png-region-luminance.ts (now shims).
+	"packages/openclinxr/png-measure",
 	"packages/openclinxr/scenario-fixtures",
 	"packages/openclinxr/service-local-compute",
 	"packages/openclinxr/shared-schemas",

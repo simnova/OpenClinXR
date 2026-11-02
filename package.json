@@ -462,6 +462,7 @@
     "@openclinxr/compute-slots": "workspace:*",
     "@openclinxr/factory-stations": "workspace:*",
     "@openclinxr/motion-compiler": "workspace:*",
+    "@openclinxr/png-measure": "workspace:*",
     "@openclinxr/rest": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
     "@openclinxr/service-local-compute": "workspace:*",

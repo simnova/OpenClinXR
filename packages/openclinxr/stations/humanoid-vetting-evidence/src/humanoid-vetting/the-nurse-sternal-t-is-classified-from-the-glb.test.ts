@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { decodePng } from "../../../../../../tools/openclinxr/evidence/decode-png.js";
+import { decodePng } from "@openclinxr/png-measure/evidence-png";
 import {
   classifyGarmentMeshName,
   isUpperMeshName,

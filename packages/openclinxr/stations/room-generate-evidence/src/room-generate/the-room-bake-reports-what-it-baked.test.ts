@@ -77,7 +77,7 @@ function report(): RegenReport {
 
 /** Independent measurement, same technique as the cave probe: decode the shipped PNG, mean 0..255. */
 async function shippedAlbedoMeans(room = ROOM): Promise<Record<string, number>> {
-  const { decodePng } = await import("../../../../../../tools/openclinxr/evidence/decode-png.js") as {
+  const { decodePng } = await import("@openclinxr/png-measure/evidence-png") as {
     decodePng: (b: Uint8Array) => { w: number; h: number; lum: Float32Array } | null;
   };
   const doc = await readRoomGlb(`${ENV}/${room}`);

@@ -1,9 +1,9 @@
 {
   "schemaVersion": "openclinxr.room-frames-fixture.v1",
   "generatedFrom": {
-    "captureManifestSha256": "36f91744fdb4df8deb5804b393fd6769e2597b09cdcc029c91b7133ba75e30fd",
-    "capturedAt": "2026-11-01T16:11:06.840Z",
-    "captureCommit": "e1a6b2ddb7bb866036470f6f904bb64c3e2b0546"
+    "captureManifestSha256": "823b190e5cac933a630bbb9742cc21cbdfd4a9f9cc74818b18914f6d85459bc6",
+    "capturedAt": "2026-11-02T00:56:07.811Z",
+    "captureCommit": "129ea4fc1e7a7b81067392ea491db70da5de3ced"
   },
   "sourcePins": [
     {
@@ -1124,7 +1124,7 @@
     },
     {
       "path": "package.json",
-      "sha256": "fbffb6ea0c873089e86812377f89a861278431e2a4164cc70a0f8eb5f0f31e0e"
+      "sha256": "5d00979dc8f1b0d1a7aa04ea2501375ac3316e4f56bd2a85fbdbfe83f2894ef9"
     },
     {
       "path": "packages/cellix/provider-contracts/consumes.json",
@@ -2024,6 +2024,58 @@
     },
     {
       "path": "packages/openclinxr/factory-stations/vitest.config.ts",
+      "sha256": "cfc6e35cab5aaa291c27cd70a028f075a12a86f319bd98fd11445f173e022168"
+    },
+    {
+      "path": "packages/openclinxr/png-measure/arch-index.json",
+      "sha256": "6cdb8eae54c5fc89ab7d518f8b85a9a33d7ad9fa21e6d2dc1455a7d95e2cb198"
+    },
+    {
+      "path": "packages/openclinxr/png-measure/consumes.json",
+      "sha256": "698c1439bffeb0e7bf367096b24cf89d2c122586f671a071d2092bd5117a137c"
+    },
+    {
+      "path": "packages/openclinxr/png-measure/package.json",
+      "sha256": "16ed778c28a3404ba325fa3d12ad985cc3dd363d9212917e06ddedf8203ac154"
+    },
+    {
+      "path": "packages/openclinxr/png-measure/public-api.json",
+      "sha256": "5cced8625cb5cca6025df721c888f7eb26f151d08e0a9fccfce6b1ab71ba58c8"
+    },
+    {
+      "path": "packages/openclinxr/png-measure/src/decode-png.ts",
+      "sha256": "f60adb0e770e3e6ba05656198a4cff137dd87fe4da58a470b00d7f222cdde8d0"
+    },
+    {
+      "path": "packages/openclinxr/png-measure/src/evidence-capture.ts",
+      "sha256": "d81d7ecdc42693381fc605eb358d7ccf3b76965b4eaf6146e36cf915b646671a"
+    },
+    {
+      "path": "packages/openclinxr/png-measure/src/evidence-png.ts",
+      "sha256": "ba013b04d23bba4bf0d2a2a29b3b183cc6c55ff228be344cebac2583de8957f0"
+    },
+    {
+      "path": "packages/openclinxr/png-measure/src/index.ts",
+      "sha256": "2ef03b336b9c3979cc0ce944b540822db47f3e9087cf8f97b520d1ad5ebc8b06"
+    },
+    {
+      "path": "packages/openclinxr/png-measure/src/png-region-luminance.ts",
+      "sha256": "79dacdc60beec9b44abbba3d2419043d73fcb8196e28c039dd4a00828ada0bd1"
+    },
+    {
+      "path": "packages/openclinxr/png-measure/tsconfig.json",
+      "sha256": "8b48367e98a4e40149438c6e89eb0c4c97098f878715c58f6497a917712fd85c"
+    },
+    {
+      "path": "packages/openclinxr/png-measure/tsconfig.vitest.json",
+      "sha256": "d3dd05de00551cb2d7118dfb71734e8c00966e1a128d4b141c37853d2b692fc4"
+    },
+    {
+      "path": "packages/openclinxr/png-measure/turbo.json",
+      "sha256": "9dcf312e2268c3bb17b63a042884c3b414ed70d6fbb75d2314fe21e75c0355f2"
+    },
+    {
+      "path": "packages/openclinxr/png-measure/vitest.config.ts",
       "sha256": "cfc6e35cab5aaa291c27cd70a028f075a12a86f319bd98fd11445f173e022168"
     },
     {
@@ -4884,7 +4936,7 @@
     },
     {
       "path": "pnpm-lock.yaml",
-      "sha256": "2f2edb110be5dae4721f506c89bbee432c7544ed3857d93fe9794349ec664b75"
+      "sha256": "e40842fab976fef1b52065ead66bd50ec79099c527877074d04840ce340fd70a"
     },
     {
       "path": "pnpm-workspace.yaml",
@@ -4892,7 +4944,7 @@
     },
     {
       "path": "tools/openclinxr/evidence/decode-png.ts",
-      "sha256": "f60adb0e770e3e6ba05656198a4cff137dd87fe4da58a470b00d7f222cdde8d0"
+      "sha256": "399d2439a92d0650b2d3b61eb8f8a75aad639cf5688f2163f3b5d68cfc86ae83"
     },
     {
       "path": "tools/openclinxr/evidence/doorway-overview-camera.ts",
@@ -4904,7 +4956,7 @@
     },
     {
       "path": "tools/openclinxr/evidence/lib/png-region-luminance.ts",
-      "sha256": "79dacdc60beec9b44abbba3d2419043d73fcb8196e28c039dd4a00828ada0bd1"
+      "sha256": "48bc0011e01369d385ac4b942f4c125a6c318a80c0d4974b5211f14da5705533"
     },
     {
       "path": "tools/openclinxr/evidence/lib/portless-server.ts",
@@ -5011,97 +5063,97 @@
       "sha256": "0dcd06c66f5acd0ccc42401c8d1fed8ee1351f889861ca13ecc8c79fec1a9f95"
     }
   ],
-  "sourcePinsDigest": "d67cb6d5ce78259d930132a6d08401aa4805e9d7d0103dfe6492b327db6786ba",
+  "sourcePinsDigest": "31416544ae15e7fc0b4c44b9296e2141354ffcac2ac820d0fcc6425fb259af49",
   "entries": [
     {
       "scenarioId": "adult_abdominal_pain_v1",
       "file": "adult_abdominal_pain_v1-room.png",
-      "sha256": "e4d1052776415df2b38426a05f8d9bf18a6419d66d3e63be59ee8ec0499fb33b",
-      "size": 657333
+      "sha256": "76d6048ee04543a6ad8a4aef8f19fdaebaee9a5601a86dd08675448f47039e74",
+      "size": 658168
     },
     {
       "scenarioId": "clinic_abdominal_pain_interpreter_v1",
       "file": "clinic_abdominal_pain_interpreter_v1-room.png",
-      "sha256": "825f8990ad77939b1efdae89d2a8ddb9c3bd63ba8c601f78b85ad814f85a19e3",
-      "size": 733139
+      "sha256": "7ef54234c0acd6d5488eb5d115bb155a2d76bfe030f3d7c87524de90fc482729",
+      "size": 732152
     },
     {
       "scenarioId": "ed_chest_pain_priority_v1",
       "file": "ed_chest_pain_priority_v1-room.png",
-      "sha256": "33a277b4db3c41d59a3fd837df46cffc77d709cd48c0f347744e6dde37ea901f",
-      "size": 778297
+      "sha256": "382929a9efa4b207dd5be7cd8f6225d3396038fa41afa3cfd695a253e168f826",
+      "size": 778545
     },
     {
       "scenarioId": "ed_chest_pain_priority_v2",
       "file": "ed_chest_pain_priority_v2-room.png",
-      "sha256": "c12dee9de204239ed153e6c7de243c194db9b377cc8cd63d3c960f2f7dd38040",
-      "size": 769082
+      "sha256": "04002b57b65da5034fc116444e1b30423b645c1e5b7fc51647e15d7d5ad96180",
+      "size": 768223
     },
     {
       "scenarioId": "ed_stroke_alert_handoff_v1",
       "file": "ed_stroke_alert_handoff_v1-room.png",
-      "sha256": "826e848336cab526a489a7e0186d528bb38adc6fab2b64b6a2e7dc4dc8839e42",
-      "size": 765825
+      "sha256": "3684243a81e1f0b45d2923d0f342e3a3e6326e5f53856350fe4b992eb30e2862",
+      "size": 766113
     },
     {
       "scenarioId": "ob_headache_preeclampsia_triage_v1",
       "file": "ob_headache_preeclampsia_triage_v1-room.png",
-      "sha256": "d2afba5279fbbb468f05e84ee402790dfaf495513bb9e0e45f79fc76c6c2dc95",
-      "size": 795188
+      "sha256": "660d24ea1bde7dd8a10ddf2b6ac178f9ac87a59fef5ab6fc0e5e4d86a7d2880d",
+      "size": 799486
     },
     {
       "scenarioId": "oncology_bad_news_family_v1",
       "file": "oncology_bad_news_family_v1-room.png",
-      "sha256": "8fb12856054e12fcb4d3f4cc937aedacbbe7e3ff330f63c0b79cbc58ae4cc925",
-      "size": 790045
+      "sha256": "9502013a24b126cdc7731a55947e9df2dbef74f2c79d9741ae62b855d032a0db",
+      "size": 790868
     },
     {
       "scenarioId": "peds_asthma_parent_anxiety_v1",
       "file": "peds_asthma_parent_anxiety_v1-room.png",
-      "sha256": "414bf18bfb1096f97098c211ad986c7c44c14a099902f3dec3ef8583e4ea5d14",
-      "size": 646967
+      "sha256": "2a42086d09bb2de3dd31dfb87f6c79695c95bd3fa55835913fad75b82eccc783",
+      "size": 646609
     },
     {
       "scenarioId": "peds_fever_v1",
       "file": "peds_fever_v1-room.png",
-      "sha256": "fb9bc4044b455624dcc7d594c627bd80a6fcfd96298dbd2bdce2925a0e976abf",
-      "size": 821423
+      "sha256": "d5d8107a93b47bd33e3e46ef7aad937a241502a10b1a23d8333c6e57c6151039",
+      "size": 821160
     },
     {
       "scenarioId": "postop_fever_consult_pressure_v1",
       "file": "postop_fever_consult_pressure_v1-room.png",
-      "sha256": "825ea34c66855df9901e9d073cf96d2e35b98955875d23844a5f5f4f71685c13",
-      "size": 739737
+      "sha256": "9ad4756c89e1622b2a292691ae3d62deffc8fbe461310a6752f9aafe82a2889e",
+      "size": 738588
     },
     {
       "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
       "file": "primary_care_dyslipidemia_joint_pain_v1-room.png",
-      "sha256": "5769cfd60cfeaa310e2b902a5e6e85fdfc1e479787e04e3d5f7b66a7daeb0fea",
-      "size": 793370
+      "sha256": "82b9daa43d215e0fcbfade685dc0d80483caf3f356aa15f7b34a867fea9eee2b",
+      "size": 793234
     },
     {
       "scenarioId": "psych_suicidal_ideation_safety_v1",
       "file": "psych_suicidal_ideation_safety_v1-room.png",
-      "sha256": "b3827ef5881197f77123617d5a20f2b70e14ca87b49f253d074a73d3914c2434",
-      "size": 636969
+      "sha256": "66967e0fb55f00acc3d864e79c729a38f5e20f2e96a5c28079a5876db54e9659",
+      "size": 636243
     },
     {
       "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
       "file": "stepdown_sepsis_nurse_escalation_v1-room.png",
-      "sha256": "c38efb3d2f838f2c88eceed52a62de8807c3c053598563c1e9ddb57ca54c0211",
-      "size": 688622
+      "sha256": "3dcf0c8dfb80455a81a5dea26877f7f2efe281071d0b25c467db8bacca2e1ac2",
+      "size": 688754
     },
     {
       "scenarioId": "telehealth_diabetes_health_literacy_v1",
       "file": "telehealth_diabetes_health_literacy_v1-room.png",
-      "sha256": "48555b561430358e0af931185f93e1b5c4ed94bafd1d895e3e8d7f4897e785b7",
-      "size": 669577
+      "sha256": "ae8301c78ba7cfa84d7e54b1bf22f5211849706acb9d21e4b046ee627a2581dd",
+      "size": 652212
     },
     {
       "scenarioId": "ward_delirium_med_rec_v1",
       "file": "ward_delirium_med_rec_v1-room.png",
-      "sha256": "0622beea4fcad81fd5129fbe83151998942e8a686cb8d4333f406e98afe11278",
-      "size": 689803
+      "sha256": "4b0edc4e0566389138e3f43addedd64bb5d52f3d5f5bb68ef78b6cc1920cf6be",
+      "size": 689907
     }
   ]
 }

@@ -2,7 +2,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
-import { decodePng } from "../../../../../../tools/openclinxr/evidence/decode-png.js";
+import { decodePng } from "@openclinxr/png-measure/evidence-png";
 import { shippedStationIds } from "../../../../../../tools/openclinxr/evidence/ui-xr-environment-room-capture.js";
 import {
   CELLS_DIR_REL,
