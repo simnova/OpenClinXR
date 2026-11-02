@@ -9,7 +9,7 @@
     "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "ee45f65c0162208d9ca37f5a116c82d11d072def31b6429a6b32c74f040ee7cd",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
-    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "540e8b317196f592a5a6ed1697864eb8af511f08df8191119e802eaf88798aa1"
+    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "d10ae41912ba2ff455a135073c14b7b292539c92e882bb473253cfec9f682fa2"
   },
   "staged": {
     "posture": "supine",
@@ -17,9 +17,9 @@
     "clearanceAboveDeckMeters": 0.25
   },
   "producedFrom": {
-    "observedBy": "claude orchestrator fix-newer-reds-20261102 (foreground re-baseline)",
-    "observedAtIso": "2026-11-02T17:20:28.831Z",
-    "reason": "deliberate humanoid GLB moves after the 2026-10-30 00:34 baseline (e4213e463): ci-w11-D3 midline breast keyframe repair d0e2104d3/c743aab61 (nurse, family-partner, gown, peds-nurse-kevin) and ci-w11-D1 unbound image prune d1c44f8cd",
+    "observedBy": "st-redgarm worker (foreground re-baseline for ac3490a66)",
+    "observedAtIso": "2026-11-02T22:58:33.378Z",
+    "reason": "re-baseline for ac3490a66 st-redgarm D1 garment smoothing (rebased as 0aaf03352): kevin 540e8b31->d10ae419 (7894888->16291676 B) invalidated cl.2/cl.6; aisha is not a control asset",
     "byteCountByPath": {
       "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9221980,
       "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9308164,
@@ -28,7 +28,7 @@
       "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 9277296,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 8775848,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 9618436,
-      "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 7894888
+      "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 16291676
     }
   }
 }
