@@ -51,13 +51,13 @@ describe("local provider benchmark CLI", () => {
     };
 
     expect(report.policy.localRuntimeExecutionAllowed).toBe(false);
-    expect(report.localModel.metrics.configuredRuntime).toBe("ollama");
-    expect(report.localModel.metrics.configuredModel).toBe("Qwen/Qwen3-4B-GGUF");
-    expect(report.localModel.metrics.sourceRecordIds).toBe("src-qwen3-4b-gguf-2026");
-    expect(report.localModel.metrics.downloadApproved).toBe(true);
-    expect(report.localVoice.metrics.configuredRuntime).toBe("vibevoice");
-    expect(report.localVoice.metrics.configuredVoice).toBe("microsoft/VibeVoice-Realtime-0.5B");
-    expect(report.localVoice.metrics.sourceRecordIds).toBe("src-vibevoice-github-2026");
-    expect(report.localVoice.metrics.safetyReviewApproved).toBe(true);
+    expect(report.localModel.metrics["configuredRuntime"]).toBe("ollama");
+    expect(report.localModel.metrics["configuredModel"]).toBe("Qwen/Qwen3-4B-GGUF");
+    expect(report.localModel.metrics["sourceRecordIds"]).toBe("src-qwen3-4b-gguf-2026");
+    expect(report.localModel.metrics["downloadApproved"]).toBe(true);
+    expect(report.localVoice.metrics["configuredRuntime"]).toBe("vibevoice");
+    expect(report.localVoice.metrics["configuredVoice"]).toBe("microsoft/VibeVoice-Realtime-0.5B");
+    expect(report.localVoice.metrics["sourceRecordIds"]).toBe("src-vibevoice-github-2026");
+    expect(report.localVoice.metrics["safetyReviewApproved"]).toBe(true);
   });
 });

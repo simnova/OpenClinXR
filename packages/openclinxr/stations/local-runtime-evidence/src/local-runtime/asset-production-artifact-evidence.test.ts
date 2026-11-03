@@ -150,9 +150,11 @@ describe("asset production artifact evidence report", () => {
       expect(validateAssetProductionArtifactEvidenceReport(report)).toEqual({ ok: true });
 
       const invalid = structuredClone(report);
-      invalid.records[0].evidenceTier = "reviewed_generated_production_source";
-      invalid.records[0].artifactBacked = true;
-      invalid.records[0].missingArtifactPaths = [];
+      const firstRecord = invalid.records[0];
+      if (firstRecord === undefined) throw new Error("expected at least one artifact record");
+      firstRecord.evidenceTier = "reviewed_generated_production_source";
+      firstRecord.artifactBacked = true;
+      firstRecord.missingArtifactPaths = [];
       invalid.summary.artifactBackedLaneIds = ["generatedHumanRigging"];
       invalid.summary.placeholderOrFixtureLaneIds = invalid.summary.placeholderOrFixtureLaneIds.filter(
         (laneId) => laneId !== "generatedHumanRigging",
@@ -173,7 +175,9 @@ describe("asset production artifact evidence report", () => {
       generatedAt: "2026-05-06T20:00:00.000Z",
     });
     const invalid = structuredClone(report);
-    invalid.records[1] = structuredClone(invalid.records[0]);
+    const duplicateSource = invalid.records[0];
+    if (duplicateSource === undefined) throw new Error("expected at least one artifact record");
+    invalid.records[1] = structuredClone(duplicateSource);
 
     expect(validateAssetProductionArtifactEvidenceReport(invalid)).toEqual({
       ok: false,

@@ -94,8 +94,10 @@ describe("external AI asset provider preflight", () => {
 
   it("rejects preflight reports that enable external execution", () => {
     const report = buildExternalAiAssetProviderPreflightReport();
-    report.candidates[1].executionEnabled = true as never;
-    report.candidates[1].paidApiUsed = true as never;
+    const candidate = report.candidates[1];
+    if (!candidate) throw new Error("preflight report is missing candidate 1");
+    candidate.executionEnabled = true as never;
+    candidate.paidApiUsed = true as never;
     report.providerGate.executionEnabled = true as never;
     report.providerGate.externalProviderExecutionAttempted = true as never;
     report.recommendedRouting.humanoidMeshAndRig = ["hunyuan3d_local", "meshy_cloud_requires_approval", "blender_mixamo_style_rigging_fallback"] as never;

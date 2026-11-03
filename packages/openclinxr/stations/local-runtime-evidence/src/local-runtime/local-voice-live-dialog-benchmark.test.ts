@@ -438,9 +438,9 @@ describe("local voice live-dialog benchmark report", () => {
     expect(validateLocalVoiceLiveDialogBenchmarkReport(report)).toEqual({ ok: true });
 
     const invalid = structuredClone(report) as unknown as Record<string, unknown>;
-    const policy = invalid.policy as Record<string, unknown>;
-    delete policy.productionUseAllowed;
-    const verdict = invalid.verdict as { blockers: string[] };
+    const policy = invalid["policy"] as Record<string, unknown>;
+    delete policy["productionUseAllowed"];
+    const verdict = invalid["verdict"] as { blockers: string[] };
     verdict.blockers = [];
 
     expect(validateLocalVoiceLiveDialogBenchmarkReport(invalid)).toEqual({
@@ -493,7 +493,7 @@ describe("local voice live-dialog benchmark report", () => {
       await expect(runLocalVoiceLiveDialogBenchmarkCli(["--validate", outputPath])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
-      delete invalidReport.runtimeStream;
+      delete invalidReport["runtimeStream"];
       await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
 
       process.exitCode = undefined;
@@ -545,8 +545,9 @@ function localVoiceRuntimeBenchmark(input: {
 
 function localRealtimeVoiceModelCacheEvidence(input: {
   ready: boolean;
-  models: Array<Partial<LocalRealtimeVoiceModelCacheEvidenceReport["models"][number]> & {
+  models: Array<Omit<Partial<LocalRealtimeVoiceModelCacheEvidenceReport["models"][number]>, "approved"> & {
     model_id: string;
+    approved?: boolean | undefined;
     ready: boolean;
     blockers: string[];
   }>;
@@ -563,10 +564,16 @@ function localRealtimeVoiceModelCacheEvidence(input: {
     ],
     cache_exists: true,
     ready: input.ready,
+    // Precise cast, not a silencer: the RED case above forwards explicit
+    // `approved: undefined` through the `{approved: true}` default spread, so
+    // the built entry carries an own-undefined approval flag. The contract
+    // validator only value-reads (`model.approved === true`), for which
+    // own-undefined and missing are identical, but exactOptionalPropertyTypes
+    // rejects the own-undefined form statically.
     models: input.models.map((model) => ({
       approved: true,
       ...model,
-    })),
+    })) as LocalRealtimeVoiceModelCacheEvidenceReport["models"],
     support_directories: input.supportDirectories,
   };
 }

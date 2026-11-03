@@ -31,9 +31,9 @@ describe("gltf-pipeline smoke report", () => {
     expect(validateGltfPipelineSmokeReport(report)).toEqual({ ok: true });
 
     const invalid = structuredClone(report) as Record<string, unknown>;
-    const output = invalid.output as Record<string, unknown>;
-    output.declaredLength = 12;
-    const verdict = invalid.verdict as { blockers: string[] };
+    const output = invalid["output"] as Record<string, unknown>;
+    output["declaredLength"] = 12;
+    const verdict = invalid["verdict"] as { blockers: string[] };
     verdict.blockers = [];
 
     expect(validateGltfPipelineSmokeReport(invalid)).toEqual({
@@ -57,7 +57,7 @@ describe("gltf-pipeline smoke report", () => {
       await expect(runGltfPipelineSmokeCli(["--validate", reportPath])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as Record<string, unknown>;
-      delete invalidReport.tool;
+      delete invalidReport["tool"];
       await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
 
       process.exitCode = undefined;

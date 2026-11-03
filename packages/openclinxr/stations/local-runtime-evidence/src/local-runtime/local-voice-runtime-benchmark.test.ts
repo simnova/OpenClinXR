@@ -189,10 +189,10 @@ describe("local voice runtime benchmark parser", () => {
     expect(validateLocalVoiceRuntimeBenchmarkReport(report)).toEqual({ ok: true });
 
     const invalid = structuredClone(report) as unknown as Record<string, unknown>;
-    const policy = invalid.policy as Record<string, unknown>;
-    delete policy.productionUseAllowed;
-    const verdict = invalid.verdict as Record<string, unknown>;
-    verdict.readyForLiveDialog = true;
+    const policy = invalid["policy"] as Record<string, unknown>;
+    delete policy["productionUseAllowed"];
+    const verdict = invalid["verdict"] as Record<string, unknown>;
+    verdict["readyForLiveDialog"] = true;
 
     expect(validateLocalVoiceRuntimeBenchmarkReport(invalid)).toEqual({
       ok: false,
@@ -327,7 +327,7 @@ describe("local voice runtime benchmark CLI", () => {
       await expect(runLocalVoiceRuntimeBenchmarkCli(["--validate", reportPath])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
-      delete invalidReport.audio;
+      delete invalidReport["audio"];
       await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
 
       process.exitCode = undefined;

@@ -156,8 +156,8 @@ describe("local reasoning model cache evidence", () => {
       await expect(main(["--validate", outputPath])).resolves.toBeUndefined();
 
       const invalid = structuredClone(report) as unknown as Record<string, unknown>;
-      invalid.ready = true;
-      invalid.models = [];
+      invalid["ready"] = true;
+      invalid["models"] = [];
       await writeFile(invalidPath, `${JSON.stringify(invalid, null, 2)}\n`, "utf8");
 
       process.exitCode = undefined;

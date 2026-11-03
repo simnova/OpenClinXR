@@ -186,10 +186,10 @@ describe("local Qwen TTS runtime smoke report", () => {
     expect(validateLocalQwenTtsRuntimeSmokeReport(report)).toEqual({ ok: true });
 
     const invalid = structuredClone(report) as unknown as Record<string, unknown>;
-    const policy = invalid.policy as Record<string, unknown>;
-    delete policy.productionUseAllowed;
-    const verdict = invalid.verdict as Record<string, unknown>;
-    verdict.readyForLiveDialog = true;
+    const policy = invalid["policy"] as Record<string, unknown>;
+    delete policy["productionUseAllowed"];
+    const verdict = invalid["verdict"] as Record<string, unknown>;
+    verdict["readyForLiveDialog"] = true;
 
     expect(validateLocalQwenTtsRuntimeSmokeReport(invalid)).toEqual({
       ok: false,
@@ -242,7 +242,7 @@ describe("local Qwen TTS runtime smoke report", () => {
       await expect(main(["--validate", outputPath])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
-      delete invalidReport.modelCache;
+      delete invalidReport["modelCache"];
       await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
 
       process.exitCode = undefined;

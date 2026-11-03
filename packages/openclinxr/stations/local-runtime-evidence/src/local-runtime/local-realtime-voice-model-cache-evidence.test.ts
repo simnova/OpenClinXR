@@ -166,8 +166,8 @@ describe("local realtime voice model cache evidence", () => {
     expect(validateLocalRealtimeVoiceModelCacheEvidenceReport(report)).toEqual({ ok: true });
 
     const invalid = structuredClone(report) as unknown as Record<string, unknown>;
-    invalid.ready = true;
-    invalid.models = [];
+    invalid["ready"] = true;
+    invalid["models"] = [];
 
     expect(validateLocalRealtimeVoiceModelCacheEvidenceReport(invalid)).toEqual({
       ok: false,
@@ -193,7 +193,7 @@ describe("local realtime voice model cache evidence", () => {
       await expect(main(["--validate", outputPath])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
-      delete invalidReport.approved_model_ids;
+      delete invalidReport["approved_model_ids"];
       await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
 
       process.exitCode = undefined;
