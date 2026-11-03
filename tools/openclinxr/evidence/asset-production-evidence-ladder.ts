@@ -336,53 +336,53 @@ export function validateAssetProductionEvidenceLadderReport(value: unknown): Val
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireLiteral(value.schemaVersion, "openclinxr.asset-production-evidence-ladder.v1", "/schemaVersion", errors);
-  requireLiteral(value.kind, "asset_production_evidence_ladder", "/kind", errors);
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
-  requireRecord(value.sourceReadinessReport, "/sourceReadinessReport", errors);
-  if (isRecord(value.sourceReadinessReport)) {
-    requireString(value.sourceReadinessReport.file, "/sourceReadinessReport/file", errors);
-    requireString(value.sourceReadinessReport.generatedAt, "/sourceReadinessReport/generatedAt", errors);
-    requireString(value.sourceReadinessReport.status, "/sourceReadinessReport/status", errors);
+  requireLiteral(value["schemaVersion"], "openclinxr.asset-production-evidence-ladder.v1", "/schemaVersion", errors);
+  requireLiteral(value["kind"], "asset_production_evidence_ladder", "/kind", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireOneOf(value["status"], ["passed", "blocked"], "/status", errors);
+  requireRecord(value["sourceReadinessReport"], "/sourceReadinessReport", errors);
+  if (isRecord(value["sourceReadinessReport"])) {
+    requireString(value["sourceReadinessReport"]["file"], "/sourceReadinessReport/file", errors);
+    requireString(value["sourceReadinessReport"]["generatedAt"], "/sourceReadinessReport/generatedAt", errors);
+    requireString(value["sourceReadinessReport"]["status"], "/sourceReadinessReport/status", errors);
     requireBoolean(
-      value.sourceReadinessReport.localAssetEvidenceFixtureUsed,
+      value["sourceReadinessReport"]["localAssetEvidenceFixtureUsed"],
       "/sourceReadinessReport/localAssetEvidenceFixtureUsed",
       errors,
     );
   }
-  requireRecord(value.policy, "/policy", errors);
-  if (isRecord(value.policy)) {
-    requireLiteral(value.policy.installsIntroduced, false, "/policy/installsIntroduced", errors);
-    requireLiteral(value.policy.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
-    requireLiteral(value.policy.paidApisUsed, false, "/policy/paidApisUsed", errors);
-    requireBoolean(value.policy.externalAssetsUsed, "/policy/externalAssetsUsed", errors);
-    requireLiteral(value.policy.productionAssetReadinessClaimed, false, "/policy/productionAssetReadinessClaimed", errors);
+  requireRecord(value["policy"], "/policy", errors);
+  if (isRecord(value["policy"])) {
+    requireLiteral(value["policy"]["installsIntroduced"], false, "/policy/installsIntroduced", errors);
+    requireLiteral(value["policy"]["cloudApisUsed"], false, "/policy/cloudApisUsed", errors);
+    requireLiteral(value["policy"]["paidApisUsed"], false, "/policy/paidApisUsed", errors);
+    requireBoolean(value["policy"]["externalAssetsUsed"], "/policy/externalAssetsUsed", errors);
+    requireLiteral(value["policy"]["productionAssetReadinessClaimed"], false, "/policy/productionAssetReadinessClaimed", errors);
   }
-  requireArray(value.lanes, "/lanes", errors);
-  if (Array.isArray(value.lanes)) {
-    value.lanes.forEach((lane, index) => {
+  requireArray(value["lanes"], "/lanes", errors);
+  if (Array.isArray(value["lanes"])) {
+    value["lanes"].forEach((lane, index) => {
       validateLane(lane, `/lanes/${index}`, errors);
     });
   }
-  requireRecord(value.summary, "/summary", errors);
-  if (isRecord(value.summary)) {
-    requireNumber(value.summary.totalLaneCount, "/summary/totalLaneCount", errors);
-    requireNumber(value.summary.observedLaneCount, "/summary/observedLaneCount", errors);
-    requireNumber(value.summary.contractOnlyLaneCount, "/summary/contractOnlyLaneCount", errors);
-    requireNumber(value.summary.blockedLaneCount, "/summary/blockedLaneCount", errors);
+  requireRecord(value["summary"], "/summary", errors);
+  if (isRecord(value["summary"])) {
+    requireNumber(value["summary"]["totalLaneCount"], "/summary/totalLaneCount", errors);
+    requireNumber(value["summary"]["observedLaneCount"], "/summary/observedLaneCount", errors);
+    requireNumber(value["summary"]["contractOnlyLaneCount"], "/summary/contractOnlyLaneCount", errors);
+    requireNumber(value["summary"]["blockedLaneCount"], "/summary/blockedLaneCount", errors);
     requireBoolean(
-      value.summary.artifactBackedProductionAssetEvidenceObserved,
+      value["summary"]["artifactBackedProductionAssetEvidenceObserved"],
       "/summary/artifactBackedProductionAssetEvidenceObserved",
       errors,
     );
   }
-  requireRecord(value.verdict, "/verdict", errors);
-  if (isRecord(value.verdict)) {
-    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
-    requireLiteral(value.verdict.readyForProductionAssets, false, "/verdict/readyForProductionAssets", errors);
-    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
-    requireStringArray(value.verdict.caveats, "/verdict/caveats", errors);
+  requireRecord(value["verdict"], "/verdict", errors);
+  if (isRecord(value["verdict"])) {
+    requireBoolean(value["verdict"]["passed"], "/verdict/passed", errors);
+    requireLiteral(value["verdict"]["readyForProductionAssets"], false, "/verdict/readyForProductionAssets", errors);
+    requireStringArray(value["verdict"]["blockers"], "/verdict/blockers", errors);
+    requireStringArray(value["verdict"]["caveats"], "/verdict/caveats", errors);
   }
   validateConsistency(value, errors);
 
@@ -430,63 +430,63 @@ function formatError(error: unknown): string {
 }
 
 function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
-  if (!Array.isArray(value.lanes) || !isRecord(value.summary) || !isRecord(value.verdict)) {
+  if (!Array.isArray(value["lanes"]) || !isRecord(value["summary"]) || !isRecord(value["verdict"])) {
     return;
   }
 
-  const lanes = value.lanes.filter(isRecord);
-  const summary = value.summary;
-  const verdict = value.verdict;
+  const lanes = value["lanes"].filter(isRecord);
+  const summary = value["summary"];
+  const verdict = value["verdict"];
   const observedLaneIds = new Set<string>();
   const statusCounts = {
-    observed: lanes.filter((lane) => lane.status === "observed").length,
-    contractOnly: lanes.filter((lane) => lane.status === "contract_only").length,
-    blocked: lanes.filter((lane) => lane.status !== "observed").length,
+    observed: lanes.filter((lane) => lane["status"] === "observed").length,
+    contractOnly: lanes.filter((lane) => lane["status"] === "contract_only").length,
+    blocked: lanes.filter((lane) => lane["status"] !== "observed").length,
   };
 
   for (const lane of lanes) {
-    if (typeof lane.id !== "string" || !ladderLaneIds.includes(lane.id as LadderLaneId)) {
+    if (typeof lane["id"] !== "string" || !ladderLaneIds.includes(lane["id"] as LadderLaneId)) {
       continue;
     }
-    if (observedLaneIds.has(lane.id)) {
-      errors.push(`/lanes must not repeat canonical lane id ${lane.id}`);
+    if (observedLaneIds.has(lane["id"])) {
+      errors.push(`/lanes must not repeat canonical lane id ${lane["id"]}`);
       continue;
     }
-    observedLaneIds.add(lane.id);
+    observedLaneIds.add(lane["id"]);
   }
   for (const laneId of ladderLaneIds) {
     if (!observedLaneIds.has(laneId)) {
       errors.push(`/lanes must include canonical lane id ${laneId}`);
     }
   }
-  if (summary.totalLaneCount !== value.lanes.length) {
+  if (summary["totalLaneCount"] !== value["lanes"].length) {
     errors.push("/summary/totalLaneCount must match lanes.length");
   }
-  if (summary.observedLaneCount !== statusCounts.observed) {
+  if (summary["observedLaneCount"] !== statusCounts.observed) {
     errors.push("/summary/observedLaneCount must match observed lane count");
   }
-  if (summary.contractOnlyLaneCount !== statusCounts.contractOnly) {
+  if (summary["contractOnlyLaneCount"] !== statusCounts.contractOnly) {
     errors.push("/summary/contractOnlyLaneCount must match contract-only lane count");
   }
-  if (summary.blockedLaneCount !== statusCounts.blocked) {
+  if (summary["blockedLaneCount"] !== statusCounts.blocked) {
     errors.push("/summary/blockedLaneCount must match non-observed lane count");
   }
-  if (!Array.isArray(verdict.blockers)) {
+  if (!Array.isArray(verdict["blockers"])) {
     return;
   }
 
-  const verdictBlockers = new Set(verdict.blockers);
+  const verdictBlockers = new Set(verdict["blockers"]);
   for (const lane of lanes) {
-    if (typeof lane.id !== "string" || !Array.isArray(lane.blockers)) {
+    if (typeof lane["id"] !== "string" || !Array.isArray(lane["blockers"])) {
       continue;
     }
-    for (const blocker of lane.blockers) {
+    for (const blocker of lane["blockers"]) {
       if (typeof blocker !== "string") {
         continue;
       }
-      const expectedBlocker = lane.id === "artifactBackedProductionAssetEvidence"
+      const expectedBlocker = lane["id"] === "artifactBackedProductionAssetEvidence"
         ? blocker
-        : `${lane.id}:${blocker}`;
+        : `${lane["id"]}:${blocker}`;
       if (!verdictBlockers.has(expectedBlocker)) {
         errors.push(`/verdict/blockers must include lane blocker ${expectedBlocker}`);
       }
@@ -500,22 +500,22 @@ function validateLane(value: unknown, pathName: string, errors: string[]): void 
     return;
   }
 
-  requireOneOf(value.id, ladderLaneIds, `${pathName}/id`, errors);
-  requireString(value.title, `${pathName}/title`, errors);
-  requireOneOf(value.status, ladderLaneStatuses, `${pathName}/status`, errors);
-  requireStringArray(value.requiredArtifactEvidence, `${pathName}/requiredArtifactEvidence`, errors);
-  requireRecord(value.currentEvidence, `${pathName}/currentEvidence`, errors);
-  if (isRecord(value.currentEvidence)) {
-    requireString(value.currentEvidence.source, `${pathName}/currentEvidence/source`, errors);
-    requireBoolean(value.currentEvidence.observed, `${pathName}/currentEvidence/observed`, errors);
-    requireOneOf(value.currentEvidence.posture, evidencePostures, `${pathName}/currentEvidence/posture`, errors);
+  requireOneOf(value["id"], ladderLaneIds, `${pathName}/id`, errors);
+  requireString(value["title"], `${pathName}/title`, errors);
+  requireOneOf(value["status"], ladderLaneStatuses, `${pathName}/status`, errors);
+  requireStringArray(value["requiredArtifactEvidence"], `${pathName}/requiredArtifactEvidence`, errors);
+  requireRecord(value["currentEvidence"], `${pathName}/currentEvidence`, errors);
+  if (isRecord(value["currentEvidence"])) {
+    requireString(value["currentEvidence"]["source"], `${pathName}/currentEvidence/source`, errors);
+    requireBoolean(value["currentEvidence"]["observed"], `${pathName}/currentEvidence/observed`, errors);
+    requireOneOf(value["currentEvidence"]["posture"], evidencePostures, `${pathName}/currentEvidence/posture`, errors);
   }
-  requireRecord(value.claimBoundary, `${pathName}/claimBoundary`, errors);
-  if (isRecord(value.claimBoundary)) {
-    requireStringArray(value.claimBoundary.allowedClaims, `${pathName}/claimBoundary/allowedClaims`, errors);
-    requireStringArray(value.claimBoundary.notEvidenceFor, `${pathName}/claimBoundary/notEvidenceFor`, errors);
+  requireRecord(value["claimBoundary"], `${pathName}/claimBoundary`, errors);
+  if (isRecord(value["claimBoundary"])) {
+    requireStringArray(value["claimBoundary"]["allowedClaims"], `${pathName}/claimBoundary/allowedClaims`, errors);
+    requireStringArray(value["claimBoundary"]["notEvidenceFor"], `${pathName}/claimBoundary/notEvidenceFor`, errors);
   }
-  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+  requireStringArray(value["blockers"], `${pathName}/blockers`, errors);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

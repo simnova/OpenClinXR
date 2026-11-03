@@ -251,17 +251,17 @@ export function validateApiBunWebSocketRuntimeSmokeReport(value: unknown): Valid
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
-  validatePolicy(value.policy, errors);
-  validateBun(value.bun, errors);
-  validateRuntime(value.runtime, errors);
-  validateServer(value.server, errors);
-  validateHealth(value.health, errors);
-  validateTraceContexts(value.traceContexts, errors);
-  validateWebSocket(value.websocket, errors);
-  requireStringArray(value.runtimeEvidenceBlockers, "/runtimeEvidenceBlockers", errors);
-  validateVerdict(value.verdict, errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireOneOf(value["status"], ["passed", "blocked"], "/status", errors);
+  validatePolicy(value["policy"], errors);
+  validateBun(value["bun"], errors);
+  validateRuntime(value["runtime"], errors);
+  validateServer(value["server"], errors);
+  validateHealth(value["health"], errors);
+  validateTraceContexts(value["traceContexts"], errors);
+  validateWebSocket(value["websocket"], errors);
+  requireStringArray(value["runtimeEvidenceBlockers"], "/runtimeEvidenceBlockers", errors);
+  validateVerdict(value["verdict"], errors);
   validateConsistency(value, errors);
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
@@ -295,9 +295,9 @@ function validateBun(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireNullableString(value.executable, "/bun/executable", errors);
-  requireNullableString(value.version, "/bun/version", errors);
-  requireNullableString(value.revision, "/bun/revision", errors);
+  requireNullableString(value["executable"], "/bun/executable", errors);
+  requireNullableString(value["version"], "/bun/version", errors);
+  requireNullableString(value["revision"], "/bun/revision", errors);
 }
 
 function validateRuntime(value: unknown, errors: string[]): void {
@@ -306,17 +306,17 @@ function validateRuntime(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireLiteral(value.target, "apps/api bun+hono", "/runtime/target", errors);
-  requireLiteral(value.appPath, "apps/api", "/runtime/appPath", errors);
-  requireLiteral(value.websocketPath, "/voice/realtime/ws", "/runtime/websocketPath", errors);
-  requireRecord(value.h3, "/runtime/h3", errors);
-  if (!isRecord(value.h3)) {
+  requireLiteral(value["target"], "apps/api bun+hono", "/runtime/target", errors);
+  requireLiteral(value["appPath"], "apps/api", "/runtime/appPath", errors);
+  requireLiteral(value["websocketPath"], "/voice/realtime/ws", "/runtime/websocketPath", errors);
+  requireRecord(value["h3"], "/runtime/h3", errors);
+  if (!isRecord(value["h3"])) {
     return;
   }
-  requireLiteral(value.h3.enabled, false, "/runtime/h3/enabled", errors);
-  requireLiteral(value.h3.h3TrueEnabled, false, "/runtime/h3/h3TrueEnabled", errors);
-  requireBoolean(value.h3.optionPresentInServerSource, "/runtime/h3/optionPresentInServerSource", errors);
-  requireLiteral(value.h3.outOfScopeForThisSmoke, true, "/runtime/h3/outOfScopeForThisSmoke", errors);
+  requireLiteral(value["h3"]["enabled"], false, "/runtime/h3/enabled", errors);
+  requireLiteral(value["h3"]["h3TrueEnabled"], false, "/runtime/h3/h3TrueEnabled", errors);
+  requireBoolean(value["h3"]["optionPresentInServerSource"], "/runtime/h3/optionPresentInServerSource", errors);
+  requireLiteral(value["h3"]["outOfScopeForThisSmoke"], true, "/runtime/h3/outOfScopeForThisSmoke", errors);
 }
 
 function validateServer(value: unknown, errors: string[]): void {
@@ -325,11 +325,11 @@ function validateServer(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.attempted, "/server/attempted", errors);
-  requireStringArray(value.command, "/server/command", errors);
-  requireNumber(value.port, "/server/port", errors);
-  requireStringArray(value.stdout, "/server/stdout", errors);
-  requireStringArray(value.stderr, "/server/stderr", errors);
+  requireBoolean(value["attempted"], "/server/attempted", errors);
+  requireStringArray(value["command"], "/server/command", errors);
+  requireNumber(value["port"], "/server/port", errors);
+  requireStringArray(value["stdout"], "/server/stdout", errors);
+  requireStringArray(value["stderr"], "/server/stderr", errors);
 }
 
 function validateHealth(value: unknown, errors: string[]): void {
@@ -338,10 +338,10 @@ function validateHealth(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.attempted, "/health/attempted", errors);
-  requireBoolean(value.ok, "/health/ok", errors);
-  requireNullableNumber(value.statusCode, "/health/statusCode", errors);
-  requireNullableNumber(value.latencyMs, "/health/latencyMs", errors);
+  requireBoolean(value["attempted"], "/health/attempted", errors);
+  requireBoolean(value["ok"], "/health/ok", errors);
+  requireNullableNumber(value["statusCode"], "/health/statusCode", errors);
+  requireNullableNumber(value["latencyMs"], "/health/latencyMs", errors);
 }
 
 function validateTraceContexts(value: unknown, errors: string[]): void {
@@ -350,22 +350,22 @@ function validateTraceContexts(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireRecord(value.preVrTraceInteraction, "/traceContexts/preVrTraceInteraction", errors);
-  if (isRecord(value.preVrTraceInteraction)) {
-    requireBoolean(value.preVrTraceInteraction.observed, "/traceContexts/preVrTraceInteraction/observed", errors);
+  requireRecord(value["preVrTraceInteraction"], "/traceContexts/preVrTraceInteraction", errors);
+  if (isRecord(value["preVrTraceInteraction"])) {
+    requireBoolean(value["preVrTraceInteraction"]["observed"], "/traceContexts/preVrTraceInteraction/observed", errors);
     requireLiteral(
-      value.preVrTraceInteraction.source,
+      value["preVrTraceInteraction"]["source"],
       "synthetic_local_websocket_control_frame",
       "/traceContexts/preVrTraceInteraction/source",
       errors,
     );
-    requireStringArray(value.preVrTraceInteraction.controlFrameTypes, "/traceContexts/preVrTraceInteraction/controlFrameTypes", errors);
+    requireStringArray(value["preVrTraceInteraction"]["controlFrameTypes"], "/traceContexts/preVrTraceInteraction/controlFrameTypes", errors);
   }
-  requireRecord(value.inVrTraceInteraction, "/traceContexts/inVrTraceInteraction", errors);
-  if (isRecord(value.inVrTraceInteraction)) {
-    requireLiteral(value.inVrTraceInteraction.observed, false, "/traceContexts/inVrTraceInteraction/observed", errors);
+  requireRecord(value["inVrTraceInteraction"], "/traceContexts/inVrTraceInteraction", errors);
+  if (isRecord(value["inVrTraceInteraction"])) {
+    requireLiteral(value["inVrTraceInteraction"]["observed"], false, "/traceContexts/inVrTraceInteraction/observed", errors);
     requireLiteral(
-      value.inVrTraceInteraction.blocker,
+      value["inVrTraceInteraction"]["blocker"],
       "in_vr_trace_not_executed_by_local_bun_smoke",
       "/traceContexts/inVrTraceInteraction/blocker",
       errors,
@@ -408,12 +408,12 @@ function validateWebSocket(value: unknown, errors: string[]): void {
   ]) {
     requireNumber(value[key], `/websocket/${key}`, errors);
   }
-  requireStringArray(value.eventTypesObserved, "/websocket/eventTypesObserved", errors);
-  requireStringArray(value.controlFrameTypesSent, "/websocket/controlFrameTypesSent", errors);
-  requireStringArray(value.serverErrors, "/websocket/serverErrors", errors);
-  validateProtocolContract(value.protocolContract, errors);
-  validateProtocolBoundary(value.protocolBoundary, errors);
-  validateBackpressure(value.backpressure, errors);
+  requireStringArray(value["eventTypesObserved"], "/websocket/eventTypesObserved", errors);
+  requireStringArray(value["controlFrameTypesSent"], "/websocket/controlFrameTypesSent", errors);
+  requireStringArray(value["serverErrors"], "/websocket/serverErrors", errors);
+  validateProtocolContract(value["protocolContract"], errors);
+  validateProtocolBoundary(value["protocolBoundary"], errors);
+  validateBackpressure(value["backpressure"], errors);
 }
 
 function validateProtocolContract(value: unknown, errors: string[]): void {
@@ -430,7 +430,7 @@ function validateProtocolContract(value: unknown, errors: string[]): void {
   ]) {
     requireBoolean(value[key], `/websocket/protocolContract/${key}`, errors);
   }
-  requireLiteral(value.localClientObservationOnly, true, "/websocket/protocolContract/localClientObservationOnly", errors);
+  requireLiteral(value["localClientObservationOnly"], true, "/websocket/protocolContract/localClientObservationOnly", errors);
 }
 
 function validateProtocolBoundary(value: unknown, errors: string[]): void {
@@ -439,12 +439,12 @@ function validateProtocolBoundary(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireNumber(value.malformedJsonFramesSent, "/websocket/protocolBoundary/malformedJsonFramesSent", errors);
-  requireBoolean(value.malformedJsonControlRejected, "/websocket/protocolBoundary/malformedJsonControlRejected", errors);
-  requireStringArray(value.unsupportedControlFrameTypesSent, "/websocket/protocolBoundary/unsupportedControlFrameTypesSent", errors);
-  requireBoolean(value.unsupportedControlRejected, "/websocket/protocolBoundary/unsupportedControlRejected", errors);
-  requireStringArray(value.errorReasonsObserved, "/websocket/protocolBoundary/errorReasonsObserved", errors);
-  requireLiteral(value.localClientObservationOnly, true, "/websocket/protocolBoundary/localClientObservationOnly", errors);
+  requireNumber(value["malformedJsonFramesSent"], "/websocket/protocolBoundary/malformedJsonFramesSent", errors);
+  requireBoolean(value["malformedJsonControlRejected"], "/websocket/protocolBoundary/malformedJsonControlRejected", errors);
+  requireStringArray(value["unsupportedControlFrameTypesSent"], "/websocket/protocolBoundary/unsupportedControlFrameTypesSent", errors);
+  requireBoolean(value["unsupportedControlRejected"], "/websocket/protocolBoundary/unsupportedControlRejected", errors);
+  requireStringArray(value["errorReasonsObserved"], "/websocket/protocolBoundary/errorReasonsObserved", errors);
+  requireLiteral(value["localClientObservationOnly"], true, "/websocket/protocolBoundary/localClientObservationOnly", errors);
 }
 
 function validateBackpressure(value: unknown, errors: string[]): void {
@@ -453,14 +453,14 @@ function validateBackpressure(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireNumber(value.burstFrameCount, "/websocket/backpressure/burstFrameCount", errors);
-  requireNumber(value.burstBytes, "/websocket/backpressure/burstBytes", errors);
-  requireNullableNumber(value.maxBufferedAmount, "/websocket/backpressure/maxBufferedAmount", errors);
-  if (!Array.isArray(value.bufferedAmountSamples) || value.bufferedAmountSamples.some((sample) => typeof sample !== "number" || !Number.isFinite(sample))) {
+  requireNumber(value["burstFrameCount"], "/websocket/backpressure/burstFrameCount", errors);
+  requireNumber(value["burstBytes"], "/websocket/backpressure/burstBytes", errors);
+  requireNullableNumber(value["maxBufferedAmount"], "/websocket/backpressure/maxBufferedAmount", errors);
+  if (!Array.isArray(value["bufferedAmountSamples"]) || value["bufferedAmountSamples"].some((sample) => typeof sample !== "number" || !Number.isFinite(sample))) {
     errors.push("/websocket/backpressure/bufferedAmountSamples must be array of finite numbers");
   }
-  requireNumber(value.droppedOrErroredMessages, "/websocket/backpressure/droppedOrErroredMessages", errors);
-  requireLiteral(value.localClientObservationOnly, true, "/websocket/backpressure/localClientObservationOnly", errors);
+  requireNumber(value["droppedOrErroredMessages"], "/websocket/backpressure/droppedOrErroredMessages", errors);
+  requireLiteral(value["localClientObservationOnly"], true, "/websocket/backpressure/localClientObservationOnly", errors);
 }
 
 function validateVerdict(value: unknown, errors: string[]): void {
@@ -469,22 +469,22 @@ function validateVerdict(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.smokePassed, "/verdict/smokePassed", errors);
-  requireLiteral(value.readyForLiveDialog, false, "/verdict/readyForLiveDialog", errors);
-  requireStringArray(value.blockers, "/verdict/blockers", errors);
-  requireStringArray(value.caveats, "/verdict/caveats", errors);
+  requireBoolean(value["smokePassed"], "/verdict/smokePassed", errors);
+  requireLiteral(value["readyForLiveDialog"], false, "/verdict/readyForLiveDialog", errors);
+  requireStringArray(value["blockers"], "/verdict/blockers", errors);
+  requireStringArray(value["caveats"], "/verdict/caveats", errors);
 }
 
 function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
   const expectedBlockers = expectedRuntimeEvidenceBlockers(value);
-  const actualBlockers = new Set(stringArray(value.runtimeEvidenceBlockers));
+  const actualBlockers = new Set(stringArray(value["runtimeEvidenceBlockers"]));
   const hasBlockers = expectedBlockers.length > 0;
-  const verdict = isRecord(value.verdict) ? value.verdict : {};
+  const verdict = isRecord(value["verdict"]) ? value["verdict"] : {};
 
-  if (value.status === "passed" && hasBlockers) {
+  if (value["status"] === "passed" && hasBlockers) {
     errors.push("/status must be blocked when runtime evidence blockers are present");
   }
-  if (value.status === "blocked" && !hasBlockers) {
+  if (value["status"] === "blocked" && !hasBlockers) {
     errors.push("/status must be passed when no runtime evidence blockers are present");
   }
   for (const blocker of expectedBlockers) {
@@ -492,40 +492,40 @@ function validateConsistency(value: Record<string, unknown>, errors: string[]): 
       errors.push(`/runtimeEvidenceBlockers missing expected blocker ${blocker}`);
     }
   }
-  if (verdict.smokePassed !== !hasBlockers) {
+  if (verdict["smokePassed"] !== !hasBlockers) {
     errors.push(`/verdict/smokePassed must be ${String(!hasBlockers)} when runtime evidence blockers are ${hasBlockers ? "present" : "absent"}`);
   }
 }
 
 function expectedRuntimeEvidenceBlockers(value: Record<string, unknown>): string[] {
-  const bun = isRecord(value.bun) ? value.bun : {};
-  const server = isRecord(value.server) ? value.server : {};
-  const health = isRecord(value.health) ? value.health : {};
-  const runtime = isRecord(value.runtime) ? value.runtime : {};
-  const h3 = isRecord(runtime.h3) ? runtime.h3 : {};
-  const websocket = isRecord(value.websocket) ? value.websocket : {};
-  const contract = isRecord(websocket.protocolContract) ? websocket.protocolContract : {};
-  const boundary = isRecord(websocket.protocolBoundary) ? websocket.protocolBoundary : {};
-  const serverErrors = stringArray(websocket.serverErrors);
+  const bun = isRecord(value["bun"]) ? value["bun"] : {};
+  const server = isRecord(value["server"]) ? value["server"] : {};
+  const health = isRecord(value["health"]) ? value["health"] : {};
+  const runtime = isRecord(value["runtime"]) ? value["runtime"] : {};
+  const h3 = isRecord(runtime["h3"]) ? runtime["h3"] : {};
+  const websocket = isRecord(value["websocket"]) ? value["websocket"] : {};
+  const contract = isRecord(websocket["protocolContract"]) ? websocket["protocolContract"] : {};
+  const boundary = isRecord(websocket["protocolBoundary"]) ? websocket["protocolBoundary"] : {};
+  const serverErrors = stringArray(websocket["serverErrors"]);
 
   return [
-    typeof bun.executable === "string" && typeof bun.version === "string" ? undefined : "bun_runtime_not_available",
-    server.attempted === true ? undefined : "server_not_started",
-    health.attempted === true && health.ok === true ? undefined : "health_check_failed",
-    websocket.attempted === true && websocket.connected === true ? undefined : "websocket_not_connected",
-    websocket.reconnectObserved === true ? undefined : "websocket_reconnect_not_observed",
-    websocket.controlAckObserved === true ? undefined : "websocket_control_ack_missing",
-    websocket.audioMetadataObserved === true ? undefined : "websocket_audio_metadata_missing",
-    websocket.transcriptDeltaObserved === true ? undefined : "websocket_transcript_delta_missing",
-    websocket.binaryEchoObserved === true ? undefined : "websocket_binary_echo_missing",
-    contract.gatewayReadyLocalEchoObserved === true ? undefined : "websocket_gateway_ready_contract_missing",
-    contract.gatewayReadyLiveDialogDisabledObserved === true ? undefined : "websocket_live_dialog_disabled_posture_missing",
-    contract.canonicalVoiceStartAckObserved === true ? undefined : "websocket_canonical_voice_start_ack_missing",
-    contract.sanitizedControlPayloadObserved === true ? undefined : "websocket_control_payload_sanitization_missing",
-    boundary.malformedJsonControlRejected === true ? undefined : "websocket_malformed_json_not_rejected",
-    boundary.unsupportedControlRejected === true ? undefined : "websocket_unsupported_control_not_rejected",
+    typeof bun["executable"] === "string" && typeof bun["version"] === "string" ? undefined : "bun_runtime_not_available",
+    server["attempted"] === true ? undefined : "server_not_started",
+    health["attempted"] === true && health["ok"] === true ? undefined : "health_check_failed",
+    websocket["attempted"] === true && websocket["connected"] === true ? undefined : "websocket_not_connected",
+    websocket["reconnectObserved"] === true ? undefined : "websocket_reconnect_not_observed",
+    websocket["controlAckObserved"] === true ? undefined : "websocket_control_ack_missing",
+    websocket["audioMetadataObserved"] === true ? undefined : "websocket_audio_metadata_missing",
+    websocket["transcriptDeltaObserved"] === true ? undefined : "websocket_transcript_delta_missing",
+    websocket["binaryEchoObserved"] === true ? undefined : "websocket_binary_echo_missing",
+    contract["gatewayReadyLocalEchoObserved"] === true ? undefined : "websocket_gateway_ready_contract_missing",
+    contract["gatewayReadyLiveDialogDisabledObserved"] === true ? undefined : "websocket_live_dialog_disabled_posture_missing",
+    contract["canonicalVoiceStartAckObserved"] === true ? undefined : "websocket_canonical_voice_start_ack_missing",
+    contract["sanitizedControlPayloadObserved"] === true ? undefined : "websocket_control_payload_sanitization_missing",
+    boundary["malformedJsonControlRejected"] === true ? undefined : "websocket_malformed_json_not_rejected",
+    boundary["unsupportedControlRejected"] === true ? undefined : "websocket_unsupported_control_not_rejected",
     serverErrors.length === 0 ? undefined : "server_errors_observed",
-    h3.enabled === false && h3.h3TrueEnabled === false ? undefined : "http3_enabled_outside_approved_scope",
+    h3["enabled"] === false && h3["h3TrueEnabled"] === false ? undefined : "http3_enabled_outside_approved_scope",
   ].filter((blocker): blocker is string => typeof blocker === "string");
 }
 
@@ -568,7 +568,7 @@ export async function runApiBunWebSocketRuntimeSmoke(
     env: {
       ...process.env,
       PORT: String(options.port),
-      PATH: prependPath(process.env.PATH ?? "", path.dirname(bunExecutable)),
+      PATH: prependPath(process.env["PATH"] ?? "", path.dirname(bunExecutable)),
     },
   });
   const stdout: string[] = [];
@@ -700,7 +700,7 @@ async function resolveBunExecutable(explicitExecutable: string | undefined): Pro
   const candidates = [
     explicitExecutable,
     process.execPath.toLowerCase().includes("bun") ? process.execPath : undefined,
-    process.env.BUN_INSTALL ? path.join(process.env.BUN_INSTALL, "bin", "bun") : undefined,
+    process.env["BUN_INSTALL"] ? path.join(process.env["BUN_INSTALL"], "bin", "bun") : undefined,
     path.join(homedir(), ".bun/bin/bun"),
     await which("bun"),
   ].filter((candidate): candidate is string => typeof candidate === "string" && candidate.length > 0);
@@ -884,7 +884,7 @@ async function runWebSocketExchange(input: {
       if (typeof event.data === "string") {
         state.jsonMessages += 1;
         const parsed = safeJsonParse(event.data);
-        const type = isRecord(parsed) && typeof parsed.type === "string" ? parsed.type : "";
+        const type = isRecord(parsed) && typeof parsed["type"] === "string" ? parsed["type"] : "";
         if (type) {
           state.eventTypesObserved.push(type);
         }
@@ -969,20 +969,20 @@ function recordGatewayReadyContract(
   state: ApiBunWebSocketRuntimeEvidence,
   payload: Record<string, unknown>,
 ): void {
-  state.protocolContract.gatewayReadyLocalEchoObserved ||= payload.protocol === "bun-native-json-control-and-binary-audio-echo";
-  state.protocolContract.gatewayReadyLiveDialogDisabledObserved ||= payload.readyForLiveDialog === false;
+  state.protocolContract.gatewayReadyLocalEchoObserved ||= payload["protocol"] === "bun-native-json-control-and-binary-audio-echo";
+  state.protocolContract.gatewayReadyLiveDialogDisabledObserved ||= payload["readyForLiveDialog"] === false;
 }
 
 function recordControlAckContract(
   state: ApiBunWebSocketRuntimeEvidence,
   payload: Record<string, unknown>,
 ): void {
-  state.protocolContract.canonicalVoiceStartAckObserved ||= payload.controlType === "voice.start";
-  if (!isRecord(payload.received)) {
+  state.protocolContract.canonicalVoiceStartAckObserved ||= payload["controlType"] === "voice.start";
+  if (!isRecord(payload["received"])) {
     return;
   }
-  state.protocolContract.sanitizedControlPayloadObserved ||= payload.received.metadata === "object[1]"
-    && payload.received.chunkPlan === "list[2]";
+  state.protocolContract.sanitizedControlPayloadObserved ||= payload["received"]["metadata"] === "object[1]"
+    && payload["received"]["chunkPlan"] === "list[2]";
 }
 
 function sendProtocolBoundaryProbeFrames(websocket: WebSocketLike, state: ApiBunWebSocketRuntimeEvidence): void {
@@ -1001,7 +1001,7 @@ function recordProtocolBoundaryError(
   state: ApiBunWebSocketRuntimeEvidence,
   payload: Record<string, unknown>,
 ): void {
-  const reason = typeof payload.reason === "string" ? payload.reason : "unknown_error";
+  const reason = typeof payload["reason"] === "string" ? payload["reason"] : "unknown_error";
   state.protocolBoundary.errorReasonsObserved.push(reason);
   if (reason === "invalid_json_control_frame" || reason === "invalid JSON control frame") {
     state.protocolBoundary.malformedJsonControlRejected = true;

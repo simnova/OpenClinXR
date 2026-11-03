@@ -132,7 +132,7 @@ export async function inspectActorPropIntersection(input?: {
 
   measureInFlight = (async () => {
     if (!input?.force && !input?.writePreFix && !input?.scenarioIds) {
-      if (process.env.OPENCLINXR_ACTOR_PROP_USE_DISK === "1") {
+      if (process.env["OPENCLINXR_ACTOR_PROP_USE_DISK"] === "1") {
         const fromDisk = await tryReadArtifact(preFixPath());
         if (fromDisk) {
           cachedReport = fromDisk;
@@ -168,7 +168,7 @@ export async function inspectActorPropIntersection(input?: {
 
 async function tryReadArtifact(filePath: string): Promise<ActorPropIntersectionReport | null> {
   return tryReadStampedArtifact(filePath, (parsed) => {
-    const report = (parsed.report ?? parsed) as ActorPropIntersectionReport | undefined;
+    const report = (parsed["report"] ?? parsed) as ActorPropIntersectionReport | undefined;
     if (report?.stations && Array.isArray(report.stations) && report.stations.length > 0) {
       return report;
     }

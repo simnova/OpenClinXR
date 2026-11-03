@@ -226,19 +226,19 @@ export function validateApiBunPythonProxyRuntimeSmokeReport(value: unknown): Val
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
-  validatePolicy(value.policy, errors);
-  validatePython(value.python, errors);
-  validateBun(value.bun, errors);
-  validateRuntime(value.runtime, errors);
-  validateServer(value.pythonBackend, "/pythonBackend", errors);
-  validateBunGateway(value.bunGateway, errors);
-  validateBunGatewayPosture(value.bunGatewayPosture, errors);
-  validateWebSocket(value.websocket, errors);
-  requireStringArray(value.runtimeEvidenceBlockers, "/runtimeEvidenceBlockers", errors);
-  validatePostureEvidencePromotion(value.postureEvidencePromotion, errors);
-  validateVerdict(value.verdict, errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireOneOf(value["status"], ["passed", "blocked"], "/status", errors);
+  validatePolicy(value["policy"], errors);
+  validatePython(value["python"], errors);
+  validateBun(value["bun"], errors);
+  validateRuntime(value["runtime"], errors);
+  validateServer(value["pythonBackend"], "/pythonBackend", errors);
+  validateBunGateway(value["bunGateway"], errors);
+  validateBunGatewayPosture(value["bunGatewayPosture"], errors);
+  validateWebSocket(value["websocket"], errors);
+  requireStringArray(value["runtimeEvidenceBlockers"], "/runtimeEvidenceBlockers", errors);
+  validatePostureEvidencePromotion(value["postureEvidencePromotion"], errors);
+  validateVerdict(value["verdict"], errors);
   validateConsistency(value, errors);
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
@@ -271,8 +271,8 @@ function validatePython(value: unknown, errors: string[]): void {
   if (!isRecord(value)) {
     return;
   }
-  requireString(value.executable, "/python/executable", errors);
-  requireNullableString(value.version, "/python/version", errors);
+  requireString(value["executable"], "/python/executable", errors);
+  requireNullableString(value["version"], "/python/version", errors);
 }
 
 function validateBun(value: unknown, errors: string[]): void {
@@ -280,9 +280,9 @@ function validateBun(value: unknown, errors: string[]): void {
   if (!isRecord(value)) {
     return;
   }
-  requireNullableString(value.executable, "/bun/executable", errors);
-  requireNullableString(value.version, "/bun/version", errors);
-  requireNullableString(value.revision, "/bun/revision", errors);
+  requireNullableString(value["executable"], "/bun/executable", errors);
+  requireNullableString(value["version"], "/bun/version", errors);
+  requireNullableString(value["revision"], "/bun/revision", errors);
 }
 
 function validateRuntime(value: unknown, errors: string[]): void {
@@ -291,10 +291,10 @@ function validateRuntime(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireLiteral(value.apiTarget, "apps/api bun+hono", "/runtime/apiTarget", errors);
-  requireLiteral(value.pythonBackendTarget, "apps/arena/api-python-backend fastapi", "/runtime/pythonBackendTarget", errors);
-  requireLiteral(value.websocketPath, "/voice/realtime/ws", "/runtime/websocketPath", errors);
-  requireLiteral(value.backendProtocol, "python-fastapi-compatible-websocket", "/runtime/backendProtocol", errors);
+  requireLiteral(value["apiTarget"], "apps/api bun+hono", "/runtime/apiTarget", errors);
+  requireLiteral(value["pythonBackendTarget"], "apps/arena/api-python-backend fastapi", "/runtime/pythonBackendTarget", errors);
+  requireLiteral(value["websocketPath"], "/voice/realtime/ws", "/runtime/websocketPath", errors);
+  requireLiteral(value["backendProtocol"], "python-fastapi-compatible-websocket", "/runtime/backendProtocol", errors);
 }
 
 function validateServer(value: unknown, pathName: string, errors: string[]): void {
@@ -303,17 +303,17 @@ function validateServer(value: unknown, pathName: string, errors: string[]): voi
     return;
   }
 
-  requireBoolean(value.attempted, `${pathName}/attempted`, errors);
-  requireNumber(value.port, `${pathName}/port`, errors);
-  requireBoolean(value.healthOk, `${pathName}/healthOk`, errors);
-  requireStringArray(value.stdout, `${pathName}/stdout`, errors);
-  requireStringArray(value.stderr, `${pathName}/stderr`, errors);
+  requireBoolean(value["attempted"], `${pathName}/attempted`, errors);
+  requireNumber(value["port"], `${pathName}/port`, errors);
+  requireBoolean(value["healthOk"], `${pathName}/healthOk`, errors);
+  requireStringArray(value["stdout"], `${pathName}/stdout`, errors);
+  requireStringArray(value["stderr"], `${pathName}/stderr`, errors);
 }
 
 function validateBunGateway(value: unknown, errors: string[]): void {
   validateServer(value, "/bunGateway", errors);
   if (isRecord(value)) {
-    requireBoolean(value.backendUrlConfigured, "/bunGateway/backendUrlConfigured", errors);
+    requireBoolean(value["backendUrlConfigured"], "/bunGateway/backendUrlConfigured", errors);
   }
 }
 
@@ -323,15 +323,15 @@ function validateBunGatewayPosture(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.attempted, "/bunGatewayPosture/attempted", errors);
-  requireBoolean(value.fetched, "/bunGatewayPosture/fetched", errors);
-  requireNullableNumber(value.httpStatus, "/bunGatewayPosture/httpStatus", errors);
-  requireNullableString(value.pythonFastApiStatus, "/bunGatewayPosture/pythonFastApiStatus", errors);
-  requireNullableString(value.pythonBackendTransportProxyStatus, "/bunGatewayPosture/pythonBackendTransportProxyStatus", errors);
-  requireBoolean(value.pythonBackendTransportProxyConfigured, "/bunGatewayPosture/pythonBackendTransportProxyConfigured", errors);
-  requireLiteral(value.readyForLiveDialog, false, "/bunGatewayPosture/readyForLiveDialog", errors);
-  requireStringArray(value.transportProxyBlockers, "/bunGatewayPosture/transportProxyBlockers", errors);
-  requireStringArray(value.pythonBackendBlockers, "/bunGatewayPosture/pythonBackendBlockers", errors);
+  requireBoolean(value["attempted"], "/bunGatewayPosture/attempted", errors);
+  requireBoolean(value["fetched"], "/bunGatewayPosture/fetched", errors);
+  requireNullableNumber(value["httpStatus"], "/bunGatewayPosture/httpStatus", errors);
+  requireNullableString(value["pythonFastApiStatus"], "/bunGatewayPosture/pythonFastApiStatus", errors);
+  requireNullableString(value["pythonBackendTransportProxyStatus"], "/bunGatewayPosture/pythonBackendTransportProxyStatus", errors);
+  requireBoolean(value["pythonBackendTransportProxyConfigured"], "/bunGatewayPosture/pythonBackendTransportProxyConfigured", errors);
+  requireLiteral(value["readyForLiveDialog"], false, "/bunGatewayPosture/readyForLiveDialog", errors);
+  requireStringArray(value["transportProxyBlockers"], "/bunGatewayPosture/transportProxyBlockers", errors);
+  requireStringArray(value["pythonBackendBlockers"], "/bunGatewayPosture/pythonBackendBlockers", errors);
 }
 
 function validateWebSocket(value: unknown, errors: string[]): void {
@@ -340,14 +340,14 @@ function validateWebSocket(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.attempted, "/websocket/attempted", errors);
-  requireBoolean(value.connected, "/websocket/connected", errors);
-  requireStringArray(value.eventTypesObserved, "/websocket/eventTypesObserved", errors);
-  requireNumber(value.binaryMessages, "/websocket/binaryMessages", errors);
-  requireBoolean(value.backendProtocolObserved, "/websocket/backendProtocolObserved", errors);
-  requireBoolean(value.latencyFieldsObserved, "/websocket/latencyFieldsObserved", errors);
-  requireBoolean(value.binaryEchoObserved, "/websocket/binaryEchoObserved", errors);
-  requireStringArray(value.errorMessages, "/websocket/errorMessages", errors);
+  requireBoolean(value["attempted"], "/websocket/attempted", errors);
+  requireBoolean(value["connected"], "/websocket/connected", errors);
+  requireStringArray(value["eventTypesObserved"], "/websocket/eventTypesObserved", errors);
+  requireNumber(value["binaryMessages"], "/websocket/binaryMessages", errors);
+  requireBoolean(value["backendProtocolObserved"], "/websocket/backendProtocolObserved", errors);
+  requireBoolean(value["latencyFieldsObserved"], "/websocket/latencyFieldsObserved", errors);
+  requireBoolean(value["binaryEchoObserved"], "/websocket/binaryEchoObserved", errors);
+  requireStringArray(value["errorMessages"], "/websocket/errorMessages", errors);
 }
 
 function validatePostureEvidencePromotion(value: unknown, errors: string[]): void {
@@ -356,28 +356,28 @@ function validatePostureEvidencePromotion(value: unknown, errors: string[]): voi
     return;
   }
 
-  requireBoolean(value.eligible, "/postureEvidencePromotion/eligible", errors);
-  if (value.promotedTransportProxyStatus !== "configured_reachability_verified" && value.promotedTransportProxyStatus !== null) {
+  requireBoolean(value["eligible"], "/postureEvidencePromotion/eligible", errors);
+  if (value["promotedTransportProxyStatus"] !== "configured_reachability_verified" && value["promotedTransportProxyStatus"] !== null) {
     errors.push("/postureEvidencePromotion/promotedTransportProxyStatus must be \"configured_reachability_verified\" or null");
   }
-  requireRecord(value.environment, "/postureEvidencePromotion/environment", errors);
-  if (isRecord(value.environment)) {
+  requireRecord(value["environment"], "/postureEvidencePromotion/environment", errors);
+  if (isRecord(value["environment"])) {
     requireLiteral(
-      value.environment.backendUrlVariable,
+      value["environment"]["backendUrlVariable"],
       "OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL",
       "/postureEvidencePromotion/environment/backendUrlVariable",
       errors,
     );
     requireLiteral(
-      value.environment.evidenceFileVariable,
+      value["environment"]["evidenceFileVariable"],
       "OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE",
       "/postureEvidencePromotion/environment/evidenceFileVariable",
       errors,
     );
   }
-  requireStringArray(value.instructions, "/postureEvidencePromotion/instructions", errors);
-  requireStringArray(value.blockers, "/postureEvidencePromotion/blockers", errors);
-  requireStringArray(value.caveats, "/postureEvidencePromotion/caveats", errors);
+  requireStringArray(value["instructions"], "/postureEvidencePromotion/instructions", errors);
+  requireStringArray(value["blockers"], "/postureEvidencePromotion/blockers", errors);
+  requireStringArray(value["caveats"], "/postureEvidencePromotion/caveats", errors);
 }
 
 function validateVerdict(value: unknown, errors: string[]): void {
@@ -386,24 +386,24 @@ function validateVerdict(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.smokePassed, "/verdict/smokePassed", errors);
-  requireLiteral(value.readyForLiveDialog, false, "/verdict/readyForLiveDialog", errors);
-  requireStringArray(value.blockers, "/verdict/blockers", errors);
-  requireStringArray(value.caveats, "/verdict/caveats", errors);
+  requireBoolean(value["smokePassed"], "/verdict/smokePassed", errors);
+  requireLiteral(value["readyForLiveDialog"], false, "/verdict/readyForLiveDialog", errors);
+  requireStringArray(value["blockers"], "/verdict/blockers", errors);
+  requireStringArray(value["caveats"], "/verdict/caveats", errors);
 }
 
 function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
   const expectedBlockers = expectedRuntimeEvidenceBlockers(value);
-  const actualBlockers = new Set(stringArray(value.runtimeEvidenceBlockers));
+  const actualBlockers = new Set(stringArray(value["runtimeEvidenceBlockers"]));
   const hasBlockers = expectedBlockers.length > 0;
-  const promotion = isRecord(value.postureEvidencePromotion) ? value.postureEvidencePromotion : {};
-  const promotionBlockers = new Set(stringArray(promotion.blockers));
-  const verdict = isRecord(value.verdict) ? value.verdict : {};
+  const promotion = isRecord(value["postureEvidencePromotion"]) ? value["postureEvidencePromotion"] : {};
+  const promotionBlockers = new Set(stringArray(promotion["blockers"]));
+  const verdict = isRecord(value["verdict"]) ? value["verdict"] : {};
 
-  if (value.status === "passed" && hasBlockers) {
+  if (value["status"] === "passed" && hasBlockers) {
     errors.push("/status must be blocked when runtime evidence blockers are present");
   }
-  if (value.status === "blocked" && !hasBlockers) {
+  if (value["status"] === "blocked" && !hasBlockers) {
     errors.push("/status must be passed when no runtime evidence blockers are present");
   }
   for (const blocker of expectedBlockers) {
@@ -411,7 +411,7 @@ function validateConsistency(value: Record<string, unknown>, errors: string[]): 
       errors.push(`/runtimeEvidenceBlockers missing expected blocker ${blocker}`);
     }
   }
-  if (promotion.eligible !== !hasBlockers) {
+  if (promotion["eligible"] !== !hasBlockers) {
     errors.push(`/postureEvidencePromotion/eligible must be ${String(!hasBlockers)} when runtime evidence blockers are ${hasBlockers ? "present" : "absent"}`);
   }
   for (const blocker of expectedBlockers) {
@@ -419,45 +419,45 @@ function validateConsistency(value: Record<string, unknown>, errors: string[]): 
       errors.push(`/postureEvidencePromotion/blockers missing expected blocker ${blocker}`);
     }
   }
-  if (verdict.smokePassed !== !hasBlockers) {
+  if (verdict["smokePassed"] !== !hasBlockers) {
     errors.push(`/verdict/smokePassed must be ${String(!hasBlockers)} when runtime evidence blockers are ${hasBlockers ? "present" : "absent"}`);
   }
 }
 
 function expectedRuntimeEvidenceBlockers(value: Record<string, unknown>): string[] {
-  const python = isRecord(value.python) ? value.python : {};
-  const bun = isRecord(value.bun) ? value.bun : {};
-  const pythonBackend = isRecord(value.pythonBackend) ? value.pythonBackend : {};
-  const bunGateway = isRecord(value.bunGateway) ? value.bunGateway : {};
-  const posture = isRecord(value.bunGatewayPosture) ? value.bunGatewayPosture : {};
-  const websocket = isRecord(value.websocket) ? value.websocket : {};
-  const eventTypesObserved = stringArray(websocket.eventTypesObserved);
-  const websocketErrors = stringArray(websocket.errorMessages);
+  const python = isRecord(value["python"]) ? value["python"] : {};
+  const bun = isRecord(value["bun"]) ? value["bun"] : {};
+  const pythonBackend = isRecord(value["pythonBackend"]) ? value["pythonBackend"] : {};
+  const bunGateway = isRecord(value["bunGateway"]) ? value["bunGateway"] : {};
+  const posture = isRecord(value["bunGatewayPosture"]) ? value["bunGatewayPosture"] : {};
+  const websocket = isRecord(value["websocket"]) ? value["websocket"] : {};
+  const eventTypesObserved = stringArray(websocket["eventTypesObserved"]);
+  const websocketErrors = stringArray(websocket["errorMessages"]);
 
   return [
-    typeof bun.executable === "string" && typeof bun.version === "string" ? undefined : "bun_runtime_not_available",
-    typeof python.version === "string" ? undefined : "python_runtime_not_available",
-    pythonBackend.attempted === true ? undefined : "python_backend_not_started",
-    pythonBackend.healthOk === true ? undefined : "python_backend_health_failed",
-    bunGateway.attempted === true ? undefined : "bun_gateway_not_started",
-    bunGateway.healthOk === true ? undefined : "bun_gateway_health_failed",
-    bunGateway.backendUrlConfigured === true ? undefined : "python_backend_url_not_configured",
-    posture.attempted === true ? undefined : "bun_gateway_posture_not_requested",
-    posture.fetched === true ? undefined : "bun_gateway_posture_fetch_failed",
-    posture.pythonFastApiStatus === "source_present_not_executed" ? undefined : "python_backend_posture_status_unexpected",
-    posture.pythonBackendTransportProxyConfigured === true ? undefined : "python_backend_transport_proxy_not_configured_in_posture",
-    posture.pythonBackendTransportProxyStatus === "configured_not_verified" ? undefined : "python_backend_transport_proxy_status_unexpected",
-    posture.readyForLiveDialog === false ? undefined : "bun_gateway_posture_overclaims_live_dialog_ready",
-    websocket.attempted === true && websocket.connected === true ? undefined : "websocket_not_connected",
+    typeof bun["executable"] === "string" && typeof bun["version"] === "string" ? undefined : "bun_runtime_not_available",
+    typeof python["version"] === "string" ? undefined : "python_runtime_not_available",
+    pythonBackend["attempted"] === true ? undefined : "python_backend_not_started",
+    pythonBackend["healthOk"] === true ? undefined : "python_backend_health_failed",
+    bunGateway["attempted"] === true ? undefined : "bun_gateway_not_started",
+    bunGateway["healthOk"] === true ? undefined : "bun_gateway_health_failed",
+    bunGateway["backendUrlConfigured"] === true ? undefined : "python_backend_url_not_configured",
+    posture["attempted"] === true ? undefined : "bun_gateway_posture_not_requested",
+    posture["fetched"] === true ? undefined : "bun_gateway_posture_fetch_failed",
+    posture["pythonFastApiStatus"] === "source_present_not_executed" ? undefined : "python_backend_posture_status_unexpected",
+    posture["pythonBackendTransportProxyConfigured"] === true ? undefined : "python_backend_transport_proxy_not_configured_in_posture",
+    posture["pythonBackendTransportProxyStatus"] === "configured_not_verified" ? undefined : "python_backend_transport_proxy_status_unexpected",
+    posture["readyForLiveDialog"] === false ? undefined : "bun_gateway_posture_overclaims_live_dialog_ready",
+    websocket["attempted"] === true && websocket["connected"] === true ? undefined : "websocket_not_connected",
     eventTypesObserved.includes("gateway.ready") ? undefined : "gateway_ready_not_observed",
-    websocket.backendProtocolObserved === true ? undefined : "backend_protocol_not_observed",
+    websocket["backendProtocolObserved"] === true ? undefined : "backend_protocol_not_observed",
     eventTypesObserved.includes("voice.started") ? undefined : "voice_started_not_observed",
     eventTypesObserved.includes("audio.chunk") ? undefined : "audio_chunk_not_observed",
     eventTypesObserved.includes("transcript.partial") ? undefined : "transcript_partial_not_observed",
     eventTypesObserved.includes("transcript.final") ? undefined : "transcript_final_not_observed",
     eventTypesObserved.includes("voice.stopped") ? undefined : "voice_stopped_not_observed",
-    websocket.latencyFieldsObserved === true ? undefined : "latency_fields_not_observed",
-    websocket.binaryEchoObserved === true ? undefined : "binary_echo_not_observed",
+    websocket["latencyFieldsObserved"] === true ? undefined : "latency_fields_not_observed",
+    websocket["binaryEchoObserved"] === true ? undefined : "binary_echo_not_observed",
     websocketErrors.length === 0 ? undefined : "websocket_errors_observed",
   ].filter((blocker): blocker is string => typeof blocker === "string");
 }
@@ -521,7 +521,7 @@ export async function runApiBunPythonProxyRuntimeSmoke(
           ...process.env,
           PORT: String(options.apiPort),
           OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL: `ws://127.0.0.1:${options.pythonPort}/voice/realtime/ws`,
-          PATH: prependPath(process.env.PATH ?? "", path.dirname(bunExecutable)),
+          PATH: prependPath(process.env["PATH"] ?? "", path.dirname(bunExecutable)),
         },
       });
       bunServer.stdout.on("data", (chunk) => pushLines(bunStdout, chunk));
@@ -803,24 +803,24 @@ async function fetchBunGatewayPosture(
     });
     const body = await response.json();
     const pythonFastApi = isRecord(body)
-      && isRecord(body.backends)
-      && isRecord(body.backends.pythonFastApi)
-      ? body.backends.pythonFastApi
+      && isRecord(body["backends"])
+      && isRecord(body["backends"]["pythonFastApi"])
+      ? body["backends"]["pythonFastApi"]
       : {};
-    const transportProxy = isRecord(pythonFastApi.transportProxy) ? pythonFastApi.transportProxy : {};
+    const transportProxy = isRecord(pythonFastApi["transportProxy"]) ? pythonFastApi["transportProxy"] : {};
 
     return {
       attempted: true,
       fetched: response.ok,
       httpStatus: response.status,
-      pythonFastApiStatus: stringOrNull(pythonFastApi.status),
-      pythonBackendTransportProxyStatus: stringOrNull(transportProxy.status),
-      pythonBackendTransportProxyConfigured: transportProxy.backendUrlConfigured === true,
-      readyForLiveDialog: typeof transportProxy.readyForLiveDialog === "boolean"
-        ? transportProxy.readyForLiveDialog
+      pythonFastApiStatus: stringOrNull(pythonFastApi["status"]),
+      pythonBackendTransportProxyStatus: stringOrNull(transportProxy["status"]),
+      pythonBackendTransportProxyConfigured: transportProxy["backendUrlConfigured"] === true,
+      readyForLiveDialog: typeof transportProxy["readyForLiveDialog"] === "boolean"
+        ? transportProxy["readyForLiveDialog"]
         : null,
-      transportProxyBlockers: stringArray(transportProxy.blockers),
-      pythonBackendBlockers: stringArray(pythonFastApi.blockers),
+      transportProxyBlockers: stringArray(transportProxy["blockers"]),
+      pythonBackendBlockers: stringArray(pythonFastApi["blockers"]),
     };
   } catch {
     return emptyBunGatewayPosture(true);
@@ -895,7 +895,7 @@ async function resolveBunExecutable(explicitExecutable: string | undefined): Pro
   const candidates = [
     explicitExecutable,
     process.execPath.toLowerCase().includes("bun") ? process.execPath : undefined,
-    process.env.BUN_INSTALL ? path.join(process.env.BUN_INSTALL, "bin", "bun") : undefined,
+    process.env["BUN_INSTALL"] ? path.join(process.env["BUN_INSTALL"], "bin", "bun") : undefined,
     path.join(homedir(), ".bun/bin/bun"),
     await which("bun"),
   ].filter((candidate): candidate is string => typeof candidate === "string" && candidate.length > 0);

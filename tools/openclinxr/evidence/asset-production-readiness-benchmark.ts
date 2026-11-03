@@ -409,70 +409,70 @@ export function validateAssetProductionReadinessReport(value: unknown): Validati
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
-  requireRecord(value.policy, "/policy", errors);
-  if (isRecord(value.policy)) {
-    requireLiteral(value.policy.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
-    requireLiteral(value.policy.paidApisUsed, false, "/policy/paidApisUsed", errors);
-    requireBoolean(value.policy.externalAssetsUsed, "/policy/externalAssetsUsed", errors);
-    requireLiteral(value.policy.productionUseAllowed, false, "/policy/productionUseAllowed", errors);
-    requireLiteral(value.policy.copyleftRuntimeAllowed, false, "/policy/copyleftRuntimeAllowed", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireOneOf(value["status"], ["passed", "blocked"], "/status", errors);
+  requireRecord(value["policy"], "/policy", errors);
+  if (isRecord(value["policy"])) {
+    requireLiteral(value["policy"]["cloudApisUsed"], false, "/policy/cloudApisUsed", errors);
+    requireLiteral(value["policy"]["paidApisUsed"], false, "/policy/paidApisUsed", errors);
+    requireBoolean(value["policy"]["externalAssetsUsed"], "/policy/externalAssetsUsed", errors);
+    requireLiteral(value["policy"]["productionUseAllowed"], false, "/policy/productionUseAllowed", errors);
+    requireLiteral(value["policy"]["copyleftRuntimeAllowed"], false, "/policy/copyleftRuntimeAllowed", errors);
   }
-  requireRecord(value.input, "/input", errors);
-  if (isRecord(value.input)) {
-    requireString(value.input.gltfSmokeFile, "/input/gltfSmokeFile", errors);
-    requireString(value.input.gltfSmokeTool, "/input/gltfSmokeTool", errors);
-    requireString(value.input.blenderAssetBakeSmokeFile, "/input/blenderAssetBakeSmokeFile", errors);
-    requireString(value.input.gltfGeneratedAt, "/input/gltfGeneratedAt", errors);
-    requireString(value.input.blenderGeneratedAt, "/input/blenderGeneratedAt", errors);
-    requireBoolean(value.input.localAssetEvidenceFixtureUsed, "/input/localAssetEvidenceFixtureUsed", errors);
+  requireRecord(value["input"], "/input", errors);
+  if (isRecord(value["input"])) {
+    requireString(value["input"]["gltfSmokeFile"], "/input/gltfSmokeFile", errors);
+    requireString(value["input"]["gltfSmokeTool"], "/input/gltfSmokeTool", errors);
+    requireString(value["input"]["blenderAssetBakeSmokeFile"], "/input/blenderAssetBakeSmokeFile", errors);
+    requireString(value["input"]["gltfGeneratedAt"], "/input/gltfGeneratedAt", errors);
+    requireString(value["input"]["blenderGeneratedAt"], "/input/blenderGeneratedAt", errors);
+    requireBoolean(value["input"]["localAssetEvidenceFixtureUsed"], "/input/localAssetEvidenceFixtureUsed", errors);
   }
-  requireRecord(value.sourceEvidence, "/sourceEvidence", errors);
-  if (isRecord(value.sourceEvidence)) {
-    requireBoolean(value.sourceEvidence.gltfSmokePassed, "/sourceEvidence/gltfSmokePassed", errors);
-    requireString(value.sourceEvidence.gltfSmokeTool, "/sourceEvidence/gltfSmokeTool", errors);
-    requireBoolean(value.sourceEvidence.blenderBakeSmokePassed, "/sourceEvidence/blenderBakeSmokePassed", errors);
-    requireString(value.sourceEvidence.blenderSourceLicensePosture, "/sourceEvidence/blenderSourceLicensePosture", errors);
-    requireBoolean(value.sourceEvidence.placeholderBakeOnly, "/sourceEvidence/placeholderBakeOnly", errors);
-    requireBoolean(value.sourceEvidence.blenderSemanticInventoryObserved, "/sourceEvidence/blenderSemanticInventoryObserved", errors);
-    requireStringArray(value.sourceEvidence.blenderMissingRequiredObjectNames, "/sourceEvidence/blenderMissingRequiredObjectNames", errors);
-    requireStringArray(value.sourceEvidence.blockers, "/sourceEvidence/blockers", errors);
+  requireRecord(value["sourceEvidence"], "/sourceEvidence", errors);
+  if (isRecord(value["sourceEvidence"])) {
+    requireBoolean(value["sourceEvidence"]["gltfSmokePassed"], "/sourceEvidence/gltfSmokePassed", errors);
+    requireString(value["sourceEvidence"]["gltfSmokeTool"], "/sourceEvidence/gltfSmokeTool", errors);
+    requireBoolean(value["sourceEvidence"]["blenderBakeSmokePassed"], "/sourceEvidence/blenderBakeSmokePassed", errors);
+    requireString(value["sourceEvidence"]["blenderSourceLicensePosture"], "/sourceEvidence/blenderSourceLicensePosture", errors);
+    requireBoolean(value["sourceEvidence"]["placeholderBakeOnly"], "/sourceEvidence/placeholderBakeOnly", errors);
+    requireBoolean(value["sourceEvidence"]["blenderSemanticInventoryObserved"], "/sourceEvidence/blenderSemanticInventoryObserved", errors);
+    requireStringArray(value["sourceEvidence"]["blenderMissingRequiredObjectNames"], "/sourceEvidence/blenderMissingRequiredObjectNames", errors);
+    requireStringArray(value["sourceEvidence"]["blockers"], "/sourceEvidence/blockers", errors);
   }
-  requireRecord(value.productionProofs, "/productionProofs", errors);
-  if (isRecord(value.productionProofs)) {
-    validateProofLanes(value.productionProofs, errors);
+  requireRecord(value["productionProofs"], "/productionProofs", errors);
+  if (isRecord(value["productionProofs"])) {
+    validateProofLanes(value["productionProofs"], errors);
   }
-  validateStationBudgetEvidence(value.stationBudgetEvidence, "/stationBudgetEvidence", errors);
-  validateGenerationEvidence(value.generationEvidence, "/generationEvidence", errors);
-  validateOptimizationEvidence(value.optimizationEvidence, "/optimizationEvidence", errors);
-  requireRecord(value.runtimeBudget, "/runtimeBudget", errors);
-  if (isRecord(value.runtimeBudget)) {
-    requireNumber(value.runtimeBudget.singleAssetPackGlbBytes, "/runtimeBudget/singleAssetPackGlbBytes", errors);
-    requireLiteral(value.runtimeBudget.targetStationBundleMb, 80, "/runtimeBudget/targetStationBundleMb", errors);
-    requireLiteral(value.runtimeBudget.maxVisibleTriangles, 180000, "/runtimeBudget/maxVisibleTriangles", errors);
-    requireLiteral(value.runtimeBudget.maxDrawCalls, 120, "/runtimeBudget/maxDrawCalls", errors);
-    requireLiteral(value.runtimeBudget.maxTextureMemoryMb, 512, "/runtimeBudget/maxTextureMemoryMb", errors);
-    requireBoolean(value.runtimeBudget.multiActorBudgetObserved, "/runtimeBudget/multiActorBudgetObserved", errors);
-    requireStringArray(value.runtimeBudget.blockers, "/runtimeBudget/blockers", errors);
+  validateStationBudgetEvidence(value["stationBudgetEvidence"], "/stationBudgetEvidence", errors);
+  validateGenerationEvidence(value["generationEvidence"], "/generationEvidence", errors);
+  validateOptimizationEvidence(value["optimizationEvidence"], "/optimizationEvidence", errors);
+  requireRecord(value["runtimeBudget"], "/runtimeBudget", errors);
+  if (isRecord(value["runtimeBudget"])) {
+    requireNumber(value["runtimeBudget"]["singleAssetPackGlbBytes"], "/runtimeBudget/singleAssetPackGlbBytes", errors);
+    requireLiteral(value["runtimeBudget"]["targetStationBundleMb"], 80, "/runtimeBudget/targetStationBundleMb", errors);
+    requireLiteral(value["runtimeBudget"]["maxVisibleTriangles"], 180000, "/runtimeBudget/maxVisibleTriangles", errors);
+    requireLiteral(value["runtimeBudget"]["maxDrawCalls"], 120, "/runtimeBudget/maxDrawCalls", errors);
+    requireLiteral(value["runtimeBudget"]["maxTextureMemoryMb"], 512, "/runtimeBudget/maxTextureMemoryMb", errors);
+    requireBoolean(value["runtimeBudget"]["multiActorBudgetObserved"], "/runtimeBudget/multiActorBudgetObserved", errors);
+    requireStringArray(value["runtimeBudget"]["blockers"], "/runtimeBudget/blockers", errors);
   }
-  requireRecord(value.claimBoundaries, "/claimBoundaries", errors);
-  if (isRecord(value.claimBoundaries)) {
-    requireBoolean(value.claimBoundaries.localAssetEvidenceFixtureIsContractOnly, "/claimBoundaries/localAssetEvidenceFixtureIsContractOnly", errors);
+  requireRecord(value["claimBoundaries"], "/claimBoundaries", errors);
+  if (isRecord(value["claimBoundaries"])) {
+    requireBoolean(value["claimBoundaries"]["localAssetEvidenceFixtureIsContractOnly"], "/claimBoundaries/localAssetEvidenceFixtureIsContractOnly", errors);
     requireBoolean(
-      value.claimBoundaries.artifactBackedProductionAssetEvidenceObserved,
+      value["claimBoundaries"]["artifactBackedProductionAssetEvidenceObserved"],
       "/claimBoundaries/artifactBackedProductionAssetEvidenceObserved",
       errors,
     );
-    requireStringArray(value.claimBoundaries.allowedClaims, "/claimBoundaries/allowedClaims", errors);
-    requireStringArray(value.claimBoundaries.notEvidenceFor, "/claimBoundaries/notEvidenceFor", errors);
+    requireStringArray(value["claimBoundaries"]["allowedClaims"], "/claimBoundaries/allowedClaims", errors);
+    requireStringArray(value["claimBoundaries"]["notEvidenceFor"], "/claimBoundaries/notEvidenceFor", errors);
   }
-  requireRecord(value.verdict, "/verdict", errors);
-  if (isRecord(value.verdict)) {
-    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
-    requireLiteral(value.verdict.readyForProductionAssets, false, "/verdict/readyForProductionAssets", errors);
-    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
-    requireStringArray(value.verdict.caveats, "/verdict/caveats", errors);
+  requireRecord(value["verdict"], "/verdict", errors);
+  if (isRecord(value["verdict"])) {
+    requireBoolean(value["verdict"]["passed"], "/verdict/passed", errors);
+    requireLiteral(value["verdict"]["readyForProductionAssets"], false, "/verdict/readyForProductionAssets", errors);
+    requireStringArray(value["verdict"]["blockers"], "/verdict/blockers", errors);
+    requireStringArray(value["verdict"]["caveats"], "/verdict/caveats", errors);
   }
   validateConsistency(value, errors);
 
@@ -633,9 +633,9 @@ function validateProofLane(value: unknown, pathName: string, errors: string[]): 
     return;
   }
 
-  requireBoolean(value.observed, `${pathName}/observed`, errors);
-  requireStringArray(value.requiredEvidence, `${pathName}/requiredEvidence`, errors);
-  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+  requireBoolean(value["observed"], `${pathName}/observed`, errors);
+  requireStringArray(value["requiredEvidence"], `${pathName}/requiredEvidence`, errors);
+  requireStringArray(value["blockers"], `${pathName}/blockers`, errors);
 }
 
 function validateStationBudgetEvidence(value: unknown, pathName: string, errors: string[]): void {
@@ -644,26 +644,26 @@ function validateStationBudgetEvidence(value: unknown, pathName: string, errors:
     return;
   }
 
-  requireString(value.scenarioId, `${pathName}/scenarioId`, errors);
-  requireString(value.source, `${pathName}/source`, errors);
-  requireNumber(value.requiredAssetCount, `${pathName}/requiredAssetCount`, errors);
-  requireRecord(value.budget, `${pathName}/budget`, errors);
-  if (isRecord(value.budget)) {
-    requireNumber(value.budget.maxVisibleTriangles, `${pathName}/budget/maxVisibleTriangles`, errors);
-    requireNumber(value.budget.maxTextureMegabytes, `${pathName}/budget/maxTextureMegabytes`, errors);
-    requireNumber(value.budget.maxDrawCalls, `${pathName}/budget/maxDrawCalls`, errors);
-    requireNumber(value.budget.totalTriangles, `${pathName}/budget/totalTriangles`, errors);
-    requireNumber(value.budget.totalTextureMegabytes, `${pathName}/budget/totalTextureMegabytes`, errors);
-    requireNumber(value.budget.totalDrawCalls, `${pathName}/budget/totalDrawCalls`, errors);
-    requireStringArray(value.budget.blockers, `${pathName}/budget/blockers`, errors);
+  requireString(value["scenarioId"], `${pathName}/scenarioId`, errors);
+  requireString(value["source"], `${pathName}/source`, errors);
+  requireNumber(value["requiredAssetCount"], `${pathName}/requiredAssetCount`, errors);
+  requireRecord(value["budget"], `${pathName}/budget`, errors);
+  if (isRecord(value["budget"])) {
+    requireNumber(value["budget"]["maxVisibleTriangles"], `${pathName}/budget/maxVisibleTriangles`, errors);
+    requireNumber(value["budget"]["maxTextureMegabytes"], `${pathName}/budget/maxTextureMegabytes`, errors);
+    requireNumber(value["budget"]["maxDrawCalls"], `${pathName}/budget/maxDrawCalls`, errors);
+    requireNumber(value["budget"]["totalTriangles"], `${pathName}/budget/totalTriangles`, errors);
+    requireNumber(value["budget"]["totalTextureMegabytes"], `${pathName}/budget/totalTextureMegabytes`, errors);
+    requireNumber(value["budget"]["totalDrawCalls"], `${pathName}/budget/totalDrawCalls`, errors);
+    requireStringArray(value["budget"]["blockers"], `${pathName}/budget/blockers`, errors);
   }
-  requireBoolean(value.placeholderOnly, `${pathName}/placeholderOnly`, errors);
-  requireBoolean(value.observed, `${pathName}/observed`, errors);
-  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
-  if (value.measuredTriangles !== undefined) {
-    requireRecord(value.measuredTriangles, `${pathName}/measuredTriangles`, errors);
-    if (isRecord(value.measuredTriangles)) {
-      for (const [assetId, count] of Object.entries(value.measuredTriangles)) {
+  requireBoolean(value["placeholderOnly"], `${pathName}/placeholderOnly`, errors);
+  requireBoolean(value["observed"], `${pathName}/observed`, errors);
+  requireStringArray(value["blockers"], `${pathName}/blockers`, errors);
+  if (value["measuredTriangles"] !== undefined) {
+    requireRecord(value["measuredTriangles"], `${pathName}/measuredTriangles`, errors);
+    if (isRecord(value["measuredTriangles"])) {
+      for (const [assetId, count] of Object.entries(value["measuredTriangles"])) {
         if (typeof count !== "number" || !Number.isFinite(count)) {
           errors.push(`${pathName}/measuredTriangles/${assetId} must be finite number`);
         }
@@ -678,12 +678,12 @@ function validateGenerationEvidence(value: unknown, pathName: string, errors: st
     return;
   }
 
-  requireBoolean(value.generatedHumanRiggingObserved, `${pathName}/generatedHumanRiggingObserved`, errors);
-  requireBoolean(value.skinClothingProvenanceObserved, `${pathName}/skinClothingProvenanceObserved`, errors);
-  requireBoolean(value.medicalEquipmentLibraryObserved, `${pathName}/medicalEquipmentLibraryObserved`, errors);
-  requireBoolean(value.animationRetargetingObserved, `${pathName}/animationRetargetingObserved`, errors);
-  requireBoolean(value.placeholderOnly, `${pathName}/placeholderOnly`, errors);
-  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+  requireBoolean(value["generatedHumanRiggingObserved"], `${pathName}/generatedHumanRiggingObserved`, errors);
+  requireBoolean(value["skinClothingProvenanceObserved"], `${pathName}/skinClothingProvenanceObserved`, errors);
+  requireBoolean(value["medicalEquipmentLibraryObserved"], `${pathName}/medicalEquipmentLibraryObserved`, errors);
+  requireBoolean(value["animationRetargetingObserved"], `${pathName}/animationRetargetingObserved`, errors);
+  requireBoolean(value["placeholderOnly"], `${pathName}/placeholderOnly`, errors);
+  requireStringArray(value["blockers"], `${pathName}/blockers`, errors);
 }
 
 function validateOptimizationEvidence(value: unknown, pathName: string, errors: string[]): void {
@@ -692,21 +692,21 @@ function validateOptimizationEvidence(value: unknown, pathName: string, errors: 
     return;
   }
 
-  requireBoolean(value.lodTiersObserved, `${pathName}/lodTiersObserved`, errors);
-  requireBoolean(value.textureCompressionBudgetObserved, `${pathName}/textureCompressionBudgetObserved`, errors);
-  requireBoolean(value.colliderSimplificationObserved, `${pathName}/colliderSimplificationObserved`, errors);
-  requireBoolean(value.placeholderOnly, `${pathName}/placeholderOnly`, errors);
-  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+  requireBoolean(value["lodTiersObserved"], `${pathName}/lodTiersObserved`, errors);
+  requireBoolean(value["textureCompressionBudgetObserved"], `${pathName}/textureCompressionBudgetObserved`, errors);
+  requireBoolean(value["colliderSimplificationObserved"], `${pathName}/colliderSimplificationObserved`, errors);
+  requireBoolean(value["placeholderOnly"], `${pathName}/placeholderOnly`, errors);
+  requireStringArray(value["blockers"], `${pathName}/blockers`, errors);
 }
 
 function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
-  if (!isRecord(value.verdict)) {
+  if (!isRecord(value["verdict"])) {
     return;
   }
 
   const expectedBlockers = expectedReadinessBlockers(value);
-  if (Array.isArray(value.verdict.blockers)) {
-    const verdictBlockers = new Set(value.verdict.blockers);
+  if (Array.isArray(value["verdict"]["blockers"])) {
+    const verdictBlockers = new Set(value["verdict"]["blockers"]);
     for (const blocker of expectedBlockers) {
       if (!verdictBlockers.has(blocker)) {
         errors.push(`/verdict/blockers must include ${blocker}`);
@@ -716,31 +716,31 @@ function validateConsistency(value: Record<string, unknown>, errors: string[]): 
 }
 
 function expectedReadinessBlockers(value: Record<string, unknown>): string[] {
-  const sourceEvidence = isRecord(value.sourceEvidence) ? value.sourceEvidence : {};
-  const proofs = isRecord(value.productionProofs) ? value.productionProofs : {};
-  const stationBudgetEvidence = isRecord(value.stationBudgetEvidence) ? value.stationBudgetEvidence : {};
-  const generationEvidence = isRecord(value.generationEvidence) ? value.generationEvidence : {};
-  const optimizationEvidence = isRecord(value.optimizationEvidence) ? value.optimizationEvidence : {};
-  const runtimeBudget = isRecord(value.runtimeBudget) ? value.runtimeBudget : {};
-  const claimBoundaries = isRecord(value.claimBoundaries) ? value.claimBoundaries : {};
+  const sourceEvidence = isRecord(value["sourceEvidence"]) ? value["sourceEvidence"] : {};
+  const proofs = isRecord(value["productionProofs"]) ? value["productionProofs"] : {};
+  const stationBudgetEvidence = isRecord(value["stationBudgetEvidence"]) ? value["stationBudgetEvidence"] : {};
+  const generationEvidence = isRecord(value["generationEvidence"]) ? value["generationEvidence"] : {};
+  const optimizationEvidence = isRecord(value["optimizationEvidence"]) ? value["optimizationEvidence"] : {};
+  const runtimeBudget = isRecord(value["runtimeBudget"]) ? value["runtimeBudget"] : {};
+  const claimBoundaries = isRecord(value["claimBoundaries"]) ? value["claimBoundaries"] : {};
 
   return [
-    ...stringArray(sourceEvidence.blockers).map((blocker) => `source:${blocker}`),
-    claimBoundaries.localAssetEvidenceFixtureIsContractOnly === true ? "artifact_backed_production_asset_evidence_missing" : undefined,
-    stationBudgetEvidence.placeholderOnly === true ? "station_budget:placeholder_asset_budget_only" : undefined,
-    generationEvidence.placeholderOnly === true ? "generation:placeholder_asset_generation_only" : undefined,
-    optimizationEvidence.placeholderOnly === true ? "optimization:placeholder_asset_optimization_only" : undefined,
-    ...proofBlockers(proofs.generatedHumanRigging, "generation"),
-    ...proofBlockers(proofs.skinClothingProvenance, "generation"),
-    ...proofBlockers(proofs.medicalEquipmentLibrary, "generation"),
-    ...proofBlockers(proofs.animationRetargeting, "generation"),
-    ...proofBlockers(proofs.lodTextureColliderBudget, "optimization"),
-    ...stringArray(runtimeBudget.blockers).map((blocker) => `runtime:${blocker}`),
+    ...stringArray(sourceEvidence["blockers"]).map((blocker) => `source:${blocker}`),
+    claimBoundaries["localAssetEvidenceFixtureIsContractOnly"] === true ? "artifact_backed_production_asset_evidence_missing" : undefined,
+    stationBudgetEvidence["placeholderOnly"] === true ? "station_budget:placeholder_asset_budget_only" : undefined,
+    generationEvidence["placeholderOnly"] === true ? "generation:placeholder_asset_generation_only" : undefined,
+    optimizationEvidence["placeholderOnly"] === true ? "optimization:placeholder_asset_optimization_only" : undefined,
+    ...proofBlockers(proofs["generatedHumanRigging"], "generation"),
+    ...proofBlockers(proofs["skinClothingProvenance"], "generation"),
+    ...proofBlockers(proofs["medicalEquipmentLibrary"], "generation"),
+    ...proofBlockers(proofs["animationRetargeting"], "generation"),
+    ...proofBlockers(proofs["lodTextureColliderBudget"], "optimization"),
+    ...stringArray(runtimeBudget["blockers"]).map((blocker) => `runtime:${blocker}`),
   ].filter((blocker): blocker is string => typeof blocker === "string");
 }
 
 function proofBlockers(value: unknown, prefix: string): string[] {
-  return isRecord(value) ? stringArray(value.blockers).map((blocker) => `${prefix}:${blocker}`) : [];
+  return isRecord(value) ? stringArray(value["blockers"]).map((blocker) => `${prefix}:${blocker}`) : [];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

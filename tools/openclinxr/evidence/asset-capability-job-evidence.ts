@@ -240,42 +240,42 @@ export function validateAssetCapabilityJobEvidenceReport(value: unknown): Valida
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
-  requireRecord(value.policy, "/policy", errors);
-  if (isRecord(value.policy)) {
-    requireLiteral(value.policy.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
-    requireLiteral(value.policy.paidApisUsed, false, "/policy/paidApisUsed", errors);
-    requireLiteral(value.policy.externalNetworkAllowed, false, "/policy/externalNetworkAllowed", errors);
-    requireLiteral(value.policy.spendLimitCents, 0, "/policy/spendLimitCents", errors);
-    requireLiteral(value.policy.productionArtifactClaimed, false, "/policy/productionArtifactClaimed", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireOneOf(value["status"], ["passed", "blocked"], "/status", errors);
+  requireRecord(value["policy"], "/policy", errors);
+  if (isRecord(value["policy"])) {
+    requireLiteral(value["policy"]["cloudApisUsed"], false, "/policy/cloudApisUsed", errors);
+    requireLiteral(value["policy"]["paidApisUsed"], false, "/policy/paidApisUsed", errors);
+    requireLiteral(value["policy"]["externalNetworkAllowed"], false, "/policy/externalNetworkAllowed", errors);
+    requireLiteral(value["policy"]["spendLimitCents"], 0, "/policy/spendLimitCents", errors);
+    requireLiteral(value["policy"]["productionArtifactClaimed"], false, "/policy/productionArtifactClaimed", errors);
   }
-  requireRecord(value.summary, "/summary", errors);
-  if (isRecord(value.summary)) {
-    requireCapabilityIdArray(value.summary.requiredCapabilityIds, "/summary/requiredCapabilityIds", errors);
-    requireCapabilityIdArray(value.summary.observedCapabilityIds, "/summary/observedCapabilityIds", errors);
-    requireBoolean(value.summary.allCapabilitiesObserved, "/summary/allCapabilitiesObserved", errors);
-    requireBoolean(value.summary.allJobsSucceeded, "/summary/allJobsSucceeded", errors);
-    requireBoolean(value.summary.allManifestsObserved, "/summary/allManifestsObserved", errors);
-    requireBoolean(value.summary.allArtifactFilesMaterialized, "/summary/allArtifactFilesMaterialized", errors);
-    requireNumber(value.summary.missingArtifactPathCount, "/summary/missingArtifactPathCount", errors);
-    requireBoolean(value.summary.allLicenseProvenanceObserved, "/summary/allLicenseProvenanceObserved", errors);
-    requireBoolean(value.summary.zeroSpendObserved, "/summary/zeroSpendObserved", errors);
-    requireBoolean(value.summary.noExternalNetworkObserved, "/summary/noExternalNetworkObserved", errors);
-    requireStringArray(value.summary.blockers, "/summary/blockers", errors);
+  requireRecord(value["summary"], "/summary", errors);
+  if (isRecord(value["summary"])) {
+    requireCapabilityIdArray(value["summary"]["requiredCapabilityIds"], "/summary/requiredCapabilityIds", errors);
+    requireCapabilityIdArray(value["summary"]["observedCapabilityIds"], "/summary/observedCapabilityIds", errors);
+    requireBoolean(value["summary"]["allCapabilitiesObserved"], "/summary/allCapabilitiesObserved", errors);
+    requireBoolean(value["summary"]["allJobsSucceeded"], "/summary/allJobsSucceeded", errors);
+    requireBoolean(value["summary"]["allManifestsObserved"], "/summary/allManifestsObserved", errors);
+    requireBoolean(value["summary"]["allArtifactFilesMaterialized"], "/summary/allArtifactFilesMaterialized", errors);
+    requireNumber(value["summary"]["missingArtifactPathCount"], "/summary/missingArtifactPathCount", errors);
+    requireBoolean(value["summary"]["allLicenseProvenanceObserved"], "/summary/allLicenseProvenanceObserved", errors);
+    requireBoolean(value["summary"]["zeroSpendObserved"], "/summary/zeroSpendObserved", errors);
+    requireBoolean(value["summary"]["noExternalNetworkObserved"], "/summary/noExternalNetworkObserved", errors);
+    requireStringArray(value["summary"]["blockers"], "/summary/blockers", errors);
   }
-  requireArray(value.jobs, "/jobs", errors);
-  if (Array.isArray(value.jobs)) {
-    value.jobs.forEach((job, index) => {
+  requireArray(value["jobs"], "/jobs", errors);
+  if (Array.isArray(value["jobs"])) {
+    value["jobs"].forEach((job, index) => {
       validateJobEvidence(job, `/jobs/${index}`, errors);
     });
   }
-  requireRecord(value.verdict, "/verdict", errors);
-  if (isRecord(value.verdict)) {
-    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
-    requireLiteral(value.verdict.readyForProductionAssets, false, "/verdict/readyForProductionAssets", errors);
-    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
-    requireStringArray(value.verdict.caveats, "/verdict/caveats", errors);
+  requireRecord(value["verdict"], "/verdict", errors);
+  if (isRecord(value["verdict"])) {
+    requireBoolean(value["verdict"]["passed"], "/verdict/passed", errors);
+    requireLiteral(value["verdict"]["readyForProductionAssets"], false, "/verdict/readyForProductionAssets", errors);
+    requireStringArray(value["verdict"]["blockers"], "/verdict/blockers", errors);
+    requireStringArray(value["verdict"]["caveats"], "/verdict/caveats", errors);
   }
   validateConsistency(value, errors);
 
@@ -318,75 +318,75 @@ function toJobEvidence(record: AssetGenerationJobRecord): AssetCapabilityJobEvid
 }
 
 function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
-  const summary = isRecord(value.summary) ? value.summary : undefined;
-  const jobs = Array.isArray(value.jobs) ? value.jobs.filter(isRecord) : undefined;
-  const verdict = isRecord(value.verdict) ? value.verdict : undefined;
+  const summary = isRecord(value["summary"]) ? value["summary"] : undefined;
+  const jobs = Array.isArray(value["jobs"]) ? value["jobs"].filter(isRecord) : undefined;
+  const verdict = isRecord(value["verdict"]) ? value["verdict"] : undefined;
 
   if (summary) {
-    validateCanonicalCapabilityIds(summary.requiredCapabilityIds, "/summary/requiredCapabilityIds", errors);
+    validateCanonicalCapabilityIds(summary["requiredCapabilityIds"], "/summary/requiredCapabilityIds", errors);
   }
   if (jobs) {
-    validateCanonicalCapabilityIds(jobs.map((job) => job.capabilityId), "/jobs", errors);
+    validateCanonicalCapabilityIds(jobs.map((job) => job["capabilityId"]), "/jobs", errors);
   }
   if (!summary || !jobs || !verdict) {
     return;
   }
 
-  const passedJobs = jobs.filter((job) => job.passed === true);
+  const passedJobs = jobs.filter((job) => job["passed"] === true);
   const observedCapabilityIds = passedJobs
-    .map((job) => job.capabilityId)
+    .map((job) => job["capabilityId"])
     .filter((capabilityId): capabilityId is AssetGenerationCapabilityId =>
       typeof capabilityId === "string" && requiredCapabilityIds.includes(capabilityId as AssetGenerationCapabilityId),
     );
-  if (!arraysEqual(summary.observedCapabilityIds, observedCapabilityIds)) {
+  if (!arraysEqual(summary["observedCapabilityIds"], observedCapabilityIds)) {
     errors.push("/summary/observedCapabilityIds must match passed job capability ids");
   }
-  if (summary.allCapabilitiesObserved !== requiredCapabilityIds.every((capabilityId) => observedCapabilityIds.includes(capabilityId))) {
+  if (summary["allCapabilitiesObserved"] !== requiredCapabilityIds.every((capabilityId) => observedCapabilityIds.includes(capabilityId))) {
     errors.push("/summary/allCapabilitiesObserved must match required capability coverage");
   }
-  if (summary.allJobsSucceeded !== jobs.every((job) => job.status === "succeeded")) {
+  if (summary["allJobsSucceeded"] !== jobs.every((job) => job["status"] === "succeeded")) {
     errors.push("/summary/allJobsSucceeded must match succeeded job statuses");
   }
-  if (summary.allManifestsObserved !== jobs.every((job) => job.manifestObserved === true)) {
+  if (summary["allManifestsObserved"] !== jobs.every((job) => job["manifestObserved"] === true)) {
     errors.push("/summary/allManifestsObserved must match job manifest evidence");
   }
-  if (summary.allArtifactFilesMaterialized !== jobs.every((job) => job.allArtifactFilesMaterialized === true)) {
+  if (summary["allArtifactFilesMaterialized"] !== jobs.every((job) => job["allArtifactFilesMaterialized"] === true)) {
     errors.push("/summary/allArtifactFilesMaterialized must match job artifact file evidence");
   }
-  const missingArtifactPathCount = jobs.reduce((total, job) => total + stringArray(job.missingArtifactPaths).length, 0);
+  const missingArtifactPathCount = jobs.reduce((total, job) => total + stringArray(job["missingArtifactPaths"]).length, 0);
   const missingArtifactPathCountOnDisk = jobs.reduce(
-    (total, job) => total + stringArray(job.artifactPaths).filter((artifactPath) => !existsSync(artifactPath)).length,
+    (total, job) => total + stringArray(job["artifactPaths"]).filter((artifactPath) => !existsSync(artifactPath)).length,
     0,
   );
-  if (summary.missingArtifactPathCount !== missingArtifactPathCount) {
+  if (summary["missingArtifactPathCount"] !== missingArtifactPathCount) {
     errors.push("/summary/missingArtifactPathCount must match job missing artifact paths");
   }
-  if (summary.allArtifactFilesMaterialized === true && missingArtifactPathCount > 0) {
+  if (summary["allArtifactFilesMaterialized"] === true && missingArtifactPathCount > 0) {
     errors.push("/summary/allArtifactFilesMaterialized cannot be true while artifact files are missing");
   }
-  if (summary.allArtifactFilesMaterialized === true && missingArtifactPathCountOnDisk > 0) {
+  if (summary["allArtifactFilesMaterialized"] === true && missingArtifactPathCountOnDisk > 0) {
     errors.push("/summary/allArtifactFilesMaterialized cannot be true while artifact files are missing");
   }
-  if (summary.allLicenseProvenanceObserved !== jobs.every((job) => job.licenseProvenanceObserved === true)) {
+  if (summary["allLicenseProvenanceObserved"] !== jobs.every((job) => job["licenseProvenanceObserved"] === true)) {
     errors.push("/summary/allLicenseProvenanceObserved must match job license provenance evidence");
   }
-  if (summary.zeroSpendObserved !== jobs.every((job) => job.zeroSpendObserved === true)) {
+  if (summary["zeroSpendObserved"] !== jobs.every((job) => job["zeroSpendObserved"] === true)) {
     errors.push("/summary/zeroSpendObserved must match job spend evidence");
   }
-  if (summary.noExternalNetworkObserved !== jobs.every((job) => job.noExternalNetworkObserved === true)) {
+  if (summary["noExternalNetworkObserved"] !== jobs.every((job) => job["noExternalNetworkObserved"] === true)) {
     errors.push("/summary/noExternalNetworkObserved must match job network evidence");
   }
 
   const expectedVerdictBlockers = [
-    ...(Array.isArray(summary.blockers) ? summary.blockers.filter((blocker): blocker is string => typeof blocker === "string") : []),
-    ...jobs.flatMap((job) => typeof job.capabilityId === "string" && Array.isArray(job.blockers)
-      ? job.blockers
+    ...(Array.isArray(summary["blockers"]) ? summary["blockers"].filter((blocker): blocker is string => typeof blocker === "string") : []),
+    ...jobs.flatMap((job) => typeof job["capabilityId"] === "string" && Array.isArray(job["blockers"])
+      ? job["blockers"]
         .filter((blocker): blocker is string => typeof blocker === "string")
-        .map((blocker) => `${job.capabilityId}:${blocker}`)
+        .map((blocker) => `${job["capabilityId"]}:${blocker}`)
       : []),
   ];
-  if (Array.isArray(verdict.blockers)) {
-    const verdictBlockers = new Set(verdict.blockers);
+  if (Array.isArray(verdict["blockers"])) {
+    const verdictBlockers = new Set(verdict["blockers"]);
     for (const blocker of expectedVerdictBlockers) {
       if (!verdictBlockers.has(blocker)) {
         errors.push(`/verdict/blockers must include ${blocker}`);
@@ -424,27 +424,27 @@ function validateJobEvidence(value: unknown, pathName: string, errors: string[])
     return;
   }
 
-  requireOneOf(value.capabilityId, requiredCapabilityIds, `${pathName}/capabilityId`, errors);
-  requireString(value.jobId, `${pathName}/jobId`, errors);
-  requireOneOf(value.status, ["queued", "running", "succeeded", "failed", "canceled"], `${pathName}/status`, errors);
-  requireRecord(value.worker, `${pathName}/worker`, errors);
-  if (isRecord(value.worker)) {
-    requireString(value.worker.providerId, `${pathName}/worker/providerId`, errors);
-    requireString(value.worker.providerKind, `${pathName}/worker/providerKind`, errors);
-    requireString(value.worker.implementationLanguage, `${pathName}/worker/implementationLanguage`, errors);
-    requireString(value.worker.transport, `${pathName}/worker/transport`, errors);
+  requireOneOf(value["capabilityId"], requiredCapabilityIds, `${pathName}/capabilityId`, errors);
+  requireString(value["jobId"], `${pathName}/jobId`, errors);
+  requireOneOf(value["status"], ["queued", "running", "succeeded", "failed", "canceled"], `${pathName}/status`, errors);
+  requireRecord(value["worker"], `${pathName}/worker`, errors);
+  if (isRecord(value["worker"])) {
+    requireString(value["worker"]["providerId"], `${pathName}/worker/providerId`, errors);
+    requireString(value["worker"]["providerKind"], `${pathName}/worker/providerKind`, errors);
+    requireString(value["worker"]["implementationLanguage"], `${pathName}/worker/implementationLanguage`, errors);
+    requireString(value["worker"]["transport"], `${pathName}/worker/transport`, errors);
   }
-  requireStringArray(value.artifactKinds, `${pathName}/artifactKinds`, errors);
-  requireStringArray(value.artifactPaths, `${pathName}/artifactPaths`, errors);
-  requireBoolean(value.allArtifactFilesMaterialized, `${pathName}/allArtifactFilesMaterialized`, errors);
-  requireStringArray(value.missingArtifactPaths, `${pathName}/missingArtifactPaths`, errors);
+  requireStringArray(value["artifactKinds"], `${pathName}/artifactKinds`, errors);
+  requireStringArray(value["artifactPaths"], `${pathName}/artifactPaths`, errors);
+  requireBoolean(value["allArtifactFilesMaterialized"], `${pathName}/allArtifactFilesMaterialized`, errors);
+  requireStringArray(value["missingArtifactPaths"], `${pathName}/missingArtifactPaths`, errors);
   validateArtifactFileEvidence(value, pathName, errors);
-  requireBoolean(value.manifestObserved, `${pathName}/manifestObserved`, errors);
-  requireBoolean(value.licenseProvenanceObserved, `${pathName}/licenseProvenanceObserved`, errors);
-  requireBoolean(value.zeroSpendObserved, `${pathName}/zeroSpendObserved`, errors);
-  requireBoolean(value.noExternalNetworkObserved, `${pathName}/noExternalNetworkObserved`, errors);
-  requireBoolean(value.passed, `${pathName}/passed`, errors);
-  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+  requireBoolean(value["manifestObserved"], `${pathName}/manifestObserved`, errors);
+  requireBoolean(value["licenseProvenanceObserved"], `${pathName}/licenseProvenanceObserved`, errors);
+  requireBoolean(value["zeroSpendObserved"], `${pathName}/zeroSpendObserved`, errors);
+  requireBoolean(value["noExternalNetworkObserved"], `${pathName}/noExternalNetworkObserved`, errors);
+  requireBoolean(value["passed"], `${pathName}/passed`, errors);
+  requireStringArray(value["blockers"], `${pathName}/blockers`, errors);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -489,21 +489,21 @@ function stringArray(value: unknown): string[] {
 }
 
 function validateArtifactFileEvidence(value: Record<string, unknown>, pathName: string, errors: string[]): void {
-  const artifactPaths = stringArray(value.artifactPaths);
-  const missingArtifactPaths = stringArray(value.missingArtifactPaths);
+  const artifactPaths = stringArray(value["artifactPaths"]);
+  const missingArtifactPaths = stringArray(value["missingArtifactPaths"]);
 
   for (const missingPath of missingArtifactPaths) {
     if (!artifactPaths.includes(missingPath)) {
       errors.push(`${pathName}/missingArtifactPaths must only include declared artifact paths`);
     }
   }
-  if (value.allArtifactFilesMaterialized === true && missingArtifactPaths.length > 0) {
+  if (value["allArtifactFilesMaterialized"] === true && missingArtifactPaths.length > 0) {
     errors.push(`${pathName}/allArtifactFilesMaterialized cannot be true while missingArtifactPaths is non-empty`);
   }
-  if (value.allArtifactFilesMaterialized === false && missingArtifactPaths.length === 0) {
+  if (value["allArtifactFilesMaterialized"] === false && missingArtifactPaths.length === 0) {
     errors.push(`${pathName}/allArtifactFilesMaterialized cannot be false without missingArtifactPaths`);
   }
-  if (value.allArtifactFilesMaterialized === true) {
+  if (value["allArtifactFilesMaterialized"] === true) {
     for (const artifactPath of artifactPaths) {
       if (!existsSync(artifactPath)) {
         errors.push(`${pathName}/allArtifactFilesMaterialized cannot be true while artifact path is missing: ${artifactPath}`);

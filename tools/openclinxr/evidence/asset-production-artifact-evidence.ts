@@ -369,19 +369,19 @@ export function validateAssetProductionArtifactEvidenceReport(value: unknown): V
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireLiteral(value.schemaVersion, "openclinxr.asset-production-artifact-evidence.v1", "/schemaVersion", errors);
-  requireLiteral(value.kind, "asset_production_artifact_evidence", "/kind", errors);
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
-  validatePolicy(value.policy, errors);
-  validateSummary(value.summary, errors);
-  requireArray(value.records, "/records", errors);
-  if (Array.isArray(value.records)) {
-    value.records.forEach((record, index) => {
+  requireLiteral(value["schemaVersion"], "openclinxr.asset-production-artifact-evidence.v1", "/schemaVersion", errors);
+  requireLiteral(value["kind"], "asset_production_artifact_evidence", "/kind", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireOneOf(value["status"], ["passed", "blocked"], "/status", errors);
+  validatePolicy(value["policy"], errors);
+  validateSummary(value["summary"], errors);
+  requireArray(value["records"], "/records", errors);
+  if (Array.isArray(value["records"])) {
+    value["records"].forEach((record, index) => {
       validateRecord(record, `/records/${index}`, errors);
     });
   }
-  validateVerdict(value.verdict, errors);
+  validateVerdict(value["verdict"], errors);
   validateConsistency(value, errors);
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
@@ -392,12 +392,12 @@ function validatePolicy(value: unknown, errors: string[]): void {
   if (!isRecord(value)) {
     return;
   }
-  requireLiteral(value.installsIntroduced, false, "/policy/installsIntroduced", errors);
-  requireLiteral(value.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
-  requireLiteral(value.paidApisUsed, false, "/policy/paidApisUsed", errors);
-  requireLiteral(value.externalAssetsUsed, false, "/policy/externalAssetsUsed", errors);
-  requireLiteral(value.generatedThirdPartyAssetsCommitted, false, "/policy/generatedThirdPartyAssetsCommitted", errors);
-  requireLiteral(value.productionAssetReadinessClaimed, false, "/policy/productionAssetReadinessClaimed", errors);
+  requireLiteral(value["installsIntroduced"], false, "/policy/installsIntroduced", errors);
+  requireLiteral(value["cloudApisUsed"], false, "/policy/cloudApisUsed", errors);
+  requireLiteral(value["paidApisUsed"], false, "/policy/paidApisUsed", errors);
+  requireLiteral(value["externalAssetsUsed"], false, "/policy/externalAssetsUsed", errors);
+  requireLiteral(value["generatedThirdPartyAssetsCommitted"], false, "/policy/generatedThirdPartyAssetsCommitted", errors);
+  requireLiteral(value["productionAssetReadinessClaimed"], false, "/policy/productionAssetReadinessClaimed", errors);
 }
 
 function validateSummary(value: unknown, errors: string[]): void {
@@ -405,15 +405,15 @@ function validateSummary(value: unknown, errors: string[]): void {
   if (!isRecord(value)) {
     return;
   }
-  requireLaneIdArray(value.requiredLaneIds, "/summary/requiredLaneIds", errors);
-  requireLaneIdArray(value.observedLaneIds, "/summary/observedLaneIds", errors);
-  requireLaneIdArray(value.artifactBackedLaneIds, "/summary/artifactBackedLaneIds", errors);
-  requireLaneIdArray(value.placeholderOrFixtureLaneIds, "/summary/placeholderOrFixtureLaneIds", errors);
-  requireLaneIdArray(value.missingLaneIds, "/summary/missingLaneIds", errors);
-  requireBoolean(value.allRequiredLanesObserved, "/summary/allRequiredLanesObserved", errors);
-  requireBoolean(value.allArtifactFilesMaterialized, "/summary/allArtifactFilesMaterialized", errors);
+  requireLaneIdArray(value["requiredLaneIds"], "/summary/requiredLaneIds", errors);
+  requireLaneIdArray(value["observedLaneIds"], "/summary/observedLaneIds", errors);
+  requireLaneIdArray(value["artifactBackedLaneIds"], "/summary/artifactBackedLaneIds", errors);
+  requireLaneIdArray(value["placeholderOrFixtureLaneIds"], "/summary/placeholderOrFixtureLaneIds", errors);
+  requireLaneIdArray(value["missingLaneIds"], "/summary/missingLaneIds", errors);
+  requireBoolean(value["allRequiredLanesObserved"], "/summary/allRequiredLanesObserved", errors);
+  requireBoolean(value["allArtifactFilesMaterialized"], "/summary/allArtifactFilesMaterialized", errors);
   requireBoolean(
-    value.artifactBackedProductionEvidenceObserved,
+    value["artifactBackedProductionEvidenceObserved"],
     "/summary/artifactBackedProductionEvidenceObserved",
     errors,
   );
@@ -425,15 +425,15 @@ function validateRecord(value: unknown, pathName: string, errors: string[]): voi
     return;
   }
 
-  requireOneOf(value.laneId, productionAssetLaneIds, `${pathName}/laneId`, errors);
-  requireString(value.title, `${pathName}/title`, errors);
-  requireOneOf(value.evidenceTier, artifactEvidenceTiers, `${pathName}/evidenceTier`, errors);
-  requireBoolean(value.artifactBacked, `${pathName}/artifactBacked`, errors);
-  requireStringArray(value.requiredArtifactPaths, `${pathName}/requiredArtifactPaths`, errors);
-  requireStringArray(value.materializedArtifactPaths, `${pathName}/materializedArtifactPaths`, errors);
-  requireStringArray(value.missingArtifactPaths, `${pathName}/missingArtifactPaths`, errors);
-  requireStringArray(value.requiredReviewReports, `${pathName}/requiredReviewReports`, errors);
-  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+  requireOneOf(value["laneId"], productionAssetLaneIds, `${pathName}/laneId`, errors);
+  requireString(value["title"], `${pathName}/title`, errors);
+  requireOneOf(value["evidenceTier"], artifactEvidenceTiers, `${pathName}/evidenceTier`, errors);
+  requireBoolean(value["artifactBacked"], `${pathName}/artifactBacked`, errors);
+  requireStringArray(value["requiredArtifactPaths"], `${pathName}/requiredArtifactPaths`, errors);
+  requireStringArray(value["materializedArtifactPaths"], `${pathName}/materializedArtifactPaths`, errors);
+  requireStringArray(value["missingArtifactPaths"], `${pathName}/missingArtifactPaths`, errors);
+  requireStringArray(value["requiredReviewReports"], `${pathName}/requiredReviewReports`, errors);
+  requireStringArray(value["blockers"], `${pathName}/blockers`, errors);
 }
 
 function validateVerdict(value: unknown, errors: string[]): void {
@@ -441,22 +441,22 @@ function validateVerdict(value: unknown, errors: string[]): void {
   if (!isRecord(value)) {
     return;
   }
-  requireBoolean(value.passed, "/verdict/passed", errors);
-  requireLiteral(value.readyForProductionAssets, false, "/verdict/readyForProductionAssets", errors);
-  requireStringArray(value.blockers, "/verdict/blockers", errors);
-  requireStringArray(value.caveats, "/verdict/caveats", errors);
+  requireBoolean(value["passed"], "/verdict/passed", errors);
+  requireLiteral(value["readyForProductionAssets"], false, "/verdict/readyForProductionAssets", errors);
+  requireStringArray(value["blockers"], "/verdict/blockers", errors);
+  requireStringArray(value["caveats"], "/verdict/caveats", errors);
 }
 
 function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
-  if (!isRecord(value.summary) || !Array.isArray(value.records) || !isRecord(value.verdict)) {
+  if (!isRecord(value["summary"]) || !Array.isArray(value["records"]) || !isRecord(value["verdict"])) {
     return;
   }
 
-  const records = value.records.filter(isRecord);
-  const summary = value.summary;
-  const verdict = value.verdict;
+  const records = value["records"].filter(isRecord);
+  const summary = value["summary"];
+  const verdict = value["verdict"];
   const recordLaneIds = records
-    .map((record) => record.laneId)
+    .map((record) => record["laneId"])
     .filter((laneId): laneId is ProductionAssetLaneId => typeof laneId === "string" && productionAssetLaneIds.includes(laneId as ProductionAssetLaneId));
   const recordLaneIdSet = new Set<ProductionAssetLaneId>();
 
@@ -475,69 +475,69 @@ function validateConsistency(value: Record<string, unknown>, errors: string[]): 
 
   const missingLaneIds = productionAssetLaneIds.filter((laneId) => !recordLaneIdSet.has(laneId));
   const artifactBackedLaneIds = records
-    .filter((record) => record.artifactBacked === true && typeof record.laneId === "string")
-    .map((record) => record.laneId as ProductionAssetLaneId);
+    .filter((record) => record["artifactBacked"] === true && typeof record["laneId"] === "string")
+    .map((record) => record["laneId"] as ProductionAssetLaneId);
   const placeholderOrFixtureLaneIds = records
-    .filter((record) => record.artifactBacked === false && typeof record.laneId === "string")
-    .map((record) => record.laneId as ProductionAssetLaneId);
+    .filter((record) => record["artifactBacked"] === false && typeof record["laneId"] === "string")
+    .map((record) => record["laneId"] as ProductionAssetLaneId);
 
-  compareLaneArray(summary.requiredLaneIds, productionAssetLaneIds, "/summary/requiredLaneIds", errors);
-  compareLaneArray(summary.observedLaneIds, recordLaneIds, "/summary/observedLaneIds", errors);
-  compareLaneArray(summary.artifactBackedLaneIds, artifactBackedLaneIds, "/summary/artifactBackedLaneIds", errors);
+  compareLaneArray(summary["requiredLaneIds"], productionAssetLaneIds, "/summary/requiredLaneIds", errors);
+  compareLaneArray(summary["observedLaneIds"], recordLaneIds, "/summary/observedLaneIds", errors);
+  compareLaneArray(summary["artifactBackedLaneIds"], artifactBackedLaneIds, "/summary/artifactBackedLaneIds", errors);
   compareLaneArray(
-    summary.placeholderOrFixtureLaneIds,
+    summary["placeholderOrFixtureLaneIds"],
     placeholderOrFixtureLaneIds,
     "/summary/placeholderOrFixtureLaneIds",
     errors,
   );
-  compareLaneArray(summary.missingLaneIds, missingLaneIds, "/summary/missingLaneIds", errors);
+  compareLaneArray(summary["missingLaneIds"], missingLaneIds, "/summary/missingLaneIds", errors);
 
   const allRequiredLanesObserved = missingLaneIds.length === 0;
   const allArtifactFilesMaterialized = records.every((record) =>
-    Array.isArray(record.missingArtifactPaths) && record.missingArtifactPaths.length === 0
+    Array.isArray(record["missingArtifactPaths"]) && record["missingArtifactPaths"].length === 0
   );
   const artifactBackedProductionEvidenceObserved = allRequiredLanesObserved
     && allArtifactFilesMaterialized
     && artifactBackedLaneIds.length === productionAssetLaneIds.length;
 
-  if (summary.allRequiredLanesObserved !== allRequiredLanesObserved) {
+  if (summary["allRequiredLanesObserved"] !== allRequiredLanesObserved) {
     errors.push("/summary/allRequiredLanesObserved must match missing lane count");
   }
-  if (summary.allArtifactFilesMaterialized !== allArtifactFilesMaterialized) {
+  if (summary["allArtifactFilesMaterialized"] !== allArtifactFilesMaterialized) {
     errors.push("/summary/allArtifactFilesMaterialized must match record missing artifact paths");
   }
-  if (summary.artifactBackedProductionEvidenceObserved !== artifactBackedProductionEvidenceObserved) {
+  if (summary["artifactBackedProductionEvidenceObserved"] !== artifactBackedProductionEvidenceObserved) {
     errors.push("/summary/artifactBackedProductionEvidenceObserved must match artifact-backed lane evidence");
   }
 
   validateRecordFileClaims(records, errors);
 
-  if (!Array.isArray(verdict.blockers)) {
+  if (!Array.isArray(verdict["blockers"])) {
     return;
   }
   const expectedBlockers = expectedVerdictBlockers(records, missingLaneIds, artifactBackedProductionEvidenceObserved);
-  compareStringArray(verdict.blockers, expectedBlockers, "/verdict/blockers", errors);
-  if (verdict.passed !== (expectedBlockers.length === 0)) {
+  compareStringArray(verdict["blockers"], expectedBlockers, "/verdict/blockers", errors);
+  if (verdict["passed"] !== (expectedBlockers.length === 0)) {
     errors.push("/verdict/passed must match blocker-free artifact evidence");
   }
-  if (value.status !== (expectedBlockers.length === 0 ? "passed" : "blocked")) {
+  if (value["status"] !== (expectedBlockers.length === 0 ? "passed" : "blocked")) {
     errors.push("/status must match blocker-free artifact evidence");
   }
 }
 
 function validateRecordFileClaims(records: Array<Record<string, unknown>>, errors: string[]): void {
   records.forEach((record, index) => {
-    if (!Array.isArray(record.requiredArtifactPaths)) {
+    if (!Array.isArray(record["requiredArtifactPaths"])) {
       return;
     }
-    const materializedArtifactPaths = Array.isArray(record.materializedArtifactPaths)
-      ? record.materializedArtifactPaths.filter((entry): entry is string => typeof entry === "string")
+    const materializedArtifactPaths = Array.isArray(record["materializedArtifactPaths"])
+      ? record["materializedArtifactPaths"].filter((entry): entry is string => typeof entry === "string")
       : [];
-    const missingArtifactPaths = Array.isArray(record.missingArtifactPaths)
-      ? record.missingArtifactPaths.filter((entry): entry is string => typeof entry === "string")
+    const missingArtifactPaths = Array.isArray(record["missingArtifactPaths"])
+      ? record["missingArtifactPaths"].filter((entry): entry is string => typeof entry === "string")
       : [];
 
-    for (const artifactPath of record.requiredArtifactPaths) {
+    for (const artifactPath of record["requiredArtifactPaths"]) {
       if (typeof artifactPath !== "string") {
         continue;
       }
@@ -548,11 +548,11 @@ function validateRecordFileClaims(records: Array<Record<string, unknown>>, error
       if (!exists && !missingArtifactPaths.includes(artifactPath)) {
         errors.push(`/records/${index}/missingArtifactPaths must include missing artifact path ${artifactPath}`);
       }
-      if (!exists && record.artifactBacked === true) {
+      if (!exists && record["artifactBacked"] === true) {
         errors.push(`/records/${index}/artifactBacked cannot be true while artifact path is missing: ${artifactPath}`);
       }
     }
-    if (record.artifactBacked === true && record.evidenceTier !== "reviewed_generated_production_source") {
+    if (record["artifactBacked"] === true && record["evidenceTier"] !== "reviewed_generated_production_source") {
       errors.push(`/records/${index}/artifactBacked requires reviewed_generated_production_source evidence tier`);
     }
   });
@@ -567,12 +567,12 @@ function expectedVerdictBlockers(
     artifactBackedProductionEvidenceObserved ? undefined : "artifact_backed_production_asset_evidence_missing",
     ...missingLaneIds.map((laneId) => `${laneId}:lane_missing`),
     ...records.flatMap((record) => {
-      if (typeof record.laneId !== "string" || !Array.isArray(record.blockers)) {
+      if (typeof record["laneId"] !== "string" || !Array.isArray(record["blockers"])) {
         return [];
       }
-      return record.blockers
+      return record["blockers"]
         .filter((blocker): blocker is string => typeof blocker === "string")
-        .map((blocker) => `${record.laneId}:${blocker}`);
+        .map((blocker) => `${record["laneId"]}:${blocker}`);
     }),
   ].filter((blocker): blocker is string => typeof blocker === "string");
 }

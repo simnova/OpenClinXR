@@ -112,7 +112,7 @@ export async function measureActorFloorContact(input?: {
 async function tryReadArtifact(): Promise<ActorFloorContactReport | null> {
   // #141: refuse stale stamps (missing/mismatch → null → re-measure). Fresh stamps still serve.
   return tryReadStampedArtifact(artifactPath(), (parsed) => {
-    const report = parsed.report as ActorFloorContactReport | undefined;
+    const report = parsed["report"] as ActorFloorContactReport | undefined;
     if (
       report?.scenarios
       && Array.isArray(report.scenarios)

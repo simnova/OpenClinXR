@@ -159,7 +159,7 @@ export async function inspectActorFurnitureClearance(input?: {
 
   measureInFlight = (async () => {
     if (!input?.force && !input?.writePreFix && !input?.scenarioIds) {
-      if (process.env.OPENCLINXR_ACTOR_FURNITURE_USE_DISK === "1") {
+      if (process.env["OPENCLINXR_ACTOR_FURNITURE_USE_DISK"] === "1") {
         const fromDisk = await tryReadArtifact(preFixPath());
         if (fromDisk) {
           cachedReport = fromDisk;
@@ -195,7 +195,7 @@ export async function inspectActorFurnitureClearance(input?: {
 
 async function tryReadArtifact(filePath: string): Promise<ActorFurnitureClearanceReport | null> {
   return tryReadStampedArtifact(filePath, (parsed) => {
-    const report = (parsed.report ?? parsed) as ActorFurnitureClearanceReport | undefined;
+    const report = (parsed["report"] ?? parsed) as ActorFurnitureClearanceReport | undefined;
     if (report?.stations && Array.isArray(report.stations) && report.stations.length > 0) {
       return report;
     }

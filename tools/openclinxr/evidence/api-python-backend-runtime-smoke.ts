@@ -215,18 +215,18 @@ export function validateApiPythonBackendRuntimeSmokeReport(value: unknown): Vali
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
-  validatePolicy(value.policy, errors);
-  validatePython(value.python, errors);
-  validateServer(value.server, errors);
-  validateHealth(value.health, errors);
-  validateCapabilities(value.capabilities, errors);
-  validateWebSocket(value.websocket, errors);
-  if (value.relatedLocalInferenceEvidence !== undefined) {
-    validateRelatedLocalInferenceEvidence(value.relatedLocalInferenceEvidence, errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireOneOf(value["status"], ["passed", "blocked"], "/status", errors);
+  validatePolicy(value["policy"], errors);
+  validatePython(value["python"], errors);
+  validateServer(value["server"], errors);
+  validateHealth(value["health"], errors);
+  validateCapabilities(value["capabilities"], errors);
+  validateWebSocket(value["websocket"], errors);
+  if (value["relatedLocalInferenceEvidence"] !== undefined) {
+    validateRelatedLocalInferenceEvidence(value["relatedLocalInferenceEvidence"], errors);
   }
-  validateVerdict(value.verdict, errors);
+  validateVerdict(value["verdict"], errors);
   validateConsistency(value, errors);
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
@@ -238,11 +238,11 @@ function validatePolicy(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireLiteral(value.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
-  requireLiteral(value.paidApisUsed, false, "/policy/paidApisUsed", errors);
-  requireLiteral(value.modelDownloadsUsed, false, "/policy/modelDownloadsUsed", errors);
-  requireLiteral(value.committedGeneratedAudio, false, "/policy/committedGeneratedAudio", errors);
-  requireLiteral(value.productionUseAllowed, false, "/policy/productionUseAllowed", errors);
+  requireLiteral(value["cloudApisUsed"], false, "/policy/cloudApisUsed", errors);
+  requireLiteral(value["paidApisUsed"], false, "/policy/paidApisUsed", errors);
+  requireLiteral(value["modelDownloadsUsed"], false, "/policy/modelDownloadsUsed", errors);
+  requireLiteral(value["committedGeneratedAudio"], false, "/policy/committedGeneratedAudio", errors);
+  requireLiteral(value["productionUseAllowed"], false, "/policy/productionUseAllowed", errors);
 }
 
 function validatePython(value: unknown, errors: string[]): void {
@@ -251,15 +251,15 @@ function validatePython(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireString(value.executable, "/python/executable", errors);
-  requireNullableString(value.version, "/python/version", errors);
-  requireRecord(value.dependencies, "/python/dependencies", errors);
-  if (isRecord(value.dependencies)) {
-    for (const [packageName, status] of Object.entries(value.dependencies)) {
+  requireString(value["executable"], "/python/executable", errors);
+  requireNullableString(value["version"], "/python/version", errors);
+  requireRecord(value["dependencies"], "/python/dependencies", errors);
+  if (isRecord(value["dependencies"])) {
+    for (const [packageName, status] of Object.entries(value["dependencies"])) {
       requireOneOf(status, ["available", "missing"], `/python/dependencies/${packageName}`, errors);
     }
   }
-  requireStringArray(value.missingPackages, "/python/missingPackages", errors);
+  requireStringArray(value["missingPackages"], "/python/missingPackages", errors);
 }
 
 function validateServer(value: unknown, errors: string[]): void {
@@ -268,11 +268,11 @@ function validateServer(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.attempted, "/server/attempted", errors);
-  requireStringArray(value.command, "/server/command", errors);
-  requireNumber(value.port, "/server/port", errors);
-  requireStringArray(value.stdout, "/server/stdout", errors);
-  requireStringArray(value.stderr, "/server/stderr", errors);
+  requireBoolean(value["attempted"], "/server/attempted", errors);
+  requireStringArray(value["command"], "/server/command", errors);
+  requireNumber(value["port"], "/server/port", errors);
+  requireStringArray(value["stdout"], "/server/stdout", errors);
+  requireStringArray(value["stderr"], "/server/stderr", errors);
 }
 
 function validateHealth(value: unknown, errors: string[]): void {
@@ -281,10 +281,10 @@ function validateHealth(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.attempted, "/health/attempted", errors);
-  requireBoolean(value.ok, "/health/ok", errors);
-  requireNullableNumber(value.statusCode, "/health/statusCode", errors);
-  requireNullableNumber(value.latencyMs, "/health/latencyMs", errors);
+  requireBoolean(value["attempted"], "/health/attempted", errors);
+  requireBoolean(value["ok"], "/health/ok", errors);
+  requireNullableNumber(value["statusCode"], "/health/statusCode", errors);
+  requireNullableNumber(value["latencyMs"], "/health/latencyMs", errors);
 }
 
 function validateCapabilities(value: unknown, errors: string[]): void {
@@ -293,22 +293,22 @@ function validateCapabilities(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.attempted, "/capabilities/attempted", errors);
-  requireBoolean(value.ok, "/capabilities/ok", errors);
-  requireNullableNumber(value.statusCode, "/capabilities/statusCode", errors);
-  requireNullableNumber(value.latencyMs, "/capabilities/latencyMs", errors);
-  if (!Array.isArray(value.modes)) {
+  requireBoolean(value["attempted"], "/capabilities/attempted", errors);
+  requireBoolean(value["ok"], "/capabilities/ok", errors);
+  requireNullableNumber(value["statusCode"], "/capabilities/statusCode", errors);
+  requireNullableNumber(value["latencyMs"], "/capabilities/latencyMs", errors);
+  if (!Array.isArray(value["modes"])) {
     errors.push("/capabilities/modes must be array");
     return;
   }
-  value.modes.forEach((mode, index) => {
+  value["modes"].forEach((mode, index) => {
     if (!isRecord(mode)) {
       errors.push(`/capabilities/modes/${index} must be object`);
       return;
     }
-    requireString(mode.id, `/capabilities/modes/${index}/id`, errors);
-    requireString(mode.status, `/capabilities/modes/${index}/status`, errors);
-    requireStringArray(mode.blockers, `/capabilities/modes/${index}/blockers`, errors);
+    requireString(mode["id"], `/capabilities/modes/${index}/id`, errors);
+    requireString(mode["status"], `/capabilities/modes/${index}/status`, errors);
+    requireStringArray(mode["blockers"], `/capabilities/modes/${index}/blockers`, errors);
   });
 }
 
@@ -318,10 +318,10 @@ function validateWebSocket(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.attempted, "/websocket/attempted", errors);
-  requireBoolean(value.connected, "/websocket/connected", errors);
-  requireNumber(value.jsonMessages, "/websocket/jsonMessages", errors);
-  requireNumber(value.binaryMessages, "/websocket/binaryMessages", errors);
+  requireBoolean(value["attempted"], "/websocket/attempted", errors);
+  requireBoolean(value["connected"], "/websocket/connected", errors);
+  requireNumber(value["jsonMessages"], "/websocket/jsonMessages", errors);
+  requireNumber(value["binaryMessages"], "/websocket/binaryMessages", errors);
   for (const key of [
     "controlAckObserved",
     "audioMetadataObserved",
@@ -330,8 +330,8 @@ function validateWebSocket(value: unknown, errors: string[]): void {
   ]) {
     requireBoolean(value[key], `/websocket/${key}`, errors);
   }
-  requireNullableNumber(value.latencyMs, "/websocket/latencyMs", errors);
-  validateWebSocketProtocol(value.protocol, errors);
+  requireNullableNumber(value["latencyMs"], "/websocket/latencyMs", errors);
+  validateWebSocketProtocol(value["protocol"], errors);
 }
 
 function validateWebSocketProtocol(value: unknown, errors: string[]): void {
@@ -340,13 +340,13 @@ function validateWebSocketProtocol(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireLiteral(value.websocketPath, "/voice/realtime/ws", "/websocket/protocol/websocketPath", errors);
-  requireLiteral(value.codec, "opus", "/websocket/protocol/codec", errors);
-  requireBoolean(value.backendProtocolObserved, "/websocket/protocol/backendProtocolObserved", errors);
-  requireStringArray(value.clientControlFrameTypesSent, "/websocket/protocol/clientControlFrameTypesSent", errors);
-  requireStringArray(value.serverEventTypesObserved, "/websocket/protocol/serverEventTypesObserved", errors);
-  requireBoolean(value.latencyFieldsObserved, "/websocket/protocol/latencyFieldsObserved", errors);
-  requireBoolean(value.canonicalProtocolObserved, "/websocket/protocol/canonicalProtocolObserved", errors);
+  requireLiteral(value["websocketPath"], "/voice/realtime/ws", "/websocket/protocol/websocketPath", errors);
+  requireLiteral(value["codec"], "opus", "/websocket/protocol/codec", errors);
+  requireBoolean(value["backendProtocolObserved"], "/websocket/protocol/backendProtocolObserved", errors);
+  requireStringArray(value["clientControlFrameTypesSent"], "/websocket/protocol/clientControlFrameTypesSent", errors);
+  requireStringArray(value["serverEventTypesObserved"], "/websocket/protocol/serverEventTypesObserved", errors);
+  requireBoolean(value["latencyFieldsObserved"], "/websocket/protocol/latencyFieldsObserved", errors);
+  requireBoolean(value["canonicalProtocolObserved"], "/websocket/protocol/canonicalProtocolObserved", errors);
 }
 
 function validateRelatedLocalInferenceEvidence(value: unknown, errors: string[]): void {
@@ -355,24 +355,24 @@ function validateRelatedLocalInferenceEvidence(value: unknown, errors: string[])
     return;
   }
 
-  if (value.qwen3Tts === undefined) {
+  if (value["qwen3Tts"] === undefined) {
     return;
   }
-  requireRecord(value.qwen3Tts, "/relatedLocalInferenceEvidence/qwen3Tts", errors);
-  if (!isRecord(value.qwen3Tts)) {
+  requireRecord(value["qwen3Tts"], "/relatedLocalInferenceEvidence/qwen3Tts", errors);
+  if (!isRecord(value["qwen3Tts"])) {
     return;
   }
-  requireBoolean(value.qwen3Tts.observed, "/relatedLocalInferenceEvidence/qwen3Tts/observed", errors);
-  requireLiteral(value.qwen3Tts.claimScope, "local_tts_inference_only", "/relatedLocalInferenceEvidence/qwen3Tts/claimScope", errors);
+  requireBoolean(value["qwen3Tts"]["observed"], "/relatedLocalInferenceEvidence/qwen3Tts/observed", errors);
+  requireLiteral(value["qwen3Tts"]["claimScope"], "local_tts_inference_only", "/relatedLocalInferenceEvidence/qwen3Tts/claimScope", errors);
   requireLiteral(
-    value.qwen3Tts.modelId,
+    value["qwen3Tts"]["modelId"],
     "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
     "/relatedLocalInferenceEvidence/qwen3Tts/modelId",
     errors,
   );
-  requireNullableNumber(value.qwen3Tts.realTimeFactor, "/relatedLocalInferenceEvidence/qwen3Tts/realTimeFactor", errors);
-  requireLiteral(value.qwen3Tts.readyForLiveDialog, false, "/relatedLocalInferenceEvidence/qwen3Tts/readyForLiveDialog", errors);
-  requireStringArray(value.qwen3Tts.blockers, "/relatedLocalInferenceEvidence/qwen3Tts/blockers", errors);
+  requireNullableNumber(value["qwen3Tts"]["realTimeFactor"], "/relatedLocalInferenceEvidence/qwen3Tts/realTimeFactor", errors);
+  requireLiteral(value["qwen3Tts"]["readyForLiveDialog"], false, "/relatedLocalInferenceEvidence/qwen3Tts/readyForLiveDialog", errors);
+  requireStringArray(value["qwen3Tts"]["blockers"], "/relatedLocalInferenceEvidence/qwen3Tts/blockers", errors);
 }
 
 function validateVerdict(value: unknown, errors: string[]): void {
@@ -381,29 +381,29 @@ function validateVerdict(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.passed, "/verdict/passed", errors);
-  requireLiteral(value.readyForLiveDialog, false, "/verdict/readyForLiveDialog", errors);
-  requireStringArray(value.blockers, "/verdict/blockers", errors);
-  requireStringArray(value.caveats, "/verdict/caveats", errors);
+  requireBoolean(value["passed"], "/verdict/passed", errors);
+  requireLiteral(value["readyForLiveDialog"], false, "/verdict/readyForLiveDialog", errors);
+  requireStringArray(value["blockers"], "/verdict/blockers", errors);
+  requireStringArray(value["caveats"], "/verdict/caveats", errors);
 }
 
 function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
-  const verdict = isRecord(value.verdict) ? value.verdict : undefined;
+  const verdict = isRecord(value["verdict"]) ? value["verdict"] : undefined;
   if (!verdict) {
     return;
   }
 
   const expectedBlockers = expectedApiPythonBackendRuntimeSmokeBlockers(value);
   const hasBlockers = expectedBlockers.length > 0;
-  const actualBlockers = new Set(stringArray(verdict.blockers));
+  const actualBlockers = new Set(stringArray(verdict["blockers"]));
 
-  if (value.status === "passed" && hasBlockers) {
+  if (value["status"] === "passed" && hasBlockers) {
     errors.push("/status must be blocked when blockers are present");
   }
-  if (value.status === "blocked" && !hasBlockers) {
+  if (value["status"] === "blocked" && !hasBlockers) {
     errors.push("/status must be passed when no blockers are present");
   }
-  if (verdict.passed !== !hasBlockers) {
+  if (verdict["passed"] !== !hasBlockers) {
     errors.push(`/verdict/passed must be ${String(!hasBlockers)} when blockers are ${hasBlockers ? "present" : "absent"}`);
   }
   for (const blocker of expectedBlockers) {
@@ -414,29 +414,29 @@ function validateConsistency(value: Record<string, unknown>, errors: string[]): 
 }
 
 function expectedApiPythonBackendRuntimeSmokeBlockers(value: Record<string, unknown>): string[] {
-  const python = isRecord(value.python) ? value.python : {};
-  const server = isRecord(value.server) ? value.server : {};
-  const health = isRecord(value.health) ? value.health : {};
-  const capabilities = isRecord(value.capabilities) ? value.capabilities : {};
-  const websocket = isRecord(value.websocket) ? value.websocket : {};
-  const protocol = isRecord(websocket.protocol) ? websocket.protocol : {};
-  const dependencies = isRecord(python.dependencies) ? python.dependencies : {};
+  const python = isRecord(value["python"]) ? value["python"] : {};
+  const server = isRecord(value["server"]) ? value["server"] : {};
+  const health = isRecord(value["health"]) ? value["health"] : {};
+  const capabilities = isRecord(value["capabilities"]) ? value["capabilities"] : {};
+  const websocket = isRecord(value["websocket"]) ? value["websocket"] : {};
+  const protocol = isRecord(websocket["protocol"]) ? websocket["protocol"] : {};
+  const dependencies = isRecord(python["dependencies"]) ? python["dependencies"] : {};
 
   return [
     ...Object.entries(dependencies)
       .filter(([, status]) => status === "missing")
       .map(([packageName]) => `python_dependency_missing:${packageName}`),
-    server.attempted === true ? undefined : "server_not_started",
-    health.attempted === true && health.ok === true ? undefined : "health_check_failed",
-    capabilities.attempted === true && capabilities.ok === true ? undefined : "capabilities_check_failed",
-    websocket.attempted === true && websocket.connected === true ? undefined : "websocket_not_connected",
-    websocket.controlAckObserved === true ? undefined : "websocket_control_ack_missing",
-    websocket.audioMetadataObserved === true ? undefined : "websocket_audio_metadata_missing",
-    websocket.transcriptDeltaObserved === true ? undefined : "websocket_transcript_delta_missing",
-    websocket.binaryEchoObserved === true ? undefined : "websocket_binary_echo_missing",
-    protocol.backendProtocolObserved === true ? undefined : "websocket_backend_protocol_not_observed",
-    protocol.latencyFieldsObserved === true ? undefined : "websocket_latency_fields_not_observed",
-    protocol.canonicalProtocolObserved === true ? undefined : "websocket_canonical_protocol_not_observed",
+    server["attempted"] === true ? undefined : "server_not_started",
+    health["attempted"] === true && health["ok"] === true ? undefined : "health_check_failed",
+    capabilities["attempted"] === true && capabilities["ok"] === true ? undefined : "capabilities_check_failed",
+    websocket["attempted"] === true && websocket["connected"] === true ? undefined : "websocket_not_connected",
+    websocket["controlAckObserved"] === true ? undefined : "websocket_control_ack_missing",
+    websocket["audioMetadataObserved"] === true ? undefined : "websocket_audio_metadata_missing",
+    websocket["transcriptDeltaObserved"] === true ? undefined : "websocket_transcript_delta_missing",
+    websocket["binaryEchoObserved"] === true ? undefined : "websocket_binary_echo_missing",
+    protocol["backendProtocolObserved"] === true ? undefined : "websocket_backend_protocol_not_observed",
+    protocol["latencyFieldsObserved"] === true ? undefined : "websocket_latency_fields_not_observed",
+    protocol["canonicalProtocolObserved"] === true ? undefined : "websocket_canonical_protocol_not_observed",
   ].filter((blocker): blocker is string => typeof blocker === "string");
 }
 
@@ -798,10 +798,10 @@ function extractCapabilityModes(body: unknown): ApiPythonBackendRuntimeSmokeRepo
   return (body as { modes: unknown[] }).modes
     .filter((mode): mode is Record<string, unknown> => typeof mode === "object" && mode !== null)
     .map((mode) => ({
-      id: typeof mode.id === "string" ? mode.id : "unknown",
-      status: typeof mode.status === "string" ? mode.status : "unknown",
-      blockers: Array.isArray(mode.blockers)
-        ? mode.blockers.filter((blocker): blocker is string => typeof blocker === "string")
+      id: typeof mode["id"] === "string" ? mode["id"] : "unknown",
+      status: typeof mode["status"] === "string" ? mode["status"] : "unknown",
+      blockers: Array.isArray(mode["blockers"])
+        ? mode["blockers"].filter((blocker): blocker is string => typeof blocker === "string")
         : [],
     }));
 }
