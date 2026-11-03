@@ -152,7 +152,8 @@ describe("factory:case CLI", () => {
     expect(calls.every((c) => c.args.includes("--actor") && c.args.includes("--clip") && c.args.includes(MOTION_BIND_CLIP))).toBe(true);
     const actorArgs = calls.flatMap((c) => {
       const idx = c.args.indexOf("--actor");
-      return idx >= 0 && c.args[idx + 1] ? [c.args[idx + 1]] : [];
+      const next = c.args[idx + 1];
+      return idx >= 0 && next ? [next] : [];
     });
     // Parent runtime is already the motion-bind GLB; isMpfbGeneratedHumanoid
     // only matches generated-humanoids/mpfb-*.glb, so live bind is child + kevin.

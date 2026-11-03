@@ -116,10 +116,10 @@ describe("the lip-sync call is cited with the flags this machine requires", () =
     const d = doc();
     expect(d.loadTargets?.requiredFlags, "requiredFlags for THIS machine").toEqual(REQUIRED_FLAGS);
     expect(
-      d.loadTargets?.requiredFlags?.load_microsoft_visemes,
+      d.loadTargets?.requiredFlags?.["load_microsoft_visemes"],
       "microsoft pack is NOT staged here; requesting it raises",
     ).toBe(false);
-    expect(d.loadTargets?.requiredFlags?.load_meta_visemes, "visemes02 IS staged and is the meta list").toBe(true);
+    expect(d.loadTargets?.requiredFlags?.["load_meta_visemes"], "visemes02 IS staged and is the meta list").toBe(true);
   });
 
   it("(3) COUNTERWEIGHT: both citations resolve — the cited line contains the cited symbol", () => {

@@ -21,13 +21,13 @@ function buildScene(meshes: THREE.Object3D[]): THREE.Scene {
   const holder = new THREE.Group();
   for (const m of meshes) holder.add(m);
   const actorRoot = new THREE.Group();
-  actorRoot.userData.openClinXrActorId = "patient-1";
-  actorRoot.userData.openClinXrActorPosture = "standing";
+  actorRoot.userData["openClinXrActorId"] = "patient-1";
+  actorRoot.userData["openClinXrActorPosture"] = "standing";
   const bone = new THREE.Bone();
   bone.position.set(0, 0.85, -2);
   const skeleton = new THREE.Skeleton([bone]);
   const geo = new THREE.BoxGeometry(0.6, 1.7, 0.4);
-  const position = geo.attributes.position;
+  const position = geo.attributes["position"];
   if (!position) throw new Error("box geometry missing position");
   const count = position.count;
   const skinIndex = new Uint16Array(count * 4);

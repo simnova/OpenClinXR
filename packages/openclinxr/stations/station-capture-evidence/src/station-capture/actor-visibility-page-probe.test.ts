@@ -7,7 +7,7 @@ import {
 
 describe("actor visibility probe", () => {
   it("rejects a partition-hidden actor that the old wall-and-door-only check accepts", () => {
-    const actor = { id: "patient", box: { min: [-0.3, 0, -0.2], max: [0.3, 1.8, 0.2] } } as const;
+    const actor: Parameters<typeof measureActorVisibility>[1] = { id: "patient", box: { min: [-0.3, 0, -0.2], max: [0.3, 1.8, 0.2] } };
     const partition: ActorVisibilityOccluder = {
       actorId: null,
       name: "privacy_partition.panel",
@@ -25,7 +25,7 @@ describe("actor visibility probe", () => {
   });
 
   it("keeps a readable crown and chest visible when furniture blocks the legs", () => {
-    const actor = { id: "spouse", box: { min: [-0.3, 0, -0.2], max: [0.3, 1.8, 0.2] } } as const;
+    const actor: Parameters<typeof measureActorVisibility>[1] = { id: "spouse", box: { min: [-0.3, 0, -0.2], max: [0.3, 1.8, 0.2] } };
     const cart: ActorVisibilityOccluder = {
       actorId: null,
       name: "ecg_cart",
@@ -40,7 +40,7 @@ describe("actor visibility probe", () => {
 
   it("keeps the browser implementation pinned to crown-and-chest readability", () => {
     const browserMeasure = Function(`return (${ACTOR_VISIBILITY_BROWSER_FUNCTION_SOURCE})`)() as typeof measureActorVisibility;
-    const actor = { id: "patient", box: { min: [-0.3, 0, -0.2], max: [0.3, 1.8, 0.2] } } as const;
+    const actor: Parameters<typeof measureActorVisibility>[1] = { id: "patient", box: { min: [-0.3, 0, -0.2], max: [0.3, 1.8, 0.2] } };
     expect(browserMeasure([0, 1.6, 3], actor, [])).toEqual(measureActorVisibility([0, 1.6, 3], actor, []));
   });
 });

@@ -79,7 +79,9 @@ describe("review GLB optimization visual cagematch", () => {
 
     expect(validateReviewGlbOptimizationVisualCagematchReport(report)).toEqual({ ok: true });
 
-    report.summary[0].usableAsWebXrRuntimeReplacement = true;
+    const firstSummary = report.summary[0];
+    if (firstSummary === undefined) throw new Error("missing cagematch summary fixture");
+    firstSummary.usableAsWebXrRuntimeReplacement = true;
     expect(validateReviewGlbOptimizationVisualCagematchReport(report)).toEqual({
       ok: false,
       errors: expect.arrayContaining([

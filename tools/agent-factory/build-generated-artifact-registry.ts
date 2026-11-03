@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "nod
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { GENERATED_ARTIFACT_PRESERVED_ENTRIES } from "./generated-artifact-preserved-entries.ts";
+import { GENERATED_ARTIFACT_PRESERVED_ENTRIES } from "./generated-artifact-preserved-entries.js";
 import {
   decideRegistryShrink,
   loadRegisteredEntries,
@@ -12,7 +12,7 @@ import {
   worktreeNote,
   type LoadedRegistryEntry,
   type PreservedRegistryEntry,
-} from "./registry-shrink-guard.ts";
+} from "./registry-shrink-guard.js";
 
 export type GeneratedArtifactAuthority =
   | "keep-current"
@@ -70,7 +70,7 @@ export type BuildGeneratedArtifactRegistryOptions = {
   pathIsIgnored?: (registeredPath: string) => boolean;
 };
 
-export { GENERATED_ARTIFACT_PRESERVED_ENTRIES } from "./generated-artifact-preserved-entries.ts";
+export { GENERATED_ARTIFACT_PRESERVED_ENTRIES } from "./generated-artifact-preserved-entries.js";
 
 export type BuildGeneratedArtifactRegistryResult = {
   ok: boolean;
@@ -329,10 +329,10 @@ function countByAuthority(entries: readonly GeneratedArtifactEntry[]): Record<st
 }
 
 function asGeneratedEntry(raw: LoadedRegistryEntry): GeneratedArtifactEntry {
-  const tracked = raw.tracked === true;
-  const rationale = typeof raw.rationale === "string" ? raw.rationale : "Carried-forward registered path; kept until --allow-shrink.";
-  const authority = raw.authority;
-  const action = raw.action;
+  const tracked = raw["tracked"] === true;
+  const rationale = typeof raw["rationale"] === "string" ? raw["rationale"] : "Carried-forward registered path; kept until --allow-shrink.";
+  const authority = raw["authority"];
+  const action = raw["action"];
   const knownAuthority: GeneratedArtifactAuthority[] = [
     "keep-current",
     "keep-template",
@@ -590,9 +590,10 @@ export function buildGeneratedArtifactRegistry(
 }
 
 async function main(): Promise<void> {
+  const registryAppendPath = parseRegistryAppend();
   const result = buildGeneratedArtifactRegistry({
     allowShrink: parseAllowShrink(),
-    appendPath: parseRegistryAppend(),
+    ...(registryAppendPath === undefined ? {} : { appendPath: registryAppendPath }),
   });
   if (!result.ok) {
     process.exitCode = result.exitCode;

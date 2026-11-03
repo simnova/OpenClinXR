@@ -8,7 +8,7 @@ import {
   loadRegisteredPaths,
   parseAllowShrink,
   worktreeNote,
-} from "./registry-shrink-guard.ts";
+} from "./registry-shrink-guard.js";
 
 export type DocAuthority =
   | "protected-policy"

@@ -125,14 +125,17 @@ function cliSeedCallBound(cliSrc: string): boolean {
   if (!parsed) return false;
   const { fn } = parsed;
   for (const n of descendants(fn.body!)) {
+    const headArg = typeScript.isCallExpression(n) && n.arguments.length > 0
+      ? n.arguments[0]
+      : undefined;
     if (
       typeScript.isCallExpression(n)
       && typeScript.isIdentifier(n.expression)
       && n.expression.text === "runEquipmentGenerate"
-      && n.arguments.length > 0
-      && typeScript.isObjectLiteralExpression(n.arguments[0])
+      && headArg !== undefined
+      && typeScript.isObjectLiteralExpression(headArg)
     ) {
-      for (const prop of n.arguments[0].properties) {
+      for (const prop of headArg.properties) {
         if (
           typeScript.isPropertyAssignment(prop)
           && typeScript.isIdentifier(prop.name)
@@ -208,31 +211,37 @@ function runnerSeedArgvIntact(runSrc: string): boolean {
     ) {
       const els = n.initializer.elements;
       for (let i = 0; i + 1 < els.length; i++) {
-        const flag = els[i];
-        const val = els[i + 1];
+        const flag = els[i]!;
+        const val = els[i + 1]!;
+        const seedArg = typeScript.isCallExpression(val) && val.arguments.length === 1
+          ? val.arguments[0]
+          : undefined;
         if (
           typeScript.isStringLiteral(flag)
           && flag.text === "--seed"
           && typeScript.isCallExpression(val)
           && typeScript.isIdentifier(val.expression)
           && val.expression.text === "String"
-          && val.arguments.length === 1
-          && typeScript.isPropertyAccessExpression(val.arguments[0])
-          && typeScript.isIdentifier(val.arguments[0].expression)
-          && val.arguments[0].expression.text === "plan"
-          && val.arguments[0].name.text === "seed"
+          && seedArg !== undefined
+          && typeScript.isPropertyAccessExpression(seedArg)
+          && typeScript.isIdentifier(seedArg.expression)
+          && seedArg.expression.text === "plan"
+          && seedArg.name.text === "seed"
         ) {
           argvHasSeedPair = true;
         }
       }
     }
+    const execArg = typeScript.isCallExpression(n) && n.arguments.length >= 2
+      ? n.arguments[1]
+      : undefined;
     if (
       typeScript.isCallExpression(n)
       && typeScript.isIdentifier(n.expression)
       && n.expression.text === "execFileSync"
-      && n.arguments.length >= 2
-      && typeScript.isIdentifier(n.arguments[1])
-      && n.arguments[1].text === "argv"
+      && execArg !== undefined
+      && typeScript.isIdentifier(execArg)
+      && execArg.text === "argv"
     ) {
       argvReachesExec = true;
     }

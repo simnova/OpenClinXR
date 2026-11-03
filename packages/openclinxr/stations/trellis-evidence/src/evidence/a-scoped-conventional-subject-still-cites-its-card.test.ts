@@ -76,8 +76,8 @@ describe("#743 machine attribution reaches what a subject cannot, without weaken
     const p = resolve(REPO, "tools/openclinxr/evidence/fixtures/issue-742-merge-receipt.json");
     expect(existsSync(p), "issue-742 merge artifact").toBe(true);
     const j = JSON.parse(readFileSync(p, "utf8")) as Record<string, unknown>;
-    expect(j.sliceId).toBe("issue-742");
-    expect(j.proofsOk).toBe(true);
-    expect(String(j.headSha ?? "")).toMatch(/^dd4c5829/u);
+    expect(j["sliceId"]).toBe("issue-742");
+    expect(j["proofsOk"]).toBe(true);
+    expect(String(j["headSha"] ?? "")).toMatch(/^dd4c5829/u);
   });
 });
