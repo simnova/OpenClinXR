@@ -28,7 +28,7 @@
 
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { type Document, NodeIO, type Mesh as GltfMesh, type Node as GltfNode, type Primitive as GltfPrimitive } from "@gltf-transform/core";
+import { type Document, type Mesh as GltfMesh, type Node as GltfNode, type Primitive as GltfPrimitive, NodeIO } from "@gltf-transform/core";
 
 const GARMENT_MESH_RE = /openclinxr_real_garment/i;
 /** Exported declaration markers (1-triangle SSOT meshes) — neither body nor garment. */
@@ -84,6 +84,7 @@ class GarmentBvh {
     this.order.push(...tris.map((_, i) => i));
     const boundsOf = (ti: number) => {
       const t = tris[ti];
+      if (t === undefined) throw new Error(`GarmentBvh: triangle index out of bounds: ${ti}`);
       return {
         min: {
           x: Math.min(t.a.x, t.b.x, t.c.x),
@@ -101,7 +102,9 @@ class GarmentBvh {
       let min = { x: Infinity, y: Infinity, z: Infinity };
       let max = { x: -Infinity, y: -Infinity, z: -Infinity };
       for (let i = start; i < start + count; i++) {
-        const b = boundsOf(this.order[i]);
+        const oi = this.order[i];
+        if (oi === undefined) throw new Error(`GarmentBvh: order index out of bounds: ${i}`);
+        const b = boundsOf(oi);
         min = { x: Math.min(min.x, b.min.x), y: Math.min(min.y, b.min.y), z: Math.min(min.z, b.min.z) };
         max = { x: Math.max(max.x, b.max.x), y: Math.max(max.y, b.max.y), z: Math.max(max.z, b.max.z) };
       }
@@ -114,6 +117,7 @@ class GarmentBvh {
       const axis = ex >= ey && ex >= ez ? 0 : ey >= ez ? 1 : 2;
       const keyOf = (ti: number): number => {
         const t = tris[ti];
+        if (t === undefined) throw new Error(`GarmentBvh: triangle index out of bounds: ${ti}`);
         const c =
           axis === 0
             ? (t.a.x + t.b.x + t.c.x) / 3
@@ -124,12 +128,18 @@ class GarmentBvh {
       };
       const slice = this.order.slice(start, start + count);
       slice.sort((p, q) => keyOf(p) - keyOf(q));
-      for (let i = 0; i < count; i++) this.order[start + i] = slice[i];
+      for (let i = 0; i < count; i++) {
+        const sv = slice[i];
+        if (sv === undefined) throw new Error(`GarmentBvh: slice index out of bounds: ${i}`);
+        this.order[start + i] = sv;
+      }
       const half = count >> 1;
       const l = build(start, half);
       const r = build(start + half, count - half);
-      this.nodes[nodeIndex].left = l;
-      this.nodes[nodeIndex].right = r;
+      const built = this.nodes[nodeIndex];
+      if (built === undefined) throw new Error(`GarmentBvh: node index out of bounds: ${nodeIndex}`);
+      built.left = l;
+      built.right = r;
       return nodeIndex;
     };
     build(0, tris.length);
@@ -143,10 +153,15 @@ class GarmentBvh {
     while (stack.length > 0) {
       const ni = stack.pop() as number;
       const n = this.nodes[ni];
+      if (n === undefined) throw new Error(`GarmentBvh: node index out of bounds: ${ni}`);
       if (!slabHit(o, inv, n.min, n.max, maxDist)) continue;
       if (n.left < 0) {
         for (let i = n.start; i < n.start + n.count; i++) {
-          const t = rayTri(o, d, this.tris[this.order[i]]);
+          const gi = this.order[i];
+          if (gi === undefined) throw new Error(`GarmentBvh: order index out of bounds: ${i}`);
+          const tri = this.tris[gi];
+          if (tri === undefined) throw new Error(`GarmentBvh: triangle index out of bounds: ${gi}`);
+          const t = rayTri(o, d, tri);
           if (t !== null && t <= maxDist) return true;
         }
         continue;
@@ -208,11 +223,18 @@ type LoadedGeometry = {
   bodyMaxX: number;
 };
 
+function matElem(m: number[], what: string, i: number): number {
+  const v = m[i];
+  if (v === undefined) throw new Error(`${what}: matrix index out of bounds: ${i}`);
+  return v;
+}
+
 function transformPos(m: number[], p: Vec3): Vec3 {
+  const e = (i: number): number => matElem(m, "transformPos", i);
   return {
-    x: m[0] * p.x + m[4] * p.y + m[8] * p.z + m[12],
-    y: m[1] * p.x + m[5] * p.y + m[9] * p.z + m[13],
-    z: m[2] * p.x + m[6] * p.y + m[10] * p.z + m[14],
+    x: e(0) * p.x + e(4) * p.y + e(8) * p.z + e(12),
+    y: e(1) * p.x + e(5) * p.y + e(9) * p.z + e(13),
+    z: e(2) * p.x + e(6) * p.y + e(10) * p.z + e(14),
   };
 }
 
@@ -301,22 +323,37 @@ function collectPrim(
 }
 
 function mul4(a: number[], b: number[]): number[] {
+  const ea = (i: number): number => matElem(a, "mul4(a)", i);
+  const eb = (i: number): number => matElem(b, "mul4(b)", i);
   const o = new Array<number>(16);
   for (let r = 0; r < 4; r++) {
     for (let c = 0; c < 4; c++) {
       o[r * 4 + c] =
-        a[r * 4] * b[c] + a[r * 4 + 1] * b[4 + c] + a[r * 4 + 2] * b[8 + c] + a[r * 4 + 3] * b[12 + c];
+        ea(r * 4) * eb(c) + ea(r * 4 + 1) * eb(4 + c) + ea(r * 4 + 2) * eb(8 + c) + ea(r * 4 + 3) * eb(12 + c);
     }
   }
   return o;
 }
 
 function det4(m: number[]): number {
+  const e = (i: number): number => matElem(m, "det4", i);
+  const m1 = e(1);
+  const m2 = e(2);
+  const m3 = e(3);
+  const m5 = e(5);
+  const m6 = e(6);
+  const m7 = e(7);
+  const m9 = e(9);
+  const m10 = e(10);
+  const m11 = e(11);
+  const m13 = e(13);
+  const m14 = e(14);
+  const m15 = e(15);
   return (
-    m[3] * (m[14] * m[9] * m[7] - m[10] * m[13] * m[7] + m[10] * m[5] * m[15] - m[6] * m[13] * m[9] - m[14] * m[5] * m[11] + m[6] * m[9] * m[15]) -
-    m[7] * (m[14] * m[9] * m[3] - m[10] * m[13] * m[3] + m[10] * m[1] * m[15] - m[2] * m[13] * m[9] - m[14] * m[1] * m[11] + m[2] * m[9] * m[15]) +
-    m[11] * (m[14] * m[5] * m[3] - m[6] * m[13] * m[3] + m[6] * m[1] * m[15] - m[2] * m[13] * m[5] - m[14] * m[1] * m[7] + m[2] * m[5] * m[15]) -
-    m[15] * (m[14] * m[5] * m[3] - m[6] * m[13] * m[3] + m[6] * m[1] * m[11] - m[2] * m[13] * m[5] - m[14] * m[1] * m[7] + m[2] * m[5] * m[11])
+    m3 * (m14 * m9 * m7 - m10 * m13 * m7 + m10 * m5 * m15 - m6 * m13 * m9 - m14 * m5 * m11 + m6 * m9 * m15) -
+    m7 * (m14 * m9 * m3 - m10 * m13 * m3 + m10 * m1 * m15 - m2 * m13 * m9 - m14 * m1 * m11 + m2 * m9 * m15) +
+    m11 * (m14 * m5 * m3 - m6 * m13 * m3 + m6 * m1 * m15 - m2 * m13 * m5 - m14 * m1 * m7 + m2 * m5 * m15) -
+    m15 * (m14 * m5 * m3 - m6 * m13 * m3 + m6 * m1 * m11 - m2 * m13 * m5 - m14 * m1 * m7 + m2 * m5 * m11)
   );
 }
 

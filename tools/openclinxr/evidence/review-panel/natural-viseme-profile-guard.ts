@@ -85,8 +85,8 @@ export function assertNaturalVisemeProfile(ev: unknown, authority: unknown, repo
   if (typeof ip !== "object" || ip === null) fail("inactiveMorphPeaks", "must be an object");
   const active = ap as Peaks;
   const inactive = ip as Peaks;
-  const close = (v: unknown, want: number): boolean =>
-    typeof v === "number" && Math.abs(v - want) < 0.005;
+  const close = (v: unknown, want: number | undefined): boolean =>
+    typeof v === "number" && typeof want === "number" && Math.abs(v - want) < 0.005;
   if (!close(active["viseme_sil"], a.expectedActivePeaks["viseme_sil"]))
     fail("activeMorphPeaks.viseme_sil", "must be 0.5");
   if (!close(active["viseme_aa"], a.expectedActivePeaks["viseme_aa"]))

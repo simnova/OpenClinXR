@@ -69,12 +69,19 @@ export function rayBoxDistance(box: AxisAlignedBox, origin: Vec3, direction: Vec
   let last = Infinity;
   for (let axis = 0; axis < 3; axis += 1) {
     const delta = direction[axis];
+    if (delta === undefined) throw new Error(`rayBoxDistance: direction[${axis}] missing`);
+    const o = origin[axis];
+    if (o === undefined) throw new Error(`rayBoxDistance: origin[${axis}] missing`);
+    const lo = box.min[axis];
+    if (lo === undefined) throw new Error(`rayBoxDistance: box.min[${axis}] missing`);
+    const hi = box.max[axis];
+    if (hi === undefined) throw new Error(`rayBoxDistance: box.max[${axis}] missing`);
     if (Math.abs(delta) < 1e-12) {
-      if (origin[axis] < box.min[axis] || origin[axis] > box.max[axis]) return Infinity;
+      if (o < lo || o > hi) return Infinity;
       continue;
     }
-    let near = (box.min[axis] - origin[axis]) / delta;
-    let far = (box.max[axis] - origin[axis]) / delta;
+    let near = (lo - o) / delta;
+    let far = (hi - o) / delta;
     if (near > far) [near, far] = [far, near];
     first = Math.max(first, near);
     last = Math.min(last, far);
@@ -120,13 +127,21 @@ export function measureActorVisibility(
   const hit = (candidate: AxisAlignedBox, target: Vec3): number => {
     let first = 0, last = 1;
     for (let axis = 0; axis < 3; axis += 1) {
-      const delta = target[axis] - origin[axis];
+      const t = target[axis];
+      if (t === undefined) throw new Error(`measureActorVisibility: target[${axis}] missing`);
+      const o = origin[axis];
+      if (o === undefined) throw new Error(`measureActorVisibility: origin[${axis}] missing`);
+      const lo = candidate.min[axis];
+      if (lo === undefined) throw new Error(`measureActorVisibility: candidate.min[${axis}] missing`);
+      const hi = candidate.max[axis];
+      if (hi === undefined) throw new Error(`measureActorVisibility: candidate.max[${axis}] missing`);
+      const delta = t - o;
       if (Math.abs(delta) < 1e-12) {
-        if (origin[axis] < candidate.min[axis] || origin[axis] > candidate.max[axis]) return Infinity;
+        if (o < lo || o > hi) return Infinity;
         continue;
       }
-      let near = (candidate.min[axis] - origin[axis]) / delta;
-      let far = (candidate.max[axis] - origin[axis]) / delta;
+      let near = (lo - o) / delta;
+      let far = (hi - o) / delta;
       if (near > far) [near, far] = [far, near];
       first = Math.max(first, near); last = Math.min(last, far);
       if (last < first) return Infinity;
@@ -267,12 +282,19 @@ export function measureNearOcclusionFromMatrix(
   const hitDistance = (box: AxisAlignedBox, direction: Vec3): number => {
     let first = 0, last = Infinity;
     for (let axis = 0; axis < 3; axis += 1) {
-      const value = origin[axis], delta = direction[axis];
+      const value = origin[axis];
+      if (value === undefined) throw new Error(`measureNearOcclusion: origin[${axis}] missing`);
+      const delta = direction[axis];
+      if (delta === undefined) throw new Error(`measureNearOcclusion: direction[${axis}] missing`);
+      const lo = box.min[axis];
+      if (lo === undefined) throw new Error(`measureNearOcclusion: box.min[${axis}] missing`);
+      const hi = box.max[axis];
+      if (hi === undefined) throw new Error(`measureNearOcclusion: box.max[${axis}] missing`);
       if (Math.abs(delta) < 1e-12) {
-        if (value < box.min[axis] || value > box.max[axis]) return Infinity;
+        if (value < lo || value > hi) return Infinity;
         continue;
       }
-      let near = (box.min[axis] - value) / delta, far = (box.max[axis] - value) / delta;
+      let near = (lo - value) / delta, far = (hi - value) / delta;
       if (near > far) [near, far] = [far, near];
       first = Math.max(first, near); last = Math.min(last, far);
       if (last < first) return Infinity;

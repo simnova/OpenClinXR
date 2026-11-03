@@ -16,11 +16,11 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeIO, type Document, type Node as GltfNode, type Skin } from "@gltf-transform/core";
+import { type Document, type Node as GltfNode, NodeIO, type Skin } from "@gltf-transform/core";
 import {
+  type BodyParamCatalog,
   CATALOG_PATH,
   STAGE_ID,
-  type BodyParamCatalog,
 } from "../asset-pipeline/makeclothes/body-param-cli.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -107,15 +107,21 @@ function mat4Identity(): Mat4 {
   return m;
 }
 
+function matAt(v: Float64Array, i: number, what: string): number {
+  const x = v[i];
+  if (x === undefined) throw new Error(`${what}[${i}] missing`);
+  return x;
+}
+
 function mat4Multiply(a: Mat4, b: Mat4): Mat4 {
   const o = new Float64Array(16);
   for (let c = 0; c < 4; c++) {
     for (let r = 0; r < 4; r++) {
       o[c * 4 + r] =
-        a[0 * 4 + r] * b[c * 4 + 0] +
-        a[1 * 4 + r] * b[c * 4 + 1] +
-        a[2 * 4 + r] * b[c * 4 + 2] +
-        a[3 * 4 + r] * b[c * 4 + 3];
+        matAt(a, 0 * 4 + r, "mat4Multiply.a") * matAt(b, c * 4 + 0, "mat4Multiply.b") +
+        matAt(a, 1 * 4 + r, "mat4Multiply.a") * matAt(b, c * 4 + 1, "mat4Multiply.b") +
+        matAt(a, 2 * 4 + r, "mat4Multiply.a") * matAt(b, c * 4 + 2, "mat4Multiply.b") +
+        matAt(a, 3 * 4 + r, "mat4Multiply.a") * matAt(b, c * 4 + 3, "mat4Multiply.b");
     }
   }
   return o;
@@ -167,7 +173,7 @@ function mat4FromNode(node: GltfNode): Mat4 {
   const t = node.getTranslation() ?? [0, 0, 0];
   const r = node.getRotation() ?? [0, 0, 0, 1];
   const s = node.getScale() ?? [1, 1, 1];
-  return mat4FromTranslationRotation(t[0]!, t[1]!, t[2]!, r[0]!, r[1]!, r[2]!, r[3]!, s[0]!, s[1]!, s[2]!);
+  return mat4FromTranslationRotation(t[0], t[1], t[2], r[0], r[1], r[2], r[3], s[0], s[1], s[2]);
 }
 
 /** Rotate local X by degrees (quaternion). */
@@ -190,13 +196,20 @@ function quatMultiply(
   ];
 }
 
+function matElem(m: Mat4, what: string, i: number): number {
+  const v = m[i];
+  if (v === undefined) throw new Error(`${what}: matrix element ${i} missing`);
+  return v;
+}
+
 function transformPoint(m: Mat4, x: number, y: number, z: number): [number, number, number] {
-  const w = m[3]! * x + m[7]! * y + m[11]! * z + m[15]!;
+  const e = (i: number): number => matElem(m, "transformPoint", i);
+  const w = e(3) * x + e(7) * y + e(11) * z + e(15);
   const inv = Math.abs(w) > 1e-12 ? 1 / w : 1;
   return [
-    (m[0]! * x + m[4]! * y + m[8]! * z + m[12]!) * inv,
-    (m[1]! * x + m[5]! * y + m[9]! * z + m[13]!) * inv,
-    (m[2]! * x + m[6]! * y + m[10]! * z + m[14]!) * inv,
+    (e(0) * x + e(4) * y + e(8) * z + e(12)) * inv,
+    (e(1) * x + e(5) * y + e(9) * z + e(13)) * inv,
+    (e(2) * x + e(6) * y + e(10) * z + e(14)) * inv,
   ];
 }
 
@@ -220,7 +233,7 @@ function buildWorldMatrices(
       const r0 = (node.getRotation() ?? [0, 0, 0, 1]) as [number, number, number, number];
       const s = node.getScale() ?? [1, 1, 1];
       const r = quatMultiply(r0, override);
-      local = mat4FromTranslationRotation(t[0]!, t[1]!, t[2]!, r[0], r[1], r[2], r[3], s[0]!, s[1]!, s[2]!);
+      local = mat4FromTranslationRotation(t[0], t[1], t[2], r[0], r[1], r[2], r[3], s[0], s[1], s[2]);
     }
     const w = mat4Multiply(parentWorld, local);
     world.set(node, w);
@@ -283,9 +296,9 @@ function measureMeshDeformation(
   for (const j of joints) {
     const wr = jointWorldAt(j, restWorlds);
     const wp = jointWorldAt(j, posedWorlds);
-    const dx = wp[12]! - wr[12]!;
-    const dy = wp[13]! - wr[13]!;
-    const dz = wp[14]! - wr[14]!;
+    const dx = matElem(wp, "tipDeltas/posed", 12) - matElem(wr, "tipDeltas/rest", 12);
+    const dy = matElem(wp, "tipDeltas/posed", 13) - matElem(wr, "tipDeltas/rest", 13);
+    const dz = matElem(wp, "tipDeltas/posed", 14) - matElem(wr, "tipDeltas/rest", 14);
     tipDeltas.push(Math.hypot(dx, dy, dz));
   }
 
@@ -305,9 +318,13 @@ function measureMeshDeformation(
     if (!posArr || !jArr || !wArr) continue;
     const vCount = pos.getCount();
     for (let vi = 0; vi < vCount; vi++) {
-      const px = Number(posArr[vi * 3]!);
-      const py = Number(posArr[vi * 3 + 1]!);
-      const pz = Number(posArr[vi * 3 + 2]!);
+      const pxRaw = posArr[vi * 3], pyRaw = posArr[vi * 3 + 1], pzRaw = posArr[vi * 3 + 2];
+      if (pxRaw === undefined || pyRaw === undefined || pzRaw === undefined) {
+        throw new Error(`position component missing: vertex ${vi}`);
+      }
+      const px = Number(pxRaw);
+      const py = Number(pyRaw);
+      const pz = Number(pzRaw);
 
       const skinPoint = (
         worlds: Map<GltfNode, Mat4>,
@@ -318,14 +335,23 @@ function measureMeshDeformation(
         let sz = 0;
         let wSum = 0;
         for (let k = 0; k < 4; k++) {
-          const ji = Number(jArr[vi * 4 + k]!);
-          const ww = Number(wArr[vi * 4 + k]!);
+          const jiRaw = jArr[vi * 4 + k], wwRaw = wArr[vi * 4 + k];
+          if (jiRaw === undefined || wwRaw === undefined) {
+            throw new Error(`skin index/weight missing: vertex ${vi} influence ${k}`);
+          }
+          const ji = Number(jiRaw);
+          const ww = Number(wwRaw);
           if (ww <= 1e-8 || ji < 0 || ji >= joints.length) continue;
-          const joint = joints[ji]!;
+          const joint = joints[ji];
+          if (joint === undefined) throw new Error(`skin joint index out of bounds: ${ji}`);
           const jWorld = jointWorldAt(joint, worlds);
           const invOff = ji * 16;
           const inv = new Float64Array(16);
-          for (let t = 0; t < 16; t++) inv[t] = ibm[invOff + t]!;
+          for (let t = 0; t < 16; t++) {
+            const v = ibm[invOff + t];
+            if (v === undefined) throw new Error(`inverse bind matrix element missing: joint ${ji} element ${t}`);
+            inv[t] = v;
+          }
           // skinMatrix = jointWorld * invBind
           const skinM = mat4Multiply(jWorld, inv);
           const [x, y, z] = transformPoint(skinM, px, py, pz);
@@ -382,7 +408,7 @@ async function inspectOneGlbAsync(
 
   for (const node of root.listNodes()) {
     if (!node.getMesh() || !node.getSkin()) continue;
-    const meshName = node.getMesh()!.getName() || node.getName() || "mesh";
+    const meshName = node.getMesh()?.getName() || node.getName() || "mesh";
     skinnedMeshNames.push(meshName);
     // Footwear is skinned but is neither the body shell nor the fitted garment under test.
     if (isFootwearMeshName(meshName)) continue;
@@ -471,7 +497,9 @@ async function selfCalibrateEpsilon(
     const { tipDeltas } = measureMeshDeformation(doc, node, drivenBone, rotationDeg);
     const byName = new Map<string, number>();
     for (let i = 0; i < joints.length; i++) {
-      byName.set(joints[i]!.getName() || `j${i}`, tipDeltas[i] ?? 0);
+      const joint = joints[i];
+      if (joint === undefined) throw new Error(`joint index out of bounds: ${i}`);
+      byName.set(joint.getName() || `j${i}`, tipDeltas[i] ?? 0);
     }
     const children = driven.listChildren();
     let fullTip = 0;

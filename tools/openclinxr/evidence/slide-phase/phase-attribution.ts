@@ -342,9 +342,9 @@ function jointWorld(rig: Rig, nodeName: string, t: number): Vec3 {
     }
     const m = quatToMat(ro);
     P = [
-      R[0] * tr[0] + R[1] * tr[1] + R[2] * tr[2] + P[0],
-      R[3] * tr[0] + R[4] * tr[1] + R[5] * tr[2] + P[1],
-      R[6] * tr[0] + R[7] * tr[1] + R[8] * tr[2] + P[2],
+      at(R, 0) * tr[0] + at(R, 1) * tr[1] + at(R, 2) * tr[2] + P[0],
+      at(R, 3) * tr[0] + at(R, 4) * tr[1] + at(R, 5) * tr[2] + P[1],
+      at(R, 6) * tr[0] + at(R, 7) * tr[1] + at(R, 8) * tr[2] + P[2],
     ];
     const nR = new Array<number>(9);
     for (let row = 0; row < 3; row += 1) for (let col = 0; col < 3; col += 1) {

@@ -16,7 +16,7 @@
 
 import { spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import { unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -46,12 +46,18 @@ export type PredicateResult = {
   derivedFrom: { method: string; rooms: unknown[] };
 };
 
+function matAt(m: number[], i: number): number {
+  const v = m[i];
+  if (v === undefined) throw new Error(`world matrix[${i}] missing`);
+  return v;
+}
+
 function transformPoint(x: number, y: number, z: number, m: number[]): [number, number, number] {
-  const w = m[3] * x + m[7] * y + m[11] * z + m[15];
+  const w = matAt(m, 3) * x + matAt(m, 7) * y + matAt(m, 11) * z + matAt(m, 15);
   return [
-    (m[0] * x + m[4] * y + m[8] * z + m[12]) / w,
-    (m[1] * x + m[5] * y + m[9] * z + m[13]) / w,
-    (m[2] * x + m[6] * y + m[10] * z + m[14]) / w,
+    (matAt(m, 0) * x + matAt(m, 4) * y + matAt(m, 8) * z + matAt(m, 12)) / w,
+    (matAt(m, 1) * x + matAt(m, 5) * y + matAt(m, 9) * z + matAt(m, 13)) / w,
+    (matAt(m, 2) * x + matAt(m, 6) * y + matAt(m, 10) * z + matAt(m, 14)) / w,
   ];
 }
 
@@ -88,16 +94,34 @@ export async function dumpRoomGeometryPayload(
           const [x, y, z] = transformPoint(Number(arr[i * 3]), Number(arr[i * 3 + 1]), Number(arr[i * 3 + 2]), world);
           pts.push([R(x), R(y), R(z)]);
         }
-        const tris = parts[node.getName()] ?? (parts[node.getName()] = []);
+        let tris = parts[node.getName()];
+        if (tris === undefined) {
+          tris = [];
+          parts[node.getName()] = tris;
+        }
         if (idx) {
           const ia = idx.getArray();
           if (!ia) continue;
           for (let i = 0; i + 2 < ia.length; i += 3) {
-            tris.push([pts[ia[i]]!, pts[ia[i + 1]]!, pts[ia[i + 2]]!]);
+            const a = ia[i];
+            const b = ia[i + 1];
+            const c = ia[i + 2];
+            if (a === undefined || b === undefined || c === undefined) {
+              throw new Error(`room index buffer entry ${i} missing`);
+            }
+            const pa = pts[a], pb = pts[b], pc = pts[c];
+            if (pa === undefined || pb === undefined || pc === undefined) {
+              throw new Error(`room point index out of bounds: ${a}/${b}/${c}`);
+            }
+            tris.push([pa, pb, pc]);
           }
         } else {
           for (let i = 0; i + 2 < count; i += 3) {
-            tris.push([pts[i]!, pts[i + 1]!, pts[i + 2]!]);
+            const pa = pts[i], pb = pts[i + 1], pc = pts[i + 2];
+            if (pa === undefined || pb === undefined || pc === undefined) {
+              throw new Error(`room point index out of bounds: ${i}`);
+            }
+            tris.push([pa, pb, pc]);
           }
         }
       }
@@ -129,8 +153,10 @@ export function runPredicate(payload: { room: string; parts: Record<string, [num
     const out = res.stdout ?? "";
     const lines = out.split("\n");
     for (let i = lines.length - 1; i >= 0; i--) {
-      if (lines[i].trim().startsWith("{")) {
-        return JSON.parse(lines[i].trim()) as PredicateResult;
+      const line = lines[i];
+      if (line === undefined) throw new Error(`predicate output line ${i} missing`);
+      if (line.trim().startsWith("{")) {
+        return JSON.parse(line.trim()) as PredicateResult;
       }
     }
     throw new Error(`predicate produced no JSON: ${out.slice(-500)}`);

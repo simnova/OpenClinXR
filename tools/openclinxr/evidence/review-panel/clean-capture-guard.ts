@@ -43,7 +43,9 @@ export function assertFrozenCleanCapture(
   visit(sf);
   if (decls.length !== 1) throw new Error(`predicate ${PREDICATE} declarations: ${decls.length}, want exactly 1`);
   if (calls !== baseline.count - 1) throw new Error(`clean-capture call-sites ${calls} !== frozen ${baseline.count - 1}`);
-  const body = decls[0].getText(sf);
+  const decl = decls[0];
+  if (!decl) throw new Error(`predicate ${PREDICATE} declaration missing`);
+  const body = decl.getText(sf);
   const sha = createHash("sha256").update(body, "utf8").digest("hex");
   if (sha !== baseline.predicateBodySha256) throw new Error(`predicate body sha ${sha} !== frozen ${baseline.predicateBodySha256}`);
   return { body, bodySha256: sha, callSites: calls };
@@ -58,21 +60,28 @@ function findHider(src: string): { sf: ts.SourceFile; decl: ts.FunctionDeclarati
   };
   visit(sf);
   if (found.length !== 1) throw new Error(`hider ${HIDER}: found ${found.length}, want exactly 1`);
-  if (!found[0].body) throw new Error(`hider ${HIDER} has no body`);
-  return { sf, decl: found[0] };
+  const hider = found[0];
+  if (!hider) throw new Error(`hider ${HIDER} declaration missing`);
+  if (!hider.body) throw new Error(`hider ${HIDER} has no body`);
+  return { sf, decl: hider };
 }
 
 function traversalParamName(decl: ts.FunctionDeclaration): string {
   let name: string | null = null;
   const visit = (n: ts.Node): void => {
+    const arg0 = ts.isCallExpression(n) ? n.arguments[0] : undefined;
     if (
       ts.isCallExpression(n) && ts.isPropertyAccessExpression(n.expression) &&
       n.expression.name.text === "traverse" && n.arguments.length >= 1 &&
-      (ts.isArrowFunction(n.arguments[0]) || ts.isFunctionExpression(n.arguments[0]))
+      arg0 !== undefined &&
+      (ts.isArrowFunction(arg0) || ts.isFunctionExpression(arg0))
     ) {
-      const fn = n.arguments[0] as ts.ArrowFunction | ts.FunctionExpression;
-      if (fn.parameters.length >= 1 && ts.isIdentifier(fn.parameters[0].name)) {
-        name = fn.parameters[0].name.text;
+      const fn = arg0;
+      if (fn.parameters.length >= 1) {
+        const param = fn.parameters[0];
+        if (param !== undefined && ts.isIdentifier(param.name)) {
+          name = param.name.text;
+        }
       }
     }
     ts.forEachChild(n, visit);
@@ -84,17 +93,19 @@ function traversalParamName(decl: ts.FunctionDeclaration): string {
 
 function leafKind(expr: ts.Expression, receiver: string): { kind: string; value?: string } {
   // object.name.includes("x") bound to the actual traversal callback parameter
+  const firstArg = ts.isCallExpression(expr) ? expr.arguments[0] : undefined;
   if (
     ts.isCallExpression(expr) && expr.arguments.length === 1 &&
+    firstArg !== undefined &&
     ts.isPropertyAccessExpression(expr.expression) &&
     (expr.expression.name.text === "includes" || expr.expression.name.text === "endsWith") &&
     ts.isPropertyAccessExpression(expr.expression.expression) &&
     expr.expression.expression.name.text === "name" &&
     ts.isIdentifier(expr.expression.expression.expression) &&
     expr.expression.expression.expression.text === receiver &&
-    ts.isStringLiteralLike(expr.arguments[0])
+    ts.isStringLiteralLike(firstArg)
   ) {
-    return { kind: expr.expression.name.text, value: expr.arguments[0].text };
+    return { kind: expr.expression.name.text, value: firstArg.text };
   }
   // object.userData["marker"] === true bound to the same receiver
   if (
@@ -146,8 +157,10 @@ export function assertHiderSemantics(src: string): { terms: number } {
   };
   visit(decl);
   if (ifs.length !== 1) throw new Error(`hider visibility IfStatement: found ${ifs.length}, want exactly 1`);
+  const only = ifs[0];
+  if (!only) throw new Error("hider visibility IfStatement missing");
   const leaves: ts.Expression[] = [];
-  collectOrLeaves(ifs[0].expression, leaves);
+  collectOrLeaves(only.expression, leaves);
   if (leaves.length < 3) throw new Error(`hider condition terms: ${leaves.length}, want >= 3`);
   let hasLintel = false, hasFloor = false, hasMarker = false;
   const receiver = traversalParamName(decl);
