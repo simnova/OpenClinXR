@@ -75,8 +75,8 @@ describe("the lookup does not invent a person's sex", () => {
     expect(rows.length, "the derived population must not vanish out from under this contract")
       .toBeGreaterThan(10);
     const invented = rows
-      .filter((r) => r.derived.gender_presentation !== undefined)
-      .map((r) => `${r.actorId} (${r.role}) -> ${String(r.derived.gender_presentation)}`);
+      .filter((r) => r.derived["gender_presentation"] !== undefined)
+      .map((r) => `${r.actorId} (${r.role}) -> ${String(r.derived["gender_presentation"])}`);
     expect(
       invented,
       "sex is an identity field a role descriptor cannot supply; it belongs on the module's own "

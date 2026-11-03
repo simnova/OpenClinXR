@@ -101,7 +101,9 @@ function budgetEvaluatorSignature(): string {
   const src = readFileSync(REGISTRY, "utf8");
   const hit = /export function evaluateScenarioAssetBudget\(([^)]*)\)/.exec(src);
   if (!hit) throw new Error(`evaluateScenarioAssetBudget declaration not found in ${REGISTRY}`);
-  return hit[1]?.trim();
+  const params = hit[1];
+  if (params === undefined) throw new Error(`evaluateScenarioAssetBudget params missing in ${REGISTRY}`);
+  return params.trim();
 }
 
 describe("the station budget gate can see the geometry (#699)", () => {

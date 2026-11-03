@@ -65,8 +65,8 @@ const READS: Entry[] = [
     token: "artifacts",
     covers: ["findings[id=F3-tone-anchor].artifacts[0]"], // (pre-fix.json classification field)
     select: (r) =>
-      asArray(asRecord(r).findings).flatMap((f) =>
-        asRecord(f).evidence_kind === "observed" ? asArray(asRecord(f).artifacts).filter(isString) : [],
+      asArray(asRecord(r)["findings"]).flatMap((f) =>
+        asRecord(f)["evidence_kind"] === "observed" ? asArray(asRecord(f)["artifacts"]).filter(isString) : [],
       ),
   },
   {
@@ -76,10 +76,10 @@ const READS: Entry[] = [
     token: "outputs",
     covers: [],
     select: (r) =>
-      asArray(asRecord(asRecord(r).h1_direct).stages).flatMap((s) =>
-        [asRecord(asRecord(s).runs).run1, asRecord(asRecord(s).runs).run2].flatMap((run) =>
-          asArray(asRecord(run).outputs)
-            .map((o) => asRecord(o).path)
+      asArray(asRecord(asRecord(r)["h1_direct"])["stages"]).flatMap((s) =>
+        [asRecord(asRecord(s)["runs"])["run1"], asRecord(asRecord(s)["runs"])["run2"]].flatMap((run) =>
+          asArray(asRecord(run)["outputs"])
+            .map((o) => asRecord(o)["path"])
             .filter(isString),
         ),
       ),
@@ -91,9 +91,9 @@ const READS: Entry[] = [
     token: "run.log",
     covers: [],
     select: (r) =>
-      asArray(asRecord(asRecord(r).h1_direct).stages).flatMap((s) =>
-        [asRecord(asRecord(s).runs).run1, asRecord(asRecord(s).runs).run2]
-          .map((run) => asRecord(run).log)
+      asArray(asRecord(asRecord(r)["h1_direct"])["stages"]).flatMap((s) =>
+        [asRecord(asRecord(s)["runs"])["run1"], asRecord(asRecord(s)["runs"])["run2"]]
+          .map((run) => asRecord(run)["log"])
           .filter(isString),
       ),
   },
@@ -104,10 +104,10 @@ const READS: Entry[] = [
     token: "root",
     covers: [],
     select: (r) => {
-      const sheet = asRecord(asRecord(r).sheet);
-      const root = sheet.root;
+      const sheet = asRecord(asRecord(r)["sheet"]);
+      const root = sheet["root"];
       if (!isString(root)) return [];
-      return [root, ...Object.keys(asRecord(sheet.files)).map((name) => path.join(root, name))];
+      return [root, ...Object.keys(asRecord(sheet["files"])).map((name) => path.join(root, name))];
     },
   },
   {
@@ -117,8 +117,8 @@ const READS: Entry[] = [
     token: "stageRecords",
     covers: [],
     select: (r) =>
-      asArray(asRecord(asRecord(r).runner).runs)
-        .map((run) => asRecord(run).stageRecords)
+      asArray(asRecord(asRecord(r)["runner"])["runs"])
+        .map((run) => asRecord(run)["stageRecords"])
         .filter(isString),
   },
   {
@@ -128,7 +128,7 @@ const READS: Entry[] = [
     token: "front_render",
     covers: ["hb1.body2.front_render"], // (pre-fix.json classification field)
     select: (r) => {
-      const v = asRecord(asRecord(asRecord(r).hb1).body2).front_render;
+      const v = asRecord(asRecord(asRecord(r)["hb1"])["body2"])["front_render"];
       return isString(v) ? [v] : [];
     },
   },
@@ -138,7 +138,7 @@ const READS: Entry[] = [
     reader: `${DONOR_ISLAND}:189-193`, // (grep: Object.entries(rep.store_shas) at :190, fs.existsSync(p) at :191)
     token: "store_shas",
     covers: [],
-    select: (r) => Object.keys(asRecord(asRecord(r).store_shas)).filter(isString),
+    select: (r) => Object.keys(asRecord(asRecord(r)["store_shas"])).filter(isString),
   },
 ];
 

@@ -124,7 +124,7 @@ const rows: Row[] = CAST.map(([scenarioId, actorId]) => {
     // partial — the lookup supplies body_profile/age/height_cm/bmi and nothing
     // more (#293). They must not count as authored stubs, or every derived actor
     // trips this counterweight on the missing cosmetic fields.
-    derived: phenotype?.descriptor_derived === true,
+    derived: phenotype?.["descriptor_derived"] === true,
     drivingFields: phenotype ? DRIVING_FIELDS.filter((f) => phenotype[f] !== undefined).length : 0,
   };
 });

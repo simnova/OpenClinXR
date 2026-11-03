@@ -71,11 +71,15 @@ describe("shared asset library cache evidence", () => {
 
   it("captures LRU eviction when the shared library cache is capacity constrained", () => {
     const queueReport = buildEncounterAssetGenerationQueueReport();
+    const [firstOrder, secondOrder, thirdOrder] = queueReport.plan.generationWorkOrders;
+    if (firstOrder === undefined || secondOrder === undefined || thirdOrder === undefined) {
+      throw new Error("expected at least 3 generation work orders");
+    }
     queueReport.plan.generationWorkOrders = [
-      queueReport.plan.generationWorkOrders[0],
-      queueReport.plan.generationWorkOrders[1],
-      queueReport.plan.generationWorkOrders[0],
-      queueReport.plan.generationWorkOrders[2],
+      firstOrder,
+      secondOrder,
+      firstOrder,
+      thirdOrder,
     ];
     const report = buildSharedAssetLibraryCacheEvidenceReport({
       generatedAt: "2026-05-25T10:00:00.000Z",

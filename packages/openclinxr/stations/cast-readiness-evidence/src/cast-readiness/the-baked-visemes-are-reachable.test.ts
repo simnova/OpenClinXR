@@ -133,7 +133,11 @@ describe("the baked visemes02 targets are reachable from dialogue", () => {
     // Keys read from the source, NEVER typed: probe D3 added `AH: "AH"` and a hand-typed token list
     // did not contain AH, so this net stayed green while the codomain pointed at an absent morph.
     const table = readFileSync(WIRE, "utf8").match(/DIALOGUE_PHONEME_TO_ARKIT[^=]*=\s*\{([\s\S]*?)\n\};/);
-    const tokens = [...(table?.[1] ?? "").matchAll(/^\s*([A-Za-z]+)\s*:/gm)].map((m) => m[1]);
+    const tokens = [...(table?.[1] ?? "").matchAll(/^\s*([A-Za-z]+)\s*:/gm)].map((m) => {
+      const token = m[1];
+      if (token === undefined) throw new Error("phoneme alias-table entry missing capture group");
+      return token;
+    });
     expect(tokens.length, "alias-table keys parsed from source").toBeGreaterThan(20);
     const unresolved = tokens.filter((t) => driven(t) === null);
     expect(unresolved, `these emit a target absent from the shipped body: ${unresolved.join(" ")}`).toEqual([]);

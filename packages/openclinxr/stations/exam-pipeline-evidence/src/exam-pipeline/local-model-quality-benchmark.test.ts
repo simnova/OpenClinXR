@@ -298,9 +298,9 @@ describe("local model quality benchmark report", () => {
     });
 
     const invalid = structuredClone(badHardwareReport) as unknown as Record<string, unknown>;
-    const policy = invalid.policy as Record<string, unknown>;
-    delete policy.productionUseAllowed;
-    const verdict = invalid.verdict as { blockers: string[] };
+    const policy = invalid["policy"] as Record<string, unknown>;
+    delete policy["productionUseAllowed"];
+    const verdict = invalid["verdict"] as { blockers: string[] };
     verdict.blockers = [];
 
     expect(validateLocalModelQualityBenchmarkReport(invalid)).toEqual({
@@ -341,7 +341,7 @@ describe("local model quality benchmark report", () => {
       await expect(runLocalModelQualityBenchmarkCli(["--validate", reportPath])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
-      delete invalidReport.actorPolicy;
+      delete invalidReport["actorPolicy"];
       await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
 
       process.exitCode = undefined;

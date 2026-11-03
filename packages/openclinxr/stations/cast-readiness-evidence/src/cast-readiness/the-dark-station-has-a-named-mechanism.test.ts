@@ -90,25 +90,25 @@ describe("#500 the near-black station has a named mechanism", () => {
     expect(existsSync(REPORT), `${REPORT} must exist and be TRACKED (#396)`).toBe(true);
     const r = JSON.parse(readFileSync(REPORT, "utf8")) as Record<string, unknown>;
 
-    expect(VERDICTS, `verdict must be one of ${VERDICTS.join("|")}`).toContain(r.verdict);
+    expect(VERDICTS, `verdict must be one of ${VERDICTS.join("|")}`).toContain(r["verdict"]);
 
     // Every verdict, including reject_measured, must carry the SAME evidence — otherwise
     // "reject" becomes the cheap exit rather than an honest one.
-    expect(typeof r.mechanism, "mechanism must be prose naming what makes the frame dark").toBe("string");
-    expect(String(r.mechanism).length, "one sentence minimum").toBeGreaterThan(60);
+    expect(typeof r["mechanism"], "mechanism must be prose naming what makes the frame dark").toBe("string");
+    expect(String(r["mechanism"]).length, "one sentence minimum").toBeGreaterThan(60);
 
     // A locator: a file:line, a mesh name, or a measured quantity — not a story.
-    expect(String(r.locator ?? ""), "locator must cite a file:line, a named mesh, or a number").toMatch(/[:\d]/);
+    expect(String(r["locator"] ?? ""), "locator must cite a file:line, a named mesh, or a number").toMatch(/[:\d]/);
 
     // The known-good column must be re-measured by the worker, not copied from this header.
-    const kg = r.knownGood as Record<string, number> | undefined;
+    const kg = r["knownGood"] as Record<string, number> | undefined;
     expect(kg, "knownGood must carry re-measured medians for BOTH control stations").toBeTruthy();
     expect(Object.keys(kg ?? {}).length).toBeGreaterThanOrEqual(2);
 
     // Non-vacuity: the treatment must actually be darker in the worker's own measurement.
-    expect(Number(r.treatmentMedian), "treatment median").toBeLessThan(12);
+    expect(Number(r["treatmentMedian"]), "treatment median").toBeLessThan(12);
     for (const v of Object.values(kg ?? {})) expect(Number(v), "known-good median").toBeGreaterThan(20);
 
-    expect(String(r.reproducedBy ?? ""), "a command someone else can re-run").toContain("pnpm");
+    expect(String(r["reproducedBy"] ?? ""), "a command someone else can re-run").toContain("pnpm");
   });
 });

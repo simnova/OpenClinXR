@@ -112,7 +112,9 @@ describe("asset capability job evidence report", () => {
       "animation-generation",
       "asset-bake",
     ];
-    invalid.jobs[1] = structuredClone(invalid.jobs[0]);
+    const job0 = invalid.jobs[0];
+    if (!job0) throw new Error("report is missing job 0");
+    invalid.jobs[1] = structuredClone(job0);
 
     expect(validateAssetCapabilityJobEvidenceReport(invalid)).toEqual({
       ok: false,
@@ -133,11 +135,13 @@ describe("asset capability job evidence report", () => {
 
     // #610: generated reports are now fully materialized, so this guard simulates the failure
     // class it exists for — a report claiming materialization while a declared path is absent.
-    invalid.jobs[0].artifactPaths = [
-      ...invalid.jobs[0].artifactPaths,
+    const invalidJob0 = invalid.jobs[0];
+    if (!invalidJob0) throw new Error("report is missing job 0");
+    invalidJob0.artifactPaths = [
+      ...invalidJob0.artifactPaths,
       ".openclinxr/asset-generation/asset-capability-job-001/never-written.glb",
     ];
-    invalid.jobs[0].allArtifactFilesMaterialized = true;
+    invalidJob0.allArtifactFilesMaterialized = true;
     invalid.summary.allArtifactFilesMaterialized = true;
 
     expect(validateAssetCapabilityJobEvidenceReport(invalid)).toEqual({

@@ -71,7 +71,7 @@ async function shippedAssets(): Promise<string[]> {
   const out = new Set<string>();
   for (const s of c.listShippedCastScenarioIds() as string[])
     for (const a of c.resolveScenarioActorCast(s) as Record<string, string>[])
-      out.add(String(a.assetPath).split("/").pop()!);
+      out.add(String(a["assetPath"]).split("/").pop()!);
   return [...out].sort();
 }
 
