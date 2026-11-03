@@ -298,6 +298,10 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
         scale = max(1.0, max(math.hypot(float(p.x) / rx, float(p.z) / rz) for p in band))
         return rx * scale, rz * scale
 
+    # Top ring at the BASE OF THE NECK (st-gowninsp R3): the 1.49 authoring put
+    # the collar 46 mm above the 3bdf74d4b neckline (1.4392, between neck01
+    # 1.4136 and neck02 1.4489) and hid 377 chin/jaw/neck faces under it
+    # (E/chin-diag.json). 0.025 sampling from 0.56 lands the top ring at 1.435.
     ring_anchors = [
         (0.56, 0.29, 0.18),
         (0.70, 0.29, 0.18),
@@ -305,7 +309,7 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
         (1.05, 0.26, 0.17),
         (1.22, 0.27, 0.18),
         (1.38, 0.29, 0.18),
-        (1.49, 0.14, 0.11),
+        (1.44, 0.10, 0.09),
     ]
     # Twenty-five millimetre vertical sampling and 64 angular samples keep the silhouette smooth
     # and make every below-hip band a real closed loop rather than a sparsely sampled polygon.
@@ -416,9 +420,11 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
     # outer arm root, measured in the shipped GLB) the gap shows the body through it.
     # Web each in-box boundary edge to its nearest torso vert. Existing verts only, so
     # weights and materials ride along; the web stands across the slit, occludes it,
-    # and reads as a fold gusset. Cuffs (|x|~0.395), neck (y~1.485) and hem (y~0.56)
-    # lie outside the seal box and are untouched. Deterministic: fixed edge order,
-    # linear scan keeps the lowest torso index on ties.
+    # and reads as a fold gusset. Cuffs (|x|~0.395) and hem (y~0.56) lie outside the
+    # seal box and are untouched. The neck ring (top torso ring, y~1.435 since R3)
+    # now lies INSIDE the seal Y range, so its loop edges are excluded explicitly
+    # below — webbing the collar to the clavicle would pleat the neckline.
+    # Deterministic: fixed edge order, linear scan keeps the lowest torso index on ties.
     _SEAL_X_MIN, _SEAL_X_MAX, _SEAL_Y_MIN, _SEAL_Y_MAX = 0.10, 0.30, 1.08, 1.48
     _edge_use: dict[tuple[int, int], int] = {}
     for _f in faces:
@@ -427,9 +433,12 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
             _e = (min(_f[_k], _f[(_k + 1) % _n]), max(_f[_k], _f[(_k + 1) % _n]))
             _edge_use[_e] = _edge_use.get(_e, 0) + 1
     _lips = []
+    _top_ring = set(range(torso_vertex_count - segments, torso_vertex_count))
     for (_a, _b), _c in _edge_use.items():
         if _c != 1:
             continue
+        if _a in _top_ring and _b in _top_ring:
+            continue  # R3: the neckline loop is boundary by construction, never a slit
         _mx = (verts[_a][0] + verts[_b][0]) / 2.0
         _my = (verts[_a][1] + verts[_b][1]) / 2.0
         if not (_SEAL_X_MIN <= abs(_mx) <= _SEAL_X_MAX and _SEAL_Y_MIN <= _my <= _SEAL_Y_MAX):
@@ -571,6 +580,44 @@ def _clear_stale_body_hide_materials(body):
     return {"clearedPolygons": cleared, "droppedSlots": dropped}
 
 
+def _clip_hide_mask_off_head_jaw(tri_mask, body):
+    """st-gowninsp R3 — a gown never covers the head or jaw: zero the mask for any
+    body polygon whose dominant vertex-group is head or jaw.
+
+    clip_hide_mask_below_joint only rescues polys with a vert ABOVE the head joint,
+    but the chin/jaw sit BELOW it (measured: jaw faces at Y 1.434-1.473, head joint
+    1.5146), so a collar riding to the mouth hid 289 head/jaw faces with headClipped=0
+    (E/chin-diag.json). Bone-weighted, never a height fraction: per-poly dominant
+    deform group, exactly like the footprint/head clips (fan-triangulated mask,
+    whole-polygon granularity to match apply_body_hide_material_region).
+    """
+    import numpy as _np
+
+    mask = _np.asarray(tri_mask, dtype=bool).copy()
+    if not mask.any():
+        return mask, 0
+    if not body.vertex_groups:
+        raise RuntimeError("head/jaw guard needs body vertex groups")
+    removed = 0
+    tri_i = 0
+    for poly in body.data.polygons:
+        n_tri = max(len(poly.vertices) - 2, 1)
+        if not mask[tri_i:tri_i + n_tri].any():
+            tri_i += n_tri
+            continue
+        totals: dict[str, float] = {}
+        for vi in poly.vertices:
+            for entry in body.data.vertices[vi].groups:
+                name = body.vertex_groups[entry.group].name
+                totals[name] = totals.get(name, 0.0) + float(entry.weight)
+        dominant = max(totals, key=totals.get) if totals else ""
+        if dominant.lower() in ("head", "jaw"):
+            mask[tri_i:tri_i + n_tri] = False
+            removed += 1
+        tri_i += n_tri
+    return mask, removed
+
+
 def _rehide_body_under_gown(body, gown, armature):
     """Paint a fresh body-part-hiding mask driven by the NEW gown shell.
 
@@ -579,6 +626,8 @@ def _rehide_body_under_gown(body, gown, armature):
     faces with no garment within reach are NOT hidden) + garment_ops.
     scope_hide_mask_away_from_hands (#295) + clip_hide_mask_to_garment_footprint
     (#326, 1.5 mm slack, inside the 2 mm gate) + clip_hide_mask_below_joint (#334)
+    + _clip_hide_mask_off_head_jaw (st-gowninsp R3: dominant-group head/jaw polys
+    never hide — the chin sits below the head joint so #334 cannot rescue it)
     + apply_body_hide_material_region (alpha-0 slot "gown"). The issue-341
     poke/sliver refinements are shirt-specific (sub-mm conformal fits); the draped
     cage stands 18-25 mm off the body, so no coincident class exists to refine.
@@ -651,11 +700,12 @@ def _rehide_body_under_gown(body, gown, armature):
         raise RuntimeError("head bone missing from the MPFB standard rig")
     _head_z = float((armature.matrix_world @ _pose_head.matrix).translation.z)
     _mask, _headcut = clip_hide_mask_below_joint(_mask, body, _head_z)
+    _mask, _facecut = _clip_hide_mask_off_head_jaw(_mask, body)
     _rep = apply_body_hide_material_region(body, _mask, slot="gown")
     print(
         f"GOWN_REHIDE regionFaces={_info.get('regionFaceCount')} "
         f"rawHidden={_info.get('hiddenFaceCount')} handsUnhidden={_hands} "
-        f"footprintClipped={_footprint} headClipped={_headcut} applied={_rep.get('appliedPolygonCount')} "
+        f"footprintClipped={_footprint} headClipped={_headcut} faceCut={_facecut} applied={_rep.get('appliedPolygonCount')} "
         f"slot={_rep.get('hiddenMaterialName')} epsilonM={HIDE_EPSILON_M}"
     )
     return _rep

@@ -64,6 +64,18 @@ import {
  * WHICH ARE REDS AND WHICH ARE NETS (#227): **(1) is the sole RED.** (2) and (3) pass today — they
  * exist to stop (1) being satisfied by removing geometry. (4) and (5) are NETs on shipped state.
  *
+ * ## (6) CHIN REGRESSION (st-gowninsp R3) — SECOND RED
+ *
+ * The round-2 rebake put the collar at 1.485, 46 mm above the 3bdf74d4b neckline (1.4392, base of
+ * the neck), and GOWN_REHIDE hid 203 jaw + 85 head faces under it (clause count on the
+ * round-2 bytes; independent python diag E/chin-diag.py counts 204 + 90 — same magnitude,
+ * both 0 on the fixed bytes); the #334 head-joint clip could
+ * not rescue them because the chin sits BELOW the head joint (E/chin-diag.json). The runtime
+ * discards hidden-slot fragments, so the shipped stills showed teeth below the lip with the collar
+ * filling neck-to-mouth. KNOWN-GOOD ROW: 0 head + 0 jaw hidden faces on the 3bdf74d4b bytes
+ * (1175 hidden faces total, all torso/throat). The destructive probe runs this clause with
+ * GOWN_PROBE_GLB pointed at the round-2 bytes and must FAIL (E/probes.md).
+ *
  * NOT TESTED:
  *   - **Hem raggedness.** The hem spans 226.7 mm over 36 angular buckets (sd 89.7 mm). That is very
  *     likely DOWNSTREAM of the split — a shell wrapping two legs cannot have a level hem — so it is
@@ -228,5 +240,52 @@ describe("the gown drapes below the hip instead of wrapping each leg", () => {
     const split = bands.filter((b) => b.gapM > GAP_MAX_M);
     expect(split.length, `no below-hip band may remain split after the fix:\n  ${fmt(bands)}`)
       .toBe(0);
+  });
+
+  it("(6) RED: no head/jaw skin hides under the gown", async () => {
+    // st-gowninsp R3 chin regression (header ## (6)). GOWN_PROBE_GLB overrides the target so the
+    // destructive probe can run this clause against the round-2 bytes (E/probes.md).
+    const target = process.env.GOWN_PROBE_GLB ?? TARGET;
+    const doc = await new NodeIO().read(target);
+    const bodyMesh = doc.getRoot().listMeshes().find(
+      (mesh) => classifyGarmentMeshName(mesh.getName() ?? "") === "body",
+    );
+    expect(bodyMesh, `${target} must carry a body mesh`).toBeDefined();
+    const skinNode = doc.getRoot().listNodes().find((node) => node.getMesh() === bodyMesh);
+    const skinJoints = skinNode?.getSkin()?.listJoints().map((joint) => (joint.getName() ?? "").toLowerCase());
+    expect(skinJoints, `${target} body mesh must be skinned`).toBeDefined();
+    const joints = skinJoints!;
+    let head = 0;
+    let jaw = 0;
+    let hiddenTotal = 0;
+    for (const prim of bodyMesh!.listPrimitives()) {
+      const matName = prim.getMaterial()?.getName() ?? "";
+      if (!matName.startsWith("openclinxr_hidden_")) continue;
+      const indices = Array.from((prim.getIndices()?.getArray() ?? []) as ArrayLike<number>);
+      const jointIdx = Array.from((prim.getAttribute("JOINTS_0")?.getArray() ?? []) as ArrayLike<number>);
+      const weights = Float32Array.from((prim.getAttribute("WEIGHTS_0")?.getArray() ?? []) as ArrayLike<number>);
+      expect(indices.length, "hidden prim must be indexed triangles").toBeGreaterThan(0);
+      for (let f = 0; f + 2 < indices.length; f += 3) {
+        hiddenTotal += 1;
+        const votes = [indices[f]!, indices[f + 1]!, indices[f + 2]!].map((vi) => {
+          let best = 0;
+          for (let k = 1; k < 4; k += 1) {
+            if (weights[vi * 4 + k]! > weights[vi * 4 + best]!) best = k;
+          }
+          return joints[jointIdx[vi * 4 + best]!] ?? "unknown";
+        });
+        const dom = votes.slice().sort(
+          (a, b) => votes.filter((v) => v === b).length - votes.filter((v) => v === a).length,
+        )[0]!;
+        if (dom === "head") head += 1;
+        if (dom === "jaw") jaw += 1;
+      }
+    }
+    expect(hiddenTotal, "the hidden slot must exist and be measured (no vacuous pass)").toBeGreaterThan(0);
+    expect(
+      head + jaw,
+      `${head + jaw} hidden-slot faces are head/jaw-weighted (head ${head}, jaw ${jaw}) in ${target} — `
+        + "known-good row: 0 head + 0 jaw on the 3bdf74d4b bytes",
+    ).toBe(0);
   });
 });

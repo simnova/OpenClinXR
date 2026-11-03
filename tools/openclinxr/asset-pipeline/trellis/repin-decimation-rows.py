@@ -157,16 +157,18 @@ PLAN = {
                  "(deliberate mouth-program rebuild afe8abced / ceabb545e) preserved in git "
                  "history."),
     },
-    # --- st-gowninsp round 2 (2026-11-03): the Nov03 gown rebake 9542f47b8
-    # replaced the Sep11 rung input (T-shirt strip 11->10 meshes, new gown
-    # shell, rehidden mask, joints 138->137) and the chest-anchor restore
-    # moved the shipped bytes again. The committed fp-r0.15 rung re-run on the
-    # rebaked source breaks the drape counterweight, so the HB-05 row demotes
-    # (peds-parent-aisha precedent) and the HB-03 row re-pins to the live
-    # undecimated source. Every after-value below is asserted live by main().
+    # --- st-gowninsp round 3 (2026-11-03): the collar/chin rebake replaces the
+    # round-2 source (collar 1.485->1.435, shell tris 6852->6524, rehidden mask
+    # 1348->881, joints hold 137) and the chest-anchor restore moves the shipped
+    # bytes again. Same shape as round 2: HB-05 stays demoted (no rung promoted;
+    # the round-2 fp-r0.15 re-run verdict carries forward — the source is SMALLER
+    # now at 72554 tris, still inside the 80000 preferred budget, and the shell
+    # lost another 328 tris, so the rung would sit further below the drape
+    # counterweight, not closer) and HB-03 re-pins to the live undecimated
+    # source. Every after-value below is asserted live by main().
     "mpfb-gown-inspect.glb": {
-        "bytesAfter": 8200968,
-        "triangleCountAfter": 72882,
+        "bytesAfter": 8107316,
+        "triangleCountAfter": 72554,
         "faceBefore": 52778,
         "faceAfter": 52778,
         "jointCountAfter": 137,
@@ -178,17 +180,21 @@ PLAN = {
             ],
         },
         "hb05": {
-            "triangleCountBefore": 72882,
-            "bytesBefore": 8236800,
+            "triangleCountBefore": 72554,
+            "bytesBefore": 8145564,
             "jointCountBefore": 137,
             "promoted": False,
             "noSurvivingRungReason": ("The Sep11 fp-r0.15 rung output did not survive the Nov03 gown rebake 9542f47b8 "
                 "(casual T-shirt strip, new hospital-gown shell, rehidden skin mask; joints 138->137 as neutral_bone "
-                "retired with the skinning re-base onto the 137-joint viseme source) plus the chest-anchor restore to 8200968 bytes. The committed "
-                "rung re-run on the rebaked source yields 56699 tris with face 52778 intact but shrinks the new shell "
+                "retired with the skinning re-base onto the 137-joint viseme source) plus the chest-anchor restore to 8200968 bytes, "
+                "and the round-3 collar/chin rebake re-based the source again (collar 1.485->1.435, shell tris 6852->6524, "
+                "rehidden mask 1348->881). The committed "
+                "rung re-run on the round-1 source yields 56699 tris with face 52778 intact but shrinks the new shell "
                 "below its drape counterweight (shell verts 3503->531 vs the 2000-vert floor; only 4 below-hip bands stay "
-                "sampleable and 0 clear 40mm, against clauses needing >4 bands with >=5 clearing), so no rung is promoted. Face-retention ratio 1 and the 137-joint invariant now floor "
-                "this re-measured source (tris 72882, face 52778); the historical pre-rebake rung is preserved in "
+                "sampleable and 0 clear 40mm, against clauses needing >4 bands with >=5 clearing), so no rung is promoted; "
+                "the verdict carries forward to the smaller round-3 source (72554 tris, still inside the 80000 preferred "
+                "budget, shell 328 tris smaller). Face-retention ratio 1 and the 137-joint invariant now floor "
+                "this re-measured source (tris 72554, face 52778); the historical pre-rebake rung is preserved in "
                 "supersededRecord."),
             "supersededRecord": {
                 "triangleCountBefore": 145287,
@@ -201,15 +207,14 @@ PLAN = {
                 "supersededBecause": ("input lineage replaced by the Nov03 gown rebake 9542f47b8; the Sep11 rung "
                     "output it recorded matches no shipped bytes since the rebake"),
             },
-            "outputSha256": "0a7776654c1254b42c57c67766db9e111aa1e84ecf13e08bc2cd9266f19ab529",
-            "note": ("Re-measured 2026-11-03 (st-gowninsp round 2): the Sep11 fp-r0.15 rung output did not survive "
-                "the Nov03 gown rebake 9542f47b8 (casual T-shirt strip, meshes 11->10; new hospital-gown shell; "
-                "rehidden skin mask; joints 138->137 as neutral_bone retired with the skinning re-base) plus the chest-anchor "
-                "restore that moved the shipped bytes to 8200968. The committed rung re-run on the rebaked source "
-                "shrinks the new shell below its drape counterweight (shell verts 3503->531 vs the 2000 floor; "
-                "4 sampleable below-hip bands, 0 clearing 40mm), so the row is demoted with ratio-1 and 137-joint floors on the "
-                "re-measured source; tris 72882 and face 52778 hold. Prior re-measure (Sep28 teeth retreat 9f2934536) "
-                "preserved in git history."),
+            "outputSha256": "9298eb4734c8088db0885ec06750dfb8c40170f6ef068936442f3ad6e1e611e3",
+            "note": ("Re-measured 2026-11-03 (st-gowninsp round 3): the round-3 collar/chin rebake re-based the source "
+                "(collar 1.485->1.435, shell tris 6852->6524, rehidden mask 1348->881, meshes/nodes/joints hold 10/149/137) "
+                "plus the chest-anchor restore that moved the shipped bytes 8,145,564->8,107,316. The fp-r0.15 rung verdict "
+                "carries forward from round 2 (smaller source, still inside budget, shell further below the drape "
+                "counterweight), so the row stays demoted with ratio-1 and 137-joint floors on the re-measured source; "
+                "tris 72554 and face 52778 hold. Prior re-measures (round 2, Sep28 teeth retreat 9f2934536) preserved "
+                "in git history."),
         },
         "hb03": {
             "jointCountBefore": 137,
@@ -224,9 +229,11 @@ PLAN = {
                      "so no rung was promoted and the live GLB stayed on the Sep11 rung bytes until the Nov03 rebake 9542f47b8 re-based it on the new gown shell (undecimated: raw 72882 tris already inside the 80000 preferred budget; the fp-r0.15 re-run breaks the drape counterweight, see the HB-05 row). The sibling mpfb-gown-adult-patient.glb export covers the same gown subject at 64140 tris inside budget."),
                 ],
             },
-            "note": ("Re-measured 2026-11-03 (st-gowninsp round 2): after-values track the Nov03 rebake 9542f47b8 "
-                "(meshes 11->10, nodes 151->149, joints 138->137) and the chest-anchor restore (shipped bytes "
-                "8236800->8200968); before-values stay the Sep11 STOP-branch record. Face 52778 and ratio 1 hold."),
+            "note": ("Re-measured 2026-11-03 (st-gowninsp round 3): after-values track the round-3 collar/chin "
+                "rebake (collar 1.485->1.435, shell tris 6852->6524, rehidden mask 1348->881; meshes/nodes/joints hold "
+                "10/149/137) and the chest-anchor restore (shipped bytes 8,145,564->8,107,316, superseding the round-2 pin at 137f5ba8c); before-values stay the "
+                "Sep11 STOP-branch record. Face 52778 and ratio 1 hold. Prior re-measures (round 2, Sep11) preserved "
+                "in git history."),
         },
     },
 }

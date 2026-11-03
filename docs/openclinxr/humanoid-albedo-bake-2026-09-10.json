@@ -1736,7 +1736,7 @@
       "nodeCountBefore": 149,
       "nodeCountAfter": 149,
       "byteLengthBefore": 13263836,
-      "byteLengthAfter": 8200968,
+      "byteLengthAfter": 8107316,
       "materials": [
         {
           "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
@@ -2265,7 +2265,7 @@
         },
         {
           "material": "mpfb_skin_ob_patient_aisha",
-          "decision": "baked: st-gowninsp round-1 rebake restored the unhidden-leg skin texels in place from the unbaked source through bake_mpfb_gown_inspect.py (factor already white so no fold was applied); the 32 producer-grid samples below are measured from the shipped bytes and pin them",
+          "decision": "baked: st-gowninsp round-1 rebake restored the unhidden-leg skin texels in place from the unbaked source through bake_mpfb_gown_inspect.py (factor already white so no fold was applied); the 32 producer-grid samples below are measured from the shipped bytes and pin them Updated 2026-11-03 (st-gowninsp round 3): the collar/chin rebake re-baked the skin albedo for the new hidden set, so the 32 samples above are re-measured from the 8107316-byte output; round-2 samples preserved in git history and store/st-gowninsp/r2/skin-samples.json.",
           "sourceResolution": "1024x1024",
           "bakedResolution": "1024x1024",
           "ladderRungId": "n/a",
@@ -2327,7 +2327,7 @@
               "x": 186,
               "y": 164,
               "before": [
-                200,
+                201,
                 178,
                 164
               ],
@@ -2369,7 +2369,7 @@
               "x": 365,
               "y": 315,
               "before": [
-                200,
+                201,
                 178,
                 164
               ],
@@ -2397,7 +2397,7 @@
               "x": 143,
               "y": 757,
               "before": [
-                200,
+                201,
                 178,
                 164
               ],
@@ -2411,7 +2411,7 @@
               "x": 544,
               "y": 466,
               "before": [
-                200,
+                201,
                 178,
                 164
               ],
@@ -2439,7 +2439,7 @@
               "x": 322,
               "y": 908,
               "before": [
-                200,
+                201,
                 178,
                 164
               ],
@@ -2509,7 +2509,7 @@
               "x": 279,
               "y": 477,
               "before": [
-                200,
+                201,
                 178,
                 164
               ],
@@ -2537,7 +2537,7 @@
               "x": 57,
               "y": 919,
               "before": [
-                200,
+                201,
                 178,
                 164
               ],
@@ -2551,7 +2551,7 @@
               "x": 458,
               "y": 628,
               "before": [
-                200,
+                201,
                 178,
                 164
               ],
@@ -2593,7 +2593,7 @@
               "x": 637,
               "y": 779,
               "before": [
-                200,
+                201,
                 178,
                 164
               ],
@@ -2621,7 +2621,7 @@
               "x": 415,
               "y": 197,
               "before": [
-                200,
+                201,
                 178,
                 164
               ],
@@ -2649,7 +2649,7 @@
               "x": 193,
               "y": 639,
               "before": [
-                200,
+                201,
                 178,
                 164
               ],
@@ -2663,7 +2663,7 @@
               "x": 594,
               "y": 348,
               "before": [
-                200,
+                201,
                 178,
                 164
               ],

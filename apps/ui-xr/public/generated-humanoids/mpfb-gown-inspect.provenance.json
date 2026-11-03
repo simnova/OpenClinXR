@@ -5,8 +5,8 @@
  "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
  "runtimeRole": "inspection_fixture",
  "runtimeRoleWhy": "Inspection subject for garment/gown contracts. Never cast; the shipped-bank cast resolver does not name it.",
- "outputSha256": "0a7776654c1254b42c57c67766db9e111aa1e84ecf13e08bc2cd9266f19ab529",
- "outputBytes": 8200968,
+ "outputSha256": "9298eb4734c8088db0885ec06750dfb8c40170f6ef068936442f3ad6e1e611e3",
+ "outputBytes": 8107316,
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.401Z",
  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. HB-05 (2026-09-11): face-preserving decimation rung rewrote the GLB (selective weld+simplifyPrimitive on non-face meshes only, face meshes untouched, joints and 47 body morph targets unchanged); outputSha256/outputBytes re-recorded in the same change that moved the bytes. Reproduce: pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.15 (face-preserving mode, tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts).",
  "byteLineage": {
@@ -44,5 +44,20 @@
   "outputBytes": 8200968,
   "report": "tools/openclinxr/evidence/chest-anchor-joints/mpfb-gown-inspect.json",
   "gate": "tools/openclinxr/evidence/chest-anchors/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed) + tools/openclinxr/evidence/garment-surface-stale/the-gown-drapes-below-the-hip.test.ts (5 passed) green after the stage"
+ },
+ "gownRebake20261103R3": {
+  "producer": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py --input-glb mpfb-viseme-inspect.glb --output-glb mpfb-gown-inspect.glb (blender --background)",
+  "cause": "st-gowninsp round 3: the round-2 rebake authored the collar at 1.485, 46 mm above the 3bdf74d4b neckline (1.4392, base of the neck), and GOWN_REHIDE hid 205 jaw + 84 head faces under it; clip_hide_mask_below_joint could not rescue them (chin sits below the head joint, headClipped=0). Fix: top ring anchor 1.49->1.44 (shipped collar 1.4350, 4 mm under known-good), top-ring loop excluded from the sleeve-root seal, and a dominant-group head/jaw guard in the re-hide (faceCut=11). Post-fix: 0 head/jaw hidden faces, throat only (E/chin-diag.json); stills show lips closed, chin skin, bare neck.",
+  "outputSha256": "af80df27b8b5c1114bdb7e9389f765d19bd63ec4984fd36fbc616ef110c4b4f0",
+  "outputBytes": 8145564,
+  "reproduction": "single producer run (gown-rebake8.glb); determinism not re-run (rebake7 precedent: byte-identical)"
+ },
+ "chestAnchorRestore20261103R3": {
+  "producer": "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs --half-span-m 0.085 (post-export byte stage, not a Blender rebake)",
+  "cause": "st-gowninsp round 3: the rebake8 output again left breast.L/R collapsed at the midline (rest x ~0 vs +/-0.085 in the 3bdf74d4b bytes); restored to the fleet-standard +/-0.085 m (span 0.17 m); y/z untouched; no animation channels needed adjustment (animationChannelsAdjusted []).",
+  "outputSha256": "9298eb4734c8088db0885ec06750dfb8c40170f6ef068936442f3ad6e1e611e3",
+  "outputBytes": 8107316,
+  "report": "tools/openclinxr/evidence/chest-anchor-joints/mpfb-gown-inspect.json",
+  "gate": "tools/openclinxr/evidence/chest-anchors/every-shipped-rig-has-two-chest-anchors.test.ts + tools/openclinxr/evidence/garment-surface-stale/the-gown-drapes-below-the-hip.test.ts (6 clauses) green after the stage"
  }
 }
