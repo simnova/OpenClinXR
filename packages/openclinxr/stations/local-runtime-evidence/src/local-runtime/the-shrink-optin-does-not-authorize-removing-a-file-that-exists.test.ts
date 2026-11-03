@@ -3,7 +3,7 @@ import {
   decideRegistryShrink,
   parseRegistryAppend,
   withPreservedPaths,
-} from "../../../../../../tools/agent-factory/registry-shrink-guard.ts";
+} from "../../../../../../tools/agent-factory/registry-shrink-guard.js";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
 process.chdir(repoRoot());
 

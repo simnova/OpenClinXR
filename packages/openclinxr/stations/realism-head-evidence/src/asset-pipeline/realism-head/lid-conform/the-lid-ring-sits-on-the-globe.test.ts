@@ -103,7 +103,9 @@ describe("the lid ring sits on the globe", () => {
   it("(2) RED: the base bake shows the narrow fissure and the yaw wedge", () => {
     const r = readReport();
     for (const s of ["L", "R"]) {
-      expect(r.counterweights.c2.fissureMm[s]!.base.widthMm).toBeCloseTo(23.96, 1);
+      const side = r.counterweights.c2.fissureMm[s]?.["base"];
+      if (side === undefined) throw new Error(`fissureMm ${s} base missing`);
+      expect(side.widthMm).toBeCloseTo(23.96, 1);
     }
     const e = r.gates.g2.edgePx;
     for (const v of ["yaw25", "yaw-25", "yaw40", "yaw-40"]) {
@@ -132,9 +134,11 @@ describe("the lid ring sits on the globe", () => {
   it("(4) C2 width reaches the case goal; height is recorded marginal", () => {
     const r = readReport();
     for (const s of ["L", "R"]) {
-      const w = r.counterweights.c2.fissureMm[s]!.new.widthMm;
+      const sideNew = r.counterweights.c2.fissureMm[s]?.["new"];
+      if (sideNew === undefined) throw new Error(`fissureMm ${s} new missing`);
+      const w = sideNew.widthMm;
       expect(Math.abs(w - 27.7), `${s} width within 1mm of target`).toBeLessThanOrEqual(1.0);
-      const h = r.counterweights.c2.fissureMm[s]!.new.heightMm;
+      const h = sideNew.heightMm;
       expect(h, `${s} height marginal to the 8-11 band`).toBeGreaterThan(8.0);
       expect(h, `${s} height marginal to the 8-11 band`).toBeLessThan(11.2);
     }
@@ -213,7 +217,9 @@ describe("the lid ring sits on the globe", () => {
 
   it("(10) known-bad: gating logic bites on injected values", () => {
     const r = readReport();
-    const w = r.counterweights.c2.fissureMm["L"]!.new.widthMm;
+    const sideNew = r.counterweights.c2.fissureMm["L"]?.["new"];
+    if (sideNew === undefined) throw new Error("fissureMm L new missing");
+    const w = sideNew.widthMm;
     expect(Math.abs(w - 27.7) <= 1.0, "recorded width passes").toBe(true);
     expect(Math.abs(21.0 - 27.7) <= 1.0, "narrow width would fail").toBe(false);
     const b = r.gates.g3.cw1Base.cw1["yaw40"]!;

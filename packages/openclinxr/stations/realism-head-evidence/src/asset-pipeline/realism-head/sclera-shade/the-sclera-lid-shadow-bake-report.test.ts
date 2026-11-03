@@ -103,7 +103,7 @@ function functionSlice(src: string, start: string, end: string): string {
   return src.slice(i, j);
 }
 
-const IRIS_C = [[299.55 / 1024, 724.0 / 1024], [724.65 / 1024, 302.72 / 1024]];
+const IRIS_C: Array<[number, number]> = [[299.55 / 1024, 724.0 / 1024], [724.65 / 1024, 302.72 / 1024]];
 const IRIS_R = 135 / 1024;
 
 describe("the lid shadow bakes into the sclera texture (report integrity)", () => {

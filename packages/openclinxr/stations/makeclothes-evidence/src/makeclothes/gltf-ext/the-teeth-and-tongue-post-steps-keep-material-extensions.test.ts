@@ -62,6 +62,7 @@ describe("teeth and tongue post-steps keep material extensions", () => {
         break;
       }
     }
+    if (targetMat === undefined) throw new Error("no materials in temp GLB");
     
     // Add KHR_materials_unlit extension to the target material
     const unlitExt = doc.createExtension(KHRMaterialsUnlit);

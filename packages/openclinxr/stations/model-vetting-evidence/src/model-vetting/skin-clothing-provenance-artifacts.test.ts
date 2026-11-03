@@ -115,7 +115,7 @@ describe("skin/clothing provenance artifacts", () => {
       await expect(runSkinClothingProvenanceCli(["--validate", reportPath])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as Record<string, unknown>;
-      delete invalidReport.schemaVersion;
+      delete invalidReport["schemaVersion"];
       await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
 
       process.exitCode = undefined;

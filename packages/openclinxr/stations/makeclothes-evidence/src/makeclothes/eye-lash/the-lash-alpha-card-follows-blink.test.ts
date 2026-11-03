@@ -95,8 +95,12 @@ describe("the lash alpha card follows blink", () => {
     expect(sha256File(BAKE)).toBe(tracked.bake_sha256);
     const r = measure(BAKE);
     expect(r.lashPrimTargets, "input lash prim has 0 morph targets").toBe(0);
-    expect(r.blinkFollow.L.pass, "input left fails").toBe(false);
-    expect(r.blinkFollow.R.pass, "input right fails").toBe(false);
+    const lFollow = r.blinkFollow["L"];
+    if (lFollow === undefined) throw new Error("missing L blinkFollow row");
+    expect(lFollow.pass, "input left fails").toBe(false);
+    const rFollow = r.blinkFollow["R"];
+    if (rFollow === undefined) throw new Error("missing R blinkFollow row");
+    expect(rFollow.pass, "input right fails").toBe(false);
     expect(r.pass, "input overall fails").toBe(false);
     expect(sha256File(BAKE), "input bake bytes unchanged").toBe(tracked.bake_sha256);
   });

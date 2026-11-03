@@ -66,30 +66,48 @@ function decision(): {
   };
 }
 
+function subjectOf(d: ReturnType<typeof decision>, s: string): Subject {
+  const sub = d.subjects[s];
+  if (!sub) throw new Error(`corner decision is missing subject ${s}`);
+  return sub;
+}
+
+function fillCell(
+  d: ReturnType<typeof decision>,
+  s: string,
+  bake: "g1Base" | "g1Fill",
+  v: string,
+  side: string,
+): Cell {
+  const cell = subjectOf(d, s)[bake][v]?.[side];
+  if (!cell) throw new Error(`corner decision is missing cell ${s} ${bake} ${v} ${side}`);
+  return cell;
+}
+
 function recompute(d: ReturnType<typeof decision>): string {
-  const g2ok = SUBJECTS.every((s) => d.subjects[s].g2FillOutsidePx === 0);
+  const g2ok = SUBJECTS.every((s) => subjectOf(d, s).g2FillOutsidePx === 0);
   const landPer = (s: string): boolean =>
     VIEWS.every((v) =>
       SIDES.every(
-        (side) => d.subjects[s].g1Fill[v][side].frac >= d.subjects[s].g1Base[v][side].frac,
+        (side) => fillCell(d, s, "g1Fill", v, side).frac >= fillCell(d, s, "g1Base", v, side).frac,
       ),
     );
   const farEyeGain = (s: string): boolean =>
     FAR_EYE.some(
-      ([v, side]) => d.subjects[s].g1Fill[v][side].frac > d.subjects[s].g1Base[v][side].frac,
+      ([v, side]) => fillCell(d, s, "g1Fill", v, side).frac > fillCell(d, s, "g1Base", v, side).frac,
     );
   const land =
     g2ok && SUBJECTS.every(landPer) && SUBJECTS.some(farEyeGain);
   const helps = SUBJECTS.some((s) =>
     VIEWS.some((v) =>
       SIDES.some(
-        (side) => d.subjects[s].g1Fill[v][side].frac > d.subjects[s].g1Base[v][side].frac,
+        (side) => fillCell(d, s, "g1Fill", v, side).frac > fillCell(d, s, "g1Base", v, side).frac,
       ),
     ),
   );
   const rework =
     helps &&
-    SUBJECTS.some((s) => d.subjects[s].g2FillOutsidePx > 0 || d.subjects[s].floatsOffLid);
+    SUBJECTS.some((s) => subjectOf(d, s).g2FillOutsidePx > 0 || subjectOf(d, s).floatsOffLid);
   const drop =
     !land && !rework && d.graderVerdict === "no visible difference";
   if (land) return "land";
@@ -104,18 +122,19 @@ describe("the corner decision names an outcome", () => {
     const d = decision();
     for (const s of SUBJECTS) {
       expect(d.subjects[s], s).toBeTruthy();
+      const sub = subjectOf(d, s);
       for (const v of VIEWS) {
         for (const side of SIDES) {
           for (const bake of ["g1Base", "g1Fill"] as const) {
-            const c = d.subjects[s][bake][v][side];
+            const c = fillCell(d, s, bake, v, side);
             expect(typeof c.frac, `${s} ${bake} ${v} ${side}`).toBe("number");
             expect(c.headPx).toBeGreaterThan(0);
           }
         }
       }
-      expect(typeof d.subjects[s].g2FillOutsidePx).toBe("number");
-      expect(d.subjects[s].renders.length).toBeGreaterThanOrEqual(17);
-      for (const r of d.subjects[s].renders) {
+      expect(typeof sub.g2FillOutsidePx).toBe("number");
+      expect(sub.renders.length).toBeGreaterThanOrEqual(17);
+      for (const r of sub.renders) {
         expect(r.file).toMatch(/^assets:corner-decide\//);
         expect(r.sha256).toMatch(/^[0-9a-f]{64}$/);
       }
@@ -136,20 +155,20 @@ describe("the corner decision names an outcome", () => {
     for (const s of SUBJECTS) {
       for (const [v, side] of FAR_EYE) {
         expect(
-          d.subjects[s].g1Fill[v][side].frac,
+          fillCell(d, s, "g1Fill", v, side).frac,
           `${s} ${v} ${side} below frontal`,
-        ).toBeLessThan(d.subjects[s].g1Fill.front[side].frac);
+        ).toBeLessThan(fillCell(d, s, "g1Fill", "front", side).frac);
       }
     }
     // The Aisha yaw40-L-outer regression that blocks land (noise is 0).
     expect(d.noise.maxAbsG1Delta).toBe(0);
-    expect(d.subjects.aisha.g1Fill["yaw40"].L.frac).toBeLessThan(
-      d.subjects.aisha.g1Base["yaw40"].L.frac,
+    expect(fillCell(d, "aisha", "g1Fill", "yaw40", "L").frac).toBeLessThan(
+      fillCell(d, "aisha", "g1Base", "yaw40", "L").frac,
     );
     // G2 clean both, no float: rework triggers absent.
     for (const s of SUBJECTS) {
-      expect(d.subjects[s].g2FillOutsidePx).toBe(0);
-      expect(d.subjects[s].floatsOffLid).toBe(false);
+      expect(subjectOf(d, s).g2FillOutsidePx).toBe(0);
+      expect(subjectOf(d, s).floatsOffLid).toBe(false);
     }
   });
 });

@@ -91,6 +91,10 @@ type Report = {
     };
     baseGlb: { path: string; sha256: string };
     newGlb: { path: string; sha256: string };
+    stemTableRowChange?: {
+      stem: string; oldValueMm: number; newValueMm: number;
+      affectsOnNextBake: string[];
+    };
   };
   gates: {
     g1: {
@@ -196,10 +200,8 @@ describe("the child lid conforms to its age-sized globe", () => {
     expect(r.bake.argv).toMatch(/--reference peds_patient_child/);
     expect(r.bake.argv).not.toMatch(/no-lid-conform/);
     expect(r.bake.argv).not.toMatch(/--eye-texture/);
-    const row = (r.bake as { stemTableRowChange: {
-      stem: string; oldValueMm: number; newValueMm: number;
-      affectsOnNextBake: string[];
-    } }).stemTableRowChange;
+    const row = r.bake.stemTableRowChange;
+    if (!row) throw new Error("bake record is missing stemTableRowChange");
     expect(row.stem).toBe("mpfb-peds-patient-child");
     expect(row.oldValueMm).toBe(22.5);
     expect(row.newValueMm).toBe(r.globeVsAnatomy.targetDiameterMm);

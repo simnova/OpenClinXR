@@ -228,7 +228,8 @@ describe("body2 canthus seats clean with no lift", () => {
   it("(9) known-bad: gating logic bites on injected values", () => {
     const r = readReport();
     expect(r.g2.flips === 0, "recorded flips pass the 0 bar").toBe(true);
-    expect(12 === 0, "STEP0 flips would fail the 0 bar").toBe(false);
+    const step0Flips: number = 12;
+    expect(step0Flips === 0, "STEP0 flips would fail the 0 bar").toBe(false);
     expect(
       r.g2.flesh.verts.every((v) => v.gapMm > 1.0),
       "recorded flesh all past 1.0",
