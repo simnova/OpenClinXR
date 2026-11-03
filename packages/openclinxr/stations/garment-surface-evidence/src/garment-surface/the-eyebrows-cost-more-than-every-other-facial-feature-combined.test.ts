@@ -149,6 +149,8 @@ const SIBLING_FACIAL_SUM = Object.values(SIBLING_FACIAL_TRIS_ON_EVERY_ACTOR).red
  * lashes — fitted CC0 eyelashes01 f82e1cc2e (#683; nurse LOD via #737 at 388);
  * teeth/tongue — mouth/teeth program ec55570e9 + #741 retreat 9f2934536
  * (parent carries fitted_teeth 7120).
+ * gown-inspect body 4149 -> 10705: st-gowninsp rebake a7c4d0294 (GLB bf53d7be) ships the
+ * aisha body at the same rung as ob-patient-aisha and viseme-inspect.
  * Clause (1) still uses the 1,180 reference and stays RED; clause (3) untouched.
  */
 const BODY_TRIS_BY_ACTOR: Record<string, number> = {
@@ -157,7 +159,7 @@ const BODY_TRIS_BY_ACTOR: Record<string, number> = {
   "mpfb-family-partner-adult.glb": 13357,
   "mpfb-gown-adult-patient.glb": 14928,
   "mpfb-gown-ed-robert-hayes.glb": 14928,
-  "mpfb-gown-inspect.glb": 4149,
+  "mpfb-gown-inspect.glb": 10705,
   "mpfb-ob-patient-aisha.glb": 10705,
   "mpfb-peds-nurse-kevin.glb": 8049,
   "mpfb-peds-parent-aisha.glb": 26756,
