@@ -76,6 +76,31 @@ import {
  * (1175 hidden faces total, all torso/throat). The destructive probe runs this clause with
  * GOWN_PROBE_GLB pointed at the round-2 bytes and must FAIL (E/probes.md).
  *
+ * ## (7) FRONT NECKLINE SCOOP (st-gowninsp R4) — THIRD RED
+ *
+ * The R3 cage rings are uniform-y, so lowering the whole top ring (1.485 -> 1.435) matched
+ * only the BACK/top number (1.4392 on the 3bdf74d4b bytes) while the FRONT sat 52 mm too
+ * high (1.435 vs the kg front-midline 1.3834; chin bottom 1.4333 -> 0 mm of throat visible;
+ * collar row 315 vs 390-395 known-good, E/neck-diag.json). The kg shell scoops 55 mm at the
+ * front (front-midline 1.3834 vs back 1.4387). KNOWN-GOOD ROW: front-midline neckline height
+ * 1.3834 +/- 0.015 (the band covers the 1 mm body-generation wobble and stays 35+ mm below
+ * the chin bottom, so passing implies visible throat). The destructive probe runs this clause
+ * with GOWN_PROBE_GLB pointed at the round-3 bytes (1.435, outside the band) and must
+ * FAIL (E/probes.md).
+ *
+ * ## (8) SLEEVE-ROOT SLITS (st-gowninsp R4) — FOURTH RED
+ *
+ * Open boundary paths at the outer arm roots ((0.171,1.285)-(0.163,1.335)-(0.207,1.385)
+ * front+back per side; far side 9-29 mm away) chord across the torso silhouette; the R3
+ * midpoint-fan web covered only part of each gap and faced backward, so the chest stills
+ * show enclosed background through triangular gaps (~1030 px per side, rows 399-448).
+ * The geometric equivalent of the enclosed-background pixel count: orthographic front
+ * projection on 4 mm cells over both sleeve-root boxes, counting EMPTY cells enclosed by
+ * covered cells (flood fill from the box border). KNOWN-GOOD ROW: 0 enclosed cells per side
+ * on the 3bdf74d4b bytes (its 175 in-box boundary edges are covered seams, E/neck-diag.json);
+ * 66 enclosed cells per side on the round-2 AND round-3 bytes (TS raster; the python diag reads 64 on a 4.06 mm grid). The destructive probe runs
+ * this clause with GOWN_PROBE_GLB pointed at the round-3 bytes and must FAIL (E/probes.md).
+ *
  * NOT TESTED:
  *   - **Hem raggedness.** The hem spans 226.7 mm over 36 angular buckets (sd 89.7 mm). That is very
  *     likely DOWNSTREAM of the split — a shell wrapping two legs cannot have a level hem — so it is
@@ -115,6 +140,18 @@ const MIN_SHELL_VERTS = 2_000;
 /** From #480's landed span bound — the same two controls, restated so (2) is self-contained. */
 const HEM_FRAC_MAX = 0.45;
 const TOP_FRAC_MIN = 0.7;
+/** st-gowninsp R4 clause (7): kg front-midline neckline height on the 3bdf74d4b bytes
+ * (front scoop 1.3834 vs back 1.4387, E/neck-diag.json). The band covers the 1 mm
+ * body-generation wobble and stays 35+ mm below the chin bottom (1.4333), so passing
+ * implies visible throat. R3 bytes read 1.435 (outside, fails). */
+const KG_FRONT_NECKLINE_Y = 1.3834;
+const FRONT_NECKLINE_TOL_M = 0.015;
+/** st-gowninsp R4 clause (8): sleeve-root slit boxes (front orthographic projection). */
+const SLIT_X_MIN = 0.08;
+const SLIT_X_MAX = 0.34;
+const SLIT_Y_MIN = 1.02;
+const SLIT_Y_MAX = 1.5;
+const SLIT_CELL_M = 0.004;
 
 type Shell = { pts: number[][]; hem: number; top: number; bodyY0: number; bodyY1: number };
 
@@ -188,6 +225,74 @@ async function shellOrThrow(p: string): Promise<Shell> {
   const s = await readShell(p);
   expect(s, `${p} must exist and carry an openclinxr_real_garment_* shell plus a body mesh`).not.toBeNull();
   return s!;
+}
+
+/** Count see-through holes: front-projected shell triangles rasterized on SLIT_CELL_M
+ * cells over one sleeve-root box; empty cells unreachable from the border through empty
+ * cells are enclosed by shell (kg: 0; round-2/round-3 bytes: 64 per side). */
+function countEnclosedEmpty(tris: number[][][], x0: number, x1: number): number {
+  const nx = Math.round((x1 - x0) / SLIT_CELL_M) + 1;
+  const ny = Math.round((SLIT_Y_MAX - SLIT_Y_MIN) / SLIT_CELL_M) + 1;
+  const covered: boolean[][] = Array.from({ length: ny }, () => new Array<boolean>(nx).fill(false));
+  const sign = (px: number, py: number, ax: number, ay: number, bx: number, by: number): number =>
+    (py - ay) * (bx - ax) - (px - ax) * (by - ay);
+  for (const t of tris) {
+    const ax = t[0]![0]!;
+    const ay = t[0]![1]!;
+    const bx = t[1]![0]!;
+    const by = t[1]![1]!;
+    const cx = t[2]![0]!;
+    const cy = t[2]![1]!;
+    const tx0 = Math.min(ax, bx, cx);
+    const tx1 = Math.max(ax, bx, cx);
+    const ty0 = Math.min(ay, by, cy);
+    const ty1 = Math.max(ay, by, cy);
+    if (tx1 < x0 || tx0 > x1 || ty1 < SLIT_Y_MIN || ty0 > SLIT_Y_MAX) continue;
+    const ix0 = Math.max(0, Math.floor((Math.max(tx0, x0) - x0) / SLIT_CELL_M));
+    const ix1 = Math.min(nx - 1, Math.ceil((Math.min(tx1, x1) - x0) / SLIT_CELL_M));
+    const iy0 = Math.max(0, Math.floor((Math.max(ty0, SLIT_Y_MIN) - SLIT_Y_MIN) / SLIT_CELL_M));
+    const iy1 = Math.min(ny - 1, Math.ceil((Math.min(ty1, SLIT_Y_MAX) - SLIT_Y_MIN) / SLIT_CELL_M));
+    for (let iy = iy0; iy <= iy1; iy += 1) {
+      for (let ix = ix0; ix <= ix1; ix += 1) {
+        if (covered[iy]![ix]!) continue;
+        const px = x0 + ix * SLIT_CELL_M;
+        const py = SLIT_Y_MIN + iy * SLIT_CELL_M;
+        const d1 = sign(px, py, ax, ay, bx, by);
+        const d2 = sign(px, py, bx, by, cx, cy);
+        const d3 = sign(px, py, cx, cy, ax, ay);
+        if ((d1 >= 0 && d2 >= 0 && d3 >= 0) || (d1 <= 0 && d2 <= 0 && d3 <= 0)) {
+          covered[iy]![ix] = true;
+        }
+      }
+    }
+  }
+  // Flood fill from the border through empty cells; leftovers are enclosed.
+  const reach: boolean[][] = Array.from({ length: ny }, () => new Array<boolean>(nx).fill(false));
+  const stack: Array<[number, number]> = [];
+  for (let ix = 0; ix < nx; ix += 1) {
+    if (!covered[0]![ix]!) stack.push([0, ix]);
+    if (!covered[ny - 1]![ix]!) stack.push([ny - 1, ix]);
+  }
+  for (let iy = 0; iy < ny; iy += 1) {
+    if (!covered[iy]![0]!) stack.push([iy, 0]);
+    if (!covered[iy]![nx - 1]!) stack.push([iy, nx - 1]);
+  }
+  while (stack.length > 0) {
+    const [iy, ix] = stack.pop()!;
+    if (reach[iy]![ix]! || covered[iy]![ix]!) continue;
+    reach[iy]![ix] = true;
+    if (iy > 0) stack.push([iy - 1, ix]);
+    if (iy + 1 < ny) stack.push([iy + 1, ix]);
+    if (ix > 0) stack.push([iy, ix - 1]);
+    if (ix + 1 < nx) stack.push([iy, ix + 1]);
+  }
+  let holes = 0;
+  for (let iy = 0; iy < ny; iy += 1) {
+    for (let ix = 0; ix < nx; ix += 1) {
+      if (!covered[iy]![ix]! && !reach[iy]![ix]!) holes += 1;
+    }
+  }
+  return holes;
 }
 
 describe("the gown drapes below the hip instead of wrapping each leg", () => {
@@ -287,5 +392,64 @@ describe("the gown drapes below the hip instead of wrapping each leg", () => {
       `${head + jaw} hidden-slot faces are head/jaw-weighted (head ${head}, jaw ${jaw}) in ${target} — `
         + "known-good row: 0 head + 0 jaw on the 3bdf74d4b bytes",
     ).toBe(0);
+  });
+
+  it("(7) RED: the front neckline scoops to the base of the neck", async () => {
+    // st-gowninsp R4 header ## (7). Front-midline = |x| < 25 mm on the camera side (z > 0;
+    // the gown node ships with an identity transform, so file POSITION is world — the same
+    // frame the producer authors in). The R3 ring reads 1.435 here (fails); kg reads 1.3834.
+    const target = process.env.GOWN_PROBE_GLB ?? TARGET;
+    const s = await shellOrThrow(target);
+    const frontMid = s.pts.filter((p) => Math.abs(p[0]!) < 0.025 && p[2]! > 0);
+    expect(frontMid.length, `${target} must carry front-midline shell verts`).toBeGreaterThan(0);
+    const frontY = Math.max(...frontMid.map((p) => p[1]!));
+    expect(
+      Math.abs(frontY - KG_FRONT_NECKLINE_Y),
+      `front-midline neckline height ${frontY.toFixed(4)} — known-good row 1.3834 +/- 0.015 on the `
+        + `3bdf74d4b bytes (R3 bytes read 1.435): ${target}`,
+    ).toBeLessThanOrEqual(FRONT_NECKLINE_TOL_M);
+  });
+
+  it("(8) RED: no see-through slit at the sleeve roots", async () => {
+    // st-gowninsp R4 header ## (8). Orthographic front projection of the shell on 4 mm
+    // cells over both sleeve-root boxes; enclosed-empty cells (not reachable from the box
+    // border through empty cells) are see-through holes. kg reads 0/0; round-2 and round-3
+    // bytes read 64/64 (E/neck-diag.json). Destructive probe via GOWN_PROBE_GLB must FAIL.
+    const target = process.env.GOWN_PROBE_GLB ?? TARGET;
+    const doc = await new NodeIO().read(target);
+    const tris: number[][][] = [];
+    for (const mesh of doc.getRoot().listMeshes()) {
+      const name = mesh.getName() ?? "";
+      const cls = classifyGarmentMeshName(name);
+      const isShell =
+        cls === "upper" || (cls === "lower" && classifyLowerGarmentKind(name) === "gown");
+      if (!isShell) continue;
+      for (const prim of mesh.listPrimitives()) {
+        const pos = prim.getAttribute("POSITION");
+        if (!pos) continue;
+        const idx = prim.getIndices();
+        if (!idx) continue;
+        const pts: number[][] = [];
+        const e = [0, 0, 0];
+        for (let i = 0; i < pos.getCount(); i += 1) {
+          pos.getElement(i, e);
+          pts.push([e[0]!, e[1]!, e[2]!]);
+        }
+        const n = idx.getCount();
+        const arr = Array.from(idx.getArray() as ArrayLike<number>);
+        for (let f = 0; f + 2 < n; f += 3) {
+          tris.push([pts[arr[f]!]!, pts[arr[f + 1]!]!, pts[arr[f + 2]!]!]);
+        }
+      }
+    }
+    expect(tris.length, `${target} must carry shell triangles`).toBeGreaterThan(0);
+    for (const [side, x0, x1] of [["L", -0.34, -0.08], ["R", 0.08, 0.34]] as const) {
+      const holes = countEnclosedEmpty(tris, x0, x1);
+      expect(
+        holes,
+        `${holes} enclosed-empty 4mm cells in the ${side} sleeve-root box — known-good row 0/0 `
+          + `on the 3bdf74d4b bytes (round-3 bytes read 66): ${target}`,
+      ).toBe(0);
+    }
   });
 });

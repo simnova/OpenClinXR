@@ -346,6 +346,38 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
     torso_vertex_count = len(verts)
     bridge_sources = {}
 
+    # st-gowninsp R4: front scoop. The kg conformal shell neckline scoops 55 mm
+    # at the front (front-midline 1.3834 vs back 1.4387 on the 3bdf74d4b bytes,
+    # E/neck-diag.json); uniform-y rings put the cage front 52 mm too high
+    # (chin bottom 1.4333 -> 0 mm throat visible, collar row 315 vs 390-395
+    # known-good). Cap the top-ring front to the kg height on a lateral
+    # parabola that rejoins the ring at |x|=0.08 (self-calibrating: each vert
+    # keeps its own height at the parabola edge, so the base height never
+    # matters), and cap the second ring just below the scooped top so no riser
+    # pokes above the collar edge (bake1: second-ring front read 1.3979, the
+    # clause-7 max over all shell). Working frame == GLB file frame (x lateral,
+    # y height, z front, front=+Z verified in E/neck-diag.json).
+    _SCOOP_MID_Y = 1.3834  # kg front-midline neckline
+    _SCOOP_HALF_X = 0.08
+    _SCOOP_FLOOR_X = 0.03  # R4v6': flat floor across the visible neck width so the
+    # rendered collar rows match kg (parabola flanks at |x|<=0.025 read +5 mm).
+    for _scoop_ring, _scoop_mid in ((rings[-1], _SCOOP_MID_Y), (rings[-2], _SCOOP_MID_Y - 0.004)):
+        for _vi in _scoop_ring:
+            _x, _y, _z = verts[_vi]
+            if _z <= 0:
+                continue
+            _ax = abs(_x)
+            if _ax >= _SCOOP_HALF_X:
+                continue
+            if _ax <= _SCOOP_FLOOR_X:
+                _cap = _scoop_mid
+            else:
+                _t = ((_ax - _SCOOP_FLOOR_X) / (_SCOOP_HALF_X - _SCOOP_FLOOR_X)) ** 2
+                _cap = _scoop_mid + _t * (_y - _scoop_mid)
+            if _cap < _y:
+                verts[_vi] = (_x, _cap, _z)
+    print(f"SCOOP_NECKLINE midY={_SCOOP_MID_Y:.4f}")
+
     # Short exam sleeves in the bind T pose. They overlap the shoulder ring so the rendered shell
     # is continuous; weight transfer binds them to the nearest upper-arm surface.
     for side in (-1.0, 1.0):
@@ -414,18 +446,23 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
                 if len(face) >= 3:
                     faces.append(tuple(reversed(face)) if side < 0 else face)
 
-    # Seal sightline lips around the sleeve roots. The bridge band shares torso VERTS
+    # Seal sightline flaps around the sleeve roots. The bridge band shares torso VERTS
     # with the torso tube but not torso EDGES: every band-side edge is boundary, and
     # where the straight band edge chords across the curving tube (up to ~10 cm at the
     # outer arm root, measured in the shipped GLB) the gap shows the body through it.
-    # Web each in-box boundary edge to its nearest torso vert. Existing verts only, so
-    # weights and materials ride along; the web stands across the slit, occludes it,
-    # and reads as a fold gusset. Cuffs (|x|~0.395) and hem (y~0.56) lie outside the
-    # seal box and are untouched. The neck ring (top torso ring, y~1.435 since R3)
-    # now lies INSIDE the seal Y range, so its loop edges are excluded explicitly
-    # below — webbing the collar to the clavicle would pleat the neckline.
-    # Deterministic: fixed edge order, linear scan keeps the lowest torso index on ties.
+    # Each open flap edge is bridged to the shell across the gap; existing verts only,
+    # so weights and materials ride along. Cuffs (|x|~0.395) and hem (y~0.56) lie
+    # outside the seal box and are untouched. The neck ring (top torso ring) now lies
+    # INSIDE the seal Y range, so its loop edges are excluded explicitly below —
+    # webbing the collar to the clavicle would pleat the neckline.
+    # Deterministic: fixed edge order, linear scan keeps the lowest index on ties.
     _SEAL_X_MIN, _SEAL_X_MAX, _SEAL_Y_MIN, _SEAL_Y_MAX = 0.10, 0.30, 1.08, 1.48
+    # R4v3: webbing is restricted to the flap zone measured on the bake2 bytes
+    # (|mx| 0.15-0.30, my 1.08-1.42: the 10 open singles incl. the 108 mm chords;
+    # enclosed raster cells all lay at |x| 0.132-0.200, y 1.30-1.376). Collar-region
+    # seams (|mx|<0.15, like the kg's 175 covered in-box seams) are never webbed:
+    # bake2 webbed 16 collar-region edges and the root count GREW 66->137/side.
+    _WEB_X_MIN, _WEB_Y_MAX = 0.15, 1.42
     _edge_use: dict[tuple[int, int], int] = {}
     for _f in faces:
         _n = len(_f)
@@ -444,27 +481,173 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
         if not (_SEAL_X_MIN <= abs(_mx) <= _SEAL_X_MAX and _SEAL_Y_MIN <= _my <= _SEAL_Y_MAX):
             continue
         _lips.append((_a, _b))
+    # st-gowninsp R4v5: fan each open flap edge from THREE inboard anchors.
+    # Bake4 lesson: midpoint+ends anchors with the nearest-outside-25mm rule land
+    # ~28 mm inboard at mid height only (raster 66->64: the wedge top y 1.34-1.376
+    # near the chord top stays open). A triangle covers chord x apex POINT, so the
+    # apex must sit at the hole's inboard edge AT EACH HEIGHT. Rule: push the
+    # reference point 45 mm inboard (toward the midline; every measured hole cell
+    # lies inboard of its chord) and take the nearest shell vert within 35 mm of
+    # that target (60 mm fallback, else fail closed). Anchors at flap-bottom,
+    # flap-mid, flap-top heights give tris (a,b,qa),(a,b,q1),(a,b,qb) covering the
+    # full wedge. Same-side-x and height-band constraints keep anchors sane; the
+    # sleeve (outboard, 70 mm+ from any inboard target) can never win.
+    def _far_anchor(_px, _py, _pz, _exclude=()):
+        _sx = 1.0 if _px >= 0 else -1.0
+        _tx, _ty, _tz = _px - _sx * 0.045, _py, _pz
+        for _rmax in (0.035, 0.060):
+            _best = None
+            _best_d = None
+            for _i in range(len(verts)):
+                if _i in _exclude:
+                    continue
+                _vx, _vy, _vz = verts[_i]
+                if _vx * _px < 0:
+                    continue  # across the midline: wrong side of the body
+                if abs(_vy - _py) > 0.06:
+                    continue
+                _dq = (_vx - _tx) ** 2 + (_vy - _ty) ** 2 + (_vz - _tz) ** 2
+                if _dq > _rmax ** 2:
+                    continue
+                _dm = (_vx - _px) ** 2 + (_vy - _py) ** 2 + (_vz - _pz) ** 2
+                if _dm < 0.020 ** 2:
+                    continue  # the flap itself, not the far side
+                if _best_d is None or _dq < _best_d:
+                    _best_d = _dq
+                    _best = _i
+            if _best is not None:
+                return _best
+        raise RuntimeError("no far-side shell vert across a sleeve-root flap")
+
+    # st-gowninsp R4v6': EXACT window anchors. Bake6 lesson: the free-space
+    # _window_anchor (65 mm inboard + 20 mm lift, 40/60 mm caps) fail-closed the
+    # whole bake (RuntimeError) — for inner flaps the target lands deep inside
+    # the tube where no shell vert is within reach, while the 3-apex
+    # _far_anchor fans that DID emit land on bridge-band verts 20-30 mm out and
+    # cover only slivers (raster 64->47/side; window x 0.132-0.176 /
+    # y 1.344-1.368 left open). The tube wall behind each hole is known
+    # ANALYTICALLY (the section-fit ring_spec): one new vert per flap edge,
+    # placed exactly on the tube wall 70 mm inboard of the flap mid at the same
+    # height on the same front/back side, triangulated as (a,b,W) per edge.
+    # Adjacent edges yield adjacent patch tris (continuous coverage). New verts
+    # copy the skin weights of their nearest tube mesh vert (patch_sources,
+    # same pattern as bridge_sources). Analytic placement cannot fail to find;
+    # skips (counted; fail-closed at the clause-8 raster) happen only when the
+    # inboard point falls outside the section ellipse.
+    def _section_radii(_y):
+        if _y <= ring_spec[0][0]:
+            return ring_spec[0][1], ring_spec[0][2]
+        if _y >= ring_spec[-1][0]:
+            return ring_spec[-1][1], ring_spec[-1][2]
+        for (_y0, _rx0, _rz0), (_y1, _rx1, _rz1) in zip(ring_spec, ring_spec[1:]):
+            if _y0 <= _y <= _y1:
+                _t = (_y - _y0) / max(1e-6, _y1 - _y0)
+                return _rx0 + (_rx1 - _rx0) * _t, _rz0 + (_rz1 - _rz0) * _t
+        return ring_spec[-1][1], ring_spec[-1][2]
+
+    _patch_sources: dict[int, int] = {}
+    _wall_memo: dict[int, int | None] = {}
+    _patch_tris = 0
+    _patch_skipped = 0
+
+    def _wall_vert(_v):
+        # Memoized tube-wall point for a flap vert: 70 mm inboard, same height,
+        # same front/back side on the analytic section ellipse. Shared by all
+        # edges meeting at _v so adjacent strip quads share the wall edge.
+        if _v in _wall_memo:
+            return _wall_memo[_v]
+        _vx, _vy, _vz = verts[_v]
+        _vsx = 1.0 if _vx >= 0 else -1.0
+        _vxt = abs(_vx) - 0.070
+        _vrx, _vrz = _section_radii(_vy)
+        if not (_vxt > 0.01 and _vxt < _vrx * 0.98):
+            _wall_memo[_v] = None
+            return None
+        _vzt = _vrz * math.sqrt(max(0.0, 1.0 - (_vxt / _vrx) ** 2))
+        if _vz < 0:
+            _vzt = -_vzt
+        _w = len(verts)
+        verts.append((_vsx * _vxt, _vy, _vzt))
+        _patch_sources[_w] = min(
+            range(torso_vertex_count),
+            key=lambda _i: (verts[_i][0] - verts[_w][0]) ** 2
+            + (verts[_i][1] - verts[_w][1]) ** 2
+            + (verts[_i][2] - verts[_w][2]) ** 2,
+        )
+        _wall_memo[_v] = _w
+        return _w
+
+    def _emit_wound(_p, _q, _r, _s):
+        _ux, _uy, _uz = verts[_q][0] - verts[_p][0], verts[_q][1] - verts[_p][1], verts[_q][2] - verts[_p][2]
+        _vx, _vy, _vz = verts[_r][0] - verts[_p][0], verts[_r][1] - verts[_p][1], verts[_r][2] - verts[_p][2]
+        _nz = _ux * _vy - _uy * _vx
+        if len({_p, _q, _r}) < 3:
+            return 0
+        if _nz * _s < 0:
+            faces.append((_q, _p, _r))
+        else:
+            faces.append((_p, _q, _r))
+        return 1
+
+    _gussets = 0
+    _webbed = 0
     for (_a, _b) in _lips:
         _mx = (verts[_a][0] + verts[_b][0]) / 2.0
         _my = (verts[_a][1] + verts[_b][1]) / 2.0
         _mz = (verts[_a][2] + verts[_b][2]) / 2.0
-        _best = None
-        _best_d = None
-        for _i in range(torso_vertex_count):
-            if _i == _a or _i == _b:
-                continue
-            _d = (
-                (verts[_i][0] - _mx) ** 2
-                + (verts[_i][1] - _my) ** 2
-                + (verts[_i][2] - _mz) ** 2
-            )
-            if _best_d is None or _d < _best_d:
-                _best_d = _d
-                _best = _i
-        if _best is None:
-            raise RuntimeError("no torso vert to seal a sleeve-root lip")
-        faces.append((_a, _b, _best))
-    print(f"SEAL_SLEEVE_ROOT lips={len(_lips)}")
+        if not (_WEB_X_MIN <= abs(_mx) <= _SEAL_X_MAX and _SEAL_Y_MIN <= _my <= _WEB_Y_MAX):
+            continue  # R4v3: collar-region seams stay untouched (kg precedent)
+        _webbed += 1
+        _ax, _ay, _az = verts[_a]
+        _bx, _by, _bz = verts[_b]
+        _qa = _far_anchor(_ax, _ay, _az, (_a, _b))
+        _q1 = _far_anchor(_mx, _my, _mz, (_a, _b, _qa))
+        _qb = _far_anchor(_bx, _by, _bz, (_a, _b, _qa, _q1))
+        _s = 1.0 if _mz >= 0 else -1.0
+        _gussets += _emit_wound(_a, _b, _qa, _s)
+        _gussets += _emit_wound(_a, _b, _q1, _s)
+        _gussets += _emit_wound(_a, _b, _qb, _s)
+        # R4v6'' wall strip: per-VERTEX memoized tube-wall points (see _wall_vert
+        # above) shared by adjacent edges, emitting the quad (a,b,Wb,Wa) as two
+        # tris per edge. Bake6' lesson: per-EDGE patches share only the flap
+        # vertex, leaving the wedge (v1,W1,W2) between adjacent patches open
+        # (raster 47->25/side, residual x 0.132-0.176 / y 1.352-1.368). The
+        # vertex-shared strip is continuous along the whole open path. 70 mm (not
+        # 65): bake7 left one enclosed cell per side at the inboard window corner
+        # (|x| 0.132, y 1.360) exactly on the 65 mm wall line; +5 mm clears it.
+        _wa = _wall_vert(_a)
+        _wb = _wall_vert(_b)
+        if _wa is not None and _wb is not None:
+            _patch_tris += _emit_wound(_a, _b, _wb, _s)
+            _patch_tris += _emit_wound(_a, _wb, _wa, _s)
+        else:
+            _patch_skipped += 1
+    print(f"SEAL_SLEEVE_ROOT lips={len(_lips)} webbedFlaps={_webbed} gussetTris={_gussets} "
+          f"patchTris={_patch_tris} patchSkipped={_patch_skipped}")
+
+    # R4 bake-log verification: recompute boundary on the final verts/faces and
+    # report the front-midline neckline (must read 1.3834-1.388, the kg scoop).
+    # The slit-box boundary count is INFORMATIONAL only: membranes close holes
+    # with perimeter seams on the tube (the kg ships 175 such in-box edges with
+    # 0 enclosed cells); the gate is the clause-8 raster, not this count.
+    _post_use: dict[tuple[int, int], int] = {}
+    for _f in faces:
+        _n = len(_f)
+        for _k in range(_n):
+            _e = (min(_f[_k], _f[(_k + 1) % _n]), max(_f[_k], _f[(_k + 1) % _n]))
+            _post_use[_e] = _post_use.get(_e, 0) + 1
+    _post_lips = [_e for _e, _c in _post_use.items() if _c == 1]
+    _post_inbox = []
+    for (_a, _b) in _post_lips:
+        if _a in _top_ring and _b in _top_ring:
+            continue
+        _mx = (verts[_a][0] + verts[_b][0]) / 2.0
+        _my = (verts[_a][1] + verts[_b][1]) / 2.0
+        if _SEAL_X_MIN <= abs(_mx) <= _SEAL_X_MAX and _SEAL_Y_MIN <= _my <= _SEAL_Y_MAX:
+            _post_inbox.append((_a, _b))
+    _front_ys = [verts[_vi][1] for _vi in rings[-1] if abs(verts[_vi][0]) < 0.025 and verts[_vi][2] > 0]
+    print(f"VERIFY_GOWN frontNecklineY={max(_front_ys):.4f} boundaryTotal={len(_post_lips)} "
+          f"slitBoxNonNeckline={len(_post_inbox)}")
 
     mesh = bpy.data.meshes.new("openclinxr_real_garment_hospital_gown_mesh")
     mesh.from_pydata(verts, [], faces)
@@ -500,6 +683,8 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
     for index, vertex in enumerate(mesh.vertices):
         if index in bridge_sources:
             continue
+        if index in _patch_sources:
+            continue  # exact window anchors: weights copied from tube below
         sleeve = index >= torso_vertex_count
         shoulder = not sleeve and shoulder_cap(vertex.co)
         source_index = 2 if shoulder else int(sleeve)
@@ -519,6 +704,9 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
         strongest = sorted(weights.items(), key=lambda row: -row[1])[:4]
         total = sum(weight for _, weight in strongest)
         skin_rows[index] = {name: weight / total for name, weight in strongest}
+    for index, tube in _patch_sources.items():
+        # R4v6': the patch anchor sits on the tube wall; inherit its weights whole.
+        skin_rows[index] = dict(skin_rows[tube])
     for index, weights in skin_rows.items():
         for name, weight in weights.items():
             group = garment.vertex_groups.get(name) or garment.vertex_groups.new(name=name)

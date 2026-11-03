@@ -1736,7 +1736,7 @@
       "nodeCountBefore": 149,
       "nodeCountAfter": 149,
       "byteLengthBefore": 13263836,
-      "byteLengthAfter": 8107316,
+      "byteLengthAfter": 8107748,
       "materials": [
         {
           "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
@@ -2265,7 +2265,7 @@
         },
         {
           "material": "mpfb_skin_ob_patient_aisha",
-          "decision": "baked: st-gowninsp round-1 rebake restored the unhidden-leg skin texels in place from the unbaked source through bake_mpfb_gown_inspect.py (factor already white so no fold was applied); the 32 producer-grid samples below are measured from the shipped bytes and pin them Updated 2026-11-03 (st-gowninsp round 3): the collar/chin rebake re-baked the skin albedo for the new hidden set, so the 32 samples above are re-measured from the 8107316-byte output; round-2 samples preserved in git history and store/st-gowninsp/r2/skin-samples.json.",
+          "decision": "baked: st-gowninsp round-1 rebake restored the unhidden-leg skin texels in place from the unbaked source through bake_mpfb_gown_inspect.py (factor already white so no fold was applied); the 32 producer-grid samples below are measured from the shipped bytes and pin them Updated 2026-11-03 (st-gowninsp round 3): the collar/chin rebake re-baked the skin albedo for the new hidden set, so the 32 samples above are re-measured from the 8107316-byte output; round-2 samples preserved in git history and store/st-gowninsp/r2/skin-samples.json. Updated 2026-11-03 (st-gowninsp round 4): the scoop+seal rebake re-baked the skin albedo for the new hidden set, so the 32 samples above are re-measured from the 8107748-byte output; round-3 samples preserved in git history and store/st-gowninsp/r3/skin-samples.json. Updated 2026-11-03 (st-gowninsp round 4): the scoop+seal rebake re-baked the skin albedo for the new hidden set, so the 32 samples above are re-measured from the 8107748-byte output; round-3 samples preserved in git history and store/st-gowninsp/r3/skin-samples.json.",
           "sourceResolution": "1024x1024",
           "bakedResolution": "1024x1024",
           "ladderRungId": "n/a",
