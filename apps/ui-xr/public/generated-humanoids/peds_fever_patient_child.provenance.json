@@ -61,8 +61,7 @@
   ],
   "sourceNotes": [
     "Generated through the installed local Anny package forward pass plus Blender procedural rigging/material fallback; preserved as a quarantined source candidate until isolated model-vetting evidence clears.",
-    "This is evidence of local Anny source generation only, not B+ realism, production, Quest, learner, clinical, or scoring readiness.",
-    "2026-11-03 st-hemfin D2 (hem-finish, in-place GLB round trip, not rebake): apply-hem-finish-glb.py calls finish_garment_hem (packages/openclinxr/factory-stations/src/body_param/garment_ops.py) on openclinxr_real_garment_peds_upper_v1_mesh. Cause: #124 sawn hem (turn 171.2 deg, ratio 1.03). Result: turn 76.7 deg, ratio 0.66, hemY unchanged 0.59, shoulder one-component KEPT true (body-derived shell, no authored UVs), animations preserved (5), mesh/action/skin counts identical, 4 degenerate faces collapsed (zero-area, no holes). File 6471224 -> 6450804 B."
+    "This is evidence of local Anny source generation only, not B+ realism, production, Quest, learner, clinical, or scoring readiness."
   ],
   "phenotypeSource": "case_definition",
   "runtimeRole": "comparator",

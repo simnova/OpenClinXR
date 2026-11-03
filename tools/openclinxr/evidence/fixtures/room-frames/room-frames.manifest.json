@@ -460,11 +460,11 @@
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child.glb",
-      "sha256": "cbdea26f319afa77252c371273911f7a99835d373de0d3e5fe7d3fb53140a7ef"
+      "sha256": "25ae2cce631220370a852e4b8619904b07b39bc01ad45bd458c97aab1a598424"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child.provenance.json",
-      "sha256": "fc4174a54cc299837c768eed9f1745f2068d901b2ec175485501b8d3aa21df22"
+      "sha256": "cac2f95f2c2b041865b80073d6971ce2bd7e7832eb45b5cb6ba831f7a75db9d3"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child_rigging_report.json",
