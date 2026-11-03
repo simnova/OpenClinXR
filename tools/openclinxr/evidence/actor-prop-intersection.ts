@@ -208,8 +208,8 @@ export async function writePropDump(
 }
 
 async function measureLivePropIntersection(input: {
-  baseUrl?: string;
-  scenarioIds?: string[];
+  baseUrl?: string | undefined;
+  scenarioIds?: string[] | undefined;
 }): Promise<ActorPropIntersectionReport> {
   const scenarios =
     input.scenarioIds && input.scenarioIds.length > 0
@@ -804,8 +804,8 @@ export async function writeEquipmentActorPreFix(
 }
 
 async function measureLiveEquipmentActorOverlap(input: {
-  baseUrl?: string;
-  scenarioIds?: string[];
+  baseUrl?: string | undefined;
+  scenarioIds?: string[] | undefined;
 }): Promise<EquipmentActorOverlapReport> {
   const scenarios =
     input.scenarioIds && input.scenarioIds.length > 0

@@ -12,6 +12,7 @@
  * claimScope: lowest skinned-mesh vertex Y vs floor top y=0 across all cast stations.
  * notEvidenceFor: posture quality, wardrobe, clinical plausibility, Quest readiness.
  */
+/// <reference path="./browser-dom.d.ts" />
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -73,11 +74,11 @@ function artifactPath(): string {
  * Subsequent calls in-process return cache / re-read the artifact — one Vite boot.
  */
 export async function measureActorFloorContact(input?: {
-  baseUrl?: string;
+  baseUrl?: string | undefined;
   force?: boolean;
   label?: string;
   /** Optional subset for local diagnosis; production path always uses full bank. */
-  scenarioIds?: string[];
+  scenarioIds?: string[] | undefined;
 }): Promise<ActorFloorContactReport> {
   if (!input?.force && cachedReport) return cachedReport;
   if (!input?.force && measureInFlight) return measureInFlight;
@@ -155,8 +156,8 @@ export async function writeFloorContactDump(
 }
 
 async function measureLiveAllStations(input: {
-  baseUrl?: string;
-  scenarioIds?: string[];
+  baseUrl?: string | undefined;
+  scenarioIds?: string[] | undefined;
 }): Promise<ActorFloorContactReport> {
   const scenarios =
     input.scenarioIds && input.scenarioIds.length > 0

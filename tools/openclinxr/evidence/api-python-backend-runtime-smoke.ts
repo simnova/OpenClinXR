@@ -112,7 +112,7 @@ type RuntimeSmokeObservation = {
   health: ApiPythonBackendRuntimeSmokeReport["health"];
   capabilities: ApiPythonBackendRuntimeSmokeReport["capabilities"];
   websocket: ApiPythonBackendRuntimeSmokeReport["websocket"];
-  localQwenTtsRuntimeSmoke?: LocalQwenTtsRuntimeSmokeReport;
+  localQwenTtsRuntimeSmoke?: LocalQwenTtsRuntimeSmokeReport | undefined;
 };
 
 export async function main(args = process.argv.slice(2)): Promise<void> {
@@ -522,7 +522,7 @@ function stringArray(value: unknown): string[] {
 }
 
 export async function runApiPythonBackendRuntimeSmoke(
-  options: CliOptions & { localQwenTtsRuntimeSmoke?: LocalQwenTtsRuntimeSmokeReport },
+  options: CliOptions & { localQwenTtsRuntimeSmoke?: LocalQwenTtsRuntimeSmokeReport | undefined },
 ): Promise<ApiPythonBackendRuntimeSmokeReport> {
   const pythonVersion = await readPythonVersion(options.pythonExecutable);
   const dependencies = await probePythonDependencies(options.pythonExecutable, ["fastapi", "uvicorn", "websockets"]);

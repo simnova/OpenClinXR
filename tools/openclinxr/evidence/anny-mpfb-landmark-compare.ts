@@ -334,8 +334,15 @@ export function buildBandProfile(
     if (band.length < 4) continue;
 
     const parent = band.map((_, i) => i);
-    const find = (a: number): number =>
-      (parent[a] = parent[a] === a ? a : find(parent[a]));
+    const find = (a: number): number => {
+      const current = parent[a];
+      if (current === undefined) {
+        throw new Error(`anny-mpfb-landmark-compare: union-find parent missing for index ${a}`);
+      }
+      const root = current === a ? a : find(current);
+      parent[a] = root;
+      return root;
+    };
     const union = (a: number, b: number) => {
       const ra = find(a);
       const rb = find(b);
@@ -544,13 +551,21 @@ export function sharedVertexFraction(
   faces: readonly number[][],
 ): number {
   const degree = new Uint32Array(vertexCount);
-  for (const face of faces) for (const vi of face) degree[vi]++;
+  for (const face of faces) {
+    for (const vi of face) {
+      const prior = degree[vi];
+      if (prior === undefined) {
+        throw new Error(`anny-mpfb-landmark-compare: vertex index ${vi} out of bounds for vertexCount ${vertexCount}`);
+      }
+      degree[vi] = prior + 1;
+    }
+  }
   let used = 0;
   let shared = 0;
   for (let i = 0; i < degree.length; i++) {
-    if (degree[i] > 0) {
+    if (degree[i]! > 0) {
       used++;
-      if (degree[i] > 1) shared++;
+      if (degree[i]! > 1) shared++;
     }
   }
   return used === 0 ? 0 : shared / used;

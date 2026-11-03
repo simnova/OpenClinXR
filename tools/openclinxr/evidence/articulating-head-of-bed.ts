@@ -10,6 +10,7 @@
  * notEvidenceFor: trained-eye hospital-bed fidelity, multi-joint Gatch, clinical
  * positioning correctness, product ship angle (orchestrator grades the sheet).
  */
+/// <reference path="./browser-dom.d.ts" />
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";

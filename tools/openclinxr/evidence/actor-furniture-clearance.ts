@@ -234,8 +234,8 @@ export async function writeClearanceDump(
 }
 
 async function measureLiveClearance(input: {
-  baseUrl?: string;
-  scenarioIds?: string[];
+  baseUrl?: string | undefined;
+  scenarioIds?: string[] | undefined;
 }): Promise<ActorFurnitureClearanceReport> {
   const scenarios =
     input.scenarioIds && input.scenarioIds.length > 0

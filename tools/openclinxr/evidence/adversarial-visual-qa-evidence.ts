@@ -56,7 +56,7 @@ export type AdversarialVisualQaEvidenceReadiness = {
 
 export type AdversarialVisualQaEvidenceReport = {
   generatedAt: string;
-  inputFile?: string;
+  inputFile?: string | undefined;
   evidence: AdversarialVisualQaEvidence;
   result: AdversarialVisualQaEvidenceReadiness;
 };

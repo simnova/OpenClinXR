@@ -228,7 +228,7 @@ function maxQuaternionDegreesFromFirst(accessor: Accessor | null | undefined): n
 
 function normalizeQuat(values: number[]): [number, number, number, number] {
   const length = Math.hypot(values[0] ?? 0, values[1] ?? 0, values[2] ?? 0, values[3] ?? 1) || 1;
-  return [values[0] / length, values[1] / length, values[2] / length, values[3] / length];
+  return [(values[0] ?? 0) / length, (values[1] ?? 0) / length, (values[2] ?? 0) / length, (values[3] ?? 1) / length];
 }
 
 function summarizeAppendageMovement(animation: AnimationMotion | null): Record<Exclude<MotionRegion, "other">, boolean> {

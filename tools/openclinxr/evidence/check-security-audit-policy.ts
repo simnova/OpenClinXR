@@ -60,7 +60,7 @@ type ScriptFinding = {
   scriptName: string;
   finding: string;
   expected?: string;
-  actual?: string;
+  actual?: string | undefined;
 };
 
 type ExceptionFinding = {
@@ -78,15 +78,15 @@ type AuditFinding = {
   advisory: string;
   packageName: string;
   severity: string;
-  affected?: string;
-  fixed?: string;
+  affected?: string | undefined;
+  fixed?: string | undefined;
 };
 
 export type SecurityAuditPolicyReport = {
   generatedAt: string;
   auditEvidence: {
     supplied: boolean;
-    sourcePath?: string;
+    sourcePath?: string | undefined;
     totalFindingCount: number;
     blockingFindingCount: number;
     blockingSeverityThreshold: "high";
@@ -184,8 +184,8 @@ export function buildSecurityAuditPolicyReport(input: {
   rootPackageJson: PackageJson;
   rootPackageManagerOverrides?: Record<string, string>;
   exceptionsMarkdown: string;
-  auditJson?: PnpmAuditJson;
-  auditJsonSourcePath?: string;
+  auditJson?: PnpmAuditJson | undefined;
+  auditJsonSourcePath?: string | undefined;
   now?: Date;
 }): SecurityAuditPolicyReport {
   const scriptFindings = evaluateScripts(input.rootPackageJson.scripts ?? {});
@@ -294,7 +294,7 @@ function parseActiveExceptions(markdown: string): { exceptions: SecurityAuditExc
     };
   }
 
-  const headers = splitMarkdownRow(tableLines[0]).map(normalizeHeader);
+  const headers = splitMarkdownRow(tableLines[0]!).map(normalizeHeader);
   const missingColumns = requiredExceptionColumns.filter((column) => !headers.includes(column));
   if (missingColumns.length > 0) {
     return {
@@ -343,7 +343,7 @@ function parseActivePackageManagerOverrides(
     };
   }
 
-  const headers = splitMarkdownRow(tableLines[0]).map(normalizeHeader);
+  const headers = splitMarkdownRow(tableLines[0]!).map(normalizeHeader);
   const missingColumns = requiredPackageManagerOverrideColumns.filter((column) => !headers.includes(column));
   if (missingColumns.length > 0) {
     return {
