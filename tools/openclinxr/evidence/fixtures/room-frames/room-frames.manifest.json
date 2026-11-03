@@ -276,11 +276,11 @@
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-      "sha256": "f12e677eecbfbc0f0489a395d408f130ac7d9df1f41790c1214b694130614222"
+      "sha256": "ee45f65c0162208d9ca37f5a116c82d11d072def31b6429a6b32c74f040ee7cd"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.provenance.json",
-      "sha256": "204092652bbb02ed7b4ee966cf19b67c4f6e342dfd64c2532b19441a3e32dc04"
+      "sha256": "96a4fd755b3ff25db252f27b2b9163cfd8340ea527ea768cd716afdc7eb31278"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.skin-baked.png",
@@ -5063,7 +5063,7 @@
       "sha256": "0dcd06c66f5acd0ccc42401c8d1fed8ee1351f889861ca13ecc8c79fec1a9f95"
     }
   ],
-  "sourcePinsDigest": "a230e950fe629fdcaa8ae51a74038f64a3cc8e8a34eff79bdcdcd07433a752cf",
+  "sourcePinsDigest": "0c4de5b4b9477a193a79e9045011f98143d11abf6f2124429598af1804bb7509",
   "entries": [
     {
       "scenarioId": "adult_abdominal_pain_v1",
