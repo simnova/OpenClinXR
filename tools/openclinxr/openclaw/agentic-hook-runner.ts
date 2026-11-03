@@ -316,7 +316,7 @@ export function buildTypecheckBaselineStep(profile: HookProfile, changedFiles: s
       "src/checks/the-typecheck-baseline-only-ratchets-down.test.ts",
     ],
     reason:
-      "pnpm typecheck is red on main; freeze today's unique error TSxxxx count so the number can only go down",
+      "strict + relaxed + station sidecars (uncached) stay at 0 TS errors; tools/** strict-flag count only goes down; no tsconfig relaxes a strict option",
   };
 }
 

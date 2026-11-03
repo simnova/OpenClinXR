@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.tools-relaxed.json",
+  "compilerOptions": {
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true
+  }
+}

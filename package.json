@@ -73,6 +73,8 @@
     "typecheck:strict": "cellix-tsc --noEmit -p tsconfig.root-tools.json",
     "typecheck:relaxed": "cellix-tsc --noEmit -p tsconfig.tools-relaxed.json",
     "typecheck:guardrails": "tsx tools/agent-factory/check-typescript-guardrails.ts",
+    "typecheck:stations": "turbo run typecheck --filter='./packages/openclinxr/stations/*' --force --continue --output-logs=errors-only",
+    "typecheck:tools-strict": "cellix-tsc --noEmit -p tsconfig.tools-strict.json",
     "test": "pnpm //#test:tools && pnpm packages:test",
     "test:force": "pnpm //#test:tools && pnpm packages:test:force",
     "gen": "pnpm --filter @openclinxr/graphql generate",

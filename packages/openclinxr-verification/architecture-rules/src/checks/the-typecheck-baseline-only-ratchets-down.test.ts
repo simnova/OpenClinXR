@@ -3,9 +3,14 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
+  TOOLS_STRICT_ERROR_CEILING,
+  TOOLS_STRICT_ERROR_CEILING_AT_PLANT,
   TYPECHECK_ERROR_CEILING,
   TYPECHECK_ERROR_CEILING_AT_PLANT,
+  checkToolsStrictBaseline,
   checkTypecheckBaseline,
+  checkTypescriptGuardrails,
+  collectToolsStrictDiagnostics,
   collectTypecheckDiagnostics,
   countTypecheckErrors,
   diagnosticKey,
@@ -142,6 +147,95 @@ describe("the typecheck baseline only ratchets down", () => {
     },
     180_000,
   );
+});
+
+/**
+ * 2026-11-03 strict-rule ratchet. The three index/optional-property flags were relaxed in
+ * 29 station sidecars and the relaxed tools tier, and no hook typechecked the sidecars or
+ * ran the guardrail that forbids the relaxation. Each clause below plants the defect it
+ * guards against, proves the gate refuses it, removes it, and proves the gate is clean.
+ * Fixture values are a single TS4111 (dot access on an index signature): an error ONLY
+ * under noPropertyAccessFromIndexSignature, so the relaxed tier cannot see it.
+ */
+const STRICT_ONLY_PLANT =
+  "const plantedRecord: Record<string, number> = {};\nexport const plantedValue = plantedRecord.plantedKey;\n";
+
+describe("the strict TypeScript rules only ratchet", () => {
+  it("(10) a strict-only error planted in a station sidecar raises the zero-ceiling count", () => {
+    const planted = join(
+      workspaceRootFromHere(),
+      "packages/openclinxr/stations/staging-evidence/src/_typecheck-baseline-inject.ts",
+    );
+    writeFileSync(planted, STRICT_ONLY_PLANT, "utf8");
+    try {
+      const keys = collectTypecheckDiagnostics().map(diagnosticKey);
+      expect(keys.some((k) => k.includes("_typecheck-baseline-inject.ts") && k.endsWith("|TS4111"))).toBe(true);
+      expect(checkTypecheckBaseline().some((v) => v.includes("do NOT raise the ceiling"))).toBe(true);
+    } finally {
+      unlinkSync(planted);
+    }
+    expect(countTypecheckErrors()).toBe(TYPECHECK_ERROR_CEILING);
+  }, 300_000);
+
+  it("(11) typecheck:stations bypasses turbo's cache (its inputs omit the tools/** files sidecars import)", () => {
+    const pkg = JSON.parse(readFileSync(join(workspaceRootFromHere(), "package.json"), "utf8")) as {
+      scripts: Record<string, string>;
+    };
+    const script = pkg.scripts["typecheck:stations"] ?? "";
+    expect(script).toContain("--filter='./packages/openclinxr/stations/*'");
+    expect(script).toContain("--force");
+    expect(script).toContain("--continue");
+  });
+
+  it("(12) a sidecar tsconfig that relaxes a strict flag fails typecheck:guardrails", () => {
+    expect(checkTypescriptGuardrails()).toEqual([]);
+    const planted = join(
+      workspaceRootFromHere(),
+      "packages/openclinxr/stations/staging-evidence/tsconfig.baseline-inject.json",
+    );
+    writeFileSync(planted, '{ "compilerOptions": { "noUncheckedIndexedAccess": false } }\n', "utf8");
+    try {
+      const violations = checkTypescriptGuardrails();
+      expect(violations.join("\n")).toContain("tsconfig.baseline-inject.json: noUncheckedIndexedAccess must not be relaxed");
+    } finally {
+      unlinkSync(planted);
+    }
+    expect(checkTypescriptGuardrails()).toEqual([]);
+  }, 120_000);
+
+  it("(13) tools strict ceiling: growth refused, paid-down forces it lower, raising above plant refused", () => {
+    expect(checkToolsStrictBaseline({ actualErrorCount: TOOLS_STRICT_ERROR_CEILING })).toEqual([]);
+    expect(
+      checkToolsStrictBaseline({ actualErrorCount: TOOLS_STRICT_ERROR_CEILING + 1 }).some((v) =>
+        v.includes(`> frozen ceiling ${TOOLS_STRICT_ERROR_CEILING}`),
+      ),
+    ).toBe(true);
+    expect(
+      checkToolsStrictBaseline({ actualErrorCount: TOOLS_STRICT_ERROR_CEILING - 1 }).some((v) =>
+        v.includes("lower TOOLS_STRICT_ERROR_CEILING"),
+      ),
+    ).toBe(true);
+    expect(
+      checkToolsStrictBaseline({
+        actualErrorCount: TOOLS_STRICT_ERROR_CEILING_AT_PLANT + 1,
+        ceiling: TOOLS_STRICT_ERROR_CEILING_AT_PLANT + 1,
+      }).some((v) => v.includes("> plant freeze")),
+    ).toBe(true);
+    expect(TOOLS_STRICT_ERROR_CEILING).toBeLessThanOrEqual(TOOLS_STRICT_ERROR_CEILING_AT_PLANT);
+  });
+
+  it("(14) a strict-only error planted in tools/ raises the tools strict count; removing it restores the freeze", () => {
+    const planted = join(workspaceRootFromHere(), "tools/openclinxr/_tools-strict-inject.ts");
+    writeFileSync(planted, STRICT_ONLY_PLANT, "utf8");
+    try {
+      const diagnostics = collectToolsStrictDiagnostics();
+      expect(diagnostics.some((d) => d.file.endsWith("_tools-strict-inject.ts") && d.code === "TS4111")).toBe(true);
+      expect(diagnostics.length).toBeGreaterThan(TOOLS_STRICT_ERROR_CEILING);
+    } finally {
+      unlinkSync(planted);
+    }
+    expect(collectToolsStrictDiagnostics().length).toBe(TOOLS_STRICT_ERROR_CEILING);
+  }, 180_000);
 });
 
 describeTypecheckBaselineTests();

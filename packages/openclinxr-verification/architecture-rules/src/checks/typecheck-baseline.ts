@@ -40,7 +40,14 @@ export const TYPECHECK_ERROR_CEILING_AT_PLANT = 225;
  */
 export const TYPECHECK_ERROR_CEILING = 0;
 
-const TYPECHECK_SCRIPTS = ["typecheck:strict", "typecheck:relaxed"] as const;
+/**
+ * 2026-11-03: typecheck:stations joins the zero ceiling. The 29 station sidecars ran with
+ * exactOptionalPropertyTypes / noUncheckedIndexedAccess / noPropertyAccessFromIndexSignature
+ * relaxed to false and no hook typechecked them; ~4,800 errors accumulated and were paid
+ * down in 57381ab95. The script passes --force because turbo's typecheck inputs omit the
+ * tools/** files each sidecar imports, so a cached replay is green after a tools/ edit.
+ */
+const TYPECHECK_SCRIPTS = ["typecheck:strict", "typecheck:relaxed", "typecheck:stations"] as const;
 
 /** `file(line,col): error TSxxxx:` — turbo prefixes stay on `file`. */
 export const TYPECHECK_DIAGNOSTIC_RE = /(.+?)\((\d+),(\d+)\): error (TS\d+):/gu;
@@ -142,4 +149,60 @@ export function checkTypecheckBaseline(config?: TypecheckBaselineConfig): string
     );
   }
   return violations;
+}
+
+/**
+ * Second ratchet: tools/** under the three index/optional-property flags the relaxed tier
+ * turns off (tsconfig.tools-strict.json extends tsconfig.tools-relaxed.json with them on).
+ * Without it a new tools/ file outside every sidecar program can add violations unseen.
+ *
+ * Measured 2026-11-03 on origin/main 57381ab95: 4708 unique diagnostics, identical on two
+ * consecutive runs. Same semantics as TYPECHECK_ERROR_CEILING: shrink-only, and a
+ * paid-down count forces the ceiling down in the same commit.
+ */
+export const TOOLS_STRICT_ERROR_CEILING_AT_PLANT = 4708;
+/** Shrink-only. Lower it in the commit that pays the count down. Do not raise it. */
+export const TOOLS_STRICT_ERROR_CEILING = 4708;
+
+export function collectToolsStrictDiagnostics(config?: TypecheckBaselineConfig): TypecheckDiagnostic[] {
+  if (config?.diagnosticOutput !== undefined) {
+    return parseTypecheckDiagnostics(config.diagnosticOutput);
+  }
+  return parseTypecheckDiagnostics(runPnpmScript(config?.workspaceRoot ?? findWorkspaceRoot(), "typecheck:tools-strict"));
+}
+
+export function checkToolsStrictBaseline(config?: TypecheckBaselineConfig): string[] {
+  const ceiling = config?.ceiling ?? TOOLS_STRICT_ERROR_CEILING;
+  const plant = config?.plantCeiling ?? TOOLS_STRICT_ERROR_CEILING_AT_PLANT;
+  const actual = config?.actualErrorCount ?? collectToolsStrictDiagnostics(config).length;
+  const violations: string[] = [];
+  if (ceiling > plant) {
+    violations.push(`TOOLS_STRICT_ERROR_CEILING ${ceiling} > plant freeze ${plant} (do NOT raise the ceiling).`);
+  }
+  if (actual > ceiling) {
+    violations.push(
+      `tools strict-flag error count ${actual} > frozen ceiling ${ceiling} (pnpm typecheck:tools-strict; fix the new errors; do NOT raise the ceiling).`,
+    );
+  }
+  if (actual < ceiling) {
+    violations.push(
+      `tools strict-flag error count now ${actual} < ceiling ${ceiling} — lower TOOLS_STRICT_ERROR_CEILING (paid down! ratchet must tighten).`,
+    );
+  }
+  return violations;
+}
+
+/**
+ * tools/agent-factory/check-typescript-guardrails.ts forbids relaxing strict options in any
+ * apps/ or packages/ tsconfig. It existed but no hook ran it; it was red from at least
+ * 2026-09 (sc-05/sc-10 evidence) while 29 sidecars carried false overrides.
+ */
+export function checkTypescriptGuardrails(config?: { workspaceRoot?: string }): string[] {
+  const result = spawnSync("pnpm", ["-s", "typecheck:guardrails"], {
+    cwd: config?.workspaceRoot ?? findWorkspaceRoot(),
+    encoding: "utf8",
+    env: process.env,
+  });
+  if (result.status === 0) return [];
+  return [`pnpm typecheck:guardrails failed (exit ${String(result.status)}):\n${result.stderr ?? ""}${result.stdout ?? ""}`];
 }
