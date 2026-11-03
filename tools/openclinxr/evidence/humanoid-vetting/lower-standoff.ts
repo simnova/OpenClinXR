@@ -37,10 +37,10 @@ export async function readNamedMesh(glbPath: string, match: RegExp): Promise<Tri
 }
 
 function pointTri(
-  p: readonly number[],
-  a: readonly number[],
-  b: readonly number[],
-  c: readonly number[],
+  p: readonly [number, number, number],
+  a: readonly [number, number, number],
+  b: readonly [number, number, number],
+  c: readonly [number, number, number],
 ): number {
   const abx = b[0] - a[0];
   const aby = b[1] - a[1];
@@ -150,7 +150,7 @@ export function standoffMm(body: TriMesh, garment: TriMesh): number[] {
       out[i] = Number.POSITIVE_INFINITY;
       continue;
     }
-    const p = [px, py, pz];
+    const p: [number, number, number] = [px, py, pz];
     const cellX = Math.floor(px / cell);
     const cellY = Math.floor(py / cell);
     const cellZ = Math.floor(pz / cell);

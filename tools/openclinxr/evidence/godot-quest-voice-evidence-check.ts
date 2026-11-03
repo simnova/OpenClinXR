@@ -81,7 +81,7 @@ export type GodotQuestVoiceEvidenceReadiness = {
 
 export type GodotQuestVoiceEvidenceReport = {
   generatedAt: string;
-  inputFile?: string;
+  inputFile?: string | undefined;
   evidence: GodotQuestVoiceEvidence;
   result: GodotQuestVoiceEvidenceReadiness;
 };

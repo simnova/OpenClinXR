@@ -202,31 +202,31 @@ export function buildCaseDefinedActorRealismLaunchBadges(
 export function validateHumanoidRealismGateReport(value: unknown): { ok: true } | { ok: false; errors: string[] } {
   const errors: string[] = [];
   if (!isRecord(value)) return { ok: false, errors: ["/ must be an object"] };
-  if (value.schemaVersion !== "openclinxr.humanoid-realism-gate.v1") errors.push("/schemaVersion invalid");
-  if (typeof value.generatedAt !== "string" || Number.isNaN(Date.parse(value.generatedAt))) errors.push("/generatedAt must be ISO date string");
-  if (typeof value.inputPath !== "string" || value.inputPath.length === 0) errors.push("/inputPath required");
-  if (!isRecord(value.metrics)) errors.push("/metrics must be object");
-  if (isRecord(value.metrics)) {
+  if (value["schemaVersion"] !== "openclinxr.humanoid-realism-gate.v1") errors.push("/schemaVersion invalid");
+  if (typeof value["generatedAt"] !== "string" || Number.isNaN(Date.parse(value["generatedAt"]))) errors.push("/generatedAt must be ISO date string");
+  if (typeof value["inputPath"] !== "string" || value["inputPath"].length === 0) errors.push("/inputPath required");
+  if (!isRecord(value["metrics"])) errors.push("/metrics must be object");
+  if (isRecord(value["metrics"])) {
     for (const key of ["sceneCount", "meshCount", "skinCount", "animationCount", "morphTargetPrimitiveCount", "vertexCount", "primitiveVisualProxyNodeCount", "annyBaseMeshNodeCount", "clinicalIdlePoseClipCount"]) {
-      if (typeof value.metrics[key] !== "number" || value.metrics[key] < 0) errors.push(`/metrics/${key} must be nonnegative number`);
+      if (typeof value["metrics"][key] !== "number" || value["metrics"][key] < 0) errors.push(`/metrics/${key} must be nonnegative number`);
     }
   }
-  if (!isRecord(value.verdict)) errors.push("/verdict must be object");
-  if (isRecord(value.verdict)) {
-    if (!["generated_human_base_mesh_ready", "generated_human_base_mesh_with_posture_debt", "primitive_proxy_visual_debt", "procedural_fallback_only"].includes(String(value.verdict.status))) errors.push("/verdict/status invalid");
-    if (!Array.isArray(value.verdict.blockers)) errors.push("/verdict/blockers must be array");
-    if (!Array.isArray(value.verdict.nextPipelineActions)) errors.push("/verdict/nextPipelineActions must be array");
-    if (value.verdict.status === "procedural_fallback_only" && Array.isArray(value.verdict.blockers) && value.verdict.blockers.length === 0) {
+  if (!isRecord(value["verdict"])) errors.push("/verdict must be object");
+  if (isRecord(value["verdict"])) {
+    if (!["generated_human_base_mesh_ready", "generated_human_base_mesh_with_posture_debt", "primitive_proxy_visual_debt", "procedural_fallback_only"].includes(String(value["verdict"]["status"]))) errors.push("/verdict/status invalid");
+    if (!Array.isArray(value["verdict"]["blockers"])) errors.push("/verdict/blockers must be array");
+    if (!Array.isArray(value["verdict"]["nextPipelineActions"])) errors.push("/verdict/nextPipelineActions must be array");
+    if (value["verdict"]["status"] === "procedural_fallback_only" && Array.isArray(value["verdict"]["blockers"]) && value["verdict"]["blockers"].length === 0) {
       errors.push("/verdict/blockers required for procedural_fallback_only");
     }
-    if (value.verdict.status === "primitive_proxy_visual_debt" && Array.isArray(value.verdict.blockers) && value.verdict.blockers.length === 0) {
+    if (value["verdict"]["status"] === "primitive_proxy_visual_debt" && Array.isArray(value["verdict"]["blockers"]) && value["verdict"]["blockers"].length === 0) {
       errors.push("/verdict/blockers required for primitive_proxy_visual_debt");
     }
-    if (value.verdict.status === "generated_human_base_mesh_with_posture_debt" && Array.isArray(value.verdict.blockers) && !value.verdict.blockers.includes("clinical_idle_pose_clip_missing")) {
+    if (value["verdict"]["status"] === "generated_human_base_mesh_with_posture_debt" && Array.isArray(value["verdict"]["blockers"]) && !value["verdict"]["blockers"].includes("clinical_idle_pose_clip_missing")) {
       errors.push("/verdict/blockers must include clinical_idle_pose_clip_missing for posture debt");
     }
   }
-  if (value.productionReadinessClaimed !== false) errors.push("/productionReadinessClaimed must be false");
+  if (value["productionReadinessClaimed"] !== false) errors.push("/productionReadinessClaimed must be false");
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
 }
 

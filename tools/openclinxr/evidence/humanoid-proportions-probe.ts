@@ -25,8 +25,8 @@ import { NodeIO, type Document, type Node as GltfNode } from "@gltf-transform/co
 export type Joint = {
   name: string;
   y: number;
-  x?: number;
-  z?: number;
+  x?: number | undefined;
+  z?: number | undefined;
 };
 
 export type AssessInput = {
@@ -35,12 +35,12 @@ export type AssessInput = {
   meshAabb?: {
     min: readonly [number, number, number];
     max: readonly [number, number, number];
-  };
+  } | undefined;
   /**
    * When set, armSpan/stature band is calibrated from this control's ratio.
    * Absolute centimetres are never used — only intra-figure ratios.
    */
-  controlArmSpanOverStature?: number;
+  controlArmSpanOverStature?: number | undefined;
 };
 
 export type AssessResult = {
@@ -560,8 +560,8 @@ function round4(n: number): number {
 }
 
 export async function buildProportionsReport(options?: {
-  suspects?: readonly string[];
-  controls?: readonly string[];
+  suspects?: readonly string[] | undefined;
+  controls?: readonly string[] | undefined;
   generatedAt?: string;
 }): Promise<ProportionsReport> {
   const suspects = options?.suspects ?? DEFAULT_SUSPECTS;

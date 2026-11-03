@@ -55,15 +55,15 @@ export async function buildHumanoidCollisionProbeReport(input: {
 }): Promise<HumanoidCollisionProbeReport> {
   await RAPIER.init({});
   const evidence = isRecord(input.evidence) ? input.evidence : {};
-  const sceneAssets = isRecord(evidence.sceneAssetEvidence)
-    ? evidence.sceneAssetEvidence
-    : isRecord(evidence.sceneAssets)
-      ? evidence.sceneAssets
+  const sceneAssets = isRecord(evidence["sceneAssetEvidence"])
+    ? evidence["sceneAssetEvidence"]
+    : isRecord(evidence["sceneAssets"])
+      ? evidence["sceneAssets"]
       : {};
-  const assets = Array.isArray(sceneAssets.assets) ? sceneAssets.assets.filter(isRecord) : [];
+  const assets = Array.isArray(sceneAssets["assets"]) ? sceneAssets["assets"].filter(isRecord) : [];
   const humanoidProxyAssets = assets.filter((asset) => {
-    const affordanceCueIds = Array.isArray(asset.affordanceCueIds) ? asset.affordanceCueIds.map(String) : [];
-    return String(asset.assetId ?? "").includes("generated-humanoid-glb") &&
+    const affordanceCueIds = Array.isArray(asset["affordanceCueIds"]) ? asset["affordanceCueIds"].map(String) : [];
+    return String(asset["assetId"] ?? "").includes("generated-humanoid-glb") &&
       affordanceCueIds.some((cueId) => cueId.includes("ragdoll_collision_proxy_cue"));
   });
 
@@ -115,19 +115,19 @@ function runRapierContactProbe(): number {
 export function validateHumanoidCollisionProbeReport(value: unknown): { ok: true } | { ok: false; errors: string[] } {
   const errors: string[] = [];
   if (!isRecord(value)) return { ok: false, errors: ["/ must be object"] };
-  if (value.schemaVersion !== "openclinxr.humanoid-collision-probe.v1") errors.push("/schemaVersion invalid");
-  if (typeof value.generatedAt !== "string" || Number.isNaN(Date.parse(value.generatedAt))) errors.push("/generatedAt invalid");
-  if (typeof value.inputFile !== "string" || value.inputFile.length === 0) errors.push("/inputFile required");
-  if (!isRecord(value.dependency) || value.dependency.packageName !== "@dimforge/rapier3d-compat") errors.push("/dependency invalid");
-  if (!isRecord(value.result)) errors.push("/result must be object");
-  if (isRecord(value.result)) {
-    if (!["collision_probe_ready", "collision_probe_blocked"].includes(String(value.result.status))) errors.push("/result/status invalid");
-    if (typeof value.result.humanoidProxyCount !== "number") errors.push("/result/humanoidProxyCount must be number");
-    if (typeof value.result.contactProbeCount !== "number") errors.push("/result/contactProbeCount must be number");
-    if (!Array.isArray(value.result.blockers)) errors.push("/result/blockers must be array");
-    if (!Array.isArray(value.result.passedSignals)) errors.push("/result/passedSignals must be array");
+  if (value["schemaVersion"] !== "openclinxr.humanoid-collision-probe.v1") errors.push("/schemaVersion invalid");
+  if (typeof value["generatedAt"] !== "string" || Number.isNaN(Date.parse(value["generatedAt"]))) errors.push("/generatedAt invalid");
+  if (typeof value["inputFile"] !== "string" || value["inputFile"].length === 0) errors.push("/inputFile required");
+  if (!isRecord(value["dependency"]) || value["dependency"]["packageName"] !== "@dimforge/rapier3d-compat") errors.push("/dependency invalid");
+  if (!isRecord(value["result"])) errors.push("/result must be object");
+  if (isRecord(value["result"])) {
+    if (!["collision_probe_ready", "collision_probe_blocked"].includes(String(value["result"]["status"]))) errors.push("/result/status invalid");
+    if (typeof value["result"]["humanoidProxyCount"] !== "number") errors.push("/result/humanoidProxyCount must be number");
+    if (typeof value["result"]["contactProbeCount"] !== "number") errors.push("/result/contactProbeCount must be number");
+    if (!Array.isArray(value["result"]["blockers"])) errors.push("/result/blockers must be array");
+    if (!Array.isArray(value["result"]["passedSignals"])) errors.push("/result/passedSignals must be array");
   }
-  if (value.productionReadinessClaimed !== false) errors.push("/productionReadinessClaimed must be false");
+  if (value["productionReadinessClaimed"] !== false) errors.push("/productionReadinessClaimed must be false");
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
 }
 

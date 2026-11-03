@@ -27,14 +27,14 @@ export type GodotBinarySource = {
 export type GodotProjectImportInput = {
   generatedAt?: string;
   projectPath: string;
-  godotBinarySource?: GodotBinarySource;
+  godotBinarySource?: GodotBinarySource | undefined;
   files: {
     project: string;
     scene: string;
     mainScript: string;
     voiceClientScript: string;
   };
-  godotBinary?: string;
+  godotBinary?: string | undefined;
 };
 
 export type GodotProjectImportCheck = {
@@ -54,7 +54,7 @@ export type GodotProjectImportCheck = {
     stderr: string[];
     blockers: string[];
   };
-  godotBinarySource?: GodotBinarySource;
+  godotBinarySource?: GodotBinarySource | undefined;
   verdict: {
     readyForSourceContractClaim: boolean;
     readyForGodotImportClaim: boolean;
@@ -385,15 +385,15 @@ export function validateGodotProjectImportCheckReport(value: unknown): Validatio
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireString(value.projectPath, "/projectPath", errors);
-  validateSourceContract(value.sourceContract, errors);
-  validateGodotImport(value.godotImport, errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireString(value["projectPath"], "/projectPath", errors);
+  validateSourceContract(value["sourceContract"], errors);
+  validateGodotImport(value["godotImport"], errors);
   validateGodotBinarySourceForReport(value, errors);
-  validateVerdict(value.verdict, errors);
-  requireStringArray(value.notEvidenceFor, "/notEvidenceFor", errors);
-  validateNotEvidenceFor(value.notEvidenceFor, errors);
-  requireStringArray(value.nextSteps, "/nextSteps", errors);
+  validateVerdict(value["verdict"], errors);
+  requireStringArray(value["notEvidenceFor"], "/notEvidenceFor", errors);
+  validateNotEvidenceFor(value["notEvidenceFor"], errors);
+  requireStringArray(value["nextSteps"], "/nextSteps", errors);
   validateReportConsistency(value, errors);
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
@@ -404,9 +404,9 @@ function validateSourceContract(value: unknown, errors: string[]): void {
   if (!isRecord(value)) {
     return;
   }
-  requireBoolean(value.passed, "/sourceContract/passed", errors);
-  requireStringArray(value.blockers, "/sourceContract/blockers", errors);
-  requireStringArray(value.satisfiedConditions, "/sourceContract/satisfiedConditions", errors);
+  requireBoolean(value["passed"], "/sourceContract/passed", errors);
+  requireStringArray(value["blockers"], "/sourceContract/blockers", errors);
+  requireStringArray(value["satisfiedConditions"], "/sourceContract/satisfiedConditions", errors);
 }
 
 function validateGodotImport(value: unknown, errors: string[]): void {
@@ -414,23 +414,23 @@ function validateGodotImport(value: unknown, errors: string[]): void {
   if (!isRecord(value)) {
     return;
   }
-  requireBoolean(value.attempted, "/godotImport/attempted", errors);
-  requireOneOf(value.status, ["passed", "failed", "skipped_no_godot_binary"], "/godotImport/status", errors);
-  requireNullableString(value.executable, "/godotImport/executable", errors);
-  requireNullableNumber(value.exitCode, "/godotImport/exitCode", errors);
-  requireStringArray(value.stdout, "/godotImport/stdout", errors);
-  requireStringArray(value.stderr, "/godotImport/stderr", errors);
-  requireStringArray(value.blockers, "/godotImport/blockers", errors);
+  requireBoolean(value["attempted"], "/godotImport/attempted", errors);
+  requireOneOf(value["status"], ["passed", "failed", "skipped_no_godot_binary"], "/godotImport/status", errors);
+  requireNullableString(value["executable"], "/godotImport/executable", errors);
+  requireNullableNumber(value["exitCode"], "/godotImport/exitCode", errors);
+  requireStringArray(value["stdout"], "/godotImport/stdout", errors);
+  requireStringArray(value["stderr"], "/godotImport/stderr", errors);
+  requireStringArray(value["blockers"], "/godotImport/blockers", errors);
 }
 
 function validateGodotBinarySourceForReport(value: Record<string, unknown>, errors: string[]): void {
-  const godotImport = value.godotImport;
-  if (isRecord(godotImport) && godotImport.status === "passed" && !isRecord(value.godotBinarySource)) {
+  const godotImport = value["godotImport"];
+  if (isRecord(godotImport) && godotImport["status"] === "passed" && !isRecord(value["godotBinarySource"])) {
     errors.push("/godotBinarySource must be present for passed import evidence");
     return;
   }
-  if (value.godotBinarySource !== undefined) {
-    validateGodotBinarySource(value.godotBinarySource, errors);
+  if (value["godotBinarySource"] !== undefined) {
+    validateGodotBinarySource(value["godotBinarySource"], errors);
   }
 }
 
@@ -439,22 +439,22 @@ function validateGodotBinarySource(value: unknown, errors: string[]): void {
   if (!isRecord(value)) {
     return;
   }
-  requireStringArray(value.sourceRecordIds, "/godotBinarySource/sourceRecordIds", errors);
-  requireLiteral(value.tag, knownGodot451MacosRelease.tag, "/godotBinarySource/tag", errors);
-  requireLiteral(value.releaseUrl, knownGodot451MacosRelease.releaseUrl, "/godotBinarySource/releaseUrl", errors);
-  requireLiteral(value.assetName, knownGodot451MacosRelease.assetName, "/godotBinarySource/assetName", errors);
-  requireSha256Digest(value.assetDigest, "/godotBinarySource/assetDigest", errors);
-  requireSha256(value.assetSha256, "/godotBinarySource/assetSha256", errors);
-  requireString(value.cacheArchivePath, "/godotBinarySource/cacheArchivePath", errors);
-  requireLiteral(value.license, "MIT", "/godotBinarySource/license", errors);
-  if (Array.isArray(value.sourceRecordIds) && !value.sourceRecordIds.includes("src-godot-github-release-2026")) {
+  requireStringArray(value["sourceRecordIds"], "/godotBinarySource/sourceRecordIds", errors);
+  requireLiteral(value["tag"], knownGodot451MacosRelease.tag, "/godotBinarySource/tag", errors);
+  requireLiteral(value["releaseUrl"], knownGodot451MacosRelease.releaseUrl, "/godotBinarySource/releaseUrl", errors);
+  requireLiteral(value["assetName"], knownGodot451MacosRelease.assetName, "/godotBinarySource/assetName", errors);
+  requireSha256Digest(value["assetDigest"], "/godotBinarySource/assetDigest", errors);
+  requireSha256(value["assetSha256"], "/godotBinarySource/assetSha256", errors);
+  requireString(value["cacheArchivePath"], "/godotBinarySource/cacheArchivePath", errors);
+  requireLiteral(value["license"], "MIT", "/godotBinarySource/license", errors);
+  if (Array.isArray(value["sourceRecordIds"]) && !value["sourceRecordIds"].includes("src-godot-github-release-2026")) {
     errors.push("/godotBinarySource/sourceRecordIds must include src-godot-github-release-2026");
   }
-  if (typeof value.assetDigest === "string" && typeof value.assetSha256 === "string") {
-    if (value.assetDigest !== `sha256:${value.assetSha256}`) {
+  if (typeof value["assetDigest"] === "string" && typeof value["assetSha256"] === "string") {
+    if (value["assetDigest"] !== `sha256:${value["assetSha256"]}`) {
       errors.push("/godotBinarySource/assetDigest must match /godotBinarySource/assetSha256");
     }
-    if (value.assetDigest !== knownGodot451MacosRelease.assetDigest) {
+    if (value["assetDigest"] !== knownGodot451MacosRelease.assetDigest) {
       errors.push(`/godotBinarySource/assetDigest must be ${knownGodot451MacosRelease.assetDigest}`);
     }
   }
@@ -465,11 +465,11 @@ function validateVerdict(value: unknown, errors: string[]): void {
   if (!isRecord(value)) {
     return;
   }
-  requireBoolean(value.readyForSourceContractClaim, "/verdict/readyForSourceContractClaim", errors);
-  requireBoolean(value.readyForGodotImportClaim, "/verdict/readyForGodotImportClaim", errors);
-  requireLiteral(value.readyForQuestRuntimeClaim, false, "/verdict/readyForQuestRuntimeClaim", errors);
-  requireLiteral(value.readyForVoiceRuntimeClaim, false, "/verdict/readyForVoiceRuntimeClaim", errors);
-  requireStringArray(value.blockers, "/verdict/blockers", errors);
+  requireBoolean(value["readyForSourceContractClaim"], "/verdict/readyForSourceContractClaim", errors);
+  requireBoolean(value["readyForGodotImportClaim"], "/verdict/readyForGodotImportClaim", errors);
+  requireLiteral(value["readyForQuestRuntimeClaim"], false, "/verdict/readyForQuestRuntimeClaim", errors);
+  requireLiteral(value["readyForVoiceRuntimeClaim"], false, "/verdict/readyForVoiceRuntimeClaim", errors);
+  requireStringArray(value["blockers"], "/verdict/blockers", errors);
 }
 
 function validateNotEvidenceFor(value: unknown, errors: string[]): void {
@@ -484,70 +484,70 @@ function validateNotEvidenceFor(value: unknown, errors: string[]): void {
 }
 
 function validateReportConsistency(value: Record<string, unknown>, errors: string[]): void {
-  const sourceContract = value.sourceContract;
-  const godotImport = value.godotImport;
-  const verdict = value.verdict;
+  const sourceContract = value["sourceContract"];
+  const godotImport = value["godotImport"];
+  const verdict = value["verdict"];
   if (!isRecord(sourceContract) || !isRecord(godotImport) || !isRecord(verdict)) {
     return;
   }
 
-  if (typeof sourceContract.passed === "boolean" && Array.isArray(sourceContract.blockers)) {
-    const sourcePassed = sourceContract.blockers.length === 0;
-    if (sourceContract.passed !== sourcePassed) {
+  if (typeof sourceContract["passed"] === "boolean" && Array.isArray(sourceContract["blockers"])) {
+    const sourcePassed = sourceContract["blockers"].length === 0;
+    if (sourceContract["passed"] !== sourcePassed) {
       errors.push("/sourceContract/passed must match whether sourceContract blockers are empty");
     }
-    if (verdict.readyForSourceContractClaim !== sourceContract.passed) {
+    if (verdict["readyForSourceContractClaim"] !== sourceContract["passed"]) {
       errors.push("/verdict/readyForSourceContractClaim must match /sourceContract/passed");
     }
   }
 
-  if (typeof godotImport.status === "string" && Array.isArray(godotImport.blockers)) {
-    if (godotImport.status === "passed") {
-      if (godotImport.attempted !== true) {
+  if (typeof godotImport["status"] === "string" && Array.isArray(godotImport["blockers"])) {
+    if (godotImport["status"] === "passed") {
+      if (godotImport["attempted"] !== true) {
         errors.push("/godotImport/attempted must be true when status is passed");
       }
-      if (godotImport.exitCode !== 0) {
+      if (godotImport["exitCode"] !== 0) {
         errors.push("/godotImport/exitCode must be 0 when status is passed");
       }
-      if (godotImport.blockers.length !== 0) {
+      if (godotImport["blockers"].length !== 0) {
         errors.push("/godotImport/blockers must be empty when status is passed");
       }
-      if (Array.isArray(godotImport.stderr) && godotErrorLines(godotImport.stderr).length > 0) {
+      if (Array.isArray(godotImport["stderr"]) && godotErrorLines(godotImport["stderr"]).length > 0) {
         errors.push("/godotImport/stderr must not contain Godot error lines when status is passed");
       }
     }
-    if (godotImport.status === "skipped_no_godot_binary") {
-      if (godotImport.attempted !== false) {
+    if (godotImport["status"] === "skipped_no_godot_binary") {
+      if (godotImport["attempted"] !== false) {
         errors.push("/godotImport/attempted must be false when status is skipped_no_godot_binary");
       }
-      if (godotImport.executable !== null || godotImport.exitCode !== null) {
+      if (godotImport["executable"] !== null || godotImport["exitCode"] !== null) {
         errors.push("/godotImport executable and exitCode must be null when no Godot binary was used");
       }
-      if (!godotImport.blockers.includes("godot_import_not_executed")) {
+      if (!godotImport["blockers"].includes("godot_import_not_executed")) {
         errors.push("/godotImport/blockers must include godot_import_not_executed when status is skipped_no_godot_binary");
       }
     }
-    if (godotImport.status === "failed" && godotImport.blockers.length === 0) {
+    if (godotImport["status"] === "failed" && godotImport["blockers"].length === 0) {
       errors.push("/godotImport/blockers must be non-empty when status is failed");
     }
   }
 
   if (
-    typeof sourceContract.passed === "boolean"
-    && typeof verdict.readyForGodotImportClaim === "boolean"
-    && typeof godotImport.status === "string"
+    typeof sourceContract["passed"] === "boolean"
+    && typeof verdict["readyForGodotImportClaim"] === "boolean"
+    && typeof godotImport["status"] === "string"
   ) {
-    const expected = sourceContract.passed && godotImport.status === "passed";
-    if (verdict.readyForGodotImportClaim !== expected) {
+    const expected = sourceContract["passed"] && godotImport["status"] === "passed";
+    if (verdict["readyForGodotImportClaim"] !== expected) {
       errors.push("/verdict/readyForGodotImportClaim must require passed source contract and passed Godot import");
     }
   }
 
-  if (Array.isArray(verdict.blockers)) {
-    if (!verdict.blockers.includes("quest_runtime:not_executed")) {
+  if (Array.isArray(verdict["blockers"])) {
+    if (!verdict["blockers"].includes("quest_runtime:not_executed")) {
       errors.push("/verdict/blockers must include quest_runtime:not_executed");
     }
-    if (!verdict.blockers.includes("voice_runtime:not_executed")) {
+    if (!verdict["blockers"].includes("voice_runtime:not_executed")) {
       errors.push("/verdict/blockers must include voice_runtime:not_executed");
     }
   }

@@ -199,12 +199,16 @@ async function runSmoke(): Promise<GltfTransformSmokeReport> {
 async function createTriangleGlb(): Promise<Uint8Array> {
   const document = new Document();
   const buffer = document.createBuffer("openclinxr_smoke_buffer");
+  const vec3Type = Accessor.Type["VEC3"];
+  if (vec3Type === undefined) throw new Error("gltf-transform-smoke: Accessor.Type VEC3 is missing");
+  const scalarType = Accessor.Type["SCALAR"];
+  if (scalarType === undefined) throw new Error("gltf-transform-smoke: Accessor.Type SCALAR is missing");
   const positionAccessor = document.createAccessor("POSITION")
-    .setType(Accessor.Type.VEC3)
+    .setType(vec3Type)
     .setArray(new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]))
     .setBuffer(buffer);
   const indexAccessor = document.createAccessor("indices")
-    .setType(Accessor.Type.SCALAR)
+    .setType(scalarType)
     .setArray(new Uint16Array([0, 1, 2]))
     .setBuffer(buffer);
   const primitive = document.createPrimitive()
@@ -274,40 +278,40 @@ export function validateGltfTransformSmokeReport(value: unknown): ValidationResu
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireRecord(value.tool, "/tool", errors);
-  if (isRecord(value.tool)) {
-    requireLiteral(value.tool.command, "gltf-transform-node-api", "/tool/command", errors);
-    requireLiteral(value.tool.package, "@gltf-transform/core", "/tool/package", errors);
-    requireString(value.tool.version, "/tool/version", errors);
-    requireLiteral(value.tool.license, "MIT", "/tool/license", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireRecord(value["tool"], "/tool", errors);
+  if (isRecord(value["tool"])) {
+    requireLiteral(value["tool"]["command"], "gltf-transform-node-api", "/tool/command", errors);
+    requireLiteral(value["tool"]["package"], "@gltf-transform/core", "/tool/package", errors);
+    requireString(value["tool"]["version"], "/tool/version", errors);
+    requireLiteral(value["tool"]["license"], "MIT", "/tool/license", errors);
   }
-  requireRecord(value.input, "/input", errors);
-  if (isRecord(value.input)) {
-    requireLiteral(value.input.primitive, "single_triangle", "/input/primitive", errors);
-    requireLiteral(value.input.vertices, 3, "/input/vertices", errors);
-    requireLiteral(value.input.triangles, 1, "/input/triangles", errors);
-    requireNumber(value.input.gltfBytes, "/input/gltfBytes", errors);
+  requireRecord(value["input"], "/input", errors);
+  if (isRecord(value["input"])) {
+    requireLiteral(value["input"]["primitive"], "single_triangle", "/input/primitive", errors);
+    requireLiteral(value["input"]["vertices"], 3, "/input/vertices", errors);
+    requireLiteral(value["input"]["triangles"], 1, "/input/triangles", errors);
+    requireNumber(value["input"]["gltfBytes"], "/input/gltfBytes", errors);
   }
-  requireRecord(value.output, "/output", errors);
-  if (isRecord(value.output)) {
-    requireNumber(value.output.glbBytes, "/output/glbBytes", errors);
-    requireLiteral(value.output.magic, "glTF", "/output/magic", errors);
-    requireLiteral(value.output.version, 2, "/output/version", errors);
-    requireNumber(value.output.declaredLength, "/output/declaredLength", errors);
-    requireNumber(value.output.elapsedMs, "/output/elapsedMs", errors);
+  requireRecord(value["output"], "/output", errors);
+  if (isRecord(value["output"])) {
+    requireNumber(value["output"]["glbBytes"], "/output/glbBytes", errors);
+    requireLiteral(value["output"]["magic"], "glTF", "/output/magic", errors);
+    requireLiteral(value["output"]["version"], 2, "/output/version", errors);
+    requireNumber(value["output"]["declaredLength"], "/output/declaredLength", errors);
+    requireNumber(value["output"]["elapsedMs"], "/output/elapsedMs", errors);
   }
-  requireRecord(value.replacementAssessment, "/replacementAssessment", errors);
-  if (isRecord(value.replacementAssessment)) {
-    requireLiteral(value.replacementAssessment.candidateFor, "gltf-pipeline_root_dependency_reduction", "/replacementAssessment/candidateFor", errors);
-    requireStringArray(value.replacementAssessment.paritySignals, "/replacementAssessment/paritySignals", errors);
-    requireStringArray(value.replacementAssessment.remainingGaps, "/replacementAssessment/remainingGaps", errors);
-    requireBoolean(value.replacementAssessment.demoteGltfPipelineRecommended, "/replacementAssessment/demoteGltfPipelineRecommended", errors);
+  requireRecord(value["replacementAssessment"], "/replacementAssessment", errors);
+  if (isRecord(value["replacementAssessment"])) {
+    requireLiteral(value["replacementAssessment"]["candidateFor"], "gltf-pipeline_root_dependency_reduction", "/replacementAssessment/candidateFor", errors);
+    requireStringArray(value["replacementAssessment"]["paritySignals"], "/replacementAssessment/paritySignals", errors);
+    requireStringArray(value["replacementAssessment"]["remainingGaps"], "/replacementAssessment/remainingGaps", errors);
+    requireBoolean(value["replacementAssessment"]["demoteGltfPipelineRecommended"], "/replacementAssessment/demoteGltfPipelineRecommended", errors);
   }
-  requireRecord(value.verdict, "/verdict", errors);
-  if (isRecord(value.verdict)) {
-    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
-    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
+  requireRecord(value["verdict"], "/verdict", errors);
+  if (isRecord(value["verdict"])) {
+    requireBoolean(value["verdict"]["passed"], "/verdict/passed", errors);
+    requireStringArray(value["verdict"]["blockers"], "/verdict/blockers", errors);
   }
   validateReportConsistency(value, errors);
 
@@ -315,12 +319,12 @@ export function validateGltfTransformSmokeReport(value: unknown): ValidationResu
 }
 
 function validateReportConsistency(value: Record<string, unknown>, errors: string[]): void {
-  if (!isRecord(value.output) || !isRecord(value.verdict) || !Array.isArray(value.verdict.blockers)) {
+  if (!isRecord(value["output"]) || !isRecord(value["verdict"]) || !Array.isArray(value["verdict"]["blockers"])) {
     return;
   }
 
-  const verdictBlockers = new Set(value.verdict.blockers);
-  for (const blocker of expectedReportBlockers(value.output)) {
+  const verdictBlockers = new Set(value["verdict"]["blockers"]);
+  for (const blocker of expectedReportBlockers(value["output"])) {
     if (!verdictBlockers.has(blocker)) {
       errors.push(`/verdict/blockers must include ${blocker}`);
     }
@@ -329,10 +333,10 @@ function validateReportConsistency(value: Record<string, unknown>, errors: strin
 
 function expectedReportBlockers(output: Record<string, unknown>): string[] {
   return [
-    output.magic === "glTF" ? undefined : "glb_magic_missing",
-    output.version === 2 ? undefined : "glb_version_not_2",
-    typeof output.glbBytes === "number" && output.declaredLength === output.glbBytes ? undefined : "glb_declared_length_mismatch",
-    typeof output.glbBytes === "number" && output.glbBytes > 20 ? undefined : "glb_output_too_small",
+    output["magic"] === "glTF" ? undefined : "glb_magic_missing",
+    output["version"] === 2 ? undefined : "glb_version_not_2",
+    typeof output["glbBytes"] === "number" && output["declaredLength"] === output["glbBytes"] ? undefined : "glb_declared_length_mismatch",
+    typeof output["glbBytes"] === "number" && output["glbBytes"] > 20 ? undefined : "glb_output_too_small",
   ].filter((blocker): blocker is string => typeof blocker === "string");
 }
 
