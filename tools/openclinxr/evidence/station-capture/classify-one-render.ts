@@ -151,7 +151,7 @@ export async function classifyOneRender(caseId = DEFAULT_CASE): Promise<{
   const treeSha = gitSha();
   const startedAt = new Date().toISOString();
   const jobTmp = path.join(
-    process.env.OPENCLINXR_JOB_TMP ?? tmpdir(),
+    process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(),
     `ocxr-station-capture-${process.pid}-${Date.now()}`,
   );
   mkdirSync(jobTmp, { recursive: true });

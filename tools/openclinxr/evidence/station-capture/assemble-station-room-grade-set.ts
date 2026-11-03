@@ -165,7 +165,7 @@ export async function assembleStationRoomGradeSet(): Promise<{
     );
   }
   const jobTmp = path.join(
-    process.env.OPENCLINXR_JOB_TMP ?? tmpdir(),
+    process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(),
     `ocxr-station-grade-set-${process.pid}-${Date.now()}`,
   );
   mkdirSync(jobTmp, { recursive: true });

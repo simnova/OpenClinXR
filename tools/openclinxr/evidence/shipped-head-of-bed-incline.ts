@@ -99,7 +99,10 @@ export async function inspectShippedHeadOfBedIncline(input?: {
   if (!input?.force && measureInFlight) return measureInFlight;
 
   measureInFlight = (async () => {
-    const report = await measureLive({ baseUrl: input?.baseUrl });
+    const liveBaseUrl = input?.baseUrl;
+    const report = await measureLive({
+      ...(liveBaseUrl === undefined ? {} : { baseUrl: liveBaseUrl }),
+    });
     cachedReport = report;
     return report;
   })();

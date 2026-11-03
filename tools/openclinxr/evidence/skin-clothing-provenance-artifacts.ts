@@ -166,14 +166,14 @@ export function validateSkinClothingProvenanceReport(report: unknown): { ok: boo
   if (!isRecord(report)) {
     return { ok: false, errors: ["/ must be an object"] };
   }
-  if (report.schemaVersion !== SKIN_CLOTHING_SCHEMA_VERSION) {
+  if (report["schemaVersion"] !== SKIN_CLOTHING_SCHEMA_VERSION) {
     errors.push(`/schemaVersion must be ${SKIN_CLOTHING_SCHEMA_VERSION}`);
   }
-  if (report.kind !== SKIN_CLOTHING_KIND) {
+  if (report["kind"] !== SKIN_CLOTHING_KIND) {
     errors.push(`/kind must be ${SKIN_CLOTHING_KIND}`);
   }
 
-  const policy = isRecord(report.policy) ? report.policy : {};
+  const policy = isRecord(report["policy"]) ? report["policy"] : {};
   for (const key of [
     "installsIntroduced",
     "cloudApisUsed",
@@ -187,30 +187,30 @@ export function validateSkinClothingProvenanceReport(report: unknown): { ok: boo
     }
   }
 
-  const artifacts = isRecord(report.artifacts) ? report.artifacts : {};
+  const artifacts = isRecord(report["artifacts"]) ? report["artifacts"] : {};
   for (const key of ["skinTextureProvenancePath", "clothingMeshProvenancePath", "runtimeSafeMaterialsPath"] as const) {
     if (typeof artifacts[key] !== "string" || artifacts[key].length === 0) {
       errors.push(`/artifacts/${key} must be a non-empty string`);
     }
   }
 
-  const summary = isRecord(report.summary) ? report.summary : {};
-  const missingArtifactPaths = asStringArray(summary.missingArtifactPaths);
+  const summary = isRecord(report["summary"]) ? report["summary"] : {};
+  const missingArtifactPaths = asStringArray(summary["missingArtifactPaths"]);
   const expectedBlockers = missingArtifactPaths.map((artifactPath) => `artifact_file_missing:${artifactPath}`);
-  const verdict = isRecord(report.verdict) ? report.verdict : {};
-  const verdictBlockers = asStringArray(verdict.blockers);
+  const verdict = isRecord(report["verdict"]) ? report["verdict"] : {};
+  const verdictBlockers = asStringArray(verdict["blockers"]);
   for (const blocker of expectedBlockers) {
     if (!verdictBlockers.includes(blocker)) {
       errors.push(`/verdict/blockers must include ${blocker}`);
     }
   }
-  if (summary.artifactFilesMaterialized !== (missingArtifactPaths.length === 0)) {
+  if (summary["artifactFilesMaterialized"] !== (missingArtifactPaths.length === 0)) {
     errors.push("/summary/artifactFilesMaterialized must match missing artifact paths");
   }
-  if (verdict.passed !== (expectedBlockers.length === 0)) {
+  if (verdict["passed"] !== (expectedBlockers.length === 0)) {
     errors.push(`/verdict/passed must be ${expectedBlockers.length === 0}`);
   }
-  if (verdict.readyForProductionAssets !== false) {
+  if (verdict["readyForProductionAssets"] !== false) {
     errors.push("/verdict/readyForProductionAssets must be false");
   }
 
@@ -258,7 +258,7 @@ async function validateReportFile(reportPath: string, options: { validateArtifac
   const errors = [...validation.errors];
 
   if (options.validateArtifacts && isRecord(report)) {
-    const artifacts = isRecord(report.artifacts) ? report.artifacts : {};
+    const artifacts = isRecord(report["artifacts"]) ? report["artifacts"] : {};
     for (const key of ["skinTextureProvenancePath", "clothingMeshProvenancePath", "runtimeSafeMaterialsPath"] as const) {
       const artifactPath = artifacts[key];
       if (typeof artifactPath !== "string" || !existsSync(path.resolve(artifactPath))) {

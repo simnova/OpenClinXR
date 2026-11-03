@@ -13,13 +13,12 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { classifyInitialVitalsRaw, stationContextForScenario } from "@openclinxr/xr-station";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
 import {
   factoryResolveChartFields,
   factoryResolveInitialVitals,
 } from "../factory/generated-ed-station-runtime-bundle.js";
-import { stationContextForScenario } from "@openclinxr/xr-station";
-import { classifyInitialVitalsRaw } from "@openclinxr/xr-station";
 
 export type ChartFieldSource =
   | "authored_patient_voice"
@@ -163,8 +162,8 @@ export async function inspectStationChartHonesty(): Promise<StationChartHonestyR
             title: ctx.title ?? scenarioId,
             subtitle: ctx.subtitle ?? "",
             chiefConcern: ctx.chiefConcern ?? "",
-            initialVitals: ctx.initialVitals,
-            initialVitalsAuthorship: ctx.initialVitalsAuthorship,
+            ...(ctx.initialVitals === undefined ? {} : { initialVitals: ctx.initialVitals }),
+            ...(ctx.initialVitalsAuthorship === undefined ? {} : { initialVitalsAuthorship: ctx.initialVitalsAuthorship }),
             interruption: ctx.interruption ?? "",
             stageAriaLabel: ctx.stageAriaLabel ?? "",
             canvasAriaLabel: ctx.canvasAriaLabel ?? "",

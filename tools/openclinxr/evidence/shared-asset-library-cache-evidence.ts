@@ -135,63 +135,63 @@ export function buildSharedAssetLibraryCacheEvidenceReport(input: {
 export function validateSharedAssetLibraryCacheEvidenceReport(value: unknown): ValidationResult {
   const errors: string[] = [];
   if (!isRecord(value)) return { ok: false, errors: ["/ must be object"] };
-  requireLiteral(value.schemaVersion, "openclinxr.shared-asset-library-cache-evidence.v1", "/schemaVersion", errors);
-  requireLiteral(value.claimScope, "metadata_only_cache_policy_evidence", "/claimScope", errors);
-  requireString(value.sourceRequestId, "/sourceRequestId", errors);
-  requireString(value.sourceScenarioId, "/sourceScenarioId", errors);
-  requireRecord(value.cachePolicy, "/cachePolicy", errors);
-  requireRecord(value.summary, "/summary", errors);
-  requireArray(value.operations, "/operations", errors);
-  requireArray(value.notEvidenceFor, "/notEvidenceFor", errors);
+  requireLiteral(value["schemaVersion"], "openclinxr.shared-asset-library-cache-evidence.v1", "/schemaVersion", errors);
+  requireLiteral(value["claimScope"], "metadata_only_cache_policy_evidence", "/claimScope", errors);
+  requireString(value["sourceRequestId"], "/sourceRequestId", errors);
+  requireString(value["sourceScenarioId"], "/sourceScenarioId", errors);
+  requireRecord(value["cachePolicy"], "/cachePolicy", errors);
+  requireRecord(value["summary"], "/summary", errors);
+  requireArray(value["operations"], "/operations", errors);
+  requireArray(value["notEvidenceFor"], "/notEvidenceFor", errors);
 
-  if (isRecord(value.cachePolicy)) {
-    requireLiteral(value.cachePolicy.lookupKeySource, "encounter_definition_semantic_requirements", "/cachePolicy/lookupKeySource", errors);
-    requireLiteral(value.cachePolicy.cacheDisposition, "lookup_before_generate", "/cachePolicy/cacheDisposition", errors);
-    requireLiteral(value.cachePolicy.evictionPolicy, "least_recently_used", "/cachePolicy/evictionPolicy", errors);
-    requireLiteral(value.cachePolicy.updateRecencyOnHit, true, "/cachePolicy/updateRecencyOnHit", errors);
-    requireLiteral(value.cachePolicy.reuseRequiresEvidenceGateCompatibility, true, "/cachePolicy/reuseRequiresEvidenceGateCompatibility", errors);
-    requireNumber(value.cachePolicy.maxEntries, "/cachePolicy/maxEntries", errors);
+  if (isRecord(value["cachePolicy"])) {
+    requireLiteral(value["cachePolicy"]["lookupKeySource"], "encounter_definition_semantic_requirements", "/cachePolicy/lookupKeySource", errors);
+    requireLiteral(value["cachePolicy"]["cacheDisposition"], "lookup_before_generate", "/cachePolicy/cacheDisposition", errors);
+    requireLiteral(value["cachePolicy"]["evictionPolicy"], "least_recently_used", "/cachePolicy/evictionPolicy", errors);
+    requireLiteral(value["cachePolicy"]["updateRecencyOnHit"], true, "/cachePolicy/updateRecencyOnHit", errors);
+    requireLiteral(value["cachePolicy"]["reuseRequiresEvidenceGateCompatibility"], true, "/cachePolicy/reuseRequiresEvidenceGateCompatibility", errors);
+    requireNumber(value["cachePolicy"]["maxEntries"], "/cachePolicy/maxEntries", errors);
   }
-  if (isRecord(value.summary)) {
-    requireNumber(value.summary.workOrderCount, "/summary/workOrderCount", errors);
-    requireNumber(value.summary.hitCount, "/summary/hitCount", errors);
-    requireNumber(value.summary.missCount, "/summary/missCount", errors);
-    requireNumber(value.summary.evictionCount, "/summary/evictionCount", errors);
-    requireNumber(value.summary.finalCacheSize, "/summary/finalCacheSize", errors);
+  if (isRecord(value["summary"])) {
+    requireNumber(value["summary"]["workOrderCount"], "/summary/workOrderCount", errors);
+    requireNumber(value["summary"]["hitCount"], "/summary/hitCount", errors);
+    requireNumber(value["summary"]["missCount"], "/summary/missCount", errors);
+    requireNumber(value["summary"]["evictionCount"], "/summary/evictionCount", errors);
+    requireNumber(value["summary"]["finalCacheSize"], "/summary/finalCacheSize", errors);
   }
-  if (Array.isArray(value.operations)) {
-    value.operations.forEach((operation, index) => {
+  if (Array.isArray(value["operations"])) {
+    value["operations"].forEach((operation, index) => {
       if (!isRecord(operation)) {
         errors.push(`/operations/${index} must be object`);
         return;
       }
-      requireString(operation.workOrderId, `/operations/${index}/workOrderId`, errors);
-      requireString(operation.targetKind, `/operations/${index}/targetKind`, errors);
-      requireString(operation.lookupKey, `/operations/${index}/lookupKey`, errors);
-      requireOneOf(operation.result, ["miss_stored", "hit_reused", "miss_stored_with_lru_eviction"], `/operations/${index}/result`, errors);
-      requireOneOf(operation.generationDisposition, ["skip_generation_reuse_cached_asset", "generate_and_store_asset", "generate_and_store_after_lru_eviction"], `/operations/${index}/generationDisposition`, errors);
-      requireRecord(operation.evidenceGateCompatibility, `/operations/${index}/evidenceGateCompatibility`, errors);
-      if (isRecord(operation.evidenceGateCompatibility)) {
-        requireLiteral(operation.evidenceGateCompatibility.required, true, `/operations/${index}/evidenceGateCompatibility/required`, errors);
-        requireLiteral(operation.evidenceGateCompatibility.checkedBeforeReuse, true, `/operations/${index}/evidenceGateCompatibility/checkedBeforeReuse`, errors);
-        requireOneOf(operation.evidenceGateCompatibility.disposition, ["compatible_cached_asset_reused", "requires_review_before_new_asset_reuse"], `/operations/${index}/evidenceGateCompatibility/disposition`, errors);
+      requireString(operation["workOrderId"], `/operations/${index}/workOrderId`, errors);
+      requireString(operation["targetKind"], `/operations/${index}/targetKind`, errors);
+      requireString(operation["lookupKey"], `/operations/${index}/lookupKey`, errors);
+      requireOneOf(operation["result"], ["miss_stored", "hit_reused", "miss_stored_with_lru_eviction"], `/operations/${index}/result`, errors);
+      requireOneOf(operation["generationDisposition"], ["skip_generation_reuse_cached_asset", "generate_and_store_asset", "generate_and_store_after_lru_eviction"], `/operations/${index}/generationDisposition`, errors);
+      requireRecord(operation["evidenceGateCompatibility"], `/operations/${index}/evidenceGateCompatibility`, errors);
+      if (isRecord(operation["evidenceGateCompatibility"])) {
+        requireLiteral(operation["evidenceGateCompatibility"]["required"], true, `/operations/${index}/evidenceGateCompatibility/required`, errors);
+        requireLiteral(operation["evidenceGateCompatibility"]["checkedBeforeReuse"], true, `/operations/${index}/evidenceGateCompatibility/checkedBeforeReuse`, errors);
+        requireOneOf(operation["evidenceGateCompatibility"]["disposition"], ["compatible_cached_asset_reused", "requires_review_before_new_asset_reuse"], `/operations/${index}/evidenceGateCompatibility/disposition`, errors);
       }
-      requireString(operation.storedAssetRef, `/operations/${index}/storedAssetRef`, errors);
-      requireArray(operation.evictedLookupKeys, `/operations/${index}/evictedLookupKeys`, errors);
-      requireArray(operation.recencyMostRecentFirst, `/operations/${index}/recencyMostRecentFirst`, errors);
-      if (operation.result === "hit_reused") requireString(operation.reusedAssetRef, `/operations/${index}/reusedAssetRef`, errors);
-      if (operation.result === "hit_reused" && operation.generationDisposition !== "skip_generation_reuse_cached_asset") {
+      requireString(operation["storedAssetRef"], `/operations/${index}/storedAssetRef`, errors);
+      requireArray(operation["evictedLookupKeys"], `/operations/${index}/evictedLookupKeys`, errors);
+      requireArray(operation["recencyMostRecentFirst"], `/operations/${index}/recencyMostRecentFirst`, errors);
+      if (operation["result"] === "hit_reused") requireString(operation["reusedAssetRef"], `/operations/${index}/reusedAssetRef`, errors);
+      if (operation["result"] === "hit_reused" && operation["generationDisposition"] !== "skip_generation_reuse_cached_asset") {
         errors.push(`/operations/${index}/generationDisposition must skip generation for cache hits`);
       }
     });
   }
   for (const claim of ["generated_asset_quality", "provider_runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"]) {
-    requireStringArrayIncludes(value.notEvidenceFor, claim, "/notEvidenceFor", errors);
+    requireStringArrayIncludes(value["notEvidenceFor"], claim, "/notEvidenceFor", errors);
   }
-  if (isRecord(value.summary) && Array.isArray(value.operations)) {
-    if (value.summary.workOrderCount !== value.operations.length) errors.push("/summary/workOrderCount must match /operations length");
-    if (value.summary.hitCount === 0) errors.push("/summary/hitCount must be greater than 0 for reuse evidence");
-    if (value.summary.missCount === 0) errors.push("/summary/missCount must be greater than 0 for generation-miss evidence");
+  if (isRecord(value["summary"]) && Array.isArray(value["operations"])) {
+    if (value["summary"]["workOrderCount"] !== value["operations"].length) errors.push("/summary/workOrderCount must match /operations length");
+    if (value["summary"]["hitCount"] === 0) errors.push("/summary/hitCount must be greater than 0 for reuse evidence");
+    if (value["summary"]["missCount"] === 0) errors.push("/summary/missCount must be greater than 0 for generation-miss evidence");
   }
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
 }

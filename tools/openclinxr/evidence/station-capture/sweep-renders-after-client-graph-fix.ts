@@ -272,7 +272,7 @@ export async function sweepRendersAfterClientGraphFix(): Promise<{
   const treeSha = gitSha();
   const startedAt = new Date().toISOString();
   const jobTmp = path.join(
-    process.env.OPENCLINXR_JOB_TMP ?? tmpdir(),
+    process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(),
     `ocxr-station-sweep-${process.pid}-${Date.now()}`,
   );
   mkdirSync(jobTmp, { recursive: true });

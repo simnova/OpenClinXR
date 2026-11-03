@@ -74,17 +74,17 @@ export async function inspectSeatedPostureWiring(): Promise<SeatedPostureWiring>
   const shell = buildStationEnvironment({ environmentId: "telehealth_home_visit_v1" });
   let chairFixture: SeatedPostureWiring["chairFixture"] = null;
   shell.traverse((obj) => {
-    const slotId = String(obj.userData?.fixtureSlotId ?? "");
+    const slotId = String(obj.userData?.["fixtureSlotId"] ?? "");
     if (!isPatientChairSlotId(slotId) && !obj.name.includes("patient_chair")) return;
     if (chairFixture) return;
     const seatHeight =
-      typeof obj.userData?.seatHeightMeters === "number"
-        ? obj.userData.seatHeightMeters
+      typeof obj.userData?.["seatHeightMeters"] === "number"
+        ? obj.userData["seatHeightMeters"]
         : PATIENT_CHAIR_SEAT_HEIGHT_METERS;
     chairFixture = {
       exists: true,
       seatHeightMeters: seatHeight,
-      isMarkerCube: obj.userData?.isMarkerCube === true,
+      isMarkerCube: obj.userData?.["isMarkerCube"] === true,
     };
   });
 

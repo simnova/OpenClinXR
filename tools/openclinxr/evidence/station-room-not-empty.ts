@@ -14,23 +14,23 @@
  */
 
 import { existsSync } from "node:fs";
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "./lib/slotted-playwright.js";
-import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import {
+  type MeasurementTreeStamp,
   tryReadStampedArtifact,
   withTreeStamp,
-  type MeasurementTreeStamp,
 } from "./lib/measurement-tree-stamp.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
-  ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
+  ROOM_CAPTURE_MODE,
   waitForHumanoidAssetsLoaded,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
-import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 
 export const STATION_ROOM_EVIDENCE_DIR = ".openclinxr/evidence/issue-133";
 export const PRE_FIX_NAME = "pre-fix.json";
@@ -132,7 +132,7 @@ export async function inspectStationRoomNotEmpty(input?: {
 
   measureInFlight = (async () => {
     if (!input?.force && !input?.writePreFix && !input?.scenarioIds) {
-      if (process.env.OPENCLINXR_STATION_ROOM_USE_DISK === "1") {
+      if (process.env["OPENCLINXR_STATION_ROOM_USE_DISK"] === "1") {
         const fromDisk = await tryReadArtifact(preFixPath());
         if (fromDisk) {
           cachedReport = fromDisk;
@@ -141,9 +141,11 @@ export async function inspectStationRoomNotEmpty(input?: {
       }
     }
 
+    const liveBaseUrl = input?.baseUrl;
+    const liveScenarioIds = input?.scenarioIds;
     const report = await measureLiveRooms({
-      baseUrl: input?.baseUrl,
-      scenarioIds: input?.scenarioIds,
+      ...(liveBaseUrl === undefined ? {} : { baseUrl: liveBaseUrl }),
+      ...(liveScenarioIds === undefined ? {} : { scenarioIds: liveScenarioIds }),
     });
 
     if (input?.writePreFix) {
@@ -168,7 +170,7 @@ export async function inspectStationRoomNotEmpty(input?: {
 
 async function tryReadArtifact(filePath: string): Promise<StationRoomNotEmptyReport | null> {
   return tryReadStampedArtifact(filePath, (parsed) => {
-    const report = (parsed.report ?? parsed) as StationRoomNotEmptyReport | undefined;
+    const report = (parsed["report"] ?? parsed) as StationRoomNotEmptyReport | undefined;
     if (report?.rooms && Array.isArray(report.rooms) && report.rooms.length > 0) {
       return { rooms: report.rooms };
     }
