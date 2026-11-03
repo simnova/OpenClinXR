@@ -288,7 +288,9 @@ export function buildEncounterAssetGenerationQueueReport(input: {
         scenarioId: request.scenarioId,
         contract: caseDefinedHumanoidPerformanceContract,
         plan,
-        humanoidRealismRequirements: request.humanoidRealismRequirements,
+        ...(request.humanoidRealismRequirements !== undefined
+          ? { humanoidRealismRequirements: request.humanoidRealismRequirements }
+          : {}),
       })
     : undefined;
 
@@ -468,128 +470,128 @@ export function validateEncounterAssetGenerationQueueReport(value: unknown): Val
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireLiteral(value.schemaVersion, "openclinxr.encounter-asset-generation-queue-report.v1", "/schemaVersion", errors);
-  requireLiteral(value.status, "planned", "/status", errors);
-  requireRecord(value.queue, "/queue", errors);
-  requireRecord(value.request, "/request", errors);
-  requireRecord(value.plan, "/plan", errors);
-  requireRecord(value.storageTargets, "/storageTargets", errors);
-  requireRecord(value.operationalNotes, "/operationalNotes", errors);
-  requireRecord(value.humanoidRealismRequirements, "/humanoidRealismRequirements", errors);
-  if (isRecord(value.request)) {
-    const targetAssetStore = isRecord(value.request.targetAssetStore) ? value.request.targetAssetStore : {};
-    requireLiteral(targetAssetStore.storeKind, "azurite_blob", "/request/targetAssetStore/storeKind", errors);
-    requireRecord(value.request.policy, "/request/policy", errors);
-    requireRecord(value.request.evidenceGates, "/request/evidenceGates", errors);
-    if (isRecord(value.request.policy)) {
-      requireLiteral(value.request.policy.allowPaidCloudApis, false, "/request/policy/allowPaidCloudApis", errors);
-      requireLiteral(value.request.policy.allowProductionDeployment, false, "/request/policy/allowProductionDeployment", errors);
-      requireLiteral(value.request.policy.productionReadinessClaimed, false, "/request/policy/productionReadinessClaimed", errors);
+  requireLiteral(value["schemaVersion"], "openclinxr.encounter-asset-generation-queue-report.v1", "/schemaVersion", errors);
+  requireLiteral(value["status"], "planned", "/status", errors);
+  requireRecord(value["queue"], "/queue", errors);
+  requireRecord(value["request"], "/request", errors);
+  requireRecord(value["plan"], "/plan", errors);
+  requireRecord(value["storageTargets"], "/storageTargets", errors);
+  requireRecord(value["operationalNotes"], "/operationalNotes", errors);
+  requireRecord(value["humanoidRealismRequirements"], "/humanoidRealismRequirements", errors);
+  if (isRecord(value["request"])) {
+    const targetAssetStore = isRecord(value["request"]["targetAssetStore"]) ? value["request"]["targetAssetStore"] : {};
+    requireLiteral(targetAssetStore["storeKind"], "azurite_blob", "/request/targetAssetStore/storeKind", errors);
+    requireRecord(value["request"]["policy"], "/request/policy", errors);
+    requireRecord(value["request"]["evidenceGates"], "/request/evidenceGates", errors);
+    if (isRecord(value["request"]["policy"])) {
+      requireLiteral(value["request"]["policy"]["allowPaidCloudApis"], false, "/request/policy/allowPaidCloudApis", errors);
+      requireLiteral(value["request"]["policy"]["allowProductionDeployment"], false, "/request/policy/allowProductionDeployment", errors);
+      requireLiteral(value["request"]["policy"]["productionReadinessClaimed"], false, "/request/policy/productionReadinessClaimed", errors);
     }
-    if (isRecord(value.request.evidenceGates)) {
-      requireLiteral(value.request.evidenceGates.requireGeneratedSceneManifest, true, "/request/evidenceGates/requireGeneratedSceneManifest", errors);
-      requireLiteral(value.request.evidenceGates.requireRuntimeBundlePublication, true, "/request/evidenceGates/requireRuntimeBundlePublication", errors);
-      requireLiteral(value.request.evidenceGates.requireHumanReviewBeforeLearnerUse, true, "/request/evidenceGates/requireHumanReviewBeforeLearnerUse", errors);
-      requireLiteral(value.request.evidenceGates.requireQuestEvidenceBeforeQuestReadinessClaim, true, "/request/evidenceGates/requireQuestEvidenceBeforeQuestReadinessClaim", errors);
+    if (isRecord(value["request"]["evidenceGates"])) {
+      requireLiteral(value["request"]["evidenceGates"]["requireGeneratedSceneManifest"], true, "/request/evidenceGates/requireGeneratedSceneManifest", errors);
+      requireLiteral(value["request"]["evidenceGates"]["requireRuntimeBundlePublication"], true, "/request/evidenceGates/requireRuntimeBundlePublication", errors);
+      requireLiteral(value["request"]["evidenceGates"]["requireHumanReviewBeforeLearnerUse"], true, "/request/evidenceGates/requireHumanReviewBeforeLearnerUse", errors);
+      requireLiteral(value["request"]["evidenceGates"]["requireQuestEvidenceBeforeQuestReadinessClaim"], true, "/request/evidenceGates/requireQuestEvidenceBeforeQuestReadinessClaim", errors);
     }
   }
   if (Object.hasOwn(value, "encounterAssetNeedsReadinessManifest")) {
-    if (isRecord(value.encounterAssetNeedsReadinessManifest)) {
-      validateEncounterAssetNeedsReadinessManifest(value.encounterAssetNeedsReadinessManifest, errors);
+    if (isRecord(value["encounterAssetNeedsReadinessManifest"])) {
+      validateEncounterAssetNeedsReadinessManifest(value["encounterAssetNeedsReadinessManifest"], errors);
     } else {
       errors.push("/encounterAssetNeedsReadinessManifest must be object");
     }
   }
   if (Object.hasOwn(value, "projectionArtifactConsumption")) {
-    if (isRecord(value.projectionArtifactConsumption)) {
+    if (isRecord(value["projectionArtifactConsumption"])) {
       requireLiteral(
-        value.projectionArtifactConsumption.source,
+        value["projectionArtifactConsumption"]["source"],
         "scenario_bank_dynamic_encounter_factory_projection_artifact",
         "/projectionArtifactConsumption/source",
         errors,
       );
       requireLiteral(
-        value.projectionArtifactConsumption.sourceSchemaVersion,
+        value["projectionArtifactConsumption"]["sourceSchemaVersion"],
         "openclinxr.dynamic-encounter-factory-projection-artifact.v1",
         "/projectionArtifactConsumption/sourceSchemaVersion",
         errors,
       );
-      requireString(value.projectionArtifactConsumption.anchorScenarioId, "/projectionArtifactConsumption/anchorScenarioId", errors);
-      if (value.projectionArtifactConsumption.nextFactoryPlanningScenarioId !== null && typeof value.projectionArtifactConsumption.nextFactoryPlanningScenarioId !== "string") {
+      requireString(value["projectionArtifactConsumption"]["anchorScenarioId"], "/projectionArtifactConsumption/anchorScenarioId", errors);
+      if (value["projectionArtifactConsumption"]["nextFactoryPlanningScenarioId"] !== null && typeof value["projectionArtifactConsumption"]["nextFactoryPlanningScenarioId"] !== "string") {
         errors.push("/projectionArtifactConsumption/nextFactoryPlanningScenarioId must be string or null");
       }
       if (
-        value.projectionArtifactConsumption.nextFactoryPlanningScenarioSelectionMode !== "approved_encounter_variant"
-        && value.projectionArtifactConsumption.nextFactoryPlanningScenarioSelectionMode !== "next_scenario_fallback"
-        && value.projectionArtifactConsumption.nextFactoryPlanningScenarioSelectionMode !== "anchor_not_found"
+        value["projectionArtifactConsumption"]["nextFactoryPlanningScenarioSelectionMode"] !== "approved_encounter_variant"
+        && value["projectionArtifactConsumption"]["nextFactoryPlanningScenarioSelectionMode"] !== "next_scenario_fallback"
+        && value["projectionArtifactConsumption"]["nextFactoryPlanningScenarioSelectionMode"] !== "anchor_not_found"
       ) {
         errors.push("/projectionArtifactConsumption/nextFactoryPlanningScenarioSelectionMode must be approved_encounter_variant, next_scenario_fallback, or anchor_not_found");
       }
       requireNumber(
-        value.projectionArtifactConsumption.scenarioBankSliceSize,
+        value["projectionArtifactConsumption"]["scenarioBankSliceSize"],
         "/projectionArtifactConsumption/scenarioBankSliceSize",
         errors,
       );
       requireRecord(
-        value.projectionArtifactConsumption.sharedAssetReuseSummary,
+        value["projectionArtifactConsumption"]["sharedAssetReuseSummary"],
         "/projectionArtifactConsumption/sharedAssetReuseSummary",
         errors,
       );
       requireRecord(
-        value.projectionArtifactConsumption.caseDefinedHumanoidPerformanceContract,
+        value["projectionArtifactConsumption"]["caseDefinedHumanoidPerformanceContract"],
         "/projectionArtifactConsumption/caseDefinedHumanoidPerformanceContract",
         errors,
       );
       validateCaseDefinedHumanoidPerformanceContract(
-        value.projectionArtifactConsumption.caseDefinedHumanoidPerformanceContract,
+        value["projectionArtifactConsumption"]["caseDefinedHumanoidPerformanceContract"],
         "/projectionArtifactConsumption/caseDefinedHumanoidPerformanceContract",
         errors,
       );
-      if (isRecord(value.projectionArtifactConsumption.sharedAssetReuseSummary)) {
+      if (isRecord(value["projectionArtifactConsumption"]["sharedAssetReuseSummary"])) {
         requireArray(
-          value.projectionArtifactConsumption.sharedAssetReuseSummary.scenarioBankSliceScenarioIds,
+          value["projectionArtifactConsumption"]["sharedAssetReuseSummary"]["scenarioBankSliceScenarioIds"],
           "/projectionArtifactConsumption/sharedAssetReuseSummary/scenarioBankSliceScenarioIds",
           errors,
         );
         requireNumber(
-          value.projectionArtifactConsumption.sharedAssetReuseSummary.scenarioBankSliceSize,
+          value["projectionArtifactConsumption"]["sharedAssetReuseSummary"]["scenarioBankSliceSize"],
           "/projectionArtifactConsumption/sharedAssetReuseSummary/scenarioBankSliceSize",
           errors,
         );
         requireNumber(
-          value.projectionArtifactConsumption.sharedAssetReuseSummary.workOrderCount,
+          value["projectionArtifactConsumption"]["sharedAssetReuseSummary"]["workOrderCount"],
           "/projectionArtifactConsumption/sharedAssetReuseSummary/workOrderCount",
           errors,
         );
         requireArray(
-          value.projectionArtifactConsumption.sharedAssetReuseSummary.distinctLookupKeys,
+          value["projectionArtifactConsumption"]["sharedAssetReuseSummary"]["distinctLookupKeys"],
           "/projectionArtifactConsumption/sharedAssetReuseSummary/distinctLookupKeys",
           errors,
         );
         requireArray(
-          value.projectionArtifactConsumption.sharedAssetReuseSummary.distinctSharedLibraryBlobPrefixes,
+          value["projectionArtifactConsumption"]["sharedAssetReuseSummary"]["distinctSharedLibraryBlobPrefixes"],
           "/projectionArtifactConsumption/sharedAssetReuseSummary/distinctSharedLibraryBlobPrefixes",
           errors,
         );
         requireLiteral(
-          value.projectionArtifactConsumption.sharedAssetReuseSummary.sharedLibraryMongooseCollectionName,
+          value["projectionArtifactConsumption"]["sharedAssetReuseSummary"]["sharedLibraryMongooseCollectionName"],
           "shared_encounter_asset_library",
           "/projectionArtifactConsumption/sharedAssetReuseSummary/sharedLibraryMongooseCollectionName",
           errors,
         );
         if (
-          Array.isArray(value.projectionArtifactConsumption.sharedAssetReuseSummary.scenarioBankSliceScenarioIds)
-          && typeof value.projectionArtifactConsumption.sharedAssetReuseSummary.scenarioBankSliceSize === "number"
-          && value.projectionArtifactConsumption.sharedAssetReuseSummary.scenarioBankSliceScenarioIds.length
-            !== value.projectionArtifactConsumption.sharedAssetReuseSummary.scenarioBankSliceSize
+          Array.isArray(value["projectionArtifactConsumption"]["sharedAssetReuseSummary"]["scenarioBankSliceScenarioIds"])
+          && typeof value["projectionArtifactConsumption"]["sharedAssetReuseSummary"]["scenarioBankSliceSize"] === "number"
+          && value["projectionArtifactConsumption"]["sharedAssetReuseSummary"]["scenarioBankSliceScenarioIds"].length
+            !== value["projectionArtifactConsumption"]["sharedAssetReuseSummary"]["scenarioBankSliceSize"]
         ) {
           errors.push("/projectionArtifactConsumption/sharedAssetReuseSummary/scenarioBankSliceSize must match /projectionArtifactConsumption/sharedAssetReuseSummary/scenarioBankSliceScenarioIds length");
         }
         if (
-          isRecord(value.plan)
-          && Array.isArray(value.plan.generationWorkOrders)
-          && typeof value.projectionArtifactConsumption.sharedAssetReuseSummary.workOrderCount === "number"
-          && value.projectionArtifactConsumption.sharedAssetReuseSummary.workOrderCount !== value.plan.generationWorkOrders.length
+          isRecord(value["plan"])
+          && Array.isArray(value["plan"]["generationWorkOrders"])
+          && typeof value["projectionArtifactConsumption"]["sharedAssetReuseSummary"]["workOrderCount"] === "number"
+          && value["projectionArtifactConsumption"]["sharedAssetReuseSummary"]["workOrderCount"] !== value["plan"]["generationWorkOrders"].length
         ) {
           errors.push("/projectionArtifactConsumption/sharedAssetReuseSummary/workOrderCount must match /plan/generationWorkOrders length");
         }
@@ -600,50 +602,50 @@ export function validateEncounterAssetGenerationQueueReport(value: unknown): Val
   }
   if (Object.hasOwn(value, "caseDefinedHumanoidPerformanceContract")) {
     validateCaseDefinedHumanoidPerformanceContract(
-      value.caseDefinedHumanoidPerformanceContract,
+      value["caseDefinedHumanoidPerformanceContract"],
       "/caseDefinedHumanoidPerformanceContract",
       errors,
     );
     if (
-      isRecord(value.caseDefinedHumanoidPerformanceContract)
-      && isRecord(value.projectionArtifactConsumption)
-      && isRecord(value.projectionArtifactConsumption.caseDefinedHumanoidPerformanceContract)
-      && JSON.stringify(value.caseDefinedHumanoidPerformanceContract) !== JSON.stringify(value.projectionArtifactConsumption.caseDefinedHumanoidPerformanceContract)
+      isRecord(value["caseDefinedHumanoidPerformanceContract"])
+      && isRecord(value["projectionArtifactConsumption"])
+      && isRecord(value["projectionArtifactConsumption"]["caseDefinedHumanoidPerformanceContract"])
+      && JSON.stringify(value["caseDefinedHumanoidPerformanceContract"]) !== JSON.stringify(value["projectionArtifactConsumption"]["caseDefinedHumanoidPerformanceContract"])
     ) {
       errors.push("/caseDefinedHumanoidPerformanceContract must match /projectionArtifactConsumption/caseDefinedHumanoidPerformanceContract");
     }
   }
   if (Object.hasOwn(value, "caseDefinedHumanoidPerformanceWorkOrderCoverage")) {
     validateCaseDefinedHumanoidPerformanceWorkOrderCoverage(
-      value.caseDefinedHumanoidPerformanceWorkOrderCoverage,
+      value["caseDefinedHumanoidPerformanceWorkOrderCoverage"],
       "/caseDefinedHumanoidPerformanceWorkOrderCoverage",
       errors,
     );
   }
-  requireArray(value.humanoidRealismProfiles, "/humanoidRealismProfiles", errors);
-  requireRecord(value.evidenceBoundaries, "/evidenceBoundaries", errors);
+  requireArray(value["humanoidRealismProfiles"], "/humanoidRealismProfiles", errors);
+  requireRecord(value["evidenceBoundaries"], "/evidenceBoundaries", errors);
 
-  if (isRecord(value.queue)) {
-    requireLiteral(value.queue.queueName, "encounter-asset-generation", "/queue/queueName", errors);
-    requireLiteral(value.queue.messageKind, "encounter_definition_to_executable_encounter", "/queue/messageKind", errors);
-    if (typeof value.queue.encodedMessage !== "string") {
+  if (isRecord(value["queue"])) {
+    requireLiteral(value["queue"]["queueName"], "encounter-asset-generation", "/queue/queueName", errors);
+    requireLiteral(value["queue"]["messageKind"], "encounter_definition_to_executable_encounter", "/queue/messageKind", errors);
+    if (typeof value["queue"]["encodedMessage"] !== "string") {
       errors.push("/queue/encodedMessage must be string");
     } else {
       try {
-        decodeAzureStorageQueueMessage(value.queue.encodedMessage);
+        decodeAzureStorageQueueMessage(value["queue"]["encodedMessage"]);
       } catch (error) {
         errors.push(`/queue/encodedMessage must decode to an encounter asset generation queue message: ${errorMessage(error)}`);
       }
     }
-    requireNumber(value.queue.encodedMessageBytes, "/queue/encodedMessageBytes", errors);
+    requireNumber(value["queue"]["encodedMessageBytes"], "/queue/encodedMessageBytes", errors);
   }
 
-  if (isRecord(value.plan)) {
-    requireLiteral(value.plan.schemaVersion, "openclinxr.encounter-asset-generation-plan.v1", "/plan/schemaVersion", errors);
-    requireLiteral(value.plan.productionReadinessClaimed, false, "/plan/productionReadinessClaimed", errors);
-    requireArray(value.plan.generationWorkOrders, "/plan/generationWorkOrders", errors);
-    if (Array.isArray(value.plan.generationWorkOrders)) {
-      const targetKinds = new Set(value.plan.generationWorkOrders.filter(isRecord).map((workOrder) => String(workOrder.targetKind ?? "")));
+  if (isRecord(value["plan"])) {
+    requireLiteral(value["plan"]["schemaVersion"], "openclinxr.encounter-asset-generation-plan.v1", "/plan/schemaVersion", errors);
+    requireLiteral(value["plan"]["productionReadinessClaimed"], false, "/plan/productionReadinessClaimed", errors);
+    requireArray(value["plan"]["generationWorkOrders"], "/plan/generationWorkOrders", errors);
+    if (Array.isArray(value["plan"]["generationWorkOrders"])) {
+      const targetKinds = new Set(value["plan"]["generationWorkOrders"].filter(isRecord).map((workOrder) => String(workOrder["targetKind"] ?? "")));
       for (const requiredTargetKind of [
         "role_specific_humanoid_glb",
         "medical_equipment_glb",
@@ -654,76 +656,76 @@ export function validateEncounterAssetGenerationQueueReport(value: unknown): Val
           errors.push(`/plan/generationWorkOrders must include ${requiredTargetKind}`);
         }
       }
-      value.plan.generationWorkOrders.forEach((workOrder, index) => {
+      value["plan"]["generationWorkOrders"].forEach((workOrder, index) => {
         if (!isRecord(workOrder)) {
           errors.push(`/plan/generationWorkOrders/${index} must be object`);
           return;
         }
         if (
-          workOrder.providerRoute !== "deterministic-mock"
-          && workOrder.providerRoute !== "local-runtime-planned"
-          && workOrder.providerRoute !== "open-source-local-model-planned"
+          workOrder["providerRoute"] !== "deterministic-mock"
+          && workOrder["providerRoute"] !== "local-runtime-planned"
+          && workOrder["providerRoute"] !== "open-source-local-model-planned"
         ) {
           errors.push(`/plan/generationWorkOrders/${index}/providerRoute must stay on the local-only provider boundary`);
         }
-        if (typeof workOrder.workOrderId !== "string" || workOrder.workOrderId.trim().length === 0) {
+        if (typeof workOrder["workOrderId"] !== "string" || workOrder["workOrderId"].trim().length === 0) {
           errors.push(`/plan/generationWorkOrders/${index}/workOrderId must be non-empty string`);
         }
-        if (typeof workOrder.capabilityId !== "string" || workOrder.capabilityId.trim().length === 0) {
+        if (typeof workOrder["capabilityId"] !== "string" || workOrder["capabilityId"].trim().length === 0) {
           errors.push(`/plan/generationWorkOrders/${index}/capabilityId must be non-empty string`);
         }
-        requireArray(workOrder.providerRoutingPreference, `/plan/generationWorkOrders/${index}/providerRoutingPreference`, errors);
-        if (Array.isArray(workOrder.providerRoutingPreference) && workOrder.providerRoutingPreference.length === 0) {
+        requireArray(workOrder["providerRoutingPreference"], `/plan/generationWorkOrders/${index}/providerRoutingPreference`, errors);
+        if (Array.isArray(workOrder["providerRoutingPreference"]) && workOrder["providerRoutingPreference"].length === 0) {
           errors.push(`/plan/generationWorkOrders/${index}/providerRoutingPreference must contain at least one provider route`);
         }
-        if (!isRecord(workOrder.modelProviderPolicy)) {
+        if (!isRecord(workOrder["modelProviderPolicy"])) {
           errors.push(`/plan/generationWorkOrders/${index}/modelProviderPolicy must be object`);
         } else {
-          requireLiteral(workOrder.modelProviderPolicy.executionStatus, "metadata_only_not_executed", `/plan/generationWorkOrders/${index}/modelProviderPolicy/executionStatus`, errors);
-          requireLiteral(workOrder.modelProviderPolicy.allowPaidCloudApis, false, `/plan/generationWorkOrders/${index}/modelProviderPolicy/allowPaidCloudApis`, errors);
-          requireLiteral(workOrder.modelProviderPolicy.allowExternalNetwork, false, `/plan/generationWorkOrders/${index}/modelProviderPolicy/allowExternalNetwork`, errors);
-          requireLiteral(workOrder.modelProviderPolicy.providerRoutesRequireExplicitApproval, true, `/plan/generationWorkOrders/${index}/modelProviderPolicy/providerRoutesRequireExplicitApproval`, errors);
+          requireLiteral(workOrder["modelProviderPolicy"]["executionStatus"], "metadata_only_not_executed", `/plan/generationWorkOrders/${index}/modelProviderPolicy/executionStatus`, errors);
+          requireLiteral(workOrder["modelProviderPolicy"]["allowPaidCloudApis"], false, `/plan/generationWorkOrders/${index}/modelProviderPolicy/allowPaidCloudApis`, errors);
+          requireLiteral(workOrder["modelProviderPolicy"]["allowExternalNetwork"], false, `/plan/generationWorkOrders/${index}/modelProviderPolicy/allowExternalNetwork`, errors);
+          requireLiteral(workOrder["modelProviderPolicy"]["providerRoutesRequireExplicitApproval"], true, `/plan/generationWorkOrders/${index}/modelProviderPolicy/providerRoutesRequireExplicitApproval`, errors);
         }
-        if (!isRecord(workOrder.sharedAssetLibraryReuse)) {
+        if (!isRecord(workOrder["sharedAssetLibraryReuse"])) {
           errors.push(`/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse must be object`);
         } else {
-          requireString(workOrder.sharedAssetLibraryReuse.lookupKey, `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lookupKey`, errors);
-          requireLiteral(workOrder.sharedAssetLibraryReuse.lookupKeySource, "encounter_definition_semantic_requirements", `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lookupKeySource`, errors);
-          requireLiteral(workOrder.sharedAssetLibraryReuse.cacheDisposition, "lookup_before_generate", `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/cacheDisposition`, errors);
-          requireRecord(workOrder.sharedAssetLibraryReuse.sharedLibraryRefs, `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/sharedLibraryRefs`, errors);
-          requireRecord(workOrder.sharedAssetLibraryReuse.lruCache, `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lruCache`, errors);
-          if (isRecord(workOrder.sharedAssetLibraryReuse.sharedLibraryRefs)) {
-            requireString(workOrder.sharedAssetLibraryReuse.sharedLibraryRefs.blobPrefix, `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/sharedLibraryRefs/blobPrefix`, errors);
-            requireLiteral(workOrder.sharedAssetLibraryReuse.sharedLibraryRefs.mongooseCollectionName, "shared_encounter_asset_library", `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/sharedLibraryRefs/mongooseCollectionName`, errors);
+          requireString(workOrder["sharedAssetLibraryReuse"]["lookupKey"], `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lookupKey`, errors);
+          requireLiteral(workOrder["sharedAssetLibraryReuse"]["lookupKeySource"], "encounter_definition_semantic_requirements", `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lookupKeySource`, errors);
+          requireLiteral(workOrder["sharedAssetLibraryReuse"]["cacheDisposition"], "lookup_before_generate", `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/cacheDisposition`, errors);
+          requireRecord(workOrder["sharedAssetLibraryReuse"]["sharedLibraryRefs"], `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/sharedLibraryRefs`, errors);
+          requireRecord(workOrder["sharedAssetLibraryReuse"]["lruCache"], `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lruCache`, errors);
+          if (isRecord(workOrder["sharedAssetLibraryReuse"]["sharedLibraryRefs"])) {
+            requireString(workOrder["sharedAssetLibraryReuse"]["sharedLibraryRefs"]["blobPrefix"], `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/sharedLibraryRefs/blobPrefix`, errors);
+            requireLiteral(workOrder["sharedAssetLibraryReuse"]["sharedLibraryRefs"]["mongooseCollectionName"], "shared_encounter_asset_library", `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/sharedLibraryRefs/mongooseCollectionName`, errors);
           }
-          if (isRecord(workOrder.sharedAssetLibraryReuse.lruCache)) {
-            requireLiteral(workOrder.sharedAssetLibraryReuse.lruCache.enabled, true, `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lruCache/enabled`, errors);
-            requireNumber(workOrder.sharedAssetLibraryReuse.lruCache.maxEntries, `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lruCache/maxEntries`, errors);
-            requireLiteral(workOrder.sharedAssetLibraryReuse.lruCache.evictionPolicy, "least_recently_used", `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lruCache/evictionPolicy`, errors);
-            requireLiteral(workOrder.sharedAssetLibraryReuse.lruCache.reuseRequiresEvidenceGateCompatibility, true, `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lruCache/reuseRequiresEvidenceGateCompatibility`, errors);
-            requireLiteral(workOrder.sharedAssetLibraryReuse.lruCache.updateRecencyOnHit, true, `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lruCache/updateRecencyOnHit`, errors);
+          if (isRecord(workOrder["sharedAssetLibraryReuse"]["lruCache"])) {
+            requireLiteral(workOrder["sharedAssetLibraryReuse"]["lruCache"]["enabled"], true, `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lruCache/enabled`, errors);
+            requireNumber(workOrder["sharedAssetLibraryReuse"]["lruCache"]["maxEntries"], `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lruCache/maxEntries`, errors);
+            requireLiteral(workOrder["sharedAssetLibraryReuse"]["lruCache"]["evictionPolicy"], "least_recently_used", `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lruCache/evictionPolicy`, errors);
+            requireLiteral(workOrder["sharedAssetLibraryReuse"]["lruCache"]["reuseRequiresEvidenceGateCompatibility"], true, `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lruCache/reuseRequiresEvidenceGateCompatibility`, errors);
+            requireLiteral(workOrder["sharedAssetLibraryReuse"]["lruCache"]["updateRecencyOnHit"], true, `/plan/generationWorkOrders/${index}/sharedAssetLibraryReuse/lruCache/updateRecencyOnHit`, errors);
           }
         }
-        requireArray(workOrder.inputRefs, `/plan/generationWorkOrders/${index}/inputRefs`, errors);
-        requireArray(workOrder.outputRefs, `/plan/generationWorkOrders/${index}/outputRefs`, errors);
-        requireArray(workOrder.evidenceGateRefs, `/plan/generationWorkOrders/${index}/evidenceGateRefs`, errors);
-        requireArray(workOrder.visualQaBlockerRefs, `/plan/generationWorkOrders/${index}/visualQaBlockerRefs`, errors);
-        requireArray(workOrder.acceptanceCriteria, `/plan/generationWorkOrders/${index}/acceptanceCriteria`, errors);
+        requireArray(workOrder["inputRefs"], `/plan/generationWorkOrders/${index}/inputRefs`, errors);
+        requireArray(workOrder["outputRefs"], `/plan/generationWorkOrders/${index}/outputRefs`, errors);
+        requireArray(workOrder["evidenceGateRefs"], `/plan/generationWorkOrders/${index}/evidenceGateRefs`, errors);
+        requireArray(workOrder["visualQaBlockerRefs"], `/plan/generationWorkOrders/${index}/visualQaBlockerRefs`, errors);
+        requireArray(workOrder["acceptanceCriteria"], `/plan/generationWorkOrders/${index}/acceptanceCriteria`, errors);
         for (const notEvidenceFor of ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"]) {
-          requireStringArrayIncludes(workOrder.notEvidenceFor, notEvidenceFor, `/plan/generationWorkOrders/${index}/notEvidenceFor`, errors);
+          requireStringArrayIncludes(workOrder["notEvidenceFor"], notEvidenceFor, `/plan/generationWorkOrders/${index}/notEvidenceFor`, errors);
         }
         if (
-          isRecord(value.caseDefinedHumanoidPerformanceContract)
-          && typeof workOrder.actorRole === "string"
-          && (workOrder.targetKind === "role_specific_humanoid_glb" || workOrder.targetKind === "role_idle_animation_glb")
+          isRecord(value["caseDefinedHumanoidPerformanceContract"])
+          && typeof workOrder["actorRole"] === "string"
+          && (workOrder["targetKind"] === "role_specific_humanoid_glb" || workOrder["targetKind"] === "role_idle_animation_glb")
         ) {
           validateCaseDefinedHumanoidPerformanceWorkOrderRequirements(
-            workOrder.caseDefinedHumanoidPerformanceRequirements,
+            workOrder["caseDefinedHumanoidPerformanceRequirements"],
             `/plan/generationWorkOrders/${index}/caseDefinedHumanoidPerformanceRequirements`,
             errors,
           );
           validateCaseDefinedHumanoidPerformanceWorkOrderConsistency(
-            value.caseDefinedHumanoidPerformanceContract,
+            value["caseDefinedHumanoidPerformanceContract"],
             workOrder,
             `/plan/generationWorkOrders/${index}/caseDefinedHumanoidPerformanceRequirements`,
             errors,
@@ -733,42 +735,42 @@ export function validateEncounterAssetGenerationQueueReport(value: unknown): Val
     }
   }
 
-  if (isRecord(value.operationalNotes)) {
-    requireLiteral(value.operationalNotes.longRunningOptimizationAccepted, true, "/operationalNotes/longRunningOptimizationAccepted", errors);
-    requireLiteral(value.operationalNotes.mayRunForDays, true, "/operationalNotes/mayRunForDays", errors);
-    requireLiteral(value.operationalNotes.generatedAssetsMustRemainDynamic, true, "/operationalNotes/generatedAssetsMustRemainDynamic", errors);
-    requireLiteral(value.operationalNotes.sceneIsNotHardcodedInRuntime, true, "/operationalNotes/sceneIsNotHardcodedInRuntime", errors);
-    requireRecord(value.operationalNotes.providerDisabledBoundary, "/operationalNotes/providerDisabledBoundary", errors);
-    requireRecord(value.operationalNotes.localOnlyBoundary, "/operationalNotes/localOnlyBoundary", errors);
-    if (isRecord(value.operationalNotes.providerDisabledBoundary)) {
+  if (isRecord(value["operationalNotes"])) {
+    requireLiteral(value["operationalNotes"]["longRunningOptimizationAccepted"], true, "/operationalNotes/longRunningOptimizationAccepted", errors);
+    requireLiteral(value["operationalNotes"]["mayRunForDays"], true, "/operationalNotes/mayRunForDays", errors);
+    requireLiteral(value["operationalNotes"]["generatedAssetsMustRemainDynamic"], true, "/operationalNotes/generatedAssetsMustRemainDynamic", errors);
+    requireLiteral(value["operationalNotes"]["sceneIsNotHardcodedInRuntime"], true, "/operationalNotes/sceneIsNotHardcodedInRuntime", errors);
+    requireRecord(value["operationalNotes"]["providerDisabledBoundary"], "/operationalNotes/providerDisabledBoundary", errors);
+    requireRecord(value["operationalNotes"]["localOnlyBoundary"], "/operationalNotes/localOnlyBoundary", errors);
+    if (isRecord(value["operationalNotes"]["providerDisabledBoundary"])) {
       requireLiteral(
-        value.operationalNotes.providerDisabledBoundary.claimBoundary,
+        value["operationalNotes"]["providerDisabledBoundary"]["claimBoundary"],
         "provider_gate_metadata_not_live_provider_readiness",
         "/operationalNotes/providerDisabledBoundary/claimBoundary",
         errors,
       );
-      requireLiteral(value.operationalNotes.providerDisabledBoundary.executionEnabled, false, "/operationalNotes/providerDisabledBoundary/executionEnabled", errors);
+      requireLiteral(value["operationalNotes"]["providerDisabledBoundary"]["executionEnabled"], false, "/operationalNotes/providerDisabledBoundary/executionEnabled", errors);
       requireLiteral(
-        value.operationalNotes.providerDisabledBoundary.externalProviderExecutionAttempted,
+        value["operationalNotes"]["providerDisabledBoundary"]["externalProviderExecutionAttempted"],
         false,
         "/operationalNotes/providerDisabledBoundary/externalProviderExecutionAttempted",
         errors,
       );
-      requireLiteral(value.operationalNotes.providerDisabledBoundary.liveProviderReady, false, "/operationalNotes/providerDisabledBoundary/liveProviderReady", errors);
+      requireLiteral(value["operationalNotes"]["providerDisabledBoundary"]["liveProviderReady"], false, "/operationalNotes/providerDisabledBoundary/liveProviderReady", errors);
       requireLiteral(
-        value.operationalNotes.providerDisabledBoundary.credentialEvidencePresent,
+        value["operationalNotes"]["providerDisabledBoundary"]["credentialEvidencePresent"],
         false,
         "/operationalNotes/providerDisabledBoundary/credentialEvidencePresent",
         errors,
       );
-      requireLiteral(value.operationalNotes.providerDisabledBoundary.runtimeEvidencePresent, false, "/operationalNotes/providerDisabledBoundary/runtimeEvidencePresent", errors);
-      requireLiteral(value.operationalNotes.providerDisabledBoundary.reportMetadataOnly, true, "/operationalNotes/providerDisabledBoundary/reportMetadataOnly", errors);
-      requireLiteral(value.operationalNotes.providerDisabledBoundary.surfacedInQueueReport, true, "/operationalNotes/providerDisabledBoundary/surfacedInQueueReport", errors);
-      requireArray(value.operationalNotes.providerDisabledBoundary.missingEvidenceIds, "/operationalNotes/providerDisabledBoundary/missingEvidenceIds", errors);
-      requireArray(value.operationalNotes.providerDisabledBoundary.notEvidenceFor, "/operationalNotes/providerDisabledBoundary/notEvidenceFor", errors);
+      requireLiteral(value["operationalNotes"]["providerDisabledBoundary"]["runtimeEvidencePresent"], false, "/operationalNotes/providerDisabledBoundary/runtimeEvidencePresent", errors);
+      requireLiteral(value["operationalNotes"]["providerDisabledBoundary"]["reportMetadataOnly"], true, "/operationalNotes/providerDisabledBoundary/reportMetadataOnly", errors);
+      requireLiteral(value["operationalNotes"]["providerDisabledBoundary"]["surfacedInQueueReport"], true, "/operationalNotes/providerDisabledBoundary/surfacedInQueueReport", errors);
+      requireArray(value["operationalNotes"]["providerDisabledBoundary"]["missingEvidenceIds"], "/operationalNotes/providerDisabledBoundary/missingEvidenceIds", errors);
+      requireArray(value["operationalNotes"]["providerDisabledBoundary"]["notEvidenceFor"], "/operationalNotes/providerDisabledBoundary/notEvidenceFor", errors);
       for (const missingEvidenceId of providerDisabledBoundaryMissingEvidenceIds) {
         requireStringArrayIncludes(
-          value.operationalNotes.providerDisabledBoundary.missingEvidenceIds,
+          value["operationalNotes"]["providerDisabledBoundary"]["missingEvidenceIds"],
           missingEvidenceId,
           "/operationalNotes/providerDisabledBoundary/missingEvidenceIds",
           errors,
@@ -776,42 +778,42 @@ export function validateEncounterAssetGenerationQueueReport(value: unknown): Val
       }
       for (const notEvidenceFor of notEvidenceForAllReadinessClaims) {
         requireStringArrayIncludes(
-          value.operationalNotes.providerDisabledBoundary.notEvidenceFor,
+          value["operationalNotes"]["providerDisabledBoundary"]["notEvidenceFor"],
           notEvidenceFor,
           "/operationalNotes/providerDisabledBoundary/notEvidenceFor",
           errors,
         );
       }
     }
-    if (isRecord(value.operationalNotes.localOnlyBoundary)) {
+    if (isRecord(value["operationalNotes"]["localOnlyBoundary"])) {
       requireLiteral(
-        value.operationalNotes.localOnlyBoundary.claimBoundary,
+        value["operationalNotes"]["localOnlyBoundary"]["claimBoundary"],
         "local_only_asset_pipeline_metadata_not_live_provider_readiness",
         "/operationalNotes/localOnlyBoundary/claimBoundary",
         errors,
       );
-      requireLiteral(value.operationalNotes.localOnlyBoundary.executionEnabled, false, "/operationalNotes/localOnlyBoundary/executionEnabled", errors);
+      requireLiteral(value["operationalNotes"]["localOnlyBoundary"]["executionEnabled"], false, "/operationalNotes/localOnlyBoundary/executionEnabled", errors);
       requireLiteral(
-        value.operationalNotes.localOnlyBoundary.externalProviderExecutionAttempted,
+        value["operationalNotes"]["localOnlyBoundary"]["externalProviderExecutionAttempted"],
         false,
         "/operationalNotes/localOnlyBoundary/externalProviderExecutionAttempted",
         errors,
       );
-      requireLiteral(value.operationalNotes.localOnlyBoundary.liveProviderReady, false, "/operationalNotes/localOnlyBoundary/liveProviderReady", errors);
+      requireLiteral(value["operationalNotes"]["localOnlyBoundary"]["liveProviderReady"], false, "/operationalNotes/localOnlyBoundary/liveProviderReady", errors);
       requireLiteral(
-        value.operationalNotes.localOnlyBoundary.credentialEvidencePresent,
+        value["operationalNotes"]["localOnlyBoundary"]["credentialEvidencePresent"],
         false,
         "/operationalNotes/localOnlyBoundary/credentialEvidencePresent",
         errors,
       );
-      requireLiteral(value.operationalNotes.localOnlyBoundary.runtimeEvidencePresent, false, "/operationalNotes/localOnlyBoundary/runtimeEvidencePresent", errors);
-      requireLiteral(value.operationalNotes.localOnlyBoundary.reportMetadataOnly, true, "/operationalNotes/localOnlyBoundary/reportMetadataOnly", errors);
-      requireLiteral(value.operationalNotes.localOnlyBoundary.surfacedInQueueReport, true, "/operationalNotes/localOnlyBoundary/surfacedInQueueReport", errors);
-      requireArray(value.operationalNotes.localOnlyBoundary.missingEvidenceIds, "/operationalNotes/localOnlyBoundary/missingEvidenceIds", errors);
-      requireArray(value.operationalNotes.localOnlyBoundary.notEvidenceFor, "/operationalNotes/localOnlyBoundary/notEvidenceFor", errors);
+      requireLiteral(value["operationalNotes"]["localOnlyBoundary"]["runtimeEvidencePresent"], false, "/operationalNotes/localOnlyBoundary/runtimeEvidencePresent", errors);
+      requireLiteral(value["operationalNotes"]["localOnlyBoundary"]["reportMetadataOnly"], true, "/operationalNotes/localOnlyBoundary/reportMetadataOnly", errors);
+      requireLiteral(value["operationalNotes"]["localOnlyBoundary"]["surfacedInQueueReport"], true, "/operationalNotes/localOnlyBoundary/surfacedInQueueReport", errors);
+      requireArray(value["operationalNotes"]["localOnlyBoundary"]["missingEvidenceIds"], "/operationalNotes/localOnlyBoundary/missingEvidenceIds", errors);
+      requireArray(value["operationalNotes"]["localOnlyBoundary"]["notEvidenceFor"], "/operationalNotes/localOnlyBoundary/notEvidenceFor", errors);
       for (const missingEvidenceId of localOnlyBoundaryMissingEvidenceIds) {
         requireStringArrayIncludes(
-          value.operationalNotes.localOnlyBoundary.missingEvidenceIds,
+          value["operationalNotes"]["localOnlyBoundary"]["missingEvidenceIds"],
           missingEvidenceId,
           "/operationalNotes/localOnlyBoundary/missingEvidenceIds",
           errors,
@@ -819,7 +821,7 @@ export function validateEncounterAssetGenerationQueueReport(value: unknown): Val
       }
       for (const notEvidenceFor of notEvidenceForAllReadinessClaims) {
         requireStringArrayIncludes(
-          value.operationalNotes.localOnlyBoundary.notEvidenceFor,
+          value["operationalNotes"]["localOnlyBoundary"]["notEvidenceFor"],
           notEvidenceFor,
           "/operationalNotes/localOnlyBoundary/notEvidenceFor",
           errors,
@@ -828,95 +830,95 @@ export function validateEncounterAssetGenerationQueueReport(value: unknown): Val
     }
   }
 
-  if (isRecord(value.humanoidRealismRequirements)) {
-    requireLiteral(value.humanoidRealismRequirements.schemaVersion, "openclinxr.encounter-humanoid-realism-requirements.v1", "/humanoidRealismRequirements/schemaVersion", errors);
-    requireLiteral(value.humanoidRealismRequirements.source, "scenario_actor_definitions", "/humanoidRealismRequirements/source", errors);
-    requireArray(value.humanoidRealismRequirements.requirements, "/humanoidRealismRequirements/requirements", errors);
-    requireArray(value.humanoidRealismRequirements.notEvidenceFor, "/humanoidRealismRequirements/notEvidenceFor", errors);
+  if (isRecord(value["humanoidRealismRequirements"])) {
+    requireLiteral(value["humanoidRealismRequirements"]["schemaVersion"], "openclinxr.encounter-humanoid-realism-requirements.v1", "/humanoidRealismRequirements/schemaVersion", errors);
+    requireLiteral(value["humanoidRealismRequirements"]["source"], "scenario_actor_definitions", "/humanoidRealismRequirements/source", errors);
+    requireArray(value["humanoidRealismRequirements"]["requirements"], "/humanoidRealismRequirements/requirements", errors);
+    requireArray(value["humanoidRealismRequirements"]["notEvidenceFor"], "/humanoidRealismRequirements/notEvidenceFor", errors);
     const requirementActorRoleCounts = new Map<string, number>();
-    if (Array.isArray(value.humanoidRealismRequirements.requirements)) {
-      if (value.humanoidRealismRequirements.requirements.length === 0) {
+    if (Array.isArray(value["humanoidRealismRequirements"]["requirements"])) {
+      if (value["humanoidRealismRequirements"]["requirements"].length === 0) {
         errors.push("/humanoidRealismRequirements/requirements must contain at least one actor role");
       }
-      value.humanoidRealismRequirements.requirements.forEach((requirement, index) => {
+      value["humanoidRealismRequirements"]["requirements"].forEach((requirement, index) => {
         if (!isRecord(requirement)) {
           errors.push(`/humanoidRealismRequirements/requirements/${index} must be object`);
           return;
         }
-        if (typeof requirement.actorRole !== "string" || requirement.actorRole.trim().length === 0) {
+        if (typeof requirement["actorRole"] !== "string" || requirement["actorRole"].trim().length === 0) {
           errors.push(`/humanoidRealismRequirements/requirements/${index}/actorRole must be non-empty string`);
           return;
         }
-        const normalizedActorRole = normalizeHumanoidActorRole(requirement.actorRole);
+        const normalizedActorRole = normalizeHumanoidActorRole(requirement["actorRole"]);
         const actorRoleCount = (requirementActorRoleCounts.get(normalizedActorRole) ?? 0) + 1;
         requirementActorRoleCounts.set(normalizedActorRole, actorRoleCount);
         if (actorRoleCount > 1) {
           errors.push(`/humanoidRealismRequirements/requirements/${index}/actorRole must be unique`);
         }
-        if (!isRecord(requirement.realismProfile)) {
+        if (!isRecord(requirement["realismProfile"])) {
           errors.push(`/humanoidRealismRequirements/requirements/${index}/realismProfile must be object`);
         }
-        requireStringArrayIncludes(requirement.requiredAssetKinds, "generated_humanoid_mesh", `/humanoidRealismRequirements/requirements/${index}/requiredAssetKinds`, errors);
-        requireStringArrayIncludes(requirement.requiredAssetKinds, "clinical_idle_animation", `/humanoidRealismRequirements/requirements/${index}/requiredAssetKinds`, errors);
-        requireStringArrayIncludes(requirement.requiredAssetKinds, "viseme_phoneme_map", `/humanoidRealismRequirements/requirements/${index}/requiredAssetKinds`, errors);
-        requireStringArrayIncludes(requirement.requiredAssetKinds, "gaze_blink_control", `/humanoidRealismRequirements/requirements/${index}/requiredAssetKinds`, errors);
-        requireStringArrayIncludes(requirement.requiredSignalIds, "animated_humanoid_runtime_playback", `/humanoidRealismRequirements/requirements/${index}/requiredSignalIds`, errors);
-        requireStringArrayIncludes(requirement.requiredSignalIds, "dialogue_viseme_and_gaze_mapping", `/humanoidRealismRequirements/requirements/${index}/requiredSignalIds`, errors);
-        requireStringArrayIncludes(requirement.requiredSignalIds, "dialogue_eye_micro_saccade_blink_cue", `/humanoidRealismRequirements/requirements/${index}/requiredSignalIds`, errors);
-        requireStringArrayIncludes(requirement.requiredSignalIds, "generated_eyelid_blink_control_cue", `/humanoidRealismRequirements/requirements/${index}/requiredSignalIds`, errors);
-        requireStringArrayIncludes(requirement.requiredSignalIds, "emotion_aligned_expression_transition_cue", `/humanoidRealismRequirements/requirements/${index}/requiredSignalIds`, errors);
-        if (isRecord(requirement.realismProfile)) {
-          requireLiteral(requirement.realismProfile.claimScope, "metadata_only_not_visual_quality_evidence", `/humanoidRealismRequirements/requirements/${index}/realismProfile/claimScope`, errors);
-          requireStringArrayIncludes(requirement.realismProfile.requiredRealismEvidenceIds, "dialogue_viseme_and_gaze_mapping", `/humanoidRealismRequirements/requirements/${index}/realismProfile/requiredRealismEvidenceIds`, errors);
-          requireStringArrayIncludes(requirement.realismProfile.requiredRealismEvidenceIds, "dialogue_eye_micro_saccade_blink_cue", `/humanoidRealismRequirements/requirements/${index}/realismProfile/requiredRealismEvidenceIds`, errors);
-          requireStringArrayIncludes(requirement.realismProfile.requiredRealismEvidenceIds, "generated_eyelid_blink_control_cue", `/humanoidRealismRequirements/requirements/${index}/realismProfile/requiredRealismEvidenceIds`, errors);
-          requireStringArrayIncludes(requirement.realismProfile.requiredRealismEvidenceIds, "emotion_aligned_expression_transition_cue", `/humanoidRealismRequirements/requirements/${index}/realismProfile/requiredRealismEvidenceIds`, errors);
+        requireStringArrayIncludes(requirement["requiredAssetKinds"], "generated_humanoid_mesh", `/humanoidRealismRequirements/requirements/${index}/requiredAssetKinds`, errors);
+        requireStringArrayIncludes(requirement["requiredAssetKinds"], "clinical_idle_animation", `/humanoidRealismRequirements/requirements/${index}/requiredAssetKinds`, errors);
+        requireStringArrayIncludes(requirement["requiredAssetKinds"], "viseme_phoneme_map", `/humanoidRealismRequirements/requirements/${index}/requiredAssetKinds`, errors);
+        requireStringArrayIncludes(requirement["requiredAssetKinds"], "gaze_blink_control", `/humanoidRealismRequirements/requirements/${index}/requiredAssetKinds`, errors);
+        requireStringArrayIncludes(requirement["requiredSignalIds"], "animated_humanoid_runtime_playback", `/humanoidRealismRequirements/requirements/${index}/requiredSignalIds`, errors);
+        requireStringArrayIncludes(requirement["requiredSignalIds"], "dialogue_viseme_and_gaze_mapping", `/humanoidRealismRequirements/requirements/${index}/requiredSignalIds`, errors);
+        requireStringArrayIncludes(requirement["requiredSignalIds"], "dialogue_eye_micro_saccade_blink_cue", `/humanoidRealismRequirements/requirements/${index}/requiredSignalIds`, errors);
+        requireStringArrayIncludes(requirement["requiredSignalIds"], "generated_eyelid_blink_control_cue", `/humanoidRealismRequirements/requirements/${index}/requiredSignalIds`, errors);
+        requireStringArrayIncludes(requirement["requiredSignalIds"], "emotion_aligned_expression_transition_cue", `/humanoidRealismRequirements/requirements/${index}/requiredSignalIds`, errors);
+        if (isRecord(requirement["realismProfile"])) {
+          requireLiteral(requirement["realismProfile"]["claimScope"], "metadata_only_not_visual_quality_evidence", `/humanoidRealismRequirements/requirements/${index}/realismProfile/claimScope`, errors);
+          requireStringArrayIncludes(requirement["realismProfile"]["requiredRealismEvidenceIds"], "dialogue_viseme_and_gaze_mapping", `/humanoidRealismRequirements/requirements/${index}/realismProfile/requiredRealismEvidenceIds`, errors);
+          requireStringArrayIncludes(requirement["realismProfile"]["requiredRealismEvidenceIds"], "dialogue_eye_micro_saccade_blink_cue", `/humanoidRealismRequirements/requirements/${index}/realismProfile/requiredRealismEvidenceIds`, errors);
+          requireStringArrayIncludes(requirement["realismProfile"]["requiredRealismEvidenceIds"], "generated_eyelid_blink_control_cue", `/humanoidRealismRequirements/requirements/${index}/realismProfile/requiredRealismEvidenceIds`, errors);
+          requireStringArrayIncludes(requirement["realismProfile"]["requiredRealismEvidenceIds"], "emotion_aligned_expression_transition_cue", `/humanoidRealismRequirements/requirements/${index}/realismProfile/requiredRealismEvidenceIds`, errors);
         }
       });
     }
     for (const notEvidenceFor of ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"]) {
-      requireStringArrayIncludes(value.humanoidRealismRequirements.notEvidenceFor, notEvidenceFor, "/humanoidRealismRequirements/notEvidenceFor", errors);
+      requireStringArrayIncludes(value["humanoidRealismRequirements"]["notEvidenceFor"], notEvidenceFor, "/humanoidRealismRequirements/notEvidenceFor", errors);
     }
   }
-  if (Array.isArray(value.humanoidRealismProfiles)) {
+  if (Array.isArray(value["humanoidRealismProfiles"])) {
     const requirementActorRoles = new Set(
-      isRecord(value.humanoidRealismRequirements) && Array.isArray(value.humanoidRealismRequirements.requirements)
-        ? value.humanoidRealismRequirements.requirements
+      isRecord(value["humanoidRealismRequirements"]) && Array.isArray(value["humanoidRealismRequirements"]["requirements"])
+        ? value["humanoidRealismRequirements"]["requirements"]
           .filter(isRecord)
-          .map((requirement) => normalizeHumanoidActorRole(requirement.actorRole))
+          .map((requirement) => normalizeHumanoidActorRole(requirement["actorRole"]))
         : [],
     );
     const profileActorRoleCounts = new Map<string, number>();
     if (
-      isRecord(value.humanoidRealismRequirements)
-      && Array.isArray(value.humanoidRealismRequirements.requirements)
-      && value.humanoidRealismProfiles.length !== value.humanoidRealismRequirements.requirements.length
+      isRecord(value["humanoidRealismRequirements"])
+      && Array.isArray(value["humanoidRealismRequirements"]["requirements"])
+      && value["humanoidRealismProfiles"].length !== value["humanoidRealismRequirements"]["requirements"].length
     ) {
       errors.push("/humanoidRealismProfiles length must match /humanoidRealismRequirements/requirements length");
     }
-    value.humanoidRealismProfiles.forEach((profile, index) => {
+    value["humanoidRealismProfiles"].forEach((profile, index) => {
       if (!isRecord(profile)) {
         errors.push(`/humanoidRealismProfiles/${index} must be object`);
         return;
       }
-      requireLiteral(profile.claimScope, "metadata_only_not_visual_quality_evidence", `/humanoidRealismProfiles/${index}/claimScope`, errors);
-      if (typeof profile.actorRole !== "string" || profile.actorRole.trim().length === 0) errors.push(`/humanoidRealismProfiles/${index}/actorRole must be non-empty string`);
-      const normalizedProfileActorRole = normalizeHumanoidActorRole(profile.actorRole);
+      requireLiteral(profile["claimScope"], "metadata_only_not_visual_quality_evidence", `/humanoidRealismProfiles/${index}/claimScope`, errors);
+      if (typeof profile["actorRole"] !== "string" || profile["actorRole"].trim().length === 0) errors.push(`/humanoidRealismProfiles/${index}/actorRole must be non-empty string`);
+      const normalizedProfileActorRole = normalizeHumanoidActorRole(profile["actorRole"]);
       profileActorRoleCounts.set(
         normalizedProfileActorRole,
         (profileActorRoleCounts.get(normalizedProfileActorRole) ?? 0) + 1,
       );
-      if (!requirementActorRoles.has(normalizeHumanoidActorRole(profile.actorRole))) {
+      if (!requirementActorRoles.has(normalizeHumanoidActorRole(profile["actorRole"]))) {
         errors.push(`/humanoidRealismProfiles/${index}/actorRole must match a humanoid requirement actorRole`);
       }
-      requireArray(profile.bodyPostureNotes, `/humanoidRealismProfiles/${index}/bodyPostureNotes`, errors);
-      requireArray(profile.clothingClinicalContextCues, `/humanoidRealismProfiles/${index}/clothingClinicalContextCues`, errors);
-      requireArray(profile.expressionAffectCues, `/humanoidRealismProfiles/${index}/expressionAffectCues`, errors);
-      requireArray(profile.mobilityPositioningConstraints, `/humanoidRealismProfiles/${index}/mobilityPositioningConstraints`, errors);
-      requireStringArrayIncludes(profile.requiredRealismEvidenceIds, "dialogue_viseme_and_gaze_mapping", `/humanoidRealismProfiles/${index}/requiredRealismEvidenceIds`, errors);
-      requireStringArrayIncludes(profile.requiredRealismEvidenceIds, "dialogue_eye_micro_saccade_blink_cue", `/humanoidRealismProfiles/${index}/requiredRealismEvidenceIds`, errors);
-      requireStringArrayIncludes(profile.requiredRealismEvidenceIds, "generated_eyelid_blink_control_cue", `/humanoidRealismProfiles/${index}/requiredRealismEvidenceIds`, errors);
-      requireStringArrayIncludes(profile.requiredRealismEvidenceIds, "emotion_aligned_expression_transition_cue", `/humanoidRealismProfiles/${index}/requiredRealismEvidenceIds`, errors);
+      requireArray(profile["bodyPostureNotes"], `/humanoidRealismProfiles/${index}/bodyPostureNotes`, errors);
+      requireArray(profile["clothingClinicalContextCues"], `/humanoidRealismProfiles/${index}/clothingClinicalContextCues`, errors);
+      requireArray(profile["expressionAffectCues"], `/humanoidRealismProfiles/${index}/expressionAffectCues`, errors);
+      requireArray(profile["mobilityPositioningConstraints"], `/humanoidRealismProfiles/${index}/mobilityPositioningConstraints`, errors);
+      requireStringArrayIncludes(profile["requiredRealismEvidenceIds"], "dialogue_viseme_and_gaze_mapping", `/humanoidRealismProfiles/${index}/requiredRealismEvidenceIds`, errors);
+      requireStringArrayIncludes(profile["requiredRealismEvidenceIds"], "dialogue_eye_micro_saccade_blink_cue", `/humanoidRealismProfiles/${index}/requiredRealismEvidenceIds`, errors);
+      requireStringArrayIncludes(profile["requiredRealismEvidenceIds"], "generated_eyelid_blink_control_cue", `/humanoidRealismProfiles/${index}/requiredRealismEvidenceIds`, errors);
+      requireStringArrayIncludes(profile["requiredRealismEvidenceIds"], "emotion_aligned_expression_transition_cue", `/humanoidRealismProfiles/${index}/requiredRealismEvidenceIds`, errors);
     });
     if (profileActorRoleCounts.size > 0) {
       for (const actorRole of requirementActorRoles) {
@@ -934,15 +936,15 @@ export function validateEncounterAssetGenerationQueueReport(value: unknown): Val
     }
   }
 
-  if (isRecord(value.evidenceBoundaries)) {
-    requireLiteral(value.evidenceBoundaries.azureQueueMessagePrepared, true, "/evidenceBoundaries/azureQueueMessagePrepared", errors);
-    requireLiteral(value.evidenceBoundaries.azureCloudOperationPerformed, false, "/evidenceBoundaries/azureCloudOperationPerformed", errors);
-    requireLiteral(value.evidenceBoundaries.paidApisUsed, false, "/evidenceBoundaries/paidApisUsed", errors);
-    requireLiteral(value.evidenceBoundaries.productionDeploymentPerformed, false, "/evidenceBoundaries/productionDeploymentPerformed", errors);
-    requireLiteral(value.evidenceBoundaries.productionReadinessClaimed, false, "/evidenceBoundaries/productionReadinessClaimed", errors);
-    requireLiteral(value.evidenceBoundaries.questReadinessClaimed, false, "/evidenceBoundaries/questReadinessClaimed", errors);
-    requireLiteral(value.evidenceBoundaries.clinicalValidityClaimed, false, "/evidenceBoundaries/clinicalValidityClaimed", errors);
-    requireLiteral(value.evidenceBoundaries.scoringValidityClaimed, false, "/evidenceBoundaries/scoringValidityClaimed", errors);
+  if (isRecord(value["evidenceBoundaries"])) {
+    requireLiteral(value["evidenceBoundaries"]["azureQueueMessagePrepared"], true, "/evidenceBoundaries/azureQueueMessagePrepared", errors);
+    requireLiteral(value["evidenceBoundaries"]["azureCloudOperationPerformed"], false, "/evidenceBoundaries/azureCloudOperationPerformed", errors);
+    requireLiteral(value["evidenceBoundaries"]["paidApisUsed"], false, "/evidenceBoundaries/paidApisUsed", errors);
+    requireLiteral(value["evidenceBoundaries"]["productionDeploymentPerformed"], false, "/evidenceBoundaries/productionDeploymentPerformed", errors);
+    requireLiteral(value["evidenceBoundaries"]["productionReadinessClaimed"], false, "/evidenceBoundaries/productionReadinessClaimed", errors);
+    requireLiteral(value["evidenceBoundaries"]["questReadinessClaimed"], false, "/evidenceBoundaries/questReadinessClaimed", errors);
+    requireLiteral(value["evidenceBoundaries"]["clinicalValidityClaimed"], false, "/evidenceBoundaries/clinicalValidityClaimed", errors);
+    requireLiteral(value["evidenceBoundaries"]["scoringValidityClaimed"], false, "/evidenceBoundaries/scoringValidityClaimed", errors);
   }
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
@@ -956,48 +958,48 @@ function validateEncounterAssetNeedsReadinessManifest(
     errors.push("/encounterAssetNeedsReadinessManifest must be object");
     return;
   }
-  requireLiteral(value.schemaVersion, "openclinxr.encounter-asset-needs-readiness.v1", "/encounterAssetNeedsReadinessManifest/schemaVersion", errors);
-  requireString(value.scenarioId, "/encounterAssetNeedsReadinessManifest/scenarioId", errors);
-  requireString(value.scenarioTitle, "/encounterAssetNeedsReadinessManifest/scenarioTitle", errors);
-  requireString(value.scenarioStatus, "/encounterAssetNeedsReadinessManifest/scenarioStatus", errors);
-  requireString(value.generatedAt, "/encounterAssetNeedsReadinessManifest/generatedAt", errors);
-  requireArray(value.requiredHumanoids, "/encounterAssetNeedsReadinessManifest/requiredHumanoids", errors);
-  if (value.requiredEnvironment !== null && !isRecord(value.requiredEnvironment)) {
+  requireLiteral(value["schemaVersion"], "openclinxr.encounter-asset-needs-readiness.v1", "/encounterAssetNeedsReadinessManifest/schemaVersion", errors);
+  requireString(value["scenarioId"], "/encounterAssetNeedsReadinessManifest/scenarioId", errors);
+  requireString(value["scenarioTitle"], "/encounterAssetNeedsReadinessManifest/scenarioTitle", errors);
+  requireString(value["scenarioStatus"], "/encounterAssetNeedsReadinessManifest/scenarioStatus", errors);
+  requireString(value["generatedAt"], "/encounterAssetNeedsReadinessManifest/generatedAt", errors);
+  requireArray(value["requiredHumanoids"], "/encounterAssetNeedsReadinessManifest/requiredHumanoids", errors);
+  if (value["requiredEnvironment"] !== null && !isRecord(value["requiredEnvironment"])) {
     errors.push("/encounterAssetNeedsReadinessManifest/requiredEnvironment must be object or null");
-  } else if (isRecord(value.requiredEnvironment)) {
-    requireString(value.requiredEnvironment.environmentId, "/encounterAssetNeedsReadinessManifest/requiredEnvironment/environmentId", errors);
-    requireString(value.requiredEnvironment.assetNeedId, "/encounterAssetNeedsReadinessManifest/requiredEnvironment/assetNeedId", errors);
+  } else if (isRecord(value["requiredEnvironment"])) {
+    requireString(value["requiredEnvironment"]["environmentId"], "/encounterAssetNeedsReadinessManifest/requiredEnvironment/environmentId", errors);
+    requireString(value["requiredEnvironment"]["assetNeedId"], "/encounterAssetNeedsReadinessManifest/requiredEnvironment/assetNeedId", errors);
   }
-  requireArray(value.requiredPropsAndEquipment, "/encounterAssetNeedsReadinessManifest/requiredPropsAndEquipment", errors);
-  if (isRecord(value.animationRequirements)) {
-    requireArray(value.animationRequirements.requiredSignalIds, "/encounterAssetNeedsReadinessManifest/animationRequirements/requiredSignalIds", errors);
-    requireArray(value.animationRequirements.requiredAssetKinds, "/encounterAssetNeedsReadinessManifest/animationRequirements/requiredAssetKinds", errors);
+  requireArray(value["requiredPropsAndEquipment"], "/encounterAssetNeedsReadinessManifest/requiredPropsAndEquipment", errors);
+  if (isRecord(value["animationRequirements"])) {
+    requireArray(value["animationRequirements"]["requiredSignalIds"], "/encounterAssetNeedsReadinessManifest/animationRequirements/requiredSignalIds", errors);
+    requireArray(value["animationRequirements"]["requiredAssetKinds"], "/encounterAssetNeedsReadinessManifest/animationRequirements/requiredAssetKinds", errors);
   } else {
     errors.push("/encounterAssetNeedsReadinessManifest/animationRequirements must be object");
   }
-  if (isRecord(value.emotionRequirements)) {
-    requireArray(value.emotionRequirements.requiredSignalIds, "/encounterAssetNeedsReadinessManifest/emotionRequirements/requiredSignalIds", errors);
-    requireArray(value.emotionRequirements.requiredAssetKinds, "/encounterAssetNeedsReadinessManifest/emotionRequirements/requiredAssetKinds", errors);
+  if (isRecord(value["emotionRequirements"])) {
+    requireArray(value["emotionRequirements"]["requiredSignalIds"], "/encounterAssetNeedsReadinessManifest/emotionRequirements/requiredSignalIds", errors);
+    requireArray(value["emotionRequirements"]["requiredAssetKinds"], "/encounterAssetNeedsReadinessManifest/emotionRequirements/requiredAssetKinds", errors);
   } else {
     errors.push("/encounterAssetNeedsReadinessManifest/emotionRequirements must be object");
   }
-  if (isRecord(value.gazeRequirements)) {
-    requireArray(value.gazeRequirements.requiredSignalIds, "/encounterAssetNeedsReadinessManifest/gazeRequirements/requiredSignalIds", errors);
-    requireArray(value.gazeRequirements.requiredAssetKinds, "/encounterAssetNeedsReadinessManifest/gazeRequirements/requiredAssetKinds", errors);
+  if (isRecord(value["gazeRequirements"])) {
+    requireArray(value["gazeRequirements"]["requiredSignalIds"], "/encounterAssetNeedsReadinessManifest/gazeRequirements/requiredSignalIds", errors);
+    requireArray(value["gazeRequirements"]["requiredAssetKinds"], "/encounterAssetNeedsReadinessManifest/gazeRequirements/requiredAssetKinds", errors);
   } else {
     errors.push("/encounterAssetNeedsReadinessManifest/gazeRequirements must be object");
   }
-  if (isRecord(value.lipSyncRequirements)) {
-    requireArray(value.lipSyncRequirements.requiredSignalIds, "/encounterAssetNeedsReadinessManifest/lipSyncRequirements/requiredSignalIds", errors);
-    requireArray(value.lipSyncRequirements.requiredAssetKinds, "/encounterAssetNeedsReadinessManifest/lipSyncRequirements/requiredAssetKinds", errors);
+  if (isRecord(value["lipSyncRequirements"])) {
+    requireArray(value["lipSyncRequirements"]["requiredSignalIds"], "/encounterAssetNeedsReadinessManifest/lipSyncRequirements/requiredSignalIds", errors);
+    requireArray(value["lipSyncRequirements"]["requiredAssetKinds"], "/encounterAssetNeedsReadinessManifest/lipSyncRequirements/requiredAssetKinds", errors);
   } else {
     errors.push("/encounterAssetNeedsReadinessManifest/lipSyncRequirements must be object");
   }
-  requireArray(value.sharedAssetLibrarySemanticKeys, "/encounterAssetNeedsReadinessManifest/sharedAssetLibrarySemanticKeys", errors);
-  requireArray(value.missingRequiredAssetNeedIds, "/encounterAssetNeedsReadinessManifest/missingRequiredAssetNeedIds", errors);
-  requireArray(value.blockers, "/encounterAssetNeedsReadinessManifest/blockers", errors);
-  requireArray(value.warnings, "/encounterAssetNeedsReadinessManifest/warnings", errors);
-  if (typeof value.readyForDeterministicGeneration !== "boolean") {
+  requireArray(value["sharedAssetLibrarySemanticKeys"], "/encounterAssetNeedsReadinessManifest/sharedAssetLibrarySemanticKeys", errors);
+  requireArray(value["missingRequiredAssetNeedIds"], "/encounterAssetNeedsReadinessManifest/missingRequiredAssetNeedIds", errors);
+  requireArray(value["blockers"], "/encounterAssetNeedsReadinessManifest/blockers", errors);
+  requireArray(value["warnings"], "/encounterAssetNeedsReadinessManifest/warnings", errors);
+  if (typeof value["readyForDeterministicGeneration"] !== "boolean") {
     errors.push("/encounterAssetNeedsReadinessManifest/readyForDeterministicGeneration must be boolean");
   }
 }
@@ -1012,21 +1014,21 @@ function validateCaseDefinedHumanoidPerformanceContract(
     return;
   }
   requireLiteral(
-    value.claimBoundary,
+    value["claimBoundary"],
     "case_definition_humanoid_performance_metadata_only",
     `${path}/claimBoundary`,
     errors,
   );
-  requirePositiveNumber(value.actorCount, `${path}/actorCount`, errors);
-  requireArray(value.locomotionActorRoles, `${path}/locomotionActorRoles`, errors);
-  requireArray(value.expressionActorRoles, `${path}/expressionActorRoles`, errors);
-  requireArray(value.gazeActorRoles, `${path}/gazeActorRoles`, errors);
-  requireArray(value.lipSyncActorRoles, `${path}/lipSyncActorRoles`, errors);
-  requireArray(value.interactiveActorRoles, `${path}/interactiveActorRoles`, errors);
-  requireNonNegativeNumber(value.emotionStateCount, `${path}/emotionStateCount`, errors);
-  requireBoolean(value.dialogueDrivenVisemeMappingRequired, `${path}/dialogueDrivenVisemeMappingRequired`, errors);
-  requireBoolean(value.gazeTargetingRequired, `${path}/gazeTargetingRequired`, errors);
-  requireBoolean(value.locomotionPlanningRequired, `${path}/locomotionPlanningRequired`, errors);
+  requirePositiveNumber(value["actorCount"], `${path}/actorCount`, errors);
+  requireArray(value["locomotionActorRoles"], `${path}/locomotionActorRoles`, errors);
+  requireArray(value["expressionActorRoles"], `${path}/expressionActorRoles`, errors);
+  requireArray(value["gazeActorRoles"], `${path}/gazeActorRoles`, errors);
+  requireArray(value["lipSyncActorRoles"], `${path}/lipSyncActorRoles`, errors);
+  requireArray(value["interactiveActorRoles"], `${path}/interactiveActorRoles`, errors);
+  requireNonNegativeNumber(value["emotionStateCount"], `${path}/emotionStateCount`, errors);
+  requireBoolean(value["dialogueDrivenVisemeMappingRequired"], `${path}/dialogueDrivenVisemeMappingRequired`, errors);
+  requireBoolean(value["gazeTargetingRequired"], `${path}/gazeTargetingRequired`, errors);
+  requireBoolean(value["locomotionPlanningRequired"], `${path}/locomotionPlanningRequired`, errors);
   for (const notEvidenceFor of [
     "generated_humanoid_asset_readiness",
     "animation_quality",
@@ -1034,7 +1036,7 @@ function validateCaseDefinedHumanoidPerformanceContract(
     "runtime_readiness",
     "clinical_validity",
   ]) {
-    requireStringArrayIncludes(value.notEvidenceFor, notEvidenceFor, `${path}/notEvidenceFor`, errors);
+    requireStringArrayIncludes(value["notEvidenceFor"], notEvidenceFor, `${path}/notEvidenceFor`, errors);
   }
 }
 
@@ -1048,32 +1050,32 @@ function validateCaseDefinedHumanoidPerformanceWorkOrderCoverage(
     return;
   }
   requireLiteral(
-    value.claimBoundary,
+    value["claimBoundary"],
     "case_definition_humanoid_contract_to_work_order_coverage_metadata_only",
     `${path}/claimBoundary`,
     errors,
   );
-  requireString(value.scenarioId, `${path}/scenarioId`, errors);
-  requireArray(value.actorRoles, `${path}/actorRoles`, errors);
-  requireArray(value.actorRoleCoverage, `${path}/actorRoleCoverage`, errors);
-  requireArray(value.missingActorRoles, `${path}/missingActorRoles`, errors);
-  if (Array.isArray(value.actorRoles) && Array.isArray(value.actorRoleCoverage) && value.actorRoles.length !== value.actorRoleCoverage.length) {
+  requireString(value["scenarioId"], `${path}/scenarioId`, errors);
+  requireArray(value["actorRoles"], `${path}/actorRoles`, errors);
+  requireArray(value["actorRoleCoverage"], `${path}/actorRoleCoverage`, errors);
+  requireArray(value["missingActorRoles"], `${path}/missingActorRoles`, errors);
+  if (Array.isArray(value["actorRoles"]) && Array.isArray(value["actorRoleCoverage"]) && value["actorRoles"].length !== value["actorRoleCoverage"].length) {
     errors.push(`${path}/actorRoleCoverage length must match ${path}/actorRoles length`);
   }
-  if (Array.isArray(value.actorRoleCoverage)) {
-    value.actorRoleCoverage.forEach((coverage, index) => {
+  if (Array.isArray(value["actorRoleCoverage"])) {
+    value["actorRoleCoverage"].forEach((coverage, index) => {
       if (!isRecord(coverage)) {
         errors.push(`${path}/actorRoleCoverage/${index} must be object`);
         return;
       }
-      requireString(coverage.actorRole, `${path}/actorRoleCoverage/${index}/actorRole`, errors);
-      if (coverage.humanoidWorkOrderId !== null && typeof coverage.humanoidWorkOrderId !== "string") {
+      requireString(coverage["actorRole"], `${path}/actorRoleCoverage/${index}/actorRole`, errors);
+      if (coverage["humanoidWorkOrderId"] !== null && typeof coverage["humanoidWorkOrderId"] !== "string") {
         errors.push(`${path}/actorRoleCoverage/${index}/humanoidWorkOrderId must be string or null`);
       }
-      if (coverage.animationWorkOrderId !== null && typeof coverage.animationWorkOrderId !== "string") {
+      if (coverage["animationWorkOrderId"] !== null && typeof coverage["animationWorkOrderId"] !== "string") {
         errors.push(`${path}/actorRoleCoverage/${index}/animationWorkOrderId must be string or null`);
       }
-      requireArray(coverage.requiredSignalIds, `${path}/actorRoleCoverage/${index}/requiredSignalIds`, errors);
+      requireArray(coverage["requiredSignalIds"], `${path}/actorRoleCoverage/${index}/requiredSignalIds`, errors);
     });
   }
   for (const notEvidenceFor of [
@@ -1083,7 +1085,7 @@ function validateCaseDefinedHumanoidPerformanceWorkOrderCoverage(
     "runtime_readiness",
     "clinical_validity",
   ]) {
-    requireStringArrayIncludes(value.notEvidenceFor, notEvidenceFor, `${path}/notEvidenceFor`, errors);
+    requireStringArrayIncludes(value["notEvidenceFor"], notEvidenceFor, `${path}/notEvidenceFor`, errors);
   }
 }
 
@@ -1097,20 +1099,20 @@ function validateCaseDefinedHumanoidPerformanceWorkOrderRequirements(
     return;
   }
   requireLiteral(
-    value.claimBoundary,
+    value["claimBoundary"],
     "case_definition_humanoid_performance_metadata_only",
     `${path}/claimBoundary`,
     errors,
   );
-  requireString(value.actorRole, `${path}/actorRole`, errors);
-  requireBoolean(value.locomotionRequired, `${path}/locomotionRequired`, errors);
-  requireBoolean(value.expressionRequired, `${path}/expressionRequired`, errors);
-  requireBoolean(value.gazeRequired, `${path}/gazeRequired`, errors);
-  requireBoolean(value.lipSyncRequired, `${path}/lipSyncRequired`, errors);
-  requireBoolean(value.interactiveRequired, `${path}/interactiveRequired`, errors);
-  requireBoolean(value.dialogueDrivenVisemeMappingRequired, `${path}/dialogueDrivenVisemeMappingRequired`, errors);
-  requireBoolean(value.gazeTargetingRequired, `${path}/gazeTargetingRequired`, errors);
-  requireBoolean(value.locomotionPlanningRequired, `${path}/locomotionPlanningRequired`, errors);
+  requireString(value["actorRole"], `${path}/actorRole`, errors);
+  requireBoolean(value["locomotionRequired"], `${path}/locomotionRequired`, errors);
+  requireBoolean(value["expressionRequired"], `${path}/expressionRequired`, errors);
+  requireBoolean(value["gazeRequired"], `${path}/gazeRequired`, errors);
+  requireBoolean(value["lipSyncRequired"], `${path}/lipSyncRequired`, errors);
+  requireBoolean(value["interactiveRequired"], `${path}/interactiveRequired`, errors);
+  requireBoolean(value["dialogueDrivenVisemeMappingRequired"], `${path}/dialogueDrivenVisemeMappingRequired`, errors);
+  requireBoolean(value["gazeTargetingRequired"], `${path}/gazeTargetingRequired`, errors);
+  requireBoolean(value["locomotionPlanningRequired"], `${path}/locomotionPlanningRequired`, errors);
   for (const notEvidenceFor of [
     "generated_humanoid_asset_readiness",
     "animation_quality",
@@ -1118,7 +1120,7 @@ function validateCaseDefinedHumanoidPerformanceWorkOrderRequirements(
     "runtime_readiness",
     "clinical_validity",
   ]) {
-    requireStringArrayIncludes(value.notEvidenceFor, notEvidenceFor, `${path}/notEvidenceFor`, errors);
+    requireStringArrayIncludes(value["notEvidenceFor"], notEvidenceFor, `${path}/notEvidenceFor`, errors);
   }
 }
 
@@ -1128,43 +1130,43 @@ function validateCaseDefinedHumanoidPerformanceWorkOrderConsistency(
   path: string,
   errors: string[],
 ): void {
-  if (!isRecord(workOrder.caseDefinedHumanoidPerformanceRequirements) || typeof workOrder.actorRole !== "string") {
+  if (!isRecord(workOrder["caseDefinedHumanoidPerformanceRequirements"]) || typeof workOrder["actorRole"] !== "string") {
     return;
   }
-  const actorRole = normalizeHumanoidActorRole(workOrder.actorRole);
-  const requirements = workOrder.caseDefinedHumanoidPerformanceRequirements;
+  const actorRole = normalizeHumanoidActorRole(workOrder["actorRole"]);
+  const requirements = workOrder["caseDefinedHumanoidPerformanceRequirements"];
   validateContractRoleBoolean(
-    contract.locomotionActorRoles,
+    contract["locomotionActorRoles"],
     actorRole,
-    requirements.locomotionRequired,
+    requirements["locomotionRequired"],
     `${path}/locomotionRequired`,
     errors,
   );
   validateContractRoleBoolean(
-    contract.expressionActorRoles,
+    contract["expressionActorRoles"],
     actorRole,
-    requirements.expressionRequired,
+    requirements["expressionRequired"],
     `${path}/expressionRequired`,
     errors,
   );
   validateContractRoleBoolean(
-    contract.gazeActorRoles,
+    contract["gazeActorRoles"],
     actorRole,
-    requirements.gazeRequired,
+    requirements["gazeRequired"],
     `${path}/gazeRequired`,
     errors,
   );
   validateContractRoleBoolean(
-    contract.lipSyncActorRoles,
+    contract["lipSyncActorRoles"],
     actorRole,
-    requirements.lipSyncRequired,
+    requirements["lipSyncRequired"],
     `${path}/lipSyncRequired`,
     errors,
   );
   validateContractRoleBoolean(
-    contract.interactiveActorRoles,
+    contract["interactiveActorRoles"],
     actorRole,
-    requirements.interactiveRequired,
+    requirements["interactiveRequired"],
     `${path}/interactiveRequired`,
     errors,
   );

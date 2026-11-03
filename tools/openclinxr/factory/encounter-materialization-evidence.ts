@@ -216,7 +216,7 @@ export function emitCompileNodes(
       cacheKey: null,
       contentHash: prev?.contentHash ?? null,
       lock: prev?.lock ?? { locked: false },
-      tombstone: prev?.tombstone,
+      ...(prev?.tombstone === undefined ? {} : { tombstone: prev.tombstone }),
       status: "planned_unsplit",
     };
   });
@@ -237,7 +237,7 @@ export function emitCompileNodes(
       cacheKey: null,
       contentHash: prev?.contentHash ?? null,
       lock: prev?.lock ?? { locked: false },
-      tombstone: prev?.tombstone,
+      ...(prev?.tombstone === undefined ? {} : { tombstone: prev.tombstone }),
       status: "planned_unsplit",
     };
   });
@@ -245,6 +245,7 @@ export function emitCompileNodes(
 
   // Room: one node per case, from the authored environmentId. 14/14 on the live bank.
   const environmentId = caseDef?.environment?.environmentId;
+  const roomPrev = environmentId ? priorById.get(`room:${environmentId}`) : undefined;
   const roomNodes: CompileGraphNode[] = environmentId
     ? [
         {
@@ -259,9 +260,9 @@ export function emitCompileNodes(
           },
           parents: [],
           cacheKey: null,
-          contentHash: priorById.get(`room:${environmentId}`)?.contentHash ?? null,
-          lock: priorById.get(`room:${environmentId}`)?.lock ?? { locked: false },
-          tombstone: priorById.get(`room:${environmentId}`)?.tombstone,
+          contentHash: roomPrev?.contentHash ?? null,
+          lock: roomPrev?.lock ?? { locked: false },
+          ...(roomPrev?.tombstone === undefined ? {} : { tombstone: roomPrev.tombstone }),
           status: "planned_unsplit",
         },
       ]
@@ -287,7 +288,7 @@ export function emitCompileNodes(
         cacheKey: null,
         contentHash: prev?.contentHash ?? null,
         lock: prev?.lock ?? { locked: false },
-        tombstone: prev?.tombstone,
+        ...(prev?.tombstone === undefined ? {} : { tombstone: prev.tombstone }),
         status: "planned_unsplit",
       } satisfies CompileGraphNode;
     });
@@ -324,7 +325,7 @@ export function emitCompileNodes(
         cacheKey: null,
         contentHash: prev?.contentHash ?? null,
         lock: prev?.lock ?? { locked: false },
-        tombstone: prev?.tombstone,
+        ...(prev?.tombstone === undefined ? {} : { tombstone: prev.tombstone }),
         status: "planned_unsplit",
       } satisfies CompileGraphNode;
     });

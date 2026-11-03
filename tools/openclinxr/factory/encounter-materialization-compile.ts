@@ -406,9 +406,10 @@ export async function compileEncounterMaterialization(
     await writeWardrobeLockSidecar(write.glbPath, write.bodyHashAtWardrobeBake, write.bodyHashNow);
   }
 
+  const caseDefVersion = opts.caseDefVersion ?? report.caseDefVersion;
   const compiledReport: EncounterMaterializationEvidenceReport = {
     ...report,
-    caseDefVersion: opts.caseDefVersion ?? report.caseDefVersion,
+    ...(caseDefVersion !== undefined ? { caseDefVersion } : {}),
     compileVersion,
     compileEdges: mergeCompileEdges(plannedNodes, report.compileEdges ?? []),
     compileNodes: plannedNodes,
@@ -501,7 +502,13 @@ async function resolveFacultyCompileLocks(
 function copyPriorByNodeId(node: CompileGraphNode, priorNodes: CompileGraphNode[]): CompileGraphNode {
   const prior = priorNodes.find((p) => p.nodeId === node.nodeId);
   if (!prior) return node;
-  return { ...node, contentHash: prior.contentHash, lock: prior.lock, overridePatch: prior.overridePatch, tombstone: prior.tombstone };
+  return {
+    ...node,
+    contentHash: prior.contentHash,
+    lock: prior.lock,
+    ...(prior.overridePatch !== undefined ? { overridePatch: prior.overridePatch } : {}),
+    ...(prior.tombstone !== undefined ? { tombstone: prior.tombstone } : {}),
+  };
 }
 
 /**

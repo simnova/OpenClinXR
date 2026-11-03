@@ -638,22 +638,22 @@ export function validateGeneratedHumanRiggingArtifactsReport(report: unknown): {
     return { ok: false, errors: ["/ must be an object"] };
   }
 
-  if (report.schemaVersion !== GENERATED_HUMAN_RIGGING_SCHEMA_VERSION) {
+  if (report["schemaVersion"] !== GENERATED_HUMAN_RIGGING_SCHEMA_VERSION) {
     errors.push(`/schemaVersion must be ${GENERATED_HUMAN_RIGGING_SCHEMA_VERSION}`);
   }
-  if (report.kind !== GENERATED_HUMAN_RIGGING_KIND) {
+  if (report["kind"] !== GENERATED_HUMAN_RIGGING_KIND) {
     errors.push(`/kind must be ${GENERATED_HUMAN_RIGGING_KIND}`);
   }
 
-  const policy = isRecord(report.policy) ? report.policy : {};
-  if (policy.cloudApisUsed !== false) errors.push("/policy/cloudApisUsed must be false");
-  if (policy.paidApisUsed !== false) errors.push("/policy/paidApisUsed must be false");
-  if (policy.externalAssetsUsed !== false) errors.push("/policy/externalAssetsUsed must be false");
-  if (policy.productionAssetReadinessClaimed !== false) {
+  const policy = isRecord(report["policy"]) ? report["policy"] : {};
+  if (policy["cloudApisUsed"] !== false) errors.push("/policy/cloudApisUsed must be false");
+  if (policy["paidApisUsed"] !== false) errors.push("/policy/paidApisUsed must be false");
+  if (policy["externalAssetsUsed"] !== false) errors.push("/policy/externalAssetsUsed must be false");
+  if (policy["productionAssetReadinessClaimed"] !== false) {
     errors.push("/policy/productionAssetReadinessClaimed must be false");
   }
 
-  const artifacts = isRecord(report.artifacts) ? report.artifacts : {};
+  const artifacts = isRecord(report["artifacts"]) ? report["artifacts"] : {};
   for (const key of [
     "glbPath",
     "annySourceObjPath",
@@ -666,27 +666,27 @@ export function validateGeneratedHumanRiggingArtifactsReport(report: unknown): {
       errors.push(`/artifacts/${key} must be a non-empty string`);
     }
   }
-  const input = isRecord(report.input) ? report.input : {};
-  if (input.preferredGeneratorToolId !== "anny") {
+  const input = isRecord(report["input"]) ? report["input"] : {};
+  if (input["preferredGeneratorToolId"] !== "anny") {
     errors.push("/input/preferredGeneratorToolId must be anny");
   }
-  if (input.generationMode !== "anny_parametric_body_mesh_with_blender_canonical_rig") {
+  if (input["generationMode"] !== "anny_parametric_body_mesh_with_blender_canonical_rig") {
     errors.push("/input/generationMode must be anny_parametric_body_mesh_with_blender_canonical_rig");
   }
 
-  const output = isRecord(report.output) ? report.output : {};
-  const semanticInventory = isRecord(output.semanticInventory) ? output.semanticInventory : {};
-  const embodimentRigging = isRecord(output.embodimentRigging) ? output.embodimentRigging : {};
-  const missingRequiredBoneNames = asStringArray(semanticInventory.missingRequiredBoneNames);
-  const missingRequiredAnchorNodeNames = asStringArray(semanticInventory.missingRequiredAnchorNodeNames);
-  const missingRequiredEmbodimentNodeNames = asStringArray(semanticInventory.missingRequiredEmbodimentNodeNames);
-  const missingRequiredMorphTargetNames = asStringArray(semanticInventory.missingRequiredMorphTargetNames);
-  const skinCount = typeof semanticInventory.skinCount === "number" ? semanticInventory.skinCount : 0;
-  const meshCount = typeof semanticInventory.meshCount === "number" ? semanticInventory.meshCount : 0;
-  const magic = typeof output.magic === "string" ? output.magic : "";
-  const version = typeof output.version === "number" ? output.version : 0;
-  const declaredLength = typeof output.declaredLength === "number" ? output.declaredLength : 0;
-  const glbBytes = typeof output.glbBytes === "number" ? output.glbBytes : 0;
+  const output = isRecord(report["output"]) ? report["output"] : {};
+  const semanticInventory = isRecord(output["semanticInventory"]) ? output["semanticInventory"] : {};
+  const embodimentRigging = isRecord(output["embodimentRigging"]) ? output["embodimentRigging"] : {};
+  const missingRequiredBoneNames = asStringArray(semanticInventory["missingRequiredBoneNames"]);
+  const missingRequiredAnchorNodeNames = asStringArray(semanticInventory["missingRequiredAnchorNodeNames"]);
+  const missingRequiredEmbodimentNodeNames = asStringArray(semanticInventory["missingRequiredEmbodimentNodeNames"]);
+  const missingRequiredMorphTargetNames = asStringArray(semanticInventory["missingRequiredMorphTargetNames"]);
+  const skinCount = typeof semanticInventory["skinCount"] === "number" ? semanticInventory["skinCount"] : 0;
+  const meshCount = typeof semanticInventory["meshCount"] === "number" ? semanticInventory["meshCount"] : 0;
+  const magic = typeof output["magic"] === "string" ? output["magic"] : "";
+  const version = typeof output["version"] === "number" ? output["version"] : 0;
+  const declaredLength = typeof output["declaredLength"] === "number" ? output["declaredLength"] : 0;
+  const glbBytes = typeof output["glbBytes"] === "number" ? output["glbBytes"] : 0;
 
   const expectedBlockers = [
     ...missingRequiredBoneNames.map((boneName) => `canonical_bone_missing:${boneName}`),
@@ -707,7 +707,7 @@ export function validateGeneratedHumanRiggingArtifactsReport(report: unknown): {
   ] as const) {
     if (embodimentRigging[key] !== true) errors.push(`/output/embodimentRigging/${key} must be true`);
   }
-  if (embodimentRigging.sourceGeneratorRequired !== "anny") {
+  if (embodimentRigging["sourceGeneratorRequired"] !== "anny") {
     errors.push("/output/embodimentRigging/sourceGeneratorRequired must be anny");
   }
 
@@ -717,8 +717,8 @@ export function validateGeneratedHumanRiggingArtifactsReport(report: unknown): {
   if (meshCount < 1) expectedBlockers.push("glb_mesh_missing");
   if (skinCount < 1) expectedBlockers.push("glb_skin_missing");
 
-  const verdict = isRecord(report.verdict) ? report.verdict : {};
-  const verdictBlockers = asStringArray(verdict.blockers);
+  const verdict = isRecord(report["verdict"]) ? report["verdict"] : {};
+  const verdictBlockers = asStringArray(verdict["blockers"]);
   for (const blocker of expectedBlockers) {
     if (!verdictBlockers.includes(blocker)) {
       errors.push(`/verdict/blockers must include ${blocker}`);
@@ -726,10 +726,10 @@ export function validateGeneratedHumanRiggingArtifactsReport(report: unknown): {
   }
 
   const shouldPass = expectedBlockers.length === 0;
-  if (verdict.passed !== shouldPass) {
+  if (verdict["passed"] !== shouldPass) {
     errors.push(`/verdict/passed must be ${shouldPass}`);
   }
-  if (verdict.readyForProductionAssets !== false) {
+  if (verdict["readyForProductionAssets"] !== false) {
     errors.push("/verdict/readyForProductionAssets must be false");
   }
 
@@ -808,7 +808,7 @@ async function validateReportFile(reportPath: string, options: { validateArtifac
   const errors = [...validation.errors];
 
   if (options.validateArtifacts && isRecord(report)) {
-    const artifacts = isRecord(report.artifacts) ? report.artifacts : {};
+    const artifacts = isRecord(report["artifacts"]) ? report["artifacts"] : {};
     const artifactKeys = [
       "glbPath",
       "canonicalSkeletonBindingPath",
@@ -896,7 +896,7 @@ async function runBlenderRiggingBake(options: { blenderPath: string; glbPath: st
         };
         handoffGlobal.__openClinXrLastHumanoidRiggingReport = rep;
         handoffGlobal.__openClinXrLastHumanoidGlb = options.glbPath;
-        const realismGrade = isRecord(rep) && typeof rep.realismGrade === "string" ? rep.realismGrade : "B";
+        const realismGrade = isRecord(rep) && typeof rep["realismGrade"] === "string" ? rep["realismGrade"] : "B";
         console.log(`[asset-pipeline] humanoid candidate report attached (realismGrade=${realismGrade}): ${reportPath}`);
       }
     } catch {}
@@ -958,10 +958,10 @@ function inspectGlb(glb: Buffer): GlbInspection {
     };
   }
 
-  const nodes = asRecordArray(gltfJson.nodes);
-  const skins = asRecordArray(gltfJson.skins);
-  const morphTargetNames = collectMorphTargetNames(asRecordArray(gltfJson.meshes));
-  const nodeNames = nodes.map((node, index) => (typeof node.name === "string" ? node.name : `node_${index}`));
+  const nodes = asRecordArray(gltfJson["nodes"]);
+  const skins = asRecordArray(gltfJson["skins"]);
+  const morphTargetNames = collectMorphTargetNames(asRecordArray(gltfJson["meshes"]));
+  const nodeNames = nodes.map((node, index) => (typeof node["name"] === "string" ? node["name"] : `node_${index}`));
   const skinJointNames = collectSkinJointNames(nodes, skins);
   const skinJointNameSet = new Set(skinJointNames);
   const nodeNameSet = new Set(nodeNames);
@@ -972,10 +972,10 @@ function inspectGlb(glb: Buffer): GlbInspection {
     version,
     declaredLength,
     nodeCount: nodes.length,
-    meshCount: Array.isArray(gltfJson.meshes) ? gltfJson.meshes.length : 0,
+    meshCount: Array.isArray(gltfJson["meshes"]) ? gltfJson["meshes"].length : 0,
     skinCount: skins.length,
-    materialCount: Array.isArray(gltfJson.materials) ? gltfJson.materials.length : 0,
-    animationCount: Array.isArray(gltfJson.animations) ? gltfJson.animations.length : 0,
+    materialCount: Array.isArray(gltfJson["materials"]) ? gltfJson["materials"].length : 0,
+    animationCount: Array.isArray(gltfJson["animations"]) ? gltfJson["animations"].length : 0,
     nodeNames,
     skinJointNames,
     missingRequiredBoneNames: CANONICAL_HUMANOID_BONES.filter((boneName) => !skinJointNameSet.has(boneName)),
@@ -1036,12 +1036,12 @@ function readGlbJsonChunk(glb: Buffer): Record<string, unknown> | undefined {
 function collectSkinJointNames(nodes: Array<Record<string, unknown>>, skins: Array<Record<string, unknown>>): string[] {
   const names = new Set<string>();
   for (const skin of skins) {
-    if (!Array.isArray(skin.joints)) continue;
-    for (const joint of skin.joints) {
+    if (!Array.isArray(skin["joints"])) continue;
+    for (const joint of skin["joints"]) {
       if (typeof joint !== "number") continue;
       const node = nodes[joint];
-      if (typeof node?.name === "string") {
-        names.add(node.name);
+      if (typeof node?.["name"] === "string") {
+        names.add(node["name"]);
       }
     }
   }
@@ -1051,8 +1051,8 @@ function collectSkinJointNames(nodes: Array<Record<string, unknown>>, skins: Arr
 function collectMorphTargetNames(meshes: Array<Record<string, unknown>>): string[] {
   const names = new Set<string>();
   for (const mesh of meshes) {
-    const extras = isRecord(mesh.extras) ? mesh.extras : {};
-    for (const targetName of asStringArray(extras.targetNames)) {
+    const extras = isRecord(mesh["extras"]) ? mesh["extras"] : {};
+    for (const targetName of asStringArray(extras["targetNames"])) {
       names.add(targetName);
     }
   }
@@ -1351,7 +1351,7 @@ function parseCliOptions(args: string[]): CliOptions {
   const options: CliOptions = {
     outputRoot: GENERATED_HUMAN_RIGGING_OUTPUT_DIR,
     reportPath: defaultGeneratedHumanRiggingReportPath(),
-    blenderPath: process.env.BLENDER ?? "blender",
+    blenderPath: process.env["BLENDER"] ?? "blender",
     bodyProfile: "adult_standard",
     validateLatest: false,
     help: false,

@@ -1001,7 +1001,7 @@ async function runRenderStage(
     const manifest = await captureStationEnvironmentRooms({
       scenarioIds: [caseId],
       outputDir,
-      baseUrl: options.serverUrl,
+      ...(options.serverUrl !== undefined ? { baseUrl: options.serverUrl } : {}),
     });
     const entry = manifest.entries.find((e) => e.scenarioId === caseId);
     if (!entry) {
@@ -1162,7 +1162,11 @@ export function resolveLipSyncWavPath(options: RunLipSyncStationOptions): {
     const wavs = readdirSync(options.outDir)
       .filter((entry) => entry.toLowerCase().endsWith(".wav"))
       .sort();
-    if (wavs.length === 1) return { kind: "provided", wavPath: path.join(options.outDir, wavs[0]) };
+    if (wavs.length === 1) {
+      const onlyWav = wavs[0];
+      if (onlyWav === undefined) throw new Error("resolveLipSyncWavPath: wavs.length === 1 but wavs[0] is missing");
+      return { kind: "provided", wavPath: path.join(options.outDir, onlyWav) };
+    }
   } catch {
     // missing outDir falls through to the throw below.
   }
@@ -1347,7 +1351,9 @@ export async function resolvePriorEvidencePathForScenario(
   for (const entry of entries) {
     const match = /^encounter-materialization-evidence-(.+)-(\d{4}-\d{2}-\d{2})\.json$/.exec(entry);
     if (!match) continue;
-    if (!accepted.has(match[1]?.replace(/-/g, "_"))) continue;
+    const scenarioKey = match[1];
+    if (scenarioKey === undefined) continue;
+    if (!accepted.has(scenarioKey.replace(/-/g, "_"))) continue;
     const evidenceDate = match[2];
     if (evidenceDate === undefined) continue;
     if (!best || evidenceDate > best.date) {
@@ -1529,7 +1535,7 @@ async function runWorldCompileStage(
           ...input,
           bakeOutDir,
           invocationOutDir,
-          signal,
+          ...(signal !== undefined ? { signal } : {}),
         }),
       {
         artifactPathsByNodeId,
@@ -1649,7 +1655,7 @@ export async function runCaseChain(
   stations.push((await runRoomStage(scenarioId, path.join(caseDir, "stage-room"))).row); signal?.throwIfAborted();
   stations.push((await runEquipmentStage(scenarioId, path.join(caseDir, "stage-equipment"))).row); signal?.throwIfAborted();
   stations.push((await runPlacementStage(scenarioId, path.join(caseDir, "stage-placement"))).row); signal?.throwIfAborted();
-  stations.push((await runRenderStage(scenarioId, path.join(caseDir, "stage-render"), { serverUrl: options.renderServerUrl })).row); signal?.throwIfAborted();
+  stations.push((await runRenderStage(scenarioId, path.join(caseDir, "stage-render"), { ...(options.renderServerUrl !== undefined ? { serverUrl: options.renderServerUrl } : {}) })).row); signal?.throwIfAborted();
   stations.push((await runLipSyncStage(scenarioId, path.join(caseDir, "stage-lip-sync"))).row); signal?.throwIfAborted();
   stations.push((await runWorldCompileStage(scenarioId, path.join(caseDir, "stage-world-compile"), caseDir, signal)).row); signal?.throwIfAborted();
 
@@ -1700,7 +1706,7 @@ export async function writePreFixArtifact(options: {
     population,
     populationSource: "apps/ui-xr/public/xr-assets/generated/*/learner-runtime-bundle.v1.json (shipped station bundles)",
     coveredBy286: [...COVERED_BY_286],
-    supersededRollup,
+    ...(supersededRollup !== undefined ? { supersededRollup } : {}),
     notes: [
       "#286 ran exactly one case (peds_asthma_parent_anxiety_v1) and ended in a live render; its per-stage runner scripts were never landed (git ls-files shows JSON/OBJ/PNG outputs and no .ts under .openclinxr/evidence/issue-286/).",
       "This run chains the same adopted stations (#286-recorded implementations) over the whole shipped case population; no numeric target is asserted here — the roll-up reports what happened per case per station.",
@@ -1755,7 +1761,7 @@ export async function runMultiCaseChain(options: RunMultiCaseChainOptions = {}):
     signal?.throwIfAborted(); // abort during boot: finally stops the server, batch never runs
     const tables: PipelineStationTable[] = [];
     for (const caseId of population) { signal?.throwIfAborted();
-      const table = await runCaseChain(caseId, { evidenceDir, renderServerUrl: server.url, signal });
+      const table = await runCaseChain(caseId, { evidenceDir, renderServerUrl: server.url, ...(signal !== undefined ? { signal } : {}) });
       tables.push(table);
     }
 
@@ -1883,8 +1889,9 @@ async function main(): Promise<void> {
     console.log(marked ? "ROLLUP_MARKED_STALE" : "ROLLUP_CURRENT");
     return;
   }
-  if (caseIndex >= 0 && args[caseIndex + 1]) {
-    const table = await runCaseChain(args[caseIndex + 1], { evidenceDir });
+  const caseArg = args[caseIndex + 1];
+  if (caseIndex >= 0 && caseArg) {
+    const table = await runCaseChain(caseArg, { ...(evidenceDir !== undefined ? { evidenceDir } : {}) });
     console.log(`CASE_DONE ${table.caseId} stations=${table.stations.length}`);
     console.log(JSON.stringify(table.stations.map((s) => ({ id: s.stationId, classification: s.classification, artifacts: s.artifactPaths.length })), null, 2));
     return;
@@ -1893,7 +1900,10 @@ async function main(): Promise<void> {
     const publishRollupPath = publishCanonical
       ? path.join(REPO_ROOT, ".openclinxr", "evidence", "factory-run", "multi-case-rollup.json")
       : undefined;
-    const rollup = await runMultiCaseChain({ evidenceDir, publishRollupPath });
+    const rollup = await runMultiCaseChain({
+      ...(evidenceDir !== undefined ? { evidenceDir } : {}),
+      ...(publishRollupPath !== undefined ? { publishRollupPath } : {}),
+    });
     console.log(`MULTI_CASE_DONE cases=${rollup.summary.casesAttempted} fullyDeterministic=${rollup.summary.casesFullyDeterministic}`);
     console.log(JSON.stringify({ frontierCounts: rollup.summary.frontierCounts, deterministicTotals: rollup.summary.deterministicStationTotals }, null, 2));
     return;

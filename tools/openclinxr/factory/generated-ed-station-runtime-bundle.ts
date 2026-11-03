@@ -168,11 +168,12 @@ export async function buildGeneratedEdStationRuntimeBundleReport(input: {
   runtimeAssetReviewDecisionsPath?: string | null | undefined;
   writeAzurite?: boolean | undefined;
 }): Promise<GeneratedEdStationRuntimeBundleReport> {
-  const missing = [
+  const missingCandidates: Array<[string, string]> = [
     ["human_report_missing", input.humanReportPath],
     ["equipment_report_missing", input.equipmentReportPath],
     ["environment_report_missing", input.environmentReportPath],
-  ].filter(([, filePath]) => !existsSync(path.resolve(filePath)));
+  ];
+  const missing = missingCandidates.filter(([, filePath]) => !existsSync(path.resolve(filePath)));
   if (missing.length > 0) {
     return report({ status: "not_configured", bundle: null, learnerBundle: null, bundleBlobName: null, blockers: missing.map(([blocker, filePath]) => `${blocker}:${filePath}`) });
   }
@@ -241,7 +242,7 @@ export async function buildGeneratedEdStationRuntimeBundleReport(input: {
 
   if (blockedAssets.length > 0) return report({ status: "blocked", bundle, learnerBundle, actorHumanoidMaterializationContract, equipmentMaterializationContract, bundleBlobName: null, blockers: blockedAssets, runtimeAssetReviewDecisions });
   if (input.writeAzurite) {
-    const accountKey = process.env.AZURITE_ACCOUNT_KEY || process.env.OPENCLINXR_AZURITE_ACCOUNT_KEY;
+    const accountKey = process.env["AZURITE_ACCOUNT_KEY"] || process.env["OPENCLINXR_AZURITE_ACCOUNT_KEY"];
     if (!accountKey) return report({ status: "not_configured", bundle, learnerBundle, actorHumanoidMaterializationContract, equipmentMaterializationContract, bundleBlobName: null, blockers: ["azurite_account_key_missing"], runtimeAssetReviewDecisions });
     const result = await writeEncounterRuntimeAssetBundle({ store: createAzuriteAssetObjectStore({ accountKey }), bundle });
     return report({ status: "bundle_ready", bundle, learnerBundle, actorHumanoidMaterializationContract, equipmentMaterializationContract, bundleBlobName: result.bundleBlobName, blockers: [], runtimeAssetReviewDecisions });
@@ -252,43 +253,43 @@ export async function buildGeneratedEdStationRuntimeBundleReport(input: {
 export function validateGeneratedEdStationRuntimeBundleReport(reportValue: unknown): { ok: boolean; errors: string[] } {
   const errors: string[] = [];
   if (!isRecord(reportValue)) return { ok: false, errors: ["/ must be an object"] };
-  if (reportValue.schemaVersion !== "openclinxr.generated-ed-station-runtime-bundle.v1") errors.push("/schemaVersion invalid");
-  if (!["bundle_ready", "not_configured", "blocked"].includes(String(reportValue.status))) errors.push("/status invalid");
-  if (reportValue.productionCloudCall !== false) errors.push("/productionCloudCall must be false");
-  if (!Array.isArray(reportValue.runtimeAssetReviewDecisions)) errors.push("/runtimeAssetReviewDecisions must be an array");
+  if (reportValue["schemaVersion"] !== "openclinxr.generated-ed-station-runtime-bundle.v1") errors.push("/schemaVersion invalid");
+  if (!["bundle_ready", "not_configured", "blocked"].includes(String(reportValue["status"]))) errors.push("/status invalid");
+  if (reportValue["productionCloudCall"] !== false) errors.push("/productionCloudCall must be false");
+  if (!Array.isArray(reportValue["runtimeAssetReviewDecisions"])) errors.push("/runtimeAssetReviewDecisions must be an array");
   else {
-    reportValue.runtimeAssetReviewDecisions.forEach((decision, index) => {
+    reportValue["runtimeAssetReviewDecisions"].forEach((decision, index) => {
       if (!isRuntimeAssetReviewDecision(decision)) errors.push(`/runtimeAssetReviewDecisions/${index} invalid`);
     });
   }
-  const notEvidenceFor = Array.isArray(reportValue.notEvidenceFor) ? reportValue.notEvidenceFor : [];
+  const notEvidenceFor = Array.isArray(reportValue["notEvidenceFor"]) ? reportValue["notEvidenceFor"] : [];
   for (const required of NOT_EVIDENCE_FOR) if (!notEvidenceFor.includes(required)) errors.push(`/notEvidenceFor must include ${required}`);
-  if (reportValue.status === "bundle_ready") {
-    const bundle = isRecord(reportValue.bundle) ? reportValue.bundle : null;
-    const learnerBundle = isRecord(reportValue.learnerBundle) ? reportValue.learnerBundle : null;
+  if (reportValue["status"] === "bundle_ready") {
+    const bundle = isRecord(reportValue["bundle"]) ? reportValue["bundle"] : null;
+    const learnerBundle = isRecord(reportValue["learnerBundle"]) ? reportValue["learnerBundle"] : null;
     if (!bundle) errors.push("/bundle required when bundle_ready");
-    if (bundle && bundle.assetStoreKind !== "azurite_blob") errors.push("/bundle/assetStoreKind must be azurite_blob");
+    if (bundle && bundle["assetStoreKind"] !== "azurite_blob") errors.push("/bundle/assetStoreKind must be azurite_blob");
     if (!learnerBundle) errors.push("/learnerBundle required when bundle_ready");
-    if (!isRecord(reportValue.actorHumanoidMaterializationContract)) errors.push("/actorHumanoidMaterializationContract required when bundle_ready");
+    if (!isRecord(reportValue["actorHumanoidMaterializationContract"])) errors.push("/actorHumanoidMaterializationContract required when bundle_ready");
     else {
-      if (reportValue.actorHumanoidMaterializationContract.schemaVersion !== "openclinxr.actor-humanoid-materialization-contract.v1") {
+      if (reportValue["actorHumanoidMaterializationContract"]["schemaVersion"] !== "openclinxr.actor-humanoid-materialization-contract.v1") {
         errors.push("/actorHumanoidMaterializationContract/schemaVersion invalid");
       }
-      if (reportValue.actorHumanoidMaterializationContract.actorSpecificVariantKeysRequired !== true) {
+      if (reportValue["actorHumanoidMaterializationContract"]["actorSpecificVariantKeysRequired"] !== true) {
         errors.push("/actorHumanoidMaterializationContract/actorSpecificVariantKeysRequired must be true");
       }
-      if (reportValue.actorHumanoidMaterializationContract.sharedNeutralMeshReuseDetected === true) {
-        const materializationBlockers = Array.isArray(reportValue.actorHumanoidMaterializationContract.materializationBlockers)
-          ? reportValue.actorHumanoidMaterializationContract.materializationBlockers
+      if (reportValue["actorHumanoidMaterializationContract"]["sharedNeutralMeshReuseDetected"] === true) {
+        const materializationBlockers = Array.isArray(reportValue["actorHumanoidMaterializationContract"]["materializationBlockers"])
+          ? reportValue["actorHumanoidMaterializationContract"]["materializationBlockers"]
           : [];
-        const caveats = Array.isArray(reportValue.actorHumanoidMaterializationContract.caveats)
-          ? reportValue.actorHumanoidMaterializationContract.caveats
+        const caveats = Array.isArray(reportValue["actorHumanoidMaterializationContract"]["caveats"])
+          ? reportValue["actorHumanoidMaterializationContract"]["caveats"]
           : [];
         if (materializationBlockers.length === 0) errors.push("/actorHumanoidMaterializationContract/materializationBlockers required when shared neutral mesh reuse is detected");
         if (caveats.length === 0) errors.push("/actorHumanoidMaterializationContract/caveats required when shared neutral mesh reuse is detected");
       }
-      const actorVariants = Array.isArray(reportValue.actorHumanoidMaterializationContract.actorVariants)
-        ? reportValue.actorHumanoidMaterializationContract.actorVariants
+      const actorVariants = Array.isArray(reportValue["actorHumanoidMaterializationContract"]["actorVariants"])
+        ? reportValue["actorHumanoidMaterializationContract"]["actorVariants"]
         : [];
       if (actorVariants.length === 0) errors.push("/actorHumanoidMaterializationContract/actorVariants must not be empty");
       actorVariants.forEach((variant, index) => {
@@ -296,43 +297,43 @@ export function validateGeneratedEdStationRuntimeBundleReport(reportValue: unkno
           errors.push(`/actorHumanoidMaterializationContract/actorVariants/${index} must be an object`);
           return;
         }
-        if (typeof variant.actorId !== "string" || variant.actorId.length === 0) errors.push(`/actorHumanoidMaterializationContract/actorVariants/${index}/actorId required`);
-        if (typeof variant.variantSemanticKey !== "string" || !variant.variantSemanticKey.includes(":anny_humanoid_variant")) {
+        if (typeof variant["actorId"] !== "string" || variant["actorId"].length === 0) errors.push(`/actorHumanoidMaterializationContract/actorVariants/${index}/actorId required`);
+        if (typeof variant["variantSemanticKey"] !== "string" || !variant["variantSemanticKey"].includes(":anny_humanoid_variant")) {
           errors.push(`/actorHumanoidMaterializationContract/actorVariants/${index}/variantSemanticKey must be actor-specific Anny variant key`);
         }
-        if (!isRecord(variant.humanoidVariantProfile)) {
+        if (!isRecord(variant["humanoidVariantProfile"])) {
           errors.push(`/actorHumanoidMaterializationContract/actorVariants/${index}/humanoidVariantProfile required`);
         } else {
-          if (variant.humanoidVariantProfile.hairFaceRequired !== true) errors.push(`/actorHumanoidMaterializationContract/actorVariants/${index}/humanoidVariantProfile/hairFaceRequired must be true`);
-          if (variant.humanoidVariantProfile.faceEyeLipRigRequired !== true) errors.push(`/actorHumanoidMaterializationContract/actorVariants/${index}/humanoidVariantProfile/faceEyeLipRigRequired must be true`);
-          if (variant.humanoidVariantProfile.idlePoseRequired !== true) errors.push(`/actorHumanoidMaterializationContract/actorVariants/${index}/humanoidVariantProfile/idlePoseRequired must be true`);
+          if (variant["humanoidVariantProfile"]["hairFaceRequired"] !== true) errors.push(`/actorHumanoidMaterializationContract/actorVariants/${index}/humanoidVariantProfile/hairFaceRequired must be true`);
+          if (variant["humanoidVariantProfile"]["faceEyeLipRigRequired"] !== true) errors.push(`/actorHumanoidMaterializationContract/actorVariants/${index}/humanoidVariantProfile/faceEyeLipRigRequired must be true`);
+          if (variant["humanoidVariantProfile"]["idlePoseRequired"] !== true) errors.push(`/actorHumanoidMaterializationContract/actorVariants/${index}/humanoidVariantProfile/idlePoseRequired must be true`);
         }
-        const cueIds = Array.isArray(variant.requiredMaterializationCueIds) ? variant.requiredMaterializationCueIds : [];
+        const cueIds = Array.isArray(variant["requiredMaterializationCueIds"]) ? variant["requiredMaterializationCueIds"] : [];
         for (const cueId of ["actor_specific_body_profile_required", "actor_specific_clothing_required", "actor_specific_hair_face_required", "actor_specific_rig_preservation_required"]) {
           if (!cueIds.includes(cueId)) errors.push(`/actorHumanoidMaterializationContract/actorVariants/${index}/requiredMaterializationCueIds must include ${cueId}`);
         }
       });
     }
-    if (!isRecord(reportValue.equipmentMaterializationContract)) errors.push("/equipmentMaterializationContract required when bundle_ready");
+    if (!isRecord(reportValue["equipmentMaterializationContract"])) errors.push("/equipmentMaterializationContract required when bundle_ready");
     else {
-      if (reportValue.equipmentMaterializationContract.schemaVersion !== "openclinxr.equipment-materialization-contract.v1") {
+      if (reportValue["equipmentMaterializationContract"]["schemaVersion"] !== "openclinxr.equipment-materialization-contract.v1") {
         errors.push("/equipmentMaterializationContract/schemaVersion invalid");
       }
-      if (reportValue.equipmentMaterializationContract.equipmentSpecificVariantKeysRequired !== true) {
+      if (reportValue["equipmentMaterializationContract"]["equipmentSpecificVariantKeysRequired"] !== true) {
         errors.push("/equipmentMaterializationContract/equipmentSpecificVariantKeysRequired must be true");
       }
-      if (reportValue.equipmentMaterializationContract.genericEquipmentReuseDetected === true) {
-        const materializationBlockers = Array.isArray(reportValue.equipmentMaterializationContract.materializationBlockers)
-          ? reportValue.equipmentMaterializationContract.materializationBlockers
+      if (reportValue["equipmentMaterializationContract"]["genericEquipmentReuseDetected"] === true) {
+        const materializationBlockers = Array.isArray(reportValue["equipmentMaterializationContract"]["materializationBlockers"])
+          ? reportValue["equipmentMaterializationContract"]["materializationBlockers"]
           : [];
-        const caveats = Array.isArray(reportValue.equipmentMaterializationContract.caveats)
-          ? reportValue.equipmentMaterializationContract.caveats
+        const caveats = Array.isArray(reportValue["equipmentMaterializationContract"]["caveats"])
+          ? reportValue["equipmentMaterializationContract"]["caveats"]
           : [];
         if (materializationBlockers.length === 0) errors.push("/equipmentMaterializationContract/materializationBlockers required when generic equipment reuse is detected");
         if (caveats.length === 0) errors.push("/equipmentMaterializationContract/caveats required when generic equipment reuse is detected");
       }
-      const equipmentVariants = Array.isArray(reportValue.equipmentMaterializationContract.equipmentVariants)
-        ? reportValue.equipmentMaterializationContract.equipmentVariants
+      const equipmentVariants = Array.isArray(reportValue["equipmentMaterializationContract"]["equipmentVariants"])
+        ? reportValue["equipmentMaterializationContract"]["equipmentVariants"]
         : [];
       if (equipmentVariants.length === 0) errors.push("/equipmentMaterializationContract/equipmentVariants must not be empty");
       equipmentVariants.forEach((variant, index) => {
@@ -340,22 +341,22 @@ export function validateGeneratedEdStationRuntimeBundleReport(reportValue: unkno
           errors.push(`/equipmentMaterializationContract/equipmentVariants/${index} must be an object`);
           return;
         }
-        if (typeof variant.equipmentId !== "string" || variant.equipmentId.length === 0) errors.push(`/equipmentMaterializationContract/equipmentVariants/${index}/equipmentId required`);
-        if (typeof variant.variantSemanticKey !== "string" || !variant.variantSemanticKey.includes(":equipment_materialization_variant")) {
+        if (typeof variant["equipmentId"] !== "string" || variant["equipmentId"].length === 0) errors.push(`/equipmentMaterializationContract/equipmentVariants/${index}/equipmentId required`);
+        if (typeof variant["variantSemanticKey"] !== "string" || !variant["variantSemanticKey"].includes(":equipment_materialization_variant")) {
           errors.push(`/equipmentMaterializationContract/equipmentVariants/${index}/variantSemanticKey must be equipment-specific materialization variant key`);
         }
-        if (!isRecord(variant.equipmentVariantProfile)) errors.push(`/equipmentMaterializationContract/equipmentVariants/${index}/equipmentVariantProfile required`);
-        const cueIds = Array.isArray(variant.requiredMaterializationCueIds) ? variant.requiredMaterializationCueIds : [];
+        if (!isRecord(variant["equipmentVariantProfile"])) errors.push(`/equipmentMaterializationContract/equipmentVariants/${index}/equipmentVariantProfile required`);
+        const cueIds = Array.isArray(variant["requiredMaterializationCueIds"]) ? variant["requiredMaterializationCueIds"] : [];
         for (const cueId of ["equipment_specific_mesh_required", "equipment_specific_scale_required", "equipment_specific_placement_required", "equipment_specific_affordance_required"]) {
           if (!cueIds.includes(cueId)) errors.push(`/equipmentMaterializationContract/equipmentVariants/${index}/requiredMaterializationCueIds must include ${cueId}`);
         }
-        const evidenceRefs = Array.isArray(variant.requiredEvidenceRefs) ? variant.requiredEvidenceRefs : [];
+        const evidenceRefs = Array.isArray(variant["requiredEvidenceRefs"]) ? variant["requiredEvidenceRefs"] : [];
         for (const evidenceRef of ["scenario_specific_equipment_variant_evidence", "equipment_scale_validation_evidence", "equipment_placement_anchor_evidence"]) {
           if (!evidenceRefs.includes(evidenceRef)) errors.push(`/equipmentMaterializationContract/equipmentVariants/${index}/requiredEvidenceRefs must include ${evidenceRef}`);
         }
       });
     }
-    if (learnerBundle && learnerBundle.identityScope !== "learner_runtime_opaque_bundle") errors.push("/learnerBundle/identityScope must be learner_runtime_opaque_bundle");
+    if (learnerBundle && learnerBundle["identityScope"] !== "learner_runtime_opaque_bundle") errors.push("/learnerBundle/identityScope must be learner_runtime_opaque_bundle");
     for (const forbidden of ["tenantId", "userId", "examRunId", "encounterId"]) {
       if (learnerBundle && forbidden in learnerBundle) errors.push(`/learnerBundle must not include ${forbidden}`);
     }
@@ -495,8 +496,21 @@ function buildHumanoidVariantProfile(
   };
 }
 
-function report(input: Pick<GeneratedEdStationRuntimeBundleReport, "status" | "bundle" | "learnerBundle" | "bundleBlobName" | "blockers"> & { actorHumanoidMaterializationContract?: GeneratedEdStationRuntimeBundleReport["actorHumanoidMaterializationContract"] | undefined; equipmentMaterializationContract?: GeneratedEdStationRuntimeBundleReport["equipmentMaterializationContract"] | undefined; runtimeAssetReviewDecisions?: RuntimeAssetReviewDecision[] | undefined }): GeneratedEdStationRuntimeBundleReport {
-  return { schemaVersion: "openclinxr.generated-ed-station-runtime-bundle.v1", generatedAt: new Date().toISOString(), productionCloudCall: false, runtimeAssetReviewDecisions: [], actorHumanoidMaterializationContract: null, equipmentMaterializationContract: null, notEvidenceFor: [...NOT_EVIDENCE_FOR], ...input };
+function report(input: Pick<GeneratedEdStationRuntimeBundleReport, "status" | "bundle" | "learnerBundle" | "bundleBlobName" | "blockers"> & { actorHumanoidMaterializationContract?: GeneratedEdStationRuntimeBundleReport["actorHumanoidMaterializationContract"]; equipmentMaterializationContract?: GeneratedEdStationRuntimeBundleReport["equipmentMaterializationContract"]; runtimeAssetReviewDecisions?: RuntimeAssetReviewDecision[] }): GeneratedEdStationRuntimeBundleReport {
+  const { actorHumanoidMaterializationContract, equipmentMaterializationContract, runtimeAssetReviewDecisions, ...rest } = input;
+  return {
+    schemaVersion: "openclinxr.generated-ed-station-runtime-bundle.v1",
+    generatedAt: new Date().toISOString(),
+    productionCloudCall: false,
+    runtimeAssetReviewDecisions: [],
+    actorHumanoidMaterializationContract: null,
+    equipmentMaterializationContract: null,
+    notEvidenceFor: [...NOT_EVIDENCE_FOR],
+    ...rest,
+    ...(runtimeAssetReviewDecisions !== undefined ? { runtimeAssetReviewDecisions } : {}),
+    ...(actorHumanoidMaterializationContract !== undefined ? { actorHumanoidMaterializationContract } : {}),
+    ...(equipmentMaterializationContract !== undefined ? { equipmentMaterializationContract } : {}),
+  };
 }
 
 function runtimeActorEmbodiment(actor: ReturnType<typeof scenarioRuntimePreset>["actors"][number]): EncounterRuntimeAssetBundle["actors"][number]["embodiment"] {
@@ -712,7 +726,7 @@ function runtimeScenarioRoomProp(
   z: number,
   scale?: { x: number; y: number; z: number },
 ): ReturnType<typeof scenarioRuntimePreset>["roomProps"][number] {
-  return { propId, label, semanticRole, evidenceCue, colorHex, accentColorHex, x, y, z, scale };
+  return { propId, label, semanticRole, evidenceCue, colorHex, accentColorHex, x, y, z, ...(scale !== undefined ? { scale } : {}) };
 }
 
 /**
@@ -986,6 +1000,7 @@ function runtimeDialogueTurnsForScenario(
   const scenario = scenarioBank.find((candidate) => candidate.scenarioId === preset.scenarioId);
   if (scenario) {
     const patient = actorByRole(preset, "patient") ?? preset.actors[0];
+    if (patient === undefined) throw new Error(`runtimeDialogueTurnsForScenario(${preset.scenarioId}): scenario-bank branch has no patient actor`);
     const team = actorByRole(preset, "nurse")
       ?? actorByRole(preset, "respiratory_therapist")
       ?? actorByRole(preset, "consultant")
@@ -1028,6 +1043,7 @@ function runtimeDialogueTurnsForScenario(
     });
   }
   const patient = actorByRole(preset, "patient") ?? preset.actors[0];
+  if (patient === undefined) throw new Error(`runtimeDialogueTurnsForScenario(${preset.scenarioId}): fallback branch has no patient actor`);
   const team = actorByRole(preset, "nurse") ?? actorByRole(preset, "consultant") ?? actorByRole(preset, "interpreter") ?? preset.actors[1] ?? patient;
   const family = actorByRole(preset, "family_member") ?? actorByRole(preset, "family") ?? actorByRole(preset, "parent") ?? actorByRole(preset, "spouse") ?? preset.actors[2] ?? team;
   const patientName = actorDisplayName(patient?.actorId ?? "patient_v1", patient?.role);
@@ -1248,6 +1264,7 @@ function runtimeActorPlacementsForScenario(
 ): EncounterRuntimeAssetBundle["sceneManifest"]["actorPlacements"] {
   const authored = readAuthoredPlacementsForScenario(preset.scenarioId);
   const patient = actorByRole(preset, "patient") ?? preset.actors[0];
+  if (patient === undefined) throw new Error(`runtimeActorPlacementsForScenario(${preset.scenarioId}): no patient actor`);
   // #123: physician in team allow-list (same gap #122 fixed one layer down).
   const team = actorByRole(preset, "nurse")
     ?? actorByRole(preset, "respiratory_therapist")
@@ -1689,7 +1706,11 @@ function runtimeEquipmentPlacementsForScenario(
     { x: -1.75, y: 0, z: 0.52 },
     { x: 0.58, y: 0.72, z: -0.55 },
   ];
-  return Object.fromEntries((preset.equipment.length > 0 ? preset.equipment : ["primary_equipment"]).map((equipmentId, index) => [
+  return Object.fromEntries((preset.equipment.length > 0 ? preset.equipment : ["primary_equipment"]).map((equipmentId, index) => {
+    const anchorIndex = index % placementAnchors.length;
+    const anchor = placementAnchors[anchorIndex];
+    if (anchor === undefined) throw new Error(`runtimeEquipmentPlacementsForScenario: no placement anchor at index ${anchorIndex}`);
+    return [
     equipmentId,
     {
       // The real clock GLB's face lies in XY. Mount it on the back wall so it faces the room;
@@ -1702,11 +1723,12 @@ function runtimeEquipmentPlacementsForScenario(
       // in the prop's placement, never an actor move.
       position: equipmentId === "wall_clock_equipment"
         ? { x: -1.75, y: 1.55, z: -1.42 }
-        : placementAnchors[index % placementAnchors.length] ?? placementAnchors[0],
+        : anchor,
       label: equipmentDisplayLabel(equipmentId),
       interactionCueIds: [`${equipmentId}:selectable_equipment_reference`, `${equipmentId}:clinical_workflow_cue`],
     },
-  ]));
+    ];
+  }));
 }
 
 function equipmentDisplayLabel(equipmentId: string): string {
@@ -1870,16 +1892,16 @@ function parseRuntimeAssetReviewDecisions(value: unknown): RuntimeAssetReviewDec
 
 function isRuntimeAssetReviewDecision(value: unknown): value is RuntimeAssetReviewDecision {
   return isRecord(value)
-    && typeof value.assetId === "string"
-    && ["asset_pipeline", "clinical_simulation", "xr_performance", "security_privacy"].includes(String(value.reviewerRole))
-    && typeof value.reviewerId === "string"
-    && (value.decision === "approved_for_local_runtime" || value.decision === "changes_requested")
-    && typeof value.comments === "string"
-    && Array.isArray(value.evidenceRefs)
-    && value.evidenceRefs.length > 0
-    && value.evidenceRefs.every((ref) => typeof ref === "string" && ref.trim().length > 0)
-    && typeof value.reviewedAt === "string"
-    && !Number.isNaN(Date.parse(value.reviewedAt));
+    && typeof value["assetId"] === "string"
+    && ["asset_pipeline", "clinical_simulation", "xr_performance", "security_privacy"].includes(String(value["reviewerRole"]))
+    && typeof value["reviewerId"] === "string"
+    && (value["decision"] === "approved_for_local_runtime" || value["decision"] === "changes_requested")
+    && typeof value["comments"] === "string"
+    && Array.isArray(value["evidenceRefs"])
+    && value["evidenceRefs"].length > 0
+    && value["evidenceRefs"].every((ref) => typeof ref === "string" && ref.trim().length > 0)
+    && typeof value["reviewedAt"] === "string"
+    && !Number.isNaN(Date.parse(value["reviewedAt"]));
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
