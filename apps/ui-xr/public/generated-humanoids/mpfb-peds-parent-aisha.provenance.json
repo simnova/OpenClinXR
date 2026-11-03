@@ -884,5 +884,16 @@
     "outputBytes": 18441636,
     "commit": "mesh-defects 2026-10-31",
     "claimScope": "hair POSITION only: c240327c3 lowered the bob non-rigidly (mean dy -13.8 mm) with no recorded tool; the tool refuses unless NORMAL, TEXCOORD_0, JOINTS_0, WEIGHTS_0, indices and targets are identical; crown skin above hair 20 -> 0"
+  },
+  "garmentTopologyWeld": {
+    "tool": "tools/openclinxr/asset-pipeline/makeclothes/garment_topology_weld.py",
+    "toolSha256": "71f68e0962abd555e1d40a7bff002ac36b650cfea43b91a0d03ee39d25cdbec0",
+    "angleDeg": 90,
+    "inputSha256": "57eace5c903f490d22c0d961ca5e4946436227c22cc1c50e38151754487c1591",
+    "inputBytes": 18441636,
+    "outputSha256": "b73c9edea2951853e7376faa086593070e954fa08c6bfac345662e05eb931240",
+    "outputBytes": 18441636,
+    "commit": "4716d0bfd (st-weld2 D1)",
+    "claimScope": "garment index islands welded by position; only garment indices and survivor NORMALs rewritten in place; skinning, UVs on textured materials and byte length unchanged"
   }
 }

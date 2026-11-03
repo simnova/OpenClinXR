@@ -84,6 +84,9 @@ const PRUNE_FLAGS = ["--keep-attributes", "true", "--keep-indices", "true"] as c
 // Exact known hair restore tool (mesh-defects 2026-10-31). Hash asserted via the
 // receipt's own hairPositionRestore.toolSha256 below.
 const HAIR_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/restore-mesh-positions.ts";
+// st-weld2 D1 (4716d0bfd): post-export garment topology weld, replayed from the
+// receipt's garmentTopologyWeld stage after the hair restore.
+const WELD_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/garment_topology_weld.py";
 // bake-humanoid-albedo.ts bakeGlbAlbedo). Hashes are asserted via the
 // receipt's own albedoRepair.producerSha256 / helperSha256 below, never
 // blind-reset.
@@ -202,6 +205,15 @@ describe("mouth executor", () => {
         mesh: string;
         sourceRevision: string;
         sourceSha256: string;
+        inputSha256: string;
+        inputBytes: number;
+        outputSha256: string;
+        outputBytes: number;
+      };
+      garmentTopologyWeld?: {
+        tool: string;
+        toolSha256: string;
+        angleDeg: number;
         inputSha256: string;
         inputBytes: number;
         outputSha256: string;
@@ -408,6 +420,30 @@ describe("mouth executor", () => {
         expect(sha256(hairBytes)).toBe(hair.outputSha256);
         expect(hairBytes.length).toBe(hair.outputBytes);
         replayBytes = hairBytes;
+      }
+      const weld = pre.garmentTopologyWeld;
+      if (weld) {
+        if (
+          !weld.tool || !weld.toolSha256 || !weld.angleDeg ||
+          !weld.inputSha256 || !weld.outputSha256 || !weld.inputBytes || !weld.outputBytes
+        ) {
+          throw new Error("receipt garmentTopologyWeld missing fields");
+        }
+        expect(weld.tool).toBe(WELD_TOOL);
+        expect(sha256(readFileSync(path.join(REPO, WELD_TOOL)))).toBe(weld.toolSha256);
+        expect(weld.inputSha256).toBe(sha256(replayBytes));
+        expect(weld.inputBytes).toBe(replayBytes.length);
+        const weldGlb = path.join(dir, "weld.glb");
+        writeFileSync(weldGlb, Buffer.from(replayBytes));
+        execFileSync(
+          "mise",
+          ["exec", "--", "python3", path.join(REPO, WELD_TOOL), "--input", weldGlb, "--angle", String(weld.angleDeg)],
+          { cwd: REPO, stdio: "pipe", timeout: 300_000 },
+        );
+        const weldBytes = readFileSync(weldGlb);
+        expect(sha256(weldBytes)).toBe(weld.outputSha256);
+        expect(weldBytes.length).toBe(weld.outputBytes);
+        replayBytes = weldBytes;
       }
       // Final top linkage: the receipt top must equal the last recorded stage output.
       expect(sha256(replayBytes)).toBe(pre.outputSha256);
