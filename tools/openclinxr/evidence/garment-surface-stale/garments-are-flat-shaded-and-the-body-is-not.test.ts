@@ -143,18 +143,40 @@ const isBody = (n: string): boolean => classifyGarmentMeshName(n) === "body";
  * 2636 -> 2628 (a real geometry state of current code, not a remesh — no decimation, and the
  * coplanar population is not emptied: above-rim 1039 -> 1038, sharp splits 49 -> 103). Re-pinned
  * 2026-08-26 with this contract's own instrument on the re-baked bytes.
+ *
+ * ST-PREMISE R3 REBASED 2026-11-03 (C-extinct, inverted guards): four pins are extinct by recorded
+ * design, verified with this contract's own measureActor code path on origin/main (probe 2026-11-03
+ * reproduces the red rows exactly: kevin pants aboveRim 840, child aboveRim 1085/tris 2726, boots
+ * sharpSplit 1380). (a) aisha cargo_pants.001 is gone — fe8ea2906 restored full-res OB garments and
+ * aisha ships female_tight_jeans_pants (tris 4216) under the gravid drape; the cargo row is replaced,
+ * not widened. (b) kevin scrub_pants + boots + scrub_shirt moved under f82e1cc2e fix(#683) fleet regen
+ * (verts refit at identical tri counts) and 1225b8f95 st-redgarm D1 post-export auto-smooth: pants
+ * aboveRim 908 -> 840, sharpSplit 147 -> 171; boots aboveRim 6246 -> 6148, sharpSplit 1605 -> 1380.
+ * Clause (1) still reads coplanarSplit=0 on every garment, so this is refit/smoothing of real
+ * geometry, not mush or remesh. (c) child cargo_pants.001 rebaked under 078d96a2c HB-07 with the
+ * hide-mask hole guard: tris 2628 -> 2726, aboveRim 1038 -> 1085, sharpSplit 103 -> 106. Floors stay
+ * at 0.95x / 0.9x of the NEW pins (same relative strength, not widened). Untouched rows keep their
+ * pins: a lower floor is never re-pinned without a red cause.
  */
 const BASELINE: Record<string, { tris: number; coplanar: number; sharpSplit: number }> = {
-  // #598 re-pinned 2026-08-23: cargo after shoe-swap rebake; was tris 2782 / coplanar 966 / sharpSplit 48.
-  "mpfb-ob-patient-aisha::mat_makeclothes_library_cargo_pants.001": { tris: 2692, coplanar: 906, sharpSplit: 160 },
+  // ST-PREMISE R3: extinct cargo row replaced 2026-11-03 — fe8ea2906 full-res OB restore ships
+  // female_tight_jeans_pants (tris 4216) instead of cargo_pants.001. Measured 2026-11-03 with this
+  // contract's own instrument (aboveRim 1149, sharpSplit 681, coplanarSplit 0).
+  "mpfb-ob-patient-aisha::mat_makeclothes_library_female_tight_jeans_pants": { tris: 4216, coplanar: 1149, sharpSplit: 681 },
   // #598 re-pinned 2026-08-23: key was ...footwear_toigo_flats { tris: 57600, coplanar: 12922, sharpSplit: 3780 }.
   "mpfb-ob-patient-aisha::mat_makeclothes_library_footwear_toigo_mj_cloth_shoes": { tris: 1004, coplanar: 134, sharpSplit: 146 },
   // #598 re-pinned 2026-08-23: was coplanar 800 / sharpSplit 238.
   "mpfb-ob-patient-aisha::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 851, sharpSplit: 245 },
   "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_shirt": { tris: 9384, coplanar: 3862, sharpSplit: 303 },
-  "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_pants": { tris: 2704, coplanar: 908, sharpSplit: 147 },
-  "mpfb-peds-nurse-kevin::mat_makeclothes_library_footwear_culturalibre_male_boots": { tris: 30768, coplanar: 6246, sharpSplit: 1605 },
-  "mpfb-peds-patient-child::mat_makeclothes_library_cargo_pants.001": { tris: 2628, coplanar: 1038, sharpSplit: 103 },
+  // ST-PREMISE R3: re-pinned 2026-11-03 — #683 refit (f82e1cc2e) + D1 auto-smooth (1225b8f95).
+  // Tris unchanged (2704 — not a remesh); aboveRim 908 -> 840, sharpSplit 147 -> 171.
+  "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_pants": { tris: 2704, coplanar: 840, sharpSplit: 171 },
+  // ST-PREMISE R3: re-pinned 2026-11-03 — same refit/smooth cause. aboveRim 6246 -> 6148,
+  // sharpSplit 1605 -> 1380. Clause (1) still 0 split: smoothed real geometry, not mush.
+  "mpfb-peds-nurse-kevin::mat_makeclothes_library_footwear_culturalibre_male_boots": { tris: 30768, coplanar: 6148, sharpSplit: 1380 },
+  // ST-PREMISE R3: re-pinned 2026-11-03 — 078d96a2c HB-07 rebake with hide-mask hole guard:
+  // tris 2628 -> 2726, aboveRim 1038 -> 1085, sharpSplit 103 -> 106.
+  "mpfb-peds-patient-child::mat_makeclothes_library_cargo_pants.001": { tris: 2726, coplanar: 1085, sharpSplit: 106 },
   "mpfb-peds-patient-child::mat_makeclothes_library_footwear_toigo_mj_cloth_shoes": { tris: 1004, coplanar: 144, sharpSplit: 124 },
   "mpfb-peds-patient-child::mat_makeclothes_library_toigo_t_shirt": { tris: 2700, coplanar: 866, sharpSplit: 233 },
 };
@@ -287,6 +309,22 @@ const bodies = prims.filter((p) => p.body);
 const idOf = (p: Prim): string => `${p.actor}::${p.material}`;
 
 /**
+ * ST-PREMISE R3 (inverted-guard restoration notes, 2026-11-03): appended to the failure message
+ * when a re-pinned row fails, so the message names the restoration. Widening a pin to cover old
+ * AND new bytes, or deleting the pin, is wrong — reinstate the named extinct row instead.
+ */
+const RESTORED: Record<string, string> = {
+  "mpfb-ob-patient-aisha::mat_makeclothes_library_female_tight_jeans_pants":
+    "RESTORATION: replaces the extinct cargo_pants.001 row (fe8ea2906 OB restore) — if cargo returns on aisha, reinstate {tris 2692, coplanar 906, sharpSplit 160} and delete this row",
+  "mpfb-peds-nurse-kevin::mat_makeclothes_library_scrub_pants":
+    "RESTORATION: re-pinned for the #683 refit (f82e1cc2e) + D1 auto-smooth (1225b8f95) — if pre-refit bytes return, reinstate {tris 2704, coplanar 908, sharpSplit 147}",
+  "mpfb-peds-nurse-kevin::mat_makeclothes_library_footwear_culturalibre_male_boots":
+    "RESTORATION: re-pinned for the #683 refit + D1 auto-smooth (1605 -> 1380 is smoothing, clause (1) still 0 split) — if pre-smooth bytes return, reinstate sharpSplit 1605; do not lower this floor to cover both",
+  "mpfb-peds-patient-child::mat_makeclothes_library_cargo_pants.001":
+    "RESTORATION: re-pinned for the HB-07 rebake (078d96a2c, hide-mask hole guard) — if pre-rebake bytes return, reinstate {tris 2628, coplanar 1038, sharpSplit 103}",
+};
+
+/**
  * An empty enumeration must FAIL, never pass vacuously (SS7t). Plain `it` on purpose: an `it.fails`
  * clause cannot guard its own vacuity, because it is satisfied when its body throws for ANY reason --
  * including this guard throwing.
@@ -324,7 +362,7 @@ describe("garments are flat-shaded and the body on the same asset is not", () =>
         (p) =>
           `${p.actor}/${p.material}: ${p.sharpSplit} sharp joins still split, below 90% of measured ${
             BASELINE[idOf(p)]?.sharpSplit
-          }`,
+          }${RESTORED[idOf(p)] ? ` — ${RESTORED[idOf(p)]}` : ""}`,
       );
     expect(mushed, "hard edges smoothed away — a regression wearing a green tick").toEqual([]);
   });
@@ -340,8 +378,9 @@ describe("garments are flat-shaded and the body on the same asset is not", () =>
       })
       .map((p) => {
         const b = BASELINE[idOf(p)];
+        const note = RESTORED[idOf(p)] ? ` — ${RESTORED[idOf(p)]}` : "";
         return b
-          ? `${p.actor}/${p.material}: tris ${p.tris} (was ${b.tris}), coplanar-above-rim ${p.coplanarAboveRim} (was ${b.coplanar})`
+          ? `${p.actor}/${p.material}: tris ${p.tris} (was ${b.tris}), coplanar-above-rim ${p.coplanarAboveRim} (was ${b.coplanar})${note}`
           : `${p.actor}/${p.material}: not in the measured baseline`;
       });
     expect(remeshed, "garment geometry changed rather than its shading").toEqual([]);

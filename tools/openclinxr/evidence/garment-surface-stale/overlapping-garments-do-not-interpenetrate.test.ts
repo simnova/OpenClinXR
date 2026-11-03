@@ -256,8 +256,17 @@ const BASELINE: Record<string, { cuffReachMm: number; shoeTris: number }> = {
   "mpfb-peds-parent-aisha": { cuffReachMm: 31.4, shoeTris: 1004 },
   // #598: newly enumerated (were missing from ACTORS; SS7j miss).
   "mpfb-street-adult-male": { cuffReachMm: -279.2, shoeTris: 30768 },
-  // Still on toigo_flats — inspect file, not rebaked this slice.
-  "mpfb-viseme-inspect": { cuffReachMm: 28.0, shoeTris: 57600 },
+  // ST-PREMISE R7 (C-extinct, inverted guard 2026-11-03): the 57600 pin is the pre-#598
+  // toigo_flats count and is extinct by recorded design — 32e58c3ff re-shod viseme toigo_flats
+  // 57600 -> mj_cloth_shoes 1004, then the HB-05 face-preserving decimation rung f6b335392
+  // 1004 -> 558 (viseme-inspect total 90996 -> 68214, provenance re-recorded same commit).
+  // Measured present state on origin/main with this contract's own measure() code path (probe
+  // 2026-11-03, same left-side cuffLow/shoeHigh definition): cuffReachMm=-15.7, shoeTris=558
+  // (768 verts). If this row fails with shoeTris 57600, the flats have returned: reinstate the
+  // 57600 pin and the 28.0 reach against the flats asset — do not widen or delete this guard.
+  // Clause (1) kevin layer flip (330.7mm / 29 shared buckets, pants-out 1 / shoe-out 28) is
+  // C-other (st-redgarm owned) and stays red, untouched.
+  "mpfb-viseme-inspect": { cuffReachMm: -15.7, shoeTris: 558 },
 };
 
 /** Shipped mpfb actors carrying BOTH a lower garment (any class) and footwear. */
@@ -335,7 +344,12 @@ describe("overlapping garments do not interpenetrate", () => {
     const inflated = rows
       .filter((r) => r.shoeTris !== (BASELINE[r.actor]?.shoeTris ?? -1))
       .map(
-        (r) => `${r.actor}: footwear tris ${r.shoeTris} (was ${BASELINE[r.actor]?.shoeTris}) — the shoe was remeshed`,
+        (r) =>
+          `${r.actor}: footwear tris ${r.shoeTris} (was ${BASELINE[r.actor]?.shoeTris}) — the shoe was remeshed${
+            r.actor === "mpfb-viseme-inspect"
+              ? " — ST-PREMISE R7 inverted guard: 57600 means the pre-#598 toigo_flats returned; reinstate the 57600/28.0 pin against the flats asset instead of widening or deleting this guard"
+              : ""
+          }`,
       );
     expect(inflated, "footwear geometry changed instead of the layer order").toEqual([]);
   });

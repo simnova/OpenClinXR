@@ -124,6 +124,8 @@ type StationProps = {
   declaredPropIds: string[];
   /** propIds with a rendered body mesh in the LIVE scene. */
   renderedPropIds: string[];
+  /** Subset of renderedPropIds still using the legacy unit-box `.body` channel. */
+  renderedBodyPropIds: string[];
   /** Rendered props whose label is a clinical objective, a raw trace tag, or faculty-facing text. */
   metadataLabelledRenderedProps: { propId: string; label: string; reason: string }[];
 };
@@ -193,5 +195,35 @@ describe("no station renders a cube labelled with authoring metadata (#139)", ()
     const authored = HAND_AUTHORED_PROP_IDS.filter((id) => allRendered.has(id));
     expect(authored.length, `hand-authored props were deleted: ${HAND_AUTHORED_PROP_IDS.join(", ")}`)
       .toBeGreaterThan(0);
+
+    // ST-PREMISE R2 (C-instrument, known-good control 2026-11-03): the survivors
+    // above arrive through non-body product channels, which the pre-#185 ".body"
+    // detector could not read. Pinned present state from the live scene on
+    // origin/main (R2 verify run 2026-11-03: 3 passed): ED bays declare 4 render 3
+    // with body=0; psych and telehealth declare 4 render 1 with body=0; peds_asthma
+    // declares 1 renders 1 with body=0. body=0 everywhere proves no unit-box .body
+    // geometry ships for these props (c5af6b782 #223 by design) — the instrument
+    // must read builder and cue-marker channels, and the green no-ghosts clause in
+    // this same file proves it does not over-count. If body>0 here, unit-box
+    // bodies returned: reinstate the .body-only detector premise; do not widen.
+    const byScenario = new Map(report.stations.map((s) => [s.scenarioId, s]));
+    const channelPins = [
+      ["ed_chest_pain_priority_v1", 4, 3, 0],
+      ["ed_chest_pain_priority_v2", 4, 3, 0],
+      ["psych_suicidal_ideation_safety_v1", 4, 1, 0],
+      ["telehealth_diabetes_health_literacy_v1", 4, 1, 0],
+      ["peds_asthma_parent_anxiety_v1", 1, 1, 0],
+    ] as const;
+    for (const [sid, declared, rendered, body] of channelPins) {
+      const row = byScenario.get(sid);
+      expect(row, `${sid} vanished from the report`).toBeTruthy();
+      expect(row!.declaredPropIds.length, `${sid} declared-prop count moved`).toBe(declared);
+      expect(row!.renderedPropIds.length, `${sid} rendered-prop count moved`).toBe(rendered);
+      expect(
+        row!.renderedBodyPropIds.length,
+        `${sid} renders unit-box .body geometry again (was 0 by #223 design) — ` +
+          "reinstate the .body-only detector premise; do not widen this pin",
+      ).toBe(body);
+    }
   }, 900_000);
 });

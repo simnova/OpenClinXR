@@ -569,10 +569,43 @@ describe("the in-process generators are swept in a harness (#194)", () => {
     // surfaces remain non-fallback and mutually distinct (asserted above). The old
     // residual "≥12 still fallback" is retired — that was the #198 before-column,
     // not a permanent product invariant.
+    // ST-PREMISE R1 (C-extinct, inverted guard 2026-11-03): stretcher_equipment no
+    // longer satisfies the August #198 multi-mesh premise BY RECORDED DESIGN.
+    // c9be830c6 (2026-09-09) mounted it on the tracked single-primitive Sketchfab
+    // CC-BY GLB (stretcher-sketchfab-ccby.glb), pinned by
+    // packages/openclinxr/xr-station/src/station-equipment.test.ts:291-293.
+    // Measured present state on origin/main: meshCount=1, resolvedToFallback=false
+    // (premise-generator-sweep-harness.json; re-measured 2026-11-03, 1 failed /
+    // 8 passed / 1 expected fail with the failure AT this clause). The stale
+    // meshCount>3 clause is retired for this id ONLY. If this guard fails, the old
+    // premise has returned (a multi-mesh builder replaced the tracked GLB): do NOT
+    // widen or delete the guard — reinstate the meshCount>3 clause for
+    // stretcher_equipment against the replacement builder asset instead.
+    {
+      const row = equipment.find((r) => r.subjectId === "stretcher_equipment")!;
+      expect(row, "stretcher_equipment vanished from the ledger").toBeTruthy();
+      expect(
+        row.resolvedToFallback,
+        "stretcher_equipment regressed to the generic fallback — 3 meshes, 56 triangles, a grey pole",
+      ).toBe(false);
+      expect(
+        row.meshCount,
+        "stretcher_equipment no longer mounts the tracked single-primitive GLB " +
+          "(stretcher-sketchfab-ccby.glb, pinned by station-equipment.test.ts:291-293): " +
+          "meshCount>3 means the old multi-mesh premise returned — reinstate the retired " +
+          "meshCount>3 clause for this id against the new builder asset; widening or " +
+          "deleting this guard is wrong",
+      ).toBe(1);
+    }
+
     // hospital_bed_equipment is DEFERRED per operator Q4 2026-10-30 (see the it.fails
     // clause below) and skipped here so the other support surfaces keep enforcing.
+    // stretcher_equipment is covered by the R1 inverted guard above, not by the old
+    // multi-mesh premise. side_rails_equipment is the known-good control proving the
+    // >3 detector still works (parametric path, premise-measured meshCount=9 on
+    // 2026-11-02 in premise-generator-sweep-harness.json knownGoodControls).
     for (const id of SUPPORT) {
-      if (id === "hospital_bed_equipment") continue;
+      if (id === "hospital_bed_equipment" || id === "stretcher_equipment") continue;
       const row = equipment.find((r) => r.subjectId === id)!;
       expect(row.meshCount, `${id} should be multi-mesh`).toBeGreaterThan(3);
     }

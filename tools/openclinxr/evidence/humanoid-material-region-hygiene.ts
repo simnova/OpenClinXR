@@ -46,8 +46,20 @@ export type RegionFacts = {
    * Pair with yokePeakY for shoulder-coverage assertions.
    */
   bodyShoulderTopY: number;
-  /** World Y of the clavicle joint (mean L/R), or body-height fallback. */
+  /**
+   * World Y of the clavicle joint (mean L/R), or body-height fallback.
+   * RIG-RELATIVE: floats with the skeleton, not the skin. Do not use as a neckline
+   * floor — see surfaceNotchY.
+   */
   clavicleY: number;
+  /**
+   * World Y of the suprasternal surface notch: the front-centerline body-surface dip
+   * immediately below the clavicle line (global max-Z minimum over 5 mm bins in
+   * [clavicleY - 0.15, clavicleY] on non-garment meshes). The anatomical anchor for
+   * neckline floors — the joint floats 40-67 mm above it on MPFB rigs (st-premise R4).
+   * NaN when no dip is measurable (fail-closed: clauses assert > 0).
+   */
+  surfaceNotchY: number;
 };
 
 const TORSO_CLOTHING_MAT_RE = /openclinxr_role_mesh_clothing_.*_(top|soft_trim)/i;
@@ -163,6 +175,7 @@ export async function inspectMaterialRegionHygiene(input: {
 
   const clavicleY = readClavicleY(document, body.minY, bodyH);
   const bodyShoulderTopY = lateralBodyShoulderTopY(document);
+  const surfaceNotchY = readSurfaceNotchY(document, clavicleY);
 
   // Multi-layer garments: lowest centerline opening still must clear the clavicle
   // and stay under the anti-scarf ceiling. Max would re-select under-layer yoke.
@@ -177,6 +190,7 @@ export async function inspectMaterialRegionHygiene(input: {
     yokePeakY,
     bodyShoulderTopY,
     clavicleY,
+    surfaceNotchY,
   };
 }
 
@@ -337,8 +351,91 @@ function bodyAabb(document: Document): {
 }
 
 /**
+ * Suprasternal surface notch Y from the exported BODY mesh (not the rig).
+ *
+ * ST-PREMISE R4 (C-instrument, nurse row, 2026-11-03, revised same day after the 5 mm
+ * estimator failed): the MPFB clavicle JOINT floats ~52-62 mm above the throat hollow on
+ * every MPFB asset (nurse joint 1.5319 vs hollow 1.470; physician 1.4892 vs 1.430;
+ * partner 1.4415 vs 1.390 — joint minus hollow is 52/59/52 mm), while Anny-rail joints
+ * sit mid-chest and pass the same fit at +17..+111 mm. The joint reference is
+ * rail-dependent; the hollow (front-centerline surface dip = the notch the sternal
+ * clavicle head articulates at) is the rail-independent anatomical anchor.
+ *
+ * Why 20 mm bins (not 5 mm): a 5 mm min-of-max-Z estimator reads mesh seams, not
+ * anatomy — on nurse it returned 1.510 (a centerline seam, z 0.047) while a narrower
+ * band returned 1.480 by luck of sparse sampling (bins vanish with n < 3). Method
+ * sweep on origin/main (bin widths 10/15/20 mm x bands 0.04/0.06/0.10): 10/15 mm
+ * modes land on interior-seam bins (hollow z <= 0.03, e.g. nurse 1.335, ob-aisha
+ * 1.225) on several assets, while 20 mm bins are envelope-dominated and junk-free on
+ * all 12 MPFB assets (hollow z 0.059-0.078, front-surface plausible). Config was
+ * selected for junk-freedom across the fleet BEFORE reading any margin.
+ * Non-junk estimates agree within ~15 mm (nurse 1.470/1.478/1.485); the shipped
+ * config reads lowest but the nurse verdict (neck 1.487 above every estimate) holds
+ * under all of them, so the config choice does not decide the verdict.
+ *
+ * Guards inside: body-class meshes only (excludes teeth/tongue/eyes/hair/garments
+ * whose interior verts beat the hollow); bins need n >= 3; bins with maxZ < 0.05
+ * are interior seams, not surface (measured seam depths: nurse 0.047, Anny interior
+ * 0.015-0.026; shipped hollows read 0.059-0.078). NaN when nothing qualifies —
+ * callers fall back to the joint floor (never flip a passing row on NaN).
+ */
+function readSurfaceNotchY(document: Document, jointY: number): number {
+  const xs: number[] = [];
+  const ys: number[] = [];
+  const zs: number[] = [];
+  for (const mesh of document.getRoot().listMeshes()) {
+    if (classifyGarmentMeshName(mesh.getName() || "") !== "body") continue;
+    const pos = mesh.listPrimitives().flatMap((p) => {
+      const a = p.getAttribute("POSITION")?.getArray();
+      return a ? [a] : [];
+    });
+    for (const arr of pos) {
+      for (let i = 0; i + 2 < arr.length; i += 3) {
+        xs.push(Number(arr[i]));
+        ys.push(Number(arr[i + 1]));
+        zs.push(Number(arr[i + 2]));
+      }
+    }
+  }
+  if (ys.length === 0) return NaN;
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const halfW = Math.max((maxX - minX) * 0.5, 0.001);
+  // Same sternum-line band as centerlineNeckOpeningY: stays off the deltoid.
+  const band = Math.min(0.06, halfW * 0.18);
+  // 20 mm bins: every slice catches front-envelope verts, so max-Z is the envelope
+  // (5/10 mm slices go envelope-bald and report interior seams as dips).
+  const W = 0.02;
+  const bins = new Map<number, { maxZ: number; n: number }>();
+  for (let i = 0; i < xs.length; i++) {
+    if (Math.abs(xs[i]!) > band) continue;
+    const b = Math.floor(ys[i]! / W) * W + W / 2;
+    const e = bins.get(b) ?? { maxZ: -Infinity, n: 0 };
+    if (zs[i]! > e.maxZ) e.maxZ = zs[i]!;
+    e.n += 1;
+    bins.set(b, e);
+  }
+  let notchY = NaN;
+  let notchZ = Infinity;
+  for (const [b, e] of bins) {
+    if (e.n < 3 || e.maxZ === -Infinity) continue;
+    if (b < jointY - 0.25 || b > jointY + 0.15) continue;
+    // Interior-seam bins (mouth cavity, mirror seam) read far below any throat
+    // envelope; they are mesh artifacts, not dips.
+    if (e.maxZ < 0.05) continue;
+    if (e.maxZ < notchZ) {
+      notchZ = e.maxZ;
+      notchY = b;
+    }
+  }
+  return notchY;
+}
+/**
  * Clavicle world Y from skeleton joints. Falls back to body_min + 0.80 * height
  * (true collarbone / suprasternal region — above the 0.76 top_y that sat under it).
+ *
+ * NOTE (st-premise R4): rig-relative — floats 40-67 mm above the surface notch on MPFB
+ * rigs. Provenance only; neckline floors use surfaceNotchY.
  */
 function readClavicleY(document: Document, bodyMinY: number, bodyH: number): number {
   const clavYs: number[] = [];

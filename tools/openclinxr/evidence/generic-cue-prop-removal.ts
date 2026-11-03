@@ -3,7 +3,21 @@
  *
  * Enumerates stations from SHIPPED scene manifests under
  * apps/ui-xr/public/xr-assets/generated/, reads declared roomProps, and measures
- * which propIds have a rendered .body mesh in the LIVE scene.
+ * which propIds reach the LIVE scene as geometry through any of the three
+ * product channels (st-premise R2, C-instrument 2026-11-03):
+ *   (a) unit-box `.body` fallback (the only channel the detector used to read;
+ *       still emitted for shipped-vocabulary physical ids with no builder arm),
+ *   (b) metric `.builder` geometry (room-prop groups whose builder arm resolved
+ *       via resolveRoomPropBuilderEquipmentId; #185 convention, keyed by #209
+ *       inspectors; group userData openClinXrRoomPropUsedBuilder),
+ *   (c) cue affordance markers (cue_or_overlay groups carry no body by #223
+ *       design; the marker mesh is their honest render).
+ * Detection is room-prop-group based: a declared propId counts when its
+ * `openclinxr.<scenario>.room-prop.<propId>` group (or its .body/.builder
+ * subtree) contributes a rendered Mesh. Nameplate `.label` subtrees never
+ * count. Station-fixture props (fixture-slot.*, e.g. ekg-leads-on-bed on the
+ * stretcher fixture) render outside room-prop groups and are NOT read by this
+ * detector — see the counterweight clause for the documented blind spot.
  *
  * claimScope: whether authoring-metadata labels (scoring objective, raw trace tag,
  * faculty review cue, scenario title as prop label) reach learner-visible geometry.
@@ -44,8 +58,10 @@ export type StationProps = {
   scenarioId: string;
   /** propIds in the SHIPPED scene manifest. */
   declaredPropIds: string[];
-  /** propIds with a rendered body mesh in the LIVE scene. */
+  /** propIds with rendered geometry in the LIVE scene (body, builder or cue-marker channel). */
   renderedPropIds: string[];
+  /** Subset of renderedPropIds still using the legacy unit-box `.body` channel. */
+  renderedBodyPropIds: string[];
   /** Rendered props whose label is a clinical objective, a raw trace tag, or faculty-facing text. */
   metadataLabelledRenderedProps: MetadataLabelledProp[];
 };
@@ -240,6 +256,8 @@ export async function writeGenericCueDump(
     claimScope: [
       "shipped_scene_manifest_roomProps",
       "live_scene_room_prop_body_meshes",
+      "live_scene_room_prop_builder_meshes",
+      "live_scene_room_prop_cue_markers",
       "metadata_label_classification_objective_trace_tag_faculty_review",
     ],
     notEvidenceFor: [
@@ -303,6 +321,7 @@ async function measureLiveRoomProps(input: {
           const live = await readLiveRoomPropsFromPage(page);
           const sid = live.scenarioId || scenarioId;
           const renderedPropIds = [...live.renderedPropIds].sort();
+          const renderedBodyPropIds = [...live.renderedBodyPropIds].sort();
 
           const metadataLabelledRenderedProps: MetadataLabelledProp[] = [];
           for (const propId of renderedPropIds) {
@@ -330,11 +349,13 @@ async function measureLiveRoomProps(input: {
             scenarioId: sid,
             declaredPropIds,
             renderedPropIds,
+            renderedBodyPropIds,
             metadataLabelledRenderedProps,
           });
 
           process.stdout.write(
             `  ${sid} declared=${declaredPropIds.length} rendered=${renderedPropIds.length} `
+            + `body=${renderedBodyPropIds.length} `
             + `metadata=${metadataLabelledRenderedProps.length}`
             + (metadataLabelledRenderedProps.length > 0
               ? ` [${metadataLabelledRenderedProps.map((m) => m.propId).join(",")}]`
@@ -381,11 +402,15 @@ async function waitForRoomPropFrames(page: Page, timeoutMs: number): Promise<voi
 
 /**
  * String IIFE so tsx/esbuild cannot inject `__name` into the browser.
- * Room prop groups are named `openclinxr.<scenario>.room-prop.<propId>` with child `.body`.
+ * Room prop groups are named `openclinxr.<scenario>.room-prop.<propId>`.
+ * A prop counts as rendered when its group (or its `.body`/`.builder`
+ * subtree) contributes a Mesh. Nameplate `.label` subtrees never count, and
+ * cues carry no `.body` by #223 design (their marker is their render).
  */
 export async function readLiveRoomPropsFromPage(page: Page): Promise<{
   scenarioId: string;
   renderedPropIds: string[];
+  renderedBodyPropIds: string[];
   labelByPropId: Record<string, string>;
 }> {
   return page.evaluate(`(() => {
@@ -399,36 +424,56 @@ export async function readLiveRoomPropsFromPage(page: Page): Promise<{
     }
 
     const rendered = new Set();
+    const renderedBody = new Set();
     const labelByPropId = {};
 
-    // ONLY count props that have a rendered body mesh (main.ts:6099-6102).
-    // Evidence propIds alone are declarations, not geometry.
+    // st-premise R2 (C-instrument): read all three product channels, not just
+    // the pre-#185 unit-box ".body". Walk each Mesh up to its room-prop group;
+    // builder meshes and cue markers inherit the group's propId by ancestry.
     if (scene && typeof scene.traverse === "function") {
       scene.traverse(function (object) {
-        if (!object || typeof object.name !== "string") return;
-        const name = object.name;
-        // Body mesh: openclinxr.<scenario>.room-prop.<propId>.body
-        if (name.indexOf(".room-prop.") < 0 || !name.endsWith(".body")) return;
-        // Require an actual Mesh body, not a named empty.
+        if (!object) return;
+        // Require an actual Mesh, not a named empty or Group.
         if (!object.isMesh && object.type !== "Mesh") return;
-        const marker = ".room-prop.";
-        const idx = name.lastIndexOf(marker);
-        if (idx < 0) return;
-        const after = name.slice(idx + marker.length);
-        const propId = after.endsWith(".body") ? after.slice(0, -".body".length) : after;
-        if (propId.length === 0) return;
+        let node = object;
+        let propId = null;
+        let isBody = false;
+        let isLabel = false;
+        while (node) {
+          const nm = (node && typeof node.name === "string") ? node.name : "";
+          const marker = ".room-prop.";
+          const idx = nm.lastIndexOf(marker);
+          if (idx >= 0) {
+            const rest = nm.slice(idx + marker.length);
+            const dot = rest.indexOf(".");
+            if (rest.length > 0 && dot !== 0) {
+              propId = dot < 0 ? rest : rest.slice(0, dot);
+              const tail = dot < 0 ? "" : rest.slice(dot + 1);
+              if (tail === "body" || tail.indexOf("body.") === 0) isBody = true;
+              if (tail === "label" || tail.indexOf("label.") === 0) isLabel = true;
+            }
+            break;
+          }
+          node = node.parent;
+        }
+        if (propId === null || propId.length === 0) return;
+        // Nameplates are UI chrome, not furniture geometry.
+        if (isLabel) return;
         rendered.add(propId);
+        if (isBody) renderedBody.add(propId);
       });
     }
 
     return {
       scenarioId: scenarioId,
       renderedPropIds: Array.from(rendered),
+      renderedBodyPropIds: Array.from(renderedBody),
       labelByPropId: labelByPropId,
     };
   })()`) as Promise<{
     scenarioId: string;
     renderedPropIds: string[];
+    renderedBodyPropIds: string[];
     labelByPropId: Record<string, string>;
   }>;
 }

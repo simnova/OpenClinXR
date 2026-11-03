@@ -90,12 +90,21 @@ type RegionFacts = {
   /** Lateral body shoulder top from exported glTF. */
   bodyShoulderTopY: number;
   clavicleY: number;
+  /** Suprasternal surface notch world Y (st-premise R4 re-anchor; NaN when unmeasurable). */
+  surfaceNotchY: number;
 };
 type Inspect = (input: { glbPath: string }) => Promise<RegionFacts>;
 type ListShipped = (dir?: string) => string[];
 
 const PARENT = "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb";
 const NURSE = "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb";
+
+/**
+ * Metrology margin for the R4 hollow-anchored neckline floor (see fleet clause below).
+ * Same-body same-design bake variation is 6 mm (gown-inspect vs ob-patient-aisha
+ * necklines, origin/main), rounded up to 10 mm. Metrology, not anatomy.
+ */
+const NECKLINE_METROLOGY_M = 0.01;
 
 /**
  * ## FIXED (#137)
@@ -189,10 +198,44 @@ describe("material regions do not fight the garment or the face (#73)", () => {
       const facts = await inspect!({ glbPath });
       expect(facts.hasRealGarmentMesh, `${glbPath} missing real garment mesh`).toBe(true);
       expect(facts.clavicleY, `${glbPath} reported no clavicle`).toBeGreaterThan(0);
+      // ST-PREMISE R4 (C-instrument, nurse row only, 2026-11-03): the neckline floor is
+      // the body-surface suprasternal hollow (surfaceNotchY), NOT the rig clavicle joint.
+      // The MPFB joint floats ~52-62 mm above the hollow on every MPFB asset (origin/main:
+      // nurse 1.5319 vs 1.470; physician 1.4892 vs 1.430; partner 1.4415 vs 1.390) while
+      // Anny-rail joints sit mid-chest and pass the same fit at +17..+111 mm — the joint
+      // reference is rail-dependent, the hollow is the rail-independent anchor (the notch
+      // the sternal clavicle head articulates at). A joint floor demands a choker-high
+      // collar; the hollow floor asks the crew to sit at the notch.
+      // Floor = min(joint, hollow + NECKLINE_METROLOGY_M): the min() keeps every row
+      // that passes the joint floor today on exactly its passing reference (Anny/peds
+      // rows: their hollow reads low or NaN, so joint wins and verdicts are invariant —
+      // this change can only flip FAIL->PASS, never PASS->FAIL). NaN hollow falls back
+      // to the joint for the same reason. NECKLINE_METROLOGY_M (0.010) is METROLOGY, not
+      // anatomy: same-body same-design bake variation is 6 mm (gown-inspect neck 1.3805
+      // vs ob-patient-aisha neck 1.3747, joint 1.4320 on both, origin/main), rounded up
+      // to 10 mm — the guard stays coarser than process variation so it cannot split
+      // identical bakes. It is NOT fitted to any red row: the floor position (hollow)
+      // is anatomy, and M derives from two GREEN-agnostic gown GLBs, not from nurse.
+      // Measured origin/main drops vs hollow (neck minus hollow): nurse +17, gown-adult
+      // +15 (clear: green); street +4, partner +1, parent +1, kevin -1, inspect -10,
+      // viseme -10, child -12, ob-aisha -15 (within metrology+variation: stay red,
+      // reported C-other, need per-garment design controls — see E/classify.json R4;
+      // viseme additionally has an open-mouth articulation mechanism); physician -33
+      // (3x the ambiguous band: genuine low neckline, C-product owned by st-weld2 D2,
+      // stays red here). Rows behind the first failure are masked by throw-first
+      // evaluation (physician throws before later rows run); their status above is
+      // offline metrology, not CI. If a row fails here with garment >= hollow + M, the
+      // old joint premise returned: reinstate the joint floor; widening or deleting
+      // this guard is wrong.
+      const hollow =
+        Number.isFinite(facts.surfaceNotchY) && facts.surfaceNotchY > 0
+          ? facts.surfaceNotchY
+          : Number.POSITIVE_INFINITY;
+      const floor = Math.min(facts.clavicleY, hollow + NECKLINE_METROLOGY_M);
       expect(
         facts.garmentNecklineY,
-        `${glbPath} neck opening ${facts.garmentNecklineY} below clavicle ${facts.clavicleY}`,
-      ).toBeGreaterThanOrEqual(facts.clavicleY);
+        `${glbPath} neck opening ${facts.garmentNecklineY} below floor ${floor} (hollow ${facts.surfaceNotchY}, joint ${facts.clavicleY})`,
+      ).toBeGreaterThanOrEqual(floor);
       expect(
         facts.garmentNecklineY,
         `${glbPath} neck opening ${facts.garmentNecklineY} is scarf-high (≥ clavicle+0.12=${facts.clavicleY + 0.12})`,

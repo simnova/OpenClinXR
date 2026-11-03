@@ -312,10 +312,31 @@ describe("no orphan skin slivers at the garment edges", () => {
   });
 
   it("(4) NET known-good: the shirt/trouser overlap survives", () => {
+    // ST-PREMISE R6 (C-extinct for gowned assets, inverted guard 2026-11-03): the #684 gown
+    // re-bake replaced base cargo_pants with the hospital gown, so gowned assets ship NO trouser
+    // mesh by recorded design (pre-#651 likewise trouserless: gown x4, cargo_pants x0 — see the
+    // overlapping-garments header). The >=8mm shirt/trouser floor cannot hold where there are no
+    // trousers: pantsTop stays -Infinity and the overlap reads exactly 0.0 (premise inventory:
+    // gown-adult-patient and gown-ed-robert-hayes ship gown + shoes + body + face, gown-inspect
+    // ships gown + t-shirt + shoes + body + face — no trouser in any of them; the pre-decimation
+    // store copy gown-inspect-pre-decimation.glb likewise reads 0.0 on this same instrument, so
+    // the bound never held a gowned asset). Gown files (product naming convention) are pinned at
+    // exactly 0.0 — if a gown regrows trousers (old premise returns), this guard fails: move the
+    // file back under the >=8mm floor and reinstate the overlap clause for it. Widening the floor
+    // to admit 0.0, or deleting this guard, is wrong. Non-gown rows keep the floor (all >= 8mm on
+    // the same run: partner-first 16.6, nurse-first 19.4, kevin 50.6 per the premise inventory).
     requireRows();
+    const GOWN = /gown/;
     const bare = rows
-      .filter((r) => r.overlapMm < MIN_OVERLAP_MM)
+      .filter((r) => !GOWN.test(r.file) && r.overlapMm < MIN_OVERLAP_MM)
       .map((r) => `${r.file}: overlap=${r.overlapMm.toFixed(1)}mm`);
     expect(bare, `overlap below ${MIN_OVERLAP_MM} mm`).toEqual([]);
+    const regrown = rows
+      .filter((r) => GOWN.test(r.file) && r.overlapMm !== 0)
+      .map(
+        (r) =>
+          `${r.file}: gowned asset now measures trouser overlap=${r.overlapMm.toFixed(1)}mm — trousers returned (old premise); move this file back under the >=${MIN_OVERLAP_MM}mm floor and reinstate the overlap clause for it`,
+      );
+    expect(regrown, "gowned asset regrew trousers (old premise returned)").toEqual([]);
   });
 });

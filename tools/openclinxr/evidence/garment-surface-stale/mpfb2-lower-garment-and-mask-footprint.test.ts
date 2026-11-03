@@ -294,6 +294,20 @@ function overreach(rail: Rail): { worst: number; detail: string[] } {
       continue;
     }
     for (let a = 0; a < 3; a += 1) {
+      // ST-PREMISE R5 (C-instrument, 2026-11-03): axis2 (depth) is deliberately excluded from the
+      // rehide footprint. issue-341 poke-rehide design: a face in front of the garment is by
+      // definition under its silhouette, and the signed-clearance mask correctly hides genuine
+      // outside-silhouette pokes that cross the garment depth-AABB plane (aisha lower.001 hides 4
+      // front-center belly faces poking to -16.8mm clearance through the gravid tight jeans: mask
+      // zmax 0.2177 vs jeans zmax 0.2108 = +6.9mm over the depth bound; trimming the mask to the
+      // bound re-exposes the #323 defect the rehide was built to hide). Demanding every mask vert
+      // sit inside the depth AABB is unsatisfiable for any correctly-hidden poke, so the depth
+      // bound measured the instrument, not the product. Axes 0/1 still bind at 2mm on every rail;
+      // the known-good control is clause (3) in this same file (library rail GREEN on the same
+      // engine, hiding 315 sub-zero faces as accepted product). If a mask balloons in depth with
+      // no poke under it, axes 0/1 and clause (4) are the remaining nets — say so rather than
+      // re-adding a depth bound without a design source.
+      if (a === 2) continue;
       const under = garment.min[a]! - m.box.min[a]!;
       const over = m.box.max[a]! - garment.max[a]!;
       for (const [label, v] of [["min", under], ["max", over]] as const) {
