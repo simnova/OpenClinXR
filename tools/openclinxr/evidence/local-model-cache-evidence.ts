@@ -139,24 +139,24 @@ export function validateLocalModelCacheEvidenceReport(value: unknown): Validatio
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireLiteral(value.kind, "local_model_evidence_check", "/kind", errors);
-  requireLiteral(value.claim_scope, "cache_inventory_only", "/claim_scope", errors);
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireString(value.cache_dir, "/cache_dir", errors);
-  requireStringArray(value.approved_model_ids, "/approved_model_ids", errors);
-  requireBoolean(value.cache_exists, "/cache_exists", errors);
-  requireBoolean(value.ready, "/ready", errors);
-  requireObject(value.policy, "/policy", errors);
-  if (isRecord(value.policy)) {
-    requireLiteral(value.policy.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
-    requireLiteral(value.policy.paidApisUsed, false, "/policy/paidApisUsed", errors);
-    requireLiteral(value.policy.downloadAttemptedByThisTool, false, "/policy/downloadAttemptedByThisTool", errors);
-    requireLiteral(value.policy.localRuntimeExecutionAttemptedByThisTool, false, "/policy/localRuntimeExecutionAttemptedByThisTool", errors);
-    requireLiteral(value.policy.productionUseAllowed, false, "/policy/productionUseAllowed", errors);
+  requireLiteral(value["kind"], "local_model_evidence_check", "/kind", errors);
+  requireLiteral(value["claim_scope"], "cache_inventory_only", "/claim_scope", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireString(value["cache_dir"], "/cache_dir", errors);
+  requireStringArray(value["approved_model_ids"], "/approved_model_ids", errors);
+  requireBoolean(value["cache_exists"], "/cache_exists", errors);
+  requireBoolean(value["ready"], "/ready", errors);
+  requireObject(value["policy"], "/policy", errors);
+  if (isRecord(value["policy"])) {
+    requireLiteral(value["policy"]["cloudApisUsed"], false, "/policy/cloudApisUsed", errors);
+    requireLiteral(value["policy"]["paidApisUsed"], false, "/policy/paidApisUsed", errors);
+    requireLiteral(value["policy"]["downloadAttemptedByThisTool"], false, "/policy/downloadAttemptedByThisTool", errors);
+    requireLiteral(value["policy"]["localRuntimeExecutionAttemptedByThisTool"], false, "/policy/localRuntimeExecutionAttemptedByThisTool", errors);
+    requireLiteral(value["policy"]["productionUseAllowed"], false, "/policy/productionUseAllowed", errors);
   }
-  requireArray(value.models, "/models", errors);
-  if (Array.isArray(value.models)) {
-    value.models.forEach((model, index) => {
+  requireArray(value["models"], "/models", errors);
+  if (Array.isArray(value["models"])) {
+    value["models"].forEach((model, index) => {
       validateModel(model, `/models/${index}`, errors);
     });
   }
@@ -290,54 +290,54 @@ function validateModel(value: unknown, pathName: string, errors: string[]): void
     return;
   }
 
-  requireString(value.model_id, `${pathName}/model_id`, errors);
-  requireString(value.path, `${pathName}/path`, errors);
-  requireLiteral(value.source_type, "local_cache_snapshot", `${pathName}/source_type`, errors);
-  requireString(value.expected_storage_name, `${pathName}/expected_storage_name`, errors);
-  requireString(value.file_name, `${pathName}/file_name`, errors);
-  requireString(value.license, `${pathName}/license`, errors);
-  requireString(value.source_id, `${pathName}/source_id`, errors);
-  requireLiteral(value.approved, true, `${pathName}/approved`, errors);
-  requireBoolean(value.has_evidence, `${pathName}/has_evidence`, errors);
-  requireBoolean(value.ready, `${pathName}/ready`, errors);
-  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
-  requireNullableString(value.local_revision, `${pathName}/local_revision`, errors);
-  requireNullableString(value.main_ref_revision, `${pathName}/main_ref_revision`, errors);
-  requireNullableBoolean(value.main_ref_matches_file_revision, `${pathName}/main_ref_matches_file_revision`, errors);
-  requireNumber(value.size_bytes, `${pathName}/size_bytes`, errors);
-  requireNullableSha256(value.sha256, `${pathName}/sha256`, errors);
+  requireString(value["model_id"], `${pathName}/model_id`, errors);
+  requireString(value["path"], `${pathName}/path`, errors);
+  requireLiteral(value["source_type"], "local_cache_snapshot", `${pathName}/source_type`, errors);
+  requireString(value["expected_storage_name"], `${pathName}/expected_storage_name`, errors);
+  requireString(value["file_name"], `${pathName}/file_name`, errors);
+  requireString(value["license"], `${pathName}/license`, errors);
+  requireString(value["source_id"], `${pathName}/source_id`, errors);
+  requireLiteral(value["approved"], true, `${pathName}/approved`, errors);
+  requireBoolean(value["has_evidence"], `${pathName}/has_evidence`, errors);
+  requireBoolean(value["ready"], `${pathName}/ready`, errors);
+  requireStringArray(value["blockers"], `${pathName}/blockers`, errors);
+  requireNullableString(value["local_revision"], `${pathName}/local_revision`, errors);
+  requireNullableString(value["main_ref_revision"], `${pathName}/main_ref_revision`, errors);
+  requireNullableBoolean(value["main_ref_matches_file_revision"], `${pathName}/main_ref_matches_file_revision`, errors);
+  requireNumber(value["size_bytes"], `${pathName}/size_bytes`, errors);
+  requireNullableSha256(value["sha256"], `${pathName}/sha256`, errors);
 }
 
 function validateReadinessConsistency(value: Record<string, unknown>, errors: string[]): void {
-  const approvedModelIds = new Set(stringArray(value.approved_model_ids));
-  const models = Array.isArray(value.models) ? value.models.filter(isRecord) : [];
+  const approvedModelIds = new Set(stringArray(value["approved_model_ids"]));
+  const models = Array.isArray(value["models"]) ? value["models"].filter(isRecord) : [];
   const readyApprovedModels = models.filter((model) =>
-    model.ready === true
-    && model.approved === true
-    && typeof model.model_id === "string"
-    && approvedModelIds.has(model.model_id)
-    && Array.isArray(model.blockers)
-    && model.blockers.length === 0
-    && model.has_evidence === true
-    && typeof model.sha256 === "string"
-    && typeof model.size_bytes === "number"
-    && model.size_bytes > 0,
+    model["ready"] === true
+    && model["approved"] === true
+    && typeof model["model_id"] === "string"
+    && approvedModelIds.has(model["model_id"])
+    && Array.isArray(model["blockers"])
+    && model["blockers"].length === 0
+    && model["has_evidence"] === true
+    && typeof model["sha256"] === "string"
+    && typeof model["size_bytes"] === "number"
+    && model["size_bytes"] > 0,
   );
 
-  if (value.ready === true && readyApprovedModels.length === 0) {
+  if (value["ready"] === true && readyApprovedModels.length === 0) {
     errors.push("/ready cannot be true without at least one ready approved model file");
   }
   for (const [index, model] of models.entries()) {
-    if (model.ready === true && Array.isArray(model.blockers) && model.blockers.length > 0) {
+    if (model["ready"] === true && Array.isArray(model["blockers"]) && model["blockers"].length > 0) {
       errors.push(`/models/${index}/ready cannot be true when blockers are present`);
     }
-    if (model.ready === true && model.has_evidence !== true) {
+    if (model["ready"] === true && model["has_evidence"] !== true) {
       errors.push(`/models/${index}/ready cannot be true without weight evidence`);
     }
-    if (model.ready === true && typeof model.sha256 !== "string") {
+    if (model["ready"] === true && typeof model["sha256"] !== "string") {
       errors.push(`/models/${index}/ready cannot be true without sha256 evidence`);
     }
-    if (model.ready === true && model.main_ref_matches_file_revision !== true) {
+    if (model["ready"] === true && model["main_ref_matches_file_revision"] !== true) {
       errors.push(`/models/${index}/ready cannot be true without matching refs/main revision evidence`);
     }
   }

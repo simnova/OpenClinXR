@@ -522,8 +522,8 @@ function classifyStructuredOutputCaveats(input: {
   if (missingKeys.length > 0) {
     caveats.push(`The JSON object was parsable, but missing required keys: ${missingKeys.join(", ")}.`);
   }
-  const safetyFlags = Array.isArray(input.parsedJson.safety_flags)
-    ? input.parsedJson.safety_flags.filter((flag): flag is string => typeof flag === "string")
+  const safetyFlags = Array.isArray(input.parsedJson["safety_flags"])
+    ? input.parsedJson["safety_flags"].filter((flag): flag is string => typeof flag === "string")
     : [];
   if (safetyFlags.some((flag) => !allowedGuardrailLabels.has(flag))) {
     caveats.push("The JSON object was parsable, but safety_flags were clinical features rather than the requested guardrail labels.");

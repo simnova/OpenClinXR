@@ -95,11 +95,11 @@ export function isMeasurementTreeStamp(value: unknown): value is MeasurementTree
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
   return (
-    typeof v.head === "string"
-    && v.head.length >= 7
-    && typeof v.fingerprint === "string"
-    && v.fingerprint.length >= 16
-    && v.algorithm === MEASUREMENT_TREE_STAMP_ALGORITHM
+    typeof v["head"] === "string"
+    && v["head"].length >= 7
+    && typeof v["fingerprint"] === "string"
+    && v["fingerprint"].length >= 16
+    && v["algorithm"] === MEASUREMENT_TREE_STAMP_ALGORITHM
   );
 }
 
@@ -128,7 +128,7 @@ export async function tryReadStampedArtifact<TReport>(
     const raw = await readFile(artifactPath, "utf8");
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     const current = options?.currentStamp ?? computeMeasurementTreeStamp(options?.cwd);
-    const recorded = parsed.treeStamp;
+    const recorded = parsed["treeStamp"];
     if (!stampsMatch(recorded as MeasurementTreeStamp | undefined, current)) {
       return null;
     }

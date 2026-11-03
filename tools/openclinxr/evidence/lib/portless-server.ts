@@ -276,7 +276,7 @@ export async function spawnPortlessDevServer(
 
   // Explicit free port: Vite coerces CLI port 0 → DEFAULT_DEV_PORT 5173 (falsy check).
   // Pre-scan via listen(0) so parallel worktrees do not all stampede on 5173.
-  const requested = opts.env?.PORT;
+  const requested = opts.env?.["PORT"];
   const portEnv =
     requested !== undefined && requested !== "" && String(requested) !== "0"
       ? String(requested)
@@ -288,12 +288,12 @@ export async function spawnPortlessDevServer(
     ...process.env,
     ...opts.env,
     PORT: portEnv,
-    NO_COLOR: opts.env?.NO_COLOR ?? process.env.NO_COLOR ?? "1",
+    NO_COLOR: opts.env?.["NO_COLOR"] ?? process.env["NO_COLOR"] ?? "1",
     // Never flood evidence runs with rustc/cargo noise from transitive tools.
-    RUST_LOG: opts.env?.RUST_LOG ?? process.env.RUST_LOG ?? "error",
+    RUST_LOG: opts.env?.["RUST_LOG"] ?? process.env["RUST_LOG"] ?? "error",
   };
-  if (opts.env?.FORCE_COLOR === undefined) {
-    delete childEnv.FORCE_COLOR;
+  if (opts.env?.["FORCE_COLOR"] === undefined) {
+    delete childEnv["FORCE_COLOR"];
   }
 
   const proc = spawn("pnpm", ["--filter", opts.filter, "dev:portless"], {

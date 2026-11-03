@@ -314,18 +314,18 @@ export function validateIwsdkNpmMetadataSnapshot(value: unknown): ValidationResu
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireLiteral(value.kind, "iwsdk_npm_metadata_snapshot", "/kind", errors);
-  requireString(value.capturedAt, "/capturedAt", errors);
-  if (!isRecord(value.source)) {
+  requireLiteral(value["kind"], "iwsdk_npm_metadata_snapshot", "/kind", errors);
+  requireString(value["capturedAt"], "/capturedAt", errors);
+  if (!isRecord(value["source"])) {
     errors.push("/source must be object");
   } else {
-    requireString(value.source.command, "/source/command", errors);
-    requireString(value.source.registry, "/source/registry", errors);
+    requireString(value["source"]["command"], "/source/command", errors);
+    requireString(value["source"]["registry"], "/source/registry", errors);
   }
-  if (!Array.isArray(value.packages)) {
+  if (!Array.isArray(value["packages"])) {
     errors.push("/packages must be array");
   } else {
-    value.packages.forEach((entry, index) => {
+    value["packages"].forEach((entry, index) => {
       validatePackageMetadata(entry, `/packages/${index}`, errors);
     });
   }
@@ -339,12 +339,12 @@ function validatePackageMetadata(value: unknown, pathName: string, errors: strin
     return;
   }
 
-  requireString(value.name, `${pathName}/name`, errors);
-  requireString(value.latestVersion, `${pathName}/latestVersion`, errors);
-  requireString(value.license, `${pathName}/license`, errors);
-  requireStringRecord(value.peerDependencies, `${pathName}/peerDependencies`, errors);
-  requireStringRecord(value.dependencies, `${pathName}/dependencies`, errors);
-  requireStringRecord(value.bin, `${pathName}/bin`, errors);
+  requireString(value["name"], `${pathName}/name`, errors);
+  requireString(value["latestVersion"], `${pathName}/latestVersion`, errors);
+  requireString(value["license"], `${pathName}/license`, errors);
+  requireStringRecord(value["peerDependencies"], `${pathName}/peerDependencies`, errors);
+  requireStringRecord(value["dependencies"], `${pathName}/dependencies`, errors);
+  requireStringRecord(value["bin"], `${pathName}/bin`, errors);
 }
 
 function validateIwsdkNpmCurrentnessReport(value: unknown): ValidationResult {
@@ -353,17 +353,17 @@ function validateIwsdkNpmCurrentnessReport(value: unknown): ValidationResult {
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireLiteral(value.kind, "iwsdk_npm_currentness_check", "/kind", errors);
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireBoolean(value.ready, "/ready", errors);
-  requireString(value.metadata_file, "/metadata_file", errors);
-  if (!isRecord(value.currentness)) {
+  requireLiteral(value["kind"], "iwsdk_npm_currentness_check", "/kind", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireBoolean(value["ready"], "/ready", errors);
+  requireString(value["metadata_file"], "/metadata_file", errors);
+  if (!isRecord(value["currentness"])) {
     errors.push("/currentness must be object");
   } else {
-    requireBoolean(value.currentness.passed, "/currentness/passed", errors);
-    requireStringArray(value.currentness.blockers, "/currentness/blockers", errors);
+    requireBoolean(value["currentness"]["passed"], "/currentness/passed", errors);
+    requireStringArray(value["currentness"]["blockers"], "/currentness/blockers", errors);
   }
-  if (value.ready !== true) {
+  if (value["ready"] !== true) {
     errors.push("/ready must be true for validation");
   }
 
@@ -394,8 +394,8 @@ function adoptionBlockersForPackage(
         || sourceLicense === "Meta Platform Technologies SDK License")
       ? `package_license_requires_legal_procurement_approval:@meta-quest/hzdb:${sourceLicense}`
       : undefined,
-    peerDependencies.vite && !vitePeerRangeAcceptsRepoMajor(peerDependencies.vite, repoViteVersion)
-      ? `vite_peer_range_does_not_accept_repo_vite_major:${packageName}:${peerDependencies.vite}_vs_${repoViteVersion}`
+    peerDependencies["vite"] && !vitePeerRangeAcceptsRepoMajor(peerDependencies["vite"], repoViteVersion)
+      ? `vite_peer_range_does_not_accept_repo_vite_major:${packageName}:${peerDependencies["vite"]}_vs_${repoViteVersion}`
       : undefined,
   ]);
 }
@@ -415,7 +415,7 @@ async function readRepoViteVersion(): Promise<string> {
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
   };
-  const version = manifest.devDependencies?.vite ?? manifest.dependencies?.vite;
+  const version = manifest.devDependencies?.["vite"] ?? manifest.dependencies?.["vite"];
   if (!version) {
     throw new Error("Could not resolve repo Vite version from apps/arena/ui-xr-iwsdk-spike/package.json");
   }

@@ -274,14 +274,14 @@ async function requestIwsdkMcpToolInventory(input: {
     const toolList = await waitForResponse("2");
     const initializeResult = responseResultRecord(initialize);
     const toolsResult = responseResultRecord(toolList);
-    const tools = Array.isArray(toolsResult.tools) ? toolsResult.tools : [];
+    const tools = Array.isArray(toolsResult["tools"]) ? toolsResult["tools"] : [];
     return {
       initializeResult: {
-        protocolVersion: initializeResult.protocolVersion,
-        serverInfo: isRecord(initializeResult.serverInfo) ? initializeResult.serverInfo : undefined,
+        protocolVersion: initializeResult["protocolVersion"],
+        serverInfo: isRecord(initializeResult["serverInfo"]) ? initializeResult["serverInfo"] : undefined,
       },
       toolNames: tools
-        .map((tool) => (isRecord(tool) ? tool.name : undefined))
+        .map((tool) => (isRecord(tool) ? tool["name"] : undefined))
         .filter((name): name is string => typeof name === "string")
         .sort(),
     };

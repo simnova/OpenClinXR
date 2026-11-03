@@ -510,7 +510,7 @@ async function buildPackageManagerControls(
   const iwsdkVerify = rootPackage.scripts?.["iwsdk:verify"] ?? "";
   const auditScript = rootPackage.scripts?.["security:audit"] ?? "";
   const licenseScript = rootPackage.scripts?.["security:licenses"] ?? "";
-  const threeOverride = rootPackage.pnpm?.overrides?.three ?? await readWorkspaceThreeOverride(workspaceRoot);
+  const threeOverride = rootPackage.pnpm?.overrides?.["three"] ?? await readWorkspaceThreeOverride(workspaceRoot);
 
   return {
     workspacePostureInVerify: iwsdkVerify.includes("pnpm iwsdk:workspace:posture"),

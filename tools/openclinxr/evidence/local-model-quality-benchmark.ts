@@ -258,7 +258,7 @@ export async function buildLocalModelQualityBenchmarkReport(input: {
     input: {
       runtimeBenchmarkFile: input.runtimeBenchmarkFile,
       runtimeGeneratedAt: input.runtimeBenchmark.generatedAt,
-      modelId: stringValue(input.runtimeBenchmark.runtime.modelId),
+      modelId: stringValue(input.runtimeBenchmark.runtime["modelId"]),
       runtimeStatus: input.runtimeBenchmark.status,
     },
     structuredOutput,
@@ -283,32 +283,32 @@ export function validateLocalModelQualityBenchmarkReport(value: unknown): Valida
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
-  requireRecord(value.policy, "/policy", errors);
-  if (isRecord(value.policy)) {
-    requireLiteral(value.policy.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
-    requireLiteral(value.policy.paidApisUsed, false, "/policy/paidApisUsed", errors);
-    requireLiteral(value.policy.modelDownloadsAllowed, false, "/policy/modelDownloadsAllowed", errors);
-    requireLiteral(value.policy.localRuntimeExecutionAllowed, false, "/policy/localRuntimeExecutionAllowed", errors);
-    requireLiteral(value.policy.productionUseAllowed, false, "/policy/productionUseAllowed", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireOneOf(value["status"], ["passed", "blocked"], "/status", errors);
+  requireRecord(value["policy"], "/policy", errors);
+  if (isRecord(value["policy"])) {
+    requireLiteral(value["policy"]["cloudApisUsed"], false, "/policy/cloudApisUsed", errors);
+    requireLiteral(value["policy"]["paidApisUsed"], false, "/policy/paidApisUsed", errors);
+    requireLiteral(value["policy"]["modelDownloadsAllowed"], false, "/policy/modelDownloadsAllowed", errors);
+    requireLiteral(value["policy"]["localRuntimeExecutionAllowed"], false, "/policy/localRuntimeExecutionAllowed", errors);
+    requireLiteral(value["policy"]["productionUseAllowed"], false, "/policy/productionUseAllowed", errors);
   }
-  requireRecord(value.input, "/input", errors);
-  if (isRecord(value.input)) {
-    requireString(value.input.runtimeBenchmarkFile, "/input/runtimeBenchmarkFile", errors);
-    requireString(value.input.runtimeGeneratedAt, "/input/runtimeGeneratedAt", errors);
-    requireNullableString(value.input.modelId, "/input/modelId", errors);
-    requireString(value.input.runtimeStatus, "/input/runtimeStatus", errors);
+  requireRecord(value["input"], "/input", errors);
+  if (isRecord(value["input"])) {
+    requireString(value["input"]["runtimeBenchmarkFile"], "/input/runtimeBenchmarkFile", errors);
+    requireString(value["input"]["runtimeGeneratedAt"], "/input/runtimeGeneratedAt", errors);
+    requireNullableString(value["input"]["modelId"], "/input/modelId", errors);
+    requireString(value["input"]["runtimeStatus"], "/input/runtimeStatus", errors);
   }
-  validateStructuredOutput(value.structuredOutput, errors);
-  validateActorPolicy(value.actorPolicy, errors);
-  validateTargetHardware(value.targetHardware, errors);
-  requireRecord(value.verdict, "/verdict", errors);
-  if (isRecord(value.verdict)) {
-    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
-    requireLiteral(value.verdict.readyForLocalDialogue, false, "/verdict/readyForLocalDialogue", errors);
-    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
-    requireStringArray(value.verdict.caveats, "/verdict/caveats", errors);
+  validateStructuredOutput(value["structuredOutput"], errors);
+  validateActorPolicy(value["actorPolicy"], errors);
+  validateTargetHardware(value["targetHardware"], errors);
+  requireRecord(value["verdict"], "/verdict", errors);
+  if (isRecord(value["verdict"])) {
+    requireBoolean(value["verdict"]["passed"], "/verdict/passed", errors);
+    requireLiteral(value["verdict"]["readyForLocalDialogue"], false, "/verdict/readyForLocalDialogue", errors);
+    requireStringArray(value["verdict"]["blockers"], "/verdict/blockers", errors);
+    requireStringArray(value["verdict"]["caveats"], "/verdict/caveats", errors);
   }
   validateQualityConsistency(value, errors);
 
@@ -321,16 +321,16 @@ function validateStructuredOutput(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireStringArray(value.requiredKeys, "/structuredOutput/requiredKeys", errors);
-  requireStringArray(value.observedKeys, "/structuredOutput/observedKeys", errors);
-  requireBoolean(value.requiredKeysPresent, "/structuredOutput/requiredKeysPresent", errors);
-  requireBoolean(value.noReasoningMarkup, "/structuredOutput/noReasoningMarkup", errors);
-  requireStringArray(value.allowedGuardrailLabels, "/structuredOutput/allowedGuardrailLabels", errors);
-  requireStringArray(value.observedSafetyFlags, "/structuredOutput/observedSafetyFlags", errors);
-  requireStringArray(value.unsupportedSafetyFlags, "/structuredOutput/unsupportedSafetyFlags", errors);
-  requireBoolean(value.safetyFlagsUseGuardrailLabels, "/structuredOutput/safetyFlagsUseGuardrailLabels", errors);
-  requireBoolean(value.schemaGrammarEnforced, "/structuredOutput/schemaGrammarEnforced", errors);
-  requireStringArray(value.blockers, "/structuredOutput/blockers", errors);
+  requireStringArray(value["requiredKeys"], "/structuredOutput/requiredKeys", errors);
+  requireStringArray(value["observedKeys"], "/structuredOutput/observedKeys", errors);
+  requireBoolean(value["requiredKeysPresent"], "/structuredOutput/requiredKeysPresent", errors);
+  requireBoolean(value["noReasoningMarkup"], "/structuredOutput/noReasoningMarkup", errors);
+  requireStringArray(value["allowedGuardrailLabels"], "/structuredOutput/allowedGuardrailLabels", errors);
+  requireStringArray(value["observedSafetyFlags"], "/structuredOutput/observedSafetyFlags", errors);
+  requireStringArray(value["unsupportedSafetyFlags"], "/structuredOutput/unsupportedSafetyFlags", errors);
+  requireBoolean(value["safetyFlagsUseGuardrailLabels"], "/structuredOutput/safetyFlagsUseGuardrailLabels", errors);
+  requireBoolean(value["schemaGrammarEnforced"], "/structuredOutput/schemaGrammarEnforced", errors);
+  requireStringArray(value["blockers"], "/structuredOutput/blockers", errors);
 }
 
 function validateActorPolicy(value: unknown, errors: string[]): void {
@@ -339,18 +339,18 @@ function validateActorPolicy(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireOneOf(value.provider, ["deterministic-mock-model-gateway", "approved-local-qwen-llama-cpp"], "/actorPolicy/provider", errors);
-  requireOneOf(value.evidenceSource, ["deterministic_mock_only", "partial_real_local_model_runtime", "real_local_model_runtime"], "/actorPolicy/evidenceSource", errors);
-  requireBoolean(value.realLocalModelObserved, "/actorPolicy/realLocalModelObserved", errors);
-  requireBoolean(value.mockProbesPassed, "/actorPolicy/mockProbesPassed", errors);
-  requireBoolean(value.passed, "/actorPolicy/passed", errors);
-  requireStringArray(value.blockers, "/actorPolicy/blockers", errors);
-  requireActorPolicyProbeIdArray(value.requiredRealLocalProbeIds, "/actorPolicy/requiredRealLocalProbeIds", errors);
-  requireActorPolicyProbeIdArray(value.observedRealLocalProbeIds, "/actorPolicy/observedRealLocalProbeIds", errors);
-  requireActorPolicyProbeIdArray(value.missingRealLocalProbeIds, "/actorPolicy/missingRealLocalProbeIds", errors);
-  requireArray(value.probes, "/actorPolicy/probes", errors);
-  if (Array.isArray(value.probes)) {
-    value.probes.forEach((probe, index) => {
+  requireOneOf(value["provider"], ["deterministic-mock-model-gateway", "approved-local-qwen-llama-cpp"], "/actorPolicy/provider", errors);
+  requireOneOf(value["evidenceSource"], ["deterministic_mock_only", "partial_real_local_model_runtime", "real_local_model_runtime"], "/actorPolicy/evidenceSource", errors);
+  requireBoolean(value["realLocalModelObserved"], "/actorPolicy/realLocalModelObserved", errors);
+  requireBoolean(value["mockProbesPassed"], "/actorPolicy/mockProbesPassed", errors);
+  requireBoolean(value["passed"], "/actorPolicy/passed", errors);
+  requireStringArray(value["blockers"], "/actorPolicy/blockers", errors);
+  requireActorPolicyProbeIdArray(value["requiredRealLocalProbeIds"], "/actorPolicy/requiredRealLocalProbeIds", errors);
+  requireActorPolicyProbeIdArray(value["observedRealLocalProbeIds"], "/actorPolicy/observedRealLocalProbeIds", errors);
+  requireActorPolicyProbeIdArray(value["missingRealLocalProbeIds"], "/actorPolicy/missingRealLocalProbeIds", errors);
+  requireArray(value["probes"], "/actorPolicy/probes", errors);
+  if (Array.isArray(value["probes"])) {
+    value["probes"].forEach((probe, index) => {
       validateActorPolicyProbe(probe, `/actorPolicy/probes/${index}`, errors);
     });
   }
@@ -362,29 +362,29 @@ function validateActorPolicyProbe(value: unknown, pathName: string, errors: stri
     return;
   }
 
-  requireActorPolicyProbeId(value.id, `${pathName}/id`, errors);
-  if (value.provider !== undefined) {
-    requireOneOf(value.provider, ["deterministic-mock-model-gateway", "approved-local-qwen-llama-cpp"], `${pathName}/provider`, errors);
+  requireActorPolicyProbeId(value["id"], `${pathName}/id`, errors);
+  if (value["provider"] !== undefined) {
+    requireOneOf(value["provider"], ["deterministic-mock-model-gateway", "approved-local-qwen-llama-cpp"], `${pathName}/provider`, errors);
   }
-  requireString(value.learnerUtterance, `${pathName}/learnerUtterance`, errors);
-  requireString(value.responseKind, `${pathName}/responseKind`, errors);
-  requireString(value.guardrailStatus, `${pathName}/guardrailStatus`, errors);
-  if (value.responseText !== undefined) {
-    requireString(value.responseText, `${pathName}/responseText`, errors);
+  requireString(value["learnerUtterance"], `${pathName}/learnerUtterance`, errors);
+  requireString(value["responseKind"], `${pathName}/responseKind`, errors);
+  requireString(value["guardrailStatus"], `${pathName}/guardrailStatus`, errors);
+  if (value["responseText"] !== undefined) {
+    requireString(value["responseText"], `${pathName}/responseText`, errors);
   }
-  requireBoolean(value.hiddenFactsLeaked, `${pathName}/hiddenFactsLeaked`, errors);
-  if (value.systemPromptLeaked !== undefined) {
-    requireBoolean(value.systemPromptLeaked, `${pathName}/systemPromptLeaked`, errors);
+  requireBoolean(value["hiddenFactsLeaked"], `${pathName}/hiddenFactsLeaked`, errors);
+  if (value["systemPromptLeaked"] !== undefined) {
+    requireBoolean(value["systemPromptLeaked"], `${pathName}/systemPromptLeaked`, errors);
   }
-  requireBoolean(value.passed, `${pathName}/passed`, errors);
-  if (value.blockers !== undefined) {
-    requireStringArray(value.blockers, `${pathName}/blockers`, errors);
+  requireBoolean(value["passed"], `${pathName}/passed`, errors);
+  if (value["blockers"] !== undefined) {
+    requireStringArray(value["blockers"], `${pathName}/blockers`, errors);
   }
-  if (value.rawLogPath !== undefined) {
-    requireString(value.rawLogPath, `${pathName}/rawLogPath`, errors);
+  if (value["rawLogPath"] !== undefined) {
+    requireString(value["rawLogPath"], `${pathName}/rawLogPath`, errors);
   }
-  if (value.rawLogSha256 !== undefined) {
-    requireSha256(value.rawLogSha256, `${pathName}/rawLogSha256`, errors);
+  if (value["rawLogSha256"] !== undefined) {
+    requireSha256(value["rawLogSha256"], `${pathName}/rawLogSha256`, errors);
   }
 }
 
@@ -394,20 +394,20 @@ function validateTargetHardware(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireNullableString(value.observedDevice, "/targetHardware/observedDevice", errors);
-  requireStringArray(value.requiredFamilies, "/targetHardware/requiredFamilies", errors);
-  requireBoolean(value.passed, "/targetHardware/passed", errors);
-  requireStringArray(value.blockers, "/targetHardware/blockers", errors);
+  requireNullableString(value["observedDevice"], "/targetHardware/observedDevice", errors);
+  requireStringArray(value["requiredFamilies"], "/targetHardware/requiredFamilies", errors);
+  requireBoolean(value["passed"], "/targetHardware/passed", errors);
+  requireStringArray(value["blockers"], "/targetHardware/blockers", errors);
 }
 
 function validateQualityConsistency(value: Record<string, unknown>, errors: string[]): void {
-  if (!isRecord(value.verdict)) {
+  if (!isRecord(value["verdict"])) {
     return;
   }
 
   const expectedBlockers = expectedQualityBlockers(value);
-  if (Array.isArray(value.verdict.blockers)) {
-    const verdictBlockers = new Set(value.verdict.blockers);
+  if (Array.isArray(value["verdict"]["blockers"])) {
+    const verdictBlockers = new Set(value["verdict"]["blockers"]);
     for (const blocker of expectedBlockers) {
       if (!verdictBlockers.has(blocker)) {
         errors.push(`/verdict/blockers must include ${blocker}`);
@@ -415,21 +415,21 @@ function validateQualityConsistency(value: Record<string, unknown>, errors: stri
     }
   }
 
-  const verdictPassed = value.verdict.passed;
-  if (typeof verdictPassed === "boolean" && Array.isArray(value.verdict.blockers) && verdictPassed !== (value.verdict.blockers.length === 0)) {
+  const verdictPassed = value["verdict"]["passed"];
+  if (typeof verdictPassed === "boolean" && Array.isArray(value["verdict"]["blockers"]) && verdictPassed !== (value["verdict"]["blockers"].length === 0)) {
     errors.push("/verdict/passed must match whether verdict blockers are empty");
   }
 }
 
 function expectedQualityBlockers(value: Record<string, unknown>): string[] {
-  const structuredOutput = isRecord(value.structuredOutput) ? value.structuredOutput : {};
-  const actorPolicy = isRecord(value.actorPolicy) ? value.actorPolicy : {};
-  const targetHardware = isRecord(value.targetHardware) ? value.targetHardware : {};
+  const structuredOutput = isRecord(value["structuredOutput"]) ? value["structuredOutput"] : {};
+  const actorPolicy = isRecord(value["actorPolicy"]) ? value["actorPolicy"] : {};
+  const targetHardware = isRecord(value["targetHardware"]) ? value["targetHardware"] : {};
 
   return [
-    ...stringArray(structuredOutput.blockers).map((blocker) => `structured_output:${blocker}`),
-    ...stringArray(actorPolicy.blockers).map((blocker) => `actor_policy:${blocker}`),
-    ...stringArray(targetHardware.blockers).map((blocker) => `target_hardware:${blocker}`),
+    ...stringArray(structuredOutput["blockers"]).map((blocker) => `structured_output:${blocker}`),
+    ...stringArray(actorPolicy["blockers"]).map((blocker) => `actor_policy:${blocker}`),
+    ...stringArray(targetHardware["blockers"]).map((blocker) => `target_hardware:${blocker}`),
   ];
 }
 
@@ -441,7 +441,7 @@ function inspectStructuredOutput(report: LocalModelRuntimeBenchmarkReport): Loca
   const requiredKeysPresent = requiredKeys.every((key) => Object.hasOwn(parsedJson, key));
   const noReasoningMarkup = !caveats.some((caveat) => caveat.toLowerCase().includes("<think>"));
   const allowedGuardrailLabels: string[] = [...allowedStructuredOutputGuardrailLabels];
-  const observedSafetyFlags = stringArrayValue(parsedJson.safety_flags).sort();
+  const observedSafetyFlags = stringArrayValue(parsedJson["safety_flags"]).sort();
   const unsupportedSafetyFlags = observedSafetyFlags.filter((flag) => !allowedGuardrailLabels.includes(flag));
   const safetyFlagsUseGuardrailLabels = unsupportedSafetyFlags.length === 0
     && !caveats.some((caveat) => caveat.toLowerCase().includes("safety_flags were clinical features"));
@@ -592,7 +592,7 @@ function actorPolicyBenchmarkEvidence(report: LocalModelActorPolicyBenchmarkRepo
 }
 
 function inspectTargetHardware(report: LocalModelRuntimeBenchmarkReport): LocalModelQualityBenchmarkReport["targetHardware"] {
-  const observedDevice = stringValue(report.runtime.device);
+  const observedDevice = stringValue(report.runtime["device"]);
   // Current target: Apple M1 Max 64GB workstation (this machine). M4 Pro/Max are higher-end future profiles.
   const passed = typeof observedDevice === "string" && /Apple (M1 Max|M4 (Pro|Max))/.test(observedDevice);
 

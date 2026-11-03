@@ -87,11 +87,11 @@ export function buildRadialPulseCaptureReport(input: {
   for (const snapshot of input.snapshots) {
     if (typeof snapshot.phase === "string") observed.add(snapshot.phase);
     readyObserved ||= snapshot.readyForIwerInteractionEvidence === true;
-    properPatientObserved ||= snapshot.patientAssetName === "mpfb-street-adult-male.glb"
-      && snapshot.patientAssetLoadStatus === "loaded"
-      && snapshot.wristBoneName === "wrist.R"
-      && snapshot.targetAttachedToWrist === true
-      && snapshot.patientPresentationPose === "consented_right_wrist_presentation";
+    properPatientObserved ||= snapshot["patientAssetName"] === "mpfb-street-adult-male.glb"
+      && snapshot["patientAssetLoadStatus"] === "loaded"
+      && snapshot["wristBoneName"] === "wrist.R"
+      && snapshot["targetAttachedToWrist"] === true
+      && snapshot["patientPresentationPose"] === "consented_right_wrist_presentation";
   }
   const observedPhases = REQUIRED_PHASES.filter((phase) => observed.has(phase));
   const missingPhases = REQUIRED_PHASES.filter((phase) => !observed.has(phase));
