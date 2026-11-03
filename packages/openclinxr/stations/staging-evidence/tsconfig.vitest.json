@@ -4,7 +4,8 @@
     "noEmit": true
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "../../../../tools/openclinxr/evidence/three-app-deep-paths.d.ts"
   ],
   "exclude": [
     "dist"
