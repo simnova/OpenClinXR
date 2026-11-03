@@ -433,9 +433,9 @@ describe("asset production readiness report", () => {
     expect(validateAssetProductionReadinessReport(report)).toEqual({ ok: true });
 
     const invalid = structuredClone(report) as unknown as Record<string, unknown>;
-    const productionProofs = invalid.productionProofs as Record<string, unknown>;
-    delete productionProofs.skinClothingProvenance;
-    const verdict = invalid.verdict as { blockers: string[] };
+    const productionProofs = invalid["productionProofs"] as Record<string, unknown>;
+    delete productionProofs["skinClothingProvenance"];
+    const verdict = invalid["verdict"] as { blockers: string[] };
     verdict.blockers = [];
 
     expect(validateAssetProductionReadinessReport(invalid)).toEqual({
@@ -592,7 +592,7 @@ function blenderSmoke(input: {
       version: 2,
       declaredLength: input.glbBytes ?? 27284,
       elapsedMs: 5610.77,
-      semanticInventory: input.semanticInventory,
+      ...(input.semanticInventory !== undefined ? { semanticInventory: input.semanticInventory } : {}),
     },
     verdict: {
       passed: input.passed,

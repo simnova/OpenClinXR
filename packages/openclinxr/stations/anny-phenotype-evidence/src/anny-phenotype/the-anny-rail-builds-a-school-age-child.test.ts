@@ -113,7 +113,7 @@ const REPO_ROOT = repoRoot();
 const ANNY_DIR = `${REPO_ROOT}/tools/openclinxr/asset-pipeline/anny`;
 /** Overridable so a destructive probe can point the same logic at a doctored export. */
 const EXPORT =
-  process.env.OPENCLINXR_ANNY_PROBE_EXPORT ??
+  process.env["OPENCLINXR_ANNY_PROBE_EXPORT"] ??
   "packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json";
 
 /** 4.5x looser than MPFB's worst error on the same three phenotypes. */

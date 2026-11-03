@@ -175,13 +175,13 @@ async function readRow(glb: string): Promise<Row> {
 /** Live cast: scenarioId -> [{actorId, glb}]. NEVER a directory scan, NEVER a name filter. */
 async function liveCast(): Promise<Map<string, { actorId: string; role: string; glb: string }[]>> {
   const c: Record<string, unknown> = await import(CASTING);
-  const listIds = c.listShippedCastScenarioIds as () => string[];
-  const resolve = c.resolveScenarioActorCast as (id: string) => Record<string, string>[];
+  const listIds = c["listShippedCastScenarioIds"] as () => string[];
+  const resolve = c["resolveScenarioActorCast"] as (id: string) => Record<string, string>[];
   const out = new Map<string, { actorId: string; role: string; glb: string }[]>();
   for (const s of listIds()) {
     out.set(s, resolve(s).map((a) => ({
-      actorId: String(a.actorId ?? ""), role: String(a.role ?? ""),
-      glb: String(a.assetPath ?? "").split("/").pop() ?? "",
+      actorId: String(a["actorId"] ?? ""), role: String(a["role"] ?? ""),
+      glb: String(a["assetPath"] ?? "").split("/").pop() ?? "",
     })));
   }
   return out;

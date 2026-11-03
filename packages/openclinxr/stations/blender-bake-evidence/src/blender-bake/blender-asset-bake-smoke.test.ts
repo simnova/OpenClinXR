@@ -120,10 +120,10 @@ describe("Blender asset bake smoke", () => {
     expect(validateBlenderBakeSmokeReport(report)).toEqual({ ok: true });
 
     const invalid = structuredClone(report) as Record<string, unknown>;
-    const output = invalid.output as Record<string, unknown>;
-    const semanticInventory = output.semanticInventory as Record<string, unknown>;
-    semanticInventory.missingRequiredObjectNames = ["ecg_cart_12_lead"];
-    const verdict = invalid.verdict as { blockers: string[] };
+    const output = invalid["output"] as Record<string, unknown>;
+    const semanticInventory = output["semanticInventory"] as Record<string, unknown>;
+    semanticInventory["missingRequiredObjectNames"] = ["ecg_cart_12_lead"];
+    const verdict = invalid["verdict"] as { blockers: string[] };
     verdict.blockers = [];
 
     expect(validateBlenderBakeSmokeReport(invalid)).toEqual({
@@ -134,8 +134,8 @@ describe("Blender asset bake smoke", () => {
     });
 
     const missingInventory = structuredClone(report) as Record<string, unknown>;
-    (missingInventory.output as Record<string, unknown>).semanticInventory = null;
-    (missingInventory.verdict as { blockers: string[] }).blockers = [];
+    (missingInventory["output"] as Record<string, unknown>)["semanticInventory"] = null;
+    (missingInventory["verdict"] as { blockers: string[] }).blockers = [];
 
     expect(validateBlenderBakeSmokeReport(missingInventory)).toEqual({
       ok: false,
@@ -170,7 +170,7 @@ describe("Blender asset bake smoke", () => {
       await expect(runBlenderBakeSmokeCli(["--validate", reportPath])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as Record<string, unknown>;
-      delete invalidReport.tool;
+      delete invalidReport["tool"];
       await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
 
       process.exitCode = undefined;

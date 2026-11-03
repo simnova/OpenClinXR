@@ -110,7 +110,7 @@ print("JSON" + json.dumps({"n": len(CASE_ACTOR_PRESETS)}))
 
 function phenotypeOf(params: Record<string, unknown> | null): Record<string, unknown> {
   if (!params) return {};
-  const p = (params.phenotype ?? params) as Record<string, unknown>;
+  const p = (params["phenotype"] ?? params) as Record<string, unknown>;
   return typeof p === "object" && p !== null ? p : {};
 }
 
@@ -124,8 +124,8 @@ describe("a case without a preset still produces actor params", () => {
     // Not merely "something came back" — it must carry the AUTHORED numbers, so a stub returning
     // defaults fails here (SS11s: presence is not the claim).
     const ph = phenotypeOf(params);
-    expect(Number(ph.height_cm), "the authored height must reach the resolved params").toBe(125);
-    expect(Number(ph.age), "the authored age must reach the resolved params").toBe(8);
+    expect(Number(ph["height_cm"]), "the authored height must reach the resolved params").toBe(125);
+    expect(Number(ph["age"]), "the authored age must reach the resolved params").toBe(8);
   });
 
   it("(2) RED: both actors resolve through the SAME entry point", () => {
@@ -133,8 +133,8 @@ describe("a case without a preset still produces actor params", () => {
     // produce a resolution for both, through one call.
     for (const target of [WITH_PRESET, WITHOUT_PRESET]) {
       const ph = phenotypeOf(resolveParams(target.caseId, target.actorId));
-      expect(Number(ph.height_cm), `${target.actorId} resolved height`).toBe(125);
-      expect(Number(ph.age), `${target.actorId} resolved age`).toBe(8);
+      expect(Number(ph["height_cm"]), `${target.actorId} resolved height`).toBe(125);
+      expect(Number(ph["age"]), `${target.actorId} resolved age`).toBe(8);
     }
   });
 
@@ -153,9 +153,9 @@ describe("a case without a preset still produces actor params", () => {
     };
     const noah = e.entries[WITHOUT_PRESET.caseId]?.[WITHOUT_PRESET.actorId]?.phenotype ?? {};
     const maya = e.entries[WITH_PRESET.caseId]?.[WITH_PRESET.actorId]?.phenotype ?? {};
-    expect(Number(noah.height_cm), "peds_fever's patient keeps his authored height").toBe(125);
-    expect(Number(maya.height_cm), "the asthma patient keeps hers").toBe(125);
-    expect(Number(noah.age), "and his authored age").toBe(8);
+    expect(Number(noah["height_cm"]), "peds_fever's patient keeps his authored height").toBe(125);
+    expect(Number(maya["height_cm"]), "the asthma patient keeps hers").toBe(125);
+    expect(Number(noah["age"]), "and his authored age").toBe(8);
   });
 });
 

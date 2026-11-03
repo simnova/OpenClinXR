@@ -71,6 +71,7 @@ function fragmentSurface(objText: string): string {
     const idx: number[] = [];
     for (const vi of face) {
       const p = positions[vi];
+      if (p === undefined) throw new Error(`missing position for face vertex ${vi}`);
       vs.push(`v ${p[0]} ${p[1]} ${p[2]}`);
       idx.push(++n);
     }

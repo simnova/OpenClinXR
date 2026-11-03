@@ -93,6 +93,8 @@ describe("medical equipment artifacts", () => {
         outputRoot,
       });
       const [ecgCart, ivPole] = buildMedicalEquipmentRuntimeAssetReferences(report);
+      if (ecgCart === undefined) throw new Error("missing ecgCart runtime asset reference");
+      if (ivPole === undefined) throw new Error("missing ivPole runtime asset reference");
 
       expect(ecgCart).toMatchObject({
         assetId: "ecg_cart_12_lead_glb",
@@ -148,7 +150,7 @@ describe("medical equipment artifacts", () => {
       await expect(runMedicalEquipmentArtifactsCli(["--validate", reportPath])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as Record<string, unknown>;
-      delete invalidReport.schemaVersion;
+      delete invalidReport["schemaVersion"];
       await writeFile(invalidPath, `${JSON.stringify(invalidReport, null, 2)}\n`, "utf8");
 
       process.exitCode = undefined;

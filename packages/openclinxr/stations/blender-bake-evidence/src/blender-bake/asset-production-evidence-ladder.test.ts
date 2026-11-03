@@ -194,7 +194,7 @@ describe("asset production evidence ladder report", () => {
         useLocalAssetEvidenceFixture: true,
       });
       const invalidReadiness = structuredClone(readiness) as Record<string, unknown>;
-      delete invalidReadiness.policy;
+      delete invalidReadiness["policy"];
       await writeFile(readinessPath, `${JSON.stringify(invalidReadiness, null, 2)}\n`, "utf8");
 
       process.exitCode = undefined;
@@ -228,7 +228,7 @@ describe("asset production evidence ladder report", () => {
       readinessReport: readiness,
     });
     const malformed = structuredClone(report) as Record<string, unknown>;
-    (malformed.lanes as Array<Record<string, unknown>>)[0] = {
+    (malformed["lanes"] as Array<Record<string, unknown>>)[0] = {
       id: "generatedHumanRigging",
       title: "Generated human rigging",
       status: "contract_only",
@@ -290,7 +290,9 @@ describe("asset production evidence ladder report", () => {
       readinessReport: readiness,
     });
     const invalid = structuredClone(report);
-    invalid.lanes[1] = structuredClone(invalid.lanes[0]);
+    const firstLane = invalid.lanes[0];
+    if (firstLane === undefined) throw new Error("expected at least one evidence ladder lane");
+    invalid.lanes[1] = structuredClone(firstLane);
 
     expect(validateAssetProductionEvidenceLadderReport(invalid)).toEqual({
       ok: false,

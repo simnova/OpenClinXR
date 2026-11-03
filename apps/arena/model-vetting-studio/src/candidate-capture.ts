@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 import {
   PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE,
   applyMorphTargetEmotionCue,
@@ -32,7 +33,6 @@ import {
 } from "three";
 import { magentaSwapMaterials } from "./hide-mask-magenta.js";
 import { selectBodyMotionProbeClip, selectBodyMotionProbeClipName } from "./body-motion-probe-clip.js";
-
 // Public surface kept on this module: the capture contract and evidence tests import here.
 export { selectBodyMotionProbeClipName };
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";

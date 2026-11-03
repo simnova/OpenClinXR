@@ -172,7 +172,7 @@ describe("a second case reaches the body pipeline", () => {
     requireMeasured();
     const byProfile = new Map<string, Actor[]>();
     for (const a of actors) {
-      const profile = String(a.phenotype.body_profile ?? "");
+      const profile = String(a.phenotype["body_profile"] ?? "");
       if (!profile) continue;
       byProfile.set(profile, [...(byProfile.get(profile) ?? []), a]);
     }
