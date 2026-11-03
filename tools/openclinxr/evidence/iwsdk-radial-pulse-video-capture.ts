@@ -195,7 +195,7 @@ export async function captureRadialPulseVideo(options: RadialPulseCaptureOptions
       await stopped;
       for (const track of stream.getTracks()) track.stop();
       const blob = new Blob(chunks, { type: mimeType });
-      const snapshots = (browserPageWindow.__openClinXrRadialPulseCaptureSnapshots ?? []) as EvidenceSnapshot[];
+      const snapshots = (browserPageWindow["__openClinXrRadialPulseCaptureSnapshots"] ?? []) as EvidenceSnapshot[];
       return { bytes: Array.from(new Uint8Array(await blob.arrayBuffer())), snapshots };
     }, options.durationMs);
     const report = buildRadialPulseCaptureReport({

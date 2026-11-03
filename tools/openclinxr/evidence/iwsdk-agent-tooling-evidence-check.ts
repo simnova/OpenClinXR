@@ -55,7 +55,7 @@ export function buildIwsdkAgentToolingEvidenceReport(input: {
 }): IwsdkAgentToolingEvidenceReport {
   return {
     generatedAt: input.generatedAt ?? new Date().toISOString(),
-    inputFile: input.inputFile,
+    ...(input.inputFile === undefined ? {} : { inputFile: input.inputFile }),
     evidence: input.evidence,
     result: evaluateIwsdkAgentToolingEvidence(input.evidence),
     localPreflightResult: evaluateIwsdkAgentToolingLocalPreflightEvidence(input.evidence),

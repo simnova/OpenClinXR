@@ -23,6 +23,7 @@
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import type { BrowserPageElement } from "./browser-dom.js";
 import { chromium, type Browser, type Page } from "./lib/slotted-playwright.js";
 import {
   spawnPortlessDevServer, stopPortlessDevServer,
@@ -214,7 +215,7 @@ async function captureSubject(input: {
       }
       // #358: the lab REFUSES an unresolvable focus (no silent fallback) by
       // rendering its error into #app — surface it instead of timing out.
-      const app = browserPageDocument.querySelector("#app");
+      const app: BrowserPageElement | null = browserPageDocument.querySelector("#app");
       const text = app?.textContent ?? "";
       if (text.includes("Isolated subject lab error")) {
         return { kind: "error" as const, text: text.slice(0, 2000) };
@@ -564,7 +565,7 @@ export async function renderEquipmentReferencePack(options?: {
   cwd?: string;
   equipmentId?: string;
   views?: CaptureView[];
-  outputRoot?: string;
+  outputRoot?: string | undefined;
   /** Default true (#265) — subject-only renders. Pass false for the legacy grounded pack. */
   subjectOnly?: boolean;
 }): Promise<EquipmentPackRun> {
@@ -934,7 +935,7 @@ export type EquipmentFramingReport = {
  */
 export async function writeEquipmentFramingReport(options?: {
   cwd?: string;
-  outputRoot?: string;
+  outputRoot?: string | undefined;
 }): Promise<EquipmentFramingReport> {
   const cwd = options?.cwd ?? process.cwd();
   const outputRoot = options?.outputRoot ?? FRAMING_EVIDENCE_ROOT;
@@ -979,6 +980,11 @@ export async function writeEquipmentFramingReport(options?: {
   }
 
   const worstCase = subjects[FRAMING_WORST_CASE_EQUIPMENT_ID];
+  if (!worstCase) {
+    throw new Error(
+      `writeEquipmentFramingReport has no subject ${FRAMING_WORST_CASE_EQUIPMENT_ID} — the worst-case pack render is missing`,
+    );
+  }
   const postFixMaxCoverage = Math.max(...worstCase.views.map((v) => v.frameCoverage));
   const passed = postFixMaxCoverage > floor;
 
@@ -1112,7 +1118,7 @@ export type MpfbEyeCropRun = {
  */
 export async function renderMpfbEyeFocusCrops(options?: {
   cwd?: string;
-  outputRoot?: string;
+  outputRoot?: string | undefined;
   specs?: EyeCropSpec[];
 }): Promise<MpfbEyeCropRun> {
   const cwd = options?.cwd ?? process.cwd();
@@ -1311,7 +1317,7 @@ export type HeadFocusCropRun = {
  */
 export async function renderHeadFocusCrops(options?: {
   cwd?: string;
-  outputRoot?: string;
+  outputRoot?: string | undefined;
   specs?: HeadCropSpec[];
 }): Promise<HeadFocusCropRun> {
   const cwd = options?.cwd ?? process.cwd();
@@ -1440,7 +1446,7 @@ export type HeadFocusRefusalProbe = {
  */
 export async function probeHeadFocusRefusal(options?: {
   cwd?: string;
-  outputRoot?: string;
+  outputRoot?: string | undefined;
 }): Promise<HeadFocusRefusalProbe> {
   const cwd = options?.cwd ?? process.cwd();
   const outputRoot = options?.outputRoot ?? HEAD_FOCUS_EVIDENCE_ROOT;
@@ -1500,10 +1506,11 @@ export async function probeHeadFocusRefusal(options?: {
 }
 
 
+const invokedAs = process.argv[1];
 const isMain = Boolean(
-  process.argv[1]
-  && (import.meta.url === `file://${path.resolve(process.argv[1])}`
-    || import.meta.url.endsWith(process.argv[1]!.replaceAll("\\", "/"))),
+  invokedAs
+  && (import.meta.url === `file://${path.resolve(invokedAs)}`
+    || import.meta.url.endsWith(invokedAs.replaceAll("\\", "/"))),
 );
 
 if (isMain) {

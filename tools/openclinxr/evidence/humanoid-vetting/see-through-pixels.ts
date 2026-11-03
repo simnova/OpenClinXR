@@ -27,8 +27,8 @@ import {
 import {
   computeBaseMeshBounds,
   frameCameraForBounds,
-} from "../../../../apps/arena/model-vetting-studio/src/candidate-capture-geometry.ts";
-import { decodePng, type DecodedPng } from "../decode-png.ts";
+} from "../../../../apps/arena/model-vetting-studio/src/candidate-capture-geometry.js";
+import { type DecodedPng, decodePng } from "../decode-png.js";
 
 export const BG_LUMA = 0.299 * 24 + 0.587 * 33 + 0.114 * 29;
 export const PRE_FIX_REV = "63dc2fb2";
@@ -122,6 +122,26 @@ export async function loadScene(glbPath: string): Promise<{ camera: PerspectiveC
     const mesh = node.getMesh();
     if (mesh === null) continue;
     const world = worldMatrix(node);
+    if (world.length < 16) {
+      throw new Error(`see-through-pixels: world matrix has ${world.length} elements, expected 16`);
+    }
+    const [
+      w0 = 0,
+      w1 = 0,
+      w2 = 0,
+      ,
+      w4 = 0,
+      w5 = 0,
+      w6 = 0,
+      ,
+      w8 = 0,
+      w9 = 0,
+      w10 = 0,
+      ,
+      w12 = 0,
+      w13 = 0,
+      w14 = 0,
+    ] = world;
     let primI = 0;
     for (const prim of mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION");
@@ -133,9 +153,9 @@ export async function loadScene(glbPath: string): Promise<{ camera: PerspectiveC
         const x = Number(arr[i]);
         const y = Number(arr[i + 1]);
         const z = Number(arr[i + 2]);
-        positions[i] = world[0]! * x + world[4]! * y + world[8]! * z + world[12]!;
-        positions[i + 1] = world[1]! * x + world[5]! * y + world[9]! * z + world[13]!;
-        positions[i + 2] = world[2]! * x + world[6]! * y + world[10]! * z + world[14]!;
+        positions[i] = w0 * x + w4 * y + w8 * z + w12;
+        positions[i + 1] = w1 * x + w5 * y + w9 * z + w13;
+        positions[i + 2] = w2 * x + w6 * y + w10 * z + w14;
       }
       geom.setAttribute("position", new BufferAttribute(positions, 3));
       const idx = prim.getIndices()?.getArray();
@@ -191,16 +211,27 @@ function sampleBox(
 ): SiteCount {
   const out = empty();
   const W = lit.w;
+  const x0 = box[0];
+  const y0 = box[1];
+  const x1 = box[2];
+  const y1 = box[3];
+  if (x0 === undefined || y0 === undefined || x1 === undefined || y1 === undefined) {
+    throw new Error(`see-through-pixels: site box needs 4 edges, got ${box.length}`);
+  }
   const raycaster = new Raycaster();
   raycaster.far = 100;
   raycaster.near = 0.01;
   const ndc = new Vector2();
-  for (let y = box[1]!; y < box[3]!; y++) {
-    for (let x = box[0]!; x < box[2]!; x++) {
+  for (let y = y0; y < y1; y++) {
+    for (let x = x0; x < x1; x++) {
       const i = y * W + x;
-      if (struct.lum[i]! <= 40) continue;
+      const structLum = struct.lum[i];
+      if (structLum === undefined) throw new Error(`see-through-pixels: struct.lum missing pixel ${i}`);
+      if (structLum <= 40) continue;
       out.subject++;
-      const isBg = Math.abs(lit.lum[i]! - BG_LUMA) < 0.01;
+      const litLum = lit.lum[i];
+      if (litLum === undefined) throw new Error(`see-through-pixels: lit.lum missing pixel ${i}`);
+      const isBg = Math.abs(litLum - BG_LUMA) < 0.01;
       if (mode === "bg-only" && !isBg && !classifySubject) continue;
       if (isBg) out.bg++;
       ndc.set(((x + 0.5) / W) * 2 - 1, -((y + 0.5) / lit.h) * 2 + 1);
@@ -211,7 +242,9 @@ function sampleBox(
         continue;
       }
       if (isBg) out.seeThrough++;
-      const mesh = hits[0]!.object as Mesh;
+      const hit = hits[0];
+      if (hit === undefined) throw new Error("see-through-pixels: first raycast hit vanished after length check");
+      const mesh = hit.object as Mesh;
       const cls = classify(
         mesh.name,
         String(mesh.userData.matName ?? ""),
@@ -262,13 +295,17 @@ export async function countFirstHitsInBox(opts: {
   for (let y = box[1]; y < box[3]; y++) {
     for (let x = box[0]; x < box[2]; x++) {
       const i = y * lit.w + x;
-      if (struct.lum[i]! <= 40) continue;
+      const structLum = struct.lum[i];
+      if (structLum === undefined) throw new Error(`see-through-pixels: struct.lum missing pixel ${i}`);
+      if (structLum <= 40) continue;
       subject++;
       ndc.set(((x + 0.5) / lit.w) * 2 - 1, -((y + 0.5) / lit.h) * 2 + 1);
       raycaster.setFromCamera(ndc, scene.camera);
       const hits = raycaster.intersectObject(scene.model, true);
       if (hits.length === 0) continue;
-      const mesh = hits[0]!.object as Mesh;
+      const hit = hits[0];
+      if (hit === undefined) throw new Error("see-through-pixels: first raycast hit vanished after length check");
+      const mesh = hit.object as Mesh;
       const cls = opts.classifyHit(
         mesh.name,
         String(mesh.userData.matName ?? ""),

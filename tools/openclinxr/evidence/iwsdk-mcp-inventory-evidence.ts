@@ -114,7 +114,7 @@ export async function captureIwsdkMcpInventoryEvidence(input: {
 }
 
 export function buildIwsdkMcpInventoryEvidenceReport(input: {
-  generatedAt?: string;
+  generatedAt?: string | undefined;
   cwd?: string;
   packageVersion?: string | null;
   server?: {
@@ -210,7 +210,7 @@ async function requestIwsdkMcpToolInventory(input: {
     serverInfo?: {
       name?: unknown;
       version?: unknown;
-    };
+    } | undefined;
   };
   toolNames: string[];
 }> {

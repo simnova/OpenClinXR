@@ -234,7 +234,7 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
 }
 
 export function buildIwsdkNpmCurrentnessReport(input: {
-  generatedAt?: string;
+  generatedAt?: string | undefined;
   metadataFile: string;
   metadata: IwsdkNpmMetadataSnapshot;
   repoViteVersion: string;

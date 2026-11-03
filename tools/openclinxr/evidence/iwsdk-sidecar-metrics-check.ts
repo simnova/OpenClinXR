@@ -52,7 +52,7 @@ export function buildIwsdkSidecarMetricsReport(input: {
 }): IwsdkSidecarMetricsReport {
   return {
     generatedAt: input.generatedAt ?? new Date().toISOString(),
-    inputFile: input.inputFile,
+    ...(input.inputFile === undefined ? {} : { inputFile: input.inputFile }),
     metrics: input.metrics,
     result: evaluateIwsdkSpikeMetrics(input.metrics),
   };

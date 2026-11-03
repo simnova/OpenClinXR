@@ -291,7 +291,7 @@ export function buildIwerAutoEntryBrowserSmokeReport(input: {
 }): IwerAutoEntryBrowserSmokeReport {
   return {
     generatedAt: input.generatedAt ?? new Date().toISOString(),
-    inputFile: input.inputFile,
+    ...(input.inputFile === undefined ? {} : { inputFile: input.inputFile }),
     evidence: input.evidence,
     result: evaluateIwerAutoEntryBrowserSmokeEvidence(input.evidence),
   };

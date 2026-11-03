@@ -126,7 +126,7 @@ export function buildIwerControllerInputProbeReport(input: {
 }): IwerControllerInputProbeReport {
   return {
     generatedAt: input.generatedAt ?? new Date().toISOString(),
-    inputFile: input.inputFile,
+    ...(input.inputFile === undefined ? {} : { inputFile: input.inputFile }),
     evidence: input.evidence,
     result: evaluateIwerControllerInputProbeEvidence(input.evidence),
   };
@@ -135,13 +135,19 @@ export function buildIwerControllerInputProbeReport(input: {
 export function evaluateIwerControllerInputProbeEvidence(
   evidence: IwerControllerInputProbeEvidence,
 ): IwerControllerInputProbeReadiness {
+  const probeSessionActive = evidence.probe?.sessionActive;
+  const probeSessionMode = evidence.probe?.sessionMode;
+  const probeSuccessfulToolNames = evidence.probe?.successfulToolNames;
+  const probeObservedTraceActionTags = evidence.probe?.observedTraceActionTags;
+  const probeControllerSelectTraceTag = evidence.probe?.controllerSelectTraceTag;
+  const probeConsoleErrorCount = evidence.probe?.consoleErrorCount;
   const appReadiness = evaluateIwsdkSidecarIwerInputProbeEvidence({
-    sessionActive: evidence.probe?.sessionActive,
-    sessionMode: evidence.probe?.sessionMode,
-    successfulToolNames: evidence.probe?.successfulToolNames,
-    observedTraceActionTags: evidence.probe?.observedTraceActionTags,
-    controllerSelectTraceTag: evidence.probe?.controllerSelectTraceTag,
-    consoleErrorCount: evidence.probe?.consoleErrorCount,
+    ...(probeSessionActive === undefined ? {} : { sessionActive: probeSessionActive }),
+    ...(probeSessionMode === undefined ? {} : { sessionMode: probeSessionMode }),
+    ...(probeSuccessfulToolNames === undefined ? {} : { successfulToolNames: probeSuccessfulToolNames }),
+    ...(probeObservedTraceActionTags === undefined ? {} : { observedTraceActionTags: probeObservedTraceActionTags }),
+    ...(probeControllerSelectTraceTag === undefined ? {} : { controllerSelectTraceTag: probeControllerSelectTraceTag }),
+    ...(probeConsoleErrorCount === undefined ? {} : { consoleErrorCount: probeConsoleErrorCount }),
   });
   const notEvidenceFor = evidence.classification?.notEvidenceFor ?? [];
   const probeBlockers = evidence.probe?.blockers ?? [];

@@ -232,7 +232,7 @@ export function buildIwerSidecarEmulationEvidenceReport(input: {
 }): IwerSidecarEmulationEvidenceReport {
   return {
     generatedAt: input.generatedAt ?? new Date().toISOString(),
-    inputFile: input.inputFile,
+    ...(input.inputFile === undefined ? {} : { inputFile: input.inputFile }),
     evidence: input.evidence,
     result: evaluateIwerSidecarEmulationEvidence(input.evidence),
   };
@@ -354,19 +354,26 @@ function buildIwerVisualQaEvidence(
     "Manual headset validation is required before physical Quest readiness claims.",
   ];
 
+  const visualArtifact = evidence.adversarialVisualQa?.artifact ?? screenshotProbe?.artifact;
+  const visualMimeType = screenshotProbe?.mimeType;
+  const visualBytes = screenshotProbe?.bytes;
+  const visualDimensions = screenshotProbe?.dimensions;
+  const visualRuntimeUrl = evidence.sidecar?.runtimeUrl;
+  const visualXrMode = evidence.adversarialVisualQa?.xrMode;
+
   return {
     schemaVersion: "openclinxr.adversarial-visual-qa-evidence.v1",
     media: [{
       source: "iwer_emulation",
       artifactType: "screenshot",
-      artifact: evidence.adversarialVisualQa?.artifact ?? screenshotProbe?.artifact,
-      mimeType: screenshotProbe?.mimeType,
-      bytes: screenshotProbe?.bytes,
-      dimensions: screenshotProbe?.dimensions,
-      runtimeUrl: evidence.sidecar?.runtimeUrl,
+      ...(visualArtifact === undefined ? {} : { artifact: visualArtifact }),
+      ...(visualMimeType === undefined ? {} : { mimeType: visualMimeType }),
+      ...(visualBytes === undefined ? {} : { bytes: visualBytes }),
+      ...(visualDimensions === undefined ? {} : { dimensions: visualDimensions }),
+      ...(visualRuntimeUrl === undefined ? {} : { runtimeUrl: visualRuntimeUrl }),
       route: "/",
       scenarioId: "ed_chest_pain_priority_v1",
-      xrMode: evidence.adversarialVisualQa?.xrMode,
+      ...(visualXrMode === undefined ? {} : { xrMode: visualXrMode }),
       captureCommand: "pnpm iwsdk:iwer:evidence",
     }],
     notes: evidenceLimitNotes,
