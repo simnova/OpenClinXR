@@ -131,7 +131,9 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // ci-w11b re-pinned 2026-10-30: ci-w11 D3 repaired midline breast keyframes
   // (d0e2104d3, rests already +-0.085); was
   // 4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9.
-  "mpfb-clinical-nurse-adult": "3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb",
+  // st-weld re-pinned 2026-11-03: garment topology weld (post-export byte stage, not a rebake;
+  // bytes hold at 8775848); was 3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb.
+  "mpfb-clinical-nurse-adult": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c",
   // #504 re-pinned 2026-08-21: the physician's coat was pushed out 15 mm (wardrobe layer
   // separation); the viseme morph targets and every other buffer are untouched.
   // #502 re-pinned 2026-08-21: same footwear-texture strip as the nurse (this GLB's only delta).

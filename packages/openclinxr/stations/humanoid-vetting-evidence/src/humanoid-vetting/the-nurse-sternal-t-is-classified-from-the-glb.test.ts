@@ -168,7 +168,9 @@ describe("the nurse sternal T is classified from the GLB", () => {
       // RE-PINNED: deliberate churn 8e7a1d0c2 (CC-BY scrub extras) + 91aa4b5d3 + 9f2934536.
       // ci-w11b re-pinned 2026-10-30: ci-w11 D3 d0e2104d3 repaired midline breast keyframes
       // (rests already +-0.085; size holds at 8775848); was 4f0a8c1d….
-      [ADULT_GLB, "adult", 8775848, "3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb"],
+      // st-weld re-pinned 2026-11-03: garment topology weld (post-export byte stage, not a rebake;
+      // shirt 4692 islands -> 1 component, kept_sharp 52/35; size holds at 8775848); was 3241acc6….
+      [ADULT_GLB, "adult", 8775848, "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c"],
     ] as const) {
       const glb = readGlb(path);
       expect(glb.bytes.length, `${key}: GLB length pinned`).toBe(bytes);

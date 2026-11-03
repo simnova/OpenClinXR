@@ -42,9 +42,9 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "planId": "scene_closure_supine_bedside_plan_v1",
       "durableStore": "database_source_of_truth",
       "run": {
-        "stationRunId": "ci-physician-walk-repair-20261029-59817",
-        "sessionId": "ci-physician-walk-repair-20261029-59817",
-        "acceptedAtIso": "2026-10-29T08:26:10.270Z"
+        "stationRunId": "scene_closure_build_time_freeze",
+        "sessionId": "scene_closure_build_time_freeze",
+        "acceptedAtIso": "2026-09-10T00:00:00.000Z"
       },
       "case": {
         "caseId": "scene_closure_supine_bedside_v1",
@@ -86,7 +86,7 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "ward_nurse_patel_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-          "assetSha256": "3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb",
+          "assetSha256": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c",
           "byteCount": 8775848
         },
         {
@@ -167,11 +167,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-fa6da1fbd301e9890b988b1f5423af15",
+      "planRevision": "plan-v1-f667a12bf93aea18e33ecb74c5823c0e",
       "acknowledgment": {
-        "acknowledgedBy": "ci-physician-walk-repair-20261029-59817",
-        "acknowledgedAtIso": "2026-10-29T08:26:10.270Z",
-        "acknowledgedPlanRevision": "plan-v1-fa6da1fbd301e9890b988b1f5423af15"
+        "acknowledgedBy": "scene_closure_build_time_freeze",
+        "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
+        "acknowledgedPlanRevision": "plan-v1-f667a12bf93aea18e33ecb74c5823c0e"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);

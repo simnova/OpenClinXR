@@ -79,6 +79,7 @@ _BODY_PARAM_DIR = REPO_ROOT / "packages/openclinxr/factory-stations/src/body_par
 if str(_BODY_PARAM_DIR) not in sys.path:
     sys.path.insert(0, str(_BODY_PARAM_DIR))
 from garment_coverage import _orient_outward, _ray_tri_hits  # noqa: E402
+from garment_topology_weld import apply_garment_topology_weld  # noqa: E402
 from licence_precedence import resolve_licence_precedence  # noqa: E402
 
 # #333: footwear mapped by reference id. All three are the CC0/CC-0 zero-helper-ref
@@ -9415,6 +9416,17 @@ def main():
     # census so the measurements below read the FINAL bytes.
     if GARMENT_FACTOR_PATCH:
         patch_glb_base_color_factors(str(output), GARMENT_FACTOR_PATCH)
+
+    # st-weld: connect each MakeClothes garment's per-face index islands by position
+    # BEFORE the #371 smoothing below. MPFB-rail garments export as one index island per
+    # face (measured: the scrub shirt is 4692 raw components, welded by position exactly
+    # 1), so the shoulder-span counterweights (hem-boundary cl.3, open-front-underlayer
+    # cl.3) fail them by construction. The weld clusters incident faces by dihedral
+    # (single linkage under 90 deg) and carries one normal per cloth side, so creases at
+    # or above the flat-shade contract's 60-deg floor stay split and the sharp-split
+    # count is unchanged. Order-independent with #371 by construction (same weld keys,
+    # same face-normal math; verified identical on the nurse bytes post-hoc vs in-place).
+    apply_garment_topology_weld(str(output), angle_deg=90.0)
 
     # #371: every MakeClothes garment shipped flat-shaded (100% split coplanar joins) while the
     # body shipped smooth, because the bake had no smoothing call at all. The Anny rail's
