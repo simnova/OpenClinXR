@@ -81,7 +81,8 @@
     },
     {
       "includes": [
-        "tools/agent-factory/check-typescript-guardrails.ts"
+        "tools/agent-factory/check-typescript-guardrails.ts",
+        "tools/agent-factory/build-generated-artifact-registry.ts"
       ],
       "linter": {
         "rules": {
