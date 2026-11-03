@@ -105,6 +105,12 @@ GEN = REPO_ROOT / "apps/ui-xr/public/generated-humanoids"
 # untouched unless removed. Classify on name AND a vertex floor, never name alone — the
 # 3-vertex declaration markers must never count as a garment.
 LOWER_GARMENT_RE = re.compile(r"(cargo_pants|_pants|trouser)", re.IGNORECASE)
+# The viseme input wears a fitted casual T-shirt under the gown region. The new draped
+# cage stands 18-25 mm off the body and is slimmer than the old conformal wrap, so the
+# retained shirt pokes past the gown at the chest/shoulders (D5-after still). A hospital
+# gown is the patient's upper layer; #746 removed the same REDUNDANT_TSHIRT_NODE from
+# the adult gown asset for the same intersection. Name AND vertex floor, never name alone.
+UPPER_REDUNDANT_RE = re.compile(r"(toigo_t_shirt|_t_shirt)", re.IGNORECASE)
 MIN_REAL_GARMENT_VERTS = 100
 
 
@@ -122,6 +128,25 @@ def _strip_lower_garments(body):
         if not LOWER_GARMENT_RE.search(o.name):
             continue
         print(f"STRIP_LOWER_GARMENT {o.name!r} verts={len(o.data.vertices)}")
+        bpy.data.objects.remove(o, do_unlink=True)
+
+
+def _strip_redundant_upper_garments(body):
+    """Remove the retained casual T-shirt the viseme input wears under the gown region.
+
+    Same phase as _strip_lower_garments (before the `before` snapshot, so the builder
+    and the kept/discard split never see it). The builder operates on a body-surface
+    copy and never touches this object, so without this strip it survives to export
+    and pokes through the slimmer draped cage (#746 precedent on the adult gown asset).
+    """
+    for o in list(bpy.context.scene.objects):
+        if o.type != "MESH" or o is body:
+            continue
+        if len(o.data.vertices) < MIN_REAL_GARMENT_VERTS:
+            continue
+        if not UPPER_REDUNDANT_RE.search(o.name):
+            continue
+        print(f"STRIP_REDUNDANT_UPPER {o.name!r} verts={len(o.data.vertices)}")
         bpy.data.objects.remove(o, do_unlink=True)
 
 
@@ -231,8 +256,17 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
         def permitted(name):
             if shoulder:
                 return name.startswith(("spine", "neck", "shoulder", "clavicle", "upperarm01"))
+            # Non-sleeve torso set must include the breast bones: measured 2026-11-03
+            # (raycast ground truth on gown-rebake6: 501/90 skin-first rays at torso
+            # front, x +/-0.13, z 1.17-1.28; defect-box body verts dominant-grouped
+            # spine02 77 / breast.L 18 / breast.R 16) the section() rings fit only
+            # spine/pelvis/upperleg/neck-weighted verts, so the chest cage hugged the
+            # ribcage +18 mm ease while breast-weighted surface projects further and
+            # poked through the shell. Including breast.* grows the chest rings to
+            # enclose the full anatomical section and gives the chest cage verts
+            # breast-bone weights in the spatial transfer below.
             return ("arm" in name or "clavicle" in name or "shoulder" in name) if sleeve else (
-                name.startswith(("spine", "pelvis", "upperleg", "neck")))
+                name.startswith(("spine", "pelvis", "upperleg", "neck", "breast")))
         return [(group_names[entry.group], float(entry.weight)) for entry in vertex.groups
                 if entry.group in group_names and permitted(group_names[entry.group]) and entry.weight > 1e-6]
 
@@ -338,13 +372,24 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
         # Stitch the proximal sleeve to the existing torso vertices. Separate overlapping tubes
         # opened a 14–28 mm shoulder seam when the torso was fitted properly. Shared anchor and
         # sleeve indices make this one continuous garment, with two blended transition rings.
+        # Anchors must be DISTINCT: two adjacent sleeve stations sharing one torso vertex
+        # collapse their quad to a triangle covering only the sleeve-side half, leaving a
+        # sightline slit to the body (front/back of each arm root). Greedy nearest-unused
+        # spreads anchors to neighbouring torso verts (mm-scale); the candidate pool is the
+        # whole torso side, so exhaustion is impossible. Deterministic: fixed station order,
+        # min() keeps the lowest torso index on ties.
         inner = sleeve_rings[0]
         candidates = [index for index in range(torso_vertex_count) if side * verts[index][0] > 0]
         anchors = []
+        used_anchors = set()
         for sleeve_index in inner:
             target = verts[sleeve_index]
-            anchor = min(candidates, key=lambda index: sum((verts[index][axis] - target[axis]) ** 2
-                                                          for axis in range(3)))
+            anchor = min(
+                (index for index in candidates if index not in used_anchors),
+                key=lambda index: sum((verts[index][axis] - target[axis]) ** 2
+                                      for axis in range(3)),
+            )
+            used_anchors.add(anchor)
             anchors.append(anchor)
         bridge_rings = [anchors]
         for blend in (1 / 3, 2 / 3):
@@ -364,6 +409,53 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
                 face = tuple(dict.fromkeys(face))
                 if len(face) >= 3:
                     faces.append(tuple(reversed(face)) if side < 0 else face)
+
+    # Seal sightline lips around the sleeve roots. The bridge band shares torso VERTS
+    # with the torso tube but not torso EDGES: every band-side edge is boundary, and
+    # where the straight band edge chords across the curving tube (up to ~10 cm at the
+    # outer arm root, measured in the shipped GLB) the gap shows the body through it.
+    # Web each in-box boundary edge to its nearest torso vert. Existing verts only, so
+    # weights and materials ride along; the web stands across the slit, occludes it,
+    # and reads as a fold gusset. Cuffs (|x|~0.395), neck (y~1.485) and hem (y~0.56)
+    # lie outside the seal box and are untouched. Deterministic: fixed edge order,
+    # linear scan keeps the lowest torso index on ties.
+    _SEAL_X_MIN, _SEAL_X_MAX, _SEAL_Y_MIN, _SEAL_Y_MAX = 0.10, 0.30, 1.08, 1.48
+    _edge_use: dict[tuple[int, int], int] = {}
+    for _f in faces:
+        _n = len(_f)
+        for _k in range(_n):
+            _e = (min(_f[_k], _f[(_k + 1) % _n]), max(_f[_k], _f[(_k + 1) % _n]))
+            _edge_use[_e] = _edge_use.get(_e, 0) + 1
+    _lips = []
+    for (_a, _b), _c in _edge_use.items():
+        if _c != 1:
+            continue
+        _mx = (verts[_a][0] + verts[_b][0]) / 2.0
+        _my = (verts[_a][1] + verts[_b][1]) / 2.0
+        if not (_SEAL_X_MIN <= abs(_mx) <= _SEAL_X_MAX and _SEAL_Y_MIN <= _my <= _SEAL_Y_MAX):
+            continue
+        _lips.append((_a, _b))
+    for (_a, _b) in _lips:
+        _mx = (verts[_a][0] + verts[_b][0]) / 2.0
+        _my = (verts[_a][1] + verts[_b][1]) / 2.0
+        _mz = (verts[_a][2] + verts[_b][2]) / 2.0
+        _best = None
+        _best_d = None
+        for _i in range(torso_vertex_count):
+            if _i == _a or _i == _b:
+                continue
+            _d = (
+                (verts[_i][0] - _mx) ** 2
+                + (verts[_i][1] - _my) ** 2
+                + (verts[_i][2] - _mz) ** 2
+            )
+            if _best_d is None or _d < _best_d:
+                _best_d = _d
+                _best = _i
+        if _best is None:
+            raise RuntimeError("no torso vert to seal a sleeve-root lip")
+        faces.append((_a, _b, _best))
+    print(f"SEAL_SLEEVE_ROOT lips={len(_lips)}")
 
     mesh = bpy.data.meshes.new("openclinxr_real_garment_hospital_gown_mesh")
     mesh.from_pydata(verts, [], faces)
@@ -430,6 +522,253 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
     )
 
 
+HIDDEN_MAT_PREFIX = "openclinxr_hidden_"
+
+
+def _clear_stale_body_hide_materials(body):
+    """Return stale alpha-MASK polys to skin so the shell-driven re-hide starts clean.
+
+    The body arrives from mpfb-viseme-inspect.glb carrying hide assignments sized for
+    the OLD footprint (jeans-era lower + conformal-wrap upper). The new draped cage
+    covers a different footprint, so the stale mask both hides skin the gown no longer
+    covers (legs below the hem) and is measured against the wrong shell. Every polygon
+    carrying an openclinxr_hidden_* material is reassigned to the mpfb_skin_* slot;
+    hidden slots are then dropped and surviving indices remapped. Painted lower-region
+    polys are never hidden-material polys (paint and hide are separate slots), so the
+    #73/#124 lower-paint counterweights are untouched — verified by the open-front
+    counterweight clause after the bake.
+    """
+    skin_idx = next(
+        (i for i, m in enumerate(body.data.materials) if m is not None and m.name.startswith("mpfb_skin")),
+        None,
+    )
+    if skin_idx is None:
+        raise RuntimeError("no mpfb_skin_* material slot on the imported body")
+    hidden = {m.name for m in body.data.materials if m is not None and m.name.startswith(HIDDEN_MAT_PREFIX)}
+    if not hidden:
+        print("CLEAR_STALE_HIDE no stale hidden materials")
+        return {"clearedPolygons": 0, "droppedSlots": 0}
+    cleared = 0
+    for poly in body.data.polygons:
+        mat = body.data.materials[poly.material_index]
+        if mat is not None and mat.name in hidden:
+            poly.material_index = skin_idx
+            cleared += 1
+    kept = [m for m in body.data.materials if m is None or not m.name.startswith(HIDDEN_MAT_PREFIX)]
+    remap = {}
+    new_index = 0
+    for old_index, m in enumerate(body.data.materials):
+        if m is None or not m.name.startswith(HIDDEN_MAT_PREFIX):
+            remap[old_index] = new_index
+            new_index += 1
+    dropped = len(body.data.materials) - len(kept)
+    body.data.materials.clear()
+    for m in kept:
+        body.data.materials.append(m)
+    for poly in body.data.polygons:
+        poly.material_index = remap[poly.material_index]
+    print(f"CLEAR_STALE_HIDE cleared={cleared} droppedSlots={dropped}")
+    return {"clearedPolygons": cleared, "droppedSlots": dropped}
+
+
+def _rehide_body_under_gown(body, gown, armature):
+    """Paint a fresh body-part-hiding mask driven by the NEW gown shell.
+
+    Wired, not authored (D1): the proven materialize chain — garment_coverage.
+    body_hide_mask (signed clearance < HIDE_EPSILON_M against the garment surface;
+    faces with no garment within reach are NOT hidden) + garment_ops.
+    scope_hide_mask_away_from_hands (#295) + clip_hide_mask_to_garment_footprint
+    (#326, 1.5 mm slack, inside the 2 mm gate) + clip_hide_mask_below_joint (#334)
+    + apply_body_hide_material_region (alpha-0 slot "gown"). The issue-341
+    poke/sliver refinements are shirt-specific (sub-mm conformal fits); the draped
+    cage stands 18-25 mm off the body, so no coincident class exists to refine.
+
+    Frame: the imported body, gown (re-parented with identity inverse) and armature
+    are all at identity, so local coords ARE world coords (same convention the clips
+    assume). Fail closed otherwise — a wrong-frame mask is worse than none.
+    """
+    import numpy as _np
+
+    _MAKECLOTHES_DIR = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
+    _BODY_PARAM_DIR = REPO_ROOT / "packages/openclinxr/factory-stations/src/body_param"
+    for _p in (str(_MAKECLOTHES_DIR), str(_BODY_PARAM_DIR)):
+        if _p not in sys.path:
+            sys.path.insert(0, _p)
+    from garment_coverage import HIDE_EPSILON_M, body_hide_mask  # noqa: E402
+    from garment_ops import (  # noqa: E402
+        apply_body_hide_material_region,
+        clip_hide_mask_below_joint,
+        clip_hide_mask_to_garment_footprint,
+        scope_hide_mask_away_from_hands,
+    )
+
+    for _o in (body, gown, armature):
+        _mw = _o.matrix_world
+        for _r in range(4):
+            for _c in range(4):
+                _want = 1.0 if _r == _c else 0.0
+                if abs(_mw[_r][_c] - _want) > 1e-6:
+                    raise RuntimeError(
+                        f"gown re-hide needs identity transform: {_o.name} "
+                        f"matrix_world[{_r}][{_c}]={_mw[_r][_c]}"
+                    )
+
+    def _triangulate(obj):
+        # Fan triangulation mirroring materialize _triangulate_numpy: the coverage
+        # predicate consumes triangles, and apply_body_hide_material_region maps the
+        # mask back in polygon fan order, so both must agree.
+        verts = _np.array([tuple(v.co) for v in obj.data.vertices], dtype=float)
+        faces: list[tuple[int, int, int]] = []
+        for _p in obj.data.polygons:
+            _iv = list(_p.vertices)
+            if len(_iv) == 3:
+                faces.append((_iv[0], _iv[1], _iv[2]))
+            else:
+                for _i in range(1, len(_iv) - 1):
+                    faces.append((_iv[0], _iv[_i], _iv[_i + 1]))
+        return verts, _np.array(faces, dtype=_np.int64)
+
+    _body_verts, _body_faces = _triangulate(body)
+    _gown_verts, _gown_faces = _triangulate(gown)
+    _gmin = _gown_verts.min(axis=0)
+    _gmax = _gown_verts.max(axis=0)
+    _gb = {"min": [float(_v) for _v in _gmin], "max": [float(_v) for _v in _gmax]}
+    _info = body_hide_mask(
+        _body_verts,
+        _body_faces,
+        _gown_verts,
+        _gown_faces,
+        float(_gmin[2]),
+        float(_gmax[2]),
+        hide_epsilon_m=HIDE_EPSILON_M,
+        height_axis=2,
+    )
+    _mask = _info.pop("hideMask")
+    _mask, _hands = scope_hide_mask_away_from_hands(body, _mask, armature)
+    _mask, _footprint = clip_hide_mask_to_garment_footprint(_mask, body, _gb)
+    _pose_head = armature.pose.bones.get("head")
+    if _pose_head is None:
+        raise RuntimeError("head bone missing from the MPFB standard rig")
+    _head_z = float((armature.matrix_world @ _pose_head.matrix).translation.z)
+    _mask, _headcut = clip_hide_mask_below_joint(_mask, body, _head_z)
+    _rep = apply_body_hide_material_region(body, _mask, slot="gown")
+    print(
+        f"GOWN_REHIDE regionFaces={_info.get('regionFaceCount')} "
+        f"rawHidden={_info.get('hiddenFaceCount')} handsUnhidden={_hands} "
+        f"footprintClipped={_footprint} headClipped={_headcut} applied={_rep.get('appliedPolygonCount')} "
+        f"slot={_rep.get('hiddenMaterialName')} epsilonM={HIDE_EPSILON_M}"
+    )
+    return _rep
+
+
+# Black definition shared with the proven atlas hole fill
+# (tools/openclinxr/evidence/blender/inpaint_skin_atlas_throat.py SKIN_MIN_MAXC):
+# texels darker than this are atlas background or unbaked voids, never skin.
+SKIN_HOLE_BLACK_MAXC = 16 / 255
+
+
+def _restore_unbaked_skin_texels(body):
+    """Fill unbaked-black texels under the body's skin-primitive UVs with the texture's own skin median.
+
+    The viseme input bakes its skin albedo while the jeans-era lower + old-wrap upper faces are
+    hidden, leaving black (unbaked) holes in the leg/pelvis islands. The gown re-hide unhides the
+    legs, exposing those holes as black skin in every runtime (three.js samples the same texels
+    EEVEE does). The old shipped full-leg albedos belong to an older body generation (3219 vs
+    7598 verts, different UV layouts), so no shipped source can be position-copied; the fill is
+    the median of the texture's own covered non-black texels — the same principle as the proven
+    inpaint_skin_atlas_throat hole fill (black = max(R,G,B) < 16, neighbor-skin median, never
+    invented detail; the normal map still carries pore detail). Deterministic: median of a fixed
+    texel set. No geometry, material assignment, or hidden-region semantics change; hidden faces
+    stay hidden (their discarded texels are filled identically and harmlessly).
+    """
+    import numpy as _np
+
+    skin_idx = next(
+        (i for i, m in enumerate(body.data.materials) if m is not None and m.name.startswith("mpfb_skin")),
+        None,
+    )
+    if skin_idx is None:
+        raise RuntimeError("no mpfb_skin_* material slot on the imported body")
+    mat = body.data.materials[skin_idx]
+    if mat.use_nodes is False or mat.node_tree is None:
+        raise RuntimeError("skin material has no node tree")
+    bsdf = next((n for n in mat.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
+    if bsdf is None:
+        raise RuntimeError("skin material has no Principled node")
+    base_links = bsdf.inputs["Base Color"].links
+    if not base_links or base_links[0].from_node.type != "TEX_IMAGE":
+        raise RuntimeError("skin Base Color is not image-driven")
+    img = base_links[0].from_node.image
+    if img is None:
+        raise RuntimeError("skin Base Color image missing")
+    w, h = int(img.size[0]), int(img.size[1])
+    if w <= 0 or h <= 0:
+        raise RuntimeError(f"skin image has no pixels: {img.name}")
+    # foreach_get/foreach_set exchange float32 buffers (float64 raises
+    # "incorrect sequence item type"); compute in float64 on a copy.
+    raw = _np.zeros(w * h * 4, dtype=_np.float32)
+    img.pixels.foreach_get(raw)
+    px = raw.astype(_np.float64).reshape(h, w, 4)
+    uv_layer = body.data.uv_layers.active or (body.data.uv_layers[0] if body.data.uv_layers else None)
+    if uv_layer is None:
+        raise RuntimeError("body mesh has no UV layer")
+    covered = _np.zeros((h, w), dtype=bool)
+    # UVs are 0..1; rasterize in PIXEL space (a prior round mixed frames and
+    # covered zero texels, silently filling nothing — fail closed on that).
+    for poly in body.data.polygons:
+        if poly.material_index != skin_idx:
+            continue
+        lu = _np.array([uv_layer.data[li].uv[:] for li in poly.loop_indices], dtype=_np.float64)
+        lu[:, 0] *= w
+        lu[:, 1] *= h
+        for _i in range(1, len(lu) - 1):
+            tri = lu[[0, _i, _i + 1]]
+            xs = tri[:, 0]
+            ys = tri[:, 1]
+            x0 = max(0, int(_np.floor(xs.min())))
+            x1 = min(w - 1, int(_np.ceil(xs.max())))
+            y0 = max(0, int(_np.floor(ys.min())))
+            y1 = min(h - 1, int(_np.ceil(ys.max())))
+            if x1 < x0 or y1 < y0:
+                continue
+            gx, gy = _np.meshgrid(_np.arange(x0, x1 + 1), _np.arange(y0, y1 + 1))
+            # Barycentric edge signs (consistent winding => same sign inside).
+            d1 = (gy - tri[1, 1]) * (tri[2, 0] - tri[1, 0]) - (gx - tri[1, 0]) * (tri[2, 1] - tri[1, 1])
+            d2 = (gy - tri[2, 1]) * (tri[0, 0] - tri[2, 0]) - (gx - tri[2, 0]) * (tri[0, 1] - tri[2, 1])
+            d0 = (gy - tri[0, 1]) * (tri[1, 0] - tri[0, 0]) - (gx - tri[0, 0]) * (tri[1, 1] - tri[0, 1])
+            inside = ((d0 >= 0) & (d1 >= 0) & (d2 >= 0)) | ((d0 <= 0) & (d1 <= 0) & (d2 <= 0))
+            covered[y0 : y1 + 1, x0 : x1 + 1] |= inside
+    black = px[:, :, :3].max(axis=2) < SKIN_HOLE_BLACK_MAXC
+    holes = black & covered
+    hole_n = int(holes.sum())
+    covered_n = int(covered.sum())
+    print(
+        f"SKIN_TEXEL_DEBUG image={img.name} {w}x{h} skinPolys="
+        f"{sum(1 for p in body.data.polygons if p.material_index == skin_idx)} "
+        f"covered={covered_n} black={int(black.sum())} holes={hole_n}"
+    )
+    if covered_n == 0:
+        raise RuntimeError("skin UV rasterization covered zero texels; refusing a vacuous fill")
+    if hole_n == 0:
+        print("SKIN_TEXEL_RESTORE holes=0 (atlas already complete)")
+        return {"holesFilled": 0}
+    ring = covered & ~black
+    ring_n = int(ring.sum())
+    if ring_n == 0:
+        raise RuntimeError("no covered non-black skin texels to sample the fill from")
+    fill = _np.median(px[ring][:, :3].astype(_np.float64), axis=0)
+    if float(fill.max()) < SKIN_HOLE_BLACK_MAXC:
+        raise RuntimeError("skin fill median is near-black; refusing to write black as fill")
+    px[holes, :3] = fill
+    img.pixels.foreach_set(px.reshape(-1).astype(_np.float32))
+    img.update()
+    print(
+        f"SKIN_TEXEL_RESTORE holes={hole_n} ringTexels={ring_n} "
+        f"fillRGB=({fill[0]:.3f},{fill[1]:.3f},{fill[2]:.3f}) image={img.name} {w}x{h}"
+    )
+    return {"holesFilled": hole_n, "ringTexels": ring_n, "fillRGB": [float(v) for v in fill]}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="#480 bake MPFB gown inspect GLB")
     ap.add_argument("--input-glb", default=str(GEN / "mpfb-viseme-inspect.glb"))
@@ -451,6 +790,7 @@ def main() -> None:
     print(f"BODY_LOCAL x={_local_bounds(body)}")
 
     _strip_lower_garments(body)
+    _strip_redundant_upper_garments(body)
     _strip_existing_gown()
     bpy.context.view_layer.update()
 
@@ -533,6 +873,27 @@ def main() -> None:
 
     for obj in kept:
         print(f"KEPT {obj.name!r} x={_local_bounds(obj)}")
+
+    # The stale viseme-input hide mask is sized for the old footprint (jeans-era
+    # lower, conformal-wrap upper, T-shirt). Clear it and re-drive the mask from
+    # the new draped shell, or legs stay masked below the hem and the chest keeps
+    # the old wrap's hide assignment. Runs on the FINAL parented shell pre-export.
+    gown_obj = next(
+        (o for o in kept if o.type == "MESH" and "real_garment_from_phenotype_hospital_gown" in o.name),
+        None,
+    )
+    if gown_obj is None:
+        raise RuntimeError("gown shell missing before re-hide")
+    _clear_stale_body_hide_materials(body)
+    bpy.context.view_layer.update()
+    _rehide_body_under_gown(body, gown_obj, armature)
+    bpy.context.view_layer.update()
+
+    # The re-hide unhides the legs, exposing unbaked-black holes the viseme input
+    # carries in its skin albedo (baked while those faces were hidden). Fill them
+    # from the texture's own skin before export, or every runtime shows black legs.
+    _restore_unbaked_skin_texels(body)
+    bpy.context.view_layer.update()
 
     bpy.ops.object.select_all(action="SELECT")
     out = REPO_ROOT / args.output_glb

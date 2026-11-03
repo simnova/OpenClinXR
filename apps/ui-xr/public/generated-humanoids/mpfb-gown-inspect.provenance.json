@@ -5,8 +5,8 @@
  "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
  "runtimeRole": "inspection_fixture",
  "runtimeRoleWhy": "Inspection subject for garment/gown contracts. Never cast; the shipped-bank cast resolver does not name it.",
- "outputSha256": "3117a5e6bf0a7577f6d5e5459b93770b5bd4ca44ea48c2ca2c7fd3cd8979bdb6",
- "outputBytes": 7922732,
+ "outputSha256": "9318d9a446a5cec24fba9b71f4d50fc735940b9a339dbe2611e33bde9ce74fac",
+ "outputBytes": 8236800,
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.401Z",
  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. HB-05 (2026-09-11): face-preserving decimation rung rewrote the GLB (selective weld+simplifyPrimitive on non-face meshes only, face meshes untouched, joints and 47 body morph targets unchanged); outputSha256/outputBytes re-recorded in the same change that moved the bytes. Reproduce: pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.15 (face-preserving mode, tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts).",
  "byteLineage": {
@@ -29,5 +29,12 @@
   ],
   "reproduction": "byte-identical to the shipped file",
   "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+ },
+ "gownRebake20261103": {
+  "producer": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py --input-glb mpfb-viseme-inspect.glb --output-glb mpfb-gown-inspect.glb (blender --background)",
+  "cause": "st-gowninsp: the re-hide mask carried alpha-MASK hide regions sized for the stale peds_upper_v1 wrap, hiding skin the new hospital-gown shell no longer covers (legs) and exposing skin the gown should cover (chest interior). Raycast ground truth on the pre-fix bake: 501 chest-view + 90 front-view skin-first rays on the mid-torso front (x +/-0.13, z 1.17-1.28). Fix: chest section() rings now include breast-bone-weighted verts (producer torso set += breast.*) plus unbaked-skin-texel restore for the unhidden legs. Post-fix raycast: 0 defect skin-first rays, legs 1131/1131 skin-first.",
+  "outputSha256": "9318d9a446a5cec24fba9b71f4d50fc735940b9a339dbe2611e33bde9ce74fac",
+  "outputBytes": 8236800,
+  "reproduction": "two consecutive producer runs byte-identical (gown-rebake7.glb, gown-rebake7b.glb)"
  }
 }
