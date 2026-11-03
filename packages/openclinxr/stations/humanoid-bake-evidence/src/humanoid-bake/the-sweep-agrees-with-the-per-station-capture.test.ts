@@ -68,29 +68,29 @@ describe("#507 the sweep agrees with the per-station capture, or we know why not
     expect(existsSync(REPORT), `${REPORT} must exist and be TRACKED (#396)`).toBe(true);
     const r = JSON.parse(readFileSync(REPORT, "utf8")) as Record<string, unknown>;
 
-    expect(VERDICTS, `verdict must be one of ${VERDICTS.join("|")}`).toContain(r.verdict);
+    expect(VERDICTS, `verdict must be one of ${VERDICTS.join("|")}`).toContain(r["verdict"]);
 
     // Every verdict carries the SAME evidence burden, so rejecting is honest rather than cheap.
-    expect(typeof r.mechanism).toBe("string");
-    expect(String(r.mechanism).length, "one sentence minimum naming what differs").toBeGreaterThan(60);
-    expect(String(r.locator ?? ""), "a file:line, a named call, or a number — not a story").toMatch(/[:\d]/);
+    expect(typeof r["mechanism"]).toBe("string");
+    expect(String(r["mechanism"]).length, "one sentence minimum naming what differs").toBeGreaterThan(60);
+    expect(String(r["locator"] ?? ""), "a file:line, a named call, or a number — not a story").toMatch(/[:\d]/);
 
     // NON-VACUITY: the worker must re-measure BOTH instruments repeatedly, not cite my header.
-    const sweep = r.sweepSamples as number[] | undefined;
-    const per = r.perStationSamples as number[] | undefined;
+    const sweep = r["sweepSamples"] as number[] | undefined;
+    const per = r["perStationSamples"] as number[] | undefined;
     expect(Array.isArray(sweep) && sweep.length >= 3, ">=3 fresh SWEEP samples required").toBe(true);
     expect(Array.isArray(per) && per.length >= 3, ">=3 fresh PER-STATION samples required").toBe(true);
-    expect(String(r.station)).toBe(STATION);
+    expect(String(r["station"])).toBe(STATION);
 
     // The disagreement must be reproduced, not asserted: the sweep must vary OR the report must
     // say explicitly that it no longer does (which is itself a finding worth having).
     const spread = Math.max(...sweep!) - Math.min(...sweep!);
     const perSpread = Math.max(...per!) - Math.min(...per!);
-    expect(typeof r.reproduced, "state whether you reproduced the disagreement").toBe("boolean");
-    if (r.reproduced === true) expect(spread, "reproduced=true needs a real sweep spread").toBeGreaterThan(2);
+    expect(typeof r["reproduced"], "state whether you reproduced the disagreement").toBe("boolean");
+    if (r["reproduced"] === true) expect(spread, "reproduced=true needs a real sweep spread").toBeGreaterThan(2);
     expect(perSpread, "the per-station path was bit-exact for me; if it moved for you, say so in mechanism")
       .toBeGreaterThanOrEqual(0);
 
-    expect(String(r.reproducedBy ?? ""), "a command someone else can re-run").toContain("pnpm");
+    expect(String(r["reproducedBy"] ?? ""), "a command someone else can re-run").toContain("pnpm");
   });
 });

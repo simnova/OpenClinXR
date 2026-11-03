@@ -28,7 +28,7 @@ import { type DecodedPng, decodePng8 } from "../../../../../../tools/openclinxr/
 const HERE = dirname(fileURLToPath(import.meta.url));
 const CACHE_ROOT = mainWorktreeRoot(HERE);
 const CACHE = join(CACHE_ROOT, ".openclinxr-local/provider-cache");
-const GLB = process.env.OPENCLINXR_REBAKED_NURSE_GLB ?? "";
+const GLB = process.env["OPENCLINXR_REBAKED_NURSE_GLB"] ?? "";
 
 const glbExists = GLB !== "" && existsSync(GLB);
 const doc = glbExists ? await new NodeIO().readBinary(readFileSync(GLB)) : null;

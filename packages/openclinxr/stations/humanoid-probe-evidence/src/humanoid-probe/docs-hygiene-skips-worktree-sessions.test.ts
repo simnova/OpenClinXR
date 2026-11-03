@@ -112,7 +112,7 @@ function guardVerdict(cwd: string, env: NodeJS.ProcessEnv): "SKIPPED" | "WOULD_R
   const out = execFileSync("sh", ["-c", script], {
     cwd,
     encoding: "utf8",
-    env: { PATH: process.env.PATH ?? "", HOME: process.env.HOME ?? "", ...env },
+    env: { PATH: process.env["PATH"] ?? "", HOME: process.env["HOME"] ?? "", ...env },
   });
   // Detect by the ABSENCE of the sentinel we appended, not by matching the hook's own message:
   // it echoes "DOC HYGIENE: skipped" in lower case, and a case-sensitive /SKIPPED/ match

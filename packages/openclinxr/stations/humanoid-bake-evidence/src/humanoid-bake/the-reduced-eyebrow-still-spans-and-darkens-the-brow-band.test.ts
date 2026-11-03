@@ -124,6 +124,20 @@ const MIN_INK_FRACTION_OF_REF = 0.1;
 
 type Tri2 = { ax: number; ay: number; bx: number; by: number; cx: number; cy: number };
 
+/** Checked index into a vertex component array — the index buffer guarantees range, this names it. */
+function f32At(arr: Float32Array, i: number, what: string): number {
+  const v = arr[i];
+  if (v === undefined) throw new Error(`${what} component ${i} out of bounds`);
+  return v;
+}
+
+/** Checked index into a triangle index array. */
+function u32At(arr: Uint32Array, i: number, what: string): number {
+  const v = arr[i];
+  if (v === undefined) throw new Error(`${what} index ${i} out of bounds`);
+  return v;
+}
+
 function primOf(doc: Document, re: RegExp) {
   for (const mesh of doc.getRoot().listMeshes()) {
     if (re.test(mesh.getName() ?? "")) {
@@ -142,11 +156,11 @@ function xyTriangles(prim: NonNullable<ReturnType<typeof primOf>>): Tri2[] {
   const iarr = idx.getArray() as Uint32Array;
   const tris: Tri2[] = [];
   for (let t = 0; t < iarr.length; t += 3) {
-    const i0 = iarr[t], i1 = iarr[t + 1], i2 = iarr[t + 2];
+    const i0 = u32At(iarr, t, "triangle"), i1 = u32At(iarr, t + 1, "triangle"), i2 = u32At(iarr, t + 2, "triangle");
     tris.push({
-      ax: arr[i0 * 3], ay: arr[i0 * 3 + 1],
-      bx: arr[i1 * 3], by: arr[i1 * 3 + 1],
-      cx: arr[i2 * 3], cy: arr[i2 * 3 + 1],
+      ax: f32At(arr, i0 * 3, "vertex"), ay: f32At(arr, i0 * 3 + 1, "vertex"),
+      bx: f32At(arr, i1 * 3, "vertex"), by: f32At(arr, i1 * 3 + 1, "vertex"),
+      cx: f32At(arr, i2 * 3, "vertex"), cy: f32At(arr, i2 * 3 + 1, "vertex"),
     });
   }
   return tris;
@@ -161,8 +175,8 @@ function eyeBand(doc: Document): Band {
   const arr = pos.getArray() as Float32Array;
   let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
   for (let i = 0; i < pos.getCount(); i++) {
-    x0 = Math.min(x0, arr[i * 3]); x1 = Math.max(x1, arr[i * 3]);
-    y0 = Math.min(y0, arr[i * 3 + 1]); y1 = Math.max(y1, arr[i * 3 + 1]);
+    x0 = Math.min(x0, f32At(arr, i * 3, "eye")); x1 = Math.max(x1, f32At(arr, i * 3, "eye"));
+    y0 = Math.min(y0, f32At(arr, i * 3 + 1, "eye")); y1 = Math.max(y1, f32At(arr, i * 3 + 1, "eye"));
   }
   const w = x1 - x0, h = y1 - y0;
   return { x0: x0 - PAD_X * w, x1: x1 + PAD_X * w, y0: y1 - Y_BELOW * h, y1: y1 + Y_ABOVE * h };
@@ -272,7 +286,7 @@ describe("the reduced eyebrow still spans and darkens the brow band above the ey
       const arr = pos.getArray() as Float32Array;
       let x0 = Infinity, x1 = -Infinity;
       for (let i = 0; i < pos.getCount(); i++) {
-        x0 = Math.min(x0, arr[i * 3]); x1 = Math.max(x1, arr[i * 3]);
+        x0 = Math.min(x0, f32At(arr, i * 3, "eye")); x1 = Math.max(x1, f32At(arr, i * 3, "eye"));
       }
       const span = x1 - x0;
       expect(span, `${asset}: eye span ${span.toFixed(4)} moved out of the measured frame`).toBeGreaterThan(0.05);

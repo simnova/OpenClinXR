@@ -160,7 +160,7 @@ async function readAsset(path: string): Promise<Asset | null> {
       if (!pos) continue;
       const idx = prim.getIndices();
       const tris = Math.round((idx ? idx.getCount() : pos.getCount()) / 3);
-      const el = [0, 0, 0];
+      const el: [number, number, number] = [0, 0, 0];
       let lo = Infinity;
       let hi = -Infinity;
       for (let i = 0; i < pos.getCount(); i += 1) {

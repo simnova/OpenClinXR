@@ -122,7 +122,15 @@ function getShippedBodies(): BodyInfo[] {
 function median(values: number[]): number {
   const sorted = [...values].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  if (sorted.length % 2) {
+    const odd = sorted[mid];
+    if (odd === undefined) throw new Error("missing median value");
+    return odd;
+  }
+  const lo = sorted[mid - 1];
+  const hi = sorted[mid];
+  if (lo === undefined || hi === undefined) throw new Error("missing median values");
+  return (lo + hi) / 2;
 }
 
 describe("no shipped garment texture dwarfs its body's other images", () => {
@@ -150,7 +158,9 @@ describe("no shipped garment texture dwarfs its body's other images", () => {
       ],
     };
     const med = median(PLANTED_VIOLATION.images.map((i) => i.imgBytes));
-    const ratio = PLANTED_VIOLATION.images[0].imgBytes / med;
+    const plantedTop = PLANTED_VIOLATION.images[0];
+    if (plantedTop === undefined) throw new Error("missing planted violation image");
+    const ratio = plantedTop.imgBytes / med;
     // The 5.44 MB planted image should fail the gate
     expect(ratio).toBeGreaterThan(TEXTURE_DWARF_THRESHOLD);
     // The actual shipped aisha bodies now PASS
@@ -172,6 +182,7 @@ describe("no shipped garment texture dwarfs its body's other images", () => {
     for (const body of multiImageBodies) {
       const med = median(body.images.map((i) => i.imgBytes));
       const maxImg = body.images[0]; // already sorted desc
+      if (maxImg === undefined) throw new Error(`missing max image for ${body.file}`);
       const ratio = maxImg.imgBytes / med;
       expect(ratio).toBeLessThanOrEqual(TEXTURE_DWARF_THRESHOLD);
     }
@@ -188,7 +199,9 @@ describe("no shipped garment texture dwarfs its body's other images", () => {
     let maxRatio = 0;
     for (const body of multiImageBodies) {
       const med = median(body.images.map((i) => i.imgBytes));
-      const ratio = body.images[0].imgBytes / med;
+      const top = body.images[0];
+      if (top === undefined) throw new Error(`missing top image for ${body.file}`);
+      const ratio = top.imgBytes / med;
       if (ratio > maxRatio) maxRatio = ratio;
     }
 
@@ -199,7 +212,9 @@ describe("no shipped garment texture dwarfs its body's other images", () => {
     const singleImageBodies = bodies.filter((b) => b.images.length === 1);
     expect(singleImageBodies.length).toBe(8);
     for (const body of singleImageBodies) {
-      expect(body.images[0].name).toBe("openclinxr_skin_micro_normal");
+      const only = body.images[0];
+      if (only === undefined) throw new Error(`missing single image for ${body.file}`);
+      expect(only.name).toBe("openclinxr_skin_micro_normal");
     }
   });
 });

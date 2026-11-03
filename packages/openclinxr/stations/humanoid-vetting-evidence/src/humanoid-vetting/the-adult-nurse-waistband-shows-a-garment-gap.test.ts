@@ -124,10 +124,10 @@ describe("the adult nurse waistband shows a garment gap", () => {
       box: NURSE_WAISTBAND,
       classifyHit: classifyNurseWaistHit,
     });
-    expect(hits.counts.skin ?? 0, "visible-skin first-hits in the waist box").toBe(0);
-    expect(hits.counts.hidden ?? 0, "hidden first-hits stay at 0").toBe(0);
-    expect(hits.counts.shirt, "shirt still occupies the box").toBeGreaterThan(0);
-    expect(hits.counts.pants, "pants still occupy the box").toBeGreaterThan(0);
+    expect(hits.counts["skin"] ?? 0, "visible-skin first-hits in the waist box").toBe(0);
+    expect(hits.counts["hidden"] ?? 0, "hidden first-hits stay at 0").toBe(0);
+    expect(hits.counts["shirt"], "shirt still occupies the box").toBeGreaterThan(0);
+    expect(hits.counts["pants"], "pants still occupy the box").toBeGreaterThan(0);
     expect(hits.skinRowCount, "skin band is gone").toBe(0);
   }, 180_000);
 });

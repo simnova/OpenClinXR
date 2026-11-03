@@ -153,7 +153,9 @@ describe("viseme capture produces distinct mouth shapes (#365, read-only)", () =
       instants.length,
       `a crashed or empty run must fail loudly; got ${instants.length} viseme instants`,
     ).toBeGreaterThanOrEqual(1);
-    expect(instants[0].targetName, "the first viseme instant must name a real target").not.toBe("");
+    const first = instants[0];
+    if (!first) throw new Error("run produced no viseme instants");
+    expect(first.targetName, "the first viseme instant must name a real target").not.toBe("");
   });
 
   it("weights are non-trivial: max influence above the floor (COUNTERWEIGHT a)", () => {

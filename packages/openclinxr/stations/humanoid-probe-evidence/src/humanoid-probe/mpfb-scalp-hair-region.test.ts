@@ -201,13 +201,13 @@ type Region = {
  */
 function faceBandVertexCountFor(
   position: Accessor,
-  bodyMin: number[],
+  bodyMin: [number, number, number],
   height: number,
   frontZ: number,
 ): number {
   let count = 0;
   for (let i = 0; i < position.getCount(); i += 1) {
-    const v = [0, 0, 0];
+    const v: [number, number, number] = [0, 0, 0];
     position.getElement(i, v);
     const heightFraction = (v[1] - bodyMin[1]) / height;
     if (
@@ -264,17 +264,17 @@ async function readSubject(path: string): Promise<Subject> {
 
   const primitives = body.listPrimitives();
 
-  const bodyMin = [Infinity, Infinity, Infinity];
-  const bodyMax = [-Infinity, -Infinity, -Infinity];
+  const bodyMin: [number, number, number] = [Infinity, Infinity, Infinity];
+  const bodyMax: [number, number, number] = [-Infinity, -Infinity, -Infinity];
   for (const prim of primitives) {
     const position = prim.getAttribute("POSITION");
     if (!position) continue;
     for (let i = 0; i < position.getCount(); i += 1) {
-      const v = [0, 0, 0];
+      const v: [number, number, number] = [0, 0, 0];
       position.getElement(i, v);
       for (let axis = 0; axis < 3; axis += 1) {
-        bodyMin[axis] = Math.min(bodyMin[axis], v[axis]);
-        bodyMax[axis] = Math.max(bodyMax[axis], v[axis]);
+        bodyMin[axis] = Math.min(bodyMin[axis]!, v[axis]!);
+        bodyMax[axis] = Math.max(bodyMax[axis]!, v[axis]!);
       }
     }
   }
@@ -297,7 +297,7 @@ async function readSubject(path: string): Promise<Subject> {
     let maxZ = -Infinity;
     let sumY = 0;
     for (let i = 0; i < position.getCount(); i += 1) {
-      const v = [0, 0, 0];
+      const v: [number, number, number] = [0, 0, 0];
       position.getElement(i, v);
       minY = Math.min(minY, v[1]);
       maxY = Math.max(maxY, v[1]);
@@ -409,17 +409,17 @@ describe("#222 scalp hair is a material region on the body, never a separate aut
     if (!body) throw new Error(`${ANNY_KNOWN_GOOD}: no meshes`);
 
     const primitives = body.listPrimitives();
-    const bodyMin = [Infinity, Infinity, Infinity];
-    const bodyMax = [-Infinity, -Infinity, -Infinity];
+    const bodyMin: [number, number, number] = [Infinity, Infinity, Infinity];
+    const bodyMax: [number, number, number] = [-Infinity, -Infinity, -Infinity];
     for (const prim of primitives) {
       const position = prim.getAttribute("POSITION");
       if (!position) continue;
       for (let i = 0; i < position.getCount(); i += 1) {
-        const v = [0, 0, 0];
+        const v: [number, number, number] = [0, 0, 0];
         position.getElement(i, v);
         for (let axis = 0; axis < 3; axis += 1) {
-          bodyMin[axis] = Math.min(bodyMin[axis], v[axis]);
-          bodyMax[axis] = Math.max(bodyMax[axis], v[axis]);
+          bodyMin[axis] = Math.min(bodyMin[axis]!, v[axis]!);
+          bodyMax[axis] = Math.max(bodyMax[axis]!, v[axis]!);
         }
       }
     }
@@ -433,7 +433,7 @@ describe("#222 scalp hair is a material region on the body, never a separate aut
         const position = prim.getAttribute("POSITION")!;
         let minY = Infinity;
         for (let i = 0; i < position.getCount(); i += 1) {
-          const v = [0, 0, 0];
+          const v: [number, number, number] = [0, 0, 0];
           position.getElement(i, v);
           minY = Math.min(minY, v[1]);
         }

@@ -126,7 +126,9 @@ describe("the capture records what it framed (#368 remaining half, read-only)", 
       parent.samples.length,
       `a crashed or empty run must fail loudly; got ${parent.samples.length} samples`,
     ).toBeGreaterThanOrEqual(1);
-    expect(parent.samples[0].drivenTargetName).not.toBe("");
+    const firstSample = parent.samples[0];
+    if (firstSample === undefined) throw new Error("no viseme samples recorded");
+    expect(firstSample.drivenTargetName).not.toBe("");
     expect(
       parent.samples.every((s) => /^viseme_/iu.test(s.drivenTargetName) && s.influence > 0),
       "every sampled entry must be a weighted viseme_* drive, not an empty or FACS alias",
