@@ -344,7 +344,7 @@
       }
     },
     "peds_patient_child": {
-      "glb_sha256": "2be7623bb00bbd9396b2319fed0d9714c6548ef247bbca38a9589a224b7c794f",
+      "glb_sha256": "52ab0569b8172735e6b156af22c79fc0f424ee7fd494314aa8ccb65e0a770c01",
       "skin_tone_rgb": [0.84, 0.70, 0.60],
       "overrides": {
         "lips": { "ratio": 1.0 },
