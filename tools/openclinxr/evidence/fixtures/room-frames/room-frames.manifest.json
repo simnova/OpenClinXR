@@ -388,11 +388,11 @@
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb",
-      "sha256": "8b852aea0264dd164e59db992d1f38d30d847331a0d47d2ba8c62d8d509e00c0"
+      "sha256": "eb90aa69b670d86fb13492ba0da620280de8670bd5a0610e9d83e787a8076178"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.provenance.json",
-      "sha256": "e4153a324546446cad0015cbe187333ba255914fc92cf734fa4557a57cfaa456"
+      "sha256": "5618e2c0168f924a3f5c62411daae83b93e03798dd1139c4c948318459570e35"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.skin-baked.png",
@@ -5063,7 +5063,7 @@
       "sha256": "0dcd06c66f5acd0ccc42401c8d1fed8ee1351f889861ca13ecc8c79fec1a9f95"
     }
   ],
-  "sourcePinsDigest": "31416544ae15e7fc0b4c44b9296e2141354ffcac2ac820d0fcc6425fb259af49",
+  "sourcePinsDigest": "a230e950fe629fdcaa8ae51a74038f64a3cc8e8a34eff79bdcdcd07433a752cf",
   "entries": [
     {
       "scenarioId": "adult_abdominal_pain_v1",

@@ -67,7 +67,8 @@
   "2026-09-12 street waist-meet bake-time: rebake through fit_upper_hem_to_waistband while hm08+mhclo were live (WAIST_MEET_UPPER pushedVertexCount 48, maxDeficitMeters 0.03139). Bake GLB triangles 115552 (exact HB-03) / jeans 5708. measureWaistFit WITHOUT apply-waist-meet-glb: gapped 1 / min -22.08 mm / 34 buckets. Shortfall not hidden by a post-export push; live bytes stay the 2026-09-12 GLB-stage ship. Report: tools/openclinxr/evidence/humanoid-vetting/street-waist-meet-at-bake-time-2026-09-12.md.",
   "2026-09-20: garment-provenance-stamp extras on remaining garments. Geometry unchanged. outputSha256/outputBytes re-recorded.",
   "2026-10-30 ci-w11 D3 (chest-anchor re-separation, post-bake stage, not rebake): default mode: rest 0.00000 -> +-0.085 (rebakes since #0 had zeroed the separation); moved 2 ClinicalIdleConversation + 2 openclinxr_retarget_walk_source keyframes per joint with the rests. y/z untouched. Tool: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs (half-span 0.085, uniform with nurse known-good 1f5519d2).",
-  "2026-10-31 mesh-defects (jeans swap, not rebake): the shipped straight-leg jeans came from bake e59925fc6, while the post-fit cloth_offset snap still ran on covering-library lowers; it folded the fit to 1078 unique positions of 3109 with 37 coincident triangle pairs. 0f460d098 removed the snap. A current materializer bake of --reference adult_male_street_casual --actor-role patient (log LOWER_FIT_STANDOFF kept ClothesService positions) was not shipped whole: body 107,024 vs 26,756 tris, fitted teeth/tongue instead of hm08, one clip instead of three. replace-garment-primitive.ts takes only its jeans primitive (same joint list, same material, bake body within 2.19 mm p95 of the shipped body); apply-waist-meet-glb.ts then pushed 74 hem verts (max 4.68 mm). Jeans after: 1 coincident pair (ceiling 4, family-partner control 4), 3028 unique positions, 11416 GLB verts / 5708 tris. Bake: /Volumes/files/openclinxr-assets/store/mesh-defects-20261030/humanoids/street-rebake/. Stills: .../street-jeans-swap/stills/. Test: packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/shipped-jeans-and-bob-keep-their-surfaces.test.ts."
+  "2026-10-31 mesh-defects (jeans swap, not rebake): the shipped straight-leg jeans came from bake e59925fc6, while the post-fit cloth_offset snap still ran on covering-library lowers; it folded the fit to 1078 unique positions of 3109 with 37 coincident triangle pairs. 0f460d098 removed the snap. A current materializer bake of --reference adult_male_street_casual --actor-role patient (log LOWER_FIT_STANDOFF kept ClothesService positions) was not shipped whole: body 107,024 vs 26,756 tris, fitted teeth/tongue instead of hm08, one clip instead of three. replace-garment-primitive.ts takes only its jeans primitive (same joint list, same material, bake body within 2.19 mm p95 of the shipped body); apply-waist-meet-glb.ts then pushed 74 hem verts (max 4.68 mm). Jeans after: 1 coincident pair (ceiling 4, family-partner control 4), 3028 unique positions, 11416 GLB verts / 5708 tris. Bake: /Volumes/files/openclinxr-assets/store/mesh-defects-20261030/humanoids/street-rebake/. Stills: .../street-jeans-swap/stills/. Test: packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/shipped-jeans-and-bob-keep-their-surfaces.test.ts.",
+  "2026-11-03 st-waist mask-fit: c099c2de2 swapped the trousers to straight-leg jeans (pants top 1.0640 m) while lower hide-mask .001 still topped at 1.0760 m (12.0 mm over-reach vs 6 mm bound). Full rebake churns body/clips so the fix is post-export micro-surgery via trim-hide-mask-to-garment.ts (footprint-derived, shared classifier, 1.5 mm slack, 2 mm rim inset): 53 lower triangles moved to one new skin-material primitive, morph-aware. outputSha256 8b852aea0264dd164e59db992d1f38d30d847331a0d47d2ba8c62d8d509e00c0 -> eb90aa69b670d86fb13492ba0da620280de8670bd5a0610e9d83e787a8076178, outputBytes 16728844 -> 16801952. Waistband (gap/overreach/overlap): (-12.0/12.0/35.7) -> (2.9/-2.9/35.7) mm."
  ],
  "waistMeet": {
   "stage": "post_export_glb",
@@ -86,8 +87,8 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-10T21:58:00Z",
- "outputSha256": "8b852aea0264dd164e59db992d1f38d30d847331a0d47d2ba8c62d8d509e00c0",
- "outputBytes": 16728844,
+ "outputSha256": "eb90aa69b670d86fb13492ba0da620280de8670bd5a0610e9d83e787a8076178",
+ "outputBytes": 16801952,
  "motionClips": [
   {
    "clipName": "openclinxr_retarget_walk_source",
@@ -162,5 +163,29 @@
   "outputBytes": 16728844,
   "commit": "mesh-defects 2026-10-31",
   "claimScope": "jeans primitive and shirt hem waist meet only; body, rig, clips, teeth, textures and other garments as shipped; jeans coincident pairs 37 -> 1, unique positions 1078 -> 3028"
+ },
+ "maskFit": {
+  "tools": [
+   "tools/openclinxr/asset-pipeline/makeclothes/trim-hide-mask-to-garment.ts"
+  ],
+  "toolSha256": {
+   "tools/openclinxr/asset-pipeline/makeclothes/trim-hide-mask-to-garment.ts": "8043b048644781bb1f24206a1458cb32320ec4cba832d14972d02387ea035cf3"
+  },
+  "argv": [
+   "trim-hide-mask-to-garment.ts --in <glb> --out <glb>"
+  ],
+  "inputSha256": "8b852aea0264dd164e59db992d1f38d30d847331a0d47d2ba8c62d8d509e00c0",
+  "inputBytes": 16728844,
+  "outputSha256": "eb90aa69b670d86fb13492ba0da620280de8670bd5a0610e9d83e787a8076178",
+  "outputBytes": 16801952,
+  "movedTriangles": 53,
+  "perSlot": {
+   "lower": 53
+  },
+  "maskTopBeforeM": 1.0759639739990234,
+  "maskTopAfterM": 1.0610486268997192,
+  "pantsTopM": 1.0639921426773071,
+  "commit": "st-waist post-export mask-fit (this commit)",
+  "claimScope": "lower hide-mask rim only (53 triangles moved to one new skin-material primitive, morph-aware across all 47 targets); garments, body, rig, clips, teeth, textures unchanged; waistband over-reach 12.0mm -> -2.9mm, gap 2.9mm, overlap 35.7mm"
  }
 }
