@@ -174,7 +174,10 @@ describe("the nurse wardrobe baseline matches the shipped bytes", () => {
       // the #656 hem-weld scoping that her last bake (2026-08-21) predates — the sibling
       // flat-shading contract re-pinned the same row for the same reason. Not treatment (e): the
       // edit records current-code geometry, it does not make a stale nurse baseline line up.
-      ["mpfb-peds-patient-child", "cargo_pants.001", 2628],
+      // st-premise R3 re-pinned 2628 -> 2726 in the sibling flat-shading baseline: the child's
+      // HB-07 rebake (078d96a2c) with the hide-mask hole guard ships 2726 cargo tris (read off
+      // the shipped GLB at 0046292b5). Same reason as #681: current-code geometry.
+      ["mpfb-peds-patient-child", "cargo_pants.001", 2726],
     ] as const) {
       const re = new RegExp(`"${actor}::mat_makeclothes_library_${material.replace(/\./gu, "\\.")}"\\s*:\\s*\\{\\s*tris:\\s*${tris}`, "u");
       expect(re.test(baselineSrc), `${actor} ${material} must stay at ${tris}`).toBe(true);
