@@ -298,7 +298,7 @@ const FROZEN: readonly string[] = [
   "tools/openclinxr/evidence/humanoid-body-signature.ts -> ../../../packages/openclinxr/asset-registry/src/humanoid-body-mesh.js",
   "tools/openclinxr/evidence/humanoid-cast-path-resolution.ts -> ../../../packages/openclinxr/asset-registry/src/actor-casting.js",
   "tools/openclinxr/evidence/humanoid-source-side-by-side-cagematch.ts -> ../../../packages/openclinxr/arena/model-vetting/src/index.js",
-  "tools/openclinxr/evidence/humanoid-vetting/see-through-pixels.ts -> ../../../../apps/arena/model-vetting-studio/src/candidate-capture-geometry.ts",
+  "tools/openclinxr/evidence/humanoid-vetting/see-through-pixels.ts -> ../../../../apps/arena/model-vetting-studio/src/candidate-capture-geometry.js",
   "tools/openclinxr/evidence/humanoid-vision-score.ts -> ../../../packages/openclinxr/agent-loop/src/model-pricing.js",
   "tools/openclinxr/evidence/idle-arm-hang.ts -> ../../../packages/openclinxr/asset-registry/src/actor-casting.js",
   "tools/openclinxr/evidence/inpatient-supine-staging.ts -> ../../../packages/openclinxr/asset-registry/src/actor-casting.js",

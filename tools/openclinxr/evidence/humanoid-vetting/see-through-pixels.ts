@@ -247,8 +247,8 @@ function sampleBox(
       const mesh = hit.object as Mesh;
       const cls = classify(
         mesh.name,
-        String(mesh.userData.matName ?? ""),
-        String(mesh.userData.alphaMode ?? "OPAQUE"),
+        String(mesh.userData["matName"] ?? ""),
+        String(mesh.userData["alphaMode"] ?? "OPAQUE"),
       );
       if (cls === "hidden_upper") {
         if (isBg) out.hidden_upper++;
@@ -308,8 +308,8 @@ export async function countFirstHitsInBox(opts: {
       const mesh = hit.object as Mesh;
       const cls = opts.classifyHit(
         mesh.name,
-        String(mesh.userData.matName ?? ""),
-        String(mesh.userData.alphaMode ?? "OPAQUE"),
+        String(mesh.userData["matName"] ?? ""),
+        String(mesh.userData["alphaMode"] ?? "OPAQUE"),
       );
       counts[cls] = (counts[cls] ?? 0) + 1;
       if (cls === "skin") skinRows.add(y);
