@@ -110,7 +110,8 @@
         "apps/api/src/**",
         "packages/openclinxr/factory-stations/src/**",
         "tools/openclinxr/**",
-        "packages/openclinxr-verification/**"
+        "packages/openclinxr-verification/**",
+        "packages/openclinxr/stations/**"
       ],
       "linter": {
         "rules": {
