@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.humanoid-body-signature-pre-fix.v1",
   "issue": 276,
-  "measuredAt": "2026-10-30T07:13:35.748Z",
+  "measuredAt": "2026-11-03T14:18:39.621Z",
   "scanRoot": "apps/ui-xr/public/generated-humanoids",
   "assets": [
     {
@@ -134,10 +134,10 @@
       "file": "mpfb-street-adult-male.glb",
       "bodyMeshName": "mpfb_adult_male_street_casual_body",
       "triangles": 26756,
-      "vertices": 15969,
+      "vertices": 16077,
       "heightMeters": 1.7644702005563886,
-      "bodySha256": "1814fcd4755feefe2813caaab1ff5455e9e8d86f20fb579947f9d1eded83b033",
-      "bodyClassKey": "15969|26756|1.76"
+      "bodySha256": "95bc2baa8912842f7d47ca904f13c44f63217964ccc8edfc7335b82cc74adff4",
+      "bodyClassKey": "16077|26756|1.76"
     },
     {
       "file": "mpfb-viseme-inspect.glb",
@@ -300,12 +300,12 @@
       ]
     },
     {
-      "bodyClassKey": "15969|26756|1.76",
+      "bodyClassKey": "16077|26756|1.76",
       "triangles": 26756,
-      "vertices": 15969,
+      "vertices": 16077,
       "heightMeters": 1.7644702005563886,
       "distinctSha256": [
-        "1814fcd4755feefe2813caaab1ff5455e9e8d86f20fb579947f9d1eded83b033"
+        "95bc2baa8912842f7d47ca904f13c44f63217964ccc8edfc7335b82cc74adff4"
       ],
       "assets": [
         "mpfb-street-adult-male.glb"
