@@ -257,41 +257,41 @@ export function validateBlenderBakeSmokeReport(value: unknown): ValidationResult
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireRecord(value.tool, "/tool", errors);
-  if (isRecord(value.tool)) {
-    requireLiteral(value.tool.command, "blender", "/tool/command", errors);
-    requireLiteral(value.tool.package, "Blender", "/tool/package", errors);
-    requireString(value.tool.version, "/tool/version", errors);
-    requireLiteral(value.tool.license, "GPL-3.0-or-later-tooling", "/tool/license", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireRecord(value["tool"], "/tool", errors);
+  if (isRecord(value["tool"])) {
+    requireLiteral(value["tool"]["command"], "blender", "/tool/command", errors);
+    requireLiteral(value["tool"]["package"], "Blender", "/tool/package", errors);
+    requireString(value["tool"]["version"], "/tool/version", errors);
+    requireLiteral(value["tool"]["license"], "GPL-3.0-or-later-tooling", "/tool/license", errors);
   }
-  requireRecord(value.input, "/input", errors);
-  if (isRecord(value.input)) {
-    requireOneOf(value.input.fixture, ["ed_chest_pain_clinical_asset_pack"], "/input/fixture", errors);
-    requireLiteral(value.input.externalAssetsUsed, false, "/input/externalAssetsUsed", errors);
+  requireRecord(value["input"], "/input", errors);
+  if (isRecord(value["input"])) {
+    requireOneOf(value["input"]["fixture"], ["ed_chest_pain_clinical_asset_pack"], "/input/fixture", errors);
+    requireLiteral(value["input"]["externalAssetsUsed"], false, "/input/externalAssetsUsed", errors);
     requireOneOf(
-      value.input.sourceLicensePosture,
+      value["input"]["sourceLicensePosture"],
       ["reviewed_local_clinical_asset_fixture"],
       "/input/sourceLicensePosture",
       errors,
     );
-    requireNumber(value.input.expectedObjectCount, "/input/expectedObjectCount", errors);
+    requireNumber(value["input"]["expectedObjectCount"], "/input/expectedObjectCount", errors);
   }
-  requireRecord(value.output, "/output", errors);
-  if (isRecord(value.output)) {
-    requireNumber(value.output.glbBytes, "/output/glbBytes", errors);
-    requireLiteral(value.output.magic, "glTF", "/output/magic", errors);
-    requireLiteral(value.output.version, 2, "/output/version", errors);
-    requireNumber(value.output.declaredLength, "/output/declaredLength", errors);
-    requireNumber(value.output.elapsedMs, "/output/elapsedMs", errors);
-    if (value.output.semanticInventory !== null) {
-      validateSemanticInventory(value.output.semanticInventory, "/output/semanticInventory", errors);
+  requireRecord(value["output"], "/output", errors);
+  if (isRecord(value["output"])) {
+    requireNumber(value["output"]["glbBytes"], "/output/glbBytes", errors);
+    requireLiteral(value["output"]["magic"], "glTF", "/output/magic", errors);
+    requireLiteral(value["output"]["version"], 2, "/output/version", errors);
+    requireNumber(value["output"]["declaredLength"], "/output/declaredLength", errors);
+    requireNumber(value["output"]["elapsedMs"], "/output/elapsedMs", errors);
+    if (value["output"]["semanticInventory"] !== null) {
+      validateSemanticInventory(value["output"]["semanticInventory"], "/output/semanticInventory", errors);
     }
   }
-  requireRecord(value.verdict, "/verdict", errors);
-  if (isRecord(value.verdict)) {
-    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
-    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
+  requireRecord(value["verdict"], "/verdict", errors);
+  if (isRecord(value["verdict"])) {
+    requireBoolean(value["verdict"]["passed"], "/verdict/passed", errors);
+    requireStringArray(value["verdict"]["blockers"], "/verdict/blockers", errors);
   }
   validateReportConsistency(value, errors);
 
@@ -304,25 +304,25 @@ function validateSemanticInventory(value: unknown, pathName: string, errors: str
     return;
   }
 
-  requireNumber(value.sceneCount, `${pathName}/sceneCount`, errors);
-  requireNumber(value.nodeCount, `${pathName}/nodeCount`, errors);
-  requireNumber(value.meshCount, `${pathName}/meshCount`, errors);
-  requireNumber(value.materialCount, `${pathName}/materialCount`, errors);
-  requireStringArray(value.observedObjectNames, `${pathName}/observedObjectNames`, errors);
-  requireStringArray(value.requiredObjectNames, `${pathName}/requiredObjectNames`, errors);
-  requireStringArray(value.missingRequiredObjectNames, `${pathName}/missingRequiredObjectNames`, errors);
+  requireNumber(value["sceneCount"], `${pathName}/sceneCount`, errors);
+  requireNumber(value["nodeCount"], `${pathName}/nodeCount`, errors);
+  requireNumber(value["meshCount"], `${pathName}/meshCount`, errors);
+  requireNumber(value["materialCount"], `${pathName}/materialCount`, errors);
+  requireStringArray(value["observedObjectNames"], `${pathName}/observedObjectNames`, errors);
+  requireStringArray(value["requiredObjectNames"], `${pathName}/requiredObjectNames`, errors);
+  requireStringArray(value["missingRequiredObjectNames"], `${pathName}/missingRequiredObjectNames`, errors);
 }
 
 function validateReportConsistency(value: Record<string, unknown>, errors: string[]): void {
-  if (!isRecord(value.output) || !isRecord(value.verdict)) {
+  if (!isRecord(value["output"]) || !isRecord(value["verdict"])) {
     return;
   }
-  const expectedBlockers = expectedReportBlockers(value.output);
-  if (!Array.isArray(value.verdict.blockers)) {
+  const expectedBlockers = expectedReportBlockers(value["output"]);
+  if (!Array.isArray(value["verdict"]["blockers"])) {
     return;
   }
 
-  const verdictBlockers = new Set(value.verdict.blockers);
+  const verdictBlockers = new Set(value["verdict"]["blockers"]);
   for (const blocker of expectedBlockers) {
     if (!verdictBlockers.has(blocker)) {
       errors.push(`/verdict/blockers must include ${blocker}`);
@@ -331,15 +331,15 @@ function validateReportConsistency(value: Record<string, unknown>, errors: strin
 }
 
 function expectedReportBlockers(output: Record<string, unknown>): string[] {
-  const semanticInventory = isRecord(output.semanticInventory) ? output.semanticInventory : null;
+  const semanticInventory = isRecord(output["semanticInventory"]) ? output["semanticInventory"] : null;
   return [
-    output.magic === "glTF" ? undefined : "glb_magic_missing",
-    output.version === 2 ? undefined : "glb_version_not_2",
-    typeof output.glbBytes === "number" && output.declaredLength === output.glbBytes ? undefined : "glb_declared_length_mismatch",
-    typeof output.glbBytes === "number" && output.glbBytes > 20 ? undefined : "glb_output_too_small",
+    output["magic"] === "glTF" ? undefined : "glb_magic_missing",
+    output["version"] === 2 ? undefined : "glb_version_not_2",
+    typeof output["glbBytes"] === "number" && output["declaredLength"] === output["glbBytes"] ? undefined : "glb_declared_length_mismatch",
+    typeof output["glbBytes"] === "number" && output["glbBytes"] > 20 ? undefined : "glb_output_too_small",
     semanticInventory ? undefined : "glb_json_chunk_missing",
     semanticInventory ? undefined : "glb_node_count_below_expected_object_count",
-    ...stringArray(semanticInventory?.missingRequiredObjectNames).map((name) => `glb_required_object_missing:${name}`),
+    ...stringArray(semanticInventory?.["missingRequiredObjectNames"]).map((name) => `glb_required_object_missing:${name}`),
   ].filter((blocker): blocker is string => typeof blocker === "string");
 }
 
@@ -366,17 +366,17 @@ function parseBlenderBakeSemanticInventory(
     return null;
   }
 
-  const nodes = Array.isArray(gltf.nodes) ? gltf.nodes.filter(isRecord) : [];
+  const nodes = Array.isArray(gltf["nodes"]) ? gltf["nodes"].filter(isRecord) : [];
   const nodeNames = nodes
-    .map((node) => typeof node.name === "string" ? node.name : undefined)
+    .map((node) => typeof node["name"] === "string" ? node["name"] : undefined)
     .filter((name): name is string => typeof name === "string" && name.trim().length > 0);
   const observedNames = new Set(nodeNames);
 
   return {
-    sceneCount: Array.isArray(gltf.scenes) ? gltf.scenes.length : 0,
+    sceneCount: Array.isArray(gltf["scenes"]) ? gltf["scenes"].length : 0,
     nodeCount: nodes.length,
-    meshCount: Array.isArray(gltf.meshes) ? gltf.meshes.length : 0,
-    materialCount: Array.isArray(gltf.materials) ? gltf.materials.length : 0,
+    meshCount: Array.isArray(gltf["meshes"]) ? gltf["meshes"].length : 0,
+    materialCount: Array.isArray(gltf["materials"]) ? gltf["materials"].length : 0,
     observedObjectNames: nodeNames,
     requiredObjectNames,
     missingRequiredObjectNames: requiredObjectNames.filter((name) => !observedNames.has(name)),

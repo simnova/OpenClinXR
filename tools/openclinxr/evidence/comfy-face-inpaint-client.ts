@@ -73,7 +73,7 @@ export async function runComfyFaceText2Img(input: ComfyFaceInpaintInput): Promis
 
 export async function runComfyMaskedFaceInpaint(input: ComfyFaceInpaintInput): Promise<ComfyFaceInpaintResult> {
   const comfyUrl = input.comfyUrl.replace(/\/$/, "");
-  const comfyInputDir = path.join(process.env.HOME ?? "", "ComfyUI", "input");
+  const comfyInputDir = path.join(process.env["HOME"] ?? "", "ComfyUI", "input");
   await mkdir(comfyInputDir, { recursive: true });
 
   const baseName = `openclinxr_base_${Date.now()}.png`;
@@ -246,7 +246,7 @@ async function pollComfyOutput(
   outputPrefix: string,
   timeoutMs = 180_000,
 ): Promise<{ path: string; name: string }> {
-  const outputDir = path.join(process.env.HOME ?? "", "ComfyUI", "output");
+  const outputDir = path.join(process.env["HOME"] ?? "", "ComfyUI", "output");
   const started = Date.now();
 
   while (Date.now() - started < timeoutMs) {

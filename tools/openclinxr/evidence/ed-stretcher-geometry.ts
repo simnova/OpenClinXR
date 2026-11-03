@@ -117,7 +117,7 @@ export async function inspectStationFixtureGeometry(input: {
   const fixtures: FixtureGeometry[] = [];
 
   for (const child of shell.children) {
-    const slotId = String(child.userData?.fixtureSlotId ?? "");
+    const slotId = String(child.userData?.["fixtureSlotId"] ?? "");
     if (!slotId) continue;
 
     const box = fixtureWorldBounds(child as MeshLike & {
@@ -133,10 +133,10 @@ export async function inspectStationFixtureGeometry(input: {
     const widthMeters = Math.min(sizeX, sizeZ);
     const heightMeters = sizeY;
     const declaredDeck =
-      typeof child.userData?.deckTopYMeters === "number"
-        ? child.userData.deckTopYMeters
-        : typeof child.userData?.seatHeightMeters === "number"
-          ? child.userData.seatHeightMeters
+      typeof child.userData?.["deckTopYMeters"] === "number"
+        ? child.userData["deckTopYMeters"]
+        : typeof child.userData?.["seatHeightMeters"] === "number"
+          ? child.userData["seatHeightMeters"]
           : box.maxY;
 
     fixtures.push({
@@ -145,7 +145,7 @@ export async function inspectStationFixtureGeometry(input: {
       heightMeters,
       lengthMeters,
       deckTopY: declaredDeck,
-      isMarkerCube: child.userData?.isMarkerCube === true,
+      isMarkerCube: child.userData?.["isMarkerCube"] === true,
       visible: child.visible !== false,
     });
   }

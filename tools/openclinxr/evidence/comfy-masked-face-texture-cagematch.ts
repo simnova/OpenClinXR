@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { execSync } from "node:child_process";
 import path from "node:path";
@@ -33,7 +32,7 @@ async function main(): Promise<void> {
   await ensureCagematchOutputHome(outputHome);
 
   const maskReport = JSON.parse(await readFile(options.maskReportPath, "utf8")) as MaskReport;
-  if (!maskReport.outputs || !maskReport.outputs.face_front) {
+  if (!maskReport.outputs?.["face_front"]) {
     throw new Error("mask report must contain face_front (and ideally eye_region) outputs for face inpaint");
   }
 
@@ -46,7 +45,6 @@ async function main(): Promise<void> {
     await mkdir(path.dirname(baseAlbedo), { recursive: true });
     // Minimal base: solid mid skin tone (will be over-painted in face region by the mask clip).
     // In real use replace with an actual albedo tile exported from the RealVisXL checkpoint.
-    const { execSync } = await import("node:child_process");
     try {
       execSync(`python3 -c "
 from PIL import Image
@@ -93,14 +91,14 @@ print('created minimal base albedo fallback')
 
   const localSummaryPath = path.join(outputHome.localEvidenceDir, "comfy-masked-face-texture-cagematch.json");
   await mkdir(path.dirname(localSummaryPath), { recursive: true });
-  await writeFile(localSummaryPath, JSON.stringify(summary, null, 2) + "\n", "utf8");
+  await writeFile(localSummaryPath, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
 
   // Also drop a copy in the public mirror for studio convenience (non-promoted).
   const publicSummaryPath = path.join(outputHome.publicMirrorDir, "comfy-masked-face-texture-cagematch.json");
   await mkdir(path.dirname(publicSummaryPath), { recursive: true });
-  await writeFile(publicSummaryPath, JSON.stringify(summary, null, 2) + "\n", "utf8");
+  await writeFile(publicSummaryPath, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
 
-  process.stdout.write(JSON.stringify({
+  process.stdout.write(`${JSON.stringify({
     localSummaryPath,
     publicSummaryPath,
     outputAlbedoPath,
@@ -109,7 +107,7 @@ print('created minimal base albedo fallback')
     comfyWorkflowQueued: generatedAlbedo.comfyDiffusionRan,
     masksReferenced: Object.keys(maskReport.outputs),
     realvisxlCheckpointSha256: REALVISXL_CHECKPOINT_SHA,
-  }, null, 2) + "\n");
+  }, null, 2)}\n`);
 }
 
 async function generateMaskedFaceAlbedoViaComfyStep(input: {
@@ -124,11 +122,15 @@ async function generateMaskedFaceAlbedoViaComfyStep(input: {
   usedMaskClip: boolean;
   comfyAttempted: boolean;
   comfyDiffusionRan: boolean;
-  comfyPromptId?: string;
-  comfyOutputImagePath?: string;
+  comfyPromptId?: string | undefined;
+  comfyOutputImagePath?: string | undefined;
 }> {
   const comfyAttempted = await detectComfy();
-  const faceMaskPath = resolveRepoPath(input.maskReport.outputs.face_front.path);
+  const faceFront = input.maskReport.outputs["face_front"];
+  if (!faceFront) {
+    throw new Error("mask report must contain face_front output for face inpaint");
+  }
+  const faceMaskPath = resolveRepoPath(faceFront.path);
   let comfyDiffusionRan = false;
   let comfyPromptId: string | undefined;
   let comfyOutputImagePath: string | undefined;
@@ -263,8 +265,8 @@ function buildComfyMaskedSummary(input: {
     usedMaskClip: boolean;
     comfyAttempted: boolean;
     comfyDiffusionRan: boolean;
-    comfyPromptId?: string;
-    comfyOutputImagePath?: string;
+    comfyPromptId?: string | undefined;
+    comfyOutputImagePath?: string | undefined;
   };
 }) {
   const now = new Date().toISOString();
@@ -280,7 +282,7 @@ function buildComfyMaskedSummary(input: {
       masksReferenced: Object.keys(input.maskReport.outputs),
     },
     maskReportPath: input.maskReportPath,
-    maskReportSha256: (input.maskReport as any)?.outputs?.face_front?.sha256 || "mask-report-outputs-contain-shas",
+    maskReportSha256: input.maskReport.outputs["face_front"]?.["sha256"] || "mask-report-outputs-contain-shas",
     baseAlbedoPath: input.baseAlbedoPath,
     outputAlbedoPath: input.outputAlbedoPath,
     outputAlbedoSha256: input.generatedAlbedo.albedoSha256,
@@ -329,10 +331,6 @@ function buildComfyMaskedSummary(input: {
       "scoring_validity",
     ],
   };
-}
-
-function sha256(bytes: Buffer | Uint8Array): string {
-  return createHash("sha256").update(bytes).digest("hex");
 }
 
 // (sha256Path removed after call-site simplification; mask report shas are taken from the loaded maskReport.outputs)

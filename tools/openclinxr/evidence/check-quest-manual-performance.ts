@@ -779,14 +779,14 @@ function buildCopiedSceneAssetEvidenceReadiness(value: Record<string, unknown> |
     return { blockers: [], satisfiedConditions: [], adversarialFindings: [] };
   }
 
-  const assets = Array.isArray(value.assets) ? value.assets.filter(isRecord) : [];
-  const expectedCount = finiteNumberOrNull(value.expectedCount ?? value.expectedAssetCount);
-  const loadedCount = finiteNumberOrNull(value.loadedCount);
-  const failedCount = finiteNumberOrNull(value.failedCount);
-  const pendingCount = finiteNumberOrNull(value.pendingCount);
-  const fallbackCount = finiteNumberOrNull(value.fallbackCount ?? value.fallbackActiveCount);
-  const sourceValid = value.source === "window.__openClinXrSceneAssetEvidence";
-  const productionClaimed = value.productionAssetReadinessClaimed === true;
+  const assets = Array.isArray(value["assets"]) ? value["assets"].filter(isRecord) : [];
+  const expectedCount = finiteNumberOrNull(value["expectedCount"] ?? value["expectedAssetCount"]);
+  const loadedCount = finiteNumberOrNull(value["loadedCount"]);
+  const failedCount = finiteNumberOrNull(value["failedCount"]);
+  const pendingCount = finiteNumberOrNull(value["pendingCount"]);
+  const fallbackCount = finiteNumberOrNull(value["fallbackCount"] ?? value["fallbackActiveCount"]);
+  const sourceValid = value["source"] === "window.__openClinXrSceneAssetEvidence";
+  const productionClaimed = value["productionAssetReadinessClaimed"] === true;
   const countShapeValid = isNonNegativeInteger(expectedCount)
     && isNonNegativeInteger(loadedCount)
     && isNonNegativeInteger(failedCount)
@@ -800,12 +800,12 @@ function buildCopiedSceneAssetEvidenceReadiness(value: Record<string, unknown> |
     && fallbackCount === 0;
   const assetsMatchCounts = countShapeValid
     && assets.length === expectedCount
-    && assets.every((asset) => asset.status === "loaded" && asset.fallbackActive === false);
+    && assets.every((asset) => asset["status"] === "loaded" && asset["fallbackActive"] === false);
   const allExpectedAssetsNamed = assets.every((asset) =>
-    typeof (asset.name ?? asset.assetId) === "string"
-    && ((asset.name ?? asset.assetId) as string).trim().length > 0
-    && typeof (asset.url ?? asset.assetPath) === "string"
-    && ((asset.url ?? asset.assetPath) as string).trim().length > 0
+    typeof (asset["name"] ?? asset["assetId"]) === "string"
+    && ((asset["name"] ?? asset["assetId"]) as string).trim().length > 0
+    && typeof (asset["url"] ?? asset["assetPath"]) === "string"
+    && ((asset["url"] ?? asset["assetPath"]) as string).trim().length > 0
   );
 
   return {
@@ -833,32 +833,32 @@ function isCopiedManualPerformancePayload(payload: QuestManualPerformancePayload
 }
 
 function hasCopiedTextPanelMetadataEvidence(value: Record<string, unknown> | undefined): boolean {
-  const panels = Array.isArray(value?.panels) ? value.panels.filter(isRecord) : [];
-  const panelCount = typeof value?.panelCount === "number" ? value.panelCount : panels.length;
+  const panels = Array.isArray(value?.["panels"]) ? value["panels"].filter(isRecord) : [];
+  const panelCount = typeof value?.["panelCount"] === "number" ? value["panelCount"] : panels.length;
 
-  return value?.source === "window.__openClinXrTextPanelEvidence"
+  return value?.["source"] === "window.__openClinXrTextPanelEvidence"
     && panelCount >= 3
     && panels.length >= 3
-    && panels.every((panel) => typeof panel.name === "string"
-      && typeof panel.lineCount === "number"
-      && panel.lineCount > 0
-      && panel.readabilityClaim === "metadata_only_requires_foreground_headset_confirmation");
+    && panels.every((panel) => typeof panel["name"] === "string"
+      && typeof panel["lineCount"] === "number"
+      && panel["lineCount"] > 0
+      && panel["readabilityClaim"] === "metadata_only_requires_foreground_headset_confirmation");
 }
 
 function sanitizeHarvestSummary(
   value: Record<string, unknown>,
 ): QuestManualPerformanceHarvestSummary {
   return {
-    ...(typeof value.source === "string" ? { source: value.source } : {}),
-    ...(typeof value.ready === "boolean" ? { ready: value.ready } : {}),
-    ...(typeof value.timedOut === "boolean" ? { timedOut: value.timedOut } : {}),
-    blockers: Array.isArray(value.blockers)
-      ? value.blockers.filter((blocker): blocker is string => typeof blocker === "string")
+    ...(typeof value["source"] === "string" ? { source: value["source"] } : {}),
+    ...(typeof value["ready"] === "boolean" ? { ready: value["ready"] } : {}),
+    ...(typeof value["timedOut"] === "boolean" ? { timedOut: value["timedOut"] } : {}),
+    blockers: Array.isArray(value["blockers"])
+      ? value["blockers"].filter((blocker): blocker is string => typeof blocker === "string")
       : [],
-    elapsedWallMs: typeof value.elapsedWallMs === "number" && Number.isFinite(value.elapsedWallMs)
-      ? value.elapsedWallMs
+    elapsedWallMs: typeof value["elapsedWallMs"] === "number" && Number.isFinite(value["elapsedWallMs"])
+      ? value["elapsedWallMs"]
       : null,
-    signalSnapshot: sanitizeHarvestSignalSnapshot(value.signalSnapshot),
+    signalSnapshot: sanitizeHarvestSignalSnapshot(value["signalSnapshot"]),
   };
 }
 
@@ -869,31 +869,31 @@ function sanitizeHarvestSignalSnapshot(value: unknown): QuestManualPerformanceHa
   }
 
   return {
-    textPanelMetadataPresent: record.textPanelMetadataPresent === true,
-    textPanelCount: finiteNumberOrNull(record.textPanelCount),
-    frameStatsFresh: record.frameStatsFresh === true,
-    immersiveFramesObserved: finiteNumberOrNull(record.immersiveFramesObserved),
-    sampleWindowSize: finiteNumberOrNull(record.sampleWindowSize),
-    immersiveFrameReady: record.immersiveFrameReady === true,
-    sampleWindowReady: record.sampleWindowReady === true,
-    sceneAssetEvidencePresent: record.sceneAssetEvidencePresent === true,
-    generatedSceneAssetsLoaded: record.generatedSceneAssetsLoaded === true,
-    generatedSceneAssetExpectedCount: finiteNumberOrNull(record.generatedSceneAssetExpectedCount),
-    generatedSceneAssetLoadedCount: finiteNumberOrNull(record.generatedSceneAssetLoadedCount),
-    generatedSceneAssetFallbackCount: finiteNumberOrNull(record.generatedSceneAssetFallbackCount),
-    traceSource: stringOrNull(record.traceSource),
-    lastTraceTag: stringOrNull(record.lastTraceTag),
-    lastTraceLatencyMs: finiteNumberOrNull(record.lastTraceLatencyMs),
-    headsetTraceEvidencePresent: record.headsetTraceEvidencePresent === true,
-    activeLocomotionSource: stringOrNull(record.activeLocomotionSource),
-    locomotionAttempt: stringOrNull(record.locomotionAttempt),
-    lastLocomotionAtMs: finiteNumberOrNull(record.lastLocomotionAtMs),
-    locomotionDelta: sanitizeHarvestLocomotionDelta(record.locomotionDelta),
-    locomotionDistanceMeters: finiteNumberOrNull(record.locomotionDistanceMeters),
-    locomotionTurnRadians: finiteNumberOrNull(record.locomotionTurnRadians),
-    locomotionEvidencePresent: record.locomotionEvidencePresent === true,
-    locomotionProbeReasonCodes: stringArray(record.locomotionProbeReasonCodes),
-    technicalGaps: stringArray(record.technicalGaps),
+    textPanelMetadataPresent: record["textPanelMetadataPresent"] === true,
+    textPanelCount: finiteNumberOrNull(record["textPanelCount"]),
+    frameStatsFresh: record["frameStatsFresh"] === true,
+    immersiveFramesObserved: finiteNumberOrNull(record["immersiveFramesObserved"]),
+    sampleWindowSize: finiteNumberOrNull(record["sampleWindowSize"]),
+    immersiveFrameReady: record["immersiveFrameReady"] === true,
+    sampleWindowReady: record["sampleWindowReady"] === true,
+    sceneAssetEvidencePresent: record["sceneAssetEvidencePresent"] === true,
+    generatedSceneAssetsLoaded: record["generatedSceneAssetsLoaded"] === true,
+    generatedSceneAssetExpectedCount: finiteNumberOrNull(record["generatedSceneAssetExpectedCount"]),
+    generatedSceneAssetLoadedCount: finiteNumberOrNull(record["generatedSceneAssetLoadedCount"]),
+    generatedSceneAssetFallbackCount: finiteNumberOrNull(record["generatedSceneAssetFallbackCount"]),
+    traceSource: stringOrNull(record["traceSource"]),
+    lastTraceTag: stringOrNull(record["lastTraceTag"]),
+    lastTraceLatencyMs: finiteNumberOrNull(record["lastTraceLatencyMs"]),
+    headsetTraceEvidencePresent: record["headsetTraceEvidencePresent"] === true,
+    activeLocomotionSource: stringOrNull(record["activeLocomotionSource"]),
+    locomotionAttempt: stringOrNull(record["locomotionAttempt"]),
+    lastLocomotionAtMs: finiteNumberOrNull(record["lastLocomotionAtMs"]),
+    locomotionDelta: sanitizeHarvestLocomotionDelta(record["locomotionDelta"]),
+    locomotionDistanceMeters: finiteNumberOrNull(record["locomotionDistanceMeters"]),
+    locomotionTurnRadians: finiteNumberOrNull(record["locomotionTurnRadians"]),
+    locomotionEvidencePresent: record["locomotionEvidencePresent"] === true,
+    locomotionProbeReasonCodes: stringArray(record["locomotionProbeReasonCodes"]),
+    technicalGaps: stringArray(record["technicalGaps"]),
   };
 }
 
@@ -903,11 +903,11 @@ function sanitizeHarvestLocomotionDelta(value: unknown): QuestManualLocomotionDe
     return null;
   }
 
-  const from = sanitizeHarvestLocomotionPose(record.from);
-  const to = sanitizeHarvestLocomotionPose(record.to);
-  const delta = sanitizeHarvestLocomotionPose(record.delta);
-  const distanceMeters = finiteNumberOrNull(record.distanceMeters);
-  const turnRadians = finiteNumberOrNull(record.turnRadians);
+  const from = sanitizeHarvestLocomotionPose(record["from"]);
+  const to = sanitizeHarvestLocomotionPose(record["to"]);
+  const delta = sanitizeHarvestLocomotionPose(record["delta"]);
+  const distanceMeters = finiteNumberOrNull(record["distanceMeters"]);
+  const turnRadians = finiteNumberOrNull(record["turnRadians"]);
 
   if (!from && !to && !delta && distanceMeters === null && turnRadians === null) {
     return null;
@@ -928,9 +928,9 @@ function sanitizeHarvestLocomotionPose(value: unknown): NonNullable<QuestManualL
     return null;
   }
 
-  const x = finiteNumberOrNull(record.x);
-  const z = finiteNumberOrNull(record.z);
-  const yawRadians = finiteNumberOrNull(record.yawRadians);
+  const x = finiteNumberOrNull(record["x"]);
+  const z = finiteNumberOrNull(record["z"]);
+  const yawRadians = finiteNumberOrNull(record["yawRadians"]);
   const sanitized: NonNullable<QuestManualLocomotionDelta["from"]> = {};
   if (x !== null) {
     sanitized.x = x;

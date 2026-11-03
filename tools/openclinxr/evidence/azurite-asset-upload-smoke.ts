@@ -98,7 +98,7 @@ export async function attemptGeneratedHumanoidUpload(reportPath: string): Promis
     );
   }
 
-  const accountKey = process.env.AZURITE_ACCOUNT_KEY || process.env.OPENCLINXR_AZURITE_ACCOUNT_KEY;
+  const accountKey = process.env["AZURITE_ACCOUNT_KEY"] || process.env["OPENCLINXR_AZURITE_ACCOUNT_KEY"];
   if (!accountKey) {
     return buildNotConfiguredReport(
       "attempt_upload",
@@ -145,21 +145,21 @@ export async function attemptGeneratedHumanoidUpload(reportPath: string): Promis
 export function validateAzuriteAssetUploadSmokeReport(report: unknown): { ok: boolean; errors: string[] } {
   const errors: string[] = [];
   if (!isRecord(report)) return { ok: false, errors: ["/ must be an object"] };
-  if (report.schemaVersion !== "openclinxr.azurite-asset-upload-smoke.v1") errors.push("/schemaVersion invalid");
-  if (report.productionCloudCall !== false) errors.push("/productionCloudCall must be false");
-  if (!["uploaded", "not_configured", "failed"].includes(String(report.status))) errors.push("/status invalid");
-  if (!["validate", "attempt_upload"].includes(String(report.mode))) errors.push("/mode invalid");
-  const emulator = isRecord(report.emulator) ? report.emulator : {};
-  if (emulator.storeKind !== "azurite_blob") errors.push("/emulator/storeKind must be azurite_blob");
-  if (emulator.productionCloudCall !== false) errors.push("/emulator/productionCloudCall must be false");
-  const notEvidenceFor = Array.isArray(report.notEvidenceFor) ? report.notEvidenceFor : [];
+  if (report["schemaVersion"] !== "openclinxr.azurite-asset-upload-smoke.v1") errors.push("/schemaVersion invalid");
+  if (report["productionCloudCall"] !== false) errors.push("/productionCloudCall must be false");
+  if (!["uploaded", "not_configured", "failed"].includes(String(report["status"]))) errors.push("/status invalid");
+  if (!["validate", "attempt_upload"].includes(String(report["mode"]))) errors.push("/mode invalid");
+  const emulator = isRecord(report["emulator"]) ? report["emulator"] : {};
+  if (emulator["storeKind"] !== "azurite_blob") errors.push("/emulator/storeKind must be azurite_blob");
+  if (emulator["productionCloudCall"] !== false) errors.push("/emulator/productionCloudCall must be false");
+  const notEvidenceFor = Array.isArray(report["notEvidenceFor"]) ? report["notEvidenceFor"] : [];
   for (const required of NOT_EVIDENCE_FOR) {
     if (!notEvidenceFor.includes(required)) errors.push(`/notEvidenceFor must include ${required}`);
   }
-  if (report.status === "uploaded") {
-    const asset = isRecord(report.asset) ? report.asset : {};
-    if (typeof asset.assetId !== "string" || asset.assetId.length === 0) errors.push("/asset/assetId required when uploaded");
-    if (typeof asset.url !== "string" || !asset.url.startsWith("http://127.0.0.1:10000/")) {
+  if (report["status"] === "uploaded") {
+    const asset = isRecord(report["asset"]) ? report["asset"] : {};
+    if (typeof asset["assetId"] !== "string" || asset["assetId"].length === 0) errors.push("/asset/assetId required when uploaded");
+    if (typeof asset["url"] !== "string" || !asset["url"].startsWith("http://127.0.0.1:10000/")) {
       errors.push("/asset/url must be local Azurite URL when uploaded");
     }
   }

@@ -129,13 +129,13 @@ export async function writeAssetProductionSupportArtifacts(options?: {
 export function validateAssetProductionSupportArtifactsReport(report: unknown): { ok: boolean; errors: string[] } {
   const errors: string[] = [];
   if (!isRecord(report)) return { ok: false, errors: ["/ must be an object"] };
-  if (report.schemaVersion !== SUPPORT_ARTIFACTS_SCHEMA_VERSION) {
+  if (report["schemaVersion"] !== SUPPORT_ARTIFACTS_SCHEMA_VERSION) {
     errors.push(`/schemaVersion must be ${SUPPORT_ARTIFACTS_SCHEMA_VERSION}`);
   }
-  if (report.kind !== SUPPORT_ARTIFACTS_KIND) {
+  if (report["kind"] !== SUPPORT_ARTIFACTS_KIND) {
     errors.push(`/kind must be ${SUPPORT_ARTIFACTS_KIND}`);
   }
-  const policy = isRecord(report.policy) ? report.policy : {};
+  const policy = isRecord(report["policy"]) ? report["policy"] : {};
   for (const key of [
     "installsIntroduced",
     "cloudApisUsed",
@@ -146,18 +146,18 @@ export function validateAssetProductionSupportArtifactsReport(report: unknown): 
   ] as const) {
     if (policy[key] !== false) errors.push(`/policy/${key} must be false`);
   }
-  const artifacts = isRecord(report.artifacts) ? report.artifacts : {};
-  const missingArtifactPaths = asStringArray(artifacts.missingArtifactPaths);
-  const materializedArtifactPaths = asStringArray(artifacts.materializedArtifactPaths);
-  const requiredArtifactPaths = asStringArray(artifacts.requiredArtifactPaths);
+  const artifacts = isRecord(report["artifacts"]) ? report["artifacts"] : {};
+  const missingArtifactPaths = asStringArray(artifacts["missingArtifactPaths"]);
+  const materializedArtifactPaths = asStringArray(artifacts["materializedArtifactPaths"]);
+  const requiredArtifactPaths = asStringArray(artifacts["requiredArtifactPaths"]);
   for (const artifactPath of SUPPORT_ARTIFACT_PATHS) {
     if (!requiredArtifactPaths.includes(artifactPath)) {
       errors.push(`/artifacts/requiredArtifactPaths must include ${artifactPath}`);
     }
   }
   const expectedBlockers = missingArtifactPaths.map((artifactPath) => `artifact_file_missing:${artifactPath}`);
-  const verdict = isRecord(report.verdict) ? report.verdict : {};
-  const verdictBlockers = asStringArray(verdict.blockers);
+  const verdict = isRecord(report["verdict"]) ? report["verdict"] : {};
+  const verdictBlockers = asStringArray(verdict["blockers"]);
   for (const blocker of expectedBlockers) {
     if (!verdictBlockers.includes(blocker)) {
       errors.push(`/verdict/blockers must include ${blocker}`);
@@ -166,10 +166,10 @@ export function validateAssetProductionSupportArtifactsReport(report: unknown): 
   if (materializedArtifactPaths.some((artifactPath) => missingArtifactPaths.includes(artifactPath))) {
     errors.push("/artifacts/materializedArtifactPaths must not overlap missingArtifactPaths");
   }
-  if (verdict.passed !== (expectedBlockers.length === 0)) {
+  if (verdict["passed"] !== (expectedBlockers.length === 0)) {
     errors.push(`/verdict/passed must be ${expectedBlockers.length === 0}`);
   }
-  if (verdict.readyForProductionAssets !== false) {
+  if (verdict["readyForProductionAssets"] !== false) {
     errors.push("/verdict/readyForProductionAssets must be false");
   }
   return { ok: errors.length === 0, errors };
@@ -208,8 +208,8 @@ async function validateReportFile(reportPath: string, options: { validateArtifac
   const validation = validateAssetProductionSupportArtifactsReport(report);
   const errors = [...validation.errors];
   if (options.validateArtifacts && isRecord(report)) {
-    const artifacts = isRecord(report.artifacts) ? report.artifacts : {};
-    for (const artifactPath of asStringArray(artifacts.requiredArtifactPaths)) {
+    const artifacts = isRecord(report["artifacts"]) ? report["artifacts"] : {};
+    for (const artifactPath of asStringArray(artifacts["requiredArtifactPaths"])) {
       if (!existsSync(artifactPath)) {
         errors.push(`/artifacts/requiredArtifactPaths must point at an existing file for --validate-latest: ${artifactPath}`);
       }

@@ -9,7 +9,7 @@ function isStoreRef(value: string): boolean {
 }
 
 function storeRoot(): string {
-  const root = process.env.OPENCLINXR_ASSET_STORE;
+  const root = process.env["OPENCLINXR_ASSET_STORE"];
   if (!root) {
     throw new Error(
       "resolveStoreRef: refused — no asset store root. Set OPENCLINXR_ASSET_STORE to the directory that holds <sha256>/ directories.",

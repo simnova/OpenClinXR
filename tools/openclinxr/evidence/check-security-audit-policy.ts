@@ -251,7 +251,7 @@ function evaluateScripts(scripts: Record<string, string>): ScriptFinding[] {
     }
   }
 
-  const verify = scripts.verify ?? "";
+  const verify = scripts["verify"] ?? "";
   const requiredVerifyOrder = ["pnpm security:audit", "pnpm security:audit-policy", "pnpm security:licenses"];
   let lastIndex = -1;
   for (const command of requiredVerifyOrder) {

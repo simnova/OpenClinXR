@@ -148,7 +148,7 @@ export async function inspectDeclaredActorsRendered(input?: {
 
   measureInFlight = (async () => {
     if (!input?.force && !input?.writePreFix && !input?.scenarioIds) {
-      if (process.env.OPENCLINXR_DECLARED_ACTORS_USE_DISK === "1") {
+      if (process.env["OPENCLINXR_DECLARED_ACTORS_USE_DISK"] === "1") {
         const fromDisk = await tryReadArtifact(preFixPath());
         if (fromDisk) {
           cachedReport = fromDisk;
@@ -186,7 +186,7 @@ export async function inspectDeclaredActorsRendered(input?: {
 
 async function tryReadArtifact(filePath: string): Promise<DeclaredActorsRenderedReport | null> {
   return tryReadStampedArtifact(filePath, (parsed) => {
-    const report = parsed.report as DeclaredActorsRenderedReport | undefined;
+    const report = parsed["report"] as DeclaredActorsRenderedReport | undefined;
     if (report?.stations && Array.isArray(report.stations) && report.stations.length > 0) {
       return report;
     }
