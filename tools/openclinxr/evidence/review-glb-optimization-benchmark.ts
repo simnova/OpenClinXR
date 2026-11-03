@@ -287,40 +287,40 @@ function roundRatio(value: number): number {
 export function validateReviewGlbOptimizationBenchmarkReport(value: unknown): { ok: true } | { ok: false; errors: string[] } {
   const errors: string[] = [];
   if (!isRecord(value)) return { ok: false, errors: ["report must be an object"] };
-  requireLiteral(value.schemaVersion, REVIEW_GLB_OPTIMIZATION_BENCHMARK_SCHEMA_VERSION, "/schemaVersion", errors);
-  requireLiteral(value.claimScope, "browser_review_fixture_optimization_benchmark_not_visual_realism_or_readiness", "/claimScope", errors);
-  if (!Array.isArray(value.candidates) || value.candidates.length === 0) errors.push("/candidates must be a non-empty array");
-  if (Array.isArray(value.candidates)) {
-    value.candidates.forEach((candidate, candidateIndex) => {
+  requireLiteral(value["schemaVersion"], REVIEW_GLB_OPTIMIZATION_BENCHMARK_SCHEMA_VERSION, "/schemaVersion", errors);
+  requireLiteral(value["claimScope"], "browser_review_fixture_optimization_benchmark_not_visual_realism_or_readiness", "/claimScope", errors);
+  if (!Array.isArray(value["candidates"]) || value["candidates"].length === 0) errors.push("/candidates must be a non-empty array");
+  if (Array.isArray(value["candidates"])) {
+    value["candidates"].forEach((candidate, candidateIndex) => {
       if (!isRecord(candidate)) {
         errors.push(`/candidates/${candidateIndex} must be an object`);
         return;
       }
-      if (!Array.isArray(candidate.variants) || candidate.variants.length !== variantIds().length) {
+      if (!Array.isArray(candidate["variants"]) || candidate["variants"].length !== variantIds().length) {
         errors.push(`/candidates/${candidateIndex}/variants must contain all optimization variants`);
       }
-      if (candidate.browserReplacementReady !== false) {
+      if (candidate["browserReplacementReady"] !== false) {
         errors.push(`/candidates/${candidateIndex}/browserReplacementReady must stay false until browser evidence is attached`);
       }
-      if (!Array.isArray(candidate.blockers) || !candidate.blockers.includes("browser_visibility_capture_required_before_replacing_committed_review_glb")) {
+      if (!Array.isArray(candidate["blockers"]) || !candidate["blockers"].includes("browser_visibility_capture_required_before_replacing_committed_review_glb")) {
         errors.push(`/candidates/${candidateIndex}/blockers must require browser visibility evidence`);
       }
-      if (Array.isArray(candidate.variants)) {
-        const meshopt = candidate.variants.find((variant) => isRecord(variant) && variant.variantId === "meshopt_delivery");
-        if (!isRecord(meshopt) || !Array.isArray(meshopt.blockers) || !meshopt.blockers.includes("meshopt_body_visibility_capture_required")) {
+      if (Array.isArray(candidate["variants"])) {
+        const meshoptVariant = candidate["variants"].find((variant) => isRecord(variant) && variant["variantId"] === "meshopt_delivery");
+        if (!isRecord(meshoptVariant) || !Array.isArray(meshoptVariant["blockers"]) || !meshoptVariant["blockers"].includes("meshopt_body_visibility_capture_required")) {
           errors.push(`/candidates/${candidateIndex}/variants/meshopt_delivery must require body visibility proof`);
         }
       }
     });
   }
-  const policy = value.policy;
+  const policy = value["policy"];
   if (!isRecord(policy)) errors.push("/policy must be an object");
   else {
-    if (policy.rawGeneratedOutputsAllowedInGit !== false) errors.push("/policy/rawGeneratedOutputsAllowedInGit must be false");
-    if (policy.browserReplacementRequiresCaptureEvidence !== true) errors.push("/policy/browserReplacementRequiresCaptureEvidence must be true");
-    if (policy.meshoptRequiresBrowserVisibilityProof !== true) errors.push("/policy/meshoptRequiresBrowserVisibilityProof must be true");
+    if (policy["rawGeneratedOutputsAllowedInGit"] !== false) errors.push("/policy/rawGeneratedOutputsAllowedInGit must be false");
+    if (policy["browserReplacementRequiresCaptureEvidence"] !== true) errors.push("/policy/browserReplacementRequiresCaptureEvidence must be true");
+    if (policy["meshoptRequiresBrowserVisibilityProof"] !== true) errors.push("/policy/meshoptRequiresBrowserVisibilityProof must be true");
   }
-  if (!Array.isArray(value.notEvidenceFor) || !value.notEvidenceFor.includes("quest_readiness")) {
+  if (!Array.isArray(value["notEvidenceFor"]) || !value["notEvidenceFor"].includes("quest_readiness")) {
     errors.push("/notEvidenceFor must preserve false readiness gates");
   }
   return errors.length ? { ok: false, errors } : { ok: true };

@@ -1,6 +1,7 @@
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { spawn } from "node:child_process";
+import type { BrowserPageCanvas, BrowserPageGlContext } from "./browser-dom.js";
 import { chromium, type Browser, type Page } from "./lib/slotted-playwright.js";
 import { glob } from "tinyglobby";
 import {
@@ -270,16 +271,16 @@ async function captureVariant(input: {
   const screenshotPath = path.join(input.captureRoot, "captures", input.actorId, input.variantId, `${input.view}.png`);
   await mkdir(path.dirname(screenshotPath), { recursive: true });
   await input.page.goto(url, { waitUntil: "networkidle", timeout: 60_000 });
-  const evidence = await input.page.waitForFunction(() => browserPageWindow.__openClinXrModelVettingCandidateCaptureEvidence, null, { timeout: 60_000 })
+  const evidence = await input.page.waitForFunction(() => browserPageWindow["__openClinXrModelVettingCandidateCaptureEvidence"], null, { timeout: 60_000 })
     .then((handle) => handle.jsonValue() as Promise<{
       meshCount: number;
       normalizedBoundsMeters: { width: number; height: number; depth: number };
     }>);
   await input.page.screenshot({ path: screenshotPath, fullPage: true });
   const nonBackgroundPixelRatio = await input.page.evaluate(() => {
-    const canvas = browserPageDocument.querySelector("canvas");
+    const canvas: BrowserPageCanvas | null = browserPageDocument.querySelector("canvas");
     if (!canvas) return 0;
-    const context = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
+    const context: BrowserPageGlContext | null = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
     if (!context) return 0;
     const width = canvas.width;
     const height = canvas.height;
@@ -287,9 +288,9 @@ async function captureVariant(input: {
     context.readPixels(0, 0, width, height, context.RGBA, context.UNSIGNED_BYTE, data);
     let changed = 0;
     for (let index = 0; index < data.length; index += 4) {
-      const red = data[index];
-      const green = data[index + 1];
-      const blue = data[index + 2];
+      const red = data[index] ?? 0;
+      const green = data[index + 1] ?? 0;
+      const blue = data[index + 2] ?? 0;
       if (Math.abs(red - 24) + Math.abs(green - 33) + Math.abs(blue - 29) > 28) changed += 1;
     }
     return Number((changed / (width * height)).toFixed(4));
@@ -387,22 +388,22 @@ async function latestVisualReportPath(): Promise<string | undefined> {
 export function validateReviewGlbOptimizationVisualCagematchReport(value: unknown): { ok: true } | { ok: false; errors: string[] } {
   const errors: string[] = [];
   if (!isRecord(value)) return { ok: false, errors: ["report must be an object"] };
-  requireLiteral(value.schemaVersion, REVIEW_GLB_OPTIMIZATION_VISUAL_CAGEMATCH_SCHEMA_VERSION, "/schemaVersion", errors);
-  requireLiteral(value.claimScope, "browser_visual_cagematch_for_review_fixture_only_not_webxr_runtime_or_readiness", "/claimScope", errors);
-  if (!Array.isArray(value.variants) || value.variants.length === 0) errors.push("/variants must be a non-empty array");
-  if (!Array.isArray(value.summary) || value.summary.length === 0) errors.push("/summary must be a non-empty array");
-  if (Array.isArray(value.summary)) {
-    for (const [index, summary] of value.summary.entries()) {
+  requireLiteral(value["schemaVersion"], REVIEW_GLB_OPTIMIZATION_VISUAL_CAGEMATCH_SCHEMA_VERSION, "/schemaVersion", errors);
+  requireLiteral(value["claimScope"], "browser_visual_cagematch_for_review_fixture_only_not_webxr_runtime_or_readiness", "/claimScope", errors);
+  if (!Array.isArray(value["variants"]) || value["variants"].length === 0) errors.push("/variants must be a non-empty array");
+  if (!Array.isArray(value["summary"]) || value["summary"].length === 0) errors.push("/summary must be a non-empty array");
+  if (Array.isArray(value["summary"])) {
+    for (const [index, summary] of value["summary"].entries()) {
       if (!isRecord(summary)) {
         errors.push(`/summary/${index} must be an object`);
         continue;
       }
-      if (summary.usableAsWebXrRuntimeReplacement !== false) {
+      if (summary["usableAsWebXrRuntimeReplacement"] !== false) {
         errors.push(`/summary/${index}/usableAsWebXrRuntimeReplacement must be false`);
       }
     }
   }
-  if (!Array.isArray(value.notEvidenceFor) || !value.notEvidenceFor.includes("quest_readiness")) {
+  if (!Array.isArray(value["notEvidenceFor"]) || !value["notEvidenceFor"].includes("quest_readiness")) {
     errors.push("/notEvidenceFor must preserve false readiness gates");
   }
   return errors.length ? { ok: false, errors } : { ok: true };

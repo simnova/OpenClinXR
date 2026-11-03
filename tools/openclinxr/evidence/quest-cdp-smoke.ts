@@ -510,10 +510,10 @@ async function closeStaleQuestPages(options: CliOptions, keepPageId: string): Pr
 
 async function enterImmersiveVr(client: CdpClient): Promise<Record<string, unknown>> {
   const buttonRect = asRecord(await client.evaluate(enterVrButtonRectExpression()));
-  const x = buttonRect.x;
-  const y = buttonRect.y;
-  const canClick = buttonRect.buttonFound === true
-    && buttonRect.disabled !== true
+  const x = buttonRect["x"];
+  const y = buttonRect["y"];
+  const canClick = buttonRect["buttonFound"] === true
+    && buttonRect["disabled"] !== true
     && typeof x === "number"
     && typeof y === "number";
   if (!canClick) {
@@ -521,8 +521,8 @@ async function enterImmersiveVr(client: CdpClient): Promise<Record<string, unkno
       ...buttonRect,
       clickedEnterVr: false,
       immersiveSessionStarted: false,
-      xrStatusAfter: buttonRect.xrStatusBefore ?? null,
-      failureReason: buttonRect.failureReason ?? "enter_vr_button_not_clickable",
+      xrStatusAfter: buttonRect["xrStatusBefore"] ?? null,
+      failureReason: buttonRect["failureReason"] ?? "enter_vr_button_not_clickable",
     };
   }
 
@@ -557,7 +557,7 @@ async function emitManualEvidenceHarvestPayload(payload: Record<string, unknown>
   if (outputPath) {
     await mkdir(path.dirname(outputPath), { recursive: true });
     await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
-    console.log(`Wrote ${outputPath}; harvestReady=${asRecord(payload.harvestSummary).ready === true}`);
+    console.log(`Wrote ${outputPath}; harvestReady=${asRecord(payload["harvestSummary"])["ready"] === true}`);
     return;
   }
   console.log(JSON.stringify(payload, null, 2));
@@ -650,7 +650,7 @@ export function browserSnapshotExpression(): string {
 }
 
 export function enterVrButtonRectExpression(): string {
-  return String.raw`(() => {
+  return `(() => {
     const button = document.querySelector("#enter-xr-button");
     const xrStatus = document.querySelector("#xr-status")?.textContent ?? null;
     if (!(button instanceof HTMLButtonElement)) {
@@ -674,7 +674,7 @@ export function enterVrButtonRectExpression(): string {
 }
 
 export function enterVrCompletionExpression(timeoutMs: number): string {
-  return String.raw`(async () => {
+  return `(async () => {
     const started = performance.now();
     const readStatus = () => document.querySelector("#xr-status")?.textContent ?? null;
     const readManualPerformanceDraft = () => window.__openClinXrManualPerformanceDraft ?? null;
@@ -749,7 +749,7 @@ export function interactionExpression(): string {
 }
 
 export function frameSampleExpression(frameSampleCount: number, frameTimeoutMs: number): string {
-  return String.raw`(async () => {
+  return `(async () => {
     const started = performance.now();
     const readStats = () => window.__openClinXrFrameStats ?? null;
     const initialStats = readStats();
@@ -811,7 +811,7 @@ export function manualEvidenceHarvestExpression(input: {
   target?: QuestSmokeTarget;
 }): string {
   const harvestMode = input.target === "iwsdk-sidecar" ? "iwsdk_sidecar_frame_stats" : "ui_xr_manual_performance";
-  return String.raw`(async () => {
+  return `(async () => {
     const started = performance.now();
     const harvestMode = ${JSON.stringify(harvestMode)};
     const readHarvest = () => {
@@ -972,19 +972,19 @@ export function manualEvidenceHarvestExpression(input: {
 
 export function buildManualEvidenceHarvestPayload(input: unknown): Record<string, unknown> {
   const result = asRecord(input);
-  const signalSnapshot = sanitizeManualEvidenceHarvestSignalSnapshot(result.signalSnapshot);
+  const signalSnapshot = sanitizeManualEvidenceHarvestSignalSnapshot(result["signalSnapshot"]);
   return {
-    manualPerformanceDraft: result.manualPerformanceDraft ?? null,
-    captureSummary: result.captureSummary ?? null,
-    textPanelEvidence: result.textPanelEvidence ?? null,
-    sceneAssetEvidence: result.sceneAssetEvidence ?? null,
-    frameStats: result.frameStats ?? null,
+    manualPerformanceDraft: result["manualPerformanceDraft"] ?? null,
+    captureSummary: result["captureSummary"] ?? null,
+    textPanelEvidence: result["textPanelEvidence"] ?? null,
+    sceneAssetEvidence: result["sceneAssetEvidence"] ?? null,
+    frameStats: result["frameStats"] ?? null,
     harvestSummary: {
       source: "quest_cdp_manual_evidence_harvest",
-      ready: result.ready === true,
-      timedOut: result.timedOut === true,
-      harvestMode: typeof asRecord(result.signalSnapshot).harvestMode === "string"
-        ? asRecord(result.signalSnapshot).harvestMode
+      ready: result["ready"] === true,
+      timedOut: result["timedOut"] === true,
+      harvestMode: typeof asRecord(result["signalSnapshot"])["harvestMode"] === "string"
+        ? asRecord(result["signalSnapshot"])["harvestMode"]
         : null,
       notEvidenceFor: [
         "production_physics_readiness",
@@ -992,11 +992,11 @@ export function buildManualEvidenceHarvestPayload(input: unknown): Record<string
         "learner_readiness",
         "runtimePromotionAllowed",
       ],
-      blockers: Array.isArray(result.blockers)
-        ? result.blockers.filter((blocker): blocker is string => typeof blocker === "string")
+      blockers: Array.isArray(result["blockers"])
+        ? result["blockers"].filter((blocker): blocker is string => typeof blocker === "string")
         : ["manual_evidence_harvest_result_invalid"],
-      elapsedWallMs: typeof result.elapsedWallMs === "number" && Number.isFinite(result.elapsedWallMs)
-        ? result.elapsedWallMs
+      elapsedWallMs: typeof result["elapsedWallMs"] === "number" && Number.isFinite(result["elapsedWallMs"])
+        ? result["elapsedWallMs"]
         : null,
       signalSnapshot,
     },
@@ -1010,35 +1010,35 @@ function sanitizeManualEvidenceHarvestSignalSnapshot(value: unknown): Record<str
   }
 
   return {
-    harvestMode: stringOrNull(record.harvestMode),
-    xrStatus: stringOrNull(record.xrStatus),
-    isPresenting: record.isPresenting === true,
-    handModelStatus: stringOrNull(record.handModelStatus),
-    textPanelMetadataPresent: record.textPanelMetadataPresent === true,
-    textPanelCount: finiteNumberOrNull(record.textPanelCount),
-    frameStatsFresh: record.frameStatsFresh === true,
-    immersiveFramesObserved: finiteNumberOrNull(record.immersiveFramesObserved),
-    sampleWindowSize: finiteNumberOrNull(record.sampleWindowSize),
-    immersiveFrameReady: record.immersiveFrameReady === true,
-    sampleWindowReady: record.sampleWindowReady === true,
-    sceneAssetEvidencePresent: record.sceneAssetEvidencePresent === true,
-    generatedSceneAssetsLoaded: record.generatedSceneAssetsLoaded === true,
-    generatedSceneAssetExpectedCount: finiteNumberOrNull(record.generatedSceneAssetExpectedCount),
-    generatedSceneAssetLoadedCount: finiteNumberOrNull(record.generatedSceneAssetLoadedCount),
-    generatedSceneAssetFallbackCount: finiteNumberOrNull(record.generatedSceneAssetFallbackCount),
-    traceSource: stringOrNull(record.traceSource),
-    lastTraceTag: stringOrNull(record.lastTraceTag),
-    lastTraceLatencyMs: finiteNumberOrNull(record.lastTraceLatencyMs),
-    headsetTraceEvidencePresent: record.headsetTraceEvidencePresent === true,
-    activeLocomotionSource: stringOrNull(record.activeLocomotionSource),
-    locomotionAttempt: stringOrNull(record.locomotionAttempt),
-    lastLocomotionAtMs: finiteNumberOrNull(record.lastLocomotionAtMs),
-    locomotionDelta: sanitizeLocomotionDeltaForHarvest(record.locomotionDelta),
-    locomotionDistanceMeters: finiteNumberOrNull(record.locomotionDistanceMeters),
-    locomotionTurnRadians: finiteNumberOrNull(record.locomotionTurnRadians),
-    locomotionEvidencePresent: record.locomotionEvidencePresent === true,
-    locomotionProbeReasonCodes: stringArray(record.locomotionProbeReasonCodes),
-    technicalGaps: stringArray(record.technicalGaps),
+    harvestMode: stringOrNull(record["harvestMode"]),
+    xrStatus: stringOrNull(record["xrStatus"]),
+    isPresenting: record["isPresenting"] === true,
+    handModelStatus: stringOrNull(record["handModelStatus"]),
+    textPanelMetadataPresent: record["textPanelMetadataPresent"] === true,
+    textPanelCount: finiteNumberOrNull(record["textPanelCount"]),
+    frameStatsFresh: record["frameStatsFresh"] === true,
+    immersiveFramesObserved: finiteNumberOrNull(record["immersiveFramesObserved"]),
+    sampleWindowSize: finiteNumberOrNull(record["sampleWindowSize"]),
+    immersiveFrameReady: record["immersiveFrameReady"] === true,
+    sampleWindowReady: record["sampleWindowReady"] === true,
+    sceneAssetEvidencePresent: record["sceneAssetEvidencePresent"] === true,
+    generatedSceneAssetsLoaded: record["generatedSceneAssetsLoaded"] === true,
+    generatedSceneAssetExpectedCount: finiteNumberOrNull(record["generatedSceneAssetExpectedCount"]),
+    generatedSceneAssetLoadedCount: finiteNumberOrNull(record["generatedSceneAssetLoadedCount"]),
+    generatedSceneAssetFallbackCount: finiteNumberOrNull(record["generatedSceneAssetFallbackCount"]),
+    traceSource: stringOrNull(record["traceSource"]),
+    lastTraceTag: stringOrNull(record["lastTraceTag"]),
+    lastTraceLatencyMs: finiteNumberOrNull(record["lastTraceLatencyMs"]),
+    headsetTraceEvidencePresent: record["headsetTraceEvidencePresent"] === true,
+    activeLocomotionSource: stringOrNull(record["activeLocomotionSource"]),
+    locomotionAttempt: stringOrNull(record["locomotionAttempt"]),
+    lastLocomotionAtMs: finiteNumberOrNull(record["lastLocomotionAtMs"]),
+    locomotionDelta: sanitizeLocomotionDeltaForHarvest(record["locomotionDelta"]),
+    locomotionDistanceMeters: finiteNumberOrNull(record["locomotionDistanceMeters"]),
+    locomotionTurnRadians: finiteNumberOrNull(record["locomotionTurnRadians"]),
+    locomotionEvidencePresent: record["locomotionEvidencePresent"] === true,
+    locomotionProbeReasonCodes: stringArray(record["locomotionProbeReasonCodes"]),
+    technicalGaps: stringArray(record["technicalGaps"]),
   };
 }
 
@@ -1048,11 +1048,11 @@ function sanitizeLocomotionDeltaForHarvest(value: unknown): Record<string, unkno
     return null;
   }
 
-  const from = sanitizeLocomotionPose(record.from);
-  const to = sanitizeLocomotionPose(record.to);
-  const delta = sanitizeLocomotionPose(record.delta);
-  const distanceMeters = finiteNumberOrNull(record.distanceMeters);
-  const turnRadians = finiteNumberOrNull(record.turnRadians);
+  const from = sanitizeLocomotionPose(record["from"]);
+  const to = sanitizeLocomotionPose(record["to"]);
+  const delta = sanitizeLocomotionPose(record["delta"]);
+  const distanceMeters = finiteNumberOrNull(record["distanceMeters"]);
+  const turnRadians = finiteNumberOrNull(record["turnRadians"]);
 
   if (!from && !to && !delta && distanceMeters === null && turnRadians === null) {
     return null;
@@ -1069,18 +1069,18 @@ function sanitizeLocomotionDeltaForHarvest(value: unknown): Record<string, unkno
 
 function sanitizeLocomotionPose(value: unknown): Record<string, number> | null {
   const record = asRecord(value);
-  const x = finiteNumberOrNull(record.x);
-  const z = finiteNumberOrNull(record.z);
-  const yawRadians = finiteNumberOrNull(record.yawRadians);
+  const x = finiteNumberOrNull(record["x"]);
+  const z = finiteNumberOrNull(record["z"]);
+  const yawRadians = finiteNumberOrNull(record["yawRadians"]);
   const sanitized: Record<string, number> = {};
   if (x !== null) {
-    sanitized.x = x;
+    sanitized["x"] = x;
   }
   if (z !== null) {
-    sanitized.z = z;
+    sanitized["z"] = z;
   }
   if (yawRadians !== null) {
-    sanitized.yawRadians = yawRadians;
+    sanitized["yawRadians"] = yawRadians;
   }
   return Object.keys(sanitized).length > 0 ? sanitized : null;
 }
@@ -1090,18 +1090,18 @@ export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
   const immersive = asRecord(input.immersive);
   const interaction = asRecord(input.interaction);
   const frameSample = asRecord(input.frameSample);
-  const shellLoaded = browser.title === expectedQuestSmokeTitle(input.options.target)
-    && browser.bodyHasEdChestPain === true
-    && browser.hasViteOverlay === false
-    && asRecord(browser.canvas).dataUrlLength !== undefined;
+  const shellLoaded = browser["title"] === expectedQuestSmokeTitle(input.options.target)
+    && browser["bodyHasEdChestPain"] === true
+    && browser["hasViteOverlay"] === false
+    && asRecord(browser["canvas"])["dataUrlLength"] !== undefined;
   const interactionAdvanced = traceInteractionAdvanced(interaction)
-    && interaction.clickedEcg === true
-    && interaction.clickedUrgent === true;
-  const pageVisible = browser.hidden === false && browser.visibilityState === "visible";
-  const manualDraft = asRecord(browser.manualPerformanceDraft);
-  const manualDraftStation = asRecord(manualDraft.station);
-  const immersiveXrEntryEvidence = asRecord(immersive.xrEntryEvidence);
-  const browserXrEntryEvidence = asRecord(browser.xrEntryEvidence);
+    && interaction["clickedEcg"] === true
+    && interaction["clickedUrgent"] === true;
+  const pageVisible = browser["hidden"] === false && browser["visibilityState"] === "visible";
+  const manualDraft = asRecord(browser["manualPerformanceDraft"]);
+  const manualDraftStation = asRecord(manualDraft["station"]);
+  const immersiveXrEntryEvidence = asRecord(immersive["xrEntryEvidence"]);
+  const browserXrEntryEvidence = asRecord(browser["xrEntryEvidence"]);
   const immersiveEntryOutcome = classifyImmersiveEntryOutcome(
     input.options.enterVr,
     browser,
@@ -1113,12 +1113,12 @@ export function buildReport(input: QuestSmokeReportInput): QuestSmokeReport {
   const xrEntryActivationReceived = immersiveEntryOutcome !== "activation_missed";
   const immersiveSessionStarted = immersiveEntryOutcome === "not_requested" || immersiveEntryOutcome === "session_started";
   const immersiveFrameLaneObserved = immersiveEntryOutcome !== "session_started"
-    || (typeof frameSample.immersiveFramesObserved === "number"
-      && Number.isFinite(frameSample.immersiveFramesObserved)
-      && frameSample.immersiveFramesObserved > 0);
+    || (typeof frameSample["immersiveFramesObserved"] === "number"
+      && Number.isFinite(frameSample["immersiveFramesObserved"])
+      && frameSample["immersiveFramesObserved"] > 0);
   const frameSampleComplete = pageVisible
-    && frameSample.timedOut === false
-    && typeof frameSample.avgFrameMs === "number"
+    && frameSample["timedOut"] === false
+    && typeof frameSample["avgFrameMs"] === "number"
     && immersiveFrameLaneObserved;
   const blockers = [
     shellLoaded ? undefined : "quest_shell_not_loaded",
@@ -1204,17 +1204,17 @@ function expectedQuestSmokeTitle(target: QuestSmokeTarget): string {
 }
 
 function traceInteractionAdvanced(interaction: Record<string, unknown>): boolean {
-  if (typeof interaction.traceActionsAdvancedBy === "number") {
-    return interaction.traceActionsAdvancedBy >= 2;
+  if (typeof interaction["traceActionsAdvancedBy"] === "number") {
+    return interaction["traceActionsAdvancedBy"] >= 2;
   }
-  if (typeof interaction.beforeTrace === "string" && typeof interaction.afterTrace === "string") {
-    const before = traceCount(interaction.beforeTrace);
-    const after = traceCount(interaction.afterTrace);
+  if (typeof interaction["beforeTrace"] === "string" && typeof interaction["afterTrace"] === "string") {
+    const before = traceCount(interaction["beforeTrace"]);
+    const after = traceCount(interaction["afterTrace"]);
     if (before !== undefined && after !== undefined) {
       return after - before >= 2;
     }
   }
-  return typeof interaction.afterTrace === "string" && /^Trace\s+2\/\d+$/.test(interaction.afterTrace);
+  return typeof interaction["afterTrace"] === "string" && /^Trace\s+2\/\d+$/.test(interaction["afterTrace"]);
 }
 
 function traceCount(traceText: string): number | undefined {
@@ -1240,19 +1240,19 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
 
   const browser = asRecord(report.browser);
   const frameSample = asRecord(report.frameSample);
-  const adb = asRecord(report.adb);
+  const adbRecord = asRecord(report.adb);
   const verdict = report.verdict;
-  const pageVisible = browser.hidden === false && browser.visibilityState === "visible";
-  const frameStatsPresent = typeof browser.frameStats === "object" && browser.frameStats !== null;
-  const adbQuestDeviceRecorded = isQuestAdbDeviceLine(adb.deviceLine);
-  const browserQuestUserAgentRecorded = isQuestBrowserUserAgent(browser.userAgent);
+  const pageVisible = browser["hidden"] === false && browser["visibilityState"] === "visible";
+  const frameStatsPresent = typeof browser["frameStats"] === "object" && browser["frameStats"] !== null;
+  const adbQuestDeviceRecorded = isQuestAdbDeviceLine(adbRecord["deviceLine"]);
+  const browserQuestUserAgentRecorded = isQuestBrowserUserAgent(browser["userAgent"]);
   const stationRuntimeEvidenceRequired = report.target === "station";
-  const textPanelMetadataPresent = hasTextPanelMetadataEvidence(browser.textPanelEvidence);
-  const inputEvidenceShapePresent = hasInputEvidenceShape(browser.inputEvidence);
-  const frameQualityEvidencePresent = hasFrameQualityEvidence(frameSample) || hasFrameQualityEvidence(browser.frameStats);
-  const latestFrameAgeMs = frameSample.latestFrameAgeMs;
+  const textPanelMetadataPresent = hasTextPanelMetadataEvidence(browser["textPanelEvidence"]);
+  const inputEvidenceShapePresent = hasInputEvidenceShape(browser["inputEvidence"]);
+  const frameQualityEvidencePresent = hasFrameQualityEvidence(frameSample) || hasFrameQualityEvidence(browser["frameStats"]);
+  const latestFrameAgeMs = frameSample["latestFrameAgeMs"];
   const latestFrameFresh = typeof latestFrameAgeMs === "number" && Number.isFinite(latestFrameAgeMs) && latestFrameAgeMs <= 1000;
-  const framesObservedDuringProbe = frameSample.framesObservedDuringProbe;
+  const framesObservedDuringProbe = frameSample["framesObservedDuringProbe"];
   const framesAdvancedDuringProbe = typeof framesObservedDuringProbe === "number"
     && Number.isFinite(framesObservedDuringProbe)
     && framesObservedDuringProbe > 0;
@@ -1275,9 +1275,9 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
     && (!stationRuntimeEvidenceRequired || frameQualityEvidencePresent);
   const blockers = unique([
     isValidIsoDate(report.generatedAt) ? undefined : "quest_cdp_generated_at_invalid_or_missing",
-    typeof adb.deviceLine === "string" && adb.deviceLine.trim().length > 0 ? undefined : "quest_cdp_adb_device_line_missing",
+    typeof adbRecord["deviceLine"] === "string" && adbRecord["deviceLine"].trim().length > 0 ? undefined : "quest_cdp_adb_device_line_missing",
     adbQuestDeviceRecorded ? undefined : "quest_cdp_adb_quest_device_missing",
-    typeof browser.userAgent === "string" && browser.userAgent.trim().length > 0 ? undefined : "quest_cdp_user_agent_missing",
+    typeof browser["userAgent"] === "string" && browser["userAgent"].trim().length > 0 ? undefined : "quest_cdp_user_agent_missing",
     browserQuestUserAgentRecorded ? undefined : "quest_cdp_browser_quest_user_agent_missing",
     verdict?.shellLoaded === true ? undefined : "quest_shell_not_loaded",
     verdict?.interactionAdvanced === true ? undefined : "quest_trace_interaction_not_advanced",
@@ -1287,7 +1287,7 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
     !stationRuntimeEvidenceRequired || textPanelMetadataPresent ? undefined : "quest_text_panel_metadata_missing",
     !stationRuntimeEvidenceRequired || inputEvidenceShapePresent ? undefined : "quest_input_evidence_shape_missing",
     !stationRuntimeEvidenceRequired || frameQualityEvidencePresent ? undefined : "quest_frame_quality_evidence_missing",
-    frameSample.timedOut === true ? "quest_cdp_frame_sample_timed_out" : undefined,
+    frameSample["timedOut"] === true ? "quest_cdp_frame_sample_timed_out" : undefined,
     framesAdvancedDuringProbe ? undefined : "quest_no_frames_observed_during_probe",
     latestFrameFresh ? undefined : "quest_latest_frame_stale_over_1000ms",
     immersiveEntryOutcome === "activation_missed" ? "quest_immersive_entry_activation_not_received" : undefined,
@@ -1297,9 +1297,9 @@ export function buildQuestSmokeEvidenceCheck(inputFile: string | undefined, repo
   ]);
   const satisfiedConditions = [
     isValidIsoDate(report.generatedAt) ? "quest_cdp_generated_at_valid" : undefined,
-    typeof adb.deviceLine === "string" && adb.deviceLine.trim().length > 0 ? "quest_cdp_adb_device_recorded" : undefined,
+    typeof adbRecord["deviceLine"] === "string" && adbRecord["deviceLine"].trim().length > 0 ? "quest_cdp_adb_device_recorded" : undefined,
     adbQuestDeviceRecorded ? "quest_cdp_adb_quest_device_recorded" : undefined,
-    typeof browser.userAgent === "string" && browser.userAgent.trim().length > 0 ? "quest_cdp_user_agent_recorded" : undefined,
+    typeof browser["userAgent"] === "string" && browser["userAgent"].trim().length > 0 ? "quest_cdp_user_agent_recorded" : undefined,
     browserQuestUserAgentRecorded ? "quest_cdp_browser_quest_user_agent_recorded" : undefined,
     verdict?.shellLoaded === true ? "quest_shell_loaded" : undefined,
     verdict?.interactionAdvanced === true ? "quest_trace_interaction_advanced" : undefined,
@@ -1433,32 +1433,32 @@ function readinessLane(
 
 function hasTextPanelMetadataEvidence(value: unknown): boolean {
   const evidence = asRecord(value);
-  const panels = Array.isArray(evidence.panels) ? evidence.panels.map(asRecord) : [];
-  const panelCount = typeof evidence.panelCount === "number" ? evidence.panelCount : panels.length;
+  const panels = Array.isArray(evidence["panels"]) ? evidence["panels"].map(asRecord) : [];
+  const panelCount = typeof evidence["panelCount"] === "number" ? evidence["panelCount"] : panels.length;
 
   return panelCount >= 3
     && panels.length >= 3
-    && panels.every((panel) => typeof panel.name === "string"
-      && typeof panel.lineCount === "number"
-      && panel.lineCount > 0
-      && panel.readabilityClaim === "metadata_only_requires_foreground_headset_confirmation");
+    && panels.every((panel) => typeof panel["name"] === "string"
+      && typeof panel["lineCount"] === "number"
+      && panel["lineCount"] > 0
+      && panel["readabilityClaim"] === "metadata_only_requires_foreground_headset_confirmation");
 }
 
 function hasInputEvidenceShape(value: unknown): boolean {
   const evidence = asRecord(value);
-  return typeof evidence.activeLocomotionSource === "string"
-    && typeof evidence.inputSourceCount === "number"
-    && Array.isArray(evidence.inputSourceKinds)
-    && isRecord(evidence.keyboardVector)
-    && isRecord(evidence.xrVector);
+  return typeof evidence["activeLocomotionSource"] === "string"
+    && typeof evidence["inputSourceCount"] === "number"
+    && Array.isArray(evidence["inputSourceKinds"])
+    && isRecord(evidence["keyboardVector"])
+    && isRecord(evidence["xrVector"]);
 }
 
 function hasFrameQualityEvidence(value: unknown): boolean {
   const evidence = asRecord(value);
-  const latestFrameDeltaKnown = typeof evidence.latestFrameDeltaMs === "number" || evidence.latestFrameDeltaMs === null;
-  const longFrameRatioKnown = typeof evidence.longFrameRatio === "number" || evidence.longFrameRatio === null;
-  return typeof evidence.qualitySource === "string"
-    && typeof evidence.renderLoopMode === "string"
+  const latestFrameDeltaKnown = typeof evidence["latestFrameDeltaMs"] === "number" || evidence["latestFrameDeltaMs"] === null;
+  const longFrameRatioKnown = typeof evidence["longFrameRatio"] === "number" || evidence["longFrameRatio"] === null;
+  return typeof evidence["qualitySource"] === "string"
+    && typeof evidence["renderLoopMode"] === "string"
     && latestFrameDeltaKnown
     && longFrameRatioKnown;
 }
@@ -1491,7 +1491,7 @@ function inferImmersiveEntryOutcomeFromReport(
 
   const browser = asRecord(report.browser);
   const immersive = asRecord(report.immersive);
-  if (immersive.immersiveSessionStarted === true || browser.xrStatus === "In Full VR") {
+  if (immersive["immersiveSessionStarted"] === true || browser["xrStatus"] === "In Full VR") {
     return "session_started";
   }
   return "not_requested";
@@ -1509,21 +1509,21 @@ function classifyImmersiveEntryOutcome(
     return "not_requested";
   }
 
-  const immersiveSessionStarted = immersive.immersiveSessionStarted === true
-    || browser.xrStatus === "In Full VR"
-    || manualDraftStation.immersiveSessionStarted === true
-    || immersiveXrEntryEvidence.lastStatus === "started"
-    || browserXrEntryEvidence.lastStatus === "started";
+  const immersiveSessionStarted = immersive["immersiveSessionStarted"] === true
+    || browser["xrStatus"] === "In Full VR"
+    || manualDraftStation["immersiveSessionStarted"] === true
+    || immersiveXrEntryEvidence["lastStatus"] === "started"
+    || browserXrEntryEvidence["lastStatus"] === "started";
   if (immersiveSessionStarted) {
     return "session_started";
   }
 
-  const attempts = immersiveXrEntryEvidence.attempts ?? browserXrEntryEvidence.attempts;
+  const attempts = immersiveXrEntryEvidence["attempts"] ?? browserXrEntryEvidence["attempts"];
   const appSawEntryAttempt = (typeof attempts === "number" && attempts > 0)
-    || (typeof immersiveXrEntryEvidence.lastStatus === "string"
-      && immersiveXrEntryEvidence.lastStatus !== "not_requested")
-    || (typeof browserXrEntryEvidence.lastStatus === "string"
-      && browserXrEntryEvidence.lastStatus !== "not_requested");
+    || (typeof immersiveXrEntryEvidence["lastStatus"] === "string"
+      && immersiveXrEntryEvidence["lastStatus"] !== "not_requested")
+    || (typeof browserXrEntryEvidence["lastStatus"] === "string"
+      && browserXrEntryEvidence["lastStatus"] !== "not_requested");
 
   return appSawEntryAttempt ? "app_request_failed" : "activation_missed";
 }

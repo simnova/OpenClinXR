@@ -31,16 +31,16 @@ import {
 
 const REPO_ROOT = process.cwd();
 const ANNY_ROOT =
-  process.env.ANNY_ROOT || path.join(REPO_ROOT, ".openclinxr", "asset-production", "anny");
+  process.env["ANNY_ROOT"] || path.join(REPO_ROOT, ".openclinxr", "asset-production", "anny");
 const OUT_PATH =
-  process.env.OUT_PATH ||
+  process.env["OUT_PATH"] ||
   path.join(REPO_ROOT, ".openclinxr", "asset-production", "pipeline-candidate-index.json");
-const DOCS_DIR = process.env.DOCS_DIR || path.join(REPO_ROOT, "docs", "openclinxr");
+const DOCS_DIR = process.env["DOCS_DIR"] || path.join(REPO_ROOT, "docs", "openclinxr");
 const PROMOTIONS_INDEX_PATH =
-  process.env.PROMOTIONS_INDEX_PATH ||
+  process.env["PROMOTIONS_INDEX_PATH"] ||
   path.join(REPO_ROOT, ".openclinxr", "asset-production", "promotions", "index.json");
 /** Folders that are fixtures/smoke, not vet-able candidates. */
-const EXCLUDED_GROUPS = new Set((process.env.EXCLUDED_GROUPS || "smoke").split(",").map((s) => s.trim()));
+const EXCLUDED_GROUPS = new Set((process.env["EXCLUDED_GROUPS"] || "smoke").split(",").map((s) => s.trim()));
 
 type GlbEntry = { absPath: string; group: string; manifestId: string; glbPath: string };
 
@@ -98,8 +98,8 @@ async function main(): Promise<void> {
 
   // Locate the latest vision-score report (unless overridden).
   let visionScoreReportAbs: string | null = null;
-  if (process.env.VISION_SCORE_REPORT) {
-    visionScoreReportAbs = path.resolve(REPO_ROOT, process.env.VISION_SCORE_REPORT);
+  if (process.env["VISION_SCORE_REPORT"]) {
+    visionScoreReportAbs = path.resolve(REPO_ROOT, process.env["VISION_SCORE_REPORT"]);
   } else {
     const docFiles = await readdir(DOCS_DIR).catch(() => [] as string[]);
     const latest = selectLatestVisionScoreReport(docFiles);
@@ -184,7 +184,7 @@ async function main(): Promise<void> {
   // Also emit a browser-servable copy into the studio public dir so the admin
   // UI can fetch the live generated index (gitignored; the committed sample is
   // the fallback). Skipped when WRITE_STUDIO_PUBLIC=0.
-  if (process.env.WRITE_STUDIO_PUBLIC !== "0") {
+  if (process.env["WRITE_STUDIO_PUBLIC"] !== "0") {
     const studioPublic = path.join(
       REPO_ROOT,
       "apps",

@@ -28,10 +28,10 @@ import {
 
 const REPO_ROOT = process.cwd();
 const INDEX_PATH =
-  process.env.INDEX_PATH ||
+  process.env["INDEX_PATH"] ||
   path.join(REPO_ROOT, ".openclinxr", "asset-production", "pipeline-candidate-index.json");
 const PROMOTIONS_DIR =
-  process.env.PROMOTIONS_DIR || path.join(REPO_ROOT, ".openclinxr", "asset-production", "promotions");
+  process.env["PROMOTIONS_DIR"] || path.join(REPO_ROOT, ".openclinxr", "asset-production", "promotions");
 
 type PromotionsIndex = {
   schemaVersion: "openclinxr.pipeline-candidate-promotions-index.v1";

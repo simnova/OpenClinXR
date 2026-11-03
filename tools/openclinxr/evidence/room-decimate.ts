@@ -32,7 +32,7 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "no
 import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { fileURLToPath } from "node:url";
-import { NodeIO, type Document as GltfDocument } from "@gltf-transform/core";
+import { type Document as GltfDocument, NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS, Light } from "@gltf-transform/extensions";
 import { simplify } from "@gltf-transform/functions";
 import { MeshoptSimplifier } from "meshoptimizer";
@@ -43,7 +43,6 @@ const REPO_ROOT = path.resolve(HERE, "../../..");
 const EVIDENCE_DIR = path.join(REPO_ROOT, ".openclinxr/evidence/room-decimate");
 const PRE_FIX_PATH = path.join(EVIDENCE_DIR, "pre-fix.json");
 const DECIMATED_GLB_PATH = path.join(EVIDENCE_DIR, "decimated-room.glb");
-const RAW_GLB_COPY_PATH = path.join(EVIDENCE_DIR, "raw-dining-room.glb");
 
 const HOME = process.env["HOME"] ?? "";
 const DEFAULT_RAW_GLB = path.join(
@@ -223,11 +222,20 @@ export async function countConnectedComponents(glbPath: string): Promise<number>
       const parent = new Int32Array(vCount);
       for (let i = 0; i < vCount; i++) parent[i] = i;
       const find = (x: number): number => {
-        while (parent[x] !== x) {
-          parent[x] = parent[parent[x]]!;
-          x = parent[x]!;
+        let current = x;
+        for (;;) {
+          const parentIndex = parent[current];
+          if (parentIndex === undefined) {
+            throw new Error(`room-decimate: union-find parent missing index ${current}`);
+          }
+          if (parentIndex === current) return current;
+          const grandparentIndex = parent[parentIndex];
+          if (grandparentIndex === undefined) {
+            throw new Error(`room-decimate: union-find parent missing index ${parentIndex}`);
+          }
+          parent[current] = grandparentIndex;
+          current = grandparentIndex;
         }
-        return x;
       };
       const union = (a: number, b: number): void => {
         const ra = find(a);
@@ -235,8 +243,14 @@ export async function countConnectedComponents(glbPath: string): Promise<number>
         if (ra !== rb) parent[ra] = rb;
       };
       for (let i = 0; i + 2 < idx.length; i += 3) {
-        union(idx[i]!, idx[i + 1]!);
-        union(idx[i]!, idx[i + 2]!);
+        const cornerA = idx[i];
+        const cornerB = idx[i + 1];
+        const cornerC = idx[i + 2];
+        if (cornerA === undefined || cornerB === undefined || cornerC === undefined) {
+          throw new Error(`room-decimate: triangle index missing entry at offset ${i}`);
+        }
+        union(cornerA, cornerB);
+        union(cornerA, cornerC);
       }
       const roots = new Set<number>();
       for (let i = 0; i < vCount; i++) roots.add(find(i));

@@ -14,8 +14,8 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { buildDocAuthorityRegistry } from "../../agent-factory/build-doc-authority-registry.ts";
-import { buildGeneratedArtifactRegistry } from "../../agent-factory/build-generated-artifact-registry.ts";
+import { buildDocAuthorityRegistry } from "../../agent-factory/build-doc-authority-registry.js";
+import { buildGeneratedArtifactRegistry } from "../../agent-factory/build-generated-artifact-registry.js";
 
 export type BuilderRun = {
   exitCode: number;

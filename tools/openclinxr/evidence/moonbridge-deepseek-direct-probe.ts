@@ -71,9 +71,9 @@ const NOT_EVIDENCE_FOR = [
 ] as const satisfies MoonbridgeDeepSeekDirectProbe["notEvidenceFor"];
 
 export async function buildMoonbridgeDeepSeekDirectProbe(input: {
-  baseUrl?: string;
-  prompt?: string;
-  now?: string;
+  baseUrl?: string | undefined;
+  prompt?: string | undefined;
+  now?: string | undefined;
   fetchImpl?: typeof fetch;
 } = {}): Promise<MoonbridgeDeepSeekDirectProbe> {
   const baseUrl = (input.baseUrl ?? process.env["OPENCLINXR_MOONBRIDGE_BASE_URL"] ?? DEFAULT_BASE_URL).replace(/\/+$/, "");
@@ -81,7 +81,7 @@ export async function buildMoonbridgeDeepSeekDirectProbe(input: {
     providerId: "moonbridge_deepseek",
     baseUrl,
     model: "moonbridge",
-    fetchImpl: input.fetchImpl,
+    ...(input.fetchImpl === undefined ? {} : { fetchImpl: input.fetchImpl }),
   });
   const providerResponse = await provider.run({
     taskKind: "bounded_policy_contract_probe",
@@ -178,7 +178,7 @@ async function runCli(args = process.argv.slice(2)): Promise<void> {
   if (probe.status === "blocked" || probe.grade.result === "not_worth_using") process.exitCode = 1;
 }
 
-function blockedProbe(input: { baseUrl: string; latencyMs: number; now?: string; reason: string }): MoonbridgeDeepSeekDirectProbe {
+function blockedProbe(input: { baseUrl: string; latencyMs: number; now?: string | undefined; reason: string }): MoonbridgeDeepSeekDirectProbe {
   return {
     schemaVersion: "openclinxr.moonbridge-deepseek-direct-probe.v1",
     generatedAt: input.now ?? new Date().toISOString(),

@@ -53,7 +53,7 @@ async function measureAssetStatureMeters(assetPath: string): Promise<number> {
       const pos = prim.getAttribute("POSITION");
       if (!pos) continue;
       for (let i = 0; i < pos.getCount(); i++) {
-        const v = [0, 0, 0];
+        const v: [number, number, number] = [0, 0, 0];
         pos.getElement(i, v);
         minY = Math.min(minY, v[1]);
         maxY = Math.max(maxY, v[1]);
