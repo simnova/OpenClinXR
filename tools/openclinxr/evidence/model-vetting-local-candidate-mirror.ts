@@ -1,16 +1,16 @@
 import { copyFile, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
-  buildModelVettingReportFromAnnyPreflight,
-  validateModelVettingReport,
   type AnnyLikePreflightReport,
+  buildModelVettingReportFromAnnyPreflight,
   type ModelVettingReport,
+  validateModelVettingReport,
 } from "../../../packages/openclinxr/arena/model-vetting/src/index.js";
 import { readJson } from "../../agent-factory/lib.js";
 import {
   buildCagematchOutputHome,
-  ensureCagematchOutputHome,
   type CagematchOutputHome,
+  ensureCagematchOutputHome,
 } from "./generated-output-home.js";
 import { stripCagematchVisualAuditMarkers } from "./strip-cagematch-visual-audit-markers.js";
 
@@ -160,7 +160,7 @@ async function main(): Promise<void> {
     sourcePreflightPath: options.sourcePreflightPath,
     sourcePreflight: await readJson<AnnyLikePreflightReport>(options.sourcePreflightPath),
     outputHome,
-    localReportPath: options.localReportPath,
+    ...(options.localReportPath === undefined ? {} : { localReportPath: options.localReportPath }),
     stripVisualAuditMarkers: options.stripVisualAuditMarkers,
   });
   console.log(JSON.stringify(manifest, null, 2));

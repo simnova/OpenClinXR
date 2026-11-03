@@ -18,10 +18,11 @@ export function inspectMediaArtifact(artifact: string | undefined): MediaArtifac
   }
 
   const size = statSync(artifact).size;
+  const pngDimensions = readPngDimensions(artifact);
   return {
     exists: true,
     size,
-    pngDimensions: readPngDimensions(artifact),
+    ...(pngDimensions === undefined ? {} : { pngDimensions }),
   };
 }
 

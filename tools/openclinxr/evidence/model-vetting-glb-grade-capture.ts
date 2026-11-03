@@ -141,9 +141,29 @@ function meshAabbFromDocumentWorld(browserPageDocument: Document): MeasuredGeome
 
 function transformPoint(x: number, y: number, z: number, m: number[]): [number, number, number] {
   // column-major 4x4
-  const ox = m[0]! * x + m[4]! * y + m[8]! * z + m[12]!;
-  const oy = m[1]! * x + m[5]! * y + m[9]! * z + m[13]!;
-  const oz = m[2]! * x + m[6]! * y + m[10]! * z + m[14]!;
+  if (m.length < 16) {
+    throw new Error(`transformPoint: matrix has ${m.length} elements, expected 16`);
+  }
+  const [
+    m0 = 0,
+    m1 = 0,
+    m2 = 0,
+    ,
+    m4 = 0,
+    m5 = 0,
+    m6 = 0,
+    ,
+    m8 = 0,
+    m9 = 0,
+    m10 = 0,
+    ,
+    m12 = 0,
+    m13 = 0,
+    m14 = 0,
+  ] = m;
+  const ox = m0 * x + m4 * y + m8 * z + m12;
+  const oy = m1 * x + m5 * y + m9 * z + m13;
+  const oz = m2 * x + m6 * y + m10 * z + m14;
   return [ox, oy, oz];
 }
 
@@ -269,7 +289,11 @@ export async function synthesizeEphemeralReportForGlb(input: {
   const template = JSON.parse(await readFile(templatePath, "utf8")) as ModelVettingReport;
   const stem = path.basename(input.glbPath, ".glb").replaceAll(/[^a-zA-Z0-9_-]/gu, "_");
   const candidateId = input.candidateId ?? `glb_grade_${stem}`;
-  const base = structuredClone(template.candidates[0]!) as ModelVettingCandidate;
+  const firstTemplateCandidate = template.candidates[0];
+  if (firstTemplateCandidate === undefined) {
+    throw new Error(`synthesizeEphemeralReportForGlb: template report ${templatePath} has no candidates`);
+  }
+  const base = structuredClone(firstTemplateCandidate) as ModelVettingCandidate;
   const candidate: ModelVettingCandidate = {
     ...base,
     candidateId,
@@ -329,9 +353,9 @@ type CaptureEvidence = {
 };
 
 export async function runGlbGradeCapture(options: {
-  glbPaths?: string[];
+  glbPaths?: string[] | undefined;
   allShippedHumanoids?: boolean;
-  outputRoot?: string;
+  outputRoot?: string | undefined;
   publicStagingRoot?: string;
   port?: number;
   views?: readonly string[];
@@ -490,7 +514,11 @@ async function stageAllAssets(input: {
         publicGlbPath,
         candidateId,
       });
-      candidates.push(one.candidates[0]!);
+      const firstEphemeralCandidate = one.candidates[0];
+      if (firstEphemeralCandidate === undefined) {
+        throw new Error(`grade capture: ephemeral report for ${glbPath} has no candidates`);
+      }
+      candidates.push(firstEphemeralCandidate);
     }
     entries.push({ sourceGlbPath: glbPath, assetId, candidateId, publicGlbPath, exists });
   }
@@ -538,7 +566,7 @@ async function gradeOneGlb(input: {
   port: number;
   views: string[];
   runDir: string;
-  hideMaskMagenta?: boolean;
+  hideMaskMagenta?: boolean | undefined;
 }): Promise<GlbGradeAssetResult> {
   const plan = planGlbGradeCapture({ glbPath: input.glbPath, views: input.views });
   const assetId = input.assetId;
@@ -669,8 +697,13 @@ async function gradeOneGlb(input: {
   }
 
   // Pixel-diff guard: lit vs structure of same view must differ.
-  const litFront = path.join(input.cwd, images[`${firstView}_lit`]!);
-  const structFront = path.join(input.cwd, images[`${firstView}_structure`]!);
+  const litRel = images[`${firstView}_lit`];
+  const structRel = images[`${firstView}_structure`];
+  if (litRel === undefined || structRel === undefined) {
+    throw new Error(`grade capture: missing screenshots for view ${firstView}`);
+  }
+  const litFront = path.join(input.cwd, litRel);
+  const structFront = path.join(input.cwd, structRel);
   const litBytes = new Uint8Array(await readFile(litFront));
   const structBytes = new Uint8Array(await readFile(structFront));
   if (!passesDiffer(litBytes, structBytes)) {
@@ -719,7 +752,7 @@ async function captureView(input: {
   candidateId: string;
   view: string;
   capturePass: "lit" | "structure";
-  hideMaskMagenta?: boolean;
+  hideMaskMagenta?: boolean | undefined;
 }): Promise<CaptureEvidence> {
   const url =
     `http://127.0.0.1:${input.port}/?reportUrl=${encodeURIComponent(input.reportUrl)}`
@@ -773,7 +806,7 @@ async function captureViewWithScreenshot(input: {
   view: string;
   capturePass: "lit" | "structure";
   screenshotPath: string;
-  hideMaskMagenta?: boolean;
+  hideMaskMagenta?: boolean | undefined;
 }): Promise<{ screenshotPath: string; evidence: CaptureEvidence }> {
   const evidence = await captureView(input);
   await mkdir(path.dirname(input.screenshotPath), { recursive: true });
@@ -794,33 +827,33 @@ async function captureViewWithScreenshot(input: {
 export function validateGlbGradeGallery(value: unknown): { ok: true } | { ok: false; errors: string[] } {
   const errors: string[] = [];
   if (!isRecord(value)) return { ok: false, errors: ["gallery must be an object"] };
-  if (value.schemaVersion !== "openclinxr.glb-grade-capture.v1") {
+  if (value["schemaVersion"] !== "openclinxr.glb-grade-capture.v1") {
     errors.push("schemaVersion must be openclinxr.glb-grade-capture.v1");
   }
-  if (!Array.isArray(value.assets) || value.assets.length === 0) {
+  if (!Array.isArray(value["assets"]) || value["assets"].length === 0) {
     errors.push("assets must be a non-empty array");
   }
-  if (isRecord(value.coverage)) {
-    if (typeof value.coverage.total !== "number" || value.coverage.total < 1) {
+  if (isRecord(value["coverage"])) {
+    if (typeof value["coverage"]["total"] !== "number" || value["coverage"]["total"] < 1) {
       errors.push("coverage.total must be >= 1");
     }
   } else {
     errors.push("coverage must be an object");
   }
-  if (Array.isArray(value.assets)) {
-    for (const [i, asset] of value.assets.entries()) {
+  if (Array.isArray(value["assets"])) {
+    for (const [i, asset] of value["assets"].entries()) {
       if (!isRecord(asset)) {
         errors.push(`assets/${i} must be object`);
         continue;
       }
-      if (typeof asset.sourceGlbPath !== "string") errors.push(`assets/${i}/sourceGlbPath required`);
-      if (!isRecord(asset.selfCheck)) errors.push(`assets/${i}/selfCheck required`);
-      else if (typeof asset.selfCheck.agrees !== "boolean") {
+      if (typeof asset["sourceGlbPath"] !== "string") errors.push(`assets/${i}/sourceGlbPath required`);
+      if (!isRecord(asset["selfCheck"])) errors.push(`assets/${i}/selfCheck required`);
+      else if (typeof asset["selfCheck"]["agrees"] !== "boolean") {
         errors.push(`assets/${i}/selfCheck.agrees must be boolean`);
       }
     }
   }
-  if (!Array.isArray(value.notEvidenceFor) || !value.notEvidenceFor.includes("quest_readiness")) {
+  if (!Array.isArray(value["notEvidenceFor"]) || !value["notEvidenceFor"].includes("quest_readiness")) {
     errors.push("notEvidenceFor must preserve false readiness gates");
   }
   return errors.length ? { ok: false, errors } : { ok: true };
@@ -909,13 +942,27 @@ async function main(argv: string[]): Promise<void> {
   let outputRoot: string | undefined;
   const glbPaths: string[] = [];
   for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i]!;
+    const arg = argv[i];
+    if (arg === undefined) break;
     if (arg === "--all-shipped-humanoids") allShipped = true;
     else if (arg === "--validate-latest") validateLatest = true;
     else if (arg === "--hide-mask-magenta") hideMaskMagenta = true;
-    else if (arg === "--glb" && argv[i + 1]) glbPaths.push(argv[++i]!);
-    else if (arg === "--port" && argv[i + 1]) port = Number(argv[++i]);
-    else if (arg === "--output-root" && argv[i + 1]) outputRoot = argv[++i]!;
+    else if (arg === "--glb") {
+      const glbPath = argv[i + 1];
+      if (!glbPath) continue;
+      glbPaths.push(glbPath);
+      i += 1;
+    } else if (arg === "--port") {
+      const portValue = argv[i + 1];
+      if (!portValue) continue;
+      port = Number(portValue);
+      i += 1;
+    } else if (arg === "--output-root") {
+      const outputValue = argv[i + 1];
+      if (!outputValue) continue;
+      outputRoot = outputValue;
+      i += 1;
+    }
   }
 
   if (validateLatest) {

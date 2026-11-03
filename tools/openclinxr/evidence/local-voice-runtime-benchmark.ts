@@ -140,8 +140,8 @@ export async function runLocalVoiceRuntimeBenchmarkCli(args: string[]): Promise<
     audioPath: options.audioPath,
     audioBytes,
     audioSha256: sha256(audioBytes),
-    runtimeExecutionApproved: options.runtimeExecutionApproved,
-    runtimeExecutionObserved: options.runtimeExecutionObserved,
+    ...(options.runtimeExecutionApproved === undefined ? {} : { runtimeExecutionApproved: options.runtimeExecutionApproved }),
+    ...(options.runtimeExecutionObserved === undefined ? {} : { runtimeExecutionObserved: options.runtimeExecutionObserved }),
   });
 
   if (options.outputPath) {
@@ -366,50 +366,50 @@ export function validateLocalVoiceRuntimeBenchmarkReport(value: unknown): Valida
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireOneOf(value.status, ["passed_with_caveats", "blocked"], "/status", errors);
-  requireRecord(value.policy, "/policy", errors);
-  if (isRecord(value.policy)) {
-    requireLiteral(value.policy.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
-    requireLiteral(value.policy.paidApisUsed, false, "/policy/paidApisUsed", errors);
-    requireLiteral(value.policy.voiceInstallApproved, true, "/policy/voiceInstallApproved", errors);
-    requireLiteral(value.policy.voiceSafetyReviewApproved, true, "/policy/voiceSafetyReviewApproved", errors);
-    requireBoolean(value.policy.voiceRuntimeExecutionApproved, "/policy/voiceRuntimeExecutionApproved", errors);
-    requireBoolean(value.policy.voiceRuntimeExecutionObserved, "/policy/voiceRuntimeExecutionObserved", errors);
-    requireLiteral(value.policy.voiceRuntimeExecutionAttemptedByThisTool, false, "/policy/voiceRuntimeExecutionAttemptedByThisTool", errors);
-    requireLiteral(value.policy.productionUseAllowed, false, "/policy/productionUseAllowed", errors);
-    requireLiteral(value.policy.generatedAudioCommitted, false, "/policy/generatedAudioCommitted", errors);
-    requireLiteral(value.policy.downloadAttemptedByThisTool, false, "/policy/downloadAttemptedByThisTool", errors);
-    requireLiteral(value.policy.networkAccessObservedByThisTool, false, "/policy/networkAccessObservedByThisTool", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireOneOf(value["status"], ["passed_with_caveats", "blocked"], "/status", errors);
+  requireRecord(value["policy"], "/policy", errors);
+  if (isRecord(value["policy"])) {
+    requireLiteral(value["policy"]["cloudApisUsed"], false, "/policy/cloudApisUsed", errors);
+    requireLiteral(value["policy"]["paidApisUsed"], false, "/policy/paidApisUsed", errors);
+    requireLiteral(value["policy"]["voiceInstallApproved"], true, "/policy/voiceInstallApproved", errors);
+    requireLiteral(value["policy"]["voiceSafetyReviewApproved"], true, "/policy/voiceSafetyReviewApproved", errors);
+    requireBoolean(value["policy"]["voiceRuntimeExecutionApproved"], "/policy/voiceRuntimeExecutionApproved", errors);
+    requireBoolean(value["policy"]["voiceRuntimeExecutionObserved"], "/policy/voiceRuntimeExecutionObserved", errors);
+    requireLiteral(value["policy"]["voiceRuntimeExecutionAttemptedByThisTool"], false, "/policy/voiceRuntimeExecutionAttemptedByThisTool", errors);
+    requireLiteral(value["policy"]["productionUseAllowed"], false, "/policy/productionUseAllowed", errors);
+    requireLiteral(value["policy"]["generatedAudioCommitted"], false, "/policy/generatedAudioCommitted", errors);
+    requireLiteral(value["policy"]["downloadAttemptedByThisTool"], false, "/policy/downloadAttemptedByThisTool", errors);
+    requireLiteral(value["policy"]["networkAccessObservedByThisTool"], false, "/policy/networkAccessObservedByThisTool", errors);
   }
-  requireRecord(value.runtime, "/runtime", errors);
-  if (isRecord(value.runtime)) {
-    requireLiteral(value.runtime.command, "/Users/patrick/.local/bin/vibevoice realtime-file", "/runtime/command", errors);
-    requireLiteral(value.runtime.repository, "https://github.com/microsoft/VibeVoice.git", "/runtime/repository", errors);
-    requireString(value.runtime.repositoryHead, "/runtime/repositoryHead", errors);
-    requireNullableString(value.runtime.modelId, "/runtime/modelId", errors);
-    requireStringArray(value.runtime.sourceRecordIds, "/runtime/sourceRecordIds", errors);
-    requireNullableString(value.runtime.device, "/runtime/device", errors);
-    requireNullableString(value.runtime.torchVersion, "/runtime/torchVersion", errors);
-    requireNullableString(value.runtime.transformersVersion, "/runtime/transformersVersion", errors);
-    requireLiteral(value.runtime.pythonVenv, "/Users/patrick/.cache/openclinxr/vibevoice/.venv", "/runtime/pythonVenv", errors);
-    requireLiteral(value.runtime.huggingFaceCache, "/Users/patrick/.cache/openclinxr/huggingface", "/runtime/huggingFaceCache", errors);
-    requireNullableString(value.runtime.voicePreset, "/runtime/voicePreset", errors);
-    requireNullableString(value.runtime.voicePresetPath, "/runtime/voicePresetPath", errors);
+  requireRecord(value["runtime"], "/runtime", errors);
+  if (isRecord(value["runtime"])) {
+    requireLiteral(value["runtime"]["command"], "/Users/patrick/.local/bin/vibevoice realtime-file", "/runtime/command", errors);
+    requireLiteral(value["runtime"]["repository"], "https://github.com/microsoft/VibeVoice.git", "/runtime/repository", errors);
+    requireString(value["runtime"]["repositoryHead"], "/runtime/repositoryHead", errors);
+    requireNullableString(value["runtime"]["modelId"], "/runtime/modelId", errors);
+    requireStringArray(value["runtime"]["sourceRecordIds"], "/runtime/sourceRecordIds", errors);
+    requireNullableString(value["runtime"]["device"], "/runtime/device", errors);
+    requireNullableString(value["runtime"]["torchVersion"], "/runtime/torchVersion", errors);
+    requireNullableString(value["runtime"]["transformersVersion"], "/runtime/transformersVersion", errors);
+    requireLiteral(value["runtime"]["pythonVenv"], "/Users/patrick/.cache/openclinxr/vibevoice/.venv", "/runtime/pythonVenv", errors);
+    requireLiteral(value["runtime"]["huggingFaceCache"], "/Users/patrick/.cache/openclinxr/huggingface", "/runtime/huggingFaceCache", errors);
+    requireNullableString(value["runtime"]["voicePreset"], "/runtime/voicePreset", errors);
+    requireNullableString(value["runtime"]["voicePresetPath"], "/runtime/voicePresetPath", errors);
   }
-  requireRecord(value.input, "/input", errors);
-  if (isRecord(value.input)) {
-    requireString(value.input.textPath, "/input/textPath", errors);
-    requireString(value.input.text, "/input/text", errors);
+  requireRecord(value["input"], "/input", errors);
+  if (isRecord(value["input"])) {
+    requireString(value["input"]["textPath"], "/input/textPath", errors);
+    requireString(value["input"]["text"], "/input/text", errors);
   }
-  validateAudio(value.audio, errors);
-  validateVoiceRuntimeMetrics(value.metrics, errors);
-  requireRecord(value.verdict, "/verdict", errors);
-  if (isRecord(value.verdict)) {
-    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
-    requireLiteral(value.verdict.readyForLiveDialog, false, "/verdict/readyForLiveDialog", errors);
-    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
-    requireStringArray(value.verdict.caveats, "/verdict/caveats", errors);
+  validateAudio(value["audio"], errors);
+  validateVoiceRuntimeMetrics(value["metrics"], errors);
+  requireRecord(value["verdict"], "/verdict", errors);
+  if (isRecord(value["verdict"])) {
+    requireBoolean(value["verdict"]["passed"], "/verdict/passed", errors);
+    requireLiteral(value["verdict"]["readyForLiveDialog"], false, "/verdict/readyForLiveDialog", errors);
+    requireStringArray(value["verdict"]["blockers"], "/verdict/blockers", errors);
+    requireStringArray(value["verdict"]["caveats"], "/verdict/caveats", errors);
   }
   validateVoiceRuntimeConsistency(value, errors);
 
@@ -422,14 +422,14 @@ function validateAudio(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireString(value.outputPath, "/audio/outputPath", errors);
-  requireSha256(value.sha256, "/audio/sha256", errors);
-  requireLiteral(value.codec, "pcm_s16le", "/audio/codec", errors);
-  requireNumber(value.sampleRateHz, "/audio/sampleRateHz", errors);
-  requireNumber(value.channels, "/audio/channels", errors);
-  requireNumber(value.durationMs, "/audio/durationMs", errors);
-  requireNumber(value.sizeBytes, "/audio/sizeBytes", errors);
-  requireNumber(value.bitRate, "/audio/bitRate", errors);
+  requireString(value["outputPath"], "/audio/outputPath", errors);
+  requireSha256(value["sha256"], "/audio/sha256", errors);
+  requireLiteral(value["codec"], "pcm_s16le", "/audio/codec", errors);
+  requireNumber(value["sampleRateHz"], "/audio/sampleRateHz", errors);
+  requireNumber(value["channels"], "/audio/channels", errors);
+  requireNumber(value["durationMs"], "/audio/durationMs", errors);
+  requireNumber(value["sizeBytes"], "/audio/sizeBytes", errors);
+  requireNumber(value["bitRate"], "/audio/bitRate", errors);
 }
 
 function validateVoiceRuntimeMetrics(value: unknown, errors: string[]): void {
@@ -438,33 +438,33 @@ function validateVoiceRuntimeMetrics(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireNullableNumber(value.wallClockMs, "/metrics/wallClockMs", errors);
-  requireNullableNumber(value.modelGenerationMs, "/metrics/modelGenerationMs", errors);
-  requireNullableNumber(value.audioDurationMs, "/metrics/audioDurationMs", errors);
-  requireNullableNumber(value.realTimeFactor, "/metrics/realTimeFactor", errors);
-  requireNullableNumber(value.approxFirstSpeechTokenLatencyMs, "/metrics/approxFirstSpeechTokenLatencyMs", errors);
-  requireNullableNumber(value.prefillingTextTokens, "/metrics/prefillingTextTokens", errors);
-  requireNullableNumber(value.generatedSpeechTokens, "/metrics/generatedSpeechTokens", errors);
-  requireNullableNumber(value.totalTokens, "/metrics/totalTokens", errors);
-  requireNullableNumber(value.maxResidentSetBytes, "/metrics/maxResidentSetBytes", errors);
-  requireNullableNumber(value.peakMemoryFootprintBytes, "/metrics/peakMemoryFootprintBytes", errors);
-  requireLiteral(value.openclinxrCacheDiskFootprintGiB, 3.6, "/metrics/openclinxrCacheDiskFootprintGiB", errors);
-  requireLiteral(value.vibevoiceModelCacheFootprintGiB, 1.9, "/metrics/vibevoiceModelCacheFootprintGiB", errors);
+  requireNullableNumber(value["wallClockMs"], "/metrics/wallClockMs", errors);
+  requireNullableNumber(value["modelGenerationMs"], "/metrics/modelGenerationMs", errors);
+  requireNullableNumber(value["audioDurationMs"], "/metrics/audioDurationMs", errors);
+  requireNullableNumber(value["realTimeFactor"], "/metrics/realTimeFactor", errors);
+  requireNullableNumber(value["approxFirstSpeechTokenLatencyMs"], "/metrics/approxFirstSpeechTokenLatencyMs", errors);
+  requireNullableNumber(value["prefillingTextTokens"], "/metrics/prefillingTextTokens", errors);
+  requireNullableNumber(value["generatedSpeechTokens"], "/metrics/generatedSpeechTokens", errors);
+  requireNullableNumber(value["totalTokens"], "/metrics/totalTokens", errors);
+  requireNullableNumber(value["maxResidentSetBytes"], "/metrics/maxResidentSetBytes", errors);
+  requireNullableNumber(value["peakMemoryFootprintBytes"], "/metrics/peakMemoryFootprintBytes", errors);
+  requireLiteral(value["openclinxrCacheDiskFootprintGiB"], 3.6, "/metrics/openclinxrCacheDiskFootprintGiB", errors);
+  requireLiteral(value["vibevoiceModelCacheFootprintGiB"], 1.9, "/metrics/vibevoiceModelCacheFootprintGiB", errors);
 }
 
 function validateVoiceRuntimeConsistency(value: Record<string, unknown>, errors: string[]): void {
-  if (!isRecord(value.verdict)) {
+  if (!isRecord(value["verdict"])) {
     return;
   }
 
-  const verdictPassed = value.verdict.passed;
-  if (typeof verdictPassed === "boolean" && Array.isArray(value.verdict.blockers) && verdictPassed !== (value.verdict.blockers.length === 0)) {
+  const verdictPassed = value["verdict"]["passed"];
+  if (typeof verdictPassed === "boolean" && Array.isArray(value["verdict"]["blockers"]) && verdictPassed !== (value["verdict"]["blockers"].length === 0)) {
     errors.push("/verdict/passed must match whether verdict blockers are empty");
   }
 
-  if (isRecord(value.audio) && isRecord(value.metrics)) {
-    const audioDurationMs = numberOrNull(value.audio.durationMs);
-    const metricAudioDurationMs = numberOrNull(value.metrics.audioDurationMs);
+  if (isRecord(value["audio"]) && isRecord(value["metrics"])) {
+    const audioDurationMs = numberOrNull(value["audio"]["durationMs"]);
+    const metricAudioDurationMs = numberOrNull(value["metrics"]["audioDurationMs"]);
     if (audioDurationMs !== null && metricAudioDurationMs !== null) {
       const differenceMs = Math.abs(audioDurationMs - metricAudioDurationMs);
       if (differenceMs > 100) {

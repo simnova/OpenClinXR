@@ -210,7 +210,7 @@ export async function writeMedicalEquipmentArtifacts(options?: {
   const outputRoot = options?.outputRoot ?? MEDICAL_EQUIPMENT_OUTPUT_DIR;
   const artifactPaths = medicalEquipmentArtifactPaths(outputRoot);
   await mkdir(artifactPaths.outputRoot, { recursive: true });
-  const blenderPath = process.env.BLENDER ?? "blender";
+  const blenderPath = process.env["BLENDER"] ?? "blender";
   const blenderVersion = await readBlenderVersion(blenderPath);
   await runBlenderEquipmentBake({
     blenderPath,
@@ -241,13 +241,13 @@ export async function writeMedicalEquipmentArtifacts(options?: {
 export function validateMedicalEquipmentArtifactsReport(report: unknown): { ok: boolean; errors: string[] } {
   const errors: string[] = [];
   if (!isRecord(report)) return { ok: false, errors: ["/ must be an object"] };
-  if (report.schemaVersion !== MEDICAL_EQUIPMENT_SCHEMA_VERSION) {
+  if (report["schemaVersion"] !== MEDICAL_EQUIPMENT_SCHEMA_VERSION) {
     errors.push(`/schemaVersion must be ${MEDICAL_EQUIPMENT_SCHEMA_VERSION}`);
   }
-  if (report.kind !== MEDICAL_EQUIPMENT_KIND) {
+  if (report["kind"] !== MEDICAL_EQUIPMENT_KIND) {
     errors.push(`/kind must be ${MEDICAL_EQUIPMENT_KIND}`);
   }
-  const policy = isRecord(report.policy) ? report.policy : {};
+  const policy = isRecord(report["policy"]) ? report["policy"] : {};
   for (const key of [
     "installsIntroduced",
     "cloudApisUsed",
@@ -258,26 +258,26 @@ export function validateMedicalEquipmentArtifactsReport(report: unknown): { ok: 
   ] as const) {
     if (policy[key] !== false) errors.push(`/policy/${key} must be false`);
   }
-  const output = isRecord(report.output) ? report.output : {};
-  const artifacts = isRecord(report.artifacts) ? report.artifacts : {};
+  const output = isRecord(report["output"]) ? report["output"] : {};
+  const artifacts = isRecord(report["artifacts"]) ? report["artifacts"] : {};
   const expectedBlockers = [
-    ...(typeof output.ecgCartGlbBytes === "number" && output.ecgCartGlbBytes > 0 ? [] : ["artifact_file_missing:ecg-cart-12-lead.glb"]),
-    ...(typeof output.ivPoleWithPumpGlbBytes === "number" && output.ivPoleWithPumpGlbBytes > 0 ? [] : ["artifact_file_missing:iv-pole-with-pump.glb"]),
-    ...typeof artifacts.equipmentRealismManifestPath === "string" && !existsSync(artifacts.equipmentRealismManifestPath)
+    ...(typeof output["ecgCartGlbBytes"] === "number" && output["ecgCartGlbBytes"] > 0 ? [] : ["artifact_file_missing:ecg-cart-12-lead.glb"]),
+    ...(typeof output["ivPoleWithPumpGlbBytes"] === "number" && output["ivPoleWithPumpGlbBytes"] > 0 ? [] : ["artifact_file_missing:iv-pole-with-pump.glb"]),
+    ...typeof artifacts["equipmentRealismManifestPath"] === "string" && !existsSync(artifacts["equipmentRealismManifestPath"])
       ? ["artifact_file_missing:ed-chest-pain-equipment-realism-manifest.json"]
       : [],
   ];
-  const verdict = isRecord(report.verdict) ? report.verdict : {};
-  const verdictBlockers = asStringArray(verdict.blockers);
+  const verdict = isRecord(report["verdict"]) ? report["verdict"] : {};
+  const verdictBlockers = asStringArray(verdict["blockers"]);
   for (const blocker of expectedBlockers) {
     if (!verdictBlockers.some((observed) => observed.endsWith(blocker.split(":")[1] ?? blocker))) {
       errors.push(`/verdict/blockers must include ${blocker}`);
     }
   }
-  if (verdict.passed !== (verdictBlockers.length === 0)) {
+  if (verdict["passed"] !== (verdictBlockers.length === 0)) {
     errors.push("/verdict/passed must match blocker count");
   }
-  if (verdict.readyForProductionAssets !== false) {
+  if (verdict["readyForProductionAssets"] !== false) {
     errors.push("/verdict/readyForProductionAssets must be false");
   }
   return { ok: errors.length === 0, errors };
@@ -300,8 +300,8 @@ export async function runMedicalEquipmentArtifactsCli(args = process.argv.slice(
     return;
   }
 
-  const previousBlender = process.env.BLENDER;
-  process.env.BLENDER = options.blenderPath;
+  const previousBlender = process.env["BLENDER"];
+  process.env["BLENDER"] = options.blenderPath;
   try {
     const report = await writeMedicalEquipmentArtifacts({
       outputRoot: options.outputRoot,
@@ -317,8 +317,8 @@ export async function runMedicalEquipmentArtifactsCli(args = process.argv.slice(
       `Generated medical equipment artifacts: ${report.artifacts.ecgCartGlbPath}, ${report.artifacts.ivPoleWithPumpGlbPath}, ${report.artifacts.equipmentProvenancePath}, ${report.artifacts.equipmentRealismManifestPath}\n`,
     );
   } finally {
-    if (previousBlender === undefined) delete process.env.BLENDER;
-    else process.env.BLENDER = previousBlender;
+    if (previousBlender === undefined) delete process.env["BLENDER"];
+    else process.env["BLENDER"] = previousBlender;
   }
 }
 
@@ -327,7 +327,7 @@ async function validateReportFile(reportPath: string, options: { validateArtifac
   const validation = validateMedicalEquipmentArtifactsReport(report);
   const errors = [...validation.errors];
   if (options.validateArtifacts && isRecord(report)) {
-    const artifacts = isRecord(report.artifacts) ? report.artifacts : {};
+    const artifacts = isRecord(report["artifacts"]) ? report["artifacts"] : {};
     for (const key of ["ecgCartGlbPath", "ivPoleWithPumpGlbPath", "equipmentProvenancePath", "equipmentRealismManifestPath"] as const) {
       const artifactPath = artifacts[key];
       if (typeof artifactPath !== "string" || !existsSync(path.resolve(artifactPath))) {
@@ -391,7 +391,7 @@ async function readBlenderVersion(blenderPath: string): Promise<string> {
 }
 
 function createMedicalEquipmentBlenderScript(): string {
-  return String.raw`
+  return `
 import json
 import os
 import sys
@@ -552,7 +552,7 @@ function parseCliOptions(args: string[]): CliOptions {
   const options: CliOptions = {
     outputRoot: MEDICAL_EQUIPMENT_OUTPUT_DIR,
     reportPath: defaultMedicalEquipmentReportPath(),
-    blenderPath: process.env.BLENDER ?? "blender",
+    blenderPath: process.env["BLENDER"] ?? "blender",
     validateLatest: false,
     help: false,
   };

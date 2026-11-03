@@ -113,7 +113,7 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
   }
 
   const report = buildLocalRealtimeVoiceModelSourceCurrentnessReport({
-    generatedAt: options.generatedAt,
+    ...(options.generatedAt === undefined ? {} : { generatedAt: options.generatedAt }),
     metadataFile: metadataPath,
     cacheEvidenceFile: cacheEvidencePath,
     metadata: await readJson<LocalRealtimeVoiceModelSourceMetadataSnapshot>(metadataPath),
@@ -227,12 +227,12 @@ export function validateLocalRealtimeVoiceModelSourceMetadataSnapshot(value: unk
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireLiteral(value.kind, "huggingface_realtime_voice_model_metadata_snapshot", "/kind", errors);
-  requireString(value.capturedAt, "/capturedAt", errors);
-  if (!Array.isArray(value.models)) {
+  requireLiteral(value["kind"], "huggingface_realtime_voice_model_metadata_snapshot", "/kind", errors);
+  requireString(value["capturedAt"], "/capturedAt", errors);
+  if (!Array.isArray(value["models"])) {
     errors.push("/models must be array");
   } else {
-    value.models.forEach((model, index) => {
+    value["models"].forEach((model, index) => {
       validateSourceMetadataModel(model, `/models/${index}`, errors);
     });
   }
@@ -246,24 +246,24 @@ function validateSourceMetadataModel(value: unknown, pathName: string, errors: s
     return;
   }
 
-  requireString(value.modelId, `${pathName}/modelId`, errors);
-  requireString(value.sourceUrl, `${pathName}/sourceUrl`, errors);
-  requireString(value.apiUrl, `${pathName}/apiUrl`, errors);
-  requireString(value.sha, `${pathName}/sha`, errors);
-  requireString(value.license, `${pathName}/license`, errors);
-  requireString(value.lastModified, `${pathName}/lastModified`, errors);
-  requireBoolean(value.private, `${pathName}/private`, errors);
-  requireBoolean(value.disabled, `${pathName}/disabled`, errors);
-  if (!Array.isArray(value.siblings)) {
+  requireString(value["modelId"], `${pathName}/modelId`, errors);
+  requireString(value["sourceUrl"], `${pathName}/sourceUrl`, errors);
+  requireString(value["apiUrl"], `${pathName}/apiUrl`, errors);
+  requireString(value["sha"], `${pathName}/sha`, errors);
+  requireString(value["license"], `${pathName}/license`, errors);
+  requireString(value["lastModified"], `${pathName}/lastModified`, errors);
+  requireBoolean(value["private"], `${pathName}/private`, errors);
+  requireBoolean(value["disabled"], `${pathName}/disabled`, errors);
+  if (!Array.isArray(value["siblings"])) {
     errors.push(`${pathName}/siblings must be array`);
   } else {
-    value.siblings.forEach((sibling, index) => {
+    value["siblings"].forEach((sibling, index) => {
       if (!isRecord(sibling)) {
         errors.push(`${pathName}/siblings/${index} must be object`);
         return;
       }
-      requireString(sibling.rfilename, `${pathName}/siblings/${index}/rfilename`, errors);
-      if (sibling.size !== null && (typeof sibling.size !== "number" || !Number.isFinite(sibling.size))) {
+      requireString(sibling["rfilename"], `${pathName}/siblings/${index}/rfilename`, errors);
+      if (sibling["size"] !== null && (typeof sibling["size"] !== "number" || !Number.isFinite(sibling["size"]))) {
         errors.push(`${pathName}/siblings/${index}/size must be null or finite number`);
       }
     });
@@ -276,24 +276,24 @@ function validateLocalRealtimeVoiceModelSourceCurrentnessReport(value: unknown):
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireLiteral(value.kind, "local_realtime_voice_model_source_currentness_check", "/kind", errors);
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireBoolean(value.ready, "/ready", errors);
-  requireString(value.metadata_file, "/metadata_file", errors);
-  requireString(value.cache_evidence_file, "/cache_evidence_file", errors);
-  if (!Array.isArray(value.models)) {
+  requireLiteral(value["kind"], "local_realtime_voice_model_source_currentness_check", "/kind", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireBoolean(value["ready"], "/ready", errors);
+  requireString(value["metadata_file"], "/metadata_file", errors);
+  requireString(value["cache_evidence_file"], "/cache_evidence_file", errors);
+  if (!Array.isArray(value["models"])) {
     errors.push("/models must be array");
   }
-  if (!isRecord(value.verdict)) {
+  if (!isRecord(value["verdict"])) {
     errors.push("/verdict must be object");
   } else {
-    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
-    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
+    requireBoolean(value["verdict"]["passed"], "/verdict/passed", errors);
+    requireStringArray(value["verdict"]["blockers"], "/verdict/blockers", errors);
   }
-  if (value.ready === true && (!isRecord(value.verdict) || value.verdict.passed !== true)) {
+  if (value["ready"] === true && (!isRecord(value["verdict"]) || value["verdict"]["passed"] !== true)) {
     errors.push("/ready cannot be true unless verdict.passed is true");
   }
-  if (value.ready !== true) {
+  if (value["ready"] !== true) {
     errors.push("/ready must be true for validation");
   }
 

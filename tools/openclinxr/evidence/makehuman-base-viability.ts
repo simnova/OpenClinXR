@@ -43,16 +43,16 @@ const RUNTIME_BONE_MAP = path.join(
 );
 
 const MPFB_RIG_DEFAULT =
-  process.env.OPENCLINXR_MPFB_RIG_DEFAULT ??
+  process.env["OPENCLINXR_MPFB_RIG_DEFAULT"] ??
   path.join(
-    process.env.HOME ?? "",
+    process.env["HOME"] ?? "",
     "Library/Application Support/Blender/5.1/extensions/user_default/mpfb/data/rigs/standard/rig.default.json",
   );
 
 const MPFB_BASE_OBJ =
-  process.env.OPENCLINXR_MPFB_BASE_OBJ ??
+  process.env["OPENCLINXR_MPFB_BASE_OBJ"] ??
   path.join(
-    process.env.HOME ?? "",
+    process.env["HOME"] ?? "",
     "Library/Application Support/Blender/5.1/extensions/user_default/mpfb/data/3dobjs/base.obj",
   );
 
@@ -144,8 +144,8 @@ function runCmd(
 }
 
 function resolveBlender(): string {
-  if (process.env.OPENCLINXR_BLENDER && existsSync(process.env.OPENCLINXR_BLENDER)) {
-    return process.env.OPENCLINXR_BLENDER;
+  if (process.env["OPENCLINXR_BLENDER"] && existsSync(process.env["OPENCLINXR_BLENDER"])) {
+    return process.env["OPENCLINXR_BLENDER"];
   }
   if (existsSync("/opt/homebrew/bin/blender")) return "/opt/homebrew/bin/blender";
   return "blender";
@@ -348,7 +348,10 @@ async function downloadIfNeeded(
 }
 
 async function fitScrubShirt(): Promise<GarmentCandidate> {
-  const entry = CATALOGUE.find((c) => c.candidateId === "wojackowl_scrubs_shirt")!;
+  const entry = CATALOGUE.find((c) => c.candidateId === "wojackowl_scrubs_shirt");
+  if (entry === undefined) {
+    throw new Error("fitScrubShirt: wojackowl_scrubs_shirt missing from CATALOGUE");
+  }
   const stageDir = path.join(EVIDENCE_DIR, "staging", "scrubs_shirt");
   ensureDir(stageDir);
   const mhcloPath = path.join(stageDir, "Scrub_Shirt.mhclo");
@@ -387,9 +390,9 @@ async function fitScrubShirt(): Promise<GarmentCandidate> {
     const desc = header.match(/#\s*description:\s*(.+)/i);
     if (lic) {
       headerLicense = [
-        lic[1].trim(),
-        author ? `author ${author[1].trim()}` : "",
-        desc ? desc[1].trim() : "",
+        lic[1]?.trim() ?? "",
+        author ? `author ${author[1]?.trim() ?? ""}` : "",
+        desc ? desc[1]?.trim() ?? "" : "",
         `source ${entry.pageUrl}`,
       ]
         .filter(Boolean)
@@ -411,7 +414,7 @@ async function fitScrubShirt(): Promise<GarmentCandidate> {
 
   const blender = resolveBlender();
   const scriptPath = path.join(
-    process.env.TMPDIR ?? "/tmp",
+    process.env["TMPDIR"] ?? "/tmp",
     `ocxr90_fit_scrub_${process.pid}.py`,
   );
   const script = `
@@ -514,21 +517,21 @@ print(json.dumps(report))
     }
   }
 
-  if (fit?.status === "fitted") {
+  if (fit?.["status"] === "fitted") {
     return {
       candidateId: entry.candidateId,
       status: "fitted",
       isClinicalWear: true,
       licenseString: headerLicense,
       measurements: {
-        clothes_vertex_count: Number(fit.clothes_verts ?? 0),
-        clothes_triangle_count: Number(fit.clothes_tris ?? 0),
-        basemesh_vertex_count: Number(fit.basemesh_verts ?? 0),
-        fit_wall_clock_s: Number(fit.wall_clock_s ?? 0),
-        glb_bytes: Number(fit.glb_bytes ?? (existsSync(outGlb) ? statSync(outGlb).size : 0)),
+        clothes_vertex_count: Number(fit["clothes_verts"] ?? 0),
+        clothes_triangle_count: Number(fit["clothes_tris"] ?? 0),
+        basemesh_vertex_count: Number(fit["basemesh_verts"] ?? 0),
+        fit_wall_clock_s: Number(fit["wall_clock_s"] ?? 0),
+        glb_bytes: Number(fit["glb_bytes"] ?? (existsSync(outGlb) ? statSync(outGlb).size : 0)),
         mhclo_bytes: dlMhclo.bytes,
         obj_bytes: dlObj.bytes,
-        object_is_basemesh: fit.object_is_basemesh === true ? 1 : 0,
+        object_is_basemesh: fit["object_is_basemesh"] === true ? 1 : 0,
       },
     };
   }
@@ -539,7 +542,7 @@ print(json.dumps(report))
     isClinicalWear: true,
     licenseString: headerLicense,
     reason:
-      String(fit?.error ?? "") ||
+      String(fit?.["error"] ?? "") ||
       `MakeClothes fit did not succeed (blender exit ${result.code}): ${result.stderr.slice(0, 300)}`,
   };
 }

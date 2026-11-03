@@ -91,8 +91,8 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
   }
 
   const report = await buildLocalRealtimeVoiceModelCacheEvidence({
-    cacheDir: options.cacheDir,
-    generatedAt: options.generatedAt,
+    ...(options.cacheDir === undefined ? {} : { cacheDir: options.cacheDir }),
+    ...(options.generatedAt === undefined ? {} : { generatedAt: options.generatedAt }),
   });
 
   if (options.outputPath) {
@@ -135,22 +135,22 @@ export function validateLocalRealtimeVoiceModelCacheEvidenceReport(value: unknow
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireLiteral(value.kind, "local_voice_evidence_check", "/kind", errors);
-  requireLiteral(value.claim_scope, "cache_inventory_only", "/claim_scope", errors);
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireString(value.cache_dir, "/cache_dir", errors);
-  requireStringArray(value.approved_model_ids, "/approved_model_ids", errors);
-  requireBoolean(value.cache_exists, "/cache_exists", errors);
-  requireBoolean(value.ready, "/ready", errors);
-  requireArray(value.models, "/models", errors);
-  if (Array.isArray(value.models)) {
-    value.models.forEach((model, index) => {
+  requireLiteral(value["kind"], "local_voice_evidence_check", "/kind", errors);
+  requireLiteral(value["claim_scope"], "cache_inventory_only", "/claim_scope", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireString(value["cache_dir"], "/cache_dir", errors);
+  requireStringArray(value["approved_model_ids"], "/approved_model_ids", errors);
+  requireBoolean(value["cache_exists"], "/cache_exists", errors);
+  requireBoolean(value["ready"], "/ready", errors);
+  requireArray(value["models"], "/models", errors);
+  if (Array.isArray(value["models"])) {
+    value["models"].forEach((model, index) => {
       validateModel(model, `/models/${index}`, errors);
     });
   }
-  requireArray(value.support_directories, "/support_directories", errors);
-  if (Array.isArray(value.support_directories)) {
-    value.support_directories.forEach((entry, index) => {
+  requireArray(value["support_directories"], "/support_directories", errors);
+  if (Array.isArray(value["support_directories"])) {
+    value["support_directories"].forEach((entry, index) => {
       validateSupportDirectory(entry, `/support_directories/${index}`, errors);
     });
   }
@@ -165,21 +165,21 @@ function validateModel(value: unknown, pathName: string, errors: string[]): void
     return;
   }
 
-  requireString(value.model_id, `${pathName}/model_id`, errors);
-  requireString(value.path, `${pathName}/path`, errors);
-  requireLiteral(value.source_type, "local_cache_snapshot", `${pathName}/source_type`, errors);
-  requireString(value.expected_storage_name, `${pathName}/expected_storage_name`, errors);
-  requireString(value.license, `${pathName}/license`, errors);
-  requireString(value.source_id, `${pathName}/source_id`, errors);
-  requireLiteral(value.approved, true, `${pathName}/approved`, errors);
-  requireBoolean(value.has_evidence, `${pathName}/has_evidence`, errors);
-  requireBoolean(value.ready, `${pathName}/ready`, errors);
-  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
-  requireNumber(value.file_count, `${pathName}/file_count`, errors);
-  requireNumber(value.total_bytes, `${pathName}/total_bytes`, errors);
-  requireNullableString(value.local_revision, `${pathName}/local_revision`, errors);
-  requireNumber(value.metadata_revision_file_count, `${pathName}/metadata_revision_file_count`, errors);
-  requireBoolean(value.metadata_revision_consistent, `${pathName}/metadata_revision_consistent`, errors);
+  requireString(value["model_id"], `${pathName}/model_id`, errors);
+  requireString(value["path"], `${pathName}/path`, errors);
+  requireLiteral(value["source_type"], "local_cache_snapshot", `${pathName}/source_type`, errors);
+  requireString(value["expected_storage_name"], `${pathName}/expected_storage_name`, errors);
+  requireString(value["license"], `${pathName}/license`, errors);
+  requireString(value["source_id"], `${pathName}/source_id`, errors);
+  requireLiteral(value["approved"], true, `${pathName}/approved`, errors);
+  requireBoolean(value["has_evidence"], `${pathName}/has_evidence`, errors);
+  requireBoolean(value["ready"], `${pathName}/ready`, errors);
+  requireStringArray(value["blockers"], `${pathName}/blockers`, errors);
+  requireNumber(value["file_count"], `${pathName}/file_count`, errors);
+  requireNumber(value["total_bytes"], `${pathName}/total_bytes`, errors);
+  requireNullableString(value["local_revision"], `${pathName}/local_revision`, errors);
+  requireNumber(value["metadata_revision_file_count"], `${pathName}/metadata_revision_file_count`, errors);
+  requireBoolean(value["metadata_revision_consistent"], `${pathName}/metadata_revision_consistent`, errors);
 }
 
 function validateSupportDirectory(value: unknown, pathName: string, errors: string[]): void {
@@ -188,34 +188,34 @@ function validateSupportDirectory(value: unknown, pathName: string, errors: stri
     return;
   }
 
-  requireString(value.path, `${pathName}/path`, errors);
-  requireString(value.name, `${pathName}/name`, errors);
-  requireOneOf(value.reason, ["runtime_support_venv_not_model_weights", "runtime_generated_output_not_model_weights"], `${pathName}/reason`, errors);
-  requireNumber(value.file_count, `${pathName}/file_count`, errors);
-  requireNumber(value.total_bytes, `${pathName}/total_bytes`, errors);
+  requireString(value["path"], `${pathName}/path`, errors);
+  requireString(value["name"], `${pathName}/name`, errors);
+  requireOneOf(value["reason"], ["runtime_support_venv_not_model_weights", "runtime_generated_output_not_model_weights"], `${pathName}/reason`, errors);
+  requireNumber(value["file_count"], `${pathName}/file_count`, errors);
+  requireNumber(value["total_bytes"], `${pathName}/total_bytes`, errors);
 }
 
 function validateReadinessConsistency(value: Record<string, unknown>, errors: string[]): void {
-  const approvedModelIds = new Set(stringArray(value.approved_model_ids));
-  const models = Array.isArray(value.models) ? value.models.filter(isRecord) : [];
+  const approvedModelIds = new Set(stringArray(value["approved_model_ids"]));
+  const models = Array.isArray(value["models"]) ? value["models"].filter(isRecord) : [];
   const readyApprovedModels = models.filter((model) =>
-    model.ready === true
-    && model.approved === true
-    && typeof model.model_id === "string"
-    && approvedModelIds.has(model.model_id)
-    && Array.isArray(model.blockers)
-    && model.blockers.length === 0
-    && model.has_evidence === true,
+    model["ready"] === true
+    && model["approved"] === true
+    && typeof model["model_id"] === "string"
+    && approvedModelIds.has(model["model_id"])
+    && Array.isArray(model["blockers"])
+    && model["blockers"].length === 0
+    && model["has_evidence"] === true,
   );
 
-  if (value.ready === true && readyApprovedModels.length === 0) {
+  if (value["ready"] === true && readyApprovedModels.length === 0) {
     errors.push("/ready cannot be true without at least one ready approved model");
   }
   for (const [index, model] of models.entries()) {
-    if (model.ready === true && Array.isArray(model.blockers) && model.blockers.length > 0) {
+    if (model["ready"] === true && Array.isArray(model["blockers"]) && model["blockers"].length > 0) {
       errors.push(`/models/${index}/ready cannot be true when blockers are present`);
     }
-    if (model.ready === true && model.has_evidence !== true) {
+    if (model["ready"] === true && model["has_evidence"] !== true) {
       errors.push(`/models/${index}/ready cannot be true without weight evidence`);
     }
   }

@@ -22,7 +22,7 @@ export type CommandProbe = {
   status: "available" | "missing";
   path?: string;
   version?: string;
-  error?: string;
+  error?: string | undefined;
 };
 
 type CommandSpec = {
@@ -56,10 +56,10 @@ export type LocalRuntimeProbeReport = {
   nodePackages: NodePackageProbe[];
   adb: {
     devices: string;
-    reverseList?: string;
+    reverseList?: string | undefined;
     power?: {
       wakefulness: string | null;
-    };
+    } | undefined;
   };
   gates: {
     questUsb: GateStatus;
@@ -300,7 +300,7 @@ export function buildLocalRuntimeProbeReport(input: {
   adbDevices: string;
   adbReverse: string;
   adbPower: string;
-  apiBunWebSocketRuntimeSmoke?: ApiBunWebSocketRuntimeSmokeEvidence;
+  apiBunWebSocketRuntimeSmoke?: ApiBunWebSocketRuntimeSmokeEvidence | undefined;
 }): LocalRuntimeProbeReport {
   const hasCommand = (command: string) => input.commands.some((probe) => probe.command === command
     && probe.status === "available"

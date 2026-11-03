@@ -164,17 +164,19 @@ export async function runLocalVoiceLiveDialogBenchmarkCli(args: string[]): Promi
   }
   const modelCacheEvidencePath = options.modelCacheEvidencePath ?? await latestModelCacheEvidencePath();
 
+  const modelCacheEvidence = modelCacheEvidencePath
+    ? await readJson<LocalRealtimeVoiceModelCacheEvidenceReport>(modelCacheEvidencePath)
+    : undefined;
+
   const report = await buildLocalVoiceLiveDialogBenchmarkReport({
     runtimeBenchmarkFile: runtimeReportPath,
     runtimeBenchmark: await readJson<LocalVoiceRuntimeBenchmarkReport>(runtimeReportPath),
-    modelCacheEvidenceFile: modelCacheEvidencePath,
-    modelCacheEvidence: modelCacheEvidencePath
-      ? await readJson<LocalRealtimeVoiceModelCacheEvidenceReport>(modelCacheEvidencePath)
-      : undefined,
-    webxrPlaybackObserved: options.webxrPlaybackObserved,
-    realLocalVoiceStreamObserved: options.realLocalVoiceStreamObserved,
-    firstAudiblePlaybackLatencyMs: options.firstAudiblePlaybackLatencyMs,
-    transcriptRoundTripObserved: options.transcriptRoundTripObserved,
+    ...(modelCacheEvidencePath === undefined ? {} : { modelCacheEvidenceFile: modelCacheEvidencePath }),
+    ...(modelCacheEvidence === undefined ? {} : { modelCacheEvidence }),
+    ...(options.webxrPlaybackObserved === undefined ? {} : { webxrPlaybackObserved: options.webxrPlaybackObserved }),
+    ...(options.realLocalVoiceStreamObserved === undefined ? {} : { realLocalVoiceStreamObserved: options.realLocalVoiceStreamObserved }),
+    ...(options.firstAudiblePlaybackLatencyMs === undefined ? {} : { firstAudiblePlaybackLatencyMs: options.firstAudiblePlaybackLatencyMs }),
+    ...(options.transcriptRoundTripObserved === undefined ? {} : { transcriptRoundTripObserved: options.transcriptRoundTripObserved }),
   });
 
   if (options.outputPath) {
@@ -279,7 +281,7 @@ export async function buildLocalVoiceLiveDialogBenchmarkReport(input: {
   const runtimeFit = inspectRuntimeFit(input.runtimeBenchmark);
   const runtimeStream = inspectRuntimeStream({
     realLocalVoiceStreamObserved: input.realLocalVoiceStreamObserved ?? false,
-    firstAudiblePlaybackLatencyMs: input.firstAudiblePlaybackLatencyMs,
+    ...(input.firstAudiblePlaybackLatencyMs === undefined ? {} : { firstAudiblePlaybackLatencyMs: input.firstAudiblePlaybackLatencyMs }),
     transcriptRoundTripObserved: input.transcriptRoundTripObserved ?? false,
   });
   const webxrPlayback = inspectWebxrPlayback(input.webxrPlaybackObserved ?? false);
@@ -308,7 +310,7 @@ export async function buildLocalVoiceLiveDialogBenchmarkReport(input: {
     input: {
       runtimeBenchmarkFile: input.runtimeBenchmarkFile,
       runtimeGeneratedAt: input.runtimeBenchmark.generatedAt,
-      modelId: stringValue(input.runtimeBenchmark.runtime.modelId),
+      modelId: stringValue(input.runtimeBenchmark.runtime["modelId"]),
       runtimeStatus: input.runtimeBenchmark.status,
     },
     mockStream,
@@ -336,37 +338,37 @@ export function validateLocalVoiceLiveDialogBenchmarkReport(value: unknown): Val
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireOneOf(value.status, ["passed", "blocked"], "/status", errors);
-  requireRecord(value.policy, "/policy", errors);
-  if (isRecord(value.policy)) {
-    requireBoolean(value.policy.cloudApisUsed, "/policy/cloudApisUsed", errors);
-    requireBoolean(value.policy.paidApisUsed, "/policy/paidApisUsed", errors);
-    requireLiteral(value.policy.voiceRuntimeExecutionAllowed, false, "/policy/voiceRuntimeExecutionAllowed", errors);
-    requireLiteral(value.policy.productionUseAllowed, false, "/policy/productionUseAllowed", errors);
-    requireBoolean(value.policy.generatedAudioCommitted, "/policy/generatedAudioCommitted", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireOneOf(value["status"], ["passed", "blocked"], "/status", errors);
+  requireRecord(value["policy"], "/policy", errors);
+  if (isRecord(value["policy"])) {
+    requireBoolean(value["policy"]["cloudApisUsed"], "/policy/cloudApisUsed", errors);
+    requireBoolean(value["policy"]["paidApisUsed"], "/policy/paidApisUsed", errors);
+    requireLiteral(value["policy"]["voiceRuntimeExecutionAllowed"], false, "/policy/voiceRuntimeExecutionAllowed", errors);
+    requireLiteral(value["policy"]["productionUseAllowed"], false, "/policy/productionUseAllowed", errors);
+    requireBoolean(value["policy"]["generatedAudioCommitted"], "/policy/generatedAudioCommitted", errors);
   }
-  requireRecord(value.input, "/input", errors);
-  if (isRecord(value.input)) {
-    requireString(value.input.runtimeBenchmarkFile, "/input/runtimeBenchmarkFile", errors);
-    requireString(value.input.runtimeGeneratedAt, "/input/runtimeGeneratedAt", errors);
-    requireNullableString(value.input.modelId, "/input/modelId", errors);
-    requireString(value.input.runtimeStatus, "/input/runtimeStatus", errors);
+  requireRecord(value["input"], "/input", errors);
+  if (isRecord(value["input"])) {
+    requireString(value["input"]["runtimeBenchmarkFile"], "/input/runtimeBenchmarkFile", errors);
+    requireString(value["input"]["runtimeGeneratedAt"], "/input/runtimeGeneratedAt", errors);
+    requireNullableString(value["input"]["modelId"], "/input/modelId", errors);
+    requireString(value["input"]["runtimeStatus"], "/input/runtimeStatus", errors);
   }
-  validateMockStream(value.mockStream, errors);
-  validateRuntimeFit(value.runtimeFit, errors);
-  validateRuntimeStream(value.runtimeStream, errors);
-  validateWebxrPlayback(value.webxrPlayback, errors);
-  if (value.modelCache !== undefined) {
-    validateModelCache(value.modelCache, errors);
+  validateMockStream(value["mockStream"], errors);
+  validateRuntimeFit(value["runtimeFit"], errors);
+  validateRuntimeStream(value["runtimeStream"], errors);
+  validateWebxrPlayback(value["webxrPlayback"], errors);
+  if (value["modelCache"] !== undefined) {
+    validateModelCache(value["modelCache"], errors);
   }
-  validateSafetyControls(value.safetyControls, errors);
-  requireRecord(value.verdict, "/verdict", errors);
-  if (isRecord(value.verdict)) {
-    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
-    requireLiteral(value.verdict.readyForLiveDialog, false, "/verdict/readyForLiveDialog", errors);
-    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
-    requireStringArray(value.verdict.caveats, "/verdict/caveats", errors);
+  validateSafetyControls(value["safetyControls"], errors);
+  requireRecord(value["verdict"], "/verdict", errors);
+  if (isRecord(value["verdict"])) {
+    requireBoolean(value["verdict"]["passed"], "/verdict/passed", errors);
+    requireLiteral(value["verdict"]["readyForLiveDialog"], false, "/verdict/readyForLiveDialog", errors);
+    requireStringArray(value["verdict"]["blockers"], "/verdict/blockers", errors);
+    requireStringArray(value["verdict"]["caveats"], "/verdict/caveats", errors);
   }
   validateLiveDialogConsistency(value, errors);
 
@@ -379,15 +381,15 @@ function validateMockStream(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireLiteral(value.provider, "deterministic-mock-voice-gateway", "/mockStream/provider", errors);
-  requireNumber(value.transcriptEvents, "/mockStream/transcriptEvents", errors);
-  requireNumber(value.audioChunks, "/mockStream/audioChunks", errors);
-  requireNullableNumber(value.firstAudiblePlaybackLatencyMs, "/mockStream/firstAudiblePlaybackLatencyMs", errors);
-  requireBoolean(value.realPlaybackLatencyObserved, "/mockStream/realPlaybackLatencyObserved", errors);
-  requireOneOf(value.latencyEvidenceSource, ["synthetic_mock", "not_available"], "/mockStream/latencyEvidenceSource", errors);
-  requireBoolean(value.visemeCuesPresent, "/mockStream/visemeCuesPresent", errors);
-  requireBoolean(value.passed, "/mockStream/passed", errors);
-  requireStringArray(value.blockers, "/mockStream/blockers", errors);
+  requireLiteral(value["provider"], "deterministic-mock-voice-gateway", "/mockStream/provider", errors);
+  requireNumber(value["transcriptEvents"], "/mockStream/transcriptEvents", errors);
+  requireNumber(value["audioChunks"], "/mockStream/audioChunks", errors);
+  requireNullableNumber(value["firstAudiblePlaybackLatencyMs"], "/mockStream/firstAudiblePlaybackLatencyMs", errors);
+  requireBoolean(value["realPlaybackLatencyObserved"], "/mockStream/realPlaybackLatencyObserved", errors);
+  requireOneOf(value["latencyEvidenceSource"], ["synthetic_mock", "not_available"], "/mockStream/latencyEvidenceSource", errors);
+  requireBoolean(value["visemeCuesPresent"], "/mockStream/visemeCuesPresent", errors);
+  requireBoolean(value["passed"], "/mockStream/passed", errors);
+  requireStringArray(value["blockers"], "/mockStream/blockers", errors);
 }
 
 function validateRuntimeFit(value: unknown, errors: string[]): void {
@@ -396,10 +398,10 @@ function validateRuntimeFit(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.fileGenerationOnly, "/runtimeFit/fileGenerationOnly", errors);
-  requireNullableNumber(value.realTimeFactor, "/runtimeFit/realTimeFactor", errors);
-  requireBoolean(value.realTimeCapable, "/runtimeFit/realTimeCapable", errors);
-  requireStringArray(value.blockers, "/runtimeFit/blockers", errors);
+  requireBoolean(value["fileGenerationOnly"], "/runtimeFit/fileGenerationOnly", errors);
+  requireNullableNumber(value["realTimeFactor"], "/runtimeFit/realTimeFactor", errors);
+  requireBoolean(value["realTimeCapable"], "/runtimeFit/realTimeCapable", errors);
+  requireStringArray(value["blockers"], "/runtimeFit/blockers", errors);
 }
 
 function validateRuntimeStream(value: unknown, errors: string[]): void {
@@ -408,11 +410,11 @@ function validateRuntimeStream(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.realLocalVoiceStreamObserved, "/runtimeStream/realLocalVoiceStreamObserved", errors);
-  requireOneOf(value.evidenceSource, ["not_captured", "local_voice_runtime_stream"], "/runtimeStream/evidenceSource", errors);
-  requireNullableNumber(value.firstAudiblePlaybackLatencyMs, "/runtimeStream/firstAudiblePlaybackLatencyMs", errors);
-  requireBoolean(value.transcriptRoundTripObserved, "/runtimeStream/transcriptRoundTripObserved", errors);
-  requireStringArray(value.blockers, "/runtimeStream/blockers", errors);
+  requireBoolean(value["realLocalVoiceStreamObserved"], "/runtimeStream/realLocalVoiceStreamObserved", errors);
+  requireOneOf(value["evidenceSource"], ["not_captured", "local_voice_runtime_stream"], "/runtimeStream/evidenceSource", errors);
+  requireNullableNumber(value["firstAudiblePlaybackLatencyMs"], "/runtimeStream/firstAudiblePlaybackLatencyMs", errors);
+  requireBoolean(value["transcriptRoundTripObserved"], "/runtimeStream/transcriptRoundTripObserved", errors);
+  requireStringArray(value["blockers"], "/runtimeStream/blockers", errors);
 }
 
 function validateWebxrPlayback(value: unknown, errors: string[]): void {
@@ -421,9 +423,9 @@ function validateWebxrPlayback(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.observed, "/webxrPlayback/observed", errors);
-  requireOneOf(value.evidenceSource, ["not_captured", "operator_or_cdp_capture"], "/webxrPlayback/evidenceSource", errors);
-  requireStringArray(value.blockers, "/webxrPlayback/blockers", errors);
+  requireBoolean(value["observed"], "/webxrPlayback/observed", errors);
+  requireOneOf(value["evidenceSource"], ["not_captured", "operator_or_cdp_capture"], "/webxrPlayback/evidenceSource", errors);
+  requireStringArray(value["blockers"], "/webxrPlayback/blockers", errors);
 }
 
 function validateModelCache(value: unknown, errors: string[]): void {
@@ -432,17 +434,17 @@ function validateModelCache(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireNullableString(value.evidenceFile, "/modelCache/evidenceFile", errors);
-  requireNullableString(value.generatedAt, "/modelCache/generatedAt", errors);
-  requireNullableString(value.kind, "/modelCache/kind", errors);
-  requireNullableString(value.claimScope, "/modelCache/claimScope", errors);
-  requireNullableString(value.cacheDir, "/modelCache/cacheDir", errors);
-  requireStringArray(value.approvedModelIds, "/modelCache/approvedModelIds", errors);
-  requireBoolean(value.cacheExists, "/modelCache/cacheExists", errors);
-  requireBoolean(value.ready, "/modelCache/ready", errors);
-  requireStringArray(value.readyModelIds, "/modelCache/readyModelIds", errors);
-  requireBoolean(value.supportRuntimeObserved, "/modelCache/supportRuntimeObserved", errors);
-  requireStringArray(value.blockers, "/modelCache/blockers", errors);
+  requireNullableString(value["evidenceFile"], "/modelCache/evidenceFile", errors);
+  requireNullableString(value["generatedAt"], "/modelCache/generatedAt", errors);
+  requireNullableString(value["kind"], "/modelCache/kind", errors);
+  requireNullableString(value["claimScope"], "/modelCache/claimScope", errors);
+  requireNullableString(value["cacheDir"], "/modelCache/cacheDir", errors);
+  requireStringArray(value["approvedModelIds"], "/modelCache/approvedModelIds", errors);
+  requireBoolean(value["cacheExists"], "/modelCache/cacheExists", errors);
+  requireBoolean(value["ready"], "/modelCache/ready", errors);
+  requireStringArray(value["readyModelIds"], "/modelCache/readyModelIds", errors);
+  requireBoolean(value["supportRuntimeObserved"], "/modelCache/supportRuntimeObserved", errors);
+  requireStringArray(value["blockers"], "/modelCache/blockers", errors);
 }
 
 function validateSafetyControls(value: unknown, errors: string[]): void {
@@ -451,21 +453,21 @@ function validateSafetyControls(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireBoolean(value.disclosureRequired, "/safetyControls/disclosureRequired", errors);
-  requireBoolean(value.generatedAudioCommitted, "/safetyControls/generatedAudioCommitted", errors);
-  requireBoolean(value.misuseControlsRequired, "/safetyControls/misuseControlsRequired", errors);
-  requireBoolean(value.retentionPolicyObserved, "/safetyControls/retentionPolicyObserved", errors);
-  requireStringArray(value.blockers, "/safetyControls/blockers", errors);
+  requireBoolean(value["disclosureRequired"], "/safetyControls/disclosureRequired", errors);
+  requireBoolean(value["generatedAudioCommitted"], "/safetyControls/generatedAudioCommitted", errors);
+  requireBoolean(value["misuseControlsRequired"], "/safetyControls/misuseControlsRequired", errors);
+  requireBoolean(value["retentionPolicyObserved"], "/safetyControls/retentionPolicyObserved", errors);
+  requireStringArray(value["blockers"], "/safetyControls/blockers", errors);
 }
 
 function validateLiveDialogConsistency(value: Record<string, unknown>, errors: string[]): void {
-  if (!isRecord(value.verdict)) {
+  if (!isRecord(value["verdict"])) {
     return;
   }
 
   const expectedBlockers = expectedLiveDialogBlockers(value);
-  if (Array.isArray(value.verdict.blockers)) {
-    const verdictBlockers = new Set(value.verdict.blockers);
+  if (Array.isArray(value["verdict"]["blockers"])) {
+    const verdictBlockers = new Set(value["verdict"]["blockers"]);
     for (const blocker of expectedBlockers) {
       if (!verdictBlockers.has(blocker)) {
         errors.push(`/verdict/blockers must include ${blocker}`);
@@ -473,27 +475,27 @@ function validateLiveDialogConsistency(value: Record<string, unknown>, errors: s
     }
   }
 
-  const verdictPassed = value.verdict.passed;
-  if (typeof verdictPassed === "boolean" && Array.isArray(value.verdict.blockers) && verdictPassed !== (value.verdict.blockers.length === 0)) {
+  const verdictPassed = value["verdict"]["passed"];
+  if (typeof verdictPassed === "boolean" && Array.isArray(value["verdict"]["blockers"]) && verdictPassed !== (value["verdict"]["blockers"].length === 0)) {
     errors.push("/verdict/passed must match whether verdict blockers are empty");
   }
 }
 
 function expectedLiveDialogBlockers(value: Record<string, unknown>): string[] {
-  const mockStream = isRecord(value.mockStream) ? value.mockStream : {};
-  const runtimeStream = isRecord(value.runtimeStream) ? value.runtimeStream : {};
-  const runtimeFit = isRecord(value.runtimeFit) ? value.runtimeFit : {};
-  const webxrPlayback = isRecord(value.webxrPlayback) ? value.webxrPlayback : {};
-  const modelCache = isRecord(value.modelCache) ? value.modelCache : {};
-  const safetyControls = isRecord(value.safetyControls) ? value.safetyControls : {};
+  const mockStream = isRecord(value["mockStream"]) ? value["mockStream"] : {};
+  const runtimeStream = isRecord(value["runtimeStream"]) ? value["runtimeStream"] : {};
+  const runtimeFit = isRecord(value["runtimeFit"]) ? value["runtimeFit"] : {};
+  const webxrPlayback = isRecord(value["webxrPlayback"]) ? value["webxrPlayback"] : {};
+  const modelCache = isRecord(value["modelCache"]) ? value["modelCache"] : {};
+  const safetyControls = isRecord(value["safetyControls"]) ? value["safetyControls"] : {};
 
   return [
-    ...stringArray(mockStream.blockers).map((blocker) => `mock_stream:${blocker}`),
-    ...stringArray(runtimeStream.blockers).map((blocker) => `runtime_stream:${blocker}`),
-    ...stringArray(runtimeFit.blockers).map((blocker) => `runtime:${blocker}`),
-    ...stringArray(webxrPlayback.blockers).map((blocker) => `webxr_playback:${blocker}`),
-    ...stringArray(modelCache.blockers).map((blocker) => `model_cache:${blocker}`),
-    ...stringArray(safetyControls.blockers).map((blocker) => `safety_controls:${blocker}`),
+    ...stringArray(mockStream["blockers"]).map((blocker) => `mock_stream:${blocker}`),
+    ...stringArray(runtimeStream["blockers"]).map((blocker) => `runtime_stream:${blocker}`),
+    ...stringArray(runtimeFit["blockers"]).map((blocker) => `runtime:${blocker}`),
+    ...stringArray(webxrPlayback["blockers"]).map((blocker) => `webxr_playback:${blocker}`),
+    ...stringArray(modelCache["blockers"]).map((blocker) => `model_cache:${blocker}`),
+    ...stringArray(safetyControls["blockers"]).map((blocker) => `safety_controls:${blocker}`),
   ];
 }
 
@@ -598,7 +600,7 @@ async function runMockStreamProbe(): Promise<LocalVoiceLiveDialogBenchmarkReport
 function inspectRuntimeFit(report: LocalVoiceRuntimeBenchmarkReport): LocalVoiceLiveDialogBenchmarkReport["runtimeFit"] {
   const caveats = report.verdict.caveats.map((caveat) => caveat.toLowerCase());
   const fileGenerationOnly = caveats.some((caveat) => caveat.includes("file-based") || caveat.includes("file generation"));
-  const realTimeFactor = numberMetric(report.metrics.realTimeFactor);
+  const realTimeFactor = numberMetric(report.metrics["realTimeFactor"]);
   const realTimeCapable = realTimeFactor !== null && realTimeFactor <= 1;
   const blockers = [
     fileGenerationOnly ? "runtime_file_generation_only" : undefined,
