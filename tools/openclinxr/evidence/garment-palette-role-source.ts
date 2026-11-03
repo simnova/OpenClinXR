@@ -1,8 +1,15 @@
 /**
  * #180a / #184 — garment colour is f(role, kind, fabricPalette), not kind alone.
  *
- * Reads exported glTF baseColorFactor (never Python source or provenance-only claims).
- * Enumerates co-present actor pairs from the real casting API.
+ * Reads the EFFECTIVE garment colour from the exported glTF (never Python
+ * source or provenance-only claims): factor x per-channel baseColorTexture
+ * mean when a decodable texture is present, otherwise the bare factor — the
+ * shared tools/openclinxr/evidence/lib/effective-garment-colour.ts reader,
+ * the same one a-declared-fabric-palette-reaches-the-shipped-garment uses.
+ * Fleet convention since HB-02 (22ec335a5) folded every factor into its
+ * texture, so a bare factor reads white on textured garments and would pin
+ * the lock where the render no longer is. Enumerates co-present actor pairs
+ * from the real casting API.
  *
  * claimScope: material identity + role-aware colour source for co-present actors.
  * notEvidenceFor: clinical costume realism, gown↔scrub encounter-distance legibility
@@ -18,12 +25,15 @@ import {
   listShippedCastScenarioIds,
   resolveScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+import { effectiveBaseColorFactor } from "./lib/effective-garment-colour.js";
 import { isFittedGarmentMeshName } from "./lib/garment-mesh-class.js";
 
 export type GarmentMaterial = {
   materialName: string;
   garmentKind: string;
   layerIndex: number;
+  /** EFFECTIVE shipped colour (factor x texture mean; bare factor when
+   * untextured) — what the renderer multiplies, not the bare factor. */
   baseColorFactor: [number, number, number];
 };
 
@@ -90,12 +100,14 @@ function colorsEqual(
   b: [number, number, number] | null,
 ): boolean {
   if (!a || !b) return false;
-  return a.every((v, i) => Math.abs(v - b[i]!) < COLOR_EPS);
+  return a.every((v, i) => Math.abs(v - (b[i] ?? 0)) < COLOR_EPS);
 }
 
 function primaryOf(mats: GarmentMaterial[]): GarmentMaterial | null {
   if (mats.length === 0) return null;
-  return mats.reduce((best, m) => (m.layerIndex >= best.layerIndex ? m : best), mats[0]!);
+  const first = mats[0];
+  if (!first) return null;
+  return mats.reduce((best, m) => (m.layerIndex >= best.layerIndex ? m : best), first);
 }
 
 async function readGarmentMaterials(glbAbs: string): Promise<GarmentMaterial[]> {
@@ -110,14 +122,19 @@ async function readGarmentMaterials(glbAbs: string): Promise<GarmentMaterial[]> 
     // shells stay excluded (they carry no role colour).
     if (!isFittedGarmentMeshName(materialName) || DECLARED.test(materialName)) continue;
     const c = mat.getBaseColorFactor();
+    const img = mat.getBaseColorTexture()?.getImage() ?? null;
+    // st-palette R2: the shipped colour is the EFFECTIVE colour (the HB-02
+    // fold moved every factor into its texture). Same shared reader the
+    // declared-fabric contract uses — never a second implementation.
+    const eff = effectiveBaseColorFactor(c, img);
     out.push({
       materialName,
       garmentKind: kindFromMaterialName(materialName),
       layerIndex: layerFromMaterialName(materialName),
       baseColorFactor: [
-        Number(Number(c[0]).toFixed(4)),
-        Number(Number(c[1]).toFixed(4)),
-        Number(Number(c[2]).toFixed(4)),
+        Number(eff[0].toFixed(4)),
+        Number(eff[1].toFixed(4)),
+        Number(eff[2].toFixed(4)),
       ],
     });
   }
@@ -130,6 +147,9 @@ async function readDeclaredFabricPalette(assetPath: string): Promise<string | nu
   const candidates = [
     path.join(GEN, `${base}_rigging_report.json`),
     path.join(GEN, `${base}.anny_manifest.json`),
+    // st-palette: MPFB-bake provenance is the canonical palette record for rebaked
+    // bodies (caseInputs.declaredFabricPalette); the rail sidecars above do not exist there.
+    path.join(GEN, `${base}.provenance.json`),
   ];
   for (const p of candidates) {
     if (!existsSync(p)) continue;
@@ -144,6 +164,11 @@ async function readDeclaredFabricPalette(assetPath: string): Promise<string | nu
         const rec = o as Record<string, unknown>;
         if (typeof rec.fabricPalette === "string" && rec.fabricPalette.length > 0) {
           return rec.fabricPalette;
+        }
+        // st-palette: MPFB provenance records the case declaration under this key.
+        const declared = rec["declaredFabricPalette"];
+        if (typeof declared === "string" && declared.length > 0) {
+          return declared;
         }
         for (const v of Object.values(rec)) {
           const found = walk(v, depth + 1);
@@ -196,7 +221,8 @@ export async function inspectGarmentPaletteRoleSource(): Promise<GarmentPaletteR
   inFlight = (async () => {
     const materialCache = new Map<string, GarmentMaterial[]>();
     const readMats = async (assetPath: string): Promise<GarmentMaterial[]> => {
-      if (materialCache.has(assetPath)) return materialCache.get(assetPath)!;
+      const hit = materialCache.get(assetPath);
+      if (hit !== undefined) return hit;
       const mats = await readGarmentMaterials(absFromRepo(assetPath));
       materialCache.set(assetPath, mats);
       return mats;
@@ -228,8 +254,9 @@ export async function inspectGarmentPaletteRoleSource(): Promise<GarmentPaletteR
 
       for (let i = 0; i < cast.length; i++) {
         for (let j = i + 1; j < cast.length; j++) {
-          const a = cast[i]!;
-          const b = cast[j]!;
+          const a = cast[i];
+          const b = cast[j];
+          if (!a || !b) continue;
           const matsA = await readMats(a.assetPath);
           const matsB = await readMats(b.assetPath);
           const primA = primaryOf(matsA);

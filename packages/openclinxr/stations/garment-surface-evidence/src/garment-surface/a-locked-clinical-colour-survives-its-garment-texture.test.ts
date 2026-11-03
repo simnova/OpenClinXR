@@ -1,8 +1,8 @@
-import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { existsSync, readFileSync } from "node:fs";
-import { inflateSync } from "node:zlib";
 import { join } from "node:path";
+import { inflateSync } from "node:zlib";
 import { NodeIO } from "@gltf-transform/core";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 import { makeclothesGarmentSlug } from "../../../../../../tools/openclinxr/evidence/lib/garment-mesh-class.js";
 
@@ -139,9 +139,25 @@ import { makeclothesGarmentSlug } from "../../../../../../tools/openclinxr/evide
 
 const REPO_ROOT = repoRoot();
 /** Overridable so a destructive probe can point the same logic at a doctored asset. */
-const ASSET =
-  process.env["OPENCLINXR_COLOUR_PROBE_GLB"] ??
-  join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb");
+const PROBE_GLB = process.env["OPENCLINXR_COLOUR_PROBE_GLB"];
+// st-palette round 2: the same assertions run as one row per shipped clinical
+// asset — kevin (the planted subject) plus the rebaked adult nurse. A probe run
+// points at a single doctored file instead. Clause (3)'s untextured-pants
+// control lives on kevin: the adult nurse ships both scrub garments textured
+// under the HB-02 fold, so only rows that declare a control run clause (3).
+// Kevin's assertions and bounds are byte-identical to the planted file.
+const ASSETS: readonly { path: string; control: boolean }[] = PROBE_GLB
+  ? [{ path: PROBE_GLB, control: true }]
+  : [
+      {
+        path: join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb"),
+        control: true,
+      },
+      {
+        path: join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb"),
+        control: false,
+      },
+    ];
 
 /** The locked scrub colour the materializer applies to clinical roles. */
 const CLINICAL_RGB = [0.05, 0.48, 0.52] as const;
@@ -227,9 +243,9 @@ function textureStats(bytes: Uint8Array): { mean: number; sd: number; r: number;
 /** Luminance as the mean channel — the same averaging the texture sampler uses. */
 const luminance = (rgb: readonly number[]): number => (rgb[0]! + rgb[1]! + rgb[2]!) / 3;
 
-async function readGarments(): Promise<Garment[]> {
-  if (!existsSync(ASSET)) throw new Error("missing artifact");
-  const doc = await new NodeIO().readBinary(readFileSync(ASSET));
+async function readGarments(assetPath: string): Promise<Garment[]> {
+  if (!existsSync(assetPath)) throw new Error("missing artifact");
+  const doc = await new NodeIO().readBinary(readFileSync(assetPath));
   const out: Garment[] = [];
   for (const m of doc.getRoot().listMaterials()) {
     const name = m.getName();
@@ -256,36 +272,62 @@ async function readGarments(): Promise<Garment[]> {
   return out;
 }
 
-const garments = await readGarments();
-const locked = garments.filter((g) => g.locked);
-/** #550: wardrobe retarget — sweater/cargo_pants gone; scrub_shirt + scrub_pants ship. */
-const scrubShirt = garments.find((g) => makeclothesGarmentSlug(g.name) === "scrub_shirt");
-const scrubPants = garments.find((g) => makeclothesGarmentSlug(g.name) === "scrub_pants");
+type Subject = {
+  asset: string;
+  /** Only rows that declare an untextured control run clause (3). Kevin
+   * declares it; the adult nurse ships both scrubs textured under the
+   * HB-02 fold, so its row runs clauses (1)+(2). */
+  control: boolean;
+  garments: Garment[];
+  locked: Garment[];
+  scrubShirt: Garment | undefined;
+  scrubPants: Garment | undefined;
+};
+
+const subjects: Subject[] = [];
+for (const asset of ASSETS) {
+  const garments = await readGarments(asset.path);
+  subjects.push({
+    asset: asset.path,
+    control: asset.control,
+    garments,
+    locked: garments.filter((g) => g.locked),
+    /** #550: wardrobe retarget — sweater/cargo_pants gone; scrub_shirt + scrub_pants ship. */
+    scrubShirt: garments.find((g) => makeclothesGarmentSlug(g.name) === "scrub_shirt"),
+    scrubPants: garments.find((g) => makeclothesGarmentSlug(g.name) === "scrub_pants"),
+  });
+}
 
 /**
  * An empty enumeration must FAIL, never pass vacuously (SS7t). Plain `it` on purpose: an `it.fails`
  * cannot guard its own vacuity — it is satisfied by ANY failure, including this guard throwing.
  */
-function requireMeasured(): void {
-  expect(existsSync(ASSET), `${ASSET} exists`).toBe(true);
-  expect(garments.length, `MakeClothes garment materials found in ${ASSET}`).toBeGreaterThanOrEqual(2);
+function requireMeasured(s: Subject): void {
+  const { asset, garments, scrubShirt, scrubPants } = s;
+  expect(existsSync(asset), `${asset} exists`).toBe(true);
+  expect(garments.length, `MakeClothes garment materials found in ${asset}`).toBeGreaterThanOrEqual(2);
   // Presence BY NAME, not by lock state. A destructive probe that darkened the pants first tripped a
   // `locked.length >= 2` guard here, so the contract went red for the right reason with the WRONG
   // diagnostic — "only 1 locked garment found" reads as a broken enumeration, not as "you rewrote the
   // control". Each clause now owns the lock assertion for its own subject.
-  expect(scrubShirt, `the scrub_shirt material is present in ${ASSET}`).toBeDefined();
-  expect(scrubPants, `the scrub_pants material is present in ${ASSET}`).toBeDefined();
+  expect(scrubShirt, `the scrub_shirt material is present in ${asset}`).toBeDefined();
+  expect(scrubPants, `the scrub_pants material is present in ${asset}`).toBeDefined();
 }
 
 describe("a locked clinical colour survives its garment texture", () => {
+  // st-palette round 2: one row per shipped clinical asset under the same
+  // assertions — kevin (planted subject) plus the rebaked adult nurse.
+  for (const s of subjects) {
+    const tag = s.asset.split("/").pop() ?? s.asset;
+    describe(`asset ${tag}`, () => {
   it("(1) RED: every clinical-coloured garment renders at its locked brightness", () => {
-    requireMeasured();
+    requireMeasured(s);
     // Unlocking the scrub shirt would empty `locked` and make this clause vacuous. Pin it.
     expect(
-      scrubShirt!.locked,
-      `${scrubShirt!.name} must still carry the locked clinical colour [${CLINICAL_RGB.join(", ")}] — unlocking it would empty this clause rather than satisfy it`,
+      s.scrubShirt!.locked,
+      `${s.scrubShirt!.name} must still carry the locked clinical colour [${CLINICAL_RGB.join(", ")}] — unlocking it would empty this clause rather than satisfy it`,
     ).toBe(true);
-    const dim = locked
+    const dim = s.locked
       .filter((g) => g.effectiveBrightness < MIN_EFFECTIVE_BRIGHTNESS)
       .map(
         (g) =>
@@ -306,8 +348,8 @@ describe("a locked clinical colour survives its garment texture", () => {
     // the factor — is: the texture is PRESENT, carries authored variation (sd > 0; a synthetic
     // flat fill measures exactly 0), and the locked colour still renders at its brightness
     // (texMean >= MIN_EFFECTIVE_BRIGHTNESS, the (1) RED floor).
-    requireMeasured();
-    const texturedLocked = locked.filter((g) => g.hasTexture);
+    requireMeasured(s);
+    const texturedLocked = s.locked.filter((g) => g.hasTexture);
     expect(texturedLocked.length, "a textured locked garment exists (the scrub shirt weave)").toBeGreaterThanOrEqual(1);
     for (const g of texturedLocked) {
       expect(g.texSD, `${g.name} weave must not be a synthetic flat fill (sd > 0)`).toBeGreaterThan(0);
@@ -318,25 +360,32 @@ describe("a locked clinical colour survives its garment texture", () => {
     }
   });
 
+  // Clause (3) runs only on rows that declare the untextured control
+  // (kevin). The nurse row runs clauses (1)+(2): both its scrubs ship
+  // textured under the HB-02 fold, so there is no untextured garment to pin.
+  if (s.control) {
   it("(3) COUNTERWEIGHT known-good: the untextured garment keeps its authored colour and full brightness", () => {
     // Refuses (c): "make them match" is reachable downward by darkening the pants. scrub_pants is the
     // surviving untextured known-good (#550 replacement for cargo_pants) and must not be moved to fit.
-    requireMeasured();
+    requireMeasured(s);
     expect(
-      scrubPants!.hasTexture,
-      `${scrubPants!.name} must stay untextured — it is the full-brightness known-good column`,
+      s.scrubPants!.hasTexture,
+      `${s.scrubPants!.name} must stay untextured — it is the full-brightness known-good column`,
     ).toBe(false);
     const drift = CLINICAL_RGB.map((c, i) =>
-      Math.abs((scrubPants!.factor[i] ?? -9) - c) < LOCK_TOLERANCE
+      Math.abs((s.scrubPants!.factor[i] ?? -9) - c) < LOCK_TOLERANCE
         ? null
-        : `channel ${i}: ${scrubPants!.factor[i]} vs authored ${c}`,
+        : `channel ${i}: ${s.scrubPants!.factor[i]} vs authored ${c}`,
     ).filter(Boolean);
-    expect(drift, `${scrubPants!.name} authored clinical factor rewritten`).toEqual([]);
+    expect(drift, `${s.scrubPants!.name} authored clinical factor rewritten`).toEqual([]);
     expect(
-      scrubPants!.effectiveBrightness,
-      `${scrubPants!.name} must stay at full brightness — darkening the working garment to match a broken one is not consistency`,
+      s.scrubPants!.effectiveBrightness,
+      `${s.scrubPants!.name} must stay at full brightness — darkening the working garment to match a broken one is not consistency`,
     ).toBeGreaterThanOrEqual(MIN_EFFECTIVE_BRIGHTNESS);
   });
+  }
+    });
+  }
 });
 
 /**
@@ -356,5 +405,24 @@ describe("a locked clinical colour survives its garment texture", () => {
  * keeps its header meaning ("nearer its own colour than to black") with the same numeric
  * bar. LOCK_TOLERANCE (0.02), the weave sd>0 discriminator, and clause (3)'s untextured
  * pants control (still flat teal, ratio 1.0) are untouched.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (st-palette round 2) — appended; the planted header above is immutable
+ *
+ * Round 1 attached the weave texture but kept the locked factor, so every textured
+ * garment rendered at colour^2 (nurse chest (120,177,181) -> (36,103,115) in the
+ * runtime light rig). No test caught it: this file read only kevin, whose bytes were
+ * already folded fleet-wide. Round 2 adds mpfb-clinical-nurse-adult.glb as a second
+ * asset row under the same three assertions (same bounds, same floors), and the weave
+ * stage now folds (factor -> [1,1,1,a]; effective = palette within 0.01). A destructive
+ * probe at the round-1 nurse bytes fails clause (1) at 48% brightness; current bytes
+ * pass clauses (1)+(2). Clause (3)'s untextured-pants control lives on kevin: the adult
+ * nurse ships both scrub garments textured under the fold (the base-colour contract
+ * requires a texture on every garment), so the nurse row runs clauses (1)+(2) only
+ * and clause (3) is registered for control-declaring rows (kevin) — a row red by
+ * design would red the push gate, so the design carries the scope instead.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */

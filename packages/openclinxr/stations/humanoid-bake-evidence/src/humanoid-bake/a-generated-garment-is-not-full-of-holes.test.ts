@@ -13,6 +13,10 @@ process.chdir(repoRoot());
  *
  *   rail       garment mesh                        loops  sizes                     tris
  *   LIBRARY    makeclothes_library_scrub_shirt         0  (watertight)              9384
+ *     (measured on mpfb-peds-nurse-kevin.glb, the cl.(4) watertight-library control.
+ *     The nurse wears the same library garment but st-palette R5 hem-finished it:
+ *     post-hem loops [20, 13], 9315 tris — a sanctioned hem cut, not micro-tears.
+ *     cl.(2) still requires no loop under 6 vertices on every row including the nurse.)
  *   LIBRARY    makeclothes_library_toigo_t_shirt       4  [36, 26, 12, 12]          2700
  *   LIBRARY    makeclothes_library_scrub_pants         3  [42, 19, 19]              2704
  *   GENERATED  real_garment_peds_upper (child)         6  [73, 46, 24, 22, 2, 2]    4054
@@ -175,8 +179,11 @@ describe("a generated garment is not full of holes", () => {
     // none. Zero loops on the child would mean the finder returns nothing (clause (1) green
     // about nothing); any loops on the scrub would mean it returns a single component for
     // everything.
+    // st-palette R5 hem-finished the nurse's scrub shirt (loops [20, 13]), so the
+    // watertight-library control moves to the same library garment on kevin (0 loops,
+    // 9384 tris, never hem-finished). Assertion unchanged.
     const child = await garmentTopology("peds_fever_patient_child.glb", /real_garment_peds_upper/u);
-    const scrub = await garmentTopology("mpfb-clinical-nurse-adult.glb", /scrub_shirt/u);
+    const scrub = await garmentTopology("mpfb-peds-nurse-kevin.glb", /scrub_shirt/u);
     expect(
       child.loops.length,
       "the child garment carries four legitimate boundaries (neck, hem, two cuffs); zero here "
