@@ -5,9 +5,10 @@
  "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
  "runtimeRole": "inspection_fixture",
  "runtimeRoleWhy": "Inspection subject for viseme contracts. Never cast; the shipped-bank cast resolver does not name it.",
- "outputSha256": "9d56a25ccf0fe3a1998a08d5880258a20eefc40f44d9c28f47f0fde4ecf35bff",
- "outputBytes": 13933096,
+ "outputSha256": "4f02b7c2073275eaacd736f8a3bceae325f306caf4cbb17f288031599554971a",
+ "outputBytes": 13976324,
  "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
+ "hemFinishNote": "2026-11-03 st-hemfin D2 (hem-finish, garment-primitive splice, not rebake): apply-hem-finish-glb.py calls finish_garment_hem (packages/openclinxr/factory-stations/src/body_param/garment_ops.py) on makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh, then splice-garment.mjs copies only that garment primitive into the origin bytes, so all other meshes stay bitwise identical (total tris 69067 exact). Cause: #124 sawn hem (ratio 1.81, turn 180 deg). Result: ratio 0.80, turn 84.3 deg, hemY 0.977->0.938 (below paint top 1.008, bare-skin clause safe), animations preserved (2), no new holes. File 13933096 -> 13976324 B. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
  "fitTimeLower": {
   "garment": "punkduck_female_tight_jeans",
   "sourceObjFaces": 2108,

@@ -7428,7 +7428,7 @@ def main():
     if str(_stage_dir) not in _sys3.path:
         _sys3.path.insert(0, str(_stage_dir))
     from mesh_io import import_obj, apply_object_transforms, world_bounds  # noqa: E402
-    from garment_ops import transfer_weights_body_to_garment, fit_upper_hem_to_waistband  # noqa: E402
+    from garment_ops import transfer_weights_body_to_garment, fit_upper_hem_to_waistband, finish_garment_hem  # noqa: E402
 
     # #180: the palette function from the Anny rail, imported lazily the same way the
     # scalp-hair region is (above, :1606-1608). Consumed as-is — the locked gown/scrub
@@ -7552,6 +7552,14 @@ def main():
     # BEFORE the weight projection so the k-NN binds the shirt at its final height.
     neck_align = align_upper_garment_to_neck(garment, human, armature)
     _measure_shirt_stage("neckalign", garment, human)
+    # st-hemfin: reusable hem-finish stage — weld-first boundary detection,
+    # level hem loop(s) to loop minima + loop-Laplacian, shade smooth so the
+    # export merges indices. Post-fit (final geometry), pre-weights (weld
+    # preserves vert order/count except the closed-solid hem cut, so the k-NN
+    # binds the finished hem). Recorded in provenance as HEM_FINISH.
+    hem_finish = finish_garment_hem(garment)
+    print(f"HEM_FINISH upper {hem_finish}")
+    _measure_shirt_stage("hemfinish", garment, human)
     # Bind the garment to the same armature so it deforms with the body (the proven
     # weight projection body_param_stage runs for the hm08 rail; not a rigid shell).
     weights = transfer_weights_body_to_garment(human, garment, armature)
@@ -8082,6 +8090,9 @@ def main():
             _cv.co = tuple(float(_c) for _c in _coat_v_off[_ci])
         bpy.context.view_layer.update()
         coat.data.name = f"makeclothes_library_lab_coat_mpfb_{subject_id}_mesh"
+        # st-hemfin: same reusable hem-finish stage on the coat's open hem.
+        coat_hem = finish_garment_hem(coat)
+        print(f"HEM_FINISH coat {coat_hem}")
         coat_weights = transfer_weights_body_to_garment(human, coat, armature)
         print(
             f"COAT_FIT {coat.name} verts {coat_verts_before} -> {len(coat.data.vertices)} "

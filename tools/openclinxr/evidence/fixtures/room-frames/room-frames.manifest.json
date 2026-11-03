@@ -276,11 +276,11 @@
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-      "sha256": "ee45f65c0162208d9ca37f5a116c82d11d072def31b6429a6b32c74f040ee7cd"
+      "sha256": "f12e677eecbfbc0f0489a395d408f130ac7d9df1f41790c1214b694130614222"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.provenance.json",
-      "sha256": "96a4fd755b3ff25db252f27b2b9163cfd8340ea527ea768cd716afdc7eb31278"
+      "sha256": "204092652bbb02ed7b4ee966cf19b67c4f6e342dfd64c2532b19441a3e32dc04"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.skin-baked.png",
@@ -404,11 +404,11 @@
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
-      "sha256": "9d56a25ccf0fe3a1998a08d5880258a20eefc40f44d9c28f47f0fde4ecf35bff"
+      "sha256": "4f02b7c2073275eaacd736f8a3bceae325f306caf4cbb17f288031599554971a"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.provenance.json",
-      "sha256": "e88403295b8a391ab2458aa803052be9be84c2c5443a62a37e4318d2294f1f78"
+      "sha256": "b51bddbfb60b8cd3482c1cd36515e578696cb0186fb6c9eb52c71f49c2eb0679"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.skin-baked.png",
@@ -460,11 +460,11 @@
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child.glb",
-      "sha256": "25ae2cce631220370a852e4b8619904b07b39bc01ad45bd458c97aab1a598424"
+      "sha256": "cbdea26f319afa77252c371273911f7a99835d373de0d3e5fe7d3fb53140a7ef"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child.provenance.json",
-      "sha256": "cac2f95f2c2b041865b80073d6971ce2bd7e7832eb45b5cb6ba831f7a75db9d3"
+      "sha256": "fc4174a54cc299837c768eed9f1745f2068d901b2ec175485501b8d3aa21df22"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child_rigging_report.json",

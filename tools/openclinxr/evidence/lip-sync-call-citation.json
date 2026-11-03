@@ -4,7 +4,7 @@
   "loadTargets": {
     "symbol": "load_targets",
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 6318,
+    "line": 6319,
     "requiredFlags": {
       "load_microsoft_visemes": false,
       "load_meta_visemes": true,
@@ -20,7 +20,7 @@
   "configureLipSync": {
     "symbol": "configure_lip_sync",
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 6311
+    "line": 6312
   },
   "listSizes": {
     "MICROSOFT_VISEMES": 22,
