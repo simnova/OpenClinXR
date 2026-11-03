@@ -46,7 +46,7 @@
   {
    "body": "mpfb-family-partner-adult.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 9277296,
+   "bytesAfter": 9374964,
    "bytesBefore": 10409540,
    "chosenRungId": "raw",
    "faceAfter": 14945,
@@ -77,7 +77,7 @@
     "bake-humanoid-albedo.ts bakeGlbAlbedo"
    ],
    "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
-   "remeasureNote": "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-03 (st-hemfin D2): bytes-only drift, geometry counts identical (tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding commit e35ee741a (st-hemfin D2 hem-finish garment-primitive splice on the T-shirt, 9277296 -> 9374964 B). Prior re-measure (ci-w11 D1 orphan prune d1c44f8cd) preserved in git history."
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -237,7 +237,7 @@
   {
    "body": "mpfb-viseme-inspect.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 13933096,
+   "bytesAfter": 13976324,
    "bytesBefore": 17035784,
    "chosenRungId": "fp-r0.4",
    "faceAfter": 52778,
@@ -254,7 +254,7 @@
    "promotionNote": "2026-09-12 fp-r0.4 restore. Fit-time jeans 4216. Shipped jeans 1958. budgets.propShare 40000 unchanged.",
    "triangleCountAfter": 69067,
    "triangleCountBefore": 92430,
-   "remeasureNote": "Re-measured 2026-10-30: +280B metadata drift, geometry identical. Superseding commit 9f2934536 (2026-09-28 #741 teeth-retreat re-apply)."
+   "remeasureNote": "Re-measured 2026-11-03 (st-hemfin D2): bytes-only drift, geometry counts identical (tris 69067 / face 52778 / joints 137 all hold). Superseding commit e35ee741a (st-hemfin D2 hem-finish garment-primitive splice on the T-shirt, 13933096 -> 13976324 B)."
   }
  ],
  "budgets": {

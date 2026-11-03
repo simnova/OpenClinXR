@@ -201,7 +201,7 @@
    "triangleCountBefore": 92430,
    "triangleCountAfter": 69067,
    "bytesBefore": 17035784,
-   "bytesAfter": 13933096,
+   "bytesAfter": 13976324,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "faceBefore": 52778,
    "faceAfter": 52778,
@@ -282,7 +282,7 @@
    "lineageNote": "tightjeans fit output (57e27730); fp-r0.4 restore (d1d4b123) then bake-skip (factor already white)",
    "sweepNote": "fp-r0.4/fp-r0.3/fp-r0.15 entries were measured on the HB-02 input bytes (37d4460d); the fp-r0.4-jeans-lineage entry was measured on the current tightjeans lineage (57e27730) by rederive-evidence-drift-2026-09-14.ts. The promoted triangleCountAfter/bytesAfter above track the tightjeans lineage.",
    "falsifierStatus": "STALE PIN: re-running the recorded fp-r0.4 rung on the pinned HB-02 bytes (37d4460d) yields 68214/52778 and matches the fp-r0.4 sweep entry, but the promoted row tracks the tightjeans lineage (69067/13932816, rederivedFrom 57e27730). The rerun-vs-promoted-row comparison fails by construction until the pin is retargeted to the current lineage input. See rederive-evidence-drift-2026-09-14.ts, which re-runs the same recorded rung on 57e27730 and reproduces 69067/52778.",
-   "remeasureNote": "Re-measured 2026-10-30: +280B metadata drift, geometry identical. Superseding commit 9f2934536 (2026-09-28 #741 teeth-retreat re-apply)."
+   "remeasureNote": "Re-measured 2026-11-03 (st-hemfin D2): bytes-only drift, geometry counts identical (tris 69067 / face 52778 / joints 137 all hold). Superseding commit e35ee741a (st-hemfin D2 hem-finish garment-primitive splice on the T-shirt, 13933096 -> 13976324 B)."
   }
  ],
  "exceptions": [

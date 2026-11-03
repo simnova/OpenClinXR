@@ -68,13 +68,23 @@ def commit_oneline(sha):
 PLAN = {
     # --- HB-03 rows (bytes only; tris/face/hand/joints asserted unchanged) ---
     "mpfb-family-partner-adult.glb": {
-        "bytesAfter": 9277296,
+        "bytesAfter": 9374964,
         "triangleCountAfter": 39974,
         "handBodyMeshAfter": 13357,
-        "note": ("Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
-                 "(tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding "
-                 "commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior "
-                 "re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."),
+        "note": ("Re-measured 2026-11-03 (st-hemfin D2): bytes-only drift, geometry counts "
+                 "identical (tris 39974 / face 14945 / hand 13357 / joints 137 all hold). "
+                 "Superseding commit e35ee741a (st-hemfin D2 hem-finish garment-primitive splice on the "
+                 "T-shirt, 9277296 -> 9374964 B). Prior re-measure (ci-w11 D1 orphan prune "
+                 "d1c44f8cd) preserved in git history."),
+    },
+    "mpfb-viseme-inspect.glb": {
+        "bytesAfter": 13976324,
+        "triangleCountAfter": 69067,
+        "faceAfter": 52778,
+        "note": ("Re-measured 2026-11-03 (st-hemfin D2): bytes-only drift, geometry counts "
+                 "identical (tris 69067 / face 52778 / joints 137 all hold). Superseding commit "
+                 "e35ee741a (st-hemfin D2 hem-finish garment-primitive splice on the T-shirt, 13933096 -> "
+                 "13976324 B)."),
     },
     "mpfb-gown-adult-patient.glb": {
         "bytesAfter": 6763692,
