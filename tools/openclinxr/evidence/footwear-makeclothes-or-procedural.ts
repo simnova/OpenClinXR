@@ -19,7 +19,7 @@ import { NodeIO, type Mesh } from "@gltf-transform/core";
 import { withComputeSlotSync } from "@openclinxr/compute-slots/slots";
 import { resolveGarmentLicense } from "../asset-pipeline/makeclothes/fit-cli.js";
 import { packSlugFromPath } from "../asset-pipeline/makeclothes/makehuman-catalogue.js";
-import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.ts";
+import { mainWorktreeRoot } from "./provider-cache/main-worktree-root.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
@@ -126,11 +126,20 @@ function indexComponents(mesh: Mesh): number {
     const parent = new Int32Array(n);
     for (let i = 0; i < n; i++) parent[i] = i;
     const find = (a: number): number => {
-      while (parent[a] !== a) {
-        parent[a] = parent[parent[a]];
-        a = parent[a];
+      let root = a;
+      for (;;) {
+        const current = parent[root];
+        if (current === undefined) {
+          throw new Error(`footwear-makeclothes-or-procedural: union-find parent missing for index ${root}`);
+        }
+        if (current === root) return root;
+        const grandparent = parent[current];
+        if (grandparent === undefined) {
+          throw new Error(`footwear-makeclothes-or-procedural: union-find parent missing for index ${current}`);
+        }
+        parent[root] = grandparent;
+        root = grandparent;
       }
-      return a;
     };
     const unite = (a: number, b: number) => {
       a = find(a);
@@ -194,11 +203,20 @@ function positionMergedComponents(meshes: Mesh[]): number {
   const parent = new Int32Array(n);
   for (let i = 0; i < n; i++) parent[i] = i;
   const find = (a: number): number => {
-    while (parent[a] !== a) {
-      parent[a] = parent[parent[a]];
-      a = parent[a];
+    let root = a;
+    for (;;) {
+      const current = parent[root];
+      if (current === undefined) {
+        throw new Error(`footwear-makeclothes-or-procedural: union-find parent missing for index ${root}`);
+      }
+      if (current === root) return root;
+      const grandparent = parent[current];
+      if (grandparent === undefined) {
+        throw new Error(`footwear-makeclothes-or-procedural: union-find parent missing for index ${current}`);
+      }
+      parent[root] = grandparent;
+      root = grandparent;
     }
-    return a;
   };
   const unite = (a: number, b: number) => {
     a = find(a);
@@ -381,7 +399,7 @@ export function examineShoeCandidates(repoRoot: string = REPO_ROOT): ShoeCandida
 
 function resolveBlender(): string {
   const candidates = [
-    process.env.BLENDER_BIN,
+    process.env["BLENDER_BIN"],
     "blender",
     "/opt/homebrew/bin/blender",
     "/Applications/Blender.app/Contents/MacOS/Blender",

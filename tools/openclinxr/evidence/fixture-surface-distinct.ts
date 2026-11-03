@@ -12,11 +12,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  Box3,
-  Vector3,
-  type Object3D,
-} from "../../../apps/ui-xr/node_modules/three/build/three.module.js";
 import { ENVIRONMENT_SHELL_DESCRIPTORS } from "../../../packages/openclinxr/asset-registry/src/environment-descriptors.js";
 import { buildStationEnvironment } from "@openclinxr/xr-station";
 import {
@@ -65,7 +60,7 @@ type ArtifactPayload = {
   notEvidenceFor: string[];
   report: FixtureSurfaceDistinctReport;
   /** Ambient failure class for calibration — mechanism, not only counts. */
-  ambientFailureClass?: string;
+  ambientFailureClass?: string | undefined;
 };
 
 let cachedReport: FixtureSurfaceDistinctReport | null = null;
@@ -78,11 +73,23 @@ function preFixPath(): string {
   return absEvidence(ISSUE_207_EVIDENCE_DIR, PRE_FIX_NAME);
 }
 
-function countMeshStats(root: Object3D): { meshNames: string[]; triangleCount: number } {
+/**
+ * three@0.184 ships no bundled types and @types/three is not visible from the
+ * station sidecar programs that include this file, so three itself cannot be
+ * imported here (TS7016) and its value constructors are unavailable. The node
+ * type below is extracted from the already-imported,
+ * fully-typed @openclinxr/xr-station API instead — the runtime objects are
+ * unchanged, only the import is gone.
+ */
+type StationShell = ReturnType<typeof buildStationEnvironment>;
+type ShellNode = Parameters<Parameters<StationShell["traverse"]>[0]>[0];
+type Xyz = { x: number; y: number; z: number };
+
+function countMeshStats(root: ShellNode): { meshNames: string[]; triangleCount: number } {
   const meshNames: string[] = [];
   let triangleCount = 0;
   root.traverse((obj) => {
-    const mesh = obj as Object3D & {
+    const mesh = obj as ShellNode & {
       isMesh?: boolean;
       geometry?: {
         index?: { count: number } | null;
@@ -103,11 +110,92 @@ function countMeshStats(root: Object3D): { meshNames: string[]; triangleCount: n
   return { meshNames, triangleCount };
 }
 
-function worldSize(root: Object3D): { x: number; y: number; z: number } {
-  const box = new Box3().setFromObject(root);
-  const size = new Vector3();
-  box.getSize(size);
-  return { x: size.x, y: size.y, z: size.z };
+function worldSize(root: ShellNode): Xyz {
+  // Same result as new Box3().setFromObject(root).getSize(size), without the
+  // three value import: per-node world matrices and geometry boxes come from
+  // the real three objects (same updateWorldMatrix / computeBoundingBox code
+  // paths three itself uses, including the non-precise branch of
+  // Box3.expandByObject — the precise=true path was never used here). Only
+  // the 8-corner projection below is local math, op-for-op identical to
+  // Vector3.applyMatrix4, so the accumulated box matches three bit-for-bit.
+  let minX = Infinity;
+  let minY = Infinity;
+  let minZ = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  let maxZ = -Infinity;
+  let empty = true;
+
+  const expandCorners = (boxMin: Xyz, boxMax: Xyz, elements: readonly number[]): void => {
+    // An empty box stays empty (Box3.applyMatrix4): projecting its
+    // +/-Infinity corners through a matrix can yield NaN, which would poison
+    // the accumulation.
+    if (boxMax.x < boxMin.x || boxMax.y < boxMin.y || boxMax.z < boxMin.z) return;
+    const [e0, e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13, e14, e15] = elements;
+    if (
+      e0 === undefined || e1 === undefined || e2 === undefined || e3 === undefined
+      || e4 === undefined || e5 === undefined || e6 === undefined || e7 === undefined
+      || e8 === undefined || e9 === undefined || e10 === undefined || e11 === undefined
+      || e12 === undefined || e13 === undefined || e14 === undefined || e15 === undefined
+    ) {
+      throw new Error("fixture-surface-distinct: matrixWorld.elements is not a 16-entry matrix");
+    }
+    const corners: ReadonlyArray<readonly [number, number, number]> = [
+      [boxMin.x, boxMin.y, boxMin.z],
+      [boxMin.x, boxMin.y, boxMax.z],
+      [boxMin.x, boxMax.y, boxMin.z],
+      [boxMin.x, boxMax.y, boxMax.z],
+      [boxMax.x, boxMin.y, boxMin.z],
+      [boxMax.x, boxMin.y, boxMax.z],
+      [boxMax.x, boxMax.y, boxMin.z],
+      [boxMax.x, boxMax.y, boxMax.z],
+    ];
+    for (const [cx, cy, cz] of corners) {
+      const w = 1 / (e3 * cx + e7 * cy + e11 * cz + e15);
+      const x = (e0 * cx + e4 * cy + e8 * cz + e12) * w;
+      const y = (e1 * cx + e5 * cy + e9 * cz + e13) * w;
+      const z = (e2 * cx + e6 * cy + e10 * cz + e14) * w;
+      if (x < minX) minX = x;
+      if (y < minY) minY = y;
+      if (z < minZ) minZ = z;
+      if (x > maxX) maxX = x;
+      if (y > maxY) maxY = y;
+      if (z > maxZ) maxZ = z;
+    }
+    empty = false;
+  };
+
+  const expandByObject = (object: ShellNode): void => {
+    object.updateWorldMatrix(false, false);
+    const node = object as ShellNode & {
+      boundingBox?: { min: Xyz; max: Xyz } | null;
+      computeBoundingBox: () => void;
+      geometry?: {
+        boundingBox: { min: Xyz; max: Xyz } | null;
+        computeBoundingBox: () => void;
+      };
+    };
+    const geometry = node.geometry;
+    if (geometry !== undefined) {
+      let sourceBox: { min: Xyz; max: Xyz } | null;
+      if (node.boundingBox !== undefined) {
+        if (node.boundingBox === null) node.computeBoundingBox();
+        sourceBox = node.boundingBox;
+      } else {
+        if (geometry.boundingBox === null) geometry.computeBoundingBox();
+        sourceBox = geometry.boundingBox;
+      }
+      if (sourceBox !== null) {
+        expandCorners(sourceBox.min, sourceBox.max, object.matrixWorld.elements);
+      }
+    }
+    for (const child of object.children) expandByObject(child);
+  };
+
+  expandByObject(root);
+  // Box3.getSize returns zeros for an empty box.
+  if (empty) return { x: 0, y: 0, z: 0 };
+  return { x: maxX - minX, y: maxY - minY, z: maxZ - minZ };
 }
 
 function surfaceSignature(row: Omit<SurfaceRow, "signature" | "environmentId" | "position" | "fixtureKind">): string {
@@ -122,11 +210,11 @@ function surfaceSignature(row: Omit<SurfaceRow, "signature" | "environmentId" | 
  * Find the first root Group for a fixture slot id under a built shell.
  * Roots carry fixtureSlotId and name `openclinxr.station-environment.fixture-slot.<id>`.
  */
-function findFixtureRoot(shell: Object3D, slotId: string): Object3D | null {
-  let found: Object3D | null = null;
+function findFixtureRoot(shell: StationShell, slotId: string): ShellNode | null {
+  let found: ShellNode | null = null;
   shell.traverse((obj) => {
     if (found) return;
-    if (obj.userData?.fixtureSlotId === slotId && String(obj.name ?? "").includes("fixture-slot")) {
+    if (obj.userData?.["fixtureSlotId"] === slotId && String(obj.name ?? "").includes("fixture-slot")) {
       found = obj;
     }
   });
@@ -179,7 +267,7 @@ export function measureFixtureSurfaceDistinct(): FixtureSurfaceDistinctReport {
         signature: surfaceSignature(base),
         environmentId,
         position: { x: root.position.x, y: root.position.y, z: root.position.z },
-        fixtureKind: String(root.userData?.openClinXrFixtureKind ?? ""),
+        fixtureKind: String(root.userData?.["openClinXrFixtureKind"] ?? ""),
       });
     }
     if (bySlot.size >= SURFACE_SLOT_IDS.length) break;
@@ -223,7 +311,7 @@ export async function inspectFixtureSurfaceDistinct(input?: {
   if (!input?.force && !input?.writePreFix && cachedReport) return cachedReport;
 
   if (!input?.force && !input?.writePreFix) {
-    if (process.env.OPENCLINXR_FIXTURE_SURFACE_USE_DISK === "1") {
+    if (process.env["OPENCLINXR_FIXTURE_SURFACE_USE_DISK"] === "1") {
       const fromDisk = await tryReadArtifact(preFixPath());
       if (fromDisk) {
         cachedReport = fromDisk;
@@ -250,7 +338,7 @@ export async function inspectFixtureSurfaceDistinct(input?: {
 
 async function tryReadArtifact(filePath: string): Promise<FixtureSurfaceDistinctReport | null> {
   return tryReadStampedArtifact(filePath, (parsed) => {
-    const report = (parsed.report ?? parsed) as FixtureSurfaceDistinctReport | undefined;
+    const report = (parsed["report"] ?? parsed) as FixtureSurfaceDistinctReport | undefined;
     if (report?.surfaces && Array.isArray(report.surfaces) && report.surfaces.length > 0) {
       return report;
     }

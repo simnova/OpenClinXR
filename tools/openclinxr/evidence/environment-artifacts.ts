@@ -138,10 +138,10 @@ export async function buildEnvironmentArtifactsReport(options?: {
   ];
   const layout = await readOptionalJson<Record<string, unknown>>(artifactPaths.layoutManifest);
   const placements = await readOptionalJson<Record<string, unknown>>(artifactPaths.equipmentPlacementManifest);
-  const zones = Array.isArray(layout?.spatialZones) ? layout.spatialZones : [];
-  const equipment = Array.isArray(placements?.equipmentPlacements) ? placements.equipmentPlacements : [];
+  const zones = Array.isArray(layout?.["spatialZones"]) ? layout["spatialZones"] : [];
+  const equipment = Array.isArray(placements?.["equipmentPlacements"]) ? placements["equipmentPlacements"] : [];
   const anchors = zones.flatMap((spatialZone) =>
-    isRecord(spatialZone) && Array.isArray(spatialZone.interactionAnchors) ? spatialZone.interactionAnchors : []);
+    isRecord(spatialZone) && Array.isArray(spatialZone["interactionAnchors"]) ? spatialZone["interactionAnchors"] : []);
   const realismCueCount = equipment.length + anchors.length;
 
   return {
@@ -224,13 +224,13 @@ export function buildEnvironmentRuntimeAssetReference(
 export function validateEnvironmentArtifactsReport(report: unknown): { ok: boolean; errors: string[] } {
   const errors: string[] = [];
   if (!isRecord(report)) return { ok: false, errors: ["/ must be an object"] };
-  if (report.schemaVersion !== ENVIRONMENT_ARTIFACTS_SCHEMA_VERSION) {
+  if (report["schemaVersion"] !== ENVIRONMENT_ARTIFACTS_SCHEMA_VERSION) {
     errors.push(`/schemaVersion must be ${ENVIRONMENT_ARTIFACTS_SCHEMA_VERSION}`);
   }
-  if (report.kind !== ENVIRONMENT_ARTIFACTS_KIND) {
+  if (report["kind"] !== ENVIRONMENT_ARTIFACTS_KIND) {
     errors.push(`/kind must be ${ENVIRONMENT_ARTIFACTS_KIND}`);
   }
-  const policy = isRecord(report.policy) ? report.policy : {};
+  const policy = isRecord(report["policy"]) ? report["policy"] : {};
   for (const key of [
     "installsIntroduced",
     "cloudApisUsed",
@@ -242,16 +242,16 @@ export function validateEnvironmentArtifactsReport(report: unknown): { ok: boole
   ] as const) {
     if (policy[key] !== false) errors.push(`/policy/${key} must be false`);
   }
-  const output = isRecord(report.output) ? report.output : {};
-  if (!isPositiveInteger(output.edExamBayShellGlbBytes)) errors.push("/output/edExamBayShellGlbBytes must be a positive integer");
-  if (!isPositiveInteger(output.spatialZoneCount)) errors.push("/output/spatialZoneCount must be a positive integer");
-  if (!isPositiveInteger(output.equipmentPlacementCount)) errors.push("/output/equipmentPlacementCount must be a positive integer");
-  if (!isPositiveInteger(output.interactionAnchorCount)) errors.push("/output/interactionAnchorCount must be a positive integer");
-  if (!isPositiveInteger(output.environmentRealismCueCount)) errors.push("/output/environmentRealismCueCount must be a positive integer");
-  const verdict = isRecord(report.verdict) ? report.verdict : {};
-  const blockers = asStringArray(verdict.blockers);
-  if (verdict.passed !== (blockers.length === 0)) errors.push("/verdict/passed must match blocker count");
-  if (verdict.readyForProductionEnvironment !== false) errors.push("/verdict/readyForProductionEnvironment must be false");
+  const output = isRecord(report["output"]) ? report["output"] : {};
+  if (!isPositiveInteger(output["edExamBayShellGlbBytes"])) errors.push("/output/edExamBayShellGlbBytes must be a positive integer");
+  if (!isPositiveInteger(output["spatialZoneCount"])) errors.push("/output/spatialZoneCount must be a positive integer");
+  if (!isPositiveInteger(output["equipmentPlacementCount"])) errors.push("/output/equipmentPlacementCount must be a positive integer");
+  if (!isPositiveInteger(output["interactionAnchorCount"])) errors.push("/output/interactionAnchorCount must be a positive integer");
+  if (!isPositiveInteger(output["environmentRealismCueCount"])) errors.push("/output/environmentRealismCueCount must be a positive integer");
+  const verdict = isRecord(report["verdict"]) ? report["verdict"] : {};
+  const blockers = asStringArray(verdict["blockers"]);
+  if (verdict["passed"] !== (blockers.length === 0)) errors.push("/verdict/passed must match blocker count");
+  if (verdict["readyForProductionEnvironment"] !== false) errors.push("/verdict/readyForProductionEnvironment must be false");
   return { ok: errors.length === 0, errors };
 }
 
@@ -285,7 +285,7 @@ async function validateReportFile(reportPath: string | undefined): Promise<void>
   const validation = validateEnvironmentArtifactsReport(report);
   const errors = [...validation.errors];
   if (isRecord(report)) {
-    const artifacts = isRecord(report.artifacts) ? report.artifacts : {};
+    const artifacts = isRecord(report["artifacts"]) ? report["artifacts"] : {};
     for (const key of ["edExamBayShellGlbPath", "layoutManifestPath", "equipmentPlacementManifestPath", "questBudgetPath"] as const) {
       const artifactPath = artifacts[key];
       if (typeof artifactPath !== "string" || !existsSync(path.resolve(artifactPath))) {

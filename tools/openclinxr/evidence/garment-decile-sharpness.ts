@@ -13,6 +13,13 @@ const REPO = join(import.meta.dirname, "../../..");
 const DIR = join(REPO, "apps/ui-xr/public/generated-humanoids");
 const BLENDER = join(REPO, "tools/openclinxr/asset-pipeline/anny/automate_blender.py");
 
+/** Indexed read that names the missing value instead of propagating undefined. */
+function atIndex<T>(values: ArrayLike<T>, index: number, what: string): T {
+  const value = values[index];
+  if (value === undefined) throw new Error(`garment-decile-sharpness: missing ${what} at index ${index}`);
+  return value;
+}
+
 /**
  * The gather's depth is the visible property. Shipped value on 2026-08-28 is 0.034 m; the floor is
  * 88% of it, so trimming is allowed and flattening is not.
@@ -64,23 +71,33 @@ async function measure(): Promise<Row[]> {
         if (!subject.material.test(prim.getMaterial()?.getName() ?? "")) continue;
         const indices = prim.getIndices();
         if (!indices) continue;
-        const pos = prim.getAttribute("POSITION")!.getArray() as Float32Array;
+        const posAttr = prim.getAttribute("POSITION");
+        if (!posAttr) throw new Error(`garment ${subject.file} primitive is missing the POSITION attribute`);
+        const pos = posAttr.getArray() as Float32Array;
         const idx = indices.getArray() as Uint16Array | Uint32Array;
         const triangles = idx.length / 3;
         // Weld by position so an index split at a material or UV seam is not read as a boundary.
         const welded = new Int32Array(pos.length / 3);
         const seen = new Map<string, number>();
         for (let v = 0; v < pos.length / 3; v += 1) {
-          const key = `${pos[v * 3].toFixed(5)},${pos[v * 3 + 1].toFixed(5)},${pos[v * 3 + 2].toFixed(5)}`;
+          const key = `${atIndex(pos, v * 3, "position x").toFixed(5)},${atIndex(pos, v * 3 + 1, "position y").toFixed(5)},${atIndex(pos, v * 3 + 2, "position z").toFixed(5)}`;
           let id = seen.get(key);
           if (id === undefined) { id = seen.size; seen.set(key, id); }
           welded[v] = id;
         }
         const normals: [number, number, number][] = [];
         for (let t = 0; t < triangles; t += 1) {
-          const a = idx[t * 3], b = idx[t * 3 + 1], c = idx[t * 3 + 2];
-          const e1 = [pos[b * 3] - pos[a * 3], pos[b * 3 + 1] - pos[a * 3 + 1], pos[b * 3 + 2] - pos[a * 3 + 2]];
-          const e2 = [pos[c * 3] - pos[a * 3], pos[c * 3 + 1] - pos[a * 3 + 1], pos[c * 3 + 2] - pos[a * 3 + 2]];
+          const a = atIndex(idx, t * 3, "corner a"), b = atIndex(idx, t * 3 + 1, "corner b"), c = atIndex(idx, t * 3 + 2, "corner c");
+          const e1: [number, number, number] = [
+            atIndex(pos, b * 3, "b x") - atIndex(pos, a * 3, "a x"),
+            atIndex(pos, b * 3 + 1, "b y") - atIndex(pos, a * 3 + 1, "a y"),
+            atIndex(pos, b * 3 + 2, "b z") - atIndex(pos, a * 3 + 2, "a z"),
+          ];
+          const e2: [number, number, number] = [
+            atIndex(pos, c * 3, "c x") - atIndex(pos, a * 3, "a x"),
+            atIndex(pos, c * 3 + 1, "c y") - atIndex(pos, a * 3 + 1, "a y"),
+            atIndex(pos, c * 3 + 2, "c z") - atIndex(pos, a * 3 + 2, "a z"),
+          ];
           const n: [number, number, number] = [
             e1[1] * e2[2] - e1[2] * e2[1],
             e1[2] * e2[0] - e1[0] * e2[2],
@@ -91,9 +108,13 @@ async function measure(): Promise<Row[]> {
         }
         const edges = new Map<string, number[]>();
         for (let t = 0; t < triangles; t += 1) {
-          const tri = [welded[idx[t * 3]], welded[idx[t * 3 + 1]], welded[idx[t * 3 + 2]]];
+          const tri = [
+            atIndex(welded, atIndex(idx, t * 3, "corner"), "weld"),
+            atIndex(welded, atIndex(idx, t * 3 + 1, "corner"), "weld"),
+            atIndex(welded, atIndex(idx, t * 3 + 2, "corner"), "weld"),
+          ];
           for (let e = 0; e < 3; e += 1) {
-            const u = tri[e], w = tri[(e + 1) % 3];
+            const u = atIndex(tri, e, "edge u"), w = atIndex(tri, (e + 1) % 3, "edge w");
             const key = u < w ? `${u}_${w}` : `${w}_${u}`;
             const bucket = edges.get(key);
             if (bucket) bucket.push(t); else edges.set(key, [t]);
@@ -104,8 +125,9 @@ async function measure(): Promise<Row[]> {
         for (const [, ts] of edges) {
           if (ts.length !== 2) continue;
           interior += 1;
-          const [t0, t1] = ts;
-          const dot = normals[t0][0] * normals[t1][0] + normals[t0][1] * normals[t1][1] + normals[t0][2] * normals[t1][2];
+          const t0 = atIndex(ts, 0, "triangle"), t1 = atIndex(ts, 1, "triangle");
+          const n0 = atIndex(normals, t0, "normal"), n1 = atIndex(normals, t1, "normal");
+          const dot = n0[0] * n1[0] + n0[1] * n1[1] + n0[2] * n1[2];
           const deg = (Math.acos(Math.max(-1, Math.min(1, dot))) * 180) / Math.PI;
           if (deg > SHARP_DEGREES) sharp += 1;
         }
@@ -139,15 +161,21 @@ async function measureDeciles(): Promise<DecileRow[]> {
         if (!subject.material.test(prim.getMaterial()?.getName() ?? "")) continue;
         const indices = prim.getIndices();
         if (!indices) continue;
-        const pos = prim.getAttribute("POSITION")!.getArray() as Float32Array;
+        const posAttr = prim.getAttribute("POSITION");
+        if (!posAttr) throw new Error(`garment ${subject.file} primitive is missing the POSITION attribute`);
+        const pos = posAttr.getArray() as Float32Array;
         const idx = indices.getArray() as Uint16Array | Uint32Array;
         const triangles = idx.length / 3;
         let lo = Infinity, hi = -Infinity;
-        for (let i = 1; i < pos.length; i += 3) { if (pos[i] < lo) lo = pos[i]; if (pos[i] > hi) hi = pos[i]; }
+        for (let i = 1; i < pos.length; i += 3) {
+          const y = atIndex(pos, i, "position y");
+          if (y < lo) lo = y;
+          if (y > hi) hi = y;
+        }
         const welded = new Int32Array(pos.length / 3);
         const seen = new Map<string, number>();
         for (let v = 0; v < pos.length / 3; v += 1) {
-          const key = `${pos[v * 3].toFixed(5)},${pos[v * 3 + 1].toFixed(5)},${pos[v * 3 + 2].toFixed(5)}`;
+          const key = `${atIndex(pos, v * 3, "position x").toFixed(5)},${atIndex(pos, v * 3 + 1, "position y").toFixed(5)},${atIndex(pos, v * 3 + 2, "position z").toFixed(5)}`;
           let id = seen.get(key);
           if (id === undefined) { id = seen.size; seen.set(key, id); }
           welded[v] = id;
@@ -155,9 +183,17 @@ async function measureDeciles(): Promise<DecileRow[]> {
         const normals: [number, number, number][] = [];
         const triY: number[] = [];
         for (let t = 0; t < triangles; t += 1) {
-          const a = idx[t * 3], b = idx[t * 3 + 1], c = idx[t * 3 + 2];
-          const e1 = [pos[b * 3] - pos[a * 3], pos[b * 3 + 1] - pos[a * 3 + 1], pos[b * 3 + 2] - pos[a * 3 + 2]];
-          const e2 = [pos[c * 3] - pos[a * 3], pos[c * 3 + 1] - pos[a * 3 + 1], pos[c * 3 + 2] - pos[a * 3 + 2]];
+          const a = atIndex(idx, t * 3, "corner a"), b = atIndex(idx, t * 3 + 1, "corner b"), c = atIndex(idx, t * 3 + 2, "corner c");
+          const e1: [number, number, number] = [
+            atIndex(pos, b * 3, "b x") - atIndex(pos, a * 3, "a x"),
+            atIndex(pos, b * 3 + 1, "b y") - atIndex(pos, a * 3 + 1, "a y"),
+            atIndex(pos, b * 3 + 2, "b z") - atIndex(pos, a * 3 + 2, "a z"),
+          ];
+          const e2: [number, number, number] = [
+            atIndex(pos, c * 3, "c x") - atIndex(pos, a * 3, "a x"),
+            atIndex(pos, c * 3 + 1, "c y") - atIndex(pos, a * 3 + 1, "a y"),
+            atIndex(pos, c * 3 + 2, "c z") - atIndex(pos, a * 3 + 2, "a z"),
+          ];
           const n: [number, number, number] = [
             e1[1] * e2[2] - e1[2] * e2[1],
             e1[2] * e2[0] - e1[0] * e2[2],
@@ -165,13 +201,17 @@ async function measureDeciles(): Promise<DecileRow[]> {
           ];
           const len = Math.hypot(n[0], n[1], n[2]) || 1e-12;
           normals.push([n[0] / len, n[1] / len, n[2] / len]);
-          triY.push((pos[a * 3 + 1] + pos[b * 3 + 1] + pos[c * 3 + 1]) / 3);
+          triY.push((atIndex(pos, a * 3 + 1, "a y") + atIndex(pos, b * 3 + 1, "b y") + atIndex(pos, c * 3 + 1, "c y")) / 3);
         }
         const edges = new Map<string, number[]>();
         for (let t = 0; t < triangles; t += 1) {
-          const tri = [welded[idx[t * 3]], welded[idx[t * 3 + 1]], welded[idx[t * 3 + 2]]];
+          const tri = [
+            atIndex(welded, atIndex(idx, t * 3, "corner"), "weld"),
+            atIndex(welded, atIndex(idx, t * 3 + 1, "corner"), "weld"),
+            atIndex(welded, atIndex(idx, t * 3 + 2, "corner"), "weld"),
+          ];
           for (let e = 0; e < 3; e += 1) {
-            const u = tri[e], w = tri[(e + 1) % 3];
+            const u = atIndex(tri, e, "edge u"), w = atIndex(tri, (e + 1) % 3, "edge w");
             const key = u < w ? `${u}_${w}` : `${w}_${u}`;
             const bucket = edges.get(key);
             if (bucket) bucket.push(t); else edges.set(key, [t]);
@@ -180,12 +220,13 @@ async function measureDeciles(): Promise<DecileRow[]> {
         const bins = Array.from({ length: 10 }, () => ({ interior: 0, sharp: 0 }));
         for (const [, ts] of edges) {
           if (ts.length !== 2) continue;
-          const [t0, t1] = ts;
-          const y = (triY[t0] + triY[t1]) / 2;
+          const t0 = atIndex(ts, 0, "triangle"), t1 = atIndex(ts, 1, "triangle");
+          const y = (atIndex(triY, t0, "tri y") + atIndex(triY, t1, "tri y")) / 2;
           const b = Math.min(9, Math.max(0, Math.floor(((y - lo) / (hi - lo)) * 10)));
-          bins[b].interior += 1;
-          const dot = normals[t0][0] * normals[t1][0] + normals[t0][1] * normals[t1][1] + normals[t0][2] * normals[t1][2];
-          if ((Math.acos(Math.max(-1, Math.min(1, dot))) * 180) / Math.PI > SHARP_DEGREES) bins[b].sharp += 1;
+          atIndex(bins, b, "decile bin").interior += 1;
+          const n0 = atIndex(normals, t0, "normal"), n1 = atIndex(normals, t1, "normal");
+          const dot = n0[0] * n1[0] + n0[1] * n1[1] + n0[2] * n1[2];
+          if ((Math.acos(Math.max(-1, Math.min(1, dot))) * 180) / Math.PI > SHARP_DEGREES) atIndex(bins, b, "decile bin").sharp += 1;
         }
         out.push({
           label: subject.label,
@@ -201,4 +242,11 @@ async function measureDeciles(): Promise<DecileRow[]> {
 
 export const SKIRT_DECILES_DEFAULT = [1, 2, 3];
 export { measure, measureDeciles, SUBJECTS, SHARP_DEGREES, DIR, REPO, BLENDER };
+export {
+  MIN_FOLD_AMPLITUDE_M,
+  COMPARATOR_CEILING_FRACTION,
+  ORIGIN,
+  SKIRT_DECILES,
+  COMPARATOR_SKIRT_CEILING,
+};
 export type { Row, DecileRow };

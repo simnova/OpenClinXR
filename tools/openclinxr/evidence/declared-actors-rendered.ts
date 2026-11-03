@@ -26,6 +26,7 @@
  * claimScope: declared humanoid cast vs live scene presence + non-dummy skin.
  * notEvidenceFor: wardrobe quality, posture, clinical realism, Quest readiness.
  */
+/// <reference path="./browser-dom.d.ts" />
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -133,15 +134,15 @@ export function declaredHumanoidActorIds(scenarioId: string): string[] {
  * Measures once across the full shipped cast bank (shared across vitest cases).
  */
 export async function inspectDeclaredActorsRendered(input?: {
-  baseUrl?: string;
+  baseUrl?: string | undefined;
   force?: boolean;
   label?: string;
-  scenarioIds?: string[];
+  scenarioIds?: string[] | undefined;
   /** When true, write/overwrite pre-fix.json (must be done BEFORE product edits). */
   writePreFix?: boolean;
   /** Capture a lit PNG of psych_suicidal_ideation_safety_v1 after measure. */
   capturePsychPng?: boolean;
-  psychPngPath?: string;
+  psychPngPath?: string | undefined;
 }): Promise<DeclaredActorsRenderedReport> {
   if (!input?.force && !input?.writePreFix && cachedReport) return cachedReport;
   if (!input?.force && !input?.writePreFix && measureInFlight) return measureInFlight;
@@ -216,10 +217,10 @@ export async function writeDeclaredActorsDump(
 }
 
 async function measureLiveDeclaredActors(input: {
-  baseUrl?: string;
-  scenarioIds?: string[];
-  capturePsychPng?: boolean;
-  psychPngPath?: string;
+  baseUrl?: string | undefined;
+  scenarioIds?: string[] | undefined;
+  capturePsychPng?: boolean | undefined;
+  psychPngPath?: string | undefined;
 }): Promise<DeclaredActorsRenderedReport> {
   const scenarios =
     input.scenarioIds && input.scenarioIds.length > 0

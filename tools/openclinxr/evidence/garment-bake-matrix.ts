@@ -173,8 +173,8 @@ export type GarmentBakeMatrixReport = {
   shippedCoefficients: {
     name: string;
     value: number;
-    producedHemY?: number;
-    producedSleeveExtent?: number;
+    producedHemY?: number | undefined;
+    producedSleeveExtent?: number | undefined;
   }[];
   variants: VariantRow[];
   sweeps: { param: string; values: number[] }[];
@@ -829,7 +829,7 @@ function bakeVariant(input: {
   /** #197: invalidate #195 cache so hem/sleeve changes re-bake. */
   force?: boolean;
   /** Default open_cardigan; #200 gown sweep uses hospital_gown. */
-  garmentLayers?: readonly string[];
+  garmentLayers?: readonly string[] | undefined;
 }): string {
   const glbPath = path.join(input.outDir, `${input.variantId}.glb`);
   if (

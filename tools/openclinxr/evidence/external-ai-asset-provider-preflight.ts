@@ -182,55 +182,55 @@ export function buildExternalAiAssetProviderPreflightReport(input: {
 export function validateExternalAiAssetProviderPreflightReport(value: unknown): ValidationResult {
   const errors: string[] = [];
   if (!isRecord(value)) return { ok: false, errors: ["/ must be object"] };
-  requireLiteral(value.schemaVersion, "openclinxr.external-ai-asset-provider-preflight.v1", "/schemaVersion", errors);
-  requireLiteral(value.claimScope, "provider_preflight_metadata_only_no_execution", "/claimScope", errors);
-  requireRecord(value.providerGate, "/providerGate", errors);
-  requireArray(value.candidates, "/candidates", errors);
-  requireRecord(value.recommendedRouting, "/recommendedRouting", errors);
-  requireArray(value.notEvidenceFor, "/notEvidenceFor", errors);
-  if (isRecord(value.providerGate)) {
-    requireLiteral(value.providerGate.status, "blocked_until_operator_approval_and_runtime_evidence", "/providerGate/status", errors);
-    requireLiteral(value.providerGate.evidenceKind, "external_ai_provider_preflight_metadata", "/providerGate/evidenceKind", errors);
-    requireLiteral(value.providerGate.executionEnabled, false, "/providerGate/executionEnabled", errors);
-    requireLiteral(value.providerGate.externalProviderExecutionAttempted, false, "/providerGate/externalProviderExecutionAttempted", errors);
-    requireLiteral(value.providerGate.reportMetadataOnly, true, "/providerGate/reportMetadataOnly", errors);
-    requireLiteral(value.providerGate.surfacedInProviderGateReport, true, "/providerGate/surfacedInProviderGateReport", errors);
+  requireLiteral(value["schemaVersion"], "openclinxr.external-ai-asset-provider-preflight.v1", "/schemaVersion", errors);
+  requireLiteral(value["claimScope"], "provider_preflight_metadata_only_no_execution", "/claimScope", errors);
+  requireRecord(value["providerGate"], "/providerGate", errors);
+  requireArray(value["candidates"], "/candidates", errors);
+  requireRecord(value["recommendedRouting"], "/recommendedRouting", errors);
+  requireArray(value["notEvidenceFor"], "/notEvidenceFor", errors);
+  if (isRecord(value["providerGate"])) {
+    requireLiteral(value["providerGate"]["status"], "blocked_until_operator_approval_and_runtime_evidence", "/providerGate/status", errors);
+    requireLiteral(value["providerGate"]["evidenceKind"], "external_ai_provider_preflight_metadata", "/providerGate/evidenceKind", errors);
+    requireLiteral(value["providerGate"]["executionEnabled"], false, "/providerGate/executionEnabled", errors);
+    requireLiteral(value["providerGate"]["externalProviderExecutionAttempted"], false, "/providerGate/externalProviderExecutionAttempted", errors);
+    requireLiteral(value["providerGate"]["reportMetadataOnly"], true, "/providerGate/reportMetadataOnly", errors);
+    requireLiteral(value["providerGate"]["surfacedInProviderGateReport"], true, "/providerGate/surfacedInProviderGateReport", errors);
   }
-  if (Array.isArray(value.candidates)) {
-    const candidateIds = new Set(value.candidates.filter(isRecord).map((candidate) => String(candidate.providerId ?? "")));
+  if (Array.isArray(value["candidates"])) {
+    const candidateIds = new Set(value["candidates"].filter(isRecord).map((candidate) => String(candidate["providerId"] ?? "")));
     for (const providerId of ["hunyuan3d_local", "meshy_cloud_requires_approval", "tripo_cloud_requires_approval", "vlm_adversarial_reviewer_requires_approval"]) {
       if (!candidateIds.has(providerId)) errors.push(`/candidates must include ${providerId}`);
     }
-    value.candidates.forEach((candidate, index) => {
+    value["candidates"].forEach((candidate, index) => {
       if (!isRecord(candidate)) {
         errors.push(`/candidates/${index} must be object`);
         return;
       }
-      requireString(candidate.providerId, `/candidates/${index}/providerId`, errors);
-      requireArray(candidate.intendedTargets, `/candidates/${index}/intendedTargets`, errors);
-      requireString(candidate.preferredOrderRole, `/candidates/${index}/preferredOrderRole`, errors);
-      requireLiteral(candidate.executionEnabled, false, `/candidates/${index}/executionEnabled`, errors);
-      requireLiteral(candidate.externalNetworkUsed, false, `/candidates/${index}/externalNetworkUsed`, errors);
-      requireLiteral(candidate.paidApiUsed, false, `/candidates/${index}/paidApiUsed`, errors);
-      if (typeof candidate.credentialRequiredBeforeExecution !== "boolean") {
+      requireString(candidate["providerId"], `/candidates/${index}/providerId`, errors);
+      requireArray(candidate["intendedTargets"], `/candidates/${index}/intendedTargets`, errors);
+      requireString(candidate["preferredOrderRole"], `/candidates/${index}/preferredOrderRole`, errors);
+      requireLiteral(candidate["executionEnabled"], false, `/candidates/${index}/executionEnabled`, errors);
+      requireLiteral(candidate["externalNetworkUsed"], false, `/candidates/${index}/externalNetworkUsed`, errors);
+      requireLiteral(candidate["paidApiUsed"], false, `/candidates/${index}/paidApiUsed`, errors);
+      if (typeof candidate["credentialRequiredBeforeExecution"] !== "boolean") {
         errors.push(`/candidates/${index}/credentialRequiredBeforeExecution must be boolean`);
       }
-      requireArray(candidate.requiredControls, `/candidates/${index}/requiredControls`, errors);
-      requireArray(candidate.blockers, `/candidates/${index}/blockers`, errors);
-      requireStringArrayIncludes(candidate.requiredControls, "shared_asset_library_lru_lookup", `/candidates/${index}/requiredControls`, errors);
+      requireArray(candidate["requiredControls"], `/candidates/${index}/requiredControls`, errors);
+      requireArray(candidate["blockers"], `/candidates/${index}/blockers`, errors);
+      requireStringArrayIncludes(candidate["requiredControls"], "shared_asset_library_lru_lookup", `/candidates/${index}/requiredControls`, errors);
     });
   }
-  if (isRecord(value.recommendedRouting)) {
-    requireStringArrayStartsWith(value.recommendedRouting.humanoidMeshAndRig, "meshy_cloud_requires_approval", "/recommendedRouting/humanoidMeshAndRig", errors);
-    requireStringArrayStartsWith(value.recommendedRouting.equipmentAndProps, "hunyuan3d_local", "/recommendedRouting/equipmentAndProps", errors);
-    requireStringArrayStartsWith(value.recommendedRouting.adversarialReview, "local_open_vlm_if_available", "/recommendedRouting/adversarialReview", errors);
+  if (isRecord(value["recommendedRouting"])) {
+    requireStringArrayStartsWith(value["recommendedRouting"]["humanoidMeshAndRig"], "meshy_cloud_requires_approval", "/recommendedRouting/humanoidMeshAndRig", errors);
+    requireStringArrayStartsWith(value["recommendedRouting"]["equipmentAndProps"], "hunyuan3d_local", "/recommendedRouting/equipmentAndProps", errors);
+    requireStringArrayStartsWith(value["recommendedRouting"]["adversarialReview"], "local_open_vlm_if_available", "/recommendedRouting/adversarialReview", errors);
   }
-  requireRecord(value.handoff, "/handoff", errors);
-  if (isRecord(value.handoff)) {
-    requireLiteral(value.handoff.providerDisabledBoundary, "No external provider execution: keep executionEnabled false, do not request credentials, and do not use paid APIs or network calls.", "/handoff/providerDisabledBoundary", errors);
-    requireLiteral(value.handoff.localOnlyBoundary, "Offline/local metadata review only: restrict work to workspace evidence, deterministic fixtures, and local registry checks.", "/handoff/localOnlyBoundary", errors);
+  requireRecord(value["handoff"], "/handoff", errors);
+  if (isRecord(value["handoff"])) {
+    requireLiteral(value["handoff"]["providerDisabledBoundary"], "No external provider execution: keep executionEnabled false, do not request credentials, and do not use paid APIs or network calls.", "/handoff/providerDisabledBoundary", errors);
+    requireLiteral(value["handoff"]["localOnlyBoundary"], "Offline/local metadata review only: restrict work to workspace evidence, deterministic fixtures, and local registry checks.", "/handoff/localOnlyBoundary", errors);
     requireExactStringArray(
-      value.handoff.missingEvidenceIds,
+      value["handoff"]["missingEvidenceIds"],
       [
         "hunyuan3d_not_installed",
         "model_license_review_missing",
@@ -246,14 +246,14 @@ export function validateExternalAiAssetProviderPreflightReport(value: unknown): 
       errors,
     );
     requireLiteral(
-      value.handoff.nextSafeProviderDisabledExecutionStep,
+      value["handoff"]["nextSafeProviderDisabledExecutionStep"],
       "Assemble the local evidence bundle for hunyuan3d_local and the approval-gated cloud candidates, then re-run this preflight in metadata-only mode without invoking any provider.",
       "/handoff/nextSafeProviderDisabledExecutionStep",
       errors,
     );
   }
   for (const notEvidenceFor of ["provider_runtime_readiness", "generated_asset_quality", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"]) {
-    requireStringArrayIncludes(value.notEvidenceFor, notEvidenceFor, "/notEvidenceFor", errors);
+    requireStringArrayIncludes(value["notEvidenceFor"], notEvidenceFor, "/notEvidenceFor", errors);
   }
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
 }

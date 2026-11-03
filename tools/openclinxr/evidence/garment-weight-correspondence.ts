@@ -57,10 +57,23 @@ function densify(s: Skinned, v: number, boneCount: number, into: Float64Array): 
   for (let k = 0; k < 4; k += 1) {
     const wt = s.weights[v * 4 + k] ?? 0;
     if (wt <= 0) continue;
-    into[s.joints[v * 4 + k] ?? 0] += wt;
+    const joint = s.joints[v * 4 + k] ?? 0;
+    const prior = into[joint];
+    if (prior === undefined) {
+      throw new Error(`garment-weight-correspondence: joint index ${joint} out of bounds for boneCount ${boneCount}`);
+    }
+    into[joint] = prior + wt;
     total += wt;
   }
-  if (total > 0) for (let b = 0; b < boneCount; b += 1) into[b] /= total;
+  if (total > 0) {
+    for (let b = 0; b < boneCount; b += 1) {
+      const prior = into[b];
+      if (prior === undefined) {
+        throw new Error(`garment-weight-correspondence: bone index ${b} out of bounds for boneCount ${boneCount}`);
+      }
+      into[b] = prior / total;
+    }
+  }
 }
 
 /**

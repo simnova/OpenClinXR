@@ -102,7 +102,7 @@ export async function inspectGeneratedSceneModePredicate(input?: {
 
   measureInFlight = (async () => {
     if (!input?.force && !input?.writePreFix) {
-      if (process.env.OPENCLINXR_SCENE_MODE_USE_DISK === "1") {
+      if (process.env["OPENCLINXR_SCENE_MODE_USE_DISK"] === "1") {
         const fromDisk = await tryReadArtifact(preFixPath());
         if (fromDisk) {
           cachedReport = fromDisk;
@@ -136,7 +136,7 @@ export async function inspectGeneratedSceneModePredicate(input?: {
 
 async function tryReadArtifact(filePath: string): Promise<GeneratedSceneModePredicateReport | null> {
   return tryReadStampedArtifact(filePath, (parsed) => {
-    const report = parsed.report as GeneratedSceneModePredicateReport | undefined;
+    const report = parsed["report"] as GeneratedSceneModePredicateReport | undefined;
     if (report?.scenes && Array.isArray(report.scenes) && report.scenes.length > 0) {
       return report;
     }
@@ -174,7 +174,7 @@ export async function writeSceneModeDump(
 }
 
 async function measureLiveSceneMode(input: {
-  baseUrl?: string;
+  baseUrl?: string | undefined;
   scenarioId: string;
 }): Promise<GeneratedSceneModePredicateReport> {
   const scenarioId = input.scenarioId;
@@ -307,12 +307,12 @@ function stripRoomProps(json: unknown): unknown {
   if (!json || typeof json !== "object") return json;
   const root = json as Record<string, unknown>;
   // Bundle form: { sceneManifest: { roomProps: [...] } }
-  if (root.sceneManifest && typeof root.sceneManifest === "object") {
-    const sm = { ...(root.sceneManifest as Record<string, unknown>), roomProps: [] };
+  if (root["sceneManifest"] && typeof root["sceneManifest"] === "object") {
+    const sm = { ...(root["sceneManifest"] as Record<string, unknown>), roomProps: [] };
     return { ...root, sceneManifest: sm };
   }
   // Standalone scene-manifest form
-  if (Array.isArray(root.roomProps)) {
+  if (Array.isArray(root["roomProps"])) {
     return { ...root, roomProps: [] };
   }
   return json;
