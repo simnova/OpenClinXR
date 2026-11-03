@@ -78,7 +78,10 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "senior_resident_ward_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-          "assetSha256": "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
+          // st-weld2 re-pinned 2026-11-03: garment topology weld (post-export byte stage;
+          // size holds at 9618436); was 921d7a60…. Row-only re-pin: the freeze producer
+          // drifts planRevision on re-run, so the plan itself is untouched.
+          "assetSha256": "4b823cbd6adcf2a51814314979d2fa87f70633da3933afbebeee351a3cec227b",
           "byteCount": 9618436
         },
         {

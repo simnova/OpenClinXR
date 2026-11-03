@@ -8,8 +8,8 @@
     "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "e5620a7c8ef8d41aebc4766b9a8375a9c6bf0106cacee268cdd34ea14b9020f3",
     "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "f12e677eecbfbc0f0489a395d408f130ac7d9df1f41790c1214b694130614222",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c",
-    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
-    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "d10ae41912ba2ff455a135073c14b7b292539c92e882bb473253cfec9f682fa2"
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "4b823cbd6adcf2a51814314979d2fa87f70633da3933afbebeee351a3cec227b",
+    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "3afcdd2db2178e035b8f53b0c3b3a9489511299648054867a432e80f66e1fd3d"
   },
   "staged": {
     "posture": "supine",
@@ -17,9 +17,9 @@
     "clearanceAboveDeckMeters": 0.25
   },
   "producedFrom": {
-    "observedBy": "orchestrator-2026-11-03 st-hemfin rebase",
-    "observedAtIso": "2026-11-03T16:27:12.515Z",
-    "reason": "st-hemfin rebake of mpfb-family-partner-adult.glb rebased over the st-weld nurse rebake; both control assets changed bytes and were re-hashed from disk.",
+    "observedBy": "orchestrator-2026-11-03 rebase regen",
+    "observedAtIso": "2026-11-03T17:25:18.273Z",
+    "reason": "st-weld2 welded the physician and kevin garments (bytes hold, digests move) rebased over st-hemfin's family-partner hem-finish; every control asset re-hashed from disk.",
     "byteCountByPath": {
       "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9221980,
       "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9308164,

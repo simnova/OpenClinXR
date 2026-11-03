@@ -164,7 +164,9 @@ describe("the nurse sternal T is classified from the GLB", () => {
       // (rests already +-0.085; size holds at 7894888); was 0de69b66….
       // RE-PINNED for 1225b8f95 (st-redgarm D1 garment smoothing): kevin
       // 7894888 -> 16291676 B; was 540e8b31….
-      [PEDS_GLB, "pedsKevin", 16291676, "d10ae41912ba2ff455a135073c14b7b292539c92e882bb473253cfec9f682fa2"],
+      // st-weld2 re-pinned 2026-11-03: garment topology weld (post-export byte stage, not a rebake;
+      // shirt 4692 islands -> 2, pants 1345 -> 7; size holds at 16291676); was d10ae419….
+      [PEDS_GLB, "pedsKevin", 16291676, "3afcdd2db2178e035b8f53b0c3b3a9489511299648054867a432e80f66e1fd3d"],
       // RE-PINNED: deliberate churn 8e7a1d0c2 (CC-BY scrub extras) + 91aa4b5d3 + 9f2934536.
       // ci-w11b re-pinned 2026-10-30: ci-w11 D3 d0e2104d3 repaired midline breast keyframes
       // (rests already +-0.085; size holds at 8775848); was 4f0a8c1d….

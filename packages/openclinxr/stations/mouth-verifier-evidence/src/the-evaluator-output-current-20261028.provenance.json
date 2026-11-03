@@ -1,11 +1,11 @@
 {
-  "currentFixtureSHA256": "5b22344f7242abf51cdceec0f115aba21a371e0967fefe4dd9b3bcaf57a5e108",
+  "currentFixtureSHA256": "0b9439bdebb8c1f3818fd66be195340a80a2892f1064ec9241d89815b67a63e1",
   "evaluator": "public evaluate() from @openclinxr/station-mouth-verifier via tools/openclinxr/mouth-solver/evaluate.ts",
   "fixtureDate": "2026-10-28",
   "fixturePath": "the-evaluator-output-current-20261028.fixture.json",
   "generation": "Actual public evaluate on committed source59 after successful build closure; original path placeholders and recursive wallClockMs=0 only. No invented output fields.",
   "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
-  "glbSHA256": "57eace5c903f490d22c0d961ca5e4946436227c22cc1c50e38151754487c1591",
+  "glbSHA256": "b73c9edea2951853e7376faa086593070e954fa08c6bfac345662e05eb931240",
   "historicalFixturePreserved": "packages/openclinxr/stations/mouth-verifier-evidence/src/the-evaluator-output-is-unchanged.fixture.json",
   "historicalFixtureSHA256": "6337dd72a2ae5c8e4f9d6349c7b8e21b2e926fd80258d830993d725f6a0a0a57",
   "m3ParityClaim": "none; production lip-rounding postdates the historical fixture",
@@ -47,6 +47,14 @@
     "diagnosticMockShipped": false
   },
   "repins": [
+    {
+      "date": "2026-11-03",
+      "why": "st-weld2 D1: garment topology weld on the parent GLB post-export (t-shirt 1350 islands -> 11 cloth-side pieces, jeans 2108 -> 24; byte length holds at 18441636). Regenerated from the same public evaluate(); fixture diff is the glbSha256 field only, all 124 mouth records byte-identical",
+      "previous": {
+        "currentFixtureSHA256": "5b22344f7242abf51cdceec0f115aba21a371e0967fefe4dd9b3bcaf57a5e108",
+        "glbSHA256": "57eace5c903f490d22c0d961ca5e4946436227c22cc1c50e38151754487c1591"
+      }
+    },
     {
       "date": "2026-10-31",
       "why": "mesh-defects: hairPositionRestore moved the parent bob hair top +14.6 mm; the head-focus camera unions hair points, so the fixed capture was recaptured (mouth-dynamics-capture.ts --fixed-gap --aligner rhubarb) and this fixture regenerated from the same public evaluate()",

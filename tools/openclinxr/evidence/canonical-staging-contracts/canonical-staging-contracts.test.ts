@@ -165,13 +165,15 @@ describe("canonical staging contracts (fake/static units, no browser)", () => {
     const physician = (plan?.instances ?? []).find(
       (i) => i?.instanceId === FOOT_GROUNDER_PHYSICIAN_INSTANCE_ID,
     );
+    // st-weld2 re-pinned 2026-11-03: garment topology weld (post-export byte stage;
+    // size holds at 9618436); was 921d7a60….
     expect(physician?.assetSha256).toBe(
-      "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
+      "4b823cbd6adcf2a51814314979d2fa87f70633da3933afbebeee351a3cec227b",
     );
     expect(physician?.byteCount).toBe(9618436);
     expect(expected.expectedClipRevision).toBe("openclinxr_retarget_walk_source");
     expect(expected.expectedAssetSha256).toBe(
-      "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
+      "4b823cbd6adcf2a51814314979d2fa87f70633da3933afbebeee351a3cec227b",
     );
     expect(expected.expectedBytes).toBe(9618436);
     // Independent provenance lineage agrees; retired formal_cc0 preserved.

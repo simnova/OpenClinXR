@@ -103,7 +103,9 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // full-resolution #581 tee and jeans from 57e277301 (gravidGarmentRestore in the sidecar);
   // was 1b8a8ef4f548bfcd71305a30f8eae2e90f19a22176fb80e2e461f755010540ac.
   // RE-PINNED for 1225b8f95 (st-redgarm D1 garment smoothing); was e7dc79e6….
-  "mpfb-ob-patient-aisha": "f588601089956b947f7107ddbf075a5d6248a21c72a792fe1fb238298abf59e4",
+  // st-weld2 re-pinned 2026-11-03: garment topology weld (post-export byte stage, not a rebake;
+  // t-shirt 1350 islands -> 12 cloth-side pieces, textured UV seams kept; size holds at 9700420); was f5886010….
+  "mpfb-ob-patient-aisha": "081e9c44d6db879c627da55b9a86a2868ee0eea9634325afd1b17e23c37791c2",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
   // table (drift at HEAD, pre-existing); was d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1.
@@ -113,7 +115,10 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // mesh-defects re-pinned 2026-10-31: restore-mesh-positions.ts put back the bob hair
   // POSITION that c240327c3 lowered (hairPositionRestore in the sidecar); was
   // ebbd55df60bac05218d8d0b89ef33f67923bc90ab3caf774bd760e76d7643ecb.
-  "mpfb-peds-parent-aisha": "57eace5c903f490d22c0d961ca5e4946436227c22cc1c50e38151754487c1591",
+  // st-weld2 re-pinned 2026-11-03: garment topology weld (post-export byte stage, not a rebake;
+  // t-shirt 1350 islands -> 11 cloth-side pieces, jeans 2108 -> 24, textured UV seams kept;
+  // size holds at 18441636); was 57eace5c….
+  "mpfb-peds-parent-aisha": "b73c9edea2951853e7376faa086593070e954fa08c6bfac345662e05eb931240",
   // #598 re-pinned 2026-08-23: worktree kevin bytes already differed from the prior pin
   // (was 0817dbd1932448185037c35487c9a25f5b9e70cbf6f558fa67098e104a955d72); this slice did
   // not rebake kevin — only re-recorded the on-disk hash so the table matches the tree.
@@ -121,7 +126,10 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // (c743aab61, rests already +-0.085); was
   // 0de69b66a569d457c11985895f76b24a4c0cc99adc530720ee0e4ecaa78a22de.
   // RE-PINNED for 1225b8f95 (st-redgarm D1 garment smoothing; 7894888 -> 16291676 B); was 540e8b31….
-  "mpfb-peds-nurse-kevin": "d10ae41912ba2ff455a135073c14b7b292539c92e882bb473253cfec9f682fa2",
+  // st-weld2 re-pinned 2026-11-03: garment topology weld (post-export byte stage, not a rebake;
+  // scrub shirt 4692 islands -> 2 (body + collar on textured UV seam), pants 1345 -> 7;
+  // size holds at 16291676); was d10ae419….
+  "mpfb-peds-nurse-kevin": "3afcdd2db2178e035b8f53b0c3b3a9489511299648054867a432e80f66e1fd3d",
   // #502 re-pinned 2026-08-21: the clinician footwear leopard "Shoe" texture was stripped to
   // the flat dark factor (gown-patient precedent); the viseme morph targets and every other
   // buffer are untouched.
@@ -140,7 +148,10 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // #598 re-pinned 2026-08-23: flats → mj_cloth_shoes; was ab9a3352ed7d37cfa6c5aca0124fe6ee9987059329c934a5cdbddf113737bdf3.
   // #568 re-recorded 2026-08-26: the #665 WIP commit changed the physician GLB without
   // re-pinning this table (drift at HEAD, pre-existing); was b8ac08be92e5f87cd6d6b3175a7d5bd56b87c7143b2caf4663daf35b2d623847.
-  "mpfb-clinical-physician-adult": "921d7a60f9f2cb59b94d40ca21485f15d693da7044b1e152548fa4167458c8aa",
+  // st-weld2 re-pinned 2026-11-03: garment topology weld (post-export byte stage, not a rebake;
+  // scrub shirt 4692 islands -> 2 (body + collar on textured UV seam), coat 1316 -> 3, pants 1349 -> 8;
+  // size holds at 9618436); was 921d7a60….
+  "mpfb-clinical-physician-adult": "4b823cbd6adcf2a51814314979d2fa87f70633da3933afbebeee351a3cec227b",
 }
 
 type Prov = {

@@ -115,7 +115,7 @@
   "pedsKevin": {
    "bytes": 16291676,
    "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
-   "sha256": "d10ae41912ba2ff455a135073c14b7b292539c92e882bb473253cfec9f682fa2",
+   "sha256": "3afcdd2db2178e035b8f53b0c3b3a9489511299648054867a432e80f66e1fd3d",
    "skinPrim": {
     "mat": 4,
     "name": "mpfb_skin_peds_nurse_kevin",
