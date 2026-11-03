@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.humanoid-body-signature-pre-fix.v1",
   "issue": 276,
-  "measuredAt": "2026-11-03T14:18:39.621Z",
+  "measuredAt": "2026-11-03T14:44:07.011Z",
   "scanRoot": "apps/ui-xr/public/generated-humanoids",
   "assets": [
     {
