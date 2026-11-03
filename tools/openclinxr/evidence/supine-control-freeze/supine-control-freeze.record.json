@@ -17,9 +17,9 @@
     "clearanceAboveDeckMeters": 0.25
   },
   "producedFrom": {
-    "observedBy": "st-redgarm worker (foreground re-baseline for ac3490a66)",
+    "observedBy": "st-redgarm worker (foreground re-baseline for 1225b8f95)",
     "observedAtIso": "2026-11-02T22:58:33.378Z",
-    "reason": "re-baseline for ac3490a66 st-redgarm D1 garment smoothing (rebased as 0aaf03352): kevin 540e8b31->d10ae419 (7894888->16291676 B) invalidated cl.2/cl.6; aisha is not a control asset",
+    "reason": "re-baseline for 1225b8f95 st-redgarm D1 garment smoothing (rebased as 1225b8f95): kevin 540e8b31->d10ae419 (7894888->16291676 B) invalidated cl.2/cl.6; aisha is not a control asset",
     "byteCountByPath": {
       "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9221980,
       "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9308164,

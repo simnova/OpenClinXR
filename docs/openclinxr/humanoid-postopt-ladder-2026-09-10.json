@@ -154,7 +154,7 @@
    "promotionNote": "2026-09-12 fp-r0.4 restore after female covering lower. Fit-time jeans 4216 (2108 x 2). Shipped jeans 1986. budgets.propShare 40000 unchanged.",
    "triangleCountAfter": 73392,
    "triangleCountBefore": 92430,
-   "remeasureNote": "Re-measured 2026-11-02 (st-redgarm D1): flats 558->1004 tris (+446; tris 72946->73392, face 52778 / joints 137 hold). Superseding commit ac3490a66 (D1 garment smooth: full-res flats transplant + 60-deg post-export smooth). Prior re-measure (ci-w11b bytes-only drift) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-02 (st-redgarm D1): flats 558->1004 tris (+446; tris 72946->73392, face 52778 / joints 137 hold). Superseding commit 1225b8f95 (D1 garment smooth: full-res flats transplant + 60-deg post-export smooth). Prior re-measure (ci-w11b bytes-only drift) preserved in git history."
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -185,7 +185,7 @@
    "promotionNote": "STOP branch: every in-budget rung (r0.1 at 60513 through r0.005 at 55580) keeps 5503/46160 = 0.1192 of face triangles (88% destroyed) — the ladder passes the totals check but destroys the face, so no rung is promoted and the live GLB is unchanged.",
    "triangleCountAfter": 98102,
    "triangleCountBefore": 119232,
-   "remeasureNote": "Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants 810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face 46160 / joints 137 hold; still under the 120000 acceptableSingleProp budget). Superseding commit ac3490a66 (D1 garment smooth: full-res transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, ci-w11b) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants 810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face 46160 / joints 137 hold; still under the 120000 acceptableSingleProp budget). Superseding commit 1225b8f95 (D1 garment smooth: full-res transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, ci-w11b) preserved in git history."
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",

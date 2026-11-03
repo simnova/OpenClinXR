@@ -102,7 +102,7 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // mesh-defects re-pinned 2026-10-31: replace-garment-primitive.ts swapped in the
   // full-resolution #581 tee and jeans from 57e277301 (gravidGarmentRestore in the sidecar);
   // was 1b8a8ef4f548bfcd71305a30f8eae2e90f19a22176fb80e2e461f755010540ac.
-  // RE-PINNED for ac3490a66 (st-redgarm D1 garment smoothing); was e7dc79e6….
+  // RE-PINNED for 1225b8f95 (st-redgarm D1 garment smoothing); was e7dc79e6….
   "mpfb-ob-patient-aisha": "f588601089956b947f7107ddbf075a5d6248a21c72a792fe1fb238298abf59e4",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
@@ -120,7 +120,7 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // ci-w11b re-pinned 2026-10-30: ci-w11 D3 repaired midline breast keyframes
   // (c743aab61, rests already +-0.085); was
   // 0de69b66a569d457c11985895f76b24a4c0cc99adc530720ee0e4ecaa78a22de.
-  // RE-PINNED for ac3490a66 (st-redgarm D1 garment smoothing; 7894888 -> 16291676 B); was 540e8b31….
+  // RE-PINNED for 1225b8f95 (st-redgarm D1 garment smoothing; 7894888 -> 16291676 B); was 540e8b31….
   "mpfb-peds-nurse-kevin": "d10ae41912ba2ff455a135073c14b7b292539c92e882bb473253cfec9f682fa2",
   // #502 re-pinned 2026-08-21: the clinician footwear leopard "Shoe" texture was stripped to
   // the flat dark factor (gown-patient precedent); the viseme morph targets and every other
