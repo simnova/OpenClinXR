@@ -203,8 +203,12 @@ describe("the extract-time room predicate", () => {
     expect(peds.measures.hullFrontFacingToDoorwayEyeCount).toBe(PEDS_FROZEN.hullFrontFacingToDoorwayEyeCount);
     expect(peds.measures.doorwayCandidateSurviveCount).toBe(PEDS_FROZEN.doorwayCandidateSurviveCount);
     // Thresholds stay derived from the frozen calibration (unchanged bars).
-    expect(ed.thresholds.hullFrontFacingToDoorwayEyeCount.max).toBe(4);
-    expect(ed.thresholds.doorwayCandidateSurviveCount.min).toBe(1);
+    const edHull = ed.thresholds["hullFrontFacingToDoorwayEyeCount"];
+    if (edHull === undefined) throw new Error("missing hullFrontFacingToDoorwayEyeCount threshold (ED)");
+    const edSurvive = ed.thresholds["doorwayCandidateSurviveCount"];
+    if (edSurvive === undefined) throw new Error("missing doorwayCandidateSurviveCount threshold (ED)");
+    expect(edHull.max).toBe(4);
+    expect(edSurvive.min).toBe(1);
   });
 
   it("accepts the actual current published rooms against the unchanged gate + fingerprint binding", async () => {
@@ -225,10 +229,18 @@ describe("the extract-time room predicate", () => {
     // Re-keyed ceiling rows already hold live (recipe 2.65 authority).
     expect(ed.measures.ceilingHeightM).toBeCloseTo(ED_KNOWN.ceilingHeightM, 2);
     expect(peds.measures.ceilingHeightM).toBeCloseTo(PEDS_KNOWN.ceilingHeightM, 2);
-    expect(ed.thresholds.hullFrontFacingToDoorwayEyeCount.max).toBe(4);
-    expect(peds.thresholds.hullFrontFacingToDoorwayEyeCount.max).toBe(4);
-    expect(ed.thresholds.doorwayCandidateSurviveCount.min).toBe(1);
-    expect(peds.thresholds.doorwayCandidateSurviveCount.min).toBe(1);
+    const edHullLive = ed.thresholds["hullFrontFacingToDoorwayEyeCount"];
+    if (edHullLive === undefined) throw new Error("missing hullFrontFacingToDoorwayEyeCount threshold (ED live)");
+    const pedsHullLive = peds.thresholds["hullFrontFacingToDoorwayEyeCount"];
+    if (pedsHullLive === undefined) throw new Error("missing hullFrontFacingToDoorwayEyeCount threshold (peds live)");
+    const edSurviveLive = ed.thresholds["doorwayCandidateSurviveCount"];
+    if (edSurviveLive === undefined) throw new Error("missing doorwayCandidateSurviveCount threshold (ED live)");
+    const pedsSurviveLive = peds.thresholds["doorwayCandidateSurviveCount"];
+    if (pedsSurviveLive === undefined) throw new Error("missing doorwayCandidateSurviveCount threshold (peds live)");
+    expect(edHullLive.max).toBe(4);
+    expect(pedsHullLive.max).toBe(4);
+    expect(edSurviveLive.min).toBe(1);
+    expect(pedsSurviveLive.min).toBe(1);
   }, 60_000);
 
   it("RED: refuses the pre-fix peds hull — 44 interior front-facing faces toward the doorway eye", () => {
@@ -248,7 +260,9 @@ describe("the extract-time room predicate", () => {
     // capture scoring would reject all of them (kitchen_00wall class), so the extract must
     // refuse rather than ship a room no interior camera can see into.
     const parts = boxRoom(5.28, 5.39, 2.44, 0.1093);
-    parts["room.wall"] = [...parts["room.wall"], ...rectZ(2.3, -2.64, 2.64, 0, 2.44, "+z")];
+    const wall = parts["room.wall"];
+    if (wall === undefined) throw new Error("missing room.wall in pocket-only fixture");
+    parts["room.wall"] = [...wall, ...rectZ(2.3, -2.64, 2.64, 0, 2.44, "+z")];
     const r = runPredicate({ room: "pocket_only", parts });
     expect(r.measures.doorwayCandidateSurviveCount).toBe(0);
     expect(r.pass).toBe(false);
@@ -287,10 +301,16 @@ describe("the extract-time room predicate", () => {
     expect(files.join(" ")).toMatch(/infinigen-ed-exam-bay\.glb/);
     expect(files.join(" ")).toMatch(/infinigen-pediatric-urgent-care-bay\.glb/);
     // The derive thresholds are a function of the shipped measurements.
-    expect(ed.thresholds.hullFrontFacingToDoorwayEyeCount.max).toBe(4);
-    expect(ed.thresholds.floorAspect.max).toBeGreaterThan(2.5);
-    expect(ed.thresholds.floorAspect.max).toBeLessThan(3.6);
-    expect(ed.thresholds.doorwayCandidateSurviveCount.min).toBe(1);
+    const refHull = ed.thresholds["hullFrontFacingToDoorwayEyeCount"];
+    if (refHull === undefined) throw new Error("missing hullFrontFacingToDoorwayEyeCount threshold (derivedFrom)");
+    const refAspect = ed.thresholds["floorAspect"];
+    if (refAspect === undefined) throw new Error("missing floorAspect threshold (derivedFrom)");
+    const refSurvive = ed.thresholds["doorwayCandidateSurviveCount"];
+    if (refSurvive === undefined) throw new Error("missing doorwayCandidateSurviveCount threshold (derivedFrom)");
+    expect(refHull.max).toBe(4);
+    expect(refAspect.max).toBeGreaterThan(2.5);
+    expect(refAspect.max).toBeLessThan(3.6);
+    expect(refSurvive.min).toBe(1);
   }, 60_000);
 });
 

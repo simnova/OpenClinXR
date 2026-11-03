@@ -164,14 +164,14 @@ describe("the adversarial review panel leaves the learner exam volume", () => {
     const mustThrow = (m: Ev, re: RegExp, why: string): void => {
       expect(() => assertNaturalVisemeProfile(m, authority, REPO_ROOT), why).toThrow(re);
     };
-    { const m = clone(); peaks(m, "activeMorphPeaks").viseme_TH = 0.5; mustThrow(m, /viseme_TH/, "TH at rest level must fail"); }
-    { const m = clone(); peaks(m, "activeMorphPeaks").viseme_aa = 0; mustThrow(m, /viseme_aa/, "AA collapsed to 0 must fail"); }
-    { const m = clone(); peaks(m, "activeMorphPeaks").viseme_aa = 1; mustThrow(m, /viseme_aa/, "AA at full drive must fail"); }
+    { const m = clone(); peaks(m, "activeMorphPeaks")["viseme_TH"] = 0.5; mustThrow(m, /viseme_TH/, "TH at rest level must fail"); }
+    { const m = clone(); peaks(m, "activeMorphPeaks")["viseme_aa"] = 0; mustThrow(m, /viseme_aa/, "AA collapsed to 0 must fail"); }
+    { const m = clone(); peaks(m, "activeMorphPeaks")["viseme_aa"] = 1; mustThrow(m, /viseme_aa/, "AA at full drive must fail"); }
     { const m = clone(); m["actorId"] = "intruder"; mustThrow(m, /actorId|ownerMismatch|owner/, "wrong owner must fail"); }
     { const m = clone(); m["ownerMismatchCount"] = 1; mustThrow(m, /ownerMismatch/, "owner mismatch count must fail"); }
     { const m = clone(); m["subjectAssetSha256"] = "00".repeat(32); mustThrow(m, /subjectAssetSha256/, "wrong asset hash must fail"); }
     { const m = clone(); m["dictKeysSha256"] = "00".repeat(32); mustThrow(m, /dictKeysSha256/, "wrong dictionary hash must fail"); }
-    { const m = clone(); peaks(m, "inactiveMorphPeaks").viseme_TH = 0.5; mustThrow(m, /inactiveMorphPeaks\.viseme_TH/, "inactive TH drive must fail"); }
+    { const m = clone(); peaks(m, "inactiveMorphPeaks")["viseme_TH"] = 0.5; mustThrow(m, /inactiveMorphPeaks\.viseme_TH/, "inactive TH drive must fail"); }
     { const m = clone(); m["prematureEpochClearCount"] = 1; mustThrow(m, /prematureEpochClearCount/, "premature clear must fail"); }
     { const m = clone(); m["completedEpochCount"] = 0; mustThrow(m, /completedEpochCount/, "no observed completion must fail"); }
     { const m = clone(); m["sourceFile"] = "packages/openclinxr/xr-dialogue/src/other-driver.ts"; mustThrow(m, /sourceFile/, "record from a different driver must fail"); }

@@ -220,14 +220,18 @@ describe("the lid opening shows no body skin", () => {
   });
 
   const _probe = readReport();
-  const _h2 = storePath(_probe.sheets.h2.src);
+  const _h2sheet = _probe.sheets["h2"];
+  if (_h2sheet === undefined) throw new Error("report sheets.h2 missing");
+  const _h2 = storePath(_h2sheet.src);
   if (existsSync(_h2)) {
     it("(7b) h2 sheet bytes match the report sha", () => {
       const r = readReport();
-      const bytes = readFileSync(storePath(r.sheets.h2.src));
+      const sheet = r.sheets["h2"];
+      if (sheet === undefined) throw new Error("report sheets.h2 missing");
+      const bytes = readFileSync(storePath(sheet.src));
       expect(bytes.length).toBeGreaterThan(10000);
       expect(createHash("sha256").update(bytes).digest("hex")).toBe(
-        r.sheets.h2.sha256,
+        sheet.sha256,
       );
     });
   } else {

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { Accessor, Document, Material, Mesh, NodeIO, Primitive, Texture } from "@gltf-transform/core";
+import { Accessor, Document, Material, Mesh, NodeIO, Primitive, Texture, type GLTF } from "@gltf-transform/core";
 
 /**
  * #346 — instrument test for the room-decimate measure. The pre-fix.json numbers are only
@@ -26,13 +26,20 @@ type MeasureFn = (glbPath: string) => Promise<{
 
 const load = () => import("../../../../../../tools/openclinxr/evidence/room-decimate.js") as Promise<Record<string, unknown>>;
 
+/** Accessor.Type is a Record<string, …>; these keys are part of the glTF spec. */
+function accessorType(key: string): GLTF.AccessorType {
+  const t: GLTF.AccessorType | undefined = Accessor.Type[key];
+  if (t === undefined) throw new Error(`unknown Accessor.Type ${key}`);
+  return t;
+}
+
 /** Build a tiny in-memory GLB: 2 meshes, 1 of them UV'd, 2 materials, 1 textured. */
 async function buildFixture(): Promise<string> {
   const doc = new Document();
 
   const buf = doc.createBuffer();
   const pos = doc.createAccessor("pos")
-    .setType(Accessor.Type["VEC3"])
+    .setType(accessorType("VEC3"))
     .setArray(new Float32Array([
       0, 0, 0, 1, 0, 0, 0, 1, 0, // triangle 1
       1, 1, 0, 0, 1, 0, 1, 0, 0, // triangle 2 (shares 2 verts of tri 1)
@@ -40,12 +47,12 @@ async function buildFixture(): Promise<string> {
     .setBuffer(buf);
 
   const idx = doc.createAccessor("idx")
-    .setType(Accessor.Type["SCALAR"])
+    .setType(accessorType("SCALAR"))
     .setArray(new Uint32Array([0, 1, 2, 3, 4, 5]))
     .setBuffer(buf);
 
   const uv = doc.createAccessor("uv")
-    .setType(Accessor.Type["VEC2"])
+    .setType(accessorType("VEC2"))
     .setArray(new Float32Array([0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0]))
     .setBuffer(buf);
 

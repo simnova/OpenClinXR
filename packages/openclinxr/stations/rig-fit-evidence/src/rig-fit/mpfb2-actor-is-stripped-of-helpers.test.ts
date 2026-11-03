@@ -191,7 +191,7 @@ let bodyVerts = 0;
 let usableMouth: string[] = [];
 
 for (const mesh of doc.getRoot().listMeshes()) {
-  const targetNames = ((mesh.getExtras() as Record<string, unknown>)?.targetNames as string[]) ?? [];
+  const targetNames = ((mesh.getExtras() as Record<string, unknown>)?.["targetNames"] as string[]) ?? [];
   for (const prim of mesh.listPrimitives()) {
     const pos = prim.getAttribute("POSITION");
     if (!pos) continue;
@@ -272,9 +272,11 @@ describe("the shipped MPFB2 actor is a body, not a body wearing MakeHuman fittin
     expect(before, "probe starts from the HB-05 stripped body").toBe(STRIPPED_TRIANGLES);
     for (let s = 0; s < PROBE_SHELL_COUNT; s += 1) {
       const positions = new Float32Array(ONE_HELPER_SHELL_TRIANGLES * 9);
+      const vec3Type = Accessor.Type["VEC3"];
+      if (vec3Type === undefined) throw new Error("missing Accessor.Type VEC3");
       const accessor = probe
         .createAccessor()
-        .setType(Accessor.Type.VEC3)
+        .setType(vec3Type)
         .setArray(positions)
         .setBuffer(probe.createBuffer());
       const helperPrim = probe.createPrimitive().setAttribute("POSITION", accessor);

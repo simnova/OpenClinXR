@@ -129,7 +129,7 @@ import { describe, expect, it } from "vitest";
 const HERE = join(repoRoot(), "tools/openclinxr/evidence");
 const REPO_ROOT = repoRoot();
 /** Overridable so a destructive probe can point the same logic at doctored assets. */
-const ASSET_DIR = process.env.OPENCLINXR_HAIR_PROBE_DIR ?? join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
+const ASSET_DIR = process.env["OPENCLINXR_HAIR_PROBE_DIR"] ?? join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 
 const PLACEHOLDER = /native_scalp_hair_surface/u;
 const SKIN = /^mpfb_skin/u;

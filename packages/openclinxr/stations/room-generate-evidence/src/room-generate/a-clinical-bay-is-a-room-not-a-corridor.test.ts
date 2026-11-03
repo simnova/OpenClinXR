@@ -85,7 +85,7 @@ import { floorSlabExtents, measureInteriorClear } from "../../../../../../tools/
 
 const REPO_ROOT = repoRoot();
 /** Overridable so a destructive probe can point the same logic at doctored assets. */
-const PUBLIC = process.env.OPENCLINXR_ROOM_PROBE_PUBLIC ?? join(REPO_ROOT, "apps/ui-xr/public");
+const PUBLIC = process.env["OPENCLINXR_ROOM_PROBE_PUBLIC"] ?? join(REPO_ROOT, "apps/ui-xr/public");
 const MODULE_SRC = join(REPO_ROOT, "packages/openclinxr/xr-runtime-state/src/infinigen-environment-assets.ts");
 /** Live declaration of every room footprint (Oct1 authority; see re-key note below). */
 const RECIPES_SRC = join(REPO_ROOT, "packages/openclinxr/factory-stations/src/room_chain/recipes.ts");

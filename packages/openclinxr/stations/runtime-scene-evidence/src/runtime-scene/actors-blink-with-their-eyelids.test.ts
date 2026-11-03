@@ -139,7 +139,7 @@ const io = new NodeIO();
 async function actorRoot(actor: string): Promise<ActorRoot | null> {
   const doc = await io.read(join(REPO_ROOT, GENERATED, `${actor}.glb`));
   for (const mesh of doc.getRoot().listMeshes()) {
-    const names = mesh.getExtras()?.targetNames;
+    const names = mesh.getExtras()?.["targetNames"];
     if (!Array.isArray(names) || !names.some((n) => /^eye-(left|right)-closure$/.test(String(n)))) {
       continue;
     }

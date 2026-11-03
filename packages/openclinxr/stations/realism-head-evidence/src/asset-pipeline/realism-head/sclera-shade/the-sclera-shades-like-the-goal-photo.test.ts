@@ -116,6 +116,7 @@ describe("the sclera shades like the goal photo (report integrity)", () => {
     for (const id of ["a", "b", "c"]) {
       const ab = r.ablations[id];
       expect(ab, `ablation ${id} present`).toBeDefined();
+      if (ab === undefined) throw new Error(`ablation ${id} missing`);
       expectFiniteMetrics(ab.subject_aisha, `ablation-${id}.aisha`);
       expectFiniteMetrics(ab.body2, `ablation-${id}.body2`);
     }
