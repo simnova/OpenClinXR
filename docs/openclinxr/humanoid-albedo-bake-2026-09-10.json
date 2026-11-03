@@ -1731,12 +1731,12 @@
     },
     {
       "body": "mpfb-gown-inspect.glb",
-      "meshCountBefore": 11,
-      "meshCountAfter": 11,
-      "nodeCountBefore": 151,
-      "nodeCountAfter": 151,
+      "meshCountBefore": 10,
+      "meshCountAfter": 10,
+      "nodeCountBefore": 149,
+      "nodeCountAfter": 149,
       "byteLengthBefore": 13263836,
-      "byteLengthAfter": 12999904,
+      "byteLengthAfter": 8200968,
       "materials": [
         {
           "material": "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
@@ -1759,7 +1759,7 @@
         },
         {
           "material": "mat_makeclothes_library_toigo_t_shirt",
-          "decision": "baked: per-texel texture x factor folded into the texture, factor reset to white",
+          "decision": "retired 2026-11-03 (st-gowninsp round 2): material stripped from the shipped gown by the Nov03 rebake 9542f47b8 (the strip removed the T-shirt node and the neutral_bone joint node, nodes 151->149; neutral_bone bound 17 verts of this T-shirt prim among 444 verts across 9 pre-rebake meshes per E/joint-diff.json) — bake receipt samples retained for provenance, no live texture to sample; was: baked per-texel texture x factor folded into the texture, factor reset to white",
           "sourceResolution": "2048x2048",
           "bakedResolution": "2048x2048",
           "ladderRungId": "bake-resolution-ladder.res2048",
@@ -2262,6 +2262,474 @@
             1
           ],
           "samples": []
+        },
+        {
+          "material": "mpfb_skin_ob_patient_aisha",
+          "decision": "baked: st-gowninsp round-1 rebake restored the unhidden-leg skin texels in place from the unbaked source through bake_mpfb_gown_inspect.py (factor already white so no fold was applied); the 32 producer-grid samples below are measured from the shipped bytes and pin them",
+          "sourceResolution": "1024x1024",
+          "bakedResolution": "1024x1024",
+          "ladderRungId": "n/a",
+          "texelBudget": 0,
+          "factorBefore": [
+            1,
+            1,
+            1
+          ],
+          "factorAfter": [
+            1,
+            1,
+            1
+          ],
+          "samples": [
+            {
+              "x": 7,
+              "y": 13,
+              "before": [
+                0,
+                0,
+                0
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 408,
+              "y": 746,
+              "before": [
+                0,
+                0,
+                0
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 809,
+              "y": 455,
+              "before": [
+                205,
+                182,
+                166
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 186,
+              "y": 164,
+              "before": [
+                200,
+                178,
+                164
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 587,
+              "y": 897,
+              "before": [
+                201,
+                178,
+                163
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 988,
+              "y": 606,
+              "before": [
+                206,
+                182,
+                167
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 365,
+              "y": 315,
+              "before": [
+                200,
+                178,
+                164
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 766,
+              "y": 24,
+              "before": [
+                0,
+                0,
+                0
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 143,
+              "y": 757,
+              "before": [
+                200,
+                178,
+                164
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 544,
+              "y": 466,
+              "before": [
+                200,
+                178,
+                164
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 945,
+              "y": 175,
+              "before": [
+                0,
+                0,
+                0
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 322,
+              "y": 908,
+              "before": [
+                200,
+                178,
+                164
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 723,
+              "y": 617,
+              "before": [
+                204,
+                182,
+                168
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 100,
+              "y": 326,
+              "before": [
+                0,
+                0,
+                0
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 501,
+              "y": 35,
+              "before": [
+                0,
+                0,
+                0
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 902,
+              "y": 768,
+              "before": [
+                193,
+                171,
+                162
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 279,
+              "y": 477,
+              "before": [
+                200,
+                178,
+                164
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 680,
+              "y": 186,
+              "before": [
+                196,
+                174,
+                159
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 57,
+              "y": 919,
+              "before": [
+                200,
+                178,
+                164
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 458,
+              "y": 628,
+              "before": [
+                200,
+                178,
+                164
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 859,
+              "y": 337,
+              "before": [
+                201,
+                177,
+                161
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 236,
+              "y": 46,
+              "before": [
+                192,
+                170,
+                161
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 637,
+              "y": 779,
+              "before": [
+                200,
+                178,
+                164
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 14,
+              "y": 488,
+              "before": [
+                0,
+                0,
+                0
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 415,
+              "y": 197,
+              "before": [
+                200,
+                178,
+                164
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 816,
+              "y": 930,
+              "before": [
+                202,
+                176,
+                167
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 193,
+              "y": 639,
+              "before": [
+                200,
+                178,
+                164
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 594,
+              "y": 348,
+              "before": [
+                200,
+                178,
+                164
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 995,
+              "y": 57,
+              "before": [
+                0,
+                0,
+                0
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 372,
+              "y": 790,
+              "before": [
+                0,
+                0,
+                0
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 773,
+              "y": 499,
+              "before": [
+                203,
+                181,
+                166
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "x": 150,
+              "y": 208,
+              "before": [
+                201,
+                177,
+                162
+              ],
+              "factor": [
+                1,
+                1,
+                1
+              ]
+            }
+          ]
         }
       ]
     },

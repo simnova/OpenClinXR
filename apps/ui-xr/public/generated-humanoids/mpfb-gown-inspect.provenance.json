@@ -5,8 +5,8 @@
  "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
  "runtimeRole": "inspection_fixture",
  "runtimeRoleWhy": "Inspection subject for garment/gown contracts. Never cast; the shipped-bank cast resolver does not name it.",
- "outputSha256": "9318d9a446a5cec24fba9b71f4d50fc735940b9a339dbe2611e33bde9ce74fac",
- "outputBytes": 8236800,
+ "outputSha256": "0a7776654c1254b42c57c67766db9e111aa1e84ecf13e08bc2cd9266f19ab529",
+ "outputBytes": 8200968,
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.401Z",
  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. HB-05 (2026-09-11): face-preserving decimation rung rewrote the GLB (selective weld+simplifyPrimitive on non-face meshes only, face meshes untouched, joints and 47 body morph targets unchanged); outputSha256/outputBytes re-recorded in the same change that moved the bytes. Reproduce: pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.15 (face-preserving mode, tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts).",
  "byteLineage": {
@@ -36,5 +36,13 @@
   "outputSha256": "9318d9a446a5cec24fba9b71f4d50fc735940b9a339dbe2611e33bde9ce74fac",
   "outputBytes": 8236800,
   "reproduction": "two consecutive producer runs byte-identical (gown-rebake7.glb, gown-rebake7b.glb)"
+ },
+ "chestAnchorRestore20261103": {
+  "producer": "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs --half-span-m 0.085 (post-export byte stage, not a Blender rebake)",
+  "cause": "st-gowninsp round 2: the round-1 rebake left breast.L/R collapsed at the midline (rest x ~0 vs +/-0.085 in the 3bdf74d4b bytes, span 0 vs 0.17 m); the rebake moved the rests even though the viseme source carries +/-0.085. Restored to the fleet-standard +/-0.085 m (span 0.17 m); y/z untouched; no animation channels needed adjustment (animationChannelsAdjusted []).",
+  "outputSha256": "0a7776654c1254b42c57c67766db9e111aa1e84ecf13e08bc2cd9266f19ab529",
+  "outputBytes": 8200968,
+  "report": "tools/openclinxr/evidence/chest-anchor-joints/mpfb-gown-inspect.json",
+  "gate": "tools/openclinxr/evidence/chest-anchors/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed) + tools/openclinxr/evidence/garment-surface-stale/the-gown-drapes-below-the-hip.test.ts (5 passed) green after the stage"
  }
 }

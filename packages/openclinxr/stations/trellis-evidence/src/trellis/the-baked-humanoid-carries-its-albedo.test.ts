@@ -11,6 +11,13 @@ import { repoRoot } from "@openclinxr/factory-station-core/runner";
  * RE-RECORDS (pins move with deliberate changes; thresholds untouched):
  *   - d10314025 (Oct-8 supine rebake) removed one gown-adult mesh: report
  *     mpfb-gown-adult-patient mesh 11->10, node 150->149 (disk-verified).
+ *   - st-gowninsp round 2 (Nov-3 rebake 9542f47b8 + chest-anchor restore) stripped
+ *     the gown-inspect T-shirt: report mpfb-gown-inspect mesh 11->10, node
+ *     151->149 (disk-verified); the toigo_t_shirt texel row is retired and the
+ *     texel check re-points to the shipping skin texture whose unhidden-leg
+ *     texels the rebake restored (32 producer-grid samples measured from the
+ *     shipped bytes). The gown shell itself carries no baseColorTexture, so no
+ *     texel row can name it.
  *   - ceabb545e (Oct-25 linear-station restore) re-baked the parent shirt
  *     (GLB 40321196->40911888 bytes): report samples are that commit's provenance
  *     receipt (albedoRepair.bakedBodyRow, same 32-coordinate grid), and the texel

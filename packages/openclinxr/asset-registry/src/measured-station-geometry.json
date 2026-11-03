@@ -1,6 +1,6 @@
 {
   "generatedBy": "tools/openclinxr/measure-station-geometry.ts",
-  "generatedAt": "2026-11-03T18:27:54.700Z",
+  "generatedAt": "2026-11-03T20:00:37.694Z",
   "sources": {
     "patient_robert_hayes_character": "apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.glb",
     "nurse_maria_alvarez_character": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",

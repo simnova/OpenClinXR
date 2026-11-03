@@ -316,11 +316,11 @@
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
-      "sha256": "9318d9a446a5cec24fba9b71f4d50fc735940b9a339dbe2611e33bde9ce74fac"
+      "sha256": "0a7776654c1254b42c57c67766db9e111aa1e84ecf13e08bc2cd9266f19ab529"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
-      "sha256": "ad4286e9958110109b87381056e37347dd07d864d00626dc61ebafadfae9f080"
+      "sha256": "b74a8b784a1959ce3b4a4c301b8da699bb3c8b280459614f869b7c7fd9d274fc"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
@@ -1392,7 +1392,7 @@
     },
     {
       "path": "packages/openclinxr/asset-registry/src/measured-station-geometry.json",
-      "sha256": "102922aac31855bd5af3ffa194d613dc16d6ee96460a4a9af68371494438cde0"
+      "sha256": "d4de5f578606cafddc377ee002aee089db862862e496f8d0bd1a6718ec3b7d40"
     },
     {
       "path": "packages/openclinxr/asset-registry/src/monitor-visibility.ts",
@@ -5063,7 +5063,7 @@
       "sha256": "0dcd06c66f5acd0ccc42401c8d1fed8ee1351f889861ca13ecc8c79fec1a9f95"
     }
   ],
-  "sourcePinsDigest": "d0e10008c1a89de5008f5ff3a0e0a57983b04e156dcf4a14069dd7551139c4c0",
+  "sourcePinsDigest": "f141844acbc17c094c565cf3c1a8cda42e009b978fe4af980d40d1c48aae0e83",
   "entries": [
     {
       "scenarioId": "adult_abdominal_pain_v1",

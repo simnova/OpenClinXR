@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.humanoid-body-signature-pre-fix.v1",
   "issue": 276,
-  "measuredAt": "2026-11-03T18:27:55.985Z",
+  "measuredAt": "2026-11-03T20:00:52.646Z",
   "scanRoot": "apps/ui-xr/public/generated-humanoids",
   "assets": [
     {
@@ -88,11 +88,11 @@
     {
       "file": "mpfb-gown-inspect.glb",
       "bodyMeshName": "mpfb_ob_patient_aisha_body",
-      "triangles": 4149,
-      "vertices": 3219,
+      "triangles": 10705,
+      "vertices": 7583,
       "heightMeters": 1.6658859994495288,
-      "bodySha256": "43e7aa4daa3206a2dbdde610251448d0b0beee560b69ae97fcdaa5586cf40bfc",
-      "bodyClassKey": "3219|4149|1.67"
+      "bodySha256": "e88cd581be2bc0a141e57655533793380226753d4007eba7ee4d0d000526c5c5",
+      "bodyClassKey": "7583|10705|1.67"
     },
     {
       "file": "mpfb-ob-patient-aisha.glb",
@@ -312,18 +312,6 @@
       ]
     },
     {
-      "bodyClassKey": "3219|4149|1.67",
-      "triangles": 4149,
-      "vertices": 3219,
-      "heightMeters": 1.6658859994495288,
-      "distinctSha256": [
-        "43e7aa4daa3206a2dbdde610251448d0b0beee560b69ae97fcdaa5586cf40bfc"
-      ],
-      "assets": [
-        "mpfb-gown-inspect.glb"
-      ]
-    },
-    {
       "bodyClassKey": "5539|8049|1.76",
       "triangles": 8049,
       "vertices": 5539,
@@ -333,6 +321,18 @@
       ],
       "assets": [
         "mpfb-peds-nurse-kevin.glb"
+      ]
+    },
+    {
+      "bodyClassKey": "7583|10705|1.67",
+      "triangles": 10705,
+      "vertices": 7583,
+      "heightMeters": 1.6658859994495288,
+      "distinctSha256": [
+        "e88cd581be2bc0a141e57655533793380226753d4007eba7ee4d0d000526c5c5"
+      ],
+      "assets": [
+        "mpfb-gown-inspect.glb"
       ]
     },
     {

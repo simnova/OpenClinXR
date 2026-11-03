@@ -19,18 +19,7 @@
   },
   "clavicleSpanM": 0.04554884135723114,
   "maxChestSeparationM": 0.25,
-  "animationChannelsAdjusted": [
-    {
-      "animation": "ClinicalIdleConversation",
-      "joint": "breast.L",
-      "keyframes": 2
-    },
-    {
-      "animation": "ClinicalIdleConversation",
-      "joint": "breast.R",
-      "keyframes": 2
-    }
-  ],
+  "animationChannelsAdjusted": [],
   "claimScope": "mpfb_shipped_rig_chest_anchor_lateral_separation_mirrored_about_midline",
   "notEvidenceFor": [
     "what_any_still_shows",
@@ -42,5 +31,5 @@
   ],
   "inputPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
   "outputPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
-  "generatedAt": "2026-09-03T16:34:52.570Z"
+  "generatedAt": "2026-11-03T19:52:54.893Z"
 }

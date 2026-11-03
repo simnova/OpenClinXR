@@ -18,18 +18,18 @@
    "body": "mpfb-gown-inspect.glb",
    "chosenRungId": "fp-r0.15",
    "rungTechnique": "selective weld+simplifyPrimitive ratio 0.15 error 0.01 on every non-face mesh (face meshes /eye|brow|lash|teeth|tongue/i untouched); 1-triangle gown marker never simplified",
-   "triangleCountBefore": 145287,
-   "triangleCountAfter": 69420,
-   "bytesBefore": 12999904,
-   "bytesAfter": 7922732,
+   "triangleCountBefore": 72882,
+   "triangleCountAfter": 72882,
+   "bytesBefore": 8236800,
+   "bytesAfter": 8200968,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "faceBefore": 52778,
    "faceAfter": 52778,
    "faceRetentionRatio": 1,
-   "jointCountBefore": 138,
-   "jointCountAfter": 138,
-   "jointCountExpected": 138,
-   "jointNote": "gown bodies carry one extra joint (neutral_bone) vs the 137-joint MPFB2 rig on the other eight baked bodies; joint set otherwise identical",
+   "jointCountBefore": 137,
+   "jointCountAfter": 137,
+   "jointCountExpected": 137,
+   "jointNote": "137-joint MPFB2 rig since the Nov03 rebake 9542f47b8: the 138th joint (neutral_bone, skin slot 137) retired when skinning re-based onto the 137-joint viseme source, which carries no neutral_bone; in the pre-rebake bytes it bound 444 verts across 9 meshes (brows/lashes most, plus the stripped T-shirt and the retired peds_upper_v1 gown); joint set otherwise identical",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
    "bodyMorphTargetsBefore": 47,
    "bodyMorphTargetsAfter": 47,
@@ -37,9 +37,9 @@
    "weightsChannelsAfter": 1,
    "zeroTriangleMeshes": [],
    "featureSurvival": "ok",
-   "promoted": true,
+   "promoted": false,
    "promotionNote": "face-preserving rung 69420 <= 120000 acceptableSingleProp with every face triangle and every joint kept (face 52778/52778 = 1, joints 138/138); live GLB rewritten by this card",
-   "outputSha256": "0e718440bd978e939211d0da9ebecda7cb4ba01da8d81f8b1520723569e75c95",
+   "outputSha256": "0a7776654c1254b42c57c67766db9e111aa1e84ecf13e08bc2cd9266f19ab529",
    "captures": {
     "front_fp_lit_eevee": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-gown-inspect-front_fp.png",
@@ -48,7 +48,18 @@
      "engine": "Blender EEVEE headless (baked Principled base colour, not Workbench)"
     }
    },
-   "remeasureNote": "Re-measured 2026-10-30: +284B metadata drift, geometry identical. Superseding commit 9f2934536 (2026-09-28 #741 teeth-retreat re-apply)."
+   "remeasureNote": "Re-measured 2026-11-03 (st-gowninsp round 2): the Sep11 fp-r0.15 rung output did not survive the Nov03 gown rebake 9542f47b8 (casual T-shirt strip, meshes 11->10; new hospital-gown shell; rehidden skin mask; joints 138->137 as neutral_bone retired with the skinning re-base) plus the chest-anchor restore that moved the shipped bytes to 8200968. The committed rung re-run on the rebaked source shrinks the new shell below its drape counterweight (shell verts 3503->531 vs the 2000 floor; 4 sampleable below-hip bands, 0 clearing 40mm), so the row is demoted with ratio-1 and 137-joint floors on the re-measured source; tris 72882 and face 52778 hold. Prior re-measure (Sep28 teeth retreat 9f2934536) preserved in git history.",
+   "noSurvivingRungReason": "The Sep11 fp-r0.15 rung output did not survive the Nov03 gown rebake 9542f47b8 (casual T-shirt strip, new hospital-gown shell, rehidden skin mask; joints 138->137 as neutral_bone retired with the skinning re-base onto the 137-joint viseme source) plus the chest-anchor restore to 8200968 bytes. The committed rung re-run on the rebaked source yields 56699 tris with face 52778 intact but shrinks the new shell below its drape counterweight (shell verts 3503->531 vs the 2000-vert floor; only 4 below-hip bands stay sampleable and 0 clear 40mm, against clauses needing >4 bands with >=5 clearing), so no rung is promoted. Face-retention ratio 1 and the 137-joint invariant now floor this re-measured source (tris 72882, face 52778); the historical pre-rebake rung is preserved in supersededRecord.",
+   "supersededRecord": {
+    "triangleCountBefore": 145287,
+    "triangleCountAfter": 69420,
+    "bytesBefore": 12999904,
+    "bytesAfter": 7922732,
+    "faceBefore": 52778,
+    "faceAfter": 52778,
+    "outputSha256": "0e718440bd978e939211d0da9ebecda7cb4ba01da8d81f8b1520723569e75c95",
+    "supersededBecause": "input lineage replaced by the Nov03 gown rebake 9542f47b8; the Sep11 rung output it recorded matches no shipped bytes since the rebake"
+   }
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",

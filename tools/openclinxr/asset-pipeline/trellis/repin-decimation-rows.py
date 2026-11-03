@@ -17,6 +17,7 @@ Refuses to write if any live measurement disagrees with the plan.
 import json
 import os
 import re
+import hashlib
 import struct
 import subprocess
 import sys
@@ -50,7 +51,8 @@ def live(body):
     joints = None
     if skins:
         joints = len(skins[0]["joints"])
-    return {"tris": tris, "face": face, "joints": joints, "bytes": len(raw), "hand": hand}
+    return {"tris": tris, "face": face, "joints": joints, "bytes": len(raw), "hand": hand,
+            "sha256": hashlib.sha256(raw).hexdigest()}
 
 
 def commit_oneline(sha):
@@ -59,8 +61,14 @@ def commit_oneline(sha):
     return out.stdout.strip()
 
 
-# body -> {field: new_value} plus provenance notes. Every after-value is
-# asserted against a fresh live measurement before the row is touched.
+# A plan entry holds common fields plus optional per-report overrides:
+#   "hb03": {...} / "hb05": {...} merge over the common fields for that report
+#   only (used when a demote/history row differs between the HB-03 and HB-05
+#   records). "note" and "textSubs" may likewise be nested per report.
+# A plan entry that carries jointCountAfter re-pins the joint expectation
+# itself (asserted live, e.g. a retired garment bone); entries without it
+# keep the joints-unchanged invariant. outputSha256, when carried, is
+# asserted against the live bytes before it is written.
 # ci-w11b 2026-10-30: ci-w11 D1 (d1c44f8cd) pruned 5.14 MB of unbound image
 # payload fleet-wide and ci-w12 D1 (21fad089f) re-applied the recorded gravid
 # treatment on the pruned OB base. All five rows below are bytes-only drift:
@@ -149,6 +157,78 @@ PLAN = {
                  "(deliberate mouth-program rebuild afe8abced / ceabb545e) preserved in git "
                  "history."),
     },
+    # --- st-gowninsp round 2 (2026-11-03): the Nov03 gown rebake 9542f47b8
+    # replaced the Sep11 rung input (T-shirt strip 11->10 meshes, new gown
+    # shell, rehidden mask, joints 138->137) and the chest-anchor restore
+    # moved the shipped bytes again. The committed fp-r0.15 rung re-run on the
+    # rebaked source breaks the drape counterweight, so the HB-05 row demotes
+    # (peds-parent-aisha precedent) and the HB-03 row re-pins to the live
+    # undecimated source. Every after-value below is asserted live by main().
+    "mpfb-gown-inspect.glb": {
+        "bytesAfter": 8200968,
+        "triangleCountAfter": 72882,
+        "faceBefore": 52778,
+        "faceAfter": 52778,
+        "jointCountAfter": 137,
+        "jointCountExpected": 137,
+        "textSubs": {
+            "jointNote": [
+                ("137-joint MPFB2 rig since the Nov03 rebake 9542f47b8: the 138th joint (neutral_bone, bound by 3 verts of the retired peds_upper_v1 gown shell only) left with the old gown; joint set otherwise identical",
+                 "137-joint MPFB2 rig since the Nov03 rebake 9542f47b8: the 138th joint (neutral_bone, skin slot 137) retired when skinning re-based onto the 137-joint viseme source, which carries no neutral_bone; in the pre-rebake bytes it bound 444 verts across 9 meshes (brows/lashes most, plus the stripped T-shirt and the retired peds_upper_v1 gown); joint set otherwise identical"),
+            ],
+        },
+        "hb05": {
+            "triangleCountBefore": 72882,
+            "bytesBefore": 8236800,
+            "jointCountBefore": 137,
+            "promoted": False,
+            "noSurvivingRungReason": ("The Sep11 fp-r0.15 rung output did not survive the Nov03 gown rebake 9542f47b8 "
+                "(casual T-shirt strip, new hospital-gown shell, rehidden skin mask; joints 138->137 as neutral_bone "
+                "retired with the skinning re-base onto the 137-joint viseme source) plus the chest-anchor restore to 8200968 bytes. The committed "
+                "rung re-run on the rebaked source yields 56699 tris with face 52778 intact but shrinks the new shell "
+                "below its drape counterweight (shell verts 3503->531 vs the 2000-vert floor; only 4 below-hip bands stay "
+                "sampleable and 0 clear 40mm, against clauses needing >4 bands with >=5 clearing), so no rung is promoted. Face-retention ratio 1 and the 137-joint invariant now floor "
+                "this re-measured source (tris 72882, face 52778); the historical pre-rebake rung is preserved in "
+                "supersededRecord."),
+            "supersededRecord": {
+                "triangleCountBefore": 145287,
+                "triangleCountAfter": 69420,
+                "bytesBefore": 12999904,
+                "bytesAfter": 7922732,
+                "faceBefore": 52778,
+                "faceAfter": 52778,
+                "outputSha256": "0e718440bd978e939211d0da9ebecda7cb4ba01da8d81f8b1520723569e75c95",
+                "supersededBecause": ("input lineage replaced by the Nov03 gown rebake 9542f47b8; the Sep11 rung "
+                    "output it recorded matches no shipped bytes since the rebake"),
+            },
+            "outputSha256": "0a7776654c1254b42c57c67766db9e111aa1e84ecf13e08bc2cd9266f19ab529",
+            "note": ("Re-measured 2026-11-03 (st-gowninsp round 2): the Sep11 fp-r0.15 rung output did not survive "
+                "the Nov03 gown rebake 9542f47b8 (casual T-shirt strip, meshes 11->10; new hospital-gown shell; "
+                "rehidden skin mask; joints 138->137 as neutral_bone retired with the skinning re-base) plus the chest-anchor "
+                "restore that moved the shipped bytes to 8200968. The committed rung re-run on the rebaked source "
+                "shrinks the new shell below its drape counterweight (shell verts 3503->531 vs the 2000 floor; "
+                "4 sampleable below-hip bands, 0 clearing 40mm), so the row is demoted with ratio-1 and 137-joint floors on the "
+                "re-measured source; tris 72882 and face 52778 hold. Prior re-measure (Sep28 teeth retreat 9f2934536) "
+                "preserved in git history."),
+        },
+        "hb03": {
+            "jointCountBefore": 137,
+            "handBodyMeshAfter": 10705,
+            "textSubs": {
+                "jointNote": [
+                    ("137-joint MPFB2 rig since the Nov03 rebake 9542f47b8: the 138th joint (neutral_bone, bound by 3 verts of the retired peds_upper_v1 gown shell only) left with the old gown; joint set otherwise identical",
+                     "137-joint MPFB2 rig since the Nov03 rebake 9542f47b8: the 138th joint (neutral_bone, skin slot 137) retired when skinning re-based onto the 137-joint viseme source, which carries no neutral_bone; in the pre-rebake bytes it bound 444 verts across 9 meshes (brows/lashes most, plus the stripped T-shirt and the retired peds_upper_v1 gown); joint set otherwise identical"),
+                ],
+                "promotionNote": [
+                    ("so no rung is promoted and the live GLB is unchanged. The sibling mpfb-gown-adult-patient.glb export covers the same gown subject at 64140 tris inside budget.",
+                     "so no rung was promoted and the live GLB stayed on the Sep11 rung bytes until the Nov03 rebake 9542f47b8 re-based it on the new gown shell (undecimated: raw 72882 tris already inside the 80000 preferred budget; the fp-r0.15 re-run breaks the drape counterweight, see the HB-05 row). The sibling mpfb-gown-adult-patient.glb export covers the same gown subject at 64140 tris inside budget."),
+                ],
+            },
+            "note": ("Re-measured 2026-11-03 (st-gowninsp round 2): after-values track the Nov03 rebake 9542f47b8 "
+                "(meshes 11->10, nodes 151->149, joints 138->137) and the chest-anchor restore (shipped bytes "
+                "8236800->8200968); before-values stay the Sep11 STOP-branch record. Face 52778 and ratio 1 hold."),
+        },
+    },
 }
 
 
@@ -161,31 +241,42 @@ def main():
             if body not in rows:
                 continue
             row = rows[body]
+            scoped = {k: v for k, v in plan.items() if k not in ("note", "textSubs", "hb03", "hb05")}
+            scoped.update({k: v for k, v in plan.get(key, {}).items()
+                           if k not in ("note", "textSubs")})
+            note = plan.get(key, {}).get("note", plan.get("note"))
+            subs = plan.get(key, {}).get("textSubs", plan.get("textSubs", {}))
             m = live(body)
             for field in ("bytesAfter", "triangleCountAfter", "faceAfter", "faceBefore",
                           "handBodyMeshAfter"):
-                if field in plan:
+                if field in scoped:
                     live_key = {"bytesAfter": "bytes", "triangleCountAfter": "tris",
                                 "faceAfter": "face", "faceBefore": "face",
                                 "handBodyMeshAfter": "hand"}[field]
-                    assert m[live_key] == plan[field], \
-                        f"{body} {field}: plan {plan[field]} != live {m[live_key]}"
-            assert m["joints"] == row["jointCountAfter"] == row["jointCountExpected"], \
-                f"{body} joints changed: live {m['joints']}"
-            assert m["face"] >= row["faceBefore"] * row["faceRetentionRatio"] or \
+                    assert m[live_key] == scoped[field], \
+                        f"{body} {field}: plan {scoped[field]} != live {m[live_key]}"
+            if "outputSha256" in scoped:
+                assert m["sha256"] == scoped["outputSha256"], \
+                    f"{body} outputSha256: plan {scoped['outputSha256'][:16]} != live {m['sha256'][:16]}"
+            if "jointCountAfter" in scoped:
+                assert m["joints"] == scoped["jointCountAfter"], \
+                    f"{body} joints re-pin: plan {scoped['jointCountAfter']} != live {m['joints']}"
+            else:
+                assert m["joints"] == row["jointCountAfter"] == row["jointCountExpected"], \
+                    f"{body} joints changed: live {m['joints']}"
+            face_before = scoped.get("faceBefore", row["faceBefore"])
+            assert m["face"] >= face_before * row["faceRetentionRatio"] or \
                 body == "mpfb-peds-parent-aisha.glb", f"{body} floor breach"
-            for field, value in plan.items():
-                if field in ("note", "textSubs"):
-                    continue
+            for field, value in scoped.items():
                 row[field] = value
-            for target_field, subs in plan.get("textSubs", {}).items():
-                for old, new in subs:
+            for target_field, pairs in subs.items():
+                for old, new in pairs:
                     if old in row.get(target_field, ""):
                         row[target_field] = row[target_field].replace(old, new)
                     else:
                         assert new in row.get(target_field, ""), \
                             f"{body} {target_field}: neither {old!r} nor {new!r} found"
-            row["remeasureNote"] = plan["note"]
+            row["remeasureNote"] = note
         stamp = ("; re-pinned 2026-10-30 from live GLB bytes by "
                  "tools/openclinxr/asset-pipeline/trellis/repin-decimation-rows.py (ci-w9 P3)")
         if "re-pinned 2026-10-30" not in str(report.get("generated", "")):

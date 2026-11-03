@@ -105,7 +105,7 @@
   {
    "body": "mpfb-gown-inspect.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 7922732,
+   "bytesAfter": 8200968,
    "bytesBefore": 12999904,
    "chosenRungId": "r0.1",
    "faceAfter": 52778,
@@ -113,12 +113,12 @@
    "faceRetentionRatio": 1,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "featureSurvival": "ok",
-   "handBodyMeshAfter": 26756,
+   "handBodyMeshAfter": 10705,
    "handBodyMeshBefore": 26756,
-   "jointCountAfter": 138,
-   "jointCountBefore": 138,
-   "jointCountExpected": 138,
-   "jointNote": "gown bodies carry one extra joint (neutral_bone) vs the 137-joint MPFB2 rig on the other eight baked bodies; joint set otherwise identical",
+   "jointCountAfter": 137,
+   "jointCountBefore": 137,
+   "jointCountExpected": 137,
+   "jointNote": "137-joint MPFB2 rig since the Nov03 rebake 9542f47b8: the 138th joint (neutral_bone, skin slot 137) retired when skinning re-based onto the 137-joint viseme source, which carries no neutral_bone; in the pre-rebake bytes it bound 444 verts across 9 meshes (brows/lashes most, plus the stripped T-shirt and the retired peds_upper_v1 gown); joint set otherwise identical",
    "ladderRungMeasured": {
     "bytes": 7373708,
     "faceAfter": 5793,
@@ -129,10 +129,10 @@
     "triangleCount": 36595
    },
    "promoted": false,
-   "promotionNote": "STOP branch: r0.1 keeps 5793/52778 = 0.1098 of face triangles (89% destroyed) — the ladder halves the body but destroys the face, so no rung is promoted and the live GLB is unchanged. The sibling mpfb-gown-adult-patient.glb export covers the same gown subject at 64140 tris inside budget.",
-   "triangleCountAfter": 145287,
+   "promotionNote": "STOP branch: r0.1 keeps 5793/52778 = 0.1098 of face triangles (89% destroyed) — the ladder halves the body but destroys the face, so no rung was promoted and the live GLB stayed on the Sep11 rung bytes until the Nov03 rebake 9542f47b8 re-based it on the new gown shell (undecimated: raw 72882 tris already inside the 80000 preferred budget; the fp-r0.15 re-run breaks the drape counterweight, see the HB-05 row). The sibling mpfb-gown-adult-patient.glb export covers the same gown subject at 64140 tris inside budget.",
+   "triangleCountAfter": 72882,
    "triangleCountBefore": 145287,
-   "remeasureNote": "Re-measured 2026-10-30: +284B metadata drift, geometry identical. Superseding commit 9f2934536 (2026-09-28 #741 teeth-retreat re-apply)."
+   "remeasureNote": "Re-measured 2026-11-03 (st-gowninsp round 2): after-values track the Nov03 rebake 9542f47b8 (meshes 11->10, nodes 151->149, joints 138->137) and the chest-anchor restore (shipped bytes 8236800->8200968); before-values stay the Sep11 STOP-branch record. Face 52778 and ratio 1 hold."
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
