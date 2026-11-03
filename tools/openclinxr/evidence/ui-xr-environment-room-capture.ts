@@ -58,21 +58,21 @@ export type LiveShell = {
   roomDepthMeters?: unknown;
   roomWidthMeters?: unknown;
   roomHeightMeters?: unknown;
-  shellVisible?: boolean;
-  floorVisible?: boolean;
+  shellVisible?: boolean | undefined;
+  floorVisible?: boolean | undefined;
   encounterFloorTheme?: unknown;
-  captureMode?: string;
-  cameraFraming?: string;
-  cameraEye?: [number, number, number];
-  cameraLook?: [number, number, number];
-  cameraFov?: number;
-  refineTag?: string;
-  actorContainment?: { contained: number; total: number };
-  actorVisibility?: ActorVisibilityReading[];
-  standingActorContainment?: { contained: number; total: number };
-  meanFacingDeg?: number;
-  framingConstraintsMet?: boolean;
-  nearOcclusion?: NearOcclusionReading;
+  captureMode?: string | undefined;
+  cameraFraming?: string | undefined;
+  cameraEye?: [number, number, number] | undefined;
+  cameraLook?: [number, number, number] | undefined;
+  cameraFov?: number | undefined;
+  refineTag?: string | undefined;
+  actorContainment?: { contained: number; total: number } | undefined;
+  actorVisibility?: ActorVisibilityReading[] | undefined;
+  standingActorContainment?: { contained: number; total: number } | undefined;
+  meanFacingDeg?: number | undefined;
+  framingConstraintsMet?: boolean | undefined;
+  nearOcclusion?: NearOcclusionReading | undefined;
   /**
    * #342 — the generated room, read from the LOADED SCENE.
    *
@@ -682,7 +682,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
       return { ready: false, reason: "no __openClinXrDebugScene", environmentId: "" };
     }
 
-    const stationMeta = scene.userData?.openClinXrStationEnvironment as
+    const stationMeta = scene.userData?.["openClinXrStationEnvironment"] as
       | { environmentId?: string; floorColor?: unknown; roomDepthMeters?: unknown; environmentFallbackActive?: boolean }
       | undefined;
 
@@ -693,7 +693,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
         const name = object.name ?? "";
         if (name === "openclinxr.station-environment-shell") shell = object;
         if (name === "openclinxr.station-environment.floor" || name.endsWith(".floor")) {
-          if (object.userData?.openClinXrEncounterSpecificRuntimeTheme || name.includes("station-environment")) {
+          if (object.userData?.["openClinXrEncounterSpecificRuntimeTheme"] || name.includes("station-environment")) {
             floor = object;
           }
         }
@@ -703,7 +703,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
     // Prefer shell.userData (written by buildStationEnvironment) — page truth.
     const shellUd = shell?.userData ?? {};
     const environmentId =
-      (typeof shellUd.environmentId === "string" && shellUd.environmentId)
+      (typeof shellUd["environmentId"] === "string" && shellUd["environmentId"])
       || stationMeta?.environmentId
       || "";
     if (!environmentId) {
@@ -723,7 +723,7 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
     let framingConstraintsMet: boolean | undefined;
     if (typeof scene.traverse === "function") {
       scene.traverse((object) => {
-        const framing = object.userData?.openClinXrCameraFraming;
+        const framing = object.userData?.["openClinXrCameraFraming"];
         if (typeof framing === "string" && framing.length > 0 && !cameraFraming) {
           cameraFraming = framing;
         }
@@ -736,30 +736,33 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
           };
           const elements = camera.matrixWorld?.elements;
           if (elements && elements.length >= 15) {
-            cameraEye = [elements[12]!, elements[13]!, elements[14]!];
+            const ex = elements[12] ?? 0;
+            const ey = elements[13] ?? 0;
+            const ez = elements[14] ?? 0;
+            cameraEye = [ex, ey, ez];
           }
-          const rawLook = camera.userData?.openClinXrCameraLookAt;
+          const rawLook = camera.userData?.["openClinXrCameraLookAt"];
           if (Array.isArray(rawLook) && rawLook.length === 3 && rawLook.every((value) => typeof value === "number")) {
             cameraLook = rawLook as [number, number, number];
           }
           if (typeof camera.fov === "number") cameraFov = camera.fov;
-          const rawTag = camera.userData?.openClinXrRefineTag;
+          const rawTag = camera.userData?.["openClinXrRefineTag"];
           if (typeof rawTag === "string") refineTag = rawTag;
-          const containment = camera.userData?.openClinXrActorContainment;
+          const containment = camera.userData?.["openClinXrActorContainment"];
           if (typeof containment === "string") {
             const match = /^(\d+)\/(\d+)$/u.exec(containment);
             if (match) actorContainment = { contained: Number(match[1]), total: Number(match[2]) };
           }
-          const rawVisibility = camera.userData?.openClinXrActorVisibility;
+          const rawVisibility = camera.userData?.["openClinXrActorVisibility"];
           if (Array.isArray(rawVisibility)) actorVisibility = rawVisibility as ActorVisibilityReading[];
-          const standingContainment = camera.userData?.openClinXrStandingActorContainment;
+          const standingContainment = camera.userData?.["openClinXrStandingActorContainment"];
           if (typeof standingContainment === "string") {
             const match = /^(\d+)\/(\d+)$/u.exec(standingContainment);
             if (match) standingActorContainment = { contained: Number(match[1]), total: Number(match[2]) };
           }
-          const rawFacing = camera.userData?.openClinXrMeanFacingDeg;
+          const rawFacing = camera.userData?.["openClinXrMeanFacingDeg"];
           if (typeof rawFacing === "number") meanFacingDeg = rawFacing;
-          const rawConstraints = camera.userData?.openClinXrFramingConstraintsMet;
+          const rawConstraints = camera.userData?.["openClinXrFramingConstraintsMet"];
           if (typeof rawConstraints === "boolean") framingConstraintsMet = rawConstraints;
         }
       });
@@ -768,13 +771,13 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
     return {
       ready: true,
       environmentId,
-      floorColor: shellUd.floorColor ?? stationMeta?.floorColor,
-      roomDepthMeters: shellUd.roomDepthMeters ?? stationMeta?.roomDepthMeters,
-      roomWidthMeters: shellUd.roomWidthMeters,
-      roomHeightMeters: shellUd.roomHeightMeters,
+      floorColor: shellUd["floorColor"] ?? stationMeta?.floorColor,
+      roomDepthMeters: shellUd["roomDepthMeters"] ?? stationMeta?.roomDepthMeters,
+      roomWidthMeters: shellUd["roomWidthMeters"],
+      roomHeightMeters: shellUd["roomHeightMeters"],
       shellVisible: shell?.visible !== false,
       floorVisible: floor?.visible !== false,
-      encounterFloorTheme: floor?.userData?.openClinXrEncounterSpecificRuntimeTheme
+      encounterFloorTheme: floor?.userData?.["openClinXrEncounterSpecificRuntimeTheme"]
         ?? "floor_color_derived_from_environmentId_descriptor",
       cameraFraming,
       cameraEye,
@@ -1232,7 +1235,7 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
           (p) => `${p[0].toFixed(1)}/${p[1].toFixed(1)}`,
         );
       }
-      return `roomCam(derived)=${d.eye.map((v) => v.toFixed(2)).join(",")} look=${d.look.map((v) => v.toFixed(2)).join(",")} nearestActor=${d.nearestActorMeters.toFixed(2)}m rejected=${d.rejectedCandidates.map((p) => p[0].toFixed(1) + "/" + p[1].toFixed(1)).join(" ")} interiorMaxZ=${d.interiorMax[2].toFixed(2)} wallThickness=${d.wallThickness.toFixed(3)} census=${d.candidateTotal}/${d.acceptedCount}/${d.rejectedCandidates.length} witness=${d.derivationWitness}`;
+      return `roomCam(derived)=${d.eye.map((v) => v.toFixed(2)).join(",")} look=${d.look.map((v) => v.toFixed(2)).join(",")} nearestActor=${d.nearestActorMeters.toFixed(2)}m rejected=${d.rejectedCandidates.map((p) => `${p[0].toFixed(1)}/${p[1].toFixed(1)}`).join(" ")} interiorMaxZ=${d.interiorMax[2].toFixed(2)} wallThickness=${d.wallThickness.toFixed(3)} census=${d.candidateTotal}/${d.acceptedCount}/${d.rejectedCandidates.length} witness=${d.derivationWitness}`;
     }, derived);
     const refineNote = await refineCameraForOcclusionAndContainment(page);
     return `${note} ${refineNote}`;
@@ -1283,7 +1286,7 @@ export async function reframeCameraForRoom(page: Page, environmentId: string): P
       foundCamera.updateProjectionMatrix?.();
     }
     if (foundCamera.userData) {
-      foundCamera.userData.openClinXrCameraFraming = "environment_room_capture_doorway_elevated_overview_#398";
+      foundCamera.userData["openClinXrCameraFraming"] = "environment_room_capture_doorway_elevated_overview_#398";
     }
     return `roomCam=${foundCamera.position.x.toFixed(2)},${foundCamera.position.y.toFixed(2)},${foundCamera.position.z.toFixed(2)} lookX=${cam.lookX.toFixed(2)}`;
   }, { ...camera, lookX });
@@ -1418,7 +1421,7 @@ export type CaptureStationEnvironmentRoomsInput = {
   /** Absolute or repo-relative output directory. */
   outputDir?: string;
   /** Scenario ids to load (default: every shipped station under xr-assets/generated). */
-  scenarioIds?: readonly string[];
+  scenarioIds?: readonly string[] | undefined;
   captureMode?: string;
   /** Injected base URL skips spawning a dev server (tests / resume). */
   baseUrl?: string;
@@ -1510,7 +1513,7 @@ export async function captureStationEnvironmentRooms(
             };
             const hidden: string[] = [];
             pageWindow.__openClinXrDebugScene?.traverse((obj) => {
-              if (obj.userData?.openClinXrPortalInteriorReviewAffordance !== true || !obj.visible) return;
+              if (obj.userData?.["openClinXrPortalInteriorReviewAffordance"] !== true || !obj.visible) return;
               obj.visible = false;
               hidden.push(obj.name);
             });
@@ -1694,13 +1697,23 @@ async function main(): Promise<void> {
   let captureMode = ROOM_CAPTURE_MODE;
   const scenarioIds: string[] = [];
   for (let i = 0; i < args.length; i += 1) {
-    const arg = args[i]!;
-    if (arg === "--output-dir" && args[i + 1]) {
-      outputDir = args[++i]!;
-    } else if (arg === "--capture-mode" && args[i + 1]) {
-      captureMode = args[++i]!;
-    } else if (arg === "--scenario" && args[i + 1]) {
-      scenarioIds.push(args[++i]!);
+    const arg = args[i];
+    if (arg === undefined) break;
+    if (arg === "--output-dir") {
+      const value = args[i + 1];
+      if (!value) continue;
+      outputDir = value;
+      i += 1;
+    } else if (arg === "--capture-mode") {
+      const value = args[i + 1];
+      if (!value) continue;
+      captureMode = value;
+      i += 1;
+    } else if (arg === "--scenario") {
+      const value = args[i + 1];
+      if (!value) continue;
+      scenarioIds.push(value);
+      i += 1;
     }
   }
 

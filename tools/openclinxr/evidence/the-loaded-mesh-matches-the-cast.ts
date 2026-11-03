@@ -134,9 +134,9 @@ export async function inspectLoadedMeshMatchesCast(input?: {
 
   measureInFlight = (async () => {
     if (!input?.force && !input?.writeArtifact && !input?.scenarioIds && !input?.baseUrl) {
-      if (process.env.OPENCLINXR_CAST_LOAD_TRUTH_USE_DISK === "1") {
+      if (process.env["OPENCLINXR_CAST_LOAD_TRUTH_USE_DISK"] === "1") {
         const fromDisk = await tryReadStampedArtifact(castLoadTruthPath(), (parsed) => {
-          const report = parsed.report as CastLoadTruthReport | undefined;
+          const report = parsed["report"] as CastLoadTruthReport | undefined;
           if (report?.rows && Array.isArray(report.rows) && report.rows.length > 0) return report;
           return null;
         });
@@ -189,8 +189,8 @@ export async function writeCastLoadTruthDump(
 }
 
 async function measureLiveCastLoad(input: {
-  baseUrl?: string;
-  scenarioIds?: string[];
+  baseUrl?: string | undefined;
+  scenarioIds?: string[] | undefined;
 }): Promise<CastLoadTruthReport> {
   const scenarioIds =
     input.scenarioIds && input.scenarioIds.length > 0
@@ -538,8 +538,8 @@ export async function writeFaceCueTruthDump(
 }
 
 async function measureLiveFaceCueTruth(input: {
-  baseUrl?: string;
-  scenarioIds?: string[];
+  baseUrl?: string | undefined;
+  scenarioIds?: string[] | undefined;
 }): Promise<FaceCueTruthReport> {
   const scenarioIds =
     input.scenarioIds && input.scenarioIds.length > 0

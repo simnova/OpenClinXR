@@ -52,7 +52,7 @@ export type VisualQaEvidence = {
     frameCount?: number;
     runtimeUrl?: string;
     route?: string;
-    scenarioId?: string;
+    scenarioId?: string | undefined;
     xrMode?: string;
     cameraPose?: string;
     captureCommand?: string;
@@ -102,7 +102,7 @@ export type VisualQaEvidenceReadiness = {
 
 export type VisualQaEvidenceReport = {
   generatedAt: string;
-  inputFile?: string;
+  inputFile?: string | undefined;
   evidence: VisualQaEvidence;
   result: VisualQaEvidenceReadiness;
   remediationWorkOrderRefs?: VisualQaRemediationWorkOrderRef[];
@@ -290,7 +290,7 @@ async function latestPassingVisualQaEvidenceReport(): Promise<VisualQaEvidenceRe
     file: string;
     report: VisualQaEvidenceReport;
     generatedAtMs: number;
-  } => candidate !== undefined && candidate.report.result.readyForAdversarialVisualQa);
+  } => candidate?.report.result.readyForAdversarialVisualQa === true);
 
   return candidates
     .sort((left, right) => {
@@ -642,15 +642,15 @@ function humanoidVisualAnalysisFromRemediationArtifact(
 }
 
 function isVisualQaEvidence(value: unknown): value is VisualQaEvidence {
-  return isRecord(value) && value.schemaVersion === "openclinxr.visual-qa-evidence.v1";
+  return isRecord(value) && value["schemaVersion"] === "openclinxr.visual-qa-evidence.v1";
 }
 
 function isVisualQaRemediationEvidenceArtifact(value: unknown): value is VisualQaRemediationEvidenceArtifact {
   return isRecord(value)
-    && value.artifactType === "video"
-    && typeof value.video === "string"
-    && Array.isArray(value.reviewFocus)
-    && Array.isArray(value.runtimeSignalsObserved);
+    && value["artifactType"] === "video"
+    && typeof value["video"] === "string"
+    && Array.isArray(value["reviewFocus"])
+    && Array.isArray(value["runtimeSignalsObserved"]);
 }
 
 function safeWorkOrderSegment(value: string): string {

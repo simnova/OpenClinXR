@@ -74,19 +74,19 @@ const REPORT_PATH = path.join(POLICY_ROOT, "conditioning-report.json");
 const BOARD_KEY_PATH = path.join(BOARDS_DIR, "board-key.json");
 
 const VENV_PYTHON = path.resolve(
-  process.env.HOME ?? "/Users/patrick",
+  process.env["HOME"] ?? "/Users/patrick",
   ".openclinxr-tools/trellis2-apple/venv/bin/python3",
 );
 const TRELLIS_ROOT = path.resolve(
-  process.env.HOME ?? "/Users/patrick",
+  process.env["HOME"] ?? "/Users/patrick",
   ".openclinxr-tools/trellis2-apple/src",
 );
 const WEIGHTS_PATH = path.resolve(
-  process.env.HOME ?? "/Users/patrick",
+  process.env["HOME"] ?? "/Users/patrick",
   "ComfyUI/models/trellis2",
 );
 const DINOV3_PATH = path.resolve(
-  process.env.HOME ?? "/Users/patrick",
+  process.env["HOME"] ?? "/Users/patrick",
   "ComfyUI/models/dinov3",
 );
 
@@ -110,7 +110,7 @@ const RUBRIC_PATH = path.join(
 const DEFAULT_SEED = 20260828;
 /** Per-bake timeout: a 4-view bake measured 2250 s in #255; six views may run longer. */
 const BAKE_TIMEOUT_MS = 7_200_000;
-const STUDIO_PORT = Number(process.env.OPENCLINXR_CONDITIONING_PORT ?? 5297);
+const STUDIO_PORT = Number(process.env["OPENCLINXR_CONDITIONING_PORT"] ?? 5297);
 
 const SIX_CARDINALS = ["front", "back", "left", "right", "top", "bottom"] as const;
 
@@ -186,7 +186,7 @@ function readJson<T>(p: string): T | null {
 }
 
 function resolveSourceGlb(): string {
-  const env = process.env.OPENCLINXR_CONDITIONING_SOURCE_GLB;
+  const env = process.env["OPENCLINXR_CONDITIONING_SOURCE_GLB"];
   if (env) return env;
   const rel = ".openclinxr/evidence/equipment-kit-approach-b/compare-renders/stab_E_midband.glb";
   const inTree = path.join(REPO_ROOT, rel);
@@ -198,7 +198,7 @@ function resolveSourceGlb(): string {
 }
 
 function blenderBinary(): string {
-  return process.env.OPENCLINXR_BLENDER ?? "blender";
+  return process.env["OPENCLINXR_BLENDER"] ?? "blender";
 }
 
 function sourceSetManifest(): { views?: Array<{ view?: string; sha256?: string; elevDeg?: number; azimDeg?: number }> } {
@@ -231,7 +231,7 @@ function inputImageRecord(view: string): { path: string; sha256: string; viewId:
 // ---------------------------------------------------------------------------
 
 function renderSourceSet(force: boolean): void {
-  const manifest = sourceSetManifest();
+  const _manifest = sourceSetManifest();
   const allPresent = SOURCE_SET_VIEWS.every((v) => existsSync(path.join(SOURCE_SET_DIR, `${v}.png`)));
   if (allPresent && !force) {
     process.stdout.write(`[conditioning] source set present (${SOURCE_SET_VIEWS.length} views) — skipping render\n`);
@@ -366,12 +366,18 @@ function shuffleArmOrder(arms: readonly ArmDef[], seed: number): readonly ArmDef
   };
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(next() * (i + 1));
-    [arr[i], arr[j]] = [arr[j]!, arr[i]!];
+    const a = arr[i];
+    const b = arr[j];
+    if (a === undefined || b === undefined) {
+      throw new Error(`shuffleArmOrder: index out of bounds (i=${i}, j=${j}, len=${arr.length})`);
+    }
+    arr[i] = b;
+    arr[j] = a;
   }
   return arr;
 }
 
-async function captureBoards(force: boolean): Promise<{
+async function captureBoards(_force: boolean): Promise<{
   boards: Record<string, { path: string; sha256: string } | null>;
   armRenders: Record<string, Record<string, string | null>>;
   refused: Record<string, string>;
@@ -405,7 +411,13 @@ async function captureBoards(force: boolean): Promise<{
   // One deterministic blind permutation across all boards: label A/B/C/D by position.
   const ordered = shuffleArmOrder(ARMS, 0x697);
   const letters = ["A", "B", "C", "D"] as const;
-  const positionKey = ordered.map((arm, i) => ({ letter: letters[i]!, armId: arm.armId }));
+  const positionKey = ordered.map((arm, i) => {
+    const letter = letters[i];
+    if (letter === undefined) {
+      throw new Error(`captureBoards: no board letter for position ${i}`);
+    }
+    return { letter, armId: arm.armId };
+  });
   mkdirSync(boardsRoot, { recursive: true });
   writeFileSync(
     BOARD_KEY_PATH,
@@ -421,7 +433,10 @@ async function captureBoards(force: boolean): Promise<{
         silhouette_and_cross_view_identity: "front_structure",
         texture_contamination: "three_quarter_lit",
       };
-      const key = passView[stage]!;
+      const key = passView[stage];
+      if (key === undefined) {
+        throw new Error(`captureBoards: no pass view for stage ${stage}`);
+      }
       const cells: Array<{ imagePath: string; label: string }> = [];
       for (const entry of positionKey) {
         const images = assetImages[entry.armId];
@@ -436,7 +451,11 @@ async function captureBoards(force: boolean): Promise<{
         }
         cells.push({ imagePath: path.join(REPO_ROOT, rel), label: entry.letter });
         armRenders[entry.armId] ??= {};
-        armRenders[entry.armId]![stage] = rel;
+        const armSlot = armRenders[entry.armId];
+        if (armSlot === undefined) {
+          throw new Error(`captureBoards: missing arm slot for ${entry.armId}`);
+        }
+        armSlot[stage] = rel;
       }
       if (cells.length === 0) {
         process.stdout.write(`[conditioning] board ${stage}: no renders at all — skipping board\n`);
@@ -477,7 +496,7 @@ function writeReviewReceipts(input: {
   armRenders: Record<string, Record<string, string | null>>;
   refused: Record<string, string>;
 }): Record<string, string> {
-  const producerSessionId = process.env.GROK_SESSION_ID ?? "producer_worker_dispatch_issue_697";
+  const producerSessionId = process.env["GROK_SESSION_ID"] ?? "producer_worker_dispatch_issue_697";
   const rubricSha256 = sha256File(RUBRIC_PATH);
   const receiptHashes: Record<string, string> = {};
   mkdirSync(RECEIPTS_DIR, { recursive: true });
@@ -497,7 +516,7 @@ function writeReviewReceipts(input: {
       armRenderImageSha256: renderHashes,
       rubricSha256,
       provider: "grok-harness",
-      model: process.env.OPENCLINXR_WORKER_MODEL ?? "deepseek-v4-flash",
+      model: process.env["OPENCLINXR_WORKER_MODEL"] ?? "deepseek-v4-flash",
       producerSessionId,
       reviewerSessionId: null,
       rawVisibleResponse: null,
@@ -546,10 +565,14 @@ function buildArmRecords(seed: number, receiptHashes: Record<string, string>): A
     }
     const geometry = measureGeometry(arm.armId);
     const receiptRel = path.relative(REPO_ROOT, path.join(RECEIPTS_DIR, `${arm.armId}.json`)).replaceAll("\\", "/");
+    const receiptSha256 = receiptHashes[arm.armId];
+    if (receiptSha256 === undefined) {
+      throw new Error(`buildArmRecords: missing receipt hash for ${arm.armId}`);
+    }
     records.push({
       ...base,
       geometry,
-      reviewReceipt: { path: receiptRel, sha256: receiptHashes[arm.armId]! },
+      reviewReceipt: { path: receiptRel, sha256: receiptSha256 },
     });
   }
   return records;
@@ -571,7 +594,7 @@ export function decidePolicy(arms: ArmRecord[]): { conclusion: string; reason: s
       decisionStage: "geometry_diagnostics",
     };
   }
-  if (!control || control.status !== "mesh_exported") {
+  if (control?.status !== "mesh_exported") {
     return {
       conclusion: "reject_all_measured",
       reason: `the single-view control arm did not export a mesh (${control?.status ?? "missing"}) — without the shipped-condition baseline no view-count delta can be read`,
@@ -579,7 +602,14 @@ export function decidePolicy(arms: ArmRecord[]): { conclusion: string; reason: s
     };
   }
 
-  const cg = control.geometry!;
+  const cg = control.geometry;
+  if (cg === undefined) {
+    return {
+      conclusion: "reject_all_measured",
+      reason: "the single-view control arm has no measured geometry — without the shipped-condition baseline no view-count delta can be read",
+      decisionStage: "geometry_diagnostics",
+    };
+  }
   const regressions: string[] = [];
   const improvements: string[] = [];
   for (const arm of multiview) {
@@ -588,25 +618,25 @@ export function decidePolicy(arms: ArmRecord[]): { conclusion: string; reason: s
       continue;
     }
     const g = arm.geometry;
-    const boundary = Number(g.boundaryEdgeCount ?? 0);
-    const controlBoundary = Number(cg.boundaryEdgeCount ?? 0);
+    const boundary = Number(g["boundaryEdgeCount"] ?? 0);
+    const controlBoundary = Number(cg["boundaryEdgeCount"] ?? 0);
     if (boundary > controlBoundary * 1.02) {
       regressions.push(`${arm.armId} boundaryEdgeCount ${controlBoundary} -> ${boundary}`);
     }
-    if (cg.isWatertight === true && g.isWatertight !== true) {
+    if (cg["isWatertight"] === true && g["isWatertight"] !== true) {
       regressions.push(`${arm.armId} lost watertightness (control watertight)`);
     }
-    if (Number(cg.signedVolume ?? 0) >= 0 && Number(g.signedVolume ?? 0) < 0) {
+    if (Number(cg["signedVolume"] ?? 0) >= 0 && Number(g["signedVolume"] ?? 0) < 0) {
       regressions.push(`${arm.armId} signed volume flipped positive -> negative (inverted/degenerate winding)`);
     }
-    if (Number(g.weldedComponentCount ?? 0) > Number(cg.weldedComponentCount ?? 0) * 2) {
+    if (Number(g["weldedComponentCount"] ?? 0) > Number(cg["weldedComponentCount"] ?? 0) * 2) {
       regressions.push(`${arm.armId} component count >2x control (fragmentation)`);
     }
     const better =
       boundary < controlBoundary
-      && g.isWatertight === true
-      && Number(g.signedVolume ?? 0) >= 0
-      && Number(g.weldedComponentCount ?? 0) <= Number(cg.weldedComponentCount ?? 0);
+      && g["isWatertight"] === true
+      && Number(g["signedVolume"] ?? 0) >= 0
+      && Number(g["weldedComponentCount"] ?? 0) <= Number(cg["weldedComponentCount"] ?? 0);
     if (better) improvements.push(arm.armId);
   }
 
@@ -695,7 +725,7 @@ function dryRun(): string {
       mode: "dry-run",
       issue: "697",
       subject: "ecg-cart-midband",
-      seed: Number(process.env.OPENCLINXR_CONDITIONING_SEED ?? DEFAULT_SEED),
+      seed: Number(process.env["OPENCLINXR_CONDITIONING_SEED"] ?? DEFAULT_SEED),
       samplerParameterSha256: SAMPLER_PARAMETER_SHA256,
       samplerSpec: SAMPLER_SPEC,
       sourceGlb: resolveSourceGlb(),
@@ -757,7 +787,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const seed = Number(process.env.OPENCLINXR_CONDITIONING_SEED ?? DEFAULT_SEED);
+  const seed = Number(process.env["OPENCLINXR_CONDITIONING_SEED"] ?? DEFAULT_SEED);
 
   renderSourceSet(force);
 

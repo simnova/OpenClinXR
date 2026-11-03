@@ -74,6 +74,10 @@ export async function syncGithubPagesEvidenceLinks(
     }
 
     const [, fullPath] = githubMatch;
+    if (!fullPath) {
+      output += fullTag;
+      continue;
+    }
     const fileName = fullPath.split("/").pop();
     if (!fileName) {
       output += fullTag;
@@ -87,6 +91,10 @@ export async function syncGithubPagesEvidenceLinks(
     }
 
     const extension = snapshotMatchParts[2];
+    if (!extension) {
+      output += fullTag;
+      continue;
+    }
     const latest = await findLatestSnapshotFileName(key, extension);
     if (!latest || latest === fileName) {
       output += fullTag;

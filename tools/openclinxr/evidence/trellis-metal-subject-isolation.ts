@@ -90,19 +90,19 @@ const PACKS_235_BASE =
   "/Users/patrick/.grok/worktrees/src-openclinxr/issue-235/.openclinxr/evidence/issue-232";
 
 const TRELLIS_ROOT = path.resolve(
-  process.env.HOME ?? "/Users/patrick",
+  process.env["HOME"] ?? "/Users/patrick",
   ".openclinxr-tools/trellis2-apple/src",
 );
 const VENV_PYTHON = path.resolve(
-  process.env.HOME ?? "/Users/patrick",
+  process.env["HOME"] ?? "/Users/patrick",
   ".openclinxr-tools/trellis2-apple/venv/bin/python3",
 );
 const WEIGHTS_PATH = path.resolve(
-  process.env.HOME ?? "/Users/patrick",
+  process.env["HOME"] ?? "/Users/patrick",
   "ComfyUI/models/trellis2",
 );
 const DINOV3_PATH = path.resolve(
-  process.env.HOME ?? "/Users/patrick",
+  process.env["HOME"] ?? "/Users/patrick",
   "ComfyUI/models/dinov3",
 );
 
@@ -313,7 +313,7 @@ function runBakeProcess(
             processIsolation: "fresh_subprocess",
             stages: {},
           };
-          writeFileSync(measurePath, JSON.stringify(blocked, null, 2) + "\n");
+          writeFileSync(measurePath, `${JSON.stringify(blocked, null, 2)}\n`);
           resolve(blocked);
         } else {
           reject(new Error(`No bake-measure.json for ${subject.subjectId} and no error reported`));
@@ -331,7 +331,7 @@ function runBakeProcess(
         processIsolation: "fresh_subprocess",
         stages: {},
       };
-      writeFileSync(measurePath, JSON.stringify(blocked, null, 2) + "\n");
+      writeFileSync(measurePath, `${JSON.stringify(blocked, null, 2)}\n`);
       resolve(blocked);
     });
     }));
@@ -524,7 +524,7 @@ export async function inspectTrellisMetalSubjectIsolation(): Promise<IsolationRe
         stages: s.stages,
       })),
     };
-    writeFileSync(ISOLATION_LOG_PATH, JSON.stringify(oomLog, null, 2) + "\n");
+    writeFileSync(ISOLATION_LOG_PATH, `${JSON.stringify(oomLog, null, 2)}\n`);
     console.log(`[ISOLATION] All subjects blocked — wrote isolation-log.json`);
   }
 
@@ -553,7 +553,7 @@ export async function inspectTrellisMetalSubjectIsolation(): Promise<IsolationRe
     ],
   };
 
-  writeFileSync(REPORT_PATH, JSON.stringify(report, null, 2) + "\n");
+  writeFileSync(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
   console.log(`[ISOLATION] Report written to ${REPORT_PATH}`);
   cached = report;
   return report;
