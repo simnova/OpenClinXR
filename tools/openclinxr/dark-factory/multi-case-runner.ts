@@ -1104,8 +1104,8 @@ export type LipSyncStationResult = {
  * An env override is honoured for machines that keep the binary elsewhere; the
  * default is the measured location, not a PATH lookup.
  */
-export function resolveRhubarbBinary(home: string = process.env.HOME ?? ""): string {
-  return process.env.OPENCLINXR_RHUBARB_BIN ?? path.join(home, ".openclinxr-tools", "rhubarb", "rhubarb");
+export function resolveRhubarbBinary(home: string = process.env["HOME"] ?? ""): string {
+  return process.env["OPENCLINXR_RHUBARB_BIN"] ?? path.join(home, ".openclinxr-tools", "rhubarb", "rhubarb");
 }
 
 /**
@@ -1431,32 +1431,32 @@ export async function runChainWorldCompileBaker(
     if (node.wouldInvoke === "trellis") {
       const payload = equipmentGeneratePayloadFromSpec(node.spec);
       if (!payload) {
-        record.status = "skipped";
-        record.reason = "trellis node spec has no equipment_generate payload";
+        record["status"] = "skipped";
+        record["reason"] = "trellis node spec has no equipment_generate payload";
       } else {
         const planned = planEquipmentGenerate(payload);
         if (planned.issues !== undefined) {
           throw new Error(planned.issues.map((issue) => issue.message).join("; "));
         }
-        record.stationId = "equipment_generate";
-        record.equipmentGeneratePlan = planned.plan;
+        record["stationId"] = "equipment_generate";
+        record["equipmentGeneratePlan"] = planned.plan;
         const live = input.equipmentGenerateRun ?? (process.env["OPENCLINXR_TRELLIS_LIVE"] === "1" ? runEquipmentGenerate : undefined);
         if (live) {
-          record.status = "invoked";
-          record.equipmentGenerateRun = await live(payload);
+          record["status"] = "invoked";
+          record["equipmentGenerateRun"] = await live(payload);
         } else {
-          record.status = "planned";
+          record["status"] = "planned";
         }
       }
     } else if (node.bakerId !== "wardrobe_character") {
-      record.status = "skipped";
-      record.reason = `no chain bake entrypoint for bakerId ${node.bakerId}`;
+      record["status"] = "skipped";
+      record["reason"] = `no chain bake entrypoint for bakerId ${node.bakerId}`;
     } else if (!node.spec.scenarioId || !node.spec.actorId) {
-      record.status = "skipped";
-      record.reason = "node spec lacks scenarioId/actorId; no preset to bake";
+      record["status"] = "skipped";
+      record["reason"] = "node spec lacks scenarioId/actorId; no preset to bake";
     } else if (!artifactPath) {
-      record.status = "skipped";
-      record.reason =
+      record["status"] = "skipped";
+      record["reason"] =
         "missing_artifact: the chain produced no wardrobe GLB for this node; refusing to bake blind (worktree stub trap)";
     } else {
       const presetId = `${node.spec.scenarioId}:${node.spec.actorId}`;
@@ -1468,17 +1468,17 @@ export async function runChainWorldCompileBaker(
       if (!(await existsPath(glbOut))) {
         throw new Error(`orchestrate_character.py exited 0 but produced no GLB at ${glbOut}`);
       }
-      record.status = "invoked";
-      record.presetId = presetId;
-      record.outputGlb = relStage(input.bakeOutDir, `${base}.glb`);
+      record["status"] = "invoked";
+      record["presetId"] = presetId;
+      record["outputGlb"] = relStage(input.bakeOutDir, `${base}.glb`);
     }
   } catch (err) {
-    record.status = "failed";
-    record.error = errMessage(err);
+    record["status"] = "failed";
+    record["error"] = errMessage(err);
   }
   await writeFile(recordPath, `${JSON.stringify(record, null, 2)}\n`, "utf8");
-  if (record.status === "failed") {
-    throw new Error(`${node.nodeId}: ${String(record.error)}`);
+  if (record["status"] === "failed") {
+    throw new Error(`${node.nodeId}: ${String(record["error"])}`);
   }
 }
 

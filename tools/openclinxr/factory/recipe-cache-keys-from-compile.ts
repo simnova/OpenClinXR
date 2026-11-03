@@ -16,7 +16,7 @@ export function recipeCacheKeysFromCompileNodes(
     const cacheKey = node.cacheKey;
     if (typeof cacheKey !== "string" || !HEX64.test(cacheKey)) continue;
     if (node.family === "EquipVariant") {
-      keys.medical_equipment_glb = cacheKey;
+      keys["medical_equipment_glb"] = cacheKey;
     }
     if (node.bakerId === "wardrobe_character") {
       const actorId = node.spec.actorId;

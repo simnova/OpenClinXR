@@ -116,8 +116,8 @@ function ensureDir(dir: string): void {
 }
 
 function resolveBlender(): string {
-  if (process.env.OPENCLINXR_BLENDER && existsSync(process.env.OPENCLINXR_BLENDER)) {
-    return process.env.OPENCLINXR_BLENDER;
+  if (process.env["OPENCLINXR_BLENDER"] && existsSync(process.env["OPENCLINXR_BLENDER"])) {
+    return process.env["OPENCLINXR_BLENDER"];
   }
   if (existsSync("/opt/homebrew/bin/blender")) return "/opt/homebrew/bin/blender";
   return "blender";
@@ -576,9 +576,9 @@ export async function runMakeclothesFitOnce(): Promise<LibraryCatalog> {
   }
 
   const mhBaseObj =
-    process.env.OPENCLINXR_MPFB_BASE_OBJ ??
+    process.env["OPENCLINXR_MPFB_BASE_OBJ"] ??
     path.join(
-      process.env.HOME ?? "",
+      process.env["HOME"] ?? "",
       "Library/Application Support/Blender/5.1/extensions/user_default/mpfb/data/3dobjs/base.obj",
     );
   if (!existsSync(mhBaseObj)) {
@@ -592,7 +592,7 @@ export async function runMakeclothesFitOnce(): Promise<LibraryCatalog> {
 
   // A/B levers. create_human is now the DEFAULT; these opt BACK to the old path for comparison.
   const extraStageFlags: string[] = [];
-  if (process.env.OPENCLINXR_FIT_LEGACY_BASE_OBJ) extraStageFlags.push("--legacy-base-obj");
+  if (process.env["OPENCLINXR_FIT_LEGACY_BASE_OBJ"]) extraStageFlags.push("--legacy-base-obj");
 
   const result = await runClothingConsume(
     { actorId: "library_hm08", mhcloPath },
@@ -607,7 +607,7 @@ export async function runMakeclothesFitOnce(): Promise<LibraryCatalog> {
       extraStageFlags,
       cwd: REPO_ROOT,
       timeoutMs: 600_000,
-      ...(existsSync(ANNY_REFERENCE_OBJ) && !process.env.OPENCLINXR_FIT_NO_ANNY
+      ...(existsSync(ANNY_REFERENCE_OBJ) && !process.env["OPENCLINXR_FIT_NO_ANNY"]
         ? { annyObj: ANNY_REFERENCE_OBJ }
         : {}),
     },

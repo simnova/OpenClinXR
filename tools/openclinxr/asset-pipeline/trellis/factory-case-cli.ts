@@ -155,7 +155,7 @@ EXIT
 `;
 
 export function factoryCaseEvidenceRoot(): string {
-  return process.env.OPENCLINXR_FACTORY_CASE
+  return process.env["OPENCLINXR_FACTORY_CASE"]
     ?? path.join(REPO_ROOT, ".openclinxr", "evidence", "factory-case");
 }
 

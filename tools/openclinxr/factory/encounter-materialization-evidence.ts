@@ -536,70 +536,70 @@ export function validateEncounterMaterializationEvidenceReport(value: unknown): 
   if (!isRecord(value)) {
     return { ok: false, errors: ["/ must be an object"] };
   }
-  if (value.schemaVersion !== "openclinxr.encounter-materialization-evidence.v1") errors.push("/schemaVersion invalid");
-  if (value.source !== "generated_station_runtime_bundle_materialization_contracts") errors.push("/source invalid");
-  if (value.claimBoundary !== "materialization_evidence_attachment_contract_not_runtime_readiness") errors.push("/claimBoundary invalid");
-  if (typeof value.attachableToRuntimeSelection !== "boolean") errors.push("/attachableToRuntimeSelection must be boolean");
-  if (!Array.isArray(value.actorEvidence)) errors.push("/actorEvidence must be an array");
-  if (!Array.isArray(value.equipmentEvidence)) errors.push("/equipmentEvidence must be an array");
-  if (!Array.isArray(value.blockers)) errors.push("/blockers must be an array");
-  if (value.status === "attachable" && value.attachableToRuntimeSelection !== true) errors.push("/attachable status requires attachableToRuntimeSelection true");
-  if (value.status === "blocked_missing_actor_or_equipment_specific_evidence" && value.attachableToRuntimeSelection !== false) errors.push("/blocked status requires attachableToRuntimeSelection false");
-  if (value.caseDefVersion !== undefined && typeof value.caseDefVersion !== "number") errors.push("/caseDefVersion must be number when present");
-  if (value.compileVersion !== undefined && typeof value.compileVersion !== "number") errors.push("/compileVersion must be number when present");
-  if (value.compileEdges !== undefined) {
-    if (!Array.isArray(value.compileEdges)) errors.push("/compileEdges must be an array when present");
+  if (value["schemaVersion"] !== "openclinxr.encounter-materialization-evidence.v1") errors.push("/schemaVersion invalid");
+  if (value["source"] !== "generated_station_runtime_bundle_materialization_contracts") errors.push("/source invalid");
+  if (value["claimBoundary"] !== "materialization_evidence_attachment_contract_not_runtime_readiness") errors.push("/claimBoundary invalid");
+  if (typeof value["attachableToRuntimeSelection"] !== "boolean") errors.push("/attachableToRuntimeSelection must be boolean");
+  if (!Array.isArray(value["actorEvidence"])) errors.push("/actorEvidence must be an array");
+  if (!Array.isArray(value["equipmentEvidence"])) errors.push("/equipmentEvidence must be an array");
+  if (!Array.isArray(value["blockers"])) errors.push("/blockers must be an array");
+  if (value["status"] === "attachable" && value["attachableToRuntimeSelection"] !== true) errors.push("/attachable status requires attachableToRuntimeSelection true");
+  if (value["status"] === "blocked_missing_actor_or_equipment_specific_evidence" && value["attachableToRuntimeSelection"] !== false) errors.push("/blocked status requires attachableToRuntimeSelection false");
+  if (value["caseDefVersion"] !== undefined && typeof value["caseDefVersion"] !== "number") errors.push("/caseDefVersion must be number when present");
+  if (value["compileVersion"] !== undefined && typeof value["compileVersion"] !== "number") errors.push("/compileVersion must be number when present");
+  if (value["compileEdges"] !== undefined) {
+    if (!Array.isArray(value["compileEdges"])) errors.push("/compileEdges must be an array when present");
   }
-  if (value.compileNodes !== undefined) {
-    if (!Array.isArray(value.compileNodes)) errors.push("/compileNodes must be an array when present");
+  if (value["compileNodes"] !== undefined) {
+    if (!Array.isArray(value["compileNodes"])) errors.push("/compileNodes must be an array when present");
     else {
-      for (const [i, node] of value.compileNodes.entries()) {
+      for (const [i, node] of value["compileNodes"].entries()) {
         if (!isRecord(node)) {
           errors.push(`/compileNodes/${i} must be an object`);
           continue;
         }
-        pushLockErrors(errors, node.lock, `/compileNodes/${i}/lock`);
-        pushOverridePatchErrors(errors, node.overridePatch, `/compileNodes/${i}/overridePatch`);
-        pushTombstoneErrors(errors, node.tombstone, `/compileNodes/${i}/tombstone`);
-        if (node.cacheKey !== undefined && node.cacheKey !== null && typeof node.cacheKey !== "string") {
+        pushLockErrors(errors, node["lock"], `/compileNodes/${i}/lock`);
+        pushOverridePatchErrors(errors, node["overridePatch"], `/compileNodes/${i}/overridePatch`);
+        pushTombstoneErrors(errors, node["tombstone"], `/compileNodes/${i}/tombstone`);
+        if (node["cacheKey"] !== undefined && node["cacheKey"] !== null && typeof node["cacheKey"] !== "string") {
           errors.push(`/compileNodes/${i}/cacheKey must be string or null when present`);
         }
       }
     }
   }
-  if (value.compileEvents !== undefined) {
-    if (!Array.isArray(value.compileEvents)) errors.push("/compileEvents must be an array when present");
+  if (value["compileEvents"] !== undefined) {
+    if (!Array.isArray(value["compileEvents"])) errors.push("/compileEvents must be an array when present");
     else {
-      for (const [i, event] of value.compileEvents.entries()) {
+      for (const [i, event] of value["compileEvents"].entries()) {
         if (!isRecord(event)) {
           errors.push(`/compileEvents/${i} must be an object`);
           continue;
         }
-        if (event.kind === "node_tombstoned") {
-          if (typeof event.nodeId !== "string") errors.push(`/compileEvents/${i}/nodeId must be string`);
-          if (typeof event.deletedAt !== "string") errors.push(`/compileEvents/${i}/deletedAt must be string`);
-          if (event.removedBy !== "faculty_remove") errors.push(`/compileEvents/${i}/removedBy must be faculty_remove`);
-        } else if (event.kind === "descendant_staled") {
-          if (typeof event.nodeId !== "string") errors.push(`/compileEvents/${i}/nodeId must be string`);
-          if (typeof event.ancestorNodeId !== "string") errors.push(`/compileEvents/${i}/ancestorNodeId must be string`);
-          if (typeof event.deletedAt !== "string") errors.push(`/compileEvents/${i}/deletedAt must be string`);
+        if (event["kind"] === "node_tombstoned") {
+          if (typeof event["nodeId"] !== "string") errors.push(`/compileEvents/${i}/nodeId must be string`);
+          if (typeof event["deletedAt"] !== "string") errors.push(`/compileEvents/${i}/deletedAt must be string`);
+          if (event["removedBy"] !== "faculty_remove") errors.push(`/compileEvents/${i}/removedBy must be faculty_remove`);
+        } else if (event["kind"] === "descendant_staled") {
+          if (typeof event["nodeId"] !== "string") errors.push(`/compileEvents/${i}/nodeId must be string`);
+          if (typeof event["ancestorNodeId"] !== "string") errors.push(`/compileEvents/${i}/ancestorNodeId must be string`);
+          if (typeof event["deletedAt"] !== "string") errors.push(`/compileEvents/${i}/deletedAt must be string`);
         } else {
           errors.push(`/compileEvents/${i}/kind must be node_tombstoned|descendant_staled`);
         }
       }
     }
   }
-  for (const [i, row] of (Array.isArray(value.actorEvidence) ? value.actorEvidence : []).entries()) {
+  for (const [i, row] of (Array.isArray(value["actorEvidence"]) ? value["actorEvidence"] : []).entries()) {
     if (!isRecord(row)) continue;
-    pushLockErrors(errors, row.lock, `/actorEvidence/${i}/lock`);
-    pushOverridePatchErrors(errors, row.overridePatch, `/actorEvidence/${i}/overridePatch`);
+    pushLockErrors(errors, row["lock"], `/actorEvidence/${i}/lock`);
+    pushOverridePatchErrors(errors, row["overridePatch"], `/actorEvidence/${i}/overridePatch`);
   }
-  for (const [i, row] of (Array.isArray(value.equipmentEvidence) ? value.equipmentEvidence : []).entries()) {
+  for (const [i, row] of (Array.isArray(value["equipmentEvidence"]) ? value["equipmentEvidence"] : []).entries()) {
     if (!isRecord(row)) continue;
-    pushLockErrors(errors, row.lock, `/equipmentEvidence/${i}/lock`);
-    pushOverridePatchErrors(errors, row.overridePatch, `/equipmentEvidence/${i}/overridePatch`);
+    pushLockErrors(errors, row["lock"], `/equipmentEvidence/${i}/lock`);
+    pushOverridePatchErrors(errors, row["overridePatch"], `/equipmentEvidence/${i}/overridePatch`);
   }
-  pushLockErrors(errors, value.lock, "/lock");
+  pushLockErrors(errors, value["lock"], "/lock");
   return { ok: errors.length === 0, errors };
 }
 
@@ -652,7 +652,7 @@ function pushLockErrors(errors: string[], lock: unknown, prefix: string): void {
     errors.push(`${prefix} must be an object when present`);
     return;
   }
-  if (typeof lock.locked !== "boolean") errors.push(`${prefix}/locked must be boolean`);
+  if (typeof lock["locked"] !== "boolean") errors.push(`${prefix}/locked must be boolean`);
 }
 
 function pushTombstoneErrors(errors: string[], tombstone: unknown, prefix: string): void {
@@ -661,9 +661,9 @@ function pushTombstoneErrors(errors: string[], tombstone: unknown, prefix: strin
     errors.push(`${prefix} must be an object when present`);
     return;
   }
-  if (typeof tombstone.deletedAt !== "string") errors.push(`${prefix}/deletedAt must be string`);
-  if (tombstone.removedBy !== "faculty_remove") errors.push(`${prefix}/removedBy must be faculty_remove`);
-  if (typeof tombstone.removedNodeId !== "string") errors.push(`${prefix}/removedNodeId must be string`);
+  if (typeof tombstone["deletedAt"] !== "string") errors.push(`${prefix}/deletedAt must be string`);
+  if (tombstone["removedBy"] !== "faculty_remove") errors.push(`${prefix}/removedBy must be faculty_remove`);
+  if (typeof tombstone["removedNodeId"] !== "string") errors.push(`${prefix}/removedNodeId must be string`);
 }
 
 function pushOverridePatchErrors(errors: string[], patch: unknown, prefix: string): void {
@@ -672,8 +672,8 @@ function pushOverridePatchErrors(errors: string[], patch: unknown, prefix: strin
     errors.push(`${prefix} must be an object when present`);
     return;
   }
-  if (patch.op !== "replace" && patch.op !== "remove") errors.push(`${prefix}/op must be replace|remove`);
-  if (typeof patch.path !== "string" || !COMPILE_OVERRIDE_PATHS.has(patch.path)) {
+  if (patch["op"] !== "replace" && patch["op"] !== "remove") errors.push(`${prefix}/op must be replace|remove`);
+  if (typeof patch["path"] !== "string" || !COMPILE_OVERRIDE_PATHS.has(patch["path"])) {
     errors.push(`${prefix}/path must be an allowed compile override pointer`);
   }
 }

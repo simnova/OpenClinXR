@@ -64,7 +64,7 @@ export function measureFaceMarginsFromDoc(doc: Document, capWeight: number): Fac
     for (let i = 0; i < p.getCount(); i++) { p.getElement(i, v); if (v[2]! > gMaxZ) gMaxZ = v[2]!; }
   }
 
-  const names = (body.getExtras()?.targetNames as string[] | undefined) ?? [];
+  const names = (body.getExtras()?.["targetNames"] as string[] | undefined) ?? [];
   const mi = names.indexOf("mouth-open");
   const prim = body.listPrimitives().find((pr) => /skin/i.test(pr.getMaterial()?.getName() ?? ""))
     ?? body.listPrimitives()[0]!;

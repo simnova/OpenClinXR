@@ -623,7 +623,7 @@ export function wardrobeLockSidecarPathFor(glbPath: string): string {
 
 async function writeWardrobeLockSidecar(glbPath: string, bodyHashAtWardrobeBake: string | null, bodyHashNow: string | null): Promise<void> {
   const payload: Record<string, unknown> = { skipBlender: true, locked: true };
-  if (bodyHashAtWardrobeBake) payload.bodyHashAtBake = bodyHashAtWardrobeBake;
-  if (bodyHashNow) payload.bodyHashNow = bodyHashNow;
+  if (bodyHashAtWardrobeBake) payload["bodyHashAtBake"] = bodyHashAtWardrobeBake;
+  if (bodyHashNow) payload["bodyHashNow"] = bodyHashNow;
   await writeFile(wardrobeLockSidecarPathFor(glbPath), `${JSON.stringify(payload, null, 2)}\n`, "utf8");
 }

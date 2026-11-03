@@ -59,8 +59,8 @@ export type MotionBindInspect = {
 };
 
 function resolveBlender(): string {
-  if (process.env.OPENCLINXR_BLENDER && existsSync(process.env.OPENCLINXR_BLENDER)) {
-    return process.env.OPENCLINXR_BLENDER;
+  if (process.env["OPENCLINXR_BLENDER"] && existsSync(process.env["OPENCLINXR_BLENDER"])) {
+    return process.env["OPENCLINXR_BLENDER"];
   }
   if (existsSync("/opt/homebrew/bin/blender")) return "/opt/homebrew/bin/blender";
   return "blender";
