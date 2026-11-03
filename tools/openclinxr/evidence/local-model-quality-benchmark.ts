@@ -227,7 +227,7 @@ export async function buildLocalModelQualityBenchmarkReport(input: {
   realLocalModelActorPolicyBenchmark?: {
     provider: "approved-local-qwen-llama-cpp";
     probeResults: LocalModelActorPolicyProbeResult[];
-  };
+  } | undefined;
 }): Promise<LocalModelQualityBenchmarkReport> {
   const structuredOutput = inspectStructuredOutput(input.runtimeBenchmark);
   const actorPolicy = await runActorPolicyProbes({
@@ -471,7 +471,7 @@ async function runActorPolicyProbes(input: {
   realLocalModelActorPolicyBenchmark?: {
     provider: "approved-local-qwen-llama-cpp";
     probeResults: LocalModelActorPolicyProbeResult[];
-  };
+  } | undefined;
 }): Promise<LocalModelQualityBenchmarkReport["actorPolicy"]> {
   const requiredRealLocalProbeIds: ActorPolicyProbeId[] = [
     "visible_fact_grounding",

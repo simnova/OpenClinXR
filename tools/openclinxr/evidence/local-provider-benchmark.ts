@@ -308,10 +308,10 @@ async function runMockVoiceBenchmark(): Promise<BenchmarkResult> {
 
 function inspectLocalModelBenchmarkReadiness(availableCommands: readonly string[], env: Record<string, string | undefined>): BenchmarkResult {
   const availableModelCommands = availableCommands.filter((command) => localModelCommandSet.has(command));
-  const configuredRuntime = env.OPENCLINXR_LOCAL_MODEL_RUNTIME ?? "";
-  const configuredModel = env.OPENCLINXR_LOCAL_MODEL_ID ?? "";
+  const configuredRuntime = env["OPENCLINXR_LOCAL_MODEL_RUNTIME"] ?? "";
+  const configuredModel = env["OPENCLINXR_LOCAL_MODEL_ID"] ?? "";
   const candidate = localModelCandidates.find((modelCandidate) => modelCandidate.id === configuredModel);
-  const downloadApproved = env.OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED === "true";
+  const downloadApproved = env["OPENCLINXR_LOCAL_MODEL_DOWNLOAD_APPROVED"] === "true";
   const blockers = [
     availableModelCommands.length > 0 ? undefined : "no_ollama_llama_cpp_or_mlx_runtime_detected",
     configuredRuntime ? undefined : "OPENCLINXR_LOCAL_MODEL_RUNTIME_not_set",
@@ -337,11 +337,11 @@ function inspectLocalModelBenchmarkReadiness(availableCommands: readonly string[
 
 function inspectLocalVoiceBenchmarkReadiness(availableCommands: readonly string[], env: Record<string, string | undefined>): BenchmarkResult {
   const availableVoiceCommands = availableCommands.filter((command) => localVoiceCommandSet.has(command));
-  const configuredRuntime = env.OPENCLINXR_LOCAL_VOICE_RUNTIME ?? "";
-  const configuredVoice = env.OPENCLINXR_LOCAL_VOICE_ID ?? "";
+  const configuredRuntime = env["OPENCLINXR_LOCAL_VOICE_RUNTIME"] ?? "";
+  const configuredVoice = env["OPENCLINXR_LOCAL_VOICE_ID"] ?? "";
   const candidate = localVoiceCandidates.find((voiceCandidate) => voiceCandidate.id === configuredVoice);
-  const installApproved = env.OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED === "true";
-  const safetyReviewApproved = env.OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED === "true";
+  const installApproved = env["OPENCLINXR_LOCAL_VOICE_INSTALL_APPROVED"] === "true";
+  const safetyReviewApproved = env["OPENCLINXR_LOCAL_VOICE_SAFETY_REVIEW_APPROVED"] === "true";
   const blockers = [
     availableVoiceCommands.length > 0 ? undefined : "no_vibevoice_runtime_detected",
     configuredRuntime ? undefined : "OPENCLINXR_LOCAL_VOICE_RUNTIME_not_set",
@@ -429,13 +429,13 @@ export function validateLocalProviderBenchmarkReport(value: unknown): Validation
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireString(value.generatedAt, "/generatedAt", errors);
-  validatePolicy(value.policy, errors);
-  validateBenchmarkResult(value.mockModel, "/mockModel", errors);
-  validateBenchmarkResult(value.mockVoice, "/mockVoice", errors);
-  validateBenchmarkResult(value.localModel, "/localModel", errors);
-  validateBenchmarkResult(value.localVoice, "/localVoice", errors);
-  validateVerdict(value.verdict, errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  validatePolicy(value["policy"], errors);
+  validateBenchmarkResult(value["mockModel"], "/mockModel", errors);
+  validateBenchmarkResult(value["mockVoice"], "/mockVoice", errors);
+  validateBenchmarkResult(value["localModel"], "/localModel", errors);
+  validateBenchmarkResult(value["localVoice"], "/localVoice", errors);
+  validateVerdict(value["verdict"], errors);
   validateReportConsistency(value, errors);
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
@@ -446,9 +446,9 @@ function validatePolicy(value: unknown, errors: string[]): void {
   if (!isRecord(value)) {
     return;
   }
-  requireLiteral(value.cloudCallsAllowed, false, "/policy/cloudCallsAllowed", errors);
-  requireLiteral(value.modelDownloadsAllowed, false, "/policy/modelDownloadsAllowed", errors);
-  requireLiteral(value.localRuntimeExecutionAllowed, false, "/policy/localRuntimeExecutionAllowed", errors);
+  requireLiteral(value["cloudCallsAllowed"], false, "/policy/cloudCallsAllowed", errors);
+  requireLiteral(value["modelDownloadsAllowed"], false, "/policy/modelDownloadsAllowed", errors);
+  requireLiteral(value["localRuntimeExecutionAllowed"], false, "/policy/localRuntimeExecutionAllowed", errors);
 }
 
 function validateBenchmarkResult(value: unknown, pathName: string, errors: string[]): void {
@@ -456,12 +456,12 @@ function validateBenchmarkResult(value: unknown, pathName: string, errors: strin
   if (!isRecord(value)) {
     return;
   }
-  requireOneOf(value.status, ["passed", "not_configured", "blocked"], `${pathName}/status`, errors);
-  requireNullableNumber(value.latencyMs, `${pathName}/latencyMs`, errors);
-  requireStringArray(value.blockers, `${pathName}/blockers`, errors);
-  requireRecord(value.metrics, `${pathName}/metrics`, errors);
-  if (isRecord(value.metrics) && value.metrics.executionAttempted !== undefined) {
-    requireLiteral(value.metrics.executionAttempted, false, `${pathName}/metrics/executionAttempted`, errors);
+  requireOneOf(value["status"], ["passed", "not_configured", "blocked"], `${pathName}/status`, errors);
+  requireNullableNumber(value["latencyMs"], `${pathName}/latencyMs`, errors);
+  requireStringArray(value["blockers"], `${pathName}/blockers`, errors);
+  requireRecord(value["metrics"], `${pathName}/metrics`, errors);
+  if (isRecord(value["metrics"]) && value["metrics"]["executionAttempted"] !== undefined) {
+    requireLiteral(value["metrics"]["executionAttempted"], false, `${pathName}/metrics/executionAttempted`, errors);
   }
 }
 
@@ -470,36 +470,36 @@ function validateVerdict(value: unknown, errors: string[]): void {
   if (!isRecord(value)) {
     return;
   }
-  requireBoolean(value.deterministicMocksPassed, "/verdict/deterministicMocksPassed", errors);
-  requireBoolean(value.localModelReadyToBenchmark, "/verdict/localModelReadyToBenchmark", errors);
-  requireBoolean(value.localVoiceReadyToBenchmark, "/verdict/localVoiceReadyToBenchmark", errors);
-  requireStringArray(value.blockers, "/verdict/blockers", errors);
+  requireBoolean(value["deterministicMocksPassed"], "/verdict/deterministicMocksPassed", errors);
+  requireBoolean(value["localModelReadyToBenchmark"], "/verdict/localModelReadyToBenchmark", errors);
+  requireBoolean(value["localVoiceReadyToBenchmark"], "/verdict/localVoiceReadyToBenchmark", errors);
+  requireStringArray(value["blockers"], "/verdict/blockers", errors);
 }
 
 function validateReportConsistency(value: Record<string, unknown>, errors: string[]): void {
-  const mockModel = value.mockModel;
-  const mockVoice = value.mockVoice;
-  const localModel = value.localModel;
-  const localVoice = value.localVoice;
-  const verdict = value.verdict;
+  const mockModel = value["mockModel"];
+  const mockVoice = value["mockVoice"];
+  const localModel = value["localModel"];
+  const localVoice = value["localVoice"];
+  const verdict = value["verdict"];
   if (!isRecord(mockModel) || !isRecord(mockVoice) || !isRecord(localModel) || !isRecord(localVoice) || !isRecord(verdict)) {
     return;
   }
   if (
-    typeof verdict.deterministicMocksPassed === "boolean"
-    && verdict.deterministicMocksPassed !== (mockModel.status === "passed" && mockVoice.status === "passed")
+    typeof verdict["deterministicMocksPassed"] === "boolean"
+    && verdict["deterministicMocksPassed"] !== (mockModel["status"] === "passed" && mockVoice["status"] === "passed")
   ) {
     errors.push("/verdict/deterministicMocksPassed must match mock model and mock voice passed status");
   }
   if (
-    typeof verdict.localModelReadyToBenchmark === "boolean"
-    && verdict.localModelReadyToBenchmark !== (localModel.status === "passed")
+    typeof verdict["localModelReadyToBenchmark"] === "boolean"
+    && verdict["localModelReadyToBenchmark"] !== (localModel["status"] === "passed")
   ) {
     errors.push("/verdict/localModelReadyToBenchmark must match /localModel/status");
   }
   if (
-    typeof verdict.localVoiceReadyToBenchmark === "boolean"
-    && verdict.localVoiceReadyToBenchmark !== (localVoice.status === "passed")
+    typeof verdict["localVoiceReadyToBenchmark"] === "boolean"
+    && verdict["localVoiceReadyToBenchmark"] !== (localVoice["status"] === "passed")
   ) {
     errors.push("/verdict/localVoiceReadyToBenchmark must match /localVoice/status");
   }

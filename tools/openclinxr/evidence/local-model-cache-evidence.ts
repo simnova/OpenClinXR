@@ -104,8 +104,8 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
 }
 
 export async function buildLocalModelCacheEvidence(input: {
-  cacheDir?: string;
-  generatedAt?: string;
+  cacheDir?: string | undefined;
+  generatedAt?: string | undefined;
 } = {}): Promise<LocalModelCacheEvidenceReport> {
   const cacheDir = input.cacheDir ?? defaultCacheDir;
   const cacheStats = await safeStat(cacheDir);

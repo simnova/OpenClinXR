@@ -210,8 +210,8 @@ export async function runApprovedLocalModelBenchmark(input: {
   modelFilePath: string;
   llamaExecutable: string;
   rawLogPath: string;
-  grammarFailureExcerptPath?: string;
-  timeoutMs?: number;
+  grammarFailureExcerptPath?: string | undefined;
+  timeoutMs?: number | undefined;
 }): Promise<LocalModelRuntimeBenchmarkReport> {
   if (!existsSync(input.modelFilePath)) {
     throw new Error(`Model file does not exist: ${input.modelFilePath}`);
@@ -372,7 +372,7 @@ export async function buildLocalModelRuntimeBenchmarkReportFromLog(input: {
   logPath: string;
   logContent: string;
   logSha256?: string;
-  grammarFailureExcerptPath?: string;
+  grammarFailureExcerptPath?: string | undefined;
   localRuntimeExecutionApproved?: boolean;
   localRuntimeExecutionAttemptedByThisTool?: boolean;
 }): Promise<LocalModelRuntimeBenchmarkReport> {
@@ -506,7 +506,7 @@ function parseJsonCandidate(candidate: string | null): Record<string, unknown> |
 
 function classifyStructuredOutputCaveats(input: {
   generatedText: string;
-  parsedJson?: Record<string, unknown>;
+  parsedJson?: Record<string, unknown> | undefined;
   jsonCandidate: string | null;
 }): string[] {
   const caveats: string[] = [];

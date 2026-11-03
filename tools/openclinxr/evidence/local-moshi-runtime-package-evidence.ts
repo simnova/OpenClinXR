@@ -89,14 +89,14 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
   ]);
   const venvBytes = await directoryBytes(options.venvPath);
   const report = buildLocalMoshiRuntimePackageEvidenceReport({
-    generatedAt: options.generatedAt,
+    ...(options.generatedAt === undefined ? {} : { generatedAt: options.generatedAt }),
     venvPath: options.venvPath,
     venvBytes,
     packageVersions: JSON.parse(packageVersionsContent) as Record<string, string>,
     importResults: JSON.parse(importResultsContent) as Record<string, ImportResult>,
     entrypoints: entrypointsContent.split(/\r?\n/).map((line) => line.trim()).filter(Boolean),
     commandHelp,
-    modelCacheEvidencePath: options.modelCacheEvidencePath,
+    ...(options.modelCacheEvidencePath === undefined ? {} : { modelCacheEvidencePath: options.modelCacheEvidencePath }),
   });
 
   if (options.outputPath) {
@@ -119,8 +119,8 @@ export function buildLocalMoshiRuntimePackageEvidenceReport(input: {
   modelCacheEvidencePath?: string;
 }): LocalMoshiRuntimePackageEvidenceReport {
   const blockers = [
-    input.packageVersions.moshi_mlx ? undefined : "package:moshi_mlx:missing",
-    input.packageVersions.mlx ? undefined : "package:mlx:missing",
+    input.packageVersions["moshi_mlx"] ? undefined : "package:moshi_mlx:missing",
+    input.packageVersions["mlx"] ? undefined : "package:mlx:missing",
     input.entrypoints.includes("moshi-local") ? undefined : "entrypoint:moshi-local:missing",
     ...Object.entries(input.importResults).flatMap(([moduleName, result]) =>
       result.ok ? [] : [`import:${moduleName}:${result.error ?? "failed"}`],
@@ -181,7 +181,7 @@ export function validateLocalMoshiRuntimePackageEvidenceReport(value: unknown): 
   requireString(report, "generatedAt", "/generatedAt", errors);
   requireOneOf(report, "status", ["passed_with_caveats", "blocked"], "/status", errors);
 
-  const policy = requireRecord(report.policy, "/policy", errors);
+  const policy = requireRecord(report["policy"], "/policy", errors);
   if (policy) {
     requireLiteral(policy, "cloudApisUsed", false, "/policy/cloudApisUsed", errors);
     requireLiteral(policy, "paidApisUsed", false, "/policy/paidApisUsed", errors);
@@ -193,9 +193,9 @@ export function validateLocalMoshiRuntimePackageEvidenceReport(value: unknown): 
     requireLiteral(policy, "networkAccessObservedByThisTool", false, "/policy/networkAccessObservedByThisTool", errors);
   }
 
-  const runtime = validateRuntime(report.runtime, errors);
-  validateModelCache(report.modelCache, errors);
-  const verdict = validateVerdict(report.verdict, errors);
+  const runtime = validateRuntime(report["runtime"], errors);
+  validateModelCache(report["modelCache"], errors);
+  const verdict = validateVerdict(report["verdict"], errors);
   validateConsistency(report, runtime, verdict, errors);
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
@@ -215,7 +215,7 @@ function validateRuntime(value: unknown, errors: string[]): Record<string, unkno
   }
   requireString(runtime, "venvPath", "/runtime/venvPath", errors);
   requireNullableNumber(runtime, "venvBytes", "/runtime/venvBytes", errors);
-  const packageVersions = requireRecord(runtime.packageVersions, "/runtime/packageVersions", errors);
+  const packageVersions = requireRecord(runtime["packageVersions"], "/runtime/packageVersions", errors);
   if (packageVersions) {
     for (const [packageName, version] of Object.entries(packageVersions)) {
       if (typeof version !== "string" || version.length === 0) {
@@ -224,7 +224,7 @@ function validateRuntime(value: unknown, errors: string[]): Record<string, unkno
     }
   }
 
-  const importResults = requireRecord(runtime.importResults, "/runtime/importResults", errors);
+  const importResults = requireRecord(runtime["importResults"], "/runtime/importResults", errors);
   if (importResults) {
     for (const [moduleName, result] of Object.entries(importResults)) {
       const importResult = requireRecord(result, `/runtime/importResults/${moduleName}`, errors);
@@ -276,16 +276,16 @@ function validateConsistency(
   }
 
   const expectedBlockers = expectedBlockersFor(runtime);
-  const actualBlockers = stringArray(verdict.blockers) ?? [];
+  const actualBlockers = stringArray(verdict["blockers"]) ?? [];
   const hasBlockers = expectedBlockers.length > 0;
 
-  if (report.status === "passed_with_caveats" && hasBlockers) {
+  if (report["status"] === "passed_with_caveats" && hasBlockers) {
     errors.push("/status must be blocked when blockers are present");
   }
-  if (report.status === "blocked" && !hasBlockers) {
+  if (report["status"] === "blocked" && !hasBlockers) {
     errors.push("/status must be passed_with_caveats when no blockers are present");
   }
-  if (verdict.passed !== !hasBlockers) {
+  if (verdict["passed"] !== !hasBlockers) {
     errors.push(`/verdict/passed must be ${String(!hasBlockers)} when blockers are ${hasBlockers ? "present" : "absent"}`);
   }
 
@@ -297,15 +297,15 @@ function validateConsistency(
 }
 
 function expectedBlockersFor(runtime: Record<string, unknown>): string[] {
-  const packageVersions = isRecord(runtime.packageVersions) ? runtime.packageVersions : {};
-  const importResults = isRecord(runtime.importResults) ? runtime.importResults : {};
-  const entrypoints = stringArray(runtime.entrypoints) ?? [];
+  const packageVersions = isRecord(runtime["packageVersions"]) ? runtime["packageVersions"] : {};
+  const importResults = isRecord(runtime["importResults"]) ? runtime["importResults"] : {};
+  const entrypoints = stringArray(runtime["entrypoints"]) ?? [];
 
   const blockers = [
-    typeof packageVersions.moshi_mlx === "string" && packageVersions.moshi_mlx.length > 0
+    typeof packageVersions["moshi_mlx"] === "string" && packageVersions["moshi_mlx"].length > 0
       ? undefined
       : "package:moshi_mlx:missing",
-    typeof packageVersions.mlx === "string" && packageVersions.mlx.length > 0
+    typeof packageVersions["mlx"] === "string" && packageVersions["mlx"].length > 0
       ? undefined
       : "package:mlx:missing",
     entrypoints.includes("moshi-local") ? undefined : "entrypoint:moshi-local:missing",
@@ -313,7 +313,7 @@ function expectedBlockersFor(runtime: Record<string, unknown>): string[] {
       if (!isRecord(result)) {
         return [];
       }
-      return result.ok === true ? [] : [`import:${moduleName}:${typeof result.error === "string" ? result.error : "failed"}`];
+      return result["ok"] === true ? [] : [`import:${moduleName}:${typeof result["error"] === "string" ? result["error"] : "failed"}`];
     }),
   ];
 

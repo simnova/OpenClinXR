@@ -474,7 +474,7 @@ function scanYamlLikePackageManagerReferences(
     const indent = match[1]?.length ?? 0;
     const key = stripYamlQuotes((match[2] ?? "").trim());
     const value = stripYamlQuotes((match[3] ?? "").trim());
-    while (stack.length > 0 && stack[stack.length - 1]?.indent >= indent) {
+    while (stack.length > 0 && (stack[stack.length - 1]?.indent ?? -1) >= indent) {
       stack.pop();
     }
 

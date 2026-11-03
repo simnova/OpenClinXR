@@ -10,6 +10,7 @@
  * notEvidenceFor: lower-body garment channel, clinical costume realism, quest readiness,
  * multi-station library migration.
  */
+/// <reference path="./browser-dom.d.ts" />
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -155,7 +156,7 @@ async function dumpLiveFigureFinish(page: Page, actorIds: readonly string[]): Pr
       // lib/garment-mesh-class.js by hand; keep them in sync.
       // Narrower than the old /footwear|shoe|boot|.../ literal on purpose:
       // bare "boot" false-positives "bootcut" jeans.
-      return /footwear|_shoes?(_|\.|$)|_boots?(_|\.|$)|_slipper(_|\.|$)/i.test(String(name || ""));
+      return /footwear|_shoes?(_|[.]|$)|_boots?(_|[.]|$)|_slipper(_|[.]|$)/i.test(String(name || ""));
     }
 
     // Collect actor roots (deepest openClinXrActorPosture or first openClinXrActorId carriers with skin).
@@ -265,7 +266,14 @@ function median(values: number[]): number {
   if (values.length === 0) return 0;
   const s = [...values].sort((a, b) => a - b);
   const mid = Math.floor(s.length / 2);
-  return s.length % 2 === 0 ? ((s[mid - 1]! + s[mid]!) / 2) : s[mid]!;
+  const hi = s[mid];
+  if (hi === undefined) throw new Error("library-figure-finish-parity: median element missing");
+  if (s.length % 2 === 0) {
+    const lo = s[mid - 1];
+    if (lo === undefined) throw new Error("library-figure-finish-parity: median pair missing");
+    return (lo + hi) / 2;
+  }
+  return hi;
 }
 
 /**

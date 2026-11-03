@@ -118,13 +118,13 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
       : Promise.resolve(undefined),
   ]);
   const report = buildLocalQwenTtsRuntimeSmokeReport({
-    generatedAt: options.generatedAt,
+    ...(options.generatedAt === undefined ? {} : { generatedAt: options.generatedAt }),
     logPath: options.logPath,
     logContent,
     audioPath: options.audioPath,
     audioBytes,
     promptText,
-    modelCacheEvidence,
+    ...(modelCacheEvidence === undefined ? {} : { modelCacheEvidence }),
   });
 
   if (options.outputPath) {
@@ -223,38 +223,38 @@ export function validateLocalQwenTtsRuntimeSmokeReport(value: unknown): Validati
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireLiteral(value.kind, "local_qwen_tts_runtime_smoke", "/kind", errors);
-  requireLiteral(value.claim_scope, "local_tts_inference_only", "/claim_scope", errors);
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireOneOf(value.status, ["passed_with_caveats", "blocked"], "/status", errors);
-  requireRecord(value.policy, "/policy", errors);
-  if (isRecord(value.policy)) {
-    requireLiteral(value.policy.cloudApisUsed, false, "/policy/cloudApisUsed", errors);
-    requireLiteral(value.policy.paidApisUsed, false, "/policy/paidApisUsed", errors);
-    requireLiteral(value.policy.productionUseAllowed, false, "/policy/productionUseAllowed", errors);
-    requireLiteral(value.policy.generatedAudioCommitted, false, "/policy/generatedAudioCommitted", errors);
-    requireLiteral(value.policy.fullDuplexClaimAllowed, false, "/policy/fullDuplexClaimAllowed", errors);
-    requireLiteral(value.policy.clinicalValidityClaimAllowed, false, "/policy/clinicalValidityClaimAllowed", errors);
-    requireBoolean(value.policy.runtimeExecutionObserved, "/policy/runtimeExecutionObserved", errors);
-    requireLiteral(value.policy.downloadAttemptedByThisTool, false, "/policy/downloadAttemptedByThisTool", errors);
-    requireLiteral(value.policy.networkAccessObservedByThisTool, false, "/policy/networkAccessObservedByThisTool", errors);
+  requireLiteral(value["kind"], "local_qwen_tts_runtime_smoke", "/kind", errors);
+  requireLiteral(value["claim_scope"], "local_tts_inference_only", "/claim_scope", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireOneOf(value["status"], ["passed_with_caveats", "blocked"], "/status", errors);
+  requireRecord(value["policy"], "/policy", errors);
+  if (isRecord(value["policy"])) {
+    requireLiteral(value["policy"]["cloudApisUsed"], false, "/policy/cloudApisUsed", errors);
+    requireLiteral(value["policy"]["paidApisUsed"], false, "/policy/paidApisUsed", errors);
+    requireLiteral(value["policy"]["productionUseAllowed"], false, "/policy/productionUseAllowed", errors);
+    requireLiteral(value["policy"]["generatedAudioCommitted"], false, "/policy/generatedAudioCommitted", errors);
+    requireLiteral(value["policy"]["fullDuplexClaimAllowed"], false, "/policy/fullDuplexClaimAllowed", errors);
+    requireLiteral(value["policy"]["clinicalValidityClaimAllowed"], false, "/policy/clinicalValidityClaimAllowed", errors);
+    requireBoolean(value["policy"]["runtimeExecutionObserved"], "/policy/runtimeExecutionObserved", errors);
+    requireLiteral(value["policy"]["downloadAttemptedByThisTool"], false, "/policy/downloadAttemptedByThisTool", errors);
+    requireLiteral(value["policy"]["networkAccessObservedByThisTool"], false, "/policy/networkAccessObservedByThisTool", errors);
   }
-  validateRuntime(value.runtime, errors);
-  requireRecord(value.input, "/input", errors);
-  if (isRecord(value.input)) {
-    requireString(value.input.text, "/input/text", errors);
-    requireNumber(value.input.textLength, "/input/textLength", errors);
-    requireBoolean(value.input.referenceAudioUsed, "/input/referenceAudioUsed", errors);
+  validateRuntime(value["runtime"], errors);
+  requireRecord(value["input"], "/input", errors);
+  if (isRecord(value["input"])) {
+    requireString(value["input"]["text"], "/input/text", errors);
+    requireNumber(value["input"]["textLength"], "/input/textLength", errors);
+    requireBoolean(value["input"]["referenceAudioUsed"], "/input/referenceAudioUsed", errors);
   }
-  validateAudio(value.audio, errors);
-  validateMetrics(value.metrics, errors);
-  validateModelCache(value.modelCache, errors);
-  requireRecord(value.verdict, "/verdict", errors);
-  if (isRecord(value.verdict)) {
-    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
-    requireLiteral(value.verdict.readyForLiveDialog, false, "/verdict/readyForLiveDialog", errors);
-    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
-    requireStringArray(value.verdict.caveats, "/verdict/caveats", errors);
+  validateAudio(value["audio"], errors);
+  validateMetrics(value["metrics"], errors);
+  validateModelCache(value["modelCache"], errors);
+  requireRecord(value["verdict"], "/verdict", errors);
+  if (isRecord(value["verdict"])) {
+    requireBoolean(value["verdict"]["passed"], "/verdict/passed", errors);
+    requireLiteral(value["verdict"]["readyForLiveDialog"], false, "/verdict/readyForLiveDialog", errors);
+    requireStringArray(value["verdict"]["blockers"], "/verdict/blockers", errors);
+    requireStringArray(value["verdict"]["caveats"], "/verdict/caveats", errors);
   }
   validateConsistency(value, errors);
 
@@ -267,15 +267,15 @@ function validateRuntime(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireLiteral(value.modelId, "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit", "/runtime/modelId", errors);
-  requireLiteral(value.modelLicense, "Apache-2.0", "/runtime/modelLicense", errors);
-  requireStringArray(value.sourceRecordIds, "/runtime/sourceRecordIds", errors);
-  requireLiteral(value.tool, "mlx-audio", "/runtime/tool", errors);
-  requireNullableString(value.toolVersion, "/runtime/toolVersion", errors);
-  requireLiteral(value.toolLicense, "MIT", "/runtime/toolLicense", errors);
-  requireNullableString(value.pythonVersion, "/runtime/pythonVersion", errors);
-  requireNullableNumber(value.exitStatus, "/runtime/exitStatus", errors);
-  requireNullableString(value.command, "/runtime/command", errors);
+  requireLiteral(value["modelId"], "mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit", "/runtime/modelId", errors);
+  requireLiteral(value["modelLicense"], "Apache-2.0", "/runtime/modelLicense", errors);
+  requireStringArray(value["sourceRecordIds"], "/runtime/sourceRecordIds", errors);
+  requireLiteral(value["tool"], "mlx-audio", "/runtime/tool", errors);
+  requireNullableString(value["toolVersion"], "/runtime/toolVersion", errors);
+  requireLiteral(value["toolLicense"], "MIT", "/runtime/toolLicense", errors);
+  requireNullableString(value["pythonVersion"], "/runtime/pythonVersion", errors);
+  requireNullableNumber(value["exitStatus"], "/runtime/exitStatus", errors);
+  requireNullableString(value["command"], "/runtime/command", errors);
 }
 
 function validateAudio(value: unknown, errors: string[]): void {
@@ -284,14 +284,14 @@ function validateAudio(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireString(value.outputPath, "/audio/outputPath", errors);
-  requireSha256(value.sha256, "/audio/sha256", errors);
-  requireLiteral(value.codec, "pcm_s16le", "/audio/codec", errors);
-  requireNumber(value.sampleRateHz, "/audio/sampleRateHz", errors);
-  requireNumber(value.channels, "/audio/channels", errors);
-  requireNumber(value.durationMs, "/audio/durationMs", errors);
-  requireNumber(value.sizeBytes, "/audio/sizeBytes", errors);
-  requireNumber(value.bitRate, "/audio/bitRate", errors);
+  requireString(value["outputPath"], "/audio/outputPath", errors);
+  requireSha256(value["sha256"], "/audio/sha256", errors);
+  requireLiteral(value["codec"], "pcm_s16le", "/audio/codec", errors);
+  requireNumber(value["sampleRateHz"], "/audio/sampleRateHz", errors);
+  requireNumber(value["channels"], "/audio/channels", errors);
+  requireNumber(value["durationMs"], "/audio/durationMs", errors);
+  requireNumber(value["sizeBytes"], "/audio/sizeBytes", errors);
+  requireNumber(value["bitRate"], "/audio/bitRate", errors);
 }
 
 function validateMetrics(value: unknown, errors: string[]): void {
@@ -300,11 +300,11 @@ function validateMetrics(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireNullableNumber(value.wallClockMs, "/metrics/wallClockMs", errors);
-  requireNumber(value.audioDurationMs, "/metrics/audioDurationMs", errors);
-  requireNullableNumber(value.realTimeFactor, "/metrics/realTimeFactor", errors);
-  requireNullableNumber(value.maxResidentSetBytes, "/metrics/maxResidentSetBytes", errors);
-  requireLiteral(value.approxFirstAudiblePlaybackLatencyMs, null, "/metrics/approxFirstAudiblePlaybackLatencyMs", errors);
+  requireNullableNumber(value["wallClockMs"], "/metrics/wallClockMs", errors);
+  requireNumber(value["audioDurationMs"], "/metrics/audioDurationMs", errors);
+  requireNullableNumber(value["realTimeFactor"], "/metrics/realTimeFactor", errors);
+  requireNullableNumber(value["maxResidentSetBytes"], "/metrics/maxResidentSetBytes", errors);
+  requireLiteral(value["approxFirstAudiblePlaybackLatencyMs"], null, "/metrics/approxFirstAudiblePlaybackLatencyMs", errors);
 }
 
 function validateModelCache(value: unknown, errors: string[]): void {
@@ -313,54 +313,54 @@ function validateModelCache(value: unknown, errors: string[]): void {
     return;
   }
 
-  requireNullableString(value.evidenceKind, "/modelCache/evidenceKind", errors);
-  requireNullableString(value.evidenceGeneratedAt, "/modelCache/evidenceGeneratedAt", errors);
-  requireNullableString(value.cacheDir, "/modelCache/cacheDir", errors);
-  requireBoolean(value.ready, "/modelCache/ready", errors);
-  requireBoolean(value.readyModelObserved, "/modelCache/readyModelObserved", errors);
-  requireStringArray(value.readyModelIds, "/modelCache/readyModelIds", errors);
-  requireStringArray(value.blockers, "/modelCache/blockers", errors);
+  requireNullableString(value["evidenceKind"], "/modelCache/evidenceKind", errors);
+  requireNullableString(value["evidenceGeneratedAt"], "/modelCache/evidenceGeneratedAt", errors);
+  requireNullableString(value["cacheDir"], "/modelCache/cacheDir", errors);
+  requireBoolean(value["ready"], "/modelCache/ready", errors);
+  requireBoolean(value["readyModelObserved"], "/modelCache/readyModelObserved", errors);
+  requireStringArray(value["readyModelIds"], "/modelCache/readyModelIds", errors);
+  requireStringArray(value["blockers"], "/modelCache/blockers", errors);
 }
 
 function validateConsistency(value: Record<string, unknown>, errors: string[]): void {
-  if (isRecord(value.input) && typeof value.input.text === "string" && typeof value.input.textLength === "number" && value.input.textLength !== value.input.text.length) {
+  if (isRecord(value["input"]) && typeof value["input"]["text"] === "string" && typeof value["input"]["textLength"] === "number" && value["input"]["textLength"] !== value["input"]["text"].length) {
     errors.push("/input/textLength must match /input/text length");
   }
-  if (isRecord(value.audio) && isRecord(value.metrics)) {
-    const audioDurationMs = numberOrNull(value.audio.durationMs);
-    const metricAudioDurationMs = numberOrNull(value.metrics.audioDurationMs);
+  if (isRecord(value["audio"]) && isRecord(value["metrics"])) {
+    const audioDurationMs = numberOrNull(value["audio"]["durationMs"]);
+    const metricAudioDurationMs = numberOrNull(value["metrics"]["audioDurationMs"]);
     if (audioDurationMs !== null && metricAudioDurationMs !== null && audioDurationMs !== metricAudioDurationMs) {
       errors.push("/metrics/audioDurationMs must match /audio/durationMs");
     }
   }
-  if (isRecord(value.verdict)) {
+  if (isRecord(value["verdict"])) {
     const expectedBlockers = expectedBlockersFor(value);
-    if (Array.isArray(value.verdict.blockers)) {
-      const verdictBlockers = new Set(value.verdict.blockers);
+    if (Array.isArray(value["verdict"]["blockers"])) {
+      const verdictBlockers = new Set(value["verdict"]["blockers"]);
       for (const blocker of expectedBlockers) {
         if (!verdictBlockers.has(blocker)) {
           errors.push(`/verdict/blockers must include ${blocker}`);
         }
       }
     }
-    const verdictPassed = value.verdict.passed;
-    if (typeof verdictPassed === "boolean" && Array.isArray(value.verdict.blockers) && verdictPassed !== (value.verdict.blockers.length === 0)) {
+    const verdictPassed = value["verdict"]["passed"];
+    if (typeof verdictPassed === "boolean" && Array.isArray(value["verdict"]["blockers"]) && verdictPassed !== (value["verdict"]["blockers"].length === 0)) {
       errors.push("/verdict/passed must match whether verdict blockers are empty");
     }
   }
 }
 
 function expectedBlockersFor(value: Record<string, unknown>): string[] {
-  const runtime = isRecord(value.runtime) ? value.runtime : {};
-  const audio = isRecord(value.audio) ? value.audio : {};
-  const modelCache = isRecord(value.modelCache) ? value.modelCache : {};
-  const audioDurationMs = numberOrNull(audio.durationMs);
+  const runtime = isRecord(value["runtime"]) ? value["runtime"] : {};
+  const audio = isRecord(value["audio"]) ? value["audio"] : {};
+  const modelCache = isRecord(value["modelCache"]) ? value["modelCache"] : {};
+  const audioDurationMs = numberOrNull(audio["durationMs"]);
 
   return [
-    runtime.exitStatus === null ? "runtime_exit_status_missing" : undefined,
-    typeof runtime.exitStatus === "number" && runtime.exitStatus !== 0 ? `runtime_exit_status_${runtime.exitStatus}` : undefined,
+    runtime["exitStatus"] === null ? "runtime_exit_status_missing" : undefined,
+    typeof runtime["exitStatus"] === "number" && runtime["exitStatus"] !== 0 ? `runtime_exit_status_${runtime["exitStatus"]}` : undefined,
     audioDurationMs !== null && audioDurationMs > 0 ? undefined : "audio_duration_missing",
-    ...stringArray(modelCache.blockers).map((blocker) => `model_cache:${blocker}`),
+    ...stringArray(modelCache["blockers"]).map((blocker) => `model_cache:${blocker}`),
   ].filter((blocker): blocker is string => typeof blocker === "string");
 }
 

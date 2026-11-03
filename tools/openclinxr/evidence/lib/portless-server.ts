@@ -54,6 +54,7 @@ const LOCAL_URL_RE =
   /Local:\s+https?:\/\/(?:127\.0\.0\.1|localhost|\[::1\]):(\d+)\/?/i;
 
 /** CSI / OSC color and style sequences Vite (and picocolors) inject into logs. */
+// biome-ignore lint/suspicious/noControlCharactersInRegex: ESC/BEL escapes are the matched subject, not accidental input
 const ANSI_ESCAPE_RE = /\u001b\[[0-9;?]*[ -/]*[@-~]|\u001b\][^\u0007]*(?:\u0007|\u001b\\)/g;
 
 /** Exported for unit tests — pure, no I/O. */
@@ -137,7 +138,11 @@ export function parseDevServerProcRows(psOutput: string): DevServerProcRow[] {
   for (const line of psOutput.split("\n")) {
     const m = /^\s*(\d+)\s+(\d+)\s+(.+)$/.exec(line);
     if (!m) continue;
-    rows.push({ pid: Number(m[1]), ppid: Number(m[2]), command: m[3] });
+    const command = m[3];
+    if (command === undefined) {
+      throw new Error(`parseDevServerProcRows matched a row without a command group: ${JSON.stringify(line)}`);
+    }
+    rows.push({ pid: Number(m[1]), ppid: Number(m[2]), command });
   }
   return rows;
 }

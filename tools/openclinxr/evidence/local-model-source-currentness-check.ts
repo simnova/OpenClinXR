@@ -86,7 +86,7 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
   }
 
   const report = buildLocalModelSourceCurrentnessReport({
-    generatedAt: options.generatedAt,
+    ...(options.generatedAt === undefined ? {} : { generatedAt: options.generatedAt }),
     metadataFile: metadataPath,
     cacheEvidenceFile: cacheEvidencePath,
     metadata: await readJson<LocalModelSourceMetadataSnapshot>(metadataPath),
@@ -170,26 +170,26 @@ export function validateLocalModelSourceMetadataSnapshot(value: unknown): Valida
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireLiteral(value.kind, "huggingface_model_metadata_snapshot", "/kind", errors);
-  requireString(value.capturedAt, "/capturedAt", errors);
-  requireString(value.modelId, "/modelId", errors);
-  requireString(value.sourceUrl, "/sourceUrl", errors);
-  requireString(value.apiUrl, "/apiUrl", errors);
-  requireString(value.sha, "/sha", errors);
-  requireString(value.license, "/license", errors);
-  requireString(value.lastModified, "/lastModified", errors);
-  requireBoolean(value.private, "/private", errors);
-  requireBoolean(value.disabled, "/disabled", errors);
-  if (!Array.isArray(value.siblings)) {
+  requireLiteral(value["kind"], "huggingface_model_metadata_snapshot", "/kind", errors);
+  requireString(value["capturedAt"], "/capturedAt", errors);
+  requireString(value["modelId"], "/modelId", errors);
+  requireString(value["sourceUrl"], "/sourceUrl", errors);
+  requireString(value["apiUrl"], "/apiUrl", errors);
+  requireString(value["sha"], "/sha", errors);
+  requireString(value["license"], "/license", errors);
+  requireString(value["lastModified"], "/lastModified", errors);
+  requireBoolean(value["private"], "/private", errors);
+  requireBoolean(value["disabled"], "/disabled", errors);
+  if (!Array.isArray(value["siblings"])) {
     errors.push("/siblings must be array");
   } else {
-    value.siblings.forEach((sibling, index) => {
+    value["siblings"].forEach((sibling, index) => {
       if (!isRecord(sibling)) {
         errors.push(`/siblings/${index} must be object`);
         return;
       }
-      requireString(sibling.rfilename, `/siblings/${index}/rfilename`, errors);
-      if (sibling.size !== null && (typeof sibling.size !== "number" || !Number.isFinite(sibling.size))) {
+      requireString(sibling["rfilename"], `/siblings/${index}/rfilename`, errors);
+      if (sibling["size"] !== null && (typeof sibling["size"] !== "number" || !Number.isFinite(sibling["size"]))) {
         errors.push(`/siblings/${index}/size must be null or finite number`);
       }
     });
@@ -204,24 +204,24 @@ function validateLocalModelSourceCurrentnessReport(value: unknown): ValidationRe
     return { ok: false, errors: ["/ must be object"] };
   }
 
-  requireLiteral(value.kind, "local_model_source_currentness_check", "/kind", errors);
-  requireString(value.generatedAt, "/generatedAt", errors);
-  requireBoolean(value.ready, "/ready", errors);
-  requireString(value.metadata_file, "/metadata_file", errors);
-  requireString(value.cache_evidence_file, "/cache_evidence_file", errors);
-  requireString(value.model_id, "/model_id", errors);
-  requireNullableString(value.source_revision, "/source_revision", errors);
-  requireNullableString(value.local_revision, "/local_revision", errors);
-  if (!isRecord(value.verdict)) {
+  requireLiteral(value["kind"], "local_model_source_currentness_check", "/kind", errors);
+  requireString(value["generatedAt"], "/generatedAt", errors);
+  requireBoolean(value["ready"], "/ready", errors);
+  requireString(value["metadata_file"], "/metadata_file", errors);
+  requireString(value["cache_evidence_file"], "/cache_evidence_file", errors);
+  requireString(value["model_id"], "/model_id", errors);
+  requireNullableString(value["source_revision"], "/source_revision", errors);
+  requireNullableString(value["local_revision"], "/local_revision", errors);
+  if (!isRecord(value["verdict"])) {
     errors.push("/verdict must be object");
   } else {
-    requireBoolean(value.verdict.passed, "/verdict/passed", errors);
-    requireStringArray(value.verdict.blockers, "/verdict/blockers", errors);
+    requireBoolean(value["verdict"]["passed"], "/verdict/passed", errors);
+    requireStringArray(value["verdict"]["blockers"], "/verdict/blockers", errors);
   }
-  if (value.ready === true && (!isRecord(value.verdict) || value.verdict.passed !== true)) {
+  if (value["ready"] === true && (!isRecord(value["verdict"]) || value["verdict"]["passed"] !== true)) {
     errors.push("/ready cannot be true unless verdict.passed is true");
   }
-  if (value.ready !== true) {
+  if (value["ready"] !== true) {
     errors.push("/ready must be true for validation");
   }
 
