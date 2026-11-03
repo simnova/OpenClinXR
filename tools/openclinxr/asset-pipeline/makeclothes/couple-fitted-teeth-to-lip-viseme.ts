@@ -1730,8 +1730,8 @@ function bounds(values: Float32Array): { min: Vec3; max: Vec3 } {
   for (let i = 0; i < values.length; i += 3) {
     for (let axis = 0; axis < 3; axis += 1) {
       const value = values[i + axis] ?? 0;
-      if (value < min[axis]) min[axis] = value;
-      if (value > max[axis]) max[axis] = value;
+      if (value < (min[axis] ?? Infinity)) min[axis] = value;
+      if (value > (max[axis] ?? -Infinity)) max[axis] = value;
     }
   }
   return { min, max };

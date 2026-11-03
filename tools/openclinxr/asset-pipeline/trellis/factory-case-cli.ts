@@ -176,6 +176,7 @@ export function parseFactoryCaseArgs(argv: string[]): FactoryCaseArgs {
   const args = argv[0] === "--" ? argv.slice(1) : argv;
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
+    if (a === undefined) continue;
     if (a === "--help" || a === "-h") {
       result.help = true;
     } else if (a === "--dry-run") {
@@ -242,9 +243,9 @@ function stationRows(flags: { hatch: boolean; motionBind: boolean; viseme: boole
       enabled: flags.hatch,
       command: `tsx ${HATCH_CLI}`,
       status: skipOrPlan(flags.hatch),
-      note: flags.hatch
-        ? "recorded-not-invoked: factory:trellis:hatch requires Imagine"
-        : undefined,
+      ...(flags.hatch
+        ? { note: "recorded-not-invoked: factory:trellis:hatch requires Imagine" }
+        : {}),
     },
     {
       id: "motion_bind",

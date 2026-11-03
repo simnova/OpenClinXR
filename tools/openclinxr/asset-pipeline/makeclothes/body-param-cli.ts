@@ -332,7 +332,7 @@ function runCmd(
     });
   });
   return path.basename(command).toLowerCase().includes("blender")
-    ? withComputeSlot("blender", { label: "body-param-cli", cwd: opts.cwd }, run)
+    ? withComputeSlot("blender", { label: "body-param-cli", ...(opts.cwd !== undefined ? { cwd: opts.cwd } : {}) }, run)
     : run();
 }
 
@@ -1369,21 +1369,19 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
 
   const deformRaw =
     (stage["deformationCalibration"] as Record<string, unknown> | undefined) ?? {};
-  const deformationCalibration: BodyParamCatalog["deformationCalibration"] = {
+  const deformationCalibration: NonNullable<BodyParamCatalog["deformationCalibration"]> = {
     drivenBone: String(deformRaw["drivenBone"] ?? "upper_arm.L"),
     rotationDegrees: Number(deformRaw["rotationDegrees"] ?? 55),
     deformationEpsilonMeters: Number(deformRaw["deformationEpsilonMeters"] ?? 0),
     source: String(
       deformRaw["source"] ?? "calibrated_half_median_bone_tip_motion_this_export",
     ),
-    perClassBodyDeformationMeters: Array.isArray(deformRaw["perClassBodyDeformationMeters"])
-      ? (deformRaw["perClassBodyDeformationMeters"] as number[])
-      : undefined,
-    perClassGarmentDeformationMeters: Array.isArray(
-      deformRaw["perClassGarmentDeformationMeters"],
-    )
-      ? (deformRaw["perClassGarmentDeformationMeters"] as number[])
-      : undefined,
+    ...(Array.isArray(deformRaw["perClassBodyDeformationMeters"])
+      ? { perClassBodyDeformationMeters: deformRaw["perClassBodyDeformationMeters"] as number[] }
+      : {}),
+    ...(Array.isArray(deformRaw["perClassGarmentDeformationMeters"])
+      ? { perClassGarmentDeformationMeters: deformRaw["perClassGarmentDeformationMeters"] as number[] }
+      : {}),
   };
 
   const catalog: BodyParamCatalog = {
@@ -1404,13 +1402,12 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     stageReportPath: path.relative(REPO_ROOT, STAGE_REPORT_PATH).split(path.sep).join("/"),
     gradePngPath: path.relative(REPO_ROOT, GRADE_PNG_PATH).split(path.sep).join("/"),
     blenderExecutable: blender,
-    gradeRenderEngine:
-      typeof artifacts["gradeRenderEngine"] === "string"
-        ? (artifacts["gradeRenderEngine"] as string)
-        : undefined,
-    posedDeformationGradePng: existsSync(POSED_GRADE_PNG_PATH)
-      ? path.relative(REPO_ROOT, POSED_GRADE_PNG_PATH).split(path.sep).join("/")
-      : undefined,
+    ...(typeof artifacts["gradeRenderEngine"] === "string"
+      ? { gradeRenderEngine: artifacts["gradeRenderEngine"] as string }
+      : {}),
+    ...(existsSync(POSED_GRADE_PNG_PATH)
+      ? { posedDeformationGradePng: path.relative(REPO_ROOT, POSED_GRADE_PNG_PATH).split(path.sep).join("/") }
+      : {}),
     deformationCalibration,
   };
 

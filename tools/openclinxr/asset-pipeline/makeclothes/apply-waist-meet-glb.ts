@@ -17,13 +17,13 @@ import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 import { NodeIO, type Accessor } from "@gltf-transform/core";
-import { isUpperGarmentName } from "../../evidence/garment-slot.ts";
-import { isPantsName } from "../../evidence/waistband-ring.ts";
+import { isUpperGarmentName } from "../../evidence/garment-slot.js";
+import { isPantsName } from "../../evidence/waistband-ring.js";
 import {
   WAIST_BUCKETS,
   WAIST_OVERLAP_MARGIN_M,
   WAIST_RIM_FRACTION,
-} from "../../evidence/humanoid-vetting/waist-meet-contract.ts";
+} from "../../evidence/humanoid-vetting/waist-meet-contract.js";
 
 type Vec3 = [number, number, number];
 

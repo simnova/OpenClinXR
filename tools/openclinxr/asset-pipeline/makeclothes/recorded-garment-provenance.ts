@@ -127,7 +127,7 @@ function hasConcreteLineage(s: Record<string, unknown>): boolean {
       const parts = asset.split("/");
       return parts[parts.length - 1];
     })();
-    if (base.length === 0 || !outVal.endsWith(base)) return false;
+    if (!base || base.length === 0 || !outVal.endsWith(base)) return false;
   }
   if (!isHex64(inputSha)) return false;
   const caseInputs = s["caseInputs"] as Record<string, unknown> | unknown;

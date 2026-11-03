@@ -200,8 +200,8 @@ async function countTris(glbPath: string): Promise<number> {
 async function aabbVolume(glbPath: string): Promise<number> {
   const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
   const doc = await io.read(glbPath);
-  const min = [Infinity, Infinity, Infinity];
-  const max = [-Infinity, -Infinity, -Infinity];
+  const min: [number, number, number] = [Infinity, Infinity, Infinity];
+  const max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION");
@@ -363,7 +363,7 @@ function runCmd(
     });
   });
   return path.basename(command).toLowerCase().includes("blender")
-    ? withComputeSlot("blender", { label: "trellis-iterate-optimize", cwd: opts.cwd }, run)
+    ? withComputeSlot("blender", { label: "trellis-iterate-optimize", ...(opts.cwd !== undefined ? { cwd: opts.cwd } : {}) }, run)
     : run();
 }
 
@@ -545,11 +545,10 @@ async function main() {
 
   const rawTris = await countTris(input);
   const rawVol = await aabbVolume(input);
-  const rungs: Rung[] = [
-    await measureRung(0, "raw", null, 1, input, rawVol),
-  ];
-  rungs[0].path = path.join(out, "raw-copy.glb");
-  copyFileSync(input, rungs[0].path);
+  const rawRung = await measureRung(0, "raw", null, 1, input, rawVol);
+  rawRung.path = path.join(out, "raw-copy.glb");
+  copyFileSync(input, rawRung.path);
+  const rungs: Rung[] = [rawRung];
 
   const targets = [
     { name: "hard180k", tris: HARD },
@@ -607,10 +606,9 @@ async function main() {
     await doc.transform(quantize());
     await io.write(iter3q, doc);
   }
-  rungs.push(
-    await measureRung(3, `quantize_from_${seed.technique}`, seed.targetTris, 1, iter3q, rawVol),
-  );
-  console.log(`  quantize from ${seed.technique} → ${rungs[rungs.length - 1].triangleCount} tris`);
+  const iter3Rung = await measureRung(3, `quantize_from_${seed.technique}`, seed.targetTris, 1, iter3q, rawVol);
+  rungs.push(iter3Rung);
+  console.log(`  quantize from ${seed.technique} → ${iter3Rung.triangleCount} tris`);
 
   // Retarget to prop share only when still over preferred (multi-prop pressure path).
   if (seed.triangleCount > PROP_PREFERRED) {
