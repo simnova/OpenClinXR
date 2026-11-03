@@ -50,7 +50,15 @@ function py(code: string): string {
   return execFileSync("python3", ["-c", code], { encoding: "utf8" });
 }
 
-function makeSynth(tmp: string): Record<string, string> {
+type SynthPaths = {
+  albedo: string;
+  facecore: string;
+  base: string;
+  full: string;
+  small: string;
+};
+
+function makeSynth(tmp: string): SynthPaths {
   const paths = {
     albedo: path.join(tmp, "albedo.png"),
     facecore: path.join(tmp, "facecore.png"),

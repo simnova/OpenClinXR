@@ -40,7 +40,7 @@ function misePython(args: string[], options?: { timeout?: number }): string {
     ["exec", "-C", "/Volumes/files/src/openclinxr", "--", "python3", ...args],
     { encoding: "utf8", timeout: options?.timeout ?? 280000,
       env: { ...process.env,
-        MISE_TRUSTED_CONFIG_PATHS: `${process.env.HOME}/.grok/worktrees` } });
+        MISE_TRUSTED_CONFIG_PATHS: `${process.env["HOME"]}/.grok/worktrees` } });
 }
 
 function shaOf(file: string): string {
@@ -198,9 +198,11 @@ describe("pore-scale-fine manifest + report", () => {
       }>;
     };
     for (const subj of Object.keys(man.subjects)) {
-      const ov = man.subjects[subj].overrides?.detail_bands;
-      expect(ov?.pore_noise_hi_mm, `${subj} has no hi-mm override`).toBeUndefined();
-      expect(man.subjects[subj].sources?.["detail_bands.pore_noise_hi_mm"]).toBeUndefined();
+      const ms = man.subjects[subj];
+      if (!ms) throw new Error(`manifest is missing subject ${subj}`);
+      const ov = ms.overrides?.["detail_bands"];
+      expect(ov?.["pore_noise_hi_mm"], `${subj} has no hi-mm override`).toBeUndefined();
+      expect(ms.sources?.["detail_bands.pore_noise_hi_mm"]).toBeUndefined();
     }
     const rep = JSON.parse(fs.readFileSync(REPORT, "utf8"));
     expect(rep.verdict.status).toBe("not_converged");
@@ -217,12 +219,15 @@ describe("pore-scale-fine manifest + report", () => {
     }>;
     for (const key of ["goal_body2", "goal_aisha",
       "wrinkle_post_body2", "wrinkle_post_aisha"]) {
-      expect(pre[key].path.endsWith(".png")).toBe(true);
-      expect(pre[key].sha256).toMatch(/^[0-9a-f]{64}$/);
+      const entry = pre[key];
+      if (!entry) throw new Error(`report pre.images is missing ${key}`);
+      expect(entry.path.endsWith(".png")).toBe(true);
+      expect(entry.sha256).toMatch(/^[0-9a-f]{64}$/);
     }
     // Falsifier recomputed from recorded numbers.
     for (const subj of ["body2", "aisha"]) {
       const g = pre[`goal_${subj}`];
+      if (!g) throw new Error(`report pre.images is missing goal_${subj}`);
       expect(g.peak_power / g.floor).toBeGreaterThanOrEqual(2.0);
     }
     // G1 recomputed: the wrinkle corrected rule (past the midpoint toward

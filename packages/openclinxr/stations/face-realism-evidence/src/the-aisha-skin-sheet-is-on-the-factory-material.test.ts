@@ -38,7 +38,7 @@ describe("the Aisha skin sheet is on the factory material", () => {
     expect(teeth).toBeTruthy();
     const primitive = teeth!.listPrimitives()[0]!;
     expect(primitive.getAttribute("POSITION")?.getCount()).toBe(4494);
-    const names = teeth!.getExtras()?.targetNames as string[];
+    const names = teeth!.getExtras()?.["targetNames"] as string[];
     expect(names).toContain("viseme_aa");
     expect(names).toContain("viseme_PP");
   });

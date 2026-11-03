@@ -43,9 +43,20 @@ const REPORT = JSON.parse(readFileSync(path.join(HERE, "tone-report.json"), "utf
 const STORE = "/Volumes/files/openclinxr-assets/store";
 const storePresent = existsSync(STORE);
 
+/** A Lab triplet: exactly three channels, or a named throw. */
+function triplet(label: string, v: number[]): [number, number, number] {
+  const [x, y, z] = v;
+  if (x === undefined || y === undefined || z === undefined) {
+    throw new Error(`${label} is not a Lab triplet`);
+  }
+  return [x, y, z];
+}
+
 /** Euclidean dLab between two Lab triplets. */
 export function dLab(a: number[], b: number[]): number {
-  return Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2);
+  const [ax, ay, az] = triplet("dLab a", a);
+  const [bx, by, bz] = triplet("dLab b", b);
+  return Math.sqrt((ax - bx) ** 2 + (ay - by) ** 2 + (az - bz) ** 2);
 }
 
 /** Nearest family by dLab of the tone anchor against family forehead means. */
@@ -76,17 +87,21 @@ export function capResidual(
   nextFamilyMean: number[] | null,
 ): { capped: number[]; crossed: boolean } {
   if (nextFamilyMean === null) return { capped: [...target], crossed: false };
+  const n = triplet("nearestMean", nearestMean);
+  const t = triplet("target", target);
+  const nx = triplet("nextFamilyMean", nextFamilyMean);
   const capped = [...target];
   let crossed = false;
+  // Index by the loop bound into fixed 3-tuples: c in 0..2 is always in bounds.
   for (let c = 0; c < 3; c++) {
-    const lo = Math.min(nearestMean[c], nextFamilyMean[c]);
-    const hi = Math.max(nearestMean[c], nextFamilyMean[c]);
+    const lo = Math.min(n[c]!, nx[c]!);
+    const hi = Math.max(n[c]!, nx[c]!);
     const travellingTowardNext =
-      (target[c] < nearestMean[c] && nextFamilyMean[c] < nearestMean[c]) ||
-      (target[c] > nearestMean[c] && nextFamilyMean[c] > nearestMean[c]);
-    if (travellingTowardNext && (target[c] < lo || target[c] > hi)) {
+      (t[c]! < n[c]! && nx[c]! < n[c]!) ||
+      (t[c]! > n[c]! && nx[c]! > n[c]!);
+    if (travellingTowardNext && (t[c]! < lo || t[c]! > hi)) {
       crossed = true;
-      capped[c] = target[c] < lo ? lo : hi;
+      capped[c] = t[c]! < lo ? lo : hi;
     }
   }
   return { capped, crossed };
@@ -94,8 +109,8 @@ export function capResidual(
 
 /** CIEDE2000 (Sharma et al.): independent re-derivation of the report numbers. */
 export function ciede2000(l1: number[], l2: number[]): number {
-  const [L1, a1, b1] = l1;
-  const [L2, a2, b2] = l2;
+  const [L1, a1, b1] = triplet("ciede2000 l1", l1);
+  const [L2, a2, b2] = triplet("ciede2000 l2", l2);
   const C1 = Math.hypot(a1, b1);
   const C2 = Math.hypot(a2, b2);
   const Cb = (C1 + C2) / 2;
@@ -154,7 +169,12 @@ describe("the nearest family wins over a flattening multiply", () => {
       }
     }
     const byL = Object.entries(REPORT.families)
-      .sort(([, a], [, b]) => a.forehead[0] - b.forehead[0])
+      .sort(([, a], [, b]) => {
+        const al = a?.forehead[0];
+        const bl = b?.forehead[0];
+        if (al === undefined || bl === undefined) throw new Error("family forehead triplet missing L");
+        return al - bl;
+      })
       .map(([id]) => id);
     expect(byL).toEqual(["young", "old", "middle"]);
   });
@@ -162,20 +182,27 @@ describe("the nearest family wins over a flattening multiply", () => {
   it("phenotype tone maps to the nearest family (re-derived, not quoted)", () => {
     expect(selectNearestFamily(REPORT.tone_anchors_Lab.warm_light, REPORT.families)).toBe("young");
     expect(selectNearestFamily(REPORT.tone_anchors_Lab.warm_medium, REPORT.families)).toBe("young");
-    expect(REPORT.nearest.warm_light).toBe("young");
-    expect(REPORT.nearest.warm_medium).toBe("young");
+    expect(REPORT.nearest["warm_light"]).toBe("young");
+    expect(REPORT.nearest["warm_medium"]).toBe("young");
   });
 
   it("refuses a residual uncapped past the next family's mean (known-bad probe)", () => {
     // middle-light L 75.38 dragged to the dark forehead mean crosses old (68.03): refuse.
-    const middle = REPORT.families.middle.forehead;
-    const old = REPORT.families.old.forehead;
+    const middleFam = REPORT.families["middle"];
+    if (middleFam === undefined) throw new Error("tone-report families.middle missing");
+    const middle = triplet("families.middle.forehead", middleFam.forehead);
+    const oldFam = REPORT.families["old"];
+    if (oldFam === undefined) throw new Error("tone-report families.old missing");
+    const old = triplet("families.old.forehead", oldFam.forehead);
     const darkL = REPORT.multiply.lip_lab.untouched_dark[0];
+    if (darkL === undefined) throw new Error("tone-report multiply lip_lab.untouched_dark empty");
     const { crossed } = capResidual(middle, [darkL, middle[1], middle[2]], old);
     expect(crossed).toBe(true);
     // The current-case residual (warm_light anchor off young) travels away from
     // the next family in that direction, so no bound is crossed: ships capped.
-    const young = REPORT.families.young.forehead;
+    const youngFam = REPORT.families["young"];
+    if (youngFam === undefined) throw new Error("tone-report families.young missing");
+    const young = triplet("families.young.forehead", youngFam.forehead);
     const small = capResidual(young, REPORT.tone_anchors_Lab.warm_light, null);
     expect(small.crossed).toBe(false);
   });

@@ -60,11 +60,14 @@ function lateralCopy(png: string, g: number, shape: string, dir: string): string
   return out;
 }
 
-function lrQuantities(png: string): Record<string, Record<string, number>> {
-  return JSON.parse(py(["--lr-quantities", png])) as Record<string, Record<string, number>>;
+type LateralSide = { logY_face: number; Lratio_face: number; CdivL: number };
+type LateralQuantities = { left: LateralSide; right: LateralSide };
+
+function lrQuantities(png: string): LateralQuantities {
+  return JSON.parse(py(["--lr-quantities", png])) as LateralQuantities;
 }
 
-function mirrorOf(q: Record<string, Record<string, number>>, k: string): number {
+function mirrorOf(q: LateralQuantities, k: "logY_face" | "Lratio_face" | "CdivL"): number {
   return (q.left[k] + q.right[k]) / 2;
 }
 
@@ -167,8 +170,10 @@ describe("the lateral skin gates cancel the photo key", () => {
     expect(rep.g0m.kept).toContain("logY_face");
     expect(rep.g0m.kept).toContain("CdivL");
     for (const [q, v] of Object.entries(rep.g0m.per_quantity)) {
-      expect(v.mirror_max_move).toBeLessThanOrEqual(rep.g0m.floors[q]);
-      expect(v.sens_move).toBeGreaterThan(rep.g0m.floors[q]);
+      const floor = rep.g0m.floors[q];
+      if (floor === undefined) throw new Error(`g0m floor missing for quantity ${q}`);
+      expect(v.mirror_max_move).toBeLessThanOrEqual(floor);
+      expect(v.sens_move).toBeGreaterThan(floor);
       expect(rep.g0m.kept.includes(q)).toBe(v.kept);
     }
     // One-sided lateral gates for probe-moved quantities stay in the table,
@@ -233,12 +238,25 @@ describe("the lateral skin gates cancel the photo key", () => {
       quantities: Record<string, Record<string, number>>;
     };
     const rep = loadReport();
-    const stored = (rep as unknown as {
+    const storedEntry = (rep as unknown as {
       g2m_per_image: Record<string, { mirror: Record<string, number> }>;
-    }).g2m_per_image.render_aisha.mirror;
+    }).g2m_per_image["render_aisha"];
+    if (storedEntry === undefined) throw new Error("g2m_per_image.render_aisha missing");
+    const stored = storedEntry.mirror;
     for (const q of rep.g0m.kept) {
-      const recomputed = (rq.quantities.L_cheek[q] + rq.quantities.R_cheek[q]) / 2;
-      expect(Math.abs(recomputed - stored[q])).toBeLessThan(0.001);
+      const cheekL = rq.quantities["L_cheek"];
+      const cheekR = rq.quantities["R_cheek"];
+      if (cheekL === undefined || cheekR === undefined) {
+        throw new Error("render quantities L_cheek/R_cheek missing");
+      }
+      const l = cheekL[q];
+      const rQ = cheekR[q];
+      const s = stored[q];
+      if (l === undefined || rQ === undefined || s === undefined) {
+        throw new Error(`quantity ${q} missing from render or stored mirror`);
+      }
+      const recomputed = (l + rQ) / 2;
+      expect(Math.abs(recomputed - s)).toBeLessThan(0.001);
     }
   }, 300000);
 });

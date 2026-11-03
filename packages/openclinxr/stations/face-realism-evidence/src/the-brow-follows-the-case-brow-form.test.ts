@@ -169,10 +169,14 @@ describe("the brow follows the case brow_form: manifest wiring", () => {
     const goal = one.subjects["body2"]!.measurements.goal.mean;
     const rec = manifest.subjects["adult_male_street_casual"]!;
     const ov = rec.overrides["brow_form"]!;
+    const dL = ov["dL"];
+    if (dL === undefined) throw new Error("brow_form override is missing dL");
+    const dC = ov["dC"];
+    if (dC === undefined) throw new Error("brow_form override is missing dC");
     // Per-hair shift goes past 100% of the mean PRE-to-goal gap (the weight
     // concentrates it on hairs), and the source records the weighted solve.
-    expect(Math.abs(ov["dL"])).toBeGreaterThanOrEqual(Math.abs(goal.dL - pre.dL));
-    expect(Math.abs(ov["dC"])).toBeGreaterThanOrEqual(Math.abs(goal.dC - pre.dC));
+    expect(Math.abs(dL)).toBeGreaterThanOrEqual(Math.abs(goal.dL - pre.dL));
+    expect(Math.abs(dC)).toBeGreaterThanOrEqual(Math.abs(goal.dC - pre.dC));
     expect(rec.sources["brow_form.dL"]).toContain("coverage");
     expect(rec.sources["brow_form.dC"]).toContain("coverage");
   });
@@ -204,8 +208,11 @@ describe("the brow follows the case brow_form: mesh clears, texture shifts", () 
   it("mesh form clears a synthetic painted brow with no edge step", () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "brow-mesh-"));
     const fix = stageBrowFixture(tmp);
+    const skinL = fix.skinLab[0];
+    const skinC = fix.skinLab[1];
+    if (skinL === undefined || skinC === undefined) throw new Error("skinLab must record L and C");
     const before = labStats(fix.albedo, fix.maskL);
-    expect(fix.skinLab[0] - before.meanL).toBeGreaterThan(8); // dark paint present
+    expect(skinL - before.meanL).toBeGreaterThan(8); // dark paint present
     const out = path.join(tmp, "out.png");
     execFileSync("python3", [SCRIPT, fix.albedo, out,
       "--brows-mask-L", fix.maskL, "--brows-mask-R", fix.maskR,
@@ -215,8 +222,8 @@ describe("the brow follows the case brow_form: mesh clears, texture shifts", () 
     // Interior (past the feather ramp) is cleared skin; the ramp rows keep
     // a diminishing copy of the paint so the edge has no step (halo gate).
     const after = labStats(out, fix.maskL, 8);
-    expect(Math.abs(after.meanL - fix.skinLab[0])).toBeLessThan(6); // paint gone
-    expect(Math.abs(after.meanC - fix.skinLab[1])).toBeLessThan(6);
+    expect(Math.abs(after.meanL - skinL)).toBeLessThan(6); // paint gone
+    expect(Math.abs(after.meanC - skinC)).toBeLessThan(6);
     const edge = maxDLabOutside(fix.albedo, out, fix.maskL, fix.maskR);
     expect(edge.max).toBe(0);
     expect(edge.haloN).toBeGreaterThan(0);
@@ -968,7 +975,11 @@ describe("the brow follows the case brow_form: G13 boundary tone step (hb5)", ()
     // outside bands are frozen PRE bytes, excluded from the comparison).
     const hb4Interior = cal.badprof.map(worstInterior);
     for (let i = 0; i < 2; i++) {
-      expect(worstInterior(prof[i])).toBeLessThan(hb4Interior[i]);
+      const live = prof[i];
+      if (live === undefined) throw new Error(`live profile side ${i} missing`);
+      const frozen = hb4Interior[i];
+      if (frozen === undefined) throw new Error(`hb4 interior side ${i} missing`);
+      expect(worstInterior(live)).toBeLessThan(frozen);
     }
     // Recorded beside hb4 in the report; printed here for the log.
     console.log(JSON.stringify({ T: Math.round(T * 1000) / 1000, liveInteriorWorst: prof.map(worstInterior), hb4InteriorWorst: hb4Interior }));

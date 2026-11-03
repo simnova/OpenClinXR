@@ -124,11 +124,12 @@ describe("the cheek-brightness cause is found one layer at a time", () => {
       expect(b && a, v).toBeTruthy();
     }
     // Falsifier rule: movers below threshold or <= half-gap target.
-    const body2 = VARIANTS.map(
-      (v) =>
-        rep.step0.ablation.find((r) => r.variant === v && r.render === "body2")!
-          .delta_vs_own["Lratio_face"],
-    );
+    const body2 = VARIANTS.map((v) => {
+      const row = rep.step0.ablation.find((r) => r.variant === v && r.render === "body2");
+      const d = row?.delta_vs_own["Lratio_face"];
+      if (d === undefined) throw new Error(`STEP 0 missing body2 Lratio_face for variant ${v}`);
+      return d;
+    });
     const base = body2[0];
     const best = Math.min(...body2);
     expect(rep.falsifier.base).toBe(base);
@@ -168,8 +169,19 @@ describe("the cheek-brightness cause is found one layer at a time", () => {
     const row = rep.step0.ablation.find(
       (r) => r.variant === "a1" && r.render === "body2",
     )!;
-    const recomputed =
-      (rq.quantities["L_cheek"]["Lratio_face"] + rq.quantities["R_cheek"]["Lratio_face"]) / 2;
-    expect(Math.abs(recomputed - row.mirror["Lratio_face"])).toBeLessThan(0.001);
+    const leftCheek = rq.quantities["L_cheek"];
+    const rightCheek = rq.quantities["R_cheek"];
+    if (leftCheek === undefined || rightCheek === undefined) {
+      throw new Error("render quantities missing L_cheek or R_cheek");
+    }
+    const leftFace = leftCheek["Lratio_face"];
+    const rightFace = rightCheek["Lratio_face"];
+    if (leftFace === undefined || rightFace === undefined) {
+      throw new Error("render quantities missing Lratio_face cheek quantities");
+    }
+    const recomputed = (leftFace + rightFace) / 2;
+    const mirrorFace = row.mirror["Lratio_face"];
+    if (mirrorFace === undefined) throw new Error("STEP 0 row missing mirror Lratio_face");
+    expect(Math.abs(recomputed - mirrorFace)).toBeLessThan(0.001);
   }, 300000);
 });

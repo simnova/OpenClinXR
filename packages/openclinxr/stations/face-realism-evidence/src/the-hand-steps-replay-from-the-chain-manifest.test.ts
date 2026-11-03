@@ -240,8 +240,14 @@ describe("the hand steps replay from the chain manifest", () => {
       expect(stage.parameters).toBeTruthy();
       expect(stage.parameter_sources).toBeTruthy();
     }
-    expect(manifest.subjects.aisha.overrides.lips.ratio).toBe(1.30);
-    expect(manifest.subjects.aisha.overrides.symmetrise.strength).toBe(1.0);
+    const aisha = manifest.subjects["aisha"];
+    if (!aisha) throw new Error("manifest is missing subject aisha");
+    const lips = aisha.overrides["lips"];
+    if (lips === undefined) throw new Error("manifest is missing aisha lips overrides");
+    const symmetrise = aisha.overrides["symmetrise"];
+    if (symmetrise === undefined) throw new Error("manifest is missing aisha symmetrise overrides");
+    expect(lips["ratio"]).toBe(1.30);
+    expect(symmetrise["strength"]).toBe(1.0);
   });
 
   it("replays occlusion through socket stages bit-identically on two runs", () => {
@@ -301,7 +307,9 @@ print("import ok")
     const manifest = loadManifest();
     // Modify a tracked sha to be wrong
     const badManifest = { ...manifest };
-    badManifest.stages[0].output_shas_aisha["occupancy.png"] = "0".repeat(64);
+    const badStage0 = badManifest.stages[0];
+    if (!badStage0) throw new Error("manifest is missing stage 0");
+    badStage0.output_shas_aisha["occupancy.png"] = "0".repeat(64);
     const badPath = path.join(os.tmpdir(), "bad-manifest.json");
     fs.writeFileSync(badPath, JSON.stringify(badManifest));
 
@@ -801,7 +809,9 @@ describe("hand-steps per-stage masks, T-zone, corners, known-bads", () => {
     const glb = writeSyntheticGLB(tmp);
     const albedo = path.join(FIX, "base-good-A.png");
     const manifest = loadManifest();
-    manifest.stages[0].parameters.size = 512;
+    const handStage0 = manifest.stages[0];
+    if (!handStage0) throw new Error("manifest is missing stage 0");
+    handStage0.parameters["size"] = 512;
     // This replay uses a synthetic fixture GLB, not a pinned subject mesh:
     // blank the subject GLB pins (the aisha pin is exercised by the
     // derive-refuses-a-non-body-skin-and-aisha-replays-for-real suite).

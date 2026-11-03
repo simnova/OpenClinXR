@@ -183,9 +183,16 @@ describe("the beard-shadow layer is identity at zero and matches the goal", () =
     const names = manifest.stages.map((s) => s.name);
     expect(names.indexOf("beard_shadow")).toBe(names.indexOf("socket") + 1);
     expect(names[names.length - 1]).toBe("brow_form");
-    expect(manifest.subjects.aisha.overrides.beard_shadow.weight).toBe(0.0);
-    const male = manifest.subjects.adult_male_street_casual;
-    expect(male.overrides.beard_shadow.weight).toBeGreaterThan(0);
+    const aisha = manifest.subjects["aisha"];
+    if (aisha === undefined) throw new Error("missing aisha subject in chain manifest");
+    const aishaShadow = aisha.overrides["beard_shadow"];
+    if (aishaShadow === undefined) throw new Error("missing beard_shadow override for aisha in chain manifest");
+    expect(aishaShadow.weight).toBe(0.0);
+    const male = manifest.subjects["adult_male_street_casual"];
+    if (male === undefined) throw new Error("missing adult_male_street_casual subject in chain manifest");
+    const maleShadow = male.overrides["beard_shadow"];
+    if (maleShadow === undefined) throw new Error("missing beard_shadow override for adult_male_street_casual in chain manifest");
+    expect(maleShadow.weight).toBeGreaterThan(0);
     expect(male.sources?.["beard_shadow.weight"] ?? "").toContain("S/beard");
   });
 

@@ -116,7 +116,7 @@ function meanLab(image: string): [number, number, number] {
 }
 
 function srcStats(image: string, mask: string): {
-  mean: number[]; std: number[];
+  mean: [number, number, number]; std: [number, number, number];
 } {
   const raw = execFileSync("python3", ["-c", [
     "import sys, json",
@@ -131,7 +131,7 @@ function srcStats(image: string, mask: string): {
     "print(json.dumps({'mean':[float(v) for v in px.mean(0)]," +
       "'std':[float(v)+1e-6 for v in px.std(0)]}))",
   ].join("\n")], { encoding: "utf8" });
-  return JSON.parse(raw) as { mean: number[]; std: number[] };
+  return JSON.parse(raw) as { mean: [number, number, number]; std: [number, number, number] };
 }
 
 type ReplayReport = {
