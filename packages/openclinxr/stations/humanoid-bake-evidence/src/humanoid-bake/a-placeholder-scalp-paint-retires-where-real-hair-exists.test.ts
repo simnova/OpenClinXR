@@ -97,7 +97,7 @@ process.chdir(repoRoot());
 const REPO_ROOT = repoRoot();
 const HUMANOIDS = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 /** Overridable so a destructive probe can point the same logic at doctored assets. */
-const ASSET_DIR = process.env.OPENCLINXR_SCALP_PROBE_DIR ?? HUMANOIDS;
+const ASSET_DIR = process.env["OPENCLINXR_SCALP_PROBE_DIR"] ?? HUMANOIDS;
 
 const PLACEHOLDER = /native_scalp_hair_surface/u;
 const FITTED_HAIR = /fitted_hair|_hair_toigo|hair_.*bob/u;

@@ -73,11 +73,11 @@ print("ok")
       };
       expect(loaded.derivationMode).toBe("blender_only_rebake");
       expect(loaded.generatorMode).toBe("blender_only_rebake_on_tracked_real_anny_base_obj_v1");
-      expect(loaded.licenseChain.status).toBe("inherited_from_base_not_reverified");
+      expect(loaded.licenseChain["status"]).toBe("inherited_from_base_not_reverified");
       expect(loaded.licenseChain).not.toHaveProperty("annyCode");
-      expect(Array.isArray(loaded.licenseChain.notRun)).toBe(true);
-      expect(loaded.derivativeLineage.status).toBe("wardrobe_rebake_derivative");
-      expect(loaded.sourceOriginChain.sourceTopologyMode).toBe("real_anny_mpfb2_forward_pass_v1");
+      expect(Array.isArray(loaded.licenseChain["notRun"])).toBe(true);
+      expect(loaded.derivativeLineage["status"]).toBe("wardrobe_rebake_derivative");
+      expect(loaded.sourceOriginChain["sourceTopologyMode"]).toBe("real_anny_mpfb2_forward_pass_v1");
       expect(typeof loaded.toolVersion).toBe("string");
       expect(loaded.toolVersion.length).toBeGreaterThan(0);
       expect(loaded.promptOrCaseParameterHash).toMatch(/^[a-f0-9]{64}$/u);
@@ -124,9 +124,9 @@ print("ok")
         derivativeLineage: Record<string, unknown>;
       };
       expect(loaded.derivationMode).toBe("orchestrate");
-      expect(typeof loaded.licenseChain.annyCode).toBe("string");
-      expect(loaded.licenseChain.status).toBe("enumerated_from_source_record_at_orchestrate");
-      expect(loaded.derivativeLineage.status).toBe("orchestrate_derivative");
+      expect(typeof loaded.licenseChain["annyCode"]).toBe("string");
+      expect(loaded.licenseChain["status"]).toBe("enumerated_from_source_record_at_orchestrate");
+      expect(loaded.derivativeLineage["status"]).toBe("orchestrate_derivative");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

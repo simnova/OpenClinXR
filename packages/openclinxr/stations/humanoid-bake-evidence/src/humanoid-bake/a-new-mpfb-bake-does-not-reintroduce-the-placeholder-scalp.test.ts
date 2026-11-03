@@ -111,7 +111,7 @@ process.chdir(repoRoot());
 
 const REPO_ROOT = repoRoot();
 /** Overridable so a destructive probe can point the same logic at doctored assets. */
-const DIR = process.env.OPENCLINXR_SCALP_PROBE_DIR ?? join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
+const DIR = process.env["OPENCLINXR_SCALP_PROBE_DIR"] ?? join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 
 /** The four that already retired the shell — the known-good column (§9h). */
 const KNOWN_GOOD = [

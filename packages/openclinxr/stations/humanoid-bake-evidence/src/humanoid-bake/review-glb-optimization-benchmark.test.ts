@@ -29,8 +29,10 @@ describe("review GLB optimization benchmark", () => {
     expect(validateReviewGlbOptimizationBenchmarkReport(report)).toEqual({ ok: true });
 
     const invalid = structuredClone(report);
-    invalid.candidates[0].browserReplacementReady = true;
-    invalid.candidates[0].blockers = [];
+    const invalidCandidate = invalid.candidates[0];
+    if (invalidCandidate === undefined) throw new Error("missing review candidate fixture");
+    invalidCandidate.browserReplacementReady = true;
+    invalidCandidate.blockers = [];
 
     expect(validateReviewGlbOptimizationBenchmarkReport(invalid)).toEqual({
       ok: false,
@@ -43,7 +45,9 @@ describe("review GLB optimization benchmark", () => {
 
   it("requires Meshopt variants to carry body-visibility proof blockers", () => {
     const report = validReport();
-    const meshopt = report.candidates[0].variants.find((variant) => variant.variantId === "meshopt_delivery");
+    const firstCandidate = report.candidates[0];
+    if (firstCandidate === undefined) throw new Error("missing review candidate fixture");
+    const meshopt = firstCandidate.variants.find((variant) => variant.variantId === "meshopt_delivery");
     if (!meshopt) throw new Error("missing meshopt fixture");
     meshopt.blockers = meshopt.blockers.filter((blocker) => blocker !== "meshopt_body_visibility_capture_required");
 

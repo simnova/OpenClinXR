@@ -102,7 +102,7 @@ async function garmentTopology(basename: string, meshMatch: RegExp): Promise<Gar
       const edges = new Map<string, number>();
       for (let t = 0; t < indices.length; t += 3) {
         const k = [at(indices[t]!), at(indices[t + 1]!), at(indices[t + 2]!)];
-        for (const [u, v] of [[k[0]!, k[1]!], [k[1]!, k[2]!], [k[2]!, k[0]!]]) {
+        for (const [u, v] of [[k[0]!, k[1]!], [k[1]!, k[2]!], [k[2]!, k[0]!]] as Array<[string, string]>) {
           const key = u < v ? `${u}|${v}` : `${v}|${u}`;
           edges.set(key, (edges.get(key) ?? 0) + 1);
         }

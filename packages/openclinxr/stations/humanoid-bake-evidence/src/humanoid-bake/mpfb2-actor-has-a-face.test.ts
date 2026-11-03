@@ -205,7 +205,7 @@ async function census(rel: string): Promise<Census> {
   let out: Census = { bodyVerts: 0, usableMouth: [], emptyTargets: [], wholeBodyTargets: [] };
 
   for (const mesh of doc.getRoot().listMeshes()) {
-    const targetNames = ((mesh.getExtras() as Record<string, unknown>)?.targetNames as string[]) ?? [];
+    const targetNames = ((mesh.getExtras() as Record<string, unknown>)?.["targetNames"] as string[]) ?? [];
     for (const prim of mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION");
       if (!pos || prim.listTargets().length === 0 || pos.getCount() <= bodyVerts) continue;

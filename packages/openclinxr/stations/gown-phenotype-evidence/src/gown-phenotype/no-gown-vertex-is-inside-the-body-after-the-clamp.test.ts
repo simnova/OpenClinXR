@@ -160,7 +160,7 @@ describe("no gown vertex is inside the body after the clamp (#746)", () => {
   it("(3) COUNTERWEIGHT: the metric stays two-tests-agree", () => {
     const report = reportOrNull();
     expect(report !== null, `${REPORT} must exist`).toBe(true);
-    const note = report!.method?.interpenetration?.twoTestsAgree ?? "";
+    const note = report!["method"]?.["interpenetration"]?.["twoTestsAgree"] ?? "";
     expect(
       note.length,
       "the measurement artifact must keep describing the two-tests-agree rule. Demanding a third "

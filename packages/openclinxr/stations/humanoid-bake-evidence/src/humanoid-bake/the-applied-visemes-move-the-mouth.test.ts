@@ -160,7 +160,7 @@ async function inspectGlb() {
   // Verified against a real Blender export (aisha, 32 targets): names live in
   // mesh.extras.targetNames AND on each target's own name. Union both so a bake that populates
   // only one of them is not failed for a reason that has nothing to do with the mouth.
-  const fromExtras = ((mesh!.getExtras()?.targetNames ?? []) as string[]) ?? [];
+  const fromExtras = (mesh!.getExtras()?.["targetNames"] ?? []) as string[];
   const fromTargets = prim.listTargets().map((t) => t.getName() ?? "");
   const names = fromTargets.map((n: string, i: number) => n || fromExtras[i] || "");
   return { doc, prim, names };
@@ -169,9 +169,15 @@ async function inspectGlb() {
 function dominantJoint(prim: Primitive, names: string[], i: number): string {
   const J = prim.getAttribute("JOINTS_0"), W = prim.getAttribute("WEIGHTS_0");
   if (!J || !W) return "";
-  const j = J.getElement(i, [0, 0, 0, 0]), w = W.getElement(i, [0, 0, 0, 0]);
+  const j = J.getElement(i, [0, 0, 0, 0] as [number, number, number, number]);
+  const w = W.getElement(i, [0, 0, 0, 0] as [number, number, number, number]);
   let best = -1, bw = -1;
-  for (let k = 0; k < 4; k++) if (w[k] > bw) { bw = w[k]; best = j[k]; }
+  for (let k = 0; k < 4; k++) {
+    const wk = w[k];
+    const jk = j[k];
+    if (wk === undefined || jk === undefined) throw new Error(`joint element ${k} out of bounds`);
+    if (wk > bw) { bw = wk; best = jk; }
+  }
   return names[best] ?? "";
 }
 
@@ -193,7 +199,7 @@ describe("the applied visemes move the mouth, not just the target list", () => {
     const target = prim.listTargets()[idx]!.getAttribute("POSITION")!;
     let maxMm = 0, maxAt = -1;
     for (let i = 0; i < target.getCount(); i++) {
-      const d = target.getElement(i, [0, 0, 0]);
+      const d = target.getElement(i, [0, 0, 0] as [number, number, number]);
       const mm = Math.hypot(d[0], d[1], d[2]) * 1000;
       if (mm > maxMm) { maxMm = mm; maxAt = i; }
     }
@@ -212,7 +218,7 @@ describe("the applied visemes move the mouth, not just the target list", () => {
     const t = prim.listTargets()[idx]!.getAttribute("POSITION")!;
     let maxMm = 0;
     for (let i = 0; i < t.getCount(); i++) {
-      const d = t.getElement(i, [0, 0, 0]);
+      const d = t.getElement(i, [0, 0, 0] as [number, number, number]);
       maxMm = Math.max(maxMm, Math.hypot(d[0], d[1], d[2]) * 1000);
     }
     expect(maxMm, "the rest pose must not move the face").toBeLessThan(MIN_LIP_DISPLACEMENT_MM);

@@ -111,6 +111,17 @@ const SUBJECTS: { file: string; material: RegExp; label: string; gown: boolean }
 
 type Row = { label: string; gown: boolean; triangles: number; sharpFraction: number; interiorEdges: number };
 
+/**
+ * Checked numeric read: every index below is in-bounds by loop bound (weld loop,
+ * triangle loop) or GLTF topology (index-buffer vertices, per-triangle normals);
+ * the throw names the missing value instead of propagating NaN.
+ */
+function numAt<T>(values: ArrayLike<T>, index: number, what: string): T {
+  const value = values[index];
+  if (value === undefined) throw new Error(`gown sharpness: missing ${what} at index ${index}`);
+  return value;
+}
+
 async function measure(): Promise<Row[]> {
   const io = new NodeIO();
   const rows: Row[] = [];
@@ -128,16 +139,31 @@ async function measure(): Promise<Row[]> {
         const welded = new Int32Array(pos.length / 3);
         const seen = new Map<string, number>();
         for (let v = 0; v < pos.length / 3; v += 1) {
-          const key = `${pos[v * 3].toFixed(5)},${pos[v * 3 + 1].toFixed(5)},${pos[v * 3 + 2].toFixed(5)}`;
+          const key = `${pos[v * 3]!.toFixed(5)},${pos[v * 3 + 1]!.toFixed(5)},${pos[v * 3 + 2]!.toFixed(5)}`;
           let id = seen.get(key);
           if (id === undefined) { id = seen.size; seen.set(key, id); }
           welded[v] = id;
         }
         const normals: [number, number, number][] = [];
         for (let t = 0; t < triangles; t += 1) {
-          const a = idx[t * 3], b = idx[t * 3 + 1], c = idx[t * 3 + 2];
-          const e1 = [pos[b * 3] - pos[a * 3], pos[b * 3 + 1] - pos[a * 3 + 1], pos[b * 3 + 2] - pos[a * 3 + 2]];
-          const e2 = [pos[c * 3] - pos[a * 3], pos[c * 3 + 1] - pos[a * 3 + 1], pos[c * 3 + 2] - pos[a * 3 + 2]];
+          const a = idx[t * 3]!, b = idx[t * 3 + 1]!, c = idx[t * 3 + 2]!;
+          const pa: [number, number, number] = [
+            numAt(pos, a * 3, "vertex position x"),
+            numAt(pos, a * 3 + 1, "vertex position y"),
+            numAt(pos, a * 3 + 2, "vertex position z"),
+          ];
+          const pb: [number, number, number] = [
+            numAt(pos, b * 3, "vertex position x"),
+            numAt(pos, b * 3 + 1, "vertex position y"),
+            numAt(pos, b * 3 + 2, "vertex position z"),
+          ];
+          const pc: [number, number, number] = [
+            numAt(pos, c * 3, "vertex position x"),
+            numAt(pos, c * 3 + 1, "vertex position y"),
+            numAt(pos, c * 3 + 2, "vertex position z"),
+          ];
+          const e1: [number, number, number] = [pb[0] - pa[0], pb[1] - pa[1], pb[2] - pa[2]];
+          const e2: [number, number, number] = [pc[0] - pa[0], pc[1] - pa[1], pc[2] - pa[2]];
           const n: [number, number, number] = [
             e1[1] * e2[2] - e1[2] * e2[1],
             e1[2] * e2[0] - e1[0] * e2[2],
@@ -148,9 +174,14 @@ async function measure(): Promise<Row[]> {
         }
         const edges = new Map<string, number[]>();
         for (let t = 0; t < triangles; t += 1) {
-          const tri = [welded[idx[t * 3]], welded[idx[t * 3 + 1]], welded[idx[t * 3 + 2]]];
+          const tri: [number, number, number] = [
+            numAt(welded, idx[t * 3]!, "welded vertex a"),
+            numAt(welded, idx[t * 3 + 1]!, "welded vertex b"),
+            numAt(welded, idx[t * 3 + 2]!, "welded vertex c"),
+          ];
           for (let e = 0; e < 3; e += 1) {
             const u = tri[e], w = tri[(e + 1) % 3];
+            if (u === undefined || w === undefined) throw new Error("gown sharpness: missing welded edge vertex");
             const key = u < w ? `${u}_${w}` : `${w}_${u}`;
             const bucket = edges.get(key);
             if (bucket) bucket.push(t); else edges.set(key, [t]);
@@ -161,8 +192,11 @@ async function measure(): Promise<Row[]> {
         for (const [, ts] of edges) {
           if (ts.length !== 2) continue;
           interior += 1;
-          const [t0, t1] = ts;
-          const dot = normals[t0][0] * normals[t1][0] + normals[t0][1] * normals[t1][1] + normals[t0][2] * normals[t1][2];
+          const t0 = ts[0], t1 = ts[1];
+          if (t0 === undefined || t1 === undefined) throw new Error("gown sharpness: missing edge triangle");
+          const n0 = numAt(normals, t0, "face normal t0");
+          const n1 = numAt(normals, t1, "face normal t1");
+          const dot = n0[0] * n1[0] + n0[1] * n1[1] + n0[2] * n1[2];
           const deg = (Math.acos(Math.max(-1, Math.min(1, dot))) * 180) / Math.PI;
           if (deg > SHARP_DEGREES) sharp += 1;
         }

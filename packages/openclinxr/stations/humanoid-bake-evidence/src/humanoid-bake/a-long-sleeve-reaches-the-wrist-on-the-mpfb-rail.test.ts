@@ -136,7 +136,7 @@ type Row = {
 const io = new NodeIO();
 
 function jointWorld(m: number[]): number[] {
-  const t = [m[12]!, m[13]!, m[14]!];
+  const t: [number, number, number] = [m[12]!, m[13]!, m[14]!];
   return [
     -(m[0]! * t[0] + m[1]! * t[1] + m[2]! * t[2]),
     -(m[4]! * t[0] + m[5]! * t[1] + m[6]! * t[2]),
