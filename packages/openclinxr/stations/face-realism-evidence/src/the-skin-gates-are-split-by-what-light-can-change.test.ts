@@ -56,6 +56,13 @@ function bandQuantities(png: string): Record<string, Record<string, number>> {
   return JSON.parse(py(["--band-quantities", png])) as Record<string, Record<string, number>>;
 }
 
+/** Checked read of one named quantity — the band maps only carry the module's keys. */
+function quantityAt(bands: Record<string, number>, key: string, what: string): number {
+  const v = bands[key];
+  if (v === undefined) throw new Error(`${what} is missing quantity ${key}`);
+  return v;
+}
+
 function scaledCopy(png: string, k: number, dir: string): string {
   const out = path.join(dir, `k${k}.png`);
   py(["--srgb-scale", png, String(k), out]);
@@ -188,17 +195,29 @@ describe("skin gates are split by what light can change", () => {
     for (const k of [0.5, 2.0]) {
       const qk = bandQuantities(scaledCopy(base, k, tmp));
       for (const band of ["top", "bottom"]) {
-        expect(Math.abs(qk[band].logY_face - q0[band].logY_face)).toBeLessThan(0.01);
-        expect(Math.abs(qk[band].Lratio_face - q0[band].Lratio_face)).toBeLessThan(0.005);
+        const qkb = qk[band];
+        if (!qkb) throw new Error(`band quantities missing band ${band}`);
+        const q0b = q0[band];
+        if (!q0b) throw new Error(`base band quantities missing band ${band}`);
+        expect(Math.abs(quantityAt(qkb, "logY_face", "band") - quantityAt(q0b, "logY_face", "base band"))).toBeLessThan(0.01);
+        expect(Math.abs(quantityAt(qkb, "Lratio_face", "band") - quantityAt(q0b, "Lratio_face", "base band"))).toBeLessThan(0.005);
         // 1.5 deg: module G0_EPS.hue; the k-scaling probe adds an 8-bit
         // round-trip (sRGB toe amplifies channel rounding; RED measured 1.12).
-        expect(Math.abs(qk[band].hue - q0[band].hue)).toBeLessThan(1.5);
-        expect(Math.abs(qk[band].CdivL - q0[band].CdivL)).toBeLessThan(0.005);
+        expect(Math.abs(quantityAt(qkb, "hue", "band") - quantityAt(q0b, "hue", "base band"))).toBeLessThan(1.5);
+        expect(Math.abs(quantityAt(qkb, "CdivL", "band") - quantityAt(q0b, "CdivL", "base band"))).toBeLessThan(0.005);
       }
     }
     const q2 = bandQuantities(scaledCopy(base, 2.0, tmp));
-    const dLmoved = Math.abs(q2.top.dL_face - q0.top.dL_face) > 0.05 ||
-      Math.abs(q2.bottom.dL_face - q0.bottom.dL_face) > 0.05;
+    const q2top = q2["top"];
+    if (!q2top) throw new Error("scaled band quantities missing top");
+    const q0top = q0["top"];
+    if (!q0top) throw new Error("base band quantities missing top");
+    const q2bottom = q2["bottom"];
+    if (!q2bottom) throw new Error("scaled band quantities missing bottom");
+    const q0bottom = q0["bottom"];
+    if (!q0bottom) throw new Error("base band quantities missing bottom");
+    const dLmoved = Math.abs(quantityAt(q2top, "dL_face", "scaled top") - quantityAt(q0top, "dL_face", "base top")) > 0.05 ||
+      Math.abs(quantityAt(q2bottom, "dL_face", "scaled bottom") - quantityAt(q0bottom, "dL_face", "base bottom")) > 0.05;
     expect(dLmoved).toBe(true);
   }, 180000);
 
@@ -239,14 +258,26 @@ describe("skin gates are split by what light can change", () => {
         Lab: Record<string, [number, number, number]>;
         quantities: Record<string, Record<string, number>>;
       }>;
-    }).g2_per_image.render_body2;
+    }).g2_per_image["render_body2"];
+    if (!stored) throw new Error("report is missing g2_per_image render_body2");
     for (const region of ["forehead", "L_cheek", "R_cheek", "chin", "upperlip_skin"]) {
+      const rqLab = rq.Lab[region];
+      if (!rqLab) throw new Error(`render quantities missing region ${region}`);
+      const storedLab = stored.Lab[region];
+      if (!storedLab) throw new Error(`stored quantities missing region ${region} Lab`);
       for (let c = 0; c < 3; c++) {
-        expect(Math.abs(rq.Lab[region][c] - stored.Lab[region][c])).toBeLessThan(0.05);
+        const live = rqLab[c];
+        const want = storedLab[c];
+        if (live === undefined || want === undefined) throw new Error(`Lab component ${c} missing for ${region}`);
+        expect(Math.abs(live - want)).toBeLessThan(0.05);
       }
-      expect(Math.abs(rq.quantities[region].hue - stored.quantities[region].hue)).toBeLessThan(0.5);
-      expect(Math.abs(rq.quantities[region].CdivL - stored.quantities[region].CdivL)).toBeLessThan(0.005);
-      expect(Math.abs(rq.quantities[region].logY_face - stored.quantities[region].logY_face)).toBeLessThan(0.01);
+      const rqQ = rq.quantities[region];
+      if (!rqQ) throw new Error(`render quantities missing region ${region}`);
+      const storedQ = stored.quantities[region];
+      if (!storedQ) throw new Error(`stored quantities missing region ${region}`);
+      expect(Math.abs(quantityAt(rqQ, "hue", "render") - quantityAt(storedQ, "hue", "stored"))).toBeLessThan(0.5);
+      expect(Math.abs(quantityAt(rqQ, "CdivL", "render") - quantityAt(storedQ, "CdivL", "stored"))).toBeLessThan(0.005);
+      expect(Math.abs(quantityAt(rqQ, "logY_face", "render") - quantityAt(storedQ, "logY_face", "stored"))).toBeLessThan(0.01);
     }
     const albedo = path.join(STORE_FACE, "body2", "run2", "albedo_beard.png");
     if (!fs.existsSync(albedo)) return;
@@ -257,6 +288,7 @@ describe("skin gates are split by what light can change", () => {
   it("known-bads fail validation", () => {
     const rep = loadReport();
     const row = rep.g1_thresholds[0];
+    if (!row) throw new Error("report is missing g1 row 0");
     red("threshold-outside-interval", () => {
       checkRow({ ...row, threshold: Math.max(row.d_good, row.d_bad) + 1 });
     }, /less than|greater than/);

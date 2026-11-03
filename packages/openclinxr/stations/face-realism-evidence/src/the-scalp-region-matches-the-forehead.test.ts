@@ -132,6 +132,7 @@ function checkStep(report: Report): void {
 function checkKeepOuts(report: Report, roles: string[]): void {
   for (const role of roles) {
     const entry = report.exact_zero[role];
+    if (entry === undefined) throw new Error(`keep-out ${role} missing from exact_zero`);
     expect(entry, `keep-out ${role} reported`).toBeTruthy();
     if (entry.n > 0) {
       expect(entry.max_dLab, `keep-out ${role} bit-exact`).toBe(0);
@@ -199,15 +200,21 @@ describe("the scalp region matches the forehead", () => {
   it("keeps ears exact on window E", () => {
     const { report } = compose("E", "scalp");
     checkKeepOuts(report, ["facecore", "ears", "brows", "neck"]);
-    expect(report.exact_zero["ears"].n).toBeGreaterThan(1000);
+    const ears = report.exact_zero["ears"];
+    if (ears === undefined) throw new Error("keep-out ears missing from exact_zero");
+    expect(ears.n).toBeGreaterThan(1000);
   }, 240000);
 
   it("keeps lips and eyes exact on window L", () => {
     const { report } = compose("L", "scalp");
     checkKeepOuts(report,
       ["facecore", "lips", "eyes", "brows", "ears", "neck"]);
-    expect(report.exact_zero["lips"].n).toBeGreaterThan(1000);
-    expect(report.exact_zero["eyes"].n).toBeGreaterThan(1000);
+    const lips = report.exact_zero["lips"];
+    if (lips === undefined) throw new Error("keep-out lips missing from exact_zero");
+    expect(lips.n).toBeGreaterThan(1000);
+    const eyes = report.exact_zero["eyes"];
+    if (eyes === undefined) throw new Error("keep-out eyes missing from exact_zero");
+    expect(eyes.n).toBeGreaterThan(1000);
   }, 240000);
 
   it("fires every mechanism bound on the stubble-cap composite", () => {

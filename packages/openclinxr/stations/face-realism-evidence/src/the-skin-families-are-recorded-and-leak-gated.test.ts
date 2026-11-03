@@ -41,8 +41,8 @@ export function isFamilyRowValid(row: FamilyRow): boolean {
 /** P2 gate: candidate passes iff within the untouched baseline, same method. */
 export function passesLeakGate(candidate: Record<string, unknown>, baseline: Record<string, unknown>): boolean {
   return (
-    Math.abs(candidate.r_S as number) <= Math.abs(baseline.r_S as number) &&
-    Math.abs(candidate.mirror_signed_L as number) <= Math.abs(baseline.mirror_signed_L as number)
+    Math.abs(candidate["r_S"] as number) <= Math.abs(baseline["r_S"] as number) &&
+    Math.abs(candidate["mirror_signed_L"] as number) <= Math.abs(baseline["mirror_signed_L"] as number)
   );
 }
 
@@ -50,8 +50,8 @@ describe("the skin families are recorded and leak-gated", () => {
   it("manifest rows have a source sha256", () => {
     expect(MANIFEST.families.length).toBeGreaterThan(0);
     for (const row of MANIFEST.families) {
-      expect(typeof row.family).toBe("string");
-      expect(row.source_sha256).toMatch(/^[0-9a-f]{64}$/);
+      expect(typeof row["family"]).toBe("string");
+      expect(row["source_sha256"]).toMatch(/^[0-9a-f]{64}$/);
       expect(isFamilyRowValid(row as FamilyRow)).toBe(true);
     }
   });
@@ -60,9 +60,10 @@ describe("the skin families are recorded and leak-gated", () => {
     for (const label of ["a", "b", "c"]) {
       const row = BASELINES.rows[label];
       expect(row, `baseline row ${label}`).toBeTruthy();
+      if (row === undefined) throw new Error(`baseline row ${label} missing`);
       for (const f of LEAK_FIELDS) expect(typeof row[f], `${label}.${f}`).toBe("number");
-      expect(typeof row.glb_sha256, `${label}.glb_sha256`).toBe("string");
-      expect(typeof row.s_sha256, `${label}.s_sha256`).toBe("string");
+      expect(typeof row["glb_sha256"], `${label}.glb_sha256`).toBe("string");
+      expect(typeof row["s_sha256"], `${label}.s_sha256`).toBe("string");
     }
   });
 
@@ -80,6 +81,9 @@ describe("the skin families are recorded and leak-gated", () => {
 
   it("gates the measured rows: b fails, the young pick passes", () => {
     const { a, b, c } = BASELINES.rows;
+    if (a === undefined || b === undefined || c === undefined) {
+      throw new Error("baseline rows a/b/c missing");
+    }
     expect(passesLeakGate(c, a)).toBe(true);
     expect(passesLeakGate(b, a)).toBe(false);
   });
@@ -121,7 +125,9 @@ describe("the skin families are recorded and leak-gated", () => {
       }
     }
     // The rewritten family passes the same strict gate set by baseline (a).
-    expect(passesLeakGate(young.leak as Record<string, unknown>, BASELINES.rows.a)).toBe(true);
+    const baselineA = BASELINES.rows["a"];
+    if (baselineA === undefined) throw new Error("baseline row a missing");
+    expect(passesLeakGate(young.leak as Record<string, unknown>, baselineA)).toBe(true);
     expect(typeof young.redness?.family_mean_a).toBe("number");
     expect(typeof young.redness?.source_mean_a).toBe("number");
     expect(young.g2?.renders?.length).toBeGreaterThan(0);
@@ -176,6 +182,7 @@ describe("the skin families are recorded and leak-gated", () => {
     // The rewritten family passes the strict gate set by its own CC0 source row.
     const cc0 = BASELINES.rows["middle-cc0"];
     expect(cc0, "baseline row middle-cc0").toBeTruthy();
+    if (cc0 === undefined) throw new Error("baseline row middle-cc0 missing");
     for (const f of LEAK_FIELDS) expect(typeof cc0[f], `middle-cc0.${f}`).toBe("number");
     expect(passesLeakGate(middle.leak as Record<string, unknown>, cc0)).toBe(true);
     expect(typeof middle.redness?.family_mean_a).toBe("number");
@@ -226,6 +233,7 @@ describe("the skin families are recorded and leak-gated", () => {
     // The rewritten family passes the strict gate set by its own CC0 source row.
     const cc0 = BASELINES.rows["old-cc0"];
     expect(cc0, "baseline row old-cc0").toBeTruthy();
+    if (cc0 === undefined) throw new Error("baseline row old-cc0 missing");
     for (const f of LEAK_FIELDS) expect(typeof cc0[f], `old-cc0.${f}`).toBe("number");
     expect(passesLeakGate(old.leak as Record<string, unknown>, cc0)).toBe(true);
     expect(typeof old.redness?.family_mean_a).toBe("number");

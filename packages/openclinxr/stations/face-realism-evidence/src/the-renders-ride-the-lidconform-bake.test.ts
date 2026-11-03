@@ -99,7 +99,9 @@ describe("the renders ride the lidconform bake", () => {
     const manifest = JSON.parse(fs.readFileSync(MANIFEST, "utf8")) as {
       subjects: Record<string, { glb_sha256: string }>;
     };
-    expect(manifest.subjects.adult_male_street_casual.glb_sha256)
+    const adult = manifest.subjects["adult_male_street_casual"];
+    if (!adult) throw new Error("manifest is missing subject adult_male_street_casual");
+    expect(adult.glb_sha256)
       .toBe(GLB_FINAL_SHA);
     for (const { rec } of citedRenders()) {
       expect(rec.glb!.path.endsWith("final.glb")).toBe(false);

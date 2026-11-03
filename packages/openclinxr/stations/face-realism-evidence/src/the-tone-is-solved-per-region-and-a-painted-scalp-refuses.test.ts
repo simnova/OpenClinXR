@@ -62,8 +62,11 @@ function validateRegional(report: RegionalReport): string {
   if (!Object.values(report.renders).includes(report.after.render_sha)) {
     throw new Error("NOT_IN_RENDERS: AFTER sha cites no listed render");
   }
-  const allZero = REGIONS.every((name) =>
-    report.regions[name].after_v2.dLab_vs_goal.every((x) => x === 0));
+  const allZero = REGIONS.every((name) => {
+    const r = report.regions[name];
+    if (r === undefined) throw new Error(`region ${name} missing`);
+    return r.after_v2.dLab_vs_goal.every((x) => x === 0);
+  });
   if (allZero) {
     throw new Error("FABRICATED_PASS: after==goal every channel " +
       "every region is a painted pass, not a measurement");
@@ -77,7 +80,9 @@ function validateRegional(report: RegionalReport): string {
     }
   }
   for (const name of REGIONS) {
-    const d = report.regions[name].after_v2.dLab_vs_goal;
+    const region = report.regions[name];
+    if (region === undefined) throw new Error(`region ${name} missing`);
+    const d = region.after_v2.dLab_vs_goal;
     const pass = d.every((x) => Math.abs(x) <= BOUND);
     if (report.g1.per_region[name] !== pass) {
       throw new Error(`G1_FLAG: ${name} flag disagrees with dLab`);
@@ -207,6 +212,7 @@ describe("tone solved per region, painted scalp refuses", () => {
     const bad = clone();
     for (const name of REGIONS) {
       const r = bad.regions[name];
+      if (r === undefined) throw new Error(`region ${name} missing`);
       r.after_v2 = {
         Lab: [...r.goal] as [number, number, number],
         dLab_vs_goal: [0, 0, 0],
@@ -226,7 +232,9 @@ describe("tone solved per region, painted scalp refuses", () => {
 
   it("known-bad (d): mask mean L below 20 fails", () => {
     const bad = clone();
-    bad.masks["goal"].regions["chin"] = [708, 10.0];
+    const goalMask = bad.masks["goal"];
+    if (goalMask === undefined) throw new Error("goal mask missing");
+    goalMask.regions["chin"] = [708, 10.0];
     red("(d)", bad);
     expect(() => validateRegional(bad)).toThrow(/MASK_DARK/);
   });

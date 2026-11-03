@@ -179,16 +179,17 @@ describe("room exposure comes from the shirt", () => {
   it("known-bad (c): a report without the G0 rule text fails", () => {
     red("c", () => {
       const bad = loadReport() as unknown as Record<string, unknown>;
-      (bad.g0 as { rule: string }).rule = "";
-      expect((bad.g0 as { rule: string }).rule).toMatch(/noise/);
+      (bad["g0"] as { rule: string }).rule = "";
+      expect((bad["g0"] as { rule: string }).rule).toMatch(/noise/);
     }, /noise/);
   });
 
   it("known-bad (d): a G1 with k_grey != k fails equality", () => {
     red("d", () => {
       const bad = loadReport();
-      const key = Object.keys(bad.g1.subjects).find((k) => bad.g1.subjects[k].pass !== null)!;
+      const key = Object.keys(bad.g1.subjects).find((k) => bad.g1.subjects[k]?.pass !== null)!;
       const s = bad.g1.subjects[key];
+      if (s === undefined) throw new Error(`g1 subject ${key} missing`);
       s.k_grey = s.k_real + s.noise! + 0.01;
       expect(Math.abs(s.k_grey - s.k_real)).toBeLessThanOrEqual(s.noise!);
     }, /expected|toBeLessThanOrEqual/);

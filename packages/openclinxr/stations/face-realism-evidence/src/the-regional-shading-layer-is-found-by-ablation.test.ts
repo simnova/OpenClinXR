@@ -108,6 +108,7 @@ describe("the regional-shading layer is found by ablation", () => {
     expect(rep.step0.decision.length).toBeGreaterThan(0);
     for (const gid of FAILING_GATES) {
       const e = rep.step0.gates[gid];
+      if (e === undefined) throw new Error(`step0 gate ${gid} missing`);
       expect(e, gid).toBeDefined();
       for (const k of ["render_body2", "photo_body2", "render_aisha", "photo_aisha", "d_body2"] as const) {
         expect(typeof e[k], `${gid}.${k}`).toBe("number");
@@ -123,7 +124,9 @@ describe("the regional-shading layer is found by ablation", () => {
     expect(Object.keys(frozen).length).toBe(8);
     for (const row of rep.ablations) {
       for (const gid of FAILING_GATES) {
-        expect(row.gates[gid].threshold, `${row.ablation}/${row.subject}/${gid}`).toBe(frozen[gid]);
+        const cell = row.gates[gid];
+        if (cell === undefined) throw new Error(`ablation gate ${gid} missing`);
+        expect(cell.threshold, `${row.ablation}/${row.subject}/${gid}`).toBe(frozen[gid]);
       }
     }
   });
@@ -137,6 +140,7 @@ describe("the regional-shading layer is found by ablation", () => {
         expect(fs.existsSync(row.render_png), row.render_png).toBe(true);
         for (const gid of FAILING_GATES) {
           const g = row.gates[gid];
+          if (g === undefined) throw new Error(`ablation ${ab}/${row.subject} gate ${gid} missing`);
           expect(g.pass, `${ab}/${row.subject}/${gid}`).toBe(g.d_eval < g.threshold);
         }
       }
@@ -148,7 +152,9 @@ describe("the regional-shading layer is found by ablation", () => {
     const gid = "G2/L_cheek/logY_face";
     const moves: Record<string, number> = {};
     for (const row of rep.ablations.filter((r) => r.subject === "body2")) {
-      moves[row.ablation] = row.gates[gid].d_eval;
+      const gate = row.gates[gid];
+      if (gate === undefined) throw new Error(`ablation ${row.ablation} gate ${gid} missing`);
+      moves[row.ablation] = gate.d_eval;
     }
     const best = Math.min(...Object.values(moves));
     // Falsifier: no ablation moves 0.30453 toward the frozen threshold by
@@ -173,7 +179,9 @@ describe("the regional-shading layer is found by ablation", () => {
     const frozen = JSON.parse(fs.readFileSync(FROZEN, "utf8")) as {
       g2_per_image: Record<string, { quantities: Record<string, Record<string, number>> }>;
     };
-    const photo = frozen.g2_per_image.photo_body2.quantities;
+    const photoEntry = frozen.g2_per_image["photo_body2"];
+    if (photoEntry === undefined) throw new Error("frozen g2_per_image.photo_body2 missing");
+    const photo = photoEntry.quantities;
     const row = rep.ablations.find((r) => r.subject === "body2");
     if (!row || !fs.existsSync(row.render_png)) return;
     const rq = JSON.parse(
@@ -183,7 +191,19 @@ describe("the regional-shading layer is found by ablation", () => {
       }),
     ) as { quantities: Record<string, Record<string, number>> };
     const gid = "G2/L_cheek/logY_face";
-    const recomputed = Math.abs(rq.quantities["L_cheek"]["logY_face"] - photo["L_cheek"]["logY_face"]);
-    expect(Math.abs(recomputed - row.gates[gid].d_eval)).toBeLessThan(0.01);
+    const rqCheek = rq.quantities["L_cheek"];
+    const photoCheek = photo["L_cheek"];
+    if (rqCheek === undefined || photoCheek === undefined) {
+      throw new Error("L_cheek quantities missing from render or frozen photo");
+    }
+    const rqLogY = rqCheek["logY_face"];
+    const photoLogY = photoCheek["logY_face"];
+    if (rqLogY === undefined || photoLogY === undefined) {
+      throw new Error("logY_face quantity missing from render or frozen photo");
+    }
+    const recomputed = Math.abs(rqLogY - photoLogY);
+    const gate = row.gates[gid];
+    if (gate === undefined) throw new Error(`ablation gate ${gid} missing`);
+    expect(Math.abs(recomputed - gate.d_eval)).toBeLessThan(0.01);
   }, 300000);
 });

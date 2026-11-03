@@ -212,8 +212,13 @@ describe("detail_bands stage is generic, deterministic, calibrated", () => {
       "print(json.dumps({'ring':float(lap[ring].max()),'inner':float(lap[inter].max())}))",
     ].join("\n")], { encoding: "utf8" });
     const lines = raw.trim().split("\n");
-    const s = JSON.parse(lines[0]) as { fringe: number; inter: number };
-    const e = JSON.parse(lines[1]) as { ring: number; inner: number };
+    const firstLine = lines[0];
+    const secondLine = lines[1];
+    if (firstLine === undefined || secondLine === undefined) {
+      throw new Error("detail probe printed fewer than 2 lines");
+    }
+    const s = JSON.parse(firstLine) as { fringe: number; inter: number };
+    const e = JSON.parse(secondLine) as { ring: number; inner: number };
     expect(s.fringe).toBeGreaterThan(0.5 * s.inter);
     expect(e.ring).toBeLessThanOrEqual(e.inner);
   });
@@ -312,14 +317,19 @@ describe("detail_bands stage is generic, deterministic, calibrated", () => {
       "print(json.dumps({'fallback':bool((m2==u).all())}))",
     ].join("\n")], { encoding: "utf8" });
     const lines = raw.trim().split("\n");
-    const s = JSON.parse(lines[0]) as { frac: number; rows: number[]; cols: number[] };
+    const firstLine = lines[0];
+    const secondLine = lines[1];
+    if (firstLine === undefined || secondLine === undefined) {
+      throw new Error("vermilion probe printed fewer than 2 lines");
+    }
+    const s = JSON.parse(firstLine) as { frac: number; rows: number[]; cols: number[] };
     expect(s.frac).toBeGreaterThan(0.2);
     expect(s.frac).toBeLessThan(0.9);
     expect(s.rows[0]).toBeGreaterThanOrEqual(95);
     expect(s.rows[1]).toBeLessThanOrEqual(161);
     expect(s.cols[0]).toBeGreaterThanOrEqual(75);
     expect(s.cols[1]).toBeLessThanOrEqual(181);
-    expect((JSON.parse(lines[1]) as { fallback: boolean }).fallback).toBe(true);
+    expect((JSON.parse(secondLine) as { fallback: boolean }).fallback).toBe(true);
   });
 
   it("names no subject (generic, case-driven)", () => {
@@ -380,10 +390,22 @@ describe("wrinkle-scale report validates from recorded numbers", () => {
       .toBeLessThanOrEqual(ins.invariance_probe.bound);
     // legacy column reproduces the IOR-card G5 numbers within tolerance
     const leg = (ins.legacy_column as { values: Record<string, Record<string, number>> }).values;
-    expect(Math.abs(leg.render_body2.forehead_crease - 1.447)).toBeLessThan(0.05);
-    expect(Math.abs(leg.render_body2.forehead_pore - 1.095)).toBeLessThan(0.05);
-    expect(Math.abs(leg.goal_body2.forehead_pore - 6.459)).toBeLessThan(0.05);
-    expect(Math.abs(leg.goal_body2.forehead_crease - 1.254)).toBeLessThan(0.05);
+    const renderBody2 = leg["render_body2"];
+    const goalBody2 = leg["goal_body2"];
+    if (renderBody2 === undefined || goalBody2 === undefined) {
+      throw new Error("legacy column missing render_body2 or goal_body2");
+    }
+    const renderCrease = renderBody2["forehead_crease"];
+    const renderPore = renderBody2["forehead_pore"];
+    const goalPore = goalBody2["forehead_pore"];
+    const goalCrease = goalBody2["forehead_crease"];
+    if (renderCrease === undefined || renderPore === undefined || goalPore === undefined || goalCrease === undefined) {
+      throw new Error("legacy column missing forehead band values");
+    }
+    expect(Math.abs(renderCrease - 1.447)).toBeLessThan(0.05);
+    expect(Math.abs(renderPore - 1.095)).toBeLessThan(0.05);
+    expect(Math.abs(goalPore - 6.459)).toBeLessThan(0.05);
+    expect(Math.abs(goalCrease - 1.254)).toBeLessThan(0.05);
   });
 
   it("G1 (corrected): forehead fix rows move closer in log ratio past the midpoint without excess overshoot", () => {
@@ -396,7 +418,11 @@ describe("wrinkle-scale report validates from recorded numbers", () => {
     expect(r.gates.g1.rows.length).toBe(8);
     const fracOf = (subject: string, region: string, band: string): number => {
       const row = r.step1.rows.find((x) => x.subject === subject)!;
-      return row.albedo_borne_frac[region][band];
+      const byRegion = row.albedo_borne_frac[region];
+      if (byRegion === undefined) throw new Error(`no albedo_borne_frac region ${region} for ${subject}`);
+      const v = byRegion[band];
+      if (v === undefined) throw new Error(`no albedo_borne_frac band ${band} for ${subject}/${region}`);
+      return v;
     };
     for (const row of r.gates.g1.rows) {
       const expectedMid = (row.pre_ratio + 1) / 2;

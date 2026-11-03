@@ -436,7 +436,9 @@ describe("the skin layers are identity at zero weight", () => {
     }
     // Spot-check: blob centres actually darken the med atlas PNG.
     const fam = decodePngRgb(path.join(STORE, REPORT.family_assets));
-    const med = decodePngRgb(path.join(STORE, REPORT.layers.freckles.assets));
+    const frecklesLayer = REPORT.layers["freckles"];
+    if (frecklesLayer === undefined) throw new Error("missing freckles layer in layers-report.json");
+    const med = decodePngRgb(path.join(STORE, frecklesLayer.assets));
     const check = [...nose.slice(0, 5), ...s1.slice(0, 5)];
     for (const b of check) {
       const k = b.y * fam.w + b.x;
