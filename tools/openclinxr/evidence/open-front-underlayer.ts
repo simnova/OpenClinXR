@@ -30,6 +30,16 @@ function isOuterShellMesh(name: string): boolean {
 }
 const DECLARED_ANY_RE = /openclinxr_declared_upper_layers__/i;
 const LOWER_PAINT_MAT_RE = /openclinxr_role_mesh_clothing_.*_lower/i;
+// st-weld2 D3 — MPFB expresses lower coverage by hiding body faces under the
+// garment (body_param_stage.apply_body_hide_material_region paints alpha-0 only
+// where a garment covers), not by painting them. That hide rail is the documented
+// MPFB-rail fleet standard (garment-hem-boundary.ts #594, which already reads both
+// rails; docs/openclinxr/superagent-goal-mpfb-human-realism-2026-08-14.md documents
+// openclinxr_hidden_lower_* on the shipped bodies). Without this vocabulary every
+// MPFB asset reports hasPaintedLowerRegion=false by construction, and the #124
+// overlap reads a gap that is covered skin. Anny-rail assets carry no hidden_lower
+// prims, so their verdicts are unchanged.
+const LOWER_HIDE_MAT_RE = /openclinxr_hidden_lower/i;
 const TOP_PAINT_MAT_RE = /openclinxr_role_mesh_clothing_.*_(top|soft_trim)/i;
 /** Any body clothing material region (top / lower / arm / soft_trim). */
 const BODY_CLOTHING_MAT_RE = /openclinxr_role_mesh_clothing_/i;
@@ -406,7 +416,10 @@ function measurePaintedLower(body: ReturnType<typeof collectBody>): {
   let maxY = -Infinity;
   let n = 0;
   for (const t of body.tris) {
-    if (!LOWER_PAINT_MAT_RE.test(t.mat)) continue;
+    // st-weld2 D3: paint OR hide rail (see LOWER_HIDE_MAT_RE above). The top is
+    // the highest covered-body centroid from either vocabulary — the same read
+    // garment-hem-boundary.ts #594 performs for its paintedLowerTopY.
+    if (!LOWER_PAINT_MAT_RE.test(t.mat) && !LOWER_HIDE_MAT_RE.test(t.mat)) continue;
     if (t.y > maxY) maxY = t.y;
     n += 1;
   }
