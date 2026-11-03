@@ -133,7 +133,7 @@ describe("an actor wears fitted eyelashes, not helper stubs (#683)", () => {
       "mpfb-gown-ed-robert-hayes.glb": 14_928,
       "mpfb-peds-nurse-kevin.glb": 8_049,
       "mpfb-ob-patient-aisha.glb": 10_705,
-      "mpfb-gown-inspect.glb": 4_149,
+      "mpfb-gown-inspect.glb": 10_705, // st-gowninsp rebake a7c4d0294 (GLB bf53d7be), same rung as ob-patient-aisha
       "mpfb-viseme-inspect.glb": 10_705,
     };
     for (const glb of assets()) {
