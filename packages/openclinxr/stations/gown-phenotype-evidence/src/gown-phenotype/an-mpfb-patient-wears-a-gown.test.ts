@@ -74,12 +74,23 @@ import { describe, expect, it } from "vitest";
  * **no** surviving lower-body garment of the right kind on `mpfb-gown-inspect.glb` (unlike kevin,
  * which still has `scrub_pants`). Choice: **inverted guard** recording that absence. Do not restore
  * `cargo_pants`. (1b)/(1c)/`_body` controls still present and unchanged.
+ *
+ * ## FIXED (st-gowninsp round 1, e55e81dba) — appended
+ *
+ * The st-gowninsp rebake strips the retained casual T-shirt (`UPPER_REDUNDANT_RE` in
+ * `bake_mpfb_gown_inspect.py`) because the real hospital-gown shell now covers the torso. Clause (1c)
+ * read `toigo_t_shirt` off this file and went red on its absence. The control is retargeted, not
+ * deleted: `mpfb-viseme-inspect.glb` (the KNOWN-GOOD column above) carries the same `toigo_t_shirt`
+ * on the same `mpfb_ob_patient_aisha` body, so the hem bound is still tested against an
+ * independently-authored torso garment on this phenotype. Do not restore the T-shirt here.
  */
 
 const GENERATED = join(repoRoot(), "apps/ui-xr/public/generated-humanoids");
 const ANNY_GOWNED = join(GENERATED, "ed_chest_pain_adult_cast.glb");
 /** The bake this slice must produce. Isolated subject, mirroring mpfb-viseme-inspect (D3/D4). */
 const TARGET = join(GENERATED, "mpfb-gown-inspect.glb");
+/** Same mpfb_ob_patient_aisha body, still wearing toigo_t_shirt: the (1c) upper control. */
+const UPPER_CONTROL = join(GENERATED, "mpfb-viseme-inspect.glb");
 /** A stub from a no-anny orchestrate run is ~0.8 MB; real MPFB bodies are multi-MB (SS6r). */
 const MIN_REAL_BAKE_BYTES = 2_000_000;
 const MPFB_JOINT_FLOOR = 100;
@@ -225,7 +236,8 @@ describe("an MPFB patient body wears a gown", () => {
     // Refuses "rename or re-tag the t-shirt". KNOWN-GOOD column (SS9h): toigo_t_shirt is a real,
     // independently-authored 5,400-vert garment on THIS body and it hems at 0.573h. If the bound
     // ever admits it, the bound has stopped discriminating class and is measuring only presence.
-    const b = await read(TARGET);
+    // Read from the viseme-inspect bake (same aisha body) since st-gowninsp stripped it here.
+    const b = await read(UPPER_CONTROL);
     expect(b, "the bake must exist").not.toBeNull();
     const shirt = b!.geoms.find((g) => /t_shirt/.test(g.name));
     expect(shirt, "the t-shirt is the known-good NOT-a-gown control on this body").toBeDefined();

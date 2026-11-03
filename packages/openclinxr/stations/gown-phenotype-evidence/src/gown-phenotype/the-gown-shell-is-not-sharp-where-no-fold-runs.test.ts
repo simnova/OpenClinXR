@@ -57,6 +57,17 @@ import type { DecileRow } from "../../../../../../tools/openclinxr/evidence/garm
  * about.
  *
  * Counterweight (5) keeps #747's inverted guard in place, so the relocation cannot become a deletion.
+ *
+ * ## FIXED (#750) — appended by the st-gowninsp round-4 land, 2026-11-03
+ *
+ * Clause (1) went green on the st-gowninsp rebake of `mpfb-gown-inspect.glb` (a7c4d0294, GLB
+ * bf53d7be): the inspect body now carries the real hospital-gown shell. Whole-garment share of
+ * interior edges past 60 degrees, measured by `garment-decile-sharpness.measure()` on that tree:
+ *
+ *   hospital gown (adult patient) 1.72%   hospital gown (inspect) 1.92%
+ *   open cardigan 3.47%   scrub top 1.29%   scrub pocket 1.70%   exam t-shirt 1.70%   casual top 1.36%
+ *
+ * Worst gown 1.92% against a ceiling of 3.47%. `it.fails` flipped to `it`; the assertion is unchanged.
  */
 
 const ORIGIN = join(repoRoot(), "packages/openclinxr/stations/gown-phenotype-evidence/src/gown-phenotype/the-hospital-gown-surface-is-as-smooth-as-a-garment-that-renders.test.ts");
@@ -68,7 +79,7 @@ const decilesPromise = measureDeciles();
 const pct = (f: number) => `${(f * 100).toFixed(2)}%`;
 
 describe("the gown shell is not sharp where no fold runs (#750)", () => {
-  it.fails("(1) no gown is rougher than the roughest garment that renders acceptably", async () => {
+  it("(1) no gown is rougher than the roughest garment that renders acceptably", async () => {
     const rows = await rowsPromise;
     const clean = rows.filter((r) => !r.gown);
     const gowns = rows.filter((r) => r.gown);
