@@ -477,11 +477,12 @@ describe("Quest manual performance checker", () => {
     sceneAssetPayload.sceneAssetEvidence.loadedCount = 5;
     sceneAssetPayload.sceneAssetEvidence.pendingCount = 1;
     sceneAssetPayload.sceneAssetEvidence.fallbackCount = 1;
-    sceneAssetPayload.sceneAssetEvidence.assets = sceneAssetPayload.sceneAssetEvidence.assets?.map((asset, index) =>
+    const mappedAssets = sceneAssetPayload.sceneAssetEvidence.assets?.map((asset, index) =>
       index === 0
-        ? { ...asset, status: "pending", fallbackActive: true }
+        ? { ...asset, status: "pending" as const, fallbackActive: true }
         : asset
     );
+    if (mappedAssets !== undefined) sceneAssetPayload.sceneAssetEvidence.assets = mappedAssets;
 
     const copiedCheck = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-copy.json", {
       manualPerformanceDraft: completedQuestManualReport(),
@@ -1325,8 +1326,8 @@ describe("Quest manual performance checker", () => {
       locomotionAttempt: "not_attempted",
       activeLocomotionSource: "none",
       lastLocomotionAtMs: null,
-      locomotionDelta: undefined,
     };
+    delete report.input.locomotionDelta;
 
     const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-copied-probe.json", {
       manualPerformanceDraft: report,
@@ -1472,10 +1473,10 @@ describe("Quest manual performance checker", () => {
     const report = completedQuestManualReport();
     const unsafeStation = report.station as unknown as Record<string, string>;
     const unsafeInput = report.input as unknown as Record<string, string>;
-    unsafeStation.traceInteractionAttempt = "clicked_the_button";
-    unsafeInput.handModelStatus = "active";
-    unsafeInput.handRepresentationKind = "primitive_box";
-    unsafeInput.locomotionAttempt = "thumbstick_attempted";
+    unsafeStation["traceInteractionAttempt"] = "clicked_the_button";
+    unsafeInput["handModelStatus"] = "active";
+    unsafeInput["handRepresentationKind"] = "primitive_box";
+    unsafeInput["locomotionAttempt"] = "thumbstick_attempted";
 
     const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-invalid-enums.json", report);
 
@@ -1506,7 +1507,7 @@ describe("Quest manual performance checker", () => {
       handTrackingPosture: "optional_feature_with_primitive_hand_model",
     };
     const unsafeInput = report.input as unknown as Record<string, string>;
-    unsafeInput.handRepresentationKind = "primitive_spheres";
+    unsafeInput["handRepresentationKind"] = "primitive_spheres";
 
     const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-primitive-spheres.json", report);
 
@@ -1552,8 +1553,8 @@ describe("Quest manual performance checker", () => {
       handRepresentationKind: "mesh",
       locomotionAttempt: "runtime_event_observed",
       lastLocomotionAtMs: null,
-      locomotionDelta: undefined,
     };
+    delete report.input.locomotionDelta;
 
     const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-contradictory.json", report);
 

@@ -132,7 +132,7 @@ describe("IWSDK MCP inventory evidence", () => {
     expect(rootPackage.scripts["iwsdk:mcp-inventory:evidence"]).toBe(
       "tsx tools/openclinxr/evidence/iwsdk-mcp-inventory-evidence.ts",
     );
-    expect(rootPackage.scripts.verify).not.toContain("iwsdk:mcp-inventory:evidence");
+    expect(rootPackage.scripts["verify"]).not.toContain("iwsdk:mcp-inventory:evidence");
   });
 
 });

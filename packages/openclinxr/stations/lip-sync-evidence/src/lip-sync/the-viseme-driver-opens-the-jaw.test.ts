@@ -126,7 +126,7 @@ async function shippedVisemeTargets(): Promise<string[]> {
   for (const m of doc.getRoot().listMeshes()) {
     for (const p of m.listPrimitives() as Primitive[]) {
       if (p.listTargets().length === 0) continue;
-      const extras = (m.getExtras()?.targetNames ?? []) as string[];
+      const extras = (m.getExtras()?.["targetNames"] ?? []) as string[];
       const names = p.listTargets().map((t, i) => t.getName() || extras[i] || "");
       if (names.some((n) => /^viseme_/.test(n))) return names.filter((n) => n);
     }

@@ -99,8 +99,14 @@ function bandCounts(glb: { json: GlbJson; bin: Buffer }, posAcc: number, idxAcc:
   let neck = 0;
   let arm = 0;
   for (let t = 0; t < idx.length; t += 3) {
-    const cy = (pos[idx[t]]![1]! + pos[idx[t + 1]]![1]! + pos[idx[t + 2]]![1]!) / 3;
-    const cx = (Math.abs(pos[idx[t]]![0]!) + Math.abs(pos[idx[t + 1]]![0]!) + Math.abs(pos[idx[t + 2]]![0]!)) / 3;
+    const i0 = idx[t];
+    const i1 = idx[t + 1];
+    const i2 = idx[t + 2];
+    if (i0 === undefined || i1 === undefined || i2 === undefined) {
+      throw new Error("index buffer length is not a multiple of 3");
+    }
+    const cy = (pos[i0]![1]! + pos[i1]![1]! + pos[i2]![1]!) / 3;
+    const cx = (Math.abs(pos[i0]![0]!) + Math.abs(pos[i1]![0]!) + Math.abs(pos[i2]![0]!)) / 3;
     if (cy > 0.95 && cx < 0.12) neck++;
     else if (cy > 0.8 && cy < 0.95 && cx > 0.1 && cx < 0.25) arm++;
   }

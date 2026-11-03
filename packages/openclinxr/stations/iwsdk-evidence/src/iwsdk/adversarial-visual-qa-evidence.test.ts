@@ -72,9 +72,14 @@ describe("adversarial visual QA evidence evaluator", () => {
       artifact: videoFixturePath,
       mimeType: "video/webm",
       bytes: videoFixtureBytes,
-      dimensions: undefined,
       captureCommand: "browser-devtools video capture fixture",
     });
+    const videoFirst = evidence.media?.[0];
+    if (!videoFirst) {
+      throw new Error("Expected readyEvidence fixture to include media[0]");
+    }
+    // Videos carry no frame dimensions: drop the screenshot default.
+    delete videoFirst.dimensions;
 
     const result = evaluateAdversarialVisualQaEvidence(evidence);
 
@@ -93,7 +98,7 @@ describe("adversarial visual QA evidence evaluator", () => {
       throw new Error("Expected readyEvidence fixture to include media[0]");
     }
     first.artifact = "docs/openclinxr/screenshots/not-captured.png";
-    first.bytes = undefined;
+    delete first.bytes;
 
     const result = evaluateAdversarialVisualQaEvidence(evidence);
 
@@ -150,8 +155,13 @@ describe("adversarial visual QA evidence evaluator", () => {
       artifact: videoFixturePath,
       mimeType: "image/png",
       bytes: 1,
-      dimensions: undefined,
     });
+    const videoMetaFirst = evidence.media?.[0];
+    if (!videoMetaFirst) {
+      throw new Error("Expected readyEvidence fixture to include media[0]");
+    }
+    // Videos carry no frame dimensions: drop the screenshot default.
+    delete videoMetaFirst.dimensions;
 
     const result = evaluateAdversarialVisualQaEvidence(evidence);
 

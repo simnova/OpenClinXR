@@ -458,20 +458,20 @@ describe("Quest CDP smoke probe", () => {
         sampleWindowReady: true,
       },
     });
-    expect(payload.harvestSummary).toMatchObject({
+    expect(payload["harvestSummary"]).toMatchObject({
       ready: true,
       timedOut: false,
       harvestMode: "iwsdk_sidecar_frame_stats",
       blockers: [],
     });
-    const summary = payload.harvestSummary as Record<string, unknown>;
-    expect(summary.signalSnapshot).toMatchObject({
+    const summary = payload["harvestSummary"] as Record<string, unknown>;
+    expect(summary["signalSnapshot"]).toMatchObject({
       harvestMode: "iwsdk_sidecar_frame_stats",
       xrStatus: "In Full VR",
       isPresenting: true,
       immersiveFramesObserved: 500,
     });
-    expect(payload.frameStats).toMatchObject({ immersiveFramesObserved: 500, isPresenting: true });
+    expect(payload["frameStats"]).toMatchObject({ immersiveFramesObserved: 500, isPresenting: true });
   });
 
   it("wraps harvested in-app Quest evidence without upgrading it to manual readiness", () => {

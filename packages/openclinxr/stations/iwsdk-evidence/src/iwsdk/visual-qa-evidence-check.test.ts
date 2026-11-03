@@ -66,7 +66,7 @@ describe("visual QA evidence checker", () => {
     capture.mimeType = "image/jpeg";
     capture.dimensions = { width: 100, height: 100 };
     checks.ui_readability = { status: "not_assessed", notes: [] };
-    checks.evidence_limits = undefined;
+    delete checks.evidence_limits;
     claimBoundaries.allowedClaims = ["production_runtime_readiness"];
     claimBoundaries.notEvidenceFor = ["psychometric_validity"];
 
@@ -189,8 +189,8 @@ describe("visual QA evidence checker", () => {
     const evidence = readyEvidence();
     const adversarialReview = requireFixtureValue(evidence.adversarialReview, "visual QA fixture adversarial review");
     const checks = requireFixtureValue(adversarialReview.checks, "visual QA fixture adversarial review checks");
-    checks.equipment_necessity = undefined;
-    checks.scene_clutter_removal = undefined;
+    delete checks.equipment_necessity;
+    delete checks.scene_clutter_removal;
 
     const report = buildVisualQaEvidenceReport({
       generatedAt: "2026-05-24T00:00:00.000Z",

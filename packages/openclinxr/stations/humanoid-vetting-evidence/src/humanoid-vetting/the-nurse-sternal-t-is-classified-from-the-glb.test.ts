@@ -77,8 +77,14 @@ function neckCount(glb: { json: GlbJson; bin: Buffer }, posAcc: number, idxAcc: 
   const idx = indices(glb, idxAcc);
   let n = 0;
   for (let t = 0; t < idx.length; t += 3) {
-    const cy = (pos[idx[t]]![1]! + pos[idx[t + 1]]![1]! + pos[idx[t + 2]]![1]!) / 3;
-    const cx = (Math.abs(pos[idx[t]]![0]!) + Math.abs(pos[idx[t + 1]]![0]!) + Math.abs(pos[idx[t + 2]]![0]!)) / 3;
+    const i0 = idx[t];
+    const i1 = idx[t + 1];
+    const i2 = idx[t + 2];
+    if (i0 === undefined || i1 === undefined || i2 === undefined) {
+      throw new Error("index buffer length is not a multiple of 3");
+    }
+    const cy = (pos[i0]![1]! + pos[i1]![1]! + pos[i2]![1]!) / 3;
+    const cx = (Math.abs(pos[i0]![0]!) + Math.abs(pos[i1]![0]!) + Math.abs(pos[i2]![0]!)) / 3;
     if (cy > 0.95 && cx < 0.12) n++;
   }
   return n;
@@ -101,7 +107,15 @@ function loadTris(glb: { json: GlbJson; bin: Buffer }, bodyName: string): Tri[] 
       const kind = isShirt ? "shirt" : mat?.alphaMode === "MASK" ? "mask" : "skin";
       const pos = floats(glb, p.attributes?.["POSITION"] ?? -1, 3);
       const idx = indices(glb, p.indices ?? -1);
-      for (let t = 0; t < idx.length; t += 3) out.push({ a: pos[idx[t]]!, b: pos[idx[t + 1]]!, c: pos[idx[t + 2]]!, kind });
+      for (let t = 0; t < idx.length; t += 3) {
+      const i0 = idx[t];
+      const i1 = idx[t + 1];
+      const i2 = idx[t + 2];
+      if (i0 === undefined || i1 === undefined || i2 === undefined) {
+        throw new Error("index buffer length is not a multiple of 3");
+      }
+      out.push({ a: pos[i0]!, b: pos[i1]!, c: pos[i2]!, kind });
+    }
     }
   }
   return out;

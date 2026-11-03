@@ -97,14 +97,14 @@ function runtimeCap(): number {
 const doc = await new NodeIO().read(GLB);
 const meshes = doc.getRoot().listMeshes();
 const body = meshes.find((m) => m.getName() === BODY)!;
-const targetNames = (body.getExtras()?.targetNames as string[] | undefined) ?? [];
+const targetNames = (body.getExtras()?.["targetNames"] as string[] | undefined) ?? [];
 
 /** Max local z of a named mesh, over every primitive. */
 function meshMaxZ(name: string): number {
   const mesh = meshes.find((m) => m.getName() === name);
   if (!mesh) throw new Error(`${name} is not in ${GLB}`);
   let max = -Infinity;
-  const v = [0, 0, 0];
+  const v: [number, number, number] = [0, 0, 0];
   for (const pr of mesh.listPrimitives()) {
     const pos = pr.getAttribute("POSITION")!;
     for (let i = 0; i < pos.getCount(); i++) { pos.getElement(i, v); if (v[2] > max) max = v[2]; }
@@ -117,10 +117,12 @@ function skinMedianZ(weight: number): { p50: number; n: number } {
   const prim = body.listPrimitives().find((pr) => pr.getMaterial()?.getName() === SKIN_MAT)!;
   const pos = prim.getAttribute("POSITION")!;
   const i = targetNames.indexOf("mouth-open");
-  const delta = i >= 0 ? prim.listTargets()[i]?.getAttribute("POSITION") : undefined;
+  const mouthTarget = i >= 0 ? prim.listTargets()[i] : undefined;
+  if (i >= 0 && !mouthTarget) throw new Error("mouth-open target index is out of bounds");
+  const delta = mouthTarget?.getAttribute("POSITION");
   const zs: number[] = [];
-  const v = [0, 0, 0];
-  const d = [0, 0, 0];
+  const v: [number, number, number] = [0, 0, 0];
+  const d: [number, number, number] = [0, 0, 0];
   for (let k = 0; k < pos.getCount(); k++) {
     pos.getElement(k, v);
     if (delta) delta.getElement(k, d); else { d[0] = 0; d[1] = 0; d[2] = 0; }

@@ -104,7 +104,7 @@ async function measure(file: string): Promise<Row | null> {
   const body = meshes.find((m) => /_body$/.test(m.getName()));
   if (!teeth || !body) return null;
 
-  const v = [0, 0, 0];
+  const v: [number, number, number] = [0, 0, 0];
   let tMaxZ = -Infinity, yLo = Infinity, yHi = -Infinity, xHalf = 0, skinned = true;
   for (const pr of teeth.listPrimitives()) {
     if (!pr.getAttribute("JOINTS_0") || !pr.getAttribute("WEIGHTS_0")) skinned = false;
@@ -123,7 +123,7 @@ async function measure(file: string): Promise<Row | null> {
     for (let i = 0; i < p.getCount(); i++) { p.getElement(i, v); if (v[2] > gMaxZ) gMaxZ = v[2]; }
   }
 
-  const names = (body.getExtras()?.targetNames as string[] | undefined) ?? [];
+  const names = (body.getExtras()?.["targetNames"] as string[] | undefined) ?? [];
   const mi = names.indexOf("mouth-open");
   const prim = body.listPrimitives().find((pr) => /skin/i.test(pr.getMaterial()?.getName() ?? ""))
     ?? body.listPrimitives()[0]!;
@@ -132,7 +132,7 @@ async function measure(file: string): Promise<Row | null> {
 
   const median = (w: number): number => {
     const zs: number[] = [];
-    const d = [0, 0, 0];
+    const d: [number, number, number] = [0, 0, 0];
     for (let k = 0; k < pos.getCount(); k++) {
       pos.getElement(k, v);
       if (delta) delta.getElement(k, d); else { d[0] = 0; d[1] = 0; d[2] = 0; }
