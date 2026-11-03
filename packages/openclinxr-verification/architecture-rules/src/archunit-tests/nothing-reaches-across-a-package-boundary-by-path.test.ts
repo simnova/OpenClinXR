@@ -122,7 +122,7 @@ const FROZEN: readonly string[] = [
   "packages/openclinxr/stations/foot-plant-evidence/src/foot-plant/the-walk-clip-plants-its-feet.test.ts -> ../../../../../../packages/openclinxr/asset-registry/src/bedside-approach-path.js",
   "packages/openclinxr/stations/foot-plant-evidence/src/foot-plant/the-walk-clip-plants-its-feet.test.ts -> ../../../../../../packages/openclinxr/asset-registry/src/index.js",
   "packages/openclinxr/stations/garment-surface-evidence/src/garment-surface/a-station-cast-is-visually-separable.test.ts -> ../../../../../../packages/openclinxr/asset-registry/src/actor-casting.js",
-  "packages/openclinxr/stations/garment-surface-evidence/src/garment-surface/clinicians-do-not-wear-patterned-party-shoes.test.ts -> ../../../../../../packages/openclinxr/asset-registry/src/actor-casting.ts",
+  "packages/openclinxr/stations/garment-surface-evidence/src/garment-surface/clinicians-do-not-wear-patterned-party-shoes.test.ts -> ../../../../../../packages/openclinxr/asset-registry/src/actor-casting.js",
   "packages/openclinxr/stations/iwsdk-evidence/src/iwsdk/iwer-sidecar-emulation-evidence-check.test.ts -> ../../../../../../packages/openclinxr/arena/iwsdk-spike/src/index.js",
   "packages/openclinxr/stations/iwsdk-evidence/src/iwsdk/iwsdk-agent-tooling-evidence-check.test.ts -> ../../../../../../packages/openclinxr/arena/iwsdk-spike/src/index.js",
   "packages/openclinxr/stations/iwsdk-evidence/src/iwsdk/iwsdk-mcp-inventory-evidence.test.ts -> ../../../../../../packages/openclinxr/arena/iwsdk-spike/src/index.js",
