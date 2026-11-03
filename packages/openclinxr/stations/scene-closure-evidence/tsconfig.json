@@ -5,9 +5,6 @@
     "types": [
       "node"
     ],
-    "exactOptionalPropertyTypes": false,
-    "noUncheckedIndexedAccess": false,
-    "noPropertyAccessFromIndexSignature": false,
     "lib": ["ES2023", "DOM"],
     "allowImportingTsExtensions": true,
     "paths": {

@@ -2,9 +2,6 @@
   "extends": "@cellix/config-typescript/base",
   "compilerOptions": {
     "noEmit": true,
-    "exactOptionalPropertyTypes": false,
-    "noUncheckedIndexedAccess": false,
-    "noPropertyAccessFromIndexSignature": false,
     "types": [
       "node"
     ],
