@@ -35,6 +35,13 @@ const PHYSICIAN_GLB = path.resolve(
   "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
 );
 
+/** Accessor.Type is a Record<string, AccessorType>; resolve a lane with its absence named. */
+function accessorType(name: "SCALAR" | "VEC3" | "VEC4"): ReturnType<InstanceType<typeof Accessor>["getType"]> {
+  const t = Accessor.Type[name];
+  if (t === undefined) throw new Error(`missing AccessorType ${name}`);
+  return t;
+}
+
 async function twoBoneChainGlb(interpolation: "LINEAR" | "CUBICSPLINE"): Promise<string> {
   const document = new Document();
   const buffer = document.createBuffer();
@@ -46,13 +53,13 @@ async function twoBoneChainGlb(interpolation: "LINEAR" | "CUBICSPLINE"): Promise
 
   const times = document
     .createAccessor("times")
-    .setType(Accessor.Type.SCALAR)
+    .setType(accessorType("SCALAR"))
     .setArray(new Float32Array([0, 1]))
     .setBuffer(buffer);
   const quarterTurnAboutY = Math.SQRT1_2;
   const values = document
     .createAccessor("rotations")
-    .setType(Accessor.Type.VEC4)
+    .setType(accessorType("VEC4"))
     .setArray(
       interpolation === "LINEAR"
         ? new Float32Array([0, 0, 0, 1, 0, quarterTurnAboutY, 0, quarterTurnAboutY])
@@ -114,7 +121,7 @@ async function walkingFixtureGlb(): Promise<string> {
 
   const input = document
     .createAccessor("t")
-    .setType(Accessor.Type.SCALAR)
+    .setType(accessorType("SCALAR"))
     .setArray(times)
     .setBuffer(buffer);
   const animation = document.createAnimation("fixture_walk");
@@ -126,7 +133,7 @@ async function walkingFixtureGlb(): Promise<string> {
       .createAnimationSampler()
       .setInput(input)
       .setOutput(
-        document.createAccessor(`${node.getName()}_t`).setType(Accessor.Type.VEC3).setArray(track).setBuffer(buffer),
+        document.createAccessor(`${node.getName()}_t`).setType(accessorType("VEC3")).setArray(track).setBuffer(buffer),
       )
       .setInterpolation("LINEAR");
     animation.addSampler(sampler);
@@ -294,7 +301,7 @@ async function inPlaceWalkFixtureGlb(): Promise<string> {
 
   const input = document
     .createAccessor("t")
-    .setType(Accessor.Type.SCALAR)
+    .setType(accessorType("SCALAR"))
     .setArray(times)
     .setBuffer(buffer);
   const animation = document.createAnimation("in_place_walk");
@@ -306,7 +313,7 @@ async function inPlaceWalkFixtureGlb(): Promise<string> {
       .createAnimationSampler()
       .setInput(input)
       .setOutput(
-        document.createAccessor(`${node.getName()}_t`).setType(Accessor.Type.VEC3).setArray(track).setBuffer(buffer),
+        document.createAccessor(`${node.getName()}_t`).setType(accessorType("VEC3")).setArray(track).setBuffer(buffer),
       )
       .setInterpolation("LINEAR");
     animation.addSampler(sampler);

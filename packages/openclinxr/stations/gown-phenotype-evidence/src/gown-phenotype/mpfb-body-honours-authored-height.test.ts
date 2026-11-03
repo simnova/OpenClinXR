@@ -173,7 +173,7 @@ describe("an MPFB body honours the height its case authored", () => {
       const byHeight = new Map<number, Set<number>>();
       for (const r of solved) {
         const h = r.authoredHeightCm;
-        const m = r.solvedMacros?.height;
+        const m = r.solvedMacros?.["height"];
         expect(typeof m, `${r.actorId ?? "?"}: solvedMacros.height recorded`).toBe("number");
         if (typeof h === "number" && typeof m === "number") {
           if (!byHeight.has(h)) byHeight.set(h, new Set());

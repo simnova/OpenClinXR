@@ -16,11 +16,16 @@ async function walkGlb(clipName: string, filePath: string): Promise<void> {
   rootJoint.addChild(foot);
   const scene = document.createScene("Scene").addChild(rootJoint);
   void scene;
+  const SCALAR = Accessor.Type["SCALAR"];
+  const VEC3 = Accessor.Type["VEC3"];
+  if (SCALAR === undefined || VEC3 === undefined) {
+    throw new Error("gltf-transform Accessor.Type entries SCALAR/VEC3 missing");
+  }
   const times = document
-    .createAccessor("times").setType(Accessor.Type.SCALAR)
+    .createAccessor("times").setType(SCALAR)
     .setArray(new Float32Array([0, 1])).setBuffer(buffer);
   const positions = document
-    .createAccessor("positions").setType(Accessor.Type.VEC3)
+    .createAccessor("positions").setType(VEC3)
     .setArray(new Float32Array([0, 0, 0, 2, 0, 0])).setBuffer(buffer);
   const animation = document.createAnimation(clipName);
   const sampler = document.createAnimationSampler()
@@ -32,12 +37,12 @@ async function walkGlb(clipName: string, filePath: string): Promise<void> {
   await new NodeIO().write(filePath, document);
 }
 
-const previousStoreRoot = process.env.OPENCLINXR_ASSET_STORE;
+const previousStoreRoot = process.env["OPENCLINXR_ASSET_STORE"];
 const tempDirs: string[] = [];
 
 afterEach(async () => {
-  if (previousStoreRoot === undefined) delete process.env.OPENCLINXR_ASSET_STORE;
-  else process.env.OPENCLINXR_ASSET_STORE = previousStoreRoot;
+  if (previousStoreRoot === undefined) delete process.env["OPENCLINXR_ASSET_STORE"];
+  else process.env["OPENCLINXR_ASSET_STORE"] = previousStoreRoot;
   await Promise.all(tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
 });
 
@@ -61,7 +66,7 @@ describe("bound-clip store reader preserves its measurement", () => {
     const bytes = await readFile(glbPath);
     const { root, ref } = await buildStore(bytes, "probe.glb");
     const byPath = await boundClipJointTrack({ glbPath, clipName: CLIP, boneName: "foot" });
-    process.env.OPENCLINXR_ASSET_STORE = root;
+    process.env["OPENCLINXR_ASSET_STORE"] = root;
     const byStoreEnv = await boundClipJointTrack({ glbPath: ref, clipName: CLIP, boneName: "foot" });
     expect(byStoreEnv.samples).toEqual(byPath.samples);
     const last = byPath.samples[byPath.samples.length - 1]!;
@@ -75,7 +80,7 @@ describe("bound-clip store reader preserves its measurement", () => {
     await walkGlb(CLIP, glbPath);
     const bytes = await readFile(glbPath);
     const { root, ref } = await buildStore(bytes, "probe.glb");
-    process.env.OPENCLINXR_ASSET_STORE = root;
+    process.env["OPENCLINXR_ASSET_STORE"] = root;
     const report = await measureBoundClipFootPlant({ glbPath: ref, clipName: CLIP, joints: ["foot"] });
     expect(report.asset.glbPath).toBe(ref);
     expect(report.asset.bytes).toBe(bytes.byteLength);
@@ -91,11 +96,11 @@ describe("bound-clip store reader preserves its measurement", () => {
     const bytes = await readFile(glbPath);
     const { root, ref } = await buildStore(bytes, "probe.glb");
     const sha = ref.slice("store:".length).split("/")[0]!;
-    delete process.env.OPENCLINXR_ASSET_STORE;
+    delete process.env["OPENCLINXR_ASSET_STORE"];
     await expect(boundClipJointTrack({ glbPath: ref, clipName: CLIP, boneName: "foot" })).rejects.toThrow(/no asset store root/);
-    process.env.OPENCLINXR_ASSET_STORE = path.join(root, "does-not-exist");
+    process.env["OPENCLINXR_ASSET_STORE"] = path.join(root, "does-not-exist");
     await expect(boundClipJointTrack({ glbPath: ref, clipName: CLIP, boneName: "foot" })).rejects.toThrow(/store root does not exist/);
-    process.env.OPENCLINXR_ASSET_STORE = root;
+    process.env["OPENCLINXR_ASSET_STORE"] = root;
     await expect(
       boundClipJointTrack({ glbPath: `store:${"0".repeat(64)}/probe.glb`, clipName: CLIP, boneName: "foot" }),
     ).rejects.toThrow(/names no file/);
@@ -114,7 +119,7 @@ describe("bound-clip store reader preserves its measurement", () => {
     await walkGlb(CLIP, glbPath);
     const bytes = await readFile(glbPath);
     const { root, ref } = await buildStore(bytes, "probe.glb");
-    process.env.OPENCLINXR_ASSET_STORE = root;
+    process.env["OPENCLINXR_ASSET_STORE"] = root;
     await writeFile(path.join(root, ref.slice("store:".length)), Buffer.from("corrupted bytes"));
     await expect(boundClipJointTrack({ glbPath: ref, clipName: CLIP, boneName: "foot" })).rejects.toThrow(/content hashes/);
   });

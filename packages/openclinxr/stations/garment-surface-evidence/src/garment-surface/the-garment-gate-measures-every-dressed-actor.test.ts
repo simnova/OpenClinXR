@@ -86,7 +86,7 @@ import {
  */
 
 const REPO_ROOT = repoRoot();
-const DIR = process.env.OPENCLINXR_GATE_PROBE_DIR ?? join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
+const DIR = process.env["OPENCLINXR_GATE_PROBE_DIR"] ?? join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 const GATE_SRC = join(REPO_ROOT, "tools/openclinxr/evidence/garment-surface-stale/overlapping-garments-do-not-interpenetrate.test.ts");
 
 /** The three the gate names today. The population may grow; it may not shrink below these. */

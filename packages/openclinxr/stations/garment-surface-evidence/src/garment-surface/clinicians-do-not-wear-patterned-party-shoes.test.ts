@@ -95,11 +95,11 @@ async function footwearPattern(glb: string): Promise<{ mesh: string; sd: number 
 }
 
 async function cast(): Promise<{ role: string; glb: string }[]> {
-  const c = await import("../../../../../../packages/openclinxr/asset-registry/src/actor-casting.ts");
+  const c = await import("../../../../../../packages/openclinxr/asset-registry/src/actor-casting.js");
   const out: { role: string; glb: string }[] = [];
   for (const s of c.listShippedCastScenarioIds() as string[])
     for (const a of c.resolveScenarioActorCast(s) as Record<string, string>[])
-      out.push({ role: String(a.role), glb: String(a.assetPath).split("/").pop()! });
+      out.push({ role: String(a["role"]), glb: String(a["assetPath"]).split("/").pop()! });
   return out;
 }
 

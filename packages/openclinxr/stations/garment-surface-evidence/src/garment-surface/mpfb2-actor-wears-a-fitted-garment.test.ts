@@ -181,7 +181,7 @@ async function shapeOf(id: string, rel: string): Promise<Shape> {
   let usableMouth = 0;
 
   for (const mesh of doc.getRoot().listMeshes()) {
-    const targetNames = ((mesh.getExtras() as Record<string, unknown>)?.targetNames as string[]) ?? [];
+    const targetNames = ((mesh.getExtras() as Record<string, unknown>)?.["targetNames"] as string[]) ?? [];
     for (const prim of mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION");
       if (!pos) continue;
@@ -228,30 +228,33 @@ function invert4(m: Float32Array, o: number): number[] {
   const inv = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   for (let c = 0; c < 4; c += 1) {
     let p = c;
-    for (let r = c + 1; r < 4; r += 1) if (Math.abs(a[r * 4 + c]) > Math.abs(a[p * 4 + c])) p = r;
+    // Loop bounds keep every index in 0..15 on the two 16-entry tables above.
+    for (let r = c + 1; r < 4; r += 1) if (Math.abs(a[r * 4 + c]!) > Math.abs(a[p * 4 + c]!)) p = r;
     for (let k = 0; k < 4; k += 1) {
-      let t = a[c * 4 + k]; a[c * 4 + k] = a[p * 4 + k]; a[p * 4 + k] = t;
-      t = inv[c * 4 + k]; inv[c * 4 + k] = inv[p * 4 + k]; inv[p * 4 + k] = t;
+      let t = a[c * 4 + k]!; a[c * 4 + k] = a[p * 4 + k]!; a[p * 4 + k] = t;
+      t = inv[c * 4 + k]!; inv[c * 4 + k] = inv[p * 4 + k]!; inv[p * 4 + k] = t;
     }
-    const d = a[c * 4 + c];
-    for (let k = 0; k < 4; k += 1) { a[c * 4 + k] /= d; inv[c * 4 + k] /= d; }
+    const d = a[c * 4 + c]!;
+    for (let k = 0; k < 4; k += 1) { a[c * 4 + k] = a[c * 4 + k]! / d; inv[c * 4 + k] = inv[c * 4 + k]! / d; }
     for (let r = 0; r < 4; r += 1) {
       if (r === c) continue;
-      const f = a[r * 4 + c];
+      const f = a[r * 4 + c]!;
       if (f === 0) continue;
-      for (let k = 0; k < 4; k += 1) { a[r * 4 + k] -= f * a[c * 4 + k]; inv[r * 4 + k] -= f * inv[c * 4 + k]; }
+      for (let k = 0; k < 4; k += 1) { a[r * 4 + k] = a[r * 4 + k]! - f * a[c * 4 + k]!; inv[r * 4 + k] = inv[r * 4 + k]! - f * inv[c * 4 + k]!; }
     }
   }
   // row-major → column-major
   const out: number[] = [];
-  for (let r = 0; r < 4; r += 1) for (let c = 0; c < 4; c += 1) out[c * 4 + r] = inv[r * 4 + c];
+  for (let r = 0; r < 4; r += 1) for (let c = 0; c < 4; c += 1) out[c * 4 + r] = inv[r * 4 + c]!;
   return out;
 }
 
 /** Y-up world height of a joint from the skin's inverse bind matrices (bind pose). */
 function bindJointWorldY(ibm: ArrayLike<number>, jointIndex: number): number {
   const w = invert4(new Float32Array(Array.from(ibm)), jointIndex * 16);
-  return w[13];
+  const y = w[13];
+  if (y === undefined) throw new Error("invert4 returned fewer than 14 entries");
+  return y;
 }
 
 async function placementOf(rel: string): Promise<Placement> {

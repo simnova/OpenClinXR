@@ -103,7 +103,7 @@ import { isTrouserMeshName } from "../../../../../../tools/openclinxr/evidence/l
 
 const REPO_ROOT = repoRoot();
 /** Overridable so a destructive probe can point the same logic at doctored assets. */
-const ASSET_DIR = process.env.OPENCLINXR_HEM_PROBE_DIR ?? join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
+const ASSET_DIR = process.env["OPENCLINXR_HEM_PROBE_DIR"] ?? join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 
 const SUBJECT = "mpfb-ob-patient-aisha";
 /** Same garment, same fitter, 7x smoother — the known-good column (§9h). */

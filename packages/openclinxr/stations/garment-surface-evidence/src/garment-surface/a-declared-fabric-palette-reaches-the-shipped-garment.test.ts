@@ -79,7 +79,7 @@ import {
  */
 
 const REPO_ROOT = repoRoot();
-const HUMANOIDS = process.env.OPENCLINXR_PALETTE_PROBE_DIR ?? join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
+const HUMANOIDS = process.env["OPENCLINXR_PALETTE_PROBE_DIR"] ?? join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 const PHENOTYPES = join(REPO_ROOT, "packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json");
 const AUTOMATE = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/anny/automate_blender.py");
 

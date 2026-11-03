@@ -140,7 +140,7 @@ import { makeclothesGarmentSlug } from "../../../../../../tools/openclinxr/evide
 const REPO_ROOT = repoRoot();
 /** Overridable so a destructive probe can point the same logic at a doctored asset. */
 const ASSET =
-  process.env.OPENCLINXR_COLOUR_PROBE_GLB ??
+  process.env["OPENCLINXR_COLOUR_PROBE_GLB"] ??
   join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb");
 
 /** The locked scrub colour the materializer applies to clinical roles. */

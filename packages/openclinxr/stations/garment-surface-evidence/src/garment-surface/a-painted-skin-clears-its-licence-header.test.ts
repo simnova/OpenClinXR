@@ -76,28 +76,28 @@ describe("#510 a painted skin clears its own licence header", () => {
     expect(existsSync(REPORT), `${REPORT} must exist and be TRACKED (#396)`).toBe(true);
     const r = JSON.parse(readFileSync(REPORT, "utf8")) as Record<string, unknown>;
 
-    expect(VERDICTS).toContain(r.verdict);
-    expect(String(r.sourceUrl ?? ""), "where it came from").toMatch(/^https?:\/\//);
+    expect(VERDICTS).toContain(r["verdict"]);
+    expect(String(r["sourceUrl"] ?? ""), "where it came from").toMatch(/^https?:\/\//);
 
     // The page claim and the FILE claim are recorded SEPARATELY so they can be compared. A report
     // that only carries one of them cannot show the trap this site has sprung three times.
-    expect(typeof r.pageLicence, "what the pack page says").toBe("string");
-    expect(typeof r.headerLicence, "what the FILE says, verbatim").toBe("string");
-    expect(String(r.headerLicence).length, "quote the header, do not summarise it").toBeGreaterThan(12);
-    expect(typeof r.pageAndHeaderAgree, "state explicitly whether they agree").toBe("boolean");
+    expect(typeof r["pageLicence"], "what the pack page says").toBe("string");
+    expect(typeof r["headerLicence"], "what the FILE says, verbatim").toBe("string");
+    expect(String(r["headerLicence"]).length, "quote the header, do not summarise it").toBeGreaterThan(12);
+    expect(typeof r["pageAndHeaderAgree"], "state explicitly whether they agree").toBe("boolean");
 
     // Which file was read, so the claim is checkable.
-    expect(String(r.headerReadFrom ?? ""), "the .mhmat/.mhskin path the header was read from")
+    expect(String(r["headerReadFrom"] ?? ""), "the .mhmat/.mhskin path the header was read from")
       .toMatch(/\.(mhmat|mhskin|txt|md)$/i);
 
     // Only a CLEARED verdict may assert usability, and it must then carry the detail evidence.
-    if (r.verdict === "cleared") {
-      expect(typeof r.headSdAfter, "cleared implies you measured a rebaked head").toBe("number");
-      expect(typeof r.forearmSdAfter).toBe("number");
-      expect(Number(r.headSdAfter), "a painted face must be busier than a forearm")
-        .toBeGreaterThan(Number(r.forearmSdAfter));
+    if (r["verdict"] === "cleared") {
+      expect(typeof r["headSdAfter"], "cleared implies you measured a rebaked head").toBe("number");
+      expect(typeof r["forearmSdAfter"]).toBe("number");
+      expect(Number(r["headSdAfter"]), "a painted face must be busier than a forearm")
+        .toBeGreaterThan(Number(r["forearmSdAfter"]));
     }
-    expect(String(r.reproducedBy ?? ""), "a command someone else can re-run").toContain("pnpm");
+    expect(String(r["reproducedBy"] ?? ""), "a command someone else can re-run").toContain("pnpm");
   });
 
   it("(2) COUNTERWEIGHT: the baseline table is preserved — this slice does not rebake anything", () => {
