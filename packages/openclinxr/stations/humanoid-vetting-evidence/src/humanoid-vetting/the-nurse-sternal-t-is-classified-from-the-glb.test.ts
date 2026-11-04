@@ -168,7 +168,11 @@ describe("the nurse sternal T is classified from the GLB", () => {
       // shirt 4692 islands -> 2, pants 1345 -> 7; size holds at 16291676); was d10ae419….
       // st-palette C5 re-pinned 2026-11-04: sRGB-correct fold re-fold of the scrub shirts;
       // 16291676 -> 15966652 B; was 3afcdd2d….
-      [PEDS_GLB, "pedsKevin", 15966652, "5df99085c51be1e809a94ca6c245f26bd8278aa886f9eed954cbe81db91049ef"],
+      // st-viteye r2 re-pinned 2026-11-04: Vitruvian eye swap (post-export byte
+      // stage, iris-disc resample into eye UV; size 15966652 -> 16074580);
+      // matches tools/openclinxr/evidence/humanoid-vetting/mpfb-nurse-sternal-t-classify.json
+      // pedsKevin measured fields (bytes 16074580); was 5df99085c51be1e….
+      [PEDS_GLB, "pedsKevin", 16074580, "e52a3e25f86d49bc76d2c32b46c3523b0871feda11d5a7f9fbc09e5c941c8be8"],
       // RE-PINNED: deliberate churn 8e7a1d0c2 (CC-BY scrub extras) + 91aa4b5d3 + 9f2934536.
       // ci-w11b re-pinned 2026-10-30: ci-w11 D3 d0e2104d3 repaired midline breast keyframes
       // (rests already +-0.085; size holds at 8775848); was 4f0a8c1d….

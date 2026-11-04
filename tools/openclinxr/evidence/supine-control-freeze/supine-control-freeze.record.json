@@ -6,10 +6,10 @@
     "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "c7def44bda87d5d115d53c794f546ec6bf1b5ae655865f00df4262cdf538e6ab",
     "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": "e8896ed8905266c54ec87191a50c48e73e755f9b887a527190b0ed7fba5bca27",
     "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "e5620a7c8ef8d41aebc4766b9a8375a9c6bf0106cacee268cdd34ea14b9020f3",
-    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "ee45f65c0162208d9ca37f5a116c82d11d072def31b6429a6b32c74f040ee7cd",
+    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "fb37db5e9ed7bd848dcf87b94ebdd53a150fbfccdbeb8be47fdf66825e1bcca8",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "9141538a76220c8431573ed185a24d5eb710429bca27f9844a8cee99c180d425",
-    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "5df99085c51be1e809a94ca6c245f26bd8278aa886f9eed954cbe81db91049ef"
+    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "e52a3e25f86d49bc76d2c32b46c3523b0871feda11d5a7f9fbc09e5c941c8be8"
   },
   "staged": {
     "posture": "supine",
@@ -17,18 +17,18 @@
     "clearanceAboveDeckMeters": 0.25
   },
   "producedFrom": {
-    "observedBy": "st-palette landing (orchestrator subagent)",
-    "observedAtIso": "2026-11-04T04:46:59.099Z",
-    "reason": "st-palette landing: nurse restored to origin bytes e217d3c9 (pre-push: the R5 hem cut opened the waist, 49 visible-skin first-hits, min overlap 0.99 mm vs the 5 mm margin) and family-partner at origin ee45f65c; physician/kevin keep their sRGB-fold bytes",
+    "observedBy": "st-viteye r3 worker",
+    "observedAtIso": "2026-11-04T19:39:58.360Z",
+    "reason": "st-viteye r2 Vitruvian eye swap (post-export byte stage, iris-disc resample into eye UV; no mesh change): aisha 9914108->10021840 B (3b9eb624->6643de81), kevin 15966652->16074580 B (5df99085->e52a3e25), family 9277296->9330184 B (ee45f65c->fb37db5e); re-baselined through producer",
     "byteCountByPath": {
       "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9221980,
       "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9308164,
       "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": 9000208,
       "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 6763692,
-      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 9277296,
+      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 9330184,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 8775848,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 9293412,
-      "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 15966652
+      "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 16074580
     }
   }
 }

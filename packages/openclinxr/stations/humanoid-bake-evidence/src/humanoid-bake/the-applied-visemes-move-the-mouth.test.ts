@@ -109,7 +109,11 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // stage, not a rebake; appends one RG image + OPENCLINXR_skin_shade material
   // extension, geometry/BIN verbatim; size 9700420 -> 9914108);
   // was 081e9c44d6db879c627da55b9a86a2868ee0eea9634325afd1b17e23c37791c2.
-  "mpfb-ob-patient-aisha": "3b9eb6242e1456c1a9df766bdd6c650f454d74d40405e3a6e8ab6ced20018fe7",
+  // st-viteye r2 re-pinned 2026-11-04: Vitruvian eye swap (post-export byte
+  // stage, iris-disc resample into eye UV, geometry/BIN otherwise verbatim;
+  // size 9914108 -> 10021840);
+  // was 3b9eb6242e1456c1a9df766bdd6c650f454d74d40405e3a6e8ab6ced20018fe7.
+  "mpfb-ob-patient-aisha": "6643de8199885ac2ccc3fc9aca75dd9c197c33e6659d58ca9934463d8f861421",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
   // table (drift at HEAD, pre-existing); was d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1.
@@ -137,7 +141,10 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // size holds at 16291676); was d10ae419….
   // st-palette C5 re-pinned 2026-11-04: sRGB-correct fold re-fold of the scrub shirts
   // (factors -> [1,1,1], miss 0.00016); 16291676 -> 15966652 B; was 3afcdd2d….
-  "mpfb-peds-nurse-kevin": "5df99085c51be1e809a94ca6c245f26bd8278aa886f9eed954cbe81db91049ef",
+  // st-viteye r2 re-pinned 2026-11-04: Vitruvian eye swap (post-export byte
+  // stage, iris-disc resample into eye UV; size 15966652 -> 16074580);
+  // was 5df99085c51be1e809a94ca6c245f26bd8278aa886f9eed954cbe81db91049ef.
+  "mpfb-peds-nurse-kevin": "e52a3e25f86d49bc76d2c32b46c3523b0871feda11d5a7f9fbc09e5c941c8be8",
   // #502 re-pinned 2026-08-21: the clinician footwear leopard "Shoe" texture was stripped to
   // the flat dark factor (gown-patient precedent); the viseme morph targets and every other
   // buffer are untouched.
