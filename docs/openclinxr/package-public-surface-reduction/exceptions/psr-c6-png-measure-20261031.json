@@ -87,6 +87,14 @@
       "reason": "Residual 1267 = reviewed base 1262 (psr-c6-xr-sync-c1-20261030, exact-measured) + 5 names on the new @openclinxr/png-measure \".\" root, zero removals. The names are relocated, not new: decodePng, DecodedPng, regionLuminance, RegionFractions and RegionLuminance moved verbatim from tools/openclinxr/evidence/decode-png.ts and lib/png-region-luminance.ts, which are now re-export shims bound by about 36 root importers. \"./evidence-capture\" (classifyCaptureFrame, CaptureFrameClass, UNIFORM_SD_CEILING) is bound by the tools shim; \"./evidence-png\" (decodePng, regionLuminance) by 12 tests in the humanoid-vetting, room-generate and station-capture evidence sidecars. Each entrypoint serves one consumer class, so consumer-contracts passes with no allowlist row. Every name has a cited importer (review st-png-c6-review R2). Threshold stays 1000. Snapshot-only; any drift re-refuses."
     },
     {
+      "target": "rootExportsAtMost",
+      "measured": 1271,
+      "threshold": 1000,
+      "owner": "st-vitblink worker (four conversational-eye schedule exports; none authored by the reviewer)",
+      "reviewedBy": "Codex GPT-5 independent API/C6 review /root/vitblink_api_review_default (not an author; approved exact 1267→1271 delta for four user-required conversational-eye schedule root exports; threshold remains 1000; 2026-11-04)",
+      "reason": "Residual 1271 = this file's prior independently reviewed exact 1267 + exactly four user-mandated NEW @openclinxr/xr-humanoid-animation root exports: humanoidBlinkIntervalMs, humanoidGazeBoutDurationMs, sampleHumanoidBlinkSchedule, and sampleHumanoidGazeBout. Each is implemented, admitted, declared in public-api.json/consumes.json, and bound through package-entrypoint G1/G2 tests. No unrelated symbol is admitted. Threshold stays 1000. Snapshot-only; any later count drift re-refuses."
+    },
+    {
       "target": "medianAtMost",
       "measured": 16,
       "threshold": 15,

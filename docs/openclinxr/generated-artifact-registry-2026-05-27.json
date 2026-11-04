@@ -26755,13 +26755,6 @@
       "rationale": "Conversational eye-schedule admission: independently reviewed root exports bind the G1/G2 deterministic blink and Lee/Badler gaze schedule tests."
     },
     {
-      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-vitblink-eye-schedule-20261104.json",
-      "authority": "keep-evidence",
-      "tracked": true,
-      "action": "keep",
-      "rationale": "Exact-measure C6 review for the four user-required conversational eye-schedule root exports; threshold remains unchanged and later drift re-refuses."
-    },
-    {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/footstep-plan-v1.json",
       "authority": "keep-evidence",
       "tracked": true,
