@@ -1,4 +1,4 @@
-import { statSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
@@ -81,7 +81,10 @@ const PINNED = {
   // jeans for the full-resolution #581 primitives from 57e277301 (+761132 B, +3879 tris; textures
   // untouched). Pre-prune pin carried forward by the same deltas; was fileBytes 10069400, tris 69067.
   // st-redgarm 2026-11-02: tris 72946 -> 73392 after 1225b8f95 restored the toigo flats (+446).
-  "mpfb-ob-patient-aisha.glb":  { fileBytes: 10830532, textures: 5, boundTextures: 5, boundBytes: 4246964, meshes: 10, materials: 17, tris: 73392, joints: 137, animations: 3 },
+  // st-vitskin 2026-11-05: d44fafa31 embeds the aisha-curv-cav-1024 RG map (213249 B), bound by the
+  // OPENCLINXR_skin_shade material extension; core slots untouched: boundTextures 5 -> 6,
+  // boundBytes 4246964 -> 4460213 (+213249 B, exactly that image).
+  "mpfb-ob-patient-aisha.glb":  { fileBytes: 10830532, textures: 5, boundTextures: 6, boundBytes: 4460213, meshes: 10, materials: 17, tris: 73392, joints: 137, animations: 3 },
   // ci-w11 re-pin 2026-10-30, measured pre-prune (post-afe8abced full-res hair + D2 grade).
   // Old #598: fileBytes 11456228, textures 5, boundTextures 5, boundBytes 4598965, tris 74732.
   // st-palette 2026-11-04: 3969ae031 re-encoded the toigo t-shirt texture (sRGB palette renorm,
@@ -95,6 +98,21 @@ const MIN_BYTES_FREED = 700_000;
 
 type Shape = { textures: number; boundTextures: number; boundBytes: number; orphanBytes: number; meshes: number; materials: number; tris: number; joints: number; animations: number };
 
+type GltfJson = { textures?: { source?: number }[]; materials?: { extensions?: Record<string, unknown> }[] };
+
+function extensionBoundImageIndices(glb: Buffer): number[] {
+  const json = JSON.parse(glb.subarray(20, 20 + glb.readUInt32LE(12)).toString("utf8")) as GltfJson;
+  const out: number[] = [];
+  for (const material of json.materials ?? [])
+    for (const extension of Object.values(material.extensions ?? {}))
+      for (const slot of Object.values((extension ?? {}) as Record<string, unknown>)) {
+        const index = (slot as { index?: unknown } | null)?.index;
+        const source = typeof index === "number" ? json.textures?.[index]?.source : undefined;
+        if (typeof source === "number") out.push(source);
+      }
+  return out;
+}
+
 async function shapeOf(file: string): Promise<Shape> {
   const { NodeIO } = await import("@gltf-transform/core");
   const doc = await new NodeIO().read(`${DIR}/${file}`);
@@ -103,6 +121,13 @@ async function shapeOf(file: string): Promise<Shape> {
   for (const m of r.listMaterials())
     for (const g of [m.getBaseColorTexture(), m.getNormalTexture(), m.getEmissiveTexture(), m.getOcclusionTexture(), m.getMetallicRoughnessTexture()])
       if (g) bound.add(g);
+  // st-vitskin 2026-11-05: a material EXTENSION textureInfo (OPENCLINXR_skin_shade.curvatureTexture)
+  // binds an image too. gltf-transform drops unregistered extensions on read, so follow the raw
+  // JSON: materials[].extensions.*.<slot>.index -> textures[index].source -> image (listTextures order).
+  for (const source of extensionBoundImageIndices(readFileSync(`${DIR}/${file}`))) {
+    const t = r.listTextures()[source];
+    if (t) bound.add(t);
+  }
   let total = 0; for (const t of r.listTextures()) total += t.getImage()?.byteLength ?? 0;
   let boundBytes = 0; for (const t of bound) boundBytes += (t as { getImage(): Uint8Array | null }).getImage()?.byteLength ?? 0;
   let tris = 0; for (const m of r.listMeshes()) for (const p of m.listPrimitives()) tris += (p.getIndices()?.getCount() ?? 0) / 3;
