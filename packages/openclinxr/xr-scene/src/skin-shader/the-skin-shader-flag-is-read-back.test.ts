@@ -3,12 +3,6 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-// Arch D2: the loader factory binds through its ./skin-shade-loader entrypoint
-// source (own-test via), so testInternalImports holds at 10.
-import {
-  createSkinShadeGLTFLoader,
-  SKIN_SHADE_EXTENSION_NAME,
-} from "./skin-shade-loader.js";
 import {
   BoxGeometry,
   DataTexture,
@@ -17,6 +11,9 @@ import {
   Mesh,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
+  RepeatWrapping,
+  ShaderChunk,
+  ShaderLib,
   TextureLoader,
 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -33,6 +30,12 @@ import {
   SKIN_IOR,
 } from "../isolated-subject-material-variants.js";
 import { type CropRect, countChangedPx, decodePngFile, sobelEnergy } from "./png-crop.js";
+// Arch D2: the loader factory binds through its ./skin-shade-loader entrypoint
+// source (own-test via), so testInternalImports holds at 10.
+import {
+  createSkinShadeGLTFLoader,
+  SKIN_SHADE_EXTENSION_NAME,
+} from "./skin-shade-loader.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const reportPath = join(here, "shader-report.json");
@@ -72,6 +75,50 @@ function stubShader(): {
       "#include <common>\nvoid main() {}\n#include <map_fragment>\n" +
       "#include <roughnessmap_fragment>\n#include <normal_fragment_maps>\n#include <lights_fragment_end>\n#include <emissivemap_fragment>",
   };
+}
+
+const GLSL_BUILTINS = new Set([
+  "cross",
+  "dFdx",
+  "dFdy",
+  "defined",
+  "distance",
+  "dot",
+  "float",
+  "inversesqrt",
+  "if",
+  "mat3",
+  "max",
+  "normalize",
+  "smoothstep",
+  "texture2D",
+  "vec2",
+  "vec3",
+]);
+
+function resolveShaderIncludes(source: string): string {
+  return source.replace(/#include <([\w\d./]+)>/g, (_match, name: string) => {
+    const chunk = (ShaderChunk as Record<string, string>)[name];
+    if (chunk === undefined) throw new Error(`missing three.js ShaderChunk <${name}>`);
+    return resolveShaderIncludes(chunk);
+  });
+}
+
+function unresolvedDetailCalls(source: string): string[] {
+  const assembled = resolveShaderIncludes(source);
+  const definitions = new Set(
+    [...assembled.matchAll(/\b(?:void|bool|int|float|vec[234]|mat[234])\s+(\w+)\s*\(/g)].map(
+      (match) => match[1]!,
+    ),
+  );
+  const detailGlsl = [
+    /mat3 skinShadeCotangentFrame[\s\S]*?\n}/.exec(assembled)?.[0] ?? "",
+    /if \(uSkinDetailNormalStrength[\s\S]*?\n}/.exec(assembled)?.[0] ?? "",
+  ].join("\n");
+  const calls = [...detailGlsl.matchAll(/\b([A-Za-z_]\w*)\s*\(/g)].map(
+    (match) => match[1]!,
+  );
+  return [...new Set(calls.filter((name) => !GLSL_BUILTINS.has(name) && !definitions.has(name)))];
 }
 
 /**
@@ -540,7 +587,11 @@ describe("the skin shade loader installs the hook from GLB bytes", () => {
     try {
       const gltf = await createSkinShadeGLTFLoader().parseAsync(tinySkinGltf(0.5), "");
       const mat = skinMaterialsOf(gltf.scene)[0]!;
-      const shader = stubShader();
+      const shader = {
+        uniforms: {} as Record<string, { value: unknown }>,
+        vertexShader: ShaderLib.standard.vertexShader,
+        fragmentShader: ShaderLib.standard.fragmentShader,
+      };
       mat.onBeforeCompile(shader as never, {} as never);
       const detail = shader.uniforms["uSkinDetailNormalMap"]?.value as DataTexture;
       expect(detail, "detail normal is assigned by the package entrypoint plugin").toBeDefined();
@@ -548,9 +599,20 @@ describe("the skin shade loader installs the hook from GLB bytes", () => {
         90,
         90,
       ]);
+      expect(detail.wrapS).toBe(RepeatWrapping);
+      expect(detail.wrapT).toBe(RepeatWrapping);
       expect(shader.uniforms["uSkinDetailNormalStrength"]?.value).toBe(0.5);
-      expect(shader.fragmentShader).toMatch(/texture2D\(uSkinDetailNormalMap, skinUv\)/);
-      expect(shader.fragmentShader).toMatch(/perturbNormal2Arb/);
+      expect(shader.uniforms["uSkinDetailUvTransform"]?.value).toBe(detail.matrix);
+      expect(detail.matrix.elements[0]).toBeCloseTo(90, 10);
+      expect(detail.matrix.elements[4]).toBeCloseTo(90, 10);
+      expect(detail.matrix.elements[8]).toBe(1);
+      expect(shader.fragmentShader).toMatch(
+        /texture2D\(uSkinDetailNormalMap, skinDetailUv\)/,
+      );
+      expect(
+        unresolvedDetailCalls(shader.fragmentShader),
+        "detail-normal calls must resolve in the full assembled three.js fragment program",
+      ).toEqual([]);
     } finally {
       TextureLoader.prototype.load = orig;
     }

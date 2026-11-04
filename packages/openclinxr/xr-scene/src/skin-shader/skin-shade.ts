@@ -81,6 +81,7 @@ import type {
   WebGLProgramParametersWithUniforms,
   WebGLRenderer,
 } from "three";
+import { RepeatWrapping } from "three";
 import {
   type ResolvedSkinLutOptions,
   resolveSkinLutOptions,
@@ -254,7 +255,21 @@ uniform float uSkinScatterNos;
 uniform float uSkinScatterLip;
 uniform float uSkinSpecOccl;
 uniform sampler2D uSkinCurvMap;
-${detailNormal ? "uniform sampler2D uSkinDetailNormalMap;\nuniform float uSkinDetailNormalStrength;" : ""}
+${
+  detailNormal
+    ? `uniform sampler2D uSkinDetailNormalMap; uniform float uSkinDetailNormalStrength;
+uniform mat3 uSkinDetailUvTransform;
+mat3 skinShadeCotangentFrame(vec3 eyePosition, vec3 surfaceNormal, vec2 uv) {
+  vec3 eyeDx = dFdx(eyePosition), eyeDy = dFdy(eyePosition);
+  vec2 uvDx = dFdx(uv), uvDy = dFdy(uv);
+  vec3 eyeDyPerp = cross(eyeDy, surfaceNormal), eyeDxPerp = cross(surfaceNormal, eyeDx);
+  vec3 tangent = eyeDyPerp * uvDx.x + eyeDxPerp * uvDy.x, bitangent = eyeDyPerp * uvDx.y + eyeDxPerp * uvDy.y;
+  float determinant = max(dot(tangent, tangent), dot(bitangent, bitangent));
+  float inverseScale = determinant == 0.0 ? 0.0 : inversesqrt(determinant);
+  return mat3(tangent * inverseScale, bitangent * inverseScale, surfaceNormal);
+}`
+    : ""
+}
 uniform vec2 uSkinNoseUv;
 uniform vec2 uSkinChinUv;
 uniform vec2 uSkinForeheadUv;
@@ -337,10 +352,16 @@ normal = normalize(mix(normal, normalize(vSkinSmoothN), uSkinBlurMix));
 ${
   detailNormal
     ? `if (uSkinDetailNormalStrength > 0.0) {
-  vec3 skinDetailNormal = texture2D(uSkinDetailNormalMap, skinUv).xyz * 2.0 - 1.0;
+  vec2 skinDetailUv = (uSkinDetailUvTransform * vec3(vMapUv, 1.0)).xy;
+  vec3 skinDetailNormal = texture2D(uSkinDetailNormalMap, skinDetailUv).xyz * 2.0 - 1.0;
   skinDetailNormal.xy *= uSkinDetailNormalStrength;
   skinDetailNormal = normalize(skinDetailNormal);
-  normal = normalize(perturbNormal2Arb(-vViewPosition, normal, skinDetailNormal, faceDirection));
+  mat3 skinDetailFrame = skinShadeCotangentFrame(-vViewPosition, normal, skinDetailUv);
+#if defined(DOUBLE_SIDED) && !defined(FLAT_SHADED)
+  skinDetailFrame[0] *= faceDirection;
+  skinDetailFrame[1] *= faceDirection;
+#endif
+  normal = normalize(skinDetailFrame * skinDetailNormal);
 }`
     : ""
 }
@@ -401,11 +422,14 @@ export function applySkinShade(
   const tcoef = skinEffectiveTCoef(resolved);
   const forehead = skinForeheadUv();
   const lutTex = resolved.lut ? (resolved.lutMap ?? skinLutTexture()) : null;
-  // Strength zero is compiled as the exact pre-detail program. This makes
-  // both an omitted detail texture and an explicit sweep control at 0 an
-  // identity, without relying on a GPU branch or neutral-normal arithmetic.
-  const hasDetailNormal =
-    resolved.detailNormalMap !== null && resolved.detailNormalStrength > 0;
+  // Strength zero and absent maps compile as the exact pre-detail program.
+  const detailNormalMap = resolved.detailNormalStrength > 0 ? resolved.detailNormalMap : null;
+  const hasDetailNormal = detailNormalMap !== null;
+  if (hasDetailNormal) {
+    detailNormalMap.wrapS = RepeatWrapping;
+    detailNormalMap.wrapT = RepeatWrapping;
+    detailNormalMap.updateMatrix();
+  }
   const prev = material.onBeforeCompile?.bind(material);
   material.onBeforeCompile = (
     shader: WebGLProgramParametersWithUniforms,
@@ -421,8 +445,9 @@ export function applySkinShade(
     shader.uniforms["uSkinSpecOccl"] = { value: resolved.specularOcclusion };
     shader.uniforms["uSkinCurvMap"] = { value: resolved.curvatureMap };
     if (hasDetailNormal) {
-      shader.uniforms["uSkinDetailNormalMap"] = { value: resolved.detailNormalMap };
+      shader.uniforms["uSkinDetailNormalMap"] = { value: detailNormalMap };
       shader.uniforms["uSkinDetailNormalStrength"] = { value: resolved.detailNormalStrength };
+      shader.uniforms["uSkinDetailUvTransform"] = { value: detailNormalMap.matrix };
     }
     shader.uniforms["uSkinNoseUv"] = { value: [SKIN_NOSE_UV[0], SKIN_NOSE_UV[1]] };
     shader.uniforms["uSkinChinUv"] = { value: [SKIN_CHIN_UV[0], SKIN_CHIN_UV[1]] };
