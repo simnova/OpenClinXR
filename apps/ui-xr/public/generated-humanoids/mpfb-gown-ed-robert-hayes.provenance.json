@@ -162,15 +162,15 @@
   }
  ],
  "optimizationMode": "meshopt_decimated_post_blender_glb (carried over from input)",
- "outputBytes": 8056172,
- "outputSha256": "dedcbb3e417e59b28a19d3f5bc73169b3fae98ece580111193d3a092126ae1f5",
+ "outputBytes": 8181516,
+ "outputSha256": "aecbe936185366bbe4518fc73d62a4fe02c41a4ac8f44f5f955b0ca9055897ba",
  "promotionStatus": "candidate_not_promoted__needs_parent_visual_acceptance_and_root_full_suite",
  "realismGrade": "not_graded",
  "scenarioId": "ed_chest_pain_priority_v1",
  "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
  "sourceKind": "mpfb2_makehuman_basemesh_hm08_with_standard_rig",
  "sourceOriginChain": {
-  "derivationNote": "Regeneration, not relabel: the input's old gown shell was deleted in-Blender and a new shell was authored from the ED case phenotype at this bake. Body/rig/morphs/animations/textures are the same MPFB rail bytes carried through the glTF round-trip (2 orphan materials dropped: unused T-shirt material+texture, one orphan image \u2014 no surface loses its material).",
+  "derivationNote": "Regeneration, not relabel: the input's old gown shell was deleted in-Blender and a new shell was authored from the ED case phenotype at this bake. Body/rig/morphs/animations/textures are the same MPFB rail bytes carried through the glTF round-trip (2 orphan materials dropped: unused T-shirt material+texture, one orphan image — no surface loses its material).",
   "generator": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py phenotype block (garmentLayers hospital_gown, fabricPalette hospital_gown_blue_pattern, role_visual_cue ed_chest_pain_patient, skin warm_medium, hair/eye brown)",
   "materializedFrom": "Blender-only rebake of tracked input (see byteLineage); #684 regen shape (input == previously gowned asset)"
  },
@@ -425,11 +425,77 @@
    "repairedAnimation": "openclinxr_role_patient_guard_withdraw_rlq",
    "channelsBefore": 414,
    "channelsAfter": 9,
-   "pathsAfter": ["rotation"],
-   "nodesAfter": [35, 37, 39, 61, 63, 65, 127, 131, 133],
+   "pathsAfter": [
+    "rotation"
+   ],
+   "nodesAfter": [
+    35,
+    37,
+    39,
+    61,
+    63,
+    65,
+    127,
+    131,
+    133
+   ],
    "rlqHashAfter": "33b3b99160accc3b2d87a108c78d2a6bfb44c235dc05e194e788d33f2d640589",
-   "preservedUnchanged": ["nodes", "meshes", "skins", "materials", "images", "ClinicalIdleConversation", "openclinxr_retarget_walk_source", "ClinicalExpressionMicroTransition", "non-RLQ sampler bytes"],
+   "preservedUnchanged": [
+    "nodes",
+    "meshes",
+    "skins",
+    "materials",
+    "images",
+    "ClinicalIdleConversation",
+    "openclinxr_retarget_walk_source",
+    "ClinicalExpressionMicroTransition",
+    "non-RLQ sampler bytes"
+   ],
    "computedAt": "2026-10-26T01:03:00+00:00"
+  },
+  {
+   "stage": "palette-weave-fold",
+   "tool": "tools/openclinxr/asset-pipeline/makeclothes/attach-weave-base-color-textures.ts",
+   "toolSha256": "357257996ff62bdae6b93ac39c47e00b0b317e84fe792d3867a741424bd7520e",
+   "inputGlbSha": "dedcbb3e417e59b28a19d3f5bc73169b3fae98ece580111193d3a092126ae1f5",
+   "inputGlbBytes": 8056172,
+   "outputGlbSha": "d11c3839ff65a220c39f07fa248faefe6039183de48d4ab7e0cc8ffc90564443",
+   "outputGlbBytes": 8224608,
+   "material": "openclinxr_real_garment_hospital_gown_phenotype_L0.001",
+   "resolvedPalette": [
+    0.15,
+    0.55,
+    0.82
+   ],
+   "textureMean": [
+    0.1497,
+    0.5499,
+    0.82
+   ],
+   "factorFoldedTo": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "foldMiss": 0.0003,
+   "cylUv": "openclinxr_real_garment_hospital_gown_mesh:2,2 (1 primitive; declared-layer shell untouched)",
+   "note": "st-palette R1 round 2: weave PNG carries hospital_gown_blue_pattern (P2) with HB-02 fold; round 1 kept the factor and rendered colour^2. Re-ran on origin bytes, not stacked. Report: /Volumes/files/openclinxr-assets/store/st-palette/gown-report.r2.json."
   }
- ]
+ ],
+ "garmentWeaveFold": {
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/attach-weave-base-color-textures.ts",
+  "toolSha256": "b5e0ddfae59253fb5d947a10066093a7df984aae4322b3b667c7a007f08507ec",
+  "mode": "attach on origin bytes (+cylindrical UV, 1 primitive)",
+  "inputSha256": "dedcbb3e417e59b28a19d3f5bc73169b3fae98ece580111193d3a092126ae1f5",
+  "inputBytes": 8056172,
+  "wovenSha256": "aecbe936185366bbe4518fc73d62a4fe02c41a4ac8f44f5f955b0ca9055897ba",
+  "outputSha256": "aecbe936185366bbe4518fc73d62a4fe02c41a4ac8f44f5f955b0ca9055897ba",
+  "outputBytes": 8181516,
+  "reports": [
+   "/Volumes/files/openclinxr-assets/store/st-palette/r4-work/gown-weave-r4.json"
+  ],
+  "effective": "gown [0.15,0.5499,0.8199], miss 0.00011",
+  "claimScope": "baseColorTexture bytes + baseColorFactor folds only; no geometry, skinning, morph or animation changes"
+ }
 }
