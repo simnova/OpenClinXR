@@ -462,6 +462,7 @@ export function updateHumanoidSpeechCue(
     (entry, entryCamera) => resolveHumanoidGazeTargetWorld(ctx, entry, entryCamera),
     (entry, entryOpenness, entryViseme, entryWeights) =>
       applyHumanoidMorphTargetCue(entry, entryOpenness, entryViseme, entryWeights, applyNamedSpeechVisemes),
+    suppressProceduralGaze,
   );
   const existingSpeechEvidence = ctx.currentSpeechEvidence();
   if (!existingSpeechEvidence) {

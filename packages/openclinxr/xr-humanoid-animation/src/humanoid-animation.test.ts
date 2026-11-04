@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { Bone, Group, PerspectiveCamera, Quaternion, Vector3 } from "three";
 import {
+  applyHumanoidFaceRigControls,
   clampDialogueFacingYaw,
   computeAffectRampIntensity,
   computeHumanoidEyeMotionMetrics,
@@ -49,6 +51,17 @@ function emptyCtx() {
     currentSpeechEvidence: () => undefined,
     recordActingCueEvidence: () => {},
   };
+}
+
+/** MPFB eye bones point along local +Y, the gaze axis. */
+function eyeForward(bone: Bone): Vector3 {
+  return new Vector3(0, 1, 0).applyQuaternion(bone.getWorldQuaternion(new Quaternion())).normalize();
+}
+
+function eyeSignedAngle(from: Vector3, to: Vector3, axis: Vector3): number {
+  const a = from.clone().addScaledVector(axis, -from.dot(axis)).normalize();
+  const b = to.clone().addScaledVector(axis, -to.dot(axis)).normalize();
+  return Math.atan2(axis.dot(a.clone().cross(b)), a.dot(b));
 }
 
 describe("xr-humanoid-animation math helpers", () => {
@@ -121,5 +134,68 @@ describe("xr-humanoid-animation math helpers", () => {
       false,
     );
     expect(overlay.cueIds).toEqual([]);
+  });
+
+  it("drives MPFB eye bones absolutely across 200 schedule frames", () => {
+    const root = new Group();
+    const head = new Bone(); head.name = "head";
+    // MPFB eye parents are rotated ~168 deg about X (world quaternion of eyeL's parent on
+    // mpfb-ob-patient-aisha); an unrotated parent hid a flipped yaw sign.
+    head.quaternion.set(0.978, 0.032, -0.155, 0.133).normalize();
+    const left = new Bone(); left.name = "eyeL"; left.rotation.set(-1.4, 0, 0.41);
+    const right = new Bone(); right.name = "eyeR"; right.rotation.set(0, 0, -0.37);
+    head.add(left, right); root.add(head); root.updateMatrixWorld(true);
+    const restQuaternion = left.quaternion.clone();
+    const restForward = eyeForward(left);
+    const headRight = new Vector3(1, 0, 0).applyQuaternion(head.getWorldQuaternion(new Quaternion())).normalize();
+    const slot = {
+      actorId: "patient", assetId: "mpfb-test", root, actorSlot: new Group(),
+      emotionExpression: createHumanoidEmotionExpressionState({ deterministicClock: true }),
+    } as unknown as Parameters<typeof applyHumanoidFaceRigControls>[0];
+    const speech = {
+      actorId: "patient", assetId: "mpfb-test", gazeTargetKind: "learner_camera",
+      gazeTargetActorId: null, text: "test", emotion: "neutral",
+      emotionContext: { emotion: "neutral", source: "plan_missing", baselineMood: [], cueIds: [] },
+      phonemeSequence: [], visemeSequence: [], startedAtMs: 0, durationMs: 10_000,
+    } as Parameters<typeof applyHumanoidFaceRigControls>[3];
+    const drive = (yaw: number, pitch: number): void => applyHumanoidFaceRigControls(
+      slot, 0, "rest", speech, new PerspectiveCamera(),
+      { blinkIntensity: 0, microSaccadeYaw: yaw, microSaccadePitch: pitch },
+      { mouthOpen: 0, browConcern: 0, cheekTension: 0 },
+      () => new Vector3(0, 1.57, -0.71), () => {},
+    );
+    for (let frame = 0; frame < 200; frame++) {
+      const elapsedMs = frame * (1000 / 60);
+      const eye = computeHumanoidEyeMotionMetrics(speech, elapsedMs, "talking", elapsedMs);
+      drive(eye.microSaccadeYaw, eye.microSaccadePitch);
+      const current = eyeForward(left);
+      const yaw = eyeSignedAngle(restForward, current, new Vector3(0, 1, 0));
+      const yawedRest = restForward.clone().applyAxisAngle(new Vector3(0, 1, 0), yaw);
+      // 2 decimals: head right is not exactly perpendicular to world up on the tilted head, so
+      // yaw and pitch couple by ~2% of a ~0.02 rad drive. A flipped sign misses by 2x the drive.
+      expect(yaw).toBeCloseTo(eye.microSaccadeYaw, 2);
+      expect(eyeSignedAngle(yawedRest, current, headRight))
+        .toBeCloseTo(eye.microSaccadePitch, 2);
+    }
+    drive(0, 0);
+    expect(left.quaternion.angleTo(restQuaternion)).toBeLessThan(1e-6);
+  });
+
+  it("keeps the legacy gaze-control path", () => {
+    const root = new Group();
+    const left = new Group(); left.name = "openclinxr_left_eye_gaze_control";
+    const right = new Group(); right.name = "openclinxr_right_eye_gaze_control";
+    root.add(left, right);
+    const slot = { root } as Parameters<typeof applyHumanoidFaceRigControls>[0];
+    const speech = { emotion: "neutral" } as Parameters<typeof applyHumanoidFaceRigControls>[3];
+    applyHumanoidFaceRigControls(
+      slot, 0, "rest", speech, new PerspectiveCamera(),
+      { blinkIntensity: 0, microSaccadeYaw: 0.12, microSaccadePitch: -0.04 },
+      { mouthOpen: 0, browConcern: 0, cheekTension: 0 },
+      () => new Vector3(0, 1.57, -0.71), () => {},
+    );
+    expect([left.rotation.y, left.rotation.x]).toEqual([0.12, -0.04]);
+    expect(right.rotation.y).toBeCloseTo(0.108, 6);
+    expect(right.rotation.x).toBeCloseTo(-0.0368, 6);
   });
 });

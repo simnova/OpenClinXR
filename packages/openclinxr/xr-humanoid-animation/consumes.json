@@ -20,6 +20,10 @@
       {
         "name": "resolveMorphTarget",
         "kind": "runtime"
+      },
+      {
+        "name": "resolvePoseBone",
+        "kind": "runtime"
       }
     ]
   },
@@ -572,6 +576,10 @@
       },
       {
         "name": "boneIsOwned",
+        "kind": "runtime"
+      },
+      {
+        "name": "collectJointNames",
         "kind": "runtime"
       },
       {

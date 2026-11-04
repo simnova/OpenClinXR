@@ -16,6 +16,7 @@ import {
   sampleHumanoidGazeBout,
 } from "./conversational-eye-schedule.js";
 import type { HumanoidConversationEyeState } from "./conversational-eye-schedule.js";
+import { applyHumanoidEyeBoneGaze } from "./eye-bone-gaze.js";
 import type {
   GeneratedHumanoidAnimationSlot,
   HumanoidEmotionExpressionState,
@@ -238,7 +239,6 @@ export function resetHumanoidFaceRigControls(slot: GeneratedHumanoidAnimationSlo
   }
 }
 
-
 /**
  * Blink a humanoid that is NOT speaking. DEFECT (measured 2026-09-16, 1,321-frame capture):
  * `updateHumanoidSpeechCue` returned before the face rig whenever `slot.activeSpeech` was
@@ -295,6 +295,9 @@ export function applyHumanoidRestBlink(
   const rightUpperEyelid = slot.root.getObjectByName("openclinxr_right_upper_eyelid_blink_control");
   rotateHumanoidRigControl(leftEye, gazePitch, gazeYaw, 0);
   rotateHumanoidRigControl(rightEye, gazePitch * 0.92, gazeYaw * 0.9, 0);
+  if (!suppressProceduralGaze) {
+    applyHumanoidEyeBoneGaze(slot.root, leftEye, rightEye, gazePitch, gazeYaw, gazePitch * 0.92, gazeYaw * 0.9);
+  }
   offsetHumanoidRigControl(leftUpperEyelid, 0, -blinkIntensity * 0.002, -blinkIntensity * 0.012);
   offsetHumanoidRigControl(rightUpperEyelid, 0, -blinkIntensity * 0.002, -blinkIntensity * 0.012);
   scaleHumanoidRigControl(leftUpperEyelid, 1, 1 + blinkIntensity * 1.8, 1);
@@ -313,7 +316,6 @@ export function applyHumanoidRestBlink(
   };
   return blinkIntensity;
 }
-
 
 /** One FACS target and the share of the canonical weight it carries. */
 type FacsTargetWeight = { readonly target: string; readonly scale: number };
@@ -436,6 +438,7 @@ export function applyHumanoidFaceRigControls(
   expressionWeights: HumanoidExpressionWeights,
   resolveGazeTargetWorld: (speech: HumanoidSpeechPlayback, camera: import("three").PerspectiveCamera) => Vector3,
   applyMorphTargetCue: (slot: GeneratedHumanoidAnimationSlot, openness: number, viseme: string, weights: HumanoidExpressionWeights) => void,
+  suppressBoneGaze = false,
 ): void {
   const upperLip = slot.root.getObjectByName("openclinxr_upper_lip_sync_control");
   const lowerLip = slot.root.getObjectByName("openclinxr_lower_lip_sync_control");
@@ -459,6 +462,11 @@ export function applyHumanoidFaceRigControls(
   const { blinkIntensity, microSaccadeYaw, microSaccadePitch } = eyeMotion;
   rotateHumanoidRigControl(leftEye, pitch + microSaccadePitch, yaw + microSaccadeYaw, 0);
   rotateHumanoidRigControl(rightEye, pitch + microSaccadePitch * 0.92, yaw + microSaccadeYaw * 0.9, 0);
+  if (!suppressBoneGaze) {
+    applyHumanoidEyeBoneGaze(
+      slot.root, leftEye, rightEye, pitch + microSaccadePitch, yaw + microSaccadeYaw,
+      (pitch + microSaccadePitch) * 0.92, (yaw + microSaccadeYaw) * 0.9);
+  }
   scaleHumanoidRigControl(leftEye, 1, 1 - blinkIntensity * 0.72, 1 + blinkIntensity * 0.08);
   scaleHumanoidRigControl(rightEye, 1, 1 - blinkIntensity * 0.72, 1 + blinkIntensity * 0.08);
   offsetHumanoidRigControl(leftUpperEyelid, 0, -blinkIntensity * 0.002, -blinkIntensity * 0.012);
