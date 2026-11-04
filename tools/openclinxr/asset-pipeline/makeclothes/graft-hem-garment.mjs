@@ -12,6 +12,18 @@
  * non-garment POSITION/index (and other attribute) bytes are identical to
  * the input file. Any mismatch fails loudly — no silent re-pin.
  *
+ * st-palette round 6 F1: the Blender export recomputes normals over the whole
+ * finished garment, and the family t-shirt mesh is unwelded (2 verts per
+ * face), so recomputed normals are flat per face — visible as vertical facet
+ * bands on the chest the hem never touched. Measured: the export also adds
+ * sub-micron float noise to every POSITION (0/5400 verts bit-exact, 5328
+ * under 1 um, 72 hem verts moved millimetres), so exact equality never fires.
+ * Verts whose finished POSITION is within 1 micron of the input POSITION
+ * keep the full input vertex (POSITION, NORMAL and all other attributes);
+ * only verts the hem actually moved (millimetre drift) take the finished
+ * vertex. Vert-count changes (e.g. the nurse closed-solid cut) fall back to
+ * the finished vertex for that prim.
+ *
  * Usage:
  *   node graft-hem-garment.mjs \
  *     --origin <stage-input.glb> --finished <blender-export.glb> \
@@ -90,14 +102,75 @@ async function main() {
   }
 
   let attrsCopied = 0;
+  let normalPreservedVerts = 0;
+  let normalFinishedVerts = 0;
+  let normalPreservedPrims = 0;
   for (let p = 0; p < originPrims.length; p += 1) {
     const op = originPrims[p];
     const fp = finPrims[p];
     if (op.listTargets().length !== fp.listTargets().length) {
       throw new Error(`morph target count mismatch on ${args.garment} prim ${p}`);
     }
+    // Snapshot origin/finished POSITION before any replacement so the
+    // per-vertex comparison below always reads input bytes (round 6 F1).
+    const oPosAcc = op.getAttribute("POSITION");
+    const fPosAcc = fp.getAttribute("POSITION");
+    const oPosArr = oPosAcc ? Array.from(oPosAcc.getArray()) : null;
+    const fPosArr = fPosAcc ? Array.from(fPosAcc.getArray()) : null;
+    // Round 6 F1: alignable when the prim is index-aligned with the input.
+    // The per-vertex moved/stayed decision uses a 1 um POSITION drift
+    // threshold (measured: unmoved verts carry sub-micron export noise,
+    // hem verts move millimetres — clean separation, no cliff).
+    const POSITION_TOL_M = 1e-6;
+    const primAlignable =
+      oPosArr !== null && fPosArr !== null &&
+      oPosAcc.getCount() === fPosAcc.getCount();
+    let movedVerts = null;
+    if (primAlignable) {
+      movedVerts = new Uint8Array(oPosAcc.getCount());
+      for (let v = 0; v < oPosAcc.getCount(); v += 1) {
+        const px = v * 3;
+        const dx = oPosArr[px] - fPosArr[px];
+        const dy = oPosArr[px + 1] - fPosArr[px + 1];
+        const dz = oPosArr[px + 2] - fPosArr[px + 2];
+        movedVerts[v] = Math.sqrt(dx * dx + dy * dy + dz * dz) < POSITION_TOL_M ? 0 : 1;
+      }
+    }
     for (const sem of fp.listSemantics()) {
       const facc = fp.getAttribute(sem);
+      const oacc = op.getAttribute(sem);
+      if (primAlignable && oacc && oacc.getCount() === facc.getCount()) {
+        // Per-vertex graft: stayed verts keep input bytes, moved verts take
+        // the finish. Covers POSITION, NORMAL and every other attribute.
+        // The merged array keeps the input's TypedArray class so component
+        // types (float32 positions/normals, uint joints) never change.
+        const oArr = Array.from(oacc.getArray());
+        const fArr = Array.from(facc.getArray());
+        const perVert = oArr.length / oPosAcc.getCount();
+        const Ctor = oacc.getArray().constructor;
+        const merged = new Ctor(oArr.length);
+        for (let v = 0; v < oPosAcc.getCount(); v += 1) {
+          const moved = movedVerts[v] === 1;
+          for (let c = 0; c < perVert; c += 1) {
+            merged[v * perVert + c] = moved ? fArr[v * perVert + c] : oArr[v * perVert + c];
+          }
+        }
+        const copy = originDoc
+          .createAccessor()
+          .setType(facc.getType())
+          .setArray(merged)
+          .setNormalized(facc.getNormalized());
+        op.setAttribute(sem, copy);
+        attrsCopied += 1;
+        if (sem === "NORMAL") {
+          normalPreservedPrims += 1;
+          for (let v = 0; v < oPosAcc.getCount(); v += 1) {
+            if (movedVerts[v] === 1) normalFinishedVerts += 1;
+            else normalPreservedVerts += 1;
+          }
+        }
+        continue;
+      }
       const copy = originDoc
         .createAccessor()
         .setType(facc.getType())
@@ -167,6 +240,9 @@ async function main() {
     output: args.output,
     primsReplaced: originPrims.length,
     attrsCopied,
+    normalPreservedVerts,
+    normalFinishedVerts,
+    normalPreservedPrims,
     untouchedMeshes: untouched.length,
     accessorScalarsCompared: compared,
   };

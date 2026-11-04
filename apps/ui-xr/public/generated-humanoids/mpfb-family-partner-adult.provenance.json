@@ -62,13 +62,14 @@
   "2026-10-30 ci-w11 D1 (orphan prune, not rebake): gltf-transform prune 4.3.0, same tool and flags as #555. Removed unreferenced mpfb-family-partner-adult.skin-normal (1091596 B). File 10529116 -> 9277296 B. Bound invariants held: boundTextures 5, boundBytes 4754841, meshes 10, materials 17, tris 39974, joints 137, animations 3.",
   "st-palette R6 (hem-finish, post-export byte stage, not a Blender rebake): re-applied the fixed finish_garment_hem to the held family-partner bytes (no cut; loops pre-existed). Waist 32 buckets 0 gapped min +5.0 mm (unchanged, the -19.4 mm round-1 gap is gone); loops [36,26,12,12], no micro; hem-boundary family row 102.3 -> 97.4 deg (green). Shoulder-span false is pre-existing at origin bytes (counterweight, not a regression). Skin/rig/morphs/animations untouched.",
   "st-palette R9 (sRGB-correct fold): renormalized the kept t-shirt photo texels in linear space to the case rose [0.62,0.28,0.38] (scale [1.8869,4.5947,3.3052]), re-encoded as sRGB; decoded mean within 0.00147. Bootcut jeans photo-albedo untouched (not a folded palette). Then re-applied hem-finish (--no-cut) through the recorded producer; geometry identical to round 2.",
-  "st-palette R5 (grafted hem): same round-4 rewrite defect on family (eyebrows 10912/11238->10027/12280, body +18, jeans +2 verts). Re-ran from origin bytes ee45f65c: t-shirt rose renorm (jeans photo-albedo untouched), then grafted hem-finish (9 untouched meshes byte-verified, nonGarmentChanged [])."
+  "st-palette R5 (grafted hem): same round-4 rewrite defect on family (eyebrows 10912/11238->10027/12280, body +18, jeans +2 verts). Re-ran from origin bytes ee45f65c: t-shirt rose renorm (jeans photo-albedo untouched), then grafted hem-finish (9 untouched meshes byte-verified, nonGarmentChanged []).",
+  "st-palette R6 (normal-preserving graft): the r5 graft copied Blender-recomputed flat per-face normals over the whole unwelded t-shirt (p50 6.92 deg drift on unmoved verts). graft-hem-garment.mjs now keeps the input vertex (POSITION+NORMAL+attributes) where finished POSITION drifted under 1 um and takes the finish only on moved verts. Re-ran from origin bytes ee45f65c (rose renorm byte-identical to r5, woven 70bd94ca), hem --no-cut. nrm bar: 5328/5328 stayed verts keep origin NORMAL byte-identical, p90 0.00, p99 non-zero only on the 72 moved hem verts."
  ],
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-12T16:29:00Z",
- "outputSha256": "e5c78c24cc0364f5a83b5bfda613be5fe98202c975872f9f295dfb1106564256",
- "outputBytes": 9575036,
+ "outputSha256": "3eda44f04f801b9cd9fb4a8fe9fbd778d185ed2f9dc68218c4c8170434cc2adb",
+ "outputBytes": 9575040,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:06:17.490Z",
@@ -128,10 +129,12 @@
   "stageModuleSha256": "834422e1195a1cb20590c797c67e45a7460265876e878330c80fe23b0cf41212",
   "garmentMesh": "makeclothes_library_toigo_t_shirt_mpfb_ed_chest_pain_spouse_adult_mesh",
   "inputSha256": "70bd94caca819008fbcbfa00645456db72e4a00d9007c84f0640b4604c77dc5a",
-  "outputSha256": "e5c78c24cc0364f5a83b5bfda613be5fe98202c975872f9f295dfb1106564256",
-  "outputBytes": 9575036,
-  "report": "/Volumes/files/openclinxr-assets/store/st-palette/r5-work/family-hem-r5.json",
-  "note": "t-shirt 2700 faces kept (hem leveled 1 loop); graft keeps every other mesh origin-identical (eyebrows 10912/11238, body 8869 verts, jeans 5708/11416); maskCutoff 0"
+  "outputSha256": "3eda44f04f801b9cd9fb4a8fe9fbd778d185ed2f9dc68218c4c8170434cc2adb",
+  "outputBytes": 9575040,
+  "report": "/Volumes/files/openclinxr-assets/store/st-palette/r6-work/family-hem-r6.json",
+  "note": "t-shirt 2700 faces kept (hem leveled 1 loop); per-vertex graft keeps 5328 stayed verts on input bytes (POSITION+NORMAL+all attributes, 1 um drift threshold) and takes the finish only on 72 moved hem verts; graft keeps every other mesh origin-identical (eyebrows 10912/11238, body 8869 verts, jeans 5708/11416); maskCutoff 0",
+  "graftTool": "tools/openclinxr/asset-pipeline/makeclothes/graft-hem-garment.mjs",
+  "graftToolSha256": "f2c8b41d2a1c32ec88d9972c2ce24b1181e55f7695a554e994e99873ef83f471"
  },
  "garmentWeaveFold": {
   "tool": "tools/openclinxr/asset-pipeline/makeclothes/attach-weave-base-color-textures.ts",
@@ -140,10 +143,10 @@
   "inputSha256": "ee45f65c0162208d9ca37f5a116c82d11d072def31b6429a6b32c74f040ee7cd",
   "inputBytes": 9277296,
   "wovenSha256": "70bd94caca819008fbcbfa00645456db72e4a00d9007c84f0640b4604c77dc5a",
-  "outputSha256": "e5c78c24cc0364f5a83b5bfda613be5fe98202c975872f9f295dfb1106564256",
-  "outputBytes": 9575036,
+  "outputSha256": "3eda44f04f801b9cd9fb4a8fe9fbd778d185ed2f9dc68218c4c8170434cc2adb",
+  "outputBytes": 9575040,
   "reports": [
-   "/Volumes/files/openclinxr-assets/store/st-palette/r5-work/family-renorm-r5.json"
+   "/Volumes/files/openclinxr-assets/store/st-palette/r6-work/family-renorm-r6.json"
   ],
   "effective": "t-shirt [0.6195,0.2785,0.3811] vs rose [0.62,0.28,0.38], miss 0.00147",
   "claimScope": "baseColorTexture bytes + baseColorFactor folds only; no geometry, skinning, morph or animation changes"
