@@ -144,10 +144,9 @@ const REPO_ROOT = repoRoot();
 /** Overridable so a destructive probe can point the same logic at a doctored asset. */
 const PROBE_GLB = process.env["OPENCLINXR_COLOUR_PROBE_GLB"];
 // st-palette round 2: the same assertions run as one row per shipped clinical
-// asset — kevin (the planted subject) plus the rebaked adult nurse. A probe run
-// points at a single doctored file instead. Clause (3)'s untextured-pants
-// control lives on kevin: the adult nurse ships both scrub garments textured
-// under the HB-02 fold, so only rows that declare a control run clause (3).
+// asset — kevin (the planted subject) plus the physician. A probe run
+// points at a single doctored file instead. Both rows carry the untextured-pants
+// control for clause (3); only rows that declare a control run it.
 // Kevin's assertions and bounds are byte-identical to the planted file.
 const ASSETS: readonly { path: string; control: boolean }[] = PROBE_GLB
   ? [{ path: PROBE_GLB, control: true }]
@@ -156,9 +155,12 @@ const ASSETS: readonly { path: string; control: boolean }[] = PROBE_GLB
         path: join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb"),
         control: true,
       },
+      // st-palette landing 2026-11-04: the adult nurse is back at its origin bytes (untextured
+      // factor-only scrubs, the R5 hem cut opened her waist), so her row moves to the physician:
+      // same library scrub_shirt, sRGB-folded weave texture, factor-only pants control.
       {
-        path: join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb"),
-        control: false,
+        path: join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb"),
+        control: true,
       },
     ];
 

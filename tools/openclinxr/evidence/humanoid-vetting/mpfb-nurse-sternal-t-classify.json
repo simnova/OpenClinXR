@@ -88,9 +88,9 @@
  "schemaVersion": "openclinxr.nurse-sternal-t-classify.v1",
  "subjects": {
   "adult": {
-   "bytes": 9189824,
+   "bytes": 8775848,
    "file": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-   "sha256": "f9ad39023e37b443b7a1f19a4d1de4f62e87a72534bb1875223374767543c12a",
+   "sha256": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c",
    "skinPrim": {
     "mat": 4,
     "name": "mpfb_skin_ed_chest_pain_nurse_adult",

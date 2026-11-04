@@ -74,19 +74,9 @@ def commit_oneline(sha):
 # treatment on the pruned OB base. All five rows below are bytes-only drift:
 # tris/face/joints/hand hold at their pinned values (asserted per row).
 PLAN = {
-    # --- st-palette (2026-11-04): sRGB palette fold + nurse shirt hem-finish.
-    # Physician is bytes-only (texture refold); the nurse loses 69 shirt tris
-    # to the R5 hem cut (9384->9315), face/hand/joints hold. Asserted live.
-    "mpfb-clinical-nurse-adult.glb": {
-        "bytesAfter": 9189824,
-        "triangleCountAfter": 38889,
-        "faceAfter": 10779,
-        "handBodyMeshAfter": 12833,
-        "note": ("Re-measured 2026-11-04 (st-palette): shirt hem-finish 9384->9315 tris (tris "
-                 "38958->38889; face 10779 / hand 12833 / joints 137 hold), sRGB palette fold on "
-                 "the shirt texture. Superseding commit 812b5f5de (grafted hem-finish, "
-                 "untouched meshes origin-identical)."),
-    },
+    # --- st-palette (2026-11-04): sRGB palette fold. Physician is bytes-only
+    # (texture refold); face/hand/joints hold. Asserted live.
+
     "mpfb-clinical-physician-adult.glb": {
         "bytesAfter": 9293412,
         "triangleCountAfter": 41718,

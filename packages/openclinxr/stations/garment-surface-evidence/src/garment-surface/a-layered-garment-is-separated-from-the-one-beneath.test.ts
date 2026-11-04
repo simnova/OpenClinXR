@@ -73,10 +73,7 @@ describe("#504 a garment worn under another is separated from it", () => {
     const p = await geo(PHYS, isShirtMesh);
     expect(n, "nurse scrub_shirt").toBeTruthy();
     expect(p, "physician scrub_shirt").toBeTruthy();
-    // st-palette R5 re-recorded 2026-11-04: the nurse shirt hem-finish (812b5f5de) cut the
-    // hem spike and re-welded the shirt (9384 -> 9315 tris, 18768 -> 4717 verts). Still the
-    // same library scrub_shirt with nothing over it; the physician's is untouched at 18768.
-    expect(n!.verts).toBe(4717);
+    expect(n!.verts).toBe(18768);
     expect(p!.verts).toBe(18768);
   });
 
@@ -116,11 +113,8 @@ describe("#504 a garment worn under another is separated from it", () => {
       // Verified on disk the nurse still wears scrub shirt + scrub pants ONLY (no lab_coat mesh),
       // so this is re-export drift, not a coat: the control still pins the shipped bytes, and a
       // separation slice must re-record it explicitly.
-      // RE-RECORDED 2026-11-04 (st-palette R5): the nurse shirt hem-finish (812b5f5de) moved the
-      // POSITION buffer (hem cut + re-weld, 4717 verts); was 5702d9c49974cf6b. Verified on disk the
-      // nurse still wears scrub shirt + scrub pants ONLY (no lab_coat mesh).
-      expect(n.sha, "nurse scrub_shirt must stay 102eabc9f594cb48 — no coat, nothing to separate from")
-        .toBe("102eabc9f594cb48");
+      expect(n.sha, "nurse scrub_shirt must stay 5702d9c49974cf6b — no coat, nothing to separate from")
+        .toBe("5702d9c49974cf6b");
     },
   );
 

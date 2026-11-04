@@ -143,18 +143,9 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // ci-w11b re-pinned 2026-10-30: ci-w11 D3 repaired midline breast keyframes
   // (d0e2104d3, rests already +-0.085); was
   // 4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9.
-  // st-palette R1/R5 re-pinned 2026-11-03: weave base-colour texture with HB-02 fold
-  // (factors -> [1,1,1], miss 0.00033) + hem-finish cut (scrub shirt [20,13] hem loops,
-  // waist 36 buckets 0 gapped min +1.0mm); 8775848 -> 8004128 B; was e217d3c9….
-  // st-palette header re-run 2026-11-03: first mask-stamp pass wrote GLB total 8004136
-  // for 8004128 bytes (three.js RangeError); re-ran fixed producer from nurse-copy3.glb,
-  // single-byte diff at offset 8; was 72871e05….
-  // st-palette licence-notice 2026-11-03: write-shipped-licence-notice.ts stamped the
-  // CC-BY scrub credit (asset block only, morph targets untouched);
-  // 8004128 -> 8004044 B; was 7bbca04e….
-  // st-palette C5 re-pinned 2026-11-04: graft hem re-run (shirt-only fold, untouched meshes
-  // kept at origin bytes: pants 2704, body 8437); 8775848 -> 9189824 B; was 54ac8849….
-  "mpfb-clinical-nurse-adult": "f9ad39023e37b443b7a1f19a4d1de4f62e87a72534bb1875223374767543c12a",
+  // st-weld re-pinned 2026-11-03: garment topology weld (post-export byte stage, not a rebake;
+  // bytes hold at 8775848); was 3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb.
+  "mpfb-clinical-nurse-adult": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c",
   // #504 re-pinned 2026-08-21: the physician's coat was pushed out 15 mm (wardrobe layer
   // separation); the viseme morph targets and every other buffer are untouched.
   // #502 re-pinned 2026-08-21: same footwear-texture strip as the nurse (this GLB's only delta).

@@ -174,16 +174,7 @@ describe("the nurse sternal T is classified from the GLB", () => {
       // (rests already +-0.085; size holds at 8775848); was 4f0a8c1d….
       // st-weld re-pinned 2026-11-03: garment topology weld (post-export byte stage, not a rebake;
       // shirt 4692 islands -> 1 component, kept_sharp 52/35; size holds at 8775848); was 3241acc6….
-      // st-palette R1/R5 re-pinned 2026-11-03: weave base-colour texture with HB-02 fold
-      // + hem-finish cut; 8775848 -> 8004128 B; was e217d3c9….
-      // st-palette header re-run 2026-11-03: fixed producer re-run from nurse-copy3.glb,
-      // single-byte diff at offset 8 (bad GLB total 8004136 -> 8004128); was 72871e05….
-      // st-palette licence-notice 2026-11-03: write-shipped-licence-notice.ts stamped the
-      // CC-BY scrub credit the weave/hem re-runs dropped (asset block only);
-      // 8004128 -> 8004044 B; was 7bbca04e….
-      // st-palette C5 re-pinned 2026-11-04: graft hem re-run (shirt-only fold, untouched meshes
-      // kept at origin bytes: pants 2704, body 8437); 8775848 -> 9189824 B; was 54ac8849….
-      [ADULT_GLB, "adult", 9189824, "f9ad39023e37b443b7a1f19a4d1de4f62e87a72534bb1875223374767543c12a"],
+      [ADULT_GLB, "adult", 8775848, "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c"],
     ] as const) {
       const glb = readGlb(path);
       expect(glb.bytes.length, `${key}: GLB length pinned`).toBe(bytes);

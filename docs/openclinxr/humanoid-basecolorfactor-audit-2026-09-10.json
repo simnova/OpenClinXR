@@ -718,9 +718,14 @@
   {
    "body": "mpfb-clinical-nurse-adult.glb",
    "material": "mat_makeclothes_library_scrub_shirt",
-   "baseColorFactor": null,
-   "hasBaseColorTexture": true,
-   "reason": "Untextured role colour [0.05,0.48,0.52]: the factor IS the albedo (no texture to multiply). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711. HB-02 left it unbaked (nothing to fold); recorded in docs/openclinxr/humanoid-albedo-bake-2026-09-10.json. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794. Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "baseColorFactor": [
+    0.05,
+    0.48,
+    0.52,
+    1
+   ],
+   "hasBaseColorTexture": false,
+   "reason": "Untextured role colour [0.05,0.48,0.52]: the factor IS the albedo (no texture to multiply). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711. HB-02 left it unbaked (nothing to fold); recorded in docs/openclinxr/humanoid-albedo-bake-2026-09-10.json. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794. Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Measured [0.05, 0.48, 0.52, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794.",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
     "line": 1794,
@@ -2054,7 +2059,7 @@
    "material": "openclinxr_real_garment_hospital_gown_phenotype_L0.001",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured [0.15000000596046448, 0.550000011920929, 0.8199999928474426, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1793. Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured [0.15000000596046448, 0.550000011920929, 0.8199999928474426, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1793. Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
     "line": 1793,
