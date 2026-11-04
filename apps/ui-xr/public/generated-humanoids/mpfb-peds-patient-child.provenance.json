@@ -72,8 +72,8 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-11T23:26:23Z",
- "outputSha256": "52ab0569b8172735e6b156af22c79fc0f424ee7fd494314aa8ccb65e0a770c01",
- "outputBytes": 10418728,
+ "outputSha256": "2f1ebcd1f7b293c9c7047e46cfa1296988f29f8bba14610156fa9d41a475a9b3",
+ "outputBytes": 10418700,
  "albedoBakeWrittenAt": "2026-09-11T23:26:23Z",
  "albedoBakeNote": "HB-07 attempt 5 full-chain rebake (materialize -> bake-humanoid-albedo.ts -> separate_chest_anchor_joints.mjs; decimation skipped, chosenRungId=raw). Capture-aligned 4096 screen-space unhide after REHIDE; garment-only occluder; sleeve prim4 f79/f190 restored to skin.",
  "command": "blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/materialize/mpfb-peds-patient-child.glb --reference peds_patient_child --actor-role patient | tsx tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts --inputs /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/materialize/mpfb-peds-patient-child.glb --outdir /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo --report /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo-report.json | node tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs --input /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo/mpfb-peds-patient-child.glb --output /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/final/mpfb-peds-patient-child.glb --report /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/chest-anchor.json --half-span-m 0.085",
@@ -136,18 +136,23 @@
  "garmentWeaveFold": {
   "tool": "tools/openclinxr/asset-pipeline/makeclothes/attach-weave-base-color-textures.ts",
   "toolSha256": "b5e0ddfae59253fb5d947a10066093a7df984aae4322b3b667c7a007f08507ec",
-  "mode": "REVERTED to origin bytes 52ab0569 (no fold): round-2 pants attach + round-4 t-shirt renormalize withdrawn",
-  "inputSha256": "7b5af70c31efa6a651b2ca07c36b743d16d81fb7a5ef695877efafa2d7e3d298",
-  "inputBytes": 10546592,
-  "wovenSha256": "52ab0569b8172735e6b156af22c79fc0f424ee7fd494314aa8ccb65e0a770c01",
-  "outputSha256": "52ab0569b8172735e6b156af22c79fc0f424ee7fd494314aa8ccb65e0a770c01",
-  "outputBytes": 10418728,
+  "mode": "renormalize t-shirt on origin bytes (kept photo texels), st-palette landing 2026-11-04",
+  "inputSha256": "52ab0569b8172735e6b156af22c79fc0f424ee7fd494314aa8ccb65e0a770c01",
+  "inputBytes": 10418728,
+  "wovenSha256": "2f1ebcd1f7b293c9c7047e46cfa1296988f29f8bba14610156fa9d41a475a9b3",
+  "outputSha256": "2f1ebcd1f7b293c9c7047e46cfa1296988f29f8bba14610156fa9d41a475a9b3",
+  "outputBytes": 10418700,
   "reports": [
-   "/Volumes/files/openclinxr-assets/store/st-palette/r4-work/maya-weave-r4.json",
-   "/Volumes/files/openclinxr-assets/store/st-palette/r4-work/maya-renorm-r4.json"
+   "/Volumes/files/openclinxr-assets/store/st-palette/r7-work/maya-renorm-r7.json"
   ],
-  "effective": "pants factor-only [0.55,0.68,0.8] (exact palette, no texture); t-shirt authored T-shirt_basic.png (effective 0.539,0.666,0.785, blue-dominant, palette-correct)",
-  "revertReason": "authored-texture cl.(3) cargo shell must stay flat + #400 documents the t-shirt keeps its authored texture + (2b) pins its authored effective (0.539,0.666,0.785); the fold added nothing the factor-only render did not already produce",
-  "claimScope": "byte restore of the recorded origin-producer output; no geometry, skinning, morph or animation changes"
+  "effective": "t-shirt [0.5496,0.6809,0.7980] vs soft_blue closed_casual [0.55,0.68,0.80], miss 0.00199; pants factor-only [0.55,0.68,0.8] untouched",
+  "claimScope": "byte restore of the recorded origin-producer output; no geometry, skinning, morph or animation changes",
+  "targets": [
+   "mat_makeclothes_library_toigo_t_shirt:0.55,0.68,0.8"
+  ],
+  "renormalize": true,
+  "replace": false,
+  "previousRevert": "authored-texture cl.(3) cargo shell must stay flat + #400 documents the t-shirt keeps its authored texture + (2b) pins its authored effective (0.539,0.666,0.785); the fold added nothing the factor-only render did not already produce",
+  "why": "The authored T-shirt_basic.png carried the HB-02 fold as sRGB bytes; with the shared sRGB-decoding reader its effective colour was (0.252,0.402,0.580), rendering darker than the declared soft blue. Pants stay factor-only, so the cargo-shell clause is unaffected; the authored-texture pins re-measure through the shared reader."
  }
 }

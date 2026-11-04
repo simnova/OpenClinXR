@@ -1,11 +1,11 @@
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { join } from "node:path";
-import { inflateSync } from "node:zlib";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import { listUniqueLiveCastMpfbAssetPaths } from "../../../../../../tools/openclinxr/evidence/live-scenario-actor-cast.js";
 import { makeclothesGarmentSlug, isWearableMeshName } from "../../../../../../tools/openclinxr/evidence/lib/garment-mesh-class.js";
 import { pngLuminanceSd } from "../../../../../../tools/openclinxr/evidence/mpfb-eyes-inspection.js";
+import { textureChannelMeans } from "../../../../../../tools/openclinxr/evidence/lib/effective-garment-colour.js";
 
 /**
  * #372 — a garment the pipeline fits must arrive with the material it was authored with.
@@ -279,9 +279,18 @@ const FLAT_BY_AUTHORED_STATE = new Set<string>([
  * (0.005): a factor-only recolour, a texture swap, or a palette-table edit that moves either
  * shirt still fails here, exactly as before.
  */
+/**
+ * RE-RECORDED (st-palette, 2026-11-04): the clause reads through the shared sRGB-decoding
+ * reader (tools/openclinxr/evidence/lib/effective-garment-colour.ts), so the pins are linear
+ * effective colours. aisha (0.092,0.156,0.092): bytes unchanged; her palette row is re-expressed
+ * as linear (0.0908,0.1559,0.0908), visual unchanged from the #506 grade. child (0.550,0.681,0.798):
+ * the authored T-shirt_basic.png was renormalized to soft blue (0.55,0.68,0.80) through
+ * attach-weave --renormalize (miss 0.00199); the decoded read had shown it dark (0.252,0.402,0.580).
+ * FACTOR_EPS untouched.
+ */
 const TOIGO_EFFECTIVE_COLOUR_BY_ACTOR: Readonly<Record<string, readonly [number, number, number]>> = {
-  "mpfb-ob-patient-aisha": [0.334, 0.431, 0.334],
-  "mpfb-peds-patient-child": [0.539, 0.666, 0.785],
+  "mpfb-ob-patient-aisha": [0.092, 0.156, 0.092],
+  "mpfb-peds-patient-child": [0.550, 0.681, 0.798],
 };
 const FACTOR_EPS = 0.005;
 
@@ -338,72 +347,6 @@ function jpegDimensions(bytes: Uint8Array): { width: number; height: number } | 
   if (!dims || dims.width === 0 || dims.height === 0) return null;
   if (bytes[bytes.length - 2] !== 0xff || bytes[bytes.length - 1] !== 0xd9) return null;
   return dims;
-}
-
-/**
- * Per-channel PNG means in 0..1 (alpha < 128 skipped). Same decoder shape as the declared-
- * palette test's textureChannelMeans (Paeth + all filters, 8-bit only): the HB-02 fold moved
- * the role colour out of baseColorFactor into the texels, so the clause that used to read the
- * factor reads factor x mean instead — the same effective colour the six sibling colour pins
- * were re-anchored to. Null on any undecodable input: an unmeasurable texture fails closed.
- */
-function textureChannelMeans(bytes: Uint8Array): [number, number, number] | null {
-  if (bytes.length < 8 || bytes[0] !== 0x89 || bytes[1] !== 0x50) return null;
-  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  let w = 0, h = 0, depth = 0, colour = -1;
-  const idat: Uint8Array[] = [];
-  let off = 8;
-  while (off + 8 <= bytes.length) {
-    const len = dv.getUint32(off);
-    const type = String.fromCharCode(bytes[off + 4]!, bytes[off + 5]!, bytes[off + 6]!, bytes[off + 7]!);
-    if (type === "IHDR") {
-      w = dv.getUint32(off + 8); h = dv.getUint32(off + 12);
-      depth = bytes[off + 16]!; colour = bytes[off + 17]!;
-    } else if (type === "IDAT") idat.push(bytes.subarray(off + 8, off + 8 + len));
-    else if (type === "IEND") break;
-    off += 12 + len;
-  }
-  const chans = colour === 0 ? 1 : colour === 2 ? 3 : colour === 4 ? 2 : colour === 6 ? 4 : 0;
-  if (depth !== 8 || !chans || !w) return null;
-  let raw: Buffer;
-  try {
-    raw = inflateSync(Buffer.concat(idat.map((c) => Buffer.from(c))));
-  } catch {
-    return null;
-  }
-  const stride = w * chans;
-  if (raw.length < (stride + 1) * h) return null;
-  const prev = new Uint8Array(stride);
-  const cur = new Uint8Array(stride);
-  const sums = [0, 0, 0];
-  let n = 0, p = 0;
-  for (let y = 0; y < h; y += 1) {
-    const f = raw[p++]!;
-    for (let x = 0; x < stride; x += 1) {
-      const rb = raw[p + x]!;
-      const a = x >= chans ? cur[x - chans]! : 0, b = prev[x]!, c = x >= chans ? prev[x - chans]! : 0;
-      let v: number;
-      if (f === 0) v = rb;
-      else if (f === 1) v = rb + a;
-      else if (f === 2) v = rb + b;
-      else if (f === 3) v = rb + ((a + b) >> 1);
-      else {
-        const pa = Math.abs(b - c), pb = Math.abs(a - c), pc = Math.abs(a + b - 2 * c);
-        v = rb + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c);
-      }
-      cur[x] = v & 0xff;
-    }
-    p += stride;
-    for (let x = 0; x < w; x += 1) {
-      const i = x * chans;
-      if (chans === 4 && cur[i + 3]! < 128) continue;
-      sums[0]! += cur[i]!; sums[1]! += cur[i + 1] ?? cur[i]!; sums[2]! += cur[i + 2] ?? cur[i]!;
-      n += 1;
-    }
-    prev.set(cur);
-  }
-  if (!n) return null;
-  return [sums[0]! / n / 255, sums[1]! / n / 255, sums[2]! / n / 255];
 }
 
 const io = new NodeIO();

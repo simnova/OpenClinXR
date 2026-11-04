@@ -1844,7 +1844,12 @@ _FABRIC_PALETTE_KIND_COLORS: Dict[str, Dict[str, tuple]] = {
         # texture mean (201,177,163) and read as nude whenever it is the only garment —
         # the OB patient and street-casual patients wear no cardigan. Muted olive-green:
         # ~152 RGB from that skin, distinct from the family muted-rose (0.42,0.36,0.40).
-        "closed_casual": (0.34, 0.44, 0.34, 1.0),
+        # st-palette 2026-11-04: declared value re-expressed as linear; visual unchanged from
+        # the #506 grade. HB-02 stored (0.34,0.44,0.34) as sRGB BYTES (85,110,85), so the graded
+        # dark olive is srgb_to_linear(85,110,85) (IEC 61966-2-1, shared reader) =
+        # (0.0908, 0.1559, 0.0908). Rendering the old float as linear gave a pale sage 43.9 RGB
+        # from that skin, which #506 (1) refuses.
+        "closed_casual": (0.0908, 0.1559, 0.0908, 1.0),
     },
 }
 

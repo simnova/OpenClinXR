@@ -1,11 +1,11 @@
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { readFileSync } from "node:fs";
-import { inflateSync } from "node:zlib";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { NodeIO } from "@gltf-transform/core";
 import { readEyeRow, eyeRowFromDoc, type EyeRow } from "../../../../../../tools/openclinxr/evidence/eye-colour-is-case-driven.js";
 import { isUpperMeshName } from "../../../../../../tools/openclinxr/evidence/lib/garment-mesh-class.js";
+import { effectiveBaseColorFactor } from "../../../../../../tools/openclinxr/evidence/lib/effective-garment-colour.js";
 
 /**
  * Every actor in the peds asthma station has the same brown eyes, by construction. A case definition
@@ -165,7 +165,10 @@ function sharedIrisAcrossDifferentAuthored(
  * cream. Measured separately so clause (3) does not compare across stations. */
 const OB_AISHA = "mpfb-ob-patient-aisha.glb";
 
-const OLIVE: [number, number, number] = [0.34, 0.44, 0.34];
+// st-palette 2026-11-04: the palette row is re-expressed as linear (automate_blender.py
+// olive_knit_and_cream_casual closed_casual); visual unchanged from the #506 grade. Was [0.34,0.44,0.34],
+// which HB-02 stored as sRGB bytes (85,110,85).
+const OLIVE: [number, number, number] = [0.0908, 0.1559, 0.0908];
 const TEAL: [number, number, number] = [0.05, 0.48, 0.52];
 const CYAN: [number, number, number] = [0.08, 0.52, 0.95];
 /**
@@ -194,58 +197,6 @@ type Row = {
 
 const io = new NodeIO();
 
-/** Per-channel mean of a PNG's opaque texels, or null for absent/non-PNG images. */
-function textureChannelMeans(bytes: Uint8Array): [number, number, number] | null {
-  if (bytes.length < 8 || bytes[0] !== 0x89 || bytes[1] !== 0x50) return null;
-  let w = 0, h = 0, depth = 0, colour = -1;
-  const idat: Uint8Array[] = [];
-  let off = 8;
-  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  while (off + 8 <= bytes.length) {
-    const len = dv.getUint32(off);
-    const type = String.fromCharCode(bytes[off + 4]!, bytes[off + 5]!, bytes[off + 6]!, bytes[off + 7]!);
-    if (type === "IHDR") {
-      w = dv.getUint32(off + 8); h = dv.getUint32(off + 12);
-      depth = bytes[off + 16]!; colour = bytes[off + 17]!;
-    } else if (type === "IDAT") idat.push(bytes.subarray(off + 8, off + 8 + len));
-    else if (type === "IEND") break;
-    off += 12 + len;
-  }
-  const chans = colour === 0 ? 1 : colour === 2 ? 3 : colour === 4 ? 2 : colour === 6 ? 4 : 0;
-  if (depth !== 8 || !chans || !w) return null;
-  let raw: Buffer;
-  try { raw = inflateSync(Buffer.concat(idat.map((c) => Buffer.from(c)))); } catch { return null; }
-  const stride = w * chans;
-  if (raw.length < (stride + 1) * h) return null;
-  let prev = new Uint8Array(stride);
-  const cur = new Uint8Array(stride);
-  const sums = [0, 0, 0]; let n = 0, p = 0;
-  for (let y = 0; y < h; y += 1) {
-    const f = raw[p++]!;
-    for (let x = 0; x < stride; x += 1) {
-      const rb = raw[p + x]!;
-      const a = x >= chans ? cur[x - chans]! : 0, b = prev[x]!, c = x >= chans ? prev[x - chans]! : 0;
-      let v: number;
-      if (f === 0) v = rb; else if (f === 1) v = rb + a; else if (f === 2) v = rb + b;
-      else if (f === 3) v = rb + ((a + b) >> 1);
-      else { const pa = Math.abs(b - c), pb = Math.abs(a - c), pc = Math.abs(a + b - 2 * c);
-             v = rb + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c); }
-      cur[x] = v & 0xff;
-    }
-    p += stride;
-    if (y % 4 !== 0) continue;
-    for (let x = 0; x < w; x += 4) {
-      const i = x * chans;
-      if (chans === 4 && cur[i + 3]! < 128) continue;
-      sums[0]! += cur[i]!; sums[1]! += cur[i + 1] ?? cur[i]!; sums[2]! += cur[i + 2] ?? cur[i]!;
-      n += 1;
-    }
-    prev = Uint8Array.from(cur);
-  }
-  if (!n) return null;
-  return [sums[0]! / n / 255, sums[1]! / n / 255, sums[2]! / n / 255];
-}
-
 async function measure(file: string): Promise<Row | null> {
   const doc = await io.read(join(REPO_ROOT, GENERATED, file));
   const eye = eyeRowFromDoc(doc);
@@ -258,13 +209,9 @@ async function measure(file: string): Promise<Row | null> {
         const c = mat.getBaseColorFactor();
         // HB-02 (22ec335a5): the shipped garment colour is the EFFECTIVE colour
         // (factor x per-channel texture mean), never the bare factor.
+        // st-palette R10: the one shared reader (sRGB-decodes each texel before averaging).
         const img = mat.getBaseColorTexture()?.getImage() ?? null;
-        const means = img ? textureChannelMeans(img) : null;
-        if (c) {
-          upperRgb = means
-            ? [c[0]! * means[0], c[1]! * means[1], c[2]! * means[2]]
-            : [c[0]!, c[1]!, c[2]!];
-        }
+        if (c) upperRgb = effectiveBaseColorFactor(Array.from(c), img);
       }
     }
   }
@@ -494,5 +441,16 @@ describe("eye colour is case-driven, not one constant for everyone", () => {
  *     (0.539,0.666,0.785), kevin teal (0.034,0.478,0.522), OB olive (0.334,0.431,0.334),
  *     parent rose (0.607,0.420,0.485) != child. MIN_GARMENT_CHANNEL_DELTA (0.05) and all
  *     pins (SOFT_BLUE/TEAL/OLIVE/CYAN) are untouched.
+ *
+ * ## FIXED (st-palette, 2026-11-04) — appended
+ *
+ * measure() read the upper texture with a private raw-byte mean. The st-palette fold writes
+ * sRGB-encoded texels, so the raw mean of kevin's re-folded scrub_shirt read (0.249,0.725,0.752),
+ * which (3c) calls cyan. measure() now calls the shared effectiveBaseColorFactor (sRGB decode
+ * per texel, then factor), the same reader the locked-colour and declared-fabric tests use.
+ * The maya t-shirt was renormalized to soft blue (miss 0.00199) because the decoded read showed
+ * it dark (0.252,0.402,0.580). OLIVE follows the palette row re-expressed as linear
+ * (0.0908,0.1559,0.0908); OB aisha's bytes are unchanged and read (0.0916,0.1560,0.0916).
+ * TEAL/SOFT_BLUE/CYAN and MIN_GARMENT_CHANNEL_DELTA are untouched.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */
