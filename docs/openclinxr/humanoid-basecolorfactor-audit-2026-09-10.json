@@ -673,7 +673,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -693,7 +693,7 @@
     "literal": "return (0.18, 0.13, 0.10, 1.0)  # nurse / default — mid-dark brown"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, nurse/default role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:159. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:240.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -713,7 +713,7 @@
     "literal": "_GARMENT_COLOR_SCRUB = (0.05, 0.48, 0.52, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). scrub lower, locked scrub colour (untextured cover shell or pre-strip fit). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -733,7 +733,7 @@
    },
    "kind": "untextured locked scrub role colour (HB-07 handback: cache PNG truncated, no IEND)",
    "decision": "resolved",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -750,7 +750,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -772,7 +772,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -794,7 +794,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -816,7 +816,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -838,7 +838,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -860,7 +860,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -882,7 +882,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -904,7 +904,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -921,7 +921,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -941,7 +941,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -957,11 +957,11 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7091,
+    "line": 7234,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7234",
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -981,7 +981,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -1001,7 +1001,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
+   "bodyLastChanged": "75836d908135789af76c8f47a923525319c4818e 2026-11-04 Restore the adult nurse to origin bytes; her R5 hem cut opened the waist"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1317,10 +1317,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7091,
+    "line": 7234,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7234",
    "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
@@ -1652,10 +1652,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7091,
+    "line": 7234,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7234",
    "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
@@ -1957,10 +1957,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7091,
+    "line": 7234,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7234",
    "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
@@ -2247,10 +2247,10 @@
     1
    ],
    "hasBaseColorTexture": false,
-   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
+   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7234.",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7091,
+    "line": 7234,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
@@ -2434,10 +2434,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7091,
+    "line": 7234,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7234",
    "bodyLastChanged": "cd985a7dc5bffc4ff91c9c6a063a5571ef72276b 2026-11-03 Stamp procedural provenance on the gown-inspect hospital gown"
   },
   {
@@ -2493,7 +2493,7 @@
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Fitted library garment; no tint authored. Factor absent = glTF default white; the baseColorTexture carries the look. Fit recorded in tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-fit-time.json. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2510,7 +2510,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2530,7 +2530,7 @@
     "literal": "return (0.13, 0.09, 0.07, 1.0)  # near-black"
    },
    "reason": "Role-driven hair colour from embed_library_hair hair_color. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:239.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2545,7 +2545,7 @@
    },
    "kind": "baked albedo: HB-02 per-texel fold of olive_knit_and_cream_casual palette closed_casual x authored weave",
    "decision": "resolved",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2560,7 +2560,7 @@
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2580,7 +2580,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2600,7 +2600,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2620,7 +2620,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2640,7 +2640,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2660,7 +2660,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2680,7 +2680,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2700,7 +2700,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2717,7 +2717,7 @@
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2737,7 +2737,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Authored brow colour. Factor IS the albedo (no texture to multiply). Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2753,11 +2753,11 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7091,
+    "line": 7234,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Authored lash colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "reason": "Authored lash colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7234",
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2777,7 +2777,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Authored teeth colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2797,7 +2797,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Authored tongue colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "d44fafa3148b5668efcd58852886ff839334bff3 2026-11-04 st-vitskin r1+r2: GLB-carried skin-shade hook reaches pixels via shared loader factory"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3094,10 +3094,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7091,
+    "line": 7234,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7234",
    "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
@@ -3420,10 +3420,10 @@
     1
    ],
    "hasBaseColorTexture": false,
-   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
+   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7234.",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7091,
+    "line": 7234,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
@@ -3723,10 +3723,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7091,
+    "line": 7234,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7234",
    "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
@@ -4066,10 +4066,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7091,
+    "line": 7234,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7234",
    "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
   },
   {
@@ -4402,10 +4402,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7091,
+    "line": 7234,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7234",
    "bodyLastChanged": "e35ee741a067fb3f47050255599b2af2008dd459 2026-11-03 st-hemfin: reusable hem-finish stage + 3 hem rebakes (#124)"
   },
   {
