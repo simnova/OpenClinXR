@@ -1,0 +1,112 @@
+{
+  "generator": "tools/openclinxr/asset-pipeline/eyes/vitruvian_eye_resample.py",
+  "licence": "CC0-1.0 (Vitruvian-Project)",
+  "sources": {
+    "iris": {
+      "path": "../../../../../Volumes/files/openclinxr-assets/store/vitruvian-src/4K/Vitruvian_Iris_BaseColor_Utility - Linear - sRGB.exr",
+      "sha256": "029bb1b8b243f5192a79ccda9f929491a97b9377595cc10924215280cdb40755"
+    },
+    "sclera": {
+      "path": "../../../../../Volumes/files/openclinxr-assets/store/vitruvian-src/4K/Vitruvian_Sclera_Cornea_BaseColor_Utility - Linear - sRGB.exr",
+      "sha256": "d320212dac7a5c95058ea1dbd06e7cc79fec6a4af426580ab3d3b4f0c2c9e9d0"
+    },
+    "template": {
+      "path": "tools/openclinxr/asset-pipeline/eyes/iris-centred-f.png",
+      "sha256": "2336581ae66367990012f1ab639b89e1cbee3f965455d0b17bd2509fce19f720"
+    }
+  },
+  "fitted_source": {
+    "iris_centre_px": [
+      2051.2,
+      2075.1
+    ],
+    "r_disc_src_px": 1890.0,
+    "r_wedge_src_px": 520.0,
+    "sclera_inner_band_src_px": 590,
+    "sclera_pink_onset_src_px": 940
+  },
+  "destination_geometry_px": {
+    "iris_radius": 133.5,
+    "limbus_band": 30.0,
+    "pupil_r": 38.0,
+    "centres": [
+      [
+        296.9,
+        723.9
+      ],
+      [
+        722.7,
+        302.5
+      ]
+    ],
+    "sclera_extent": 240.0,
+    "sclera_feather": 15.0
+  },
+  "sclera_target": {
+    "srgb_0_255": [
+      169,
+      170,
+      165
+    ],
+    "pink_desat": 0.75,
+    "pink_dlift": 0.5
+  },
+  "colours": {
+    "hazel": {
+      "oklch": {
+        "mode": "source-as-is"
+      }
+    },
+    "brown": {
+      "oklch": {
+        "mode": "oklch",
+        "dL": 0.0,
+        "Cscale": 1.0,
+        "h_abs": 44.0,
+        "L0": 0.31626690479876246,
+        "C0": 0.05946966923389165,
+        "h0": 59.70136632821393
+      }
+    },
+    "green": {
+      "oklch": {
+        "mode": "oklch",
+        "dL": 0.03,
+        "Cscale": 0.85,
+        "h_abs": 150.0,
+        "L0": 0.31626690479876246,
+        "C0": 0.05946966923389165,
+        "h0": 59.70136632821393
+      }
+    },
+    "blue": {
+      "oklch": {
+        "mode": "oklch",
+        "dL": 0.16,
+        "Cscale": 0.38,
+        "h_abs": 263.0,
+        "L0": 0.31626690479876246,
+        "C0": 0.05946966923389165,
+        "h0": 59.70136632821393
+      }
+    }
+  },
+  "outputs": {
+    "hazel": {
+      "path": "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-hazel.png",
+      "sha256": "91da080c1bbaca06099189245a44915bdc4aa556b7a2ee1a45552ab1a72f87c9"
+    },
+    "brown": {
+      "path": "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-brown.png",
+      "sha256": "04d7ce13f38ab13bf954ff4ef1ccf51a733821294b4acf4836acae77a42c862b"
+    },
+    "green": {
+      "path": "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-green.png",
+      "sha256": "e26dc8c96deb0d32f107d6fa3b15e398321b6a7b10c61fe0d701a5f4b76a786c"
+    },
+    "blue": {
+      "path": "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-blue.png",
+      "sha256": "775805c8c5db2074166d218348466bd5536e0eb21580a66cbad6a76b33e3f64d"
+    }
+  }
+}

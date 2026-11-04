@@ -54,16 +54,42 @@ _FAMILY_ROLE_TOKENS = ("family", "parent", "spouse", "guardian")
 # into the same eye-material slot with no UV change.
 _IRIS_DIFFUSE_OVERRIDE_BY_PACK_ID = {
     "brown": "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+    # st-viteye: hazel is not a pack id (eye_iris_colour still refuses it —
+    # no staged pack .mhmat), but it IS buildable: the CC0 Vitruvian polar
+    # resample. The materializer catches the selector refusal for hazel only
+    # and feeds this texture through the same TEXTURE_OVERRIDES slot.
+    "hazel": "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-hazel.png",
 }
+
+
+_VITRUVIAN_IRIS_TEXTURE_BY_COLOUR = {
+    "hazel": "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-hazel.png",
+    "brown": "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-brown.png",
+    "green": "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-green.png",
+    "blue": "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-blue.png",
+}
+
+
+def vitruvian_iris_texture(colour: str) -> str | None:
+    """Repo-relative path of the st-viteye CC0 Vitruvian resample for a colour.
+
+    Pure f(colour) -> path or None. Hazel is the source as-is; brown, green
+    and blue are the OKLCH remap (see vitruvian/manifest.json for fitted
+    geometry, OKLCH parameters and output shas). Returns None for colours
+    with no resample. Does NOT change eye_iris_colour return values.
+    """
+    return _VITRUVIAN_IRIS_TEXTURE_BY_COLOUR.get((colour or "").strip().lower())
 
 
 def iris_diffuse_override(pack_id: str) -> str | None:
     """Diffuse texture replacing the pack texture for a selected iris id.
 
-    Pure f(pack id) -> repo-relative texture path or None. Only "brown"
-    resolves (to the neutral brown texture above); every other id returns
-    None and the bake keeps the pack texture. eye_iris_colour return values
-    are unchanged — this maps the SELECTED id, never a role or phenotype.
+    Pure f(pack id) -> repo-relative texture path or None. "brown" resolves
+    to the neutral brown texture above; "hazel" resolves to the st-viteye
+    CC0 Vitruvian resample (not a pack id — the materializer catches the
+    selector refusal for hazel only); every other id returns None and the
+    bake keeps the pack texture. eye_iris_colour return values are unchanged
+    — this maps the SELECTED id, never a role or phenotype.
     """
     return _IRIS_DIFFUSE_OVERRIDE_BY_PACK_ID.get((pack_id or "").strip().lower())
 

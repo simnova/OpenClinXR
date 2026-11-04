@@ -1,0 +1,27 @@
+# Repo-authored MakeHuman material descriptor (st-viteye, 2026-11-04).
+#
+# Shape mirrors the CC0 makehuman_system_assets pack <colour>.mhmat files
+# (litsphere shader, diffuseTexture + diffuseColor) so the generic
+# make_material_from_mhmat path consumes it unchanged. The diffuseTexture is
+# the st-viteye polar resample of the CC0 Vitruvian-Project iris/sclera EXRs
+# (see tools/openclinxr/asset-pipeline/eyes/vitruvian/manifest.json and the
+# asset-licence ledger row for the Vitruvian source grant); only hazel ships
+# through this descriptor — brown/green/blue keep their pack materials.
+# NOT a pack id: eye_iris_colour still refuses hazel (no staged pack
+# material); the materializer catches that refusal for hazel only.
+
+name Eye_hazel_vitruvian
+tag OpenClinXR
+
+ambientColor 1.0 1.0 1.0
+diffuseColor 1.0 1.0 1.0
+specularColor 1.0 1.0 1.0
+emissiveColor 0.0 0.0 0.0
+
+transparent True
+alphaToCoverage True
+backfaceCull True
+
+diffuseTexture vitruvian-iris-hazel.png
+
+shader litsphere

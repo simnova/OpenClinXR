@@ -6827,10 +6827,23 @@ def main():
     from automate_blender import eye_iris_colour  # noqa: E402
     from iris_palette import iris_diffuse_override  # noqa: E402
 
-    _iris_key = eye_iris_colour(
-        args.actor_role,
-        {"eye_color": phenotype_eye_colour(args.eye_colour_reference or args.reference)},
-    )
+    _iris_key = None
+    try:
+        _iris_key = eye_iris_colour(
+            args.actor_role,
+            {"eye_color": phenotype_eye_colour(args.eye_colour_reference or args.reference)},
+        )
+    except ValueError:
+        # st-viteye: hazel has no staged pack .mhmat (the selector refusal is
+        # pinned), but it IS buildable via the repo-authored vitruvian
+        # hazel.mhmat + CC0 resample. Any other unbuildable name re-raises.
+        _declared_hazel = str(
+            phenotype_eye_colour(args.eye_colour_reference or args.reference) or ""
+        ).strip().lower()
+        if _declared_hazel != "hazel":
+            raise
+        _iris_key = "hazel"
+        print("EYE_IRIS_HAZEL_VITRUVIAN resolved via vitruvian hazel.mhmat")
     # Neutral-brown iris (tsk_b1604af3eb881268): with no explicit
     # --eye-texture, a resolved pack id swaps the pack diffuse for the neutral
     # texture through the SAME TEXTURE_OVERRIDES slot --eye-texture uses
@@ -6852,7 +6865,16 @@ def main():
         pathlib.Path(__file__).resolve().parents[4]
         / ".openclinxr-local/provider-cache/eyes/makehuman-system-assets"
     )
-    eye_mhmat = _eye_mat_dir / f"{_iris_key}.mhmat"
+    if _iris_key == "hazel":
+        # st-viteye: repo-authored descriptor next to the CC0 resample PNGs;
+        # the generic make_material_from_mhmat path resolves the sibling
+        # diffuseTexture, so no provider-cache staging is needed.
+        eye_mhmat = (
+            pathlib.Path(__file__).resolve().parents[3]
+            / "asset-pipeline/eyes/vitruvian/hazel.mhmat"
+        )
+    else:
+        eye_mhmat = _eye_mat_dir / f"{_iris_key}.mhmat"
     if not eye_mhmat.is_file():
         raise RuntimeError(
             f"#356: iris asset {_iris_key} missing in provider cache: {_eye_mat_dir} "
