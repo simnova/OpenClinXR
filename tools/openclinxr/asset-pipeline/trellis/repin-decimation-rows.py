@@ -98,11 +98,10 @@ PLAN = {
     },
     # --- HB-03 rows (bytes only; tris/face/hand/joints asserted unchanged) ---
     "mpfb-family-partner-adult.glb": {
-        "bytesAfter": 9575040,
+        "bytesAfter": 9277296,
         "triangleCountAfter": 39974,
         "handBodyMeshAfter": 13357,
-        "note": ("Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commits 812b5f5de/95e1c310a (sRGB palette fold, then hem-finish with untouched meshes grafted from origin). "
-                 "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
+        "note": ("Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
                  "(tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding "
                  "commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior "
                  "re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."),

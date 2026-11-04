@@ -687,7 +687,7 @@
         },
         {
           "material": "mat_makeclothes_library_toigo_t_shirt",
-          "decision": "superseded by the st-palette sRGB palette fold (station/palette 78747a966, 2026-11-03): kept photo texels renormalized in linear space to the case rose [0.62,0.28,0.38] with an integer-offset mean correction; texel = linear_to_srgb(palette x modulation), not round(before x factor). The colour is asserted by a-locked-clinical-colour-survives-its-garment-texture.test.ts (clinicians) and a-declared-fabric-palette-reaches-the-shipped-garment.test.ts (case palette) through the shared sRGB-decoding reader. Prior HB-02 decision and samples preserved in git history.",
+          "decision": "baked: per-texel texture x factor folded into the texture, factor reset to white",
           "sourceResolution": "2048x2048",
           "bakedResolution": "2048x2048",
           "ladderRungId": "bake-resolution-ladder.res2048",
