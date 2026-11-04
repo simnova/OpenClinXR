@@ -10,6 +10,12 @@ import {
 import type { SpeechSlotLike } from "@openclinxr/xr-dialogue/package-viseme";
 import { applyInnerMouthCavity } from "./inner-mouth-cavity-drive.js";
 import { applyLipSealForClosedViseme, namedJawFraction, speechFrameNowMs } from "./lip-seal-drive.js";
+import {
+  humanoidEyeSchedulePhaseMs,
+  sampleHumanoidBlinkSchedule,
+  sampleHumanoidGazeBout,
+} from "./conversational-eye-schedule.js";
+import type { HumanoidConversationEyeState } from "./conversational-eye-schedule.js";
 import type {
   GeneratedHumanoidAnimationSlot,
   HumanoidEmotionExpressionState,
@@ -75,46 +81,20 @@ export function computeAffectRampIntensity(
 }
 
 
-/**
- * Mean resting inter-blink interval, ms. 4,300 ms measured 13.5 blinks/min — below the
- * 15-20/min resting range; 3,400 ms measures 17.6/min, mid-range.
- */
-const BLINK_MEAN_INTERVAL_MS = 3400;
-/** Lid closure duration, ms. Unchanged. */
-const BLINK_CLOSURE_MS = 200;
-
-/**
- * Inter-blink interval for the nth blink since speech start. The original `elapsedMs % 4300`
- * was a metronome; this spreads the interval over [0.58, 1.42] x the mean (2,108-4,692 ms)
- * for a measured 17.6 blinks/min. DETERMINISTIC: jitter is a hash of the blink INDEX, so a
- * capture reproduces frame for frame. No seed, no state, no Math.random.
- */
-function blinkIntervalMs(index: number): number {
-  const hashed = Math.sin((index + 1) * 12.9898) * 43758.5453;
-  const fraction = hashed - Math.floor(hashed);
-  return BLINK_MEAN_INTERVAL_MS * (0.62 + fraction * 0.76);
-}
-
-/** Lid-closure intensity in [0,1] at `elapsedMs`, over the irregular blink schedule. */
-function blinkIntensityAt(elapsedMs: number): number {
-  let cursor = 0;
-  for (let index = 0; index < 100000; index++) {
-    const interval = blinkIntervalMs(index);
-    if (elapsedMs < cursor + interval) {
-      const closureStart = cursor + interval - BLINK_CLOSURE_MS;
-      if (elapsedMs <= closureStart) return 0;
-      return Math.sin(Math.PI * ((elapsedMs - closureStart) / BLINK_CLOSURE_MS));
-    }
-    cursor += interval;
-  }
-  return 0;
-}
-
-export function computeHumanoidEyeMotionMetrics(speech: HumanoidSpeechPlayback, nowMs: number): HumanoidEyeMotionMetrics {
-  const elapsedMs = Math.max(0, nowMs - speech.startedAtMs);
-  const microSaccadeYaw = Math.sin(elapsedMs / 173) * 0.018 + Math.sin(elapsedMs / 421) * 0.011;
-  const microSaccadePitch = Math.sin(elapsedMs / 229) * 0.012;
-  const blinkIntensity = blinkIntensityAt(elapsedMs);
+export function computeHumanoidEyeMotionMetrics(
+  speech: HumanoidSpeechPlayback,
+  nowMs: number,
+  state: HumanoidConversationEyeState = "talking",
+  stateElapsedMs = Math.max(0, nowMs - speech.startedAtMs),
+  suppressProceduralGaze = false,
+): HumanoidEyeMotionMetrics {
+  const elapsedMs = Math.max(0, stateElapsedMs);
+  const bout = sampleHumanoidGazeBout(elapsedMs, state);
+  const microYaw = Math.sin(elapsedMs / 173) * 0.018 + Math.sin(elapsedMs / 421) * 0.011;
+  const microPitch = Math.sin(elapsedMs / 229) * 0.012;
+  const microSaccadeYaw = suppressProceduralGaze ? 0 : microYaw + bout.yaw;
+  const microSaccadePitch = suppressProceduralGaze ? 0 : microPitch + bout.pitch;
+  const blinkIntensity = sampleHumanoidBlinkSchedule(elapsedMs, state).intensity;
   return {
     blinkIntensity: Number(blinkIntensity.toFixed(3)),
     microSaccadeYaw: Number(microSaccadeYaw.toFixed(3)),
@@ -268,21 +248,6 @@ export function resetHumanoidFaceRigControls(slot: GeneratedHumanoidAnimationSlo
  */
 
 /**
- * Per-actor phase offset for the rest blink. Fixes shared-sequence unison: slot-local origins
- * with a shared interval sequence made actors that fall silent together blink together
- * (planted RED: three idle actors, byte-identical closure series). Hash of the actor id, so a
- * capture reproduces exactly and the same actor keeps its schedule.
- */
-function restBlinkPhaseMs(actorId: string): number {
-  let hash = 0;
-  for (let index = 0; index < actorId.length; index++) {
-    hash = (hash * 31 + actorId.charCodeAt(index)) | 0;
-  }
-  const hashed = Math.sin(hash) * 43758.5453;
-  return (hashed - Math.floor(hashed)) * BLINK_MEAN_INTERVAL_MS;
-}
-
-/**
  * Blink drives the lid-tightener (eye-*-slit, AU7) alongside lid closure.
  *
  * DEFECT (CEO grade of docs/assets/speech-emotion-blink-closed-2026-09-17.png): lid closure
@@ -307,19 +272,45 @@ function applyBlinkSlitToRoot(root: Group, blinkIntensity: number): void {
   });
 }
 
-export function applyHumanoidRestBlink(slot: GeneratedHumanoidAnimationSlot, nowMs: number): number {
+export function applyHumanoidRestBlink(
+  slot: GeneratedHumanoidAnimationSlot,
+  nowMs: number,
+  state: HumanoidConversationEyeState = "rest",
+  stateElapsedMs?: number,
+  suppressProceduralGaze = false,
+): number {
   const bag = slot as unknown as Record<string, unknown>;
   if (typeof bag["_restBlinkOriginMs"] !== "number") bag["_restBlinkOriginMs"] = nowMs;
   const originMs = bag["_restBlinkOriginMs"] as number;
-  const blinkIntensity = blinkIntensityAt(Math.max(0, nowMs - originMs) + restBlinkPhaseMs(slot.actorId));
+  const elapsedMs = Math.max(0, stateElapsedMs ?? (nowMs - originMs)) + humanoidEyeSchedulePhaseMs(slot.actorId, state);
+  const blinkIntensity = sampleHumanoidBlinkSchedule(elapsedMs, state).intensity;
+  const gazeBout = sampleHumanoidGazeBout(elapsedMs, state);
+  const microYaw = Math.sin(elapsedMs / 173) * 0.018 + Math.sin(elapsedMs / 421) * 0.011;
+  const microPitch = Math.sin(elapsedMs / 229) * 0.012;
+  const gazeYaw = suppressProceduralGaze ? 0 : gazeBout.yaw + microYaw;
+  const gazePitch = suppressProceduralGaze ? 0 : gazeBout.pitch + microPitch;
+  const leftEye = slot.root.getObjectByName("openclinxr_left_eye_gaze_control");
+  const rightEye = slot.root.getObjectByName("openclinxr_right_eye_gaze_control");
   const leftUpperEyelid = slot.root.getObjectByName("openclinxr_left_upper_eyelid_blink_control");
   const rightUpperEyelid = slot.root.getObjectByName("openclinxr_right_upper_eyelid_blink_control");
+  rotateHumanoidRigControl(leftEye, gazePitch, gazeYaw, 0);
+  rotateHumanoidRigControl(rightEye, gazePitch * 0.92, gazeYaw * 0.9, 0);
   offsetHumanoidRigControl(leftUpperEyelid, 0, -blinkIntensity * 0.002, -blinkIntensity * 0.012);
   offsetHumanoidRigControl(rightUpperEyelid, 0, -blinkIntensity * 0.002, -blinkIntensity * 0.012);
   scaleHumanoidRigControl(leftUpperEyelid, 1, 1 + blinkIntensity * 1.8, 1);
   scaleHumanoidRigControl(rightUpperEyelid, 1, 1 + blinkIntensity * 1.8, 1);
   applyBlinkClosureToRoot(slot.root, blinkIntensity);
   applyBlinkSlitToRoot(slot.root, blinkIntensity);
+  slot.root.userData["openClinXrFaceRigRuntimeCue"] = {
+    conversationState: state,
+    gazeBoutKind: gazeBout.kind,
+    gazeBoutIndex: gazeBout.boutIndex,
+    blinkIntensity: Number(blinkIntensity.toFixed(3)),
+    microSaccadeYaw: Number(gazeYaw.toFixed(3)),
+    microSaccadePitch: Number(gazePitch.toFixed(3)),
+    cueIds: ["state_dependent_blink_schedule", "state_dependent_mutual_away_gaze_schedule"],
+    notEvidenceFor: "production facial animation quality, eye tracking, or clinical communication scoring",
+  };
   return blinkIntensity;
 }
 

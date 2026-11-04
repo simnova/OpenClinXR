@@ -14,28 +14,19 @@ import {
 import { generatedDriveScalar } from "@openclinxr/xr-runtime-state";
 import type { Object3D, PerspectiveCamera } from "three";
 import {
-  applyHumanoidFaceRigControls,
-  applyHumanoidMorphTargetCue,
-  applyHumanoidRestBlink,
-  computeAffectRampIntensity,
-  computeHumanoidEyeMotionMetrics,
-  normalizeHumanoidAnimationAngle,
-  resetHumanoidFaceRigControls,
-  roundHumanoidExpressionWeights,
-  updateHumanoidEmotionExpression,
-  visemeOpenness,
+  applyHumanoidFaceRigControls, applyHumanoidMorphTargetCue, applyHumanoidRestBlink,
+  computeAffectRampIntensity, computeHumanoidEyeMotionMetrics, normalizeHumanoidAnimationAngle,
+  resetHumanoidFaceRigControls, roundHumanoidExpressionWeights, updateHumanoidEmotionExpression, visemeOpenness,
 } from "./face-rig.js";
 import { buildHumanoidSpeechEvidence, isSupineSupportedFrame, resolveHumanoidGazeTargetWorld, updateHumanoidGazeCue, updateVirtualDeviceActorSpeechPulses } from "./gaze-evidence.js";
 import { snapshotLocoGroundTap } from "./loco-ground-tap-mod.js";
 import { driveSlotLocomotion } from "./locomotion-clip-playback-mod.js";
 import { resolveIdleLifePhaseSeconds } from "./locomotion-drive-clock-mod.js";
-import {
-  applyLocomotionOrderStanceLocks,
-  createLocomotionOrderRegistry,
-  stepLocomotionOrders,
-} from "./locomotion-order-mod.js";
+import { applyLocomotionOrderStanceLocks, createLocomotionOrderRegistry, stepLocomotionOrders } from "./locomotion-order-mod.js";
 import { recordMouthGazePoseComparatorEvidence } from "./mouth-gaze-pose-comparator-evidence.js";
 import { syncHumanoidSpeechEpochClock, writeHumanoidSpeechFrameEvidence } from "./speech-evidence.js";
+import { resolveConversationEyeFrame } from "./conversation-eye-runtime-state.js";
+import type { HumanoidConversationEyeState } from "./conversational-eye-schedule.js";
 import type {
   GeneratedHumanoidAnimationSlot,
   HumanoidActingCueRecord,
@@ -130,6 +121,7 @@ export function updateGeneratedHumanoidAnimations(
     }
   }
   const actorCues: HumanoidActingCueRecord[] = [];
+  const anyActorSpeaking = ctx.slots.some((entry) => entry.activeSpeech !== undefined);
   for (const slot of ctx.slots) {
     if (slot.sourceComparatorFreezeEnabled) {
       slot.mouthCue.visible = false;
@@ -289,7 +281,11 @@ export function updateGeneratedHumanoidAnimations(
       bodyMotionMode: bodyMotionCue.mode,
     });
     snapshotLocoGroundTap(slot, "posture");
-    updateHumanoidSpeechCue(ctx, slot, nowMs, camera);
+    const eyeFrame = resolveConversationEyeFrame(slot, anyActorSpeaking, nowMs);
+    // Authored gazeAversion drives the skinned eye bones above and wins over procedural
+    // mutual/away offsets by suppressing those offsets on the rig controls for this frame.
+    const authoredGazeAversion = generatedDriveScalar(slotDrive?.gazeAversion) !== null;
+    updateHumanoidSpeechCue(ctx, slot, nowMs, camera, eyeFrame.state, eyeFrame.elapsedMs, authoredGazeAversion);
   }
   ctx.recordActingCueEvidence(actorCues);
   updateVirtualDeviceActorSpeechPulses(ctx, nowMs);
@@ -303,6 +299,9 @@ export function updateHumanoidSpeechCue(
   slot: GeneratedHumanoidAnimationSlot,
   nowMs: number,
   camera: PerspectiveCamera,
+  conversationEyeState: HumanoidConversationEyeState = slot.activeSpeech ? "talking" : "rest",
+  stateElapsedMs = slot.activeSpeech ? Math.max(0, nowMs - slot.activeSpeech.startedAtMs) : 0,
+  suppressProceduralGaze = false,
 ): void {
   syncHumanoidSpeechEpochClock(slot, nowMs);
   const speech = slot.activeSpeech;
@@ -317,7 +316,7 @@ export function updateHumanoidSpeechCue(
     applyHumanoidMorphTargetCue(slot, 0, "rest", updateHumanoidEmotionExpression(slot, nowMs).weights, applyNamedSpeechVisemes);
     // A silent humanoid still blinks. Applied AFTER the reset and the morph cue, both of which
     // zero the lid channel, so neither can undo it.
-    applyHumanoidRestBlink(slot, nowMs);
+    applyHumanoidRestBlink(slot, nowMs, conversationEyeState, stateElapsedMs, suppressProceduralGaze);
     if (!isSupineSupportedFrame(slot)) slot.root.rotation.y += normalizeHumanoidAnimationAngle(slot.baseRotationY - slot.root.rotation.y) * 0.08;
     return;
   }
@@ -451,7 +450,7 @@ export function updateHumanoidSpeechCue(
   };
   slot.mouthCue.userData["openClinXrCurrentPhoneme"] = speech.phonemeSequence[0] ?? "sil";
   slot.mouthCue.userData["openClinXrCurrentViseme"] = viseme;
-  const eyeMotion = computeHumanoidEyeMotionMetrics(speech, nowMs);
+  const eyeMotion = computeHumanoidEyeMotionMetrics(speech, nowMs, conversationEyeState, stateElapsedMs, suppressProceduralGaze);
   applyHumanoidFaceRigControls(
     slot,
     openness,

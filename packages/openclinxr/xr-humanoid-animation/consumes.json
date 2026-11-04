@@ -212,12 +212,32 @@
         "via": "own-test"
       },
       {
+        "name": "humanoidBlinkIntervalMs",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "humanoidGazeBoutDurationMs",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "isGeneratedRuntimeDrive",
         "kind": "runtime",
         "via": "own-test"
       },
       {
         "name": "startHumanoidEmotionTransition",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "sampleHumanoidBlinkSchedule",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "sampleHumanoidGazeBout",
         "kind": "runtime",
         "via": "own-test"
       },

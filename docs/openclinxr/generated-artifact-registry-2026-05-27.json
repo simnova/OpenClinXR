@@ -42,7 +42,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1968,
+    "keep-evidence": 1969,
     "ignore-local-cache": 2787,
     "keep-current": 266,
     "keep-template": 17,
@@ -26746,6 +26746,20 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Skin-shade loader admission: admits createSkinShadeGLTFLoader and SKIN_SHADE_EXTENSION_NAME on the xr-scene ./skin-shade-loader subpath (tester candidate-capture and the xr-scene own test)."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/vitblink-eye-schedule-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Conversational eye-schedule admission: independently reviewed root exports bind the G1/G2 deterministic blink and Lee/Badler gaze schedule tests."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/exceptions/psr-c6-vitblink-eye-schedule-20261104.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Exact-measure C6 review for the four user-required conversational eye-schedule root exports; threshold remains unchanged and later drift re-refuses."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/footstep-plan-v1.json",

@@ -1,0 +1,52 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "vitblink-eye-schedule-v1",
+  "reviewedBy": "Codex GPT-5 independent API review /root/vitblink_api_review_default (not an author), 2026-11-04",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "c999df9bc550481a97bf17127e22777e17fae95e98baad77bf6f07ae800f593f",
+  "packages": [
+    "packages/openclinxr/xr-humanoid-animation"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "humanoidBlinkIntervalMs",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "st-vitblink-worker",
+      "rationale": "G2 measures the 120-second state-dependent blink rate through the package entrypoint in conversational-eye-schedule.test.ts.",
+      "reviewedBy": "Codex GPT-5 independent API review /root/vitblink_api_review_default (not an author), 2026-11-04"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "humanoidGazeBoutDurationMs",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "st-vitblink-worker",
+      "rationale": "G1 measures each Lee/Badler lognormal bout distribution's mean and SD through the package entrypoint.",
+      "reviewedBy": "Codex GPT-5 independent API review /root/vitblink_api_review_default (not an author), 2026-11-04"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "sampleHumanoidBlinkSchedule",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "st-vitblink-worker",
+      "rationale": "G2 verifies close/open asymmetry, 300 ms total duration, and full 1.0 closure through the package entrypoint.",
+      "reviewedBy": "Codex GPT-5 independent API review /root/vitblink_api_review_default (not an author), 2026-11-04"
+    },
+    {
+      "package": "packages/openclinxr/xr-humanoid-animation",
+      "entrypoint": ".",
+      "symbol": "sampleHumanoidGazeBout",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "st-vitblink-worker",
+      "rationale": "G1 verifies deterministic mutual/away alternation and stable away offsets through the package entrypoint.",
+      "reviewedBy": "Codex GPT-5 independent API review /root/vitblink_api_review_default (not an author), 2026-11-04"
+    }
+  ]
+}

@@ -16,6 +16,12 @@ export {
   updateHumanoidEmotionExpression,
 } from "./face-rig.js";
 export {
+  humanoidBlinkIntervalMs,
+  humanoidGazeBoutDurationMs,
+  sampleHumanoidBlinkSchedule,
+  sampleHumanoidGazeBout,
+} from "./conversational-eye-schedule.js";
+export {
   buildHumanoidSpeechEvidence,
   humanoidDialogueDurationMs,
   isGeneratedRuntimeDrive,
