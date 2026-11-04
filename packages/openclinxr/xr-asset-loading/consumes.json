@@ -184,6 +184,20 @@
     ]
   },
   {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": "./skin-shade-loader",
+    "names": [
+      {
+        "name": "createSkinShadeGLTFLoader",
+        "kind": "runtime"
+      },
+      {
+        "name": "SKIN_SHADE_EXTENSION_NAME",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-scene-cues",
     "entrypoint": ".",
     "names": [

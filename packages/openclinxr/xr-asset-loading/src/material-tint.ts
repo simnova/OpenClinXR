@@ -88,6 +88,13 @@ export function tintGeneratedMaterial(material: Mesh["material"], tint: Color): 
     return preserved;
   }
   const cloned = material.clone();
+  // st-vitlearn: loader-installed program hooks (the GLB-declared
+  // OPENCLINXR_skin_shade hook, eye parallax) live on onBeforeCompile /
+  // customProgramCacheKey, which clone() drops. Carry the source refs so the
+  // hooks survive the tint. For unhooked materials these are the prototype
+  // defaults, so behavior is unchanged.
+  cloned.onBeforeCompile = material.onBeforeCompile;
+  cloned.customProgramCacheKey = material.customProgramCacheKey;
   cloned.color.lerp(tint, 0.18);
   return cloned;
 }

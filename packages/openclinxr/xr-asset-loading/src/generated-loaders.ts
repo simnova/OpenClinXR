@@ -11,8 +11,8 @@ import {
   assertHumanoidRootUpright,
   sleeveDeformCueForAssetPath,
 } from "@openclinxr/xr-scene";
+import { createSkinShadeGLTFLoader } from "@openclinxr/xr-scene/skin-shade-loader";
 import { AnimationClip, BoxGeometry, type Group, Mesh, MeshStandardMaterial, SphereGeometry } from "three";
-import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { type LoadSceneSlotOptions, stampEquipmentSlotIdentity } from "./equipment-slot-identity.js";
 import { registerGeneratedHumanoidAnimation } from "./humanoid-animation.js";
@@ -82,8 +82,8 @@ export function loadGeneratedHumanoidIntoActorSlot(
   for (const child of primitiveFallbackChildren) {
     child.visible = false;
   }
-  const humanoidLoader = new GLTFLoader();
-  humanoidLoader.setMeshoptDecoder(MeshoptDecoder);
+  // st-vitlearn: humanoid slot uses the shared skin-shade loader factory (equipment/env stay bare).
+  const humanoidLoader = createSkinShadeGLTFLoader();
   const actorSpecificAssetPath = runtimeHumanoidVariantAssetPath(ctx, options.actorId, options.assetPath);
   const humanoidSourceProvenance = ctx.sourceProvenanceForPath(actorSpecificAssetPath);
   recordSceneAssetStatus({
