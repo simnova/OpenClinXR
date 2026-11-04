@@ -303,6 +303,8 @@ export type VariantDef = {
   portrait?: boolean;
   renderSize?: number;
   views?: number[];
+  /** st-vitskin H1: load the GLB through the shared skin-shade factory (default bare). */
+  skinShadeLoader?: boolean;
 };
 
 const TEXTURE_URL_KEYS = ["baseColorUrl", "normalUrl", "roughnessMapUrl", "aoMapUrl"] as const;
@@ -376,6 +378,15 @@ export function assertVariantLanded(variant: VariantDef, record: Record<string, 
   const skin = record.skinMaterial as Record<string, unknown> | null;
   if (!skin) throw new Error(`variant ${variant.id}: override did not land: no skinMaterial in live readout`);
   const skinOv = (variant.skinOverride ?? {}) as Record<string, unknown>;
+  if (variant.skinShadeLoader === true) {
+    // st-vitskin H2: factory mode must install from GLB bytes with zero overrides.
+    if ((variant.materialOverrides ?? []).length) fail("skinShadeLoader factory mode requires zero materialOverrides");
+    if (Object.keys(skinOv).length) fail("skinShadeLoader factory mode requires zero skinOverride");
+    if (record["skinShadeLoaderRequested"] !== true) fail("skinShadeLoader was not requested in the live readout");
+    const installed = record["skinShadeInstalledMaterials"] as unknown;
+    if (!Array.isArray(installed) || installed.length === 0) fail("skinShade hook did not install from the factory loader");
+    lines.push(`skinShadeLoader requested=true installed=${(installed as string[]).join(",")}`);
+  }
   if (skinOv.roughness != null) {
     const want = skinOv.roughness as number;
     const got = skin.roughness as number;
@@ -659,6 +670,7 @@ async function runVariantMode(input: { cwd: string; variantPath: string; outDir:
         hideHair: true,
         subjectOnly: true,
         renderSize: size,
+        ...(variant.skinShadeLoader === true ? { skinShadeLoader: true } : {}),
         ...(Object.keys(skinOv).length ? { skinOverride: skinOv } : {}),
         ...(matOvs.length ? { materialOverrides: matOvs } : {}),
         ...(variant.rigOverride ? { rigOverride: variant.rigOverride } : {}),
@@ -730,6 +742,7 @@ async function runVariantMode(input: { cwd: string; variantPath: string; outDir:
           rigOverride: variant.rigOverride ?? null,
           productEnvironmentId: variant.productEnvironmentId ?? null,
           portrait: variant.portrait ?? false,
+          skinShadeLoader: variant.skinShadeLoader ?? false,
         },
         glb: { path: glbAbs, sha256: glbSha256 },
         rig: rigFile,
@@ -751,6 +764,8 @@ async function runVariantMode(input: { cwd: string; variantPath: string; outDir:
         skinOverrideApplied: (dbg as { skinOverrideApplied?: unknown }).skinOverrideApplied ?? null,
         materialInventory: (dbg as { materialInventory?: unknown }).materialInventory ?? null,
         materialOverridesApplied: (dbg as { materialOverridesApplied?: unknown }).materialOverridesApplied ?? null,
+        skinShadeLoaderRequested: (dbg as { skinShadeLoaderRequested?: unknown }).skinShadeLoaderRequested ?? null,
+        skinShadeInstalledMaterials: (dbg as { skinShadeInstalledMaterials?: unknown }).skinShadeInstalledMaterials ?? null,
         productRig: (dbg as { productRig?: unknown }).productRig ?? null,
         portrait: (dbg as { portrait?: unknown }).portrait ?? null,
         runtimeDebug: debug,

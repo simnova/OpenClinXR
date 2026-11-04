@@ -105,7 +105,11 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // RE-PINNED for 1225b8f95 (st-redgarm D1 garment smoothing); was e7dc79e6….
   // st-weld2 re-pinned 2026-11-03: garment topology weld (post-export byte stage, not a rebake;
   // t-shirt 1350 islands -> 12 cloth-side pieces, textured UV seams kept; size holds at 9700420); was f5886010….
-  "mpfb-ob-patient-aisha": "081e9c44d6db879c627da55b9a86a2868ee0eea9634325afd1b17e23c37791c2",
+  // st-vitskin re-pinned 2026-11-04: skin-shade carrier stage (post-export byte
+  // stage, not a rebake; appends one RG image + OPENCLINXR_skin_shade material
+  // extension, geometry/BIN verbatim; size 9700420 -> 9914108);
+  // was 081e9c44d6db879c627da55b9a86a2868ee0eea9634325afd1b17e23c37791c2.
+  "mpfb-ob-patient-aisha": "3b9eb6242e1456c1a9df766bdd6c650f454d74d40405e3a6e8ab6ced20018fe7",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
   // table (drift at HEAD, pre-existing); was d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1.

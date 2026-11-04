@@ -27,6 +27,7 @@ import {
   type SkinOverrideApplied,
   collectMaterialInventory,
 } from "./isolated-subject-material-variants.js";
+import { skinShadeInstalled } from "./skin-shader/skin-shade.js";
 import type { ProductRigApplied } from "./isolated-subject-rig-variants.js";
 
 /**
@@ -145,9 +146,40 @@ export function projectBoxPx(
   return { x0, y0, x1, y1, heightPx: y1 - y0 };
 }
 
+/** Live skin-shade loader request bit, stashed on the subject root by the assembly. */
+function readSkinShadeLoaderRequested(root: Object3D): boolean {
+  let requested = false;
+  root.traverse((o) => {
+    if ((o.userData as { openClinXrSkinShadeLoader?: unknown }).openClinXrSkinShadeLoader === true) {
+      requested = true;
+    }
+  });
+  return requested;
+}
+
+/** Live skin-shade install set: material names where the hook installed (factory or override path). */
+function collectSkinShadeInstalledMaterials(root: Object3D): string[] {
+  const out: string[] = [];
+  root.traverse((o) => {
+    if (!(o instanceof Mesh)) return;
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    for (const m of mats) {
+      if (!m) continue;
+      if (skinShadeInstalled(m as object) && !out.includes((m as { name?: string }).name ?? "")) {
+        out.push(`${o.name}|${(m as { name?: string }).name ?? "unnamed"}`);
+      }
+    }
+  });
+  return out.sort();
+}
+
 /** Skin-realism portrait: live renderer/lights/material values read from the scene, never source-read. */
 export function collectRuntimeDebug(input: { renderer: WebGLRenderer; scene: Scene; root: Object3D; hairHidden: boolean; hiddenHairMeshes: string[]; skinOverrideApplied: SkinOverrideApplied | null; materialOverridesApplied: MaterialOverrideApplied[] | null; productRig: ProductRigApplied | null; portrait: { fovDeg: number; fillTarget: number; distanceM: number; headHeightPx: number; headBoxPx: { x0: number; y0: number; x1: number; y1: number }; yawDegrees: number } | null }): unknown {
   const { renderer, scene, root, hairHidden, hiddenHairMeshes, skinOverrideApplied, materialOverridesApplied, productRig, portrait } = input;
+  // st-vitskin H1: the loader flag is stashed on the subject root by the
+  // assembly (the lab module is frozen by the fresnel source pin), so the
+  // request bit and the install set are both read live from the scene.
+  const skinShadeLoaderRequested = readSkinShadeLoaderRequested(root);
   const lights: Array<{ type: string; color: string; groundColor?: string; role?: string; intensity: number; position: { x: number; y: number; z: number } }> = [];
   scene.traverse((o) => {
     if (o instanceof Light) {
@@ -216,5 +248,9 @@ export function collectRuntimeDebug(input: { renderer: WebGLRenderer; scene: Sce
     portrait,
     hairHidden,
     hiddenHairMeshes,
+    // st-vitskin H1: factory-install readback — true only when the GLB-declared
+    // extension installed the hook via the loader plugin, never via overrides.
+    skinShadeLoaderRequested: skinShadeLoaderRequested === true,
+    skinShadeInstalledMaterials: collectSkinShadeInstalledMaterials(root),
   };
 }

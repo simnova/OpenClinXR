@@ -68,7 +68,7 @@
    "triangleCountBefore": 92430,
    "triangleCountAfter": 73392,
    "bytesBefore": 13170972,
-   "bytesAfter": 9700420,
+   "bytesAfter": 9914108,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "faceBefore": 52778,
    "faceAfter": 52778,
@@ -112,7 +112,7 @@
    ],
    "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
    "lineageNote": "tightjeans re-bake output; second fp-r0.4 pass (2803b774) then albedo bake (42c42140)",
-   "remeasureNote": "Re-measured 2026-11-02 (st-redgarm D1): flats 558->1004 tris (+446; tris 72946->73392, face 52778 / joints 137 hold). Superseding commit 1225b8f95 (D1 garment smooth: full-res flats transplant + 60-deg post-export smooth). Prior re-measure (ci-w11b bytes-only drift) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage (post-export byte stage, not a rebake; one RG image + OPENCLINXR_skin_shade material extension appended, geometry/BIN verbatim; tris 73392 / face 52778 / joints 137 hold, 9700420 -> 9914108 B). Prior re-measure (st-redgarm D1, 1225b8f95) preserved in git history."
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",

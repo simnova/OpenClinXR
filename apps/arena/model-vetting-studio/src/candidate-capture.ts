@@ -35,8 +35,7 @@ import { magentaSwapMaterials } from "./hide-mask-magenta.js";
 import { selectBodyMotionProbeClip, selectBodyMotionProbeClipName } from "./body-motion-probe-clip.js";
 // Public surface kept on this module: the capture contract and evidence tests import here.
 export { selectBodyMotionProbeClipName };
-import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { createSkinShadeGLTFLoader } from "@openclinxr/xr-scene";
 import type { ModelVettingStudioEvidence } from "./studio-state.js";
 import { glbUrlForPath } from "./glb-url-for-path.js";
 import {
@@ -244,8 +243,7 @@ export async function renderCandidateCapture(input: {
     scene.add(grid);
   }
 
-  const loader = new GLTFLoader();
-  loader.setMeshoptDecoder(MeshoptDecoder);
+  const loader = createSkinShadeGLTFLoader();
   const glbUrl = glbUrlForPath(candidate.sourceGlbPath);
   const gltf = await loader.loadAsync(glbUrl);
   const model = gltf.scene;
@@ -674,8 +672,7 @@ export async function renderDualCandidateCapture(input: {
   const grid = new GridHelper(6, 20, "#80c7ad", "#31483f");
   scene.add(grid);
 
-  const loader = new GLTFLoader();
-  loader.setMeshoptDecoder(MeshoptDecoder);
+  const loader = createSkinShadeGLTFLoader();
   const [leftGltf, rightGltf] = await Promise.all([
     loader.loadAsync(glbUrlForPath(leftCandidate.sourceGlbPath)),
     loader.loadAsync(glbUrlForPath(rightCandidate.sourceGlbPath)),

@@ -110,5 +110,15 @@
         "kind": "type"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "createSkinShadeGLTFLoader",
+        "kind": "runtime"
+      }
+    ]
   }
 ]

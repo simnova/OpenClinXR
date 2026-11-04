@@ -132,13 +132,14 @@ PLAN = {
     # (replace-garment-primitive.ts restores pre-HB-05 full-res prims + proven 60-deg
     # post-export smooth).
     "mpfb-ob-patient-aisha.glb": {
-        "bytesAfter": 9700420,
+        "bytesAfter": 9914108,
         "triangleCountAfter": 73392,
-        "note": ("Re-measured 2026-11-02 (st-redgarm D1): flats 558->1004 tris "
-                 "(+446; tris 72946->73392, face 52778 / joints 137 hold). Superseding "
-                 "commit 1225b8f95 (D1 garment smooth: full-res flats transplant + "
-                 "60-deg post-export smooth). Prior re-measure (ci-w11b bytes-only drift) "
-                 "preserved in git history."),
+        "note": ("Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage "
+                 "(post-export byte stage, not a rebake; one RG image + "
+                 "OPENCLINXR_skin_shade material extension appended, geometry/BIN "
+                 "verbatim; tris 73392 / face 52778 / joints 137 hold, "
+                 "9700420 -> 9914108 B). Prior re-measure (st-redgarm D1, "
+                 "1225b8f95) preserved in git history."),
     },
     "mpfb-peds-nurse-kevin.glb": {
         "bytesAfter": 15966652,

@@ -137,7 +137,7 @@
   {
    "body": "mpfb-ob-patient-aisha.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 9700420,
+   "bytesAfter": 9914108,
    "bytesBefore": 17002120,
    "chosenRungId": "fp-r0.4",
    "faceAfter": 52778,
@@ -154,7 +154,7 @@
    "promotionNote": "2026-09-12 fp-r0.4 restore after female covering lower. Fit-time jeans 4216 (2108 x 2). Shipped jeans 1986. budgets.propShare 40000 unchanged.",
    "triangleCountAfter": 73392,
    "triangleCountBefore": 92430,
-   "remeasureNote": "Re-measured 2026-11-02 (st-redgarm D1): flats 558->1004 tris (+446; tris 72946->73392, face 52778 / joints 137 hold). Superseding commit 1225b8f95 (D1 garment smooth: full-res flats transplant + 60-deg post-export smooth). Prior re-measure (ci-w11b bytes-only drift) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage (post-export byte stage, not a rebake; one RG image + OPENCLINXR_skin_shade material extension appended, geometry/BIN verbatim; tris 73392 / face 52778 / joints 137 hold, 9700420 -> 9914108 B). Prior re-measure (st-redgarm D1, 1225b8f95) preserved in git history."
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",

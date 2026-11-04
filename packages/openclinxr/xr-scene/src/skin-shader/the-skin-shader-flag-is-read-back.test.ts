@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { Buffer } from "node:buffer";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,6 +14,13 @@ import {
   MeshStandardMaterial,
   TextureLoader,
 } from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+// Arch D2: the loader factory binds through the entrypoint (own-test via),
+// so testInternalImports holds at 10 with no new internal import.
+import {
+  createSkinShadeGLTFLoader,
+  SKIN_SHADE_EXTENSION_NAME,
+} from "../index.js";
 // Arch D2: the gate test imports exactly one entrypoint-reachable module
 // (the portrait flag path it must exercise) plus ./png-crop.js (unreachable
 // from the entrypoint, so it does not count). The pre-existing
@@ -389,4 +397,132 @@ describe("the skin renders at skin IOR (swap units)", { timeout: 60000 }, () => 
     });
   });
 
+});
+
+/**
+ * st-vitskin D5: the shared loader factory installs the hook from
+ * GLB-declared bytes; a stock loader on the same bytes installs nothing.
+ * The GLB is minimal but complete (scene/node/mesh/material + the
+ * OPENCLINXR_skin_shade extension + one texture); the image never decodes
+ * (node has no image decoder) because TextureLoader.loadAsync is stubbed to
+ * the GLB's texture — the same stand-in posture as withCurvatureTexture.
+ * Installation is proved through the installed hook's own uniforms
+ * (uSkinCurvMap identity with the GLB texture), not the internal readback
+ * helpers (skinShadeInstalled stays entrypoint-unreachable per the
+ * public-surface admission freeze).
+ */
+const TINY_PNG_BASE64 =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+
+function tinySkinGltf(): string {
+  const positions = new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]);
+  const indices = new Uint16Array([0, 1, 2]);
+  const bin = Buffer.concat([Buffer.from(positions.buffer), Buffer.from(indices.buffer)]);
+  return JSON.stringify({
+    asset: { version: "2.0" },
+    scene: 0,
+    scenes: [{ nodes: [0] }],
+    nodes: [{ mesh: 0, name: "body" }],
+    meshes: [
+      {
+        name: "body",
+        primitives: [{ attributes: { POSITION: 0 }, indices: 1, material: 0 }],
+      },
+    ],
+    materials: [
+      {
+        name: "mpfb_skin_ob_patient_aisha_v1",
+        extensions: {
+          [SKIN_SHADE_EXTENSION_NAME]: { curvatureTexture: { index: 0 } },
+        },
+      },
+    ],
+    extensionsUsed: [SKIN_SHADE_EXTENSION_NAME],
+    textures: [{ source: 0 }],
+    images: [{ uri: `data:image/png;base64,${TINY_PNG_BASE64}` }],
+    accessors: [
+      {
+        bufferView: 0,
+        componentType: 5126,
+        count: 3,
+        type: "VEC3",
+        max: [1, 1, 0],
+        min: [0, 0, 0],
+      },
+      { bufferView: 1, componentType: 5123, count: 3, type: "SCALAR" },
+    ],
+    bufferViews: [
+      { buffer: 0, byteOffset: 0, byteLength: 36 },
+      { buffer: 0, byteOffset: 36, byteLength: 6 },
+    ],
+    buffers: [{ uri: `data:application/octet-stream;base64,${bin.toString("base64")}`, byteLength: 42 }],
+  });
+}
+
+function skinMaterialsOf(root: Group): MeshStandardMaterial[] {
+  const out: MeshStandardMaterial[] = [];
+  root.traverse((o) => {
+    if (o instanceof Mesh) {
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      for (const m of mats) {
+        if (m instanceof MeshStandardMaterial && m.name === "mpfb_skin_ob_patient_aisha_v1") {
+          out.push(m);
+        }
+      }
+    }
+  });
+  return out;
+}
+
+describe("the skin shade loader installs the hook from GLB bytes", () => {
+  it("factory: extension-carrying material reports installed, curvature bound to the GLB texture", async () => {
+    const platform = globalThis as unknown as { ProgressEvent?: typeof Event; self?: unknown };
+    if (!platform.ProgressEvent) platform.ProgressEvent = class extends Event {};
+    // GLTFLoader.loadImageSource reads self.URL (browser global); the image
+    // itself never decodes here: the parser drives TextureLoader.load
+    // (ImageLoader inside, DOM-bound), so stub load to hand back the GLB's
+    // texture the same way withCurvatureTexture stands in for loadAsync.
+    if (platform.self === undefined) platform.self = globalThis;
+    const fake = new DataTexture(new Uint8Array([128, 128, 128, 255]), 1, 1);
+    const orig = TextureLoader.prototype.load;
+    TextureLoader.prototype.load = ((url: unknown, onLoad?: (tex: unknown) => void) => {
+      queueMicrotask(() => onLoad?.(fake));
+      return fake;
+    }) as never;
+    try {
+      const gltf = await createSkinShadeGLTFLoader().parseAsync(tinySkinGltf(), "");
+      const mats = skinMaterialsOf(gltf.scene);
+      expect(mats.length, "one skin material loads").toBe(1);
+      const shader = stubShader();
+      mats[0]!.onBeforeCompile(shader as never, {} as never);
+      expect(
+        shader.uniforms["uSkinCurvMap"]?.value,
+        "curvature uniform is the GLB texture",
+      ).toBe(fake);
+      expect(shader.uniforms["uSkinTCoef"]?.value, "factory installs at default strength").toBeCloseTo(0.08, 10);
+      expect(shader.fragmentShader).toMatch(/texture2D\(uSkinCurvMap, skinUv\)/);
+    } finally {
+      TextureLoader.prototype.load = orig;
+    }
+  });
+
+  it("counterweight: stock GLTFLoader on the same bytes installs nothing", async () => {
+    const platform = globalThis as unknown as { ProgressEvent?: typeof Event };
+    if (!platform.ProgressEvent) platform.ProgressEvent = class extends Event {};
+    await withCurvatureTexture(async () => {
+      // A bare loader — the pre-card tester path. If the plugin ever leaks
+      // onto the stock path, this fails.
+      const gltf = await new GLTFLoader().parseAsync(tinySkinGltf(), "");
+      const mats = skinMaterialsOf(gltf.scene);
+      expect(mats.length, "one skin material loads").toBe(1);
+      const shader = stubShader();
+      const beforeFrag = shader.fragmentShader;
+      mats[0]!.onBeforeCompile(shader as never, {} as never);
+      expect(shader.fragmentShader, "stock loader leaves the program untouched").toBe(beforeFrag);
+      expect(
+        Object.keys(shader.uniforms).filter((k) => k.startsWith("uSkin")),
+        "no skin uniforms on the stock path",
+      ).toEqual([]);
+    });
+  });
 });

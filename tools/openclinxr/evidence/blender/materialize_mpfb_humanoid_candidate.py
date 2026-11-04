@@ -3841,6 +3841,148 @@ def patch_glb_eye_occlusion(path, blend):
     print(f"GLB_EYESHELL_UNLIT {path} materials {','.join(sorted(patched))}")
 
 
+# st-vitskin: skin-shade GLB carrier. The tester and the learner build their
+# loaders from the shared factory (xr-scene skin-shade-loader.ts), whose
+# OPENCLINXR_skin_shade plugin resolves this material extension's
+# textureInfo through parser.getDependency('texture', index) and installs
+# applySkinShade with the texture as the curvature(R)+cavity(G) map.
+SKIN_SHADE_EXTENSION_NAME = "OPENCLINXR_skin_shade"
+SKIN_SHADE_SKIN_MATERIAL = "mpfb_skin_ob_patient_aisha_v1"
+SKIN_SHADE_CURVATURE_SRC = (
+    "/Volumes/files/openclinxr-assets/store/skin-maps/aisha-curvature-1024.png"
+)
+SKIN_SHADE_CURVATURE_SHA256 = (
+    "803293a9bd9ede025590da827d62b081a55ce6c252ec16c17a1492fb6f35268a"
+)
+SKIN_SHADE_CAVITY_SRC = (
+    "/Volumes/files/openclinxr-assets/store/skin-maps/aisha-cavity-1024.png"
+)
+SKIN_SHADE_CAVITY_SHA256 = (
+    "140345e1001dce61c798565871e8381f534618c1833c7cfca10b8e1e5f580edf"
+)
+# R=curvature G=cavity B=0, merged deterministically from the two store maps
+# with PIL (no metadata). Byte-exact PNG equality does NOT hold across
+# Pillow builds (encoder bytes differ; pixels identical), so the guard
+# below verifies decoded pixel content, not the digest. The digest of the
+# produced bytes is printed for the provenance sidecar.
+# Historical scratch value (specular-report.json inputs.combinedRG):
+# 6aa0a0a859444f94545752cd1a0d13f0ce0cfbb11f8e4c41a764efcb29a96c2d
+SKIN_SHADE_COMBINED_SHA256 = (
+    "6aa0a0a859444f94545752cd1a0d13f0ce0cfbb11f8e4c41a764efcb29a96c2d"
+)
+
+
+def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
+    """Embed the Aisha curvature+cavity RG map and declare the skin extension.
+
+    Reads the two store maps (sha-pinned), merges R=curvature G=cavity B=0
+    deterministically, appends the PNG as a dedicated core image + texture,
+    and stamps the material extension
+    {OPENCLINXR_skin_shade: {curvatureTexture: {index}}}. The extension goes
+    in extensionsUsed, NEVER extensionsRequired, so a stock loader still
+    loads the bytes (hook absent). Mechanical JSON re-serialization; geometry
+    and BIN bytes are copied verbatim. Refuses when the skin material is
+    missing or already carries the extension (a rebake runs this once).
+    """
+    import hashlib as _hashlib
+    from PIL import Image as _PILImage
+
+    for src, want in (
+        (SKIN_SHADE_CURVATURE_SRC, SKIN_SHADE_CURVATURE_SHA256),
+        (SKIN_SHADE_CAVITY_SRC, SKIN_SHADE_CAVITY_SHA256),
+    ):
+        with open(src, "rb") as f:
+            got = _hashlib.sha256(f.read()).hexdigest()
+        if got != want:
+            raise RuntimeError(
+                f"SKINSHADE: input {src} sha {got} != pinned {want} — refusing"
+            )
+    curv = _PILImage.open(SKIN_SHADE_CURVATURE_SRC).convert("L")
+    cav = _PILImage.open(SKIN_SHADE_CAVITY_SRC).convert("L")
+    if curv.size != (1024, 1024) or cav.size != (1024, 1024):
+        raise RuntimeError(
+            f"SKINSHADE: map sizes {curv.size} {cav.size}, want 1024x1024 — refusing"
+        )
+    import io as _io
+
+    buf = _io.BytesIO()
+    _PILImage.merge("RGB", (curv, cav, _PILImage.new("L", curv.size, 0))).save(buf, format="PNG")
+    png_bytes = buf.getvalue()
+    # Content guard (not a digest pin): the merged bytes must decode back to
+    # the exact source pixels — R == curvature, G == cavity. PNG encoder
+    # bytes drift across Pillow builds, so a digest pin would refuse a
+    # correct rebake; pixel identity is what the shader samples.
+    from PIL import ImageChops as _ImageChops
+
+    _verify = _PILImage.open(_io.BytesIO(png_bytes))
+    _vr, _vg, _vb = _verify.split()
+    for _chan, _src, _name in ((_vr, curv, "R=curvature"), (_vg, cav, "G=cavity")):
+        if _ImageChops.difference(_chan, _src).getbbox() is not None:
+            raise RuntimeError(
+                f"SKINSHADE: merged PNG {_name} pixels differ from the store map — refusing"
+            )
+    if _vb.getbbox() is not None:
+        raise RuntimeError("SKINSHADE: merged PNG B channel must be zero — refusing")
+
+    with open(path, "rb") as f:
+        data = bytearray(f.read())
+    if data[:4] != b"glTF":
+        raise RuntimeError(f"SKINSHADE: not a GLB: {path}")
+    json_len = struct.unpack("<I", data[12:16])[0]
+    json_end = 20 + json_len
+    gltf = json.loads(data[20:json_end])
+    targets = [m for m in gltf.get("materials", []) if m.get("name") == material_name]
+    if len(targets) != 1:
+        raise RuntimeError(
+            f"SKINSHADE: want exactly 1 material {material_name}, found {len(targets)} in {path}"
+        )
+    mat = targets[0]
+    if SKIN_SHADE_EXTENSION_NAME in (mat.get("extensions") or {}):
+        raise RuntimeError(
+            f"SKINSHADE: {material_name} already carries {SKIN_SHADE_EXTENSION_NAME} — refusing double embed"
+        )
+    blob = bytearray(data[json_end + 8:])
+    while len(blob) % 4:
+        blob.append(0)
+    img_off = len(blob)
+    blob.extend(png_bytes)
+    while len(blob) % 4:
+        blob.append(0)
+    gltf.setdefault("bufferViews", []).append(
+        {"buffer": 0, "byteOffset": img_off, "byteLength": len(png_bytes)}
+    )
+    gltf.setdefault("images", []).append(
+        {
+            "bufferView": len(gltf["bufferViews"]) - 1,
+            "mimeType": "image/png",
+            "name": "aisha-curv-cav-1024",
+        }
+    )
+    gltf.setdefault("textures", []).append({"source": len(gltf["images"]) - 1})
+    mat.setdefault("extensions", {})[SKIN_SHADE_EXTENSION_NAME] = {
+        "curvatureTexture": {"index": len(gltf["textures"]) - 1}
+    }
+    if SKIN_SHADE_EXTENSION_NAME not in gltf.get("extensionsUsed", []):
+        gltf.setdefault("extensionsUsed", []).append(SKIN_SHADE_EXTENSION_NAME)
+    if SKIN_SHADE_EXTENSION_NAME in (gltf.get("extensionsRequired") or []):
+        raise RuntimeError("SKINSHADE: extension must never be required")
+    new_json = json.dumps(gltf, separators=(",", ":"))
+    new_json += " " * ((4 - len(new_json) % 4) % 4)
+    out = bytearray()
+    out += b"glTF"
+    out += struct.pack("<II", 2, 12 + 8 + len(new_json) + 8 + len(blob))
+    out += struct.pack("<I", len(new_json)) + b"JSON"
+    out += new_json.encode("utf-8")
+    out += struct.pack("<I", len(blob)) + b"BIN\x00"
+    out += blob
+    with open(path, "wb") as f:
+        f.write(out)
+    print(
+        f"GLB_SKINSHADE {path} material {material_name} "
+        f"texture {len(gltf['textures']) - 1} combined {_hashlib.sha256(png_bytes).hexdigest()}"
+    )
+
+
 def _eyshell_transfer_lid_keys(path):
     """GLB-space lid bind for the shell/tearline (port of the landed
     lash_blink_follow.py A3 method — NOT a Blender shape-key transfer).
@@ -9484,6 +9626,15 @@ def main():
     if EYEMESH_CORNEA_CTX.get("eye_mesh"):
         globe_name, shell_names = _eyemesh_split_cornea_glb(
             str(output), EYEMESH_CORNEA_CTX["subject_id"])
+
+    # st-vitskin: declare the skin-shade extension from the shipped RG map.
+    # Runs after every GLB rewrite above (teeth retreat, eyeshell unlit,
+    # shell rebind, cornea split) so no later stage drops the extension;
+    # the seated-rest bind below writes a separate candidate file, never
+    # this actor. Gated to the OB patient: the only actor whose landmark UVs
+    # the hook carries (skin-shade.ts SKIN_*_UV are Aisha-derived).
+    if args.reference == "ob_patient_aisha":
+        patch_glb_skin_shade(str(output))
 
     # #328 census: report the final exported body the same way the planted contract
     # measures it (largest non-garment/non-hidden primitive), plus the macro dict and

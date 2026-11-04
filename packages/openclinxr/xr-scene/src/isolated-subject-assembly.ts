@@ -8,6 +8,7 @@
 import { Group, Mesh, type Object3D, Vector3 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
+import { createSkinShadeGLTFLoader } from "./skin-shader/skin-shade-loader.js";
 import { computeMeshBounds } from "./camera-fit-to-bounds.js";
 import { rebindHeadLockedTeeth } from "./humanoid-load-guard.js";
 import { removeFittedHair } from "./isolated-subject-material-variants.js";
@@ -21,15 +22,40 @@ import {
 import { applyAndPlantSupineOnDeck } from "@openclinxr/xr-pose";
 import type { IsolatedSubjectSpec } from "./isolated-subject-lab.js";
 
-async function loadHumanoid(bodyGlb: string): Promise<Object3D> {
-  const loader = new GLTFLoader();
-  loader.setMeshoptDecoder(MeshoptDecoder);
+async function loadHumanoid(bodyGlb: string, skinShadeLoader = false): Promise<Object3D> {
+  // st-vitskin H1: skinShadeLoader=true loads through the shared factory so
+  // the GLB-declared OPENCLINXR_skin_shade extension installs the hook.
+  // Default false = the legacy bare loader; existing captures do not move.
+  // The flag arrives as an untyped spec extra (IsolatedSubjectSpec is frozen
+  // by the fresnel source pin) or as a ?skinShadeLoader=1 query param.
+  const loader = skinShadeLoader
+    ? createSkinShadeGLTFLoader()
+    : new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
   const url = bodyGlb.startsWith("/") ? bodyGlb : `/${bodyGlb.replace(/^\.\//, "")}`;
   const gltf = await loader.loadAsync(url);
   const root = gltf.scene; rebindHeadLockedTeeth(root);
   root.name = "isolated_subject_humanoid";
   root.userData["openClinXrIsolatedSubject"] = true;
+  root.userData["openClinXrSkinShadeLoader"] = skinShadeLoader;
   return root;
+}
+
+/**
+ * st-vitskin H1: factory-loader request without touching the pinned lab
+ * module. The capture tool sends the flag inside the subject JSON (parseSpec
+ * returns parsed JSON verbatim, so the extra survives); a bare query param
+ * covers manual page loads. Default false = legacy bare loader.
+ */
+function skinShadeLoaderRequested(spec: IsolatedSubjectSpec): boolean {
+  const viaSpec = (spec as unknown as { skinShadeLoader?: unknown }).skinShadeLoader === true;
+  if (viaSpec) return true;
+  try {
+    const search = globalThis.location?.search ?? "";
+    if (/(?:\?|&)skinShadeLoader=(?:1|true)(?:&|$)/.test(search)) return true;
+  } catch {
+    // node/test runtimes have no location; the spec extra is the path there.
+  }
+  return false;
 }
 
 function buildFurniture(
@@ -70,7 +96,7 @@ export async function buildSubjectRoot(spec: IsolatedSubjectSpec): Promise<{
     container.add(buildFurniture(builder, incline));
   } else if (spec.subjectKind === "runtime_posture" || spec.subjectKind === "posture_on_furniture") {
     const bodyGlb = spec.bodyGlb ?? "generated-humanoids/mpfb-gown-adult-patient.glb";
-    humanoid = await loadHumanoid(bodyGlb);
+    humanoid = await loadHumanoid(bodyGlb, skinShadeLoaderRequested(spec));
     let stretcher: Group | null = null;
     if (spec.subjectKind === "posture_on_furniture" || spec.builder === "patient_stretcher") {
       // Deck leads: incline on the stretcher builder, not a body-only tip.
@@ -104,7 +130,7 @@ export async function buildSubjectRoot(spec: IsolatedSubjectSpec): Promise<{
     container.add(buildDeclaredEquipmentGeometry(equipmentId));
   } else if (spec.subjectKind === "glb") {
     const bodyGlb = spec.bodyGlb ?? "generated-humanoids/mpfb-gown-adult-patient.glb";
-    container.add(await loadHumanoid(bodyGlb));
+    container.add(await loadHumanoid(bodyGlb, skinShadeLoaderRequested(spec)));
   } else {
     throw new Error(`Unsupported subjectKind: ${spec.subjectKind}`);
   }
