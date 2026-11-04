@@ -10,14 +10,6 @@ export {
   frameCamera,
 } from "./camera-fit-to-bounds.js";
 
-export type {
-  SkinShadeMaterialExtension,
-} from "./skin-shader/skin-shade-loader.js";
-export {
-  createSkinShadeGLTFLoader,
-  SKIN_SHADE_EXTENSION_NAME,
-  SkinShadePlugin,
-} from "./skin-shader/skin-shade-loader.js";
 
 export {
   mountStationEnvironmentForRuntime,

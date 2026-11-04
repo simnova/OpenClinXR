@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./skin-shade-loader": {
+      "types": "./dist/skin-shader/skin-shade-loader.d.ts",
+      "default": "./dist/skin-shader/skin-shade-loader.js"
     }
   },
   "scripts": {

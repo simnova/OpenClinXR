@@ -35,7 +35,7 @@ import { magentaSwapMaterials } from "./hide-mask-magenta.js";
 import { selectBodyMotionProbeClip, selectBodyMotionProbeClipName } from "./body-motion-probe-clip.js";
 // Public surface kept on this module: the capture contract and evidence tests import here.
 export { selectBodyMotionProbeClipName };
-import { createSkinShadeGLTFLoader } from "@openclinxr/xr-scene";
+import { createSkinShadeGLTFLoader } from "@openclinxr/xr-scene/skin-shade-loader";
 import type { ModelVettingStudioEvidence } from "./studio-state.js";
 import { glbUrlForPath } from "./glb-url-for-path.js";
 import {

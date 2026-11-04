@@ -368,7 +368,10 @@ describe("compiler-resolved surface meter", () => {
     // 2026-11-02 root batch worldmodel (operator-approved 2026-11-02): the
     // sidecar, with no exports map, is discovered as one implicit "." that
     // publishes nothing (193 -> 194).
-    expect(report.totals.entrypoints).toBe(194);
+    // 2026-11-05 st-vitskin: xr-scene adds one reviewed ./skin-shade-loader subpath
+    // (skin-shade-loader-v1 admission) for createSkinShadeGLTFLoader and
+    // SKIN_SHADE_EXTENSION_NAME, so the root "." count stays at 1267 (194 -> 195).
+    expect(report.totals.entrypoints).toBe(195);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {

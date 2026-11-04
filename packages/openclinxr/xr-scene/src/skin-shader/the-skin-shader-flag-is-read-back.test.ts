@@ -15,12 +15,12 @@ import {
   TextureLoader,
 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-// Arch D2: the loader factory binds through the entrypoint (own-test via),
-// so testInternalImports holds at 10 with no new internal import.
+// Arch D2: the loader factory binds through its ./skin-shade-loader entrypoint
+// source (own-test via), so testInternalImports holds at 10.
 import {
   createSkinShadeGLTFLoader,
   SKIN_SHADE_EXTENSION_NAME,
-} from "../index.js";
+} from "./skin-shade-loader.js";
 // Arch D2: the gate test imports exactly one entrypoint-reachable module
 // (the portrait flag path it must exercise) plus ./png-crop.js (unreachable
 // from the entrypoint, so it does not count). The pre-existing

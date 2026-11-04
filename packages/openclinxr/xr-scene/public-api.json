@@ -5,9 +5,6 @@
       "HeadBoxGeometry",
       "LightingRig",
       "MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH",
-      "SKIN_SHADE_EXTENSION_NAME",
-      "SkinShadeMaterialExtension",
-      "SkinShadePlugin",
       "Vec3",
       "addGeneratedHumanoidRoleContinuityWardrobeCue",
       "applyCleanEncounterVisualReviewActorFraming",
@@ -20,7 +17,6 @@
       "computeMeshBounds",
       "createLearnerExamFormRunState",
       "createPrimitiveActorMesh",
-      "createSkinShadeGLTFLoader",
       "createVirtualDeviceActorAffordance",
       "deriveHeadBoxFromPoints",
       "deriveInteriorPreviewCamera",
@@ -38,6 +34,10 @@
       "resolveLocalHumanoidRuntimeAssetUrl",
       "scenariosFromFixtureSequence",
       "sleeveDeformCueForAssetPath"
+    ],
+    "./skin-shade-loader": [
+      "SKIN_SHADE_EXTENSION_NAME",
+      "createSkinShadeGLTFLoader"
     ]
   }
 }

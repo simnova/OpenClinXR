@@ -113,7 +113,7 @@
   },
   {
     "provider": "@openclinxr/xr-scene",
-    "entrypoint": ".",
+    "entrypoint": "./skin-shade-loader",
     "names": [
       {
         "name": "createSkinShadeGLTFLoader",

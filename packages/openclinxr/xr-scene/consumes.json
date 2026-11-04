@@ -320,5 +320,21 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": "./skin-shade-loader",
+    "names": [
+      {
+        "name": "createSkinShadeGLTFLoader",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "SKIN_SHADE_EXTENSION_NAME",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

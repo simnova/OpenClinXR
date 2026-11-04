@@ -1,0 +1,32 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "skin-shade-loader-v1",
+  "reviewedBy": "claude-orchestrator review of st-vitskin at b23673659, 2026-11-05; model-vetting-studio candidate-capture binds createSkinShadeGLTFLoader, the xr-scene own test binds both names; published on the new ./skin-shade-loader subpath so root exports stay at the reviewed 1267",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "3b682ef87aaa2f5be83b71dfa5a0cd6e979c81b44b15602569b804d4b1bd297c",
+  "packages": [
+    "packages/openclinxr/xr-scene"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": "./skin-shade-loader",
+      "symbol": "createSkinShadeGLTFLoader",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "st-vitskin skin-shade loader",
+      "rationale": "Shared GLTFLoader factory that installs the skin onBeforeCompile hook from OPENCLINXR_skin_shade. Consumer: apps/arena/model-vetting-studio/src/candidate-capture.ts.",
+      "reviewedBy": "claude-orchestrator review of st-vitskin at b23673659, 2026-11-05; model-vetting-studio candidate-capture binds createSkinShadeGLTFLoader, the xr-scene own test binds both names; published on the new ./skin-shade-loader subpath so root exports stay at the reviewed 1267"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": "./skin-shade-loader",
+      "symbol": "SKIN_SHADE_EXTENSION_NAME",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "st-vitskin skin-shade loader",
+      "rationale": "glTF material extension key the MPFB carrier stage writes and the loader reads. Consumer: the-skin-shader-flag-is-read-back.test.ts builds its extension-carrying fixture with it (own-test).",
+      "reviewedBy": "claude-orchestrator review of st-vitskin at b23673659, 2026-11-05; model-vetting-studio candidate-capture binds createSkinShadeGLTFLoader, the xr-scene own test binds both names; published on the new ./skin-shade-loader subpath so root exports stay at the reviewed 1267"
+    }
+  ]
+}

@@ -43,7 +43,7 @@ import { applySkinShade, skinShadeInstalled } from "./skin-shade.js";
 export const SKIN_SHADE_EXTENSION_NAME = "OPENCLINXR_skin_shade";
 
 /** Material extension definition the producer writes into the GLB. */
-export interface SkinShadeMaterialExtension {
+interface SkinShadeMaterialExtension {
   /** textureInfo pointing at the dedicated RG curvature+cavity image. */
   curvatureTexture: { index: number };
 }
@@ -60,7 +60,7 @@ function isSkinShadeMaterial(material: unknown): material is SkinShadeMaterial {
  * The registered plugin. Installed per parse via
  * `loader.register((parser) => new SkinShadePlugin(parser))`.
  */
-export class SkinShadePlugin implements GLTFLoaderPlugin {
+class SkinShadePlugin implements GLTFLoaderPlugin {
   readonly name = SKIN_SHADE_EXTENSION_NAME;
   private readonly parser: GLTFParser;
   private readonly textures = new Map<number, Promise<Texture>>();
