@@ -74,12 +74,35 @@ def commit_oneline(sha):
 # treatment on the pruned OB base. All five rows below are bytes-only drift:
 # tris/face/joints/hand hold at their pinned values (asserted per row).
 PLAN = {
+    # --- st-palette (2026-11-04): sRGB palette fold + nurse shirt hem-finish.
+    # Physician is bytes-only (texture refold); the nurse loses 69 shirt tris
+    # to the R5 hem cut (9384->9315), face/hand/joints hold. Asserted live.
+    "mpfb-clinical-nurse-adult.glb": {
+        "bytesAfter": 9189824,
+        "triangleCountAfter": 38889,
+        "faceAfter": 10779,
+        "handBodyMeshAfter": 12833,
+        "note": ("Re-measured 2026-11-04 (st-palette): shirt hem-finish 9384->9315 tris (tris "
+                 "38958->38889; face 10779 / hand 12833 / joints 137 hold), sRGB palette fold on "
+                 "the shirt texture. Superseding commit 812b5f5de (grafted hem-finish, "
+                 "untouched meshes origin-identical)."),
+    },
+    "mpfb-clinical-physician-adult.glb": {
+        "bytesAfter": 9293412,
+        "triangleCountAfter": 41718,
+        "faceAfter": 10130,
+        "handBodyMeshAfter": 12890,
+        "note": ("Re-measured 2026-11-04 (st-palette): bytes-only drift (tris 41718 / face 10130 / "
+                 "hand 12890 / joints 137 hold). Superseding commit 3969ae031 (sRGB palette fold "
+                 "replaces the HB-02 scrub_shirt texels with a 512x512 weave)."),
+    },
     # --- HB-03 rows (bytes only; tris/face/hand/joints asserted unchanged) ---
     "mpfb-family-partner-adult.glb": {
-        "bytesAfter": 9277296,
+        "bytesAfter": 9575040,
         "triangleCountAfter": 39974,
         "handBodyMeshAfter": 13357,
-        "note": ("Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
+        "note": ("Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commits 812b5f5de/95e1c310a (sRGB palette fold, then hem-finish with untouched meshes grafted from origin). "
+                 "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
                  "(tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding "
                  "commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior "
                  "re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."),
@@ -128,9 +151,10 @@ PLAN = {
                  "preserved in git history."),
     },
     "mpfb-peds-nurse-kevin.glb": {
-        "bytesAfter": 16291676,
+        "bytesAfter": 15966652,
         "triangleCountAfter": 98102,
-        "note": ("Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants "
+        "note": ("Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). "
+                 "Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants "
                  "810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face "
                  "46160 / joints 137 hold; still under the 120000 acceptableSingleProp "
                  "budget). Superseding commit 1225b8f95 (D1 garment smooth: full-res "
@@ -138,7 +162,7 @@ PLAN = {
                  "ci-w11b) preserved in git history."),
     },
     "mpfb-peds-parent-aisha.glb": {
-        "bytesAfter": 18441636,
+        "bytesAfter": 18446536,
         "triangleCountAfter": 73012,
         "faceBefore": 33360,
         "faceAfter": 33360,
@@ -151,7 +175,8 @@ PLAN = {
             "and the 137-joint invariant now floor this re-measured source; historical "
             "pre-rebuild face 52778 preserved in previousFaceBefore."),
         "previousFaceBefore": 52778,
-        "note": ("Re-measured 2026-10-30 (ci-w11b): bytes-only drift on the rebuilt source "
+        "note": ("Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). "
+                 "Re-measured 2026-10-30 (ci-w11b): bytes-only drift on the rebuilt source "
                  "(tris 73012 / face 33360 / joints 137 stable since Sep30). Superseding commit "
                  "d1c44f8cd (ci-w11 D1 orphan prune, 19888836 -> 18441636 B). Prior re-measure "
                  "(deliberate mouth-program rebuild afe8abced / ceabb545e) preserved in git "

@@ -23,6 +23,12 @@ import { repoRoot } from "@openclinxr/factory-station-core/runner";
  *     receipt (albedoRepair.bakedBodyRow, same 32-coordinate grid), and the texel
  *     clause applies the linear fold for the receipt's "independent cloned image"
  *     decision at the same +/-1 bar.
+ *   - st-palette (Nov-3) replaced four HB-02 baked texel sets with the sRGB palette
+ *     fold: kevin + physician scrub_shirt (fresh 512x512 weave) and family-partner +
+ *     peds-parent-aisha toigo_t_shirt (linear renorm with an integer-offset mean
+ *     correction). Those rows' decisions now read "superseded", so the texel clause no
+ *     longer applies a before x factor model they do not follow; their colour is
+ *     asserted by the locked-colour and declared-fabric tests.
  */
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
