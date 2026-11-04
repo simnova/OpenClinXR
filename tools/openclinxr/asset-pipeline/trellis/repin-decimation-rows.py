@@ -133,9 +133,10 @@ PLAN = {
     # (replace-garment-primitive.ts restores pre-HB-05 full-res prims + proven 60-deg
     # post-export smooth).
     "mpfb-ob-patient-aisha.glb": {
-        "bytesAfter": 10021840,
+        "bytesAfter": 10213572,
         "triangleCountAfter": 73392,
-        "note": ("Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 9914108 -> 10021840 B). "
+        "note": ("Re-measured 2026-11-04 (st-vitpore r2): the post-export skin-shade carrier adds a 191439 B Vitruvian-derived periodic detail normal through OPENCLINXR_skin_shade with KHR_texture_transform scale 90; geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, 10021840 -> 10213572 B. "
+                 "Prior st-viteye r3 re-measure: 931343e6b swapped the Vitruvian iris/sclera image, 9914108 -> 10021840 B. "
                  "Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage "
                  "(post-export byte stage, not a rebake; one RG image + "
                  "OPENCLINXR_skin_shade material extension appended, geometry/BIN "

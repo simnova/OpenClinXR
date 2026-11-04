@@ -9,14 +9,15 @@ Pipeline (all constants relative; no absolute pore-depth / sigma / budget
 gates feed any acceptance decision — see the plan's "Numbers that must not
 go into a contract"):
   1. Read the source EXR (float32 height), the C2 cheek crop (256px).
-  2. High-pass: crop minus GaussianBlur(sigma=8px in source space).
-  3. Tukey (alpha=0.25) separable window — kills edge seam, keeps the pore
-     band. Height is then normalized to unit variance (sibling convention),
-     so the gain is not divided away by the crop's absolute std.
+  2. Moisan 2011 periodic-plus-smooth decomposition of the raw crop; retain
+     the periodic component so opposite edges agree without amplitude taper.
+  3. Wrap-around high-pass: tile the periodic component 3x3, apply
+     GaussianBlur(sigma=8px), and retain the centre tile. Height is then
+     normalized to unit variance (sibling convention).
   4. Amplifier: SLOPE_GAIN applied to the unit-variance height before the
      gradient (sibling: STRENGTH=1.2). A flat control still reproduces flat
      (zero gradient), so the null result stays attributable, not hidden.
-  5. numpy.gradient -> tangent normal RGB (sibling convention from
+  5. Periodic central differences -> tangent normal RGB (sibling convention from
      coherent-normal/bake_coherent_pore_normal.py).
   6. Non-interlaced PNG (zlib/struct writer, same as sibling); JSON manifest.
 
@@ -47,7 +48,7 @@ import numpy
 
 SRC_DEFAULT = ("/Volumes/files/openclinxr-assets/store/vitruvian-src/4K/"
                "Vitruvian_Face_Height_Utility - Raw.exr")
-METHOD = "tukey-windowed-crop"
+METHOD = "periodic-smooth-decomposition-wrap-highpass"
 SIZE_DEFAULT = 256
 SIGMA_DEFAULT = 8.0
 CROP_CX_DEFAULT = 1216
@@ -85,8 +86,35 @@ def tukey(n: int, alpha: float) -> "numpy.ndarray":
     return w
 
 
+def periodic(u: "numpy.ndarray") -> "numpy.ndarray":
+    """Moisan 2011 periodic-plus-smooth decomposition; return periodic part."""
+    rows, cols = u.shape
+    boundary = numpy.zeros_like(u)
+    boundary[0, :] += u[-1, :] - u[0, :]
+    boundary[-1, :] += u[0, :] - u[-1, :]
+    boundary[:, 0] += u[:, -1] - u[:, 0]
+    boundary[:, -1] += u[:, 0] - u[:, -1]
+    row_freq = numpy.arange(rows)[:, None]
+    col_freq = numpy.arange(cols)[None, :]
+    denominator = (2 * numpy.cos(2 * numpy.pi * row_freq / rows)
+                   + 2 * numpy.cos(2 * numpy.pi * col_freq / cols) - 4)
+    denominator[0, 0] = 1
+    smooth = numpy.fft.ifft2(numpy.fft.fft2(boundary) / denominator).real
+    smooth -= smooth.mean()
+    return u - smooth
+
+
+def wrap_highpass(p: "numpy.ndarray", sigma: float) -> "numpy.ndarray":
+    import cv2
+    rows, cols = p.shape
+    tiled = numpy.tile(p, (3, 3))
+    blurred = cv2.GaussianBlur(tiled, (0, 0), sigma)
+    return (tiled - blurred)[rows:2 * rows, cols:2 * cols]
+
+
 def heights_to_normal(h: "numpy.ndarray", gain: float):
-    dhdy, dhdx = numpy.gradient(h)
+    dhdy = (numpy.roll(h, -1, axis=0) - numpy.roll(h, 1, axis=0)) / 2
+    dhdx = (numpy.roll(h, -1, axis=1) - numpy.roll(h, 1, axis=1)) / 2
     nx = -dhdx * gain
     ny = -dhdy * gain
     inv = 1.0 / numpy.sqrt(nx * nx + ny * ny + 1.0)
@@ -160,17 +188,14 @@ def main() -> None:
     crop = img[args.crop_cy - n // 2:args.crop_cy + n // 2,
                args.crop_cx - n // 2:args.crop_cx + n // 2].copy()
     assert crop.shape == (n, n), f"crop shape {crop.shape}"
-    hp = crop - cv2.GaussianBlur(crop, (0, 0), args.sigma)
-    crop_std = float(hp.std())
-    w1 = tukey(n, ALPHA)
-    hp = (hp - hp.mean()) * (w1[:, None] * w1[None, :])
-    win_std = float(hp.std())
-    # Unit-variance normalize AFTER windowing (sibling convention), then
-    # apply the construction slope gain. The old code multiplied by
-    # ref_std/crop_std THEN took the gradient with gain 1.0, which divides
-    # the signal away whenever the crop std exceeds the reference.
-    tile_n = (hp / win_std * SLOPE_GAIN) if win_std > 0 else hp * 0.0
-    gain = SLOPE_GAIN / win_std if win_std > 0 else 0.0
+    crop_std = float(crop.std())
+    periodic_crop = periodic(crop - crop.mean())
+    hp = wrap_highpass(periodic_crop, args.sigma)
+    hp_std = float(hp.std())
+    # Unit-variance normalize after the wrap-around high-pass, then apply
+    # the construction slope gain. No edge weighting or amplitude taper.
+    tile_n = (hp / hp_std * SLOPE_GAIN) if hp_std > 0 else hp * 0.0
+    gain = SLOPE_GAIN / hp_std if hp_std > 0 else 0.0
     r, g, b = heights_to_normal(tile_n, 1.0)
     lam_px, pore_frac = fft_peak_lambda(tile_n)
 
@@ -206,7 +231,7 @@ def main() -> None:
         "tile_size": n,
         "amplifier": {"mode": "unit-variance-plus-slope-gain",
                       "slope_gain": SLOPE_GAIN, "crop_std": crop_std,
-                      "windowed_std": win_std, "gain": gain},
+                      "periodic_highpass_std": hp_std, "gain": gain},
         "tile_fft_lambda_px": lam_px,
         "tile_pore_band_fraction": pore_frac,
         "output": {"path": str(png_path), "sha256": png_sha},

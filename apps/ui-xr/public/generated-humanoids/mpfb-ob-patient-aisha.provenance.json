@@ -88,8 +88,8 @@
   ],
   "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
   "promotionGates": false,
-  "outputSha256": "6643de8199885ac2ccc3fc9aca75dd9c197c33e6659d58ca9934463d8f861421",
-  "outputBytes": 10021840,
+  "outputSha256": "7d146d29e98827a39c990cd46457ed14108dfb4deee8cc3aa9287e2ece8c8ca9",
+  "outputBytes": 10213572,
   "fitTimeLower": {
     "garment": "punkduck_female_tight_jeans",
     "sourceObjFaces": 2108,
@@ -240,6 +240,20 @@
       "byteLength": 213249,
       "sha256": "6aa0a0a859444f94545752cd1a0d13f0ce0cfbb11f8c4e41a764efcb29a96c2d",
       "channels": "R=curvature G=cavity(white=concave) B=0"
+    },
+    "detailNormalTextureIndex": 6,
+    "detailNormalStrength": 0.5,
+    "detailNormalTextureTransform": {
+      "extension": "KHR_texture_transform",
+      "scale": [90, 90]
+    },
+    "detailNormalInput": {
+      "path": ".openclinxr/openclaw/ceo/st-vitpore/tile/vitruvian_pore_tile.png",
+      "source": "/Volumes/files/openclinxr-assets/store/vitruvian-src/4K/Vitruvian_Face_Height_Utility - Raw.exr",
+      "sourceSha256": "37a58404b3c66689a2790a263d3a870797ff54438b6743f398d32464c466331e",
+      "sha256": "0d7f18ff1c6d8129b1f919e9ee0832fcf15e2d7b2a77df803e67c449d99faa5d",
+      "byteLength": 191439,
+      "licence": "CC0-1.0 (docs/openclinxr/asset-licence-records/row-49-vitruvian-project-face-height.json)"
     },
     "producer": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:patch_glb_skin_shade",
     "extensionsRequired": false
