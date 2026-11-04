@@ -87,6 +87,11 @@ const HAIR_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/restore-mesh-posi
 // st-weld2 D1 (4716d0bfd): post-export garment topology weld, replayed from the
 // receipt's garmentTopologyWeld stage after the hair restore.
 const WELD_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/garment_topology_weld.py";
+// st-palette R9: sRGB-correct weave fold (post-export byte stage, not a rebake),
+// replayed from the receipt's garmentWeaveFold stage after the weld, the same
+// way. Targets + renormalize/replace flags are recorded in the receipt; the
+// tool is asserted by hash and re-run on the replay bytes.
+const WEAVE_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/attach-weave-base-color-textures.ts";
 // bake-humanoid-albedo.ts bakeGlbAlbedo). Hashes are asserted via the
 // receipt's own albedoRepair.producerSha256 / helperSha256 below, never
 // blind-reset.
@@ -214,6 +219,17 @@ describe("mouth executor", () => {
         tool: string;
         toolSha256: string;
         angleDeg: number;
+        inputSha256: string;
+        inputBytes: number;
+        outputSha256: string;
+        outputBytes: number;
+      };
+      garmentWeaveFold?: {
+        tool: string;
+        toolSha256: string;
+        targets: string[];
+        renormalize: boolean;
+        replace: boolean;
         inputSha256: string;
         inputBytes: number;
         outputSha256: string;
@@ -444,6 +460,40 @@ describe("mouth executor", () => {
         expect(sha256(weldBytes)).toBe(weld.outputSha256);
         expect(weldBytes.length).toBe(weld.outputBytes);
         replayBytes = weldBytes;
+      }
+      // 3i. Optional garmentWeaveFold post-stage (st-palette R9: sRGB-correct
+      // fold, post-export byte stage, not a rebake). Same replay contract as
+      // the weld: assert the tool by hash, re-run it on the replay bytes with
+      // the recorded targets, prove the recorded output + top receipt output.
+      const weave = pre.garmentWeaveFold;
+      if (weave) {
+        if (
+          !weave.tool || !weave.toolSha256 || !Array.isArray(weave.targets) ||
+          weave.targets.length === 0 || typeof weave.renormalize !== "boolean" ||
+          typeof weave.replace !== "boolean" ||
+          !weave.inputSha256 || !weave.outputSha256 || !weave.inputBytes || !weave.outputBytes
+        ) {
+          throw new Error("receipt garmentWeaveFold missing fields");
+        }
+        expect(weave.tool).toBe(WEAVE_TOOL);
+        expect(sha256(readFileSync(path.join(REPO, WEAVE_TOOL)))).toBe(weave.toolSha256);
+        expect(weave.inputSha256).toBe(sha256(replayBytes));
+        expect(weave.inputBytes).toBe(replayBytes.length);
+        if (weave.renormalize && weave.replace) {
+          throw new Error("receipt garmentWeaveFold asks for both renormalize and replace");
+        }
+        const weaveIn = path.join(dir, "weave-in.glb");
+        const weaveReport = path.join(dir, "weave-report.json");
+        writeFileSync(weaveIn, Buffer.from(replayBytes));
+        const weaveArgs = ["exec", "tsx", path.join(REPO, WEAVE_TOOL), "--glb", weaveIn, "--report", weaveReport];
+        for (const target of weave.targets) weaveArgs.push("--target", target);
+        if (weave.renormalize) weaveArgs.push("--renormalize");
+        if (weave.replace) weaveArgs.push("--replace");
+        execFileSync("pnpm", weaveArgs, { cwd: REPO, stdio: "pipe", timeout: 300_000 });
+        const wovenBytes = readFileSync(weaveIn);
+        expect(sha256(wovenBytes)).toBe(weave.outputSha256);
+        expect(wovenBytes.length).toBe(weave.outputBytes);
+        replayBytes = wovenBytes;
       }
       // Final top linkage: the receipt top must equal the last recorded stage output.
       expect(sha256(replayBytes)).toBe(pre.outputSha256);
