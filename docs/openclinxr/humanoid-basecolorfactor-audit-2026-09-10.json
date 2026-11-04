@@ -69,10 +69,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 3608,
+    "line": 3666,
     "literal": "lower_color = (0.06, 0.12, 0.28, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3608.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3666",
    "bodyLastChanged": "8acada4018527d2f36b0c2d2e924bdbb6ed20e97 2026-08-24 fix(asset-pipeline): scope hem 8mm weld to the hem band so generated garments stop emitting 2-3-vertex boundary loops (#656)"
   },
   {
@@ -109,10 +109,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4907,
+    "line": 4965,
     "literal": "base_color = (0.12, 0.07, 0.035, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4907.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4965",
    "bodyLastChanged": "8acada4018527d2f36b0c2d2e924bdbb6ed20e97 2026-08-24 fix(asset-pipeline): scope hem 8mm weld to the hem band so generated garments stop emitting 2-3-vertex boundary loops (#656)"
   },
   {
@@ -129,10 +129,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4545,
+    "line": 4603,
     "literal": "return \"casual_shoe\", (0.12, 0.08, 0.05, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4545.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4603",
    "bodyLastChanged": "8acada4018527d2f36b0c2d2e924bdbb6ed20e97 2026-08-24 fix(asset-pipeline): scope hem 8mm weld to the hem band so generated garments stop emitting 2-3-vertex boundary loops (#656)"
   },
   {
@@ -149,10 +149,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4545,
+    "line": 4603,
     "literal": "return \"casual_shoe\", (0.12, 0.08, 0.05, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4545.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4603",
    "bodyLastChanged": "8acada4018527d2f36b0c2d2e924bdbb6ed20e97 2026-08-24 fix(asset-pipeline): scope hem 8mm weld to the hem band so generated garments stop emitting 2-3-vertex boundary loops (#656)"
   },
   {
@@ -230,10 +230,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 3608,
+    "line": 3666,
     "literal": "lower_color = (0.06, 0.12, 0.28, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3608.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3666",
    "bodyLastChanged": "af95076fc874a14e15d2d7719ddaee3e8064d65f 2026-08-08 fix(#188): add parametric footwear shells on all seven shipped humanoids"
   },
   {
@@ -270,10 +270,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4907,
+    "line": 4965,
     "literal": "base_color = (0.12, 0.07, 0.035, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4907.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4965",
    "bodyLastChanged": "af95076fc874a14e15d2d7719ddaee3e8064d65f 2026-08-08 fix(#188): add parametric footwear shells on all seven shipped humanoids"
   },
   {
@@ -290,10 +290,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4543,
+    "line": 4601,
     "literal": "return \"hospital_slipper\", (0.18, 0.42, 0.78, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4543.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4601",
    "bodyLastChanged": "af95076fc874a14e15d2d7719ddaee3e8064d65f 2026-08-08 fix(#188): add parametric footwear shells on all seven shipped humanoids"
   },
   {
@@ -310,10 +310,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4543,
+    "line": 4601,
     "literal": "return \"hospital_slipper\", (0.18, 0.42, 0.78, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4543.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4601",
    "bodyLastChanged": "af95076fc874a14e15d2d7719ddaee3e8064d65f 2026-08-08 fix(#188): add parametric footwear shells on all seven shipped humanoids"
   },
   {
@@ -371,10 +371,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 3602,
+    "line": 3660,
     "literal": "lower_color = (0.015, 0.34, 0.37, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny nurse lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3488. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3602.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny nurse lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3488. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3660",
    "bodyLastChanged": "84c55489f0867883ab787ee37619261aeea3b809 2026-08-08 fix(#188): restore nurse scrub hem regularity after footwear bank rebake"
   },
   {
@@ -411,10 +411,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4901,
+    "line": 4959,
     "literal": "base_color = (0.035, 0.028, 0.022, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair black (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4787. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4901.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair black (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4787. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4959",
    "bodyLastChanged": "84c55489f0867883ab787ee37619261aeea3b809 2026-08-08 fix(#188): restore nurse scrub hem regularity after footwear bank rebake"
   },
   {
@@ -431,10 +431,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4541,
+    "line": 4599,
     "literal": "return \"clinical_shoe\", (0.08, 0.09, 0.10, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny clinical shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4427. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4541.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny clinical shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4427. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4599",
    "bodyLastChanged": "84c55489f0867883ab787ee37619261aeea3b809 2026-08-08 fix(#188): restore nurse scrub hem regularity after footwear bank rebake"
   },
   {
@@ -451,10 +451,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4541,
+    "line": 4599,
     "literal": "return \"clinical_shoe\", (0.08, 0.09, 0.10, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny clinical shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4427. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4541.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny clinical shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4427. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4599",
    "bodyLastChanged": "84c55489f0867883ab787ee37619261aeea3b809 2026-08-08 fix(#188): restore nurse scrub hem regularity after footwear bank rebake"
   },
   {
@@ -532,10 +532,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 3608,
+    "line": 3666,
     "literal": "lower_color = (0.06, 0.12, 0.28, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3608.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3666",
    "bodyLastChanged": "af95076fc874a14e15d2d7719ddaee3e8064d65f 2026-08-08 fix(#188): add parametric footwear shells on all seven shipped humanoids"
   },
   {
@@ -572,10 +572,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4907,
+    "line": 4965,
     "literal": "base_color = (0.12, 0.07, 0.035, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4907.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4965",
    "bodyLastChanged": "af95076fc874a14e15d2d7719ddaee3e8064d65f 2026-08-08 fix(#188): add parametric footwear shells on all seven shipped humanoids"
   },
   {
@@ -592,10 +592,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4545,
+    "line": 4603,
     "literal": "return \"casual_shoe\", (0.12, 0.08, 0.05, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4545.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4603",
    "bodyLastChanged": "af95076fc874a14e15d2d7719ddaee3e8064d65f 2026-08-08 fix(#188): add parametric footwear shells on all seven shipped humanoids"
   },
   {
@@ -612,10 +612,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4545,
+    "line": 4603,
     "literal": "return \"casual_shoe\", (0.12, 0.08, 0.05, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4545.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4603",
    "bodyLastChanged": "af95076fc874a14e15d2d7719ddaee3e8064d65f 2026-08-08 fix(#188): add parametric footwear shells on all seven shipped humanoids"
   },
   {
@@ -673,7 +673,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -693,7 +693,7 @@
     "literal": "return (0.18, 0.13, 0.10, 1.0)  # nurse / default — mid-dark brown"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, nurse/default role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:159. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:240.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -713,28 +713,22 @@
     "literal": "_GARMENT_COLOR_SCRUB = (0.05, 0.48, 0.52, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). scrub lower, locked scrub colour (untextured cover shell or pre-strip fit). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
    "material": "mat_makeclothes_library_scrub_shirt",
-   "baseColorFactor": [
-    0.05,
-    0.48,
-    0.52,
-    1
-   ],
-   "hasBaseColorTexture": false,
-   "kind": "untextured locked scrub role colour (HB-07 handback: cache PNG truncated, no IEND)",
-   "decision": "resolved",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "reason": "Untextured role colour [0.05,0.48,0.52]: the factor IS the albedo (no texture to multiply). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711. HB-02 left it unbaked (nothing to fold); recorded in docs/openclinxr/humanoid-albedo-bake-2026-09-10.json. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794. Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
     "line": 1794,
     "literal": "_GARMENT_COLOR_SCRUB = (0.05, 0.48, 0.52, 1.0)"
    },
-   "path": "garment_shell_color scrub lock :1781-1785 -> garment_material_from_declared role_colour -> GARMENT_FACTOR_PATCH :1062-1068 -> patch_glb_base_color_factors :1073-1107",
-   "reason": "Untextured role colour [0.05,0.48,0.52]: the factor IS the albedo (no texture to multiply). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711. HB-02 left it unbaked (nothing to fold); recorded in docs/openclinxr/humanoid-albedo-bake-2026-09-10.json. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "kind": "untextured locked scrub role colour (HB-07 handback: cache PNG truncated, no IEND)",
+   "decision": "resolved",
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -751,7 +745,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -773,7 +767,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -795,7 +789,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -817,7 +811,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -839,7 +833,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -861,7 +855,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -883,7 +877,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -905,7 +899,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -922,7 +916,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -942,7 +936,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -962,7 +956,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -982,7 +976,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-nurse-adult.glb",
@@ -1002,7 +996,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "da8f77289a138799d1d2d0855942170eedb7ca49 2026-11-03 st-weld D2: garment topology weld on nurse scrub (post-export byte stage)"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1019,7 +1013,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1039,7 +1033,7 @@
     "literal": "return (0.18, 0.13, 0.10, 1.0)  # nurse / default — mid-dark brown"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, nurse/default role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:159. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:240.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1059,7 +1053,7 @@
     "literal": "_GARMENT_COLOR_LAB_COAT = (0.92, 0.92, 0.90, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lab coat, locked white (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1716. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1799.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1079,7 +1073,7 @@
     "literal": "_GARMENT_COLOR_SCRUB = (0.05, 0.48, 0.52, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). scrub lower, locked scrub colour (untextured cover shell or pre-strip fit). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1094,7 +1088,7 @@
    },
    "kind": "baked albedo: HB-02 per-texel fold of locked scrub role colour x authored weave",
    "decision": "resolved",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1111,7 +1105,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1133,7 +1127,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1155,7 +1149,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1177,7 +1171,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1199,7 +1193,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1221,7 +1215,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1243,7 +1237,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1265,7 +1259,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1282,7 +1276,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1302,7 +1296,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1322,7 +1316,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1342,7 +1336,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1362,7 +1356,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1377,7 +1371,7 @@
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Fitted library garment; no tint authored. Factor absent = glTF default white; the baseColorTexture carries the look. Fit recorded in 13a94960 (feat(humanoid): fit family-partner lower from pants02 bootcut mhclo). Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1394,7 +1388,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1414,7 +1408,7 @@
     "literal": "return (0.16, 0.11, 0.09, 1.0)  # dark brown — the dominant natural shade"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, family role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:156. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:237.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1429,7 +1423,7 @@
    },
    "kind": "baked albedo: HB-02 per-texel fold of muted_rose_and_neutral palette closed_casual x authored weave",
    "decision": "resolved",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1446,7 +1440,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1468,7 +1462,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1490,7 +1484,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1512,7 +1506,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1534,7 +1528,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1556,7 +1550,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1578,7 +1572,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1600,7 +1594,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1617,7 +1611,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1637,7 +1631,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1657,7 +1651,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1677,7 +1671,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1697,7 +1691,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "4f6de70df79daa6d0697f38553406bc3f979d3ff 2026-11-03 Hold family-partner at its origin bytes until its hem-finish keeps the waist closed"
+   "bodyLastChanged": "257cff03a7a55421343511c548a6a32f8a2a14bb 2026-11-03 Restore family-partner to origin bytes; re-record the #504 nurse control"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -2035,7 +2029,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2053,25 +2047,20 @@
     "line": 239,
     "literal": "return (0.13, 0.09, 0.07, 1.0)  # near-black"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
    "material": "openclinxr_real_garment_hospital_gown_phenotype_L0.001",
-   "baseColorFactor": [
-    0.15000000596046448,
-    0.550000011920929,
-    0.8199999928474426,
-    1
-   ],
-   "hasBaseColorTexture": false,
-   "reason": "Measured [0.15000000596046448, 0.550000011920929, 0.8199999928474426, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1793.",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "reason": "Measured [0.15000000596046448, 0.550000011920929, 0.8199999928474426, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1793. Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
     "line": 1793,
     "literal": "_GARMENT_COLOR_GOWN = (0.15, 0.55, 0.82, 1.0)"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2084,7 +2073,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2102,7 +2091,7 @@
     "line": 334,
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2120,7 +2109,7 @@
     "line": 334,
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2138,7 +2127,7 @@
     "line": 334,
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2156,7 +2145,7 @@
     "line": 334,
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2174,7 +2163,7 @@
     "line": 334,
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2192,7 +2181,7 @@
     "line": 334,
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2210,7 +2199,7 @@
     "line": 334,
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2223,7 +2212,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2241,7 +2230,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2259,7 +2248,7 @@
     "line": 7091,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2277,7 +2266,7 @@
     "line": 970,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
@@ -2295,7 +2284,7 @@
     "line": 972,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
-   "bodyLastChanged": "553c1f869724d5d60ca9a8f8fccce73bb5a1f5b4 2026-10-26 Compose the ED response over its planted support frame"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-gown-inspect.glb",
@@ -2312,7 +2301,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "a7c4d02941fbfc6dabec6b045dac298223efc52f 2026-11-03 st-gowninsp round 4: scoop front neckline to neck base, seal sleeve-root slits, all pins re-measured"
+   "bodyLastChanged": "cd985a7dc5bffc4ff91c9c6a063a5571ef72276b 2026-11-03 Stamp procedural provenance on the gown-inspect hospital gown"
   },
   {
    "body": "mpfb-gown-inspect.glb",
@@ -2332,7 +2321,7 @@
     "literal": "return (0.13, 0.09, 0.07, 1.0)  # near-black"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, patient role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:158. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:239.",
-   "bodyLastChanged": "a7c4d02941fbfc6dabec6b045dac298223efc52f 2026-11-03 st-gowninsp round 4: scoop front neckline to neck base, seal sleeve-root slits, all pins re-measured"
+   "bodyLastChanged": "cd985a7dc5bffc4ff91c9c6a063a5571ef72276b 2026-11-03 Stamp procedural provenance on the gown-inspect hospital gown"
   },
   {
    "body": "mpfb-gown-inspect.glb",
@@ -2352,7 +2341,7 @@
     "literal": "_GARMENT_COLOR_GOWN = (0.15, 0.55, 0.82, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1710. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1793.",
-   "bodyLastChanged": "a7c4d02941fbfc6dabec6b045dac298223efc52f 2026-11-03 st-gowninsp round 4: scoop front neckline to neck base, seal sleeve-root slits, all pins re-measured"
+   "bodyLastChanged": "cd985a7dc5bffc4ff91c9c6a063a5571ef72276b 2026-11-03 Stamp procedural provenance on the gown-inspect hospital gown"
   },
   {
    "body": "mpfb-gown-inspect.glb",
@@ -2369,7 +2358,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "a7c4d02941fbfc6dabec6b045dac298223efc52f 2026-11-03 st-gowninsp round 4: scoop front neckline to neck base, seal sleeve-root slits, all pins re-measured"
+   "bodyLastChanged": "cd985a7dc5bffc4ff91c9c6a063a5571ef72276b 2026-11-03 Stamp procedural provenance on the gown-inspect hospital gown"
   },
   {
    "body": "mpfb-gown-inspect.glb",
@@ -2387,7 +2376,7 @@
     "line": 334,
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
-   "bodyLastChanged": "a7c4d02941fbfc6dabec6b045dac298223efc52f 2026-11-03 st-gowninsp round 4: scoop front neckline to neck base, seal sleeve-root slits, all pins re-measured"
+   "bodyLastChanged": "cd985a7dc5bffc4ff91c9c6a063a5571ef72276b 2026-11-03 Stamp procedural provenance on the gown-inspect hospital gown"
   },
   {
    "body": "mpfb-gown-inspect.glb",
@@ -2404,7 +2393,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "a7c4d02941fbfc6dabec6b045dac298223efc52f 2026-11-03 st-gowninsp round 4: scoop front neckline to neck base, seal sleeve-root slits, all pins re-measured"
+   "bodyLastChanged": "cd985a7dc5bffc4ff91c9c6a063a5571ef72276b 2026-11-03 Stamp procedural provenance on the gown-inspect hospital gown"
   },
   {
    "body": "mpfb-gown-inspect.glb",
@@ -2424,7 +2413,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "a7c4d02941fbfc6dabec6b045dac298223efc52f 2026-11-03 st-gowninsp round 4: scoop front neckline to neck base, seal sleeve-root slits, all pins re-measured"
+   "bodyLastChanged": "cd985a7dc5bffc4ff91c9c6a063a5571ef72276b 2026-11-03 Stamp procedural provenance on the gown-inspect hospital gown"
   },
   {
    "body": "mpfb-gown-inspect.glb",
@@ -2444,7 +2433,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "a7c4d02941fbfc6dabec6b045dac298223efc52f 2026-11-03 st-gowninsp round 4: scoop front neckline to neck base, seal sleeve-root slits, all pins re-measured"
+   "bodyLastChanged": "cd985a7dc5bffc4ff91c9c6a063a5571ef72276b 2026-11-03 Stamp procedural provenance on the gown-inspect hospital gown"
   },
   {
    "body": "mpfb-gown-inspect.glb",
@@ -2464,7 +2453,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "a7c4d02941fbfc6dabec6b045dac298223efc52f 2026-11-03 st-gowninsp round 4: scoop front neckline to neck base, seal sleeve-root slits, all pins re-measured"
+   "bodyLastChanged": "cd985a7dc5bffc4ff91c9c6a063a5571ef72276b 2026-11-03 Stamp procedural provenance on the gown-inspect hospital gown"
   },
   {
    "body": "mpfb-gown-inspect.glb",
@@ -2484,7 +2473,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "a7c4d02941fbfc6dabec6b045dac298223efc52f 2026-11-03 st-gowninsp round 4: scoop front neckline to neck base, seal sleeve-root slits, all pins re-measured"
+   "bodyLastChanged": "cd985a7dc5bffc4ff91c9c6a063a5571ef72276b 2026-11-03 Stamp procedural provenance on the gown-inspect hospital gown"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2820,7 +2809,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -2840,7 +2829,7 @@
     "literal": "return (0.18, 0.13, 0.10, 1.0)  # nurse / default — mid-dark brown"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, nurse/default role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:159. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:240.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -2860,7 +2849,7 @@
     "literal": "_GARMENT_COLOR_SCRUB = (0.05, 0.48, 0.52, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). scrub lower, locked scrub colour (untextured cover shell or pre-strip fit). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -2876,7 +2865,7 @@
    },
    "path": "garment_shell_color scrub lock :1781-1785 -> garment_material_from_declared role_colour -> GARMENT_FACTOR_PATCH :1062-1068 -> patch_glb_base_color_factors :1073-1107",
    "reason": "No tint to resolve before bake: factor absent = glTF default white and the baseColorTexture carries the look. Lineage: HB-02 baked pre-bake factor (0.05, 0.48, 0.52, 1.0) from tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711 into the texture (docs/openclinxr/humanoid-albedo-bake-2026-09-10.json); HB-05 face-preserving write normalized the explicit white default to absent (semantically identical). Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -2893,7 +2882,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -2915,7 +2904,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -2937,7 +2926,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -2959,7 +2948,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -2981,7 +2970,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3003,7 +2992,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3025,7 +3014,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3047,7 +3036,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3064,7 +3053,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3084,7 +3073,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3104,7 +3093,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3124,7 +3113,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3144,7 +3133,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3159,7 +3148,7 @@
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Fitted library garment; no tint authored. Factor absent = glTF default white; the baseColorTexture carries the look. Fit recorded in tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-fit-time.json. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3176,7 +3165,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3189,7 +3178,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3204,7 +3193,7 @@
    },
    "kind": "baked albedo: HB-02 per-texel fold of muted_rose_and_neutral palette closed_casual x authored weave",
    "decision": "resolved",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3217,7 +3206,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3237,7 +3226,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3257,7 +3246,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3277,7 +3266,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3297,7 +3286,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3317,7 +3306,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3337,7 +3326,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3357,7 +3346,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3370,7 +3359,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3383,7 +3372,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3396,7 +3385,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3414,7 +3403,7 @@
     "line": 237,
     "literal": "return (0.16, 0.11, 0.09, 1.0)  # dark brown — the dominant natural shade"
    },
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -3432,7 +3421,7 @@
     "line": 7091,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3452,7 +3441,7 @@
     "literal": "\"closed_casual\": (0.55, 0.68, 0.80, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lower cover shell = garment_shell_color(_lower_kind,role,palette) (untextured; library trouser replaced by LOWER GATE). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1756. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1839.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3469,7 +3458,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3489,7 +3478,7 @@
     "literal": "return (0.13, 0.09, 0.07, 1.0)  # near-black"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, patient role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:158. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:239.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3505,7 +3494,7 @@
    },
    "path": "garment_shell_color palette table -> GARMENT_FACTOR_PATCH -> patch_glb",
    "reason": "No tint to resolve before bake: factor absent = glTF default white and the baseColorTexture carries the look. Lineage: HB-02 baked the palette factor into the texture (docs/openclinxr/humanoid-albedo-bake-2026-09-10.json); a later glTF write normalized the explicit white default to absent (semantically identical). Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3522,7 +3511,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3544,7 +3533,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3566,7 +3555,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3588,7 +3577,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3610,7 +3599,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3632,7 +3621,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3654,7 +3643,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3676,7 +3665,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3693,7 +3682,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3713,7 +3702,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3733,7 +3722,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3753,7 +3742,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-peds-patient-child.glb",
@@ -3773,7 +3762,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972.",
-   "bodyLastChanged": "4716d0bfdb26863fd10b0d227848eca15f5a59ba 2026-11-03 st-weld2 D1: garment topology weld on remaining mpfb GLBs (post-export byte stage)"
+   "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
    "body": "mpfb-street-adult-male.glb",
@@ -4468,10 +4457,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4545,
+    "line": 4603,
     "literal": "return \"casual_shoe\", (0.12, 0.08, 0.05, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4545.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4603",
    "bodyLastChanged": "45fcb3782d22b290b0882cfc681049c4d4b81ad9 2026-08-11 fix(#303): re-orchestrate peds parent and nurse from their own phenotypes"
   },
   {
@@ -4488,10 +4477,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4545,
+    "line": 4603,
     "literal": "return \"casual_shoe\", (0.12, 0.08, 0.05, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4545.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny casual shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4431. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4603",
    "bodyLastChanged": "45fcb3782d22b290b0882cfc681049c4d4b81ad9 2026-08-11 fix(#303): re-orchestrate peds parent and nurse from their own phenotypes"
   },
   {
@@ -4569,10 +4558,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 3605,
+    "line": 3663,
     "literal": "lower_color = (0.18, 0.17, 0.20, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny family lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3491. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3605.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny family lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3491. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3663",
    "bodyLastChanged": "45fcb3782d22b290b0882cfc681049c4d4b81ad9 2026-08-11 fix(#303): re-orchestrate peds parent and nurse from their own phenotypes"
   },
   {
@@ -4609,10 +4598,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4907,
+    "line": 4965,
     "literal": "base_color = (0.12, 0.07, 0.035, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4907.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4965",
    "bodyLastChanged": "45fcb3782d22b290b0882cfc681049c4d4b81ad9 2026-08-11 fix(#303): re-orchestrate peds parent and nurse from their own phenotypes"
   },
   {
@@ -4629,11 +4618,11 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4543,
+    "line": 4601,
     "literal": "return \"hospital_slipper\", (0.18, 0.42, 0.78, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4543.",
-   "bodyLastChanged": "fd50c1435455f1220a25c6b4ea0d0209f40eebf3 2026-11-03 Hold the fever peds GLB at its origin bytes until its hem-finish is hole-free"
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4601",
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "peds_fever_patient_child.glb",
@@ -4649,11 +4638,11 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4543,
+    "line": 4601,
     "literal": "return \"hospital_slipper\", (0.18, 0.42, 0.78, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4543.",
-   "bodyLastChanged": "fd50c1435455f1220a25c6b4ea0d0209f40eebf3 2026-11-03 Hold the fever peds GLB at its origin bytes until its hem-finish is hole-free"
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4601",
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "peds_fever_patient_child.glb",
@@ -4673,7 +4662,7 @@
     "literal": "\"tshirt\": (0.08, 0.52, 0.95, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny real-garment shell = garment_shell_color(kind,role,palette) (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1724. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1807.",
-   "bodyLastChanged": "fd50c1435455f1220a25c6b4ea0d0209f40eebf3 2026-11-03 Hold the fever peds GLB at its origin bytes until its hem-finish is hole-free"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "peds_fever_patient_child.glb",
@@ -4694,7 +4683,7 @@
     "branch": "warm/light/child skin_tone; else :920 (0.62,0.46,0.36); flush/paleness nudges :924-928; written to Base Color :934"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny procedural skin (untextured; factor IS the albedo). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:918.",
-   "bodyLastChanged": "fd50c1435455f1220a25c6b4ea0d0209f40eebf3 2026-11-03 Hold the fever peds GLB at its origin bytes until its hem-finish is hole-free"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "peds_fever_patient_child.glb",
@@ -4710,11 +4699,11 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 3608,
+    "line": 3666,
     "literal": "lower_color = (0.06, 0.12, 0.28, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3608.",
-   "bodyLastChanged": "fd50c1435455f1220a25c6b4ea0d0209f40eebf3 2026-11-03 Hold the fever peds GLB at its origin bytes until its hem-finish is hole-free"
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3666",
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "peds_fever_patient_child.glb",
@@ -4734,7 +4723,7 @@
     "literal": "\"tshirt\": (0.08, 0.52, 0.95, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny sleeve-end arm paint, recolored to outermost garment shell exact match #146 (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1724. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1807.",
-   "bodyLastChanged": "fd50c1435455f1220a25c6b4ea0d0209f40eebf3 2026-11-03 Hold the fever peds GLB at its origin bytes until its hem-finish is hole-free"
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "peds_fever_patient_child.glb",
@@ -4750,11 +4739,11 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4907,
+    "line": 4965,
     "literal": "base_color = (0.12, 0.07, 0.035, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4907.",
-   "bodyLastChanged": "fd50c1435455f1220a25c6b4ea0d0209f40eebf3 2026-11-03 Hold the fever peds GLB at its origin bytes until its hem-finish is hole-free"
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair brown default (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4793. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4965",
+   "bodyLastChanged": "812b5f5de50fd3bc037f80cb2f2d365fdb96be1e 2026-11-03 st-palette C5: grafted hem bytes for nurse + family, re-pinned through producers"
   },
   {
    "body": "peds_nurse_kevin.glb",
@@ -4770,10 +4759,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4541,
+    "line": 4599,
     "literal": "return \"clinical_shoe\", (0.08, 0.09, 0.10, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny clinical shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4427. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4541.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny clinical shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4427. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4599",
    "bodyLastChanged": "5a7b34601474becfb14d10c8170d709488c863d2 2026-08-24 fix(#660): give the generated shoe shells a flat sole strip instead of an ellipsoid bottom"
   },
   {
@@ -4790,10 +4779,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4541,
+    "line": 4599,
     "literal": "return \"clinical_shoe\", (0.08, 0.09, 0.10, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny clinical shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4427. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4541.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny clinical shoe shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4427. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4599",
    "bodyLastChanged": "5a7b34601474becfb14d10c8170d709488c863d2 2026-08-24 fix(#660): give the generated shoe shells a flat sole strip instead of an ellipsoid bottom"
   },
   {
@@ -4871,10 +4860,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 3602,
+    "line": 3660,
     "literal": "lower_color = (0.015, 0.34, 0.37, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny nurse lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3488. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3602.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny nurse lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3488. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3660",
    "bodyLastChanged": "5a7b34601474becfb14d10c8170d709488c863d2 2026-08-24 fix(#660): give the generated shoe shells a flat sole strip instead of an ellipsoid bottom"
   },
   {
@@ -4911,10 +4900,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4901,
+    "line": 4959,
     "literal": "base_color = (0.035, 0.028, 0.022, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair black (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4787. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4901.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair black (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4787. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4959",
    "bodyLastChanged": "5a7b34601474becfb14d10c8170d709488c863d2 2026-08-24 fix(#660): give the generated shoe shells a flat sole strip instead of an ellipsoid bottom"
   },
   {
@@ -4931,10 +4920,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4543,
+    "line": 4601,
     "literal": "return \"hospital_slipper\", (0.18, 0.42, 0.78, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4543.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4601",
    "bodyLastChanged": "af95076fc874a14e15d2d7719ddaee3e8064d65f 2026-08-08 fix(#188): add parametric footwear shells on all seven shipped humanoids"
   },
   {
@@ -4951,10 +4940,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4543,
+    "line": 4601,
     "literal": "return \"hospital_slipper\", (0.18, 0.42, 0.78, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4543.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny hospital slipper shell (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4429. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4601",
    "bodyLastChanged": "af95076fc874a14e15d2d7719ddaee3e8064d65f 2026-08-08 fix(#188): add parametric footwear shells on all seven shipped humanoids"
   },
   {
@@ -5012,10 +5001,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 3608,
+    "line": 3666,
     "literal": "lower_color = (0.06, 0.12, 0.28, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3608.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny patient lower paint (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:3494. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:3666",
    "bodyLastChanged": "af95076fc874a14e15d2d7719ddaee3e8064d65f 2026-08-08 fix(#188): add parametric footwear shells on all seven shipped humanoids"
   },
   {
@@ -5052,10 +5041,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "line": 4905,
+    "line": 4963,
     "literal": "base_color = (0.24, 0.15, 0.075, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair light (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4791. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4905.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). Anny scalp hair light (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:4791. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:4963",
    "bodyLastChanged": "af95076fc874a14e15d2d7719ddaee3e8064d65f 2026-08-08 fix(#188): add parametric footwear shells on all seven shipped humanoids"
   }
  ]
