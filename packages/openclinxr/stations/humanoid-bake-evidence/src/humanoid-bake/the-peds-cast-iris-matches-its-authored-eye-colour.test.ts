@@ -73,6 +73,11 @@ const GENERATED = join(repoRoot(), "apps/ui-xr/public/generated-humanoids");
 const BROWN = "4659691c7295";
 const GREEN = "b9864ac4f4fa";
 const BLUE = "572ddc93ab3e";
+// st-viteye r2 producer outputs (tools/openclinxr/asset-pipeline/eyes/
+// vitruvian/manifest.json): CC0 Vitruvian polar resample with F's limbal
+// edge. Moved actors pin these; unmoved actors keep the pack pins above.
+const VITR_BROWN = "4066911e4dfb";
+const VITR_GREEN = "6435efc25382";
 
 async function iris(actor: string): Promise<{ name: string; sha: string }> {
   const doc = await new NodeIO().read(join(GENERATED, `${actor}.glb`));
@@ -100,14 +105,20 @@ describe("the peds cast's iris matches its authored eye colour", () => {
 
   it("(2) RED: the peds nurse's iris is the case's brown, not the nurse default blue", async () => {
     const got = await iris("mpfb-peds-nurse-kevin");
-    expect(got.sha, `case authors brown; shipped is ${got.name}`).toBe(BROWN);
+    // st-viteye r2: case brown carried by the Vitruvian resample (same slot
+    // the materializer feeds), not the pack bytes. Still brown, still the
+    // case's — the pin follows the producer output (manifest sha).
+    expect(got.sha, `case authors brown; shipped is ${got.name}`).toBe(VITR_BROWN);
   });
 
   it("(3) NET: actors authoring NO eye colour keep their role default", async () => {
     // Refuses (c). Repainting the role table brown would satisfy (1) and (2) and destroy this.
     expect((await iris("mpfb-clinical-nurse-adult")).sha, "nurse fallback stays blue").toBe(BLUE);
-    expect((await iris("mpfb-family-partner-adult")).sha, "family fallback stays green").toBe(GREEN);
-    expect((await iris("mpfb-ob-patient-aisha")).sha, "patient fallback stays brown").toBe(BROWN);
+    // st-viteye r2: the family/patient fallbacks are carried by the Vitruvian
+    // resamples (role default green/brown through the same slot). Unmoved
+    // fallback actors (clinical-nurse, street-male) keep pack pins.
+    expect((await iris("mpfb-family-partner-adult")).sha, "family fallback stays green").toBe(VITR_GREEN);
+    expect((await iris("mpfb-ob-patient-aisha")).sha, "patient fallback stays brown").toBe(VITR_BROWN);
     expect((await iris("mpfb-street-adult-male")).sha, "patient fallback stays brown").toBe(BROWN);
   });
 
@@ -154,5 +165,30 @@ describe("the peds cast's iris matches its authored eye colour", () => {
  * not the patient role default. The refusal is untouched: `eye_iris_colour` still raises
  * ValueError on any unbuildable name (see the-case-eye-colour-reaches-the-iris-selector clause (3)
  * and (5)). Clauses (1)(2)(3) unchanged.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
+ * ## FIXED (st-viteye r2) — appended; the planted header above is immutable
+ *
+ * The eye bytes moved through the st-viteye producer: CC0 Vitruvian polar
+ * resample with F's limbal edge (stage + manifest under
+ * tools/openclinxr/asset-pipeline/eyes/vitruvian/), fed through the exact
+ * TEXTURE_OVERRIDES slot the materializer uses (iris_palette map, same slot
+ * --eye-texture uses). No Blender rebake was available in the worktree (no
+ * staged pack/hair/garment .mhmat + MPFB env); the H3 census on each swapped
+ * GLB asserts ONLY the eye/iris image bytes changed (aisha image[4], kevin
+ * image[3], family image[4]; every other image byte-identical).
+ *
+ * Re-pinned through the producer (manifest output shas): clause (2) kevin to
+ * VITR_BROWN 4066911e4dfb; clause (3) family-partner to VITR_GREEN
+ * 6435efc25382, ob-patient-aisha to VITR_BROWN. Unmoved actors keep pack
+ * pins: parent-aisha BROWN (case brown, pack bytes), clinical-nurse BLUE,
+ * street-male BROWN, child GREEN + name green_eye.
+ *
+ * Kevin carries brown, not blue: his case authors eye_color brown
+ * (peds_nurse_kevin.anny_manifest.json, #519) and eye-colour-is-case-driven
+ * forbids the role default overriding the case. The r2 handback's "(blue)"
+ * read the nurse role default; the case wins. Recorded, not widened: the
+ * refusal on unbuildable names, the hardcode defence in the sibling guard,
+ * and clause (4)'s byte-identity on Maya are untouched.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */

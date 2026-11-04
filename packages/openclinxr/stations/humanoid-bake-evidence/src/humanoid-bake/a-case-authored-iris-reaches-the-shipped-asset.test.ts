@@ -79,7 +79,7 @@ function embeddedImages(glb: string): { name: string; bytes: number; sha: string
   return out;
 }
 
-const irisOf = (glb: string) => embeddedImages(glb).find((i) => /eye/i.test(i.name));
+const irisOf = (glb: string) => embeddedImages(glb).find((i) => /eye|iris/i.test(i.name));
 
 /** Cast per the wired mechanism, as recorded in the licence ledger for #356. */
 const PARENT = "mpfb-peds-parent-aisha.glb";   // cast says green
@@ -117,23 +117,28 @@ describe("a case-authored iris reaches the shipped asset", () => {
   });
 
   it("(3) GUARD (was a RED, premise withdrawn): the nurse ships brown because kevin's case authors brown", () => {
+    // st-viteye r2: the case brown is carried by the Vitruvian resample
+    // (producer output 4066911e4dfb), not the pack bytes. Same case, same
+    // colour, new carrier.
     expect(
       irisOf(NURSE)!.sha,
       "the nurse's case authors brown; a flip to blue would be the role cast overriding the case",
-    ).toBe("4659691c7295");
+    ).toBe("4066911e4dfb");
   });
 
   it("(4) COUNTERWEIGHT: the iris stays a real staged texture, not a recolour", () => {
     // Refuses the cheap fix - tinting or generating bytes to make the hashes differ. Every shipped
-    // iris must remain a full-size 1024^2 RGBA texture in the range the CC0 pack actually contains
-    // (610,817-701,486 bytes, per the ledger). A synthesised swatch or a baseColorFactor tint fails
-    // here, and the ledger's own reason stands: the iris is chromatic, so tinting comes out muddy.
+    // iris must remain a full-size 1024^2 RGBA texture in the range the producers actually emit:
+    // pack members 610,817-701,486 B (ledger) plus the st-viteye r2 vitruvian resamples
+    // (measured producer max 718,537 B, manifest-recorded). A synthesised swatch or a
+    // baseColorFactor tint fails here, and the ledger's own reason stands: the iris is chromatic,
+    // so tinting comes out muddy.
     for (const glb of [PARENT, NURSE, CHILD]) {
       const iris = irisOf(glb)!;
-      expect(iris.bytes, `${glb} iris size sits in the staged pack's measured range`)
+      expect(iris.bytes, `${glb} iris size sits in the producers' measured range`)
         .toBeGreaterThanOrEqual(610_817);
-      expect(iris.bytes, `${glb} iris size sits in the staged pack's measured range`)
-        .toBeLessThanOrEqual(701_486);
+      expect(iris.bytes, `${glb} iris size sits in the producers' measured range`)
+        .toBeLessThanOrEqual(718_537);
     }
   });
 });
@@ -148,5 +153,17 @@ describe("a case-authored iris reaches the shipped asset", () => {
  * Clauses (2)/(3) now compare the parent/nurse to the verified upstream brown (4659691c7295)
  * directly instead of "== child", because the child's case colour legitimately differs now.
  * Clause (4) unchanged — green_eye sits inside the pack's measured size range.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
+ * ## FIXED (st-viteye r2) — appended; the planted header above is immutable
+ *
+ * Clause (3) re-keyed to the r2 carrier: kevin's case still authors brown,
+ * now shipped as the vitruvian-iris-brown resample (sha256[0:12] 4066911e4dfb,
+ * 718,537 B; stage + manifest under tools/openclinxr/asset-pipeline/eyes/
+ * vitruvian/). Clause (0)'s parser matches /eye|iris/ on the image name so
+ * the vitruvian-iris-<colour> image is found; the one-texture-per-asset
+ * requirement is unchanged. Clause (4)'s ceiling admits the measured
+ * vitruvian max (718,537 B); the floor and the chromatic-texture intent are
+ * unchanged. Clauses (1)/(2) untouched (child green, parent pack brown).
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */

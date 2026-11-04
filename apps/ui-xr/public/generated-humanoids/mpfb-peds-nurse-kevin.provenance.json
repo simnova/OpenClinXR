@@ -73,8 +73,8 @@
  "claimScope": "kevin_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_mhair02_kept",
  "promotionGates": false,
  "generatedAt": "2026-11-02T19:13:49.000Z",
- "outputSha256": "5df99085c51be1e809a94ca6c245f26bd8278aa886f9eed954cbe81db91049ef",
- "outputBytes": 15966652,
+ "outputSha256": "e52a3e25f86d49bc76d2c32b46c3523b0871feda11d5a7f9fbc09e5c941c8be8",
+ "outputBytes": 16074580,
  "licenceNoticeWrittenAt": "2026-09-10T17:27:31.899Z",
  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here.",
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.423Z",
@@ -167,5 +167,13 @@
   ],
   "effective": "shirt [0.0501,0.4799,0.5202] vs teal; pants factor-only [0.05,0.48,0.52] untouched",
   "claimScope": "baseColorTexture bytes + baseColorFactor folds only; no geometry, skinning, morph or animation changes"
+ },
+ "vitruvianEyeSwapR2": {
+  "tool": "tools/openclinxr/asset-pipeline/eyes/apply_vitruvian_eye_texture.py",
+  "colour": "brown",
+  "texture": "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-brown.png",
+  "textureSha256": "4066911e4dfb2430c37ccb15c050238c5576a431b43a8b415a1e723457c44922",
+  "previousEyeSha12": "4659691c7295",
+  "note": "st-viteye-r2-H2-brown-case"
  }
 }

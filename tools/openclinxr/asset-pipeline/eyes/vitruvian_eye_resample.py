@@ -9,12 +9,14 @@ packages/openclinxr/xr-scene/src/eye-shader/iris-disc-roughness-map.ts.
 Method:
   iris: fit centre/disc/wedge in SOURCE px, unwrap to (r,theta), rewrap so
     r_disc lands at 133.5 dst px. Flat pupil stamp r<=38 covers the wedge.
-    Limbus crossfade 133.5+-15 (30 px band) to sclera; halfway crossing at
-    133.5 by symmetric construction.
   sclera: polar-resample the fitted white inner band onto the dst sclera
     annulus (inner part); the outer part samples the pink band desaturated
     toward the destination sclera colour. Corner tile + grey placeholder are
     never sampled (masked by construction: max sampled src r ~1400).
+  limbus: the raw 30 px smoothstep blend is reshaped by F's limbal compress
+    (gen-iris-centred-f.py verbatim math): frozen r<110 and r>=160, sharp 8px
+    smoothstep dark-limbus to bright-sclera edge at the image's own halfway
+    radius. Pupil stamp and true sclera are untouched by construction.
   colours: hazel = source as-is. brown/green/blue = OKLCH remap preserving
     per-pixel L structure (L shift, C scale, absolute hue + relative variation).
 
@@ -131,6 +133,154 @@ def oklch_remap(iris_lin, params):
     lab2 = np.stack([Lp, Cp * np.cos(ar), Cp * np.sin(ar)], axis=-1)
     out = np.clip(oklab_to_linear(lab2), 0, None)
     return out, {"L0": L0, "C0": C0, "h0": h0}
+
+
+# F-era limbal edge (gen-iris-centred-f.py verbatim math): sharp 8px
+# smoothstep from the dark-limbus plateau to the bright sclera, crossing at
+# the image's own halfway radius. Frozen: r<110 (iris interior + pupil
+# stamp) and r>=160 (true sclera). Gain is RGB-proportional (hue preserved)
+# and radially symmetric (no angular term: no catch-light, no lid shadow).
+F_R_KEEP_IN = 110.0
+F_R_KEEP_OUT = 160.0
+F_HALF_WIDTH = 4.0
+F_FEATHER_START = 156.0
+# F's own per-eye halfway radii on iris-centred-f.png (texture-manifest
+# procedure, azimuthal-median method): the r2 target neighbourhood.
+F_REFERENCE_RC = (133.33, 133.17)
+
+
+def _enc_luminance_px(r, g, b):
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def azimuthal_median_profile(img, cx, cy, extent=260):
+    """Azimuthal-median encoded-luminance profile about (cx, cy)."""
+    H, W, _ = img.shape
+    prof = {}
+    y0, y1 = max(0, int(cy) - extent), min(H, int(cy) + extent)
+    x0, x1 = max(0, int(cx) - extent), min(W, int(cx) + extent)
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            ri = int(round(math.hypot(x - cx, y - cy)))
+            if ri > extent:
+                continue
+            prof.setdefault(ri, []).append(_enc_luminance_px(*img[y, x]))
+    return {k: float(np.median(v)) for k, v in prof.items()}
+
+
+def edge_stats_from_med(med):
+    """Halfway rc + widths from an azimuthal-median encoded-lum profile."""
+    D = float(np.median([med[k] for k in range(108, 113)]))
+    S = float(np.median([med[k] for k in range(165, 176)]))
+    half = (D + S) / 2.0
+    rc = None
+    for k in range(110, 165):
+        if med[k] >= half:
+            v0, v1 = med[k - 1], med[k]
+            if v1 <= v0:
+                continue
+            rc = (k - 1) + (half - v0) / (v1 - v0)
+            break
+    assert rc is not None
+    rmin = min(range(100, 150), key=lambda k: med.get(k, 1e9))
+    dark_min = float(med[rmin])
+
+    def cross(level, lo):
+        for k in range(lo, 200):
+            if med.get(k, -1) >= level:
+                v0, v1 = med.get(k - 1, level), med[k]
+                if v1 <= v0:
+                    return None
+                return (k - 1) + (level - v0) / (v1 - v0 + 1e-12)
+        return None
+
+    # F's ramp (encoded-lum 15->150 span) is only defined when the limbus
+    # dark minimum reaches the 15 floor (F's own D=5.0 does; our photographic
+    # limbus bottoms out at 59-107, so the floor is never reached and the
+    # span is recorded null). The 10-90 width of the (D,S) span is the
+    # content-independent equivalent: F's own 10-90 is 4.97px = its 5.0 ramp.
+    r15 = cross(15.0, rmin) if dark_min <= 15.0 else None
+    r150 = cross(150.0, rmin)
+    ramp = (r150 - r15) if (r15 is not None and r150 is not None) else None
+
+    def span_cross(frac):
+        lvl = D + frac * (S - D)
+        for k in range(100, 200):
+            if med.get(k - 1, 1e9) < lvl <= med.get(k, -1):
+                v0, v1 = med[k - 1], med[k]
+                return (k - 1) + (lvl - v0) / (v1 - v0 + 1e-12)
+        return None
+
+    w10, w90 = span_cross(0.10), span_cross(0.90)
+    width_10_90 = (w90 - w10) if (w10 is not None and w90 is not None) else None
+    # 25-75 is the noise-robust shipped metric: the 10% level sits inside
+    # the fibre-noise band of bright irises (r2 blue: D=107, 10% = 113 vs
+    # fibre bumps at 113), while 25% clears it on every colour. F anchor:
+    # 25-75 = 2.84px, 10-90 = 4.97px.
+    w25, w75 = span_cross(0.25), span_cross(0.75)
+    width_25_75 = (w75 - w25) if (w25 is not None and w75 is not None) else None
+    return {"rc": rc, "D": D, "S": S, "ramp_15_150": ramp,
+            "r_dark_min": rmin, "dark_min_lum": dark_min,
+            "width_10_90": width_10_90, "width_25_75": width_25_75}
+
+
+def f_compress_edge(img, cx, cy, rc_target=None):
+    """Apply F's limbal compress to a float 0-255 sRGB image.
+
+    Returns (image, stats). The 8px smoothstep runs from the image's OWN
+    dark-limbus plateau D to its OWN sclera plateau S (both measured by F's
+    azimuthal-median halfway method), but centres at rc_target — the shipped
+    F edge crossing (F_REFERENCE_RC per eye) — not at the image's own
+    halfway radius. r2: the photographic limbus bottoms out darker/wider
+    than F's procedural edge, so centring on the own radius would move the
+    visible iris boundary ~1.5px inward from the shipped fix. Pupil stamp
+    and true sclera are untouched by construction.
+    """
+    out = img.copy()
+    H, W, _ = img.shape
+    med = azimuthal_median_profile(img, cx, cy)
+    st = edge_stats_from_med(med)
+    rc_own = st["rc"]
+    rc = rc_target if rc_target is not None else rc_own
+    D, S = st["D"], st["S"]
+    prof = {}
+    y0, y1 = max(0, int(cy) - 260), min(H, int(cy) + 260)
+    x0, x1 = max(0, int(cx) - 260), min(W, int(cx) + 260)
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            ri = int(round(math.hypot(x - cx, y - cy)))
+            if ri > 260:
+                continue
+            prof.setdefault(ri, []).append(_enc_luminance_px(*img[y, x]))
+    S_max = float(max(max(prof[k]) for k in range(160, 181)))
+
+    def target(r):
+        if r <= rc - F_HALF_WIDTH:
+            return D
+        if r >= rc + F_HALF_WIDTH:
+            return S
+        t = (r - (rc - F_HALF_WIDTH)) / (2 * F_HALF_WIDTH)
+        return D + (S - D) * (t * t * (3 - 2 * t))
+
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            r = math.hypot(x - cx, y - cy)
+            if not (F_R_KEEP_IN <= r < F_R_KEEP_OUT):
+                continue
+            ri = int(round(r))
+            em = med.get(ri)
+            if not em or em <= 0:
+                continue
+            g = target(r) / em
+            if r >= F_FEATHER_START:
+                g = 1.0 + (g - 1.0) * (F_R_KEEP_OUT - r) / (F_R_KEEP_OUT - F_FEATHER_START)
+            px = img[y, x] * g
+            lum = _enc_luminance_px(*px)
+            if lum > S_max and lum > 0:
+                px = px * (S_max / lum)
+            out[y, x] = np.clip(px, 0, 255)
+    return out, {"rc": rc, "rc_own": rc_own, "rc_target": rc_target,
+                 "D": D, "S": S, "S_max": S_max, "raw": st}
 
 
 def srgb_hue_deg(rgb):
@@ -330,39 +480,9 @@ def main():
             canvas = np.where(region[..., None],
                               (1 - fw[..., None]) * composited + fw[..., None] * canvas,
                               canvas)
-            # --- limbus luminance normalisation (F-era method): radial-only
-            # gain pins the azimuthal-median profile to a smoothstep centred
-            # at IRIS_R with full width LIMBUS_W, so the measured halfway
-            # crossing is colour-independent. Hue preserved (RGB scaled
-            # equally); angular fibre structure preserved (gain is radial).
-            lum = (0.2126 * canvas[:, :, 0] + 0.7152 * canvas[:, :, 1]
-                   + 0.0722 * canvas[:, :, 2])
-            prof = {}
-            rdi = rd.astype(int)
-            for r in range(60, 201):
-                m = (rdi == r)
-                if m.sum() > 64:
-                    prof[r] = float(np.median(lum[m]))
-            Dp = float(np.median([prof[r] for r in range(95, 106)]))
-            Sp = float(np.median([prof[r] for r in range(170, 181)]))
-
-            def _ss(x):
-                x = min(max(x, 0.0), 1.0)
-                return x * x * (3 - 2 * x)
-
-            gain = np.ones_like(rd)
-            # NOTE: the gate re-bins radii at integer centres over
-            # [r-0.5, r+0.5) while this fit bins [r, r+1); the +0.5 texel
-            # systematic is cancelled by targeting IRIS_R - 0.5 here so the
-            # gate reads 133.5.
-            for r in range(60, 201):
-                tgt = Dp + (Sp - Dp) * _ss((r - (IRIS_R - 0.5 - LIMBUS_W / 2)) / LIMBUS_W)
-                gain[rdi == r] = tgt / max(prof.get(r, tgt), 1e-9)
-            # feather the gain to 1 outside [60,190] so interior/exterior join
-            w = np.clip((rd - 50.0) / 10.0, 0, 1) * np.clip((200.0 - rd) / 10.0, 0, 1)
-            w = w * w * (3 - 2 * w)
-            canvas = canvas * (1 - w[..., None] + w[..., None] * gain[..., None])
-            # pupil stamp (flat) covers the wedge by construction
+            # pupil stamp (flat) covers the wedge by construction.
+            # The F compress below freezes r<110, so the stamp (r<=38) and
+            # the iris interior survive it byte-exact.
             if not args.probe_no_stamp:
                 m_pupil = rd <= PUPIL_R
                 pupil_lin = srgb_to_linear(np.array([2.0, 2.0, 2.0]) / 255.0)
@@ -376,9 +496,24 @@ def main():
                 pv = pupil_pol[pj, thi]
                 canvas = np.where(m_pupil[..., None], np.clip(pv, 0, None), canvas)
 
-        srgb = np.clip(np.round(linear_to_srgb(canvas) * 255), 0, 255).astype(np.uint8)
+        # --- F limbal compress (r2): reshape the raw 30 px blend to F's 8px
+        # dark-limbus to bright-sclera edge centred at F's own per-eye
+        # crossing (F_REFERENCE_RC), not the image's own halfway radius.
+        srgb_f = linear_to_srgb(canvas) * 255.0
+        edge_stats = []
+        for i, (ecx, ecy) in enumerate(DST_CENTRES):
+            srgb_f, st = f_compress_edge(srgb_f, ecx, ecy,
+                                         rc_target=F_REFERENCE_RC[i])
+            edge_stats.append(st)
+        # output profile: re-profile the compressed image per eye; the
+        # shipped widths come from here, not from the raw blend.
+        for i, (ecx, ecy) in enumerate(DST_CENTRES):
+            edge_stats[i]["output"] = edge_stats_from_med(
+                azimuthal_median_profile(np.clip(srgb_f, 0, 255), ecx, ecy))
+        srgb = np.clip(np.round(srgb_f), 0, 255).astype(np.uint8)
         outputs[colour] = srgb
-        manifest_colours[colour] = {"oklch": cparams}
+        manifest_colours[colour] = {"oklch": cparams,
+                                    "limbal_edge_F": edge_stats}
 
     # write outputs + manifest
     if args.probe_out:
@@ -415,6 +550,19 @@ def main():
             "iris_radius": IRIS_R, "limbus_band": LIMBUS_W, "pupil_r": PUPIL_R,
             "centres": DST_CENTRES, "sclera_extent": DST_SCL_OUT,
             "sclera_feather": DST_SCL_FEATHER,
+        },
+        "limbus_edge": {
+            "method": "F compress (gen-iris-centred-f.py verbatim math): "
+                      "frozen r<110 and r>=160, 8px smoothstep from the "
+                      "image's own dark-limbus plateau to its own sclera, "
+                      "centred at F's per-eye crossing F_REFERENCE_RC "
+                      "(r2: own-radius centring would move the boundary "
+                      "~1.5px inward from the shipped fix); "
+                      "pupil stamp r<=38 and true sclera byte-exact",
+            "half_width_px": F_HALF_WIDTH,
+            "F_reference_rc_per_eye": list(F_REFERENCE_RC),
+            "ramp_definition": "encoded-lum 15->150 span outward from "
+                               "limbus dark minimum (F's definition)",
         },
         "sclera_target": {"srgb_0_255": [169, 170, 165],
                           "pink_desat": PINK_DESAT, "pink_dlift": PINK_DLIFT},

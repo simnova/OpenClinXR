@@ -64,8 +64,8 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-12T16:29:00Z",
- "outputSha256": "ee45f65c0162208d9ca37f5a116c82d11d072def31b6429a6b32c74f040ee7cd",
- "outputBytes": 9277296,
+ "outputSha256": "fb37db5e9ed7bd848dcf87b94ebdd53a150fbfccdbeb8be47fdf66825e1bcca8",
+ "outputBytes": 9330184,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:06:17.490Z",
@@ -117,5 +117,13 @@
    "channels": 411,
    "reason": "rebound with corrected --source-orientation: travel MISMATCHES rest (restZ=0.0646, advanceForwardZ=-0.9962, windowFrames=10, mps=0.381)"
   }
- ]
+ ],
+ "vitruvianEyeSwapR2": {
+  "tool": "tools/openclinxr/asset-pipeline/eyes/apply_vitruvian_eye_texture.py",
+  "colour": "green",
+  "texture": "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-green.png",
+  "textureSha256": "6435efc253824fb09a8ec0ad11ee7136a40f0596c8b3050e61117a533acdcbce",
+  "previousEyeSha12": "b9864ac4f4fa",
+  "note": "st-viteye-r2-H2-green"
+ }
 }

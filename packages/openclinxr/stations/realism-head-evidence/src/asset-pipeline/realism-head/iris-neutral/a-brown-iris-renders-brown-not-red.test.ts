@@ -67,7 +67,12 @@ function loadReport(): Report {
 }
 
 describe("a brown iris renders brown, not red (tsk_b1604af3eb881268)", () => {
-  it("(unit) the resolver maps brown to iris-centred-c.png and nothing else", async () => {
+  it("(unit) the resolver maps brown/green/blue to the vitruvian resamples and nothing else", async () => {
+    // st-viteye r2 supersedes the iris-centred-c neutral: the CC0 Vitruvian
+    // polar resample (brown = OKLCH remap, hue 23.0-23.6, clears the 15.9 bar;
+    // green/blue likewise) now feeds the same TEXTURE_OVERRIDES slot. Hazel
+    // resolves to the source-as-is resample. All other pack ids keep the
+    // pack texture; eye_iris_colour return values do not change.
     const stdout = await runPython(`
 import sys, json
 sys.path.insert(0, "tools/openclinxr/asset-pipeline/anny")
@@ -75,21 +80,36 @@ from iris_palette import eye_iris_colour, iris_diffuse_override
 ids = ["blue", "bluegreen", "brown", "brownlight", "deepblue", "green", "grey", "ice", "lightblue"]
 print(json.dumps({
     "brown": iris_diffuse_override("brown"),
-    "others": {i: iris_diffuse_override(i) for i in ids if i != "brown"},
+    "green": iris_diffuse_override("green"),
+    "blue": iris_diffuse_override("blue"),
+    "hazel": iris_diffuse_override("hazel"),
+    "others": {i: iris_diffuse_override(i) for i in ids if i not in ("brown", "green", "blue")},
     "roleUnchanged": eye_iris_colour("patient", {}),
 }))
 `);
     const got = JSON.parse(stdout) as {
       brown: string | null;
+      green: string | null;
+      blue: string | null;
+      hazel: string | null;
       others: Record<string, string | null>;
       roleUnchanged: string;
     };
-    expect(got.brown, "brown must resolve to the neutral texture").toBe(
-      "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png",
+    expect(got.brown, "brown must resolve to the vitruvian brown resample").toBe(
+      "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-brown.png",
+    );
+    expect(got.green, "green must resolve to the vitruvian green resample").toBe(
+      "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-green.png",
+    );
+    expect(got.blue, "blue must resolve to the vitruvian blue resample").toBe(
+      "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-blue.png",
+    );
+    expect(got.hazel, "hazel must resolve to the vitruvian hazel resample").toBe(
+      "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-hazel.png",
     );
     expect(
       Object.values(got.others).every((v) => v === null),
-      `every non-brown id keeps the pack texture, got ${JSON.stringify(got.others)}`,
+      `every non-vitruvian id keeps the pack texture, got ${JSON.stringify(got.others)}`,
     ).toBe(true);
     expect(got.roleUnchanged, "eye_iris_colour return values do not change").toBe("brown");
   });

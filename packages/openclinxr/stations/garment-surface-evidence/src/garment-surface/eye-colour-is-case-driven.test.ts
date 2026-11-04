@@ -121,11 +121,16 @@ const EYE_IRIS_PACK = new Set([
  * Measured sha256[0:12] of each pack colour's iris PNG (baked into shipped GLBs / FIXED #356
  * table). brown/green/blue are the three that have reached a learner; others are absent until
  * a case authors them.
+ *
+ * st-viteye r2: moved actors ship the CC0 Vitruvian resample instead of the pack bytes
+ * (producer outputs recorded in tools/openclinxr/asset-pipeline/eyes/vitruvian/manifest.json).
+ * Each colour lists EVERY producer-pinned output that currently ships: pack bytes for unmoved
+ * actors, vitruvian bytes for moved ones. A colour with no shipped producer output has no entry.
  */
-const IRIS_SHA_BY_COLOUR: Record<string, string> = {
-  brown: "4659691c7295",
-  green: "b9864ac4f4fa",
-  blue: "572ddc93ab3e",
+const IRIS_SHA_BY_COLOUR: Record<string, string[]> = {
+  brown: ["4659691c7295", "4066911e4dfb"],
+  green: ["b9864ac4f4fa", "6435efc25382"],
+  blue: ["572ddc93ab3e"],
 };
 
 function authoredColour(actorId: string): string {
@@ -244,7 +249,9 @@ describe("eye colour is case-driven, not one constant for everyone", () => {
       if (!EYE_IRIS_PACK.has(r.authoredColour)) continue;
       const expected = IRIS_SHA_BY_COLOUR[r.authoredColour];
       expect(expected, `pack colour ${r.authoredColour} needs a measured iris sha`).toBeTruthy();
-      if (!r.irisSha?.startsWith(expected!)) {
+      // st-viteye r2: the colour may ship as pack bytes (unmoved actor) or
+      // vitruvian bytes (moved actor) — both are producer-pinned outputs.
+      if (!expected!.some((e) => r.irisSha?.startsWith(e))) {
         mismatches.push(
           `${r.file}: authoredColour=${r.authoredColour} expected sha ${expected} got ${r.irisSha}`,
         );
@@ -452,5 +459,18 @@ describe("eye colour is case-driven, not one constant for everyone", () => {
  * it dark (0.252,0.402,0.580). OLIVE follows the palette row re-expressed as linear
  * (0.0908,0.1559,0.0908); OB aisha's bytes are unchanged and read (0.0916,0.1560,0.0916).
  * TEAL/SOFT_BLUE/CYAN and MIN_GARMENT_CHANNEL_DELTA are untouched.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
+ * ## FIXED (st-viteye r2) — appended; the planted header above is immutable
+ *
+ * Clause (1)(a): IRIS_SHA_BY_COLOUR is now colour -> producer-pinned outputs
+ * that currently ship. Kevin (moved in r2) ships the vitruvian brown
+ * 4066911e4dfb; parent (unmoved) ships pack brown 4659691c7295. Green lists
+ * the vitruvian green 6435efc25382 alongside pack green because the
+ * family-partner fallback GLB ships it (same r2 producer, other station).
+ * Blue lists pack only — no shipped actor carries vitruvian blue yet.
+ * Clause (1)(b), (2), (3), (3b), (3c) untouched: the hardcode defence still
+ * rejects two pack colours sharing one iris, and the fixture still uses
+ * pack shas.
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */
