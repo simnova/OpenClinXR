@@ -4409,7 +4409,7 @@
         },
         {
           "material": "mat_makeclothes_library_toigo_t_shirt",
-          "decision": "baked: per-texel texture x factor folded into the texture, factor reset to white",
+          "decision": "superseded by the st-palette sRGB palette fold (station/palette 6d1ae039d, 2026-11-04): kept photo texels renormalized in linear space to soft blue [0.55,0.68,0.80] with an integer-offset mean correction; texel = linear_to_srgb(palette x modulation), not round(before x factor). The colour is asserted by garments-keep-their-authored-texture.test.ts and eye-colour-is-case-driven.test.ts through the shared sRGB-decoding reader. Prior HB-02 decision and samples preserved in git history.",
           "sourceResolution": "2048x2048",
           "bakedResolution": "2048x2048",
           "ladderRungId": "bake-resolution-ladder.res2048",

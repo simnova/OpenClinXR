@@ -126,15 +126,16 @@ PLAN = {
                  "rebake, 1814a43c1 byte-lineage) preserved in git history."),
     },
     "mpfb-peds-patient-child.glb": {
-        "bytesAfter": 10418728,
+        "bytesAfter": 10418700,
         "triangleCountAfter": 77422,
         "handBodyMeshAfter": 26756,
-        "note": ("Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
+        "note": ("Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry identical "
                  "(tris 77422 / face 39260 / hand 26756 / joints 137 all hold). Superseding "
-                 "commit d1c44f8cd (ci-w11 D1 orphan prune, 11743252 -> 10418728 B). Prior "
-                 "re-measures (walk bind 91aa4b5d3, travel 7d71273e3, teeth 9f2934536) "
-                 "preserved in git history."),
+                 "commit 6d1ae039d (t-shirt texture renormalized to the soft-blue palette in "
+                 "linear space, 10418728 -> 10418700 B). Prior re-measure (ci-w11b d1c44f8cd "
+                 "orphan prune) preserved in git history."),
     },
+
     # --- HB-05 rows ---
     # st-redgarm D1 (1225b8f95) entries below: deliberate garment restores; face/joints/
     # hand hold (asserted per row by main()). Superseding commit 1225b8f95

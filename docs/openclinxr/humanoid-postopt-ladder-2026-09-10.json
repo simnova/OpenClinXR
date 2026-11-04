@@ -215,7 +215,7 @@
   {
    "body": "mpfb-peds-patient-child.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 10418728,
+   "bytesAfter": 10418700,
    "bytesBefore": 11348244,
    "chosenRungId": "raw",
    "faceAfter": 39260,
@@ -233,7 +233,7 @@
    "triangleCountAfter": 77422,
    "triangleCountBefore": 77324,
    "hb07Note": "HB-07 attempt 5: triangleCountAfter 77422 -> 77422; bytesAfter 11362908 -> 11362836.",
-   "remeasureNote": "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 77422 / face 39260 / hand 26756 / joints 137 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 11743252 -> 10418728 B). Prior re-measures (walk bind 91aa4b5d3, travel 7d71273e3, teeth 9f2934536) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry identical (tris 77422 / face 39260 / hand 26756 / joints 137 all hold). Superseding commit 6d1ae039d (t-shirt texture renormalized to the soft-blue palette in linear space, 10418728 -> 10418700 B). Prior re-measure (ci-w11b d1c44f8cd orphan prune) preserved in git history."
   },
   {
    "body": "mpfb-viseme-inspect.glb",

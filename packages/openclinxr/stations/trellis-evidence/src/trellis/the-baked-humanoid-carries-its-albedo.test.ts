@@ -29,6 +29,9 @@ import { repoRoot } from "@openclinxr/factory-station-core/runner";
  *     decisions now read "superseded", so the texel clause no longer applies a before x
  *     factor model they do not follow; their colour is asserted by the locked-colour and
  *     declared-fabric tests. family-partner stays at its HB-02 bytes and row.
+ *   - st-palette (Nov-4, 6d1ae039d) renormalized the peds-patient-child toigo_t_shirt the
+ *     same way (soft blue [0.55,0.68,0.80]); its row also reads "superseded" and its colour
+ *     is asserted by garments-keep-their-authored-texture and eye-colour-is-case-driven.
  */
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
