@@ -46,5 +46,11 @@
     "entrypoint": "./evidence-viseme",
     "classes": ["evidence", "package"],
     "reason": "runtime-scene evidence sidecar (2026-10-31 root batch, operator-approved 2026-10-31): the moved dialogue-visemes test binds applyBlinkClosureToRoot, applyGeneratedScalarVisemeToRoot and resolveMorphIndex while root evidence tooling binds the same names under evidence; one shared small viseme seam, so no class-pure split is warranted"
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": "./skin-shade-loader",
+    "classes": ["package", "runtime-app"],
+    "reason": "st-vitlearn learner wiring (2026-11-04): one shared single-name runtime seam, createSkinShadeGLTFLoader serves the xr-asset-loading learner humanoid slot (package) and the model-vetting-studio candidate capture (runtime-app); no class-pure split is warranted for a single factory name"
   }
 ]

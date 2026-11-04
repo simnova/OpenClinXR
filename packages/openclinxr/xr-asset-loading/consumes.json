@@ -92,6 +92,11 @@
         "via": "own-test"
       },
       {
+        "name": "loadGeneratedHumanoidIntoActorSlot",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "registerGeneratedHumanoidAnimation",
         "kind": "runtime",
         "via": "own-test"

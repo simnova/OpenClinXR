@@ -1249,6 +1249,7 @@ describe("consumer contracts match imports", () => {
     // 2026-10-30 makeclothes evidence sidecar adds two rows (operator-approved limit raise).
     // 2026-10-30 quest-capacity evidence sidecar adds two rows (operator-approved limit raise).
     // 2026-10-31 runtime-scene evidence sidecar adds one row (operator-approved 2026-10-31).
+    // 2026-11-04 st-vitlearn adds one row (skin-shade shared seam: package + runtime-app).
     expect(allowlist.map((r) => `${r.provider}${r.entrypoint}`).sort()).toEqual([
       "@openclinxr/station-mouth-registry.",
       "@openclinxr/xr-capacity.",
@@ -1258,6 +1259,7 @@ describe("consumer contracts match imports", () => {
       "@openclinxr/xr-dialogue./evidence-viseme",
       "@openclinxr/xr-dialogue./package-actor-turn",
       "@openclinxr/xr-dialogue./viseme-runtime",
+      "@openclinxr/xr-scene./skin-shade-loader",
     ]);
     for (const row of allowlist) expect(row.reason.trim() !== "").toBe(true);
     expect(checkMixedClassEntrypoints(root, consumers, [], index).join("\n")).toContain(

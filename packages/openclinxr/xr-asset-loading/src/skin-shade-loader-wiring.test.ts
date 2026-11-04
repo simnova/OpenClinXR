@@ -1,16 +1,21 @@
 /**
  * st-vitlearn D4: the learner's humanoid slot loads through the shared
  * skin-shade loader factory; the equipment slot keeps its bare loader.
+ *
+ * Public-entrypoint routing (H1): this test binds only ./index.js. It does
+ * not import ./generated-loaders.js, ./material-tint.js, or ./types.js, and
+ * it does not import @openclinxr/xr-scene/skin-shade-loader: the expected
+ * plugin name is asserted as the literal the provider publishes
+ * ("OPENCLINXR_skin_shade"), so the test pins no provider subpath.
  */
-import { Color, Group, MeshStandardMaterial } from "three";
+import { BoxGeometry, Group, Mesh, MeshStandardMaterial } from "three";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SKIN_SHADE_EXTENSION_NAME } from "@openclinxr/xr-scene/skin-shade-loader";
 import {
+  type AssetLoadingContext,
   loadGeneratedEquipmentIntoSceneSlot,
   loadGeneratedHumanoidIntoActorSlot,
-} from "./generated-loaders.js";
-import { tintGeneratedMaterial } from "./material-tint.js";
-import type { AssetLoadingContext } from "./types.js";
+  tintGeneratedSceneMaterials,
+} from "./index.js";
 
 const loaderState = vi.hoisted(() => ({
   instances: [] as Array<{ plugins: unknown[]; meshoptDecoder: unknown }>,
@@ -70,8 +75,11 @@ describe("skin-shade loader wiring (st-vitlearn)", () => {
     // Factory preserves the bare loader's meshopt behaviour.
     expect(humanoidLoader.meshoptDecoder).toBeDefined();
     expect(humanoidLoader.plugins).toHaveLength(1);
+    // Literal matches SKIN_SHADE_EXTENSION_NAME published by
+    // @openclinxr/xr-scene/skin-shade-loader; asserted here without importing
+    // the provider subpath so the test binds only this package's entrypoint.
     const plugin = (humanoidLoader.plugins[0] as (parser: unknown) => { name: string })({});
-    expect(plugin.name).toBe(SKIN_SHADE_EXTENSION_NAME);
+    expect(plugin.name).toBe("OPENCLINXR_skin_shade");
   });
 
   it("counterweight: the equipment loader carries no skin-shade plugin", () => {
@@ -97,17 +105,24 @@ describe("tint preserves loader-installed program hooks (st-vitlearn)", () => {
     const key = (): string => "st-vitlearn-hook";
     source.onBeforeCompile = hook;
     source.customProgramCacheKey = key;
-    const out = tintGeneratedMaterial(source, new Color(0xffffff));
+    const mesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), source);
+    const group = new Group();
+    group.add(mesh);
+    tintGeneratedSceneMaterials(group, 0xffffff);
+    const out = mesh.material as MeshStandardMaterial;
     expect(out).toBeInstanceOf(MeshStandardMaterial);
-    const cloned = out as MeshStandardMaterial;
-    expect(cloned).not.toBe(source);
-    expect(cloned.onBeforeCompile).toBe(hook);
-    expect(cloned.customProgramCacheKey).toBe(key);
+    expect(out).not.toBe(source);
+    expect(out.onBeforeCompile).toBe(hook);
+    expect(out.customProgramCacheKey).toBe(key);
   });
 
   it("still tints an unhooked material", () => {
     const source = new MeshStandardMaterial({ color: 0xffffff });
-    const out = tintGeneratedMaterial(source, new Color(0x000000)) as MeshStandardMaterial;
+    const mesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), source);
+    const group = new Group();
+    group.add(mesh);
+    tintGeneratedSceneMaterials(group, 0x000000);
+    const out = mesh.material as MeshStandardMaterial;
     expect(out).not.toBe(source);
     expect(out.color.getHex()).not.toBe(0xffffff);
   });
