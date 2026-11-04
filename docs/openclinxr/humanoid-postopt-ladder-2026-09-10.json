@@ -105,7 +105,7 @@
   {
    "body": "mpfb-gown-inspect.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 8107748,
+   "bytesAfter": 8097400,
    "bytesBefore": 12999904,
    "chosenRungId": "r0.1",
    "faceAfter": 52778,
@@ -130,9 +130,9 @@
    },
    "promoted": false,
    "promotionNote": "STOP branch: r0.1 keeps 5793/52778 = 0.1098 of face triangles (89% destroyed) — the ladder halves the body but destroys the face, so no rung was promoted and the live GLB stayed on the Sep11 rung bytes until the Nov03 rebake 9542f47b8 re-based it on the new gown shell (undecimated: raw 72882 tris already inside the 80000 preferred budget; the fp-r0.15 re-run breaks the drape counterweight, see the HB-05 row). The sibling mpfb-gown-adult-patient.glb export covers the same gown subject at 64140 tris inside budget.",
-   "triangleCountAfter": 72618,
+   "triangleCountAfter": 72633,
    "triangleCountBefore": 145287,
-   "remeasureNote": "Re-measured 2026-11-03 (st-gowninsp round 4): after-values track the round-4 scoop+seal rebake (front-midline neckline 1.435->1.3834, shell tris 6524->6588, slits closed 1049/1020->0; meshes/nodes/joints hold 10/149/137) and the chest-anchor restore (shipped bytes 8,145,996->8,107,748, superseding the round-3 pin at 8962ccc37); before-values stay the Sep11 STOP-branch record. Face 52778 and ratio 1 hold. Prior re-measures (rounds 2-3, Sep11) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-04 (st-gowninsp round 5): after-values track the round-5 centred-cage rebake (rings on section centroids, garment-surface-derived 0.822->0.950, slits stay 0/0, neckline stays 1.3834; meshes/nodes/joints hold 10/149/137) and the chest-anchor restore (shipped bytes 8,164,444->8,126,204, superseding the round-4 pin at a7c4d0294); before-values stay the Sep11 STOP-branch record. Face 52778 and ratio 1 hold. Prior re-measures (rounds 2-4, Sep11) preserved in git history."
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",

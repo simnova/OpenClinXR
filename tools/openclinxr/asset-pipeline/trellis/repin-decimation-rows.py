@@ -157,6 +157,14 @@ PLAN = {
                  "(deliberate mouth-program rebuild afe8abced / ceabb545e) preserved in git "
                  "history."),
     },
+    # --- st-gowninsp round 5 (2026-11-04): the centred-cage rebake fits each
+    # ring on its section centroid (section() returns rx/rz/cx/cz, wall strips
+    # follow the fitted rings). Same shell class, 25 more tris (seal census
+    # 16->21 lips, gussets 48->63, patches 32->42): garment-surface-derived
+    # 0.822->0.950, slits stay 0/0, neckline stays 1.3834. HB-05 verdict carries
+    # forward again (source inside the 80000 budget, shell gained seal tris
+    # only); HB-03 re-pins to the live source. Every after-value below is
+    # asserted live by main().
     # --- st-gowninsp round 4 (2026-11-03): the neckline-scoop + sleeve-root seal
     # rebake replaces the round-3 source (front-midline neckline 1.435->1.3834 on
     # a flat +/-30mm floor, shell tris 6524->6588: the round-3 16-tri midpoint
@@ -170,8 +178,8 @@ PLAN = {
     # the drape counterweight, not closer) and HB-03 re-pins to the live
     # undecimated source. Every after-value below is asserted live by main().
     "mpfb-gown-inspect.glb": {
-        "bytesAfter": 8107748,
-        "triangleCountAfter": 72618,
+        "bytesAfter": 8097400,
+        "triangleCountAfter": 72633,
         "faceBefore": 52778,
         "faceAfter": 52778,
         "jointCountAfter": 137,
@@ -183,8 +191,8 @@ PLAN = {
             ],
         },
         "hb05": {
-            "triangleCountBefore": 72618,
-            "bytesBefore": 8145996,
+            "triangleCountBefore": 72633,
+            "bytesBefore": 8135672,
             "jointCountBefore": 137,
             "promoted": False,
             "noSurvivingRungReason": ("The Sep11 fp-r0.15 rung output did not survive the Nov03 gown rebake 9542f47b8 "
@@ -211,13 +219,14 @@ PLAN = {
                 "supersededBecause": ("input lineage replaced by the Nov03 gown rebake 9542f47b8; the Sep11 rung "
                     "output it recorded matches no shipped bytes since the rebake"),
             },
-            "outputSha256": "bf53d7bee9f23faac04a35921c3f69ff5b5a2be2afce4230009341ae4e6e0abd",
-            "note": ("Re-measured 2026-11-03 (st-gowninsp round 4): the round-4 scoop+seal rebake re-based the source "
-                "(front-midline neckline 1.435->1.3834 on a flat +/-30mm floor, shell tris 6524->6588: 48 far-side fans + "
-                "32 wall-strip tris closing both sleeve-root slits 1049/1020->0 enclosed cells; meshes/nodes/joints hold "
-                "10/149/137) plus the chest-anchor restore that moved the shipped bytes 8,145,996->8,107,748. The fp-r0.15 rung verdict "
-                "carries forward from round 3 (source inside budget, shell gained seal tris only), so the row stays demoted with ratio-1 and 137-joint floors on the re-measured source; "
-                "tris 72618 and face 52778 hold. Prior re-measures (rounds 2-3, Sep28 teeth retreat 9f2934536) preserved "
+            "outputSha256": "afc0f712643aad61b3a82e5f9c5c0fa10651b02dd9268e53bdcb32d4dc4ece58",
+            "note": ("Re-measured 2026-11-04 (st-gowninsp round 5): the round-5 centred-cage rebake re-based the source "
+                "(rings fit on section centroids + 5-tap loft smoothing with per-ring re-enclosure, seal lips 16->21, "
+                "gussets 48->57, patches 32->38; "
+                "garment-surface-derived 0.822->0.966, slits stay 0/0, neckline stays 1.3834/1.385 scoop; meshes/nodes/joints hold "
+                "10/149/137) plus the chest-anchor restore that moved the shipped bytes 8,135,672->8,097,400. The fp-r0.15 rung verdict "
+                "carries forward from round 4 (source inside budget, shell gained seal tris only), so the row stays demoted with ratio-1 and 137-joint floors on the re-measured source; "
+                "tris 72633 and face 52778 hold. Prior re-measures (rounds 2-4, Sep28 teeth retreat 9f2934536) preserved "
                 "in git history."),
         },
         "hb03": {
@@ -233,10 +242,10 @@ PLAN = {
                      "so no rung was promoted and the live GLB stayed on the Sep11 rung bytes until the Nov03 rebake 9542f47b8 re-based it on the new gown shell (undecimated: raw 72882 tris already inside the 80000 preferred budget; the fp-r0.15 re-run breaks the drape counterweight, see the HB-05 row). The sibling mpfb-gown-adult-patient.glb export covers the same gown subject at 64140 tris inside budget."),
                 ],
             },
-            "note": ("Re-measured 2026-11-03 (st-gowninsp round 4): after-values track the round-4 scoop+seal "
-                "rebake (front-midline neckline 1.435->1.3834, shell tris 6524->6588, slits closed 1049/1020->0; meshes/nodes/joints hold "
-                "10/149/137) and the chest-anchor restore (shipped bytes 8,145,996->8,107,748, superseding the round-3 pin at 8962ccc37); before-values stay the "
-                "Sep11 STOP-branch record. Face 52778 and ratio 1 hold. Prior re-measures (rounds 2-3, Sep11) preserved "
+            "note": ("Re-measured 2026-11-04 (st-gowninsp round 5): after-values track the round-5 centred-cage "
+                "rebake (rings on section centroids, garment-surface-derived 0.822->0.950, slits stay 0/0, neckline stays 1.3834; meshes/nodes/joints hold "
+                "10/149/137) and the chest-anchor restore (shipped bytes 8,164,444->8,126,204, superseding the round-4 pin at a7c4d0294); before-values stay the "
+                "Sep11 STOP-branch record. Face 52778 and ratio 1 hold. Prior re-measures (rounds 2-4, Sep11) preserved "
                 "in git history."),
         },
     },

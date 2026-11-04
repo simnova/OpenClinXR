@@ -284,19 +284,36 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
         # must still reject the distant T-pose arms that caused the original inflated cage.
         return 1.36 <= position.y <= 1.50 and abs(position.x) >= 0.11
 
-    def section(y, fallback_x, fallback_z):
+    def section_raw(y):
+        # Raw per-ring section fit (no smoothing, no enclosure yet): centroid +
+        # centroid-relative extents over the anatomical band. Returns the fit and
+        # the band itself so the loft smoother below can re-enforce enclosure.
         sources = torso_sources + shoulder_sources if y >= 1.36 else torso_sources
         band = [vertex.co for vertex in sources if abs(float(vertex.co.y) - y) <= 0.035]
         if not band:
             raise RuntimeError(f"no anatomical body section at gown height {y}")
         # Fit the torso rather than a T-pose arm-span. The skirt gets modest ease over both thighs.
+        # st-gowninsp R5: centre the fit on the section centroid. The aisha trunk section sits
+        # forward of z=0 (cz +0.05..+0.09, bust/belly mass; E/drape-diag.json finding), so an
+        # origin-centred ellipse with rz set by the FRONT extent left the BACK of the shell
+        # 10-18 cm off the back surface (224/347 trunk OOB on back-Z, garment-surface-derived
+        # 0.822). Centroid-relative extents keep the same ease schedule and the same
+        # enclose-every-sample guarantee, now measured in the centred frame.
         ease = 0.025 if y < 1.05 else 0.018
-        rx = max(abs(float(p.x)) for p in band) + ease
-        rz = max(abs(float(p.z)) for p in band) + ease
+        cx = sum(float(p.x) for p in band) / len(band)
+        cz = sum(float(p.z) for p in band) / len(band)
+        rx = max(abs(float(p.x) - cx) for p in band) + ease
+        rz = max(abs(float(p.z) - cz) for p in band) + ease
+        return (cx, cz, rx, rz), band
+
+    def section(y, fallback_x, fallback_z):
+        # Kept for the call sites below: raw fit + enclosure, unsmoothed. The
+        # ring construction uses the smoothed loft instead (see below).
+        (cx, cz, rx, rz), band = section_raw(y)
         # Independent x/z extrema do not define an enclosing ellipse: a thigh's diagonal surface
         # can lie outside both-axis-fitted radii. Enclose every anatomical section sample.
-        scale = max(1.0, max(math.hypot(float(p.x) / rx, float(p.z) / rz) for p in band))
-        return rx * scale, rz * scale
+        scale = max(1.0, max(math.hypot((float(p.x) - cx) / rx, (float(p.z) - cz) / rz) for p in band))
+        return rx * scale, rz * scale, cx, cz
 
     # Top ring at the BASE OF THE NECK (st-gowninsp R3): the 1.49 authoring put
     # the collar 46 mm above the 3bdf74d4b neckline (1.4392, between neck01
@@ -331,14 +348,40 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
     verts = []
     faces = []
     rings = []
-    for y, fallback_x, fallback_z in ring_spec:
-        rx, rz = section(y, fallback_x, fallback_z)
+    fitted = []  # R5: per-ring (y, cx, cz, rx, rz) for the centre-aware wall strips below
+    # R5b loft smoothing: independent per-ring fits jitter ring-to-ring (up to 28 mm
+    # in cz over one 25 mm step from band-sampling noise), and the zigzag reads as
+    # sharp dihedral edges (#750: 4.39% vs 3.47% ceiling on the unsmoothed cage).
+    # Smooth (cx, cz, rx, rz) with a centred 5-tap mean, then re-enforce the
+    # enclose-every-sample guarantee per ring in the smoothed frame. Still pure
+    # ring construction from the same bands — no post-hoc shrink, no inspector
+    # targeting. Deterministic: fixed window, fixed vertex order, clamped ends.
+    _raw = []
+    for y, fx, fz in ring_spec:
+        _fit, _band = section_raw(y)
+        _raw.append(((y, fx, fz), _fit, _band))
+    _sm = []
+    for _k in range(len(_raw)):
+        _lo, _hi = max(0, _k - 2), min(len(_raw), _k + 3)
+        _win = [w[1] for w in _raw[_lo:_hi]]
+        _sm.append(tuple(sum(_r[_j] for _r in _win) / len(_win) for _j in range(4)))
+    for (_meta, _fit0, _band), (_cx, _cz, _rx, _rz) in zip(_raw, _sm):
+        _y = _meta[0]
+        _scale = max(1.0, max(math.hypot((float(_p.x) - _cx) / _rx, (float(_p.z) - _cz) / _rz)
+                             for _p in _band))
+        _rx, _rz = _rx * _scale, _rz * _scale
+        fitted.append((_y, _cx, _cz, _rx, _rz))
+    print(f"CAGE_LOFT rings={len(fitted)} "
+          f"czRange=({min(f[2] for f in fitted):.4f},{max(f[2] for f in fitted):.4f})")
+    for y, cx, cz, rx, rz in fitted:
         ring = []
         for i in range(segments):
             angle = 2.0 * math.pi * i / segments
             ring.append(len(verts))
-            verts.append((rx * math.cos(angle), y, rz * math.sin(angle)))
+            verts.append((cx + rx * math.cos(angle), y, cz + rz * math.sin(angle)))
         rings.append(ring)
+    print(f"CAGE_CENTRED rings={len(rings)} "
+          f"czRange=({min(f[2] for f in fitted):.4f},{max(f[2] for f in fitted):.4f})")
     for a, b in zip(rings, rings[1:]):
         for i in range(segments):
             j = (i + 1) % segments
@@ -535,15 +578,21 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
     # skips (counted; fail-closed at the clause-8 raster) happen only when the
     # inboard point falls outside the section ellipse.
     def _section_radii(_y):
-        if _y <= ring_spec[0][0]:
-            return ring_spec[0][1], ring_spec[0][2]
-        if _y >= ring_spec[-1][0]:
-            return ring_spec[-1][1], ring_spec[-1][2]
-        for (_y0, _rx0, _rz0), (_y1, _rx1, _rz1) in zip(ring_spec, ring_spec[1:]):
+        # R5: interpolate the FITTED centroid-relative ring data (not the anchor
+        # fallbacks): the tube wall moved with the rings, the strips must follow.
+        if _y <= fitted[0][0]:
+            _, _cx, _cz, _rx, _rz = fitted[0]
+            return _rx, _rz, _cx, _cz
+        if _y >= fitted[-1][0]:
+            _, _cx, _cz, _rx, _rz = fitted[-1]
+            return _rx, _rz, _cx, _cz
+        for (_y0, _cx0, _cz0, _rx0, _rz0), (_y1, _cx1, _cz1, _rx1, _rz1) in zip(fitted, fitted[1:]):
             if _y0 <= _y <= _y1:
                 _t = (_y - _y0) / max(1e-6, _y1 - _y0)
-                return _rx0 + (_rx1 - _rx0) * _t, _rz0 + (_rz1 - _rz0) * _t
-        return ring_spec[-1][1], ring_spec[-1][2]
+                return (_rx0 + (_rx1 - _rx0) * _t, _rz0 + (_rz1 - _rz0) * _t,
+                        _cx0 + (_cx1 - _cx0) * _t, _cz0 + (_cz1 - _cz0) * _t)
+        _, _cx, _cz, _rx, _rz = fitted[-1]
+        return _rx, _rz, _cx, _cz
 
     _patch_sources: dict[int, int] = {}
     _wall_memo: dict[int, int | None] = {}
@@ -552,22 +601,24 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
 
     def _wall_vert(_v):
         # Memoized tube-wall point for a flap vert: 70 mm inboard, same height,
-        # same front/back side on the analytic section ellipse. Shared by all
+        # on the same centre-relative side as the flap vert. Shared by all
         # edges meeting at _v so adjacent strip quads share the wall edge.
+        # R5: measured in the centred frame (cx, cz from the fitted rings); the
+        # side is picked by proximity to the flap vert so the strip lands on the
+        # near wall even where cz shifts the midline.
         if _v in _wall_memo:
             return _wall_memo[_v]
         _vx, _vy, _vz = verts[_v]
-        _vsx = 1.0 if _vx >= 0 else -1.0
-        _vxt = abs(_vx) - 0.070
-        _vrx, _vrz = _section_radii(_vy)
+        _vrx, _vrz, _vcx, _vcz = _section_radii(_vy)
+        _vsx = 1.0 if _vx >= _vcx else -1.0
+        _vxt = abs(_vx - _vcx) - 0.070
         if not (_vxt > 0.01 and _vxt < _vrx * 0.98):
             _wall_memo[_v] = None
             return None
-        _vzt = _vrz * math.sqrt(max(0.0, 1.0 - (_vxt / _vrx) ** 2))
-        if _vz < 0:
-            _vzt = -_vzt
+        _span = _vrz * math.sqrt(max(0.0, 1.0 - (_vxt / _vrx) ** 2))
+        _vzt = _vcz + _span if abs(_vcz + _span - _vz) <= abs(_vcz - _span - _vz) else _vcz - _span
         _w = len(verts)
-        verts.append((_vsx * _vxt, _vy, _vzt))
+        verts.append((_vcx + _vsx * _vxt, _vy, _vzt))
         _patch_sources[_w] = min(
             range(torso_vertex_count),
             key=lambda _i: (verts[_i][0] - verts[_w][0]) ** 2
@@ -603,7 +654,9 @@ def _replace_with_clean_clinical_gown(garment, body_copy, armature):
         _qa = _far_anchor(_ax, _ay, _az, (_a, _b))
         _q1 = _far_anchor(_mx, _my, _mz, (_a, _b, _qa))
         _qb = _far_anchor(_bx, _by, _bz, (_a, _b, _qa, _q1))
-        _s = 1.0 if _mz >= 0 else -1.0
+        # R5: winding side is centre-relative (the tube moved with cz); this keeps
+        # the round-4 invariant that the membrane normal faces its true side.
+        _s = 1.0 if _mz >= _section_radii(_my)[3] else -1.0
         _gussets += _emit_wound(_a, _b, _qa, _s)
         _gussets += _emit_wound(_a, _b, _q1, _s)
         _gussets += _emit_wound(_a, _b, _qb, _s)

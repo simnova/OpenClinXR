@@ -5,8 +5,8 @@
  "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
  "runtimeRole": "inspection_fixture",
  "runtimeRoleWhy": "Inspection subject for garment/gown contracts. Never cast; the shipped-bank cast resolver does not name it.",
- "outputSha256": "bf53d7bee9f23faac04a35921c3f69ff5b5a2be2afce4230009341ae4e6e0abd",
- "outputBytes": 8107748,
+ "outputSha256": "afc0f712643aad61b3a82e5f9c5c0fa10651b02dd9268e53bdcb32d4dc4ece58",
+ "outputBytes": 8097400,
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.401Z",
  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. HB-05 (2026-09-11): face-preserving decimation rung rewrote the GLB (selective weld+simplifyPrimitive on non-face meshes only, face meshes untouched, joints and 47 body morph targets unchanged); outputSha256/outputBytes re-recorded in the same change that moved the bytes. Reproduce: pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.15 (face-preserving mode, tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts).",
  "byteLineage": {
@@ -74,5 +74,35 @@
   "outputBytes": 8107748,
   "report": "tools/openclinxr/evidence/chest-anchor-joints/mpfb-gown-inspect.json",
   "gate": "tools/openclinxr/evidence/chest-anchors/every-shipped-rig-has-two-chest-anchors.test.ts + tools/openclinxr/evidence/garment-surface-stale/the-gown-drapes-below-the-hip.test.ts (8 clauses) green after the stage"
+ },
+ "gownRebake20261104R5": {
+  "producer": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py --input-glb mpfb-viseme-inspect.glb --output-glb mpfb-gown-inspect.glb (blender --background)",
+  "cause": "st-gowninsp round 5: the origin-centred section() box-ellipse left the trunk/hem shell 10-18 cm off the back surface (body section centroid cz +0.05..+0.09; garment-surface-derived 0.822, 224/347 trunk OOB on back-Z). Fix: fit the box-ellipse on centroid-relative extents (section() returns rx/rz/cx/cz, same ease schedule + enclose-every-sample guarantee), wall strips follow the fitted rings. Post-fix: fraction 0.9496, max 0.2371 (residual = sleeves +  thigh-gap spanning, pre-existing class); raster 0/0, collar rows in the after-chest still, slits 0/0 px; faceCut=7 headClipped=0 (E/drape-diag.json finding, E/probes.md P5/P6).",
+  "outputSha256": "57e9d6a5a48422ba72bcf3e02627536ce04cdb0f1c15aa38e1e2470e60794e51",
+  "outputBytes": 8126204,
+  "reproduction": "single producer run 2026-11-04 (~19:07 UTC, verts=3370 faces=3359 lips=21 gussetTris=63 patchTris=42 patchSkipped=0); determinism: same script, same input (rebake7 precedent: byte-identical)"
+ },
+ "chestAnchorRestore20261104R5": {
+  "producer": "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs --half-span-m 0.085 (post-export byte stage, not a Blender rebake)",
+  "cause": "st-gowninsp round 5: the centred-cage rebake output again left breast.L/R collapsed at the midline (before 0 vs +/-0.085 in the 3bdf74d4b bytes); restored to the fleet-standard +/-0.085 m (span 0.17 m); y/z untouched; no animation channels needed adjustment (animationChannelsAdjusted []).",
+  "outputSha256": "57e9d6a5a48422ba72bcf3e02627536ce04cdb0f1c15aa38e1e2470e60794e51",
+  "outputBytes": 8126204,
+  "report": "tools/openclinxr/evidence/chest-anchor-joints/mpfb-gown-inspect.json",
+  "gate": "tools/openclinxr/evidence/chest-anchors/every-shipped-rig-has-two-chest-anchors.test.ts + tools/openclinxr/evidence/garment-surface-stale/the-gown-drapes-below-the-hip.test.ts (8 clauses) + garment-surface-derived.test.ts (3 its) green after the stage"
+ },
+ "gownRebake20261104R5b": {
+  "producer": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py --input-glb mpfb-viseme-inspect.glb --output-glb mpfb-gown-inspect.glb (blender --background)",
+  "cause": "st-gowninsp round 5b: the centroid-only round-5 bytes still read 3 below-min verts and 0.9496. Adding the 5-tap loft smoothing with per-ring re-enclosure (same centroid-relative section fit, same ease schedule, enclose-every-sample guarantee, still pure ring construction — no post-hoc shrink, no inspector targeting) cuts ring-to-ring cz jitter (up to 28 mm over one 25 mm step). Post-fix: fraction 0.9664, belowMin 0, max 0.2371 (residual = bust-front drape + thigh-gap spanning, pre-existing class); raster 0/0, collar rows in the after-chest still (381/382), slits 0/0 px; faceCut=0 headClipped=0 (E/drape-after.json, E/probes.md P7).",
+  "outputSha256": "afc0f712643aad61b3a82e5f9c5c0fa10651b02dd9268e53bdcb32d4dc4ece58",
+  "outputBytes": 8097400,
+  "reproduction": "single producer run 2026-11-04 (verts=3368 faces=3349 lips=21 gussetTris=57 patchTris=38 patchSkipped=0); determinism: byte-identical re-run of the same script (r5c cmp clean)"
+ },
+ "chestAnchorRestore20261104R5b": {
+  "producer": "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs --half-span-m 0.085 (post-export byte stage, not a Blender rebake)",
+  "cause": "st-gowninsp round 5b: the smoothed-cage rebake output again left breast.L/R collapsed at the midline (before 0 vs +/-0.085 in the 3bdf74d4b bytes); restored to the fleet-standard +/-0.085 m (span 0.17 m); y/z untouched; no animation channels needed adjustment (animationChannelsAdjusted []).",
+  "outputSha256": "afc0f712643aad61b3a82e5f9c5c0fa10651b02dd9268e53bdcb32d4dc4ece58",
+  "outputBytes": 8097400,
+  "report": "tools/openclinxr/evidence/chest-anchor-joints/mpfb-gown-inspect.json",
+  "gate": "tools/openclinxr/evidence/chest-anchors/every-shipped-rig-has-two-chest-anchors.test.ts + tools/openclinxr/evidence/garment-surface-stale/the-gown-drapes-below-the-hip.test.ts (9 clauses) + garment-surface-derived.test.ts (3 its) green after the stage"
  }
 }

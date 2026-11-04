@@ -29,7 +29,7 @@
     "chest_anchor_height",
     "other_rigs"
   ],
-  "inputPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
-  "outputPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
-  "generatedAt": "2026-11-03T22:39:31.439Z"
+  "inputPath": "/Users/patrick/.grok/worktrees/station-gowninsp/apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
+  "outputPath": "/Users/patrick/.grok/worktrees/station-gowninsp/apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
+  "generatedAt": "2026-11-04T00:24:44.000Z"
 }

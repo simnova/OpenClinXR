@@ -146,6 +146,15 @@ const TOP_FRAC_MIN = 0.7;
  * implies visible throat. R3 bytes read 1.435 (outside, fails). */
 const KG_FRONT_NECKLINE_Y = 1.3834;
 const FRONT_NECKLINE_TOL_M = 0.015;
+/** st-gowninsp R5 clause (7b): kg neckline scoop depth (back minus front at the
+ * midline) on the 3bdf74d4b bytes (back 1.4387, front 1.3834, depth 0.055;
+ * E/sleeve-loop-probe.json). Pins the scoop SHAPE that clause (7) alone does not:
+ * the round-3 bytes carry a uniform ring (front = back = 1.435, depth 0) and fail.
+ * A literal front-neckline-Z bound was measured and REJECTED (E/probes.md P7):
+ * kg 0.0949, probe 0.1016, live 0.124 — no kg-derived tolerance fails the probe
+ * while passing live, so Z would assert the wrong direction. */
+const KG_SCOOP_DEPTH_M = 0.055;
+const SCOOP_DEPTH_TOL_M = 0.015;
 /** st-gowninsp R4 clause (8): sleeve-root slit boxes (front orthographic projection). */
 const SLIT_X_MIN = 0.08;
 const SLIT_X_MAX = 0.34;
@@ -408,6 +417,24 @@ describe("the gown drapes below the hip instead of wrapping each leg", () => {
       `front-midline neckline height ${frontY.toFixed(4)} — known-good row 1.3834 +/- 0.015 on the `
         + `3bdf74d4b bytes (R3 bytes read 1.435): ${target}`,
     ).toBeLessThanOrEqual(FRONT_NECKLINE_TOL_M);
+  });
+
+  it("(7b) RED: the neckline scoops front-below-back by the known-good depth", async () => {
+    // st-gowninsp R5 H3. Back-midline = |x| < 25 mm on the far side (z < 0), same
+    // frame as (7). kg depth 0.055; round-3 uniform ring reads 0.0 (fails).
+    const target = process.env.GOWN_PROBE_GLB ?? TARGET;
+    const s = await shellOrThrow(target);
+    const frontMid = s.pts.filter((p) => Math.abs(p[0]!) < 0.025 && p[2]! > 0);
+    const backMid = s.pts.filter((p) => Math.abs(p[0]!) < 0.025 && p[2]! < 0);
+    expect(frontMid.length, `${target} must carry front-midline shell verts`).toBeGreaterThan(0);
+    expect(backMid.length, `${target} must carry back-midline shell verts`).toBeGreaterThan(0);
+    const frontY = Math.max(...frontMid.map((p) => p[1]!));
+    const backY = Math.max(...backMid.map((p) => p[1]!));
+    expect(
+      Math.abs(backY - frontY - KG_SCOOP_DEPTH_M),
+      `neckline scoop depth ${(backY - frontY).toFixed(4)} (front ${frontY.toFixed(4)}, back ${backY.toFixed(4)}) `
+        + `— known-good row 0.055 +/- 0.015 on the 3bdf74d4b bytes (R3 bytes read 0.0): ${target}`,
+    ).toBeLessThanOrEqual(SCOOP_DEPTH_TOL_M);
   });
 
   it("(8) RED: no see-through slit at the sleeve roots", async () => {
