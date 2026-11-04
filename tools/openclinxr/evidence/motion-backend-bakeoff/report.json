@@ -1,11 +1,11 @@
 {
   "schemaVersion": "openclinxr.motion-backend-bakeoff.v1",
-  "measuredAgainstCommit": "57381ab953af930a05cd0b3ed37937880c667b3f",
-  "actorAssetSha256": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c",
+  "measuredAgainstCommit": "1f6067018c979937d6eb6a44a2a6ee9f19701adf",
+  "actorAssetSha256": "f9ad39023e37b443b7a1f19a4d1de4f62e87a72534bb1875223374767543c12a",
   "actorId": "mpfb-clinical-nurse-adult",
   "harnessSha256": "18bffc2e664c6c361fab3aa5f61d289653e91a4c16b6221e9029d3bd4f821e99",
   "notes": [
-    "Re-run captured by capture.mts (Playwright, headless chromium, native 1280x1280) against harness.html sha 18bffc2e664c6c36; actor bytes e217d3c96d62b98b.",
+    "Re-run captured by capture.mts (Playwright, headless chromium, native 1280x1280) against harness.html sha 18bffc2e664c6c36; actor bytes f9ad39023e37b443.",
     "Three stills are byte-identical to the blocked run at 1c63c4d7 (baked_tracks x2, runtime_goals/pulse_presentation): those code paths are unchanged since the blocked run and the render is deterministic, so an honest re-capture reproduces the bytes exactly (measured 0.00% pixel delta). This run re-wrote them; they are not copied.",
     "runtime_goals/rock_plus_clutch has a fresh digest: the CCDIKSolver runtime-goal arm solved wristR to the seated right-chest contact target (residual 0.0000 m, blend 1). 11.6% of its pixels differ from the blocked run's twoBoneToward frame (max luminance delta 190.8).",
     "runtime_goals/pulse_presentation remains the pre-existing twoBoneToward reach: the content-addressed runtime descriptor declares no pulse goal, so the CCDIKSolver machinery has no pulse frame to render."
@@ -19,7 +19,7 @@
           "path": "tools/openclinxr/evidence/motion-backend-bakeoff/baked_tracks__rock_plus_clutch.png",
           "widthPx": 1280,
           "heightPx": 1280,
-          "sha256": "82170c1bea54fea324165e7973c3c4202a9a3cf4b7e692e6566f8a7837244404"
+          "sha256": "7e14b44538a05b0a5b8a5c620f236b59212cbe3245bd0dc1fcfe70c927f8f8d6"
         }
       ],
       "notes": "isolated three.js harness; seated MPFB nurse; 137 bones; arm=baked_tracks behaviour=rock_plus_clutch; renderPose baked-euler path (static baked rotations); harnessSha256=18bffc2e664c6c36"
@@ -32,7 +32,7 @@
           "path": "tools/openclinxr/evidence/motion-backend-bakeoff/baked_tracks__pulse_presentation.png",
           "widthPx": 1280,
           "heightPx": 1280,
-          "sha256": "2582151999855f96e9a4a90a6e175b2149a9ecb33d134e87b11dd9163349eb6b"
+          "sha256": "1fadef79abe61c6be176b53855d6c50b4eaa3a576a14e44db858aced9f17934b"
         }
       ],
       "notes": "isolated three.js harness; seated MPFB nurse; 137 bones; arm=baked_tracks behaviour=pulse_presentation; renderPose baked-euler path (static baked rotations); harnessSha256=18bffc2e664c6c36"
@@ -45,7 +45,7 @@
           "path": "tools/openclinxr/evidence/motion-backend-bakeoff/runtime_goals__rock_plus_clutch.png",
           "widthPx": 1280,
           "heightPx": 1280,
-          "sha256": "333d066d9a3673be91564e80bcf16f851270a84d4ced5a26a9a2d7e6afb837af"
+          "sha256": "09f82ce499d1d04c9eb5aad8d9b9ef4e190c9564112b97f135ddb324c20b75f3"
         }
       ],
       "notes": "isolated three.js harness; seated MPFB nurse; 138 bones; arm=runtime_goals behaviour=rock_plus_clutch; solver=CCDIKSolver blend=1 effector=wristR residualMeters=0.0000 phase=0 outwardMeters=0.03 pelvisDeltaMeters=0.0000; harnessSha256=18bffc2e664c6c36"
@@ -58,7 +58,7 @@
           "path": "tools/openclinxr/evidence/motion-backend-bakeoff/runtime_goals__pulse_presentation.png",
           "widthPx": 1280,
           "heightPx": 1280,
-          "sha256": "7aa78359442eecad81033b2295d933ffb8d15855bcdc962b88c73307794b575d"
+          "sha256": "e15bc310a0d4db68fb6cfe0a5ea0674500ada0a10eee54668b941d47b96bb29f"
         }
       ],
       "notes": "isolated three.js harness; seated MPFB nurse; 138 bones; arm=runtime_goals behaviour=pulse_presentation; renderPose fallback: runtime descriptor declares no pulse goal, so the pre-existing twoBoneToward left-arm reach executed; harnessSha256=18bffc2e664c6c36"

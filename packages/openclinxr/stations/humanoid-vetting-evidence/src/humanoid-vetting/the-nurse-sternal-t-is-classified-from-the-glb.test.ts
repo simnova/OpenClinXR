@@ -166,13 +166,24 @@ describe("the nurse sternal T is classified from the GLB", () => {
       // 7894888 -> 16291676 B; was 540e8b31….
       // st-weld2 re-pinned 2026-11-03: garment topology weld (post-export byte stage, not a rebake;
       // shirt 4692 islands -> 2, pants 1345 -> 7; size holds at 16291676); was d10ae419….
-      [PEDS_GLB, "pedsKevin", 16291676, "3afcdd2db2178e035b8f53b0c3b3a9489511299648054867a432e80f66e1fd3d"],
+      // st-palette C5 re-pinned 2026-11-04: sRGB-correct fold re-fold of the scrub shirts;
+      // 16291676 -> 15966652 B; was 3afcdd2d….
+      [PEDS_GLB, "pedsKevin", 15966652, "5df99085c51be1e809a94ca6c245f26bd8278aa886f9eed954cbe81db91049ef"],
       // RE-PINNED: deliberate churn 8e7a1d0c2 (CC-BY scrub extras) + 91aa4b5d3 + 9f2934536.
       // ci-w11b re-pinned 2026-10-30: ci-w11 D3 d0e2104d3 repaired midline breast keyframes
       // (rests already +-0.085; size holds at 8775848); was 4f0a8c1d….
       // st-weld re-pinned 2026-11-03: garment topology weld (post-export byte stage, not a rebake;
       // shirt 4692 islands -> 1 component, kept_sharp 52/35; size holds at 8775848); was 3241acc6….
-      [ADULT_GLB, "adult", 8775848, "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c"],
+      // st-palette R1/R5 re-pinned 2026-11-03: weave base-colour texture with HB-02 fold
+      // + hem-finish cut; 8775848 -> 8004128 B; was e217d3c9….
+      // st-palette header re-run 2026-11-03: fixed producer re-run from nurse-copy3.glb,
+      // single-byte diff at offset 8 (bad GLB total 8004136 -> 8004128); was 72871e05….
+      // st-palette licence-notice 2026-11-03: write-shipped-licence-notice.ts stamped the
+      // CC-BY scrub credit the weave/hem re-runs dropped (asset block only);
+      // 8004128 -> 8004044 B; was 7bbca04e….
+      // st-palette C5 re-pinned 2026-11-04: graft hem re-run (shirt-only fold, untouched meshes
+      // kept at origin bytes: pants 2704, body 8437); 8775848 -> 9189824 B; was 54ac8849….
+      [ADULT_GLB, "adult", 9189824, "f9ad39023e37b443b7a1f19a4d1de4f62e87a72534bb1875223374767543c12a"],
     ] as const) {
       const glb = readGlb(path);
       expect(glb.bytes.length, `${key}: GLB length pinned`).toBe(bytes);

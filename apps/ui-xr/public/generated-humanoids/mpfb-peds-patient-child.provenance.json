@@ -65,7 +65,9 @@
   "2026-10-10: JSON-only removal of normalTexture on mpfb_skin_peds_patient_child; BIN chunk unchanged (sha256 3ab3605b531fccba0fa1543b8195acf047e8ddcab1b080de97ba35922b44fcb0, length 11227152); clothing not edited.",
   "2026-10-30 ci-w11 D3 (chest-anchor re-separation, post-bake stage, not rebake): repair mode: rest already +-0.085 from #0; restored 2 openclinxr_retarget_walk_source keyframes per breast joint from midline to rest (walk graft 91aa4b5d3 had re-pinned them after the #0 run). Rest TRS untouched. Tool: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs (half-span 0.085, uniform with nurse known-good 1f5519d2).",
   "2026-10-30 ci-w11 D1 (orphan prune, not rebake): gltf-transform prune 4.3.0, same tool and flags as #555. Removed unreferenced mpfb-peds-patient-child.skin-normal (1164112 B, orphaned by the 2026-10-10 normalTexture strip). File 11743228 -> 10418728 B. Bound invariants held: boundTextures 4, boundBytes 3289399, meshes 10, materials 17, tris 77422, joints 137, animations 3.",
-  "st-weld2 D1 (garment topology weld, post-export byte stage, not a Blender rebake): connected each MakeClothes garment's per-face index islands by position (cargo pants 2725 raw -> 1 meaningful, untextured so fully joined; t-shirt 1350 raw -> 12 cloth-side pieces, same doubled-cloth + textured-UV structure as the aisha t-shirt), carrying one normal per cloth side so creases at/above the flat-shade 60-deg floor stay split (pants kept_sharp 59, shirt kept_sharp 112; weights splits 0; textured-uv splits 0/121 kept to avoid smearing the print). Byte length unchanged at 10418728; only garment indices and survivor NORMALs rewritten in place. Tool: tools/openclinxr/asset-pipeline/makeclothes/garment_topology_weld.py --angle 90, wired pre-#371 in tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py. Shoulder-span counterweight still false on this asset (t-shirt front/back outers are different cloth sides); recorded in E/weld-census.json."
+  "st-weld2 D1 (garment topology weld, post-export byte stage, not a Blender rebake): connected each MakeClothes garment's per-face index islands by position (cargo pants 2725 raw -> 1 meaningful, untextured so fully joined; t-shirt 1350 raw -> 12 cloth-side pieces, same doubled-cloth + textured-UV structure as the aisha t-shirt), carrying one normal per cloth side so creases at/above the flat-shade 60-deg floor stay split (pants kept_sharp 59, shirt kept_sharp 112; weights splits 0; textured-uv splits 0/121 kept to avoid smearing the print). Byte length unchanged at 10418728; only garment indices and survivor NORMALs rewritten in place. Tool: tools/openclinxr/asset-pipeline/makeclothes/garment_topology_weld.py --angle 90, wired pre-#371 in tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py. Shoulder-span counterweight still false on this asset (t-shirt front/back outers are different cloth sides); recorded in E/weld-census.json.",
+  "st-palette R4 round 2 (weave base-colour texture with HB-02 FOLD, post-export byte stage, not a Blender rebake): attached deterministic seeded plain-weave PNG (512px, exact-mean corrected) to mat_makeclothes_library_cargo_pants.001 at the case fabricPalette soft_blue_and_warm_white closed_casual (0.55,0.68,0.80; texture mean 0.5501,0.6800,0.8000); factor FOLDED to [1,1,1,1] so effective equals the palette (miss 0.00005, bound 0.01). The toigo_t_shirt keeps its authored T-shirt_basic.png (effective 0.539,0.666,0.785, already palette-correct). Input 52ab0569 (10418728 B) -> 10593588 bytes. Tool: tools/openclinxr/asset-pipeline/makeclothes/attach-weave-base-color-textures.ts (sha256 357257996ff62bdae6b93ac39c47e00b0b317e84fe792d3867a741424bd7520e). Report: /Volumes/files/openclinxr-assets/store/st-palette/maya-report.r2.json.",
+  "st-palette R9 (sRGB-correct fold):cargo pants fresh weave attach (miss 0.00014); t-shirt kept-texel renormalize (scale [2.1798,1.6921,1.3803], miss 0.00199). Supersedes the round-2 dark fold; no hem recorded on this asset."
  ],
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
@@ -130,5 +132,22 @@
   ],
   "reproduction": "byte-identical to the shipped file",
   "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+ },
+ "garmentWeaveFold": {
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/attach-weave-base-color-textures.ts",
+  "toolSha256": "b5e0ddfae59253fb5d947a10066093a7df984aae4322b3b667c7a007f08507ec",
+  "mode": "REVERTED to origin bytes 52ab0569 (no fold): round-2 pants attach + round-4 t-shirt renormalize withdrawn",
+  "inputSha256": "7b5af70c31efa6a651b2ca07c36b743d16d81fb7a5ef695877efafa2d7e3d298",
+  "inputBytes": 10546592,
+  "wovenSha256": "52ab0569b8172735e6b156af22c79fc0f424ee7fd494314aa8ccb65e0a770c01",
+  "outputSha256": "52ab0569b8172735e6b156af22c79fc0f424ee7fd494314aa8ccb65e0a770c01",
+  "outputBytes": 10418728,
+  "reports": [
+   "/Volumes/files/openclinxr-assets/store/st-palette/r4-work/maya-weave-r4.json",
+   "/Volumes/files/openclinxr-assets/store/st-palette/r4-work/maya-renorm-r4.json"
+  ],
+  "effective": "pants factor-only [0.55,0.68,0.8] (exact palette, no texture); t-shirt authored T-shirt_basic.png (effective 0.539,0.666,0.785, blue-dominant, palette-correct)",
+  "revertReason": "authored-texture cl.(3) cargo shell must stay flat + #400 documents the t-shirt keeps its authored texture + (2b) pins its authored effective (0.539,0.666,0.785); the fold added nothing the factor-only render did not already produce",
+  "claimScope": "byte restore of the recorded origin-producer output; no geometry, skinning, morph or animation changes"
  }
 }

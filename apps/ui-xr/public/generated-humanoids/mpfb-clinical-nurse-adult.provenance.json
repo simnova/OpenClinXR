@@ -64,13 +64,17 @@
   "2026-09-12 waistband hem-fit: withdrew the scrub skip on fit_upper_hem_to_waistband in materialize_mpfb_humanoid_candidate.py (WAIST_MEET_UPPER pushed 36 verts, maxDeficit 7.65 mm). Same postopt ladder #695/#737 (38958 tris). measureWaistFit gapped 0 / min +5.0 mm; waist-box first-hits skin 0 hidden 0 (was 308/27).",
   "2026-09-20: garment-provenance-stamp wrote Scrub_Shirt.mhclo / Scrub_Pants.mhclo CC-BY extras. Geometry unchanged. outputSha256/outputBytes re-recorded.",
   "2026-10-30 ci-w11 D3 (chest-anchor re-separation, post-bake stage, not rebake): repair mode: rest already +-0.085 from #0; restored 2 openclinxr_retarget_walk_source keyframes per breast joint from midline to rest (walk graft 91aa4b5d3 had re-pinned them after the #0 run). Rest TRS untouched. Tool: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs (half-span 0.085, uniform with nurse known-good 1f5519d2).",
-  "st-weld D2 (garment topology weld, post-export byte stage, not a Blender rebake): connected each MakeClothes garment's per-face index islands by position (scrub shirt 4692 raw components -> 1; pants 1350 -> 5 with 1 meaningful), carrying one normal per cloth side so creases at/above the flat-shade 60-deg floor stay split (shirt kept_sharp 52, pants 35; weights/uv splits 0). Byte length unchanged at 8775848; only garment indices and survivor NORMALs rewritten in place. Tool: tools/openclinxr/asset-pipeline/makeclothes/garment_topology_weld.py --angle 90, wired pre-#371 in tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py. Shoulder-span counterweight rows (hem-boundary cl.3, open-front-underlayer cl.3) flip to shoulderSpannedByOneComponent=true on this asset."
+  "st-weld D2 (garment topology weld, post-export byte stage, not a Blender rebake): connected each MakeClothes garment's per-face index islands by position (scrub shirt 4692 raw components -> 1; pants 1350 -> 5 with 1 meaningful), carrying one normal per cloth side so creases at/above the flat-shade 60-deg floor stay split (shirt kept_sharp 52, pants 35; weights/uv splits 0). Byte length unchanged at 8775848; only garment indices and survivor NORMALs rewritten in place. Tool: tools/openclinxr/asset-pipeline/makeclothes/garment_topology_weld.py --angle 90, wired pre-#371 in tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py. Shoulder-span counterweight rows (hem-boundary cl.3, open-front-underlayer cl.3) flip to shoulderSpannedByOneComponent=true on this asset.",
+  "st-palette R1 round 2 (weave base-colour texture with HB-02 FOLD, post-export byte stage, not a Blender rebake): attached deterministic seeded plain-weave PNGs (512px, FNV-1a(material) seed, exact-mean corrected) to mat_makeclothes_library_scrub_shirt and mat_makeclothes_library_scrub_pants at the locked teal 0.05,0.48,0.52 (P1; texture means 0.0503,0.4800,0.5200 / 0.0502,0.4800,0.5200); factors FOLDED to [1,1,1,1] so effective (factor x texture mean) equals the palette (miss 0.00033/0.00017, bound 0.01). Round 1 kept the factor and rendered colour^2; this re-runs the fixed stage on origin bytes e217d3c9 (8775848 B). Geometry/skin/rig/morphs/animations verbatim; only 2 PNG images + texture refs + factor folds added (8775848 -> 9034080 bytes). Tool: tools/openclinxr/asset-pipeline/makeclothes/attach-weave-base-color-textures.ts (sha256 357257996ff62bdae6b93ac39c47e00b0b317e84fe792d3867a741424bd7520e). Report: /Volumes/files/openclinxr-assets/store/st-palette/nurse-report.r2.json.",
+  "st-palette R5 (hem-finish, post-weave byte stage, not a Blender rebake): cut the watertight scrub-shirt solid at the hem (4 mm band, 69 faces), leveled + smoothed + kink-relieved the 3 hem rings (2 lifts, max 4.0 mm, bucket-keeper guarded, restore backstop idle), purged 13 5dp-degenerate tris from the scrub pants (Blender import had already dropped 15, leaving micro-loop singles). Shirt [20,13] loops, no micro; pants [42,19,19]; waist 36 buckets 0 gapped min +1.0 mm (cut raised the hem 4 mm off the +5.0 mm margin); hem-boundary nurse row 180.0 -> 55.1 deg (green). Fold intact (factors [1,1,1], effective teal). Mask-cutoff export hygiene: Blender re-export drops spec-default alphaCutoff 0.5 on 7 MASK mats, the sternal-T contract pins it explicit, so the producer re-stamps it post-export (JSON-chunk only, value is the default). Geometry otherwise verbatim; skin/rig/morphs/animations untouched. 2026-11-03 header re-run: the first mask-stamp pass wrote GLB total 8004136 for 8004128 bytes (BIN-chunk header double-counted, three.js refused the file); re-ran the fixed producer from r2-scratch/nurse-copy3.glb (report r2-scratch/nurse-report8.json, tool 93f8a7d7); header now equals filelen, all other bytes identical (single-byte diff at file offset 8).",
+  "st-palette R9 (sRGB-correct fold, post-export byte stage): round-2/3 wrote the linear palette as raw texels so the sRGB-decoding renderer rendered it dark (after-chest ~60 RGB under before). Re-ran the fixed weave on origin bytes e217d3c9: texel = linear_to_srgb(palette x weave), decoded mean equals palette (miss<=0.00016, gate 0.01), factors [1,1,1,1]. Then re-applied hem-finish (cut 4mm/69 faces) + mask-cutoff stamp through the recorded producer. Effective teal [0.05,0.48,0.52] on both scrubs; geometry deltas identical to round 2 (shirt digest match).",
+  "st-palette R5 (grafted hem): round-4 hem round-trip rewrote meshes it did not finish (eyebrows 9597/9856->8690/10838, body +18 verts, pants 2704->2676 tris). Re-ran from origin bytes e217d3c9: weave folded shirt-only (pants keep origin 2704-tri factor-only bytes, C3), then hem-finish exports to tmp and grafts only the shirt back (graft-hem-garment.mjs, 9 untouched meshes byte-verified, nonGarmentChanged []). Shirt loops [20,13,6] (C4)."
  ],
  "claimScope": "nurse_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_toigo_blunt_bob_kept",
  "promotionGates": false,
  "generatedAt": "2026-09-12T09:29:57.027Z",
- "outputSha256": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c",
- "outputBytes": 8775848,
+ "outputSha256": "f9ad39023e37b443b7a1f19a4d1de4f62e87a72534bb1875223374767543c12a",
+ "outputBytes": 9189824,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:05:58.471Z",
@@ -92,7 +96,7 @@
   "reproduction": "byte-identical to the shipped file",
   "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
  },
- "licenceNoticeWrittenAt": "2026-09-12T09:29:57.027Z",
+ "licenceNoticeWrittenAt": "2026-11-04T00:41:57.776Z",
  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here.",
  "albedoBakeWrittenAt": "2026-09-12T07:34:16.304Z",
  "albedoBakeNote": "HB-07 hole-guard handback: materialize (untextured scrub shirt [0.05,0.48,0.52] because cache PNG has no IEND) -> #695 meshopt --simplify-ratio 0.4 --simplify-error 0.001 --simplify-only -> #737 lash LOD --ratio 0.12 --error 0.005 -> bake-humanoid-albedo.ts (0 baked: shoes/skin/eyes already white; shirt untextured so HB-02 does not invent an atlas) -> chest-anchor --half-span-m 0.085 -> licence notice last. Cache PNG /Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt/Scrubs_Main_BaseColor_Utility - sRGB - Texture.png is 2,173,517 B with PNG signature and no IEND; Blender OpenImageIO IDAT EOF. Pipeline could not produce a weave atlas. The 74b62af6 image sha c18e7daba260ee9c85109dabe78358718d4343f7f82a350c9cc021cab11ce83d is already teal-baked (mean rgb 8.75,121.90,133.00); copying it and setting factor white is the surgery this handback undoes.",
@@ -123,5 +127,32 @@
    "channels": 411,
    "reason": "rebound with corrected --source-orientation: travel MISMATCHES rest (restZ=0.0695, advanceForwardZ=-0.9969, windowFrames=9, mps=0.432)"
   }
- ]
+ ],
+ "garmentHemFinish": {
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/apply-hem-finish-glb.py",
+  "toolSha256": "6d682654c011000959200d1fc240c28252da74e19418bc1b39871995d30d70da",
+  "stageModule": "packages/openclinxr/factory-stations/src/body_param/garment_hem.py",
+  "stageModuleSha256": "834422e1195a1cb20590c797c67e45a7460265876e878330c80fe23b0cf41212",
+  "garmentMesh": "makeclothes_library_scrub_shirt_mpfb_ed_chest_pain_nurse_adult_mesh",
+  "inputSha256": "b7a8dffb0ec88d022e29925f42a0927c4779037c05ff416a06524991d759c4a2",
+  "outputSha256": "f9ad39023e37b443b7a1f19a4d1de4f62e87a72534bb1875223374767543c12a",
+  "outputBytes": 9189824,
+  "report": "/Volumes/files/openclinxr-assets/store/st-palette/r5-work/nurse-hem-r5.json",
+  "note": "shirt 9384->9315 faces; graft keeps every other mesh origin-identical (eyebrows 9597/9856, eyelash 388/553, body 8437 verts, pants 2704 tris); maskCutoff 0"
+ },
+ "garmentWeaveFold": {
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/attach-weave-base-color-textures.ts",
+  "toolSha256": "b5e0ddfae59253fb5d947a10066093a7df984aae4322b3b667c7a007f08507ec",
+  "mode": "attach shirt-only on origin bytes (pants keep origin factor-only bytes)",
+  "inputSha256": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950",
+  "inputBytes": 8775848,
+  "wovenSha256": "b7a8dffb0ec88d022e29925f42a0927c4779037c05ff416a06524991d759c4a2",
+  "outputSha256": "f9ad39023e37b443b7a1f19a4d1de4f62e87a72534bb1875223374767543c12a",
+  "outputBytes": 9189824,
+  "reports": [
+   "/Volumes/files/openclinxr-assets/store/st-palette/r5-work/nurse-weave-r5.json"
+  ],
+  "effective": "shirt [0.0501,0.4799,0.5202] vs teal [0.05,0.48,0.52], miss 0.00016; pants untouched",
+  "claimScope": "baseColorTexture bytes + baseColorFactor folds only; no geometry, skinning, morph or animation changes"
+ }
 }

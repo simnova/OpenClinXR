@@ -78,27 +78,24 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "senior_resident_ward_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-          // st-weld2 re-pinned 2026-11-03: garment topology weld (post-export byte stage;
-          // size holds at 9618436); was 921d7a60…. Row-only re-pin: the freeze producer
-          // drifts planRevision on re-run, so the plan itself is untouched.
-          "assetSha256": "4b823cbd6adcf2a51814314979d2fa87f70633da3933afbebeee351a3cec227b",
-          "byteCount": 9618436
+          "assetSha256": "9141538a76220c8431573ed185a24d5eb710429bca27f9844a8cee99c180d425",
+          "byteCount": 9293412
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:ward_nurse_patel_v1",
           "kind": "actor",
           "contentId": "ward_nurse_patel_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-          "assetSha256": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c",
-          "byteCount": 8775848
+          "assetSha256": "f9ad39023e37b443b7a1f19a4d1de4f62e87a72534bb1875223374767543c12a",
+          "byteCount": 9189824
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:daughter_lena_ellis_v1",
           "kind": "actor",
           "contentId": "daughter_lena_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-          "assetSha256": "ee45f65c0162208d9ca37f5a116c82d11d072def31b6429a6b32c74f040ee7cd",
-          "byteCount": 9277296
+          "assetSha256": "e5c78c24cc0364f5a83b5bfda613be5fe98202c975872f9f295dfb1106564256",
+          "byteCount": 9575036
         }
       ],
       "revisions": {
@@ -170,11 +167,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-f667a12bf93aea18e33ecb74c5823c0e",
+      "planRevision": "plan-v1-36758b6477bf67ecf986379b46568402",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-f667a12bf93aea18e33ecb74c5823c0e"
+        "acknowledgedPlanRevision": "plan-v1-36758b6477bf67ecf986379b46568402"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);

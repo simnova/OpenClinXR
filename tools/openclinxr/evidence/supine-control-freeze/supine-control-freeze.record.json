@@ -6,10 +6,10 @@
     "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "c7def44bda87d5d115d53c794f546ec6bf1b5ae655865f00df4262cdf538e6ab",
     "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": "e8896ed8905266c54ec87191a50c48e73e755f9b887a527190b0ed7fba5bca27",
     "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "e5620a7c8ef8d41aebc4766b9a8375a9c6bf0106cacee268cdd34ea14b9020f3",
-    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "ee45f65c0162208d9ca37f5a116c82d11d072def31b6429a6b32c74f040ee7cd",
-    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c",
-    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "4b823cbd6adcf2a51814314979d2fa87f70633da3933afbebeee351a3cec227b",
-    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "3afcdd2db2178e035b8f53b0c3b3a9489511299648054867a432e80f66e1fd3d"
+    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "e5c78c24cc0364f5a83b5bfda613be5fe98202c975872f9f295dfb1106564256",
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "f9ad39023e37b443b7a1f19a4d1de4f62e87a72534bb1875223374767543c12a",
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "9141538a76220c8431573ed185a24d5eb710429bca27f9844a8cee99c180d425",
+    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "5df99085c51be1e809a94ca6c245f26bd8278aa886f9eed954cbe81db91049ef"
   },
   "staged": {
     "posture": "supine",
@@ -17,18 +17,18 @@
     "clearanceAboveDeckMeters": 0.25
   },
   "producedFrom": {
-    "observedBy": "orchestrator-2026-11-03 rebase regen",
-    "observedAtIso": "2026-11-03T18:28:02.760Z",
-    "reason": "family-partner held at origin bytes (hemfin waist gap)",
+    "observedBy": "st-palette-round-5 worker",
+    "observedAtIso": "2026-11-04T01:03:10.044Z",
+    "reason": "st-palette C5: graft hem re-run keeps untouched meshes at origin bytes (nurse pants 2704, body 8437; family jeans 11416, body 8869); re-baselined through producer",
     "byteCountByPath": {
       "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9221980,
       "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9308164,
       "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": 9000208,
       "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 6763692,
-      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 9277296,
-      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 8775848,
-      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 9618436,
-      "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 16291676
+      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 9575036,
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 9189824,
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 9293412,
+      "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 15966652
     }
   }
 }

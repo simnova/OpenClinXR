@@ -23,7 +23,7 @@
     {
       "id": "mpfb-clinical-nurse-adult",
       "source": "cast",
-      "overlapMm": 5,
+      "overlapMm": 1,
       "bucketCount": 36,
       "upperName": "mat_makeclothes_library_scrub_shirt",
       "lowerName": "mat_makeclothes_library_scrub_pants",
