@@ -165,17 +165,19 @@ describe("canonical staging contracts (fake/static units, no browser)", () => {
     const physician = (plan?.instances ?? []).find(
       (i) => i?.instanceId === FOOT_GROUNDER_PHYSICIAN_INSTANCE_ID,
     );
+    // st-palette re-pinned 2026-11-04: sRGB palette fold replaced the scrub_shirt
+    // texture (3969ae031; 9618436 -> 9293412 B, geometry identical); was 4b823cbd….
     // st-weld2 re-pinned 2026-11-03: garment topology weld (post-export byte stage;
     // size holds at 9618436); was 921d7a60….
     expect(physician?.assetSha256).toBe(
-      "4b823cbd6adcf2a51814314979d2fa87f70633da3933afbebeee351a3cec227b",
+      "9141538a76220c8431573ed185a24d5eb710429bca27f9844a8cee99c180d425",
     );
-    expect(physician?.byteCount).toBe(9618436);
+    expect(physician?.byteCount).toBe(9293412);
     expect(expected.expectedClipRevision).toBe("openclinxr_retarget_walk_source");
     expect(expected.expectedAssetSha256).toBe(
-      "4b823cbd6adcf2a51814314979d2fa87f70633da3933afbebeee351a3cec227b",
+      "9141538a76220c8431573ed185a24d5eb710429bca27f9844a8cee99c180d425",
     );
-    expect(expected.expectedBytes).toBe(9618436);
+    expect(expected.expectedBytes).toBe(9293412);
     // Independent provenance lineage agrees; retired formal_cc0 preserved.
     const provenance = JSON.parse(
       readFileSync(
