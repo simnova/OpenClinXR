@@ -105,7 +105,7 @@
   {
    "body": "mpfb-gown-inspect.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 8097400,
+   "bytesAfter": 8097648,
    "bytesBefore": 12999904,
    "chosenRungId": "r0.1",
    "faceAfter": 52778,

@@ -5,8 +5,8 @@
  "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
  "runtimeRole": "inspection_fixture",
  "runtimeRoleWhy": "Inspection subject for garment/gown contracts. Never cast; the shipped-bank cast resolver does not name it.",
- "outputSha256": "afc0f712643aad61b3a82e5f9c5c0fa10651b02dd9268e53bdcb32d4dc4ece58",
- "outputBytes": 8097400,
+ "outputSha256": "83593e513693f785427144f49402304ac01c728cc0a17f4f7d1a7c3a98a817e9",
+ "outputBytes": 8097648,
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.401Z",
  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. HB-05 (2026-09-11): face-preserving decimation rung rewrote the GLB (selective weld+simplifyPrimitive on non-face meshes only, face meshes untouched, joints and 47 body morph targets unchanged); outputSha256/outputBytes re-recorded in the same change that moved the bytes. Reproduce: pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.15 (face-preserving mode, tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts).",
  "byteLineage": {
@@ -104,5 +104,12 @@
   "outputBytes": 8097400,
   "report": "tools/openclinxr/evidence/chest-anchor-joints/mpfb-gown-inspect.json",
   "gate": "tools/openclinxr/evidence/chest-anchors/every-shipped-rig-has-two-chest-anchors.test.ts + tools/openclinxr/evidence/garment-surface-stale/the-gown-drapes-below-the-hip.test.ts (9 clauses) + garment-surface-derived.test.ts (3 its) green after the stage"
+ },
+ "garmentProvenanceStamp20261104R5": {
+  "producer": "pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/garment-provenance-stamp.ts apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb (post-export byte stage)",
+  "cause": "st-gowninsp round 5 landing: since round 1 the gown-inspect body carries an openclinxr_real_garment_hospital_gown_mesh whose extras held only the legacy bake fields, and this declaration-only sidecar has no assetPath or operations, so the-shipped-mpfb-garments-record-source-mhclo.test.ts (1) refused it (pre-push 2026-11-03 20:10). The stamp station adds sourceKind=procedural, sourceGenerator, and sourceHash = sha256 of the current bake_mpfb_gown_inspect.py. Only the gown mesh extras change; the binary chunk is byte-identical.",
+  "inputSha256": "afc0f712643aad61b3a82e5f9c5c0fa10651b02dd9268e53bdcb32d4dc4ece58",
+  "outputSha256": "83593e513693f785427144f49402304ac01c728cc0a17f4f7d1a7c3a98a817e9",
+  "outputBytes": 8097648
  }
 }

@@ -316,11 +316,11 @@
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
-      "sha256": "afc0f712643aad61b3a82e5f9c5c0fa10651b02dd9268e53bdcb32d4dc4ece58"
+      "sha256": "83593e513693f785427144f49402304ac01c728cc0a17f4f7d1a7c3a98a817e9"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
-      "sha256": "4f4d913a7e22a6654a0d84770623e64b4efbcf05d58583948b69456c79f37ea2"
+      "sha256": "241b15839bf5faa9afb134d850c6e00cb23fe3752aea7a0201dc9b3b5c95dc29"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
@@ -5063,7 +5063,7 @@
       "sha256": "0dcd06c66f5acd0ccc42401c8d1fed8ee1351f889861ca13ecc8c79fec1a9f95"
     }
   ],
-  "sourcePinsDigest": "82924d76d429c43a1ba4f3031c2a31d6436f3345ffe07236d88a1b189dd7fd55",
+  "sourcePinsDigest": "899ccf712e6f0e81306e811eb3bb388e7bed80e51b1628b5dc7b9548b744bd83",
   "entries": [
     {
       "scenarioId": "adult_abdominal_pain_v1",

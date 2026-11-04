@@ -178,7 +178,7 @@ PLAN = {
     # the drape counterweight, not closer) and HB-03 re-pins to the live
     # undecimated source. Every after-value below is asserted live by main().
     "mpfb-gown-inspect.glb": {
-        "bytesAfter": 8097400,
+        "bytesAfter": 8097648,
         "triangleCountAfter": 72633,
         "faceBefore": 52778,
         "faceAfter": 52778,
@@ -219,12 +219,12 @@ PLAN = {
                 "supersededBecause": ("input lineage replaced by the Nov03 gown rebake 9542f47b8; the Sep11 rung "
                     "output it recorded matches no shipped bytes since the rebake"),
             },
-            "outputSha256": "afc0f712643aad61b3a82e5f9c5c0fa10651b02dd9268e53bdcb32d4dc4ece58",
+            "outputSha256": "83593e513693f785427144f49402304ac01c728cc0a17f4f7d1a7c3a98a817e9",
             "note": ("Re-measured 2026-11-04 (st-gowninsp round 5): the round-5 centred-cage rebake re-based the source "
                 "(rings fit on section centroids + 5-tap loft smoothing with per-ring re-enclosure, seal lips 16->21, "
                 "gussets 48->57, patches 32->38; "
                 "garment-surface-derived 0.822->0.966, slits stay 0/0, neckline stays 1.3834/1.385 scoop; meshes/nodes/joints hold "
-                "10/149/137) plus the chest-anchor restore that moved the shipped bytes 8,135,672->8,097,400. The fp-r0.15 rung verdict "
+                "10/149/137) plus the chest-anchor restore that moved the shipped bytes 8,135,672->8,097,400 and the garment-provenance stamp (gown mesh extras only, binary chunk identical) 8,097,400->8,097,648. The fp-r0.15 rung verdict "
                 "carries forward from round 4 (source inside budget, shell gained seal tris only), so the row stays demoted with ratio-1 and 137-joint floors on the re-measured source; "
                 "tris 72633 and face 52778 hold. Prior re-measures (rounds 2-4, Sep28 teeth retreat 9f2934536) preserved "
                 "in git history."),
