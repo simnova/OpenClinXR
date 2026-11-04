@@ -68,7 +68,7 @@
    "triangleCountBefore": 92430,
    "triangleCountAfter": 73392,
    "bytesBefore": 13170972,
-   "bytesAfter": 9914108,
+   "bytesAfter": 10021840,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "faceBefore": 52778,
    "faceAfter": 52778,
@@ -112,7 +112,7 @@
    ],
    "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
    "lineageNote": "tightjeans re-bake output; second fp-r0.4 pass (2803b774) then albedo bake (42c42140)",
-   "remeasureNote": "Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage (post-export byte stage, not a rebake; one RG image + OPENCLINXR_skin_shade material extension appended, geometry/BIN verbatim; tris 73392 / face 52778 / joints 137 hold, 9700420 -> 9914108 B). Prior re-measure (st-redgarm D1, 1225b8f95) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 9914108 -> 10021840 B). Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage (post-export byte stage, not a rebake; one RG image + OPENCLINXR_skin_shade material extension appended, geometry/BIN verbatim; tris 73392 / face 52778 / joints 137 hold, 9700420 -> 9914108 B). Prior re-measure (st-redgarm D1, 1225b8f95) preserved in git history."
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -121,7 +121,7 @@
    "triangleCountBefore": 119232,
    "triangleCountAfter": 98102,
    "bytesBefore": 14477264,
-   "bytesAfter": 15966652,
+   "bytesAfter": 16074580,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "faceBefore": 46160,
    "faceAfter": 46160,
@@ -148,7 +148,7 @@
      "engine": "Blender EEVEE headless (baked Principled base colour, not Workbench)"
     }
    },
-   "remeasureNote": "Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants 810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face 46160 / joints 137 hold; still under the 120000 acceptableSingleProp budget). Superseding commit 1225b8f95 (D1 garment smooth: full-res transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, ci-w11b) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 15966652 -> 16074580 B). Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants 810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face 46160 / joints 137 hold; still under the 120000 acceptableSingleProp budget). Superseding commit 1225b8f95 (D1 garment smooth: full-res transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, ci-w11b) preserved in git history."
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",

@@ -88,10 +88,11 @@ PLAN = {
     },
     # --- HB-03 rows (bytes only; tris/face/hand/joints asserted unchanged) ---
     "mpfb-family-partner-adult.glb": {
-        "bytesAfter": 9277296,
+        "bytesAfter": 9330184,
         "triangleCountAfter": 39974,
         "handBodyMeshAfter": 13357,
-        "note": ("Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
+        "note": ("Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 9277296 -> 9330184 B). "
+                 "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
                  "(tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding "
                  "commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior "
                  "re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."),
@@ -132,9 +133,10 @@ PLAN = {
     # (replace-garment-primitive.ts restores pre-HB-05 full-res prims + proven 60-deg
     # post-export smooth).
     "mpfb-ob-patient-aisha.glb": {
-        "bytesAfter": 9914108,
+        "bytesAfter": 10021840,
         "triangleCountAfter": 73392,
-        "note": ("Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage "
+        "note": ("Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 9914108 -> 10021840 B). "
+                 "Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage "
                  "(post-export byte stage, not a rebake; one RG image + "
                  "OPENCLINXR_skin_shade material extension appended, geometry/BIN "
                  "verbatim; tris 73392 / face 52778 / joints 137 hold, "
@@ -142,9 +144,10 @@ PLAN = {
                  "1225b8f95) preserved in git history."),
     },
     "mpfb-peds-nurse-kevin.glb": {
-        "bytesAfter": 15966652,
+        "bytesAfter": 16074580,
         "triangleCountAfter": 98102,
-        "note": ("Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). "
+        "note": ("Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 15966652 -> 16074580 B). "
+                 "Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). "
                  "Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants "
                  "810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face "
                  "46160 / joints 137 hold; still under the 120000 acceptableSingleProp "

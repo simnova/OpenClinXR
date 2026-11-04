@@ -46,7 +46,7 @@
   {
    "body": "mpfb-family-partner-adult.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 9277296,
+   "bytesAfter": 9330184,
    "bytesBefore": 10409540,
    "chosenRungId": "raw",
    "faceAfter": 14945,
@@ -77,7 +77,7 @@
     "bake-humanoid-albedo.ts bakeGlbAlbedo"
    ],
    "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
-   "remeasureNote": "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 9277296 -> 9330184 B). Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
@@ -137,7 +137,7 @@
   {
    "body": "mpfb-ob-patient-aisha.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 9914108,
+   "bytesAfter": 10021840,
    "bytesBefore": 17002120,
    "chosenRungId": "fp-r0.4",
    "faceAfter": 52778,
@@ -154,12 +154,12 @@
    "promotionNote": "2026-09-12 fp-r0.4 restore after female covering lower. Fit-time jeans 4216 (2108 x 2). Shipped jeans 1986. budgets.propShare 40000 unchanged.",
    "triangleCountAfter": 73392,
    "triangleCountBefore": 92430,
-   "remeasureNote": "Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage (post-export byte stage, not a rebake; one RG image + OPENCLINXR_skin_shade material extension appended, geometry/BIN verbatim; tris 73392 / face 52778 / joints 137 hold, 9700420 -> 9914108 B). Prior re-measure (st-redgarm D1, 1225b8f95) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 9914108 -> 10021840 B). Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage (post-export byte stage, not a rebake; one RG image + OPENCLINXR_skin_shade material extension appended, geometry/BIN verbatim; tris 73392 / face 52778 / joints 137 hold, 9700420 -> 9914108 B). Prior re-measure (st-redgarm D1, 1225b8f95) preserved in git history."
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 15966652,
+   "bytesAfter": 16074580,
    "bytesBefore": 14477264,
    "chosenRungId": "r0.1",
    "faceAfter": 46160,
@@ -185,7 +185,7 @@
    "promotionNote": "STOP branch: every in-budget rung (r0.1 at 60513 through r0.005 at 55580) keeps 5503/46160 = 0.1192 of face triangles (88% destroyed) — the ladder passes the totals check but destroys the face, so no rung is promoted and the live GLB is unchanged.",
    "triangleCountAfter": 98102,
    "triangleCountBefore": 119232,
-   "remeasureNote": "Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants 810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face 46160 / joints 137 hold; still under the 120000 acceptableSingleProp budget). Superseding commit 1225b8f95 (D1 garment smooth: full-res transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, ci-w11b) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 15966652 -> 16074580 B). Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants 810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face 46160 / joints 137 hold; still under the 120000 acceptableSingleProp budget). Superseding commit 1225b8f95 (D1 garment smooth: full-res transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, ci-w11b) preserved in git history."
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
