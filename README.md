@@ -132,6 +132,8 @@ pnpm arena:iwsdk:dev                                         # IWSDK WebXR spike
 
 Encounter flows are meant to be **blueprint-driven** through the factory, not hand-authored one-off scenes.
 
+Blender evidence: `tools/openclinxr/evidence/blender/vitruvian_cycles_2up.py` renders fixed-rig Cycles original/Vitruvian face, eye, and cheek 2-up sheets from read-only GLBs.
+
 ---
 
 ## Asset licensing constraints
