@@ -18,10 +18,23 @@
 
 import { inflateSync } from "node:zlib";
 
+/** sRGB (IEC 61966-2-1) decode of one normalized channel to linear. */
+export function srgbToLinear(s: number): number {
+  const c = Math.min(1, Math.max(0, s));
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+}
+
+/** Linear to sRGB (IEC 61966-2-1) encode of one channel. */
+export function linearToSrgb(l: number): number {
+  const c = Math.min(1, Math.max(0, l));
+  return c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055;
+}
+
 export type RGB3 = [number, number, number];
 
 /** Per-channel mean of a PNG's opaque texels (full decode, no subsampling),
- * or null when the image is absent or not a decodable 8-bit PNG. */
+ * or null when the image is absent or not a decodable 8-bit PNG.
+ * Round 4: each texel is sRGB-decoded to linear before averaging. */
 export function textureChannelMeans(bytes: Uint8Array): RGB3 | null {
   if (bytes.length < 8 || bytes[0] !== 0x89 || bytes[1] !== 0x50) return null;
   let w = 0;
@@ -90,18 +103,21 @@ export function textureChannelMeans(bytes: Uint8Array): RGB3 | null {
     for (let x = 0; x < w; x += 1) {
       const i = x * chans;
       if (chans === 4 && (cur[i + 3] ?? 255) < 128) continue;
-      sums[0] = (sums[0] ?? 0) + (cur[i] ?? 0);
-      sums[1] = (sums[1] ?? 0) + (cur[i + 1] ?? cur[i] ?? 0);
-      sums[2] = (sums[2] ?? 0) + (cur[i + 2] ?? cur[i] ?? 0);
+      // Round 4: texels are sRGB-encoded per the glTF spec — decode each to
+      // linear before averaging, so the mean is what the renderer multiplies.
+      sums[0] = (sums[0] ?? 0) + srgbToLinear((cur[i] ?? 0) / 255);
+      sums[1] = (sums[1] ?? 0) + srgbToLinear((cur[i + 1] ?? cur[i] ?? 0) / 255);
+      sums[2] = (sums[2] ?? 0) + srgbToLinear((cur[i + 2] ?? cur[i] ?? 0) / 255);
       n += 1;
     }
     prev = Uint8Array.from(cur);
   }
   if (!n) return null;
-  return [(sums[0] ?? 0) / n / 255, (sums[1] ?? 0) / n / 255, (sums[2] ?? 0) / n / 255];
+  // Sums already hold decoded linear 0..1 values — no /255.
+  return [(sums[0] ?? 0) / n, (sums[1] ?? 0) / n, (sums[2] ?? 0) / n];
 }
 
-/** Effective shipped colour: factor x per-channel texture mean when a
+/** Effective shipped colour: factor x per-channel decoded texture mean when a
  * decodable texture is present, otherwise the bare factor. Channels are the
  * first three of the glTF baseColorFactor. */
 export function effectiveBaseColorFactor(
@@ -113,4 +129,94 @@ export function effectiveBaseColorFactor(
     return [factor[0] ?? 1, factor[1] ?? 1, factor[2] ?? 1];
   }
   return [(factor[0] ?? 1) * means[0], (factor[1] ?? 1) * means[1], (factor[2] ?? 1) * means[2]];
+}
+
+/** Decoded texture stats for the locked-colour weave counterweight: mean
+ * luminance, luminance sd, and per-channel decoded means over opaque texels.
+ * One implementation — the locked-colour test imports this instead of a
+ * second PNG reader. Null when undecodable. */
+export function textureDecodedStats(
+  bytes: Uint8Array,
+): { mean: number; sd: number; r: number; g: number; b: number } | null {
+  const means = textureChannelMeans(bytes);
+  if (!means) return null;
+  // textureChannelMeans already consumed the PNG once; recompute luminance sd
+  // here with a second pass over decoded luminance values.
+  if (bytes.length < 8 || bytes[0] !== 0x89 || bytes[1] !== 0x50) return null;
+  let w = 0;
+  let h = 0;
+  let depth = 0;
+  let colour = -1;
+  const idat: Uint8Array[] = [];
+  let off = 8;
+  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  while (off + 8 <= bytes.length) {
+    const len = dv.getUint32(off);
+    const type = String.fromCharCode(
+      bytes[off + 4] ?? 0,
+      bytes[off + 5] ?? 0,
+      bytes[off + 6] ?? 0,
+      bytes[off + 7] ?? 0,
+    );
+    if (type === "IHDR") {
+      w = dv.getUint32(off + 8);
+      h = dv.getUint32(off + 12);
+      depth = bytes[off + 16] ?? 0;
+      colour = bytes[off + 17] ?? -1;
+    } else if (type === "IDAT") {
+      idat.push(bytes.subarray(off + 8, off + 8 + len));
+    } else if (type === "IEND") {
+      break;
+    }
+    off += 12 + len;
+  }
+  const chans = colour === 0 ? 1 : colour === 2 ? 3 : colour === 4 ? 2 : colour === 6 ? 4 : 0;
+  if (depth !== 8 || !chans || !w) return null;
+  let raw: Buffer;
+  try {
+    raw = inflateSync(Buffer.concat(idat.map((c) => Buffer.from(c))));
+  } catch {
+    return null;
+  }
+  const stride = w * chans;
+  if (raw.length < (stride + 1) * h) return null;
+  let prev = new Uint8Array(stride);
+  let p = 0;
+  const cur = new Uint8Array(stride);
+  const lums: number[] = [];
+  for (let y = 0; y < h; y += 1) {
+    const f = raw[p++] ?? 0;
+    for (let x = 0; x < stride; x += 1) {
+      const rb = raw[p + x] ?? 0;
+      const a = x >= chans ? (cur[x - chans] ?? 0) : 0;
+      const b = prev[x] ?? 0;
+      const c = x >= chans ? (prev[x - chans] ?? 0) : 0;
+      let v: number;
+      if (f === 0) v = rb;
+      else if (f === 1) v = rb + a;
+      else if (f === 2) v = rb + b;
+      else if (f === 3) v = rb + ((a + b) >> 1);
+      else {
+        const pa = Math.abs(b - c);
+        const pb = Math.abs(a - c);
+        const pc = Math.abs(a + b - 2 * c);
+        v = rb + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c);
+      }
+      cur[x] = v & 0xff;
+    }
+    p += stride;
+    for (let x = 0; x < w; x += 1) {
+      const i = x * chans;
+      if (chans === 4 && (cur[i + 3] ?? 255) < 128) continue;
+      const lr = srgbToLinear((cur[i] ?? 0) / 255);
+      const lg = srgbToLinear((cur[i + 1] ?? cur[i] ?? 0) / 255);
+      const lb = srgbToLinear((cur[i + 2] ?? cur[i] ?? 0) / 255);
+      lums.push((lr + lg + lb) / 3);
+    }
+    prev = Uint8Array.from(cur);
+  }
+  if (!lums.length) return null;
+  const mean = lums.reduce((s, v) => s + v, 0) / lums.length;
+  const sd = Math.sqrt(lums.reduce((s, v) => s + (v - mean) ** 2, 0) / lums.length);
+  return { mean, sd, r: means[0], g: means[1], b: means[2] };
 }

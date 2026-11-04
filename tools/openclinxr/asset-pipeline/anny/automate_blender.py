@@ -1849,6 +1849,48 @@ _FABRIC_PALETTE_KIND_COLORS: Dict[str, Dict[str, tuple]] = {
 }
 
 
+# st-palette P3: white-tie role tokens. When two co-present actors resolve to
+# the same white primary, the patient/family garment shifts to its role
+# default; clinician roles never move. Centralised here so no per-asset table
+# grows; the guard is a no-op for every colour the tables below emit today
+# (no row is near-white on all three channels — the brightest single channel
+# anywhere is the tshirt-default blue at 0.95, outside _WHITE_TIE_EPS of 1.0).
+_CLINICIAN_ROLE_TOKENS = ("nurse", "clinician", "staff", "physician", "doctor")
+_PATIENT_ROLE_TOKENS = ("patient",)
+_FAMILY_ROLE_TOKENS = ("family", "parent", "spouse", "guardian")
+_WHITE_TIE_EPS = 0.05
+
+
+def _is_near_white(color: tuple) -> bool:
+    return all(abs(c - 1.0) <= _WHITE_TIE_EPS for c in color[:3])
+
+
+def resolve_white_tie_break(kind: str, actor_role: str, resolved: tuple) -> tuple:
+    """Break a same-white primary tie by role (st-palette P3).
+
+    Clinicians never move. A patient in a white casual layer shifts to the
+    olive casual row, family to the rose row — the same named-enum rows the
+    role fallback uses, never an invented colour. Non-white input, clinician
+    roles, unknown roles, and kinds outside the two casual rows pass through
+    unchanged.
+    """
+    if not _is_near_white(resolved):
+        return resolved
+    role = (actor_role or "").lower()
+    if any(token in role for token in _CLINICIAN_ROLE_TOKENS):
+        return resolved
+    k = (kind or "default").lower()
+    if any(token in role for token in _PATIENT_ROLE_TOKENS):
+        tie = _FABRIC_PALETTE_KIND_COLORS["olive_knit_and_cream_casual"]
+        if k in tie:
+            return tie[k]
+    if any(token in role for token in _FAMILY_ROLE_TOKENS):
+        tie = _FABRIC_PALETTE_KIND_COLORS["muted_rose_and_neutral"]
+        if k in tie:
+            return tie[k]
+    return resolved
+
+
 def garment_shell_color(kind: str, actor_role: str, phenotype: Dict[str, Any]) -> tuple:
     """Visible real-garment base colour: f(role, kind, fabricPalette).
 
@@ -1859,9 +1901,19 @@ def garment_shell_color(kind: str, actor_role: str, phenotype: Dict[str, Any]) -
     Decision: fabricPalette is a named-enum table (not free-text→colour). Role
     is a fallback for casual kinds when palette is missing/unmapped so a second
     role assigned the same kind still diverges.
+
+    st-palette P1: clinicians (nurse, physician, any scrub role) keep the
+    locked teal. The lock is enforced here, not per asset: every scrub kind
+    returns _GARMENT_COLOR_SCRUB for every role, and resolve_white_tie_break
+    never moves a clinician role.
+
+    st-palette P3: when two co-present actors resolve to the same white
+    primary, the tie breaks by role — the patient/family garment shifts to its
+    role default, clinicians never move. Also enforced here, not per asset.
     """
     k = (kind or "default").lower()
-    # Locked clinical colours — never overridden by palette or role.
+    role = (actor_role or "").lower()
+    # Locked clinical colours — never overridden by palette or role (P1).
     if k == "gown":
         return _GARMENT_COLOR_GOWN
     if k == "scrub":
@@ -1874,13 +1926,12 @@ def garment_shell_color(kind: str, actor_role: str, phenotype: Dict[str, Any]) -
         or phenotype.get("clothing_color")
         or ""
     ).strip().lower()
-    role = (actor_role or "").lower()
 
     # Named fabricPalette table (substring match so clothing_color synonyms work).
     for palette_key, kind_map in _FABRIC_PALETTE_KIND_COLORS.items():
         if palette_key in palette_raw or palette_raw == palette_key:
             if k in kind_map:
-                return kind_map[k]
+                return resolve_white_tie_break(k, role, kind_map[k])
 
     # Role fallback for street casual layers only.
     if k in ("open_front", "closed_casual"):
@@ -1890,12 +1941,14 @@ def garment_shell_color(kind: str, actor_role: str, phenotype: Dict[str, Any]) -
         )
         if is_patient:
             olive = _FABRIC_PALETTE_KIND_COLORS["olive_knit_and_cream_casual"]
-            return olive.get(k, _GARMENT_KIND_DEFAULTS[k])
+            return resolve_white_tie_break(k, role, olive.get(k, _GARMENT_KIND_DEFAULTS[k]))
         if is_family:
             rose = _FABRIC_PALETTE_KIND_COLORS["muted_rose_and_neutral"]
-            return rose.get(k, _GARMENT_KIND_DEFAULTS[k])
+            return resolve_white_tie_break(k, role, rose.get(k, _GARMENT_KIND_DEFAULTS[k]))
 
-    return _GARMENT_KIND_DEFAULTS.get(k, _GARMENT_KIND_DEFAULTS["default"])
+    return resolve_white_tie_break(
+        k, role, _GARMENT_KIND_DEFAULTS.get(k, _GARMENT_KIND_DEFAULTS["default"])
+    )
 
 
 # CC0 MakeHuman system-asset iris colours (#356) — per-actor iris asset ids from the official

@@ -98,15 +98,16 @@ const ACTOR_ASSETS: Readonly<Record<string, string>> = {
 /** The two that already resolve correctly — the known-good column, in the same station.
  * HB-02 re-record (22ec335a5, see FIXED block below): the fold moved every factor into its
  * texture, so bare factors read white and the lock reads as the EFFECTIVE colour
- * (factor x per-channel texture mean). Nurse: [1,1,1]x(0.034,0.478,0.522); parent shirt
- * restored through the linear station (ceabb545e). Threshold COLOUR_EPSILON untouched. */
+ * (factor x per-channel srgb_to_linear-decoded texture mean). Nurse: [1,1,1]x(0.05,0.48,0.52)
+ * (st-palette round 4 re-record, see FIXED block); parent shirt restored through the linear
+ * station (ceabb545e). Threshold COLOUR_EPSILON untouched. */
 const KNOWN_GOOD: Readonly<Record<string, readonly [number, number, number]>> = {
   // #588: the parent's under-layer moved from muted rose (0.42,0.36,0.40) to the cardigan rose
   // (0.62,0.28,0.38) — dE 36.2 from her own dark skin mean (92,81,74), the same perceptual
   // distance as the nurse teal that reads clothed (dE 36.0). The pin proves palette-reach
   // (shipped == what the pipeline assigns), not that the colour is immovable.
   parent_tara_johnson_v1: [0.607, 0.42, 0.485],
-  nurse_kevin_lee_v1: [0.034, 0.478, 0.522],
+  nurse_kevin_lee_v1: [0.05, 0.48, 0.52],
 };
 
 const isGarmentMesh = isFittedGarmentMeshName;
@@ -312,5 +313,23 @@ describe("a declared fabric palette reaches the shipped garment", () => {
  * COLOUR_EPSILON (0.005), the B>R direction bound, and clauses (3)/(4) are untouched.
  * The parent shirt's texture is the ceabb545e linear-station restore (GLB 40321196->40911888
  * bytes); the fold it carries is that commit's byte-exact receipt.
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ */
+
+/**
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (st-palette round 4) — appended; the planted header above is immutable
+ *
+ * Round 2/3 wrote the linear palette as raw 8-bit texels; glTF baseColorTexture is
+ * sRGB-encoded, so the renderer decoded them dark and the kevin scrub shirt rendered at
+ * ~40% brightness while its pants (factor-only) rendered the full locked teal. The shared
+ * reader agreed with the producer about the same wrong number (raw byte mean), so this
+ * contract stayed green on dark bytes. Round 4 encodes texel = linear_to_srgb(palette x
+ * weave) in the producer and decodes each texel to linear before averaging in the shared
+ * reader (one implementation). ADAPT, not loosening, per the HB-02 block's own mechanism:
+ * the nurse KNOWN_GOOD pin is re-recorded from the dark-fold effective value (0.034,...)
+ * to the locked clinical teal (0.05,0.48,0.52) the corrected fold ships — the same value
+ * the locked-colour contract pins. COLOUR_EPSILON (0.005), the B>R bound, and clauses
+ * (1)/(3)/(4) are untouched. Measured: kevin shirt [0.0501,0.4799,0.5202].
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  */

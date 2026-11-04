@@ -1,9 +1,12 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { inflateSync } from "node:zlib";
 import { NodeIO } from "@gltf-transform/core";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
+import {
+  effectiveBaseColorFactor,
+  textureDecodedStats,
+} from "../../../../../../tools/openclinxr/evidence/lib/effective-garment-colour.js";
 import { makeclothesGarmentSlug } from "../../../../../../tools/openclinxr/evidence/lib/garment-mesh-class.js";
 
 /**
@@ -183,61 +186,12 @@ type Garment = {
   effectiveBrightness: number;
 };
 
-/** Mean and sd of a PNG's luminance over opaque texels, plus per-channel means for the
- * effective-colour read. Same reader as the AO and face probes. */
+/** Mean and sd of a PNG's decoded-linear luminance over opaque texels, plus
+ * per-channel decoded means for the effective-colour read. Round 4: one
+ * implementation — delegates to the shared effective-garment-colour reader,
+ * which sRGB-decodes each texel before averaging. Bounds below unchanged. */
 function textureStats(bytes: Uint8Array): { mean: number; sd: number; r: number; g: number; b: number } | null {
-  let w = 0, h = 0, depth = 0, colour = -1;
-  const idat: Uint8Array[] = [];
-  let off = 8;
-  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  while (off + 8 <= bytes.length) {
-    const len = dv.getUint32(off);
-    const type = String.fromCharCode(bytes[off + 4]!, bytes[off + 5]!, bytes[off + 6]!, bytes[off + 7]!);
-    if (type === "IHDR") {
-      w = dv.getUint32(off + 8); h = dv.getUint32(off + 12);
-      depth = bytes[off + 16]!; colour = bytes[off + 17]!;
-    } else if (type === "IDAT") idat.push(bytes.subarray(off + 8, off + 8 + len));
-    else if (type === "IEND") break;
-    off += 12 + len;
-  }
-  const chans = colour === 0 ? 1 : colour === 2 ? 3 : colour === 4 ? 2 : colour === 6 ? 4 : 0;
-  if (depth !== 8 || !chans || !w) return null;
-  let raw: Buffer;
-  try { raw = inflateSync(Buffer.concat(idat.map((c) => Buffer.from(c)))); } catch { return null; }
-  const stride = w * chans;
-  if (raw.length < (stride + 1) * h) return null;
-  let prev = new Uint8Array(stride), p = 0;
-  const vals: number[] = [];
-  const chanVals: number[][] = [[], [], []];
-  for (let y = 0; y < h; y += 1) {
-    const f = raw[p++]!;
-    const cur = new Uint8Array(stride);
-    for (let x = 0; x < stride; x += 1) {
-      const rb = raw[p + x]!;
-      const a = x >= chans ? cur[x - chans]! : 0, b = prev[x]!, c = x >= chans ? prev[x - chans]! : 0;
-      let v: number;
-      if (f === 0) v = rb; else if (f === 1) v = rb + a; else if (f === 2) v = rb + b;
-      else if (f === 3) v = rb + ((a + b) >> 1);
-      else { const pa = Math.abs(b - c), pb = Math.abs(a - c), pc = Math.abs(a + b - 2 * c);
-             v = rb + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c); }
-      cur[x] = v & 0xff;
-    }
-    p += stride; prev = cur;
-    if (y % 4 !== 0) continue;
-    for (let x = 0; x < w; x += 4) {
-      const i = x * chans;
-      if (chans === 4 && cur[i + 3]! < 128) continue;   // skip transparent texels
-      vals.push((cur[i]! + (cur[i + 1] ?? cur[i]!) + (cur[i + 2] ?? cur[i]!)) / 3);
-      chanVals[0]!.push(cur[i]!);
-      chanVals[1]!.push(cur[i + 1] ?? cur[i]!);
-      chanVals[2]!.push(cur[i + 2] ?? cur[i]!);
-    }
-  }
-  if (!vals.length) return null;
-  const mean = vals.reduce((s, v) => s + v, 0) / vals.length;
-  const sd = Math.sqrt(vals.reduce((s, v) => s + (v - mean) ** 2, 0) / vals.length);
-  const chMean = (c: number[]): number => c.reduce((s, v) => s + v, 0) / c.length;
-  return { mean: mean / 255, sd: sd / 255, r: chMean(chanVals[0]!) / 255, g: chMean(chanVals[1]!) / 255, b: chMean(chanVals[2]!) / 255 };
+  return textureDecodedStats(bytes);
 }
 
 /** Luminance as the mean channel — the same averaging the texture sampler uses. */
@@ -253,12 +207,11 @@ async function readGarments(assetPath: string): Promise<Garment[]> {
     const factor = Array.from(m.getBaseColorFactor()).slice(0, 3);
     const img = m.getBaseColorTexture()?.getImage();
     const stats = img ? textureStats(img) : null;
-    // HB-02 (22ec335a5): the scrub shirt's locked teal now renders as
-    // factor x texture = (1,1,1) x (0.034,0.478,0.522). The lock read follows the
-    // rendered colour; the bare factor alone would read "unlocked" on correct bytes.
-    const effective: [number, number, number] = stats
-      ? [factor[0]! * stats.r, factor[1]! * stats.g, factor[2]! * stats.b]
-      : [factor[0]!, factor[1]!, factor[2]!];
+    // HB-02 (22ec335a5): the fold moved the locked colour into the texture.
+    // Round 4: texels are sRGB-encoded, so the lock read follows the RENDERED
+    // colour via the shared factor x srgb_to_linear(texel)-mean reader — the
+    // bare factor alone would read "unlocked" on correct bytes.
+    const effective: [number, number, number] = [...effectiveBaseColorFactor(factor, img ?? null)];
     const locked = CLINICAL_RGB.every((c, i) => Math.abs((effective[i] ?? -9) - c) < LOCK_TOLERANCE);
     out.push({
       name: name.replace(/^mat_/u, ""),
