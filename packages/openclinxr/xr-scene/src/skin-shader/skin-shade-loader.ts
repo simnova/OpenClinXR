@@ -32,8 +32,8 @@ import {
 } from "three";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import {
-  GLTFLoader,
   type GLTF,
+  GLTFLoader,
   type GLTFLoaderPlugin,
   type GLTFParser,
 } from "three/addons/loaders/GLTFLoader.js";
@@ -46,6 +46,14 @@ export const SKIN_SHADE_EXTENSION_NAME = "OPENCLINXR_skin_shade";
 interface SkinShadeMaterialExtension {
   /** textureInfo pointing at the dedicated RG curvature+cavity image. */
   curvatureTexture: { index: number };
+  /** Optional tiled tangent-normal textureInfo; KHR_texture_transform is honoured. */
+  detailNormalTexture?: {
+    index: number;
+    texCoord?: number;
+    extensions?: Record<string, unknown>;
+  };
+  /** Detail-normal XY strength. Omission is the identity value 0. */
+  detailNormalStrength?: number;
 }
 
 type SkinShadeMaterial = MeshStandardMaterial | MeshPhysicalMaterial;
@@ -105,6 +113,24 @@ class SkinShadePlugin implements GLTFLoaderPlugin {
     return pending;
   }
 
+  private async detailNormalTexture(
+    textureInfo: NonNullable<SkinShadeMaterialExtension["detailNormalTexture"]>,
+  ): Promise<Texture> {
+    const params: Record<string, unknown> = {};
+    const texture = await this.parser.assignTexture(
+      params,
+      "detailNormalMap",
+      textureInfo,
+      NoColorSpace,
+    );
+    if (texture === null || texture === undefined) {
+      throw new Error(
+        `OPENCLINXR_skin_shade: detail texture dependency ${textureInfo.index} resolved to null — refusing unhooked render`,
+      );
+    }
+    return texture;
+  }
+
   afterRoot(result: GLTF): Promise<void> {
     const jobs: Promise<void>[] = [];
     for (const scene of result.scenes ?? [result.scene]) {
@@ -144,7 +170,27 @@ class SkinShadePlugin implements GLTFLoaderPlugin {
     }
     if (skinShadeInstalled(material)) return;
     const curvatureMap = await this.curvatureTexture(textureIndex as number);
-    applySkinShade(material, { curvatureMap });
+    const detailInfo = extension.detailNormalTexture;
+    if (detailInfo === undefined) {
+      if (extension.detailNormalStrength !== undefined) {
+        throw new Error(
+          `OPENCLINXR_skin_shade: material ${materialIndex} declares detailNormalStrength without detailNormalTexture — refusing`,
+        );
+      }
+      applySkinShade(material, { curvatureMap });
+      return;
+    }
+    if (!Number.isInteger(detailInfo.index) || detailInfo.index < 0) {
+      throw new Error(
+        `OPENCLINXR_skin_shade: material ${materialIndex} needs detailNormalTexture.index (non-negative integer) — refusing`,
+      );
+    }
+    const detailNormalMap = await this.detailNormalTexture(detailInfo);
+    applySkinShade(material, {
+      curvatureMap,
+      detailNormalMap,
+      detailNormalStrength: extension.detailNormalStrength ?? 0,
+    });
   }
 }
 

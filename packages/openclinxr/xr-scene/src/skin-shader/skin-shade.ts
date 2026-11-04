@@ -83,10 +83,10 @@ import type {
 } from "three";
 import {
   type ResolvedSkinLutOptions,
-  type SkinLutOptions,
+  resolveSkinLutOptions,
   SKIN_CURVATURE_FLAT,
   SKIN_LUT_DEFAULTS,
-  resolveSkinLutOptions,
+  type SkinLutOptions,
   skinLutTexture,
   skinShadeLutParsGlsl,
   skinShadeLutScatterGlsl,
@@ -174,6 +174,10 @@ export interface SkinShadeOptions extends SkinLutOptions {
   specularOcclusion?: number;
   /** Baked curvature texture (production always binds it; null only for the node unit test). */
   curvatureMap?: Texture | null;
+  /** Tiled tangent-space pore normal. Absent leaves the pre-detail shader unchanged. */
+  detailNormalMap?: Texture | null;
+  /** Detail-normal XY strength. Defaults to 0 so an omitted extension is an identity. */
+  detailNormalStrength?: number;
 }
 
 export const SKIN_SHADE_DEFAULTS = {
@@ -184,6 +188,7 @@ export const SKIN_SHADE_DEFAULTS = {
   scatterNostril: 0.04,
   scatterLip: 0.02,
   specularOcclusion: 1,
+  detailNormalStrength: 0,
   ...SKIN_LUT_DEFAULTS,
 };
 
@@ -196,6 +201,8 @@ export interface ResolvedSkinShadeOptions extends ResolvedSkinLutOptions {
   scatterLip: number;
   specularOcclusion: number;
   curvatureMap: Texture | null;
+  detailNormalMap: Texture | null;
+  detailNormalStrength: number;
 }
 
 /** Fail-closed option resolution: non-finite or negative strengths refuse. */
@@ -221,6 +228,12 @@ export function resolveSkinShadeOptions(options: SkinShadeOptions = {}): Resolve
       SKIN_SHADE_DEFAULTS.specularOcclusion,
     ),
     curvatureMap: options.curvatureMap ?? null,
+    detailNormalMap: options.detailNormalMap ?? null,
+    detailNormalStrength: num(
+      options.detailNormalStrength,
+      "detailNormalStrength",
+      SKIN_SHADE_DEFAULTS.detailNormalStrength,
+    ),
   };
 }
 
@@ -230,7 +243,7 @@ export function skinEffectiveTCoef(resolved: ResolvedSkinShadeOptions): number {
 }
 
 /** Fragment helpers + mask functions (injected after `#include <common>`). */
-export function skinShadeParsGlsl(): string {
+export function skinShadeParsGlsl(detailNormal = false): string {
   return /* glsl */ `
 varying vec3 vSkinSmoothN;
 uniform float uSkinTCoef;
@@ -241,6 +254,7 @@ uniform float uSkinScatterNos;
 uniform float uSkinScatterLip;
 uniform float uSkinSpecOccl;
 uniform sampler2D uSkinCurvMap;
+${detailNormal ? "uniform sampler2D uSkinDetailNormalMap;\nuniform float uSkinDetailNormalStrength;" : ""}
 uniform vec2 uSkinNoseUv;
 uniform vec2 uSkinChinUv;
 uniform vec2 uSkinForeheadUv;
@@ -317,9 +331,19 @@ reflectedLight.indirectSpecular *= (1.0 - uSkinSpecOccl * skinCavTex);
 }
 
 /** Blurred lighting normal (injected after `#include <normal_fragment_maps>`). */
-export function skinShadeNormalGlsl(): string {
+export function skinShadeNormalGlsl(detailNormal = false): string {
   return /* glsl */ `
 normal = normalize(mix(normal, normalize(vSkinSmoothN), uSkinBlurMix));
+${
+  detailNormal
+    ? `if (uSkinDetailNormalStrength > 0.0) {
+  vec3 skinDetailNormal = texture2D(uSkinDetailNormalMap, skinUv).xyz * 2.0 - 1.0;
+  skinDetailNormal.xy *= uSkinDetailNormalStrength;
+  skinDetailNormal = normalize(skinDetailNormal);
+  normal = normalize(perturbNormal2Arb(-vViewPosition, normal, skinDetailNormal, faceDirection));
+}`
+    : ""
+}
 `;
 }
 
@@ -351,11 +375,13 @@ export function skinShadeCurvature(material: object): Texture | null {
 }
 
 export function skinShadeCacheKey(resolved: ResolvedSkinShadeOptions): string {
-  return (
+  const base =
     `openclinxr-skin-shade:t${resolved.tZoneStrength}:b${resolved.blurMix}` +
     `:c${resolved.scatterConvex},${resolved.scatterCavity},${resolved.scatterNostril},${resolved.scatterLip}` +
-    `:s${resolved.specularOcclusion}:l${resolved.lut ? resolved.lutStrength : 0}`
-  );
+    `:s${resolved.specularOcclusion}:l${resolved.lut ? resolved.lutStrength : 0}`;
+  return resolved.detailNormalMap && resolved.detailNormalStrength > 0
+    ? `${base}:d${resolved.detailNormalStrength}`
+    : base;
 }
 
 /**
@@ -375,6 +401,11 @@ export function applySkinShade(
   const tcoef = skinEffectiveTCoef(resolved);
   const forehead = skinForeheadUv();
   const lutTex = resolved.lut ? (resolved.lutMap ?? skinLutTexture()) : null;
+  // Strength zero is compiled as the exact pre-detail program. This makes
+  // both an omitted detail texture and an explicit sweep control at 0 an
+  // identity, without relying on a GPU branch or neutral-normal arithmetic.
+  const hasDetailNormal =
+    resolved.detailNormalMap !== null && resolved.detailNormalStrength > 0;
   const prev = material.onBeforeCompile?.bind(material);
   material.onBeforeCompile = (
     shader: WebGLProgramParametersWithUniforms,
@@ -389,6 +420,10 @@ export function applySkinShade(
     shader.uniforms["uSkinScatterLip"] = { value: resolved.scatterLip };
     shader.uniforms["uSkinSpecOccl"] = { value: resolved.specularOcclusion };
     shader.uniforms["uSkinCurvMap"] = { value: resolved.curvatureMap };
+    if (hasDetailNormal) {
+      shader.uniforms["uSkinDetailNormalMap"] = { value: resolved.detailNormalMap };
+      shader.uniforms["uSkinDetailNormalStrength"] = { value: resolved.detailNormalStrength };
+    }
     shader.uniforms["uSkinNoseUv"] = { value: [SKIN_NOSE_UV[0], SKIN_NOSE_UV[1]] };
     shader.uniforms["uSkinChinUv"] = { value: [SKIN_CHIN_UV[0], SKIN_CHIN_UV[1]] };
     shader.uniforms["uSkinForeheadUv"] = { value: [forehead[0], forehead[1]] };
@@ -411,7 +446,7 @@ export function applySkinShade(
     shader.fragmentShader = shader.fragmentShader
       .replace(
         "#include <common>",
-        `#include <common>\n${skinShadeParsGlsl()}${resolved.lut ? skinShadeLutParsGlsl() : ""}`,
+        `#include <common>\n${skinShadeParsGlsl(hasDetailNormal)}${resolved.lut ? skinShadeLutParsGlsl() : ""}`,
       )
       .replace("#include <map_fragment>", `#include <map_fragment>\n${skinShadeSampleGlsl()}`)
       .replace(
@@ -420,7 +455,7 @@ export function applySkinShade(
       )
       .replace(
         "#include <normal_fragment_maps>",
-        `#include <normal_fragment_maps>\n${skinShadeNormalGlsl()}`,
+        `#include <normal_fragment_maps>\n${skinShadeNormalGlsl(hasDetailNormal)}`,
       )
       .replace(
         "#include <lights_fragment_end>",

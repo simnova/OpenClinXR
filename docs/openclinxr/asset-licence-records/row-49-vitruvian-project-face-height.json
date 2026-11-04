@@ -1,0 +1,14 @@
+{
+  "id": "row-49-vitruvian-project-face-height",
+  "section": "Acquired",
+  "rowIndex": 49,
+  "cells": [
+    " WithinAmnesia Vitruvian Project ([GitHub repository](https://github.com/WithinAmnesia/Vitruvian-Project), [`LICENSE`](https://github.com/WithinAmnesia/Vitruvian-Project/blob/main/LICENSE))",
+    "**CC0 1.0 — verified from the upstream repository LICENSE, 2026-11-03.** The repository releases the work under the Creative Commons CC0 1.0 Universal public-domain dedication; no attribution obligation. Source bytes are independently pinned by sha256, not by a mutable download URL.",
+    "`4K/Vitruvian_Face_Height_Utility - Raw.exr` (float32 scan-derived face height; sha256 `37a58404b3c66689a2790a263d3a870797ff54438b6743f398d32464c466331e`) stored outside git at `/Volumes/files/openclinxr-assets/store/vitruvian-src/4K/`; shipped derivative `.openclinxr/openclaw/ceo/st-vitpore/tile/vitruvian_pore_tile.png` (256x256 tangent normal; sha256 `da9df88c6de0633e05ea521d754517c20ad0d3e15e786a95b733b9cda83bab70`). No Vitruvian UVs or HumanShaders/VitruvianGodot PNGs are consumed.",
+    "2026-11-04",
+    "`vitruvian_pore_tile.py` takes a topology-free cheek crop, high-passes and wrap-blends it into a tangent-normal tile; `materialize_mpfb_humanoid_candidate.py:patch_glb_skin_shade` embeds that tile in Aisha's GLB as `OPENCLINXR_skin_shade.detailNormalTexture` with `KHR_texture_transform` scale 90.",
+    "**Keep.** CC0 is the cleanest posture. Re-run the deterministic tile station from the sha-pinned EXR if the derivative moves; replace only on measured texture-quality grounds."
+  ],
+  "sourceSha256": "37a58404b3c66689a2790a263d3a870797ff54438b6743f398d32464c466331e"
+}

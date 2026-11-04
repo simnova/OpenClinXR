@@ -3870,19 +3870,30 @@ SKIN_SHADE_CAVITY_SHA256 = (
 SKIN_SHADE_COMBINED_SHA256 = (
     "6aa0a0a859444f94545752cd1a0d13f0ce0cfbb11f8e4c41a764efcb29a96c2d"
 )
+SKIN_SHADE_DETAIL_NORMAL_SRC = str(
+    REPO_ROOT
+    / ".openclinxr/openclaw/ceo/st-vitpore/tile/vitruvian_pore_tile.png"
+)
+SKIN_SHADE_DETAIL_NORMAL_SHA256 = (
+    "da9df88c6de0633e05ea521d754517c20ad0d3e15e786a95b733b9cda83bab70"
+)
+SKIN_SHADE_DETAIL_NORMAL_SCALE = (90, 90)
+# Midpoint carrier for the D5 sweep; the orchestrator grades 0.25/0.5/1.0.
+SKIN_SHADE_DETAIL_NORMAL_STRENGTH = 0.5
 
 
 def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
-    """Embed the Aisha curvature+cavity RG map and declare the skin extension.
+    """Embed Aisha's curvature/cavity + tiled detail normal and declare the extension.
 
     Reads the two store maps (sha-pinned), merges R=curvature G=cavity B=0
     deterministically, appends the PNG as a dedicated core image + texture,
-    and stamps the material extension
-    {OPENCLINXR_skin_shade: {curvatureTexture: {index}}}. The extension goes
+    and stamps the material extension with curvatureTexture plus a
+    detailNormalTexture using KHR_texture_transform scale 90. The extension goes
     in extensionsUsed, NEVER extensionsRequired, so a stock loader still
     loads the bytes (hook absent). Mechanical JSON re-serialization; geometry
     and BIN bytes are copied verbatim. Refuses when the skin material is
-    missing or already carries the extension (a rebake runs this once).
+    missing or already carries detail normal bytes. An existing curvature-only
+    carrier may be upgraded in place through this same producer stage.
     """
     import hashlib as _hashlib
     from PIL import Image as _PILImage
@@ -3890,6 +3901,7 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
     for src, want in (
         (SKIN_SHADE_CURVATURE_SRC, SKIN_SHADE_CURVATURE_SHA256),
         (SKIN_SHADE_CAVITY_SRC, SKIN_SHADE_CAVITY_SHA256),
+        (SKIN_SHADE_DETAIL_NORMAL_SRC, SKIN_SHADE_DETAIL_NORMAL_SHA256),
     ):
         with open(src, "rb") as f:
             got = _hashlib.sha256(f.read()).hexdigest()
@@ -3908,6 +3920,13 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
     buf = _io.BytesIO()
     _PILImage.merge("RGB", (curv, cav, _PILImage.new("L", curv.size, 0))).save(buf, format="PNG")
     png_bytes = buf.getvalue()
+    with open(SKIN_SHADE_DETAIL_NORMAL_SRC, "rb") as f:
+        detail_png_bytes = f.read()
+    detail_image = _PILImage.open(_io.BytesIO(detail_png_bytes))
+    if detail_image.size != (256, 256) or detail_image.mode not in ("RGB", "RGBA"):
+        raise RuntimeError(
+            f"SKINSHADE: detail normal is {detail_image.size} {detail_image.mode}, want 256x256 RGB/RGBA"
+        )
     # Content guard (not a digest pin): the merged bytes must decode back to
     # the exact source pixels — R == curvature, G == cavity. PNG encoder
     # bytes drift across Pillow builds, so a digest pin would refuse a
@@ -3937,33 +3956,60 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
             f"SKINSHADE: want exactly 1 material {material_name}, found {len(targets)} in {path}"
         )
     mat = targets[0]
-    if SKIN_SHADE_EXTENSION_NAME in (mat.get("extensions") or {}):
+    existing = (mat.get("extensions") or {}).get(SKIN_SHADE_EXTENSION_NAME)
+    if existing is not None and "detailNormalTexture" in existing:
         raise RuntimeError(
-            f"SKINSHADE: {material_name} already carries {SKIN_SHADE_EXTENSION_NAME} — refusing double embed"
+            f"SKINSHADE: {material_name} already carries detailNormalTexture — refusing double embed"
         )
     blob = bytearray(data[json_end + 8:])
     while len(blob) % 4:
         blob.append(0)
-    img_off = len(blob)
-    blob.extend(png_bytes)
+    if existing is None:
+        img_off = len(blob)
+        blob.extend(png_bytes)
+        while len(blob) % 4:
+            blob.append(0)
+        gltf.setdefault("bufferViews", []).append(
+            {"buffer": 0, "byteOffset": img_off, "byteLength": len(png_bytes)}
+        )
+        gltf.setdefault("images", []).append(
+            {
+                "bufferView": len(gltf["bufferViews"]) - 1,
+                "mimeType": "image/png",
+                "name": "aisha-curv-cav-1024",
+            }
+        )
+        gltf.setdefault("textures", []).append({"source": len(gltf["images"]) - 1})
+        existing = {"curvatureTexture": {"index": len(gltf["textures"]) - 1}}
+        mat.setdefault("extensions", {})[SKIN_SHADE_EXTENSION_NAME] = existing
+    detail_off = len(blob)
+    blob.extend(detail_png_bytes)
     while len(blob) % 4:
         blob.append(0)
     gltf.setdefault("bufferViews", []).append(
-        {"buffer": 0, "byteOffset": img_off, "byteLength": len(png_bytes)}
+        {"buffer": 0, "byteOffset": detail_off, "byteLength": len(detail_png_bytes)}
     )
     gltf.setdefault("images", []).append(
         {
             "bufferView": len(gltf["bufferViews"]) - 1,
             "mimeType": "image/png",
-            "name": "aisha-curv-cav-1024",
+            "name": "vitruvian-pore-detail-normal-256",
         }
     )
     gltf.setdefault("textures", []).append({"source": len(gltf["images"]) - 1})
-    mat.setdefault("extensions", {})[SKIN_SHADE_EXTENSION_NAME] = {
-        "curvatureTexture": {"index": len(gltf["textures"]) - 1}
+    existing["detailNormalTexture"] = {
+        "index": len(gltf["textures"]) - 1,
+        "extensions": {
+            "KHR_texture_transform": {
+                "scale": list(SKIN_SHADE_DETAIL_NORMAL_SCALE)
+            }
+        },
     }
+    existing["detailNormalStrength"] = SKIN_SHADE_DETAIL_NORMAL_STRENGTH
     if SKIN_SHADE_EXTENSION_NAME not in gltf.get("extensionsUsed", []):
         gltf.setdefault("extensionsUsed", []).append(SKIN_SHADE_EXTENSION_NAME)
+    if "KHR_texture_transform" not in gltf.get("extensionsUsed", []):
+        gltf.setdefault("extensionsUsed", []).append("KHR_texture_transform")
     if SKIN_SHADE_EXTENSION_NAME in (gltf.get("extensionsRequired") or []):
         raise RuntimeError("SKINSHADE: extension must never be required")
     new_json = json.dumps(gltf, separators=(",", ":"))
@@ -3979,7 +4025,8 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
         f.write(out)
     print(
         f"GLB_SKINSHADE {path} material {material_name} "
-        f"texture {len(gltf['textures']) - 1} combined {_hashlib.sha256(png_bytes).hexdigest()}"
+        f"detailTexture {len(gltf['textures']) - 1} detail {_hashlib.sha256(detail_png_bytes).hexdigest()} "
+        f"scale {SKIN_SHADE_DETAIL_NORMAL_SCALE} strength {SKIN_SHADE_DETAIL_NORMAL_STRENGTH}"
     )
 
 

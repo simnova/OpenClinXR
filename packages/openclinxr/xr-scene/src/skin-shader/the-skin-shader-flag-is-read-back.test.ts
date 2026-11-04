@@ -1,9 +1,14 @@
-import { createHash } from "node:crypto";
 import { Buffer } from "node:buffer";
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+// Arch D2: the loader factory binds through its ./skin-shade-loader entrypoint
+// source (own-test via), so testInternalImports holds at 10.
+import {
+  createSkinShadeGLTFLoader,
+  SKIN_SHADE_EXTENSION_NAME,
+} from "./skin-shade-loader.js";
 import {
   BoxGeometry,
   DataTexture,
@@ -15,12 +20,7 @@ import {
   TextureLoader,
 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-// Arch D2: the loader factory binds through its ./skin-shade-loader entrypoint
-// source (own-test via), so testInternalImports holds at 10.
-import {
-  createSkinShadeGLTFLoader,
-  SKIN_SHADE_EXTENSION_NAME,
-} from "./skin-shade-loader.js";
+import { describe, expect, it } from "vitest";
 // Arch D2: the gate test imports exactly one entrypoint-reachable module
 // (the portrait flag path it must exercise) plus ./png-crop.js (unreachable
 // from the entrypoint, so it does not count). The pre-existing
@@ -32,7 +32,7 @@ import {
   collectMaterialInventory,
   SKIN_IOR,
 } from "../isolated-subject-material-variants.js";
-import { countChangedPx, decodePngFile, sobelEnergy, type CropRect } from "./png-crop.js";
+import { type CropRect, countChangedPx, decodePngFile, sobelEnergy } from "./png-crop.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const reportPath = join(here, "shader-report.json");
@@ -208,7 +208,7 @@ describe("the skin shader flag is read back", () => {
       );
       // CW1 at hook level: diffuseColor is never assigned (the scatter lift
       // only READS it into totalEmissiveRadiance).
-      expect(shader.fragmentShader).not.toMatch(/diffuseColor\s*(\.rgb)?\s*[*+\-]?=/);
+      expect(shader.fragmentShader).not.toMatch(/diffuseColor\s*(\.rgb)?\s*[*+-]?=/);
       expect(shader.fragmentShader).not.toMatch(/fwidth|dFdx|dFdy/);
       // tsk_44e25e12108c307e: the key gains a :l<lutStrength|0> suffix
       // (l0 = wrap path, unchanged program); the :s1 anchor moves inside.
@@ -414,7 +414,7 @@ describe("the skin renders at skin IOR (swap units)", { timeout: 60000 }, () => 
 const TINY_PNG_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
 
-function tinySkinGltf(): string {
+function tinySkinGltf(detailNormalStrength?: number): string {
   const positions = new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]);
   const indices = new Uint16Array([0, 1, 2]);
   const bin = Buffer.concat([Buffer.from(positions.buffer), Buffer.from(indices.buffer)]);
@@ -433,13 +433,34 @@ function tinySkinGltf(): string {
       {
         name: "mpfb_skin_ob_patient_aisha_v1",
         extensions: {
-          [SKIN_SHADE_EXTENSION_NAME]: { curvatureTexture: { index: 0 } },
+          [SKIN_SHADE_EXTENSION_NAME]: {
+            curvatureTexture: { index: 0 },
+            ...(detailNormalStrength === undefined
+              ? {}
+              : {
+                  detailNormalTexture: {
+                    index: 1,
+                    extensions: {
+                      KHR_texture_transform: { scale: [90, 90] },
+                    },
+                  },
+                  detailNormalStrength,
+                }),
+          },
         },
       },
     ],
-    extensionsUsed: [SKIN_SHADE_EXTENSION_NAME],
-    textures: [{ source: 0 }],
-    images: [{ uri: `data:image/png;base64,${TINY_PNG_BASE64}` }],
+    extensionsUsed: [
+      SKIN_SHADE_EXTENSION_NAME,
+      ...(detailNormalStrength === undefined ? [] : ["KHR_texture_transform"]),
+    ],
+    textures: [{ source: 0 }, ...(detailNormalStrength === undefined ? [] : [{ source: 1 }])],
+    images: [
+      { uri: `data:image/png;base64,${TINY_PNG_BASE64}` },
+      ...(detailNormalStrength === undefined
+        ? []
+        : [{ uri: `data:image/png;base64,${TINY_PNG_BASE64}` }]),
+    ],
     accessors: [
       {
         bufferView: 0,
@@ -485,7 +506,7 @@ describe("the skin shade loader installs the hook from GLB bytes", () => {
     if (platform.self === undefined) platform.self = globalThis;
     const fake = new DataTexture(new Uint8Array([128, 128, 128, 255]), 1, 1);
     const orig = TextureLoader.prototype.load;
-    TextureLoader.prototype.load = ((url: unknown, onLoad?: (tex: unknown) => void) => {
+    TextureLoader.prototype.load = ((_url: unknown, onLoad?: (tex: unknown) => void) => {
       queueMicrotask(() => onLoad?.(fake));
       return fake;
     }) as never;
@@ -501,6 +522,67 @@ describe("the skin shade loader installs the hook from GLB bytes", () => {
       ).toBe(fake);
       expect(shader.uniforms["uSkinTCoef"]?.value, "factory installs at default strength").toBeCloseTo(0.08, 10);
       expect(shader.fragmentShader).toMatch(/texture2D\(uSkinCurvMap, skinUv\)/);
+    } finally {
+      TextureLoader.prototype.load = orig;
+    }
+  });
+
+  it("factory entrypoint assigns the detail normal with its KHR_texture_transform", async () => {
+    const platform = globalThis as unknown as { ProgressEvent?: typeof Event; self?: unknown };
+    if (!platform.ProgressEvent) platform.ProgressEvent = class extends Event {};
+    if (platform.self === undefined) platform.self = globalThis;
+    const fake = new DataTexture(new Uint8Array([128, 128, 255, 255]), 1, 1);
+    const orig = TextureLoader.prototype.load;
+    TextureLoader.prototype.load = ((_url: unknown, onLoad?: (tex: unknown) => void) => {
+      queueMicrotask(() => onLoad?.(fake));
+      return fake;
+    }) as never;
+    try {
+      const gltf = await createSkinShadeGLTFLoader().parseAsync(tinySkinGltf(0.5), "");
+      const mat = skinMaterialsOf(gltf.scene)[0]!;
+      const shader = stubShader();
+      mat.onBeforeCompile(shader as never, {} as never);
+      const detail = shader.uniforms["uSkinDetailNormalMap"]?.value as DataTexture;
+      expect(detail, "detail normal is assigned by the package entrypoint plugin").toBeDefined();
+      expect(detail.repeat.toArray(), "KHR_texture_transform scale reaches three.js texture repeat").toEqual([
+        90,
+        90,
+      ]);
+      expect(shader.uniforms["uSkinDetailNormalStrength"]?.value).toBe(0.5);
+      expect(shader.fragmentShader).toMatch(/texture2D\(uSkinDetailNormalMap, skinUv\)/);
+      expect(shader.fragmentShader).toMatch(/perturbNormal2Arb/);
+    } finally {
+      TextureLoader.prototype.load = orig;
+    }
+  });
+
+  it("detail strength 0 compiles the same shader output as an absent detail texture", async () => {
+    const platform = globalThis as unknown as { ProgressEvent?: typeof Event; self?: unknown };
+    if (!platform.ProgressEvent) platform.ProgressEvent = class extends Event {};
+    if (platform.self === undefined) platform.self = globalThis;
+    const fake = new DataTexture(new Uint8Array([128, 128, 255, 255]), 1, 1);
+    const orig = TextureLoader.prototype.load;
+    TextureLoader.prototype.load = ((_url: unknown, onLoad?: (tex: unknown) => void) => {
+      queueMicrotask(() => onLoad?.(fake));
+      return fake;
+    }) as never;
+    try {
+      const absent = skinMaterialsOf(
+        (await createSkinShadeGLTFLoader().parseAsync(tinySkinGltf(), "")).scene,
+      )[0]!;
+      const zero = skinMaterialsOf(
+        (await createSkinShadeGLTFLoader().parseAsync(tinySkinGltf(0), "")).scene,
+      )[0]!;
+      const absentShader = stubShader();
+      const zeroShader = stubShader();
+      absent.onBeforeCompile(absentShader as never, {} as never);
+      zero.onBeforeCompile(zeroShader as never, {} as never);
+      expect(zeroShader.fragmentShader, "zero strength keeps the pre-detail shader byte-identical").toBe(
+        absentShader.fragmentShader,
+      );
+      expect(zero.customProgramCacheKey()).toBe(absent.customProgramCacheKey());
+      expect(zeroShader.uniforms["uSkinDetailNormalMap"]).toBeUndefined();
+      expect(zeroShader.uniforms["uSkinDetailNormalStrength"]).toBeUndefined();
     } finally {
       TextureLoader.prototype.load = orig;
     }
