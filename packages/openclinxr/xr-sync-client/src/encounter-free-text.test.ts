@@ -31,7 +31,7 @@ async function joined(withBox = false) {
     actorIds: () => ["p", "q"],
     register: () => undefined,
     play: () => undefined,
-    publish: (evidence) => { published.push(evidence); },
+    publish: (evidence: EncounterSyncEvidence) => { published.push(evidence); },
     nowMs: () => 1,
     ...(withBox ? { utteranceBox: { doc: fakeDoc, parent } } : {}),
     connectFn: async () => ({

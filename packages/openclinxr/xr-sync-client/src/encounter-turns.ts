@@ -8,6 +8,7 @@
  * Lives in the package because apps/ui-xr is under a shrink-only line budget.
  */
 import { type EncounterSnapshot, type IntentKind, type SyncConnection, connect } from "./index.js";
+import { type GazeView, gazedActorId, pickAddressedActor } from "./addressed-actor.js";
 import type { ConnectOptions } from "./options.js";
 
 /** One server-authoritative actor turn, as seen on the speaking edge. */
@@ -204,6 +205,8 @@ export interface EncounterSyncEvidence {
   /** C27: learner free-text sends, with text lengths and per-intent statuses (never the text). */
   utterances?: readonly SentUtterance[];
   sendUtterance?: EncounterSyncHandle["sendUtterance"];
+  /** C28: the actor the learner's view names right now (the first thing the typed-text box addresses). */
+  gazedActorId?: () => string | undefined;
 }
 
 /** Structural input/button surface for the learner free-text box (no DOM lib in this package). */
@@ -214,7 +217,7 @@ export interface UtteranceBoxElement {
   type?: string;
   placeholder?: string;
   appendChild(child: UtteranceBoxElement): unknown;
-  addEventListener(type: string, listener: (event: { preventDefault?: () => void }) => void): void;
+  addEventListener(type: string, listener: (event: { key?: string; isComposing?: boolean; shiftKey?: boolean; preventDefault?: () => void; stopPropagation?: () => void }) => void): void;
 }
 
 /** DOM mount point for the learner free-text box. */
@@ -232,6 +235,8 @@ export interface StartEncounterSyncDeps {
   publish(evidence: EncounterSyncEvidence): void;
   nowMs(): number;
   connectFn?: JoinEncounterRoomOptions["connectFn"];
+  /** C28: the learner's eye, view axis and the cast's head positions right now; the typed-text box addresses the actor in view first. */
+  gazeView?(): GazeView | undefined;
   /** C27 learner free-text box mount; unset mounts nothing. */
   utteranceBox?: UtteranceBoxDeps;
 }
@@ -242,12 +247,19 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
   if (flag === null) return null;
   const evidence: EncounterSyncEvidence = { url: flag.url, state: "joining", sessionId: "", error: "", turns: [] };
   deps.publish(evidence);
+  const gazedNow = (): string | undefined => {
+    const view = deps.gazeView?.();
+    return view === undefined ? undefined : gazedActorId(view.eye, view.forward, view.actors);
+  };
+  let lastSpokeActorId: string | undefined;
+  let lastAddressedActorId: string | undefined;
   try {
     const handle = await joinEncounterRoom({
       url: flag.url,
       actorIds: deps.actorIds(),
       ...(deps.connectFn === undefined ? {} : { connectFn: deps.connectFn }),
       onTurn: (turn, stationId) => {
+        lastSpokeActorId = turn.actorId;
         const registered = deps.register(syncedTurnPayload(turn, stationId), `xr-sync:${turn.turnId}:${turn.actorId}`);
         if (registered === undefined) return;
         const spoken = registered.caption !== "";
@@ -262,6 +274,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     evidence.sendTraceAction = handle.sendTraceAction;
     evidence.utterances = handle.utterances;
     evidence.sendUtterance = handle.sendUtterance;
+    evidence.gazedActorId = gazedNow;
     if (deps.utteranceBox !== undefined) {
       const input = deps.utteranceBox.doc.createElement("input");
       input.id = "utterance-input";
@@ -272,11 +285,21 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
       button.textContent = "Say";
       deps.utteranceBox.parent.appendChild(input);
       deps.utteranceBox.parent.appendChild(button);
-      button.addEventListener("click", () => {
+      const submit = (): void => {
         const text = input.value ?? "";
         if (text.trim() === "") return;
         input.value = "";
-        void handle.sendUtterance(deps.actorIds()[0], text);
+        const actorId = pickAddressedActor({ actorIds: deps.actorIds(), gazedActorId: gazedNow(), lastSpokeActorId, lastAddressedActorId });
+        lastAddressedActorId = actorId;
+        void handle.sendUtterance(actorId, text);
+      };
+      button.addEventListener("click", submit);
+      input.addEventListener("keydown", (event) => {
+        // Typing must not trigger the shell's keyboard shortcuts.
+        event.stopPropagation?.();
+        if (event.key !== "Enter" || event.shiftKey === true || event.isComposing === true) return;
+        event.preventDefault?.();
+        submit();
       });
     }
     return handle;

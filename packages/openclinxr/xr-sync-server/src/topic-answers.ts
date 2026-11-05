@@ -22,13 +22,22 @@ export interface UtteranceFallback {
   line: string;
 }
 
-/** Normalize learner text or an authored phrase: lowercase, NFKD, strip combining marks, non-alphanumerics to one space, trim. */
+/** Trace tag recorded for free text that matched no authored phrase; no authored answer may carry it. */
+export const UNMATCHED_TOPIC_TAG = "utterance_unmatched";
+
+/**
+ * Normalize learner text or an authored phrase: NFKC, case fold (upper then lower, so ss/SS and sigma forms meet),
+ * strip Latin combining accents, every run of non-letter/non-number to one space, trim. Letters of any script survive.
+ */
 export function normalizeUtterance(text: string): string {
   return text
+    .normalize("NFKC")
+    .toUpperCase()
     .toLowerCase()
-    .normalize("NFKD")
+    .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, " ")
+    .normalize("NFC")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim();
 }
 
@@ -103,6 +112,9 @@ export function applyDialogueSeeds<C extends SeedableCast>(casts: C[], value: un
         (affect !== undefined && !isTopicAffect(affect))
       ) {
         throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}].seeds[${seedIndex}] is malformed`);
+      }
+      if ((tags as string[]).includes(UNMATCHED_TOPIC_TAG)) {
+        throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}].seeds[${seedIndex}] uses the reserved tag ${UNMATCHED_TOPIC_TAG}`);
       }
       if (seenSeedIds.has(seedId)) {
         throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}] repeats seedId ${seedId.slice(0, 64)}`);

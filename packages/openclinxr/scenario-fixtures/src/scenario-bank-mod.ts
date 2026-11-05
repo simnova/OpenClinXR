@@ -96,7 +96,11 @@ export type ScenarioDialogueSeedBankEntry = {
 };
 
 export const scenarioDialogueSeedBank = [
-  { scenarioId: edChestPainScenario.scenarioId, seeds: edChestPainDialogueSeeds },
+  {
+    scenarioId: edChestPainScenario.scenarioId,
+    seeds: edChestPainDialogueSeeds,
+    utteranceFallback: { line: "Sorry, I did not catch that. Can you ask me another way?" },
+  },
   { scenarioId: pediatricAsthmaScenario.scenarioId, seeds: pediatricAsthmaDialogueSeeds },
   { scenarioId: wardDeliriumScenario.scenarioId, seeds: wardDeliriumDialogueSeeds },
   { scenarioId: telehealthDiabetesScenario.scenarioId, seeds: telehealthDiabetesDialogueSeeds },
@@ -110,5 +114,9 @@ export const scenarioDialogueSeedBank = [
   { scenarioId: primaryCareDyslipidemiaScenario.scenarioId, seeds: primaryCareDyslipidemiaDialogueSeeds },
   { scenarioId: adultAbdominalPainScenario.scenarioId, seeds: adultAbdominalPainDialogueSeeds },
   { scenarioId: pedsFeverScenario.scenarioId, seeds: pedsFeverDialogueSeeds },
-  { scenarioId: clinicKneePainScenario.scenarioId, seeds: clinicKneePainDialogueSeeds },
+  {
+    scenarioId: clinicKneePainScenario.scenarioId,
+    seeds: clinicKneePainDialogueSeeds,
+    utteranceFallback: { line: "Sorry, I did not follow that. Can you ask it another way?" },
+  },
 ] as const satisfies readonly ScenarioDialogueSeedBankEntry[];

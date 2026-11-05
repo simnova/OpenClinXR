@@ -15,10 +15,10 @@ import { CAST_OPENING_CUE_ID, openingCaption, type CastVoiceActor } from "./scen
 import type { LearnerStateInstance } from "./schema.js";
 import type { TurnRecord } from "./room-types.js";
 import { validateTopicTag } from "./topic-menu.js";
-import { matchUtterance, pickTopicAnswer, type TopicAnswer } from "./topic-answers.js";
+import { matchUtterance, pickTopicAnswer, UNMATCHED_TOPIC_TAG, type TopicAnswer } from "./topic-answers.js";
 
 /** Trace tag recorded when free text matches no authored phrase. */
-export const UNMATCHED_TOPIC_TAG = "utterance_unmatched";
+export { UNMATCHED_TOPIC_TAG };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;

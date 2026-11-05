@@ -196,6 +196,14 @@ export const clinicKneePainDialogueSeeds: DialogueFixtureSeed[] = [
     spokenText: "It stops about halfway and feels tight on the inside.",
     caption: "It stops about halfway and feels tight on the inside.",
     affect: "anxious",
+    utterancePhrases: [
+      "bend your knee",
+      "how far can you bend it",
+      "check how far that knee can bend",
+      "let me check your range of motion",
+      "can you straighten your leg",
+      "tell me if it hurts when i bend it",
+    ],
   },
   {
     seedId: "clinic_knee_mechanism_history",
@@ -208,6 +216,16 @@ export const clinicKneePainDialogueSeeds: DialogueFixtureSeed[] = [
     spokenText: "I came down from a rebound and the right knee buckled inward.",
     caption: "I came down from a rebound and the right knee buckled inward.",
     affect: "anxious",
+    utterancePhrases: [
+      "what happened when you landed",
+      "how did you hurt your knee",
+      "how did the injury happen",
+      "tell me how it happened",
+      "did you twist your knee",
+      "can you put weight on that leg",
+      "can you walk on it",
+      "can you stand on that leg",
+    ],
   },
   {
     seedId: "clinic_knee_parent_return_to_play",
@@ -220,6 +238,14 @@ export const clinicKneePainDialogueSeeds: DialogueFixtureSeed[] = [
     spokenText: "We just need a clear plan. I do not want anyone guessing about Saturday.",
     caption: "We just need a clear plan. I do not want anyone guessing about Saturday.",
     affect: "concerned",
+    utterancePhrases: [
+      "i hear the tournament matters",
+      "when can jordan play again",
+      "can he play on saturday",
+      "will he be cleared to play",
+      "i cannot promise clearance yet",
+      "i understand you are worried about the game",
+    ],
   },
   {
     seedId: "clinic_knee_assistant_swelling_notes",
@@ -232,6 +258,13 @@ export const clinicKneePainDialogueSeeds: DialogueFixtureSeed[] = [
     spokenText: "Swelling was already visible at rooming. Notes are on the clipboard.",
     caption: "Swelling was already visible at rooming. Notes are on the clipboard.",
     affect: "neutral",
+    utterancePhrases: [
+      "share the rooming notes",
+      "when did the swelling start",
+      "how long has it been swollen",
+      "what did you note at rooming",
+      "any notes on the swelling",
+    ],
   },
   {
     seedId: "clinic_knee_hidden_truth_probe",

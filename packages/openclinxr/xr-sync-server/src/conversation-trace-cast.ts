@@ -14,7 +14,7 @@ import type {
   EmotionTransition,
 } from "@openclinxr/conversation-policy";
 import type { TraceTopicAnswer, TopicAffect } from "./topic-answers.js";
-import { isTopicAffect } from "./topic-answers.js";
+import { isTopicAffect, UNMATCHED_TOPIC_TAG } from "./topic-answers.js";
 
 /** C18 cast context recorded in the trace (review-safe: ids + policy only). */
 export interface ConversationCastContext {
@@ -132,6 +132,7 @@ export function readCastContext(raw: unknown, traceFile: string): ConversationCa
             if (typeof item.actorId !== "string" || !Array.isArray(item.topicTags) || !item.topicTags.every((tag) => typeof tag === "string") || typeof item.replyId !== "string" || (item.affect !== undefined && !isTopicAffect(item.affect))) {
               throw new Error(`replay-bad-trace: ${traceFile} holds malformed topic answers`);
             }
+            if (item.topicTags.includes(UNMATCHED_TOPIC_TAG)) throw new Error(`replay-bad-trace: ${traceFile} holds an answer with the reserved tag ${UNMATCHED_TOPIC_TAG}`);
             return { actorId: item.actorId, topicTags: [...item.topicTags] as string[], replyId: item.replyId, ...(item.affect === undefined ? {} : { affect: item.affect as TopicAffect }) };
           }),
         }

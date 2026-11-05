@@ -49,8 +49,16 @@ const phraseSeeds = (seeds: readonly Record<string, unknown>[]) =>
     : entry);
 const BANK = scenarioDialogueSeedBank.map((entry) =>
   entry.scenarioId !== KNEE.scenarioId ? entry : { ...entry, utteranceFallback: { line: FALLBACK_LINE }, seeds: phraseSeeds(entry.seeds as never) });
-const BANK_NO_FALLBACK = scenarioDialogueSeedBank.map((entry) =>
-  entry.scenarioId !== KNEE.scenarioId ? entry : { ...entry, seeds: phraseSeeds(entry.seeds as never) });
+const BANK_NO_FALLBACK = scenarioDialogueSeedBank.map((entry) => {
+  if (entry.scenarioId !== KNEE.scenarioId) return entry;
+  const { utteranceFallback: _shipped, ...rest } = entry as typeof entry & { utteranceFallback?: unknown };
+  return { ...rest, seeds: phraseSeeds(entry.seeds as never) };
+});
+// C28: the shipped bank now carries phrases and fallbacks; the "nothing authored" cases strip them.
+const BANK_BARE = scenarioDialogueSeedBank.map((entry) => {
+  const { utteranceFallback: _shipped, ...rest } = entry as typeof entry & { utteranceFallback?: unknown };
+  return { ...rest, seeds: entry.seeds.map(({ utterancePhrases: _phrases, ...seedRest }) => seedRest) };
+});
 
 const kneeSeeds = scenarioDialogueSeedBank.find((entry) => entry.scenarioId === KNEE.scenarioId)?.seeds ?? [];
 const seed = (seedId: string) => {
@@ -126,7 +134,7 @@ async function session(options: Record<string, unknown> = {}) {
 
 describe("xr-sync-server C27 free-text utterances", () => {
   it("known-good: with no phrases authored, text on turn 2 gets the C3 row and an empty caption", async () => {
-    const { server, learner } = await session({ dialogueSeeds: scenarioDialogueSeedBank });
+    const { server, learner } = await session({ dialogueSeeds: BANK_BARE });
     expect(await say(server, learner, { text: "how did you hurt your knee" })).toEqual({ replyId: c3Row(2), caption: "" });
   }, 40000);
 

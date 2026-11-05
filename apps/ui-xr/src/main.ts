@@ -2878,7 +2878,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   const selectedScenarioRuntimeMismatch = isSelectedScenarioRuntimeBundleMismatch();
   reportRuntimeBundleScenarioMatch();
   const _selectedStationContext = stationContextForSelectedScenario();
-  const camera = installStationLayoutView(scene, canvas, new PerspectiveCamera(faceDetailCapture ? 48 : generatedSceneOverviewCapture ? 60 : actorCloseCapture ? 42 : 52, 1, 0.1, 100));
+  const camera = installStationLayoutView(scene, canvas, new PerspectiveCamera(faceDetailCapture ? 48 : generatedSceneOverviewCapture ? 60 : actorCloseCapture ? 42 : 52, 1, 0.1, 100)); (window as unknown as Record<string, unknown>)["__openClinXrGazeCamera"] = camera;
   // #342b — only the product's own wide default framing is re-derived for a closed generated
   // room. The capture framings below are authored for a specific subject (a face, one actor)
   // and their harnesses do their own reframing; replacing them with a far-wall vantage would
@@ -4728,7 +4728,7 @@ initSpeakFixtureBridge({ triggerDialogue: (actorId: string, text: string): void 
 window.__openClinXrRequestLiveVoiceTurn = requestUnscriptedLiveTurn;
 // C25: ?encounterSync=ws://... joins the xr-sync room; the server's actor turn plays through the live actor-turn consumer.
 if (window.location.search.includes("encounterSync=")) void import("@openclinxr/xr-sync-client/headset").then(({ startEncounterSyncFromUrl }) => startEncounterSyncFromUrl({
-  search: window.location.search, actorIds: () => encounterRuntimeAssetBundle.actors.map((actor) => actor.actorId), nowMs: () => performance.now(), publish: (evidence) => { window.__openClinXrEncounterSync = evidence; }, utteranceBox: { doc: document as never, parent: (dialogueLine.parentElement ?? document.body) as never } as UtteranceBoxDeps,
+  gazeView: () => { const cam = (window as unknown as Record<string, PerspectiveCamera | undefined>)["__openClinXrGazeCamera"]; return cam ? { eye: cam.getWorldPosition(new Vector3()), forward: cam.getWorldDirection(new Vector3()), actors: [...generatedHumanoidActorSlotsByActorId].map(([actorId, slot]) => { const at = slot.getWorldPosition(new Vector3()); return { actorId, x: at.x, y: at.y + 1.18, z: at.z }; }) } : undefined; }, search: window.location.search, actorIds: () => encounterRuntimeAssetBundle.actors.map((actor) => actor.actorId), nowMs: () => performance.now(), publish: (evidence) => { window.__openClinXrEncounterSync = evidence; }, utteranceBox: { doc: document as never, parent: (dialogueLine.parentElement ?? document.body) as never } as UtteranceBoxDeps,
   register: (payload, tag) => { const parsed = liveActorTurnFromPayload(payload); return parsed ? registerLiveActorTurn(parsed.plan, parsed.execution, tag) : undefined; },
   play: (actorId, caption, emotion) => { dialogueLine.textContent = caption; triggerHumanoidDialogue(actorId, caption, { kind: "learner_camera", actorId: null }, emotion as HumanoidExpressionEmotion, undefined, "plan.dialogueEmotionTo"); },
 }));
