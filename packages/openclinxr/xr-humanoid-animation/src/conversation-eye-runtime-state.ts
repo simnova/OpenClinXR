@@ -1,6 +1,8 @@
 import type { HumanoidConversationEyeState } from "./conversational-eye-schedule.js";
 import type { GeneratedHumanoidAnimationSlot } from "./types.js";
 
+export type ConversationEyeRuntimeSlot = Pick<GeneratedHumanoidAnimationSlot, "activeSpeech">;
+
 export type ConversationEyeFrame = {
   state: HumanoidConversationEyeState;
   elapsedMs: number;
@@ -12,7 +14,7 @@ export type ConversationEyeFrame = {
  * deterministic schedule rather than inheriting an unrelated bout's partial duration.
  */
 export function resolveConversationEyeFrame(
-  slot: GeneratedHumanoidAnimationSlot,
+  slot: ConversationEyeRuntimeSlot,
   anyActorSpeaking: boolean,
   nowMs: number,
 ): ConversationEyeFrame {

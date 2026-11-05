@@ -224,7 +224,7 @@ export function scaleHumanoidRigControl(
   control.scale.set(base.scale.x * x, base.scale.y * y, base.scale.z * z);
 }
 
-export function resetHumanoidFaceRigControls(slot: GeneratedHumanoidAnimationSlot): void {
+export function resetHumanoidFaceRigControls(slot: Pick<GeneratedHumanoidAnimationSlot, "root">): void {
   offsetHumanoidRigControl(slot.root.getObjectByName("openclinxr_upper_lip_sync_control"), 0, 0, 0);
   offsetHumanoidRigControl(slot.root.getObjectByName("openclinxr_lower_lip_sync_control"), 0, 0, 0);
   for (const controlName of ["openclinxr_left_eye_gaze_control", "openclinxr_right_eye_gaze_control"]) {
@@ -273,7 +273,7 @@ function applyBlinkSlitToRoot(root: Group, blinkIntensity: number): void {
 }
 
 export function applyHumanoidRestBlink(
-  slot: GeneratedHumanoidAnimationSlot,
+  slot: Pick<GeneratedHumanoidAnimationSlot, "actorId" | "root">,
   nowMs: number,
   state: HumanoidConversationEyeState = "rest",
   stateElapsedMs?: number,
@@ -371,7 +371,7 @@ function isReassuredExpressionWeights(w: HumanoidExpressionWeights): boolean {
 }
 
 export function applyHumanoidMorphTargetCue(
-  slot: GeneratedHumanoidAnimationSlot,
+  slot: Pick<GeneratedHumanoidAnimationSlot, "activeSpeech" | "root">,
   openness: number,
   viseme: string,
   expressionWeights: HumanoidExpressionWeights,

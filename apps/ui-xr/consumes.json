@@ -983,6 +983,10 @@
         "kind": "runtime"
       },
       {
+        "name": "humanoidBlinkIntervalMs",
+        "kind": "runtime"
+      },
+      {
         "name": "GeneratedHumanoidAnimationSlot",
         "kind": "type"
       },
@@ -1041,6 +1045,10 @@
       {
         "name": "RuntimeHumanoidActingCueEvidenceRecord",
         "kind": "type"
+      },
+      {
+        "name": "sampleHumanoidBlinkSchedule",
+        "kind": "runtime"
       },
       {
         "name": "startHumanoidEmotionTransition",

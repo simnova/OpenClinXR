@@ -18,9 +18,11 @@ export {
 export {
   humanoidBlinkIntervalMs,
   humanoidGazeBoutDurationMs,
-  sampleHumanoidBlinkSchedule,
   sampleHumanoidGazeBout,
 } from "./conversational-eye-schedule.js";
+export {
+  sampleHumanoidBlinkSchedule,
+} from "./isolated-eye-motion-entry.js";
 export {
   buildHumanoidSpeechEvidence,
   humanoidDialogueDurationMs,

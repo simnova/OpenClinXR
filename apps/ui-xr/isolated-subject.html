@@ -30,6 +30,9 @@
     <script type="module">
       import { bootIsolatedSubjectLab } from "@openclinxr/xr-scene";
       import {
+        sampleHumanoidBlinkSchedule,
+      } from "@openclinxr/xr-humanoid-animation";
+      import {
         applyStationInteriorLightingForEnvironment,
         configureStationRendererToneMapping,
         loadLightingRig,
@@ -42,6 +45,8 @@
         resolveLightingRigPublicPath,
       };
       bootIsolatedSubjectLab();
+      window.__openClinXrProductEyeMotionDriver = sampleHumanoidBlinkSchedule.applyIsolatedHumanoidEyeMotion;
+      sampleHumanoidBlinkSchedule.bootIsolatedSubjectEyeMotion(window);
     </script>
   </body>
 </html>
