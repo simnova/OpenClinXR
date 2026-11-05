@@ -5,10 +5,13 @@ Method (recorded in the manifest):
      family_cheek_rgb (per channel; African cheek from the Vitruvian
      chroma-table; family cheek = linear mean inside the skin_layers cheek
      hard mask);
-  b) per region r in {lip, ear, nose, forehead}: add the Vitruvian residual
-     dLab_r = African_r - predicted_r (chroma-table Lab) in Lab inside r's
-     hard mask with the skin_layers inward feather; texels outside every
-     mask keep step (a) bytes bit-exactly.
+  b) per region r in {lip, ear}: add the Vitruvian residual
+     dLab_r = African_sep_r - family_after_multiply_sep_r (target method,
+     Lab) in Lab inside r's hard mask with the skin_layers inward feather;
+     nose is a CONTROL (vitruvian_dark gate-result.md: GO earned on lip+ear,
+     nose control per GATE G2): nose is measured and reported, keeps the
+     cheek multiply, no residual. Texels outside every applied mask keep
+     step (a) bytes bit-exactly.
 
 Lab/CIEDE2000 and mask derivation are reused, not reimplemented:
 tone-check.py (sRGB transfer), fix_lips lab_to_rgb/rgb_to_lab,
@@ -41,6 +44,14 @@ FAMILIES = {
     "old": "skin-families/old/old-family-v2.png",
 }
 REGIONS = ("lip", "ear", "nose", "forehead")
+# r5: nose is a CONTROL (vitruvian_dark gate-result.md GO on lip+ear only).
+# The target method corrects APPLIED only; nose is measured/reported, keeps (a).
+APPLIED_REGIONS = ("lip", "ear")
+MEASURED_REGIONS = ("lip", "ear", "nose")
+R5_DECISION = ("r5: nose back to control per st-vitdark gate G2 "
+               "(go earned on lip+ear; nose control retained in table); "
+               "residual set {lip, ear} only, nose keeps cheek multiply; "
+               "lip b* +0.317 over 2xSD accepted as feather dilution (r4 analysis)")
 
 
 def sha256_file(p: Path) -> str:
@@ -121,24 +132,26 @@ def main() -> None:
         for r in ("lip", "ear", "nose", "forehead"):
             m = hard[r] > 0.5
             means[r] = lab_step[m].mean(axis=0)
-        african_sep = {r: afr[r] - afr["forehead"] for r in ("lip", "ear", "nose")}
-        family_mult_sep = {r: means[r] - means["forehead"] for r in ("lip", "ear", "nose")}
+        african_sep = {r: afr[r] - afr["forehead"] for r in MEASURED_REGIONS}
+        family_mult_sep = {r: means[r] - means["forehead"] for r in MEASURED_REGIONS}
         dlab = {r: [round(float(v), 6) for v in (african_sep[r] - family_mult_sep[r])]
-                for r in ("lip", "ear", "nose")}
+                for r in APPLIED_REGIONS}
         target_terms = {
-            "african_sep_Lab": {r: [round(float(v), 6) for v in african_sep[r]] for r in ("lip", "ear", "nose")},
-            "family_after_multiply_sep_Lab": {r: [round(float(v), 6) for v in family_mult_sep[r]] for r in ("lip", "ear", "nose")},
+            "african_sep_Lab": {r: [round(float(v), 6) for v in african_sep[r]] for r in MEASURED_REGIONS},
+            "family_after_multiply_sep_Lab": {r: [round(float(v), 6) for v in family_mult_sep[r]] for r in MEASURED_REGIONS},
             "family_after_multiply_means_Lab": {r: [round(float(v), 6) for v in means[r]] for r in ("lip", "ear", "nose", "forehead")},
             "forehead_reference": "no residual on forehead (it is the reference)",
+            "nose_control": "nose measured + reported, keeps step (a) multiply, no residual (r5 decision)",
+            "r5_decision": R5_DECISION,
         }
         out_lab = lab_step.copy()
-        for r in ("lip", "ear", "nose"):
+        for r in APPLIED_REGIONS:
             w = sl.soft_inside(hard[r])[..., None]
             out_lab += w * np.array(dlab[r], float)[None, None, :]
         out_lab[..., 0] = np.clip(out_lab[..., 0], 0, 100)
         out_u8 = lab_to_rgb(out_lab)
         union = np.zeros(hard["lip"].shape, bool)
-        for r in ("lip", "ear", "nose"):
+        for r in APPLIED_REGIONS:
             union |= hard[r] > 0.5
         out_u8[~union] = step_u8[~union]
 
@@ -149,8 +162,9 @@ def main() -> None:
     Image.fromarray(out_u8).resize((1024, 1024), Image.Resampling.LANCZOS).save(a.preview)
     mask_files = ["mask-facecore.png", "mask-lips.png", "mask-ears-L.png", "mask-ears-R.png", "occupancy.png"]
     manifest = {
-        "version": 2,
-        "method": ["(a) linear-RGB whole-family multiply by k", "(b) per-region Lab residual dLab_r inside hard mask with inward feather"],
+        "version": 3,
+        "method": ["(a) linear-RGB whole-family multiply by k", "(b) per-region Lab residual dLab_r inside hard mask with inward feather (r5: lip+ear only; nose control)"],
+        "r5_decision": R5_DECISION,
         "residual_method": a.method if not a.no_residual else "none(no-residual)",
         "inputs": {"family": {"id": src_id, "rel": src_rel, "sha256": sha256_file(STORE / src_rel)},
                    "chroma_table": {"rel": str(CHROMA.relative_to(CHROMA.parents[5])), "sha256": sha256_file(CHROMA)}},
