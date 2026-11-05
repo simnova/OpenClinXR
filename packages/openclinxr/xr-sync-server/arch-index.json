@@ -54,6 +54,7 @@
     "src/xr-sync-c24-authored-affect.test.ts",
     "src/xr-sync-c27-free-text.test.ts",
     "src/xr-sync-c28-shipped-phrases.test.ts",
+    "src/xr-sync-c29-grade-fixes.test.ts",
     "src/xr-sync-c29-speech-intake.test.ts",
     "src/xr-sync-c3-actor-turn.test.ts",
     "src/xr-sync-c4-conversation-trace.test.ts",

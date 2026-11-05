@@ -28,7 +28,7 @@ import {
   transitionWithCastHold,
   type ConversationCastContext,
 } from "./conversation-trace-cast.js";
-import { pickTopicAnswer } from "./topic-answers.js";
+import { pickTopicAnswer, SPEECH_LOW_CONFIDENCE_TAG, UNMATCHED_TOPIC_TAG } from "./topic-answers.js";
 
 export type { ConversationCastContext } from "./conversation-trace-cast.js";
 /** Learner speech completed: the acknowledgement that opens an actor reply. */
@@ -260,7 +260,7 @@ export function reduceConversationEvents(
         // same 1-based per-actor count the live room uses.
         const isOpening = isCastOpening(castActors, actorId, turnCount);
         const reply = pickC3Reply(turnCount);
-        const answer = isOpening ? undefined : pickTopicAnswer(cast?.topicAnswers, actorId, event.tag);
+        const answer = isOpening || event.match === "fallback" ? undefined : pickTopicAnswer(cast?.topicAnswers, actorId, event.tag);
         const replyId = isOpening ? castOpeningReplyId(actorId) : answer?.replyId ?? reply.id;
         const cueId = isOpening ? CAST_TRACE_OPENING_CUE_ID : reply.cueId;
         const turnId = turns.length + 1;
@@ -398,6 +398,18 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
     const confidence = (event as { confidence?: unknown }).confidence;
     if (typeof confidence === "number" && Number.isFinite(confidence) && confidence >= 0 && confidence <= 1) {
       out.confidence = confidence;
+    }
+    if (out.modality === "speech" && (out.confidence === undefined || Math.round(out.confidence * 100) / 100 !== out.confidence)) {
+      throw new Error("replay-bad-trace: a speech event needs a confidence in [0,1] with at most 2 decimals");
+    }
+    if (out.confidence !== undefined && out.modality !== "speech") {
+      throw new Error("replay-bad-trace: only a speech event may carry a confidence");
+    }
+    if (out.match === "fallback" && out.tag !== undefined && out.tag !== UNMATCHED_TOPIC_TAG && out.tag !== SPEECH_LOW_CONFIDENCE_TAG) {
+      throw new Error("replay-bad-trace: a fallback event must carry a reserved tag");
+    }
+    if (out.tag === SPEECH_LOW_CONFIDENCE_TAG && (out.modality !== "speech" || out.match !== "fallback")) {
+      throw new Error("replay-bad-trace: the low-confidence tag belongs to a speech fallback event");
     }
     return out;
   });

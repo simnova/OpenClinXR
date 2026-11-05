@@ -125,6 +125,10 @@ export function applyUtteranceIntent(
     }
   }
   if (kind === "utterance-start") {
+    if (isRecord(payload) && (payload["modality"] !== undefined || payload["confidence"] !== undefined)) {
+      bindings.reject(client, seq, "bad-utterance-payload");
+      return false;
+    }
     if (learner.speaking) {
       bindings.reject(client, seq, "utterance-already-open");
       return false;
