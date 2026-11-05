@@ -30,6 +30,7 @@
   "workspaceDependencies": [],
   "tests": [
     "src/client-connect.test.ts",
+    "src/encounter-trace-intents.test.ts",
     "src/encounter-turns.test.ts"
   ],
   "commands": {

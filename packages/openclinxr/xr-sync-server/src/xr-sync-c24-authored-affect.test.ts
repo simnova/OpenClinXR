@@ -89,6 +89,32 @@ async function ask(server: EncounterServer, learner: SyncConnection, actorId: st
   await waitFor(() => live(server).actors[actorId]?.speaking === true, 3000, `${actorId} reply`);
   return live(server).actors[actorId]?.emotion ?? "";
 }
+type ReplySnapshot = { replayDone?: boolean; turnId?: number; actors?: Record<string, { speaking: boolean; emotion: string; replyId: string }> };
+/** Pushes `replyId:emotion` for the parent on each new speaking turn (rising edge or a new turnId while speaking). */
+function watchReplies(connection: SyncConnection, out: string[], onDone?: () => void): void {
+  let speaking = false;
+  let lastTurn = -1;
+  connection.onState((raw) => {
+    const snapshot = raw as ReplySnapshot;
+    const parent = snapshot.actors?.[PARENT.actorId];
+    if (parent !== undefined) {
+      if (parent.speaking && (!speaking || snapshot.turnId !== lastTurn)) out.push(`${parent.replyId}:${parent.emotion}`);
+      speaking = parent.speaking;
+      if (parent.speaking) lastTurn = snapshot.turnId ?? -1;
+    }
+    if (snapshot.replayDone === true) onDone?.();
+  });
+}
+async function replayParentReplies(traceDir: string): Promise<string[]> {
+  const server = await boot({ replayDir: traceDir, replayStepMs: 10 });
+  const reviewer = await connect(server.url, { roomOptions: { replayStationId: "slot-a" } });
+  leavers.push(() => reviewer.leave());
+  const replies: string[] = [];
+  let done = false;
+  watchReplies(reviewer, replies, () => { done = true; });
+  await waitFor(() => done, 30000, "replayDone");
+  return replies;
+}
 async function castSession(options: Record<string, unknown> = {}) {
   const server = await boot({ examBlueprint: blueprint(), scenarios: [KNEE, CHEST], ...options });
   const learner = await connect(server.url, { roomOptions: { actors: ["a1", "a2"] } });
@@ -129,7 +155,9 @@ describe("xr-sync-server C24 authored affect", () => {
     const { server, learner } = await castSession({ dialogueSeeds: scenarioDialogueSeedBank, traceDir });
     await ask(server, learner, PARENT.actorId, {});
     await ask(server, learner, PARENT.actorId, { topicTag: PARENT_TOPIC });
-    await waitFor(() => readdirSync(traceDir).some((name) => name.endsWith(TRACE_SUFFIX)), 30000, "trace file");
+    // A third ask interrupts the affect turn: the interruption transition starts from the authored affect.
+    await ask(server, learner, PARENT.actorId, {});
+    await waitFor(() => readdirSync(traceDir).includes("exam-session.review-index.json"), 30000, "review index");
     await server.close();
     const files = readdirSync(traceDir);
     const traces = files
@@ -142,9 +170,13 @@ describe("xr-sync-server C24 authored affect", () => {
     const slotA = traces.find((trace) => trace.stationId === "slot-a");
     const byTurn = (emotions: Array<{ to: string; turnIndex: number | undefined }> | undefined, turn: number) => emotions?.filter((entry) => entry.turnIndex === turn).map((entry) => entry.to);
     // Turn 1 may also carry the interruption transition of the second utterance-start; the acknowledgement of turn 2 is the affect.
-    expect(byTurn(slotA?.emotions, 2)).toEqual(["concerned"]);
+    expect(byTurn(slotA?.emotions, 2)?.[0]).toBe("concerned");
     expect(byTurn(slotA?.emotions, 1)?.[0]).toBe("anxious");
     expect(slotA?.cast?.topicAnswers?.find((answer) => answer.actorId === PARENT.actorId)).toMatchObject({ affect: "concerned" });
+    // The emotions the live tracer wrote per turn equal what the reducer-driven replay shows at each reply, including affect-then-interruption.
+    const replayed = await replayParentReplies(traceDir);
+    expect(replayed.map((entry) => entry.slice(entry.lastIndexOf(":") + 1))).toEqual([1, 2, 3].map((turn) => byTurn(slotA?.emotions, turn)?.[0]));
+    expect(replayed.map((entry) => entry.slice(entry.lastIndexOf(":") + 1))).toEqual(["anxious", "concerned", "concerned"]);
     const lines = kneeSeeds.flatMap((entry) => [entry.spokenText, entry.caption]).filter((text): text is string => typeof text === "string");
     for (const name of files) {
       const raw = readFileSync(join(traceDir, name), "utf8");

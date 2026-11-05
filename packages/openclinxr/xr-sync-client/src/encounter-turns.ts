@@ -64,8 +64,44 @@ export function syncedTurnPayload(turn: SyncedActorTurn, stationId: string): Rec
   };
 }
 
+/** One learner trace action sent as intents; statuses hold the result of each intent actually sent. */
+interface SentTraceAction {
+  actorId: string;
+  topicTag: string;
+  statuses: string[];
+}
+
+/**
+ * C26: a learner trace action (topic selection) as the three intents the room reads:
+ * select-actor, utterance-start, utterance-end{topicTag}. Stops at the first non-ack; never throws.
+ */
+async function sendTraceActionIntents(
+  sendIntent: SyncConnection["sendIntent"],
+  log: SentTraceAction[],
+  actorId: string | undefined,
+  topicTag: string,
+): Promise<void> {
+  if (actorId === undefined || actorId === "") return;
+  const entry: SentTraceAction = { actorId, topicTag, statuses: [] };
+  log.push(entry);
+  const steps: Array<[IntentKind, Record<string, string>]> = [["select-actor", { actorId }], ["utterance-start", {}], ["utterance-end", { topicTag }]];
+  for (const [kind, payload] of steps) {
+    try {
+      const result = await sendIntent(kind, payload);
+      entry.statuses.push(result.status);
+      if (result.status !== "ack") return;
+    } catch {
+      entry.statuses.push("error");
+      return;
+    }
+  }
+}
+
 export interface EncounterSyncHandle {
   readonly sessionId: string;
+  /** Learner trace-action sends, in order. */
+  readonly intents: readonly SentTraceAction[];
+  sendTraceAction(actorId: string | undefined, topicTag: string): Promise<void>;
   /** Every turn forwarded to onTurn, in order. */
   readonly turns: readonly SyncedActorTurn[];
   sendIntent: SyncConnection["sendIntent"];
@@ -91,8 +127,13 @@ export async function joinEncounterRoom(options: JoinEncounterRoomOptions): Prom
       options.onTurn(turn, snapshot.stationId ?? "");
     }
   });
+  const intents: SentTraceAction[] = [];
+  let queue: Promise<void> = Promise.resolve();
   return {
     sessionId: connection.sessionId,
+    intents,
+    // One trace action at a time: a second click waits for the first one's three intents.
+    sendTraceAction: (actorId, topicTag) => (queue = queue.then(() => sendTraceActionIntents((kind, payload) => connection.sendIntent(kind, payload), intents, actorId, topicTag))),
     turns,
     sendIntent: (kind: IntentKind, payload) => connection.sendIntent(kind, payload),
     leave: () => connection.leave(),
@@ -119,6 +160,9 @@ export interface EncounterSyncEvidence {
   error: string;
   turns: PlayedSyncedTurn[];
   sendIntent?: SyncConnection["sendIntent"];
+  /** C26: learner trace actions sent to the room, with per-intent statuses. */
+  intents?: readonly SentTraceAction[];
+  sendTraceAction?: EncounterSyncHandle["sendTraceAction"];
 }
 
 export interface StartEncounterSyncDeps {
@@ -154,6 +198,8 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     evidence.state = "joined";
     evidence.sessionId = handle.sessionId;
     evidence.sendIntent = handle.sendIntent;
+    evidence.intents = handle.intents;
+    evidence.sendTraceAction = handle.sendTraceAction;
     return handle;
   } catch (error) {
     evidence.state = "failed";

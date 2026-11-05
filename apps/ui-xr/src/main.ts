@@ -2088,18 +2088,16 @@ function completeTraceActionFromInput(
     traceTags: [tag],
     learnerUtterance: dialogueFor(tag),
   });
-  const adaptiveBranch = resolvePedsAdaptiveDialogueBranch(
-    tag,
-    priorCompletedTraceTags,
-    encounterRuntimeAssetBundle.scenarioId,
-  );
+  const adaptiveBranch = resolvePedsAdaptiveDialogueBranch(tag, priorCompletedTraceTags, encounterRuntimeAssetBundle.scenarioId);
+  // C26: once joined to the room, the server turn plays this tag's reply; local dialogue for a mapped actor would double it.
+  const syncedActorId = window.__openClinXrEncounterSync?.state === "joined" ? ((typeof payload?.["actorId"] === "string" ? payload["actorId"] : undefined) ?? actorIdForTraceTag(tag, state.scenarioId) ?? localDialogueActorIdForTraceTag(tag)) : undefined;
   // Clinical-touch already fires case-driven dialogue in handleClinicalTouch; skip generic dialogue overwrite.
-  const skipGenericDialogue = Boolean(payload?.["clinicalTouch"]);
+  const skipGenericDialogue = Boolean(payload?.["clinicalTouch"]) || syncedActorId !== undefined;
   const dialogueText = liveTurn?.caption ?? dialogueFor(tag);
   if (!skipGenericDialogue) {
     dialogueLine.textContent = dialogueText;
   }
-  if (adaptiveBranch && triggerPedsAdaptiveDialogueBranch(adaptiveBranch, "trace_action")) {
+  if (syncedActorId === undefined && adaptiveBranch && triggerPedsAdaptiveDialogueBranch(adaptiveBranch, "trace_action")) {
     // Adaptive bundle branch already drove actor turns, viseme, gaze, and emotion transitions.
   } else if (!skipGenericDialogue && !triggerPedsActorPlayerRuntimeTurnForTrace(tag)) {
     triggerHumanoidDialogueForTrace(tag, dialogueText);
@@ -2125,7 +2123,7 @@ function completeTraceActionFromInput(
     },
   ];
   updateTraceActionHandoffEvidence();
-  void recordRemoteTraceAction(tag, payload);
+  void Promise.all([recordRemoteTraceAction(tag, payload), window.__openClinXrEncounterSync?.sendTraceAction?.(syncedActorId, tag)]);
 }
 
 function updateEnvironmentStateForTrace(tag: string): EnvironmentStateEvidence {
@@ -2383,7 +2381,8 @@ async function recordRemoteTraceAction(
   }
 
   const actorTurn = remoteActorTurnForTraceTag(tag, state.scenarioId);
-  if (!actorTurn) {
+  // C26: once joined to the room, the server turn is the only reply; the remote station reply would race it.
+  if (!actorTurn || window.__openClinXrEncounterSync?.state === "joined") {
     return;
   }
 
