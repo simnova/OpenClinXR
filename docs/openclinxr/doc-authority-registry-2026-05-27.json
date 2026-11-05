@@ -7,7 +7,7 @@
     "agent-methodology": 118,
     "current-reference": 201,
     "archive-candidate": 136,
-    "evidence": 186,
+    "evidence": 188,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5496,6 +5496,20 @@
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/asset-pipeline/skin/vitruvian_dark/gate-result.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/asset-pipeline/skin/vitruvian_dark/probes-gate.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md",

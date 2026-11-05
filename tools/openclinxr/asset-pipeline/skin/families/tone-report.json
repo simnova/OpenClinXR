@@ -29,7 +29,12 @@
    13.89,
    19.44
   ],
-  "source": "tools/openclinxr/asset-pipeline/reference-set/manifest.json aisha goal_front facecore + body2 goal_front facecore"
+  "deep_warm": [
+   20.22,
+   12.01,
+   12.66
+  ],
+  "source": "tools/openclinxr/asset-pipeline/reference-set/manifest.json aisha goal_front facecore + body2 goal_front facecore; deep_warm = Vitruvian African forehead Lab (tools/openclinxr/asset-pipeline/skin/vitruvian_dark/chroma-table.json african.forehead.lab_d65)"
  },
  "families": {
   "young": {
@@ -88,9 +93,29 @@
     24.3,
     28.85
    ]
+  },
+  "deep": {
+   "assets": "skin-families/deep/deep-family.png",
+   "sha256": "28962dfd7b9441a2eec21d2c65d0f9d03163573e63c648d4d3fe06dbe0a3b169",
+   "forehead": [
+    16.94,
+    13.22,
+    12.62
+   ],
+   "lip": [
+    20.04,
+    11.8,
+    9.46
+   ],
+   "ear": [
+    18.7,
+    15.36,
+    11.13
+   ]
   }
  },
  "lightness_order_dark_to_light_forehead_L": [
+  "deep-17",
   "dark-33",
   "young-60",
   "old-68",
@@ -100,7 +125,8 @@
   "warm_light": "young",
   "warm_light_child": "young",
   "warm_medium": "young",
-  "method": "min dLab anchor vs family forehead mean; both anchors nearest the darkest light family"
+  "deep_warm": "deep",
+  "method": "min dLab anchor vs family forehead mean; light anchors nearest the darkest light family; deep_warm nearest deep (dLab 3.50 vs 40+ to any light family)"
  },
  "cap_rule": "per-chart Lab residual capped at the next family's forehead mean; a residual uncapped past the next family's mean is a fail",
  "multiply": {

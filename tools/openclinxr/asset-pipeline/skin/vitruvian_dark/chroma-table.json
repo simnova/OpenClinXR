@@ -1,0 +1,1327 @@
+{
+  "version": 1,
+  "inputs": {
+    "light": "/Volumes/files/openclinxr-assets/store/vitruvian-src/4K/Vitruvian_Face_BaseColor_Utility - Linear - sRGB.exr",
+    "african": "/Volumes/files/openclinxr-assets/store/vitruvian-src/4K/Vitruvian_African_Face_BaseColor.exr",
+    "substitution": false
+  },
+  "method": {
+    "input_encoding": "scene-linear RGB from EXR; OpenCV BGR reordered to RGB",
+    "lab": "imported tools/openclinxr/asset-pipeline/skin/families/tone-check.py:srgb_to_lab after exact linear-to-sRGB transfer; D65",
+    "ciede2000": "imported tools/openclinxr/asset-pipeline/skin/families/tone-check.py:ciede2000",
+    "region_aggregation": "mean of all pixels in fixed boxes; patch SD is sample SD across per-patch means",
+    "separation_patch_sd": "sample SD over all target-region patch minus forehead patch combinations",
+    "global_offset_similar_margin_rule": "forehead positive margin >= 0.75 * strongest passing lip/ear margin"
+  },
+  "light": {
+    "forehead": {
+      "mean_linear_rgb": [
+        0.636334,
+        0.356696,
+        0.254874
+      ],
+      "lab_d65": [
+        70.093059,
+        14.521609,
+        18.725919
+      ],
+      "patch_mean_sd_linear_rgb": [
+        0.013446,
+        0.0064,
+        0.005019
+      ],
+      "patch_mean_sd_lab_d65": [
+        0.530505,
+        0.411079,
+        0.08675
+      ],
+      "patches": [
+        {
+          "id": "forehead_1",
+          "mean_linear_rgb": [
+            0.630249,
+            0.350896,
+            0.250907
+          ],
+          "lab_d65": [
+            69.689056,
+            14.694241,
+            18.699296
+          ]
+        },
+        {
+          "id": "forehead_2",
+          "mean_linear_rgb": [
+            0.651746,
+            0.363561,
+            0.260517
+          ],
+          "lab_d65": [
+            70.692213,
+            14.815566,
+            18.822666
+          ]
+        },
+        {
+          "id": "forehead_3",
+          "mean_linear_rgb": [
+            0.627007,
+            0.355631,
+            0.253198
+          ],
+          "lab_d65": [
+            69.891365,
+            14.05069,
+            18.655332
+          ]
+        }
+      ]
+    },
+    "cheek": {
+      "mean_linear_rgb": [
+        0.572743,
+        0.282522,
+        0.205942
+      ],
+      "lab_d65": [
+        64.8606,
+        17.991629,
+        18.52555
+      ],
+      "patch_mean_sd_linear_rgb": [
+        0.017056,
+        0.020518,
+        0.013838
+      ],
+      "patch_mean_sd_lab_d65": [
+        1.409433,
+        1.848068,
+        0.315629
+      ],
+      "patches": [
+        {
+          "id": "cheek_left_1",
+          "mean_linear_rgb": [
+            0.578659,
+            0.300321,
+            0.218179
+          ],
+          "lab_d65": [
+            66.027029,
+            16.52288,
+            18.256331
+          ]
+        },
+        {
+          "id": "cheek_left_2",
+          "mean_linear_rgb": [
+            0.561187,
+            0.2806,
+            0.204053
+          ],
+          "lab_d65": [
+            64.543564,
+            17.457532,
+            18.356745
+          ]
+        },
+        {
+          "id": "cheek_left_3",
+          "mean_linear_rgb": [
+            0.580706,
+            0.264039,
+            0.193713
+          ],
+          "lab_d65": [
+            63.860966,
+            20.48649,
+            19.137664
+          ]
+        },
+        {
+          "id": "cheek_right_1",
+          "mean_linear_rgb": [
+            0.57253,
+            0.262841,
+            0.195183
+          ],
+          "lab_d65": [
+            63.657364,
+            20.195214,
+            18.59595
+          ]
+        },
+        {
+          "id": "cheek_right_2",
+          "mean_linear_rgb": [
+            0.546987,
+            0.273576,
+            0.197111
+          ],
+          "lab_d65": [
+            63.852365,
+            17.236525,
+            18.479292
+          ]
+        },
+        {
+          "id": "cheek_right_3",
+          "mean_linear_rgb": [
+            0.59639,
+            0.313755,
+            0.22741
+          ],
+          "lab_d65": [
+            67.098989,
+            16.262062,
+            18.398298
+          ]
+        }
+      ]
+    },
+    "lip": {
+      "mean_linear_rgb": [
+        0.377491,
+        0.116769,
+        0.111676
+      ],
+      "lab_d65": [
+        48.492251,
+        27.892072,
+        13.387036
+      ],
+      "patch_mean_sd_linear_rgb": [
+        0.013748,
+        0.00504,
+        0.006262
+      ],
+      "patch_mean_sd_lab_d65": [
+        0.84192,
+        0.702756,
+        0.752109
+      ],
+      "patches": [
+        {
+          "id": "lip_lower_left",
+          "mean_linear_rgb": [
+            0.374067,
+            0.118297,
+            0.108099
+          ],
+          "lab_d65": [
+            48.505577,
+            27.124867,
+            14.257987
+          ]
+        },
+        {
+          "id": "lip_lower_center",
+          "mean_linear_rgb": [
+            0.392628,
+            0.120867,
+            0.118906
+          ],
+          "lab_d65": [
+            49.316329,
+            28.506295,
+            12.886802
+          ]
+        },
+        {
+          "id": "lip_lower_right",
+          "mean_linear_rgb": [
+            0.365778,
+            0.111142,
+            0.108023
+          ],
+          "lab_d65": [
+            47.632869,
+            28.039949,
+            13.036774
+          ]
+        }
+      ]
+    },
+    "ear": {
+      "mean_linear_rgb": [
+        0.549447,
+        0.256171,
+        0.184167
+      ],
+      "lab_d65": [
+        62.789054,
+        19.269842,
+        19.168805
+      ],
+      "patch_mean_sd_linear_rgb": [
+        0.021119,
+        0.011318,
+        0.010176
+      ],
+      "patch_mean_sd_lab_d65": [
+        1.105681,
+        0.537285,
+        0.243395
+      ],
+      "patches": [
+        {
+          "id": "ear_left_helix",
+          "mean_linear_rgb": [
+            0.524624,
+            0.243442,
+            0.171767
+          ],
+          "lab_d65": [
+            61.487257,
+            18.989357,
+            19.458175
+          ]
+        },
+        {
+          "id": "ear_left_midhelix",
+          "mean_linear_rgb": [
+            0.570263,
+            0.265201,
+            0.193534
+          ],
+          "lab_d65": [
+            63.746358,
+            19.68265,
+            18.980766
+          ]
+        },
+        {
+          "id": "ear_left_lobe",
+          "mean_linear_rgb": [
+            0.551691,
+            0.257934,
+            0.183443
+          ],
+          "lab_d65": [
+            62.930109,
+            19.14639,
+            19.490103
+          ]
+        },
+        {
+          "id": "ear_right_helix",
+          "mean_linear_rgb": [
+            0.522222,
+            0.241724,
+            0.172312
+          ],
+          "lab_d65": [
+            61.3396,
+            19.094736,
+            19.153498
+          ]
+        },
+        {
+          "id": "ear_right_midhelix",
+          "mean_linear_rgb": [
+            0.566616,
+            0.259313,
+            0.189388
+          ],
+          "lab_d65": [
+            63.311546,
+            20.10461,
+            19.058573
+          ]
+        },
+        {
+          "id": "ear_right_lobe",
+          "mean_linear_rgb": [
+            0.561264,
+            0.269411,
+            0.194554
+          ],
+          "lab_d65": [
+            63.842021,
+            18.597864,
+            18.920041
+          ]
+        }
+      ]
+    },
+    "nose": {
+      "mean_linear_rgb": [
+        0.585437,
+        0.293703,
+        0.21797
+      ],
+      "lab_d65": [
+        65.770548,
+        17.753691,
+        17.952496
+      ],
+      "patch_mean_sd_linear_rgb": [
+        0.032561,
+        0.02876,
+        0.030289
+      ],
+      "patch_mean_sd_lab_d65": [
+        2.271519,
+        0.668647,
+        1.288502
+      ],
+      "patches": [
+        {
+          "id": "nose_tip_left",
+          "mean_linear_rgb": [
+            0.561814,
+            0.276478,
+            0.199986
+          ],
+          "lab_d65": [
+            64.293527,
+            17.891512,
+            18.662678
+          ]
+        },
+        {
+          "id": "nose_tip_center",
+          "mean_linear_rgb": [
+            0.622581,
+            0.326904,
+            0.25294
+          ],
+          "lab_d65": [
+            68.347191,
+            17.066992,
+            16.544243
+          ]
+        },
+        {
+          "id": "nose_tip_right",
+          "mean_linear_rgb": [
+            0.571918,
+            0.277727,
+            0.200985
+          ],
+          "lab_d65": [
+            64.544058,
+            18.39106,
+            18.874241
+          ]
+        }
+      ]
+    }
+  },
+  "african": {
+    "forehead": {
+      "mean_linear_rgb": [
+        0.061915,
+        0.022772,
+        0.01355
+      ],
+      "lab_d65": [
+        20.215584,
+        12.007691,
+        12.661833
+      ],
+      "patch_mean_sd_linear_rgb": [
+        0.002887,
+        0.000838,
+        0.000722
+      ],
+      "patch_mean_sd_lab_d65": [
+        0.490845,
+        0.388706,
+        0.213649
+      ],
+      "patches": [
+        {
+          "id": "forehead_1",
+          "mean_linear_rgb": [
+            0.065246,
+            0.023695,
+            0.014304
+          ],
+          "lab_d65": [
+            20.771659,
+            12.418451,
+            12.755454
+          ]
+        },
+        {
+          "id": "forehead_2",
+          "mean_linear_rgb": [
+            0.060154,
+            0.022559,
+            0.013483
+          ],
+          "lab_d65": [
+            20.003619,
+            11.648267,
+            12.418991
+          ]
+        },
+        {
+          "id": "forehead_3",
+          "mean_linear_rgb": [
+            0.060344,
+            0.02206,
+            0.012865
+          ],
+          "lab_d65": [
+            19.858138,
+            11.941765,
+            12.815329
+          ]
+        }
+      ]
+    },
+    "cheek": {
+      "mean_linear_rgb": [
+        0.064117,
+        0.023956,
+        0.014209
+      ],
+      "lab_d65": [
+        20.748384,
+        11.932198,
+        12.792653
+      ],
+      "patch_mean_sd_linear_rgb": [
+        0.004045,
+        0.003182,
+        0.001955
+      ],
+      "patch_mean_sd_lab_d65": [
+        1.269965,
+        0.915222,
+        0.268885
+      ],
+      "patches": [
+        {
+          "id": "cheek_left_1",
+          "mean_linear_rgb": [
+            0.067739,
+            0.026118,
+            0.015566
+          ],
+          "lab_d65": [
+            21.656008,
+            11.733941,
+            12.853712
+          ]
+        },
+        {
+          "id": "cheek_left_2",
+          "mean_linear_rgb": [
+            0.066669,
+            0.026501,
+            0.01559
+          ],
+          "lab_d65": [
+            21.673509,
+            11.222587,
+            12.841208
+          ]
+        },
+        {
+          "id": "cheek_left_3",
+          "mean_linear_rgb": [
+            0.057472,
+            0.019254,
+            0.011343
+          ],
+          "lab_d65": [
+            18.71857,
+            12.86476,
+            12.798605
+          ]
+        },
+        {
+          "id": "cheek_right_1",
+          "mean_linear_rgb": [
+            0.061027,
+            0.020861,
+            0.012303
+          ],
+          "lab_d65": [
+            19.550916,
+            12.872103,
+            12.97152
+          ]
+        },
+        {
+          "id": "cheek_right_2",
+          "mean_linear_rgb": [
+            0.064869,
+            0.026732,
+            0.01608
+          ],
+          "lab_d65": [
+            21.606783,
+            10.675539,
+            12.315369
+          ]
+        },
+        {
+          "id": "cheek_right_3",
+          "mean_linear_rgb": [
+            0.066928,
+            0.024269,
+            0.014372
+          ],
+          "lab_d65": [
+            21.066807,
+            12.50314,
+            13.106401
+          ]
+        }
+      ]
+    },
+    "lip": {
+      "mean_linear_rgb": [
+        0.059082,
+        0.021875,
+        0.020251
+      ],
+      "lab_d65": [
+        19.911509,
+        12.883123,
+        6.634633
+      ],
+      "patch_mean_sd_linear_rgb": [
+        0.013609,
+        0.002962,
+        0.003574
+      ],
+      "patch_mean_sd_lab_d65": [
+        2.067123,
+        2.151843,
+        0.455575
+      ],
+      "patches": [
+        {
+          "id": "lip_lower_left",
+          "mean_linear_rgb": [
+            0.049921,
+            0.019972,
+            0.017726
+          ],
+          "lab_d65": [
+            18.443645,
+            11.166793,
+            6.448826
+          ]
+        },
+        {
+          "id": "lip_lower_center",
+          "mean_linear_rgb": [
+            0.074721,
+            0.025287,
+            0.02434
+          ],
+          "lab_d65": [
+            22.20707,
+            15.189503,
+            7.131343
+          ]
+        },
+        {
+          "id": "lip_lower_right",
+          "mean_linear_rgb": [
+            0.052606,
+            0.020365,
+            0.018687
+          ],
+          "lab_d65": [
+            18.843309,
+            11.853521,
+            6.267329
+          ]
+        }
+      ]
+    },
+    "ear": {
+      "mean_linear_rgb": [
+        0.084853,
+        0.031581,
+        0.023882
+      ],
+      "lab_d65": [
+        24.435099,
+        13.804441,
+        10.612257
+      ],
+      "patch_mean_sd_linear_rgb": [
+        0.007959,
+        0.003149,
+        0.002672
+      ],
+      "patch_mean_sd_lab_d65": [
+        1.318568,
+        0.677838,
+        0.447561
+      ],
+      "patches": [
+        {
+          "id": "ear_left_helix",
+          "mean_linear_rgb": [
+            0.075365,
+            0.026539,
+            0.019459
+          ],
+          "lab_d65": [
+            22.447902,
+            13.924658,
+            10.912939
+          ]
+        },
+        {
+          "id": "ear_left_midhelix",
+          "mean_linear_rgb": [
+            0.087665,
+            0.033892,
+            0.026138
+          ],
+          "lab_d65": [
+            25.188996,
+            13.4747,
+            10.226152
+          ]
+        },
+        {
+          "id": "ear_left_lobe",
+          "mean_linear_rgb": [
+            0.090823,
+            0.032863,
+            0.024741
+          ],
+          "lab_d65": [
+            25.138452,
+            14.509337,
+            11.074242
+          ]
+        },
+        {
+          "id": "ear_right_helix",
+          "mean_linear_rgb": [
+            0.074639,
+            0.029087,
+            0.022004
+          ],
+          "lab_d65": [
+            23.08874,
+            12.604938,
+            9.934354
+          ]
+        },
+        {
+          "id": "ear_right_midhelix",
+          "mean_linear_rgb": [
+            0.087219,
+            0.032291,
+            0.024552
+          ],
+          "lab_d65": [
+            24.769441,
+            14.022195,
+            10.655757
+          ]
+        },
+        {
+          "id": "ear_right_lobe",
+          "mean_linear_rgb": [
+            0.093408,
+            0.034813,
+            0.026398
+          ],
+          "lab_d65": [
+            25.763341,
+            14.241972,
+            10.907944
+          ]
+        }
+      ]
+    },
+    "nose": {
+      "mean_linear_rgb": [
+        0.087975,
+        0.036954,
+        0.024346
+      ],
+      "lab_d65": [
+        25.831153,
+        11.781535,
+        12.22973
+      ],
+      "patch_mean_sd_linear_rgb": [
+        0.009992,
+        0.00525,
+        0.004619
+      ],
+      "patch_mean_sd_lab_d65": [
+        1.81067,
+        0.296501,
+        0.995378
+      ],
+      "patches": [
+        {
+          "id": "nose_tip_left",
+          "mean_linear_rgb": [
+            0.078522,
+            0.032758,
+            0.021809
+          ],
+          "lab_d65": [
+            24.225897,
+            11.473443,
+            11.653149
+          ]
+        },
+        {
+          "id": "nose_tip_center",
+          "mean_linear_rgb": [
+            0.09843,
+            0.042841,
+            0.029677
+          ],
+          "lab_d65": [
+            27.76756,
+            11.829999,
+            11.741743
+          ]
+        },
+        {
+          "id": "nose_tip_right",
+          "mean_linear_rgb": [
+            0.086974,
+            0.035263,
+            0.021551
+          ],
+          "lab_d65": [
+            25.34248,
+            12.062075,
+            13.419784
+          ]
+        }
+      ]
+    }
+  },
+  "cheek_multiply": {
+    "k_rgb": [
+      0.111948,
+      0.084793,
+      0.068996
+    ],
+    "predicted": {
+      "forehead": {
+        "mean_linear_rgb": [
+          0.071236,
+          0.030245,
+          0.017585
+        ],
+        "lab_d65": [
+          23.015756,
+          10.499296,
+          13.049257
+        ],
+        "patch_mean_sd_linear_rgb": [
+          0.001505,
+          0.000543,
+          0.000346
+        ],
+        "patch_mean_sd_lab_d65": [
+          0.242365,
+          0.205172,
+          0.074189
+        ],
+        "patches": [
+          {
+            "id": "forehead_1",
+            "mean_linear_rgb": [
+              0.070555,
+              0.029754,
+              0.017312
+            ],
+            "lab_d65": [
+              22.838465,
+              10.565609,
+              13.021493
+            ]
+          },
+          {
+            "id": "forehead_2",
+            "mean_linear_rgb": [
+              0.072962,
+              0.030827,
+              0.017975
+            ],
+            "lab_d65": [
+              23.291131,
+              10.66169,
+              13.133045
+            ]
+          },
+          {
+            "id": "forehead_3",
+            "mean_linear_rgb": [
+              0.070192,
+              0.030155,
+              0.01747
+            ],
+            "lab_d65": [
+              22.914656,
+              10.268159,
+              12.992539
+            ]
+          }
+        ]
+      },
+      "cheek": {
+        "mean_linear_rgb": [
+          0.064117,
+          0.023956,
+          0.014209
+        ],
+        "lab_d65": [
+          20.748384,
+          11.932198,
+          12.792653
+        ],
+        "patch_mean_sd_linear_rgb": [
+          0.001909,
+          0.00174,
+          0.000955
+        ],
+        "patch_mean_sd_lab_d65": [
+          0.599091,
+          0.830852,
+          0.149685
+        ],
+        "patches": [
+          {
+            "id": "cheek_left_1",
+            "mean_linear_rgb": [
+              0.06478,
+              0.025465,
+              0.015053
+            ],
+            "lab_d65": [
+              21.235496,
+              11.278676,
+              12.696833
+            ]
+          },
+          {
+            "id": "cheek_left_2",
+            "mean_linear_rgb": [
+              0.062824,
+              0.023793,
+              0.014079
+            ],
+            "lab_d65": [
+              20.5932,
+              11.666143,
+              12.686788
+            ]
+          },
+          {
+            "id": "cheek_left_3",
+            "mean_linear_rgb": [
+              0.065009,
+              0.022389,
+              0.013365
+            ],
+            "lab_d65": [
+              20.362087,
+              13.074402,
+              13.074633
+            ]
+          },
+          {
+            "id": "cheek_right_1",
+            "mean_linear_rgb": [
+              0.064093,
+              0.022287,
+              0.013467
+            ],
+            "lab_d65": [
+              20.259495,
+              12.913125,
+              12.831612
+            ]
+          },
+          {
+            "id": "cheek_right_2",
+            "mean_linear_rgb": [
+              0.061234,
+              0.023197,
+              0.0136
+            ],
+            "lab_d65": [
+              20.280234,
+              11.543315,
+              12.689841
+            ]
+          },
+          {
+            "id": "cheek_right_3",
+            "mean_linear_rgb": [
+              0.066764,
+              0.026604,
+              0.01569
+            ],
+            "lab_d65": [
+              21.71077,
+              11.199569,
+              12.806467
+            ]
+          }
+        ]
+      },
+      "lip": {
+        "mean_linear_rgb": [
+          0.042259,
+          0.009901,
+          0.007705
+        ],
+        "lab_d65": [
+          13.605543,
+          15.659197,
+          10.127727
+        ],
+        "patch_mean_sd_linear_rgb": [
+          0.001539,
+          0.000427,
+          0.000432
+        ],
+        "patch_mean_sd_lab_d65": [
+          0.380918,
+          0.306833,
+          0.28113
+        ],
+        "patches": [
+          {
+            "id": "lip_lower_left",
+            "mean_linear_rgb": [
+              0.041876,
+              0.010031,
+              0.007458
+            ],
+            "lab_d65": [
+              13.601588,
+              15.341648,
+              10.444905
+            ]
+          },
+          {
+            "id": "lip_lower_center",
+            "mean_linear_rgb": [
+              0.043954,
+              0.010249,
+              0.008204
+            ],
+            "lab_d65": [
+              13.983537,
+              15.954296,
+              9.997785
+            ]
+          },
+          {
+            "id": "lip_lower_right",
+            "mean_linear_rgb": [
+              0.040948,
+              0.009424,
+              0.007453
+            ],
+            "lab_d65": [
+              13.221701,
+              15.678562,
+              9.926107
+            ]
+          }
+        ]
+      },
+      "ear": {
+        "mean_linear_rgb": [
+          0.061509,
+          0.021722,
+          0.012707
+        ],
+        "lab_d65": [
+          19.855752,
+          12.473778,
+          12.982972
+        ],
+        "patch_mean_sd_linear_rgb": [
+          0.002364,
+          0.00096,
+          0.000702
+        ],
+        "patch_mean_sd_lab_d65": [
+          0.496425,
+          0.259348,
+          0.080998
+        ],
+        "patches": [
+          {
+            "id": "ear_left_helix",
+            "mean_linear_rgb": [
+              0.058731,
+              0.020642,
+              0.011851
+            ],
+            "lab_d65": [
+              19.269702,
+              12.306592,
+              13.016791
+            ]
+          },
+          {
+            "id": "ear_left_midhelix",
+            "mean_linear_rgb": [
+              0.06384,
+              0.022487,
+              0.013353
+            ],
+            "lab_d65": [
+              20.29149,
+              12.693033,
+              12.9754
+            ]
+          },
+          {
+            "id": "ear_left_lobe",
+            "mean_linear_rgb": [
+              0.061761,
+              0.021871,
+              0.012657
+            ],
+            "lab_d65": [
+              19.919073,
+              12.433189,
+              13.117572
+            ]
+          },
+          {
+            "id": "ear_right_helix",
+            "mean_linear_rgb": [
+              0.058462,
+              0.020497,
+              0.011889
+            ],
+            "lab_d65": [
+              19.203195,
+              12.339198,
+              12.888015
+            ]
+          },
+          {
+            "id": "ear_right_midhelix",
+            "mean_linear_rgb": [
+              0.063431,
+              0.021988,
+              0.013067
+            ],
+            "lab_d65": [
+              20.107048,
+              12.875,
+              12.997508
+            ]
+          },
+          {
+            "id": "ear_right_lobe",
+            "mean_linear_rgb": [
+              0.062832,
+              0.022844,
+              0.013423
+            ],
+            "lab_d65": [
+              20.309706,
+              12.191735,
+              12.917444
+            ]
+          }
+        ]
+      },
+      "nose": {
+        "mean_linear_rgb": [
+          0.065538,
+          0.024904,
+          0.015039
+        ],
+        "lab_d65": [
+          21.144844,
+          11.832261,
+          12.601461
+        ],
+        "patch_mean_sd_linear_rgb": [
+          0.003645,
+          0.002439,
+          0.00209
+        ],
+        "patch_mean_sd_lab_d65": [
+          0.990727,
+          0.287042,
+          0.423662
+        ],
+        "patches": [
+          {
+            "id": "nose_tip_left",
+            "mean_linear_rgb": [
+              0.062894,
+              0.023443,
+              0.013798
+            ],
+            "lab_d65": [
+              20.493744,
+              11.8705,
+              12.812955
+            ]
+          },
+          {
+            "id": "nose_tip_center",
+            "mean_linear_rgb": [
+              0.069697,
+              0.027719,
+              0.017452
+            ],
+            "lab_d65": [
+              22.26885,
+              11.546874,
+              12.145501
+            ]
+          },
+          {
+            "id": "nose_tip_right",
+            "mean_linear_rgb": [
+              0.064025,
+              0.023549,
+              0.013867
+            ],
+            "lab_d65": [
+              20.618822,
+              12.119332,
+              12.931275
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "noise": {
+    "african_cheek_patch_ciede2000_to_region_mean": [
+      0.66627,
+      0.919678,
+      1.615728,
+      1.131375,
+      1.207843,
+      0.504399
+    ],
+    "sd": 0.400671,
+    "floor_two_x_sd": 0.801341
+  },
+  "comparisons": {
+    "forehead": {
+      "ciede2000_predicted_vs_african": 2.483269,
+      "noise_floor": 0.801341,
+      "margin": 1.681928
+    },
+    "cheek": {
+      "ciede2000_predicted_vs_african": 0.0,
+      "noise_floor": 0.801341,
+      "margin": -0.801341
+    },
+    "lip": {
+      "ciede2000_predicted_vs_african": 5.079108,
+      "noise_floor": 0.801341,
+      "margin": 4.277767
+    },
+    "ear": {
+      "ciede2000_predicted_vs_african": 4.025808,
+      "noise_floor": 0.801341,
+      "margin": 3.224466
+    },
+    "nose": {
+      "ciede2000_predicted_vs_african": 3.375779,
+      "noise_floor": 0.801341,
+      "margin": 2.574437
+    }
+  },
+  "separations_region_minus_forehead": {
+    "light": {
+      "lip": {
+        "a_star": 13.370464,
+        "b_star": -5.338883,
+        "patch_sd_a_star": 0.705081,
+        "patch_sd_b_star": 0.655664
+      },
+      "ear": {
+        "a_star": 4.748234,
+        "b_star": 0.442886,
+        "patch_sd_a_star": 0.611553,
+        "patch_sd_b_star": 0.239966
+      }
+    },
+    "african": {
+      "lip": {
+        "a_star": 0.875432,
+        "b_star": -6.027201,
+        "patch_sd_a_star": 1.893711,
+        "patch_sd_b_star": 0.435771
+      },
+      "ear": {
+        "a_star": 1.79675,
+        "b_star": -2.049577,
+        "patch_sd_a_star": 0.715586,
+        "patch_sd_b_star": 0.457127
+      }
+    },
+    "predicted": {
+      "lip": {
+        "a_star": 5.1599,
+        "b_star": -2.921531,
+        "patch_sd_a_star": 0.319658,
+        "patch_sd_b_star": 0.251801
+      },
+      "ear": {
+        "a_star": 1.974481,
+        "b_star": -0.066285,
+        "patch_sd_a_star": 0.298434,
+        "patch_sd_b_star": 0.098357
+      }
+    }
+  },
+  "separation_gate": {
+    "lip": {
+      "a_star": {
+        "absolute_difference": 4.284468,
+        "two_x_african_patch_sd": 3.787422,
+        "exceeds": true
+      },
+      "b_star": {
+        "absolute_difference": 3.10567,
+        "two_x_african_patch_sd": 0.871542,
+        "exceeds": true
+      }
+    },
+    "ear": {
+      "a_star": {
+        "absolute_difference": 0.177731,
+        "two_x_african_patch_sd": 1.431172,
+        "exceeds": false
+      },
+      "b_star": {
+        "absolute_difference": 1.983292,
+        "two_x_african_patch_sd": 0.914254,
+        "exceeds": true
+      }
+    }
+  },
+  "candidate_go": {
+    "lip": true,
+    "ear": true
+  },
+  "counterweight": {
+    "strongest_passing_lip_or_ear_margin": 4.277767,
+    "forehead_margin_ratio": 0.393179,
+    "global_offset": false
+  },
+  "verdict": "go"
+}

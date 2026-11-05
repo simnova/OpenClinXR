@@ -119,7 +119,7 @@ export const wardDeliriumScenario = draftScenario({
         age: 34,
         body_profile: "adult_clinical_physician",
         pose: "standing_clinical_ready",
-        skin_tone: "medium_warm",
+        skin_tone: "deep_warm", // st-vitdeep r1 seeded pick: seed 20261104, candidates [nurse_kevin_lee_v1, patient_robert_hayes_v1, senior_resident_ward_v1], pick senior_resident_ward_v1
         hair_color: "dark_brown",
         eye_color: "brown",
         gender_presentation: "adult_male_physician",

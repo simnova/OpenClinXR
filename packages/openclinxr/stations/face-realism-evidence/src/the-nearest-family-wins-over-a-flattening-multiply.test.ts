@@ -5,8 +5,9 @@
  *
  * Case tones come from the fixtures, not an assumption: warm_light(+child) and
  * warm_medium/medium_warm are 2 distinct tones (tone-report.json falsifier), so
- * the single_tone stop does not trigger. All three families are light
- * (forehead L 60-75); the dark end is the CC0 middleage_african_female source.
+ * the single_tone stop does not trigger. Three families are light
+ * (forehead L 60-75); the fourth is the remapped deep family (forehead L 17),
+ * built from the CC0 middleage_african_female source statistics.
  *
  * Numbers live in tone-report.json (instrument: tone-check.py); this file
  * re-derives the decision from those numbers with its own CIEDE2000 so a
@@ -161,7 +162,7 @@ describe("the nearest family wins over a flattening multiply", () => {
     expect(REPORT.falsifier.decision).toBe("multi_tone");
   });
 
-  it("families are recorded with sha + Lab triplets, darkest light first", () => {
+  it("families are recorded with sha + Lab triplets, darkest first", () => {
     for (const [id, fam] of Object.entries(REPORT.families)) {
       expect(fam.sha256, `${id}.sha256`).toMatch(/^[0-9a-f]{64}$/);
       for (const k of ["forehead", "lip", "ear"] as const) {
@@ -176,7 +177,7 @@ describe("the nearest family wins over a flattening multiply", () => {
         return al - bl;
       })
       .map(([id]) => id);
-    expect(byL).toEqual(["young", "old", "middle"]);
+    expect(byL).toEqual(["deep", "young", "old", "middle"]);
   });
 
   it("phenotype tone maps to the nearest family (re-derived, not quoted)", () => {

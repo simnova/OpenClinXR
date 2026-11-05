@@ -1337,6 +1337,71 @@
     "mirror_abs_L": 1.8573,
     "wall_s": 0.8
    }
+  },
+  {
+   "family": "deep",
+   "status": "remapped",
+   "source_id": "vitruvian_cc0_light_to_african_chroma_statistics_on_old_family",
+   "source_path": "Vitruvian-Project CC0-1.0 Face BaseColor Utility Linear sRGB + African Face BaseColor (store/vitruvian-src/4K) statistics via tools/openclinxr/asset-pipeline/skin/vitruvian_dark/chroma-table.json remapped onto skin-families/old/old-family-v2.png",
+   "source_sha256": "8c4e47034c58b8b81ac666a35fa46cd36f05dc2ce7f4fa3e43e43563e4c95846",
+   "source_licence": "CC0-1.0 explicit (Vitruvian-Project LICENSE at upstream commit c036e5376108dbbb340beb0a3f4ef8ac463e39)",
+   "family_path": "/Volumes/files/openclinxr-assets/store/skin-families/deep/deep-family.png",
+   "family_sha256": "28962dfd7b9441a2eec21d2c65d0f9d03163573e63c648d4d3fe06dbe0a3b169",
+   "island_box_atlas": [
+    1228,
+    307,
+    2027,
+    1843
+   ],
+   "method": "tools/openclinxr/asset-pipeline/skin/families/vitruvian_deep_family.py: (a) whole-family linear-RGB multiply k, (b) per-region dLab residuals in Lab with inward feather; full record in store/skin-families/deep/deep-manifest.json",
+   "k_rgb": [
+    0.090628,
+    0.067407,
+    0.069387
+   ],
+   "dLab_african_minus_predicted": {
+    "lip": [
+     6.305966,
+     -2.776074,
+     -3.493094
+    ],
+    "ear": [
+     4.579347,
+     1.330663,
+     -2.370715
+    ],
+    "nose": [
+     4.686309,
+     -0.050726,
+     -0.371731
+    ],
+    "forehead": [
+     -2.800172,
+     1.508395,
+     -0.387424
+    ]
+   },
+   "deep_manifest_sha256": "f00a89e29cc291f55560faaa925cd794ae47c6fdfca57fd3687c0563d10643df",
+   "leak": {
+    "label": "deep",
+    "atlas_sha256": "28962dfd7b9441a2eec21d2c65d0f9d03163573e63c648d4d3fe06dbe0a3b169",
+    "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2",
+    "s_sha256": "8bc57f72d9972d3da39ae3b56e341ec969348fb32b5227cd5f6b56c6d19f0cfb",
+    "r_S": -0.2773,
+    "r_normal_y": -0.0554,
+    "mirror_signed_L": 0.0087,
+    "mirror_abs_L": 1.4312,
+    "gate_vs_own_source_old_v2": "r_S -0.2773 vs -0.0163 FAIL on |r_S|; mirror_signed 0.0087 vs 0.0111 pass"
+   },
+   "leak_no_residual_control": {
+    "label": "deep-no-residual",
+    "atlas_sha256": "044f6985150a6dbeaa70c7d9cba38f1012cbe1f84cffdb4a3bdb81faa30f32ef",
+    "r_S": -0.0324,
+    "r_normal_y": 0.0211,
+    "mirror_signed_L": 0.0035,
+    "mirror_abs_L": 0.7583,
+    "note": "pure cheek multiply is leak-neutral (r_S -0.0324 ~= old -0.0163); the r_S rise comes from the introduced Vitruvian regional chroma, not baked studio light"
+   }
   }
  ]
 }

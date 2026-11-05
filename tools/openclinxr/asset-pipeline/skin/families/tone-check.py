@@ -37,6 +37,7 @@ FAMILIES = {
     "young": "skin-families/young/young-family-v3.png",
     "middle": "skin-families/middle/middle-family-v4.png",
     "old": "skin-families/old/old-family-v2.png",
+    "deep": "skin-families/deep/deep-family.png",
 }
 
 
@@ -152,16 +153,20 @@ def main() -> None:
         "tone_anchors_Lab": {
             "warm_light": [58.37, 9.05, 16.01],
             "warm_medium": [49.26, 13.89, 19.44],
+            "deep_warm": [20.22, 12.01, 12.66],
             "source": "tools/openclinxr/asset-pipeline/reference-set/manifest.json "
-                       "aisha goal_front facecore + body2 goal_front facecore",
+                       "aisha goal_front facecore + body2 goal_front facecore; "
+                       "deep_warm = Vitruvian African forehead Lab "
+                       "(tools/openclinxr/asset-pipeline/skin/vitruvian_dark/chroma-table.json african.forehead.lab_d65)",
         },
         "families": fams,
-        "lightness_order_dark_to_light_forehead_L": ["dark-33", "young-60", "old-68", "middle-75"],
+        "lightness_order_dark_to_light_forehead_L": ["deep-17", "dark-33", "young-60", "old-68", "middle-75"],
         "nearest": {
             "warm_light": "young",
             "warm_light_child": "young",
             "warm_medium": "young",
-            "method": "min dLab anchor vs family forehead mean; both anchors nearest the darkest light family",
+            "deep_warm": "deep",
+            "method": "min dLab anchor vs family forehead mean; light anchors nearest the darkest light family; deep_warm nearest deep (dLab 3.50 vs 40+ to any light family)",
         },
         "cap_rule": "per-chart Lab residual capped at the next family's forehead mean; "
                     "a residual uncapped past the next family's mean is a fail",

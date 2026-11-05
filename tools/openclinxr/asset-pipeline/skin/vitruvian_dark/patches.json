@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "source_resolution": [4096, 4096],
+  "box_format": "half-open [x0,y0,x1,y1] in source pixels; origin top-left",
+  "selection_basis": "Visual inspection of 1024 px scene-linear-to-sRGB previews of both Face BaseColor EXRs. Boxes avoid UV borders, eye/mouth openings, nostrils, strong pore clusters, visible veins, and sharp baked-color edges.",
+  "same_boxes_for_both_maps": true,
+  "regions": {
+    "forehead": [
+      {"id": "forehead_1", "box": [1760, 720, 1824, 784]},
+      {"id": "forehead_2", "box": [2016, 680, 2080, 744]},
+      {"id": "forehead_3", "box": [2272, 720, 2336, 784]}
+    ],
+    "cheek": [
+      {"id": "cheek_left_1", "box": [1040, 2000, 1104, 2064]},
+      {"id": "cheek_left_2", "box": [1200, 2160, 1264, 2224]},
+      {"id": "cheek_left_3", "box": [1340, 2000, 1404, 2064]},
+      {"id": "cheek_right_1", "box": [2752, 2000, 2816, 2064]},
+      {"id": "cheek_right_2", "box": [2896, 2160, 2960, 2224]},
+      {"id": "cheek_right_3", "box": [3040, 2000, 3104, 2064]}
+    ],
+    "lip": [
+      {"id": "lip_lower_left", "box": [1760, 2624, 1824, 2664]},
+      {"id": "lip_lower_center", "box": [2016, 2624, 2080, 2664]},
+      {"id": "lip_lower_right", "box": [2240, 2624, 2304, 2664]}
+    ],
+    "ear": [
+      {"id": "ear_left_helix", "box": [416, 1600, 464, 1664]},
+      {"id": "ear_left_midhelix", "box": [420, 1800, 468, 1864]},
+      {"id": "ear_left_lobe", "box": [480, 2000, 528, 2064]},
+      {"id": "ear_right_helix", "box": [3632, 1600, 3680, 1664]},
+      {"id": "ear_right_midhelix", "box": [3628, 1800, 3676, 1864]},
+      {"id": "ear_right_lobe", "box": [3568, 2000, 3616, 2064]}
+    ],
+    "nose": [
+      {"id": "nose_tip_left", "box": [1952, 2016, 1984, 2048]},
+      {"id": "nose_tip_center", "box": [2032, 1968, 2064, 2000]},
+      {"id": "nose_tip_right", "box": [2112, 2016, 2144, 2048]}
+    ]
+  }
+}
