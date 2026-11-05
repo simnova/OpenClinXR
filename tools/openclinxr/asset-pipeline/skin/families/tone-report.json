@@ -96,26 +96,26 @@
   },
   "deep": {
    "assets": "skin-families/deep/deep-family.png",
-   "sha256": "33c5f621228400f9394d53e987b84b2b3b05c9e747c7472c8b7d9c2b72f4f92d",
+   "sha256": "865db411b3f7ff7e9c41132859ac67fb4ebd582ca3e088cddd0c0fb88f6f9fac",
    "forehead": [
-    17.27,
-    13.15,
-    12.51
+    19.86,
+    11.7,
+    12.89
    ],
    "lip": [
-    20.04,
-    11.8,
-    9.46
+    18.56,
+    12.89,
+    8.05
    ],
    "ear": [
-    18.7,
-    15.36,
-    11.13
+    22.55,
+    13.66,
+    11.23
    ]
   }
  },
  "lightness_order_dark_to_light_forehead_L": [
-  "deep-17",
+  "deep-20",
   "young-63",
   "old-69",
   "middle-75"
@@ -125,7 +125,7 @@
   "warm_light_child": "young",
   "warm_medium": "young",
   "deep_warm": "deep",
-  "method": "min dLab anchor vs family forehead mean; light anchors nearest the darkest light family; deep_warm nearest deep (dLab 3.17 vs 42.65 to any light family)"
+  "method": "min dLab anchor vs family forehead mean; light anchors nearest the darkest light family; deep_warm nearest deep (dLab 0.53 vs 42.65 to any light family)"
  },
  "cap_rule": "per-chart Lab residual capped at the next family's forehead mean; a residual uncapped past the next family's mean is a fail",
  "multiply": {

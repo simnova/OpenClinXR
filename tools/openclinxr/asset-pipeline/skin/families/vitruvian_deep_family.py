@@ -70,12 +70,14 @@ def main() -> None:
     ap.add_argument("--preview", type=Path, default=None)
     ap.add_argument("--manifest", type=Path, default=None)
     ap.add_argument("--no-residual", action="store_true")
+    ap.add_argument("--method", choices=("transfer", "target"), default="target",
+                    help="transfer=r3 Vitruvian-relative residual (reproduces 33c5f621); target=African separation minus family-after-multiply separation (default)")
     a = ap.parse_args()
 
     chroma = json.loads(CHROMA.read_text())
     afr = {r: np.array(chroma["african"][r]["lab_d65"], float) for r in REGIONS + ("cheek",)}
     pred = {r: np.array(chroma["cheek_multiply"]["predicted"][r]["lab_d65"], float) for r in REGIONS + ("cheek",)}
-    dlab = {r: [round(float(v), 6) for v in (afr[r] - pred[r])] for r in REGIONS}
+    dlab_transfer = {r: [round(float(v), 6) for v in (afr[r] - pred[r])] for r in REGIONS}
 
     light_L = float(chroma["light"]["forehead"]["lab_d65"][0])
     trep = json.loads(TONE_REPORT.read_text())
@@ -97,7 +99,11 @@ def main() -> None:
     step_u8 = np.rint(np.clip(linear_to_srgb(step_lin), 0, 1) * 255).astype(np.uint8)
     if a.no_residual:
         out_u8 = step_u8
-    else:
+        dlab = {r: [0.0, 0.0, 0.0] for r in REGIONS}
+        target_terms: dict = {}
+    elif a.method == "transfer":
+        dlab = dlab_transfer
+        target_terms = {"note": "transfer reproduces r3 (Vitruvian-relative residual)"}
         lab = rgb_to_lab(step_u8).astype(np.float64)
         out_lab = lab.copy()
         for r in REGIONS:
@@ -109,6 +115,32 @@ def main() -> None:
         for r in REGIONS:
             union |= hard[r] > 0.5
         out_u8[~union] = step_u8[~union]
+    else:
+        lab_step = rgb_to_lab(step_u8).astype(np.float64)
+        means = {}
+        for r in ("lip", "ear", "nose", "forehead"):
+            m = hard[r] > 0.5
+            means[r] = lab_step[m].mean(axis=0)
+        african_sep = {r: afr[r] - afr["forehead"] for r in ("lip", "ear", "nose")}
+        family_mult_sep = {r: means[r] - means["forehead"] for r in ("lip", "ear", "nose")}
+        dlab = {r: [round(float(v), 6) for v in (african_sep[r] - family_mult_sep[r])]
+                for r in ("lip", "ear", "nose")}
+        target_terms = {
+            "african_sep_Lab": {r: [round(float(v), 6) for v in african_sep[r]] for r in ("lip", "ear", "nose")},
+            "family_after_multiply_sep_Lab": {r: [round(float(v), 6) for v in family_mult_sep[r]] for r in ("lip", "ear", "nose")},
+            "family_after_multiply_means_Lab": {r: [round(float(v), 6) for v in means[r]] for r in ("lip", "ear", "nose", "forehead")},
+            "forehead_reference": "no residual on forehead (it is the reference)",
+        }
+        out_lab = lab_step.copy()
+        for r in ("lip", "ear", "nose"):
+            w = sl.soft_inside(hard[r])[..., None]
+            out_lab += w * np.array(dlab[r], float)[None, None, :]
+        out_lab[..., 0] = np.clip(out_lab[..., 0], 0, 100)
+        out_u8 = lab_to_rgb(out_lab)
+        union = np.zeros(hard["lip"].shape, bool)
+        for r in ("lip", "ear", "nose"):
+            union |= hard[r] > 0.5
+        out_u8[~union] = step_u8[~union]
 
     a.out.parent.mkdir(parents=True, exist_ok=True)
     Image.fromarray(out_u8).save(a.out)
@@ -117,8 +149,9 @@ def main() -> None:
     Image.fromarray(out_u8).resize((1024, 1024), Image.Resampling.LANCZOS).save(a.preview)
     mask_files = ["mask-facecore.png", "mask-lips.png", "mask-ears-L.png", "mask-ears-R.png", "occupancy.png"]
     manifest = {
-        "version": 1,
+        "version": 2,
         "method": ["(a) linear-RGB whole-family multiply by k", "(b) per-region Lab residual dLab_r inside hard mask with inward feather"],
+        "residual_method": a.method if not a.no_residual else "none(no-residual)",
         "inputs": {"family": {"id": src_id, "rel": src_rel, "sha256": sha256_file(STORE / src_rel)},
                    "chroma_table": {"rel": str(CHROMA.relative_to(CHROMA.parents[5])), "sha256": sha256_file(CHROMA)}},
         "forehead_L_distances_to_vitruvian_light": dists,
@@ -126,7 +159,9 @@ def main() -> None:
         "k_rgb": [round(float(v), 6) for v in k],
         "african_cheek_linear_rgb": [round(float(v), 6) for v in afr_cheek],
         "family_cheek_linear_rgb": [round(float(v), 6) for v in fam_cheek],
-        "dLab_african_minus_predicted": dlab,
+        "dLab_african_minus_predicted": dlab_transfer,
+        "dLab_applied": dlab,
+        "target_terms": target_terms,
         "no_residual": bool(a.no_residual),
         "masks": {"derive_files": {n: sha256_file(sl.DERIVE / n) for n in mask_files},
                   "cheek_cols": list(sl.CHEEK_COLS), "cheek_rows": [list(sl.CHEEK_ROWS_SIDE1), list(sl.CHEEK_ROWS_SIDE2)],

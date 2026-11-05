@@ -42,6 +42,15 @@ const REPORT = JSON.parse(readFileSync(path.join(HERE, "tone-report.json"), "utf
 };
 
 const STORE = "/Volumes/files/openclinxr-assets/store";
+/** Vitruvian gate (tools/.../skin/vitruvian_dark/chroma-table.json): the
+ * instrument that now carries the add_family decision. */
+const CHROMA_PATH = path.join(HERE, "..", "vitruvian_dark", "chroma-table.json");
+const CHROMA = JSON.parse(readFileSync(CHROMA_PATH, "utf8")) as {
+  verdict: string;
+  separation_gate: {
+    lip: { b_star: { absolute_difference: number; two_x_african_patch_sd: number; exceeds: boolean } };
+  };
+};
 const storePresent = existsSync(STORE);
 
 /** A Lab triplet: exactly three channels, or a named throw. */
@@ -228,15 +237,43 @@ describe("the nearest family wins over a flattening multiply", () => {
     );
   });
 
-  it("the multiply flattens lip structure past the known-bad regional bound", () => {
-    // True dark lip sits b* -3.73 below its forehead; the multiplied light lip
-    // sits only -0.36 below: the lip-vs-skin separation is flattened, and the
-    // 3.37 miss exceeds the second-body known-bad per-channel bound of 3.
+  it("the corrected instrument records the MakeHuman flattening miss (strip 3.37 superseded)", () => {
+    // 3.37 was measured on the side-of-face strip (tone-check.py:112, fixed
+    // 6a0136acd); the forehead-disc instrument re-derives the miss from
+    // tone-report.json with no constant. If this breaks, restore the disc
+    // instrument (skin_layers.forehead_disc in tone-check.py means()) and the
+    // structure_lip_minus_forehead_b_sep fields in tone-report.json.
+    const m = REPORT.multiply;
     const miss = Math.abs(
-      REPORT.multiply.structure_lip_minus_forehead_b_sep.multiplied_light -
-        REPORT.multiply.structure_lip_minus_forehead_b_sep.untouched_dark,
+      (m.lip_lab.multiplied_light[2] as number) - (m.lip_lab.untouched_dark[2] as number),
     );
-    expect(miss).toBeGreaterThan(3);
+    const fromStructure = Math.abs(
+      m.structure_lip_minus_forehead_b_sep.multiplied_light -
+        m.structure_lip_minus_forehead_b_sep.untouched_dark,
+    );
+    expect(miss, "re-derived miss must equal tone-report structure difference").toBeCloseTo(
+      fromStructure,
+      1,
+    );
+    expect(
+      miss,
+      "restore the forehead-disc instrument: miss re-derived from tone-report.json lip_lab",
+    ).toBeGreaterThan(0);
+  });
+
+  it("the Vitruvian gate carries the add_family decision (lip margin above noise)", () => {
+    // If this breaks, restore chroma-table.json verdict "go" with lip b*
+    // margin (absolute_difference minus two_x_african_patch_sd) above 0, and
+    // keep the nearest-family decision at add_family / shipped_multiply false.
+    expect(CHROMA.verdict, 'restore vitruvian_dark/chroma-table.json verdict "go"').toBe("go");
+    const lipB = CHROMA.separation_gate.lip.b_star;
+    expect(lipB.exceeds, "restore lip b_star exceeds=true in chroma-table.json separation_gate").toBe(
+      true,
+    );
+    expect(
+      lipB.absolute_difference - lipB.two_x_african_patch_sd,
+      "restore lip b* margin above noise floor in chroma-table.json separation_gate",
+    ).toBeGreaterThan(0);
   });
 
   it("on fail the report says add_family and never ships the multiply", () => {
