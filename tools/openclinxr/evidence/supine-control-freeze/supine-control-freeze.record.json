@@ -6,7 +6,7 @@
     "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "c7def44bda87d5d115d53c794f546ec6bf1b5ae655865f00df4262cdf538e6ab",
     "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": "e8896ed8905266c54ec87191a50c48e73e755f9b887a527190b0ed7fba5bca27",
     "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "e5620a7c8ef8d41aebc4766b9a8375a9c6bf0106cacee268cdd34ea14b9020f3",
-    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "85d98d375c31bdfc55fd107dee48816870ee9da541e197e0e1eb45f255e2dadf",
+    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "1768552e0e19521a4f2df65317d4681d5f56a237f07a5b3b446b963d5b653510",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "9141538a76220c8431573ed185a24d5eb710429bca27f9844a8cee99c180d425",
     "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "e52a3e25f86d49bc76d2c32b46c3523b0871feda11d5a7f9fbc09e5c941c8be8"
@@ -17,15 +17,15 @@
     "clearanceAboveDeckMeters": 0.25
   },
   "producedFrom": {
-    "observedBy": "st-vitdark orchestrator 32930e (room-frames refresh ed_chest_pain_priority_v1: patient supine on the deck)",
-    "observedAtIso": "2026-11-05T02:26:33.423Z",
-    "reason": "st-vitdark r3 dark-family skin remap (post-export byte stage, skin baseColor only; geometry/BIN verbatim): family partner 9330184->9178752 B (fb37db5e->85d98d37); re-baselined through producer",
+    "observedBy": "st-vitdark orchestrator 42af06 (r9 remap; room-frames refresh 15 frames at cd3c08cb3)",
+    "observedAtIso": "2026-11-05T05:54:04.426583Z",
+    "reason": "st-vitdark r9 dark-tail soft floor in the post-export skin remap (skin baseColor only; geometry/BIN verbatim): family partner 9178752->9182184 B (85d98d37->1768552e); re-baselined through computeSupineControlFreeze. Prior: st-vitdark r3 dark-family skin remap (post-export byte stage, skin baseColor only; geometry/BIN verbatim): family partner 9330184->9178752 B (fb37db5e->85d98d37); re-baselined through producer",
     "byteCountByPath": {
       "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9221980,
       "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9308164,
       "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": 9000208,
       "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 6763692,
-      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 9178752,
+      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 9182184,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 8775848,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 9293412,
       "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 16074580

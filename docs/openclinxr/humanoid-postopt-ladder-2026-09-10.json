@@ -46,7 +46,7 @@
   {
    "body": "mpfb-family-partner-adult.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 9178752,
+   "bytesAfter": 9182184,
    "bytesBefore": 10409540,
    "chosenRungId": "raw",
    "faceAfter": 14945,
@@ -77,7 +77,7 @@
     "bake-humanoid-albedo.ts bakeGlbAlbedo"
    ],
    "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
-   "remeasureNote": "Re-measured 2026-11-04 (st-vitdark r3): render-defect correction changed only the skin BaseColor payload; geometry counts hold (asserted by the unchanged non-skin bufferView hashes), 9178416 -> 9178752 B. Prior r2 remap changed 9330184 -> 9178416 B. Prior st-viteye r3 re-measure: commit 931343e6b swapped the Vitruvian iris/sclera image, 9277296 -> 9330184 B. Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-05 (st-vitdark r9): dark-tail soft floor in the skin BaseColor remap only; geometry counts hold (asserted by main()), 9178752 -> 9182184 B. Prior r3 render-defect correction 9178416 -> 9178752 B; r2 remap 9330184 -> 9178416 B. Prior st-viteye r3 re-measure: commit 931343e6b swapped the Vitruvian iris/sclera image, 9277296 -> 9330184 B. Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
