@@ -144,6 +144,8 @@ export interface ConversationTraceEvent {
   eventId?: string; tag?: string;
   /** C27 free-text match kind for "utterance-end" events; undefined otherwise. Never text. */
   match?: "exact" | "phrase" | "fallback";
+  /** C29, utterance-end only; confidence 0..1 rounded to 2 dp, speech only; never text. */
+  modality?: "typed" | "speech"; confidence?: number;
 }
 
 /** One server-driven actor turn, recomputed from events alone. */
@@ -388,6 +390,14 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
     const match = (event as { match?: unknown }).match;
     if (match === "exact" || match === "phrase" || match === "fallback") {
       out.match = match;
+    }
+    const modality = (event as { modality?: unknown }).modality;
+    if (modality === "typed" || modality === "speech") {
+      out.modality = modality;
+    }
+    const confidence = (event as { confidence?: unknown }).confidence;
+    if (typeof confidence === "number" && Number.isFinite(confidence) && confidence >= 0 && confidence <= 1) {
+      out.confidence = confidence;
     }
     return out;
   });

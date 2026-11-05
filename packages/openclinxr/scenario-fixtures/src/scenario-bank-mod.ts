@@ -92,14 +92,14 @@ export function findScenarioFixtureById(
 export type ScenarioDialogueSeedBankEntry = {
   scenarioId: string;
   seeds: readonly DialogueFixtureSeed[];
-  utteranceFallback?: { line: string };
+  utteranceFallback?: { line: string; minSpeechConfidence?: number };
 };
 
 export const scenarioDialogueSeedBank = [
   {
     scenarioId: edChestPainScenario.scenarioId,
     seeds: edChestPainDialogueSeeds,
-    utteranceFallback: { line: "Sorry, I did not catch that. Can you ask me another way?" },
+    utteranceFallback: { line: "Sorry, I did not catch that. Can you ask me another way?", minSpeechConfidence: 0.5 },
   },
   { scenarioId: pediatricAsthmaScenario.scenarioId, seeds: pediatricAsthmaDialogueSeeds },
   { scenarioId: wardDeliriumScenario.scenarioId, seeds: wardDeliriumDialogueSeeds },
@@ -117,6 +117,6 @@ export const scenarioDialogueSeedBank = [
   {
     scenarioId: clinicKneePainScenario.scenarioId,
     seeds: clinicKneePainDialogueSeeds,
-    utteranceFallback: { line: "Sorry, I did not follow that. Can you ask it another way?" },
+    utteranceFallback: { line: "Sorry, I did not follow that. Can you ask it another way?", minSpeechConfidence: 0.5 },
   },
 ] as const satisfies readonly ScenarioDialogueSeedBankEntry[];

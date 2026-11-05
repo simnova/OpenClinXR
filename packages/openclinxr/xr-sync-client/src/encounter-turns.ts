@@ -79,11 +79,19 @@ export interface SentUtterance {
   statuses: string[];
 }
 
+/** One learner speech utterance sent as intents; statuses hold the result of each intent actually sent. Never the text. */
+export interface SentSpeech {
+  actorId: string;
+  chars: number;
+  confidence: number;
+  statuses: string[];
+}
+
 /** Send intent steps in order, stopping at the first non-ack; never throws. */
 async function sendIntentSteps(
   sendIntent: SyncConnection["sendIntent"],
   statuses: string[],
-  steps: Array<[IntentKind, Record<string, string>]>,
+  steps: Array<[IntentKind, Record<string, string | number>]>,
 ): Promise<void> {
   for (const [kind, payload] of steps) {
     try {
@@ -129,6 +137,23 @@ async function sendUtteranceIntents(
   await sendIntentSteps(sendIntent, entry.statuses, [["select-actor", { actorId }], ["utterance-start", {}], ["utterance-end", { text: trimmed }]]);
 }
 
+/** C29: a recognized speech utterance as select-actor, utterance-start, utterance-end{text, modality, confidence}. Never throws. */
+export async function sendSpeechIntents(
+  sendIntent: SyncConnection["sendIntent"],
+  log: SentSpeech[],
+  actorId: string | undefined,
+  text: string,
+  confidence: number,
+): Promise<void> {
+  if (actorId === undefined || actorId === "") return;
+  const trimmed = text.trim();
+  if (trimmed === "" || trimmed.length > 500) return;
+  if (typeof confidence !== "number" || !Number.isFinite(confidence) || confidence < 0 || confidence > 1) return;
+  const entry: SentSpeech = { actorId, chars: trimmed.length, confidence, statuses: [] };
+  log.push(entry);
+  await sendIntentSteps(sendIntent, entry.statuses, [["select-actor", { actorId }], ["utterance-start", {}], ["utterance-end", { text: trimmed, modality: "speech", confidence }]]);
+}
+
 export interface EncounterSyncHandle {
   readonly sessionId: string;
   /** Learner trace-action sends, in order. */
@@ -137,6 +162,9 @@ export interface EncounterSyncHandle {
   /** C27 learner free-text sends, in order (lengths and statuses, never text). */
   readonly utterances: readonly SentUtterance[];
   sendUtterance(actorId: string | undefined, text: string): Promise<void>;
+  /** C29 learner speech sends, in order (lengths, confidence and statuses, never text). */
+  readonly speechUtterances: readonly SentSpeech[];
+  sendSpeech(actorId: string | undefined, text: string, confidence: number): Promise<void>;
   /** Every turn forwarded to onTurn, in order. */
   readonly turns: readonly SyncedActorTurn[];
   sendIntent: SyncConnection["sendIntent"];
@@ -164,6 +192,7 @@ export async function joinEncounterRoom(options: JoinEncounterRoomOptions): Prom
   });
   const intents: SentTraceAction[] = [];
   const utterances: SentUtterance[] = [];
+  const speechUtterances: SentSpeech[] = [];
   let queue: Promise<void> = Promise.resolve();
   return {
     sessionId: connection.sessionId,
@@ -173,6 +202,8 @@ export async function joinEncounterRoom(options: JoinEncounterRoomOptions): Prom
     utterances,
     // Same queue as trace actions: text waits for the open action's three intents and vice versa.
     sendUtterance: (actorId, text) => (queue = queue.then(() => sendUtteranceIntents((kind, payload) => connection.sendIntent(kind, payload), utterances, actorId, text))),
+    speechUtterances,
+    sendSpeech: (actorId, text, confidence) => (queue = queue.then(() => sendSpeechIntents((kind, payload) => connection.sendIntent(kind, payload), speechUtterances, actorId, text, confidence))),
     turns,
     sendIntent: (kind: IntentKind, payload) => connection.sendIntent(kind, payload),
     leave: () => connection.leave(),
@@ -205,6 +236,9 @@ export interface EncounterSyncEvidence {
   /** C27: learner free-text sends, with text lengths and per-intent statuses (never the text). */
   utterances?: readonly SentUtterance[];
   sendUtterance?: EncounterSyncHandle["sendUtterance"];
+  /** C29: learner speech sends, with text lengths, confidence and per-intent statuses (never the text). */
+  speechUtterances?: readonly SentSpeech[];
+  sendSpeech?: EncounterSyncHandle["sendSpeech"];
   /** C28: the actor the learner's view names right now (the first thing the typed-text box addresses). */
   gazedActorId?: () => string | undefined;
 }
@@ -274,8 +308,24 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     evidence.sendTraceAction = handle.sendTraceAction;
     evidence.utterances = handle.utterances;
     evidence.sendUtterance = handle.sendUtterance;
+    evidence.speechUtterances = handle.speechUtterances;
+    evidence.sendSpeech = (actorId, text, confidence) => handle.sendSpeech(actorId, text, confidence);
     evidence.gazedActorId = gazedNow;
     if (deps.utteranceBox !== undefined) {
+      const caption = deps.utteranceBox.doc.createElement("div");
+      caption.id = "learner-caption";
+      caption.textContent = "";
+      deps.utteranceBox.parent.appendChild(caption);
+      const setCaption = (text: string, confidence?: number): void => {
+        caption.textContent = confidence !== undefined ? `You said (${confidence.toFixed(2)}): ${text.trim()}` : `You said: ${text.trim()}`;
+      };
+      evidence.sendSpeech = (actorId, text, confidence) => {
+        const trimmed = text.trim();
+        if (actorId !== undefined && actorId !== "" && trimmed !== "" && trimmed.length <= 500 && typeof confidence === "number" && Number.isFinite(confidence) && confidence >= 0 && confidence <= 1) {
+          setCaption(text, confidence);
+        }
+        return handle.sendSpeech(actorId, text, confidence);
+      };
       const input = deps.utteranceBox.doc.createElement("input");
       input.id = "utterance-input";
       input.type = "text";
@@ -287,10 +337,12 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
       deps.utteranceBox.parent.appendChild(button);
       const submit = (): void => {
         const text = input.value ?? "";
-        if (text.trim() === "") return;
+        if (text.trim() === "" || text.trim().length > 500) return;
         input.value = "";
         const actorId = pickAddressedActor({ actorIds: deps.actorIds(), gazedActorId: gazedNow(), lastSpokeActorId, lastAddressedActorId });
+        if (actorId === undefined || actorId === "") return;
         lastAddressedActorId = actorId;
+        setCaption(text);
         void handle.sendUtterance(actorId, text);
       };
       button.addEventListener("click", submit);

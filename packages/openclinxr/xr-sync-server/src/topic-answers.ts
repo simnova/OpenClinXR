@@ -20,10 +20,14 @@ export interface TopicAnswer {
 /** Scenario-authored fallback line for unmatched free text (live-room-only). */
 export interface UtteranceFallback {
   line: string;
+  minSpeechConfidence: number;
 }
 
 /** Trace tag recorded for free text that matched no authored phrase; no authored answer may carry it. */
 export const UNMATCHED_TOPIC_TAG = "utterance_unmatched";
+
+/** Trace tag recorded when speech confidence falls below the authored threshold; reserved like UNMATCHED_TOPIC_TAG. */
+export const SPEECH_LOW_CONFIDENCE_TAG = "speech_low_confidence";
 
 /**
  * Normalize learner text or an authored phrase: NFKC, case fold (upper then lower, so ss/SS and sigma forms meet),
@@ -86,7 +90,15 @@ export function applyDialogueSeeds<C extends SeedableCast>(casts: C[], value: un
       if (!isRecord(rawFallback) || typeof rawFallback["line"] !== "string" || (rawFallback["line"] as string).trim() === "") {
         throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}].utteranceFallback must carry a non-empty line`);
       }
-      fallbackByScenario.set(scenarioId, { line: rawFallback["line"] as string });
+      const rawMin = rawFallback["minSpeechConfidence"];
+      let minSpeechConfidence = 0;
+      if (rawMin !== undefined) {
+        if (typeof rawMin !== "number" || !Number.isFinite(rawMin) || rawMin < 0 || rawMin > 1) {
+          throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}].utteranceFallback.minSpeechConfidence must be a number in [0,1]`);
+        }
+        minSpeechConfidence = rawMin;
+      }
+      fallbackByScenario.set(scenarioId, { line: rawFallback["line"] as string, minSpeechConfidence });
     }
     const answers = answersByScenario.get(scenarioId) ?? [];
     const seenSeedIds = seedIdsByScenario.get(scenarioId) ?? new Set<string>();
@@ -115,6 +127,9 @@ export function applyDialogueSeeds<C extends SeedableCast>(casts: C[], value: un
       }
       if ((tags as string[]).includes(UNMATCHED_TOPIC_TAG)) {
         throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}].seeds[${seedIndex}] uses the reserved tag ${UNMATCHED_TOPIC_TAG}`);
+      }
+      if ((tags as string[]).includes(SPEECH_LOW_CONFIDENCE_TAG)) {
+        throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}].seeds[${seedIndex}] uses the reserved tag ${SPEECH_LOW_CONFIDENCE_TAG}`);
       }
       if (seenSeedIds.has(seedId)) {
         throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}] repeats seedId ${seedId.slice(0, 64)}`);

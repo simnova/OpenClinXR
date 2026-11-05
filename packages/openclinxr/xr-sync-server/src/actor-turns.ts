@@ -15,10 +15,10 @@ import { CAST_OPENING_CUE_ID, openingCaption, type CastVoiceActor } from "./scen
 import type { LearnerStateInstance } from "./schema.js";
 import type { TurnRecord } from "./room-types.js";
 import { validateTopicTag } from "./topic-menu.js";
-import { matchUtterance, pickTopicAnswer, UNMATCHED_TOPIC_TAG, type TopicAnswer } from "./topic-answers.js";
+import { matchUtterance, pickTopicAnswer, SPEECH_LOW_CONFIDENCE_TAG, UNMATCHED_TOPIC_TAG, type TopicAnswer } from "./topic-answers.js";
 
 /** Trace tag recorded when free text matches no authored phrase. */
-export { UNMATCHED_TOPIC_TAG };
+export { SPEECH_LOW_CONFIDENCE_TAG, UNMATCHED_TOPIC_TAG };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -64,6 +64,8 @@ export interface ActorTurnBindings {
   topicAnswers?: readonly TopicAnswer[] | null;
   /** C27 scenario-authored fallback line for unmatched free text. */
   utteranceFallbackLine?: string | null;
+  /** C29 authored minimum speech confidence gating the fallback (0 when unauthored). */
+  utteranceFallbackMinConfidence?: number;
   turnOpenedAtMs: Map<number, number>;
   getOpenTurn(): { turnId: number; actorId: string; timer: { clear(): void } } | null;
   setOpenTurn(turn: { turnId: number; actorId: string; timer: { clear(): void } } | null): void;
@@ -166,9 +168,35 @@ export function applyUtteranceIntent(
     bindings.reject(client, seq, "bad-utterance-payload");
     return false;
   }
+  const modality = isRecord(payload) ? payload["modality"] : undefined;
+  const confidence = isRecord(payload) ? payload["confidence"] : undefined;
+  if (modality !== undefined && modality !== "typed" && modality !== "speech") {
+    bindings.reject(client, seq, "bad-utterance-payload");
+    return false;
+  }
+  if (modality === "speech") {
+    if (rawText === undefined) {
+      bindings.reject(client, seq, "bad-utterance-payload");
+      return false;
+    }
+    if (isRecord(payload) && payload["topicTag"] !== undefined) {
+      bindings.reject(client, seq, "bad-utterance-payload");
+      return false;
+    }
+    if (typeof confidence !== "number" || !Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
+      bindings.reject(client, seq, "bad-utterance-payload");
+      return false;
+    }
+  } else if (confidence !== undefined) {
+    bindings.reject(client, seq, "bad-utterance-payload");
+    return false;
+  }
   let resolvedTag = topic.tag;
   let matchKind: "exact" | "phrase" | "fallback" | undefined;
-  if (topic.tag === undefined && bindings.topicMenu != null && typeof rawText === "string") {
+  if (modality === "speech" && bindings.topicMenu != null && (confidence as number) < (bindings.utteranceFallbackMinConfidence ?? 0)) {
+    matchKind = "fallback";
+    resolvedTag = SPEECH_LOW_CONFIDENCE_TAG;
+  } else if (topic.tag === undefined && bindings.topicMenu != null && typeof rawText === "string") {
     const matched = matchUtterance(rawText, bindings.topicAnswers, actorId ?? "", bindings.topicMenu);
     matchKind = matched.kind;
     resolvedTag = matched.kind === "fallback" ? UNMATCHED_TOPIC_TAG : matched.tag;
@@ -219,7 +247,7 @@ export function applyUtteranceIntent(
         : "";
   const acknowledgement: EmotionEventKind = "learner_acknowledgement";
   actor.emotion = bindings.tracer.transition(actorId, acknowledgement, turnId, answer?.affect).to;
-  bindings.tracer.push({ seq, kind: "utterance-end", actorId, turnId, ...(resolvedTag === undefined ? {} : { tag: resolvedTag }), ...(matchKind === undefined ? {} : { match: matchKind }) });
+  bindings.tracer.push({ seq, kind: "utterance-end", actorId, turnId, ...(resolvedTag === undefined ? {} : { tag: resolvedTag }), ...(matchKind === undefined ? {} : { match: matchKind }), modality: modality === "speech" ? "speech" : "typed", ...(modality === "speech" ? { confidence: Math.round((confidence as number) * 100) / 100 } : {}) });
   bindings.setTurnOwner("actor");
   const record: TurnRecord = { turnId, actorId, replyId, startSeq: seq, end: "open", endSeq: null };
   bindings.turnLog.push(record);

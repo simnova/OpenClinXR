@@ -32,6 +32,7 @@
     "src/client-connect.test.ts",
     "src/encounter-addressed-actor.test.ts",
     "src/encounter-free-text.test.ts",
+    "src/encounter-speech.test.ts",
     "src/encounter-trace-intents.test.ts",
     "src/encounter-turns.test.ts"
   ],

@@ -115,6 +115,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   private topicAnswers: TopicAnswer[] = [];
   /** C27 scenario-authored fallback line for unmatched free text (null when none). */
   private utteranceFallbackLine: string | null = null;
+  private utteranceFallbackMinConfidence = 0;
   /**
    * C19 scenario schedule driver for this room's station (timers on the room
    * clock; null off a cast station). Started at encounter start, cleared at
@@ -187,11 +188,12 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       this.castVoice = new Map(cast.castActors.map((entry) => [entry.actorId, entry]));
       this.topicAnswers = cast.topicAnswers;
       this.utteranceFallbackLine = cast.utteranceFallback?.line ?? null;
+      this.utteranceFallbackMinConfidence = cast.utteranceFallback?.minSpeechConfidence ?? 0;
       const policy = stationEmotionPolicy(cast);
       this.tracer.setStationCast({ scenarioId: cast.scenarioId, actors: [...cast.actorIds], baseline: policy.baseline as string, emotionPolicy: policy, topicAnswers: cast.topicAnswers.map(({ actorId, topicTags, replyId, affect }) => ({ actorId, topicTags: [...topicTags], replyId, ...(affect === undefined ? {} : { affect }) })) });
     } else {
       populateActorRoster(this.state.actors, options);
-      this.utteranceFallbackLine = null;
+      this.utteranceFallbackLine = null; this.utteranceFallbackMinConfidence = 0;
       this.tracer.setStationCast(null);
     }
     this.state.learners = new MapSchema<LearnerStateInstance>();
@@ -485,6 +487,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         topicMenu: this.castVoice === null ? null : [...this.state.topicMenu],
         topicAnswers: this.topicAnswers,
         utteranceFallbackLine: this.utteranceFallbackLine,
+        utteranceFallbackMinConfidence: this.utteranceFallbackMinConfidence,
       },
       client,
       learner,

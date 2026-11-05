@@ -9,7 +9,8 @@
       "IntentMessage",
       "RejectMessage",
       "TopicAffect",
-      "createEncounterServer"
+      "createEncounterServer",
+      "replayConversationTrace"
     ]
   }
 }

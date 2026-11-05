@@ -162,6 +162,11 @@
         "name": "TopicAffect",
         "kind": "type",
         "via": "own-test"
+      },
+      {
+        "name": "replayConversationTrace",
+        "kind": "runtime",
+        "via": "own-test"
       }
     ]
   }
