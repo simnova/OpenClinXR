@@ -1967,11 +1967,14 @@ DERMAL_RAMP_PEAK = 1.0
 # st-vitfacet r7: per-actor dermal seed. D1: the r3 F1 recipe is fully
 # deterministic with no per-actor term, so actors sharing a body/UV baked
 # byte-identical normal maps (nurse == physician 4ed93dad; gown-inspect ==
-# viseme-inspect 74cf1419), failing cast-readiness clause (2). DERMAL_SEED is
-# env-overridable; when unset each actor's producer default is
-# _dermal_seed_for_stem(output stem) — never the reference id (nurse and
-# physician share reference ed_chest_pain_nurse_adult). Unset-and-unassigned
-# (0.0) is the legacy field position, byte-preserving for non-seeded runs.
+# viseme-inspect 74cf1419), failing cast-readiness clause (2).
+# st-vitfacet r7b: the stem seed is the TRACKED default. Seed precedence:
+# explicit override (--dermal-seed CLI, else DERMAL_SEED env at import) wins;
+# otherwise _dermal_seed_for_stem(output stem) — never the reference id (nurse
+# and physician share reference ed_chest_pain_nurse_adult). 0.0 survives ONLY
+# when no stem is available and no override is given (legacy field position,
+# byte-preserving for non-seeded runs); that case is visible as seed0-nostem
+# in the rebake recipe string.
 DERMAL_SEED = os.environ.get("DERMAL_SEED")
 
 
@@ -1981,11 +1984,14 @@ def _dermal_seed_for_stem(stem):
     return (int(hashlib.sha256(stem.encode("utf-8")).hexdigest()[:8], 16) / 4294967295.0) * 100.0
 
 
-def _resolve_dermal_seed():
-    """Effective dermal seed: DERMAL_SEED (env at import or producer post-import
-    assignment, g3revert pattern) else 0.0 legacy no-offset."""
+def _resolve_dermal_seed(stem=None):
+    """Effective dermal seed: explicit override (--dermal-seed CLI, else
+    DERMAL_SEED env at import) else the stem default
+    _dermal_seed_for_stem(stem) else 0.0 legacy no-offset (stem unavailable)."""
     if DERMAL_SEED not in (None, ""):
         return float(DERMAL_SEED)
+    if stem not in (None, ""):
+        return _dermal_seed_for_stem(stem)
     return 0.0
 
 
@@ -2000,7 +2006,7 @@ def _walk_group_instances(nt, out=None):
     return out
 
 
-def configure_skin_normal_detail(skin_mat, human, resolution=1024):
+def configure_skin_normal_detail(skin_mat, human, resolution=1024, stem=None):
     """#369 — make the SHIPPED enhanced_skin dermal pore channel bake real detail.
 
     The dermal channel's Voronoi scale chain is dead on this install (its
@@ -2035,7 +2041,7 @@ def configure_skin_normal_detail(skin_mat, human, resolution=1024):
     other_inputs = 0
     voronoi_forced = 0
     voronoi_seeded = 0
-    seed = _resolve_dermal_seed()
+    seed = _resolve_dermal_seed(stem)
     for g in _walk_group_instances(skin_mat.node_tree):
         tree_name = g.node_tree.name if g.node_tree else "?"
         for inp in g.inputs:
@@ -2110,7 +2116,7 @@ def configure_skin_normal_detail(skin_mat, human, resolution=1024):
     return report
 
 
-def bake_skin_normal_to_texture(human, skin_material_name, out_png_path, resolution=1024):
+def bake_skin_normal_to_texture(human, skin_material_name, out_png_path, resolution=1024, stem=None):
     """#370 — bake the SHIPPED enhanced_skin shader's perturbed surface normal
     (procedural pores + any normal-map texture) to a glTF normalTexture.
 
@@ -2140,7 +2146,7 @@ def bake_skin_normal_to_texture(human, skin_material_name, out_png_path, resolut
     if skin_idx is None:
         raise RuntimeError(f"#370: skin material {skin_material_name} not found for normal bake")
     skin_mat = human.data.materials[skin_idx]
-    configure_skin_normal_detail(skin_mat, human, resolution=resolution)
+    configure_skin_normal_detail(skin_mat, human, resolution=resolution, stem=stem)
 
     scene = bpy.context.scene
     prev_engine = scene.render.engine
@@ -2394,6 +2400,17 @@ def parse_args():
             "shipped textures byte-stable; metal enables the METAL Cycles device "
             "and bakes on GPU (falls back to CPU on any Metal failure). Named "
             "--bake-device because --cycles-device is Blender-native."
+        ),
+    )
+    parser.add_argument(
+        "--dermal-seed",
+        type=float,
+        default=None,
+        help=(
+            "st-vitfacet r7b: explicit per-actor dermal seed override. "
+            "Wins over the tracked stem default "
+            "(_dermal_seed_for_stem(output stem)). Omit (and leave DERMAL_SEED "
+            "env unset) to bake with the stem default."
         ),
     )
     parser.add_argument(
@@ -6110,6 +6127,13 @@ def main():
         _factory_skin_recipe().assert_reserved_attempt(_skin_job, _skin_attempt)
     global _BAKE_DEVICE
     _BAKE_DEVICE = args.bake_device
+    # st-vitfacet r7b: explicit CLI override for the dermal seed. Env
+    # (DERMAL_SEED at import) already sits in the global; the stem default is
+    # resolved per-call from pathlib.Path(args.output).stem at the bake site,
+    # never assigned here so the env/CLI-read exception in G1 stays exact.
+    global DERMAL_SEED
+    if getattr(args, "dermal_seed", None) is not None:
+        DERMAL_SEED = str(args.dermal_seed)
     if args.print_bake_device:
         print(f"BAKE_DEVICE={_resolve_cycles_bake_device()}")
         return
@@ -9651,7 +9675,8 @@ def main():
         # rebuild then re-wires the baked image as the glTF normalTexture.
         normal_png = output.parent / f"{output.stem}.skin-normal.png"
         baked_normal_img = bake_skin_normal_to_texture(
-            human, skin_material_name, str(normal_png), resolution=1024
+            human, skin_material_name, str(normal_png), resolution=1024,
+            stem=pathlib.Path(args.output).stem,
         )
 
     # #359 — the texture-mask hairline route (#341 rounds 10-16) is REMOVED. The #358 head-framed
