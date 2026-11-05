@@ -75,7 +75,7 @@ def commit_oneline(sha):
 # tris/face/joints/hand hold at their pinned values (asserted per row).
 PLAN = {
     # --- st-vitfacet r6 (2026-11-05): skin normalTexture re-bake (F1 dermal
-    # recipe, strength 0.8 default; superseding commit a009fa4a7) re-packed six
+    # recipe, strength 0.8 default; superseding commit d5496bf5b) re-packed six
     # GLB image chunks. Texture bytes only: tris/face/hand/joints hold at their
     # pinned values (asserted live per row by main()).
     "mpfb-clinical-nurse-adult.glb": {
@@ -84,10 +84,10 @@ PLAN = {
         "faceAfter": 10779,
         "faceBefore": 10779,
         "handBodyMeshAfter": 12833,
-        "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit a009fa4a7. Prior re-measure (st-vitfacet r6) preserved below. "
+        "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
                  "Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, "
                  "bytes-only drift, geometry counts hold (tris 38958 / face 10779 / hand 12833 / "
-                 "joints 137 hold, 8775848 -> 8725404 B). Superseding commit a009fa4a7."),
+                 "joints 137 hold, 8775848 -> 8725404 B). Superseding commit d5496bf5b."),
     },
     # --- st-palette (2026-11-04): sRGB palette fold. Physician is bytes-only
     # (texture refold); face/hand/joints hold. Asserted live.
@@ -97,10 +97,10 @@ PLAN = {
         "triangleCountAfter": 41718,
         "faceAfter": 10130,
         "handBodyMeshAfter": 12890,
-        "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit a009fa4a7. Prior re-measure (st-vitfacet r6) preserved below. "
+        "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
                  "Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, "
                  "bytes-only drift (tris 41718 / face 10130 / hand 12890 / joints 137 hold, "
-                 "9293412 -> 9238432 B). Superseding commit a009fa4a7 (re-bake the six "
+                 "9293412 -> 9238432 B). Superseding commit d5496bf5b (re-bake the six "
                  "faceted skin normals at the F1 dermal recipe). "
                  "Prior re-measure (st-palette 3969ae031 sRGB palette fold) preserved in "
                  "git history."),
@@ -124,10 +124,10 @@ PLAN = {
         "bytesAfter": 14021388,
         "triangleCountAfter": 69067,
         "faceAfter": 52778,
-        "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit a009fa4a7. Prior re-measure (st-vitfacet r6) preserved below. "
+        "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
                  "Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, "
                  "bytes-only drift, geometry counts identical (tris 69067 / face 52778 / "
-                 "joints 137 all hold, 13976324 -> 13939760 B). Superseding commit a009fa4a7. "
+                 "joints 137 all hold, 13976324 -> 13939760 B). Superseding commit d5496bf5b. "
                  "Prior re-measure (st-hemfin D2 e35ee741a hem-finish splice) preserved in "
                  "git history."),
     },
@@ -172,10 +172,10 @@ PLAN = {
     "mpfb-peds-nurse-kevin.glb": {
         "bytesAfter": 16105284,
         "triangleCountAfter": 98102,
-        "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit a009fa4a7. Prior re-measure (st-vitfacet r6) preserved below. "
+        "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
                  "Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, "
                  "bytes-only drift, geometry counts hold (tris 98102 / face 46160 / joints 137 hold, "
-                 "16074580 -> 16026048 B; asserted by main()). Superseding commit a009fa4a7. "
+                 "16074580 -> 16026048 B; asserted by main()). Superseding commit d5496bf5b. "
                  "Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 15966652 -> 16074580 B). "
                  "Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). "
                  "Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants "
@@ -269,10 +269,10 @@ PLAN = {
                     "output it recorded matches no shipped bytes since the rebake"),
             },
             "outputSha256": "645db112d4b4e298d71eec7a185ce955d8037bbccdc7170b34eea217a2bf2c32",
-            "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit a009fa4a7. Prior re-measure (st-vitfacet r6) preserved below. "
+            "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
                 "Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, "
                 "bytes-only drift (tris 72633 / face 52778 / joints 137 hold, 8061124 -> "
-                "8142588 B; sha tracks the live GLB). Superseding commit a009fa4a7. "
+                "8142588 B; sha tracks the live GLB). Superseding commit d5496bf5b. "
                 "Prior round-5 detail (rings fit on section centroids + 5-tap loft smoothing with per-ring re-enclosure, seal lips 16->21, "
                 "gussets 48->57, patches 32->38; "
                 "garment-surface-derived 0.822->0.966, slits stay 0/0, neckline stays 1.3834/1.385 scoop; meshes/nodes/joints hold "
@@ -294,10 +294,10 @@ PLAN = {
                      "so no rung was promoted and the live GLB stayed on the Sep11 rung bytes until the Nov03 rebake 9542f47b8 re-based it on the new gown shell (undecimated: raw 72882 tris already inside the 80000 preferred budget; the fp-r0.15 re-run breaks the drape counterweight, see the HB-05 row). The sibling mpfb-gown-adult-patient.glb export covers the same gown subject at 64140 tris inside budget."),
                 ],
             },
-            "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit a009fa4a7. Prior re-measure (st-vitfacet r6) preserved below. "
+            "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
                 "Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, "
                 "bytes-only drift (tris 72633 / face 52778 / hand 10705 / joints 137 hold, 8061124 -> "
-                "8142588 B). Superseding commit a009fa4a7. "
+                "8142588 B). Superseding commit d5496bf5b. "
                 "Prior re-measure (st-gowninsp round 5): after-values track the round-5 centred-cage "
                 "rebake (rings on section centroids, garment-surface-derived 0.822->0.950, slits stay 0/0, neckline stays 1.3834; meshes/nodes/joints hold "
                 "10/149/137) and the chest-anchor restore (shipped bytes 8,164,444->8,126,204, superseding the round-4 pin at a7c4d0294); before-values stay the "
