@@ -148,7 +148,11 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // st-viteye r2 re-pinned 2026-11-04: Vitruvian eye swap (post-export byte
   // stage, iris-disc resample into eye UV; size 15966652 -> 16074580);
   // was 5df99085c51be1e809a94ca6c245f26bd8278aa886f9eed954cbe81db91049ef.
-  "mpfb-peds-nurse-kevin": "e52a3e25f86d49bc76d2c32b46c3523b0871feda11d5a7f9fbc09e5c941c8be8",
+  // st-vitfacet r6 re-pinned 2026-11-05: skin normalTexture re-bake (F1 dermal recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
+  // 16026048 B live; was e52a3e25f86d….
+  // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
+  // 16105284 B live; was 60985034fddf….
+  "mpfb-peds-nurse-kevin": "fca9a98f7e81c74fa6a17b5d234e4694bc6f153153461a4c64924123c053b1be",
   // #502 re-pinned 2026-08-21: the clinician footwear leopard "Shoe" texture was stripped to
   // the flat dark factor (gown-patient precedent); the viseme morph targets and every other
   // buffer are untouched.
@@ -160,7 +164,11 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // 4f0a8c1d2e00e77da939c7b6ab0b982fc2efee8167d86bd47987dbd22d5426a9.
   // st-weld re-pinned 2026-11-03: garment topology weld (post-export byte stage, not a rebake;
   // bytes hold at 8775848); was 3241acc683c3c17cadabe13e2437f46fb77df641fb8764e2c4a27d1ebb2657fb.
-  "mpfb-clinical-nurse-adult": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c",
+  // st-vitfacet r6 re-pinned 2026-11-05: skin normalTexture re-bake (F1 dermal recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
+  // 8725404 B live; was e217d3c96d62….
+  // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
+  // 8807408 B live; was a2552b2fff6a….
+  "mpfb-clinical-nurse-adult": "4d9f4e6bb2c8535fcc15ace7ac51125d31d30a7218d2b893a5b1ad8f195cb3f7",
   // #504 re-pinned 2026-08-21: the physician's coat was pushed out 15 mm (wardrobe layer
   // separation); the viseme morph targets and every other buffer are untouched.
   // #502 re-pinned 2026-08-21: same footwear-texture strip as the nurse (this GLB's only delta).
@@ -172,7 +180,11 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // size holds at 9618436); was 921d7a60….
   // st-palette C5 re-pinned 2026-11-04: sRGB-correct fold re-fold of the scrub shirts;
   // 9618436 -> 9293412 B; was 4b823cbd….
-  "mpfb-clinical-physician-adult": "9141538a76220c8431573ed185a24d5eb710429bca27f9844a8cee99c180d425",
+  // st-vitfacet r6 re-pinned 2026-11-05: skin normalTexture re-bake (F1 dermal recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
+  // 9238432 B live; was 9141538a7622….
+  // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
+  // 9320372 B live; was 9e1e9552a92d….
+  "mpfb-clinical-physician-adult": "34c5aec8fe30cd47fa924b40bba1660bf4b4c04bf3d8328210603e26c477d83e",
 }
 
 type Prov = {

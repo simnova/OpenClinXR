@@ -1964,6 +1964,30 @@ DERMAL_VORONOI_RANDOMNESS = float(os.environ.get("DERMAL_VORONOI_RANDOMNESS", "0
 DERMAL_RAMP_VALLEY = 0.0
 DERMAL_RAMP_PEAK = 1.0
 
+# st-vitfacet r7: per-actor dermal seed. D1: the r3 F1 recipe is fully
+# deterministic with no per-actor term, so actors sharing a body/UV baked
+# byte-identical normal maps (nurse == physician 4ed93dad; gown-inspect ==
+# viseme-inspect 74cf1419), failing cast-readiness clause (2). DERMAL_SEED is
+# env-overridable; when unset each actor's producer default is
+# _dermal_seed_for_stem(output stem) — never the reference id (nurse and
+# physician share reference ed_chest_pain_nurse_adult). Unset-and-unassigned
+# (0.0) is the legacy field position, byte-preserving for non-seeded runs.
+DERMAL_SEED = os.environ.get("DERMAL_SEED")
+
+
+def _dermal_seed_for_stem(stem):
+    """Deterministic per-actor dermal seed in [0, 100) from the OUTPUT stem."""
+    import hashlib
+    return (int(hashlib.sha256(stem.encode("utf-8")).hexdigest()[:8], 16) / 4294967295.0) * 100.0
+
+
+def _resolve_dermal_seed():
+    """Effective dermal seed: DERMAL_SEED (env at import or producer post-import
+    assignment, g3revert pattern) else 0.0 legacy no-offset."""
+    if DERMAL_SEED not in (None, ""):
+        return float(DERMAL_SEED)
+    return 0.0
+
 
 def _walk_group_instances(nt, out=None):
     """All ShaderNodeGroup instances in a node tree, recursively."""
@@ -2010,6 +2034,8 @@ def configure_skin_normal_detail(skin_mat, human, resolution=1024):
     dermal_instances = 0
     other_inputs = 0
     voronoi_forced = 0
+    voronoi_seeded = 0
+    seed = _resolve_dermal_seed()
     for g in _walk_group_instances(skin_mat.node_tree):
         tree_name = g.node_tree.name if g.node_tree else "?"
         for inp in g.inputs:
@@ -2028,7 +2054,7 @@ def configure_skin_normal_detail(skin_mat, human, resolution=1024):
                 pass
 
     def _force_dermal_scale(nt):
-        nonlocal voronoi_forced
+        nonlocal voronoi_forced, voronoi_seeded
         for n in nt.nodes:
             if n.bl_idname == "ShaderNodeGroup" and n.node_tree:
                 _force_dermal_scale(n.node_tree)
@@ -2041,6 +2067,27 @@ def configure_skin_normal_detail(skin_mat, human, resolution=1024):
                 if "Randomness" in n.inputs:
                     n.inputs["Randomness"].default_value = DERMAL_VORONOI_RANDOMNESS
                 voronoi_forced += 1
+                # st-vitfacet r7: per-actor seed as a Vector offset (translation of
+                # the sampling position), NOT 4D+W. Measured (E/probe_voronoi.json):
+                # the dermal Voronoi is 3D, Vector fed by Texture Coordinate.Object,
+                # W unlinked at 0.0. A translation preserves the exact r3 F1 field
+                # (cell size/density/randomness/ramp response untouched — the r3 look:
+                # facets gone, tilt in band) and only rephases it, which is exactly
+                # what D1 needs. 4D+W rejected: it changes the distance metric itself
+                # and W magnitude vs feature density is a second-order look change.
+                vec_links = list(n.inputs["Vector"].links)
+                if vec_links:
+                    src_sock = vec_links[0].from_socket
+                    for vlink in vec_links:
+                        nt.links.remove(vlink)
+                    add = nt.nodes.new("ShaderNodeVectorMath")
+                    add.operation = "ADD"
+                    add.inputs[1].default_value = (
+                        seed, (seed * 1.618033988749895) % 100.0,
+                        (seed * 2.618033988749895) % 100.0)
+                    nt.links.new(src_sock, add.inputs[0])
+                    nt.links.new(add.outputs["Vector"], n.inputs["Vector"])
+                    voronoi_seeded += 1
 
     _force_dermal_scale(skin_mat.node_tree)
     if voronoi_forced == 0:
@@ -2053,6 +2100,8 @@ def configure_skin_normal_detail(skin_mat, human, resolution=1024):
         "dermalVoronoiFeature": DERMAL_VORONOI_FEATURE,
         "dermalVoronoiRandomness": DERMAL_VORONOI_RANDOMNESS,
         "dermalCellTexels": DERMAL_CELL_TEXELS,
+        "dermalSeed": seed,
+        "voronoiSeeded": voronoi_seeded,
         "dermalInstancesConfigured": dermal_instances,
         "otherBumpInputsLeftAtShipped": other_inputs,
         "voronoiScaleForced": voronoi_forced,

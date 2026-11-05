@@ -88,8 +88,8 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-10T21:58:00Z",
- "outputSha256": "5b30b91bfb27d4fa2e6c369fb691cadde35fb68391885772c227a862cac716c2",
- "outputBytes": 16753616,
+ "outputSha256": "8a1dddfe7ea8f36073c7bd005241612aa048d3c3526f9df3dc9441b591297045",
+ "outputBytes": 16831992,
  "motionClips": [
   {
    "clipName": "openclinxr_retarget_walk_source",
@@ -236,6 +236,58 @@
    "rebindCodeSha": "d695844a2838f880271bfd753fe622b212ccf950c927be82407ae0e1d37980fe",
    "normalMetricsCodeSha": "ccdc5ecf1d5f874f157b206bc5d0d48c0d7fdc215c91cc8ae78e57d9c9a89cf4",
    "blenderRuntime": "Blender 5.2.2 LTS, Cycles CPU, TANGENT normal bake",
+   "meshSurfaceBake": true,
+   "generator": "bake_skin_normal_to_texture+configure_skin_normal_detail (materialize_mpfb_humanoid_candidate.py)",
+   "bakeCode": "bake_skin_normal_to_texture",
+   "derivation": "mesh-surface re-bake rebind: Cycles TANGENT normal bake of the actor body through bake_skin_normal_to_texture; only the skin normal image bytes change, geometry and all other bytes preserved"
+  },
+  {
+   "stage": "skin-normal-baked-rebind",
+   "recipe": "dermal-F1-6tex-randomness0.85-strength0.8-ramp0-1-seed16.72",
+   "inputGlbSha": "5b30b91bfb27d4fa2e6c369fb691cadde35fb68391885772c227a862cac716c2",
+   "bakeInputGlb": "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb",
+   "bakeInputGlbSha": "5b30b91bfb27d4fa2e6c369fb691cadde35fb68391885772c227a862cac716c2",
+   "bakeReportSha": "ba20a847bb54ee0a661eba06067b5918240e4fb35e8a2cd23b50575245059b1f",
+   "bakeReportSha256": "ba20a847bb54ee0a661eba06067b5918240e4fb35e8a2cd23b50575245059b1f",
+   "bakeRecipe": "dermal-F1-6tex-randomness0.85-strength0.8-ramp0-1-seed16.72",
+   "bakeDermal": {
+    "feature": "F1",
+    "cell": 6.0,
+    "randomness": 0.85,
+    "ramp": [
+     0.0,
+     1.0
+    ],
+    "seed": 16.721692918036528
+   },
+   "bakeMacro": {
+    "gender": 1.0,
+    "age": 0.6,
+    "muscle": 0.5,
+    "weight": 0.5,
+    "proportions": 0.5,
+    "height": 0.5389,
+    "cupsize": 0.5,
+    "firmness": 0.5,
+    "race": {
+     "asian": 0.33,
+     "caucasian": 0.33,
+     "african": 0.33
+    }
+   },
+   "bakeStatureMeters": 1.76,
+   "bodyMesh": "mpfb_adult_male_street_casual_body",
+   "reportedBodyMesh": "mpfb_adult_male_street_casual_body",
+   "bodyVsha": "7babe79d75f94cfb",
+   "oldNormalSha": "56f170d9447635ce146e97672edf74d4fcc78997ca17fcabd88887318ef3fdb4",
+   "newNormalSha": "5ce2d299571785acae9508090d9c6493b7fd0fe07efc1f123950afbcc4e2b0d5",
+   "priorOutputSha256": "5b30b91bfb27d4fa2e6c369fb691cadde35fb68391885772c227a862cac716c2",
+   "priorOutputBytes": 16753616,
+   "outputGlbSha": "8a1dddfe7ea8f36073c7bd005241612aa048d3c3526f9df3dc9441b591297045",
+   "outputGlbBytes": 16831992,
+   "rebindCodeSha": "d695844a2838f880271bfd753fe622b212ccf950c927be82407ae0e1d37980fe",
+   "normalMetricsCodeSha": "ccdc5ecf1d5f874f157b206bc5d0d48c0d7fdc215c91cc8ae78e57d9c9a89cf4",
+   "blenderRuntime": "Blender 5.1.1, Cycles CPU, TANGENT normal bake",
    "meshSurfaceBake": true,
    "generator": "bake_skin_normal_to_texture+configure_skin_normal_detail (materialize_mpfb_humanoid_candidate.py)",
    "bakeCode": "bake_skin_normal_to_texture",

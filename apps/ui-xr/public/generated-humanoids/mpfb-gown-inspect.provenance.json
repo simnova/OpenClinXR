@@ -5,8 +5,8 @@
  "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
  "runtimeRole": "inspection_fixture",
  "runtimeRoleWhy": "Inspection subject for garment/gown contracts. Never cast; the shipped-bank cast resolver does not name it.",
- "outputSha256": "f1b72eab83c1df477322669ca533ff495b5de2e371c5a968a23a93a12969f1a5",
- "outputBytes": 8061124,
+ "outputSha256": "645db112d4b4e298d71eec7a185ce955d8037bbccdc7170b34eea217a2bf2c32",
+ "outputBytes": 8142588,
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.401Z",
  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. HB-05 (2026-09-11): face-preserving decimation rung rewrote the GLB (selective weld+simplifyPrimitive on non-face meshes only, face meshes untouched, joints and 47 body morph targets unchanged); outputSha256/outputBytes re-recorded in the same change that moved the bytes. Reproduce: pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.15 (face-preserving mode, tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts).",
  "byteLineage": {
@@ -147,6 +147,46 @@
    "rebindCodeSha": "d695844a2838f880271bfd753fe622b212ccf950c927be82407ae0e1d37980fe",
    "normalMetricsCodeSha": "ccdc5ecf1d5f874f157b206bc5d0d48c0d7fdc215c91cc8ae78e57d9c9a89cf4",
    "blenderRuntime": "Blender 5.2.2 LTS, Cycles CPU, TANGENT normal bake",
+   "meshSurfaceBake": true,
+   "generator": "bake_skin_normal_to_texture+configure_skin_normal_detail (materialize_mpfb_humanoid_candidate.py)",
+   "bakeCode": "bake_skin_normal_to_texture",
+   "derivation": "mesh-surface re-bake rebind: Cycles TANGENT normal bake of the actor body through bake_skin_normal_to_texture; only the skin normal image bytes change, geometry and all other bytes preserved"
+  },
+  {
+   "stage": "skin-normal-baked-rebind",
+   "recipe": "dermal-F1-6tex-randomness0.85-strength0.8-ramp0-1-seed94.47",
+   "inputGlbSha": "f1b72eab83c1df477322669ca533ff495b5de2e371c5a968a23a93a12969f1a5",
+   "bakeInputGlb": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
+   "bakeInputGlbSha": "f1b72eab83c1df477322669ca533ff495b5de2e371c5a968a23a93a12969f1a5",
+   "bakeReportSha": "028588fe2fe178228c5db4cc154829045e18294caf16f087fa9f20c6213bd8ce",
+   "bakeReportSha256": "028588fe2fe178228c5db4cc154829045e18294caf16f087fa9f20c6213bd8ce",
+   "bakeRecipe": "dermal-F1-6tex-randomness0.85-strength0.8-ramp0-1-seed94.47",
+   "bakeDermal": {
+    "feature": "F1",
+    "cell": 6.0,
+    "randomness": 0.85,
+    "ramp": [
+     0.0,
+     1.0
+    ],
+    "seed": 94.46853839197861
+   },
+   "bakeMacro": {
+    "source": "mpfb_default_create_human_no_macro_dict"
+   },
+   "bakeStatureMeters": null,
+   "bodyMesh": "mpfb_ob_patient_aisha_body",
+   "reportedBodyMesh": "mpfb_ob_patient_aisha_body",
+   "bodyVsha": "7babe79d75f94cfb",
+   "oldNormalSha": "74cf1419feae49d78ca2bb3cf99fd2da2c6f73b7973d84337063319697f89854",
+   "newNormalSha": "3b7978a78c223b7af5e157143905c047e471bdbabffad81b56b490d7f480f60f",
+   "priorOutputSha256": "f1b72eab83c1df477322669ca533ff495b5de2e371c5a968a23a93a12969f1a5",
+   "priorOutputBytes": 8061124,
+   "outputGlbSha": "645db112d4b4e298d71eec7a185ce955d8037bbccdc7170b34eea217a2bf2c32",
+   "outputGlbBytes": 8142588,
+   "rebindCodeSha": "d695844a2838f880271bfd753fe622b212ccf950c927be82407ae0e1d37980fe",
+   "normalMetricsCodeSha": "ccdc5ecf1d5f874f157b206bc5d0d48c0d7fdc215c91cc8ae78e57d9c9a89cf4",
+   "blenderRuntime": "Blender 5.1.1, Cycles CPU, TANGENT normal bake",
    "meshSurfaceBake": true,
    "generator": "bake_skin_normal_to_texture+configure_skin_normal_detail (materialize_mpfb_humanoid_candidate.py)",
    "bakeCode": "bake_skin_normal_to_texture",

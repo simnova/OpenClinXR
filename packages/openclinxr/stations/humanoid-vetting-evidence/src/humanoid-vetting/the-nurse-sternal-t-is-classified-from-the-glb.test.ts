@@ -171,14 +171,22 @@ describe("the nurse sternal T is classified from the GLB", () => {
       // st-viteye r2 re-pinned 2026-11-04: Vitruvian eye swap (post-export byte
       // stage, iris-disc resample into eye UV; size 15966652 -> 16074580);
       // matches tools/openclinxr/evidence/humanoid-vetting/mpfb-nurse-sternal-t-classify.json
-      // pedsKevin measured fields (bytes 16074580); was 5df99085c51be1e….
-      [PEDS_GLB, "pedsKevin", 16074580, "e52a3e25f86d49bc76d2c32b46c3523b0871feda11d5a7f9fbc09e5c941c8be8"],
+      // pedsKevin measured fields (bytes 16026048); was 5df99085c51be1e….
+      // st-vitfacet r6 re-pinned 2026-11-05: skin normalTexture re-bake (F1 dermal recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
+      // 16026048 B; kevin sha 60985034fddf….
+      // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
+      // 16105284 B; kevin sha fca9a98f7e81….….
+      [PEDS_GLB, "pedsKevin", 16105284, "fca9a98f7e81c74fa6a17b5d234e4694bc6f153153461a4c64924123c053b1be"],
       // RE-PINNED: deliberate churn 8e7a1d0c2 (CC-BY scrub extras) + 91aa4b5d3 + 9f2934536.
       // ci-w11b re-pinned 2026-10-30: ci-w11 D3 d0e2104d3 repaired midline breast keyframes
       // (rests already +-0.085; size holds at 8775848); was 4f0a8c1d….
       // st-weld re-pinned 2026-11-03: garment topology weld (post-export byte stage, not a rebake;
       // shirt 4692 islands -> 1 component, kept_sharp 52/35; size holds at 8775848); was 3241acc6….
-      [ADULT_GLB, "adult", 8775848, "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c"],
+      // st-vitfacet r6 re-pinned 2026-11-05: skin normalTexture re-bake (F1 dermal recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
+      // 8725404 B; adult sha a2552b2fff6a….
+      // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
+      // 8807408 B; adult sha 4d9f4e6bb2c8….….
+      [ADULT_GLB, "adult", 8807408, "4d9f4e6bb2c8535fcc15ace7ac51125d31d30a7218d2b893a5b1ad8f195cb3f7"],
     ] as const) {
       const glb = readGlb(path);
       expect(glb.bytes.length, `${key}: GLB length pinned`).toBe(bytes);
