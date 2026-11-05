@@ -113,7 +113,11 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // stage, iris-disc resample into eye UV, geometry/BIN otherwise verbatim;
   // size 9914108 -> 10021840);
   // was 3b9eb6242e1456c1a9df766bdd6c650f454d74d40405e3a6e8ab6ced20018fe7.
-  "mpfb-ob-patient-aisha": "6643de8199885ac2ccc3fc9aca75dd9c197c33e6659d58ca9934463d8f861421",
+  // st-vitpore r2 re-pinned 2026-11-04: cheek pore detail-normal tile (post-export
+  // byte stage, one added image + KHR_texture_transform, geometry/BIN verbatim;
+  // size 10021840 -> 10213572);
+  // was 6643de8199885ac2ccc3fc9aca75dd9c197c33e6659d58ca9934463d8f861421.
+  "mpfb-ob-patient-aisha": "7d146d29e98827a39c990cd46457ed14108dfb4deee8cc3aa9287e2ece8c8ca9",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
   // table (drift at HEAD, pre-existing); was d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1.
