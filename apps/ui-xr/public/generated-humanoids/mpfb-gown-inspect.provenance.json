@@ -5,8 +5,8 @@
  "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
  "runtimeRole": "inspection_fixture",
  "runtimeRoleWhy": "Inspection subject for garment/gown contracts. Never cast; the shipped-bank cast resolver does not name it.",
- "outputSha256": "83593e513693f785427144f49402304ac01c728cc0a17f4f7d1a7c3a98a817e9",
- "outputBytes": 8097648,
+ "outputSha256": "f1b72eab83c1df477322669ca533ff495b5de2e371c5a968a23a93a12969f1a5",
+ "outputBytes": 8061124,
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.401Z",
  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. HB-05 (2026-09-11): face-preserving decimation rung rewrote the GLB (selective weld+simplifyPrimitive on non-face meshes only, face meshes untouched, joints and 47 body morph targets unchanged); outputSha256/outputBytes re-recorded in the same change that moved the bytes. Reproduce: pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.15 (face-preserving mode, tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts).",
  "byteLineage": {
@@ -92,7 +92,7 @@
  },
  "gownRebake20261104R5b": {
   "producer": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py --input-glb mpfb-viseme-inspect.glb --output-glb mpfb-gown-inspect.glb (blender --background)",
-  "cause": "st-gowninsp round 5b: the centroid-only round-5 bytes still read 3 below-min verts and 0.9496. Adding the 5-tap loft smoothing with per-ring re-enclosure (same centroid-relative section fit, same ease schedule, enclose-every-sample guarantee, still pure ring construction — no post-hoc shrink, no inspector targeting) cuts ring-to-ring cz jitter (up to 28 mm over one 25 mm step). Post-fix: fraction 0.9664, belowMin 0, max 0.2371 (residual = bust-front drape + thigh-gap spanning, pre-existing class); raster 0/0, collar rows in the after-chest still (381/382), slits 0/0 px; faceCut=0 headClipped=0 (E/drape-after.json, E/probes.md P7).",
+  "cause": "st-gowninsp round 5b: the centroid-only round-5 bytes still read 3 below-min verts and 0.9496. Adding the 5-tap loft smoothing with per-ring re-enclosure (same centroid-relative section fit, same ease schedule, enclose-every-sample guarantee, still pure ring construction \u2014 no post-hoc shrink, no inspector targeting) cuts ring-to-ring cz jitter (up to 28 mm over one 25 mm step). Post-fix: fraction 0.9664, belowMin 0, max 0.2371 (residual = bust-front drape + thigh-gap spanning, pre-existing class); raster 0/0, collar rows in the after-chest still (381/382), slits 0/0 px; faceCut=0 headClipped=0 (E/drape-after.json, E/probes.md P7).",
   "outputSha256": "afc0f712643aad61b3a82e5f9c5c0fa10651b02dd9268e53bdcb32d4dc4ece58",
   "outputBytes": 8097400,
   "reproduction": "single producer run 2026-11-04 (verts=3368 faces=3349 lips=21 gussetTris=57 patchTris=38 patchSkipped=0); determinism: byte-identical re-run of the same script (r5c cmp clean)"
@@ -111,5 +111,46 @@
   "inputSha256": "afc0f712643aad61b3a82e5f9c5c0fa10651b02dd9268e53bdcb32d4dc4ece58",
   "outputSha256": "83593e513693f785427144f49402304ac01c728cc0a17f4f7d1a7c3a98a817e9",
   "outputBytes": 8097648
- }
+ },
+ "stages": [
+  {
+   "stage": "skin-normal-baked-rebind",
+   "recipe": "dermal-F1-6tex-randomness0.85-strength0.8-ramp0-1",
+   "inputGlbSha": "83593e513693f785427144f49402304ac01c728cc0a17f4f7d1a7c3a98a817e9",
+   "bakeInputGlb": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
+   "bakeInputGlbSha": "83593e513693f785427144f49402304ac01c728cc0a17f4f7d1a7c3a98a817e9",
+   "bakeReportSha": "1ce7ec3a4004649bac4c6d7c5ef4f623337fce514b33c8ef743eb67cfe31c046",
+   "bakeReportSha256": "1ce7ec3a4004649bac4c6d7c5ef4f623337fce514b33c8ef743eb67cfe31c046",
+   "bakeRecipe": "dermal-F1-6tex-randomness0.85-strength0.8-ramp0-1",
+   "bakeDermal": {
+    "feature": "F1",
+    "cell": 6.0,
+    "randomness": 0.85,
+    "ramp": [
+     0.0,
+     1.0
+    ]
+   },
+   "bakeMacro": {
+    "source": "mpfb_default_create_human_no_macro_dict"
+   },
+   "bakeStatureMeters": null,
+   "bodyMesh": "mpfb_ob_patient_aisha_body",
+   "reportedBodyMesh": "mpfb_ob_patient_aisha_body",
+   "bodyVsha": "2abd191ea7190250",
+   "oldNormalSha": "b6dfeed9f6909f3bc36a0c6add8d5339c338c3fcfc8de21b8c79bb17d7dffc55",
+   "newNormalSha": "74cf1419feae49d78ca2bb3cf99fd2da2c6f73b7973d84337063319697f89854",
+   "priorOutputSha256": "83593e513693f785427144f49402304ac01c728cc0a17f4f7d1a7c3a98a817e9",
+   "priorOutputBytes": 8097648,
+   "outputGlbSha": "f1b72eab83c1df477322669ca533ff495b5de2e371c5a968a23a93a12969f1a5",
+   "outputGlbBytes": 8061124,
+   "rebindCodeSha": "d695844a2838f880271bfd753fe622b212ccf950c927be82407ae0e1d37980fe",
+   "normalMetricsCodeSha": "ccdc5ecf1d5f874f157b206bc5d0d48c0d7fdc215c91cc8ae78e57d9c9a89cf4",
+   "blenderRuntime": "Blender 5.2.2 LTS, Cycles CPU, TANGENT normal bake",
+   "meshSurfaceBake": true,
+   "generator": "bake_skin_normal_to_texture+configure_skin_normal_detail (materialize_mpfb_humanoid_candidate.py)",
+   "bakeCode": "bake_skin_normal_to_texture",
+   "derivation": "mesh-surface re-bake rebind: Cycles TANGENT normal bake of the actor body through bake_skin_normal_to_texture; only the skin normal image bytes change, geometry and all other bytes preserved"
+  }
+ ]
 }

@@ -1956,7 +1956,9 @@ def bake_skin_material_to_texture(human, skin_material_name, out_png_path, resol
 # cells. Constants honour DERMAL_* env overrides so bake variants need no edit.
 DERMAL_CELL_TEXELS = float(os.environ.get("DERMAL_CELL_TEXELS", "6.0"))
 # CEO grade 2026-09-19 native collar bump 1.0 cobblestone vs 0.4 smooth; mosaic already gone at both.
-DERMAL_BUMP_STRENGTH = float(os.environ.get("DERMAL_BUMP_STRENGTH", "0.4"))
+# st-vitfacet r3: default 0.8 — the F1 dermal recipe (6tex/randomness0.85/ramp0-1) needs 0.8
+# to reproduce the shipped hp detail (0.4 gives hp 1.22, FAIL vs G2 bar 1.68).
+DERMAL_BUMP_STRENGTH = float(os.environ.get("DERMAL_BUMP_STRENGTH", "0.8"))
 DERMAL_VORONOI_FEATURE = os.environ.get("DERMAL_VORONOI_FEATURE", "F1")
 DERMAL_VORONOI_RANDOMNESS = float(os.environ.get("DERMAL_VORONOI_RANDOMNESS", "0.85"))
 DERMAL_RAMP_VALLEY = 0.0

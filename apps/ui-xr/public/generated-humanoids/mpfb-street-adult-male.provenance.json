@@ -20,7 +20,7 @@
   "annyReference": "apps/ui-xr/public/generated-humanoids/adult_male_street_casual.anny_base.obj (tracked)",
   "materializedFrom": "MPFB2 HumanService.create_human with macro_detail_dict derived from the tracked Anny reference",
   "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-  "derivationNote": "Issue #441: the four street_casual patient slots (telehealth_diabetes_health_literacy_v1/patient_luis_martinez_v1, clinic_abdominal_pain_interpreter_v1/patient_lucia_morales_v1, oncology_bad_news_family_v1/patient_david_miller_v1, primary_care_dyslipidemia_joint_pain_v1/patient_mario_guzman_v1) all resolved to the 23-joint Anny adult_male_street_casual.glb with NO lower garment and peds_upper_v1 as its only upper. This asset replaces that body on the MPFB rail: age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5827 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.76 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. Standard 137-joint rig; #317 face keys; #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris); measured exported body: stature 1.7601 m, chest 0.8334, waist 1.1014, chest:waist 0.7567. Wardrobe: #180 closed_casual toigo t-shirt upper (cream 0.72,0.68,0.55 from the manifest's declared olive_knit_and_cream_casual palette; 2,700 tris; #360/#386 consumes the asset's OWN declared T-shirt_basic.png, luminance-normalised by its authored mean 0.5133, baseColorFactor patched post-export), cortu_cargo_pants lower cover shell (LOWER_GATE verdict covers, 2,794 tris; declared cargo_pants.mhmat not staged on the main checkout either — recorded skip keeps the flat cover shell, the same byte class the shipped partner and kevin lower slots ship; #320 hem pushed to the waistband, 84 verts, max deficit 0.0498 m; #373 waistband + #374 ankle-rim regularization; #378 cuff tucked inside the boot shaft), culturalibre_male_boots footwear (male known-good row, 15,308 verts / 30,768 tris, sole grounded to body bottom; #360 consumes male_boots.mhmat -> boot.png, patch_factor=False authored look), #381 mhair02 fitted hair (3,460 tris, weighted to head; named page-CC0/header-AGPL3 uuid f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4 allowlist, no new permit), #356 brown iris (patient role, makehuman-system-assets CC0), #377 anatomical 24.0 mm eyes (32.048 -> 24.0 mm, scale 0.7489, re-seated forward 4.024 mm), #343 skin tone warm_medium (0.66,0.50,0.40) from the manifest's input_params.phenotype.skin_tone, #370 tangent-space normal map, #359 scalp placeholder retired (fitted hair present => no placeholder scalp shell)."
+  "derivationNote": "Issue #441: the four street_casual patient slots (telehealth_diabetes_health_literacy_v1/patient_luis_martinez_v1, clinic_abdominal_pain_interpreter_v1/patient_lucia_morales_v1, oncology_bad_news_family_v1/patient_david_miller_v1, primary_care_dyslipidemia_joint_pain_v1/patient_mario_guzman_v1) all resolved to the 23-joint Anny adult_male_street_casual.glb with NO lower garment and peds_upper_v1 as its only upper. This asset replaces that body on the MPFB rail: age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5827 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.76 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. Standard 137-joint rig; #317 face keys; #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris); measured exported body: stature 1.7601 m, chest 0.8334, waist 1.1014, chest:waist 0.7567. Wardrobe: #180 closed_casual toigo t-shirt upper (cream 0.72,0.68,0.55 from the manifest's declared olive_knit_and_cream_casual palette; 2,700 tris; #360/#386 consumes the asset's OWN declared T-shirt_basic.png, luminance-normalised by its authored mean 0.5133, baseColorFactor patched post-export), cortu_cargo_pants lower cover shell (LOWER_GATE verdict covers, 2,794 tris; declared cargo_pants.mhmat not staged on the main checkout either \u2014 recorded skip keeps the flat cover shell, the same byte class the shipped partner and kevin lower slots ship; #320 hem pushed to the waistband, 84 verts, max deficit 0.0498 m; #373 waistband + #374 ankle-rim regularization; #378 cuff tucked inside the boot shaft), culturalibre_male_boots footwear (male known-good row, 15,308 verts / 30,768 tris, sole grounded to body bottom; #360 consumes male_boots.mhmat -> boot.png, patch_factor=False authored look), #381 mhair02 fitted hair (3,460 tris, weighted to head; named page-CC0/header-AGPL3 uuid f81a4e9a-e3d7-4ecb-bdf0-16d7fd9070a4 allowlist, no new permit), #356 brown iris (patient role, makehuman-system-assets CC0), #377 anatomical 24.0 mm eyes (32.048 -> 24.0 mm, scale 0.7489, re-seated forward 4.024 mm), #343 skin tone warm_medium (0.66,0.50,0.40) from the manifest's input_params.phenotype.skin_tone, #370 tangent-space normal map, #359 scalp placeholder retired (fitted hair present => no placeholder scalp shell)."
  },
  "licenseChain": {
   "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
@@ -51,16 +51,16 @@
   "other_agpl_hair_now_allowed"
  ],
  "sourceNotes": [
-  "Issue #441 first slice: the street-casual adult male patient moves from the Anny rail to a parametric MPFB bake wearing library garments (D9's clothing/body rows). The resolver swap is a separate slice and is deliberately out of scope — the four slots still resolve to adult_male_street_casual.glb when this asset lands.",
-  "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
-  "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
-  "Unlocked decisions: skin tone token warm_medium (new SKIN_TONE_RGB row, (0.66,0.50,0.40) — not byte-identical to any other actor's tone); eyes row kept (brown iris, 24.0 mm anatomical eyes — no clause required it, but the actor is an adult and the materializer hard-refuses a missing EYE_DIAMETER_TARGET_MM row).",
-  "The manifest's output.obj_path names peds_nurse_kevin.anny_base.obj — a copy defect in the reference manifest; the tracked adult_male_street_casual.anny_base.obj (1.76 m, head-height fraction 0.100) drove the bake, and the manifest's input_params (actor_id patient_luis_martinez_v1, skin_tone warm_medium, fabricPalette olive_knit_and_cream_casual) were consumed as-is.",
+  "Issue #441 first slice: the street-casual adult male patient moves from the Anny rail to a parametric MPFB bake wearing library garments (D9's clothing/body rows). The resolver swap is a separate slice and is deliberately out of scope \u2014 the four slots still resolve to adult_male_street_casual.glb when this asset lands.",
+  "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults \u2014 only age + height are driven by reference measurement this slice.",
+  "Exact MADR 0051 \u00a75 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
+  "Unlocked decisions: skin tone token warm_medium (new SKIN_TONE_RGB row, (0.66,0.50,0.40) \u2014 not byte-identical to any other actor's tone); eyes row kept (brown iris, 24.0 mm anatomical eyes \u2014 no clause required it, but the actor is an adult and the materializer hard-refuses a missing EYE_DIAMETER_TARGET_MM row).",
+  "The manifest's output.obj_path names peds_nurse_kevin.anny_base.obj \u2014 a copy defect in the reference manifest; the tracked adult_male_street_casual.anny_base.obj (1.76 m, head-height fraction 0.100) drove the bake, and the manifest's input_params (actor_id patient_luis_martinez_v1, skin_tone warm_medium, fabricPalette olive_knit_and_cream_casual) were consumed as-is.",
   "Baked 2026-08-19 in the issue-441 worktree with the provider caches staged locally (garments incl. .mhmat + declared textures, hair mhair02, iris makehuman-system-assets, visemes02).",
   "Out-of-scope wrongness seen and not fixed: the figure's fit quality (poke-through, waistband gap, hem sawtooth #401) was not re-graded for this new body; the orchestrator grades an isolated lit front still.",
   "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-street-adult-male.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed).",
   "2026-09-10 street cargo waistband: LOWER GATE build_cover_shell band_hi is shirt hem rim MAX not AABB min; street regularize_rim window 45 deg; shirt hem band pinned to known-good ymin 1.0283 (fit_upper_hem_to_waistband not re-called). Pants rim span 22.0 mm <= 24.1. Chest-anchor stage re-applied after rematerialize. Parent grades a fresh glb-grade front_lit.",
-  "2026-09-10 tsk_2a6935fb4eb63f95: street/family lower slot is toigo_wool_pants (pants01 CC0, # license CC0, 1372 obj verts / 1337 quads / 2674 tris) via ClothesService, not the cargo cover shell. LOWER GATE verdict covers (raycast 0.9361); cargo still hits the cover-shell replacement if selected. Shirt ymin pin 1.0283. Pants ymin 0.0687. Isolated EEVEE still at tools/openclinxr/evidence/street-wool-pants/mpfb-street-adult-male-full-eevee.png — parent grades, not copied to docs/assets.",
+  "2026-09-10 tsk_2a6935fb4eb63f95: street/family lower slot is toigo_wool_pants (pants01 CC0, # license CC0, 1372 obj verts / 1337 quads / 2674 tris) via ClothesService, not the cargo cover shell. LOWER GATE verdict covers (raycast 0.9361); cargo still hits the cover-shell replacement if selected. Shirt ymin pin 1.0283. Pants ymin 0.0687. Isolated EEVEE still at tools/openclinxr/evidence/street-wool-pants/mpfb-street-adult-male-full-eevee.png \u2014 parent grades, not copied to docs/assets.",
   "2026-09-10 street jeans: patient/family lower slot is pants02 CC-BY punkduck_male_classic_jeans via ClothesService (pack page is the grant). 2614 obj verts / 2295 quads / 4590 tris. LOWER GATE covers (raycast 0.9785). Shirt ymin pin 1.0283. Pants ymin 0.0597. Isolated EEVEE bake uses grade-lighting.json worldBackgroundStrength 0.55.",
   "2026-09-10 look-good: balloon/jodhpur thighs on punkduck jeans. Lower slot is pants02 CC-BY elvs_jeans_straight_leg via ClothesService (pack page is the grant). 3109 obj verts / 2854 quads / 5708 tris. LOWER GATE covers (raycast 0.9886). Shirt ymin pin 1.0283. Pants material patch_factor=False (authored navy albedo, no 5.8x luminance wash). Isolated EEVEE bake uses grade-lighting.json worldBackgroundStrength 0.55.",
   "2026-09-12 street waist-meet: withdrew the street skip of fit_upper_hem_to_waistband (cargo-era shirt ymin pin 1.0283). Cover-shell band_hi not raised. Applied the same algorithm in Y-up on the shipped jeans GLB: 38 hem verts, maxDeficit 21.83 mm (16.8 mm gap + 5 mm #320 margin). Live measureWaistFit gapped 0 / min +5.0 mm; lower still mat_makeclothes_library_straight_leg_jeans_pants. outputSha256 17d29247a336238e685eb8aa284b8f8eceb5a51797c257f40d9025b0e8e771e6 -> 252a214321eca8b56c07ecd00f98238387738a25e6e585cd25fd829a41cd23b0, outputBytes 15830960 -> 15720228.",
@@ -69,7 +69,7 @@
   "2026-10-30 ci-w11 D3 (chest-anchor re-separation, post-bake stage, not rebake): default mode: rest 0.00000 -> +-0.085 (rebakes since #0 had zeroed the separation); moved 2 ClinicalIdleConversation + 2 openclinxr_retarget_walk_source keyframes per joint with the rests. y/z untouched. Tool: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs (half-span 0.085, uniform with nurse known-good 1f5519d2).",
   "2026-10-31 mesh-defects (jeans swap, not rebake): the shipped straight-leg jeans came from bake e59925fc6, while the post-fit cloth_offset snap still ran on covering-library lowers; it folded the fit to 1078 unique positions of 3109 with 37 coincident triangle pairs. 0f460d098 removed the snap. A current materializer bake of --reference adult_male_street_casual --actor-role patient (log LOWER_FIT_STANDOFF kept ClothesService positions) was not shipped whole: body 107,024 vs 26,756 tris, fitted teeth/tongue instead of hm08, one clip instead of three. replace-garment-primitive.ts takes only its jeans primitive (same joint list, same material, bake body within 2.19 mm p95 of the shipped body); apply-waist-meet-glb.ts then pushed 74 hem verts (max 4.68 mm). Jeans after: 1 coincident pair (ceiling 4, family-partner control 4), 3028 unique positions, 11416 GLB verts / 5708 tris. Bake: /Volumes/files/openclinxr-assets/store/mesh-defects-20261030/humanoids/street-rebake/. Stills: .../street-jeans-swap/stills/. Test: packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/shipped-jeans-and-bob-keep-their-surfaces.test.ts.",
   "2026-11-03 st-waist mask-fit: c099c2de2 swapped the trousers to straight-leg jeans (pants top 1.0640 m) while lower hide-mask .001 still topped at 1.0760 m (12.0 mm over-reach vs 6 mm bound). Full rebake churns body/clips so the fix is post-export micro-surgery via trim-hide-mask-to-garment.ts (footprint-derived, shared classifier, 1.5 mm slack, 2 mm rim inset): 53 lower triangles moved to one new skin-material primitive, morph-aware. outputSha256 8b852aea0264dd164e59db992d1f38d30d847331a0d47d2ba8c62d8d509e00c0 -> eb90aa69b670d86fb13492ba0da620280de8670bd5a0610e9d83e787a8076178, outputBytes 16728844 -> 16801952. Waistband (gap/overreach/overlap): (-12.0/12.0/35.7) -> (2.9/-2.9/35.7) mm.",
- "st-weld2 D1 (garment topology weld, post-export byte stage, not a Blender rebake): connected each MakeClothes garment's per-face index islands by position (t-shirt 1350 raw -> 6 meaningful cloth-side pieces, same doubled-cloth + textured-UV structure as the aisha t-shirt; jeans 2854 raw -> 212 loops with 8 meaningful (textured UV seams keep cloth sides split)), carrying one normal per cloth side so creases at/above the flat-shade 60-deg floor stay split (shirt kept_sharp 131, jeans 75; weights splits 0; textured-uv splits 122/611 kept to avoid smearing the print). Byte length unchanged at 16801952; only garment indices and survivor NORMALs rewritten in place. Tool: tools/openclinxr/asset-pipeline/makeclothes/garment_topology_weld.py --angle 90, wired pre-#371 in tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py. Shoulder-span counterweight still false on this asset (front/back outers are different cloth sides); recorded in E/weld-census.json."
+  "st-weld2 D1 (garment topology weld, post-export byte stage, not a Blender rebake): connected each MakeClothes garment's per-face index islands by position (t-shirt 1350 raw -> 6 meaningful cloth-side pieces, same doubled-cloth + textured-UV structure as the aisha t-shirt; jeans 2854 raw -> 212 loops with 8 meaningful (textured UV seams keep cloth sides split)), carrying one normal per cloth side so creases at/above the flat-shade 60-deg floor stay split (shirt kept_sharp 131, jeans 75; weights splits 0; textured-uv splits 122/611 kept to avoid smearing the print). Byte length unchanged at 16801952; only garment indices and survivor NORMALs rewritten in place. Tool: tools/openclinxr/asset-pipeline/makeclothes/garment_topology_weld.py --angle 90, wired pre-#371 in tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py. Shoulder-span counterweight still false on this asset (front/back outers are different cloth sides); recorded in E/weld-census.json."
  ],
  "waistMeet": {
   "stage": "post_export_glb",
@@ -88,8 +88,8 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-10T21:58:00Z",
- "outputSha256": "df54b2c6c02a39f64ece6e45a880fe570617cef62d00b112dac2430df82dccb0",
- "outputBytes": 16801952,
+ "outputSha256": "5b30b91bfb27d4fa2e6c369fb691cadde35fb68391885772c227a862cac716c2",
+ "outputBytes": 16753616,
  "motionClips": [
   {
    "clipName": "openclinxr_retarget_walk_source",
@@ -188,5 +188,58 @@
   "pantsTopM": 1.0639921426773071,
   "commit": "st-waist post-export mask-fit (this commit)",
   "claimScope": "lower hide-mask rim only (53 triangles moved to one new skin-material primitive, morph-aware across all 47 targets); garments, body, rig, clips, teeth, textures unchanged; waistband over-reach 12.0mm -> -2.9mm, gap 2.9mm, overlap 35.7mm"
- }
+ },
+ "stages": [
+  {
+   "stage": "skin-normal-baked-rebind",
+   "recipe": "dermal-F1-6tex-randomness0.85-strength0.8-ramp0-1",
+   "inputGlbSha": "df54b2c6c02a39f64ece6e45a880fe570617cef62d00b112dac2430df82dccb0",
+   "bakeInputGlb": "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb",
+   "bakeInputGlbSha": "df54b2c6c02a39f64ece6e45a880fe570617cef62d00b112dac2430df82dccb0",
+   "bakeReportSha": "b0a2431b1e4466e470da00d06bbafbf960332be5fda412acf740afd44a40e57f",
+   "bakeReportSha256": "b0a2431b1e4466e470da00d06bbafbf960332be5fda412acf740afd44a40e57f",
+   "bakeRecipe": "dermal-F1-6tex-randomness0.85-strength0.8-ramp0-1",
+   "bakeDermal": {
+    "feature": "F1",
+    "cell": 6.0,
+    "randomness": 0.85,
+    "ramp": [
+     0.0,
+     1.0
+    ]
+   },
+   "bakeMacro": {
+    "gender": 1.0,
+    "age": 0.6,
+    "muscle": 0.5,
+    "weight": 0.5,
+    "proportions": 0.5,
+    "height": 0.5389,
+    "cupsize": 0.5,
+    "firmness": 0.5,
+    "race": {
+     "asian": 0.33,
+     "caucasian": 0.33,
+     "african": 0.33
+    }
+   },
+   "bakeStatureMeters": 1.76,
+   "bodyMesh": "mpfb_adult_male_street_casual_body",
+   "reportedBodyMesh": "mpfb_adult_male_street_casual_body",
+   "bodyVsha": "2abd191ea7190250",
+   "oldNormalSha": "78df3e353c85edbae89c12b845a4bb701bd560a1692803fd7e3e9b65c9569cad",
+   "newNormalSha": "56f170d9447635ce146e97672edf74d4fcc78997ca17fcabd88887318ef3fdb4",
+   "priorOutputSha256": "df54b2c6c02a39f64ece6e45a880fe570617cef62d00b112dac2430df82dccb0",
+   "priorOutputBytes": 16801952,
+   "outputGlbSha": "5b30b91bfb27d4fa2e6c369fb691cadde35fb68391885772c227a862cac716c2",
+   "outputGlbBytes": 16753616,
+   "rebindCodeSha": "d695844a2838f880271bfd753fe622b212ccf950c927be82407ae0e1d37980fe",
+   "normalMetricsCodeSha": "ccdc5ecf1d5f874f157b206bc5d0d48c0d7fdc215c91cc8ae78e57d9c9a89cf4",
+   "blenderRuntime": "Blender 5.2.2 LTS, Cycles CPU, TANGENT normal bake",
+   "meshSurfaceBake": true,
+   "generator": "bake_skin_normal_to_texture+configure_skin_normal_detail (materialize_mpfb_humanoid_candidate.py)",
+   "bakeCode": "bake_skin_normal_to_texture",
+   "derivation": "mesh-surface re-bake rebind: Cycles TANGENT normal bake of the actor body through bake_skin_normal_to_texture; only the skin normal image bytes change, geometry and all other bytes preserved"
+  }
+ ]
 }

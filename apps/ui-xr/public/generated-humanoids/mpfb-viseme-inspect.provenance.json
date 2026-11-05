@@ -5,8 +5,8 @@
  "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
  "runtimeRole": "inspection_fixture",
  "runtimeRoleWhy": "Inspection subject for viseme contracts. Never cast; the shipped-bank cast resolver does not name it.",
- "outputSha256": "4f02b7c2073275eaacd736f8a3bceae325f306caf4cbb17f288031599554971a",
- "outputBytes": 13976324,
+ "outputSha256": "c94844c13f91e75d6d36f71282764abeec2f3f9c8d17087417972e605a1eb5f4",
+ "outputBytes": 13939760,
  "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
  "hemFinishNote": "2026-11-03 st-hemfin D2 (hem-finish, garment-primitive splice, not rebake): apply-hem-finish-glb.py calls finish_garment_hem (packages/openclinxr/factory-stations/src/body_param/garment_ops.py) on makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_mesh, then splice-garment.mjs copies only that garment primitive into the origin bytes, so all other meshes stay bitwise identical (total tris 69067 exact). Cause: #124 sawn hem (ratio 1.81, turn 180 deg). Result: ratio 0.80, turn 84.3 deg, hemY 0.977->0.938 (below paint top 1.008, bare-skin clause safe), animations preserved (2), no new holes. File 13933096 -> 13976324 B. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
  "fitTimeLower": {
@@ -37,5 +37,46 @@
   ],
   "reproduction": "byte-identical to the shipped file",
   "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
- }
+ },
+ "stages": [
+  {
+   "stage": "skin-normal-baked-rebind",
+   "recipe": "dermal-F1-6tex-randomness0.85-strength0.8-ramp0-1",
+   "inputGlbSha": "4f02b7c2073275eaacd736f8a3bceae325f306caf4cbb17f288031599554971a",
+   "bakeInputGlb": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb",
+   "bakeInputGlbSha": "4f02b7c2073275eaacd736f8a3bceae325f306caf4cbb17f288031599554971a",
+   "bakeReportSha": "ec428dbea9d1684c8331db6981e6da379b0d248eb5b384709523b68cccaa92d2",
+   "bakeReportSha256": "ec428dbea9d1684c8331db6981e6da379b0d248eb5b384709523b68cccaa92d2",
+   "bakeRecipe": "dermal-F1-6tex-randomness0.85-strength0.8-ramp0-1",
+   "bakeDermal": {
+    "feature": "F1",
+    "cell": 6.0,
+    "randomness": 0.85,
+    "ramp": [
+     0.0,
+     1.0
+    ]
+   },
+   "bakeMacro": {
+    "source": "mpfb_default_create_human_no_macro_dict"
+   },
+   "bakeStatureMeters": null,
+   "bodyMesh": "mpfb_ob_patient_aisha_body",
+   "reportedBodyMesh": "mpfb_ob_patient_aisha_body",
+   "bodyVsha": "2abd191ea7190250",
+   "oldNormalSha": "b6dfeed9f6909f3bc36a0c6add8d5339c338c3fcfc8de21b8c79bb17d7dffc55",
+   "newNormalSha": "74cf1419feae49d78ca2bb3cf99fd2da2c6f73b7973d84337063319697f89854",
+   "priorOutputSha256": "4f02b7c2073275eaacd736f8a3bceae325f306caf4cbb17f288031599554971a",
+   "priorOutputBytes": 13976324,
+   "outputGlbSha": "c94844c13f91e75d6d36f71282764abeec2f3f9c8d17087417972e605a1eb5f4",
+   "outputGlbBytes": 13939760,
+   "rebindCodeSha": "d695844a2838f880271bfd753fe622b212ccf950c927be82407ae0e1d37980fe",
+   "normalMetricsCodeSha": "ccdc5ecf1d5f874f157b206bc5d0d48c0d7fdc215c91cc8ae78e57d9c9a89cf4",
+   "blenderRuntime": "Blender 5.2.2 LTS, Cycles CPU, TANGENT normal bake",
+   "meshSurfaceBake": true,
+   "generator": "bake_skin_normal_to_texture+configure_skin_normal_detail (materialize_mpfb_humanoid_candidate.py)",
+   "bakeCode": "bake_skin_normal_to_texture",
+   "derivation": "mesh-surface re-bake rebind: Cycles TANGENT normal bake of the actor body through bake_skin_normal_to_texture; only the skin normal image bytes change, geometry and all other bytes preserved"
+  }
+ ]
 }
