@@ -27,7 +27,7 @@ export function observedTurnFrom(state: C6TurnView | null | undefined): {
   return {
     turnId: typeof state?.turnId === "number" ? state.turnId : -1,
     owner: typeof state?.turnOwner === "string" ? state.turnOwner : "",
-    a1Speaking: state?.actors?.a1?.speaking === true,
+    a1Speaking: state?.actors?.["a1"]?.speaking === true,
   };
 }
 

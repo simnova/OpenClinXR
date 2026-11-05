@@ -8,6 +8,7 @@
       "IntentKind",
       "IntentMessage",
       "RejectMessage",
+      "TopicAffect",
       "createEncounterServer"
     ]
   }

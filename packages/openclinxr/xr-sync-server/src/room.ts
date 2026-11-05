@@ -185,7 +185,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       this.castVoice = new Map(cast.castActors.map((entry) => [entry.actorId, entry]));
       this.topicAnswers = cast.topicAnswers;
       const policy = stationEmotionPolicy(cast);
-      this.tracer.setStationCast({ scenarioId: cast.scenarioId, actors: [...cast.actorIds], baseline: policy.baseline as string, emotionPolicy: policy, topicAnswers: cast.topicAnswers.map(({ actorId, topicTags, replyId }) => ({ actorId, topicTags: [...topicTags], replyId })) });
+      this.tracer.setStationCast({ scenarioId: cast.scenarioId, actors: [...cast.actorIds], baseline: policy.baseline as string, emotionPolicy: policy, topicAnswers: cast.topicAnswers.map(({ actorId, topicTags, replyId, affect }) => ({ actorId, topicTags: [...topicTags], replyId, ...(affect === undefined ? {} : { affect }) })) });
     } else {
       populateActorRoster(this.state.actors, options);
       this.tracer.setStationCast(null);

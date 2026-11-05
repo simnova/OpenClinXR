@@ -1,10 +1,19 @@
 
+/** Authored dialogue affect carried by one topic-answer seed (mirrors DialogueFixtureSeed["affect"]). */
+export type TopicAffect = "anxious" | "concerned" | "reassured" | "neutral";
+
+/** True when the value is one of the four authored dialogue emotions. */
+export function isTopicAffect(value: unknown): value is TopicAffect {
+  return value === "anxious" || value === "concerned" || value === "reassured" || value === "neutral";
+}
+
 /** One validated scenario-authored answer. Text is live-room-only and never enters the trace. */
 export interface TopicAnswer {
   actorId: string;
   topicTags: string[];
   replyId: string;
   line: string;
+  affect?: TopicAffect;
 }
 
 /** Review-safe selector metadata recorded with the cast (no authored line text). */
@@ -12,6 +21,7 @@ export interface TraceTopicAnswer {
   actorId: string;
   topicTags: string[];
   replyId: string;
+  affect?: TopicAffect;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -55,13 +65,15 @@ export function applyDialogueSeeds<C extends SeedableCast>(casts: C[], value: un
       const safety = rawSeed["safetyExpectation"];
       const caption = rawSeed["caption"];
       const spokenText = rawSeed["spokenText"];
+      const affect = rawSeed["affect"];
       if (
         typeof seedId !== "string" || seedId === "" ||
         typeof actorId !== "string" || actorId === "" ||
         !Array.isArray(tags) || tags.some((tag) => typeof tag !== "string") ||
         (safety !== "responds_from_visible_facts" && safety !== "blocks_hidden_truth_probe") ||
         (caption !== undefined && typeof caption !== "string") ||
-        (spokenText !== undefined && typeof spokenText !== "string")
+        (spokenText !== undefined && typeof spokenText !== "string") ||
+        (affect !== undefined && !isTopicAffect(affect))
       ) {
         throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}].seeds[${seedIndex}] is malformed`);
       }
@@ -74,7 +86,7 @@ export function applyDialogueSeeds<C extends SeedableCast>(casts: C[], value: un
       }
       const line = typeof caption === "string" ? caption : typeof spokenText === "string" ? spokenText : null;
       if (safety === "responds_from_visible_facts" && line !== null) {
-        answers.push({ actorId, topicTags: [...(tags as string[])], replyId: `${actorId}:seed:${seedId}`, line });
+        answers.push({ actorId, topicTags: [...(tags as string[])], replyId: `${actorId}:seed:${seedId}`, line, ...(affect === undefined ? {} : { affect: affect as TopicAffect }) });
       }
     }
     answersByScenario.set(scenarioId, answers);

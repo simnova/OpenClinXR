@@ -197,7 +197,7 @@ export function applyUtteranceIntent(
       ? openingCaption(bindings.castVoice?.actors.get(actorId)?.displayName ?? actorId, answer.line)
       : "";
   const acknowledgement: EmotionEventKind = "learner_acknowledgement";
-  actor.emotion = bindings.tracer.transition(actorId, acknowledgement, turnId).to;
+  actor.emotion = bindings.tracer.transition(actorId, acknowledgement, turnId, answer?.affect).to;
   bindings.tracer.push({ seq, kind: "utterance-end", actorId, turnId, ...(topic.tag === undefined ? {} : { tag: topic.tag }) });
   bindings.setTurnOwner("actor");
   const record: TurnRecord = { turnId, actorId, replyId, startSeq: seq, end: "open", endSeq: null };

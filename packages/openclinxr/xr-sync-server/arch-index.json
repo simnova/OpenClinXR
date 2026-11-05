@@ -11,6 +11,7 @@
     "IntentKind",
     "IntentMessage",
     "RejectMessage",
+    "TopicAffect",
     "createEncounterServer"
   ],
   "exportSummaries": {
@@ -21,6 +22,7 @@
     "IntentKind": "Client-to-server intent kinds.",
     "IntentMessage": "Wire envelope for one client intent.",
     "RejectMessage": "Server reply for a rejected intent.",
+    "TopicAffect": "Authored dialogue affect carried by one topic-answer seed (mirrors DialogueFixtureSeed[\"affect\"]).",
     "createEncounterServer": "Boot one encounter room on an HTTP and WebSocket transport, then listen."
   },
   "workspaceDependencies": [
@@ -47,6 +49,7 @@
     "src/xr-sync-c23-replay-required-count.test.ts",
     "src/xr-sync-c23-topic-answers.test.ts",
     "src/xr-sync-c23-trace-selectors.test.ts",
+    "src/xr-sync-c24-authored-affect.test.ts",
     "src/xr-sync-c3-actor-turn.test.ts",
     "src/xr-sync-c4-conversation-trace.test.ts",
     "src/xr-sync-c5-observer.test.ts",

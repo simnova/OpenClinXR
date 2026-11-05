@@ -46,6 +46,11 @@
       {
         "name": "scenarioDialogueSeedBank",
         "kind": "runtime"
+      },
+      {
+        "name": "DialogueFixtureSeed",
+        "kind": "type",
+        "via": "specifier"
       }
     ]
   },
@@ -150,6 +155,11 @@
       },
       {
         "name": "RejectMessage",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "TopicAffect",
         "kind": "type",
         "via": "own-test"
       }

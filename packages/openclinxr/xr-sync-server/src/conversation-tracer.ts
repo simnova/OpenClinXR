@@ -26,10 +26,11 @@ import {
   type ConversationTraceEvent,
 } from "./conversation-trace.js";
 import {
+  applyAuthoredAffect,
   cloneCastContext,
   transitionWithCastHold,
 } from "./conversation-trace-cast.js";
-import type { TraceTopicAnswer } from "./topic-answers.js";
+import type { TopicAffect, TraceTopicAnswer } from "./topic-answers.js";
 
 /**
  * Live conversation tracer owned by one encounter room: appends
@@ -95,14 +96,16 @@ export class ConversationTracer {
   }
 
   /** Resolve one emotion transition for an actor, advancing its engine. */
-  transition(actorId: string, kind: EmotionEventKind, turnIndex: number): EmotionTransition {
+  transition(actorId: string, kind: EmotionEventKind, turnIndex: number, affect?: TopicAffect): EmotionTransition {
     let engine = this.engines.get(actorId);
     if (!engine) {
       engine = new EmotionEngine(this.emotionBaseline);
       this.engines.set(actorId, engine);
     }
     // C17/C18 no-match hold lives in conversation-trace-cast.ts (single source).
-    return transitionWithCastHold(engine, this.emotionPolicy, kind, turnIndex);
+    const result = transitionWithCastHold(engine, this.emotionPolicy, kind, turnIndex);
+    // C24 the authored seed affect overrides the policy transition.
+    return applyAuthoredAffect(engine, result, affect);
   }
 
   /** Live trace view: events copied, turns + emotions recomputed by the reducer. */

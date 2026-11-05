@@ -230,7 +230,7 @@ async function main(): Promise<void> {
     const position = ACTOR_POSITIONS[id] ?? [0, 1, -2];
     mesh.position.set(position[0], position[1], position[2]);
     mesh.name = `sync-probe.actor.${id}`;
-    mesh.userData.actorId = id;
+    mesh.userData["actorId"] = id;
     scene.add(mesh);
     actorMeshes.set(id, mesh);
   }

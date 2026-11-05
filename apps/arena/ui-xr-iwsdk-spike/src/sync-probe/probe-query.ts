@@ -38,6 +38,7 @@ const KNOWN_SCRIPTS: ReadonlySet<string> = new Set([
   "c21",
   "c22",
   "c23",
+  "c24",
 ]);
 
 /** Parse the probe query string. Throws on missing/invalid ?sync=. */

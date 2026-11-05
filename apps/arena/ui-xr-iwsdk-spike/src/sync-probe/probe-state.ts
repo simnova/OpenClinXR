@@ -105,7 +105,7 @@ export const EMOTION_TINTS: Record<string, number> = {
 };
 
 export function resolveActorTint(emotion: string): number {
-  return EMOTION_TINTS[emotion] ?? EMOTION_TINTS.neutral;
+  return EMOTION_TINTS[emotion] ?? EMOTION_TINTS["neutral"] ?? 0;
 }
 
 /** Page-local mouth envelope for one server cue: peak amplitude and oscillation rate. */

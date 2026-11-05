@@ -13,7 +13,8 @@ import type {
   EmotionEventKind,
   EmotionTransition,
 } from "@openclinxr/conversation-policy";
-import type { TraceTopicAnswer } from "./topic-answers.js";
+import type { TraceTopicAnswer, TopicAffect } from "./topic-answers.js";
+import { isTopicAffect } from "./topic-answers.js";
 
 /** C18 cast context recorded in the trace (review-safe: ids + policy only). */
 export interface ConversationCastContext {
@@ -66,6 +67,19 @@ export function transitionWithCastHold(
   return engine.transition({ kind }, policy, turnIndex);
 }
 
+/** C24: a seed's authored affect sets the answering actor's emotion (engine reset, review-safe). */
+export function applyAuthoredAffect(
+  engine: EmotionEngine,
+  transition: EmotionTransition,
+  affect: TopicAffect | undefined,
+): EmotionTransition {
+  if (affect === undefined) {
+    return transition;
+  }
+  engine.reset(affect);
+  return { ...transition, to: affect, changed: affect !== transition.from };
+}
+
 /** Read a C18 recorded cast context from a loose replay input (undefined when absent). */
 export function readCastContext(raw: unknown, traceFile: string): ConversationCastContext | undefined {
   if (raw === undefined) {
@@ -114,11 +128,11 @@ export function readCastContext(raw: unknown, traceFile: string): ConversationCa
       ? {
           topicAnswers: record.topicAnswers.map((answer) => {
             if (typeof answer !== "object" || answer === null) throw new Error(`replay-bad-trace: ${traceFile} holds malformed topic answers`);
-            const item = answer as { actorId?: unknown; topicTags?: unknown; replyId?: unknown };
-            if (typeof item.actorId !== "string" || !Array.isArray(item.topicTags) || !item.topicTags.every((tag) => typeof tag === "string") || typeof item.replyId !== "string") {
+            const item = answer as { actorId?: unknown; topicTags?: unknown; replyId?: unknown; affect?: unknown };
+            if (typeof item.actorId !== "string" || !Array.isArray(item.topicTags) || !item.topicTags.every((tag) => typeof tag === "string") || typeof item.replyId !== "string" || (item.affect !== undefined && !isTopicAffect(item.affect))) {
               throw new Error(`replay-bad-trace: ${traceFile} holds malformed topic answers`);
             }
-            return { actorId: item.actorId, topicTags: [...item.topicTags] as string[], replyId: item.replyId };
+            return { actorId: item.actorId, topicTags: [...item.topicTags] as string[], replyId: item.replyId, ...(item.affect === undefined ? {} : { affect: item.affect as TopicAffect }) };
           }),
         }
       : {}),

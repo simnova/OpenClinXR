@@ -20,6 +20,7 @@ import {
   type EmotionTransition,
 } from "@openclinxr/conversation-policy";
 import {
+  applyAuthoredAffect,
   CAST_TRACE_OPENING_CUE_ID,
   castOpeningReplyId,
   isCastOpening,
@@ -269,7 +270,8 @@ export function reduceConversationEvents(
           endSeq: null,
         });
         openTurnId = turnId;
-        emotions.push(transitionFor(actorId, LEARNER_ACKNOWLEDGEMENT, turnId));
+        const ack = transitionFor(actorId, LEARNER_ACKNOWLEDGEMENT, turnId);
+        emotions.push(applyAuthoredAffect(engineFor(actorId), ack, answer?.affect));
         break;
       }
       case "turn-completed": {
