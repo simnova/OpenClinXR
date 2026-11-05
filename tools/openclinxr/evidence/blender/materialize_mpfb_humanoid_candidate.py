@@ -388,6 +388,10 @@ SKIN_TONE_RGB = {
     # shipped tone so the baked atlas is not another actor's.
     "warm_medium": (0.66, 0.50, 0.40),
     "medium_warm": (0.58, 0.44, 0.36),
+    # st-vitdark r2: encoded sRGB of the African-map cheek mean from
+    # E/chroma-table.json (linear RGB 0.064117, 0.023956, 0.014209). The
+    # post-export CIELAB stage supplies the non-multiplicative regional chroma.
+    "deep_warm": (0.280860, 0.167848, 0.124262),
     "default": (0.68, 0.53, 0.44),
 }
 

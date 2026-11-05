@@ -24,6 +24,9 @@ export const ActorPhenotypeSchema = Type.Object(
     body_profile: Type.Optional(Type.String()),
     pose: Type.Optional(Type.String()),
     skin_tone: Type.Optional(Type.String()),
+    /** D13 random-once provenance when the authoring adapter selects a tone. */
+    skin_tone_selection_seed: Type.Optional(Type.String()),
+    skin_tone_selection_note: Type.Optional(Type.String()),
     hair_color: Type.Optional(Type.String()),
     eye_color: Type.Optional(Type.String()),
     gender_presentation: Type.Optional(Type.String()),

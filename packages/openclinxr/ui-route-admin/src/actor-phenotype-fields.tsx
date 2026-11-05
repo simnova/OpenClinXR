@@ -54,7 +54,7 @@ const fabricPaletteOptions = toOptions([
   "soft_blue_and_warm_white",
   "teal_scrubs_and_white_badge",
 ]);
-const skinToneOptions = toOptions(["medium_warm", "warm_light", "warm_light_child", "warm_medium"]);
+const skinToneOptions = toOptions(["deep_warm", "medium_warm", "warm_light", "warm_light_child", "warm_medium"]);
 const hairColorOptions = toOptions(["black", "brown", "dark_brown", "light_brown"]);
 const eyeColorOptions = toOptions(["blue", "brown", "green"]);
 const genderPresentationOptions = toOptions([

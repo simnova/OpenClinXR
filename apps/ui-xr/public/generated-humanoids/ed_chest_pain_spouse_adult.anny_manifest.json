@@ -12,7 +12,7 @@
     "pose": "standing_anxious_guardian",
     "seed": 2102,
     "phenotype": {
-      "skin_tone": "warm_light",
+      "skin_tone": "deep_warm",
       "hair_color": "dark_brown",
       "gender_presentation": "adult_female",
       "height_cm": 166,
@@ -64,7 +64,7 @@
     "noncommercial_download_used": false
   },
   "phenotype_summary": {
-    "skin_tone": "warm_light",
+    "skin_tone": "deep_warm",
     "hair_color": "dark_brown",
     "gender_presentation": "adult_female",
     "height_cm": 166,
@@ -90,7 +90,7 @@
     "sleeveGeometryExpansion": "v2_street_from_preset_factory_no_hand_tune"
   },
   "material_hints": {
-    "skin": "warm_light",
+    "skin": "deep_warm",
     "hair": "dark_brown",
     "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1",
     "role": {

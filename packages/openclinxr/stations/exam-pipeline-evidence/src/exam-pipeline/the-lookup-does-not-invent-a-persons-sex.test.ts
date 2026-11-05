@@ -39,7 +39,7 @@ import { scenarioBank } from "../../../../../../packages/openclinxr/scenario-fix
  * (body_profile, age, height_cm, bmi) is legitimately derived from an age-band descriptor and 25 actors
  * depend on it; removing it would return them to the refuse gate and shrink the cast.
  *
- * KNOWN-GOOD COLUMN: clause (2). The same 25 actors must still derive numeric identity after the fix.
+ * KNOWN-GOOD COLUMN: clause (2). The same actors (25 at writing; 24 since st-vitdark authored the spouse) must still derive numeric identity.
  *
  * NO SCALAR THRESHOLD APPEARS IN THIS CONTRACT. Every assertion is field presence or set membership
  * over an enumerated population.
@@ -91,8 +91,10 @@ describe("the lookup does not invent a person's sex", () => {
     const incomplete = rows
       .filter((r) => ["body_profile", "age", "height_cm", "bmi"].some((k) => r.derived[k] === undefined))
       .map((r) => r.actorId);
+    // 25 -> 24 at st-vitdark: spouse_anna_hayes_v1 gained an authored phenotype (D13 skin_tone pick),
+    // so it left the derived population rather than the cast.
     expect(rows.length, "the lookup must still speak for the actors it speaks for today")
-      .toBeGreaterThanOrEqual(25);
+      .toBeGreaterThanOrEqual(24);
     expect(incomplete, "numeric identity is legitimately derived and must survive").toEqual([]);
   });
 

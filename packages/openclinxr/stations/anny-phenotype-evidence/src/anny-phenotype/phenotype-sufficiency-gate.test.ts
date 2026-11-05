@@ -208,7 +208,8 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
       // ed_chest_pain_priority_v1 and _v2 export entries (the v2/v3 fixtures
       // spread v1's actors array, so the #650 authored block lands in both),
       // + the ward senior_resident (#665 8cb552478 — adapted, see header).
-      expect(authored.length).toBe(6);
+      // + the ED spouse anna (st-vitdark D13 skin_tone pick), also in both ED export entries.
+      expect(authored.length).toBe(8);
       // Measured 2026-08-11 after the #302 height-macro solve (see ## FIXED (#302)
       // above): the child (125 cm) was outside Anny's reachable height band and
       // refused loudly; the two reachable adults produce bodies whose hashes changed
@@ -228,6 +229,8 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
         // #665 (ci-w4 adaptation): newly-authored ward senior. Same terms as
         // robert — must BUILD (24 fields incl. body-shape drivers), no hash pin.
         ["senior_resident_ward_v1", {}],
+        // st-vitdark: newly-authored ED spouse (deep_warm). Must BUILD; no hash pin.
+        ["spouse_anna_hayes_v1", {}],
       ]);
       for (const { actorId, phenotype } of authored) {
         const expectation = expected.get(actorId);

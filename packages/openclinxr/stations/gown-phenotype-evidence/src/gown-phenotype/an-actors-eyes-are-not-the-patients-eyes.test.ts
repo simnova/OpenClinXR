@@ -145,13 +145,20 @@ function actorsAuthoringEyeColour(): Set<string> {
 }
 
 /**
- * The two shipped assets whose actors author NO eye colour, so the role fallback must decide.
+ * The shipped asset whose actor authors NO eye colour, so the role fallback must decide.
  * Not a chosen list: it is every non-patient MPFB asset left once the authoring actors above are
  * removed. Clause (1)'s guard re-derives the authoring set each run and fails if it drifts.
  */
 const UNAUTHORED_NON_PATIENT = {
   "mpfb-clinical-nurse-adult.glb": "nurse_maria_alvarez_v1",
-  "mpfb-family-partner-adult.glb": "spouse_anna_hayes_v1",
+} as const;
+
+/**
+ * Shipped non-patient assets whose case authors an eye colour (st-vitdark: the spouse gained an
+ * authored phenotype with eye_color green). The authored value must reach the shipped iris.
+ */
+const AUTHORED_NON_PATIENT = {
+  "mpfb-family-partner-adult.glb": { actorId: "spouse_anna_hayes_v1", eye: "green" },
 } as const;
 
 async function irisOf(glb: string): Promise<string | null> {
@@ -185,6 +192,7 @@ describe("an actor's eyes are not the patient's eyes (#568)", () => {
         "patient_maya_johnson_v1",
         "patient_robert_hayes_v1",
         "senior_resident_ward_v1",
+        "spouse_anna_hayes_v1",
       ]);
 
       const wrong: string[] = [];
@@ -197,6 +205,11 @@ describe("an actor's eyes are not the patient's eyes (#568)", () => {
         if (iris !== want) {
           wrong.push(`${glb} (${actorId}) authors nothing, role=${role} wants ${want}, ships ${iris}`);
         }
+      }
+      for (const [glb, { actorId, eye }] of Object.entries(AUTHORED_NON_PATIENT)) {
+        expect(authoring.has(actorId), `${actorId} no longer authors an eye colour`).toBe(true);
+        const iris = await irisOf(glb);
+        if (iris !== eye) wrong.push(`${glb} (${actorId}) authors ${eye}, ships ${iris}`);
       }
       expect(
         wrong,

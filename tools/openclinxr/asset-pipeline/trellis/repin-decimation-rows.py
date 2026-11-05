@@ -88,10 +88,11 @@ PLAN = {
     },
     # --- HB-03 rows (bytes only; tris/face/hand/joints asserted unchanged) ---
     "mpfb-family-partner-adult.glb": {
-        "bytesAfter": 9330184,
+        "bytesAfter": 9178416,
         "triangleCountAfter": 39974,
         "handBodyMeshAfter": 13357,
-        "note": ("Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 9277296 -> 9330184 B). "
+        "note": ("Re-measured 2026-11-04 (st-vitdark r2): post-export CIELAB skin BaseColor remap only; geometry counts hold (asserted by main()), 9330184 -> 9178416 B. "
+                 "Prior st-viteye r3 re-measure: commit 931343e6b swapped the Vitruvian iris/sclera image, 9277296 -> 9330184 B. "
                  "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
                  "(tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding "
                  "commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior "

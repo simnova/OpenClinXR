@@ -183,6 +183,27 @@ export const edChestPainScenario: Scenario = {
         culturalLanguageNotes: ["family-centered communication", "plain English", "preserve respect"],
       },
       hiddenFacts: ["Knows patient skipped blood pressure medication this week"],
+      // st-vitdark r2 D13 random-once pick. Eligible shipped adults with no
+      // authored skin_tone, sorted by actorId:
+      //   [nurse_maria_alvarez_v1, spouse_anna_hayes_v1]
+      // seed="st-vitdark-r2-2026-11-04"; sha256(seed)=
+      // b3bfad33217ec88bd74e9e069fc33009e9c4198489d79c34edab6f683a27d038;
+      // uint64be(digest[0:8]) mod 2 = 1 -> spouse_anna_hayes_v1. Body values
+      // carry forward the deterministic descriptor lookup; green/adult_female
+      // match the already-shipped actor and its tracked source manifest.
+      phenotype: {
+        body_profile: "adult_standard_parent",
+        age: 34,
+        height_cm: 166,
+        bmi: 24,
+        build: "average_adult",
+        eye_color: "green",
+        gender_presentation: "adult_female",
+        skin_tone: "deep_warm",
+        skin_tone_selection_seed: "st-vitdark-r2-2026-11-04",
+        skin_tone_selection_note:
+          "sha256 first uint64 big-endian modulo sorted eligible shipped adults; index 1 of 2",
+      },
       // st-redclear: plant z -0.95 -> -1.40 — the v2 animated pose reaches maxZ -0.35 against the
       // stretcher edge (-0.59), reading 17-20% overlap at the f=0.18 threshold. South-side bedside
       // kept beside the patient (x unchanged), heading unchanged; mirrors the ci-w16 nurse fix.

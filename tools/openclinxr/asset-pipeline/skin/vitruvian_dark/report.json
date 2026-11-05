@@ -1,0 +1,408 @@
+{
+ "stage": "vitruvian_dark_cielab_remap_v2",
+ "input": {
+  "path": "/Users/patrick/.grok/worktrees/station-vitdark/apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+  "sha256": "fb37db5e9ed7bd848dcf87b94ebdd53a150fbfccdbeb8be47fdf66825e1bcca8",
+  "bytes": 9330184
+ },
+ "inputRevision": "d5861c073",
+ "output": {
+  "path": "/Users/patrick/.grok/worktrees/station-vitdark/apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+  "sha256": "85d98d375c31bdfc55fd107dee48816870ee9da541e197e0e1eb45f255e2dadf",
+  "bytes": 9178752
+ },
+ "probeZeroRegionSeparations": false,
+ "sourceImageSha256": {
+  "jeanstex1": "a556d0e1329f2974c4bf6cd0875515d96ca189fa7805b829daf7af4ce9744ace",
+  "MJ-shoes3": "fa20149c846d9cb9d4837363f82dac87892efed7a152bbf966566f623062da4b",
+  "T-shirt_basic.png": "c813701d61cd14f94b0f7c5793c15ceb89870f00e3dda8d695e02e5b5de21519",
+  "mpfb-family-partner-adult.skin-baked": "c515f4967c88d31f3faf9ac83780f69a0a68479d479a5258cf4ba01ab63d8919",
+  "vitruvian-iris-green": "6435efc253824fb09a8ec0ad11ee7136a40f0596c8b3050e61117a533acdcbce"
+ },
+ "outputImageSha256": {
+  "jeanstex1": "a556d0e1329f2974c4bf6cd0875515d96ca189fa7805b829daf7af4ce9744ace",
+  "MJ-shoes3": "fa20149c846d9cb9d4837363f82dac87892efed7a152bbf966566f623062da4b",
+  "T-shirt_basic.png": "c813701d61cd14f94b0f7c5793c15ceb89870f00e3dda8d695e02e5b5de21519",
+  "mpfb-family-partner-adult.skin-baked": "f3a89b38cd228c17ebbdc3ef945a75ff9091beb5539fa46ac7fff818d8deec64",
+  "vitruvian-iris-green": "6435efc253824fb09a8ec0ad11ee7136a40f0596c8b3050e61117a533acdcbce"
+ },
+ "nonSkinImagesUnchanged": {
+  "jeanstex1": true,
+  "MJ-shoes3": true,
+  "T-shirt_basic.png": true,
+  "vitruvian-iris-green": true
+ },
+ "allNonSkinImagesUnchanged": true,
+ "nonSkinBufferViewsUnchanged": {
+  "0": true,
+  "1": true,
+  "2": true,
+  "4": true,
+  "5": true,
+  "6": true,
+  "7": true,
+  "8": true,
+  "9": true,
+  "10": true,
+  "11": true,
+  "12": true,
+  "13": true,
+  "14": true,
+  "15": true,
+  "16": true,
+  "17": true,
+  "18": true,
+  "19": true,
+  "20": true,
+  "21": true,
+  "22": true,
+  "23": true,
+  "24": true,
+  "25": true,
+  "26": true
+ },
+ "allNonSkinBufferViewsUnchanged": true,
+ "maskCounts": {
+  "cheek": 12604,
+  "forehead": 2192,
+  "lip": 1109,
+  "ear": 1407,
+  "nose": 1588,
+  "mouth_corner": 2342,
+  "upper_lid": 668
+ },
+ "multiplyControl": {
+  "mean_lab": {
+   "cheek": [
+    27.316757254938626,
+    6.506794119036812,
+    10.303508180953521
+   ],
+   "forehead": [
+    27.337132825760417,
+    6.528121166460218,
+    10.294838841348023
+   ],
+   "lip": [
+    26.976686483040854,
+    11.918864437515348,
+    12.41742698748389
+   ],
+   "ear": [
+    29.231086599490297,
+    7.404570833744454,
+    11.015655030915006
+   ],
+   "nose": [
+    28.556425062165694,
+    7.467870332123417,
+    11.07681526405613
+   ],
+   "mouth_corner": [
+    26.836420735066753,
+    7.093023359226549,
+    10.382910188068161
+   ],
+   "upper_lid": [
+    20.95535014629245,
+    9.047715033514796,
+    11.137091164824994
+   ]
+  },
+  "regions": {
+   "lip": {
+    "actual_region_minus_forehead": [
+     -0.36044634271956255,
+     5.39074327105513,
+     2.1225881461358664
+    ],
+    "african_region_minus_forehead": [
+     -0.304075000000001,
+     0.875432,
+     -6.0272
+    ],
+    "absolute_error_a_star": 4.51531127105513,
+    "absolute_error_b_star": 8.149788146135865,
+    "two_x_patch_sd_a_star": 3.7874213527718297,
+    "two_x_patch_sd_b_star": 0.8715408724586587,
+    "pass": false
+   },
+   "ear": {
+    "actual_region_minus_forehead": [
+     1.89395377372988,
+     0.8764496672842359,
+     0.7208161895669836
+    ],
+    "african_region_minus_forehead": [
+     4.219515000000001,
+     1.7967500000000012,
+     -2.049576
+    ],
+    "absolute_error_a_star": 0.9203003327157653,
+    "absolute_error_b_star": 2.7703921895669836,
+    "two_x_patch_sd_a_star": 1.43117120416811,
+    "two_x_patch_sd_b_star": 0.9142548762756922,
+    "pass": false
+   },
+   "nose": {
+    "actual_region_minus_forehead": [
+     1.219292236405277,
+     0.9397491656631995,
+     0.781976422708107
+    ],
+    "african_region_minus_forehead": [
+     5.615569000000001,
+     -0.22615599999999958,
+     -0.4321029999999997
+    ],
+    "absolute_error_a_star": 1.1659051656631991,
+    "absolute_error_b_star": 1.2140794227081066,
+    "two_x_patch_sd_a_star": 0.8467682961684376,
+    "two_x_patch_sd_b_star": 1.763313059836511,
+    "pass": false
+   }
+  },
+  "forehead_to_cheek": {
+   "actual_ciede2000": 0.030842990951108994,
+   "african_ciede2000": 0.3946736690603217,
+   "absolute_error": 0.3638306781092127,
+   "floor": 0.801341,
+   "pass": true
+  }
+ },
+ "global_cheek_delta_lab": [
+  -59.524776383932746,
+  5.823417821435285,
+  1.4257314971478436
+ ],
+ "vitruvian_light_to_african_cheek_delta_lab": [
+  -44.112216000000004,
+  -6.059431,
+  -5.7328969999999995
+ ],
+ "input_cheek_to_vitruvian_light_anchor_delta_lab": [
+  -15.412560383932743,
+  11.882848821435285,
+  7.158628497147843
+ ],
+ "corrections": {
+  "forehead": {
+   "mode": "additive_delta",
+   "target_region_minus_cheek": [
+    -0.5328000000000017,
+    0.07549299999999981,
+    -0.13081999999999994
+   ],
+   "alpha_mean": 0.8407238442822385,
+   "lab_correction": [
+    -0.7113452493759405,
+    0.08175124389718604,
+    -0.16120415552995976
+   ]
+  },
+  "ear": {
+   "mode": "additive_delta",
+   "target_region_minus_cheek": [
+    3.6867149999999995,
+    1.872243000000001,
+    -2.180396
+   ],
+   "alpha_mean": 0.8353192023077889,
+   "lab_correction": [
+    -0.5650741634256057,
+    0.3910084678643099,
+    -3.910142616490981
+   ]
+  },
+  "nose": {
+   "mode": "additive_delta",
+   "target_region_minus_cheek": [
+    5.082768999999999,
+    -0.15066299999999977,
+    -0.5629229999999996
+   ],
+   "alpha_mean": 0.8924383859337185,
+   "lab_correction": [
+    2.746884618176072,
+    -2.1113538810199786,
+    -2.1758688870944773
+   ]
+  },
+  "mouth_corner": {
+   "mode": "target_field_with_bounded_detail",
+   "alpha_mean": 0.8038696605884028,
+   "source_mean_lab": [
+    19.64536864477157,
+    13.202145158757324,
+    12.974271562996918
+   ],
+   "desired_mean_lab": [
+    20.74838400000077,
+    11.932197999999897,
+    12.792653000000026
+   ],
+   "target_base_lab": [
+    21.020748283029484,
+    11.477157757764203,
+    12.702216641783918
+   ],
+   "detail_scale_lab": [
+    0.75,
+    0.15,
+    0.15
+   ]
+  },
+  "lip": {
+   "mode": "target_field_with_bounded_detail",
+   "alpha_mean": 0.7781537863116392,
+   "source_mean_lab": [
+    19.60890375853733,
+    21.854112601188856,
+    16.605873276228465
+   ],
+   "desired_mean_lab": [
+    19.911509000000766,
+    12.883122999999896,
+    6.634633000000027
+   ],
+   "target_base_lab": [
+    20.01311865133771,
+    10.485939993876917,
+    3.8680052958417903
+   ],
+   "detail_scale_lab": [
+    0.75,
+    0.15,
+    0.15
+   ],
+   "target_region_minus_cheek": [
+    -0.8368750000000027,
+    0.9509249999999998,
+    -6.15802
+   ]
+  },
+  "upper_lid": {
+   "mode": "target_field_with_bounded_detail",
+   "alpha_mean": 0.7516731243395562,
+   "source_mean_lab": [
+    6.161528073343349,
+    17.993398321975146,
+    16.263053094916046
+   ],
+   "desired_mean_lab": [
+    20.74838400000077,
+    11.932197999999897,
+    12.792653000000026
+   ],
+   "target_base_lab": [
+    25.15542727763031,
+    10.231337409395268,
+    11.863796566133002
+   ],
+   "detail_scale_lab": [
+    0.75,
+    0.15,
+    0.15
+   ]
+  }
+ },
+ "metrics": {
+  "mean_lab": {
+   "cheek": [
+    20.811539938969716,
+    11.909523162561856,
+    12.787177012623912
+   ],
+   "forehead": [
+    20.216573359500646,
+    11.994010765399114,
+    12.672792942886904
+   ],
+   "lip": [
+    19.908931413128357,
+    12.896016890789829,
+    6.6236114145330935
+   ],
+   "ear": [
+    24.434947614754005,
+    13.791661186187486,
+    10.613985498798513
+   ],
+   "nose": [
+    25.842024926717297,
+    11.79238379649501,
+    12.240641223401331
+   ],
+   "mouth_corner": [
+    20.775165995511333,
+    11.56670519777017,
+    11.99883876038995
+   ],
+   "upper_lid": [
+    20.749518572019078,
+    11.951806337968389,
+    12.781309187349256
+   ]
+  },
+  "regions": {
+   "lip": {
+    "actual_region_minus_forehead": [
+     -0.30764194637228925,
+     0.9020061253907148,
+     -6.04918152835381
+    ],
+    "african_region_minus_forehead": [
+     -0.304075000000001,
+     0.875432,
+     -6.0272
+    ],
+    "absolute_error_a_star": 0.026574125390714798,
+    "absolute_error_b_star": 0.02198152835381073,
+    "two_x_patch_sd_a_star": 3.7874213527718297,
+    "two_x_patch_sd_b_star": 0.8715408724586587,
+    "pass": true
+   },
+   "ear": {
+    "actual_region_minus_forehead": [
+     4.218374255253359,
+     1.7976504207883721,
+     -2.058807444088391
+    ],
+    "african_region_minus_forehead": [
+     4.219515000000001,
+     1.7967500000000012,
+     -2.049576
+    ],
+    "absolute_error_a_star": 0.000900420788370937,
+    "absolute_error_b_star": 0.009231444088390717,
+    "two_x_patch_sd_a_star": 1.43117120416811,
+    "two_x_patch_sd_b_star": 0.9142548762756922,
+    "pass": true
+   },
+   "nose": {
+    "actual_region_minus_forehead": [
+     5.6254515672166505,
+     -0.2016269689041046,
+     -0.4321517194855726
+    ],
+    "african_region_minus_forehead": [
+     5.615569000000001,
+     -0.22615599999999958,
+     -0.4321029999999997
+    ],
+    "absolute_error_a_star": 0.024529031095894993,
+    "absolute_error_b_star": 4.871948557294559e-05,
+    "two_x_patch_sd_a_star": 0.8467682961684376,
+    "two_x_patch_sd_b_star": 1.763313059836511,
+    "pass": true
+   }
+  },
+  "forehead_to_cheek": {
+   "actual_ciede2000": 0.4344442265022591,
+   "african_ciede2000": 0.3946736690603217,
+   "absolute_error": 0.039770557441937415,
+   "floor": 0.801341,
+   "pass": true
+  }
+ }
+}

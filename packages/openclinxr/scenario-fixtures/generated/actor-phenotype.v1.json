@@ -41,7 +41,12 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true
+          "build": "average_adult",
+          "eye_color": "green",
+          "gender_presentation": "adult_female",
+          "skin_tone": "deep_warm",
+          "skin_tone_selection_seed": "st-vitdark-r2-2026-11-04",
+          "skin_tone_selection_note": "sha256 first uint64 big-endian modulo sorted eligible shipped adults; index 1 of 2"
         }
       },
       "nurse_maria_alvarez_v1": {
@@ -484,7 +489,12 @@
           "age": 34,
           "height_cm": 166,
           "bmi": 24,
-          "descriptor_derived": true
+          "build": "average_adult",
+          "eye_color": "green",
+          "gender_presentation": "adult_female",
+          "skin_tone": "deep_warm",
+          "skin_tone_selection_seed": "st-vitdark-r2-2026-11-04",
+          "skin_tone_selection_note": "sha256 first uint64 big-endian modulo sorted eligible shipped adults; index 1 of 2"
         }
       },
       "nurse_maria_alvarez_v1": {

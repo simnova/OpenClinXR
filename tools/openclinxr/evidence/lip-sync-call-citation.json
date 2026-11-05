@@ -4,7 +4,7 @@
   "loadTargets": {
     "symbol": "load_targets",
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 6508,
+    "line": 6512,
     "requiredFlags": {
       "load_microsoft_visemes": false,
       "load_meta_visemes": true,
@@ -15,12 +15,12 @@
       "load_meta_visemes": false,
       "load_arkit_faceunits": false
     },
-    "resolutionNote": "REPOINTED 2026-10-30 (ci-w8): the #428 citation (.openclinxr-local/provider-cache/mpfb/extracted/services/faceservice.py:154) is machine-local gitignored and resolves nowhere in a clone \u2014 resolvesTo threw 'missing artifact'. The upstream source still carries the symbol at the same lines (verified in the operator main checkout: def load_targets at :154, def configure_lip_sync at :304), but it cannot be the committed citation. The tracked holder is the E6.3 wiring that MAKES the call: line 6318 is _FaceService.load_targets( with exactly the required flags on the following lines (6319-6323), installed first from the staged visemes02 pack. Shifted +47 on 2026-11-04 by st-vitpore (detail-normal carrier lines in materialize_mpfb_humanoid_candidate.py; call now :6508, configure_lip_sync comment :6501). Earlier: shifted +142 on 2026-11-05 by the st-vitskin skin-shade carrier stage inserted at :3841 (call now :6461, configure_lip_sync comment :6454). Previous resolutionNote preserved below. The faceservice.py:154 reference in code comments names the upstream definition, not the citation."
+    "resolutionNote": "REPOINTED 2026-10-30 (ci-w8): the #428 citation (.openclinxr-local/provider-cache/mpfb/extracted/services/faceservice.py:154) is machine-local gitignored and resolves nowhere in a clone \u2014 resolvesTo threw 'missing artifact'. The upstream source still carries the symbol at the same lines (verified in the operator main checkout: def load_targets at :154, def configure_lip_sync at :304), but it cannot be the committed citation. The tracked holder is the E6.3 wiring that MAKES the call: line 6318 is _FaceService.load_targets( with exactly the required flags on the following lines (6319-6323), installed first from the staged visemes02 pack. Shifted +4 on 2026-11-04 by st-vitdark (deep_warm SKIN_TONE_RGB row; call now :6512, configure_lip_sync comment :6505). Earlier: shifted +47 on 2026-11-04 by st-vitpore (detail-normal carrier lines in materialize_mpfb_humanoid_candidate.py; call now :6508, configure_lip_sync comment :6501). Earlier: shifted +142 on 2026-11-05 by the st-vitskin skin-shade carrier stage inserted at :3841 (call now :6461, configure_lip_sync comment :6454). Previous resolutionNote preserved below. The faceservice.py:154 reference in code comments names the upstream definition, not the citation."
   },
   "configureLipSync": {
     "symbol": "configure_lip_sync",
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 6501
+    "line": 6505
   },
   "listSizes": {
     "MICROSOFT_VISEMES": 22,

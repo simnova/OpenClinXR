@@ -36,6 +36,8 @@ SKIN_TONE_RGBA = {
     "warm_light": (0.78, 0.62, 0.52, 1.0),
     "warm_medium": (0.66, 0.50, 0.40, 1.0),
     "medium_warm": (0.58, 0.44, 0.36, 1.0),
+    # st-vitdark r2: encoded sRGB of E/chroma-table.json African cheek mean.
+    "deep_warm": (0.280860, 0.167848, 0.124262, 1.0),
     "default": (0.68, 0.53, 0.44, 1.0),
 }
 
