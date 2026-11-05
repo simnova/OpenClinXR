@@ -1,0 +1,132 @@
+{
+ "size": 1024,
+ "row": "v*S",
+ "landmarks": {
+  "eye-corner-L-inner": {
+   "uv_texel": [
+    859.7285267458124,
+    504.26659044168764
+   ],
+   "method": "fix_corner inequalities vs subject eye-mesh centroid/R per side; centroid of selected socket faces (paint centroid)"
+  },
+  "eye-corner-L-outer": {
+   "uv_texel": [
+    855.3490723118638,
+    486.7194320216323
+   ],
+   "method": "fix_corner inequalities vs subject eye-mesh centroid/R per side; centroid of selected socket faces (paint centroid)"
+  },
+  "eye-corner-R-inner": {
+   "uv_texel": [
+    859.7304402152024,
+    554.2008141124315
+   ],
+   "method": "fix_corner inequalities vs subject eye-mesh centroid/R per side; centroid of selected socket faces (paint centroid)"
+  },
+  "eye-corner-R-outer": {
+   "uv_texel": [
+    855.3492281364672,
+    571.7548379609079
+   ],
+   "method": "fix_corner inequalities vs subject eye-mesh centroid/R per side; centroid of selected socket faces (paint centroid)"
+  },
+  "brow-end-L-inner": {
+   "uv_texel": [
+    846.4261474609375,
+    514.9832153320312
+   ],
+   "method": "skin within 6mm of brow mesh per side"
+  },
+  "brow-end-L-outer": {
+   "uv_texel": [
+    845.8289794921875,
+    472.4263916015625
+   ],
+   "method": "skin within 6mm of brow mesh per side"
+  },
+  "brow-end-R-inner": {
+   "uv_texel": [
+    843.404296875,
+    542.9583740234375
+   ],
+   "method": "skin within 6mm of brow mesh per side"
+  },
+  "brow-end-R-outer": {
+   "uv_texel": [
+    845.8289184570312,
+    586.045654296875
+   ],
+   "method": "skin within 6mm of brow mesh per side"
+  },
+  "nostril-L": {
+   "uv_texel": [
+    882.3995361328125,
+    505.1297607421875
+   ],
+   "method": "most-recessed vert per side in window beside/below tip"
+  },
+  "nostril-R": {
+   "uv_texel": [
+    882.3995361328125,
+    553.3427734375
+   ],
+   "method": "most-recessed vert per side in window beside/below tip"
+  },
+  "lip-corner-L": {
+   "uv_texel": [
+    881.23095703125,
+    887.1290893554688
+   ],
+   "method": "skin within 8mm of mouth-hole loop (face island); seam-snapped to lip-mask island"
+  },
+  "lip-corner-R": {
+   "uv_texel": [
+    840.4967041015625,
+    887.1290893554688
+   ],
+   "method": "skin within 8mm of mouth-hole loop (face island); seam-snapped to lip-mask island"
+  },
+  "lip-mid-upper": {
+   "uv_texel": [
+    942.55419921875,
+    929.997314453125
+   ],
+   "method": "skin within 8mm of mouth-hole loop (face island); seam-snapped to lip-mask island"
+  },
+  "lip-mid-lower": {
+   "uv_texel": [
+    932.5292358398438,
+    514.173095703125
+   ],
+   "method": "skin within 8mm of mouth-hole loop (face island); seam-snapped to lip-mask island"
+  },
+  "ear-attach-L": {
+   "uv_texel": [
+    862.1629028320312,
+    382.0416259765625
+   ],
+   "method": "lateral extremes in lash-anchored band, two-pass (wide pass finds medoid, keep +-25mm height)"
+  },
+  "ear-attach-R": {
+   "uv_texel": [
+    862.162841796875,
+    676.4310302734375
+   ],
+   "method": "lateral extremes in lash-anchored band, two-pass (wide pass finds medoid, keep +-25mm height)"
+  },
+  "chin": {
+   "uv_texel": [
+    981.2536010742188,
+    529.2359619140625
+   ],
+   "method": "last front-surface strip bin descending from mouth (face-island centre profile)"
+  },
+  "nose-tip": {
+   "uv_texel": [
+    877.697509765625,
+    529.2359619140625
+   ],
+   "method": "dorsum-zone (mouth_top+8mm..lash) strip z-max"
+  }
+ }
+}

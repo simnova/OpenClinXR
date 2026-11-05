@@ -90,7 +90,8 @@ describe("the forehead sheen matches the goals (handback 1: no fix)", { timeout:
     expect(r.gates.G3.no_floor).toBe(true);
     const src = fs.readFileSync(ROUGH_SRC, "utf8");
     expect(src).not.toMatch(/FOREHEAD_ROUGH_FLOOR/);
-    expect(src).toMatch(/T\[disk\(\(S, S\), forehead\[0\], forehead\[1\], R_FOREHEAD \* S\)\] = 1\.0/);
+    // st-vitrough r4 moved the T-zone build into a pure function (T -> t_zone, S -> size).
+    expect(src).toMatch(/t_zone\[disk\(\(size, size\), forehead\[0\], forehead\[1\], R_FOREHEAD \* size\)\] = 1\.0/);
     expect(r.gates.G3.bake_sha_body2).toBe(
       "958da152c077d582a76694122e278dd487964e7e66df02b2ba267fda8a2800d9",
     );

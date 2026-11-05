@@ -94,8 +94,8 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "daughter_lena_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-          "assetSha256": "b4195761f4389c34c0182d7a8bb99f07ded3d4dd31e69b82a4133c84caf83b95",
-          "byteCount": 9182096
+          "assetSha256": "67540225eb54e4bf8eea4586514e87ad54f8725a0f495d8c3bcb59ee7d9cc8e3",
+          "byteCount": 9196228
         }
       ],
       "revisions": {
@@ -167,11 +167,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-dd82ddd819e106633909bdb4e08cf659",
+      "planRevision": "plan-v1-a16d4cb0a693dce8a18a65a15cae2395",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-dd82ddd819e106633909bdb4e08cf659"
+        "acknowledgedPlanRevision": "plan-v1-a16d4cb0a693dce8a18a65a15cae2395"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);

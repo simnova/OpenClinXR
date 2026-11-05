@@ -49,19 +49,29 @@ describe("the shipped dark atlas keeps the African map's regional chroma", () =>
     expect(REPORT.stage).toBe("vitruvian_dark_cielab_remap_v2");
     expect(REPORT.probeZeroRegionSeparations).toBe(false);
     // The remap output is either shipped as-is, or is the exact input of the later
-    // JSON-only hair-colour stage (st-vitbrow r4, BIN chunk verbatim) whose output ships.
+    // JSON-only hair-colour stage (st-vitbrow r4, BIN chunk verbatim), whose output either ships
+    // or feeds the provenance `stages` chain that ends at the shipped bytes.
     const shipped = sha256(GLB_PATH);
     const provenance = JSON.parse(readFileSync(GLB_PATH.replace(/\.glb$/, ".provenance.json"), "utf8")) as {
       actorHairColourPostExport?: { stage: string; inputGlbSha256: string; outputGlbSha256: string; outputBytes: number };
+      stages?: { stage: string; inputSha256: string; outputSha256: string; outputBytes: number }[];
     };
     const hair = provenance.actorHairColourPostExport;
+    // Later post-export stages (st-vitrough r4 roughness breakup) chain from the hair output.
+    let chainEnd = hair?.outputGlbSha256;
+    let chainBytes = hair?.outputBytes;
+    for (const later of provenance.stages ?? []) {
+      expect(later.inputSha256).toBe(chainEnd);
+      chainEnd = later.outputSha256;
+      chainBytes = later.outputBytes;
+    }
     if (REPORT.output.sha256 === shipped) {
       expect(REPORT.output.bytes).toBe(readFileSync(GLB_PATH).byteLength);
     } else {
       expect(hair?.stage).toBe("actor_hair_colour_post_export_v1");
       expect(hair?.inputGlbSha256).toBe(REPORT.output.sha256);
-      expect(hair?.outputGlbSha256).toBe(shipped);
-      expect(hair?.outputBytes).toBe(readFileSync(GLB_PATH).byteLength);
+      expect(chainEnd).toBe(shipped);
+      expect(chainBytes).toBe(readFileSync(GLB_PATH).byteLength);
     }
   });
 

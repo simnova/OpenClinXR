@@ -88,10 +88,11 @@ PLAN = {
     },
     # --- HB-03 rows (bytes only; tris/face/hand/joints asserted unchanged) ---
     "mpfb-family-partner-adult.glb": {
-        "bytesAfter": 9182096,
+        "bytesAfter": 9196228,
         "triangleCountAfter": 39974,
         "handBodyMeshAfter": 13357,
-        "note": ("Re-measured 2026-11-05 (st-vitbrow r4): post-export hair colour stage sets scalp+brow baseColorFactor to the authored black token, JSON chunk only, BIN verbatim; geometry counts hold (asserted by main()), 9182184 -> 9182096 B. "
+        "note": ("Re-measured 2026-11-05 (st-vitrough r4): post-export roughness breakup stage writes a subject-derived skin metallicRoughness texture, geometry counts hold (asserted by main()), 9182096 -> 9196228 B. "
+                 "Prior st-vitbrow r4: post-export hair colour stage sets scalp+brow baseColorFactor to the authored black token, JSON chunk only, BIN verbatim, 9182184 -> 9182096 B. "
                  "Prior st-vitdark r9: dark-tail soft floor in the skin BaseColor remap only, 9178752 -> 9182184 B. "
                  "Prior r3 render-defect correction 9178416 -> 9178752 B; r2 remap 9330184 -> 9178416 B. "
                  "Prior st-viteye r3 re-measure: commit 931343e6b swapped the Vitruvian iris/sclera image, 9277296 -> 9330184 B. "

@@ -63,13 +63,14 @@
   "2026-11-04 st-vitdark r2: post-export CIELAB dark-skin remap of the skin baseColor only; Vitruvian light/African Face maps supply Lab statistics, not projected pixels; geometry/rig/animations and every non-skin image remain byte-identical.",
   "2026-11-04 st-vitdark r3: render-defect correction in the post-export CIELAB skin remap; feather tails cross feature boundaries and lip/lid chroma uses a bounded-detail target field instead of a single per-feature delta; geometry/rig/animations and every non-skin image remain byte-identical.",
   "2026-11-04 st-vitdark r9: restores the byte-identical r3 CIELAB remap, then applies one C1 output-luminance soft knee below the light bake's own darkest UV-covered texel by scaling linear RGB; geometry/rig/animations and every non-skin image remain byte-identical.",
-  "2026-11-05 st-vitbrow r4: post-export fitted scalp-hair and eyebrow baseColorFactor now resolve from the case-authored hair_color token; BIN/image bytes, geometry, rig, animations, eyes, eyelashes, and skin remain unchanged."
+  "2026-11-05 st-vitbrow r4: post-export fitted scalp-hair and eyebrow baseColorFactor now resolve from the case-authored hair_color token; BIN/image bytes, geometry, rig, animations, eyes, eyelashes, and skin remain unchanged.",
+  "2026-11-05 st-vitrough r4: appended a subject-derived packed roughness map (G) relative to the shipped 0.78 baseline, with a derived one-G-count inside feather before scalp and lower-lid exclusions; baseColor, geometry, rig, animations, and all pre-existing buffer views remain byte-identical."
  ],
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-12T16:29:00Z",
- "outputSha256": "b4195761f4389c34c0182d7a8bb99f07ded3d4dd31e69b82a4133c84caf83b95",
- "outputBytes": 9182096,
+ "outputSha256": "67540225eb54e4bf8eea4586514e87ad54f8725a0f495d8c3bcb59ee7d9cc8e3",
+ "outputBytes": 9196228,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:06:17.490Z",
@@ -779,5 +780,22 @@
     ]
    }
   ]
- }
+ },
+ "stages": [
+  {
+   "stage": "subject_derived_roughness_breakup_v3",
+   "tool": "tools/openclinxr/asset-pipeline/skin/roughness-breakup/apply_roughness_breakup.py",
+   "inputSha256": "b4195761f4389c34c0182d7a8bb99f07ded3d4dd31e69b82a4133c84caf83b95",
+   "outputSha256": "67540225eb54e4bf8eea4586514e87ad54f8725a0f495d8c3bcb59ee7d9cc8e3",
+   "outputBytes": 9196228,
+   "mapSha256": "b52c7cc9b2f154469c228101d62541c2916ff6fd7a2b35b208aaf76d4722b256",
+   "deriveInputs": {
+    "tools/openclinxr/asset-pipeline/skin/roughness-breakup/derive-inputs/ao.png": "3c407dcaded4eb3b0820f202c40bb80e11043e975ba6accab5150a7439f916f1",
+    "tools/openclinxr/asset-pipeline/skin/roughness-breakup/derive-inputs/landmarks-uv.json": "ff64a1348fc1cd1b7912c12849fbc8459552b167bef990f637174453a7c903cf",
+    "tools/openclinxr/asset-pipeline/skin/roughness-breakup/derive-inputs/mask-facecore.png": "a3a9801ac86fb70ebcd3fd5bb3c228ad0f17fb1bda752a2d17a9fee7f84403ab",
+    "tools/openclinxr/asset-pipeline/skin/roughness-breakup/derive-inputs/mask-lips.png": "67a9f0e6e638a61e58798abd2f38c8143eb90d1c14a66da2514b6902db0efebd",
+    "tools/openclinxr/asset-pipeline/skin/roughness-breakup/derive-inputs/mask-scalp.png": "2ec1917d6b8880637cdc21f9390e5efd593507d72e1e2f505ce5e40d2cf360f6"
+   }
+  }
+ ]
 }

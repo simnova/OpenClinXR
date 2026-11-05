@@ -1376,7 +1376,7 @@
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Fitted library garment; no tint authored. Factor absent = glTF default white; the baseColorTexture carries the look. Fit recorded in 13a94960 (feat(humanoid): fit family-partner lower from pants02 bootcut mhclo). Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1393,7 +1393,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1405,7 +1405,7 @@
     1
    ],
    "hasBaseColorTexture": false,
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, family role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:156. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:237. Measured [0.035, 0.028, 0.022, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:63.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, family role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:156. origin confirmed 2026-10-30 at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:63 Measured [0.035, 0.028, 0.022, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:63.",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
     "line": 63,
@@ -1413,7 +1413,7 @@
    },
    "kind": "MPFB fitted hair, family role (untextured)",
    "decision": "resolved",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1428,7 +1428,7 @@
    },
    "kind": "baked albedo: HB-02 per-texel fold of muted_rose_and_neutral palette closed_casual x authored weave",
    "decision": "resolved",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1445,7 +1445,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1467,7 +1467,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1489,7 +1489,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1511,7 +1511,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1533,7 +1533,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1555,7 +1555,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1577,7 +1577,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1599,7 +1599,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1616,7 +1616,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1636,7 +1636,7 @@
    },
    "kind": "brow presence silhouette (untextured)",
    "decision": "resolved",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1656,7 +1656,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7331",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1676,7 +1676,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:990",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1696,7 +1696,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:992",
-   "bodyLastChanged": "b45099f9ae97547070e6f90ed99bd1323bfc8e0f 2026-11-04 st-vitdark r9: soft floor on the deep atlas's dark tail, r3 look kept"
+   "bodyLastChanged": "a293254852f5023af6560f6654bc18e4ce1d4039 2026-11-05 st-vitbrow r4: the spouse's scalp and brows take her authored black hair"
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
