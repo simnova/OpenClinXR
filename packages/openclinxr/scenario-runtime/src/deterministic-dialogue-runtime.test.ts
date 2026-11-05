@@ -51,7 +51,7 @@ describe("deterministic dialogue runtime", () => {
 
     expect(throwing.calls).toBe(0);
     expect(generated.actorTurnPlan.languageProvenance.providerId).toBe(AUTHORED_LOCAL_FIXTURE_PROVIDER_ID);
-    expect(generated.actorTurnPlan.spokenText).toBe("Crushing substernal chest pressure while walking upstairs.");
+    expect(generated.actorTurnPlan.spokenText).toBe("It started on the stairs, a heavy pressure right in the middle of my chest.");
     expect(generated.actorTurnPlan.spokenText).not.toContain(FATHER_MI_CANARY);
     expect(generated.response.provenance.providerId).toBe(AUTHORED_LOCAL_FIXTURE_PROVIDER_ID);
     expect(generated.response.provenance.providerId).not.toBe("grok-reasoning-provider");
@@ -215,7 +215,7 @@ describe("deterministic dialogue runtime", () => {
     expect(generated.actorTurnPlan.spokenText).toContain("live path");
   });
 
-  it("uses visible-fact fallback for family communication without leaking hidden canaries", async () => {
+  it("uses the authored seed line for family communication without leaking hidden canaries", async () => {
     const harness = createHarness({ catalog: chestPainCatalog(), modelAdapter: new ThrowingIfCalledModelAdapter() });
     const generated = await generateActorResponseFromContext(harness.host, harness.session, {
       ...onsetInput(),
@@ -225,9 +225,9 @@ describe("deterministic dialogue runtime", () => {
     });
 
     expect(generated.actorTurnPlan.spokenText).toBe(
-      "Spouse is anxious and wants clear updates about the ECG and chest pain plan.",
+      "Please just tell me what is happening. Is it his heart?",
     );
-    expect(generated.actorTurnPlan.languageProvenance.fallbackUsed).toBe(true);
+    expect(generated.actorTurnPlan.languageProvenance.fallbackUsed).toBe(false);
     expect(generated.actorTurnPlan.spokenText).not.toContain("Skipped blood pressure medication this week");
     expect(generated.actorTurnPlan.ageBand).toBe("adult-parent");
   });
@@ -272,11 +272,11 @@ describe("deterministic dialogue runtime", () => {
     expect(a.nurse.actorTurnPlan.turnIndex).toBe(0);
     expect(a.patientHidden.actorTurnPlan.turnIndex).toBe(1);
     expect(actorLocalAuthoredTurnIndex(first.session.frozenActorTurnPlans, "patient_robert_hayes_v1")).toBe(2);
-    expect(a.patientOnset.actorTurnPlan.spokenText).toBe("Crushing substernal chest pressure while walking upstairs.");
+    expect(a.patientOnset.actorTurnPlan.spokenText).toBe("It started on the stairs, a heavy pressure right in the middle of my chest.");
     expect(a.spouse.actorTurnPlan.spokenText).toBe(
-      "Spouse is anxious and wants clear updates about the ECG and chest pain plan.",
+      "Please just tell me what is happening. Is it his heart?",
     );
-    expect(a.nurse.actorTurnPlan.spokenText).toBe("Nurse reports the patient looks worse and needs urgent escalation.");
+    expect(a.nurse.actorTurnPlan.spokenText).toBe("He looks worse to me. I am getting the ECG machine and paging the team now.");
     expect(a.patientHidden.actorTurnPlan.spokenText).toBe(HIDDEN_TRUTH_REFUSAL_SPOKEN_TEXT);
     expect(JSON.stringify(a.patientOnset.actorTurnPlan)).toBe(JSON.stringify(b.patientOnset.actorTurnPlan));
     expect(JSON.stringify(a.spouse.actorTurnPlan)).toBe(JSON.stringify(b.spouse.actorTurnPlan));
