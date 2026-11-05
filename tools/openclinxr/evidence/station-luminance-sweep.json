@@ -1,5 +1,5 @@
 {
-  "measuredAgainstCommit": "63a55d272",
+  "measuredAgainstCommit": "b3d656ea8",
   "stations": {
     "adult_abdominal_pain_v1": {
       "median": 202
@@ -8,7 +8,7 @@
       "median": 190
     },
     "ed_chest_pain_priority_v1": {
-      "median": 216
+      "median": 217
     },
     "ed_chest_pain_priority_v2": {
       "median": 217
