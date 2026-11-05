@@ -22,7 +22,7 @@ const ROOT = resolve(HERE, "..", "..", "..", "..");
 const SERVER_DIST = join(ROOT, "packages/openclinxr/xr-sync-server/dist/index.js");
 const FIXTURES_DIST = join(ROOT, "packages/openclinxr/scenario-fixtures/dist/index.js");
 const APP_DIST = join(ROOT, "apps/ui-xr/dist");
-const TIMING = { doorwaySeconds: 1, encounterSeconds: 90, noteSeconds: 1, breakAfterStationOrders: [] };
+const TIMING = { doorwaySeconds: 1, encounterSeconds: 300, noteSeconds: 1, breakAfterStationOrders: [] };
 const JOIN_TIMEOUT_MS = 240000;
 
 const blueprint = {
@@ -61,10 +61,11 @@ async function main(argv) {
     const { createEncounterServer } = await import(SERVER_DIST);
     const { edChestPainScenario, scenarioDialogueSeedBank: shippedSeedBank } = await import(FIXTURES_DIST);
     let HARNESS_LINE;
+    const HARNESS_AFFECT = "concerned";
     // The shipped ed-chest seeds carry no authored line yet (only knee does); the harness authors one so the
     // shell has a topic answer to play. The line is a harness fixture, not scenario content.
     HARNESS_LINE = "It started about an hour ago, right after I carried the groceries up the stairs.";
-    const scenarioDialogueSeedBank = shippedSeedBank.map((entry) => entry.scenarioId !== edChestPainScenario.scenarioId ? entry : { ...entry, seeds: entry.seeds.map((seed) => seed.seedId === "patient_onset_history" ? { ...seed, caption: HARNESS_LINE } : seed) });
+    const scenarioDialogueSeedBank = shippedSeedBank.map((entry) => entry.scenarioId !== edChestPainScenario.scenarioId ? entry : { ...entry, seeds: entry.seeds.map((seed) => seed.seedId === "patient_onset_history" ? { ...seed, caption: HARNESS_LINE, affect: HARNESS_AFFECT } : seed) });
     const scenario = { ...edChestPainScenario, status: "approved", eventSchedule: edChestPainScenario.eventSchedule.map((entry) => ({ ...entry, atSecond: TIMING.encounterSeconds })) };
     const actor = scenario.actors[0];
     const seeds = scenarioDialogueSeedBank.find((entry) => entry.scenarioId === scenario.scenarioId)?.seeds ?? [];
@@ -111,7 +112,7 @@ async function main(argv) {
         await send("utterance-start", {});
         const end = await send("utterance-end", topic === null ? {} : { topicTag: topic });
         probe.acks.push(end.status);
-        await page.waitForFunction((n) => globalThis.__openClinXrEncounterSync.turns.length > n, index, { timeout: 30000 });
+        await page.waitForFunction((n) => globalThis.__openClinXrEncounterSync.turns.length > n, index, { timeout: 30000 }).catch((error) => { throw new Error(`turn ${index} (${topic}) never reached the shell; end=${JSON.stringify(end)}; server=${syncServer.getStateJSON().slice(0, 400)}; ${String(error).slice(0, 80)}`); });
         await sleep(500);
         probe.afterTurn.push(await readShell());
         const endBy = Date.now() + 30000;
@@ -132,7 +133,7 @@ async function main(argv) {
     const turns = final?.turns ?? [];
     check("S2 two server turns reached the shell: replyIds equal the cast opening and the authored seed", JSON.stringify(turns.map((t) => t.replyId)) === JSON.stringify(expected.replyIds) && turns.every((t) => t.actorId === expected.actorId), JSON.stringify(turns.map((t) => [t.actorId, t.replyId])));
     check("S3 plan caption equals the server caption equals the cast caption", JSON.stringify(turns.map((t) => t.planCaption)) === JSON.stringify(expected.captions) && turns.every((t) => t.caption === t.planCaption), JSON.stringify(turns.map((t) => t.planCaption)));
-    check("S4 face emotion read from the registered plan equals the server emotion", turns.length === 2 && turns.every((t) => t.faceEmotion === t.emotion), JSON.stringify(turns.map((t) => [t.emotion, t.faceEmotion])));
+    check("S4 face emotion read from the registered plan equals the server emotion, and the authored non-neutral affect reaches the face", turns.length === 2 && turns.every((t) => t.faceEmotion === t.emotion) && turns[1].emotion === HARNESS_AFFECT && turns[1].emotion !== turns[0].emotion, JSON.stringify(turns.map((t) => [t.emotion, t.faceEmotion])));
     check("S5 the shell dialogue line shows each caption after its turn", probe.afterTurn?.length === 2 && probe.afterTurn.every((s, i) => s.dialogue === expected.captions[i]), JSON.stringify(probe.afterTurn?.map((s) => s.dialogue)));
     check("S6 the humanoid speech player took the turn: actor, text, emotionSource plan.dialogueEmotionTo, emotion state", probe.afterTurn?.length === 2 && probe.afterTurn.every((s, i) => s.speech.activeActorId === expected.actorId && s.speech.lastText === expected.captions[i] && s.speech.emotionSource === "plan.dialogueEmotionTo" && s.speech.activeEmotionState === turns[i]?.faceEmotion), JSON.stringify(probe.afterTurn?.map((s) => s.speech)));
     check("S7 no utterance-end was rejected (ack or client-side error such as the 5 s timeout, never reject)", probe.acks?.length === 2 && probe.acks.every((status) => status !== "reject"), JSON.stringify(probe.acks));
