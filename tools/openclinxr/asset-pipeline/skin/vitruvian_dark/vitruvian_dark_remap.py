@@ -46,6 +46,13 @@ LIP_CORNER_UV = ((0.91006, 0.50143), (0.90978, 0.53211))
 MOUTH_CORNER_RADIUS_UV = 0.025
 STAGE = "vitruvian_dark_cielab_remap_v2"
 REGION_DETAIL_SCALE = np.array([0.75, 0.15, 0.15], dtype=np.float64)
+OUTPUT_LUMINANCE_WEIGHTS = np.array([0.299, 0.587, 0.114], dtype=np.float64)
+OUTPUT_RATIO_FLOOR = 0.3637268
+OUTPUT_RATIO_KNEE_START = 0.5949254260464409
+R3_REVISION = "859944f4c"
+LIGHT_REVISION = "origin/main"
+LIGHT_GLB_SHA256 = "fb37db5e9ed7bd848dcf87b94ebdd53a150fbfccdbeb8be47fdf66825e1bcca8"
+LIGHT_SKIN_SHA256 = "c515f4967c88d31f3faf9ac83780f69a0a68479d479a5258cf4ba01ab63d8919"
 
 
 def sha_bytes(data: bytes) -> str:
@@ -96,6 +103,17 @@ def lab_to_srgb(lab: np.ndarray) -> np.ndarray:
     srgb = np.where(lin <= 0.0031308, 12.92 * lin,
                     1.055 * np.clip(lin, 0.0, None) ** (1.0 / 2.4) - 0.055)
     return np.clip(srgb, 0.0, 1.0)
+
+
+def srgb_to_linear(rgb: np.ndarray) -> np.ndarray:
+    rgb = np.asarray(rgb, dtype=np.float64)
+    return np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
+
+
+def linear_to_srgb(rgb: np.ndarray) -> np.ndarray:
+    rgb = np.asarray(rgb, dtype=np.float64)
+    return np.where(rgb <= 0.0031308, 12.92 * rgb,
+                    1.055 * np.clip(rgb, 0.0, None) ** (1.0 / 2.4) - 0.055)
 
 
 def ciede2000(l1: np.ndarray, l2: np.ndarray) -> float:
@@ -177,6 +195,200 @@ def skin_image(doc: dict, binary: bytes) -> tuple[int, int, bytes]:
         raise RuntimeError(f"expected exactly one skin-baked image, found {candidates}")
     image_index, view_index = candidates[0]
     return image_index, view_index, view_bytes(doc, binary, view_index)
+
+
+def accessor_array(doc: dict, binary: bytes, accessor_index: int) -> np.ndarray:
+    accessor = doc["accessors"][accessor_index]
+    view = doc["bufferViews"][int(accessor["bufferView"])]
+    component_types = {
+        5121: np.uint8,
+        5123: np.uint16,
+        5125: np.uint32,
+        5126: np.float32,
+    }
+    component_type = int(accessor["componentType"])
+    if component_type not in component_types:
+        raise RuntimeError(f"unsupported accessor component type: {component_type}")
+    component_count = {"SCALAR": 1, "VEC2": 2}.get(str(accessor["type"]))
+    if component_count is None:
+        raise RuntimeError(f"unsupported accessor shape: {accessor['type']}")
+    dtype = np.dtype(component_types[component_type])
+    offset = int(view.get("byteOffset", 0)) + int(accessor.get("byteOffset", 0))
+    stride = int(view.get("byteStride", dtype.itemsize * component_count))
+    array = np.ndarray(
+        (int(accessor["count"]), component_count), dtype=dtype, buffer=binary,
+        offset=offset, strides=(stride, dtype.itemsize),
+    ).copy()
+    return array.reshape(-1) if component_count == 1 else array
+
+
+def skin_uv_arrays(doc: dict, binary: bytes) -> tuple[np.ndarray, np.ndarray]:
+    skin_materials = set()
+    for index, material in enumerate(doc.get("materials", [])):
+        name = str(material.get("name", "")).lower()
+        if (not any(token in name for token in ("skin", "body", "human"))
+                or any(token in name for token in
+                       ("iris", "eye", "cornea", "sclera", "scalp", "hair"))):
+            continue
+        texture_index = material.get("pbrMetallicRoughness", {}).get(
+            "baseColorTexture", {}
+        ).get("index")
+        if texture_index is None:
+            continue
+        image_index = int(doc["textures"][int(texture_index)]["source"])
+        if "skin-baked" in str(doc["images"][image_index].get("name", "")).lower():
+            skin_materials.add(index)
+    candidates = [
+        primitive
+        for mesh in doc.get("meshes", [])
+        for primitive in mesh.get("primitives", [])
+        if int(primitive.get("material", -1)) in skin_materials
+    ]
+    if len(candidates) != 1:
+        raise RuntimeError(f"expected one textured skin primitive, found {len(candidates)}")
+    primitive = candidates[0]
+    uv_index = primitive.get("attributes", {}).get("TEXCOORD_0")
+    if uv_index is None:
+        raise RuntimeError("textured skin primitive lacks TEXCOORD_0")
+    uv = accessor_array(doc, binary, int(uv_index)).astype(np.float64)
+    indices = (accessor_array(doc, binary, int(primitive["indices"])).astype(np.int64)
+               if "indices" in primitive else np.arange(len(uv), dtype=np.int64))
+    return uv, indices
+
+
+def point_in_tri(px: np.ndarray, py: np.ndarray, triangle: np.ndarray) -> np.ndarray:
+    (ax, ay), (bx, by), (cx, cy) = triangle
+    d1 = (px - bx) * (ay - by) - (ax - bx) * (py - by)
+    d2 = (px - cx) * (by - cy) - (bx - cx) * (py - cy)
+    d3 = (px - ax) * (cy - ay) - (cx - ax) * (py - ay)
+    negative = (d1 < 0) | (d2 < 0) | (d3 < 0)
+    positive = (d1 > 0) | (d2 > 0) | (d3 > 0)
+    return ~(negative & positive)
+
+
+def uv_coverage_mask(doc: dict, binary: bytes, width: int, height: int) -> np.ndarray:
+    uv, indices = skin_uv_arrays(doc, binary)
+    mask = np.zeros((height, width), dtype=bool)
+    for offset in range(0, len(indices), 3):
+        triangle = uv[indices[offset:offset + 3]]
+        min_x = max(0, int(np.floor(float(np.min(triangle[:, 0])) * width)))
+        max_x = min(width - 1, int(np.ceil(float(np.max(triangle[:, 0])) * width)))
+        min_y = max(0, int(np.floor(float(np.min(triangle[:, 1])) * height)))
+        max_y = min(height - 1, int(np.ceil(float(np.max(triangle[:, 1])) * height)))
+        xs, ys = np.meshgrid(
+            (np.arange(min_x, max_x + 1) + 0.5) / width,
+            (np.arange(min_y, max_y + 1) + 0.5) / height,
+        )
+        mask[min_y:max_y + 1, min_x:max_x + 1] |= point_in_tri(xs, ys, triangle)
+    if int(mask.sum()) < 100_000:
+        raise RuntimeError(f"skin UV coverage unexpectedly small: {int(mask.sum())}")
+    return mask
+
+
+def rgb_from_glb(raw: bytes) -> np.ndarray:
+    doc, binary = parse_glb(raw)
+    _, _, skin_bytes = skin_image(doc, binary)
+    return np.asarray(Image.open(io.BytesIO(skin_bytes)).convert("RGB"), dtype=np.uint8)
+
+
+def output_luminance(rgb: np.ndarray) -> np.ndarray:
+    return np.asarray(rgb, dtype=np.float64) @ OUTPUT_LUMINANCE_WEIGHTS
+
+
+def changed_component_bboxes(changed: np.ndarray) -> list[dict[str, int]]:
+    remaining = {tuple(int(v) for v in point) for point in np.argwhere(changed)}
+    components = []
+    while remaining:
+        seed = remaining.pop()
+        stack = [seed]
+        points = [seed]
+        while stack:
+            row, col = stack.pop()
+            for dr in (-1, 0, 1):
+                for dc in (-1, 0, 1):
+                    if dr == 0 and dc == 0:
+                        continue
+                    neighbor = (row + dr, col + dc)
+                    if neighbor in remaining:
+                        remaining.remove(neighbor)
+                        stack.append(neighbor)
+                        points.append(neighbor)
+        rows = [point[0] for point in points]
+        cols = [point[1] for point in points]
+        components.append({
+            "x0": min(cols), "y0": min(rows), "x1": max(cols), "y1": max(rows),
+            "texels": len(points),
+        })
+    return sorted(components, key=lambda item: (item["y0"], item["x0"]))
+
+
+def apply_output_ratio_soft_knee(base_u8: np.ndarray,
+                                 coverage: np.ndarray) -> tuple[np.ndarray, dict]:
+    rgb = base_u8.astype(np.float64) / 255.0
+    luminance = output_luminance(rgb)
+    covered_values = np.sort(luminance[coverage])
+    median = float(covered_values[len(covered_values) // 2])
+    ratio = luminance / median
+    affected = coverage & (ratio < OUTPUT_RATIO_KNEE_START)
+
+    t = np.clip(ratio / OUTPUT_RATIO_KNEE_START, 0.0, 1.0)
+    h00 = 2.0 * t ** 3 - 3.0 * t ** 2 + 1.0
+    h01 = -2.0 * t ** 3 + 3.0 * t ** 2
+    h11 = t ** 3 - t ** 2
+    target_ratio = (
+        h00 * OUTPUT_RATIO_FLOOR
+        + h01 * OUTPUT_RATIO_KNEE_START
+        + h11 * OUTPUT_RATIO_KNEE_START
+    )
+    target_luminance = target_ratio * median
+
+    linear = srgb_to_linear(rgb)
+    low = np.ones_like(ratio)
+    high = np.full_like(ratio, 2.0)
+    for _ in range(8):
+        high_encoded = linear_to_srgb(linear * high[..., None])
+        needs_more = affected & (output_luminance(high_encoded) < target_luminance)
+        if not np.any(needs_more):
+            break
+        high[needs_more] *= 2.0
+    for _ in range(32):
+        middle = (low + high) / 2.0
+        middle_encoded = linear_to_srgb(linear * middle[..., None])
+        below = output_luminance(middle_encoded) < target_luminance
+        low = np.where(affected & below, middle, low)
+        high = np.where(affected & ~below, middle, high)
+    adjusted = linear_to_srgb(linear * high[..., None])
+    output_rgb = np.where(affected[..., None], adjusted, rgb)
+    output_u8 = np.rint(np.clip(output_rgb, 0.0, 1.0) * 255.0).astype(np.uint8)
+    changed = coverage & np.any(output_u8 != base_u8, axis=-1)
+    final_luminance = output_luminance(output_u8.astype(np.float64) / 255.0)
+    final_values = np.sort(final_luminance[coverage])
+    final_median = float(final_values[len(final_values) // 2])
+    return output_u8, {
+        "mode": "C1 cubic Hermite map [0,k_start] to [floor,k_start]",
+        "application": "scalar multiplication of linear RGB; encoded luminance target solved by bisection",
+        "floor": OUTPUT_RATIO_FLOOR,
+        "floorSource": "r8 KNEE_DERIVATION quantization-safe TEST_A bound",
+        "kStart": OUTPUT_RATIO_KNEE_START,
+        "kStartSource": "minimum UV-covered luminance ratio of origin/main light skin atlas",
+        "lightRevision": LIGHT_REVISION,
+        "lightGlbSha256": LIGHT_GLB_SHA256,
+        "lightSkinSha256": LIGHT_SKIN_SHA256,
+        "coveredTexels": int(coverage.sum()),
+        "candidateMedianLuminance": median,
+        "candidateMinimumRatio": float(np.min(ratio[coverage])),
+        "candidateTexelsBelowTestFloor": int(np.sum(ratio[coverage] < 0.35)),
+        "affectedTexelsBeforeQuantization": int(affected.sum()),
+        "changedTexels": int(changed.sum()),
+        "changedFraction": float(changed.sum() / coverage.sum()),
+        "changedComponentBboxes": changed_component_bboxes(changed),
+        "finalMedianLuminance": final_median,
+        "finalMedianRatioToR3": final_median / median,
+        "finalMinimumRatio": float(np.min(final_luminance[coverage] / final_median)),
+        "finalTexelsBelowTestFloor": int(np.sum(final_luminance[coverage] / final_median < 0.35)),
+        "identityTexelsChanged": int(np.sum(changed & (ratio >= OUTPUT_RATIO_KNEE_START))),
+        "texelsDarkerThanR3": int(np.sum(coverage & (final_luminance + 1e-15 < luminance))),
+    }
 
 
 def replace_view(doc: dict, binary: bytes, index: int, payload: bytes) -> bytes:
@@ -434,10 +646,14 @@ def update_provenance(path: Path, record: dict, output_sha: str, output_bytes: i
     provenance["outputBytes"] = output_bytes
     provenance["vitruvianDarkRemap"] = record
     notes = provenance.setdefault("sourceNotes", [])
-    note = ("2026-11-04 st-vitdark r3: render-defect correction in the post-export CIELAB "
-            "skin remap; feather tails cross feature boundaries and lip/lid chroma uses a "
-            "bounded-detail target field instead of a single per-feature delta; geometry/rig/"
-            "animations and every non-skin image remain byte-identical.")
+    retired_prefixes = tuple(
+        f"2026-11-04 st-vitdark r{revision}:" for revision in (6, 7, 8)
+    )
+    notes[:] = [entry for entry in notes if not str(entry).startswith(retired_prefixes)]
+    note = ("2026-11-04 st-vitdark r9: restores the byte-identical r3 CIELAB remap, then "
+            "applies one C1 output-luminance soft knee below the light bake's own darkest "
+            "UV-covered texel by scaling linear RGB; geometry/rig/animations and every "
+            "non-skin image remain byte-identical.")
     if note not in notes:
         notes.append(note)
     path.write_text(json.dumps(provenance, indent=1, ensure_ascii=False) + "\n")
@@ -477,7 +693,41 @@ def main() -> None:
         raise RuntimeError(f"skin atlas must be square, got {image.size}")
     chroma = json.loads(args.chroma_table.read_text())
     hard, soft = build_masks(args.derive_dir, image.width)
-    remapped_u8, transfer = remap(rgb, hard, soft, chroma, args.zero_region_separations)
+    coverage = uv_coverage_mask(doc, binary, image.width, image.height)
+    rel = args.glb.resolve().relative_to(REPO).as_posix()
+    r3_raw = subprocess.run(
+        ["git", "show", f"{R3_REVISION}:{rel}"], cwd=REPO,
+        check=True, capture_output=True,
+    ).stdout
+    expected_r3_u8 = rgb_from_glb(r3_raw)
+    r3_base_u8, transfer = remap(
+        rgb, hard, soft, chroma, args.zero_region_separations,
+    )
+    if r3_base_u8.shape != expected_r3_u8.shape:
+        raise RuntimeError(
+            f"restored r3 atlas shape differs from fixture: "
+            f"{r3_base_u8.shape} vs {expected_r3_u8.shape}"
+        )
+    base_delta = np.abs(r3_base_u8.astype(np.int16) - expected_r3_u8.astype(np.int16))
+    base_differing = np.any(base_delta != 0, axis=-1)
+    if np.any(base_differing):
+        first = np.argwhere(base_differing)[0].tolist()
+        raise RuntimeError(
+            f"restored r3 atlas is not byte-identical: {int(base_differing.sum())} "
+            f"texels differ, max abs diff {int(base_delta.max())}, first yx {first}"
+        )
+    remapped_u8, knee_record = apply_output_ratio_soft_knee(r3_base_u8, coverage)
+    transfer["metrics"] = metrics(
+        srgb_to_lab(remapped_u8.astype(np.float64) / 255.0), hard, chroma,
+    )
+    transfer["r3BaseIdentity"] = {
+        "revision": R3_REVISION,
+        "fixtureGlbSha256": sha_bytes(r3_raw),
+        "fixtureSkinSha256": sha_bytes(skin_image(*parse_glb(r3_raw))[2]),
+        "differingTexels": 0,
+        "maxAbsoluteChannelDifference": 0,
+    }
+    transfer["outputLuminanceSoftKnee"] = knee_record
     png_io = io.BytesIO()
     Image.fromarray(remapped_u8, "RGB").save(png_io, format="PNG", compress_level=9)
     new_skin = png_io.getvalue()

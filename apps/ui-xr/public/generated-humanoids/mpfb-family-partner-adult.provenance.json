@@ -61,13 +61,14 @@
   "2026-10-30 ci-w11 D3 (chest-anchor re-separation, post-bake stage, not rebake): repair mode: rest already +-0.085 from #0; restored 2 openclinxr_retarget_walk_source keyframes per breast joint from midline to rest (walk graft 91aa4b5d3 had re-pinned them after the #0 run). Rest TRS untouched. Tool: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs (half-span 0.085, uniform with nurse known-good 1f5519d2).",
   "2026-10-30 ci-w11 D1 (orphan prune, not rebake): gltf-transform prune 4.3.0, same tool and flags as #555. Removed unreferenced mpfb-family-partner-adult.skin-normal (1091596 B). File 10529116 -> 9277296 B. Bound invariants held: boundTextures 5, boundBytes 4754841, meshes 10, materials 17, tris 39974, joints 137, animations 3.",
   "2026-11-04 st-vitdark r2: post-export CIELAB dark-skin remap of the skin baseColor only; Vitruvian light/African Face maps supply Lab statistics, not projected pixels; geometry/rig/animations and every non-skin image remain byte-identical.",
-  "2026-11-04 st-vitdark r3: render-defect correction in the post-export CIELAB skin remap; feather tails cross feature boundaries and lip/lid chroma uses a bounded-detail target field instead of a single per-feature delta; geometry/rig/animations and every non-skin image remain byte-identical."
+  "2026-11-04 st-vitdark r3: render-defect correction in the post-export CIELAB skin remap; feather tails cross feature boundaries and lip/lid chroma uses a bounded-detail target field instead of a single per-feature delta; geometry/rig/animations and every non-skin image remain byte-identical.",
+  "2026-11-04 st-vitdark r9: restores the byte-identical r3 CIELAB remap, then applies one C1 output-luminance soft knee below the light bake's own darkest UV-covered texel by scaling linear RGB; geometry/rig/animations and every non-skin image remain byte-identical."
  ],
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-12T16:29:00Z",
- "outputSha256": "85d98d375c31bdfc55fd107dee48816870ee9da541e197e0e1eb45f255e2dadf",
- "outputBytes": 9178752,
+ "outputSha256": "1768552e0e19521a4f2df65317d4681d5f56a237f07a5b3b446b963d5b653510",
+ "outputBytes": 9182184,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:06:17.490Z",
@@ -134,7 +135,7 @@
   "tool": "tools/openclinxr/asset-pipeline/skin/vitruvian_dark/vitruvian_dark_remap.py",
   "inputGlbSha256": "fb37db5e9ed7bd848dcf87b94ebdd53a150fbfccdbeb8be47fdf66825e1bcca8",
   "inputSkinSha256": "c515f4967c88d31f3faf9ac83780f69a0a68479d479a5258cf4ba01ab63d8919",
-  "outputSkinSha256": "f3a89b38cd228c17ebbdc3ef945a75ff9091beb5539fa46ac7fff818d8deec64",
+  "outputSkinSha256": "1d0a9eff92e08a8b2ec26f9bdb264bbb24c84121eae94979b732d2dcb69c065a",
   "chromaTable": ".openclinxr/openclaw/ceo/st-vitdark/chroma-table.json",
   "chromaTableSha256": "26774c94b43960df851a5bf4ca2803f9e40fc7e81555de4f25d4c26ced19bc65",
   "maskSource": "tools/openclinxr/asset-pipeline/skin/families/skin_layers.py",
@@ -285,9 +286,9 @@
    "metrics": {
     "mean_lab": {
      "cheek": [
-      20.811539938969716,
-      11.909523162561856,
-      12.787177012623912
+      20.814088755304272,
+      11.916438458507471,
+      12.791202261998627
      ],
      "forehead": [
       20.216573359500646,
@@ -315,9 +316,9 @@
       11.99883876038995
      ],
      "upper_lid": [
-      20.749518572019078,
-      11.951806337968389,
-      12.781309187349256
+      20.75626518601042,
+      11.957365826452937,
+      12.791613743043255
      ]
     },
     "regions": {
@@ -374,12 +375,353 @@
      }
     },
     "forehead_to_cheek": {
-     "actual_ciede2000": 0.4344442265022591,
+     "actual_ciede2000": 0.4354004915368788,
      "african_ciede2000": 0.3946736690603217,
-     "absolute_error": 0.039770557441937415,
+     "absolute_error": 0.04072682247655712,
      "floor": 0.801341,
      "pass": true
     }
+   },
+   "r3BaseIdentity": {
+    "revision": "859944f4c",
+    "fixtureGlbSha256": "85d98d375c31bdfc55fd107dee48816870ee9da541e197e0e1eb45f255e2dadf",
+    "fixtureSkinSha256": "f3a89b38cd228c17ebbdc3ef945a75ff9091beb5539fa46ac7fff818d8deec64",
+    "differingTexels": 0,
+    "maxAbsoluteChannelDifference": 0
+   },
+   "outputLuminanceSoftKnee": {
+    "mode": "C1 cubic Hermite map [0,k_start] to [floor,k_start]",
+    "application": "scalar multiplication of linear RGB; encoded luminance target solved by bisection",
+    "floor": 0.3637268,
+    "floorSource": "r8 KNEE_DERIVATION quantization-safe TEST_A bound",
+    "kStart": 0.5949254260464409,
+    "kStartSource": "minimum UV-covered luminance ratio of origin/main light skin atlas",
+    "lightRevision": "origin/main",
+    "lightGlbSha256": "fb37db5e9ed7bd848dcf87b94ebdd53a150fbfccdbeb8be47fdf66825e1bcca8",
+    "lightSkinSha256": "c515f4967c88d31f3faf9ac83780f69a0a68479d479a5258cf4ba01ab63d8919",
+    "coveredTexels": 346657,
+    "candidateMedianLuminance": 0.18982745098039214,
+    "candidateMinimumRatio": 0.09883072346403339,
+    "candidateTexelsBelowTestFloor": 88,
+    "affectedTexelsBeforeQuantization": 256,
+    "changedTexels": 201,
+    "changedFraction": 0.0005798238604730324,
+    "changedComponentBboxes": [
+     {
+      "x0": 522,
+      "y0": 59,
+      "x1": 522,
+      "y1": 59,
+      "texels": 1
+     },
+     {
+      "x0": 502,
+      "y0": 74,
+      "x1": 502,
+      "y1": 74,
+      "texels": 1
+     },
+     {
+      "x0": 633,
+      "y0": 131,
+      "x1": 633,
+      "y1": 131,
+      "texels": 1
+     },
+     {
+      "x0": 79,
+      "y0": 144,
+      "x1": 79,
+      "y1": 144,
+      "texels": 1
+     },
+     {
+      "x0": 52,
+      "y0": 160,
+      "x1": 52,
+      "y1": 160,
+      "texels": 1
+     },
+     {
+      "x0": 153,
+      "y0": 182,
+      "x1": 153,
+      "y1": 182,
+      "texels": 1
+     },
+     {
+      "x0": 687,
+      "y0": 228,
+      "x1": 687,
+      "y1": 228,
+      "texels": 1
+     },
+     {
+      "x0": 651,
+      "y0": 236,
+      "x1": 651,
+      "y1": 236,
+      "texels": 1
+     },
+     {
+      "x0": 921,
+      "y0": 264,
+      "x1": 921,
+      "y1": 264,
+      "texels": 1
+     },
+     {
+      "x0": 719,
+      "y0": 298,
+      "x1": 720,
+      "y1": 300,
+      "texels": 4
+     },
+     {
+      "x0": 790,
+      "y0": 320,
+      "x1": 793,
+      "y1": 322,
+      "texels": 10
+     },
+     {
+      "x0": 857,
+      "y0": 331,
+      "x1": 858,
+      "y1": 332,
+      "texels": 4
+     },
+     {
+      "x0": 794,
+      "y0": 358,
+      "x1": 797,
+      "y1": 359,
+      "texels": 6
+     },
+     {
+      "x0": 732,
+      "y0": 383,
+      "x1": 734,
+      "y1": 386,
+      "texels": 8
+     },
+     {
+      "x0": 309,
+      "y0": 397,
+      "x1": 309,
+      "y1": 397,
+      "texels": 1
+     },
+     {
+      "x0": 740,
+      "y0": 398,
+      "x1": 740,
+      "y1": 398,
+      "texels": 1
+     },
+     {
+      "x0": 13,
+      "y0": 415,
+      "x1": 13,
+      "y1": 415,
+      "texels": 1
+     },
+     {
+      "x0": 153,
+      "y0": 418,
+      "x1": 153,
+      "y1": 419,
+      "texels": 2
+     },
+     {
+      "x0": 467,
+      "y0": 428,
+      "x1": 467,
+      "y1": 429,
+      "texels": 2
+     },
+     {
+      "x0": 384,
+      "y0": 441,
+      "x1": 395,
+      "y1": 452,
+      "texels": 99
+     },
+     {
+      "x0": 859,
+      "y0": 504,
+      "x1": 860,
+      "y1": 505,
+      "texels": 3
+     },
+     {
+      "x0": 823,
+      "y0": 524,
+      "x1": 823,
+      "y1": 524,
+      "texels": 1
+     },
+     {
+      "x0": 858,
+      "y0": 553,
+      "x1": 861,
+      "y1": 557,
+      "texels": 11
+     },
+     {
+      "x0": 885,
+      "y0": 573,
+      "x1": 887,
+      "y1": 574,
+      "texels": 5
+     },
+     {
+      "x0": 733,
+      "y0": 580,
+      "x1": 734,
+      "y1": 581,
+      "texels": 3
+     },
+     {
+      "x0": 703,
+      "y0": 599,
+      "x1": 703,
+      "y1": 600,
+      "texels": 2
+     },
+     {
+      "x0": 728,
+      "y0": 639,
+      "x1": 729,
+      "y1": 639,
+      "texels": 2
+     },
+     {
+      "x0": 745,
+      "y0": 647,
+      "x1": 745,
+      "y1": 647,
+      "texels": 1
+     },
+     {
+      "x0": 205,
+      "y0": 659,
+      "x1": 205,
+      "y1": 659,
+      "texels": 1
+     },
+     {
+      "x0": 192,
+      "y0": 695,
+      "x1": 192,
+      "y1": 695,
+      "texels": 1
+     },
+     {
+      "x0": 736,
+      "y0": 709,
+      "x1": 737,
+      "y1": 709,
+      "texels": 2
+     },
+     {
+      "x0": 806,
+      "y0": 714,
+      "x1": 807,
+      "y1": 716,
+      "texels": 6
+     },
+     {
+      "x0": 277,
+      "y0": 742,
+      "x1": 277,
+      "y1": 742,
+      "texels": 1
+     },
+     {
+      "x0": 828,
+      "y0": 749,
+      "x1": 829,
+      "y1": 749,
+      "texels": 2
+     },
+     {
+      "x0": 539,
+      "y0": 750,
+      "x1": 539,
+      "y1": 750,
+      "texels": 1
+     },
+     {
+      "x0": 623,
+      "y0": 793,
+      "x1": 623,
+      "y1": 793,
+      "texels": 1
+     },
+     {
+      "x0": 730,
+      "y0": 807,
+      "x1": 732,
+      "y1": 808,
+      "texels": 4
+     },
+     {
+      "x0": 203,
+      "y0": 818,
+      "x1": 203,
+      "y1": 818,
+      "texels": 1
+     },
+     {
+      "x0": 720,
+      "y0": 825,
+      "x1": 720,
+      "y1": 825,
+      "texels": 1
+     },
+     {
+      "x0": 208,
+      "y0": 828,
+      "x1": 208,
+      "y1": 828,
+      "texels": 1
+     },
+     {
+      "x0": 200,
+      "y0": 839,
+      "x1": 200,
+      "y1": 839,
+      "texels": 1
+     },
+     {
+      "x0": 413,
+      "y0": 865,
+      "x1": 413,
+      "y1": 865,
+      "texels": 1
+     },
+     {
+      "x0": 425,
+      "y0": 873,
+      "x1": 425,
+      "y1": 873,
+      "texels": 1
+     },
+     {
+      "x0": 849,
+      "y0": 966,
+      "x1": 849,
+      "y1": 966,
+      "texels": 1
+     }
+    ],
+    "finalMedianLuminance": 0.18982745098039214,
+    "finalMedianRatioToR3": 1.0,
+    "finalMinimumRatio": 0.36443829277362316,
+    "finalTexelsBelowTestFloor": 0,
+    "identityTexelsChanged": 0,
+    "texelsDarkerThanR3": 0
    }
   }
  }
