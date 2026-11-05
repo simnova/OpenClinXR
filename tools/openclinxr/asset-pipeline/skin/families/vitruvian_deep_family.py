@@ -63,9 +63,16 @@ def forehead_hard() -> np.ndarray:
     core = sl.load_mask("mask-facecore.png")
     occ = sl.load_mask("occupancy.png")
     skin = (core > 0.5) & (occ > 0.5)
-    ys = np.where(skin)[0]
-    top = ys.min() + int(0.30 * (ys.max() - ys.min()))
-    return (skin & (np.arange(skin.shape[0])[:, None] <= top)).astype(np.float64)
+    brows = (sl.load_mask("mask-brows-L.png") > 0.5) | (sl.load_mask("mask-brows-R.png") > 0.5)
+    brow_top = int(np.where(brows)[0].min())
+    cut = brow_top - 24
+    rows, cols = np.mgrid[0:skin.shape[0], 0:skin.shape[1]]
+    nose_disc = ((cols - sl.NOSE_TIP[0]) ** 2 + (rows - sl.NOSE_TIP[1]) ** 2) <= sl.NOSE_RADIUS_PX**2
+    c0, c1 = sl.CHEEK_COLS
+    cheek1 = (cols >= c0) & (cols < c1) & (rows >= sl.CHEEK_ROWS_SIDE1[0]) & (rows < sl.CHEEK_ROWS_SIDE1[1])
+    cheek2 = (cols >= c0) & (cols < c1) & (rows >= sl.CHEEK_ROWS_SIDE2[0]) & (rows < sl.CHEEK_ROWS_SIDE2[1])
+    cheekbox = cheek1 | cheek2
+    return (skin & (rows < cut) & (~cheekbox) & (~nose_disc)).astype(np.float64)
 
 
 def main() -> None:
@@ -135,7 +142,7 @@ def main() -> None:
         "masks": {"derive_files": {n: sha256_file(sl.DERIVE / n) for n in mask_files},
                   "cheek_cols": list(sl.CHEEK_COLS), "cheek_rows": [list(sl.CHEEK_ROWS_SIDE1), list(sl.CHEEK_ROWS_SIDE2)],
                   "nose_tip_col_row": list(sl.NOSE_TIP), "nose_radius_px": sl.NOSE_RADIUS_PX,
-                  "feather_sigma_px": sl.FEATHER_SIGMA_PX, "forehead": "tone-check top-30pc facecore rows"},
+                  "feather_sigma_px": sl.FEATHER_SIGMA_PX, "forehead": "facecore rows < brow_top-24, NOT cheek boxes, NOT nose disc (r2 above-brow)"},
         "outputs": {"family_png": str(a.out), "sha256": sha256_file(a.out)},
     }
     mpath = a.manifest or (a.out.parent / "deep-manifest.json")
