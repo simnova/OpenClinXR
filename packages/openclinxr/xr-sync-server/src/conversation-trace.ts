@@ -399,6 +399,16 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
     if (typeof confidence === "number" && Number.isFinite(confidence) && confidence >= 0 && confidence <= 1) {
       out.confidence = confidence;
     }
+    // Pre-C29 traces carry no modality on an utterance-end: read as typed. Any other malformed field is refused.
+    if ((modality !== undefined && out.modality === undefined) || (confidence !== undefined && out.confidence === undefined)) {
+      throw new Error("replay-bad-trace: malformed modality or confidence");
+    }
+    if (event.kind !== "utterance-end" && (modality !== undefined || confidence !== undefined)) {
+      throw new Error("replay-bad-trace: only an utterance-end may carry modality or confidence");
+    }
+    if (out.match === "fallback" && out.tag === undefined) {
+      throw new Error("replay-bad-trace: a fallback event must carry a reserved tag");
+    }
     if (out.modality === "speech" && (out.confidence === undefined || Math.round(out.confidence * 100) / 100 !== out.confidence)) {
       throw new Error("replay-bad-trace: a speech event needs a confidence in [0,1] with at most 2 decimals");
     }

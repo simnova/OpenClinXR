@@ -143,6 +143,12 @@ describe("xr-sync-server C29 grade-01 fixes", () => {
       return copy;
     };
     expect(() => replayConversationTrace(slotA)).not.toThrow();
+    const startForged = JSON.parse(JSON.stringify(slotA)) as { events: Array<Record<string, unknown>> };
+    Object.assign(startForged.events.find((event) => event["kind"] === "utterance-start")!, { modality: "speech", confidence: 0.5 });
+    expect(() => replayConversationTrace(startForged as never)).toThrow(/replay-bad-trace/);
+    const legacy = JSON.parse(JSON.stringify(slotA)) as { events: Array<Record<string, unknown>> };
+    for (const event of legacy.events) { delete event["modality"]; delete event["confidence"]; }
+    expect(() => replayConversationTrace(legacy as never)).not.toThrow();
     const bad: Array<Record<string, unknown>> = [
       { confidence: undefined },
       { confidence: 0.123 },
@@ -150,6 +156,9 @@ describe("xr-sync-server C29 grade-01 fixes", () => {
       { modality: "typed", confidence: undefined, tag: "speech_low_confidence", match: "fallback" },
       { match: "fallback" },
       { tag: "speech_low_confidence", match: "phrase" },
+      { modality: "telepathy" },
+      { confidence: "0.9" },
+      { tag: undefined, match: "fallback" },
     ];
     for (const patch of bad) expect(() => replayConversationTrace(forge(patch) as never), JSON.stringify(patch)).toThrow(/replay-bad-trace/);
     const lowAnswer = replayConversationTrace(forge({ confidence: 0.2, tag: "speech_low_confidence", match: "fallback" }) as never);

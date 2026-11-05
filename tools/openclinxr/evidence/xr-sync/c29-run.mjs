@@ -133,17 +133,19 @@ async function main(argv) {
       const endBy = Date.now() + 30000;
       while (serverActorSpeaking() && Date.now() < endBy) await sleep(100);
       await page.locator("#utterance-input").fill(TYPED);
-      await page.evaluate(({ target }) => {
+      probe.aimedAtPatient = await page.evaluate(({ target }) => {
         const camera = globalThis.__openClinXrGazeCamera;
         const gaze = globalThis.__openClinXrEncounterSync.gazedActorId;
-        if (!camera || !gaze) return;
+        if (!camera || !gaze) return false;
+        if (gaze() === target) return true;
         const eye = camera.getWorldPosition(camera.position.clone());
         for (let degrees = 0; degrees < 360; degrees += 5) {
           const radians = (degrees * Math.PI) / 180;
           camera.lookAt(eye.x + Math.sin(radians), eye.y, eye.z - Math.cos(radians));
           camera.updateMatrixWorld(true);
-          if (gaze() === target) return;
+          if (gaze() === target) return true;
         }
+        return false;
       }, { target: actor.actorId });
       await page.locator("#utterance-send").evaluate((el) => el.click());
       await page.waitForFunction(() => globalThis.__openClinXrEncounterSync.turns.length >= 4, undefined, { timeout: 60000 });
@@ -168,6 +170,7 @@ async function main(argv) {
     check("S4 plan caption equals server caption equals expected (opening, authored line, authored fallback x2)", JSON.stringify(turns.map((t) => t.planCaption)) === JSON.stringify(expected.captions) && turns.every((t) => t.caption === t.planCaption), JSON.stringify(turns.map((t) => t.planCaption)));
     const expectedLearner = [heard.hello, heard.onset, heard.noisy].map((r) => `You said (${r.confidence.toFixed(2)}): ${r.text.trim()}`);
     check("S5 the learner caption shows the recognized text with its confidence after each speech turn, and the typed text without one", probe.afterTurn?.length === 4 && JSON.stringify(probe.afterTurn.slice(0, 3).map((s) => s.learnerCaption)) === JSON.stringify(expectedLearner) && probe.afterTurn[3].learnerCaption === `You said: ${TYPED}`, JSON.stringify(probe.afterTurn?.map((s) => s.learnerCaption)));
+    check("S16 the view was turned to the patient (gaze names the patient) before the typed send", probe.aimedAtPatient === true, String(probe.aimedAtPatient));
     check("S6 the shell dialogue line shows each actor caption after its turn", probe.afterTurn?.length === 4 && probe.afterTurn.every((s, i) => s.dialogue === expected.captions[i]), JSON.stringify(probe.afterTurn?.map((s) => s.dialogue)));
     const speechEntries = final?.speechUtterances ?? [];
     const heardSeq = [heard.hello, heard.onset, heard.noisy];
