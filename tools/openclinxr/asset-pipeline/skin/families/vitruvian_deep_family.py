@@ -7,7 +7,9 @@ Method (recorded in the manifest):
      hard mask);
   b) per region r in {lip, ear}: add the Vitruvian residual
      dLab_r = African_sep_r - family_after_multiply_sep_r (target method,
-     Lab) in Lab inside r's hard mask with the skin_layers inward feather;
+     Lab) in Lab inside r's hard mask ERODED by the feather width (r6
+     inward-only: weight 0 on the boundary band) with the skin_layers
+     inward feather;
      nose is a CONTROL (vitruvian_dark gate-result.md: GO earned on lip+ear,
      nose control per GATE G2): nose is measured and reported, keeps the
      cheek multiply, no residual. Texels outside every applied mask keep
@@ -34,6 +36,7 @@ sys.path.insert(0, str(HERE.parent / "face-replay"))
 sys.path.insert(0, str(HERE))
 from fix_lips import lab_to_rgb, rgb_to_lab  # noqa: E402
 import skin_layers as sl  # noqa: E402
+from PIL import ImageFilter  # noqa: E402
 
 STORE = Path("/Volumes/files/openclinxr-assets/store")
 CHROMA = HERE.parent / "vitruvian_dark" / "chroma-table.json"
@@ -52,6 +55,29 @@ R5_DECISION = ("r5: nose back to control per st-vitdark gate G2 "
                "(go earned on lip+ear; nose control retained in table); "
                "residual set {lip, ear} only, nose keeps cheek multiply; "
                "lip b* +0.317 over 2xSD accepted as feather dilution (r4 analysis)")
+# r6: lip/ear residuals feather INWARD only. The r5 mouth-corner grade showed a
+# pale crescent on cheek skin at both commissures (contrast C minus B +6.9L /
+# +4.7L); the soft_inside weight is already 0 outside the hard mask, so the
+# crescent texels sit INSIDE the hard lip mask at the commissure edge. Eroding
+# the applied hard mask by the feather width before blurring pulls the residual
+# back from the mask boundary; the band between eroded and hard keeps step (a).
+R6_DECISION = ("r6: erode applied (lip/ear) hard masks by the feather width "
+               "(6 px = FEATHER_SIGMA_PX) before blurring, so residual weight "
+               "is 0 on the boundary band; band keeps step (a) multiply bytes")
+ERODE_PX = 6
+
+
+def erode_inside(hard: np.ndarray, px: int = ERODE_PX) -> np.ndarray:
+    """Binary erosion by px (PIL MinFilter, no new deps).
+
+    Returns a 0/1 mask; the residual weight built from it is 0 on every texel
+    within px of the hard-mask boundary (inward-only feather)."""
+    size = 2 * int(px) + 1
+    er = np.asarray(
+        Image.fromarray((hard * 255.0).astype(np.uint8)).filter(ImageFilter.MinFilter(size)),
+        dtype=np.float64,
+    ) / 255.0
+    return (er > 0.5).astype(np.float64)
 
 
 def sha256_file(p: Path) -> str:
@@ -145,15 +171,20 @@ def main() -> None:
             "r5_decision": R5_DECISION,
         }
         out_lab = lab_step.copy()
+        # r6: residual weight from the ERODED applied masks (inward-only
+        # feather); the boundary band keeps step (a) via the eroded union.
+        hard_applied = {r: erode_inside(hard[r]) for r in APPLIED_REGIONS}
         for r in APPLIED_REGIONS:
-            w = sl.soft_inside(hard[r])[..., None]
+            w = sl.soft_inside(hard_applied[r])[..., None]
             out_lab += w * np.array(dlab[r], float)[None, None, :]
         out_lab[..., 0] = np.clip(out_lab[..., 0], 0, 100)
         out_u8 = lab_to_rgb(out_lab)
         union = np.zeros(hard["lip"].shape, bool)
         for r in APPLIED_REGIONS:
-            union |= hard[r] > 0.5
+            union |= hard_applied[r] > 0.5
         out_u8[~union] = step_u8[~union]
+        eroded_counts = {r: int((hard_applied[r] > 0.5).sum()) for r in APPLIED_REGIONS}
+        hard_counts = {r: int((hard[r] > 0.5).sum()) for r in APPLIED_REGIONS}
 
     a.out.parent.mkdir(parents=True, exist_ok=True)
     Image.fromarray(out_u8).save(a.out)
@@ -162,9 +193,13 @@ def main() -> None:
     Image.fromarray(out_u8).resize((1024, 1024), Image.Resampling.LANCZOS).save(a.preview)
     mask_files = ["mask-facecore.png", "mask-lips.png", "mask-ears-L.png", "mask-ears-R.png", "occupancy.png"]
     manifest = {
-        "version": 3,
-        "method": ["(a) linear-RGB whole-family multiply by k", "(b) per-region Lab residual dLab_r inside hard mask with inward feather (r5: lip+ear only; nose control)"],
+        "version": 4,
+        "method": ["(a) linear-RGB whole-family multiply by k", "(b) per-region Lab residual dLab_r inside the ERODED hard mask (r6 inward-only feather; lip+ear only; nose control)"],
         "r5_decision": R5_DECISION,
+        "r6_decision": R6_DECISION,
+        "r6_feather": {"erode_px": ERODE_PX, "op": "PIL MinFilter(2*px+1) on applied hard masks before soft_inside; boundary band keeps step (a)",
+                       "hard_texels": hard_counts if not a.no_residual and a.method == "target" else {},
+                       "eroded_texels": eroded_counts if not a.no_residual and a.method == "target" else {}},
         "residual_method": a.method if not a.no_residual else "none(no-residual)",
         "inputs": {"family": {"id": src_id, "rel": src_rel, "sha256": sha256_file(STORE / src_rel)},
                    "chroma_table": {"rel": str(CHROMA.relative_to(CHROMA.parents[5])), "sha256": sha256_file(CHROMA)}},

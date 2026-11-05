@@ -1346,14 +1346,14 @@
    "source_sha256": "8c4e47034c58b8b81ac666a35fa46cd36f05dc2ce7f4fa3e43e43563e4c95846",
    "source_licence": "CC0-1.0 explicit (Vitruvian-Project LICENSE at upstream commit c036e5376108dbbb340beb0a3f4ef8ac463e39)",
    "family_path": "/Volumes/files/openclinxr-assets/store/skin-families/deep/deep-family.png",
-   "family_sha256": "f55a409db44d273f8344a26ec0af1fca667c09d1b9eaaf5fbd9376b5ccf211d7",
+   "family_sha256": "9f32cc4917d3529e83a50d85d65c469a3f046a492f91f084512556c624a63d0e",
    "island_box_atlas": [
     1228,
     307,
     2027,
     1843
    ],
-   "method": "tools/openclinxr/asset-pipeline/skin/families/vitruvian_deep_family.py r5 target: (a) whole-family linear-RGB multiply k, (b) per-region dLab_r = African_sep - family_after_multiply_sep (lip/ear only; nose CONTROL keeps multiply, forehead reference, no residual) with inward feather; r5 decision per vitruvian_dark gate-result.md GO on lip+ear; full record in store/skin-families/deep/deep-manifest.json",
+   "method": "tools/openclinxr/asset-pipeline/skin/families/vitruvian_deep_family.py r6 target: (a) whole-family linear-RGB multiply k, (b) per-region dLab_r = African_sep - family_after_multiply_sep (lip/ear only; nose CONTROL keeps multiply, forehead reference, no residual) inside the ERODED hard mask (inward-only feather: 6px MinFilter erosion before blur; boundary band keeps multiply); r6 decision pulls lip/ear residuals back from the commissure edge; full record in store/skin-families/deep/deep-manifest.json",
    "k_rgb": [
     0.090628,
     0.067407,
@@ -1381,16 +1381,16 @@
      -0.387424
     ]
    },
-   "deep_manifest_sha256": "312db6c5a657530d5cce90df7067d7511962c76c0ff0e1b3c3414bf8ef3b4ffa",
+   "deep_manifest_sha256": "9c24547a6459f1051d86fd56dde038c5bc0b3f1cb2697e658b94650220fd5ac7",
    "leak": {
     "label": "deep",
-    "atlas_sha256": "f55a409db44d273f8344a26ec0af1fca667c09d1b9eaaf5fbd9376b5ccf211d7",
+    "atlas_sha256": "9f32cc4917d3529e83a50d85d65c469a3f046a492f91f084512556c624a63d0e",
     "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2",
     "s_sha256": "8bc57f72d9972d3da39ae3b56e341ec969348fb32b5227cd5f6b56c6d19f0cfb",
-    "r_S": -0.0661,
-    "r_normal_y": 0.0236,
-    "mirror_signed_L": 0.006,
-    "mirror_abs_L": 0.754,
+    "r_S": -0.0392,
+    "r_normal_y": 0.0214,
+    "mirror_signed_L": 0.0038,
+    "mirror_abs_L": 0.757,
     "atlas": "/Volumes/files/openclinxr-assets/store/skin-families/deep/deep-family.png",
     "derive_dir": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/skinfamilies/a1/derive",
     "rig": {
