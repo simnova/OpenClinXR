@@ -13,3 +13,5 @@ export type {
   SyncConnection,
 } from "./index.js";
 export type { ConnectOptions } from "./options.js";
+export { startEncounterSyncFromUrl } from "./encounter-turns.js";
+export type { EncounterSyncEvidence } from "./encounter-turns.js";

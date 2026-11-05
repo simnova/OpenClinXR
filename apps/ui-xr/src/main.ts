@@ -393,6 +393,7 @@ import {
   setComparatorCaptureSceneRoot,
 } from "./capture-comparator.js";
 import { bootLearnerRuntimeFromAssembledExam, type PinnedEncounterBundleRuntimeTrace, resolveAssembledExamPinnedBundleId } from "./encounter-bundle-boot/index.js";
+import type { EncounterSyncEvidence } from "@openclinxr/xr-sync-client/headset";
 import { generatedHumanoidSourceProvenance } from "./generated-humanoid-source-provenance.js";
 import { applyStationInteriorLightingForEnvironment, configureStationRendererToneMapping } from "./lighting-rig-runtime.js";
 import {
@@ -514,6 +515,7 @@ declare global {
     __openClinXrEnvironmentStateEvidence?: EnvironmentStateEvidence;
     __openClinXrHumanoidSpeechEvidence?: HumanoidSpeechEvidence;
     __openClinXrLiveActorTurnConsumption?: LiveActorTurnConsumption;
+    __openClinXrEncounterSync?: EncounterSyncEvidence;
     __openClinXrCaseDefinedHumanoidPerformanceContractEvidence?: CaseDefinedHumanoidPerformanceContractEvidence;
     __openClinXrActorPlayerRuntimeMetadataSummary: ActorPlayerRuntimeMetadataSummary | undefined;
     __openClinXrPedsActorPlayerRuntimePlaybackEvidence?: PedsActorPlayerRuntimePlaybackEvidence;
@@ -1437,14 +1439,6 @@ function triggerHumanoidDialogue(
 }
 function humanoidDialogueDurationMs(phonemeCount: number): number {
   return actorDialogueStore.humanoidDialogueDurationMs(phonemeCount);
-}
-function _scenarioDialogueEmotionContext(
-  actorId: string,
-  text: string,
-  explicitEmotion?: HumanoidExpressionEmotion,
-  emotionSource?: HumanoidDialogueEmotionContext["source"],
-): HumanoidDialogueEmotionContext {
-  return actorDialogueStore.scenarioDialogueEmotionContext(actorId, text, explicitEmotion, emotionSource);
 }
 function localDialogueActorIdForTraceTag(tag: string): string | undefined {
   return actorDialogueStore.localDialogueActorIdForTraceTag(tag);
@@ -4733,6 +4727,12 @@ recordBootPhase("clock_started");
 initPreparedActorAudioBridge({ getSlot: (id) => generatedHumanoidAnimationSlotsByActorId.get(id), triggerDialogue: (ctx) => triggerHumanoidDialogue(ctx.actorId, ctx.spokenText, (ctx.gazeTarget ?? { kind: "learner_camera", actorId: null }) as HumanoidDialogueGazeTarget, ctx.faceEmotion as HumanoidExpressionEmotion | undefined, ctx.req as HumanoidSpeechEvidence["activeActorRuntimeRealismRequirement"] | undefined, ctx.emotionSource as HumanoidDialogueEmotionContext["source"] | undefined) });
 initSpeakFixtureBridge({ triggerDialogue: (actorId: string, text: string): void => { startPreparedActorTurnAudio({ actorId, spokenText: text }); } });
 window.__openClinXrRequestLiveVoiceTurn = requestUnscriptedLiveTurn;
+// C25: ?encounterSync=ws://... joins the xr-sync room; the server's actor turn plays through the live actor-turn consumer.
+if (window.location.search.includes("encounterSync=")) void import("@openclinxr/xr-sync-client/headset").then(({ startEncounterSyncFromUrl }) => startEncounterSyncFromUrl({
+  search: window.location.search, actorIds: () => encounterRuntimeAssetBundle.actors.map((actor) => actor.actorId), nowMs: () => performance.now(), publish: (evidence) => { window.__openClinXrEncounterSync = evidence; },
+  register: (payload, tag) => { const parsed = liveActorTurnFromPayload(payload); return parsed ? registerLiveActorTurn(parsed.plan, parsed.execution, tag) : undefined; },
+  play: (actorId, caption, emotion) => { dialogueLine.textContent = caption; triggerHumanoidDialogue(actorId, caption, { kind: "learner_camera", actorId: null }, emotion as HumanoidExpressionEmotion, undefined, "plan.dialogueEmotionTo"); },
+}));
 function buildHumanoidSpeechEvidence(
   actorId: string | null,
   assetId: string | null,

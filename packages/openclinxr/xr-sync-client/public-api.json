@@ -15,9 +15,11 @@
     "./headset": [
       "ConnectOptions",
       "EncounterSnapshot",
+      "EncounterSyncEvidence",
       "IntentKind",
       "SyncConnection",
-      "connect"
+      "connect",
+      "startEncounterSyncFromUrl"
     ]
   }
 }

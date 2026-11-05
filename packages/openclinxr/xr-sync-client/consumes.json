@@ -19,5 +19,21 @@
         "via": "own-test"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/xr-sync-client",
+    "entrypoint": "./headset",
+    "names": [
+      {
+        "name": "EncounterSyncEvidence",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "startEncounterSyncFromUrl",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

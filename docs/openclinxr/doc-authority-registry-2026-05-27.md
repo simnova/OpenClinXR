@@ -13,7 +13,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - agent-memory: 34
 - agent-methodology: 118
 - archive-candidate: 136
-- current-reference: 201
+- current-reference: 202
 - decision-record: 48
 - evidence: 188
 - generated-evidence: 11
@@ -231,6 +231,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `packages/openclinxr/factory-stations/src/room_clinic_finish/README.md` - current-reference; Station README for room_clinic_finish: states the dark-factory rule (Infinigen's own bake is the base, finish only adds what Infinigen structurally cannot make) and records the door-leaf maple-photo material as a deliberate documented exception. Subordinate to protected + drift rules.
 - `packages/openclinxr/factory-stations/src/room_generate/infinigen_generate/README.md` - current-reference; Apply-on-install record for the room_generate Infinigen GENERATE step (fixed-footprint driver, door-wall generalization, Concrete vertical-kwarg patch vs sha b11700eb) plus fresh-install patch procedure. Subordinate to protected + drift rules.
 - `packages/openclinxr/physics-touch-artifacts/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `packages/openclinxr/xr-sync-server/LEARNINGS.md` - current-reference; Package-local xr-sync lane learnings, each line sourced to a slice id or file; subordinate to AGENTS.md and agents/rules.
 - `templates/decision-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/risk-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/source-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.

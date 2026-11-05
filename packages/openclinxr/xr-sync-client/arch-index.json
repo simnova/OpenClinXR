@@ -29,7 +29,8 @@
   },
   "workspaceDependencies": [],
   "tests": [
-    "src/client-connect.test.ts"
+    "src/client-connect.test.ts",
+    "src/encounter-turns.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/xr-sync-client test",

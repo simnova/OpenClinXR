@@ -29,6 +29,7 @@
     "@openclinxr/xr-runtime-wiring": "workspace:*",
     "@openclinxr/xr-scene": "workspace:*",
     "@openclinxr/xr-scene-cues": "workspace:*",
+    "@openclinxr/xr-sync-client": "workspace:*",
     "@openclinxr/xr-station": "workspace:*",
     "@openclinxr/xr-station-room": "workspace:*",
     "@openclinxr/xr-trace-readiness": "workspace:*",

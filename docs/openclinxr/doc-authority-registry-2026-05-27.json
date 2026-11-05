@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 118,
-    "current-reference": 201,
+    "current-reference": 202,
     "archive-candidate": 136,
     "evidence": 188,
     "temporary": 54,
@@ -5433,6 +5433,13 @@
       "agentInstructionWeight": "low",
       "action": "use-as-current",
       "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
+      "path": "packages/openclinxr/xr-sync-server/LEARNINGS.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package-local xr-sync lane learnings, each line sourced to a slice id or file; subordinate to AGENTS.md and agents/rules."
     },
     {
       "path": "plugins/openclinxr-openclaw-style/README.md",

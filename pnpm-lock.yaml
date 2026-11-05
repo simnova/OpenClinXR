@@ -619,6 +619,9 @@ importers:
       '@openclinxr/xr-station-room':
         specifier: workspace:*
         version: link:../../packages/openclinxr/xr-station-room
+      '@openclinxr/xr-sync-client':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/xr-sync-client
       '@openclinxr/xr-trace-readiness':
         specifier: workspace:*
         version: link:../../packages/openclinxr/xr-trace-readiness

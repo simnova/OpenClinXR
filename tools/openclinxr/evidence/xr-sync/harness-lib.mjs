@@ -94,6 +94,15 @@ const MIME = {
   ".wasm": "application/wasm",
   ".glb": "model/gltf-binary",
   ".ico": "image/x-icon",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".bin": "application/octet-stream",
+  ".ktx2": "image/ktx2",
+  ".wav": "audio/wav",
+  ".mp3": "audio/mpeg",
+  ".txt": "text/plain",
+  ".woff2": "font/woff2",
 };
 
 export async function startStaticServer(root) {
@@ -206,7 +215,7 @@ export async function collectBundleSentry({ appDist, appSrcSyncProbe, extraBanne
   return { hits, chunks: [...chunkFiles].sort() };
 }
 
-export async function runHostProbe({ pageUrl, outDir }) {
+export async function runHostProbe({ pageUrl, outDir, drive }) {
   const { chromium } = await import("playwright");
   const browser = await chromium.launch({ headless: true, args: ["--disable-features=WebXR"] });
   const pageErrors = [];
@@ -221,6 +230,11 @@ export async function runHostProbe({ pageUrl, outDir }) {
       }
     });
     await page.goto(pageUrl, { timeout: 60000, waitUntil: "load" });
+    if (drive) {
+      const driven = await drive(page);
+      await context.close();
+      return { probe: driven, pageErrors, consoleErrors, browserProduct: await browser.version() };
+    }
     const deadline = Date.now() + DONE_TIMEOUT_MS;
     let probe = null;
     for (;;) {
@@ -242,14 +256,14 @@ export async function runHostProbe({ pageUrl, outDir }) {
   }
 }
 
-export async function runQuestProbe({ pageUrl, outDir, serial }) {
+export async function runQuestProbe({ pageUrl, outDir, serial, drive }) {
   // Remove our reverses even when launch/connect throws before the inner
   // finally is reached (a connect failure leaked tcp:54054/54055 on 2026-10-30).
   try {
-    return await runQuestProbeInner({ pageUrl, outDir, serial });
+    return await runQuestProbeInner({ pageUrl, outDir, serial, drive });
   } finally {
     const httpPort = new URL(pageUrl).port;
-    const syncPort = new URL(pageUrl).searchParams.get("sync")?.match(/:(\d+)$/)?.[1];
+    const syncPort = (new URL(pageUrl).searchParams.get("sync") ?? new URL(pageUrl).searchParams.get("encounterSync"))?.match(/:(\d+)$/)?.[1];
     for (const port of [httpPort, syncPort].filter(Boolean)) {
       await adb(serial, ["reverse", "--remove", `tcp:${port}`]).catch(() => {});
     }
@@ -257,12 +271,12 @@ export async function runQuestProbe({ pageUrl, outDir, serial }) {
   }
 }
 
-async function runQuestProbeInner({ pageUrl, outDir, serial }) {
+async function runQuestProbeInner({ pageUrl, outDir, serial, drive }) {
   // Quest mode (NOT executed by the C2 author): Oculus Browser via CDP.
   // Owns a single new target only; never touches foreign tabs.
   const { chromium } = await import("playwright");
   const httpPort = new URL(pageUrl).port;
-  const syncPort = new URL(pageUrl).searchParams.get("sync")?.match(/:(\d+)$/)?.[1];
+  const syncPort = (new URL(pageUrl).searchParams.get("sync") ?? new URL(pageUrl).searchParams.get("encounterSync"))?.match(/:(\d+)$/)?.[1];
   if (!syncPort) {
     throw new Error("cannot parse sync port for adb reverse");
   }
@@ -317,6 +331,11 @@ async function runQuestProbeInner({ pageUrl, outDir, serial }) {
       }
     });
     await page.waitForLoadState("load", { timeout: 120000 });
+    if (drive) {
+      const driven = await drive(page);
+      await page.close();
+      return { probe: driven, pageErrors, consoleErrors, browserProduct: browser.version() };
+    }
     const deadline = Date.now() + DONE_TIMEOUT_MS;
     let probe = null;
     for (;;) {
