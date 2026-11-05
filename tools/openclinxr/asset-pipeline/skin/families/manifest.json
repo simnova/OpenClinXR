@@ -1346,7 +1346,7 @@
    "source_sha256": "8c4e47034c58b8b81ac666a35fa46cd36f05dc2ce7f4fa3e43e43563e4c95846",
    "source_licence": "CC0-1.0 explicit (Vitruvian-Project LICENSE at upstream commit c036e5376108dbbb340beb0a3f4ef8ac463e39)",
    "family_path": "/Volumes/files/openclinxr-assets/store/skin-families/deep/deep-family.png",
-   "family_sha256": "17543e145cdbfacf1cc0835a71df615efee9856509ce26e4c3a26aa53d5d3583",
+   "family_sha256": "33c5f621228400f9394d53e987b84b2b3b05c9e747c7472c8b7d9c2b72f4f92d",
    "island_box_atlas": [
     1228,
     307,
@@ -1381,17 +1381,17 @@
      -0.387424
     ]
    },
-   "deep_manifest_sha256": "bc7600ec8a8df5bed4e3db5a6dbf52737ffcdc196eb1bb9d1ab553f8193ba5d5",
+   "deep_manifest_sha256": "74421d88febf118a5b167654c5f4de499bd17a0bca9cdb167ade0865be4d09c8",
    "leak": {
     "label": "deep",
-    "atlas_sha256": "17543e145cdbfacf1cc0835a71df615efee9856509ce26e4c3a26aa53d5d3583",
+    "atlas_sha256": "33c5f621228400f9394d53e987b84b2b3b05c9e747c7472c8b7d9c2b72f4f92d",
     "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2",
     "s_sha256": "8bc57f72d9972d3da39ae3b56e341ec969348fb32b5227cd5f6b56c6d19f0cfb",
-    "r_S": -0.221,
-    "r_normal_y": -0.0288,
-    "mirror_signed_L": 0.0074,
-    "mirror_abs_L": 0.748,
-    "gate_vs_own_source_old_v2": "r_S -0.221 vs -0.0163 FAIL on |r_S|; mirror_signed 0.0074 vs 0.0111 pass"
+    "r_S": -0.111,
+    "r_normal_y": -0.0599,
+    "mirror_signed_L": 0.0067,
+    "mirror_abs_L": 0.7479,
+    "gate_vs_own_source_old_v2": "r_S -0.111 vs -0.0163 FAIL on |r_S|; mirror_signed 0.0067 vs 0.0111 pass"
    },
    "leak_no_residual_control": {
     "label": "deep-no-residual",

@@ -5,7 +5,9 @@ the dark CC0 source from the provider cache, UV masks from the a1 derive dir (sa
 for all inputs; manifest.json island_box_atlas identical [1228,307,2027,1843] for all 3 families).
 Writes: tone-report.json (this dir). No Imagine, no GLB rewrite, no renders.
 
-Method: sRGB -> XYZ -> Lab (D65) means under forehead (top 30% facecore bbox rows) / lips /
+Method: sRGB -> XYZ -> Lab (D65) means under forehead (shared
+skin_layers.forehead_disc: build_roughness brow-push disc AND occupancy
+NOT brows NOT eyes) / lips /
 ears (L|R max) masks intersected with occupancy; RGB scale of the light family to the dark
 family's forehead mean; CIEDE2000 lip/ear of multiplied-vs-dark against the untouched pair
 (S/consult47/r4.answer.md card 5 threshold = that pair); cap rule: a residual uncapped past
@@ -22,6 +24,7 @@ from PIL import Image
 
 HERE = Path(__file__).parent
 STORE = Path("/Volumes/files/openclinxr-assets/store")
+import skin_layers as sl  # noqa: E402  (shared forehead_disc; same dir)
 DERIVE = Path(
     "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95"
     "/.openclinxr/realism-spike/skinfamilies/a1/derive"
@@ -108,8 +111,9 @@ def main() -> None:
     ears = np.maximum(load_m("mask-ears-L.png"), load_m("mask-ears-R.png"))
     occ = load_m("occupancy.png")
     skin = (core > 0.5) & (occ > 0.5)
-    ys = np.where(skin)[0]
-    forehead = skin & (np.arange(skin.shape[0])[:, None] <= ys.min() + int(0.30 * (ys.max() - ys.min())))
+    forehead = sl.forehead_disc() > 0.5
+    cc, cr, rad = sl.forehead_centre_px()
+    print(f"forehead disc centre=({cc:.1f},{cr:.1f}) radius={rad:.1f}px px={int(forehead.sum())}", flush=True)
     lip_m = (lips > 0.5) & (occ > 0.5)
     ear_m = (ears > 0.5) & (occ > 0.5)
 
@@ -135,10 +139,23 @@ def main() -> None:
     L, D = np.array(fams[LIGHT_ID]["lip"]), np.array(dark["lip"])
     LE, DE = np.array(fams[LIGHT_ID]["ear"]), np.array(dark["ear"])
 
+    order = sorted(fams, key=lambda fid: fams[fid]["forehead"][0])
+    order_tag = ["%s-%d" % (fid, round(fams[fid]["forehead"][0])) for fid in order]
+    import math as _math
+    _anchors = {
+        "warm_light": [58.37, 9.05, 16.01],
+        "warm_medium": [49.26, 13.89, 19.44],
+        "deep_warm": [20.22, 12.01, 12.66],
+    }
+    _deep_d = {fid: round(_math.dist(_anchors["deep_warm"], fams[fid]["forehead"]), 2) for fid in fams}
+    nearest_method = ("min dLab anchor vs family forehead mean; light anchors nearest the darkest "
+                      "light family; deep_warm nearest deep (dLab %s vs %s to any light family)"
+                      % (_deep_d["deep"], min(_deep_d[fid] for fid in fams if fid != "deep")))
+
     report = {
         "version": 1,
         "instrument": "tools/openclinxr/asset-pipeline/skin/families/tone-check.py",
-        "masks": "skinfamilies/a1/derive (facecore/lips/ears-L|R max/occupancy); forehead=top30pc facecore rows",
+        "masks": "skinfamilies/a1/derive (facecore/lips/ears-L|R max/occupancy/brows-L|R/eyes-L|R/landmarks-uv.json); forehead=build_roughness disc (brow-mid pushed 0.5 past brows, r=0.055*S) AND occupancy NOT brows NOT eyes (skin_layers.forehead_disc)",
         "falsifier": {
             "case_skin_tones": ["warm_light", "warm_light_child", "warm_medium", "medium_warm"],
             "sources": [
@@ -160,13 +177,13 @@ def main() -> None:
                        "(tools/openclinxr/asset-pipeline/skin/vitruvian_dark/chroma-table.json african.forehead.lab_d65)",
         },
         "families": fams,
-        "lightness_order_dark_to_light_forehead_L": ["deep-17", "dark-33", "young-60", "old-68", "middle-75"],
+        "lightness_order_dark_to_light_forehead_L": order_tag,
         "nearest": {
             "warm_light": "young",
             "warm_light_child": "young",
             "warm_medium": "young",
             "deep_warm": "deep",
-            "method": "min dLab anchor vs family forehead mean; light anchors nearest the darkest light family; deep_warm nearest deep (dLab 3.50 vs 40+ to any light family)",
+            "method": nearest_method,
         },
         "cap_rule": "per-chart Lab residual capped at the next family's forehead mean; "
                     "a residual uncapped past the next family's mean is a fail",

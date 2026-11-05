@@ -108,6 +108,71 @@ def soft_inside(hard: np.ndarray) -> np.ndarray:
     return blurred * hard
 
 
+# Forehead disc: shared definition mirroring face-replay/build_roughness.py
+# (brow-end-inner mid pushed past the brows by FOREHEAD_PUSH, radius
+# R_FOREHEAD * S) and skin-shade.ts skinForeheadUv (same centre). Gated by
+# occupancy ∧ NOT brows ∧ NOT eyes; deliberately NOT facecore (facecore bbox
+# cols 1647-2047 does not contain the forehead, which lies at cols < 1647).
+R_FOREHEAD = 0.055
+FOREHEAD_PUSH = 0.5
+
+
+def forehead_centre_px(S: int | None = None) -> tuple[float, float, float]:
+    """Forehead disc centre (col, row) px + radius px from landmarks-uv.json.
+
+    Convention: uv_texel = [u*S, v*S] -> image (col=u*S, row=v*S), scaled to S.
+    """
+    lm = json.loads((DERIVE / "landmarks-uv.json").read_text())
+    assert lm.get("row") == "v*S", "landmarks must be row=v*S convention"
+    size = S or int(lm["size"])
+    sc = size / float(lm["size"])
+    pts = {k: (float(v["uv_texel"][0]) * sc, float(v["uv_texel"][1]) * sc)
+           for k, v in lm["landmarks"].items()}
+    nose = pts["nose-tip"]
+    inners = [pts[k] for k in ("brow-end-L-inner", "brow-end-R-inner")]
+    brow_mid = ((inners[0][0] + inners[1][0]) / 2,
+                (inners[0][1] + inners[1][1]) / 2)
+    centre = (brow_mid[0] + (brow_mid[0] - nose[0]) * FOREHEAD_PUSH,
+              brow_mid[1] + (brow_mid[1] - nose[1]) * FOREHEAD_PUSH)
+    return (centre[0], centre[1], R_FOREHEAD * size)
+
+
+def forehead_disc(S: int | None = None) -> np.ndarray:
+    """Hard forehead mask: build_roughness disc ∧ occupancy ∧ NOT brows ∧ NOT eyes.
+
+    Minus the nose disc and cheek boxes so the five station regions stay
+    disjoint (r2 also excluded nose/cheek; the nose disc overlaps this disc
+    by ~2k px otherwise and would take a double residual). Forehead still
+    lies outside facecore (cols < 1647), so no facecore gate.
+    """
+    lm_size = json.loads((DERIVE / "landmarks-uv.json").read_text())["size"]
+    size = S or int(lm_size)
+    cc, cr, rad = forehead_centre_px(size)
+    brows = np.maximum(load_mask("mask-brows-L.png"), load_mask("mask-brows-R.png"))
+    eyes = np.maximum(load_mask("mask-eyes-L.png"), load_mask("mask-eyes-R.png"))
+    occ = load_mask("occupancy.png")
+    if brows.shape[0] != size:
+        req = (size, size)
+        rs = Image.Resampling.NEAREST
+        brows = np.asarray(Image.fromarray((brows * 255).astype(np.uint8)).resize(req, rs),
+                           dtype=np.float64) / 255.0
+        eyes = np.asarray(Image.fromarray((eyes * 255).astype(np.uint8)).resize(req, rs),
+                          dtype=np.float64) / 255.0
+        occ = np.asarray(Image.fromarray((occ * 255).astype(np.uint8)).resize(req, rs),
+                         dtype=np.float64) / 255.0
+    rows, cols = np.mgrid[0:size, 0:size]
+    disc = ((cols - cc) ** 2 + (rows - cr) ** 2) <= rad ** 2
+    nose_disc = ((cols - NOSE_TIP[0] * size / 2048) ** 2
+                 + (rows - NOSE_TIP[1] * size / 2048) ** 2) <= (NOSE_RADIUS_PX * size / 2048) ** 2
+    c0, c1 = CHEEK_COLS
+    sc = size / 2048
+    cheekbox = ((cols >= c0 * sc) & (cols < c1 * sc)
+                & (((rows >= CHEEK_ROWS_SIDE1[0] * sc) & (rows < CHEEK_ROWS_SIDE1[1] * sc))
+                   | ((rows >= CHEEK_ROWS_SIDE2[0] * sc) & (rows < CHEEK_ROWS_SIDE2[1] * sc))))
+    return ((disc & (occ > 0.5) & (brows <= 0.5) & (eyes <= 0.5)
+             & (~nose_disc) & (~cheekbox))).astype(np.float64)
+
+
 def build_masks() -> dict[str, np.ndarray]:
     core = load_mask("mask-facecore.png")
     lips = load_mask("mask-lips.png")
