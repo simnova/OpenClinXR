@@ -92,7 +92,7 @@ async function main(argv) {
           speech: { activeActorId: speech.activeActorId ?? null, lastText: speech.lastText ?? null, emotionSource: speech.emotionSource ?? null, activeEmotionState: speech.activeEmotionState ?? null },
         };
       });
-      const probe = { aimed: null, gazeBefore: [], via: [], afterTurn: [], typed: 0, inputAfterSend: [], directSendIntentCalls: 0, evidenceText: "" };
+      const probe = { aimPatient: [], aimed: null, gazeBefore: [], via: [], afterTurn: [], typed: 0, inputAfterSend: [], directSendIntentCalls: 0, evidenceText: "" };
       const joined = await readShell();
       if (joined.state !== "joined") return { ...probe, final: joined };
       await page.evaluate(() => { const e = globalThis.__openClinXrEncounterSync; globalThis.__directSendIntentCalls = 0; const original = e.sendIntent; e.sendIntent = (...args) => { globalThis.__directSendIntentCalls += 1; return original(...args); }; });
@@ -101,6 +101,21 @@ async function main(argv) {
         const endBy = Date.now() + 30000;
         while (serverActorSpeaking() && Date.now() < endBy) await sleep(100);
         await page.locator("#utterance-input").fill(text);
+        // The view differs per device (the Quest opens facing another cast actor): turn it to the patient so the three sends have one known addressee.
+        probe.aimPatient.push(await page.evaluate(({ target }) => {
+          const camera = globalThis.__openClinXrGazeCamera;
+          const gaze = globalThis.__openClinXrEncounterSync.gazedActorId;
+          if (!camera || !gaze) return false;
+          if (gaze() === target) return true;
+          const eye = camera.getWorldPosition(camera.position.clone());
+          for (let degrees = 0; degrees < 360; degrees += 5) {
+            const radians = (degrees * Math.PI) / 180;
+            camera.lookAt(eye.x + Math.sin(radians), eye.y, eye.z - Math.cos(radians));
+            camera.updateMatrixWorld(true);
+            if (gaze() === target) return true;
+          }
+          return false;
+        }, { target: expected.actorId }));
         probe.gazeBefore.push(await page.evaluate(() => globalThis.__openClinXrEncounterSync.gazedActorId?.() ?? null));
         // Send 2 submits with Enter in the input; sends 1 and 3 use the button.
         if (index === 1) { await page.locator("#utterance-input").press("Enter"); probe.via.push("enter"); } else { await page.locator("#utterance-send").evaluate((el) => el.click()); probe.via.push("click"); }
@@ -170,6 +185,7 @@ async function main(argv) {
     check("S10 no built chunk carries the server package or @colyseus/core", chunkNames.length > 0 && hits.length === 0, hits.join(" | ") || `${chunkNames.length} chunks`);
     // C28: the addressed actor follows the rule (gaze, else the last speaker, else the first cast actor); Enter submitted send 2.
     const castFirst = scenario.actors[0].actorId;
+    check("S16 the view was turned to the patient before each of the three sends", JSON.stringify(probe.aimPatient) === JSON.stringify([true, true, true]), JSON.stringify(probe.aimPatient));
     const expectedAddressed = probe.gazeBefore.map((gazed, i) => gazed ?? turns[i - 1]?.actorId ?? castFirst);
     check("S13 each send addressed the gazed actor, else the last speaker, else the first cast actor; send 2 went through Enter", JSON.stringify((final?.utterances ?? []).slice(0, 3).map((u) => u.actorId)) === JSON.stringify(expectedAddressed) && JSON.stringify(probe.via) === JSON.stringify(["click", "enter", "click"]), JSON.stringify({ addressed: (final?.utterances ?? []).map((u) => u.actorId), expectedAddressed, gazeBefore: probe.gazeBefore, via: probe.via }));
     // C28: no overlay. The server booted with the exported seed bank object, and this file authors none of its fields.
