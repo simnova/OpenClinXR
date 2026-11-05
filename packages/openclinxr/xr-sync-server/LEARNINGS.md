@@ -15,7 +15,8 @@ Each line cites the slice or file that measured it. Ledger: .openclinxr/handoffs
 ## Scripted input
 - Host and Quest run the same IWER script. Host refuses a native XR runtime; Quest passes `forceIwer=1` to install the emulator over the native one. This is emulation, not a native Quest XR claim (C2, sync-probe.ts).
 - Every wait in a script keys on observed server state (snapshot fields), never on a timer, so a slow headset does not change the order of intents (C3).
-- The production shell (C25) takes intents from `window.__openClinXrEncounterSync.sendIntent`, driven over CDP. Its page main thread renders the scene, so an ack can miss the client's 5 s intent timeout under load; the harness treats a timeout as non-reject and reads the turn from state.
+- The production shell (C25) takes intents from `window.__openClinXrEncounterSync.sendIntent`, driven over CDP. Its page main thread renders the scene, so an ack can miss the client's 5 s intent timeout under load; the harness treats a client-side error as non-reject and reads the turn from state.
+- Server `turnId` restarts in each station room, so a client keys turn de-duplication on (station, actor, turnId) (C25 grade-01).
 - The SDK replays a snapshot before the first patch fills `actors`; consumers must tolerate `actors` undefined (C25).
 
 ## Bundle sentry

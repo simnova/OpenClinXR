@@ -28,10 +28,15 @@ export function encounterSyncUrl(search: string): { url: string } | null {
   return { url: value };
 }
 
-/** Stateful detector: one turn per (actor, turnId) when the actor is speaking. */
+/** Stateful detector: one turn per (actor, turnId) when the actor is speaking; turnId restarts per station room. */
 export function createActorTurnDetector(): (snapshot: EncounterSnapshot) => SyncedActorTurn[] {
   const emitted = new Map<string, number>();
+  let station: string | undefined;
   return (snapshot) => {
+    if (snapshot.stationId !== station) {
+      station = snapshot.stationId;
+      emitted.clear();
+    }
     const turns: SyncedActorTurn[] = [];
     // The SDK replays a snapshot before the first patch has populated the actor map.
     for (const [actorId, actor] of Object.entries(snapshot.actors ?? {})) {

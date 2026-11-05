@@ -135,9 +135,9 @@ async function main(argv) {
     check("S4 face emotion read from the registered plan equals the server emotion", turns.length === 2 && turns.every((t) => t.faceEmotion === t.emotion), JSON.stringify(turns.map((t) => [t.emotion, t.faceEmotion])));
     check("S5 the shell dialogue line shows each caption after its turn", probe.afterTurn?.length === 2 && probe.afterTurn.every((s, i) => s.dialogue === expected.captions[i]), JSON.stringify(probe.afterTurn?.map((s) => s.dialogue)));
     check("S6 the humanoid speech player took the turn: actor, text, emotionSource plan.dialogueEmotionTo, emotion state", probe.afterTurn?.length === 2 && probe.afterTurn.every((s, i) => s.speech.activeActorId === expected.actorId && s.speech.lastText === expected.captions[i] && s.speech.emotionSource === "plan.dialogueEmotionTo" && s.speech.activeEmotionState === turns[i]?.faceEmotion), JSON.stringify(probe.afterTurn?.map((s) => s.speech)));
-    check("S7 no utterance-end was rejected (ack or client timeout, never reject)", probe.acks?.length === 2 && probe.acks.every((status) => status !== "reject"), JSON.stringify(probe.acks));
+    check("S7 no utterance-end was rejected (ack or client-side error such as the 5 s timeout, never reject)", probe.acks?.length === 2 && probe.acks.every((status) => status !== "reject"), JSON.stringify(probe.acks));
     const serverTurns = (syncServer.getProbeStats().turns ?? []).map((t) => t.replyId);
-    check("S8 the server turn log equals the replyIds the shell played", JSON.stringify(serverTurns) === JSON.stringify(expected.replyIds), JSON.stringify(serverTurns));
+    check("S8 the server turn log equals the replyIds the shell played and the expected replyIds", JSON.stringify(serverTurns) === JSON.stringify(turns.map((t) => t.replyId)) && JSON.stringify(serverTurns) === JSON.stringify(expected.replyIds), JSON.stringify(serverTurns));
     check("S9 no page errors", outcome.pageErrors.length === 0, outcome.pageErrors.join(" | "));
     const chunkNames = (await readdir(join(APP_DIST, "assets"))).filter((name) => name.endsWith(".js"));
     const hits = [];

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { type EncounterSyncEvidence, startEncounterSyncFromUrl } from "./headset.js";
 
 const actor = (over: Record<string, unknown> = {}) => ({ id: "a", speaking: false, emotion: "anxious", replyId: "", cueId: "", caption: "", ...over });
-const snap = (turnId: number, actors: Record<string, ReturnType<typeof actor>>) => ({ serverTick: turnId, phase: "encounter", turnId, turnOwner: "actor", actors, learners: {}, stationId: "slot-a" });
+const snap = (turnId: number, actors: Record<string, ReturnType<typeof actor>>, stationId = "slot-a") => ({ serverTick: turnId, phase: "encounter", turnId, turnOwner: "actor", actors, learners: {}, stationId });
 
 interface Rig {
   listeners: Array<(snapshot: unknown) => void>;
@@ -80,6 +80,15 @@ describe("server turns", () => {
     r.listeners[0]?.(at(1));
     r.listeners[0]?.(at(2));
     expect(r.played).toHaveLength(2);
+  });
+  it("plays the same actor's turn 1 again in the next station room, where turnId restarts", async () => {
+    const { r } = await join();
+    const speaks = (stationId: string) => snap(1, { p: actor({ id: "p", speaking: true, replyId: `r-${stationId}`, caption: `c-${stationId}` }) }, stationId);
+    r.listeners[0]?.(speaks("slot-a"));
+    r.listeners[0]?.(speaks("slot-a"));
+    r.listeners[0]?.(speaks("slot-b"));
+    expect(r.played.map(([, caption]) => caption)).toEqual(["c-slot-a", "c-slot-b"]);
+    expect(r.published[0]?.turns.map((turn) => turn.stationId)).toEqual(["slot-a", "slot-b"]);
   });
   it("plays only the actors that are speaking", async () => {
     const { r } = await join();
