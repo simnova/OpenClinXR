@@ -1345,15 +1345,15 @@
    "source_path": "Vitruvian-Project CC0-1.0 Face BaseColor Utility Linear sRGB + African Face BaseColor (store/vitruvian-src/4K) statistics via tools/openclinxr/asset-pipeline/skin/vitruvian_dark/chroma-table.json remapped onto skin-families/old/old-family-v2.png",
    "source_sha256": "8c4e47034c58b8b81ac666a35fa46cd36f05dc2ce7f4fa3e43e43563e4c95846",
    "source_licence": "CC0-1.0 explicit (Vitruvian-Project LICENSE at upstream commit c036e5376108dbbb340beb0a3f4ef8ac463e39)",
-   "family_path": "/Volumes/files/openclinxr-assets/store/skin-families/deep/deep-family.png",
-   "family_sha256": "9f32cc4917d3529e83a50d85d65c469a3f046a492f91f084512556c624a63d0e",
+   "family_path": "/Volumes/files/openclinxr-assets/store/skin-families/deep/r8/deep-family.png",
+   "family_sha256": "a063cce36e87cdadfff349e5982f44ed66bec4666b4375cc814768af337efdca",
    "island_box_atlas": [
     1228,
     307,
     2027,
     1843
    ],
-   "method": "tools/openclinxr/asset-pipeline/skin/families/vitruvian_deep_family.py r6 target: (a) whole-family linear-RGB multiply k, (b) per-region dLab_r = African_sep - family_after_multiply_sep (lip/ear only; nose CONTROL keeps multiply, forehead reference, no residual) inside the ERODED hard mask (inward-only feather: 6px MinFilter erosion before blur; boundary band keeps multiply); r6 decision pulls lip/ear residuals back from the commissure edge; full record in store/skin-families/deep/deep-manifest.json",
+   "method": "tools/openclinxr/asset-pipeline/skin/families/vitruvian_deep_family.py r8 target: (a) whole-family linear-RGB multiply k, (b) per-region dLab_r = African_sep - family_after_multiply_sep (lip/ear only; nose CONTROL keeps multiply, forehead reference, no residual) with r8 weights (lip L: soft_inside * row-factor smoothstep 0 at corner row extremes, 1 at >=32 rows; lip a*/b*: soft_inside uncut; ear: soft_inside uncut); G7 runtime+studio PASS at N=32; full record in store/skin-families/deep/r8/deep-manifest.json",
    "k_rgb": [
     0.090628,
     0.067407,
@@ -1381,17 +1381,17 @@
      -0.387424
     ]
    },
-   "deep_manifest_sha256": "9c24547a6459f1051d86fd56dde038c5bc0b3f1cb2697e658b94650220fd5ac7",
+   "deep_manifest_sha256": "baf500223a7b1dbb8dfb19117e3f95512e19f1caa0266546883ca143377d96f7",
    "leak": {
-    "label": "deep",
-    "atlas_sha256": "9f32cc4917d3529e83a50d85d65c469a3f046a492f91f084512556c624a63d0e",
+    "label": "deep-r8",
+    "atlas_sha256": "a063cce36e87cdadfff349e5982f44ed66bec4666b4375cc814768af337efdca",
     "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2",
     "s_sha256": "8bc57f72d9972d3da39ae3b56e341ec969348fb32b5227cd5f6b56c6d19f0cfb",
-    "r_S": -0.0392,
-    "r_normal_y": 0.0214,
-    "mirror_signed_L": 0.0038,
-    "mirror_abs_L": 0.757,
-    "atlas": "/Volumes/files/openclinxr-assets/store/skin-families/deep/deep-family.png",
+    "r_S": -0.0586,
+    "r_normal_y": 0.0238,
+    "mirror_signed_L": 0.0058,
+    "mirror_abs_L": 0.7527,
+    "atlas": "/Volumes/files/openclinxr-assets/store/skin-families/deep/r8/deep-family.png",
     "derive_dir": "/Users/patrick/.grok/worktrees/src-openclinxr/realism-95/.openclinxr/realism-spike/skinfamilies/a1/derive",
     "rig": {
      "keyAzimuthDeg": 15,
@@ -1418,7 +1418,7 @@
     "n_skin_texels": 114052,
     "n_mirror_pairs": 8235,
     "wall_s": 0.6,
-    "gate_vs_own_source_old_v2": "r5 target lip+ear: r_S -0.0661 vs old -0.0163 (regional chroma, not baked light: sign negative); mirror_signed 0.0060 vs 0.0111 pass"
+    "gate_vs_own_source_old_v2": "r8 L-taper N32: r_S -0.0586 vs old -0.0163 (regional chroma, not baked light: sign negative); mirror_signed 0.0058 vs 0.0111 pass"
    },
    "leak_no_residual_control": {
     "label": "deep-no-residual",

@@ -44,6 +44,23 @@ FAMILIES = {
 }
 
 
+def _deep_rel_from_manifest() -> str:
+    # r8b: deep lives on a write-once versioned path; the manifest row is the SSOT.
+    try:
+        rows = json.load(open(HERE / "manifest.json"))["families"]
+        row = next(r for r in rows if r.get("family") == "deep")
+        p = Path(row["family_path"])
+        try:
+            return str(p.relative_to(STORE))
+        except ValueError:
+            return str(p)
+    except Exception:
+        return FAMILIES["deep"]
+
+
+FAMILIES["deep"] = _deep_rel_from_manifest()
+
+
 def sha256_file(p: Path) -> str:
     h = hashlib.sha256()
     with open(p, "rb") as f:
