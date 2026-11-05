@@ -78,16 +78,16 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "senior_resident_ward_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-          "assetSha256": "9141538a76220c8431573ed185a24d5eb710429bca27f9844a8cee99c180d425",
-          "byteCount": 9293412
+          "assetSha256": "34c5aec8fe30cd47fa924b40bba1660bf4b4c04bf3d8328210603e26c477d83e",
+          "byteCount": 9320372
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:ward_nurse_patel_v1",
           "kind": "actor",
           "contentId": "ward_nurse_patel_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-          "assetSha256": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c",
-          "byteCount": 8775848
+          "assetSha256": "4d9f4e6bb2c8535fcc15ace7ac51125d31d30a7218d2b893a5b1ad8f195cb3f7",
+          "byteCount": 8807408
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:daughter_lena_ellis_v1",
@@ -167,11 +167,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-a16d4cb0a693dce8a18a65a15cae2395",
+      "planRevision": "plan-v1-f0aae021a7660f5d921d2bceb4a2bd04",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-a16d4cb0a693dce8a18a65a15cae2395"
+        "acknowledgedPlanRevision": "plan-v1-f0aae021a7660f5d921d2bceb4a2bd04"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);
