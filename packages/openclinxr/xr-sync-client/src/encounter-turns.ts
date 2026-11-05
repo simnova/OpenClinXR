@@ -121,7 +121,8 @@ async function sendUtteranceIntents(
 ): Promise<void> {
   if (actorId === undefined || actorId === "") return;
   const trimmed = text.trim();
-  if (trimmed === "") return;
+  // The room rejects text over 500 chars after utterance-start opened the turn, which would wedge later sends.
+  if (trimmed === "" || trimmed.length > 500) return;
   const entry: SentUtterance = { actorId, chars: trimmed.length, statuses: [] };
   log.push(entry);
   await sendIntentSteps(sendIntent, entry.statuses, [["select-actor", { actorId }], ["utterance-start", {}], ["utterance-end", { text: trimmed }]]);

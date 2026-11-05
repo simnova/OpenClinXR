@@ -93,3 +93,13 @@ describe("learner free text over the room (C27)", () => {
     expect(parent.children).toEqual([]);
   });
 });
+
+describe("learner free text length cap (C27 grade defect)", () => {
+  it("sends nothing for text over 500 characters, so no utterance is left open on the room", async () => {
+    const { sent, evidence } = await joined();
+    await evidence.sendUtterance?.("p", "x".repeat(501));
+    expect(sent).toEqual([]);
+    await evidence.sendUtterance?.("p", "x".repeat(500));
+    expect(sent.map(([kind]) => kind)).toEqual(["select-actor", "utterance-start", "utterance-end"]);
+  });
+});
