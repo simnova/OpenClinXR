@@ -9,11 +9,12 @@ import { decodePng } from "../../../../../tools/openclinxr/evidence/decode-png.j
 const ROOT = repoRoot();
 const CURRENT_GLB = process.env["OPENCLINXR_PARTNER_GLB"]
   ?? join(ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb");
-const R8_GLB = join(
-  ROOT,
-  ".openclinxr/openclaw/ceo/st-vitdark/mpfb-family-partner-adult-r8.glb",
-);
-const R3_REVISION = "859944f4c";
+// r3 = the landed st-vitdark r5 slice commit (r3 remap bytes, sha 85d98d37). The pre-rebase
+// local sha 859944f4c never reached origin, so a clone cannot `git show` it.
+const R3_REVISION = "97d331a4d";
+// The rejected r8 shape was an atlas-wide luminance gain. It is rebuilt in-test from r3 so no
+// gitignored evidence file is read (the r8 GLB lived only in the st-vitdark E dir).
+const GLOBAL_GAIN = 0.97;
 const R3_PATH = "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb";
 const DARK_TEXEL_FRACTION = 0.35;
 const KNEE_START = 0.5949254260464409;
@@ -172,6 +173,13 @@ function clauses(atlas: Atlas, r3: Atlas): Clauses {
   };
 }
 
+/** Every covered texel scaled by one gain: the atlas-wide shape the r8 round shipped. */
+function globalGain(atlas: Atlas, gain: number): Atlas {
+  const scale = (v: Uint8Array) => v.map((c) => Math.min(255, Math.round(c * gain)));
+  const luminance = atlas.luminance.map((l) => l * gain);
+  return { ...atlas, red: scale(atlas.red), green: scale(atlas.green), blue: scale(atlas.blue), luminance, median: atlas.median * gain };
+}
+
 const fixtures = await (async () => {
   const raw = {
     current: readFileSync(CURRENT_GLB),
@@ -179,17 +187,16 @@ const fixtures = await (async () => {
       cwd: ROOT,
       maxBuffer: 20 * 1024 * 1024,
     }),
-    r8: readFileSync(R8_GLB),
   };
   const measured = {
     current: await measure(raw.current),
     r3: await measure(raw.r3),
-    r8: await measure(raw.r8),
   };
+  const r8 = globalGain(measured.r3, GLOBAL_GAIN);
   const results = {
     current: clauses(measured.current, measured.r3),
     r3: clauses(measured.r3, measured.r3),
-    r8: clauses(measured.r8, measured.r3),
+    r8: clauses(r8, measured.r3),
   };
   for (const name of ["current", "r3", "r8"] as const) {
     process.stdout.write(`st-vitdark r9 clauses ${name}: ${JSON.stringify(results[name])}\n`);
@@ -205,7 +212,7 @@ describe("the deep partner atlas changes only below the light-bake soft-knee sta
     expect(fixtures.results.current.floor.pass).toBe(true);
   });
 
-  it("(b) is byte-identical to r3 at and above k_start while frozen r8 is not", () => {
+  it("(b) is byte-identical to r3 at and above k_start while an atlas-wide gain is not", () => {
     expect(fixtures.results.r8.identity.pass).toBe(false);
     expect(fixtures.results.current.identity.identityChanged).toBe(0);
     expect(fixtures.results.current.identity.changedFraction).toBeLessThanOrEqual(
