@@ -48,8 +48,21 @@ describe("the shipped dark atlas keeps the African map's regional chroma", () =>
   it("grades the shipped GLB bytes, not a detached candidate", () => {
     expect(REPORT.stage).toBe("vitruvian_dark_cielab_remap_v2");
     expect(REPORT.probeZeroRegionSeparations).toBe(false);
-    expect(REPORT.output.sha256).toBe(sha256(GLB_PATH));
-    expect(REPORT.output.bytes).toBe(readFileSync(GLB_PATH).byteLength);
+    // The remap output is either shipped as-is, or is the exact input of the later
+    // JSON-only hair-colour stage (st-vitbrow r4, BIN chunk verbatim) whose output ships.
+    const shipped = sha256(GLB_PATH);
+    const provenance = JSON.parse(readFileSync(GLB_PATH.replace(/\.glb$/, ".provenance.json"), "utf8")) as {
+      actorHairColourPostExport?: { stage: string; inputGlbSha256: string; outputGlbSha256: string; outputBytes: number };
+    };
+    const hair = provenance.actorHairColourPostExport;
+    if (REPORT.output.sha256 === shipped) {
+      expect(REPORT.output.bytes).toBe(readFileSync(GLB_PATH).byteLength);
+    } else {
+      expect(hair?.stage).toBe("actor_hair_colour_post_export_v1");
+      expect(hair?.inputGlbSha256).toBe(REPORT.output.sha256);
+      expect(hair?.outputGlbSha256).toBe(shipped);
+      expect(hair?.outputBytes).toBe(readFileSync(GLB_PATH).byteLength);
+    }
   });
 
   it("R1-R3 cause guard: lip and lid use bounded-detail target fields", () => {

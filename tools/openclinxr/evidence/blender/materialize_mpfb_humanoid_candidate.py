@@ -469,6 +469,21 @@ def phenotype_skin_tone(reference_id):
     except Exception:
         return "default"
 
+
+def phenotype_hair_color(reference_id):
+    """Read an authored input_params.phenotype.hair_color token, else None."""
+    if not reference_id:
+        return None
+    manifest = _anny_manifest_for(reference_id)
+    if manifest is None:
+        return None
+    try:
+        m = json.loads(manifest.read_text(encoding="utf-8"))
+        colour = m.get("input_params", {}).get("phenotype", {}).get("hair_color")
+        return str(colour) if colour else None
+    except Exception:
+        return None
+
 def phenotype_fabric_palette(reference_id):
     """Read the reference's declared fabricPalette from its tracked anny manifest.
 
@@ -7051,6 +7066,7 @@ def main():
         if str(_mc_dir_hair) not in _sys_hair.path:
             _sys_hair.path.insert(0, str(_mc_dir_hair))
         from embed_library_hair import (  # noqa: E402
+            authored_hair_color_rgba as _authored_hair_color_rgba,
             create_material as _hair_create_material,
             fit_hair as _fit_hair,
             hair_color as _hair_color,
@@ -7068,11 +7084,24 @@ def main():
             str(_hair_mhclo), str(_hair_obj), human, _hair_mesh_name
         )
         _hair_textures = _source_hair_textures(str(_hair_mhclo))
-        _hair_mat = _hair_create_material(
-            f"openclinxr_fitted_hair_{_hair_style}_mpfb_{_hair_ref_tag}_mat",
-            _hair_color(args.actor_role),
-            _hair_textures,
-        )
+        _hair_color_token = phenotype_hair_color(args.reference)
+        _hair_diffuse = _hair_textures.get("diffuse")
+        _hair_target_rgb = None
+        if _hair_color_token and _hair_diffuse:
+            _hair_target_rgb = _authored_hair_color_rgba(_hair_color_token)[:3]
+            _hair_mat = _hair_create_material(
+                f"openclinxr_fitted_hair_{_hair_style}_mpfb_{_hair_ref_tag}_mat",
+                _hair_color(args.actor_role),
+                _hair_textures,
+                diffuse_target_rgb=_hair_target_rgb,
+            )
+        else:
+            # Unauthored phenotype: retain the r2 material call and source image exactly.
+            _hair_mat = _hair_create_material(
+                f"openclinxr_fitted_hair_{_hair_style}_mpfb_{_hair_ref_tag}_mat",
+                _hair_color(args.actor_role),
+                _hair_textures,
+            )
         _hair.data.materials.append(_hair_mat)
         _hair_arm = next(
             (o for o in bpy.context.scene.objects if o.type == "ARMATURE"), None
@@ -7130,6 +7159,8 @@ def main():
         from embed_library_hair import (  # noqa: E402
             create_material as _brow_create_material,
             fit_hair as _fit_brow,
+            hair_color as _hair_color,
+            texture_mean_linear as _texture_mean_linear,
             weight_hair_to_head as _weight_brow_to_head,
         )
         from facs_shape_key_transfer import (  # noqa: E402
@@ -7146,26 +7177,19 @@ def main():
         _brow, _brow_fit_s = _fit_brow(
             str(_brow_mhclo), str(_brow_obj), human, _brow_mesh_name
         )
-        # Brow colour matches the fitted HAIR material's albedo, not a literal: the
-        # brow reads as eyebrow geometry against pale skin only when it carries the
-        # actor's own hair colour (measured 2026-09-18: (0.05,0.03,0.02) near-black
-        # brows are invisible at 1280x720 demo framing; the ED nurse's fitted hair
-        # is strawberry-blond, mean (0.686,0.499,0.385) from StrawberryBlondHair.png).
-        # _hair_mat is in scope from the fitted-hair rail above whenever a hair
-        # style was fitted; its Principled Base Color carries the actor's hair
-        # albedo (flat hair_color() fallback or the wired diffuse texture path —
-        # the socket value is the colour either way). _hair may be None only when
-        # no hair style was resolved; fall back to the nurse mid-dark brown then.
-        if _hair_fitted is not None:
-            try:
-                _brow_rgb = tuple(_hair_mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value)[:3]
-            except Exception:
-                _brow_rgb = (0.18, 0.13, 0.10)
-        else:
-            _brow_rgb = (0.18, 0.13, 0.10)
+        # Eyebrows are hair: when the scalp wires a diffuse texture, derive the flat
+        # strand colour from the pixels that texture actually shows. Textureless hair
+        # keeps the actor-role fallback; neither path samples the bypassed shader socket.
+        _brow_color = (
+            (*_hair_target_rgb, 1.0)
+            if _hair_target_rgb is not None
+            else _texture_mean_linear(_hair_diffuse)
+            if _hair_diffuse
+            else _hair_color(args.actor_role)
+        )
         _brow_mat = _brow_create_material(
             f"openclinxr_fitted_eyebrow_{_eyebrow_style}_mpfb_{_brow_ref_tag}_mat",
-            (*_brow_rgb, 1.0),
+            _brow_color,
         )
         _brow.data.materials.append(_brow_mat)
         _brow_arm = next(

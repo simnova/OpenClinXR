@@ -41,11 +41,45 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import os
-import bpy
-from mathutils import Vector
+try:
+    import bpy
+    from mathutils import Vector
+except ModuleNotFoundError as error:
+    # The authored token resolver is also consumed by the pure-Python post-export
+    # GLB stage. Keep Blender globals available in Blender, but let that resolver
+    # import without installing or mocking bpy in a normal Python process.
+    if error.name not in {"bpy", "mathutils"}:
+        raise
+    bpy = None
+    Vector = None
 
 # MPFB base units are decimetres; the shipped GLBs are in metres.
 MH_UNITS_TO_METRES = 0.1
+
+# One authored hair-colour token table for both the Anny scalp region and the
+# fitted MPFB hair rail. Matching retains automate_blender's established token
+# semantics (black, blond/blonde, light, else brown).
+HAIR_COLOR_RGB = {
+    "black": (0.035, 0.028, 0.022),
+    "blond": (0.42, 0.32, 0.16),
+    "light": (0.24, 0.15, 0.075),
+    "brown": (0.12, 0.07, 0.035),
+}
+
+
+def authored_hair_color_rgba(token: str) -> Tuple[float, float, float, float]:
+    """Resolve a case-authored hair_color with the established token semantics."""
+    value = str(token or "brown").lower()
+    if "black" in value:
+        key = "black"
+    elif "blond" in value or "blonde" in value:
+        key = "blond"
+    elif "light" in value:
+        key = "light"
+    else:
+        key = "brown"
+    rgb = HAIR_COLOR_RGB[key]
+    return (rgb[0], rgb[1], rgb[2], 1.0)
 
 
 def parse_args() -> argparse.Namespace:
@@ -178,10 +212,84 @@ def source_hair_textures(mhclo_path: str) -> Dict[str, str]:
     mhmat = _mhclo_material_path(mhclo_path)
     return _mhmat_textures(mhmat) if mhmat else {}
 
+
+def texture_mean_linear(path: str) -> Tuple[float, float, float, float]:
+    """Alpha-weighted mean of visible sRGB texels, decoded to linear RGB."""
+    import numpy as np
+    from PIL import Image
+
+    rgba = np.asarray(Image.open(path).convert("RGBA"), dtype=np.float64) / 255.0
+    rgb = rgba[..., :3]
+    alpha = rgba[..., 3]
+    visible = alpha >= 0.5
+    weights = alpha[visible]
+    if not np.any(visible) or float(weights.sum()) <= 0.0:
+        raise ValueError(f"hair diffuse texture has no visible texels: {path}")
+    linear = np.where(
+        rgb <= 0.04045,
+        rgb / 12.92,
+        ((rgb + 0.055) / 1.055) ** 2.4,
+    )
+    mean = np.average(linear[visible], axis=0, weights=weights)
+    return (float(mean[0]), float(mean[1]), float(mean[2]), 1.0)
+
+
+def recolour_to_mean_linear(rgba_linear, target_rgb):
+    """Scale linear RGB per channel to an alpha-weighted target mean.
+
+    Alpha is copied byte-for-byte. A single channel multiplier preserves strand
+    luminance detail within that channel except where the required result clamps.
+    """
+    import numpy as np
+
+    rgba = np.asarray(rgba_linear)
+    if rgba.ndim != 3 or rgba.shape[2] != 4:
+        raise ValueError("rgba_linear must be HxWx4")
+    target = np.asarray(target_rgb, dtype=np.float64)
+    if target.shape != (3,):
+        raise ValueError("target_rgb must contain exactly three channels")
+    alpha = rgba[..., 3].astype(np.float64, copy=False)
+    weight = float(alpha.sum())
+    if weight <= 0.0:
+        raise ValueError("hair diffuse texture has no alpha-weighted texels")
+    rgb = rgba[..., :3].astype(np.float64, copy=False)
+    mean = np.sum(rgb * alpha[..., None], axis=(0, 1)) / weight
+    impossible = (mean <= 0.0) & (target > 0.0)
+    if np.any(impossible):
+        raise ValueError("hair diffuse texture has a zero channel with a non-zero target")
+    scale = np.divide(target, mean, out=np.zeros_like(target), where=mean > 0.0)
+    out = rgba.copy()
+    out[..., :3] = np.clip(rgb * scale, 0.0, 1.0)
+    out[..., 3] = rgba[..., 3]
+    return out
+
+
+def recoloured_blender_image(source_image, target_rgb, name: str):
+    """Return a new in-memory Blender image recoloured in linear pixel space."""
+    import numpy as np
+
+    width, height = (int(source_image.size[0]), int(source_image.size[1]))
+    rgba = np.asarray(source_image.pixels[:], dtype=np.float64).reshape(height, width, 4)
+    recoloured = recolour_to_mean_linear(rgba, target_rgb)
+    image = bpy.data.images.new(
+        name,
+        width=width,
+        height=height,
+        alpha=True,
+        float_buffer=bool(getattr(source_image, "is_float", False)),
+    )
+    image.colorspace_settings.name = source_image.colorspace_settings.name
+    image.alpha_mode = source_image.alpha_mode
+    image.pixels[:] = recoloured.ravel()
+    image.pack()
+    return image
+
+
 def create_material(
     name: str,
     color: Tuple[float, float, float, float],
     textures: Optional[Dict[str, str]] = None,
+    diffuse_target_rgb: Optional[Tuple[float, float, float]] = None,
 ) -> bpy.types.Material:
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
@@ -201,7 +309,12 @@ def create_material(
     diffuse_path = maps.get("diffuse")
     if diffuse_path:
         tex = nodes.new("ShaderNodeTexImage")
-        tex.image = bpy.data.images.load(diffuse_path, check_existing=True)
+        source_image = bpy.data.images.load(diffuse_path, check_existing=True)
+        tex.image = (
+            recoloured_blender_image(source_image, diffuse_target_rgb, f"{name}_case_hair_colour")
+            if diffuse_target_rgb is not None
+            else source_image
+        )
         tex.location = (-600, 200)
         links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
         if "Alpha" in bsdf.inputs:

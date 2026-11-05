@@ -62,13 +62,14 @@
   "2026-10-30 ci-w11 D1 (orphan prune, not rebake): gltf-transform prune 4.3.0, same tool and flags as #555. Removed unreferenced mpfb-family-partner-adult.skin-normal (1091596 B). File 10529116 -> 9277296 B. Bound invariants held: boundTextures 5, boundBytes 4754841, meshes 10, materials 17, tris 39974, joints 137, animations 3.",
   "2026-11-04 st-vitdark r2: post-export CIELAB dark-skin remap of the skin baseColor only; Vitruvian light/African Face maps supply Lab statistics, not projected pixels; geometry/rig/animations and every non-skin image remain byte-identical.",
   "2026-11-04 st-vitdark r3: render-defect correction in the post-export CIELAB skin remap; feather tails cross feature boundaries and lip/lid chroma uses a bounded-detail target field instead of a single per-feature delta; geometry/rig/animations and every non-skin image remain byte-identical.",
-  "2026-11-04 st-vitdark r9: restores the byte-identical r3 CIELAB remap, then applies one C1 output-luminance soft knee below the light bake's own darkest UV-covered texel by scaling linear RGB; geometry/rig/animations and every non-skin image remain byte-identical."
+  "2026-11-04 st-vitdark r9: restores the byte-identical r3 CIELAB remap, then applies one C1 output-luminance soft knee below the light bake's own darkest UV-covered texel by scaling linear RGB; geometry/rig/animations and every non-skin image remain byte-identical.",
+  "2026-11-05 st-vitbrow r4: post-export fitted scalp-hair and eyebrow baseColorFactor now resolve from the case-authored hair_color token; BIN/image bytes, geometry, rig, animations, eyes, eyelashes, and skin remain unchanged."
  ],
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-12T16:29:00Z",
- "outputSha256": "1768552e0e19521a4f2df65317d4681d5f56a237f07a5b3b446b963d5b653510",
- "outputBytes": 9182184,
+ "outputSha256": "b4195761f4389c34c0182d7a8bb99f07ded3d4dd31e69b82a4133c84caf83b95",
+ "outputBytes": 9182096,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:06:17.490Z",
@@ -724,5 +725,59 @@
     "texelsDarkerThanR3": 0
    }
   }
+ },
+ "actorHairColourPostExport": {
+  "stage": "actor_hair_colour_post_export_v1",
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/apply_actor_hair_colour.py",
+  "inputGlbSha256": "1768552e0e19521a4f2df65317d4681d5f56a237f07a5b3b446b963d5b653510",
+  "outputGlbSha256": "b4195761f4389c34c0182d7a8bb99f07ded3d4dd31e69b82a4133c84caf83b95",
+  "outputBytes": 9182096,
+  "resolvedLinearRgb": [
+   0.035,
+   0.028,
+   0.022
+  ],
+  "actorId": "spouse_anna_hayes_v1",
+  "scenarioId": "ed_chest_pain_priority_v1",
+  "hairColor": "black",
+  "hairColorSource": "packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json#entries.ed_chest_pain_priority_v1.spouse_anna_hayes_v1.phenotype.hair_color",
+  "matchedMaterials": [
+   {
+    "kind": "hair",
+    "index": 2,
+    "name": "openclinxr_fitted_hair_toigo_curled_under_bob_mpfb_ed_chest_pain_spouse_adult_mat",
+    "textured": false,
+    "before": [
+     0.1599999964237213,
+     0.10999999940395355,
+     0.09000000357627869,
+     1
+    ],
+    "after": [
+     0.035,
+     0.028,
+     0.022,
+     1
+    ]
+   },
+   {
+    "kind": "eyebrow",
+    "index": 13,
+    "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mat",
+    "textured": false,
+    "before": [
+     0.05000000074505806,
+     0.029999999329447746,
+     0.019999999552965164,
+     1
+    ],
+    "after": [
+     0.035,
+     0.028,
+     0.022,
+     1
+    ]
+   }
+  ]
  }
 }

@@ -4954,15 +4954,12 @@ def apply_mesh_native_scalp_hair_material_region(mesh_obj: bpy.types.Object, phe
     depth, so the face-front exclusion did not protect the nose/mouth band. Use the
     dominant height axis and exclude the front mid-face (nose/mouth) band entirely.
     """
-    hair_color = str(phenotype.get("hair_color", "brown")).lower()
-    if "black" in hair_color:
-        base_color = (0.035, 0.028, 0.022, 1.0)
-    elif "blond" in hair_color or "blonde" in hair_color:
-        base_color = (0.42, 0.32, 0.16, 1.0)
-    elif "light" in hair_color:
-        base_color = (0.24, 0.15, 0.075, 1.0)
-    else:
-        base_color = (0.12, 0.07, 0.035, 1.0)
+    makeclothes_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "makeclothes"))
+    if makeclothes_dir not in sys.path:
+        sys.path.insert(0, makeclothes_dir)
+    from embed_library_hair import authored_hair_color_rgba
+
+    base_color = authored_hair_color_rgba(phenotype.get("hair_color", "brown"))
 
     hair_mat = create_role_marker_material("openclinxr_mesh_native_scalp_hair_surface", base_color)
     hair_index = len(mesh_obj.data.materials)

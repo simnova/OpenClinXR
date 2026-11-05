@@ -203,6 +203,11 @@ export const edChestPainScenario: Scenario = {
         skin_tone_selection_seed: "st-vitdark-r2-2026-11-04",
         skin_tone_selection_note:
           "sha256 first uint64 big-endian modulo sorted eligible shipped adults; index 1 of 2",
+        // st-vitbrow r3 D13 random-once pick over [black, dark_brown];
+        // seed="st-vitbrow-r3-2026-11-04"; sha256(seed)=
+        // 3331266a769fb6a2dbd8751968d5b67662e97ff7166955078503ed08e8c86080;
+        // uint64be(digest[0:8]) mod 2 = 0 -> black.
+        hair_color: "black",
       },
       // st-redclear: plant z -0.95 -> -1.40 — the v2 animated pose reaches maxZ -0.35 against the
       // stretcher edge (-0.59), reading 17-20% overlap at the f=0.18 threshold. South-side bedside
