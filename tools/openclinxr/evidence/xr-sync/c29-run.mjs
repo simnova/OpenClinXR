@@ -133,7 +133,7 @@ async function main(argv) {
       const endBy = Date.now() + 30000;
       while (serverActorSpeaking() && Date.now() < endBy) await sleep(100);
       await page.locator("#utterance-input").fill(TYPED);
-      await page.evaluate(() => {
+      await page.evaluate(({ target }) => {
         const camera = globalThis.__openClinXrGazeCamera;
         const gaze = globalThis.__openClinXrEncounterSync.gazedActorId;
         if (!camera || !gaze) return;
@@ -142,9 +142,9 @@ async function main(argv) {
           const radians = (degrees * Math.PI) / 180;
           camera.lookAt(eye.x + Math.sin(radians), eye.y, eye.z - Math.cos(radians));
           camera.updateMatrixWorld(true);
-          if (gaze()) return;
+          if (gaze() === target) return;
         }
-      });
+      }, { target: actor.actorId });
       await page.locator("#utterance-send").evaluate((el) => el.click());
       await page.waitForFunction(() => globalThis.__openClinXrEncounterSync.turns.length >= 4, undefined, { timeout: 60000 });
       await sleep(500);
