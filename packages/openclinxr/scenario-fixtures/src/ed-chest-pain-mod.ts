@@ -18,6 +18,8 @@ export type DialogueFixtureSeed = {
   caption?: string;
   /** Authored dialogue affect; keyword fallback must not override this. */
   affect?: "anxious" | "concerned" | "reassured" | "neutral";
+  /** Authored phrases a learner may type for this seed's topics. */
+  utterancePhrases?: string[];
 };
 
 export const edChestPainScenario: Scenario = {

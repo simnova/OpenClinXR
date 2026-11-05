@@ -2149,6 +2149,10 @@
       {
         "name": "SyncConnection",
         "kind": "type"
+      },
+      {
+        "name": "UtteranceBoxDeps",
+        "kind": "type"
       }
     ]
   },

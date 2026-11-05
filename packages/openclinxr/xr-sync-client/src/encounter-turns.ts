@@ -71,6 +71,31 @@ interface SentTraceAction {
   statuses: string[];
 }
 
+/** One learner free-text utterance sent as intents; statuses hold the result of each intent actually sent. Never the text. */
+export interface SentUtterance {
+  actorId: string;
+  chars: number;
+  statuses: string[];
+}
+
+/** Send intent steps in order, stopping at the first non-ack; never throws. */
+async function sendIntentSteps(
+  sendIntent: SyncConnection["sendIntent"],
+  statuses: string[],
+  steps: Array<[IntentKind, Record<string, string>]>,
+): Promise<void> {
+  for (const [kind, payload] of steps) {
+    try {
+      const result = await sendIntent(kind, payload);
+      statuses.push(result.status);
+      if (result.status !== "ack") return;
+    } catch {
+      statuses.push("error");
+      return;
+    }
+  }
+}
+
 /**
  * C26: a learner trace action (topic selection) as the three intents the room reads:
  * select-actor, utterance-start, utterance-end{topicTag}. Stops at the first non-ack; never throws.
@@ -84,17 +109,22 @@ async function sendTraceActionIntents(
   if (actorId === undefined || actorId === "") return;
   const entry: SentTraceAction = { actorId, topicTag, statuses: [] };
   log.push(entry);
-  const steps: Array<[IntentKind, Record<string, string>]> = [["select-actor", { actorId }], ["utterance-start", {}], ["utterance-end", { topicTag }]];
-  for (const [kind, payload] of steps) {
-    try {
-      const result = await sendIntent(kind, payload);
-      entry.statuses.push(result.status);
-      if (result.status !== "ack") return;
-    } catch {
-      entry.statuses.push("error");
-      return;
-    }
-  }
+  await sendIntentSteps(sendIntent, entry.statuses, [["select-actor", { actorId }], ["utterance-start", {}], ["utterance-end", { topicTag }]]);
+}
+
+/** C27: a learner free-text utterance as select-actor, utterance-start, utterance-end{text}. Never throws. */
+async function sendUtteranceIntents(
+  sendIntent: SyncConnection["sendIntent"],
+  log: SentUtterance[],
+  actorId: string | undefined,
+  text: string,
+): Promise<void> {
+  if (actorId === undefined || actorId === "") return;
+  const trimmed = text.trim();
+  if (trimmed === "") return;
+  const entry: SentUtterance = { actorId, chars: trimmed.length, statuses: [] };
+  log.push(entry);
+  await sendIntentSteps(sendIntent, entry.statuses, [["select-actor", { actorId }], ["utterance-start", {}], ["utterance-end", { text: trimmed }]]);
 }
 
 export interface EncounterSyncHandle {
@@ -102,6 +132,9 @@ export interface EncounterSyncHandle {
   /** Learner trace-action sends, in order. */
   readonly intents: readonly SentTraceAction[];
   sendTraceAction(actorId: string | undefined, topicTag: string): Promise<void>;
+  /** C27 learner free-text sends, in order (lengths and statuses, never text). */
+  readonly utterances: readonly SentUtterance[];
+  sendUtterance(actorId: string | undefined, text: string): Promise<void>;
   /** Every turn forwarded to onTurn, in order. */
   readonly turns: readonly SyncedActorTurn[];
   sendIntent: SyncConnection["sendIntent"];
@@ -128,12 +161,16 @@ export async function joinEncounterRoom(options: JoinEncounterRoomOptions): Prom
     }
   });
   const intents: SentTraceAction[] = [];
+  const utterances: SentUtterance[] = [];
   let queue: Promise<void> = Promise.resolve();
   return {
     sessionId: connection.sessionId,
     intents,
     // One trace action at a time: a second click waits for the first one's three intents.
     sendTraceAction: (actorId, topicTag) => (queue = queue.then(() => sendTraceActionIntents((kind, payload) => connection.sendIntent(kind, payload), intents, actorId, topicTag))),
+    utterances,
+    // Same queue as trace actions: text waits for the open action's three intents and vice versa.
+    sendUtterance: (actorId, text) => (queue = queue.then(() => sendUtteranceIntents((kind, payload) => connection.sendIntent(kind, payload), utterances, actorId, text))),
     turns,
     sendIntent: (kind: IntentKind, payload) => connection.sendIntent(kind, payload),
     leave: () => connection.leave(),
@@ -163,6 +200,26 @@ export interface EncounterSyncEvidence {
   /** C26: learner trace actions sent to the room, with per-intent statuses. */
   intents?: readonly SentTraceAction[];
   sendTraceAction?: EncounterSyncHandle["sendTraceAction"];
+  /** C27: learner free-text sends, with text lengths and per-intent statuses (never the text). */
+  utterances?: readonly SentUtterance[];
+  sendUtterance?: EncounterSyncHandle["sendUtterance"];
+}
+
+/** Structural input/button surface for the learner free-text box (no DOM lib in this package). */
+export interface UtteranceBoxElement {
+  id: string;
+  value?: string;
+  textContent: string | null;
+  type?: string;
+  placeholder?: string;
+  appendChild(child: UtteranceBoxElement): unknown;
+  addEventListener(type: string, listener: (event: { preventDefault?: () => void }) => void): void;
+}
+
+/** DOM mount point for the learner free-text box. */
+export interface UtteranceBoxDeps {
+  doc: { createElement(tag: string): UtteranceBoxElement };
+  parent: UtteranceBoxElement;
 }
 
 export interface StartEncounterSyncDeps {
@@ -174,6 +231,8 @@ export interface StartEncounterSyncDeps {
   publish(evidence: EncounterSyncEvidence): void;
   nowMs(): number;
   connectFn?: JoinEncounterRoomOptions["connectFn"];
+  /** C27 learner free-text box mount; unset mounts nothing. */
+  utteranceBox?: UtteranceBoxDeps;
 }
 
 /** Join when ?encounterSync= is present; resolves after the join settles. No-op (null) without the flag. */
@@ -200,6 +259,25 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     evidence.sendIntent = handle.sendIntent;
     evidence.intents = handle.intents;
     evidence.sendTraceAction = handle.sendTraceAction;
+    evidence.utterances = handle.utterances;
+    evidence.sendUtterance = handle.sendUtterance;
+    if (deps.utteranceBox !== undefined) {
+      const input = deps.utteranceBox.doc.createElement("input");
+      input.id = "utterance-input";
+      input.type = "text";
+      input.placeholder = "Type what you say to the patient";
+      const button = deps.utteranceBox.doc.createElement("button");
+      button.id = "utterance-send";
+      button.textContent = "Say";
+      deps.utteranceBox.parent.appendChild(input);
+      deps.utteranceBox.parent.appendChild(button);
+      button.addEventListener("click", () => {
+        const text = input.value ?? "";
+        if (text.trim() === "") return;
+        input.value = "";
+        void handle.sendUtterance(deps.actorIds()[0], text);
+      });
+    }
     return handle;
   } catch (error) {
     evidence.state = "failed";

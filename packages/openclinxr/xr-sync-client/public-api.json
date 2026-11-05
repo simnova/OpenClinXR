@@ -18,6 +18,7 @@
       "EncounterSyncEvidence",
       "IntentKind",
       "SyncConnection",
+      "UtteranceBoxDeps",
       "connect",
       "startEncounterSyncFromUrl"
     ]

@@ -393,7 +393,7 @@ import {
   setComparatorCaptureSceneRoot,
 } from "./capture-comparator.js";
 import { bootLearnerRuntimeFromAssembledExam, type PinnedEncounterBundleRuntimeTrace, resolveAssembledExamPinnedBundleId } from "./encounter-bundle-boot/index.js";
-import type { EncounterSyncEvidence } from "@openclinxr/xr-sync-client/headset";
+import type { EncounterSyncEvidence, UtteranceBoxDeps } from "@openclinxr/xr-sync-client/headset";
 import { generatedHumanoidSourceProvenance } from "./generated-humanoid-source-provenance.js";
 import { applyStationInteriorLightingForEnvironment, configureStationRendererToneMapping } from "./lighting-rig-runtime.js";
 import {
@@ -4728,7 +4728,7 @@ initSpeakFixtureBridge({ triggerDialogue: (actorId: string, text: string): void 
 window.__openClinXrRequestLiveVoiceTurn = requestUnscriptedLiveTurn;
 // C25: ?encounterSync=ws://... joins the xr-sync room; the server's actor turn plays through the live actor-turn consumer.
 if (window.location.search.includes("encounterSync=")) void import("@openclinxr/xr-sync-client/headset").then(({ startEncounterSyncFromUrl }) => startEncounterSyncFromUrl({
-  search: window.location.search, actorIds: () => encounterRuntimeAssetBundle.actors.map((actor) => actor.actorId), nowMs: () => performance.now(), publish: (evidence) => { window.__openClinXrEncounterSync = evidence; },
+  search: window.location.search, actorIds: () => encounterRuntimeAssetBundle.actors.map((actor) => actor.actorId), nowMs: () => performance.now(), publish: (evidence) => { window.__openClinXrEncounterSync = evidence; }, utteranceBox: { doc: document as never, parent: (dialogueLine.parentElement ?? document.body) as never } as UtteranceBoxDeps,
   register: (payload, tag) => { const parsed = liveActorTurnFromPayload(payload); return parsed ? registerLiveActorTurn(parsed.plan, parsed.execution, tag) : undefined; },
   play: (actorId, caption, emotion) => { dialogueLine.textContent = caption; triggerHumanoidDialogue(actorId, caption, { kind: "learner_camera", actorId: null }, emotion as HumanoidExpressionEmotion, undefined, "plan.dialogueEmotionTo"); },
 }));

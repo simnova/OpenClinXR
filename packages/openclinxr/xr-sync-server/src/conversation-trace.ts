@@ -142,6 +142,8 @@ export interface ConversationTraceEvent {
   chars?: number;
   /** C19 schedule entry id + trace tag for "scheduled-event" events; undefined otherwise. Never text. */
   eventId?: string; tag?: string;
+  /** C27 free-text match kind for "utterance-end" events; undefined otherwise. Never text. */
+  match?: "exact" | "phrase" | "fallback";
 }
 
 /** One server-driven actor turn, recomputed from events alone. */
@@ -382,6 +384,10 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
     }
     if (typeof event.tag === "string") {
       out.tag = event.tag;
+    }
+    const match = (event as { match?: unknown }).match;
+    if (match === "exact" || match === "phrase" || match === "fallback") {
+      out.match = match;
     }
     return out;
   });

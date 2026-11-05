@@ -113,6 +113,8 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   private castVoice: Map<string, CastVoiceActor> | null = null;
   /** C23 scenario-authored topic answers for this station (live text never traced). */
   private topicAnswers: TopicAnswer[] = [];
+  /** C27 scenario-authored fallback line for unmatched free text (null when none). */
+  private utteranceFallbackLine: string | null = null;
   /**
    * C19 scenario schedule driver for this room's station (timers on the room
    * clock; null off a cast station). Started at encounter start, cleared at
@@ -184,10 +186,12 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       // and emotions from recorded data alone (no scenario bank, no text).
       this.castVoice = new Map(cast.castActors.map((entry) => [entry.actorId, entry]));
       this.topicAnswers = cast.topicAnswers;
+      this.utteranceFallbackLine = cast.utteranceFallback?.line ?? null;
       const policy = stationEmotionPolicy(cast);
       this.tracer.setStationCast({ scenarioId: cast.scenarioId, actors: [...cast.actorIds], baseline: policy.baseline as string, emotionPolicy: policy, topicAnswers: cast.topicAnswers.map(({ actorId, topicTags, replyId, affect }) => ({ actorId, topicTags: [...topicTags], replyId, ...(affect === undefined ? {} : { affect }) })) });
     } else {
       populateActorRoster(this.state.actors, options);
+      this.utteranceFallbackLine = null;
       this.tracer.setStationCast(null);
     }
     this.state.learners = new MapSchema<LearnerStateInstance>();
@@ -480,6 +484,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         castVoice: this.castVoice === null ? null : { actors: this.castVoice },
         topicMenu: this.castVoice === null ? null : [...this.state.topicMenu],
         topicAnswers: this.topicAnswers,
+        utteranceFallbackLine: this.utteranceFallbackLine,
       },
       client,
       learner,

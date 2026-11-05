@@ -15,7 +15,10 @@ import { CAST_OPENING_CUE_ID, openingCaption, type CastVoiceActor } from "./scen
 import type { LearnerStateInstance } from "./schema.js";
 import type { TurnRecord } from "./room-types.js";
 import { validateTopicTag } from "./topic-menu.js";
-import { pickTopicAnswer, type TopicAnswer } from "./topic-answers.js";
+import { matchUtterance, pickTopicAnswer, type TopicAnswer } from "./topic-answers.js";
+
+/** Trace tag recorded when free text matches no authored phrase. */
+export const UNMATCHED_TOPIC_TAG = "utterance_unmatched";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -59,6 +62,8 @@ export interface ActorTurnBindings {
   topicMenu?: readonly string[] | null;
   /** C23 validated answers for this station's scenario. */
   topicAnswers?: readonly TopicAnswer[] | null;
+  /** C27 scenario-authored fallback line for unmatched free text. */
+  utteranceFallbackLine?: string | null;
   turnOpenedAtMs: Map<number, number>;
   getOpenTurn(): { turnId: number; actorId: string; timer: { clear(): void } } | null;
   setOpenTurn(turn: { turnId: number; actorId: string; timer: { clear(): void } } | null): void;
@@ -156,6 +161,18 @@ export function applyUtteranceIntent(
     bindings.reject(client, seq, topic.reason);
     return false;
   }
+  const rawText = isRecord(payload) ? payload["text"] : undefined;
+  if (rawText !== undefined && (typeof rawText !== "string" || rawText.length < 1 || rawText.length > 500)) {
+    bindings.reject(client, seq, "bad-utterance-payload");
+    return false;
+  }
+  let resolvedTag = topic.tag;
+  let matchKind: "exact" | "phrase" | "fallback" | undefined;
+  if (topic.tag === undefined && bindings.topicMenu != null && typeof rawText === "string") {
+    const matched = matchUtterance(rawText, bindings.topicAnswers, actorId ?? "", bindings.topicMenu);
+    matchKind = matched.kind;
+    resolvedTag = matched.kind === "fallback" ? UNMATCHED_TOPIC_TAG : matched.tag;
+  }
   if (!learner.speaking) {
     bindings.reject(client, seq, "no-open-utterance");
     return false;
@@ -179,7 +196,7 @@ export function applyUtteranceIntent(
   // table from the first turn.
   const opening = turnCount === 1 ? bindings.castVoice?.actors.get(actorId) : undefined;
   const table = pickC3Reply(turnCount);
-  const answer = opening === undefined ? pickTopicAnswer(bindings.topicAnswers, actorId, topic.tag) : undefined;
+  const answer = opening === undefined && matchKind !== "fallback" ? pickTopicAnswer(bindings.topicAnswers, actorId, resolvedTag) : undefined;
   const replyId = opening !== undefined ? `${actorId}:opening` : answer?.replyId ?? table.id;
   const cueId = opening !== undefined ? CAST_OPENING_CUE_ID : table.cueId;
   const durationMs = opening !== undefined || answer !== undefined ? pickC3Reply(1).durationMs : table.durationMs;
@@ -191,14 +208,18 @@ export function applyUtteranceIntent(
   // the cueId (audio/viseme cue) plus the EmotionEngine transition for the
   // utterance-end's learner_acknowledgement (turnIndex = the opened turn).
   actor.cueId = cueId;
+  const displayName = bindings.castVoice?.actors.get(actorId)?.displayName ?? actorId;
+  const fallbackLine = bindings.utteranceFallbackLine ?? null;
   actor.caption = opening !== undefined
     ? openingCaption(opening.displayName, opening.openingUtterance)
     : answer !== undefined
-      ? openingCaption(bindings.castVoice?.actors.get(actorId)?.displayName ?? actorId, answer.line)
-      : "";
+      ? openingCaption(displayName, answer.line)
+      : matchKind === "fallback"
+        ? (fallbackLine !== null && fallbackLine !== "" ? `${displayName}: ${fallbackLine}` : "")
+        : "";
   const acknowledgement: EmotionEventKind = "learner_acknowledgement";
   actor.emotion = bindings.tracer.transition(actorId, acknowledgement, turnId, answer?.affect).to;
-  bindings.tracer.push({ seq, kind: "utterance-end", actorId, turnId, ...(topic.tag === undefined ? {} : { tag: topic.tag }) });
+  bindings.tracer.push({ seq, kind: "utterance-end", actorId, turnId, ...(resolvedTag === undefined ? {} : { tag: resolvedTag }), ...(matchKind === undefined ? {} : { match: matchKind }) });
   bindings.setTurnOwner("actor");
   const record: TurnRecord = { turnId, actorId, replyId, startSeq: seq, end: "open", endSeq: null };
   bindings.turnLog.push(record);

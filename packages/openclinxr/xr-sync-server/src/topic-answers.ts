@@ -14,6 +14,22 @@ export interface TopicAnswer {
   replyId: string;
   line: string;
   affect?: TopicAffect;
+  phrases: string[];
+}
+
+/** Scenario-authored fallback line for unmatched free text (live-room-only). */
+export interface UtteranceFallback {
+  line: string;
+}
+
+/** Normalize learner text or an authored phrase: lowercase, NFKD, strip combining marks, non-alphanumerics to one space, trim. */
+export function normalizeUtterance(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }
 
 /** Review-safe selector metadata recorded with the cast (no authored line text). */
@@ -34,6 +50,7 @@ interface SeedableCast {
   scenarioId: string;
   actorIds: readonly string[];
   topicAnswers: TopicAnswer[];
+  utteranceFallback: UtteranceFallback | null;
 }
 
 export function applyDialogueSeeds<C extends SeedableCast>(casts: C[], value: unknown): C[] {
@@ -42,6 +59,7 @@ export function applyDialogueSeeds<C extends SeedableCast>(casts: C[], value: un
   }
   const castByScenario = new Map(casts.map((cast) => [cast.scenarioId, cast]));
   const answersByScenario = new Map<string, TopicAnswer[]>();
+  const fallbackByScenario = new Map<string, UtteranceFallback | null>();
   const seedIdsByScenario = new Map<string, Set<string>>();
   for (const [entryIndex, rawEntry] of value.entries()) {
     if (!isRecord(rawEntry) || typeof rawEntry["scenarioId"] !== "string" || !Array.isArray(rawEntry["seeds"])) {
@@ -51,6 +69,15 @@ export function applyDialogueSeeds<C extends SeedableCast>(casts: C[], value: un
     const cast = castByScenario.get(scenarioId);
     if (cast === undefined) {
       continue;
+    }
+    const rawFallback = rawEntry["utteranceFallback"];
+    if (rawFallback === undefined) {
+      if (!fallbackByScenario.has(scenarioId)) fallbackByScenario.set(scenarioId, null);
+    } else {
+      if (!isRecord(rawFallback) || typeof rawFallback["line"] !== "string" || (rawFallback["line"] as string).trim() === "") {
+        throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}].utteranceFallback must carry a non-empty line`);
+      }
+      fallbackByScenario.set(scenarioId, { line: rawFallback["line"] as string });
     }
     const answers = answersByScenario.get(scenarioId) ?? [];
     const seenSeedIds = seedIdsByScenario.get(scenarioId) ?? new Set<string>();
@@ -85,13 +112,21 @@ export function applyDialogueSeeds<C extends SeedableCast>(casts: C[], value: un
         throw new Error(`bad-dialogueSeeds: dialogueSeeds seed actorId ${actorId.slice(0, 64)} is not in the cast`);
       }
       const line = typeof caption === "string" ? caption : typeof spokenText === "string" ? spokenText : null;
+      const rawPhrases = rawSeed["utterancePhrases"];
+      let phrases: string[] = [];
+      if (rawPhrases !== undefined) {
+        if (!Array.isArray(rawPhrases) || rawPhrases.some((entry) => typeof entry !== "string" || (entry as string).trim() === "")) {
+          throw new Error(`bad-dialogueSeeds: dialogueSeeds[${entryIndex}].seeds[${seedIndex}] utterancePhrases must be an array of non-empty strings`);
+        }
+        phrases = (rawPhrases as string[]).map((entry) => normalizeUtterance(entry)).filter((entry) => entry !== "");
+      }
       if (safety === "responds_from_visible_facts" && line !== null) {
-        answers.push({ actorId, topicTags: [...(tags as string[])], replyId: `${actorId}:seed:${seedId}`, line, ...(affect === undefined ? {} : { affect: affect as TopicAffect }) });
+        answers.push({ actorId, topicTags: [...(tags as string[])], replyId: `${actorId}:seed:${seedId}`, line, ...(affect === undefined ? {} : { affect: affect as TopicAffect }), phrases });
       }
     }
     answersByScenario.set(scenarioId, answers);
   }
-  return casts.map((cast) => ({ ...cast, topicAnswers: answersByScenario.get(cast.scenarioId) ?? [] }));
+  return casts.map((cast) => ({ ...cast, topicAnswers: answersByScenario.get(cast.scenarioId) ?? [], utteranceFallback: fallbackByScenario.get(cast.scenarioId) ?? null }));
 }
 
 /** First authored match wins; caller separately protects the opening turn. */
@@ -102,4 +137,36 @@ export function pickTopicAnswer<T extends TraceTopicAnswer>(
 ): T | undefined {
   if (topicTag === undefined) return undefined;
   return answers?.find((answer) => answer.actorId === actorId && answer.topicTags.includes(topicTag));
+}
+
+/** Match learner free text against authored phrases: exact beats phrase; longest phrase (in words) wins, ties to first authored. */
+export function matchUtterance(
+  rawText: string,
+  answers: readonly TopicAnswer[] | null | undefined,
+  actorId: string,
+  menu: readonly string[],
+): { kind: "exact" | "phrase"; tag: string } | { kind: "fallback" } {
+  const text = normalizeUtterance(rawText);
+  const candidates: Array<{ answer: TopicAnswer; tag: string }> = [];
+  for (const answer of answers ?? []) {
+    if (answer.actorId !== actorId) continue;
+    const tag = answer.topicTags.find((entry) => menu.includes(entry));
+    if (tag === undefined) continue;
+    candidates.push({ answer, tag });
+  }
+  for (const { answer, tag } of candidates) {
+    for (const phrase of answer.phrases) {
+      if (text === phrase) return { kind: "exact", tag };
+    }
+  }
+  let best: { kind: "phrase"; tag: string; words: number } | null = null;
+  for (const { answer, tag } of candidates) {
+    for (const phrase of answer.phrases) {
+      if (phrase === "" || !` ${text} `.includes(` ${phrase} `)) continue;
+      const words = phrase.split(" ").length;
+      if (best === null || words > best.words) best = { kind: "phrase", tag, words };
+    }
+  }
+  if (best !== null) return { kind: best.kind, tag: best.tag };
+  return { kind: "fallback" };
 }

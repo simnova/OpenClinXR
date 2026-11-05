@@ -19,7 +19,7 @@
 import type { CaseEmotionPolicy } from "@openclinxr/conversation-policy";
 import type { ScheduledScenarioEntry } from "./scheduled-event.js";
 import { ActorState, type ActorStateInstance } from "./schema.js";
-import type { TopicAnswer } from "./topic-answers.js";
+import type { TopicAnswer, UtteranceFallback } from "./topic-answers.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -59,6 +59,8 @@ export interface ScenarioCast {
   reviewRubric: Array<{ rubricId: string; requiredTraceTags: string[] }>;
   /** C23 scenario-authored answers available to the live room only. */
   topicAnswers: TopicAnswer[];
+  /** C27 scenario-authored fallback line for unmatched free text (null when none). */
+  utteranceFallback: UtteranceFallback | null;
 }
 
 function readStringArray(value: unknown, path: string): string[] {
@@ -138,6 +140,7 @@ function castForScenario(value: unknown, index: number): ScenarioCast {
     requiredTraceTags: readStringArray(value["requiredTraceTags"], `scenarios[${index}].requiredTraceTags`),
     reviewRubric: readTraceRubric(value["reviewRubric"], index),
     topicAnswers: [],
+    utteranceFallback: null,
   };
 }
 

@@ -92,6 +92,7 @@ export function findScenarioFixtureById(
 export type ScenarioDialogueSeedBankEntry = {
   scenarioId: string;
   seeds: readonly DialogueFixtureSeed[];
+  utteranceFallback?: { line: string };
 };
 
 export const scenarioDialogueSeedBank = [
