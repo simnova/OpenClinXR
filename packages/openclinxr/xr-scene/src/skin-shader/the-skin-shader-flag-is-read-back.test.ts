@@ -40,6 +40,12 @@ import {
 const here = dirname(fileURLToPath(import.meta.url));
 const reportPath = join(here, "shader-report.json");
 const modulePath = join(here, "skin-shade.ts");
+const detailModulePath = join(here, "skin-shade-detail.ts");
+const hexConstantsPath = join(
+  here,
+  "../../../../..",
+  "tools/openclinxr/asset-pipeline/skin/skin_detail/hex_tiling_constants.json",
+);
 const report = JSON.parse(readFileSync(reportPath, "utf8")) as {
   renders: Record<string, { png: string; sha256: string }>;
   crops: Record<string, CropRect>;
@@ -85,13 +91,21 @@ const GLSL_BUILTINS = new Set([
   "distance",
   "dot",
   "float",
+  "floor",
+  "fract",
   "inversesqrt",
   "if",
   "mat3",
   "max",
+  "mix",
   "normalize",
+  "pow",
+  "sin",
+  "sqrt",
+  "step",
   "smoothstep",
   "texture2D",
+  "textureGrad",
   "vec2",
   "vec3",
 ]);
@@ -461,7 +475,11 @@ describe("the skin renders at skin IOR (swap units)", { timeout: 60000 }, () => 
 const TINY_PNG_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
 
-function tinySkinGltf(detailNormalStrength?: number): string {
+function tinySkinGltf(
+  detailNormalStrength?: number,
+  bodyDetailNormalStrength?: number,
+  sharedDetailTexture = false,
+): string {
   const positions = new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]);
   const indices = new Uint16Array([0, 1, 2]);
   const bin = Buffer.concat([Buffer.from(positions.buffer), Buffer.from(indices.buffer)]);
@@ -493,18 +511,38 @@ function tinySkinGltf(detailNormalStrength?: number): string {
                   },
                   detailNormalStrength,
                 }),
+            ...(bodyDetailNormalStrength === undefined
+              ? {}
+              : {
+                  bodyDetailNormalTexture: {
+                    index: sharedDetailTexture ? 1 : 2,
+                    extensions: {
+                      KHR_texture_transform: { scale: [193, 193] },
+                    },
+                  },
+                  bodyDetailNormalStrength,
+                }),
           },
         },
       },
     ],
     extensionsUsed: [
       SKIN_SHADE_EXTENSION_NAME,
-      ...(detailNormalStrength === undefined ? [] : ["KHR_texture_transform"]),
+      ...(detailNormalStrength === undefined && bodyDetailNormalStrength === undefined
+        ? []
+        : ["KHR_texture_transform"]),
     ],
-    textures: [{ source: 0 }, ...(detailNormalStrength === undefined ? [] : [{ source: 1 }])],
+    textures: [
+      { source: 0 },
+      ...(detailNormalStrength === undefined ? [] : [{ source: 1 }]),
+      ...(bodyDetailNormalStrength === undefined || sharedDetailTexture ? [] : [{ source: 2 }]),
+    ],
     images: [
       { uri: `data:image/png;base64,${TINY_PNG_BASE64}` },
       ...(detailNormalStrength === undefined
+        ? []
+        : [{ uri: `data:image/png;base64,${TINY_PNG_BASE64}` }]),
+      ...(bodyDetailNormalStrength === undefined || sharedDetailTexture
         ? []
         : [{ uri: `data:image/png;base64,${TINY_PNG_BASE64}` }]),
     ],
@@ -648,6 +686,137 @@ describe("the skin shade loader installs the hook from GLB bytes", () => {
     } finally {
       TextureLoader.prototype.load = orig;
     }
+  });
+
+  it("factory entrypoint assigns the body detail normal with its own KHR_texture_transform", async () => {
+    const platform = globalThis as unknown as { ProgressEvent?: typeof Event; self?: unknown };
+    if (!platform.ProgressEvent) platform.ProgressEvent = class extends Event {};
+    if (platform.self === undefined) platform.self = globalThis;
+    const fake = new DataTexture(new Uint8Array([128, 128, 255, 255]), 1, 1);
+    const orig = TextureLoader.prototype.load;
+    TextureLoader.prototype.load = ((_url: unknown, onLoad?: (tex: unknown) => void) => {
+      queueMicrotask(() => onLoad?.(fake));
+      return fake;
+    }) as never;
+    try {
+      const gltf = await createSkinShadeGLTFLoader().parseAsync(tinySkinGltf(0.5, 0.5), "");
+      const mat = skinMaterialsOf(gltf.scene)[0]!;
+      const shader = {
+        uniforms: {} as Record<string, { value: unknown }>,
+        vertexShader: ShaderLib.standard.vertexShader,
+        fragmentShader: ShaderLib.standard.fragmentShader,
+      };
+      mat.onBeforeCompile(shader as never, {} as never);
+      const body = shader.uniforms["uSkinBodyDetailNormalMap"]?.value as DataTexture;
+      expect(body, "body detail normal is assigned by the package entrypoint plugin").toBeDefined();
+      expect(body.repeat.toArray(), "body KHR_texture_transform scale reaches three.js texture repeat").toEqual([
+        193,
+        193,
+      ]);
+      expect(body.wrapS).toBe(RepeatWrapping);
+      expect(body.wrapT).toBe(RepeatWrapping);
+      expect(shader.uniforms["uSkinBodyDetailNormalStrength"]?.value).toBe(0.5);
+      expect(shader.uniforms["uSkinBodyDetailUvTransform"]?.value).toBe(body.matrix);
+      expect(body.matrix.elements[0]).toBeCloseTo(193, 10);
+      expect(body.matrix.elements[4]).toBeCloseTo(193, 10);
+      expect(body.matrix.elements[8]).toBe(1);
+      expect(shader.fragmentShader.match(/textureGrad\(uSkinBodyDetailNormalMap/g)?.length).toBe(3);
+      expect(shader.fragmentShader).toMatch(/skinBodyHexNormal\(skinBodyDetailUv\)/);
+      expect(shader.fragmentShader).toMatch(/vec2 dx = dFdx\(st\), dy = dFdy\(st\)/);
+      expect(shader.fragmentShader).toMatch(/texture2D\(uSkinCurvMap, skinUv\)\.b/);
+      expect(
+        unresolvedDetailCalls(shader.fragmentShader),
+        "body-detail calls must resolve in the full assembled three.js fragment program",
+      ).toEqual([]);
+    } finally {
+      TextureLoader.prototype.load = orig;
+    }
+  });
+
+  it("one texture index supports independent face and body transforms", async () => {
+    const platform = globalThis as unknown as { ProgressEvent?: typeof Event; self?: unknown };
+    if (!platform.ProgressEvent) platform.ProgressEvent = class extends Event {};
+    if (platform.self === undefined) platform.self = globalThis;
+    const fake = new DataTexture(new Uint8Array([128, 128, 255, 255]), 1, 1);
+    const orig = TextureLoader.prototype.load;
+    TextureLoader.prototype.load = ((_url: unknown, onLoad?: (tex: unknown) => void) => {
+      queueMicrotask(() => onLoad?.(fake));
+      return fake;
+    }) as never;
+    try {
+      const gltf = await createSkinShadeGLTFLoader().parseAsync(
+        tinySkinGltf(0.5, 1, true),
+        "",
+      );
+      const mat = skinMaterialsOf(gltf.scene)[0]!;
+      const shader = {
+        uniforms: {} as Record<string, { value: unknown }>,
+        vertexShader: ShaderLib.standard.vertexShader,
+        fragmentShader: ShaderLib.standard.fragmentShader,
+      };
+      mat.onBeforeCompile(shader as never, {} as never);
+      const face = shader.uniforms["uSkinDetailNormalMap"]?.value as DataTexture;
+      const body = shader.uniforms["uSkinBodyDetailNormalMap"]?.value as DataTexture;
+      expect(face.repeat.toArray()).toEqual([90, 90]);
+      expect(body.repeat.toArray()).toEqual([193, 193]);
+      expect(shader.uniforms["uSkinDetailUvTransform"]?.value).toBe(face.matrix);
+      expect(shader.uniforms["uSkinBodyDetailUvTransform"]?.value).toBe(body.matrix);
+    } finally {
+      TextureLoader.prototype.load = orig;
+    }
+  });
+
+  it("body strength 0 compiles the same shader output as face-only", async () => {
+    const platform = globalThis as unknown as { ProgressEvent?: typeof Event; self?: unknown };
+    if (!platform.ProgressEvent) platform.ProgressEvent = class extends Event {};
+    if (platform.self === undefined) platform.self = globalThis;
+    const fake = new DataTexture(new Uint8Array([128, 128, 255, 255]), 1, 1);
+    const orig = TextureLoader.prototype.load;
+    TextureLoader.prototype.load = ((_url: unknown, onLoad?: (tex: unknown) => void) => {
+      queueMicrotask(() => onLoad?.(fake));
+      return fake;
+    }) as never;
+    try {
+      const faceOnly = skinMaterialsOf(
+        (await createSkinShadeGLTFLoader().parseAsync(tinySkinGltf(0.5), "")).scene,
+      )[0]!;
+      const bodyZero = skinMaterialsOf(
+        (await createSkinShadeGLTFLoader().parseAsync(tinySkinGltf(0.5, 0), "")).scene,
+      )[0]!;
+      const faceShader = stubShader();
+      const zeroShader = stubShader();
+      faceOnly.onBeforeCompile(faceShader as never, {} as never);
+      bodyZero.onBeforeCompile(zeroShader as never, {} as never);
+      expect(zeroShader.fragmentShader, "body strength 0 keeps the face-only shader byte-identical").toBe(
+        faceShader.fragmentShader,
+      );
+      expect(bodyZero.customProgramCacheKey()).toBe(faceOnly.customProgramCacheKey());
+      expect(zeroShader.uniforms["uSkinBodyDetailNormalMap"]).toBeUndefined();
+      expect(zeroShader.uniforms["uSkinBodyDetailNormalStrength"]).toBeUndefined();
+      expect(faceShader.fragmentShader).not.toMatch(/skinBodyHex|textureGrad/);
+      expect(faceOnly.customProgramCacheKey()).not.toMatch(/:h3/);
+    } finally {
+      TextureLoader.prototype.load = orig;
+    }
+  });
+
+  it("body hex constants stay pinned to the offline numpy emulator", () => {
+    const shaderSource = readFileSync(detailModulePath, "utf8");
+    const constants = JSON.parse(readFileSync(hexConstantsPath, "utf8")) as Record<string, unknown>;
+    for (const literal of [3.4641016151377544, -0.57735027, 1.15470054, 127.1, 311.7, 269.5, 183.3, 43758.5453, 0.6]) {
+      expect(shaderSource, `shader carries ${literal}`).toContain(String(literal));
+    }
+    expect(constants).toEqual({
+      gridScale: 3.4641016151377544,
+      skewXy: -0.57735027,
+      skewY: 1.15470054,
+      hashRows: [[127.1, 311.7], [269.5, 183.3]],
+      hashMultiplier: 43758.5453,
+      falloffContrast: 0.6,
+      weightExponent: 3,
+    });
+    expect(shaderSource).toMatch(/exponent: 3,/);
+    expect(shaderSource).toContain("hextile-demo/hextiling.h:10-43 and 62-102");
   });
 
   it("counterweight: stock GLTFLoader on the same bytes installs nothing", async () => {

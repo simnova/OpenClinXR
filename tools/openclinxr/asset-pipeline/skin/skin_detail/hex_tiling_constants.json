@@ -1,0 +1,12 @@
+{
+  "gridScale": 3.4641016151377544,
+  "skewXy": -0.57735027,
+  "skewY": 1.15470054,
+  "hashRows": [
+    [127.1, 311.7],
+    [269.5, 183.3]
+  ],
+  "hashMultiplier": 43758.5453,
+  "falloffContrast": 0.6,
+  "weightExponent": 3.0
+}

@@ -1,0 +1,14 @@
+{
+  "id": "row-51-vitruvian-project-arms-height",
+  "section": "Acquired",
+  "rowIndex": 50,
+  "cells": [
+    " WithinAmnesia Vitruvian Project ([GitHub repository](https://github.com/WithinAmnesia/Vitruvian-Project), [`LICENSE`](https://github.com/WithinAmnesia/Vitruvian-Project/blob/main/LICENSE))",
+    "**CC0 1.0 — verified from the upstream repository LICENSE, 2026-11-04.** The repository releases the work under the Creative Commons CC0 1.0 Universal public-domain dedication; no attribution obligation. Source bytes are independently pinned by sha256, not by a mutable download URL. Pinned commit c036e5376108dc44065beb0a3f4ef8eac463e039.",
+    "`4K/Vitruvian_Arms_Height_Utility - Raw.exr` (float32 scan-derived arm height; sha256 `fd178a2d5a1e2ac75f5129449d978a5a549c32995c29b2ad2cf6b9c1709fbf5c`) stored outside git at `/Volumes/files/openclinxr-assets/store/vitruvian-src/4K/`; shipped derivative `.openclinxr/openclaw/ceo/st-vitbody/tile/body-tile.png` (256x256 tangent normal from the upper-arm skin crop cx3200 cy1664; sha256 `8063ff1ca0ae69535915c35a8b315ab288ef6317f3ddcfdbc12353c5a41c627d`). No Vitruvian UVs or HumanShaders/VitruvianGodot PNGs are consumed.",
+    "2026-11-05",
+    "`vitruvian_pore_tile.py` takes the topology-free arm crop (periodic smooth decomposition, wrap high-pass sigma 8, FFT peak 11 px), and `materialize_mpfb_humanoid_candidate.py:patch_glb_skin_shade` embeds that tile in Aisha's GLB as `OPENCLINXR_skin_shade.bodyDetailNormalTexture` with `KHR_texture_transform` scale 236 (forearm texel-density derived, S4d).",
+    "**Keep.** CC0 is the cleanest posture. Re-run the deterministic tile station from the sha-pinned EXR if the derivative moves; replace only on measured texture-quality grounds."
+  ],
+  "sourceSha256": "fd178a2d5a1e2ac75f5129449d978a5a549c32995c29b2ad2cf6b9c1709fbf5c"
+}

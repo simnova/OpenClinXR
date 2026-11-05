@@ -33,8 +33,26 @@
       "glb": "assets:aisha-realism.glb",
       "sha256": "c26cabb6c25838b41dd8ac1acf4530b16faf7b92c22bf22adc09259a4ca47c98",
       "verdict": "control_clean",
-      "visemes": ["viseme_aa", "viseme_CH", "viseme_DD", "viseme_E", "viseme_FF", "viseme_I", "viseme_kk", "viseme_nn", "viseme_O", "viseme_PP", "viseme_RR", "viseme_sil", "viseme_SS", "viseme_TH", "viseme_U"],
-      "jawJoints": ["jaw"],
+      "visemes": [
+        "viseme_aa",
+        "viseme_CH",
+        "viseme_DD",
+        "viseme_E",
+        "viseme_FF",
+        "viseme_I",
+        "viseme_kk",
+        "viseme_nn",
+        "viseme_O",
+        "viseme_PP",
+        "viseme_RR",
+        "viseme_sil",
+        "viseme_SS",
+        "viseme_TH",
+        "viseme_U"
+      ],
+      "jawJoints": [
+        "jaw"
+      ],
       "jawLeverM": 0.13790071010593002,
       "jawAaRadians": 0.150861,
       "jawAaDropM": 0.020725016205360543,
@@ -49,16 +67,47 @@
       "tongueMesh": "openclinxr_fitted_tongue_mpfb_ob_patient_aisha_mesh",
       "tongueMaxZ": 0.1401052325963974,
       "teethMinusTongueM": -0.0018874704837799072,
-      "facsPresent": ["eyebrows-left-inner-up", "eyebrows-right-inner-up", "eyebrows-left-down", "eyebrows-right-down", "eye-left-slit", "eye-right-slit", "nose-compression-uncompress", "mouth-open", "mouth-corner-puller"],
-      "browMovers": ["mpfb_ob_patient_aisha_body", "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh"]
+      "facsPresent": [
+        "eyebrows-left-inner-up",
+        "eyebrows-right-inner-up",
+        "eyebrows-left-down",
+        "eyebrows-right-down",
+        "eye-left-slit",
+        "eye-right-slit",
+        "nose-compression-uncompress",
+        "mouth-open",
+        "mouth-corner-puller"
+      ],
+      "browMovers": [
+        "mpfb_ob_patient_aisha_body",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh"
+      ]
     },
     {
       "label": "control",
       "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-      "sha256": "7d146d29e98827a39c990cd46457ed14108dfb4deee8cc3aa9287e2ece8c8ca9",
+      "sha256": "db2d0030b790b8412cd16bb7b9a4610c8b514888d921bbb34cef2fe92eafb662",
       "verdict": "control_clean",
-      "visemes": ["viseme_aa", "viseme_CH", "viseme_DD", "viseme_E", "viseme_FF", "viseme_I", "viseme_kk", "viseme_nn", "viseme_O", "viseme_PP", "viseme_RR", "viseme_sil", "viseme_SS", "viseme_TH", "viseme_U"],
-      "jawJoints": ["jaw"],
+      "visemes": [
+        "viseme_aa",
+        "viseme_CH",
+        "viseme_DD",
+        "viseme_E",
+        "viseme_FF",
+        "viseme_I",
+        "viseme_kk",
+        "viseme_nn",
+        "viseme_O",
+        "viseme_PP",
+        "viseme_RR",
+        "viseme_sil",
+        "viseme_SS",
+        "viseme_TH",
+        "viseme_U"
+      ],
+      "jawJoints": [
+        "jaw"
+      ],
       "jawLeverM": 0.13790071010593002,
       "jawAaRadians": 0.150861,
       "jawAaDropM": 0.020725016205360543,
@@ -73,8 +122,20 @@
       "tongueMesh": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_v1_mesh",
       "tongueMaxZ": 0.13537999987602234,
       "teethMinusTongueM": 0.0021999776363372803,
-      "facsPresent": ["eyebrows-left-inner-up", "eyebrows-right-inner-up", "eyebrows-left-down", "eyebrows-right-down", "eye-left-slit", "eye-right-slit", "nose-compression-uncompress", "mouth-open", "mouth-corner-puller"],
-      "browMovers": ["mpfb_ob_patient_aisha_v1_body"]
+      "facsPresent": [
+        "eyebrows-left-inner-up",
+        "eyebrows-right-inner-up",
+        "eyebrows-left-down",
+        "eyebrows-right-down",
+        "eye-left-slit",
+        "eye-right-slit",
+        "nose-compression-uncompress",
+        "mouth-open",
+        "mouth-corner-puller"
+      ],
+      "browMovers": [
+        "mpfb_ob_patient_aisha_v1_body"
+      ]
     }
   ],
   "falsifier": {
@@ -86,7 +147,13 @@
     "src": "assets:viseme-emotion-sheet.png",
     "sha256": "00c5663e875f845111ce4bbd9c8b7e8f23fcccd1e99ce1a5f4dd5b65695b039b",
     "renderSize": 1280,
-    "views": ["viseme_aa", "viseme_PP", "viseme_sil", "reassured", "brow concern"],
+    "views": [
+      "viseme_aa",
+      "viseme_PP",
+      "viseme_sil",
+      "reassured",
+      "brow concern"
+    ],
     "mouthBand": "x .30-.70 y .60-.82 of the 1280 frame",
     "browBand": "x .30-.70 y .40-.54 of the 1280 frame",
     "grade": "orchestrator D12"

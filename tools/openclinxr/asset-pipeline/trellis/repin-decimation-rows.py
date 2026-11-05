@@ -161,9 +161,11 @@ PLAN = {
     # (replace-garment-primitive.ts restores pre-HB-05 full-res prims + proven 60-deg
     # post-export smooth).
     "mpfb-ob-patient-aisha.glb": {
-        "bytesAfter": 10213572,
+        "bytesAfter": 10219564,
         "triangleCountAfter": 73392,
-        "note": ("Re-measured 2026-11-04 (st-vitpore r2): the post-export skin-shade carrier adds a 191439 B Vitruvian-derived periodic detail normal through OPENCLINXR_skin_shade with KHR_texture_transform scale 90; geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, 10021840 -> 10213572 B. "
+        "note": ("Re-measured 2026-11-05 (st-vitbody2 r8): face and body detail TextureInfo values share one 191439 B Vitruvian face tile texture; face scale 90 and stochastic-hex body scale 128 remain independent, removing the rejected Torso payload while geometry counts hold (tris 73392 / face 52778 / joints 137). "
+                 "Prior st-vitbody2 r7: the carrier embedded a separate 138314 B Torso crop at scale 118; rejected by native 1:1 anisotropy review and removed. "
+                 "Prior st-vitpore r2: the carrier added a 191439 B Vitruvian-derived periodic face detail normal through OPENCLINXR_skin_shade with KHR_texture_transform scale 90; geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, 10021840 -> 10213572 B. "
                  "Prior st-viteye r3 re-measure: 931343e6b swapped the Vitruvian iris/sclera image, 9914108 -> 10021840 B. "
                  "Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage "
                  "(post-export byte stage, not a rebake; one RG image + "

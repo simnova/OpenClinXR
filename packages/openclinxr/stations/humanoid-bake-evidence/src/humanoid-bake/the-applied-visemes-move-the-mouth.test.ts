@@ -117,7 +117,7 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // byte stage, one added image + KHR_texture_transform, geometry/BIN verbatim;
   // size 10021840 -> 10213572);
   // was 6643de8199885ac2ccc3fc9aca75dd9c197c33e6659d58ca9934463d8f861421.
-  "mpfb-ob-patient-aisha": "7d146d29e98827a39c990cd46457ed14108dfb4deee8cc3aa9287e2ece8c8ca9",
+  "mpfb-ob-patient-aisha": "db2d0030b790b8412cd16bb7b9a4610c8b514888d921bbb34cef2fe92eafb662",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
   // table (drift at HEAD, pre-existing); was d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1.

@@ -37,8 +37,11 @@ type Cli = {
   actors: string[];
   newPath: string;
   origRef: string;
+  origFile?: string;
   outDir: string;
   size: number;
+  region: "head" | "forearm" | "neck" | "shin" | "forearm-close" | "neck-close";
+  boxes?: string;
   noiseFloorManifest?: string;
 };
 
@@ -46,7 +49,8 @@ type Point = { x: number; y: number };
 type Rect = { x0: number; y0: number; x1: number; y1: number };
 type Mask =
   | { kind: "rects"; rects: Rect[] }
-  | { kind: "discs"; discs: Array<{ cx: number; cy: number; r0: number; r1: number }> };
+  | { kind: "discs"; discs: Array<{ cx: number; cy: number; r0: number; r1: number }> }
+  | { kind: "bitmap"; w: number; h: number; bits: Uint8Array };
 
 type LiveReadback = {
   renderer: {
@@ -135,6 +139,9 @@ function parseCli(argv: string[]): Cli {
   let origRef = "origin/main";
   let outDir = "";
   let size = 2048;
+  let region: Cli["region"] = "head";
+  let boxes: string | undefined;
+  let origFile: string | undefined;
   let noiseFloorManifest: string | undefined;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i]!;
@@ -148,6 +155,15 @@ function parseCli(argv: string[]): Cli {
     else if (arg === "--orig-ref") origRef = take();
     else if (arg === "--out") outDir = take();
     else if (arg === "--size") size = Number(take());
+    else if (arg === "--boxes") boxes = take();
+    else if (arg === "--orig-file") origFile = take();
+    else if (arg === "--region") {
+      const value = take();
+      if (value !== "head" && value !== "forearm" && value !== "neck" && value !== "shin" && value !== "forearm-close" && value !== "neck-close") {
+        throw new Error(`--region must be head, forearm, neck, shin, forearm-close, or neck-close (got ${value})`);
+      }
+      region = value;
+    }
     else if (arg === "--noise-floor") noiseFloorManifest = take();
     else throw new Error(`unknown argument: ${arg}`);
   }
@@ -157,10 +173,13 @@ function parseCli(argv: string[]): Cli {
   if (!Number.isInteger(size) || size < 512 || size > 2048) {
     throw new Error("--size must be an integer in 512..2048 (cheek source is rendered at min(4096, 2.4x); 4096 gives ~13.6 px/mm)");
   }
+  if (region !== "head" && region !== "forearm-close" && region !== "neck-close" && !boxes) {
+    throw new Error("--region forearm|neck|shin requires --boxes <bodyboxes.json>");
+  }
   for (const actor of actors) {
     if (!/^[a-z0-9][a-z0-9-]*$/.test(actor)) throw new Error(`unsafe actor id: ${actor}`);
   }
-  return { actors: [...new Set(actors)], newPath, origRef, outDir, size, ...(noiseFloorManifest ? { noiseFloorManifest } : {}) };
+  return { actors: [...new Set(actors)], newPath, origRef, outDir, size, region, ...(boxes ? { boxes } : {}), ...(origFile ? { origFile } : {}), ...(noiseFloorManifest ? { noiseFloorManifest } : {}) };
 }
 
 function inside(parent: string, child: string): boolean {
@@ -235,7 +254,10 @@ async function stageInputs(cwd: string, cli: Cli): Promise<Array<{
     await mkdir(actorDir, { recursive: true });
     const origAbs = path.join(actorDir, "original.glb");
     const newAbs = path.join(actorDir, "new.glb");
-    const originalBytes = await gitShow(cli.origRef, repoPath);
+    // st-vitbody G4: --orig-file overrides the git-show bytes with a scratch file.
+    const originalBytes = cli.origFile
+      ? readFileSync(path.resolve(cwd, cli.origFile))
+      : await gitShow(cli.origRef, repoPath);
     await writeFile(origAbs, originalBytes);
     const candidateSource = await findActorGlb(path.resolve(cwd, cli.newPath), actor);
     await copyFile(candidateSource, newAbs);
@@ -245,7 +267,7 @@ async function stageInputs(cwd: string, cli: Cli): Promise<Array<{
       original: {
         abs: origAbs,
         sha256: sha256Bytes(originalBytes),
-        source: `git show ${cli.origRef}:${repoPath}`,
+        source: cli.origFile ? `file ${cli.origFile}` : `git show ${cli.origRef}:${repoPath}`,
         servedUrl: `/__vitcompare/${actor}/original.glb`,
       },
       candidate: {
@@ -336,6 +358,7 @@ async function writeDiffHeatmap(origPath: string, newPath: string, outPath: stri
 }
 
 function maskBounds(mask: Mask, w: number, h: number): Rect {
+  if (mask.kind === "bitmap") return clampRect({ x0: 0, y0: 0, x1: mask.w, y1: mask.h }, w, h);
   if (mask.kind === "rects") {
     return clampRect({
       x0: Math.min(...mask.rects.map((r) => r.x0)),
@@ -353,6 +376,10 @@ function maskBounds(mask: Mask, w: number, h: number): Rect {
 }
 
 function maskHas(mask: Mask, x: number, y: number): boolean {
+  if (mask.kind === "bitmap") {
+    if (x < 0 || y < 0 || x >= mask.w || y >= mask.h) return false;
+    return mask.bits[y * mask.w + x] === 1;
+  }
   if (mask.kind === "rects") return mask.rects.some((r) => x >= r.x0 && x < r.x1 && y >= r.y0 && y < r.y1);
   return mask.discs.some((d) => {
     const r = Math.hypot(x - d.cx, y - d.cy);
@@ -540,11 +567,13 @@ async function captureVariant(input: {
   actor: string;
   variant: "original" | "new";
   lightingSpec: Record<string, unknown>;
-  framing: "face" | "eyes" | "cheek";
+  framing: "face" | "eyes" | "cheek" | "forearm" | "neck" | "shin" | "forearm-close" | "neck-close";
   captureSize: number;
   imagePath: string;
 }): Promise<Captured> {
-  const portrait = input.framing !== "eyes";
+  const isBody = input.framing === "forearm" || input.framing === "neck" || input.framing === "shin";
+  const isClose = input.framing === "forearm-close" || input.framing === "neck-close";
+  const portrait = (!isBody && input.framing !== "eyes") || isClose;
   const evidence = await captureOne({
     page: input.page,
     baseUrl: input.baseUrl,
@@ -555,13 +584,16 @@ async function captureVariant(input: {
       subjectKind: "glb",
       bodyGlb: `/__vitcompare/${input.actor}/${input.variant}.glb`,
       view: "front",
-      focus: input.framing === "eyes" ? "eyes" : "head",
+      ...(!isBody && !isClose && input.framing !== "eyes" ? { focus: "head" as const }
+        : !isBody && !isClose ? { focus: "eyes" as const }
+        : isClose ? { focus: input.framing === "forearm-close" ? "forearm" as const : "neck" as const }
+        : {}),
       hideHair: true,
       subjectOnly: true,
       renderSize: input.captureSize,
       skinShadeLoader: true,
       yawDegrees: 0,
-      portrait,
+      ...(portrait ? { portrait } : {}),
       ...input.lightingSpec,
       label: `${input.actor} ${input.variant} ${input.framing}`,
     },
@@ -598,12 +630,288 @@ function cheekCrop(capture: Captured): Rect {
   return { x0, y0, x1: x0 + outSize, y1: y0 + outSize };
 }
 
+// st-vitbody S6: lit-subject test. Background is the lab flat BG #18211d;
+// the >36 threshold mirrors isolated-subject-lab.ts.
+function isLitPixel(r: number, g: number, b: number): boolean {
+  return Math.abs(r - 0x18) + Math.abs(g - 0x21) + Math.abs(b - 0x1d) > 36;
+}
+
+// st-vitbody S6: native body-region crops from an asset-derived boxes file
+// (E/compare/bodyboxes.json: stored POSITIONs of dominant-joint verts
+// projected through the manifest packCamera; bind-pose render verified to
+// ±9px against the lit silhouette). Same box applies to ORIGINAL and NEW
+// (identical geometry, identical camera), so placement cannot bias ORIG-vs-NEW.
+function bodyCrop(captureSize: number, boxesPath: string, region: "forearm" | "neck" | "shin"): { crop: Rect; method: string } {
+  const boxes = JSON.parse(readFileSync(path.resolve(process.cwd(), boxesPath), "utf8")) as {
+    size: number; method: string; forearm: Rect; neck: Rect; shin: Rect;
+  };
+  if (boxes.size !== captureSize) throw new Error(`--boxes size ${boxes.size} != capture size ${captureSize}`);
+  const box = boxes[region];
+  if (!box) throw new Error(`--boxes ${boxesPath} lacks region ${region}`);
+  const crop = { x0: box.x0, y0: box.y0, x1: box.x1, y1: box.y1 };
+  const w = crop.x1 - crop.x0, h = crop.y1 - crop.y0;
+  if (w < 64 || h < 64) throw new Error(`${region} box too small: ${w}x${h}`);
+  return { crop, method: `${boxes.method}; boxes file ${boxesPath}` };
+}
+
+// Gate + metric mask: lit pixels of the ORIGINAL crop (background excluded
+// from stats; the identical mask on NEW inherits the verdict — same
+// geometry, same lighting, per-pixel differences ~0). Misplaced boxes trip
+// the <20% lit alarm; fully empty boxes trip regionStats' empty-mask throw.
+function litBitmap(cropPath: string, region: string): { mask: Mask; litFraction: number } {
+  const png = decodePng(cropPath);
+  const bits = new Uint8Array(png.w * png.h);
+  let lit = 0;
+  for (let y = 0; y < png.h; y += 1) {
+    for (let x = 0; x < png.w; x += 1) {
+      const i = (y * png.w + x) * png.chans;
+      const cr = png.data[i]!, cg = png.data[i + 1] ?? cr, cb = png.data[i + 2] ?? cr;
+      if (isLitPixel(cr, cg, cb)) {
+        bits[y * png.w + x] = 1;
+        lit += 1;
+      }
+    }
+  }
+  const frac = lit / (png.w * png.h);
+  if (frac < 0.2) throw new Error(`${region} crop only ${(frac * 100).toFixed(1)}% lit — box misses the subject`);
+  return { mask: { kind: "bitmap", w: png.w, h: png.h, bits }, litFraction: frac };
+}
+
+// Debug overlay: ORIGINAL whole-body source with the crop box painted red.
+async function writeCropOverlay(sourcePath: string, crop: Rect, outPath: string): Promise<void> {
+  const png = decodePng(sourcePath);
+  const rgb = new Uint8Array(png.w * png.h * 3);
+  for (let p = 0; p < png.w * png.h; p += 1) {
+    const i = p * png.chans;
+    rgb[p * 3] = png.data[i]!;
+    rgb[p * 3 + 1] = png.data[i + 1] ?? png.data[i]!;
+    rgb[p * 3 + 2] = png.data[i + 2] ?? png.data[i]!;
+  }
+  const r = clampRect(crop, png.w, png.h);
+  for (let x = r.x0; x < r.x1; x += 1) {
+    for (const y of [r.y0, r.y0 + 1, r.y0 + 2, r.y1 - 1, r.y1 - 2, r.y1 - 3]) {
+      if (y < 0 || y >= png.h) continue;
+      const di = (y * png.w + x) * 3;
+      rgb[di] = 255; rgb[di + 1] = 0; rgb[di + 2] = 0;
+    }
+  }
+  for (let y = r.y0; y < r.y1; y += 1) {
+    for (const x of [r.x0, r.x0 + 1, r.x0 + 2, r.x1 - 1, r.x1 - 2, r.x1 - 3]) {
+      if (x < 0 || x >= png.w) continue;
+      const di = (y * png.w + x) * 3;
+      rgb[di] = 255; rgb[di + 1] = 0; rgb[di + 2] = 0;
+    }
+  }
+  await writeFile(outPath, encodePngRgb(png.w, png.h, rgb));
+}
+
 function metricRecord(orig: RegionStats, candidate: RegionStats): Record<string, unknown> {
   return {
     original: orig,
     new: candidate,
     deltaE76OrigToNew: Math.round(deltaE76(orig, candidate) * 1_000_000) / 1_000_000,
     method: "deltaE76 between region mean sRGB converted to CIELAB D65; luminance SD in encoded sRGB; high-pass energy is residual variance after separable Gaussian sigma=2px",
+  };
+}
+
+// st-vitbody S6: whole-body 4096 capture + asset-derived native crop for one
+// body region. Returns records shaped like the head path's lighting entry.
+async function captureBodyRegion(input: {
+  page: Page;
+  serverUrl: string;
+  subject: { actor: string; original: { servedUrl: string }; candidate: { servedUrl: string } };
+  lighting: { id: string; rigId: string; spec: Record<string, unknown> };
+  lightOut: string;
+  cli: Cli;
+}): Promise<{
+  pixelIdentical: boolean;
+  regionDeltas: Array<{ actor: string; lighting: string; region: string; deltaE76: number }>;
+  calibration: { actor: string; lighting: string; rigId: string; meanFaceLuminance: number };
+  lightingRecord: Record<string, unknown>;
+}> {
+  const region = input.cli.region as "forearm" | "neck" | "shin";
+  const frameOut = path.join(input.lightOut, region);
+  await mkdir(frameOut, { recursive: true });
+  const captureSize = LAB_RENDER_SIZE_MAX;
+  const origSource = path.join(frameOut, ".source-orig.png");
+  const newSource = path.join(frameOut, ".source-new.png");
+  const original = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "original", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: origSource });
+  const candidate = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "new", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: newSource });
+  cameraComparable(original, candidate);
+  const { crop, method } = bodyCrop(captureSize, input.cli.boxes!, region);
+  const origPng = path.join(frameOut, "orig.png");
+  const newPng = path.join(frameOut, "new.png");
+  const clampedOrig = await writeNativeCrop(origSource, origPng, crop);
+  const clampedNew = await writeNativeCrop(newSource, newPng, crop);
+  if (clampedOrig.x1 - clampedOrig.x0 !== clampedNew.x1 - clampedNew.x0 ||
+      clampedOrig.y1 - clampedOrig.y0 !== clampedNew.y1 - clampedNew.y0) {
+    throw new Error(`${input.subject.actor}/${input.lighting.id}/${region}: crop clamped differently on ORIGINAL vs NEW`);
+  }
+  await writeCropOverlay(origSource, crop, path.join(frameOut, "crop-box.png"));
+  await writeSideBySide(origPng, newPng, path.join(frameOut, "side-by-side.png"));
+  const diff = await writeDiffHeatmap(origPng, newPng, path.join(frameOut, "absolute-diff.png"));
+  const { mask: fullMask, litFraction: litFrac } = litBitmap(origPng, region);
+  const orig = regionStats(origPng, fullMask);
+  const next = regionStats(newPng, fullMask);
+  const delta = Math.round(deltaE76(orig, next) * 1_000_000) / 1_000_000;
+  const metric = { ...metricRecord(orig, next), framing: region, maskMethod: `${method}; lit-bitmap mask from ORIGINAL crop (bg excluded, same mask on NEW)` };
+  const numbers = {
+    actor: input.subject.actor,
+    lighting: input.lighting.id,
+    rigId: input.lighting.rigId,
+    framing: region,
+    imageSize: { width: clampedOrig.x1 - clampedOrig.x0, height: clampedOrig.y1 - clampedOrig.y0 },
+    nativeSourceSize: captureSize,
+    nativeCrop: clampedOrig,
+    cropLitFraction: Math.round(litFrac * 10000) / 10000,
+    camera: original.readback.portrait ?? original.evidence.packFraming,
+    focusRegion: original.evidence.focusRegion,
+    rendererReadback: original.readback.renderer,
+    lightsReadback: original.readback.lights,
+    productRigReadback: original.readback.productRig,
+    regions: { [region]: metric },
+  };
+  await writeFile(path.join(frameOut, "numbers.json"), `${JSON.stringify(numbers, null, 2)}\n`, "utf8");
+  const cropLuminance = meanLuminance(origPng, fullMask);
+  return {
+    pixelIdentical: diff.pixelIdentical,
+    regionDeltas: [{ actor: input.subject.actor, lighting: input.lighting.id, region, deltaE76: delta }],
+    calibration: { actor: input.subject.actor, lighting: input.lighting.id, rigId: input.lighting.rigId, meanFaceLuminance: Math.round(cropLuminance * 1000) / 1000 },
+    lightingRecord: {
+      rigId: input.lighting.rigId,
+      rendererReadback: original.readback.renderer,
+      lightsReadback: original.readback.lights,
+      productRigReadback: original.readback.productRig,
+      framingGates: { region, boxesFile: input.cli.boxes, cropLitFraction: Math.round(litFrac * 10000) / 10000, cropPixels: (clampedOrig.x1 - clampedOrig.x0) * (clampedOrig.y1 - clampedOrig.y0) },
+      frames: {
+        [region]: {
+          directory: path.relative(process.cwd(), frameOut).replaceAll("\\", "/"),
+          origSha256: sha256File(origPng),
+          newSha256: sha256File(newPng),
+          sideBySideSha256: sha256File(path.join(frameOut, "side-by-side.png")),
+          diffSha256: sha256File(path.join(frameOut, "absolute-diff.png")),
+          camera: numbers.camera,
+          focusRegion: original.evidence.focusRegion,
+        },
+      },
+      regions: { [region]: metric },
+      meanFaceLuminance: Math.round(cropLuminance * 1000) / 1000,
+    },
+  };
+}
+
+// st-vitbody r4: native body close-up through the portrait path. The lab frames
+// the asset-derived region box (forearm_box / neck_close_box focusRegion) with
+// the same framePortraitCamera solve the head path uses (fov 24, 78% fill) —
+// no second camera path. The full 4096 frame IS the sheet (native 1:1, no crop,
+// no resampling). px/mm comes from the asset-derived box metres and the live
+// projected box px, the same construction as the cheek gate.
+const CLOSE_PX_PER_MM_MIN = 10;
+
+async function captureCloseRegion(input: {
+  page: Page;
+  serverUrl: string;
+  subject: { actor: string; original: { servedUrl: string }; candidate: { servedUrl: string } };
+  lighting: { id: string; rigId: string; spec: Record<string, unknown> };
+  lightOut: string;
+  cli: Cli;
+}): Promise<{
+  pixelIdentical: boolean;
+  regionDeltas: Array<{ actor: string; lighting: string; region: string; deltaE76: number }>;
+  calibration: { actor: string; lighting: string; rigId: string; meanFaceLuminance: number };
+  lightingRecord: Record<string, unknown>;
+}> {
+  const region = input.cli.region as "forearm-close" | "neck-close";
+  const frameOut = path.join(input.lightOut, region);
+  await mkdir(frameOut, { recursive: true });
+  const captureSize = LAB_RENDER_SIZE_MAX;
+  const origSource = path.join(frameOut, ".source-orig.png");
+  const newSource = path.join(frameOut, ".source-new.png");
+  const original = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "original", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: origSource });
+  const candidate = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "new", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: newSource });
+  cameraComparable(original, candidate);
+  const wantKind = region === "forearm-close" ? "forearm_box" : "neck_close_box";
+  const focusBounds = original.evidence.focusRegion && "boundsMeters" in original.evidence.focusRegion
+    ? (original.evidence.focusRegion as { kind?: string; boundsMeters: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } } })
+    : null;
+  if (!focusBounds || (focusBounds as { kind?: string }).kind !== wantKind || !focusBounds.boundsMeters) {
+    throw new Error(`${input.subject.actor}/${input.lighting.id}/${region}: expected lab focusRegion ${wantKind}, got ${JSON.stringify(original.evidence.focusRegion)}`);
+  }
+  const boxPx = original.readback.portrait?.headBoxPx;
+  if (!boxPx) throw new Error(`${input.subject.actor}/${input.lighting.id}/${region}: close capture has no live projected box`);
+  const widthM = focusBounds.boundsMeters.max.x - focusBounds.boundsMeters.min.x;
+  const heightM = focusBounds.boundsMeters.max.y - focusBounds.boundsMeters.min.y;
+  if (!(widthM > 0) || !(heightM > 0)) throw new Error(`${input.subject.actor}/${input.lighting.id}/${region}: degenerate focus box metres`);
+  const widthPx = boxPx.x1 - boxPx.x0;
+  const heightPx = boxPx.y1 - boxPx.y0;
+  const closePxPerMm = widthPx / (widthM * 1000);
+  const closePxPerMmHeight = heightPx / (heightM * 1000);
+  if (closePxPerMm < CLOSE_PX_PER_MM_MIN) {
+    throw new Error(`${input.subject.actor}/${input.lighting.id}/${region}: close-up ${closePxPerMm.toFixed(3)} px/mm < ${CLOSE_PX_PER_MM_MIN} (max reached with the portrait focus mechanism; st-vitbody r4 X1)`);
+  }
+  const origPng = path.join(frameOut, "orig.png");
+  const newPng = path.join(frameOut, "new.png");
+  await copyPngRgb(origSource, origPng);
+  await copyPngRgb(newSource, newPng);
+  await writeSideBySide(origPng, newPng, path.join(frameOut, "side-by-side.png"));
+  const diff = await writeDiffHeatmap(origPng, newPng, path.join(frameOut, "absolute-diff.png"));
+  const { mask: fullMask, litFraction: litFrac } = litBitmap(origPng, region);
+  const orig = regionStats(origPng, fullMask);
+  const next = regionStats(newPng, fullMask);
+  const delta = Math.round(deltaE76(orig, next) * 1_000_000) / 1_000_000;
+  const numbers = {
+    actor: input.subject.actor,
+    lighting: input.lighting.id,
+    rigId: input.lighting.rigId,
+    framing: region,
+    imageSize: { width: captureSize, height: captureSize },
+    nativeSourceSize: captureSize,
+    nativeCrop: null,
+    cropLitFraction: Math.round(litFrac * 10000) / 10000,
+    closePxPerMm: Math.round(closePxPerMm * 1000) / 1000,
+    closePxPerMmHeight: Math.round(closePxPerMmHeight * 1000) / 1000,
+    closePxPerMmMethod: "live projected region-box width px in the close capture / asset-derived region width mm (height cross-check beside it); native frame, no resampling or cropping",
+    camera: original.readback.portrait ?? original.evidence.packFraming,
+    focusRegion: original.evidence.focusRegion,
+    rendererReadback: original.readback.renderer,
+    lightsReadback: original.readback.lights,
+    productRigReadback: original.readback.productRig,
+    regions: { [region]: { ...metricRecord(orig, next), framing: region, maskMethod: "lit-bitmap mask from ORIGINAL close frame (bg excluded, same mask on NEW)" } },
+  };
+  await writeFile(path.join(frameOut, "numbers.json"), `${JSON.stringify(numbers, null, 2)}\n`, "utf8");
+  const cropLuminance = meanLuminance(origPng, fullMask);
+  return {
+    pixelIdentical: diff.pixelIdentical,
+    regionDeltas: [{ actor: input.subject.actor, lighting: input.lighting.id, region, deltaE76: delta }],
+    calibration: { actor: input.subject.actor, lighting: input.lighting.id, rigId: input.lighting.rigId, meanFaceLuminance: Math.round(cropLuminance * 1000) / 1000 },
+    lightingRecord: {
+      rigId: input.lighting.rigId,
+      rendererReadback: original.readback.renderer,
+      lightsReadback: original.readback.lights,
+      productRigReadback: original.readback.productRig,
+      framingGates: {
+        region,
+        closePxPerMm: Math.round(closePxPerMm * 1000) / 1000,
+        closePxPerMmHeight: Math.round(closePxPerMmHeight * 1000) / 1000,
+        closePxPerMmMethod: numbers.closePxPerMmMethod,
+        captureSize,
+        cropLitFraction: Math.round(litFrac * 10000) / 10000,
+        cropPixels: captureSize * captureSize,
+      },
+      frames: {
+        [region]: {
+          directory: path.relative(process.cwd(), frameOut).replaceAll("\\", "/"),
+          origSha256: sha256File(origPng),
+          newSha256: sha256File(newPng),
+          sideBySideSha256: sha256File(path.join(frameOut, "side-by-side.png")),
+          diffSha256: sha256File(path.join(frameOut, "absolute-diff.png")),
+          camera: numbers.camera,
+          focusRegion: original.evidence.focusRegion,
+        },
+      },
+      regions: numbers.regions,
+      meanFaceLuminance: Math.round(cropLuminance * 1000) / 1000,
+    },
   };
 }
 
@@ -628,10 +936,15 @@ async function main(): Promise<void> {
     cwd,
     origRef: cli.origRef,
     size: cli.size,
+    region: cli.region,
     renderer: "product apps/ui-xr isolated-subject three.js lab",
     loaderMode: "skinShadeLoader factory mode; zero skinOverride; zero materialOverrides",
     sheets: "native 1:1 pixels, no resampling or upscaling",
-    regionsMethod: "asset-derived live head/eye boxes plus documented normalized masks; identical masks for ORIGINAL and NEW",
+    regionsMethod: cli.region === "head"
+      ? "asset-derived live head/eye boxes plus documented normalized masks; identical masks for ORIGINAL and NEW"
+      : cli.region === "forearm-close" || cli.region === "neck-close"
+        ? `body close-up ${cli.region}: lab portrait solve (fov 24, 78% fill) on the asset-derived region box (dominant-joint verts, no 2D crop); identical camera and full frame for ORIGINAL and NEW`
+        : `body region ${cli.region}: crop box from asset-derived ${cli.boxes} (dominant-joint verts projected through manifest packCamera, bind-pose verified); identical box for ORIGINAL and NEW`,
     rigs: {
       studio: { rigId: STUDIO_RIG_ID, mechanism: "existing rigOverride.studio key/fill/rim/hemisphere + RoomEnvironment", requested: STUDIO_RIG },
       runtime: { rigId: RUNTIME_RIG_ID, path: RUNTIME_RIG_REL, sha256: runtimeRigSha256, why: "a capture rig brighter than runtime has invented defects; runtime lighting is therefore a co-equal condition" },
@@ -664,7 +977,7 @@ async function main(): Promise<void> {
         const actorRecord: Record<string, unknown> = {
           actor: subject.actor,
           glbPath: subject.repoPath,
-          original: { ref: cli.origRef, sha256: subject.original.sha256, source: subject.original.source, scratchPath: path.relative(cwd, subject.original.abs) },
+          original: { ref: cli.origFile ?? cli.origRef, sha256: subject.original.sha256, source: subject.original.source, scratchPath: path.relative(cwd, subject.original.abs) },
           new: { sha256: subject.candidate.sha256, source: subject.candidate.source, scratchPath: path.relative(cwd, subject.candidate.abs) },
           sameBytes: subject.original.sha256 === subject.candidate.sha256,
           lighting: {},
@@ -674,6 +987,22 @@ async function main(): Promise<void> {
           const lightOut = path.join(outAbs, subject.actor, lighting.id);
           await mkdir(lightOut, { recursive: true });
           const captures: Record<string, { original: Captured; new: Captured; crop: Rect; origPng: string; newPng: string }> = {};
+          if (cli.region === "forearm-close" || cli.region === "neck-close") {
+            const close = await captureCloseRegion({ page, serverUrl: server!.url, subject, lighting, lightOut, cli });
+            everyPixelIdentical &&= close.pixelIdentical;
+            for (const r of close.regionDeltas) allRegionDeltaEs.push(r);
+            calibration.push(close.calibration);
+            (actorRecord["lighting"] as Record<string, unknown>)[lighting.id] = close.lightingRecord;
+            continue;
+          }
+          if (cli.region !== "head") {
+            const body = await captureBodyRegion({ page, serverUrl: server!.url, subject, lighting, lightOut, cli });
+            everyPixelIdentical &&= body.pixelIdentical;
+            for (const r of body.regionDeltas) allRegionDeltaEs.push(r);
+            calibration.push(body.calibration);
+            (actorRecord["lighting"] as Record<string, unknown>)[lighting.id] = body.lightingRecord;
+            continue;
+          }
           for (const framing of ["face", "eyes", "cheek"] as const) {
             const frameOut = path.join(lightOut, framing);
             await mkdir(frameOut, { recursive: true });
@@ -806,7 +1135,8 @@ async function main(): Promise<void> {
   const eyeNames = new Set(["iris", "sclera", "limbus ring"]);
   const skinViolations = allRegionDeltaEs.filter((r) => skinNames.has(r.region) && r.deltaE76 > noiseFloor + 1e-9);
   const eyeChanges = allRegionDeltaEs.filter((r) => eyeNames.has(r.region) && r.deltaE76 > noiseFloor + 1e-9);
-  const g2Failure = !sameBytes && skinViolations.length
+  const g2Failure = cli.region !== "head" || cli.origFile ? null
+    : !sameBytes && skinViolations.length
     ? `G2 failed: skin deltas exceed noise floor ${noiseFloor}: ${JSON.stringify(skinViolations)}`
     : !sameBytes && !eyeChanges.length
       ? `G2 failed: no iris/sclera/limbus delta exceeds noise floor ${noiseFloor}`

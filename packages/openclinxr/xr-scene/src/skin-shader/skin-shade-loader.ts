@@ -54,6 +54,14 @@ interface SkinShadeMaterialExtension {
   };
   /** Detail-normal XY strength. Omission is the identity value 0. */
   detailNormalStrength?: number;
+  /** Optional body-region tiled tangent-normal textureInfo (own KHR_texture_transform). */
+  bodyDetailNormalTexture?: {
+    index: number;
+    texCoord?: number;
+    extensions?: Record<string, unknown>;
+  };
+  /** Body-detail XY strength. Omission is the identity value 0. */
+  bodyDetailNormalStrength?: number;
 }
 
 type SkinShadeMaterial = MeshStandardMaterial | MeshPhysicalMaterial;
@@ -171,25 +179,47 @@ class SkinShadePlugin implements GLTFLoaderPlugin {
     if (skinShadeInstalled(material)) return;
     const curvatureMap = await this.curvatureTexture(textureIndex as number);
     const detailInfo = extension.detailNormalTexture;
+    const bodyInfo = extension.bodyDetailNormalTexture;
+    let detailNormalMap: Texture | null = null;
+    let detailNormalStrength = 0;
     if (detailInfo === undefined) {
       if (extension.detailNormalStrength !== undefined) {
         throw new Error(
           `OPENCLINXR_skin_shade: material ${materialIndex} declares detailNormalStrength without detailNormalTexture — refusing`,
         );
       }
-      applySkinShade(material, { curvatureMap });
-      return;
+    } else {
+      if (!Number.isInteger(detailInfo.index) || detailInfo.index < 0) {
+        throw new Error(
+          `OPENCLINXR_skin_shade: material ${materialIndex} needs detailNormalTexture.index (non-negative integer) — refusing`,
+        );
+      }
+      detailNormalMap = await this.detailNormalTexture(detailInfo);
+      detailNormalStrength = extension.detailNormalStrength ?? 0;
     }
-    if (!Number.isInteger(detailInfo.index) || detailInfo.index < 0) {
-      throw new Error(
-        `OPENCLINXR_skin_shade: material ${materialIndex} needs detailNormalTexture.index (non-negative integer) — refusing`,
-      );
+    let bodyDetailNormalMap: Texture | null = null;
+    let bodyDetailNormalStrength = 0;
+    if (bodyInfo === undefined) {
+      if (extension.bodyDetailNormalStrength !== undefined) {
+        throw new Error(
+          `OPENCLINXR_skin_shade: material ${materialIndex} declares bodyDetailNormalStrength without bodyDetailNormalTexture — refusing`,
+        );
+      }
+    } else {
+      if (!Number.isInteger(bodyInfo.index) || bodyInfo.index < 0) {
+        throw new Error(
+          `OPENCLINXR_skin_shade: material ${materialIndex} needs bodyDetailNormalTexture.index (non-negative integer) — refusing`,
+        );
+      }
+      bodyDetailNormalMap = await this.detailNormalTexture(bodyInfo);
+      bodyDetailNormalStrength = extension.bodyDetailNormalStrength ?? 0;
     }
-    const detailNormalMap = await this.detailNormalTexture(detailInfo);
     applySkinShade(material, {
       curvatureMap,
       detailNormalMap,
-      detailNormalStrength: extension.detailNormalStrength ?? 0,
+      detailNormalStrength,
+      bodyDetailNormalMap,
+      bodyDetailNormalStrength,
     });
   }
 }

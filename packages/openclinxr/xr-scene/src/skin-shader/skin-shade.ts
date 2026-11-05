@@ -81,7 +81,6 @@ import type {
   WebGLProgramParametersWithUniforms,
   WebGLRenderer,
 } from "three";
-import { RepeatWrapping } from "three";
 import {
   type ResolvedSkinLutOptions,
   resolveSkinLutOptions,
@@ -92,6 +91,16 @@ import {
   skinShadeLutParsGlsl,
   skinShadeLutScatterGlsl,
 } from "./skin-lut.js";
+import {
+  assignSkinDetailUniforms,
+  prepareSkinDetailMaps,
+  type ResolvedSkinDetail,
+  resolveSkinDetailOptions,
+  skinShadeBodyCacheFragment,
+  skinShadeBodyNormalGlsl,
+  skinShadeBodyParsGlsl,
+  type SkinDetailOptions,
+} from "./skin-shade-detail.js";
 
 /** Default T-zone coefficient: build_roughness.py --tcoef default 0.08. */
 export const SKIN_TCOEF_DEFAULT = 0.08;
@@ -156,7 +165,7 @@ export function skinForeheadUv(): readonly [number, number] {
   ];
 }
 
-export interface SkinShadeOptions extends SkinLutOptions {
+export interface SkinShadeOptions extends SkinLutOptions, SkinDetailOptions {
   /** Multiplier on SKIN_TCOEF_DEFAULT (1 = bake-faithful 0.08). Must be finite and >= 0. */
   tZoneStrength?: number;
   /** Normal mix toward the smooth vertex normal (default 0.4, recorded constant). */
@@ -189,11 +198,10 @@ export const SKIN_SHADE_DEFAULTS = {
   scatterNostril: 0.04,
   scatterLip: 0.02,
   specularOcclusion: 1,
-  detailNormalStrength: 0,
   ...SKIN_LUT_DEFAULTS,
 };
 
-export interface ResolvedSkinShadeOptions extends ResolvedSkinLutOptions {
+export interface ResolvedSkinShadeOptions extends ResolvedSkinLutOptions, ResolvedSkinDetail {
   tZoneStrength: number;
   blurMix: number;
   scatterConvex: number;
@@ -217,6 +225,7 @@ export function resolveSkinShadeOptions(options: SkinShadeOptions = {}): Resolve
   };
   return {
     ...resolveSkinLutOptions(options),
+    ...resolveSkinDetailOptions(options),
     tZoneStrength: num(options.tZoneStrength, "tZoneStrength", SKIN_SHADE_DEFAULTS.tZoneStrength),
     blurMix: num(options.blurMix, "blurMix", SKIN_SHADE_DEFAULTS.blurMix),
     scatterConvex: num(options.scatterConvex, "scatterConvex", SKIN_SHADE_DEFAULTS.scatterConvex),
@@ -229,12 +238,6 @@ export function resolveSkinShadeOptions(options: SkinShadeOptions = {}): Resolve
       SKIN_SHADE_DEFAULTS.specularOcclusion,
     ),
     curvatureMap: options.curvatureMap ?? null,
-    detailNormalMap: options.detailNormalMap ?? null,
-    detailNormalStrength: num(
-      options.detailNormalStrength,
-      "detailNormalStrength",
-      SKIN_SHADE_DEFAULTS.detailNormalStrength,
-    ),
   };
 }
 
@@ -244,7 +247,7 @@ export function skinEffectiveTCoef(resolved: ResolvedSkinShadeOptions): number {
 }
 
 /** Fragment helpers + mask functions (injected after `#include <common>`). */
-export function skinShadeParsGlsl(detailNormal = false): string {
+export function skinShadeParsGlsl(detailNormal = false, bodyDetailNormal = false): string {
   return /* glsl */ `
 varying vec3 vSkinSmoothN;
 uniform float uSkinTCoef;
@@ -259,6 +262,7 @@ ${
   detailNormal
     ? `uniform sampler2D uSkinDetailNormalMap; uniform float uSkinDetailNormalStrength;
 uniform mat3 uSkinDetailUvTransform;
+${bodyDetailNormal ? skinShadeBodyParsGlsl() : ""}
 mat3 skinShadeCotangentFrame(vec3 eyePosition, vec3 surfaceNormal, vec2 uv) {
   vec3 eyeDx = dFdx(eyePosition), eyeDy = dFdy(eyePosition);
   vec2 uvDx = dFdx(uv), uvDy = dFdy(uv);
@@ -346,7 +350,7 @@ reflectedLight.indirectSpecular *= (1.0 - uSkinSpecOccl * skinCavTex);
 }
 
 /** Blurred lighting normal (injected after `#include <normal_fragment_maps>`). */
-export function skinShadeNormalGlsl(detailNormal = false): string {
+export function skinShadeNormalGlsl(detailNormal = false, bodyDetailNormal = false): string {
   return /* glsl */ `
 normal = normalize(mix(normal, normalize(vSkinSmoothN), uSkinBlurMix));
 ${
@@ -356,7 +360,7 @@ ${
   vec3 skinDetailNormal = texture2D(uSkinDetailNormalMap, skinDetailUv).xyz * 2.0 - 1.0;
   skinDetailNormal.xy *= uSkinDetailNormalStrength;
   skinDetailNormal = normalize(skinDetailNormal);
-  mat3 skinDetailFrame = skinShadeCotangentFrame(-vViewPosition, normal, skinDetailUv);
+${bodyDetailNormal ? skinShadeBodyNormalGlsl() : ""}  mat3 skinDetailFrame = skinShadeCotangentFrame(-vViewPosition, normal, skinDetailUv);
 #if defined(DOUBLE_SIDED) && !defined(FLAT_SHADED)
   skinDetailFrame[0] *= faceDirection;
   skinDetailFrame[1] *= faceDirection;
@@ -400,9 +404,8 @@ export function skinShadeCacheKey(resolved: ResolvedSkinShadeOptions): string {
     `openclinxr-skin-shade:t${resolved.tZoneStrength}:b${resolved.blurMix}` +
     `:c${resolved.scatterConvex},${resolved.scatterCavity},${resolved.scatterNostril},${resolved.scatterLip}` +
     `:s${resolved.specularOcclusion}:l${resolved.lut ? resolved.lutStrength : 0}`;
-  return resolved.detailNormalMap && resolved.detailNormalStrength > 0
-    ? `${base}:d${resolved.detailNormalStrength}`
-    : base;
+  const faceActive = !!resolved.detailNormalMap && resolved.detailNormalStrength > 0;
+  return `${base}${faceActive ? `:d${resolved.detailNormalStrength}` : ""}${skinShadeBodyCacheFragment(resolved)}`;
 }
 
 /**
@@ -422,14 +425,8 @@ export function applySkinShade(
   const tcoef = skinEffectiveTCoef(resolved);
   const forehead = skinForeheadUv();
   const lutTex = resolved.lut ? (resolved.lutMap ?? skinLutTexture()) : null;
-  // Strength zero and absent maps compile as the exact pre-detail program.
-  const detailNormalMap = resolved.detailNormalStrength > 0 ? resolved.detailNormalMap : null;
-  const hasDetailNormal = detailNormalMap !== null;
-  if (hasDetailNormal) {
-    detailNormalMap.wrapS = RepeatWrapping;
-    detailNormalMap.wrapT = RepeatWrapping;
-    detailNormalMap.updateMatrix();
-  }
+  // Detail maps gate through the body module (byte-identical off paths).
+  const detailMaps = prepareSkinDetailMaps(resolved);
   const prev = material.onBeforeCompile?.bind(material);
   material.onBeforeCompile = (
     shader: WebGLProgramParametersWithUniforms,
@@ -444,11 +441,7 @@ export function applySkinShade(
     shader.uniforms["uSkinScatterLip"] = { value: resolved.scatterLip };
     shader.uniforms["uSkinSpecOccl"] = { value: resolved.specularOcclusion };
     shader.uniforms["uSkinCurvMap"] = { value: resolved.curvatureMap };
-    if (hasDetailNormal) {
-      shader.uniforms["uSkinDetailNormalMap"] = { value: detailNormalMap };
-      shader.uniforms["uSkinDetailNormalStrength"] = { value: resolved.detailNormalStrength };
-      shader.uniforms["uSkinDetailUvTransform"] = { value: detailNormalMap.matrix };
-    }
+    assignSkinDetailUniforms(shader.uniforms, detailMaps, resolved);
     shader.uniforms["uSkinNoseUv"] = { value: [SKIN_NOSE_UV[0], SKIN_NOSE_UV[1]] };
     shader.uniforms["uSkinChinUv"] = { value: [SKIN_CHIN_UV[0], SKIN_CHIN_UV[1]] };
     shader.uniforms["uSkinForeheadUv"] = { value: [forehead[0], forehead[1]] };
@@ -471,7 +464,7 @@ export function applySkinShade(
     shader.fragmentShader = shader.fragmentShader
       .replace(
         "#include <common>",
-        `#include <common>\n${skinShadeParsGlsl(hasDetailNormal)}${resolved.lut ? skinShadeLutParsGlsl() : ""}`,
+        `#include <common>\n${skinShadeParsGlsl(detailMaps.hasDetailNormal, detailMaps.hasBodyDetailNormal)}${resolved.lut ? skinShadeLutParsGlsl() : ""}`,
       )
       .replace("#include <map_fragment>", `#include <map_fragment>\n${skinShadeSampleGlsl()}`)
       .replace(
@@ -480,7 +473,7 @@ export function applySkinShade(
       )
       .replace(
         "#include <normal_fragment_maps>",
-        `#include <normal_fragment_maps>\n${skinShadeNormalGlsl(hasDetailNormal)}`,
+        `#include <normal_fragment_maps>\n${skinShadeNormalGlsl(detailMaps.hasDetailNormal, detailMaps.hasBodyDetailNormal)}`,
       )
       .replace(
         "#include <lights_fragment_end>",

@@ -23,6 +23,7 @@
 import type { Object3D } from "three";
 import { Box3, Mesh, SkinnedMesh, Vector3 } from "three";
 import { computeMeshBounds } from "./camera-fit-to-bounds.js";
+import { deriveForearmFocusBounds, deriveNeckCloseFocusBounds } from "./isolated-subject-body-focus.js";
 import { deriveHeadBoxFromPoints, isFittedHairMeshName } from "./head-box-from-geometry.js";
 
 type Vec3Meters = { x: number; y: number; z: number };
@@ -46,6 +47,22 @@ export type FocusRegion =
       derivation: string;
       teethVertexCount: number;
       orisVertexCount: number;
+      boundsMeters: { min: Vec3Meters; max: Vec3Meters };
+    }
+  | {
+      kind: "forearm_box";
+      derivation: string;
+      side: string;
+      matchedJointNames: string[];
+      matchedVertexCount: number;
+      boundsMeters: { min: Vec3Meters; max: Vec3Meters };
+    }
+  | {
+      kind: "neck_close_box";
+      derivation: string;
+      neckJointNames: string[];
+      headVertexCount: number;
+      neckVertexCount: number;
       boundsMeters: { min: Vec3Meters; max: Vec3Meters };
     }
   | { kind: "whole_subject_fallback"; reason: string }
@@ -286,13 +303,18 @@ function deriveMouthFocusBounds(root: Object3D): {
 }
 
 /**
+ * Body close-up derivations (forearm/neck) live in isolated-subject-body-focus.ts
+ * (extracted when they pushed this file over the zone budget — pure move).
+ */
+
+/**
  * Resolve the camera frame for the requested focus. An unresolvable focus
  * THROWS (refusal, #358) — the station never degrades silently. The returned
  * `focusRegion` records which framing was actually used.
  */
 export function resolveFocus(
   root: Object3D,
-  focus: "eyes" | "head" | "mouth" | undefined,
+  focus: "eyes" | "head" | "mouth" | "forearm" | "neck" | undefined,
   wholeBodyBounds: Box3,
 ): { focusRegion: FocusRegion; frameBounds: Box3 } {
   if (focus === "eyes") {
@@ -339,6 +361,37 @@ export function resolveFocus(
           "union of the fitted-teeth mesh AABB and the AABB of body verts dominant-weighted to orbicularis-oris bones; never literal coordinates (D1)",
         teethVertexCount: derived.teethVertexCount,
         orisVertexCount: derived.orisVertexCount,
+        boundsMeters: boxToRecord(derived.box),
+      },
+      frameBounds: derived.box,
+    };
+  }
+  if (focus === "forearm") {
+    const derived = deriveForearmFocusBounds(root);
+    return {
+      focusRegion: {
+        kind: "forearm_box",
+        derivation:
+          "world AABB of skinned-body verts dominant-weighted to lowerarm bones, viewer-left arm (smaller world-x centroid); same joint sets as the S1 texel probe (st-vitbody r4)",
+        side: derived.side,
+        matchedJointNames: derived.matchedJointNames,
+        matchedVertexCount: derived.matchedVertexCount,
+        boundsMeters: boxToRecord(derived.box),
+      },
+      frameBounds: derived.box,
+    };
+  }
+  if (focus === "neck") {
+    const head = deriveHeadFocusBounds(root);
+    const derived = deriveNeckCloseFocusBounds(root, head.box);
+    return {
+      focusRegion: {
+        kind: "neck_close_box",
+        derivation:
+          "union of neck-joint verts (B=255 body side) and the jaw band of head-joint verts (bottom 35% of above-neck head height, B=0 face side) so the portrait solve frames across the body-mask boundary (st-vitbody r4)",
+        neckJointNames: derived.neckJointNames,
+        headVertexCount: derived.headVertexCount,
+        neckVertexCount: derived.neckVertexCount,
         boundsMeters: boxToRecord(derived.box),
       },
       frameBounds: derived.box,

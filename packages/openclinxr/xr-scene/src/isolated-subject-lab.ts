@@ -56,6 +56,7 @@ import {
   round3,
 } from "./isolated-subject-debug-evidence.js";
 import { buildSubjectRoot } from "./isolated-subject-assembly.js";
+import { parseIsolatedSubjectSpec } from "./isolated-subject-spec-params.js";
 
 /**
  * Reference-pack capture views (#262). Mirrors the #232 pack view set
@@ -104,9 +105,12 @@ export type IsolatedSubjectSpec = {
    * body. "eyes" derives the eye box from meshes matching the eye channel;
    * "head" derives the head box from the body's own bounds (topmost band cut at
    * the neck — works on every rail, incl. Anny which has no eye geometry).
+   * "forearm" derives the viewer-left lowerarm box from dominant-joint verts
+   * (st-vitbody r4 body close-up); "neck" derives the neck + jaw-band box so
+   * the frame straddles the body-mask boundary (st-vitbody r4).
    * Never literal coordinates (D1). An unresolvable focus REFUSES.
    */
-  focus?: "eyes" | "head" | "mouth";
+  focus?: "eyes" | "head" | "mouth" | "forearm" | "neck";
   /** #495 ablation: when true, applySupinePose skips the 17 joint eulers (root basis only). */
   supineRootOnly?: boolean;
   /** Skin-realism portrait: hide fitted hair meshes matched by /hair/i before framing. */
@@ -229,54 +233,6 @@ const HEIGHT_LEGACY = 960;
 /** Reference-pack captures are square, matching the #232 pack shape (1024×1024). */
 const PACK_WIDTH = 1024;
 const BG = "#18211d";
-
-function parseSpec(): IsolatedSubjectSpec {
-  const params = new URLSearchParams(window.location.search);
-  const raw = params.get("subject");
-  if (raw) {
-    try {
-      const parsed = JSON.parse(raw) as IsolatedSubjectSpec;
-      if (parsed?.subjectId && parsed?.subjectKind) return parsed;
-    } catch {
-      // fall through to query fields
-    }
-  }
-  const subjectId = params.get("subjectId") ?? "anonymous";
-  const subjectKind = (params.get("subjectKind") ?? "furniture_builder") as IsolatedSubjectKind;
-  const builder = (params.get("builder") as IsolatedSubjectSpec["builder"]) ?? undefined;
-  const equipmentId = params.get("equipmentId") ?? undefined;
-  const posture = (params.get("posture") as IsolatedSubjectSpec["posture"]) ?? undefined;
-  const bodyGlb = params.get("bodyGlb") ?? undefined;
-  const inclineRaw = params.get("inclineDegrees");
-  const inclineDegrees = inclineRaw != null && inclineRaw !== "" ? Number(inclineRaw) : undefined;
-  const viewRaw = params.get("view");
-  const view = (viewRaw as CaptureView | null) ?? undefined;
-  const exportGlbRaw = params.get("exportGlb");
-  const subjectOnlyRaw = params.get("subjectOnly");
-  const focusRaw = params.get("focus");
-  const hideHairRaw = params.get("hideHair");
-  const yawRaw = params.get("yawDegrees");
-  const renderSizeRaw = params.get("renderSize");
-  const yawDegrees = yawRaw != null && yawRaw !== "" ? Number(yawRaw) : undefined;
-  const renderSize = renderSizeRaw != null && renderSizeRaw !== "" ? Number(renderSizeRaw) : undefined;
-  return {
-    subjectId,
-    subjectKind,
-    ...(builder ? { builder } : {}),
-    ...(equipmentId ? { equipmentId } : {}),
-    ...(posture ? { posture } : {}),
-    ...(bodyGlb ? { bodyGlb } : {}),
-    ...(inclineDegrees != null && Number.isFinite(inclineDegrees) ? { inclineDegrees } : {}),
-    ...(view ? { view } : {}),
-    ...(exportGlbRaw === "true" ? { exportGlb: true } : {}),
-    ...(subjectOnlyRaw === "true" ? { subjectOnly: true } : {}),
-    ...(focusRaw === "eyes" || focusRaw === "head" ? { focus: focusRaw as "eyes" | "head" } : {}),
-    ...(hideHairRaw === "true" ? { hideHair: true } : {}),
-    ...(yawDegrees != null && Number.isFinite(yawDegrees) ? { yawDegrees } : {}),
-    ...(renderSize != null && Number.isFinite(renderSize) ? { renderSize } : {}),
-    label: params.get("label") ?? subjectId,
-  };
-}
 
 function measureCanvasCoverage(renderer: WebGLRenderer): number {
   const canvas = renderer.domElement;
@@ -432,7 +388,8 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
     yawDegrees: number;
   } | null = null;
   if (spec.portrait === true) {
-    // Tight portrait: fov 24 at head-centre height, chin-to-crown fills 78%.
+    // Tight portrait: fov 24 on the frameBounds centre, frameBounds height fills 78%.
+    // Head path: chin-to-crown. st-vitbody r4: forearm / neck-close frameBounds.
     const framed = framePortraitCamera(camera, frameBounds, spec.yawDegrees ?? 0);
     frameSpanFraction = null;
     const boxPx = projectBoxPx(camera, frameBounds, renderer.domElement.width, renderer.domElement.height);
@@ -570,7 +527,7 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
 export function bootIsolatedSubjectLab(): void {
   const app = document.querySelector<HTMLDivElement>("#app");
   if (!app) throw new Error("Missing #app");
-  const spec = parseSpec();
+  const spec = parseIsolatedSubjectSpec();
   void renderIsolatedSubject(app, spec).catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
     app.textContent = `Isolated subject lab error: ${message}`;

@@ -12,20 +12,45 @@
     "field": "MaterialOverride.skinShade (true | { tZoneStrength }) + required MaterialOverride.skinShadeCurvatureUrl in packages/openclinxr/xr-scene/src/isolated-subject-material-variants.ts, beside envMapIntensity",
     "module": "packages/openclinxr/xr-scene/src/skin-shader/skin-shade.ts",
     "plumbing": "portrait path's existing TextureLoader (NoColorSpace, flipY=false, albedo UV channel preserved); served to the page by the capture tool's /__spike/ route — tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts material-override texture loop generalized from baseColorUrl-only to [baseColorUrl, skinShadeCurvatureUrl] plus the absolute-URL rewrite (declared WRITE_ROOTS exception: the only way to serve a local file without writing apps/ui-xr/public/**). A skinShade flag WITHOUT the URL REFUSES (fail closed); the hook tolerates a null texture only for the node unit test.",
-    "cacheKey": "openclinxr-skin-shade:t<strength>:b<blur>:c<cvx,cav,nos,lip>",
+    "cacheKey": "openclinxr-skin-shade:t<strength>:b<blur>:c<cvx,cav,nos,lip>:s<spec>:l<lut>[:d<face-strength>][:b<body-strength>:h3]",
     "readback": "MaterialOverrideReadback.skinShade from the install WeakSet + skinShadeCurvature from the bound-texture WeakMap (hook-installed, never JSON fields); live portrait readback skinShade:true skinShadeCurvature:true on mpfb_ob_patient_aisha_v1_body|mpfb_skin_ob_patient_aisha_v1 (h1/skinshade-on.json), the only matched slot; the capture tool's assertVariantLanded now fails a skinShade override whose readback is not true"
   },
   "masks": {
     "source": "realism-95 derive/A/landmarks-uv.json (size 4096, row v*S; Aisha-derived: roles carry mpfb_ob_patient_aisha meshes; MakeHuman UV shared as-is per skin-maps manifest)",
-    "noseUv": [0.86579, 0.51683],
-    "chinUv": [0.95968, 0.51683],
-    "foreheadUv": [0.80619, 0.51678],
+    "noseUv": [
+      0.86579,
+      0.51683
+    ],
+    "chinUv": [
+      0.95968,
+      0.51683
+    ],
+    "foreheadUv": [
+      0.80619,
+      0.51678
+    ],
     "foreheadMethod": "build_roughness.py mirror: brow-end-inner mid (0.82606, 0.5168) pushed past brows by FOREHEAD_PUSH 0.5",
-    "lipUv": [0.90992, 0.51677],
+    "lipUv": [
+      0.90992,
+      0.51677
+    ],
     "lipMethod": "lip-corner midpoint; lip-mid-upper (0.92046, 0.9082) excluded as a seam-side outlier (v jumps 0.39 off the corner line)",
-    "nostrilLUv": [0.87877, 0.49666],
-    "nostrilRUv": [0.87877, 0.53701],
-    "radii": { "nose": 0.035, "chin": 0.03, "forehead": 0.055, "lip": 0.02, "nostril": 0.012, "featherUv": 0.004 },
+    "nostrilLUv": [
+      0.87877,
+      0.49666
+    ],
+    "nostrilRUv": [
+      0.87877,
+      0.53701
+    ],
+    "radii": {
+      "nose": 0.035,
+      "chin": 0.03,
+      "forehead": 0.055,
+      "lip": 0.02,
+      "nostril": 0.012,
+      "featherUv": 0.004
+    },
     "radiiSource": "nose/chin/forehead + FOREHEAD_PUSH from build_roughness.py; lip/nostril/feather are recorded implementation constants"
   },
   "roughness": {
@@ -40,38 +65,124 @@
   "sweep": {
     "method": "runtime-portrait-capture.ts variant mode, RENDER_SIZE 1280, front, portrait:true, shipped Aisha GLB (apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb); materialOverrides match mpfb_skin; outputs in store/skin-shade/h1/",
     "variants": {
-      "off": { "tZoneStrength": null, "tcoef": 0, "spec": "no materialOverrides (default path)" },
-      "off2": { "tZoneStrength": null, "tcoef": 0, "spec": "identical off spec re-rendered (run-to-run noise witness)" },
-      "on": { "tZoneStrength": 1, "tcoef": 0.08, "spec": "skinShade:true + curvature map" },
-      "t04": { "tZoneStrength": 0.5, "tcoef": 0.04, "spec": "skinShade:{tZoneStrength:0.5} + curvature map" },
-      "t20": { "tZoneStrength": 2, "tcoef": 0.16, "spec": "skinShade:{tZoneStrength:2} + curvature map" }
+      "off": {
+        "tZoneStrength": null,
+        "tcoef": 0,
+        "spec": "no materialOverrides (default path)"
+      },
+      "off2": {
+        "tZoneStrength": null,
+        "tcoef": 0,
+        "spec": "identical off spec re-rendered (run-to-run noise witness)"
+      },
+      "on": {
+        "tZoneStrength": 1,
+        "tcoef": 0.08,
+        "spec": "skinShade:true + curvature map"
+      },
+      "t04": {
+        "tZoneStrength": 0.5,
+        "tcoef": 0.04,
+        "spec": "skinShade:{tZoneStrength:0.5} + curvature map"
+      },
+      "t20": {
+        "tZoneStrength": 2,
+        "tcoef": 0.16,
+        "spec": "skinShade:{tZoneStrength:2} + curvature map"
+      }
     }
   },
-  "tcoef": { "on": 0.08, "t04": 0.04, "t20": 0.16 },
+  "tcoef": {
+    "on": 0.08,
+    "t04": 0.04,
+    "t20": 0.16
+  },
   "renders": {
-    "off": { "png": "h1/skinshade-off-front.png", "sha256": "bfcef8a2f42a1a65166761260039b84871c232e44c0f38980f3f79f03b12b421" },
-    "off2": { "png": "h1/skinshade-off2-front.png", "sha256": "7be589e35e82c59f4414ed707e39e0488d7893e584e0444d191f5320c3a8a9c2" },
-    "on": { "png": "h1/skinshade-on-front.png", "sha256": "96f9d022b949ec7e34fd5d1a92ecf965d1ff1a2bea3d8659dbd643e192b483f0" },
-    "t04": { "png": "h1/skinshade-t04-front.png", "sha256": "940c01a41f16b2dd54582d248c2ead4ebb08394b63bfdcedef62dd8752ccb889" },
-    "t20": { "png": "h1/skinshade-t20-front.png", "sha256": "387093da7d36d4c234e2fc564188c8941ff3774b04b5e4541cce3feff33c92df" }
+    "off": {
+      "png": "h1/skinshade-off-front.png",
+      "sha256": "bfcef8a2f42a1a65166761260039b84871c232e44c0f38980f3f79f03b12b421"
+    },
+    "off2": {
+      "png": "h1/skinshade-off2-front.png",
+      "sha256": "7be589e35e82c59f4414ed707e39e0488d7893e584e0444d191f5320c3a8a9c2"
+    },
+    "on": {
+      "png": "h1/skinshade-on-front.png",
+      "sha256": "96f9d022b949ec7e34fd5d1a92ecf965d1ff1a2bea3d8659dbd643e192b483f0"
+    },
+    "t04": {
+      "png": "h1/skinshade-t04-front.png",
+      "sha256": "940c01a41f16b2dd54582d248c2ead4ebb08394b63bfdcedef62dd8752ccb889"
+    },
+    "t20": {
+      "png": "h1/skinshade-t20-front.png",
+      "sha256": "387093da7d36d4c234e2fc564188c8941ff3774b04b5e4541cce3feff33c92df"
+    }
   },
   "crops": {
-    "cheek": { "x0": 700, "y0": 690, "x1": 880, "y1": 840 },
-    "lip": { "x0": 520, "y0": 860, "x1": 760, "y1": 980 },
-    "nostril": { "x0": 555, "y0": 730, "x1": 725, "y1": 850 }
+    "cheek": {
+      "x0": 700,
+      "y0": 690,
+      "x1": 880,
+      "y1": 840
+    },
+    "lip": {
+      "x0": 520,
+      "y0": 860,
+      "x1": 760,
+      "y1": 980
+    },
+    "nostril": {
+      "x0": 555,
+      "y0": 730,
+      "x1": 725,
+      "y1": 850
+    }
   },
   "changedPx": {
-    "onVsOff": { "cheek": 21514, "lip": 25467, "nostril": 18629 },
-    "t04VsOn": { "cheek": 5185, "lip": 2001, "nostril": 8038 },
-    "t20VsOn": { "cheek": 8402, "lip": 3886, "nostril": 12217 },
-    "offVsOff2": { "cheek": 0, "lip": 0, "nostril": 0 }
+    "onVsOff": {
+      "cheek": 21514,
+      "lip": 25467,
+      "nostril": 18629
+    },
+    "t04VsOn": {
+      "cheek": 5185,
+      "lip": 2001,
+      "nostril": 8038
+    },
+    "t20VsOn": {
+      "cheek": 8402,
+      "lip": 3886,
+      "nostril": 12217
+    },
+    "offVsOff2": {
+      "cheek": 0,
+      "lip": 0,
+      "nostril": 0
+    }
   },
   "changedPxMethod": "any-channel abs diff > 0 per native crop rect, counted by the gate test's own decoder (verified byte-exact vs PIL on the h0 off front, 4915200/4915200 bytes)",
   "f1": {
-    "off": { "cheek": 240526.31280000214, "lip": 514206.53999998665, "nostril": 266252.3503999962 },
-    "on": { "cheek": 242923.71120000267, "lip": 521762.18759998394, "nostril": 268359.3711999964 },
-    "off2": { "cheek": 240526.31280000214, "lip": 514206.53999998665, "nostril": 266252.3503999962 },
-    "ratioOnOverOff": { "cheek": 1.00997, "lip": 1.01469, "nostril": 1.00792 },
+    "off": {
+      "cheek": 240526.31280000214,
+      "lip": 514206.53999998665,
+      "nostril": 266252.3503999962
+    },
+    "on": {
+      "cheek": 242923.71120000267,
+      "lip": 521762.18759998394,
+      "nostril": 268359.3711999964
+    },
+    "off2": {
+      "cheek": 240526.31280000214,
+      "lip": 514206.53999998665,
+      "nostril": 266252.3503999962
+    },
+    "ratioOnOverOff": {
+      "cheek": 1.00997,
+      "lip": 1.01469,
+      "nostril": 1.00792
+    },
     "noiseRatio": 1.0,
     "noiseMethod": "off vs off2 (same spec, separate invocations): crop edge energies EXACTLY equal, 0 changed px in all face crops; full frames differ by 19/1638400 px (bbox x2-1275 y663-1276, silhouette raster noise, max abs 30) — SwiftShader thread-rasterization noise, face pixels deterministic",
     "factor": 1.05
@@ -106,9 +217,13 @@
     "h1/skinshade-t20-nostril.png": "fd364b32ca473ca3abe0a965d71d9dbdd49b77bed5c82cafc264cd3482244eb2",
     "h1/skinshade-t20.json": "11a23c46e91e21a69961e9b69234e482e8e478a3ca675e26aee9df22ce67bb80"
   },
-  "moduleSha256": "8a83a9b8b39d5dfae9ab18e47505ee7638b73505b3d61c5ed752c932cc9c780c",
+  "moduleSha256": "2dc281bbd00a12199819074b290211ebc64f53e0f9ca25f11c0561436c6546be",
   "archNotes": "h1 keeps testInternalImports at 10 with ZERO new public exports: the gate test imports exactly one entrypoint-reachable module (the flag path it must exercise) plus unreachable png-crop.ts, and the pre-existing encounter-actor-framing test was routed from ./encounter-actor-framing.js to ./index.js (same symbol, public path) in the same commit to offset it. An entrypoint export of the applier was tried and reverted: it trips the public-surface admission freeze (frozen ADMISSION_GROUPS pins, operator-approved moves only) with no external binder. Test-only TS mirrors were deleted from skin-shade.ts; shipped GLSL numerals are pinned through the installed hook instead. The 38->33 change: on main the committed ceiling was already 38 while the measured surface was 33 (cd05d2cb8 unpublished 43 names without regenerating; the export gate only refuses unlisted names, so main stayed green with a stale ceiling) — regen made it exact.",
   "stillNeeds": "human grade of the h1 sweep crops; follow-up may restore the +0.08*C/+0.05*H terms if a portrait-path AO/frequency source lands, and revisit lip-mid-upper as a seam-side landmark",
-  "lutAmendment": {"card": "tsk_44e25e12108c307e", "change": "skinShade.lut sub-flag (default off) in skin-lut.ts; wrap-path injected GLSL strings byte-identical (hook-proof shas in lut-report.json cw2), cache key gains :l<strength|0> suffix; LUT bytes embedded, no plumbing edits", "wrapRenderProof": "CW2 in lut-report.json (origin/main-tree wrap-base render, byte-identical full frames)"},
+  "lutAmendment": {
+    "card": "tsk_44e25e12108c307e",
+    "change": "skinShade.lut sub-flag (default off) in skin-lut.ts; wrap-path injected GLSL strings byte-identical (hook-proof shas in lut-report.json cw2), cache key gains :l<strength|0> suffix; LUT bytes embedded, no plumbing edits",
+    "wrapRenderProof": "CW2 in lut-report.json (origin/main-tree wrap-base render, byte-identical full frames)"
+  },
   "harm": "none measured: flag-off path byte-identical (CW1 witness off2); flag-on program is a distinct cache key so no material cross-talk; no transmission pass, no environment change, no GLB write; capture-tool edit only generalizes the local-file serving loop (existing /__spike/ mechanism, no new route)"
 }

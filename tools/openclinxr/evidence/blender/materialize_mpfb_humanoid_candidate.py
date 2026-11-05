@@ -3952,9 +3952,9 @@ SKIN_SHADE_CAVITY_SRC = (
 SKIN_SHADE_CAVITY_SHA256 = (
     "140345e1001dce61c798565871e8381f534618c1833c7cfca10b8e1e5f580edf"
 )
-# R=curvature G=cavity B=0, merged deterministically from the two store maps
-# with PIL (no metadata). Byte-exact PNG equality does NOT hold across
-# Pillow builds (encoder bytes differ; pixels identical), so the guard
+# R=curvature G=cavity B=body-mask, merged deterministically from the two store
+# maps plus the GLB-derived mask (no metadata). Byte-exact PNG equality does NOT
+# hold across Pillow builds (encoder bytes differ; pixels identical), so the guard
 # below verifies decoded pixel content, not the digest. The digest of the
 # produced bytes is printed for the provenance sidecar.
 # Historical scratch value (specular-report.json inputs.combinedRG):
@@ -3962,30 +3962,159 @@ SKIN_SHADE_CAVITY_SHA256 = (
 SKIN_SHADE_COMBINED_SHA256 = (
     "6aa0a0a859444f94545752cd1a0d13f0ce0cfbb11f8e4c41a764efcb29a96c2d"
 )
+# st-vitbody: re-pinned 0d7f18ff (was da9df88c from D4). st-vitpore r2
+# regenerated the tile (periodic method) + repacked + updated the station
+# manifest/provenance, but never updated this pin — the embedded bytes and
+# the manifest output agree on 0d7f18ff, so the pin follows them.
 SKIN_SHADE_DETAIL_NORMAL_SRC = str(
     REPO_ROOT
-    / ".openclinxr/openclaw/ceo/st-vitpore/tile/vitruvian_pore_tile.png"
+    / ".openclinxr/openclaw/ceo/st-vitbody2/tile/reference-face-tile.png"
 )
 SKIN_SHADE_DETAIL_NORMAL_SHA256 = (
-    "da9df88c6de0633e05ea521d754517c20ad0d3e15e786a95b733b9cda83bab70"
+    "0d7f18ff1c6d8129b1f919e9ee0832fcf15e2d7b2a77df803e67c449d99faa5d"
 )
 SKIN_SHADE_DETAIL_NORMAL_SCALE = (90, 90)
 # Midpoint carrier for the D5 sweep; the orchestrator grades 0.25/0.5/1.0.
 SKIN_SHADE_DETAIL_NORMAL_STRENGTH = 0.5
+# st-vitbody2 r8: reuse the shipped face tile for the body path.  Hex-canvas
+# FFT periods are 10.25 px (forearm) / 9.25 px (neck); the neck 0.35 mm lower
+# bound limits the shared scale to 128, yielding 0.388852 / 0.350915 mm.
+SKIN_SHADE_BODY_DETAIL_NORMAL_SRC = SKIN_SHADE_DETAIL_NORMAL_SRC
+SKIN_SHADE_BODY_DETAIL_NORMAL_SHA256 = SKIN_SHADE_DETAIL_NORMAL_SHA256
+SKIN_SHADE_BODY_DETAIL_NORMAL_SCALE = (128, 128)
+# r3 PICK per G7 table (largest of {0.25, 0.5, 1.0} passing studio AND runtime):
+# s025 runtime +0.053 / s050 runtime +0.051 miss the +0.05 bar by 0.003/0.001
+# (strength-independent wash-rig grain), s100 passes both (+0.003/+0.042).
+# Shipped body detail strength 1.0.
+SKIN_SHADE_BODY_DETAIL_NORMAL_STRENGTH = 1.0
+# B-mask: texels whose triangle is dominated by a non-head joint read 255
+# (body tile), head-dominated texels read 0 (face tile). Rasterized from the
+# GLB's own skin primitive at 1024^2, dilated 4 px across UV seams.
+SKIN_SHADE_BODY_MASK_DILATE_PX = 4
+
+
+# st-vitbody: joints whose dominated texels carry the BODY pore tile (B=255).
+# The exact S1 texel-density body groups (E/pre-fix/texel-density.json): neck,
+# chest/spine, arms, hands, thighs, shins. Every other joint — head, the MPFB
+# facial bones (levator/risorius/oris/...), jaw — defaults to the face tile
+# (B=0), which is the shipped face behavior. In particular the facial bones
+# dominate cheek/nasolabial tris and must NOT read as body.
+SKIN_SHADE_BODY_JOINTS = frozenset(
+    [
+        "neck01", "neck02", "neck03",
+        "spine01", "spine02", "spine03", "spine04", "spine05",
+        "breast.L", "breast.R",
+        "upperarm01.L", "upperarm02.L", "upperarm01.R", "upperarm02.R",
+        "shoulder01.L", "shoulder01.R", "clavicle.L", "clavicle.R",
+        "lowerarm01.L", "lowerarm02.L", "lowerarm01.R", "lowerarm02.R",
+        "wrist.L", "wrist.R",
+        "upperleg01.L", "upperleg02.L", "upperleg01.R", "upperleg02.R",
+        "pelvis.L", "pelvis.R",
+        "lowerleg01.L", "lowerleg02.L", "lowerleg01.R", "lowerleg02.R",
+        "foot.L", "foot.R",
+    ]
+)
+# Prefix-matched like the S1 probe (finger01-1.L style names vary).
+SKIN_SHADE_BODY_JOINT_PREFIXES = ("finger", "metacarpal")
+
+
+def _skin_shade_body_mask(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
+    """Rasterize the B body-mask from the GLB's own skin primitive.
+
+    Per triangle, the dominant joint (max weight-sum) decides: dominated by a
+    SKIN_SHADE_BODY_JOINTS joint (or a SKIN_SHADE_BODY_JOINT_PREFIXES prefix)
+    -> 255, everything else (head, facial bones, jaw) -> 0. Rasterized at
+    1024^2 in the curvature/cavity UV space (px = uv*1024, the S1 probe
+    convention), dilated SKIN_SHADE_BODY_MASK_DILATE_PX px across UV seams.
+    Deterministic: no blur, no antialiasing. Returns a PIL L image.
+    """
+    import numpy as _np
+
+    with open(path, "rb") as f:
+        _data = f.read()
+    if _data[:4] != b"glTF":
+        raise RuntimeError(f"SKINSHADE: not a GLB: {path}")
+    _jl = struct.unpack("<I", _data[12:16])[0]
+    _gltf = json.loads(_data[20:20 + _jl])
+    _blob = _data[20 + _jl + 8:]
+    _mesh = [m for m in _gltf.get("meshes", []) if m.get("name") == "mpfb_ob_patient_aisha_v1_body"]
+    if len(_mesh) != 1:
+        raise RuntimeError(f"SKINSHADE: want exactly 1 body mesh, found {len(_mesh)} in {path}")
+    _prim = _mesh[0]["primitives"][0]
+
+    def _read(_ai):
+        # Accessor-based stride-aware read (same convention as the S1 probe:
+        # prim attributes/indices are accessor indices; bufferViews may be
+        # interleaved with byteStride).
+        import struct as _struct
+
+        _acc = _gltf["accessors"][_ai]
+        _bv = _gltf["bufferViews"][_acc["bufferView"]]
+        _base = _bv.get("byteOffset", 0) + _acc.get("byteOffset", 0)
+        _n = _acc["count"]
+        _fmt = {5121: "B", 5123: "H", 5125: "I", 5126: "f"}[_acc["componentType"]]
+        _nc = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4}[_acc["type"]]
+        _stride = _bv.get("byteStride", 0)
+        if _stride == 0:
+            _vals = _struct.unpack_from("<" + str(_n * _nc) + _fmt, _blob, _base)
+            return _np.array(_vals).reshape(_n, _nc)
+        _out = _np.empty((_n, _nc))
+        for _i in range(_n):
+            _out[_i] = _struct.unpack_from("<" + str(_nc) + _fmt, _blob, _base + _i * _stride)
+        return _out
+
+    _uv = _read(_prim["attributes"]["TEXCOORD_0"])[:, :2]
+    _ji = _read(_prim["attributes"]["JOINTS_0"]).astype(int)
+    _w = _read(_prim["attributes"]["WEIGHTS_0"])
+    _idx = _read(_prim["indices"]).astype(int).reshape(-1, 3)
+    _jnames = [_gltf["nodes"][k].get("name", "?") for k in _gltf["skins"][0]["joints"]]
+    if "head" not in _jnames:
+        raise RuntimeError("SKINSHADE: no head joint in skin — refusing mask")
+    _body_ids = {_jnames.index(n) for n in SKIN_SHADE_BODY_JOINTS if n in _jnames}
+    _body_ids |= {
+        _i
+        for _i, _n in enumerate(_jnames)
+        if _n.startswith(SKIN_SHADE_BODY_JOINT_PREFIXES)
+    }
+    if not _body_ids:
+        raise RuntimeError("SKINSHADE: no body joints in skin — refusing mask")
+    _is_body = _np.array(
+        [(_d in _body_ids) for _d in range(len(_jnames))], dtype=bool
+    )
+    _tdom = _np.empty(len(_idx), dtype=int)
+    for _t in range(len(_idx)):
+        _acc = _np.bincount(_ji[_idx[_t]].ravel(), weights=_w[_idx[_t]].ravel(), minlength=len(_jnames))
+        _tdom[_t] = int(_np.argmax(_acc))
+    import cv2 as _cv2
+
+    _mask = _np.zeros((1024, 1024), dtype=_np.uint8)
+    _body = [(_uv[t] * 1024).astype(_np.int32) for t in _idx[_is_body[_tdom]]]
+    if _body:
+        _cv2.fillPoly(_mask, _body, 255)
+    _k = 2 * SKIN_SHADE_BODY_MASK_DILATE_PX + 1
+    _mask = _cv2.dilate(_mask, _np.ones((_k, _k), _np.uint8))
+    from PIL import Image as _PILImage2
+
+    return _PILImage2.fromarray(_mask, mode="L")
 
 
 def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
-    """Embed Aisha's curvature/cavity + tiled detail normal and declare the extension.
+    """Embed Aisha's curvature/cavity/body-mask + tiled detail normals and declare the extension.
 
-    Reads the two store maps (sha-pinned), merges R=curvature G=cavity B=0
-    deterministically, appends the PNG as a dedicated core image + texture,
-    and stamps the material extension with curvatureTexture plus a
-    detailNormalTexture using KHR_texture_transform scale 90. The extension goes
+    Reads the two store maps (sha-pinned) plus the GLB-derived B body-mask,
+    merges R=curvature G=cavity B=body-mask deterministically, appends the PNG
+    as a dedicated core image + texture, and stamps the material extension
+    with curvatureTexture plus a detailNormalTexture (face tile, scale 90)
+    and a bodyDetailNormalTexture that reuses the same texture index with an
+    independent hex-compensated scale 128. The extension goes
     in extensionsUsed, NEVER extensionsRequired, so a stock loader still
     loads the bytes (hook absent). Mechanical JSON re-serialization; geometry
     and BIN bytes are copied verbatim. Refuses when the skin material is
-    missing or already carries detail normal bytes. An existing curvature-only
-    carrier may be upgraded in place through this same producer stage.
+    missing. An already-packed GLB is upgraded in place through this same
+    producer stage: the previously appended skin-shade images (trailing
+    bufferViews, asserted contiguous at the blob end with matching bytes)
+    are stripped and the carrier is embedded fresh — the face bytes are
+    verified identical, never regenerated.
     """
     import hashlib as _hashlib
     from PIL import Image as _PILImage
@@ -3994,6 +4123,7 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
         (SKIN_SHADE_CURVATURE_SRC, SKIN_SHADE_CURVATURE_SHA256),
         (SKIN_SHADE_CAVITY_SRC, SKIN_SHADE_CAVITY_SHA256),
         (SKIN_SHADE_DETAIL_NORMAL_SRC, SKIN_SHADE_DETAIL_NORMAL_SHA256),
+        (SKIN_SHADE_BODY_DETAIL_NORMAL_SRC, SKIN_SHADE_BODY_DETAIL_NORMAL_SHA256),
     ):
         with open(src, "rb") as f:
             got = _hashlib.sha256(f.read()).hexdigest()
@@ -4010,7 +4140,7 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
     import io as _io
 
     buf = _io.BytesIO()
-    _PILImage.merge("RGB", (curv, cav, _PILImage.new("L", curv.size, 0))).save(buf, format="PNG")
+    _PILImage.merge("RGB", (curv, cav, _skin_shade_body_mask(path, material_name))).save(buf, format="PNG")
     png_bytes = buf.getvalue()
     with open(SKIN_SHADE_DETAIL_NORMAL_SRC, "rb") as f:
         detail_png_bytes = f.read()
@@ -4018,6 +4148,12 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
     if detail_image.size != (256, 256) or detail_image.mode not in ("RGB", "RGBA"):
         raise RuntimeError(
             f"SKINSHADE: detail normal is {detail_image.size} {detail_image.mode}, want 256x256 RGB/RGBA"
+        )
+    body_png_bytes = detail_png_bytes
+    body_image = _PILImage.open(_io.BytesIO(body_png_bytes))
+    if body_image.size != (256, 256) or body_image.mode not in ("RGB", "RGBA"):
+        raise RuntimeError(
+            f"SKINSHADE: body detail normal is {body_image.size} {body_image.mode}, want 256x256 RGB/RGBA"
         )
     # Content guard (not a digest pin): the merged bytes must decode back to
     # the exact source pixels — R == curvature, G == cavity. PNG encoder
@@ -4032,8 +4168,8 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
             raise RuntimeError(
                 f"SKINSHADE: merged PNG {_name} pixels differ from the store map — refusing"
             )
-    if _vb.getbbox() is not None:
-        raise RuntimeError("SKINSHADE: merged PNG B channel must be zero — refusing")
+    if _vb.getbbox() is None:
+        raise RuntimeError("SKINSHADE: merged PNG B channel is empty — refusing (mask failed)")
 
     with open(path, "rb") as f:
         data = bytearray(f.read())
@@ -4049,13 +4185,47 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
         )
     mat = targets[0]
     existing = (mat.get("extensions") or {}).get(SKIN_SHADE_EXTENSION_NAME)
-    if existing is not None and "detailNormalTexture" in existing:
-        raise RuntimeError(
-            f"SKINSHADE: {material_name} already carries detailNormalTexture — refusing double embed"
-        )
     blob = bytearray(data[json_end + 8:])
     while len(blob) % 4:
         blob.append(0)
+    if existing is not None and "detailNormalTexture" in existing:
+        # Upgrade in place: strip the previously appended skin-shade images
+        # and re-embed fresh. The skin-shade images/textures/bufferViews must
+        # be trailing (they were appended last); everything else keeps its
+        # indices, so only the skin material's extension is touched. The
+        # embedded face bytes must equal the pinned input (verified
+        # identical, never regenerated).
+        _strip_names = ("aisha-curv-cav-1024", "vitruvian-pore-detail-normal-256", "vitruvian-body-pore-detail-normal-256")
+        _n_img = len(gltf.get("images", []))
+        _n_tex = len(gltf.get("textures", []))
+        _n_bv = len(gltf.get("bufferViews", []))
+        _strip_imgs = [i for i, im in enumerate(gltf["images"]) if im.get("name") in _strip_names]
+        _n_strip_img = len(_strip_imgs)
+        if _n_strip_img == 0 or _strip_imgs != list(range(_n_img - _n_strip_img, _n_img)):
+            raise RuntimeError("SKINSHADE: skin-shade images are not the trailing images — refusing strip")
+        _strip_texs = [t for t, tx in enumerate(gltf.get("textures", [])) if tx.get("source") in _strip_imgs]
+        _n_strip_tex = len(_strip_texs)
+        if _strip_texs != list(range(_n_tex - _n_strip_tex, _n_tex)):
+            raise RuntimeError("SKINSHADE: skin-shade textures are not the trailing textures — refusing strip")
+        _strip_bvs = sorted({gltf["images"][i]["bufferView"] for i in _strip_imgs})
+        if _strip_bvs != list(range(_n_bv - _n_strip_img, _n_bv)):
+            raise RuntimeError("SKINSHADE: skin-shade bufferViews are not the trailing views — refusing strip")
+        for _i in _strip_imgs:
+            _bv = gltf["bufferViews"][gltf["images"][_i]["bufferView"]]
+            if _bv.get("buffer", 0) != 0:
+                raise RuntimeError("SKINSHADE: skin-shade bufferView outside buffer 0 — refusing strip")
+            _seg = bytes(blob[_bv.get("byteOffset", 0):_bv.get("byteOffset", 0) + _bv["byteLength"]])
+            if gltf["images"][_i].get("name") == "vitruvian-pore-detail-normal-256" and _hashlib.sha256(_seg).hexdigest() != _hashlib.sha256(detail_png_bytes).hexdigest():
+                raise RuntimeError("SKINSHADE: embedded face bytes differ from the pinned input — refusing strip")
+        # No surviving texture index moves (stripped textures were trailing),
+        # so only the skin material's extension is deleted; the rest of the
+        # JSON is untouched. The blob truncates to the first stripped view.
+        blob = blob[:gltf["bufferViews"][_strip_bvs[0]].get("byteOffset", 0)]
+        gltf["images"] = gltf["images"][:_n_img - _n_strip_img]
+        gltf["textures"] = gltf["textures"][:_n_tex - _n_strip_tex]
+        gltf["bufferViews"] = gltf["bufferViews"][:_n_bv - _n_strip_img]
+        mat.get("extensions", {}).pop(SKIN_SHADE_EXTENSION_NAME, None)
+        existing = None
     if existing is None:
         img_off = len(blob)
         blob.extend(png_bytes)
@@ -4089,8 +4259,9 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
         }
     )
     gltf.setdefault("textures", []).append({"source": len(gltf["images"]) - 1})
+    detail_texture_index = len(gltf["textures"]) - 1
     existing["detailNormalTexture"] = {
-        "index": len(gltf["textures"]) - 1,
+        "index": detail_texture_index,
         "extensions": {
             "KHR_texture_transform": {
                 "scale": list(SKIN_SHADE_DETAIL_NORMAL_SCALE)
@@ -4098,6 +4269,15 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
         },
     }
     existing["detailNormalStrength"] = SKIN_SHADE_DETAIL_NORMAL_STRENGTH
+    existing["bodyDetailNormalTexture"] = {
+        "index": detail_texture_index,
+        "extensions": {
+            "KHR_texture_transform": {
+                "scale": list(SKIN_SHADE_BODY_DETAIL_NORMAL_SCALE)
+            }
+        },
+    }
+    existing["bodyDetailNormalStrength"] = SKIN_SHADE_BODY_DETAIL_NORMAL_STRENGTH
     if SKIN_SHADE_EXTENSION_NAME not in gltf.get("extensionsUsed", []):
         gltf.setdefault("extensionsUsed", []).append(SKIN_SHADE_EXTENSION_NAME)
     if "KHR_texture_transform" not in gltf.get("extensionsUsed", []):
@@ -4117,8 +4297,10 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
         f.write(out)
     print(
         f"GLB_SKINSHADE {path} material {material_name} "
-        f"detailTexture {len(gltf['textures']) - 1} detail {_hashlib.sha256(detail_png_bytes).hexdigest()} "
-        f"scale {SKIN_SHADE_DETAIL_NORMAL_SCALE} strength {SKIN_SHADE_DETAIL_NORMAL_STRENGTH}"
+        f"detailTexture {detail_texture_index} detail {_hashlib.sha256(detail_png_bytes).hexdigest()} "
+        f"scale {SKIN_SHADE_DETAIL_NORMAL_SCALE} strength {SKIN_SHADE_DETAIL_NORMAL_STRENGTH} "
+        f"bodyTexture {detail_texture_index} body {_hashlib.sha256(body_png_bytes).hexdigest()} "
+        f"bodyScale {SKIN_SHADE_BODY_DETAIL_NORMAL_SCALE} bodyStrength {SKIN_SHADE_BODY_DETAIL_NORMAL_STRENGTH}"
     )
 
 

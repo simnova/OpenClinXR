@@ -5,11 +5,13 @@
  "wiring": {
   "eye-lid-contact.ts": "191d59db44701aca25328cbb69b89ff19ff21f52c614c97f6930b2c5964fd8e9",
   "isolated-subject-rig-variants.ts": "2a926b284186acf884674b33377a03a261ba24c1f8cf3e09d14d668e80de6359",
-  "isolated-subject-lab.ts": "b2561bb6246c9856f51a6c07e7e7b90135d8472e737518fdec83b77c982f2c0a",
+  "isolated-subject-lab.ts": "11d53fb3e009836b0d97af226320761767f204a4e34c4ae22a857c214ee12b45",
   "isolated-subject-product-rig.ts": "5aa3a67d23ef54387f3bdf572f3ca2d51778e850c71c29fce46e55c1cbb1568c",
   "iris-disc-roughness-map.ts": "0bb03961038add75af541cf35aac0d3e3ea7207d7bde41a64be58825e055ec9b"
  },
  "room05RepinNote": "room-0.5 re-pin 2026-10-21: module sha moved with the landed room-scale composition change (CATCHLIGHT_ROOM_SCALE=0.5 halves the RoomEnvironment emitters before the PMREM bake; quad untouched). Historical cells were captured under room1.0 and stand as composition records; the current gate is catchlight-room05-report.json. Reason recorded here per re-pin policy.",
+ "repinLabCloseUpR4": "st-vitbody r4 re-pin 2026-11-05: isolated-subject-lab.ts wiring sha moved b2561bb6->48a30897 with the additive forearm/neck focus kinds (new resolveFocus branches + widened focus union + parseSpec values; eyes/head/mouth branches byte-identical in behaviour, type-only widening erased at compile). This card's subject spec uses focus=head, so every fresnel render stands without re-capture; no behaviour change on the rendered path. Reason recorded here per re-pin policy.",
+ "repinLabSplitR4": "st-vitbody r4 size-budget split 2026-11-05: lab wiring sha 48a30897->11d53fb3 (parseSpec to isolated-subject-spec-params.ts, 584->536 lines; focus derivations to isolated-subject-body-focus.ts). Verified through the bracket-reversal branch (ground.userData bracket line untouched). focus=head renders stand; no behaviour change. Reason recorded here per re-pin policy.",
  "landed": {
   "ior": 1.376,
   "f0": 0.0250428,

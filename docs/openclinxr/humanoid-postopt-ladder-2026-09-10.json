@@ -138,7 +138,7 @@
   {
    "body": "mpfb-ob-patient-aisha.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 10213572,
+   "bytesAfter": 10219564,
    "bytesBefore": 17002120,
    "chosenRungId": "fp-r0.4",
    "faceAfter": 52778,
@@ -155,7 +155,7 @@
    "promotionNote": "2026-09-12 fp-r0.4 restore after female covering lower. Fit-time jeans 4216 (2108 x 2). Shipped jeans 1986. budgets.propShare 40000 unchanged.",
    "triangleCountAfter": 73392,
    "triangleCountBefore": 92430,
-   "remeasureNote": "Re-measured 2026-11-04 (st-vitpore r2): the post-export skin-shade carrier adds a 191439 B Vitruvian-derived periodic detail normal through OPENCLINXR_skin_shade with KHR_texture_transform scale 90; geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, 10021840 -> 10213572 B. Prior st-viteye r3 re-measure: 931343e6b swapped the Vitruvian iris/sclera image, 9914108 -> 10021840 B. Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage (post-export byte stage, not a rebake; one RG image + OPENCLINXR_skin_shade material extension appended, geometry/BIN verbatim; tris 73392 / face 52778 / joints 137 hold, 9700420 -> 9914108 B). Prior re-measure (st-redgarm D1, 1225b8f95) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-05 (st-vitbody2 r8): face and body detail TextureInfo values share one 191439 B Vitruvian face tile texture; face scale 90 and stochastic-hex body scale 128 remain independent, removing the rejected Torso payload while geometry counts hold (tris 73392 / face 52778 / joints 137). Prior st-vitbody2 r7: the carrier embedded a separate 138314 B Torso crop at scale 118; rejected by native 1:1 anisotropy review and removed. Prior st-vitpore r2: the carrier added a 191439 B Vitruvian-derived periodic face detail normal through OPENCLINXR_skin_shade with KHR_texture_transform scale 90; geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, 10021840 -> 10213572 B. Prior st-viteye r3 re-measure: 931343e6b swapped the Vitruvian iris/sclera image, 9914108 -> 10021840 B. Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage (post-export byte stage, not a rebake; one RG image + OPENCLINXR_skin_shade material extension appended, geometry/BIN verbatim; tris 73392 / face 52778 / joints 137 hold, 9700420 -> 9914108 B). Prior re-measure (st-redgarm D1, 1225b8f95) preserved in git history."
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
