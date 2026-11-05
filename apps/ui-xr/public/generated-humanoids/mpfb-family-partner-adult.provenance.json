@@ -69,8 +69,8 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-12T16:29:00Z",
- "outputSha256": "67540225eb54e4bf8eea4586514e87ad54f8725a0f495d8c3bcb59ee7d9cc8e3",
- "outputBytes": 9196228,
+ "outputSha256": "61a2fcbf03b0c9ee510d87c545ad196ed79b794d8f1129c93a91e3743630049c",
+ "outputBytes": 9649116,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:06:17.490Z",
@@ -781,13 +781,208 @@
    }
   ]
  },
+ "actorBrowTransplantPostExport": {
+  "stage": "actor_brow_transplant_post_export_v1",
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/transplant_fitted_brow.py",
+  "inputGlbSha256": "b4195761f4389c34c0182d7a8bb99f07ded3d4dd31e69b82a4133c84caf83b95",
+  "bakeGlbSha256": "893cc844d68b7a9f700b65422aa995834785dd3da2195639d7364dec6747b226",
+  "outputGlbSha256": "35c88192412205c02cb29daf254c53fff69692fcbe0c00ef99e13e51c7517644",
+  "outputBytes": 9632508,
+  "style": "mindfront_eyebrows_07",
+  "budget": 9400,
+  "cells": 353,
+  "ink": 0.17451338,
+  "causeCommit": "0f1d0b9c6",
+  "contract": {
+   "sourceBrowMesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_10_mpfb_ed_chest_pain_spouse_adult_mesh",
+   "bakeBrowMesh": "openclinxr_fitted_eyebrow_mindfront_eyebrows_07_mpfb_ed_chest_pain_spouse_adult_mesh",
+   "carriedMorphTargets": [
+    "eyebrows-left-down",
+    "eyebrows-left-extern-up",
+    "eyebrows-left-inner-up",
+    "eyebrows-left-up",
+    "eyebrows-right-down",
+    "eyebrows-right-extern-up",
+    "eyebrows-right-inner-up",
+    "eyebrows-right-up"
+   ],
+   "droppedMorphTargets": [],
+   "missingBodyTargetNames": [],
+   "nonBrowBufferViews": [
+    {
+     "oldIndex": 0,
+     "newIndex": 0,
+     "bytes": 1589579,
+     "sha256": "a556d0e1329f2974c4bf6cd0875515d96ca189fa7805b829daf7af4ce9744ace"
+    },
+    {
+     "oldIndex": 1,
+     "newIndex": 1,
+     "bytes": 1418657,
+     "sha256": "fa20149c846d9cb9d4837363f82dac87892efed7a152bbf966566f623062da4b"
+    },
+    {
+     "oldIndex": 2,
+     "newIndex": 2,
+     "bytes": 396924,
+     "sha256": "c813701d61cd14f94b0f7c5793c15ceb89870f00e3dda8d695e02e5b5de21519"
+    },
+    {
+     "oldIndex": 3,
+     "newIndex": 3,
+     "bytes": 530981,
+     "sha256": "1d0a9eff92e08a8b2ec26f9bdb264bbb24c84121eae94979b732d2dcb69c065a"
+    },
+    {
+     "oldIndex": 4,
+     "newIndex": 4,
+     "bytes": 714921,
+     "sha256": "6435efc253824fb09a8ec0ad11ee7136a40f0596c8b3050e61117a533acdcbce"
+    },
+    {
+     "oldIndex": 5,
+     "newIndex": 5,
+     "bytes": 8768,
+     "sha256": "a8ebbc3252410fc12b3de6da14e2bc16c9d490189d2c51f93b78c456dbb57aee"
+    },
+    {
+     "oldIndex": 6,
+     "newIndex": 6,
+     "bytes": 86708,
+     "sha256": "030c8abcddd558f5477a195fc789b475ee7691ffc17eb27c5a64624c0c9f80b2"
+    },
+    {
+     "oldIndex": 7,
+     "newIndex": 7,
+     "bytes": 239852,
+     "sha256": "443068b1290769d313940c3a0dbf8d63a08fcc100d26f41a36159c3030e08bd8"
+    },
+    {
+     "oldIndex": 8,
+     "newIndex": 8,
+     "bytes": 593632,
+     "sha256": "798802a06834991637d4076555e9b59dcd67fc20745ef19faaf6e1cfb0e2762d"
+    },
+    {
+     "oldIndex": 9,
+     "newIndex": 9,
+     "bytes": 104416,
+     "sha256": "0b3d3e26413db410c8a46e7d8562f3231f92a232c4b769b177375df8f059507e"
+    },
+    {
+     "oldIndex": 10,
+     "newIndex": 10,
+     "bytes": 62296,
+     "sha256": "063eee8bbcd6ddff3219820fc4d47a41d799adf09a618f3ed14c9db6a86541a3"
+    },
+    {
+     "oldIndex": 11,
+     "newIndex": 11,
+     "bytes": 280800,
+     "sha256": "dd823336907a4fa3cea47934b0fb7eed6ed0be5262d4e80cbc24904770e94fc5"
+    },
+    {
+     "oldIndex": 12,
+     "newIndex": 12,
+     "bytes": 245180,
+     "sha256": "a8410d75891cd396f9b43cc2e119a527052331605fa6be7c863868842a1ed72f"
+    },
+    {
+     "oldIndex": 13,
+     "newIndex": 13,
+     "bytes": 207800,
+     "sha256": "a21c18c3b322793296cd83703290f1d91c05da0b47a00ca0fbf7f84346497bb1"
+    },
+    {
+     "oldIndex": 14,
+     "newIndex": 14,
+     "bytes": 1242852,
+     "sha256": "b6266ba2aa018d98455d3929860f2affa8fcd23b2e0fd1e68027e5701949059b"
+    },
+    {
+     "oldIndex": 15,
+     "newIndex": 15,
+     "bytes": 62556,
+     "sha256": "3108dcf7ec628a73cd3de0b443690ab932247ff74821ca751178b13518b7d9c6"
+    },
+    {
+     "oldIndex": 16,
+     "newIndex": 16,
+     "bytes": 58032,
+     "sha256": "bd5604f24cf7e488a456c4d2bdac98ae1fdc9ef2e6fe4fa06d61324380939850"
+    },
+    {
+     "oldIndex": 17,
+     "newIndex": 17,
+     "bytes": 70200,
+     "sha256": "2cb8c67fd86623b44799cc2d8017debb526a4e4764af0617a1859cc06ea358ea"
+    },
+    {
+     "oldIndex": 18,
+     "newIndex": 18,
+     "bytes": 2288,
+     "sha256": "a8c89ea0d33bf78229d5a24325f4227f028d2d996716c343b79301466aed672f"
+    },
+    {
+     "oldIndex": 19,
+     "newIndex": 19,
+     "bytes": 9880,
+     "sha256": "888001575095968e9763ae43486ed207a30a0b1646eb896af80facaf5328010c"
+    },
+    {
+     "oldIndex": 20,
+     "newIndex": 20,
+     "bytes": 2496,
+     "sha256": "ca06c6e2e0456e7c8d89f56a95f379f114193835885fc540e7e8b883e221ec00"
+    },
+    {
+     "oldIndex": 21,
+     "newIndex": 21,
+     "bytes": 10556,
+     "sha256": "7a44fcaa822655d33cf244bdb92e5e3df3956220a20403f6b73807712e7d1c2e"
+    },
+    {
+     "oldIndex": 22,
+     "newIndex": 22,
+     "bytes": 4992,
+     "sha256": "6a72a83465f4a7a7f7925cdef65a125ba900d3ae0532c575d2a79a187f347f20"
+    },
+    {
+     "oldIndex": 24,
+     "newIndex": 23,
+     "bytes": 217256,
+     "sha256": "76b8a17c7c751f3184963156bc01f81de8c939f8b5dc0750ec61818813a63cdb"
+    },
+    {
+     "oldIndex": 25,
+     "newIndex": 24,
+     "bytes": 7072,
+     "sha256": "21672eb0cc4c5461bafabe5601828012af0a2900859935ce450a62c7c537fcb0"
+    },
+    {
+     "oldIndex": 26,
+     "newIndex": 25,
+     "bytes": 12688,
+     "sha256": "d8173816bbdd572685992e73ce036aa9db7f9439c7234ebe2cc65740ad33f590"
+    }
+   ],
+   "nonBrowBufferViewsIdentical": 26,
+   "droppedBrowOnlyBufferViews": [
+    23
+   ],
+   "jointRemap": {
+    "sourceJoints": 137,
+    "targetJoints": 137
+   }
+  }
+ },
  "stages": [
   {
    "stage": "subject_derived_roughness_breakup_v3",
    "tool": "tools/openclinxr/asset-pipeline/skin/roughness-breakup/apply_roughness_breakup.py",
-   "inputSha256": "b4195761f4389c34c0182d7a8bb99f07ded3d4dd31e69b82a4133c84caf83b95",
-   "outputSha256": "67540225eb54e4bf8eea4586514e87ad54f8725a0f495d8c3bcb59ee7d9cc8e3",
-   "outputBytes": 9196228,
+   "inputSha256": "35c88192412205c02cb29daf254c53fff69692fcbe0c00ef99e13e51c7517644",
+   "outputSha256": "61a2fcbf03b0c9ee510d87c545ad196ed79b794d8f1129c93a91e3743630049c",
+   "outputBytes": 9649116,
    "mapSha256": "b52c7cc9b2f154469c228101d62541c2916ff6fd7a2b35b208aaf76d4722b256",
    "deriveInputs": {
     "tools/openclinxr/asset-pipeline/skin/roughness-breakup/derive-inputs/ao.png": "3c407dcaded4eb3b0820f202c40bb80e11043e975ba6accab5150a7439f916f1",

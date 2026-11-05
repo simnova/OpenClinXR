@@ -281,14 +281,18 @@ HAIR_STYLE_SEARCH_ROOTS = (
 
 # #542 — eyebrows mirror the fitted-hair rail (D1). Pack is CC0 on every .mhclo header
 # (Mindfront); no uuid override. Named dirs only — never glob. A single default is
-# acceptable (order = all 11); co-present pairs get distinct styles where two stand together.
-EYEBROW_STYLE_BY_REFERENCE = {
-    None: "mindfront_eyebrows_05",
-    "peds_nurse_kevin": "mindfront_eyebrows_08",
-    "peds_patient_child": "mindfront_eyebrows_03",
-    "ed_chest_pain_nurse_adult": "mindfront_eyebrows_06",
-    "ed_chest_pain_spouse_adult": "mindfront_eyebrows_10",
-    "adult_male_street_casual": "mindfront_eyebrows_08",
+# acceptable (order = all 11); co-present actors get distinct styles where two
+# stand together. The spouse must not use style 05 (Robert) or style 06 (nurse).
+# st-vitbrowdense grade selected spouse style 07 at 9,400 tris: denser visible
+# coverage without the blocky render caused by 0f1d0b9c6's source-style brow.
+DEFAULT_EYEBROW_BUDGET_TRIS = 9000
+EYEBROW_STYLE_AND_BUDGET_BY_REFERENCE = {
+    None: ("mindfront_eyebrows_05", DEFAULT_EYEBROW_BUDGET_TRIS),
+    "peds_nurse_kevin": ("mindfront_eyebrows_08", DEFAULT_EYEBROW_BUDGET_TRIS),
+    "peds_patient_child": ("mindfront_eyebrows_03", DEFAULT_EYEBROW_BUDGET_TRIS),
+    "ed_chest_pain_nurse_adult": ("mindfront_eyebrows_06", DEFAULT_EYEBROW_BUDGET_TRIS),
+    "ed_chest_pain_spouse_adult": ("mindfront_eyebrows_07", 9400),
+    "adult_male_street_casual": ("mindfront_eyebrows_08", DEFAULT_EYEBROW_BUDGET_TRIS),
 }
 EYEBROW_STYLE_SEARCH_ROOTS = (
     pathlib.Path(
@@ -2471,10 +2475,11 @@ def parse_args():
     parser.add_argument(
         "--eyebrow-tris-budget",
         type=int,
-        default=9000,
+        default=None,
         help=(
             "Triangle budget for the #597 coverage-greedy eyebrow strand "
-            "reduction. Default 9000 keeps every other humanoid byte-stable; "
+            "reduction. By default the actor-keyed selection table supplies "
+            "the budget (9000 for unnamed actors); "
             "pass a budget at or above the full fitted count (e.g. 40000 over "
             "the 35,334-tri mindfront_eyebrows_05) to keep every strand and "
             "restore shipped-density brows for one regeneration."
@@ -7206,8 +7211,13 @@ def main():
     # basemesh refs. The fitted mesh is a SEPARATE object, so the strip does not
     # touch it. Eyelashes are NOT fitted from eyelashes01 here — they are retained
     # from hm08 helper groups just below (do not do both).
-    _eyebrow_style = EYEBROW_STYLE_BY_REFERENCE.get(
-        args.reference, EYEBROW_STYLE_BY_REFERENCE[None]
+    _eyebrow_style, _actor_eyebrow_budget = EYEBROW_STYLE_AND_BUDGET_BY_REFERENCE.get(
+        args.reference, EYEBROW_STYLE_AND_BUDGET_BY_REFERENCE[None]
+    )
+    _eyebrow_budget = (
+        args.eyebrow_tris_budget
+        if args.eyebrow_tris_budget is not None
+        else _actor_eyebrow_budget
     )
     _eyebrow_fitted = None
     # CARD tsk_27220fbaeb48dab4: per-case brow form. 'texture' skips the
@@ -7293,7 +7303,7 @@ def main():
         # aisha brow (21,468 verts / 35,334 tris) predates #597, so a budget at
         # or above the full count keeps every strand (measured 2026-10-12).
         _brow, _brow_reduction_evidence = reduce_eyebrow_mesh(
-            _brow, eyes_asset, budget_tris=args.eyebrow_tris_budget
+            _brow, eyes_asset, budget_tris=_eyebrow_budget
         )
         print(f"EYEBROW_REDUCTION {json.dumps(_brow_reduction_evidence)}")
 

@@ -191,10 +191,10 @@ describe("the spouse skin has subject-derived roughness", () => {
     expect(report.counterweights.preExistingBufferViewsUnchanged).toBe(true);
     expect(report.counterweights.inputJsonReconstructs).toBe(true);
     expect(report.counterweights.parsedJsonDiff).toEqual([
-      "bufferViews[27] appended",
+      "bufferViews[64] appended",
       "images[5] appended",
       "textures[5] appended with sampler 0",
-      "buffers[0].byteLength 8765784 -> 8774859",
+      "buffers[0].byteLength 9210520 -> 9219595",
       "materials[4].pbrMetallicRoughness.metallicRoughnessTexture added",
       "materials[4].pbrMetallicRoughness.roughnessFactor 0.7799999713897705 -> 1.0",
       "asset.extras.openClinXrSubjectRoughnessBreakup added",

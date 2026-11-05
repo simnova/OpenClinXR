@@ -58,19 +58,20 @@ import bpy
 from mathutils import Vector
 from typing import Dict, List, Set, Tuple, Optional
 
+from eyebrow_band_coverage import (
+    GRID_X,
+    GRID_Y,
+    cells_covered_by_triangles,
+    eye_anchored_band,
+    projected_ink_area,
+)
+
 
 # Factory brow budget (measured 2026-09-18): greedy spends the whole 3,600
 # for 247/2304 band cells on mindfront_eyebrows_06 — the 10% ink floor, a
 # dusting. 9,000 (greedy + phase-2 fill) is still 3.5x below the 31,968-tri
 # full brow and far below the 21k-speckle FAILED treatment.
 DEFAULT_EYEBROW_BUDGET_TRIS = 9000
-
-# Eye-anchored band grid (matching v2 TS exactly)
-GRID_X = 96
-GRID_Y = 24
-PAD_X = 0.5
-Y_BELOW = 0.3
-Y_ABOVE = 0.5
 
 # Position quantization for union-find (matching TS 5dp)
 POS_QUANTIZE_DP = 5
@@ -99,20 +100,11 @@ def _compute_eye_anchored_band(eyes_obj: bpy.types.Object) -> Tuple[float, float
     # Since both are identity-transformed (local == world), we can use world coords directly
     eye_coords = [(eyes_obj.matrix_world @ v.co) for v in eyes_obj.data.vertices]
     
-    x0 = min(c.x for c in eye_coords)
-    x1 = max(c.x for c in eye_coords)
-    z0 = min(c.z for c in eye_coords)
-    z1 = max(c.z for c in eye_coords)
-    
-    w = x1 - x0
-    h = z1 - z0
-    
-    band_x0 = x0 - PAD_X * w
-    band_x1 = x1 + PAD_X * w
-    band_z0 = z1 - Y_BELOW * h  # TS uses y1 (max) as reference; in Blender that's z1
-    band_z1 = z1 + Y_ABOVE * h
-    
-    return (band_x0, band_x1, band_z0, band_z1)
+    return eye_anchored_band(
+        [(c.x, c.y, c.z) for c in eye_coords],
+        horizontal_axis=0,
+        vertical_axis=2,
+    )
 
 
 def _build_components_by_adjacency(bm: bmesh.types.BMesh) -> List[Set[int]]:
@@ -229,52 +221,16 @@ def _cells_covered_by_triangles(
     Compute which grid cells are covered by a set of triangles.
     Uses X (horizontal) and Z (vertical) coordinates matching Blender's Z-up space
     which becomes glTF's Y-up after export_yup=True.
-    Returns bytearray of length GRID_X * GRID_Y (1 = covered).
+    Returns a uint8 array of length GRID_X * GRID_Y (1 = covered).
     """
-    x0, x1, z0, z1 = band
-    cw = (x1 - x0) / GRID_X
-    ch = (z1 - z0) / GRID_Y
-    
-    hit = bytearray(GRID_X * GRID_Y)
-    
-    for tri in tri_indices:
-        v0 = bm.verts[tri[0]].co
-        v1 = bm.verts[tri[1]].co
-        v2 = bm.verts[tri[2]].co
-        
-        ax, az = v0.x, v0.z
-        bx, bz = v1.x, v1.z
-        cx, cz = v2.x, v2.z
-        
-        # Triangle area (2D cross product in XZ plane)
-        d = (bx - ax) * (cz - az) - (cx - ax) * (bz - az)
-        if abs(d) < 1e-12:
-            continue
-        
-        # Bounding box of triangle in grid coordinates
-        gx0 = max(0, int((min(ax, bx, cx) - x0) / cw))
-        gx1 = min(GRID_X - 1, int((max(ax, bx, cx) - x0) / cw) + 1)
-        gz0 = max(0, int((min(az, bz, cz) - z0) / ch))
-        gz1 = min(GRID_Y - 1, int((max(az, bz, cz) - z0) / ch) + 1)
-        
-        for gz in range(gz0, gz1 + 1):
-            for gx in range(gx0, gx1 + 1):
-                idx = gz * GRID_X + gx
-                if hit[idx]:
-                    continue
-                # Cell center
-                px = x0 + (gx + 0.5) * cw
-                pz = z0 + (gz + 0.5) * ch
-                
-                # Barycentric coordinates
-                w0 = ((bx - px) * (cz - pz) - (cx - px) * (bz - pz)) / d
-                w1 = ((cx - px) * (az - pz) - (ax - px) * (cz - pz)) / d
-                w2 = 1.0 - w0 - w1
-                
-                if w0 >= -1e-6 and w1 >= -1e-6 and w2 >= -1e-6:
-                    hit[idx] = 1
-    
-    return hit
+    vertices = [(v.co.x, v.co.y, v.co.z) for v in bm.verts]
+    return cells_covered_by_triangles(
+        vertices,
+        tri_indices,
+        band,
+        horizontal_axis=0,
+        vertical_axis=2,
+    )
 
 
 def _projected_ink_of_component(
@@ -286,15 +242,13 @@ def _projected_ink_of_component(
     band grid lives in). Sum of |2D cross product| / 2 over its triangles —
     the same projected-area measure ladder-rebake.ts uses for inkPerEye.
     """
-    ink = 0.0
-    for tri in tri_indices:
-        v0 = bm.verts[tri[0]].co
-        v1 = bm.verts[tri[1]].co
-        v2 = bm.verts[tri[2]].co
-        ink += abs(
-            (v1.x - v0.x) * (v2.z - v0.z) - (v2.x - v0.x) * (v1.z - v0.z)
-        ) / 2.0
-    return ink
+    vertices = [(v.co.x, v.co.y, v.co.z) for v in bm.verts]
+    return projected_ink_area(
+        vertices,
+        tri_indices,
+        horizontal_axis=0,
+        vertical_axis=2,
+    )
 
 
 def reduce_eyebrow_mesh(

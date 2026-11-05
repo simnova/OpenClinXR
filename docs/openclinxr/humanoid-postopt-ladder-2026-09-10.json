@@ -47,11 +47,11 @@
   {
    "body": "mpfb-family-partner-adult.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 9196228,
+   "bytesAfter": 9649116,
    "bytesBefore": 10409540,
    "chosenRungId": "raw",
-   "faceAfter": 14945,
-   "faceBefore": 14945,
+   "faceAfter": 13429,
+   "faceBefore": 13429,
    "faceRetentionRatio": 1,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "featureSurvival": "raw (no featureSurvival field on the un-decimated entry; not collapsed)",
@@ -62,7 +62,7 @@
    "jointCountExpected": 137,
    "promoted": true,
    "promotionNote": "2026-09-12 family-partner library lower: rematerialize with elvs_jeans_bootcut (5708 tris = 2854 faces x 2) via ClothesService; lash LOD 0.12/0.005 then body 0.48 and brow 0.31 simplifyPrimitive (jeans/shirt/shoes locked); chest-anchor 0.085 m. triangleCountAfter 39974 <= budgets.propShare 40000. budgets unchanged. Row re-derived 2026-09-14 from the recorded HB-02 bake station (see rederivedFrom); face counts re-measured with the station instrument.",
-   "triangleCountAfter": 39974,
+   "triangleCountAfter": 38458,
    "triangleCountBefore": 39974,
    "supersededRecord": {
     "triangleCountBefore": 33730,
@@ -78,7 +78,7 @@
     "bake-humanoid-albedo.ts bakeGlbAlbedo"
    ],
    "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
-   "remeasureNote": "Re-measured 2026-11-05 (st-vitrough r4): post-export roughness breakup stage writes a subject-derived skin metallicRoughness texture, geometry counts hold (asserted by main()), 9182096 -> 9196228 B. Prior st-vitbrow r4: post-export hair colour stage sets scalp+brow baseColorFactor to the authored black token, JSON chunk only, BIN verbatim, 9182184 -> 9182096 B. Prior st-vitdark r9: dark-tail soft floor in the skin BaseColor remap only, 9178752 -> 9182184 B. Prior r3 render-defect correction 9178416 -> 9178752 B; r2 remap 9330184 -> 9178416 B. Prior st-viteye r3 re-measure: commit 931343e6b swapped the Vitruvian iris/sclera image, 9277296 -> 9330184 B. Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-05 (st-vitbrowdense r5b): fitted brow transplant replaces style 10 with the graded style 07 at 9,396 tris, then hair colour is a no-op and the subject-derived roughness breakup is replayed; body 13357 / face 13429 / total 38458 / joints 137 hold after the deliberate brow-only geometry change, 9182096 -> 9649116 B. Prior st-vitrough r4: post-export roughness breakup stage writes a subject-derived skin metallicRoughness texture, 9182096 -> 9196228 B. Prior st-vitbrow r4: post-export hair colour stage sets scalp+brow baseColorFactor to the authored black token, JSON chunk only, BIN verbatim, 9182184 -> 9182096 B. Prior st-vitdark r9: dark-tail soft floor in the skin BaseColor remap only, 9178752 -> 9182184 B. Prior r3 render-defect correction 9178416 -> 9178752 B; r2 remap 9330184 -> 9178416 B. Prior st-viteye r3 re-measure: commit 931343e6b swapped the Vitruvian iris/sclera image, 9277296 -> 9330184 B. Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."
   },
   {
    "body": "mpfb-gown-adult-patient.glb",

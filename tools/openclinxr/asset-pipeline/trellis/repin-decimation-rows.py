@@ -105,12 +105,15 @@ PLAN = {
                  "Prior re-measure (st-palette 3969ae031 sRGB palette fold) preserved in "
                  "git history."),
     },
-    # --- HB-03 rows (bytes only; tris/face/hand/joints asserted unchanged) ---
+    # --- HB-03 rows (partner includes the deliberate r5b brow-only geometry change) ---
     "mpfb-family-partner-adult.glb": {
-        "bytesAfter": 9196228,
-        "triangleCountAfter": 39974,
+        "bytesAfter": 9649116,
+        "triangleCountAfter": 38458,
+        "faceBefore": 13429,
+        "faceAfter": 13429,
         "handBodyMeshAfter": 13357,
-        "note": ("Re-measured 2026-11-05 (st-vitrough r4): post-export roughness breakup stage writes a subject-derived skin metallicRoughness texture, geometry counts hold (asserted by main()), 9182096 -> 9196228 B. "
+        "note": ("Re-measured 2026-11-05 (st-vitbrowdense r5b): fitted brow transplant replaces style 10 with the graded style 07 at 9,396 tris, then hair colour is a no-op and the subject-derived roughness breakup is replayed; body 13357 / face 13429 / total 38458 / joints 137 hold after the deliberate brow-only geometry change, 9182096 -> 9649116 B. "
+                 "Prior st-vitrough r4: post-export roughness breakup stage writes a subject-derived skin metallicRoughness texture, 9182096 -> 9196228 B. "
                  "Prior st-vitbrow r4: post-export hair colour stage sets scalp+brow baseColorFactor to the authored black token, JSON chunk only, BIN verbatim, 9182184 -> 9182096 B. "
                  "Prior st-vitdark r9: dark-tail soft floor in the skin BaseColor remap only, 9178752 -> 9182184 B. "
                  "Prior r3 render-defect correction 9178416 -> 9178752 B; r2 remap 9330184 -> 9178416 B. "

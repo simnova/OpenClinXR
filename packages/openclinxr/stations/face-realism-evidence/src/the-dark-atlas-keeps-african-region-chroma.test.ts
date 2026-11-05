@@ -54,13 +54,27 @@ describe("the shipped dark atlas keeps the African map's regional chroma", () =>
     const shipped = sha256(GLB_PATH);
     const provenance = JSON.parse(readFileSync(GLB_PATH.replace(/\.glb$/, ".provenance.json"), "utf8")) as {
       actorHairColourPostExport?: { stage: string; inputGlbSha256: string; outputGlbSha256: string; outputBytes: number };
+      actorBrowTransplantPostExport?: { stage: string; inputGlbSha256: string; outputGlbSha256: string; outputBytes: number };
       stages?: { stage: string; inputSha256: string; outputSha256: string; outputBytes: number }[];
     };
     const hair = provenance.actorHairColourPostExport;
-    // Later post-export stages (st-vitrough r4 roughness breakup) chain from the hair output.
-    let chainEnd = hair?.outputGlbSha256;
-    let chainBytes = hair?.outputBytes;
-    for (const later of provenance.stages ?? []) {
+    const transplant = provenance.actorBrowTransplantPostExport;
+    const laterStages = provenance.stages ?? [];
+    expect([
+      transplant?.stage,
+      hair?.stage,
+      ...laterStages.map((row) => row.stage),
+    ]).toEqual([
+      "actor_brow_transplant_post_export_v1",
+      "actor_hair_colour_post_export_v1",
+      "subject_derived_roughness_breakup_v3",
+    ]);
+    // Hair is a byte no-op after transplant, so its earlier provenance row stays
+    // intact; the adjacent hashes prove hair -> transplant -> roughness lineage.
+    expect(transplant?.inputGlbSha256).toBe(hair?.outputGlbSha256);
+    let chainEnd = transplant?.outputGlbSha256;
+    let chainBytes = transplant?.outputBytes;
+    for (const later of laterStages) {
       expect(later.inputSha256).toBe(chainEnd);
       chainEnd = later.outputSha256;
       chainBytes = later.outputBytes;
