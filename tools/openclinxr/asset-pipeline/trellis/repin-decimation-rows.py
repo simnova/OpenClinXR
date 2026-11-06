@@ -166,9 +166,14 @@ PLAN = {
     # (replace-garment-primitive.ts restores pre-HB-05 full-res prims + proven 60-deg
     # post-export smooth).
     "mpfb-ob-patient-aisha.glb": {
-        "bytesAfter": 19144852,
+        "bytesAfter": 19149460,
         "triangleCountAfter": 73392,
-        "note": ("Re-measured 2026-11-06 (st-vitfamily r1 R3 fixed3): albedo-embed stage (post-export byte "
+        "note": ("Re-measured 2026-11-06 (st-vitfamily r1 R4 fixed8): albedo-embed stage (post-export byte "
+                 "stage, not a rebake; embed_skin_albedo rewrites only the skin material baseColor "
+                 "image bytes to the 4096 D4a-exemplar-inpainted + D4b-temple-filled stage3-colour-fixed8.png "
+                 "(sha 93c008378935fcc7); geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, "
+                 "19144852 -> 19149460 B; supersedes the R3 19144852 B embed). "
+                 "Prior st-vitfamily r1 R3 fixed3: albedo-embed stage (post-export byte "
                  "stage, not a rebake; embed_skin_albedo rewrites only the skin material baseColor "
                  "image bytes to the 4096 D4a-exemplar-inpainted + D4b-temple-filled stage3-colour-fixed3.png "
                  "(sha e944e07fc8051c72); geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, "

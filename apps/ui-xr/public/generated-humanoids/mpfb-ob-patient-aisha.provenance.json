@@ -1,387 +1,448 @@
 {
-  "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
-  "derivationMode": "mpfb2_promoted_default_cast",
-  "scenarioId": "ob_headache_preeclampsia_triage_v1",
+ "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+ "derivationMode": "mpfb2_promoted_default_cast",
+ "scenarioId": "ob_headache_preeclampsia_triage_v1",
+ "actorId": "patient_aisha_khan_v1",
+ "actorRole": "patient",
+ "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+ "sourceManifestPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
+ "generatorMode": "mpfb2_makehuman_basemesh_materialized_locally_in_blender_v1",
+ "sourceKind": "mpfb2_makehuman_basemesh",
+ "usesRealAnnyForwardPass": false,
+ "realAnnyWeightsUsed": false,
+ "textureMode": "authored_or_baked",
+ "animationMode": "procedural_clinical_idle_conversation_posture_fallback_plus_grafted_retargeted_clip",
+ "optimizationMode": "face_preserving_selective_decimated_fp_rung_2026_09_11",
+ "realismGrade": "not_graded",
+ "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
+ "sourceOriginChain": {
+  "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
+  "materializedFrom": "candidates/mpfb-ob-patient-aisha-rigged-candidate.glb (tracked comparator candidate, byte-identical promote)",
+  "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+  "generator": "tools/openclinxr/blender/materialize_mpfb_humanoid_candidate.py",
+  "derivationNote": "Regenerated 2026-08-11 (#321): the candidate materializer fits a real MakeHuman garment on the #318 helper-stripped basemesh via the PROVEN ClothesService.fit_clothes_to_human path (the same code body_param_stage.py uses for the hm08 library rail; D1). The CC0 toigo_basic_tucked_t-shirt is fitted AFTER the strip because .mhclo vertex refs index the canonical 13,380-vert hm08 topology (toigo max ref 11,017 < 13,380); the polo (3,648 refs into helper verts) is refused. HELPER_STRIP census unchanged (verts 19158 -> 13380; tris 36972 -> 26756); garment adds 2,700 tris (29,456 total) and is bound to the standard rig via k-NN body-group projection (spine01-04/upperarm01/neck01 dominant). #321 handback fix: the garment object transform is baked to identity with apply_object_transforms immediately after import (the same bake MPFB's body loader performs), because the OBJ importer's 90-degree X rotation rendered the fitted body-local coords onto the floor. Measured post-fix garment Y [0.97, 1.42] overlaps the rig torso band (pelvis 0.874 to clavicle 1.342, from the skin's inverse bind matrices). The 13 usable mouth targets and 137-joint rig survive. Garment choice: least-wrong for an OB triage patient \u2014 a hospital gown is not in the cached library and a scrub shirt is staff wear. Regenerated 2026-08-11 (#323): the generator wires the PROVEN body-part-hiding tool from the sibling rail \u2014 body_param_stage.apply_body_hide_material_region (body_param_stage.py:651) with the per-triangle mask from garment_coverage.body_hide_mask (signed clearance < 5 mm vs the body's outward normal), scoped away from the hands via scope_hide_mask_away_from_hands (the #295 stump refused on this rail too). Runs AFTER the #321 fit + weight transfer so the mask covers the final garment footprint; does NOT push the garment out (#322's 1.5 cm standoff stays). BODY_HIDE census: 2,477 fan-triangulated mask tris / 1,318 body quads, band Y [0.97, 1.42] (garment world bounds, height_axis=2), handFacesUnhidden 0. Exported GLB (NodeIO): hidden primitive openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh, 1,605 verts / 2,636 tris, alphaMode=MASK / alphaCutoff=0.5 (faces DISCARDED, not black), AABB X +-0.32 / Y 0.95-1.43 inside the garment footprint; hidden fraction 10.5% of the body (library rail known-good 10.1%); 0 hidden hand verts; garment 5,400 verts unchanged; 13 mouth targets and 137 joints unchanged. Candidate sha256 2494318b8474b63fe00509fb1ef8faafa479bdeafb73ecf460999b64a45b69a1. Regenerated 2026-08-11 (#337 resume): merged main (#335) and re-baked with CC0 MakeHuman default eyes (data/eyes/hm08/low-poly, header-verified CC0) fitted pre-#318-strip via HumanService.add_mhclo_asset(asset_type=\"eyes\", material_type=\"PROCEDURAL_EYES\"); eye mesh renamed makeclothes_library_eyes_low_poly_mpfb_<body>_mesh (96 verts / 172 tris), weighted 1.0 to eye.L/eye.R by interpolate_weights (dominant groups eye.L 48 / eye.R 48); #334 hide-mask head-joint bound and #335 casts preserved; iris rotation delta at gaze=1 measured 10-13 mm, 89-94% lateral. Issue #340: re-baked with the eye material consuming the asset's OWN declared .mhmat \u2014 brown.mhmat's diffuseTexture brown_eye.png (CC0, 610,817 bytes, git blob bda1b4b0 == upstream main) bound as glTF baseColorTexture via the generic make_material_from_mhmat path; the flat eye baseColor (#337 white / #338 brown) is gone. Eye geometry (96 verts / 172 tris, eye.L/eye.R weights) unchanged; body macros, hide masks, garment fits, footwear and sole grounding re-run identically. textureMode updated procedural_fallback -> authored_or_baked because the eye channel now carries a baked diffuse texture. Issue #341: re-baked with corrected body-hide mask semantics on the shipped bytes. (a) Poke force-hide: the #326 footprint clip tested all three AABB axes INCLUDING depth, so it un-hid genuine pokes (a poke protrudes past the garment front depth); the materializer now re-hides region faces with min vertex clearance < 0 inside the garment x/z silhouette + 2mm contract slack (1,469 pokes re-hidden; visible torso pokes 428 -> 162, interior breast/sternum/midriff pokes to 0). (b) Black-sliver un-hide: hidden faces that neither poke the garment nor have the garment between them and the front viewer are un-hidden (35) so the dark body interior does not show through. (c) x/z re-clip after the force-hide keeps the hidden AABB inside the garment bounds + 2mm on the silhouette axes (47 polygons). (d) Foot-band fix: the foot hide band now stops at the shoe top (0.056) instead of the ankle landmark (0.10), so the upper foot/ankle above the flat is no longer discarded (the flattened-disc hole). Occlusion gate post-fix: eyes 0.843 visible, tshirt 0.003 occluded-by-other, boots 0.004. mpfb2-lower-garment-and-mask-footprint (2) remains PRE-EXISTING red on the #333/#338 foot mask (axis1 min 94.4mm, axis2 max 30.9mm) \u2014 identical on the pre-change bytes; this bake adds zero violations. Pixel grade is the orchestrator's; realismGrade intentionally unchanged. Issue #341 round 5 (2026-08-12): forehead hairline derived per-body from the eye mesh's own extent + the body's face-front surface (hairlineFrac 0.9715); 60 scalp polys unpainted in the face front below it; scalp maxZ 0.153 -> 0.1316, now behind the eyes (0.1392). Issue #180 (2026-08-12): re-baked with the #180 palette + scrub wiring \u2014 materialize_mpfb_humanoid_candidate.py now takes --actor-role and consumes automate_blender.garment_shell_color as-is (locked gown/scrub + closed_casual role fallback; no table copied). Nurse actor: upper garment is the CC-BY makehuman-community-scrub-shirt Scrub_Shirt.mhclo (max ref 11,018 < 13,380, fits the #318 stripped basemesh; ClothesService smoke fit ok, 4,688 verts / 9,384 tris) with the locked scrub colour (0.05, 0.48, 0.52); patient actors keep the CC0 toigo t-shirt with the closed_casual role palette (patient 0.72, 0.68, 0.55; family/parent 0.42, 0.36, 0.40); lower follows the same palette call. Post-fix the peds cast is pairwise distinct on upper AND lower base colours and the clinician's upper asset differs from the patients'. Footwear assets unchanged. Encounter-distance legibility is graded from the staged lit capture by the orchestrator. Issue #356 (2026-08-13): re-baked with the iris colour case-driven like the garment slot (#180). Pre-fix measured (mpfb-eye-colour/pre-fix.json): one byte-identical iris across the cast (sha256 4659691c7295ad62, 610,817 bytes, 1024^2 RGBA, factor (1,1,1)); baked brown, not greyscale (37% chromatic pixels, hue 34 deg). A licence-clear second asset exists: the official makehuman_system_assets CC0 pack (9 iris colours; every <colour>.mhmat carries the same in-file CC0 header as hm08; pack brown_eye.png byte-identical to the shipped iris; recorded in third-party-asset-licence-ledger.md). materialize_mpfb_humanoid_candidate.py now consumes automate_blender.eye_iris_colour(actor_role, phenotype) and resolves the declared colour id to its staged <colour>.mhmat in .openclinxr-local/provider-cache/eyes/makehuman-system-assets/ via the unchanged generic make_material_from_mhmat path (no table copied, no colour invented; baseColorFactor stays (1,1,1) \u2014 the texture is the whole appearance). This actor's iris: green (pack, CC0). Issue #360 (2026-08-13): re-baked with the garment-texture wiring \u2014 the materializer now consumes each garment's OWN declared .mhmat diffuseTexture via the generic make_material_from_mhmat path (the #340/#356 eye path): patients' upper toigo t-shirt consumes T-shirt_basic.png and each footwear slot consumes its declared map (flats Shoe.png / mj MJ-shoes3.png / boots boot.png). The #180 role colour is preserved as the exported baseColorFactor (glTF factor x texture; the exporter drops the factor when a texture binds, so it is patched into the GLB post-export). Recorded skips keep flat colours: the scrub's declared Scrub_Shirt.mhmat and the cargo-pants' cargo_pants.mhmat are not staged in the provider cache, and the shipped lower cover shell carries no TEXCOORD_0 \u2014 a lower-garment texture is a fitting-pipeline slice, not this material slice. Issue #359 (2026-08-13): re-baked after the #360 merge with the scalp region as the shipped hair mechanism \u2014 the body mesh carries the bounds-derived openclinxr_mesh_native_scalp_hair_surface primitive (the Anny known-good mechanism; the #341 texture-mask hairline route is removed because the #358 head-framed comparison graded it as damage and it painted the front face band). Region per actor: aisha 2,364 tris (0.894-1.000 H), nurse 2,400 (0.898-1.000 H), child 2,008 (0.898-1.000 H); zero face-band vertices on all three. Garment textures from #360 are unchanged by this bake. Issue #343 (2026-08-13): re-baked with the shipped subsurface tint \u2014 apply_subsurface_tint loads MPFB2's data/textures/sss.png (CC0, already in the licence ledger) and combines it with the DIFFUSE COLOR bake as a relative warm brightening (no light transport, no hand-authored node graph \u2014 the #343 RETRY approach 2). Skin atlas block-mean (16x16) luminance sd 1.58 -> 3.21 (this actor); dark-texel counterweight (0.35x median) clean; per-actor atlases stay byte-distinct. Issue #370 (2026-08-13): re-baked with a tangent-space normal map. bake_skin_normal_to_texture bakes the shipped enhanced_skin shader's perturbed surface normal (the Noise Texture -> ColorRamp -> Bump feeding the Principled Normal) to a glTF normalTexture via a Cycles NORMAL bake (geometry + bump, not light transport) and wires it through a Normal Map node. The base-colour atlas is byte-identical to the #343 bake; iris (#356) and garment (#360) textures unchanged. Issue #372 (2026-08-13): re-baked after the #371 merge with the garment-texture restored \u2014 the #371 worktree lacked the t-shirt's staged .mhmat so the bake silently skipped the authored texture; this bake consumes T-shirt_basic.png (861,166 B, byte-identical to pre-#371) and the post-export texture verify + garments-keep-their-authored-texture.test.ts pin it from now on. Issue #387 (2026-08-14): re-baked with the placeholder scalp paint RETIRED \u2014 the bounds-derived scalp region (openclinxr_mesh_native_scalp_hair_surface) is a self-declared placeholder whose own docstring (automate_blender.py:4245) says it exists 'before a real groom/hair-card source stage exists'; #381 landed the real thing (4,976-tri fitted MakeClothes library hair, toigo_blunt_bob_with_bangs, CC0) and the paint underneath was never retired, producing the hard 2.8%-vs-skin 4096-grade boundary. body_param_stage.scalp_placeholder_retired_for now retires the paint per figure (aisha only; nurse/child keep it until their hair assets are chosen). The crown/forehead/eye-socket polys keep the skin material, so the head renders as skin; the fitted hair mesh, eyes, garments and hide masks are unchanged. Measured post-bake: placeholder scalp verts 0 (was 1,373), fitted hair 4,976 tris, head skin verts 4,016."
+ },
+ "licenseChain": {
+  "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
+  "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+  "sourceRecordClaimsSupported": [
+   "MPFB2 2.0.15 from Blender Extensions; MPFB declares SPDX:GPL-3.0-or-later for its own code (installed 2.0.15, blender_manifest.toml sha256 b7e1d0732e67cc18955f91b91ff9049b9f0bc868f05eb074e4ea3cf38fa3ddd5; corrected 2026-09-09 from a stale AGPLv3 label) with bundled assets CC0 1.0 per LICENSE.ASSETS.md and a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
+  ],
+  "notRun": [
+   "licence_text_reenumeration",
+   "makehuman_license_review",
+   "production_asset_readiness"
+  ],
+  "explicitUnknown": [
+   "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a runtime cast candidate for evidence only.",
+   "This promotion does NOT claim license approval for commercial/production use."
+  ],
+  "notes": "MPFB rail is first-class per operator direction D11; license review remains an open gate. The prior MPFB2 asset-license posture recorded in PROVENANCE.md applies unchanged."
+ },
+ "derivativeLineage": {
+  "status": "mpfb2_comparator_to_default_cast_promotion",
+  "caseId": "ob_headache_preeclampsia_triage_v1",
   "actorId": "patient_aisha_khan_v1",
   "actorRole": "patient",
-  "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-  "sourceManifestPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
-  "generatorMode": "mpfb2_makehuman_basemesh_materialized_locally_in_blender_v1",
-  "sourceKind": "mpfb2_makehuman_basemesh",
-  "usesRealAnnyForwardPass": false,
-  "realAnnyWeightsUsed": false,
-  "textureMode": "authored_or_baked",
-  "animationMode": "procedural_clinical_idle_conversation_posture_fallback_plus_grafted_retargeted_clip",
-  "optimizationMode": "face_preserving_selective_decimated_fp_rung_2026_09_11",
-  "realismGrade": "not_graded",
-  "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
-  "sourceOriginChain": {
-    "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
-    "materializedFrom": "candidates/mpfb-ob-patient-aisha-rigged-candidate.glb (tracked comparator candidate, byte-identical promote)",
-    "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
-    "generator": "tools/openclinxr/blender/materialize_mpfb_humanoid_candidate.py",
-    "derivationNote": "Regenerated 2026-08-11 (#321): the candidate materializer fits a real MakeHuman garment on the #318 helper-stripped basemesh via the PROVEN ClothesService.fit_clothes_to_human path (the same code body_param_stage.py uses for the hm08 library rail; D1). The CC0 toigo_basic_tucked_t-shirt is fitted AFTER the strip because .mhclo vertex refs index the canonical 13,380-vert hm08 topology (toigo max ref 11,017 < 13,380); the polo (3,648 refs into helper verts) is refused. HELPER_STRIP census unchanged (verts 19158 -> 13380; tris 36972 -> 26756); garment adds 2,700 tris (29,456 total) and is bound to the standard rig via k-NN body-group projection (spine01-04/upperarm01/neck01 dominant). #321 handback fix: the garment object transform is baked to identity with apply_object_transforms immediately after import (the same bake MPFB's body loader performs), because the OBJ importer's 90-degree X rotation rendered the fitted body-local coords onto the floor. Measured post-fix garment Y [0.97, 1.42] overlaps the rig torso band (pelvis 0.874 to clavicle 1.342, from the skin's inverse bind matrices). The 13 usable mouth targets and 137-joint rig survive. Garment choice: least-wrong for an OB triage patient — a hospital gown is not in the cached library and a scrub shirt is staff wear. Regenerated 2026-08-11 (#323): the generator wires the PROVEN body-part-hiding tool from the sibling rail — body_param_stage.apply_body_hide_material_region (body_param_stage.py:651) with the per-triangle mask from garment_coverage.body_hide_mask (signed clearance < 5 mm vs the body's outward normal), scoped away from the hands via scope_hide_mask_away_from_hands (the #295 stump refused on this rail too). Runs AFTER the #321 fit + weight transfer so the mask covers the final garment footprint; does NOT push the garment out (#322's 1.5 cm standoff stays). BODY_HIDE census: 2,477 fan-triangulated mask tris / 1,318 body quads, band Y [0.97, 1.42] (garment world bounds, height_axis=2), handFacesUnhidden 0. Exported GLB (NodeIO): hidden primitive openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh, 1,605 verts / 2,636 tris, alphaMode=MASK / alphaCutoff=0.5 (faces DISCARDED, not black), AABB X +-0.32 / Y 0.95-1.43 inside the garment footprint; hidden fraction 10.5% of the body (library rail known-good 10.1%); 0 hidden hand verts; garment 5,400 verts unchanged; 13 mouth targets and 137 joints unchanged. Candidate sha256 2494318b8474b63fe00509fb1ef8faafa479bdeafb73ecf460999b64a45b69a1. Regenerated 2026-08-11 (#337 resume): merged main (#335) and re-baked with CC0 MakeHuman default eyes (data/eyes/hm08/low-poly, header-verified CC0) fitted pre-#318-strip via HumanService.add_mhclo_asset(asset_type=\"eyes\", material_type=\"PROCEDURAL_EYES\"); eye mesh renamed makeclothes_library_eyes_low_poly_mpfb_<body>_mesh (96 verts / 172 tris), weighted 1.0 to eye.L/eye.R by interpolate_weights (dominant groups eye.L 48 / eye.R 48); #334 hide-mask head-joint bound and #335 casts preserved; iris rotation delta at gaze=1 measured 10-13 mm, 89-94% lateral. Issue #340: re-baked with the eye material consuming the asset's OWN declared .mhmat — brown.mhmat's diffuseTexture brown_eye.png (CC0, 610,817 bytes, git blob bda1b4b0 == upstream main) bound as glTF baseColorTexture via the generic make_material_from_mhmat path; the flat eye baseColor (#337 white / #338 brown) is gone. Eye geometry (96 verts / 172 tris, eye.L/eye.R weights) unchanged; body macros, hide masks, garment fits, footwear and sole grounding re-run identically. textureMode updated procedural_fallback -> authored_or_baked because the eye channel now carries a baked diffuse texture. Issue #341: re-baked with corrected body-hide mask semantics on the shipped bytes. (a) Poke force-hide: the #326 footprint clip tested all three AABB axes INCLUDING depth, so it un-hid genuine pokes (a poke protrudes past the garment front depth); the materializer now re-hides region faces with min vertex clearance < 0 inside the garment x/z silhouette + 2mm contract slack (1,469 pokes re-hidden; visible torso pokes 428 -> 162, interior breast/sternum/midriff pokes to 0). (b) Black-sliver un-hide: hidden faces that neither poke the garment nor have the garment between them and the front viewer are un-hidden (35) so the dark body interior does not show through. (c) x/z re-clip after the force-hide keeps the hidden AABB inside the garment bounds + 2mm on the silhouette axes (47 polygons). (d) Foot-band fix: the foot hide band now stops at the shoe top (0.056) instead of the ankle landmark (0.10), so the upper foot/ankle above the flat is no longer discarded (the flattened-disc hole). Occlusion gate post-fix: eyes 0.843 visible, tshirt 0.003 occluded-by-other, boots 0.004. mpfb2-lower-garment-and-mask-footprint (2) remains PRE-EXISTING red on the #333/#338 foot mask (axis1 min 94.4mm, axis2 max 30.9mm) — identical on the pre-change bytes; this bake adds zero violations. Pixel grade is the orchestrator's; realismGrade intentionally unchanged. Issue #341 round 5 (2026-08-12): forehead hairline derived per-body from the eye mesh's own extent + the body's face-front surface (hairlineFrac 0.9715); 60 scalp polys unpainted in the face front below it; scalp maxZ 0.153 -> 0.1316, now behind the eyes (0.1392). Issue #180 (2026-08-12): re-baked with the #180 palette + scrub wiring — materialize_mpfb_humanoid_candidate.py now takes --actor-role and consumes automate_blender.garment_shell_color as-is (locked gown/scrub + closed_casual role fallback; no table copied). Nurse actor: upper garment is the CC-BY makehuman-community-scrub-shirt Scrub_Shirt.mhclo (max ref 11,018 < 13,380, fits the #318 stripped basemesh; ClothesService smoke fit ok, 4,688 verts / 9,384 tris) with the locked scrub colour (0.05, 0.48, 0.52); patient actors keep the CC0 toigo t-shirt with the closed_casual role palette (patient 0.72, 0.68, 0.55; family/parent 0.42, 0.36, 0.40); lower follows the same palette call. Post-fix the peds cast is pairwise distinct on upper AND lower base colours and the clinician's upper asset differs from the patients'. Footwear assets unchanged. Encounter-distance legibility is graded from the staged lit capture by the orchestrator. Issue #356 (2026-08-13): re-baked with the iris colour case-driven like the garment slot (#180). Pre-fix measured (mpfb-eye-colour/pre-fix.json): one byte-identical iris across the cast (sha256 4659691c7295ad62, 610,817 bytes, 1024^2 RGBA, factor (1,1,1)); baked brown, not greyscale (37% chromatic pixels, hue 34 deg). A licence-clear second asset exists: the official makehuman_system_assets CC0 pack (9 iris colours; every <colour>.mhmat carries the same in-file CC0 header as hm08; pack brown_eye.png byte-identical to the shipped iris; recorded in third-party-asset-licence-ledger.md). materialize_mpfb_humanoid_candidate.py now consumes automate_blender.eye_iris_colour(actor_role, phenotype) and resolves the declared colour id to its staged <colour>.mhmat in .openclinxr-local/provider-cache/eyes/makehuman-system-assets/ via the unchanged generic make_material_from_mhmat path (no table copied, no colour invented; baseColorFactor stays (1,1,1) — the texture is the whole appearance). This actor's iris: green (pack, CC0). Issue #360 (2026-08-13): re-baked with the garment-texture wiring — the materializer now consumes each garment's OWN declared .mhmat diffuseTexture via the generic make_material_from_mhmat path (the #340/#356 eye path): patients' upper toigo t-shirt consumes T-shirt_basic.png and each footwear slot consumes its declared map (flats Shoe.png / mj MJ-shoes3.png / boots boot.png). The #180 role colour is preserved as the exported baseColorFactor (glTF factor x texture; the exporter drops the factor when a texture binds, so it is patched into the GLB post-export). Recorded skips keep flat colours: the scrub's declared Scrub_Shirt.mhmat and the cargo-pants' cargo_pants.mhmat are not staged in the provider cache, and the shipped lower cover shell carries no TEXCOORD_0 — a lower-garment texture is a fitting-pipeline slice, not this material slice. Issue #359 (2026-08-13): re-baked after the #360 merge with the scalp region as the shipped hair mechanism — the body mesh carries the bounds-derived openclinxr_mesh_native_scalp_hair_surface primitive (the Anny known-good mechanism; the #341 texture-mask hairline route is removed because the #358 head-framed comparison graded it as damage and it painted the front face band). Region per actor: aisha 2,364 tris (0.894-1.000 H), nurse 2,400 (0.898-1.000 H), child 2,008 (0.898-1.000 H); zero face-band vertices on all three. Garment textures from #360 are unchanged by this bake. Issue #343 (2026-08-13): re-baked with the shipped subsurface tint — apply_subsurface_tint loads MPFB2's data/textures/sss.png (CC0, already in the licence ledger) and combines it with the DIFFUSE COLOR bake as a relative warm brightening (no light transport, no hand-authored node graph — the #343 RETRY approach 2). Skin atlas block-mean (16x16) luminance sd 1.58 -> 3.21 (this actor); dark-texel counterweight (0.35x median) clean; per-actor atlases stay byte-distinct. Issue #370 (2026-08-13): re-baked with a tangent-space normal map. bake_skin_normal_to_texture bakes the shipped enhanced_skin shader's perturbed surface normal (the Noise Texture -> ColorRamp -> Bump feeding the Principled Normal) to a glTF normalTexture via a Cycles NORMAL bake (geometry + bump, not light transport) and wires it through a Normal Map node. The base-colour atlas is byte-identical to the #343 bake; iris (#356) and garment (#360) textures unchanged. Issue #372 (2026-08-13): re-baked after the #371 merge with the garment-texture restored — the #371 worktree lacked the t-shirt's staged .mhmat so the bake silently skipped the authored texture; this bake consumes T-shirt_basic.png (861,166 B, byte-identical to pre-#371) and the post-export texture verify + garments-keep-their-authored-texture.test.ts pin it from now on. Issue #387 (2026-08-14): re-baked with the placeholder scalp paint RETIRED — the bounds-derived scalp region (openclinxr_mesh_native_scalp_hair_surface) is a self-declared placeholder whose own docstring (automate_blender.py:4245) says it exists 'before a real groom/hair-card source stage exists'; #381 landed the real thing (4,976-tri fitted MakeClothes library hair, toigo_blunt_bob_with_bangs, CC0) and the paint underneath was never retired, producing the hard 2.8%-vs-skin 4096-grade boundary. body_param_stage.scalp_placeholder_retired_for now retires the paint per figure (aisha only; nurse/child keep it until their hair assets are chosen). The crown/forehead/eye-socket polys keep the skin material, so the head renders as skin; the fitted hair mesh, eyes, garments and hide masks are unchanged. Measured post-bake: placeholder scalp verts 0 (was 1,373), fitted hair 4,976 tris, head skin verts 4,016."
+  "reuseKey": "ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1:mpfb2",
+  "baseAsset": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
+  "promotionPath": "byte_identical_promote_from_candidates_to_generated-humanoids",
+  "method": "mpfb2_standard_rig_137_joints_26756_body_tris_plus_2700_fitted_garment_tris"
+ },
+ "toolVersion": "openclinxr-mpfb2-promotion-v1",
+ "promptOrCaseParameterHash": "regenerated_2026-08-12_issue_341_forehead_waistband_shoes",
+ "notEvidenceFor": [
+  "b_plus_visual_realism_gate",
+  "production_asset_readiness",
+  "quest_readiness",
+  "learner_readiness",
+  "clinical_validity",
+  "scoring_validity",
+  "scene_placement_readiness"
+ ],
+ "sourceNotes": [
+  "Issue #263: first MPFB2 humanoid promoted into a station cast (OB triage patient Aisha Khan).",
+  "Issue #222: MPFB rail paints the proven bounds-derived scalp hair region (Anny automate_blender apply_mesh_native_scalp_hair_material_region) instead of the hand-authored UV sphere; no separate hair mesh remains. Textures remain out of scope by peer decision.",
+  "Issue #317: face targets now load through the proven TargetService path (body_param_stage.load_mpfb_face_shape_keys) instead of the MPFB UI operator, which read panel state and shipped zero face morphs. The #222 scalp-region Z-flip was also corrected: create_human faces -Y (measured), so the flip pushed the face to +Y, the face-band exclusion never fired, and the scalp paint covered the eyes/brows.",
+  "Issue #318: the candidate materializer strips MakeHuman's clothes and hair FITTING SHELLS with the MPFB-shipped ExportService.bake_modifiers_remove_helpers (remove_helpers=True), called after the face-target load so morph keys stay indexed to the full base topology. The shipped GLB drops from 36,972 to 26,756 tris (13,380 verts in Blender, MADR 0052 documented pair); the 32 FACS targets and 137-joint rig survive. The post-strip figure is an unclothed body; OB triage wardrobe staging is MADR 0052 P3.",
+  "Issue #321: the candidate materializer fits the CC0 toigo_basic_tucked_t-shirt onto the stripped basemesh via the PROVEN ClothesService.fit_clothes_to_human path (body_param_stage.py uses the same service for the hm08 library rail). The fit runs after the strip because .mhclo vertex refs index the 13,380-vert hm08 topology; the polo (helper-vert refs) is refused rather than fitted against absent indices. Garment material mat_makeclothes_library_toigo_t_shirt; garment 2,700 tris / 5,400 exported verts, skinned to the standard rig. Total 29,456 tris; 13 usable mouth targets and 137 joints unchanged. Garment choice is the least-wrong OB triage option: a hospital gown is not in the cached library and a scrub shirt is staff wear.",
+  "Issue #323: body-part hiding wired from the sibling rail (D1 \u2014 apply_body_hide_material_region, body_param_stage.py:651, mask from garment_coverage.body_hide_mask, scoped away from the hands). The rail had no body-part hiding, so the fitted t-shirt and the body both rendered and the body poked through the cloth. The hidden faces carry an alpha-0 material that exports as alphaMode=MASK / alphaCutoff=0.5 and are DISCARDED at render; geometry, rig, shape keys and garment placement are untouched. Exported GLB: hidden primitive openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh (1,605 verts / 2,636 tris; 10.5% of the body vs the library rail's known-good 10.1%; 0 hidden hand verts), AABB inside the garment footprint. See the issue close for the pixel grade.",
+  "Not a realism gate pass; orchestrator grades the render and decides whether the material-class mismatch blocks adoption.",
+  "Issue #335: re-baked on the merged materializer (2026-08-11) with the #334 hide-mask head-joint clip (a no-op on this body \u2014 the mask at 0.851 H already stops below her head joint 0.909 H) and the uniform upper-garment mesh rename to the makeclothes_library_toigo_t_shirt_mpfb_<ref>_mesh convention. The generated bytes therefore differ from the tracked candidates/ comparator (which predates #321's garment fit); outputSha256 below reflects this bake. She is also re-cast as the peds parent (age-compatible adult reuse) while remaining the OB triage patient.",
+  "Issue #340: re-baked with the eye material consuming the asset's OWN declared .mhmat \u2014 brown.mhmat's diffuseTexture brown_eye.png (CC0, 610,817 bytes, git blob bda1b4b0 == upstream main) bound as glTF baseColorTexture via the generic make_material_from_mhmat path; the flat eye baseColor (#337 white / #338 brown) is gone. Eye geometry (96 verts / 172 tris, eye.L/eye.R weights) unchanged; body macros, hide masks, garment fits, footwear and sole grounding re-run identically. textureMode updated procedural_fallback -> authored_or_baked because the eye channel now carries a baked diffuse texture.",
+  "Issue #341: re-baked with corrected body-hide mask semantics on the shipped bytes. (a) Poke force-hide: the #326 footprint clip tested all three AABB axes INCLUDING depth, so it un-hid genuine pokes (a poke protrudes past the garment front depth); the materializer now re-hides region faces with min vertex clearance < 0 inside the garment x/z silhouette + 2mm contract slack (1,469 pokes re-hidden; visible torso pokes 428 -> 162, interior breast/sternum/midriff pokes to 0). (b) Black-sliver un-hide: hidden faces that neither poke the garment nor have the garment between them and the front viewer are un-hidden (35) so the dark body interior does not show through. (c) x/z re-clip after the force-hide keeps the hidden AABB inside the garment bounds + 2mm on the silhouette axes (47 polygons). (d) Foot-band fix: the foot hide band now stops at the shoe top (0.056) instead of the ankle landmark (0.10), so the upper foot/ankle above the flat is no longer discarded (the flattened-disc hole). Occlusion gate post-fix: eyes 0.843 visible, tshirt 0.003 occluded-by-other, boots 0.004. mpfb2-lower-garment-and-mask-footprint (2) remains PRE-EXISTING red on the #333/#338 foot mask (axis1 min 94.4mm, axis2 max 30.9mm) \u2014 identical on the pre-change bytes; this bake adds zero violations. Pixel grade is the orchestrator's; realismGrade intentionally unchanged.",
+  "Issue #341 round 5 (2026-08-12): the forehead rectangle is fixed. The scalp crown band painted the face front above the eye socket to the crown (scalp maxZ 0.153 was 1.4 cm ANTERIOR of the eyes' 0.139). The shared scalp function's face-front exclusion never fires on MPFB bodies because its depth line is whole-body (hanging-arm-dominated; skippedFaceFrontFaceCount: 0 every bake), and no hairline reference exists in the shipped anatomy (measured: no hairline vertex group \u2014 all head joint groups are helper verts >= 13380, stripped; no MakeHuman hairline target; forehead targets run to the crown). The materializer now derives the hairline per-body from the body's own surface: forehead plane = median depth (y) of the head's midline surface within the fitted EYE MESH's own height band; hairline = highest face-front vertex at/ahead of that plane (aisha 0.9715 H). Midline half-width = the eye mesh's own half-width. 60 scalp polys unpainted in the face front below the hairline. Post-fix scalp maxZ 0.1316 < eye maxZ 0.1392 (scalp now BEHIND the eyes); occlusion gate: eyes 0.833 visible with NO scalp occluder (was scalp 0.213-0.5), tshirt 0.0027, boots 0.0016 occluded-by-other. Waistband sawtooth and toe-through-shoe remain queued; the pixel grade is the orchestrator's.",
+  "Issue #341 rounds 5b/5c (2026-08-12): (5b) waistband band [shirt hem 0.969, pants top 0.987] region-hide in the lower mask (68 faces) \u2014 the poke-masks left the belly coincident with the shirt surface exposed; post-fix 0/54 unhidden torso waistband samples visible (was 21.8%). (5c) shoe lateral alignment: each shoe half's x-centre aligned to the body's own foot-band x-centre (deltaX +-0.0425 m) because the fitted shoe sat ~3.4 cm medial of the foot (foot x [-0.270,-0.174] vs shoe [-0.236,-0.138], same width) \u2014 the foot's lateral edge rendered outside the shoe ('toes protrude through both shoe fronts'). Foot-hide coverage 2048 -> 3900 faces. Occlusion gate: eyes 0.769 visible, tshirt 0.0028, boots 0.0000 occluded-by-other; all three verdicts visible. Residual: upper ankle skin above the 5.6cm flat is normal anatomy; shoulder/elbow slivers remain a pixel question.",
+  "Issue #351 (2026-08-12): re-baked with the wrist/metacarpal limb vocabulary fix in body_param_stage._LIMB_BONE_RE. The lower cover shell's band selection wrapped the A-pose hands on the peds bodies (their palms are metacarpal-dominant; the regex missed the MPFB standard rig's wrist/metacarpal bones) \u2014 trouser shards on the hands. This body has no wrist/metacarpal-dominant verts in the trouser band (all finger-dominant, already excluded), so the widened regex is a no-op here; every contract quantity is unchanged (lateral ratio 1.218, leg area 5207 cm2, overlap 19.6 mm).",
+  "Issue #372 (2026-08-13): re-baked with the garment-texture fix. The #371 rebake ran with an incomplete provider cache (the toigo t-shirt's declared t_shirt_basic_tucked.mhmat and its diffuse T-shirt_basic.png were not staged in that worktree), so garment_material_from_declared silently skipped the slot and the shipped GLB lost the t-shirt baseColorTexture \u2014 the shirt and trousers shared one factor and read as a onesie. This bake runs with the full staged cache: the t-shirt consumes T-shirt_basic.png (861,166 B \u2014 byte-identical to the pre-#371 embedded texture) as baseColorTexture, the #180 role colour stays the exported baseColorFactor, and the #371 auto-smooth pass is unchanged (garments-are-flat-shaded-and-the-body-is-not still green; 0 coplanar splits kept, sharp joins preserved). materialize_mpfb_humanoid_candidate.py now fails the bake loudly if a consumed garment texture is absent from the exported bytes (verify_garment_textures_in_glb), and the new evidence contract garments-keep-their-authored-texture.test.ts pins the authored state with kevin as the flat-by-authored-state known-good. Actor role unchanged (patient).",
+  "Issue #377 (2026-08-13): re-baked with anatomically sized eyeballs. The fitted CC0 eye was 25-34% larger than human ocular axial length (fitted 29.91 mm vs 24.0 mm, least-squares sphere fit). materialize_mpfb_humanoid_candidate.py now shrinks each eye to the actor's anatomical target AND re-seats it forward (scale about the fitted sphere centre + translate so the corneal pole keeps its world z) \u2014 the naive shrink alone recedes the pole 3.0-4.0 mm and hollows the eyes. MPFB has no eye-size parameter to wire (set_scalings is a no-op), so this is a post-fit transform in the materializer. The eye.L/eye.R bones move with the globe so the gaze pivot stays at the new centre. The child's 22.5 mm target was checked against its phenotype (height_cm 125, school-age) and confirmed. Clauses of the eyeballs contract: diameter <= 1.15x anatomy (flipped to it), corneal pole within 1 mm of its previous forward z, sphere fit residual within 3x its own baseline.",
+  "Issue #381 (2026-08-14, slice 1 of #341): re-baked with the fitted CC0 hair \u2014 materialize_mpfb_humanoid_candidate.py now fits makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh (4,976 tris) BEFORE the #318 helper strip via the SAME embed_library_hair.py / ClothesService.fit_clothes_to_human path the library rail proved (#330); weighted 100% to the standard rig head bone (JOINTS_0 on the exported primitive); bake-time licence re-read from the style own .mhclo header (read_hair_mhclo_licence, # license CC0) with AGPL/unlicensed hard refusal; material openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat. The painted scalp region (openclinxr_mesh_native_scalp_hair_surface, 2,536 tris) is KEPT under the fitted mesh. Kevin remains a recorded male skip (no licence-clean masculine style); child out of slice-1 scope. Hair placement measured post-bake: y 1.40-1.69 m over the crown, centred +/-0.10 m. Pixel grade is the orchestrator s; realismGrade intentionally unchanged.",
+  "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-ob-patient-aisha.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed).",
+  "2026-09-20: garment-provenance-stamp extras on remaining garments. Geometry unchanged. outputSha256/outputBytes re-recorded.",
+  "2026-10-10: JSON-only removal of normalTexture on material mpfb_skin_ob_patient_aisha_v1. BIN chunk unchanged. Top-level outputSha256 and outputBytes re-recorded to the edited GLB. Shoulder clothing holes were not edited.",
+  "2026-10-30 ci-w11 D3 (chest-anchor re-separation, post-bake stage, not rebake): default mode: rest 0.00000 -> +-0.085 (rebakes 32e58c3ff/91aa4b5d3/7d71273e3/9f2934536/10768617f had zeroed the #0 separation); moved 2 ClinicalIdleConversation + 2 openclinxr_retarget_walk_source keyframes per joint with the rests. y/z untouched. Tool: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs (half-span 0.085, uniform with nurse known-good 1f5519d2).",
+  "2026-10-30 ci-w11 D1 (orphan prune, not rebake): gltf-transform prune 4.3.0, same tool and flags as #555 (evidence tools/openclinxr/evidence/unbound-texture-prune.json). Removed unreferenced mpfb-ob-patient-aisha.skin-normal (1080156 B, orphaned by the 2026-10-10 normalTexture strip). File 10069400 -> 8828240 B. Bound invariants held: boundTextures 5, boundBytes 4246964, meshes 10, materials 17, tris 69067, joints 137, animations 3.",
+  "2026-10-30 ci-w11b: ci-w12 D1 gravid station re-applied on the ci-w11 D1-pruned + D3-repaired bytes (cherry-pick c9d73bff3 binary conflict resolved by regeneration, never hand-merged bytes): 1104 recorded displacements via tools/openclinxr/asset-pipeline/makeclothes/apply-gravid-treatment.ts on the 8828240 B pruned base (topology match, max delta 101.3 mm). Chest anchors verified still +-0.085 post-apply; pregnancy contract the-case-declared-pregnancy-reaches-a-vertex.test.ts green (abdomen 319.2 within pin). outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+  "2026-10-31 mesh-defects (gravid garment restore, not rebake): 21fad089f re-applied the #581 gravid field to the fp-r0.4 decimated garments (t-shirt 1192 verts, jeans 2906). Every moved vertex landed exactly on the #581 surface, but the decimated triangles (edges to 141 mm tee / 360 mm jeans) could not carry the 77 mm belly drape: spiked tee hem, front waistband folded inward, hidden body showing through the jeans. replace-garment-primitive.ts swaps in the full-resolution tee (5400 verts / 2700 tris) and jeans (8432 / 4216) from the #581 treated bake 57e277301 (raw pin cfdcd5a3, body p95 0 mm, same joint list, same materials; UVs equal on every unmoved decimated vertex, so the HB-02 albedo maps unchanged). Body, rig, clips, teeth, chest anchors untouched. The waist-fit row stays a declared skip: measureWaistAt's 12% rim band finds fewer than 12 comparable buckets on the 57e277301 bake as well, because the front hem drops over the belly. Stills: /Volumes/files/openclinxr-assets/store/mesh-defects-20261031/humanoids/ob-waist-refit/stills/.",
+  "st-weld2 D1 (garment topology weld, post-export byte stage, not a Blender rebake): connected each MakeClothes garment's per-face index islands by position (t-shirt 1350 raw -> 6 meaningful cloth-side pieces: front/back outers never join across the doubled cloth + textured UV seams, measured to angle 125 with no further joins; jeans 2108 raw -> 26 loops with 4 meaningful (textured UV seams keep cloth sides split)), carrying one normal per cloth side so creases at/above the flat-shade 60-deg floor stay split (shirt kept_sharp 152, jeans 222; weights splits 0; textured-uv splits 123/62 kept to avoid smearing the print). Byte length unchanged at 9700420; only garment indices and survivor NORMALs rewritten in place. Tool: tools/openclinxr/asset-pipeline/makeclothes/garment_topology_weld.py --angle 90, wired pre-#371 in tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py. Shoulder-span counterweight still false on this asset (front/back outers are different cloth sides); recorded in E/weld-census.json."
+ ],
+ "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
+ "promotionGates": false,
+ "outputSha256": "a92b9ae5cb0105fc32ab0828446fa79ff1870802e78da4df97502f5831b9ce2e",
+ "outputBytes": 19144852,
+ "fitTimeLower": {
+  "garment": "punkduck_female_tight_jeans",
+  "sourceObjFaces": 2108,
+  "fittedTris": 4216,
+  "lowerGateCoverage": 0.9875
+ },
+ "generatedAt": "2026-11-06T01:34:29.791516+00:00",
+ "method": "mpfb2_materializer_rebake_on_promoted_cast",
+ "albedoBakeWrittenAt": "2026-09-14T22:26:38.364Z",
+ "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: ClothesService PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt iterate-optimize --face-preserving --face-preserving-ratio 0.4 then chest-anchor 0.085 m. Shipped 69093 tris / 13927908 B (jeans 1986). Fit-time faces x 2 lives in fitTimeLower; shipped shell-vs-fit is standoff spread. Previous raw pin cfdcd5a3c2828daa / 17002120. Report: female-covering-lower-acquisition-2026-09-12.md. 2026-09-14 tsk_2cdb306c4e7069af: targeted rebake through the producer-path station (bakeProducedHumanoidAlbedo on the shipped bytes, no re-fit): toigo t-shirt factor folded into its 2048x2048 texture and reset to white. Geometry, rig and animations unchanged; outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
+ "byteLineage": {
+  "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+  "correctedAt": "2026-09-28T04:06:48.298Z",
+  "recordedBefore": {
+   "outputSha256": "06ac92dcda85c230001a0fd04827507909d650c45b4733f4f450ebf72b198690",
+   "outputBytes": 10069444
   },
-  "licenseChain": {
-    "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
-    "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
-    "sourceRecordClaimsSupported": [
-      "MPFB2 2.0.15 from Blender Extensions; MPFB declares SPDX:GPL-3.0-or-later for its own code (installed 2.0.15, blender_manifest.toml sha256 b7e1d0732e67cc18955f91b91ff9049b9f0bc868f05eb074e4ea3cf38fa3ddd5; corrected 2026-09-09 from a stale AGPLv3 label) with bundled assets CC0 1.0 per LICENSE.ASSETS.md and a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
-    ],
-    "notRun": [
-      "licence_text_reenumeration",
-      "makehuman_license_review",
-      "production_asset_readiness"
-    ],
-    "explicitUnknown": [
-      "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a runtime cast candidate for evidence only.",
-      "This promotion does NOT claim license approval for commercial/production use."
-    ],
-    "notes": "MPFB rail is first-class per operator direction D11; license review remains an open gate. The prior MPFB2 asset-license posture recorded in PROVENANCE.md applies unchanged."
-  },
-  "derivativeLineage": {
-    "status": "mpfb2_comparator_to_default_cast_promotion",
-    "caseId": "ob_headache_preeclampsia_triage_v1",
-    "actorId": "patient_aisha_khan_v1",
-    "actorRole": "patient",
-    "reuseKey": "ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1:mpfb2",
-    "baseAsset": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
-    "promotionPath": "byte_identical_promote_from_candidates_to_generated-humanoids",
-    "method": "mpfb2_standard_rig_137_joints_26756_body_tris_plus_2700_fitted_garment_tris"
-  },
-  "toolVersion": "openclinxr-mpfb2-promotion-v1",
-  "promptOrCaseParameterHash": "regenerated_2026-08-12_issue_341_forehead_waistband_shoes",
-  "notEvidenceFor": [
-    "b_plus_visual_realism_gate",
-    "production_asset_readiness",
+  "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+  "preImageSha256": "06ac92dcda85c230001a0fd04827507909d650c45b4733f4f450ebf72b198690",
+  "preImageBytes": 10069444,
+  "derivationArgv": [
+   "sh",
+   "-c",
+   "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0135 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
+   "x",
+   "{pre}",
+   "{out}"
+  ],
+  "reproduction": "byte-identical to the shipped file",
+  "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+ },
+ "motionClips": [
+  {
+   "clipName": "openclinxr_retarget_walk_source",
+   "sourceClip": "~/.openclinxr-tools/mesh2motion-app/static/animations/human-base-animations.glb#Walk",
+   "deliveredBy": "tools/openclinxr/factory/graft-bound-clip.ts",
+   "deliveryNote": "GRAFTED, not re-exported. motion_bind_stage.py's Blender round trip loses eyebrow and eyelash geometry; the graft copies channels onto joints already present here and leaves every POSITION accessor byte-identical.",
+   "graftedChannels": 411,
+   "graftedJoints": 137,
+   "licenceRow": "docs/openclinxr/asset-licence-records/row-05-mesh2motion-clip-library-ledger-correction.json",
+   "licenceStatus": "CC0 1.0 - VERIFIED in LICENSE-CC0.MD of the mesh2motion-app clone, which dedicates all 3d models, blend files, rigs and animations. The CarnegieMellonAnimations subtree of the same clone is EXCLUDED and is not the source of this clip.",
+   "notEvidenceFor": [
+    "clinical_gait_realism",
+    "visual_walk_quality",
     "quest_readiness",
-    "learner_readiness",
-    "clinical_validity",
-    "scoring_validity",
-    "scene_placement_readiness"
-  ],
-  "sourceNotes": [
-    "Issue #263: first MPFB2 humanoid promoted into a station cast (OB triage patient Aisha Khan).",
-    "Issue #222: MPFB rail paints the proven bounds-derived scalp hair region (Anny automate_blender apply_mesh_native_scalp_hair_material_region) instead of the hand-authored UV sphere; no separate hair mesh remains. Textures remain out of scope by peer decision.",
-    "Issue #317: face targets now load through the proven TargetService path (body_param_stage.load_mpfb_face_shape_keys) instead of the MPFB UI operator, which read panel state and shipped zero face morphs. The #222 scalp-region Z-flip was also corrected: create_human faces -Y (measured), so the flip pushed the face to +Y, the face-band exclusion never fired, and the scalp paint covered the eyes/brows.",
-    "Issue #318: the candidate materializer strips MakeHuman's clothes and hair FITTING SHELLS with the MPFB-shipped ExportService.bake_modifiers_remove_helpers (remove_helpers=True), called after the face-target load so morph keys stay indexed to the full base topology. The shipped GLB drops from 36,972 to 26,756 tris (13,380 verts in Blender, MADR 0052 documented pair); the 32 FACS targets and 137-joint rig survive. The post-strip figure is an unclothed body; OB triage wardrobe staging is MADR 0052 P3.",
-    "Issue #321: the candidate materializer fits the CC0 toigo_basic_tucked_t-shirt onto the stripped basemesh via the PROVEN ClothesService.fit_clothes_to_human path (body_param_stage.py uses the same service for the hm08 library rail). The fit runs after the strip because .mhclo vertex refs index the 13,380-vert hm08 topology; the polo (helper-vert refs) is refused rather than fitted against absent indices. Garment material mat_makeclothes_library_toigo_t_shirt; garment 2,700 tris / 5,400 exported verts, skinned to the standard rig. Total 29,456 tris; 13 usable mouth targets and 137 joints unchanged. Garment choice is the least-wrong OB triage option: a hospital gown is not in the cached library and a scrub shirt is staff wear.",
-    "Issue #323: body-part hiding wired from the sibling rail (D1 — apply_body_hide_material_region, body_param_stage.py:651, mask from garment_coverage.body_hide_mask, scoped away from the hands). The rail had no body-part hiding, so the fitted t-shirt and the body both rendered and the body poked through the cloth. The hidden faces carry an alpha-0 material that exports as alphaMode=MASK / alphaCutoff=0.5 and are DISCARDED at render; geometry, rig, shape keys and garment placement are untouched. Exported GLB: hidden primitive openclinxr_hidden_upper_mpfb_ob_patient_aisha_body_mesh (1,605 verts / 2,636 tris; 10.5% of the body vs the library rail's known-good 10.1%; 0 hidden hand verts), AABB inside the garment footprint. See the issue close for the pixel grade.",
-    "Not a realism gate pass; orchestrator grades the render and decides whether the material-class mismatch blocks adoption.",
-    "Issue #335: re-baked on the merged materializer (2026-08-11) with the #334 hide-mask head-joint clip (a no-op on this body — the mask at 0.851 H already stops below her head joint 0.909 H) and the uniform upper-garment mesh rename to the makeclothes_library_toigo_t_shirt_mpfb_<ref>_mesh convention. The generated bytes therefore differ from the tracked candidates/ comparator (which predates #321's garment fit); outputSha256 below reflects this bake. She is also re-cast as the peds parent (age-compatible adult reuse) while remaining the OB triage patient.",
-    "Issue #340: re-baked with the eye material consuming the asset's OWN declared .mhmat — brown.mhmat's diffuseTexture brown_eye.png (CC0, 610,817 bytes, git blob bda1b4b0 == upstream main) bound as glTF baseColorTexture via the generic make_material_from_mhmat path; the flat eye baseColor (#337 white / #338 brown) is gone. Eye geometry (96 verts / 172 tris, eye.L/eye.R weights) unchanged; body macros, hide masks, garment fits, footwear and sole grounding re-run identically. textureMode updated procedural_fallback -> authored_or_baked because the eye channel now carries a baked diffuse texture.",
-    "Issue #341: re-baked with corrected body-hide mask semantics on the shipped bytes. (a) Poke force-hide: the #326 footprint clip tested all three AABB axes INCLUDING depth, so it un-hid genuine pokes (a poke protrudes past the garment front depth); the materializer now re-hides region faces with min vertex clearance < 0 inside the garment x/z silhouette + 2mm contract slack (1,469 pokes re-hidden; visible torso pokes 428 -> 162, interior breast/sternum/midriff pokes to 0). (b) Black-sliver un-hide: hidden faces that neither poke the garment nor have the garment between them and the front viewer are un-hidden (35) so the dark body interior does not show through. (c) x/z re-clip after the force-hide keeps the hidden AABB inside the garment bounds + 2mm on the silhouette axes (47 polygons). (d) Foot-band fix: the foot hide band now stops at the shoe top (0.056) instead of the ankle landmark (0.10), so the upper foot/ankle above the flat is no longer discarded (the flattened-disc hole). Occlusion gate post-fix: eyes 0.843 visible, tshirt 0.003 occluded-by-other, boots 0.004. mpfb2-lower-garment-and-mask-footprint (2) remains PRE-EXISTING red on the #333/#338 foot mask (axis1 min 94.4mm, axis2 max 30.9mm) — identical on the pre-change bytes; this bake adds zero violations. Pixel grade is the orchestrator's; realismGrade intentionally unchanged.",
-    "Issue #341 round 5 (2026-08-12): the forehead rectangle is fixed. The scalp crown band painted the face front above the eye socket to the crown (scalp maxZ 0.153 was 1.4 cm ANTERIOR of the eyes' 0.139). The shared scalp function's face-front exclusion never fires on MPFB bodies because its depth line is whole-body (hanging-arm-dominated; skippedFaceFrontFaceCount: 0 every bake), and no hairline reference exists in the shipped anatomy (measured: no hairline vertex group — all head joint groups are helper verts >= 13380, stripped; no MakeHuman hairline target; forehead targets run to the crown). The materializer now derives the hairline per-body from the body's own surface: forehead plane = median depth (y) of the head's midline surface within the fitted EYE MESH's own height band; hairline = highest face-front vertex at/ahead of that plane (aisha 0.9715 H). Midline half-width = the eye mesh's own half-width. 60 scalp polys unpainted in the face front below the hairline. Post-fix scalp maxZ 0.1316 < eye maxZ 0.1392 (scalp now BEHIND the eyes); occlusion gate: eyes 0.833 visible with NO scalp occluder (was scalp 0.213-0.5), tshirt 0.0027, boots 0.0016 occluded-by-other. Waistband sawtooth and toe-through-shoe remain queued; the pixel grade is the orchestrator's.",
-    "Issue #341 rounds 5b/5c (2026-08-12): (5b) waistband band [shirt hem 0.969, pants top 0.987] region-hide in the lower mask (68 faces) — the poke-masks left the belly coincident with the shirt surface exposed; post-fix 0/54 unhidden torso waistband samples visible (was 21.8%). (5c) shoe lateral alignment: each shoe half's x-centre aligned to the body's own foot-band x-centre (deltaX +-0.0425 m) because the fitted shoe sat ~3.4 cm medial of the foot (foot x [-0.270,-0.174] vs shoe [-0.236,-0.138], same width) — the foot's lateral edge rendered outside the shoe ('toes protrude through both shoe fronts'). Foot-hide coverage 2048 -> 3900 faces. Occlusion gate: eyes 0.769 visible, tshirt 0.0028, boots 0.0000 occluded-by-other; all three verdicts visible. Residual: upper ankle skin above the 5.6cm flat is normal anatomy; shoulder/elbow slivers remain a pixel question.",
-    "Issue #351 (2026-08-12): re-baked with the wrist/metacarpal limb vocabulary fix in body_param_stage._LIMB_BONE_RE. The lower cover shell's band selection wrapped the A-pose hands on the peds bodies (their palms are metacarpal-dominant; the regex missed the MPFB standard rig's wrist/metacarpal bones) — trouser shards on the hands. This body has no wrist/metacarpal-dominant verts in the trouser band (all finger-dominant, already excluded), so the widened regex is a no-op here; every contract quantity is unchanged (lateral ratio 1.218, leg area 5207 cm2, overlap 19.6 mm).",
-    "Issue #372 (2026-08-13): re-baked with the garment-texture fix. The #371 rebake ran with an incomplete provider cache (the toigo t-shirt's declared t_shirt_basic_tucked.mhmat and its diffuse T-shirt_basic.png were not staged in that worktree), so garment_material_from_declared silently skipped the slot and the shipped GLB lost the t-shirt baseColorTexture — the shirt and trousers shared one factor and read as a onesie. This bake runs with the full staged cache: the t-shirt consumes T-shirt_basic.png (861,166 B — byte-identical to the pre-#371 embedded texture) as baseColorTexture, the #180 role colour stays the exported baseColorFactor, and the #371 auto-smooth pass is unchanged (garments-are-flat-shaded-and-the-body-is-not still green; 0 coplanar splits kept, sharp joins preserved). materialize_mpfb_humanoid_candidate.py now fails the bake loudly if a consumed garment texture is absent from the exported bytes (verify_garment_textures_in_glb), and the new evidence contract garments-keep-their-authored-texture.test.ts pins the authored state with kevin as the flat-by-authored-state known-good. Actor role unchanged (patient).",
-    "Issue #377 (2026-08-13): re-baked with anatomically sized eyeballs. The fitted CC0 eye was 25-34% larger than human ocular axial length (fitted 29.91 mm vs 24.0 mm, least-squares sphere fit). materialize_mpfb_humanoid_candidate.py now shrinks each eye to the actor's anatomical target AND re-seats it forward (scale about the fitted sphere centre + translate so the corneal pole keeps its world z) — the naive shrink alone recedes the pole 3.0-4.0 mm and hollows the eyes. MPFB has no eye-size parameter to wire (set_scalings is a no-op), so this is a post-fit transform in the materializer. The eye.L/eye.R bones move with the globe so the gaze pivot stays at the new centre. The child's 22.5 mm target was checked against its phenotype (height_cm 125, school-age) and confirmed. Clauses of the eyeballs contract: diameter <= 1.15x anatomy (flipped to it), corneal pole within 1 mm of its previous forward z, sphere fit residual within 3x its own baseline.",
-    "Issue #381 (2026-08-14, slice 1 of #341): re-baked with the fitted CC0 hair — materialize_mpfb_humanoid_candidate.py now fits makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh (4,976 tris) BEFORE the #318 helper strip via the SAME embed_library_hair.py / ClothesService.fit_clothes_to_human path the library rail proved (#330); weighted 100% to the standard rig head bone (JOINTS_0 on the exported primitive); bake-time licence re-read from the style own .mhclo header (read_hair_mhclo_licence, # license CC0) with AGPL/unlicensed hard refusal; material openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mat. The painted scalp region (openclinxr_mesh_native_scalp_hair_surface, 2,536 tris) is KEPT under the fitted mesh. Kevin remains a recorded male skip (no licence-clean masculine style); child out of slice-1 scope. Hair placement measured post-bake: y 1.40-1.69 m over the crown, centred +/-0.10 m. Pixel grade is the orchestrator s; realismGrade intentionally unchanged.",
-    "2026-09-03 #0 (fleet chest-anchor separation): separate_chest_anchor_joints.mjs mirrored breast.L / breast.R to x = +/- 0.085 m (was 0.00000 both, one midline point that made every rightChestSurface goal aim at the sternum). Producer traced to the MPFB addon rig data (CUBE head on joint-spine-1, x=0); the correction is a post-bake stage. The translation keyframes of both joints were moved with the rest nodes so clips cannot pin the anchors back onto the midline. y/z untouched; skin, meshes, materials, other joints and rotation/scale channels unchanged. Report: tools/openclinxr/evidence/chest-anchor-joints/mpfb-ob-patient-aisha.json. Gate: tools/openclinxr/evidence/every-shipped-rig-has-two-chest-anchors.test.ts (3 passed).",
-    "2026-09-20: garment-provenance-stamp extras on remaining garments. Geometry unchanged. outputSha256/outputBytes re-recorded.",
-    "2026-10-10: JSON-only removal of normalTexture on material mpfb_skin_ob_patient_aisha_v1. BIN chunk unchanged. Top-level outputSha256 and outputBytes re-recorded to the edited GLB. Shoulder clothing holes were not edited.",
-    "2026-10-30 ci-w11 D3 (chest-anchor re-separation, post-bake stage, not rebake): default mode: rest 0.00000 -> +-0.085 (rebakes 32e58c3ff/91aa4b5d3/7d71273e3/9f2934536/10768617f had zeroed the #0 separation); moved 2 ClinicalIdleConversation + 2 openclinxr_retarget_walk_source keyframes per joint with the rests. y/z untouched. Tool: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs (half-span 0.085, uniform with nurse known-good 1f5519d2).",
-    "2026-10-30 ci-w11 D1 (orphan prune, not rebake): gltf-transform prune 4.3.0, same tool and flags as #555 (evidence tools/openclinxr/evidence/unbound-texture-prune.json). Removed unreferenced mpfb-ob-patient-aisha.skin-normal (1080156 B, orphaned by the 2026-10-10 normalTexture strip). File 10069400 -> 8828240 B. Bound invariants held: boundTextures 5, boundBytes 4246964, meshes 10, materials 17, tris 69067, joints 137, animations 3.",
-    "2026-10-30 ci-w11b: ci-w12 D1 gravid station re-applied on the ci-w11 D1-pruned + D3-repaired bytes (cherry-pick c9d73bff3 binary conflict resolved by regeneration, never hand-merged bytes): 1104 recorded displacements via tools/openclinxr/asset-pipeline/makeclothes/apply-gravid-treatment.ts on the 8828240 B pruned base (topology match, max delta 101.3 mm). Chest anchors verified still +-0.085 post-apply; pregnancy contract the-case-declared-pregnancy-reaches-a-vertex.test.ts green (abdomen 319.2 within pin). outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
-    "2026-10-31 mesh-defects (gravid garment restore, not rebake): 21fad089f re-applied the #581 gravid field to the fp-r0.4 decimated garments (t-shirt 1192 verts, jeans 2906). Every moved vertex landed exactly on the #581 surface, but the decimated triangles (edges to 141 mm tee / 360 mm jeans) could not carry the 77 mm belly drape: spiked tee hem, front waistband folded inward, hidden body showing through the jeans. replace-garment-primitive.ts swaps in the full-resolution tee (5400 verts / 2700 tris) and jeans (8432 / 4216) from the #581 treated bake 57e277301 (raw pin cfdcd5a3, body p95 0 mm, same joint list, same materials; UVs equal on every unmoved decimated vertex, so the HB-02 albedo maps unchanged). Body, rig, clips, teeth, chest anchors untouched. The waist-fit row stays a declared skip: measureWaistAt's 12% rim band finds fewer than 12 comparable buckets on the 57e277301 bake as well, because the front hem drops over the belly. Stills: /Volumes/files/openclinxr-assets/store/mesh-defects-20261031/humanoids/ob-waist-refit/stills/.",
-    "st-weld2 D1 (garment topology weld, post-export byte stage, not a Blender rebake): connected each MakeClothes garment's per-face index islands by position (t-shirt 1350 raw -> 6 meaningful cloth-side pieces: front/back outers never join across the doubled cloth + textured UV seams, measured to angle 125 with no further joins; jeans 2108 raw -> 26 loops with 4 meaningful (textured UV seams keep cloth sides split)), carrying one normal per cloth side so creases at/above the flat-shade 60-deg floor stay split (shirt kept_sharp 152, jeans 222; weights splits 0; textured-uv splits 123/62 kept to avoid smearing the print). Byte length unchanged at 9700420; only garment indices and survivor NORMALs rewritten in place. Tool: tools/openclinxr/asset-pipeline/makeclothes/garment_topology_weld.py --angle 90, wired pre-#371 in tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py. Shoulder-span counterweight still false on this asset (front/back outers are different cloth sides); recorded in E/weld-census.json."
-  ],
-  "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
-  "promotionGates": false,
-  "outputSha256": "a92b9ae5cb0105fc32ab0828446fa79ff1870802e78da4df97502f5831b9ce2e",
-  "outputBytes": 19144852,
-  "fitTimeLower": {
-    "garment": "punkduck_female_tight_jeans",
-    "sourceObjFaces": 2108,
-    "fittedTris": 4216,
-    "lowerGateCoverage": 0.9875
-  },
-  "generatedAt": "2026-11-06T01:34:29.791516+00:00",
-  "method": "mpfb2_materializer_rebake_on_promoted_cast",
-  "albedoBakeWrittenAt": "2026-09-14T22:26:38.364Z",
-  "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: ClothesService PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt iterate-optimize --face-preserving --face-preserving-ratio 0.4 then chest-anchor 0.085 m. Shipped 69093 tris / 13927908 B (jeans 1986). Fit-time faces x 2 lives in fitTimeLower; shipped shell-vs-fit is standoff spread. Previous raw pin cfdcd5a3c2828daa / 17002120. Report: female-covering-lower-acquisition-2026-09-12.md. 2026-09-14 tsk_2cdb306c4e7069af: targeted rebake through the producer-path station (bakeProducedHumanoidAlbedo on the shipped bytes, no re-fit): toigo t-shirt factor folded into its 2048x2048 texture and reset to white. Geometry, rig and animations unchanged; outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
-  "byteLineage": {
-    "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-    "correctedAt": "2026-09-28T04:06:48.298Z",
-    "recordedBefore": {
-      "outputSha256": "06ac92dcda85c230001a0fd04827507909d650c45b4733f4f450ebf72b198690",
-      "outputBytes": 10069444
-    },
-    "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-    "preImageSha256": "06ac92dcda85c230001a0fd04827507909d650c45b4733f4f450ebf72b198690",
-    "preImageBytes": 10069444,
-    "derivationArgv": [
-      "sh",
-      "-c",
-      "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0135 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
-      "x",
-      "{pre}",
-      "{out}"
-    ],
-    "reproduction": "byte-identical to the shipped file",
-    "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
-  },
-  "motionClips": [
-    {
-      "clipName": "openclinxr_retarget_walk_source",
-      "sourceClip": "~/.openclinxr-tools/mesh2motion-app/static/animations/human-base-animations.glb#Walk",
-      "deliveredBy": "tools/openclinxr/factory/graft-bound-clip.ts",
-      "deliveryNote": "GRAFTED, not re-exported. motion_bind_stage.py's Blender round trip loses eyebrow and eyelash geometry; the graft copies channels onto joints already present here and leaves every POSITION accessor byte-identical.",
-      "graftedChannels": 411,
-      "graftedJoints": 137,
-      "licenceRow": "docs/openclinxr/asset-licence-records/row-05-mesh2motion-clip-library-ledger-correction.json",
-      "licenceStatus": "CC0 1.0 - VERIFIED in LICENSE-CC0.MD of the mesh2motion-app clone, which dedicates all 3d models, blend files, rigs and animations. The CarnegieMellonAnimations subtree of the same clone is EXCLUDED and is not the source of this clip.",
-      "notEvidenceFor": [
-        "clinical_gait_realism",
-        "visual_walk_quality",
-        "quest_readiness",
-        "runtime_playback"
-      ]
-    }
-  ],
-  "retiredMotionClips": [
-    {
-      "clipName": "openclinxr_retarget_walk_source",
-      "removedAt": "2026-09-26T00:49:27.085Z",
-      "removedBy": "tools/openclinxr/factory/graft-bound-clip.ts --remove-clip",
-      "channels": 411,
-      "reason": "rebound with corrected --source-orientation: travel MISMATCHES rest (restZ=0.0660, advanceForwardZ=-0.9989, windowFrames=18, mps=0.439)"
-    }
-  ],
-  "gravidGarmentRestore": {
-    "tools": [
-      "tools/openclinxr/asset-pipeline/makeclothes/replace-garment-primitive.ts"
-    ],
-    "toolSha256": {
-      "tools/openclinxr/asset-pipeline/makeclothes/replace-garment-primitive.ts": "079294863e31f3e0bc9792c59592b52508d69e952df1f441ffd957ec1e7a811a"
-    },
-    "argv": [
-      "replace-garment-primitive.ts <glb> --from <source> --mesh t_shirt",
-      "replace-garment-primitive.ts <glb> --from <source> --mesh tight_jeans"
-    ],
-    "source": {
-      "revision": "57e277301:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-      "path": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261031/humanoids/ob-waist-refit/source-57e277301.glb",
-      "sha256": "cfdcd5a3c2828daa5fa1a26d651271b1c46d89260c1d24693bc0ba1b17c0f31a",
-      "bytes": 17002120,
-      "note": "#581 treated bake (pregnancy_target.py 34wk/0.85); the recorded-gravid-treatment.json field was derived from it"
-    },
-    "bodyP95M": 0,
-    "garments": {
-      "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_v1_mesh": {
-        "verticesBefore": 1192,
-        "verticesAfter": 5400,
-        "trisAfter": 2700
-      },
-      "makeclothes_library_female_tight_jeans_pants_mpfb_ob_patient_aisha_v1_mesh": {
-        "verticesBefore": 2906,
-        "verticesAfter": 8432,
-        "trisAfter": 4216
-      }
-    },
-    "inputSha256": "1b8a8ef4f548bfcd71305a30f8eae2e90f19a22176fb80e2e461f755010540ac",
-    "inputBytes": 8828240,
-    "stages": [
-      {
-        "path": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261031/humanoids/ob-waist-refit/stage1-tee.glb",
-        "sha256": "16d78122de2d34de68a923b27cb7fdb0516f776bd16f501fab73d40029f0c329",
-        "bytes": 9124744
-      },
-      {
-        "path": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261031/humanoids/ob-waist-refit/stage2-jeans.glb",
-        "sha256": "e7dc79e691c3898681cbea39fb4736892746fc177fb8e4d01036a4960d5e52f0",
-        "bytes": 9589372
-      }
-    ],
-    "reproduction": "byte-identical to the shipped file",
-    "why": "the gravid field needs the garment density it was derived on; re-decimating would fold the drape again"
-  },
-  "garmentRestoreD1": {
-    "stage": "post_export_glb",
-    "tools": [
-      "tools/openclinxr/asset-pipeline/makeclothes/replace-garment-primitive.ts",
-      "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py#apply_garment_auto_smooth_normals"
-    ],
-    "toolSha256": {
-      "tools/openclinxr/asset-pipeline/makeclothes/replace-garment-primitive.ts": "079294863e31f3e0bc9792c59592b52508d69e952df1f441ffd957ec1e7a811a",
-      "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py#apply_garment_auto_smooth_normals": "0b5d2a0b205699abd6fea68457a6d1b0c96bc8e9b900bee97a9e856d22d9621f"
-    },
-    "argv": [
-      "replace-garment-primitive.ts <glb> --from <pre-decimation> --mesh <garment>",
-      "apply_garment_auto_smooth_normals(<glb>, angle_deg=60.0)"
-    ],
-    "meshes": [
-      "flats:768v/558t->2008v/1004t"
-    ],
-    "source": "f6b335392^ (pre-HB-05) flats; body p95 0.00000 m",
-    "inputBytes": null,
-    "outputSha256": "f588601089956b947f7107ddbf075a5d6248a21c72a792fe1fb238298abf59e4",
-    "outputBytes": 9700420,
-    "commit": "st-redgarm D1",
-    "claimScope": "aisha flats primitive from pre-decimation bytes; shipped material kept; proven #371 60-deg smooth on all garment prims incl. female_tight_jeans. D1 clause (1) red->green."
-  },
-  "skinShade": {
-    "extension": "OPENCLINXR_skin_shade",
-    "material": "mpfb_skin_ob_patient_aisha_v1",
-    "curvatureTextureIndex": 5,
-    "inputs": {
-      "curvature": {
-        "path": "/Volumes/files/openclinxr-assets/store/skin-maps/aisha-curvature-1024.png",
-        "sha256": "803293a9bd9ede025590da827d62b081a55ce6c252ec16c17a1492fb6f35268a"
-      },
-      "cavity": {
-        "path": "/Volumes/files/openclinxr-assets/store/skin-maps/aisha-cavity-1024.png",
-        "sha256": "140345e1001dce61c798565871e8381f534618c1833c7cfca10b8e1e5f580edf"
-      }
-    },
-    "embeddedImage": {
-      "name": "aisha-curv-cav-1024",
-      "mimeType": "image/png",
-      "byteLength": 219114,
-      "sha256": "fd58313ae9c0fdc206f9ae3f3aee0d755b323540fac0ab3573479cf7b9ecabab",
-      "channels": "R=curvature G=cavity(white=concave) B=body-region mask"
-    },
-    "detailNormalTextureIndex": 6,
-    "detailNormalStrength": 0.5,
-    "detailNormalTextureTransform": {
-      "extension": "KHR_texture_transform",
-      "scale": [
-        90,
-        90
-      ]
-    },
-    "detailNormalInput": {
-      "path": ".openclinxr/openclaw/ceo/st-vitbody2/tile/reference-face-tile.png",
-      "source": "/Volumes/files/openclinxr-assets/store/vitruvian-src/4K/Vitruvian_Face_Height_Utility - Raw.exr",
-      "sourceSha256": "37a58404b3c66689a2790a263d3a870797ff54438b6743f398d32464c466331e",
-      "sha256": "0d7f18ff1c6d8129b1f919e9ee0832fcf15e2d7b2a77df803e67c449d99faa5d",
-      "byteLength": 191439,
-      "licence": "CC0-1.0 (docs/openclinxr/asset-licence-records/row-49-vitruvian-project-face-height.json)"
-    },
-    "producer": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:patch_glb_skin_shade",
-    "extensionsRequired": false,
-    "bodyDetailNormalTextureIndex": 6,
-    "bodyDetailNormalTextureTransform": {
-      "extension": "KHR_texture_transform",
-      "scale": [
-        128,
-        128
-      ]
-    },
-    "bodyDetailNormalStrength": 1.0,
-    "bodyDetailNormalInput": {
-      "path": ".openclinxr/openclaw/ceo/st-vitbody2/tile/reference-face-tile.png",
-      "source": "/Volumes/files/openclinxr-assets/store/vitruvian-src/4K/Vitruvian_Face_Height_Utility - Raw.exr",
-      "sourceSha256": "37a58404b3c66689a2790a263d3a870797ff54438b6743f398d32464c466331e",
-      "selection": "reuse the shipped face tile bytes; body and face TextureInfo values share one texture index",
-      "sha256": "0d7f18ff1c6d8129b1f919e9ee0832fcf15e2d7b2a77df803e67c449d99faa5d",
-      "byteLength": 191439,
-      "hexCanvasFftLambdaPx": {
-        "forearm": {
-          "fftLambdaSourcePx": 10.25,
-          "fftPoreBandFraction": 0.21402707934898632
-        },
-        "neck": {
-          "fftLambdaSourcePx": 9.25,
-          "fftPoreBandFraction": 0.284440598059573
-        }
-      },
-      "g22Limit": 0.3457993396570861,
-      "offlineReport": ".openclinxr/openclaw/ceo/st-vitbody2/s17_g22_s2_r8.json",
-      "licence": "CC0-1.0 (docs/openclinxr/asset-licence-records/row-49-vitruvian-project-face-height.json)"
-    }
-  },
-  "vitruvianEyeSwapR2": {
-    "tool": "tools/openclinxr/asset-pipeline/eyes/apply_vitruvian_eye_texture.py",
-    "colour": "brown",
-    "texture": "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-brown.png",
-    "textureSha256": "4066911e4dfb2430c37ccb15c050238c5576a431b43a8b415a1e723457c44922",
-    "previousEyeSha12": "4659691c7295",
-    "note": "st-viteye-r2-H2-brown-case"
-  },
-  "familyAlbedoEmbedR1": {
-    "tool": "tools/openclinxr/asset-pipeline/skin/mpfb_skin_sheet.py",
-    "toolSha256": "ce012230f169a8349c8a9df8722afc8f806544e8529c4ce6a61bf5971c2ae8f5",
-    "mode": "embed_skin_albedo (--embed-albedo --subject=ob_patient_aisha)",
-    "subject": "ob_patient_aisha",
-    "material": "mpfb_skin_ob_patient_aisha_v1",
-    "albedoInput": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run11/stage3-colour-out.png",
-    "albedoSha256": "948b9a3e272dfc3263baa858a7124e4e84ec93ebff1d1ef6cc2b1154a8002e40",
-    "size": 4096,
-    "previousSkinImage": {
-      "name": "mpfb-ob-patient-aisha.skin-baked",
-      "size": [
-        1024,
-        1024
-      ],
-      "sha256": "423dd04117de74131ccadb8c4b8905679505350c316454bed307a37f5dbb5871"
-    },
-    "note": "st-vitfamily: POST-GLB albedo embed per CEO D1; only skin baseColor image bytes rewritten, all other buffer views byte-identical"
-  },
-  "familyAlbedoEmbedR2": {
-    "tool": "tools/openclinxr/asset-pipeline/skin/mpfb_skin_sheet.py",
-    "mode": "embed_skin_albedo (--embed-albedo --subject=ob_patient_aisha)",
-    "subject": "ob_patient_aisha",
-    "material": "mpfb_skin_ob_patient_aisha_v1",
-    "size": 4096,
-    "inputChain": [
-      {
-        "step": "stage3-colour-out (station compose, stored family PNG)",
-        "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run11/stage3-colour-out.png",
-        "sha256": "948b9a3e272dfc3263baa858a7124e4e84ec93ebff1d1ef6cc2b1154a8002e40"
-      },
-      {
-        "step": "D3a brow clear (brow_form.py --brow-form mesh routine + run11 derive_out/mask-brows-L/R.png dilated, feathered alpha confined to masks; then residual dark-texel fill + matched grain)",
-        "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-nobrow3.png",
-        "sha256": "100488a48b0336f29767b1b3fc6cdb21528651d1fc53291d7272e5cf794f6c70"
-      },
-      {
-        "step": "D3b temple-seam feather (per-row island-edge low-freq match, grain kept inside, faded into gutter, rows 680-1180)",
-        "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed.png",
-        "sha256": "05c1eefc59acf46a56cd8279c1966ba31571b99032122e5f577d43875d672817"
-      }
-    ],
-    "albedoInput": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed.png",
-    "albedoSha256": "05c1eefc59acf46a56cd8279c1966ba31571b99032122e5f577d43875d672817",
-    "glbIn": "origin/main mpfb-ob-patient-aisha.glb (pristine, 10219564 B)",
-    "glbOutSha256": "dc875404893495b77f0b172c7ac6215dd079abefc1580b5584d0713574d44180",
-    "glbOutBytes": 19095616,
-    "note": "st-vitfamily D3: POST-GLB albedo embed of brow-cleared + seam-feathered stage-3 albedo; only skin baseColor image bytes rewritten, all other buffer views byte-identical"
-  },
-  "familyAlbedoEmbedR3": {
-    "tool": "tools/openclinxr/asset-pipeline/skin/mpfb_skin_sheet.py",
-    "mode": "embed_skin_albedo (--embed-albedo --subject=ob_patient_aisha)",
-    "subject": "ob_patient_aisha",
-    "material": "mpfb_skin_ob_patient_aisha_v1",
-    "size": 4096,
-    "supersedes": "familyAlbedoEmbedR2 (fixed v1: brow-halo fill visible as streaks per CEO D4; temple stripe alternating +-18L per D4b)",
-    "inputChain": [
-      {
-        "step": "stage3-colour-out (station compose, stored family PNG)",
-        "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run11/stage3-colour-out.png",
-        "sha256": "948b9a3e272dfc3263baa858a7124e4e84ec93ebff1d1ef6cc2b1154a8002e40"
-      },
-      {
-        "step": "D3a brow clear (brow_form.py --brow-form mesh routine + run11 derive_out/mask-brows-L/R.png dilated, feathered alpha confined to masks; then residual dark-texel fill + matched grain)",
-        "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-nobrow3.png",
-        "sha256": "100488a48b0336f29767b1b3fc6cdb21528651d1fc53291d7272e5cf794f6c70"
-      },
-      {
-        "step": "D4a exemplar redo from nobrow3 (fixed2: inpaint from forehead ring, feather >= 24 texels)",
-        "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed2.png",
-        "sha256": "4eaa897cd7b6dde3146fe22f7e79b0198bd0295a682880cd30acc1dcc4ed9486"
-      },
-      {
-        "step": "D4b temple hole fill (fixed3: fixed2 + stripe hole fill, brow region identical to fixed2)",
-        "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed3.png",
-        "sha256": "e944e07fc8051c7231589f4d28cd8e668c6286028b5bbd6d392f2ad4ac9a603e"
-      }
-    ],
-    "albedoInput": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed3.png",
-    "albedoSha256": "e944e07fc8051c7231589f4d28cd8e668c6286028b5bbd6d392f2ad4ac9a603e",
-    "glbIn": "origin/main mpfb-ob-patient-aisha.glb (pristine db2d0030, 10219564 B)",
-    "glbOutSha256": "a92b9ae5cb0105fc32ab0828446fa79ff1870802e78da4df97502f5831b9ce2e",
-    "glbOutBytes": 19144852,
-    "note": "st-vitfamily D4: POST-GLB albedo embed of brow-inpainted + temple-filled stage-3 albedo; only skin baseColor image bytes rewritten, all other buffer views byte-identical"
+    "runtime_playback"
+   ]
   }
+ ],
+ "retiredMotionClips": [
+  {
+   "clipName": "openclinxr_retarget_walk_source",
+   "removedAt": "2026-09-26T00:49:27.085Z",
+   "removedBy": "tools/openclinxr/factory/graft-bound-clip.ts --remove-clip",
+   "channels": 411,
+   "reason": "rebound with corrected --source-orientation: travel MISMATCHES rest (restZ=0.0660, advanceForwardZ=-0.9989, windowFrames=18, mps=0.439)"
+  }
+ ],
+ "gravidGarmentRestore": {
+  "tools": [
+   "tools/openclinxr/asset-pipeline/makeclothes/replace-garment-primitive.ts"
+  ],
+  "toolSha256": {
+   "tools/openclinxr/asset-pipeline/makeclothes/replace-garment-primitive.ts": "079294863e31f3e0bc9792c59592b52508d69e952df1f441ffd957ec1e7a811a"
+  },
+  "argv": [
+   "replace-garment-primitive.ts <glb> --from <source> --mesh t_shirt",
+   "replace-garment-primitive.ts <glb> --from <source> --mesh tight_jeans"
+  ],
+  "source": {
+   "revision": "57e277301:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+   "path": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261031/humanoids/ob-waist-refit/source-57e277301.glb",
+   "sha256": "cfdcd5a3c2828daa5fa1a26d651271b1c46d89260c1d24693bc0ba1b17c0f31a",
+   "bytes": 17002120,
+   "note": "#581 treated bake (pregnancy_target.py 34wk/0.85); the recorded-gravid-treatment.json field was derived from it"
+  },
+  "bodyP95M": 0,
+  "garments": {
+   "makeclothes_library_toigo_t_shirt_mpfb_ob_patient_aisha_v1_mesh": {
+    "verticesBefore": 1192,
+    "verticesAfter": 5400,
+    "trisAfter": 2700
+   },
+   "makeclothes_library_female_tight_jeans_pants_mpfb_ob_patient_aisha_v1_mesh": {
+    "verticesBefore": 2906,
+    "verticesAfter": 8432,
+    "trisAfter": 4216
+   }
+  },
+  "inputSha256": "1b8a8ef4f548bfcd71305a30f8eae2e90f19a22176fb80e2e461f755010540ac",
+  "inputBytes": 8828240,
+  "stages": [
+   {
+    "path": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261031/humanoids/ob-waist-refit/stage1-tee.glb",
+    "sha256": "16d78122de2d34de68a923b27cb7fdb0516f776bd16f501fab73d40029f0c329",
+    "bytes": 9124744
+   },
+   {
+    "path": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261031/humanoids/ob-waist-refit/stage2-jeans.glb",
+    "sha256": "e7dc79e691c3898681cbea39fb4736892746fc177fb8e4d01036a4960d5e52f0",
+    "bytes": 9589372
+   }
+  ],
+  "reproduction": "byte-identical to the shipped file",
+  "why": "the gravid field needs the garment density it was derived on; re-decimating would fold the drape again"
+ },
+ "garmentRestoreD1": {
+  "stage": "post_export_glb",
+  "tools": [
+   "tools/openclinxr/asset-pipeline/makeclothes/replace-garment-primitive.ts",
+   "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py#apply_garment_auto_smooth_normals"
+  ],
+  "toolSha256": {
+   "tools/openclinxr/asset-pipeline/makeclothes/replace-garment-primitive.ts": "079294863e31f3e0bc9792c59592b52508d69e952df1f441ffd957ec1e7a811a",
+   "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py#apply_garment_auto_smooth_normals": "0b5d2a0b205699abd6fea68457a6d1b0c96bc8e9b900bee97a9e856d22d9621f"
+  },
+  "argv": [
+   "replace-garment-primitive.ts <glb> --from <pre-decimation> --mesh <garment>",
+   "apply_garment_auto_smooth_normals(<glb>, angle_deg=60.0)"
+  ],
+  "meshes": [
+   "flats:768v/558t->2008v/1004t"
+  ],
+  "source": "f6b335392^ (pre-HB-05) flats; body p95 0.00000 m",
+  "inputBytes": null,
+  "outputSha256": "f588601089956b947f7107ddbf075a5d6248a21c72a792fe1fb238298abf59e4",
+  "outputBytes": 9700420,
+  "commit": "st-redgarm D1",
+  "claimScope": "aisha flats primitive from pre-decimation bytes; shipped material kept; proven #371 60-deg smooth on all garment prims incl. female_tight_jeans. D1 clause (1) red->green."
+ },
+ "skinShade": {
+  "extension": "OPENCLINXR_skin_shade",
+  "material": "mpfb_skin_ob_patient_aisha_v1",
+  "curvatureTextureIndex": 5,
+  "inputs": {
+   "curvature": {
+    "path": "/Volumes/files/openclinxr-assets/store/skin-maps/aisha-curvature-1024.png",
+    "sha256": "803293a9bd9ede025590da827d62b081a55ce6c252ec16c17a1492fb6f35268a"
+   },
+   "cavity": {
+    "path": "/Volumes/files/openclinxr-assets/store/skin-maps/aisha-cavity-1024.png",
+    "sha256": "140345e1001dce61c798565871e8381f534618c1833c7cfca10b8e1e5f580edf"
+   }
+  },
+  "embeddedImage": {
+   "name": "aisha-curv-cav-1024",
+   "mimeType": "image/png",
+   "byteLength": 219114,
+   "sha256": "fd58313ae9c0fdc206f9ae3f3aee0d755b323540fac0ab3573479cf7b9ecabab",
+   "channels": "R=curvature G=cavity(white=concave) B=body-region mask"
+  },
+  "detailNormalTextureIndex": 6,
+  "detailNormalStrength": 0.5,
+  "detailNormalTextureTransform": {
+   "extension": "KHR_texture_transform",
+   "scale": [
+    90,
+    90
+   ]
+  },
+  "detailNormalInput": {
+   "path": ".openclinxr/openclaw/ceo/st-vitbody2/tile/reference-face-tile.png",
+   "source": "/Volumes/files/openclinxr-assets/store/vitruvian-src/4K/Vitruvian_Face_Height_Utility - Raw.exr",
+   "sourceSha256": "37a58404b3c66689a2790a263d3a870797ff54438b6743f398d32464c466331e",
+   "sha256": "0d7f18ff1c6d8129b1f919e9ee0832fcf15e2d7b2a77df803e67c449d99faa5d",
+   "byteLength": 191439,
+   "licence": "CC0-1.0 (docs/openclinxr/asset-licence-records/row-49-vitruvian-project-face-height.json)"
+  },
+  "producer": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:patch_glb_skin_shade",
+  "extensionsRequired": false,
+  "bodyDetailNormalTextureIndex": 6,
+  "bodyDetailNormalTextureTransform": {
+   "extension": "KHR_texture_transform",
+   "scale": [
+    128,
+    128
+   ]
+  },
+  "bodyDetailNormalStrength": 1.0,
+  "bodyDetailNormalInput": {
+   "path": ".openclinxr/openclaw/ceo/st-vitbody2/tile/reference-face-tile.png",
+   "source": "/Volumes/files/openclinxr-assets/store/vitruvian-src/4K/Vitruvian_Face_Height_Utility - Raw.exr",
+   "sourceSha256": "37a58404b3c66689a2790a263d3a870797ff54438b6743f398d32464c466331e",
+   "selection": "reuse the shipped face tile bytes; body and face TextureInfo values share one texture index",
+   "sha256": "0d7f18ff1c6d8129b1f919e9ee0832fcf15e2d7b2a77df803e67c449d99faa5d",
+   "byteLength": 191439,
+   "hexCanvasFftLambdaPx": {
+    "forearm": {
+     "fftLambdaSourcePx": 10.25,
+     "fftPoreBandFraction": 0.21402707934898632
+    },
+    "neck": {
+     "fftLambdaSourcePx": 9.25,
+     "fftPoreBandFraction": 0.284440598059573
+    }
+   },
+   "g22Limit": 0.3457993396570861,
+   "offlineReport": ".openclinxr/openclaw/ceo/st-vitbody2/s17_g22_s2_r8.json",
+   "licence": "CC0-1.0 (docs/openclinxr/asset-licence-records/row-49-vitruvian-project-face-height.json)"
+  }
+ },
+ "vitruvianEyeSwapR2": {
+  "tool": "tools/openclinxr/asset-pipeline/eyes/apply_vitruvian_eye_texture.py",
+  "colour": "brown",
+  "texture": "tools/openclinxr/asset-pipeline/eyes/vitruvian/vitruvian-iris-brown.png",
+  "textureSha256": "4066911e4dfb2430c37ccb15c050238c5576a431b43a8b415a1e723457c44922",
+  "previousEyeSha12": "4659691c7295",
+  "note": "st-viteye-r2-H2-brown-case"
+ },
+ "familyAlbedoEmbedR1": {
+  "tool": "tools/openclinxr/asset-pipeline/skin/mpfb_skin_sheet.py",
+  "toolSha256": "ce012230f169a8349c8a9df8722afc8f806544e8529c4ce6a61bf5971c2ae8f5",
+  "mode": "embed_skin_albedo (--embed-albedo --subject=ob_patient_aisha)",
+  "subject": "ob_patient_aisha",
+  "material": "mpfb_skin_ob_patient_aisha_v1",
+  "albedoInput": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run11/stage3-colour-out.png",
+  "albedoSha256": "948b9a3e272dfc3263baa858a7124e4e84ec93ebff1d1ef6cc2b1154a8002e40",
+  "size": 4096,
+  "previousSkinImage": {
+   "name": "mpfb-ob-patient-aisha.skin-baked",
+   "size": [
+    1024,
+    1024
+   ],
+   "sha256": "423dd04117de74131ccadb8c4b8905679505350c316454bed307a37f5dbb5871"
+  },
+  "note": "st-vitfamily: POST-GLB albedo embed per CEO D1; only skin baseColor image bytes rewritten, all other buffer views byte-identical"
+ },
+ "familyAlbedoEmbedR2": {
+  "tool": "tools/openclinxr/asset-pipeline/skin/mpfb_skin_sheet.py",
+  "mode": "embed_skin_albedo (--embed-albedo --subject=ob_patient_aisha)",
+  "subject": "ob_patient_aisha",
+  "material": "mpfb_skin_ob_patient_aisha_v1",
+  "size": 4096,
+  "inputChain": [
+   {
+    "step": "stage3-colour-out (station compose, stored family PNG)",
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run11/stage3-colour-out.png",
+    "sha256": "948b9a3e272dfc3263baa858a7124e4e84ec93ebff1d1ef6cc2b1154a8002e40"
+   },
+   {
+    "step": "D3a brow clear (brow_form.py --brow-form mesh routine + run11 derive_out/mask-brows-L/R.png dilated, feathered alpha confined to masks; then residual dark-texel fill + matched grain)",
+    "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-nobrow3.png",
+    "sha256": "100488a48b0336f29767b1b3fc6cdb21528651d1fc53291d7272e5cf794f6c70"
+   },
+   {
+    "step": "D3b temple-seam feather (per-row island-edge low-freq match, grain kept inside, faded into gutter, rows 680-1180)",
+    "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed.png",
+    "sha256": "05c1eefc59acf46a56cd8279c1966ba31571b99032122e5f577d43875d672817"
+   }
+  ],
+  "albedoInput": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed.png",
+  "albedoSha256": "05c1eefc59acf46a56cd8279c1966ba31571b99032122e5f577d43875d672817",
+  "glbIn": "origin/main mpfb-ob-patient-aisha.glb (pristine, 10219564 B)",
+  "glbOutSha256": "dc875404893495b77f0b172c7ac6215dd079abefc1580b5584d0713574d44180",
+  "glbOutBytes": 19095616,
+  "note": "st-vitfamily D3: POST-GLB albedo embed of brow-cleared + seam-feathered stage-3 albedo; only skin baseColor image bytes rewritten, all other buffer views byte-identical"
+ },
+ "familyAlbedoEmbedR3": {
+  "tool": "tools/openclinxr/asset-pipeline/skin/mpfb_skin_sheet.py",
+  "mode": "embed_skin_albedo (--embed-albedo --subject=ob_patient_aisha)",
+  "subject": "ob_patient_aisha",
+  "material": "mpfb_skin_ob_patient_aisha_v1",
+  "size": 4096,
+  "supersedes": "familyAlbedoEmbedR2 (fixed v1: brow-halo fill visible as streaks per CEO D4; temple stripe alternating +-18L per D4b)",
+  "inputChain": [
+   {
+    "step": "stage3-colour-out (station compose, stored family PNG)",
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run11/stage3-colour-out.png",
+    "sha256": "948b9a3e272dfc3263baa858a7124e4e84ec93ebff1d1ef6cc2b1154a8002e40"
+   },
+   {
+    "step": "D3a brow clear (brow_form.py --brow-form mesh routine + run11 derive_out/mask-brows-L/R.png dilated, feathered alpha confined to masks; then residual dark-texel fill + matched grain)",
+    "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-nobrow3.png",
+    "sha256": "100488a48b0336f29767b1b3fc6cdb21528651d1fc53291d7272e5cf794f6c70"
+   },
+   {
+    "step": "D4a exemplar redo from nobrow3 (fixed2: inpaint from forehead ring, feather >= 24 texels)",
+    "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed2.png",
+    "sha256": "4eaa897cd7b6dde3146fe22f7e79b0198bd0295a682880cd30acc1dcc4ed9486"
+   },
+   {
+    "step": "D4b temple hole fill (fixed3: fixed2 + stripe hole fill, brow region identical to fixed2)",
+    "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed3.png",
+    "sha256": "e944e07fc8051c7231589f4d28cd8e668c6286028b5bbd6d392f2ad4ac9a603e"
+   }
+  ],
+  "albedoInput": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed3.png",
+  "albedoSha256": "e944e07fc8051c7231589f4d28cd8e668c6286028b5bbd6d392f2ad4ac9a603e",
+  "glbIn": "origin/main mpfb-ob-patient-aisha.glb (pristine db2d0030, 10219564 B)",
+  "glbOutSha256": "a92b9ae5cb0105fc32ab0828446fa79ff1870802e78da4df97502f5831b9ce2e",
+  "glbOutBytes": 19144852,
+  "note": "st-vitfamily D4: POST-GLB albedo embed of brow-inpainted + temple-filled stage-3 albedo; only skin baseColor image bytes rewritten, all other buffer views byte-identical"
+ },
+ "familyAlbedoEmbedR4": {
+  "tool": "tools/openclinxr/asset-pipeline/skin/mpfb_skin_sheet.py",
+  "toolSha256": "ce012230f169a8349c8a9df8722afc8f806544e8529c4ce6a61bf5971c2ae8f5",
+  "mode": "embed_skin_albedo (--embed-albedo --subject=ob_patient_aisha)",
+  "subject": "ob_patient_aisha",
+  "material": "mpfb_skin_ob_patient_aisha_v1",
+  "size": 4096,
+  "supersedes": "familyAlbedoEmbedR3 (fixed3: ghost-arch streaks above mesh brows per CEO D4; ghost-arch donor redo in fixed8)",
+  "inputChain": [
+   {
+    "step": "stage3-colour-out (station compose, stored family PNG)",
+    "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run11/stage3-colour-out.png",
+    "sha256": "948b9a3e272dfc3263baa858a7124e4e84ec93ebff1d1ef6cc2b1154a8002e40"
+   },
+   {
+    "step": "D3a brow clear (brow_form.py --brow-form mesh routine + run11 derive_out/mask-brows-L/R.png dilated, feathered alpha confined to masks; then residual dark-texel fill + matched grain)",
+    "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-nobrow3.png",
+    "sha256": "100488a48b0336f29767b1b3fc6cdb21528651d1fc53291d7272e5cf794f6c70"
+   },
+   {
+    "step": "D4a exemplar redo from nobrow3 (fixed2: inpaint from forehead ring, feather >= 24 texels)",
+    "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed2.png",
+    "sha256": "4eaa897cd7b6dde3146fe22f7e79b0198bd0295a682880cd30acc1dcc4ed9486"
+   },
+   {
+    "step": "D4b temple hole fill (fixed3: fixed2 + stripe hole fill, brow region identical to fixed2)",
+    "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed3.png",
+    "sha256": "e944e07fc8051c7231589f4d28cd8e668c6286028b5bbd6d392f2ad4ac9a603e"
+   },
+   {
+    "step": "R27 fixed7 brow redo chain (see RESULT-r27-fixed7.md)",
+    "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed7.png",
+    "sha256": "see RESULT-r27-fixed7.md"
+   },
+   {
+    "step": "D4a ghost-arch donor redo from fixed7 (r30_ghost_fix.py: L mask 2392 px / R 2592 px, donor forehead texture, diff 43368 px bbox U[3258,3397] V[1815,2393]; CEO D7 PASS, FINAL)",
+    "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed8.png",
+    "sha256": "93c008378935fcc7055f24118cda9c617217eb1b9a6863a05a054f07a4bb75a2"
+   }
+  ],
+  "albedoInput": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed8.png",
+  "albedoSha256": "93c008378935fcc7055f24118cda9c617217eb1b9a6863a05a054f07a4bb75a2",
+  "glbIn": "origin/main mpfb-ob-patient-aisha.glb @3a1847bcd (md5 bd85b22405772c0e70b49327d2d10d98, 10219564 B; identical to pre-rebase base)",
+  "glbOutSha256": "26a6b759e4f79fa8775144b5b568080c4ffbf76dfa633cf77c03c5aaf88ae095",
+  "glbOutBytes": 19149460,
+  "stage": "face-realism stage 8 albedo_embed (stages-e.ts runAlbedoEmbed; replayed here via the same --embed-albedo entrypoint)",
+  "note": "st-vitfamily D7 land: POST-GLB albedo embed of fixed8 final albedo; only skin baseColor image bytes rewritten, all other buffer views byte-identical; output byte-identical to pre-rebase final-aisha-fixed8.glb"
+ },
+ "SKIN_FAMILY_ALBEDO_REPLACES_BAKE": {
+  "stage": "albedo_embed",
+  "tool": "tools/openclinxr/asset-pipeline/skin/mpfb_skin_sheet.py",
+  "mode": "embed_skin_albedo (--embed-albedo --subject=ob_patient_aisha)",
+  "subject": "ob_patient_aisha",
+  "material": "mpfb_skin_ob_patient_aisha_v1",
+  "familyPath": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run11/stage3-colour-fixed8.png",
+  "familySha256": "93c008378935fcc7055f24118cda9c617217eb1b9a6863a05a054f07a4bb75a2",
+  "size": 4096,
+  "inputGlbSha": "db2d0030b790b8412cd16bb7b9a4610c8b514888d921bbb34cef2fe92eafb662",
+  "newSkinSha12": "26a6b759e4f7",
+  "note": "st-vitfamily D7 final: fixed8 (brow-clear + temple-feather + ghost-arch redo); full input chain in familyAlbedoEmbedR4"
+ }
 }

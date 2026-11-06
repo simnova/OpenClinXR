@@ -1018,7 +1018,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1038,7 +1038,7 @@
     "literal": "return (0.18, 0.13, 0.10, 1.0)  # nurse / default — mid-dark brown"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, nurse/default role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:159. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:353",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1058,7 +1058,7 @@
     "literal": "_GARMENT_COLOR_LAB_COAT = (0.92, 0.92, 0.90, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lab coat, locked white (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1716. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1799.",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1078,7 +1078,7 @@
     "literal": "_GARMENT_COLOR_SCRUB = (0.05, 0.48, 0.52, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). scrub lower, locked scrub colour (untextured cover shell or pre-strip fit). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794.",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1093,7 +1093,7 @@
    },
    "kind": "baked albedo: HB-02 per-texel fold of locked scrub role colour x authored weave",
    "decision": "resolved",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1110,7 +1110,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1132,7 +1132,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1154,7 +1154,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1176,7 +1176,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1198,7 +1198,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1220,7 +1220,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1242,7 +1242,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1264,7 +1264,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1281,7 +1281,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1301,7 +1301,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1321,7 +1321,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7696",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1341,7 +1341,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1018",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1361,7 +1361,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1020",
-   "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
+   "bodyLastChanged": "20f073984f085bb3b01788c88f5fb3685f4b790c 2026-11-06 st-vitphys r1: physician carries deep family r8 albedo as post-export stage + brown vitruvian iris"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -2493,7 +2493,7 @@
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Fitted library garment; no tint authored. Factor absent = glTF default white; the baseColorTexture carries the look. Fit recorded in tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-fit-time.json. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2510,7 +2510,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2530,7 +2530,7 @@
     "literal": "return (0.13, 0.09, 0.07, 1.0)  # near-black"
    },
    "reason": "Role-driven hair colour from embed_library_hair hair_color. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:352",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2545,7 +2545,7 @@
    },
    "kind": "baked albedo: HB-02 per-texel fold of olive_knit_and_cream_casual palette closed_casual x authored weave",
    "decision": "resolved",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2560,7 +2560,7 @@
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2580,7 +2580,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2600,7 +2600,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2620,7 +2620,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2640,7 +2640,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2660,7 +2660,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2680,7 +2680,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2700,7 +2700,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2717,7 +2717,7 @@
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2737,7 +2737,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Authored brow colour. Factor IS the albedo (no texture to multiply). Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2757,7 +2757,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Authored lash colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7696",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2777,7 +2777,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Authored teeth colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1018",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2797,7 +2797,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Authored tongue colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1020",
-   "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
+   "bodyLastChanged": "96813b6bcd09356da976b5296e0a6794e0745c7c 2026-11-05 st-vitfamily: embed young-family albedo into shipped Aisha (WIP)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
