@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * C36 host/Quest harness: on the documented dev stack (`pnpm --filter @openclinxr/xr-sync-server dev:portless`, XR_SYNC_DOORWAY_SECONDS=45) the
+ * C36 host/Quest harness: on the documented dev stack (`pnpm --filter @openclinxr/xr-sync-server dev:portless`, XR_SYNC_DOORWAY_SECONDS=90) the
  * apps/ui-xr shell shows the cast (name and role), the authored topic menu and the doorway countdown from room state, and a doorway-phase
  * refusal (a typed utterance sent before the encounter opens) is visible text, not a silent drop. Expected texts are computed at run time from
  * the shipped scenario (no copied strings). After the doorway opens the refusal clears, a typed phrase and one spoken turn (getUserMedia
@@ -26,7 +26,7 @@ const FIXTURES_DIST = join(ROOT, "packages/openclinxr/scenario-fixtures/dist/ind
 const LISTEN_RE = /xr-sync listening ws:\/\/127\.0\.0\.1:(\d+) instance=(\S+)/;
 const READY_TIMEOUT_MS = 240000;
 const JOIN_TIMEOUT_MS = 240000;
-const DOORWAY_SECONDS = 45;
+const DOORWAY_SECONDS = 90;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const median = (values) => { const s = [...values].sort((a, b) => a - b); return s.length === 0 ? null : s[Math.floor(s.length / 2)]; };
 
@@ -197,7 +197,7 @@ async function main(argv) {
       await page.waitForFunction(() => (document.getElementById("room-refusal")?.textContent ?? "") !== "", undefined, { timeout: 15000 }).catch(() => undefined);
       probe.refused = await readPanel(page);
       await page.locator("#room-panel").screenshot({ path: join(outDir, "c36-doorway-refusal.png") }).catch(() => undefined);
-      await sleep(2500);
+      await page.waitForFunction((before) => document.getElementById("room-countdown")?.textContent !== before, probe.doorwayA.countdown, { timeout: 15000 });
       probe.doorwayB = await readPanel(page);
       // Encounter opens: countdown switches, refusal clears.
       await page.waitForFunction(() => /^Encounter: /u.test(document.getElementById("room-countdown")?.textContent ?? ""), undefined, { timeout: 120000 });
@@ -205,7 +205,10 @@ async function main(argv) {
       probe.open = await readPanel(page);
       await page.locator("#room-panel").screenshot({ path: join(outDir, "c36-encounter.png") }).catch(() => undefined);
       const patientTurns = async () => (await readPanel(page)).turns.filter((t) => t.actorId === actor.actorId).length;
-      const waitTurn = async (count) => { await page.waitForFunction(({ id, count }) => globalThis.__openClinXrEncounterSync.turns.filter((t) => t.actorId === id).length >= count, { id: actor.actorId, count }, { timeout: 120000 }); await sleep(800); };
+      const waitTurn = async (count) => {
+        await page.waitForFunction(({ id, count }) => globalThis.__openClinXrEncounterSync.turns.filter((t) => t.actorId === id).length >= count, { id: actor.actorId, count }, { timeout: 120000 }).catch(async (error) => { run.diag = { waiting: count, panel: await readPanel(page) }; throw error; });
+        await sleep(800);
+      };
       let have = await patientTurns();
       for (const value of [TYPED_HELLO, TYPED_PHRASE]) {
         await page.evaluate((text) => { document.getElementById("utterance-input").value = text; document.getElementById("utterance-send").click(); }, value);
@@ -236,7 +239,7 @@ async function main(argv) {
     check("S4 #room-topics lists the shipped scenario's authored topics (requiredTraceTags minus the note tag)", p.doorwayA?.topics === expectedTopics, `${p.doorwayA?.topics} | expected ${expectedTopics}`);
     const secondsOf = (text) => Number(/(\d+) s/u.exec(text ?? "")?.[1] ?? Number.NaN);
     const a = secondsOf(p.doorwayA?.countdown), b = secondsOf(p.doorwayB?.countdown);
-    check("S5 the doorway countdown reads `Encounter opens in N s` and falls between two reads 2.5 s apart", /^Encounter opens in \d+ s$/u.test(p.doorwayA?.countdown ?? "") && /^Encounter opens in \d+ s$/u.test(p.doorwayB?.countdown ?? "") && b < a && a <= DOORWAY_SECONDS, `${p.doorwayA?.countdown} -> ${p.doorwayB?.countdown}`);
+    check("S5 the doorway countdown reads `Encounter opens in N s` and falls between two reads", /^Encounter opens in \d+ s$/u.test(p.doorwayA?.countdown ?? "") && /^Encounter opens in \d+ s$/u.test(p.doorwayB?.countdown ?? "") && b < a && a <= DOORWAY_SECONDS, `${p.doorwayA?.countdown} -> ${p.doorwayB?.countdown}`);
     const sent = p.refused?.utterances?.[0];
     check("S6 a typed utterance during the doorway was rejected by the room and #room-refusal shows `Not open yet: the encounter opens in N s.`", sent?.statuses?.[0] === "reject" && /^Not open yet: the encounter opens in \d+ s\.$/u.test(p.refused?.refusal ?? "") && !p.refused.turns.some((t) => t.actorId === actor.actorId), JSON.stringify({ statuses: sent?.statuses, refusal: p.refused?.refusal, turns: p.refused?.turns?.length }));
     check("S7 once the encounter opens the countdown reads `Encounter: N s left` and the refusal text is cleared", /^Encounter: \d+ s left$/u.test(p.open?.countdown ?? "") && p.open?.refusal === "", JSON.stringify({ countdown: p.open?.countdown, refusal: p.open?.refusal }));
