@@ -28,6 +28,9 @@ Each line cites the slice or file that measured it. Ledger: .openclinxr/handoffs
 - Affect is a 4-value enum, not text (C24). Captions and topic answers live in the live room only and never enter the trace or the review index (C23 T4).
 - The trace is a pure reduction (`reduceConversationEvents`); the room and replay share it, so a persisted file replays to itself (C4).
 
+## Dev stack speech (C34)
+- `pnpm --filter @openclinxr/xr-sync-server dev:portless` boots the faster-whisper sidecar (venv /Volumes/files/openclinxr-assets/stt/venv, tools/openclinxr/evidence/xr-sync/stt/transcribe.py) and prints `xr-sync speech ready model=<m>` or `xr-sync speech unavailable: <reason>` before the listening line. Env: XR_SYNC_STT=off, XR_SYNC_STT_PYTHON, XR_SYNC_STT_SCRIPT, XR_SYNC_STT_MODEL. A missing recognizer never stops the server; room state `speechAvailable` tells the shell to hide push-to-talk.
+
 ## Push
 - Push to main only through jobs/push-main.sh: it takes `/private/tmp/openclinxr-push.lock` (mkdir), waits for 5-min load < 45, and removes the lock only if it created it. Exit 3 means main moved on lane paths: rebase, re-run suites and the host harness (ledger, push-lock rule 2026-10-31).
 - Never `--no-verify`, never commit in the shared checkout. In a fresh worktree build `@openclinxr/model-vetting` before committing or typecheck:stations reports 4 false errors (C24).

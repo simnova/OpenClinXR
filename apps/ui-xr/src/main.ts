@@ -3595,7 +3595,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
         requestAnimationFrame(() => updateManualEvidencePanel());
         recordPackageXrEntryEvidence("started");
       } catch (error) {
-        activeXrSession = undefined;
+        activeXrSession = undefined; (window as unknown as Record<string, unknown>)["__openClinXrXrSession"] = undefined;
         enterXrButton.disabled = false;
         enterXrButton.textContent = "Enter Full VR";
         xrStatus.textContent = "WebXR entry blocked";

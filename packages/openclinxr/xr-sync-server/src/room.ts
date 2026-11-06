@@ -170,6 +170,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     const blueprint = this.stationBinding.examBlueprint;
     this.state.blueprintId = blueprint?.blueprintId ?? "";
     this.state.stationLabel = blueprint?.labels.get(station.stationId) ?? "";
+    this.state.speechAvailable = this.speechRecognizer !== null;
     // C16: a cast station replaces the roster with the slot's scenario cast
     // (first and every rotation: onCreate runs per room). Without scenarios,
     // the C15 behaviour is unchanged.

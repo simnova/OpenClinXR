@@ -9,6 +9,7 @@ export interface SpeechRecorder {
   stop(): Promise<{ chunks: Float32Array[]; sampleRate: number }>;
   inject?(pcm: Int16Array): void;
   source?(): "microphone" | "injected";
+  permission?(): Promise<'granted' | 'denied' | 'prompt' | 'unavailable'>;
 }
 
 export interface XrSessionLike {
@@ -32,6 +33,9 @@ export interface SpeechEvidence {
   press(): Promise<void>;
   release(): Promise<void>;
   inject?(pcm: Int16Array): void;
+  micState: "checking" | "granted" | "prompt" | "denied" | "unavailable";
+  serverSpeech: "unknown" | "available" | "unavailable";
+  setServerSpeech(available: boolean | undefined): void;
 }
 
 export function mountSpeechCapture(deps: {
@@ -53,14 +57,44 @@ export function mountSpeechCapture(deps: {
   button.id = "speak-button";
   button.textContent = "Hold to speak";
   deps.box.parent.appendChild(button);
+  const micEl = deps.box.doc.createElement("div");
+  micEl.id = "mic-status";
+  micEl.textContent = "";
+  deps.box.parent.appendChild(micEl);
+  let mic: SpeechEvidence["micState"] = "checking";
+  let server: SpeechEvidence["serverSpeech"] = "unknown";
+  const render = (): void => {
+    button.hidden = mic === "denied" || mic === "unavailable" || server === "unavailable";
+    micEl.textContent = server === "unavailable"
+      ? "Speech recognition off: type your question"
+      : mic === "checking" ? "" : mic === "granted" ? "Microphone ready" : mic === "prompt" ? "Microphone permission needed" : mic === "denied" ? "Microphone blocked: type your question" : "Microphone unavailable: type your question";
+  };
+  render();
+  const maybeRecorder = recorder as SpeechRecorder & { permission?: () => Promise<"granted" | "denied" | "prompt" | "unavailable"> };
+  // Defer the preflight past join's own promise layers so micState still reads
+  // "checking" when join resolves, then settles within a few microtask turns.
+  const preflightMic = async (): Promise<void> => {
+    await Promise.resolve();
+    await Promise.resolve();
+    try {
+      mic = (await maybeRecorder.permission?.()) ?? "prompt";
+    } catch {
+      mic = "prompt";
+    }
+    render();
+  };
+  void preflightMic();
   let recording = false;
   let processing = false;
   let startFailed = false;
   let holdTimer: ReturnType<typeof setTimeout> | undefined;
+  let pressId = 0;
   let source: "microphone" | "injected" = "microphone";
   let starting: Promise<void> = Promise.resolve();
   const press = async (): Promise<void> => {
+    if (button.hidden) return;
     if (recording || processing) return;
+    const id = ++pressId;
     recording = true;
     startFailed = false;
     statusEl.textContent = "Listening...";
@@ -73,9 +107,14 @@ export function mountSpeechCapture(deps: {
       const err = error instanceof Error ? error : new Error(String(error));
       captures.push({ source: recorder.source?.() ?? "microphone", status: `failed:${err.name !== "" && err.name !== "Error" ? err.name : err.message}`, samples: 0, rms: 0, releaseToCaptionMs: 0, chars: 0, confidence: 0, detail: err.message.slice(0, 120) });
       statusEl.textContent = "Microphone unavailable";
+      const tag = `${err.name} ${err.message}`;
+      if (/NotAllowedError|SecurityError|PermissionDeniedError/.test(tag)) mic = "denied";
+      else if (/NotFoundError|NotSupportedError|NotReadableError|OverconstrainedError|AbortError/.test(tag)) mic = "unavailable";
+      render();
       return;
     }
     source = recorder.source?.() ?? "microphone";
+    if (id !== pressId || !recording) return;
     // The server accepts at most 15 s of audio: release automatically before that.
     holdTimer = setTimeout(() => { void release(); }, 14000);
   };
@@ -84,6 +123,7 @@ export function mountSpeechCapture(deps: {
     recording = false;
     processing = true;
     clearTimeout(holdTimer);
+    holdTimer = undefined;
     const releasedAt = deps.nowMs();
     try {
       await starting.catch(() => undefined);
@@ -126,7 +166,13 @@ export function mountSpeechCapture(deps: {
     }
     const sent = deps.sendSpeech(deps.pickActor(), text, confidence);
     const captionAt = deps.nowMs();
-    await sent;
+    try {
+      await sent;
+    } catch (error) {
+      captures.push({ source, status: `failed:${error instanceof Error ? error.message : String(error)}`, samples, rms, releaseToCaptionMs: 0, chars: 0, confidence: 0 });
+      statusEl.textContent = "";
+      return;
+    }
     captures.push({ source, status: "ok", samples, rms, releaseToCaptionMs: captionAt - releasedAt, chars: text.trim().length, confidence });
     statusEl.textContent = "";
   };
@@ -144,7 +190,11 @@ export function mountSpeechCapture(deps: {
   attachXr();
   const timer = setInterval(attachXr, 500) as unknown as { unref?: unknown };
   if (typeof timer.unref === "function") (timer.unref as () => void)();
-  const evidence: SpeechEvidence = { captures, press, release };
+  const evidence: SpeechEvidence = { captures, press, release,
+    get micState() { return mic; },
+    get serverSpeech() { return server; },
+    setServerSpeech: (available) => { server = available === undefined ? "unknown" : available ? "available" : "unavailable"; render(); },
+  };
   if (recorder.inject !== undefined) evidence.inject = recorder.inject.bind(recorder);
   return evidence;
 }

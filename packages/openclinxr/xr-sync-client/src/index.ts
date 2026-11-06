@@ -119,6 +119,8 @@ export interface EncounterSnapshot {
   replayRubricCoverage?: Array<{ id: string; observedCount: number; requiredCount: number }>;
   /** C22 scenario-owned learner history topics ([] off a cast station). */
   topicMenu?: string[];
+  /** C34 true when the server has a speech recognizer (absent on old servers). */
+  speechAvailable?: boolean;
 }
 
 /** Live headset-side connection: intents out, snapshots in. */
@@ -156,7 +158,7 @@ interface QueuedIntent {
   timer: ReturnType<typeof setTimeout>;
 }
 
-/** Map the reflection-decoded room state to a plain snapshot. Undefined while undecodable. */
+/** Map the reflection-decoded room state to a plain snapshot. Undefined while undecodable or before the first sync. */
 function toSnapshot(state: unknown): EncounterSnapshot | undefined {
   if (typeof state !== "object" || state === null) {
     return undefined;
@@ -167,6 +169,12 @@ function toSnapshot(state: unknown): EncounterSnapshot | undefined {
   }
   const json = (candidate.toJSON as () => unknown)();
   if (typeof json !== "object" || json === null) {
+    return undefined;
+  }
+  // C34 the join confirmation lands before the first state dump, so the
+  // synchronous push on subscribe would deliver an empty placeholder.
+  // serverTick is a required C1 field, present in every real snapshot.
+  if (typeof (json as { serverTick?: unknown }).serverTick !== "number") {
     return undefined;
   }
   return json as EncounterSnapshot;

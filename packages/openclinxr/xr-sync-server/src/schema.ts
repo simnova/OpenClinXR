@@ -129,6 +129,8 @@ export const EncounterState = schema(
     replayRubricCoverage: t.array(ReplayRubricCoverageState),
     /** C22 scenario-owned learner history topics for this cast station. */
     topicMenu: t.array("string"),
+    /** C34 true when the server has a speech recognizer (speech-audio is accepted). */
+    speechAvailable: t.boolean(),
   },
   "EncounterState",
 );

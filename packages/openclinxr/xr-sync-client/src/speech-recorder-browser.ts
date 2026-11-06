@@ -72,7 +72,7 @@ interface RuntimeLike {
   AudioWorkletNode?: new (context: AudioContextLike, name: string) => WorkletNodeLike;
   URL?: { createObjectURL(blob: unknown): string; revokeObjectURL(url: string): void };
   Blob?: new (parts: string[], options: { type: string }) => unknown;
-  navigator?: { mediaDevices?: MediaDevicesLike };
+  navigator?: { mediaDevices?: MediaDevicesLike; permissions?: { query(descriptor: { name: string }): Promise<{ state: string }> } };
 }
 
 const runtime = globalThis as unknown as RuntimeLike;
@@ -207,6 +207,17 @@ export function createBrowserSpeechRecorder(): SpeechRecorder {
   return {
     start,
     stop,
+    permission: async () => {
+      if (runtime.navigator?.mediaDevices?.getUserMedia === undefined) return "unavailable";
+      const query = runtime.navigator.permissions?.query;
+      if (query === undefined) return "prompt";
+      try {
+        const result = await query({ name: "microphone" });
+        return result.state === "granted" || result.state === "denied" ? result.state : "prompt";
+      } catch {
+        return "prompt";
+      }
+    },
     inject: (pcm) => {
       pendingInject = pcm;
     },

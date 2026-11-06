@@ -377,13 +377,14 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
   let lastSpokeActorId: string | undefined;
   let lastAddressedActorId: string | undefined;
   let repeatPrompt: UtteranceBoxElement | undefined;
+  let speechEvidence: SpeechEvidence | undefined;
   try {
     const handle = await joinEncounterRoom({
       url: flag.url,
       actorIds: deps.actorIds(),
       ...(flag.replayStation === undefined ? {} : { replayStation: flag.replayStation }),
       reviewLobby: isLobby,
-      onSnapshot: (snapshot) => picker?.render(snapshot),
+      onSnapshot: (snapshot) => { picker?.render(snapshot); speechEvidence?.setServerSpeech(snapshot.speechAvailable); },
       ...(deps.connectFn === undefined ? {} : { connectFn: deps.connectFn }),
       onTurn: (turn, stationId) => {
         lastSpokeActorId = turn.actorId;
@@ -464,10 +465,11 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
       if (deps.speech !== undefined) {
         const recorder = deps.speech.recorder ?? createBrowserSpeechRecorder();
         const xr = deps.speech.xrSession === undefined ? {} : { xrSession: deps.speech.xrSession };
-        evidence.speech = mountSpeechCapture({ box: deps.utteranceBox, speech: { recorder, ...xr }, nowMs: deps.nowMs,
+        speechEvidence = mountSpeechCapture({ box: deps.utteranceBox, speech: { recorder, ...xr }, nowMs: deps.nowMs,
           sendAudio: (pcm): Promise<{ status: string; reason?: string; transcript?: { text: string; confidence: number } }> => handle.sendIntent("speech-audio", { pcm, sampleRate: 16000 }).then((r): { status: string; reason?: string; transcript?: { text: string; confidence: number } } => (r.status === "ack" ? (r.transcript === undefined ? { status: r.status } : { status: r.status, transcript: r.transcript }) : { status: r.status, reason: r.reason })),
           pickActor: () => { const actor = pickAddressedActor({ actorIds: deps.actorIds(), gazedActorId: gazedNow(), lastSpokeActorId, lastAddressedActorId }); if (actor !== undefined) lastAddressedActorId = actor; return actor; },
           sendSpeech: (a, t, c) => evidence.sendSpeech!(a, t, c) });
+        evidence.speech = speechEvidence;
         if (deps.speech.inject !== true) delete evidence.speech.inject;
       }
     }
