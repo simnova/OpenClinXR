@@ -66,7 +66,7 @@ process.on("SIGINT", () => {
 const repoRoot = fileURLToPath(new URL("../../../../", import.meta.url));
 
 const { scenarioBank, scenarioDialogueSeedBank } = await import("@openclinxr/scenario-fixtures");
-let stack;
+let stack: ReturnType<typeof resolveDevStack>;
 try {
   stack = resolveDevStack(process.env, { scenarioBank, scenarioDialogueSeedBank });
 } catch (error) {

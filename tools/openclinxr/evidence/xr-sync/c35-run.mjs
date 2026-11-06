@@ -205,7 +205,12 @@ async function main(argv) {
       await page.locator("#utterance-input").waitFor({ timeout: 60000 });
       const patientTurns = async () => (await readShell(page)).turns.filter((t) => t.actorId === seed.actorId).length;
       const waitTurn = async (count) => {
-        await page.waitForFunction(({ id, count }) => globalThis.__openClinXrEncounterSync.turns.filter((t) => t.actorId === id).length >= count && globalThis.__openClinXrEncounterSync.voice.records.length >= count, { id: seed.actorId, count }, { timeout: 120000 });
+        try {
+          await page.waitForFunction(({ id, count }) => globalThis.__openClinXrEncounterSync.turns.filter((t) => t.actorId === id).length >= count && globalThis.__openClinXrEncounterSync.voice.records.length >= count, { id: seed.actorId, count }, { timeout: 120000 });
+        } catch (error) {
+          run.diag = { waiting: count, audioWarmup: probe.audioWarmup ?? null, shell: await readShell(page).catch((e) => String(e)) };
+          throw error;
+        }
         await page.waitForFunction((count) => { const r = globalThis.__openClinXrEncounterSync.voice.records[count - 1]; return r !== undefined && (r.chars === 0 || r.error !== "" || r.played !== undefined); }, count, { timeout: 60000 }).catch(() => undefined);
         await sleep(800);
       };
