@@ -50,7 +50,7 @@ import { classifyGarmentMeshName, isFittedGarmentMeshName } from "../../../../..
 const DIR = join(repoRoot(), "apps/ui-xr/public/generated-humanoids/");
 const MIN_CONTRAST = 60;      // between today's 28.7 and the shipped control's 163.9
 const CONTROL_FLOOR = 120;    // the control must not be dragged down to meet the patient
-const SKIN_SHA_OB = "423dd04117de7413";   // 57e277301 re-recorded 2026-09-12: the tightjeans staging rebaked the skin atlas (was 1d41a725c16253b5); aisha untouched since.
+const SKIN_SHA_OB = "93c008378935fcc7";   // st-vitfamily R4 fixed8 (2026-11-06): the young-family albedo embed replaces the skin baseColor image (was 423dd04117de7413, 57e277301 tightjeans rebake; before that 1d41a725c16253b5). Garments untouched.
 
 type Actor = { garments: { name: string; rgb: [number, number, number]; verts: number }[];
   skin: [number, number, number]; skinSha: string };
