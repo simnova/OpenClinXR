@@ -27,13 +27,12 @@ const LISTEN_RE = /xr-sync listening ws:\/\/127\.0\.0\.1:(\d+) instance=(\S+)/;
 const READY_TIMEOUT_MS = 240000;
 const JOIN_TIMEOUT_MS = 240000;
 const DOORWAY_SECONDS = 45;
-const SPOKEN = { onset: "When did the chest pressure start?" };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const median = (values) => { const s = [...values].sort((a, b) => a - b); return s.length === 0 ? null : s[Math.floor(s.length / 2)]; };
 
-async function makeFixtures(dir) {
+async function makeFixtures(dir, spoken) {
   await mkdir(dir, { recursive: true });
-  for (const [name, sentence] of Object.entries(SPOKEN)) {
+  for (const [name, sentence] of Object.entries(spoken)) {
     await run_("say", ["-v", "Samantha", "-o", join(dir, `${name}.aiff`), sentence]);
     await run_("ffmpeg", ["-loglevel", "error", "-y", "-i", join(dir, `${name}.aiff`), "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le", join(dir, `${name}.wav`)]);
   }
@@ -132,7 +131,7 @@ async function main(argv) {
     run.expected = { expectedCast, expectedTopics, actorId: actor.actorId, seedReplyId: `${actor.actorId}:seed:${seed.seedId}` };
 
     const audioDir = join(outDir, "audio");
-    await makeFixtures(audioDir);
+    await makeFixtures(audioDir, { onset: TYPED_PHRASE });
     const pcm = await readPcm(join(audioDir, "onset.wav"));
     staticServer = await startStaticServer(APP_DIST);
     const launchArgs = ["--autoplay-policy=no-user-gesture-required", "--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream", `--use-file-for-fake-audio-capture=${join(audioDir, "onset.wav")}`];
@@ -244,9 +243,9 @@ async function main(argv) {
     const patient = (q) => (q?.turns ?? []).filter((t) => t.actorId === actor.actorId);
     check("S8 after the doorway a typed phrase and one spoken turn each got the shipped onset answer, with no refusal text", patient(p.typed).at(-1)?.replyId === run.expected.seedReplyId && patient(p.spoken).length === patient(p.typed).length + 1 && patient(p.spoken).at(-1)?.replyId === run.expected.seedReplyId && p.spoken?.refusal === "", JSON.stringify({ typed: patient(p.typed).map((t) => t.replyId), spoken: patient(p.spoken).map((t) => t.replyId), refusal: p.spoken?.refusal }));
     const own = await readFile(fileURLToPath(import.meta.url), "utf8");
-    const literals = [...edChestPainScenario.actors.map((x) => x.displayName), ...edChestPainScenario.requiredTraceTags.map(label)];
+    const literals = [...edChestPainScenario.actors.map((x) => x.displayName), ...edChestPainScenario.requiredTraceTags.map(label), ...seed.utterancePhrases];
     const copied = literals.filter((text) => own.includes(`"${text}"`) || own.includes(`'${text}'`));
-    check("S9 the harness source holds none of the shipped actor names or topic labels (expected values are computed from the shipped scenario)", copied.length === 0, copied.join(", "));
+    check("S9 the harness source holds none of the shipped actor names, topic labels or utterance phrases (expected values are computed from the shipped scenario)", copied.length === 0, copied.join(", "));
     const other = out.consoleErrors.filter((text) => !isAsset404(text));
     check("S10 no page errors and no console errors other than missing-asset 404s", out.pageErrors.length === 0 && other.length === 0, [...out.pageErrors, ...other].join(" | ") || `${out.consoleErrors.length} asset 404s`);
     const stopped = await stopStack(stack);

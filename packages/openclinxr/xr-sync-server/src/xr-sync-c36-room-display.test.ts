@@ -70,7 +70,7 @@ describe("xr-sync-server C36 room display state", () => {
   it("known-good: an utterance-start during the doorway rejects outside-encounter-phase", async () => {
     const server = await boot({ examBlueprint: blueprint(4), scenarios: [CHEST] });
     const { connection } = await join(server);
-    expect(await connection.sendIntent("select-actor", { actorId: CHEST.actors[0]!.actorId })).toMatchObject({ status: "reject", reason: "outside-encounter-phase" });
+    expect(await connection.sendIntent("utterance-start", {})).toMatchObject({ status: "reject", reason: "outside-encounter-phase" });
   }, 20000);
 });
 
