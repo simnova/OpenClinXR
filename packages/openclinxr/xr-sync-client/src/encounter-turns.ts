@@ -12,6 +12,7 @@ import { type GazeView, gazedActorId, pickAddressedActor } from "./addressed-act
 import { createActorVoice, type ActorVoice, type SpokenTurnRecord, type VoiceEngine, type VoiceSink, type VoiceSlot } from "./actor-voice.js";
 import { createBrowserVoiceParts } from "./actor-voice-browser.js";
 import type { ConnectOptions } from "./options.js";
+import { createLobbyPicker, type LobbyEvidence } from "./encounter-lobby.js";
 
 const SPEECH_LOW_CONFIDENCE = "speech_low_confidence";
 
@@ -29,14 +30,18 @@ export interface SyncedActorTurn {
 const DIALOGUE_EMOTIONS: ReadonlySet<string> = new Set(["anxious", "concerned", "reassured", "neutral"]);
 
 /** Returns the room url when ?encounterSync= holds a ws:// or wss:// url. */
-export function encounterSyncUrl(search: string): { url: string; replayStation?: string } | null {
+export function encounterSyncUrl(search: string): { url: string; replayStation?: string; reviewLobby?: true } | null {
   const params = new URLSearchParams(search);
   const value = params.get("encounterSync");
   if (value === null || !/^wss?:\/\/[^\s/]+/u.test(value)) return null;
   const station = params.get("encounterReplayStation");
-  if (station === null) return { url: value };
-  if (!/^[A-Za-z0-9._:-]{1,64}$/u.test(station)) return null;
-  return { url: value, replayStation: station };
+  if (station !== null) {
+    if (!/^[A-Za-z0-9._:-]{1,64}$/u.test(station)) return null;
+    if (params.get("encounterReviewLobby") === "1") return null;
+    return { url: value, replayStation: station };
+  }
+  if (params.get("encounterReviewLobby") === "1") return { url: value, reviewLobby: true };
+  return { url: value };
 }
 
 /** Stateful detector: one turn per (actor, turnId) when the actor is speaking; turnId restarts per station room. */
@@ -195,6 +200,8 @@ export interface JoinEncounterRoomOptions {
   url: string;
   actorIds: readonly string[];
   replayStation?: string;
+  reviewLobby?: boolean;
+  onSnapshot?(snapshot: EncounterSnapshot): void;
   onTurn(turn: SyncedActorTurn, stationId: string): void;
   connectFn?: (url: string, options?: ConnectOptions) => Promise<SyncConnection>;
 }
@@ -202,10 +209,14 @@ export interface JoinEncounterRoomOptions {
 /** Join the room and forward each detected actor turn to onTurn. */
 export async function joinEncounterRoom(options: JoinEncounterRoomOptions): Promise<EncounterSyncHandle> {
   const connectFn = options.connectFn ?? connect;
-  const connection = await connectFn(options.url, { roomOptions: { actors: [...options.actorIds], ...(options.replayStation === undefined ? {} : { replayStationId: options.replayStation }) } });
+  const roomOptions = options.reviewLobby === true
+    ? { reviewLobby: true }
+    : { actors: [...options.actorIds], ...(options.replayStation === undefined ? {} : { replayStationId: options.replayStation }) };
+  const connection = await connectFn(options.url, { roomOptions });
   const detect = createActorTurnDetector();
   const turns: SyncedActorTurn[] = [];
   connection.onState((snapshot) => {
+    options.onSnapshot?.(snapshot);
     for (const turn of detect(snapshot)) {
       turns.push(turn);
       options.onTurn(turn, snapshot.stationId ?? "");
@@ -268,6 +279,8 @@ export interface EncounterSyncEvidence {
   voice?: { records: readonly SpokenTurnRecord[]; unlock(): Promise<void>; mouth(actorId: string): number; mouthTargets(actorId: string): Record<string, number>; audioState(): string; error?: string };
   /** C30 low-confidence actor turns that asked the learner to repeat. */
   repeatPrompts?: Array<{ actorId: string; turnId: number; retries: number }>;
+  /** C32 review-lobby station list and select-station outcomes. */
+  lobby?: LobbyEvidence;
 }
 
 /** Structural input/button surface for the learner free-text box (no DOM lib in this package). */
@@ -277,6 +290,8 @@ export interface UtteranceBoxElement {
   textContent: string | null;
   type?: string;
   placeholder?: string;
+  disabled?: boolean;
+  hidden?: boolean;
   appendChild(child: UtteranceBoxElement): unknown;
   addEventListener(type: string, listener: (event: { key?: string; isComposing?: boolean; shiftKey?: boolean; preventDefault?: () => void; stopPropagation?: () => void }) => void): void;
 }
@@ -315,8 +330,15 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
   const flag = encounterSyncUrl(deps.search);
   if (flag === null) return null;
   const isReplayRoom = flag.replayStation !== undefined;
+  const isLobby = flag.reviewLobby === true;
   const evidence: EncounterSyncEvidence = { url: flag.url, state: "joining", sessionId: "", error: "", turns: [] };
   if (flag.replayStation !== undefined) evidence.replayStation = flag.replayStation;
+  let sendSelect: (stationId: string) => Promise<{ status: string; reason?: string }> = () =>
+    Promise.resolve({ status: "error", reason: "not-joined" });
+  const picker = isLobby && deps.utteranceBox !== undefined
+    ? createLobbyPicker({ box: deps.utteranceBox, select: (stationId) => sendSelect(stationId) })
+    : undefined;
+  if (picker !== undefined) evidence.lobby = picker.evidence;
   let voice: ActorVoice | undefined;
   if (deps.voice !== undefined) {
     try {
@@ -338,7 +360,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
       evidence.voice = { records: [], unlock: async () => undefined, mouth: () => 0, mouthTargets: () => ({}), audioState: () => "none", error: error instanceof Error ? error.message : String(error) };
     }
   }
-  if (deps.utteranceBox !== undefined && !isReplayRoom) evidence.repeatPrompts = [];
+  if (deps.utteranceBox !== undefined && !isReplayRoom && !isLobby) evidence.repeatPrompts = [];
   deps.publish(evidence);
   const gazedNow = (): string | undefined => {
     const view = deps.gazeView?.();
@@ -352,6 +374,8 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
       url: flag.url,
       actorIds: deps.actorIds(),
       ...(flag.replayStation === undefined ? {} : { replayStation: flag.replayStation }),
+      reviewLobby: isLobby,
+      onSnapshot: (snapshot) => picker?.render(snapshot),
       ...(deps.connectFn === undefined ? {} : { connectFn: deps.connectFn }),
       onTurn: (turn, stationId) => {
         lastSpokeActorId = turn.actorId;
@@ -381,7 +405,8 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     evidence.speechUtterances = handle.speechUtterances;
     evidence.sendSpeech = (actorId, text, confidence) => handle.sendSpeech(actorId, text, confidence);
     evidence.gazedActorId = gazedNow;
-    if (deps.utteranceBox !== undefined && !isReplayRoom) {
+    sendSelect = (stationId) => handle.sendIntent("select-station", { stationId });
+    if (deps.utteranceBox !== undefined && !isReplayRoom && !isLobby) {
       repeatPrompt = deps.utteranceBox.doc.createElement("div");
       repeatPrompt.id = "repeat-prompt";
       repeatPrompt.textContent = "";

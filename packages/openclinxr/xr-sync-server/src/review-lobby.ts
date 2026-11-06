@@ -100,6 +100,8 @@ export function setupLobbyState(state: EncounterStateInstance, replay: LoadedSta
     row.turnCount = entry.turnCount;
     row.notePresent = entry.notePresent;
     row.noteChars = entry.noteChars;
+    row.available = replay.stations.has(entry.stationId) && !replay.failures.has(entry.stationId);
+    row.unavailableReason = replay.failures.get(entry.stationId) ?? (replay.stations.has(entry.stationId) ? "" : "replay-unknown-station");
     state.lobbyStations.push(row);
   }
   // C13 score badges, in index order. lobbyStations rows are unchanged (no

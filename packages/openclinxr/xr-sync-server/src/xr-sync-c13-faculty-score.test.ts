@@ -198,8 +198,8 @@ describe("xr-sync-server C13 faculty score + return to lobby", () => {
     await waitFor(() => r.last()?.mode === "lobby", 5000, "back in lobby");
     expect(r.last()?.lobbyScores).toEqual([{ stationId: "station-2", checkedCount: 2 }]);
     expect(r.last()?.lobbyStations?.map((s) => Object.keys(s).sort())).toEqual([
-      ["noteChars", "notePresent", "stationId", "stationIndex", "turnCount"],
-      ["noteChars", "notePresent", "stationId", "stationIndex", "turnCount"],
+      ["available", "noteChars", "notePresent", "stationId", "stationIndex", "turnCount", "unavailableReason"],
+      ["available", "noteChars", "notePresent", "stationId", "stationIndex", "turnCount", "unavailableReason"],
     ]);
     await r.c.leave();
     await first.close();

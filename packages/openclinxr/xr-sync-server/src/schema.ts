@@ -43,6 +43,8 @@ export const LobbyStationState = schema(
     turnCount: t.number(),
     notePresent: t.boolean(),
     noteChars: t.number(),
+    available: t.boolean(),
+    unavailableReason: t.string(),
   },
   "LobbyStationState",
 );
@@ -173,7 +175,7 @@ export interface EncounterSnapshot {
   /** C12 true when the recorded session ran to completion (lobby rooms only). */
   sessionComplete: boolean;
   /** C12 one entry per index station, in index order (lobby rooms only). */
-  lobbyStations: { stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number }[];
+  lobbyStations: { stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number; available: boolean; unavailableReason: string }[];
   /** C13 checked rubric count for the replayed station (replay rooms only). */
   scoreChecked: number;
   /** C13 one badge per scored index station, in index order (lobby rooms only). */
@@ -214,5 +216,5 @@ export function snapshotState(state: EncounterStateInstance): EncounterSnapshot 
       speaking: learner.speaking,
     };
   }
-  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount, stationId: state.stationId, stationIndex: state.stationIndex, stationCount: state.stationCount, mode: state.mode, lastTurnEnd: state.lastTurnEnd, replayDone: state.replayDone, noteStatus: state.noteStatus, noteChars: state.noteChars, sessionComplete: state.sessionComplete, lobbyStations: [...state.lobbyStations].map((entry) => ({ stationId: entry.stationId, stationIndex: entry.stationIndex, turnCount: entry.turnCount, notePresent: entry.notePresent, noteChars: entry.noteChars })), scoreChecked: state.scoreChecked, lobbyScores: [...state.lobbyScores].map((entry) => ({ stationId: entry.stationId, checkedCount: entry.checkedCount })), reviewFinalized: state.reviewFinalized, blueprintId: state.blueprintId, stationLabel: state.stationLabel, scenarioId: state.scenarioId, scenarioTitle: state.scenarioTitle, lastScheduledEventId: state.lastScheduledEventId, replayRubric: [...state.replayRubric].map((entry) => ({ id: entry.id, label: entry.label })), replayRubricCoverage: [...state.replayRubricCoverage].map((entry) => ({ id: entry.id, observedCount: entry.observedCount, requiredCount: entry.requiredCount })), topicMenu: [...state.topicMenu] };
+  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount, stationId: state.stationId, stationIndex: state.stationIndex, stationCount: state.stationCount, mode: state.mode, lastTurnEnd: state.lastTurnEnd, replayDone: state.replayDone, noteStatus: state.noteStatus, noteChars: state.noteChars, sessionComplete: state.sessionComplete, lobbyStations: [...state.lobbyStations].map((entry) => ({ stationId: entry.stationId, stationIndex: entry.stationIndex, turnCount: entry.turnCount, notePresent: entry.notePresent, noteChars: entry.noteChars, available: entry.available, unavailableReason: entry.unavailableReason })), scoreChecked: state.scoreChecked, lobbyScores: [...state.lobbyScores].map((entry) => ({ stationId: entry.stationId, checkedCount: entry.checkedCount })), reviewFinalized: state.reviewFinalized, blueprintId: state.blueprintId, stationLabel: state.stationLabel, scenarioId: state.scenarioId, scenarioTitle: state.scenarioTitle, lastScheduledEventId: state.lastScheduledEventId, replayRubric: [...state.replayRubric].map((entry) => ({ id: entry.id, label: entry.label })), replayRubricCoverage: [...state.replayRubricCoverage].map((entry) => ({ id: entry.id, observedCount: entry.observedCount, requiredCount: entry.requiredCount })), topicMenu: [...state.topicMenu] };
 }
