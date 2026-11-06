@@ -216,4 +216,56 @@ describe("actor voice turn", () => {
     expect(order).toEqual(["start One.", "end One.", "start Two.", "end Two."]);
     expect(voice.records.map((r) => r.turnKey)).toEqual(["1", "2"]);
   });
+
+  it("the next turn waits for the previous turn's audio to end, so one sink never serves two turns at once", async () => {
+    const f = fakes();
+    const log: string[] = [];
+    const engine: VoiceEngine = { synthesize: async (text, _voice, onChunk) => { log.push(`synth ${text}`); onChunk(tone(200, 0.1, 0.4)); return { audioSeconds: 0.1, computeMs: 1 }; } };
+    const voice = createActorVoice({ engine, sink: f.sink, slotFor: () => undefined, voiceFor: () => undefined, nowMs: () => 1 });
+    const first = voice.speakTurn({ actorId: "p", caption: "A: One.", turnKey: "1" });
+    const second = voice.speakTurn({ actorId: "q", caption: "B: Two.", turnKey: "2" });
+    await first;
+    await new Promise((r) => setTimeout(r, 30));
+    expect(log).toEqual(["synth One."]);
+    f.finish({ played: 2400, underruns: 0 });
+    await second;
+    expect(log).toEqual(["synth One.", "synth Two."]);
+  });
+  it("a turn queued behind another never attaches to a speech that replaced its own (the slot is read when the turn arrives)", async () => {
+    const f = fakes();
+    const slot = slotWithSpeech();
+    const first = slot.activeSpeech;
+    const second = { text: "second", startedAtMs: 9, durationMs: 100, phonemeSequence: ["E"] };
+    const voice = createActorVoice({ engine: f.engine, sink: f.sink, slotFor: () => slot, voiceFor: () => undefined, nowMs: () => 1 });
+    const one = voice.speakTurn({ actorId: "p", caption: "A: One.", turnKey: "1" });
+    slot.activeSpeech = second;
+    const two = voice.speakTurn({ actorId: "p", caption: "A: Two.", turnKey: "2" });
+    await one;
+    expect((first as { bakedCues?: unknown }).bakedCues).toBeUndefined();
+    expect((second as { bakedCues?: unknown }).bakedCues).toBeUndefined();
+    f.finish({ played: 1, underruns: 0 });
+    await two;
+    expect((second as { bakedCues?: unknown }).bakedCues).toBeDefined();
+  });
+  it("when the output never starts, the speech and the media clock are released once the wall-clock mouth has finished", async () => {
+    const f = fakes();
+    const never: VoiceSink = { ...f.sink, push: (samples) => { samples.fill(0); }, positionSeconds: () => null };
+    const slot = slotWithSpeech();
+    let now = 0;
+    const voice = createActorVoice({ engine: f.engine, sink: never, slotFor: () => slot, voiceFor: () => undefined, nowMs: () => now });
+    await voice.speakTurn({ actorId: "p", caption: "A: Hello there.", turnKey: "k" });
+    now = 60000;
+    expect(slot.mediaPositionSeconds?.()).toBeNull();
+    expect(slot.mediaPositionSeconds).toBeUndefined();
+    expect(slot.activeSpeech).toBeUndefined();
+  });
+  it("the record carries a hash of the spoken text, never the text", async () => {
+    const f = fakes();
+    const voice = createActorVoice({ engine: f.engine, sink: f.sink, slotFor: () => undefined, voiceFor: () => undefined, nowMs: () => 1 });
+    const record = await voice.speakTurn({ actorId: "p", caption: "A: It feels heavy.", turnKey: "k" });
+    let hash = 0x811c9dc5;
+    for (const ch of "It feels heavy.") hash = Math.imul(hash ^ ch.charCodeAt(0), 0x01000193) >>> 0;
+    expect(record.textHash).toBe(hash.toString(16).padStart(8, "0"));
+    expect(JSON.stringify(record)).not.toContain("heavy");
+  });
 });

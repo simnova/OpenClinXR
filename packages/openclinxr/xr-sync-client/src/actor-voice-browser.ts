@@ -2,7 +2,9 @@ import type { VoiceEngine, VoiceSink } from "./actor-voice.js";
 
 interface WorkerLike {
   onmessage: ((event: { data: unknown }) => void) | null;
+  onerror: ((event: { message?: string }) => void) | null;
   postMessage(message: unknown, transfer?: ArrayBuffer[]): void;
+  terminate(): void;
 }
 
 interface MessagePortLike {
@@ -35,6 +37,7 @@ interface RuntimeLike {
 }
 
 const runtime = globalThis as unknown as RuntimeLike;
+const LOAD_TIMEOUT_MS = 60000;
 
 function record(value: unknown): Record<string, unknown> | undefined {
   return typeof value === "object" && value !== null ? value as Record<string, unknown> : undefined;
@@ -56,16 +59,31 @@ export function createBrowserVoiceParts(opts: { assetBase: string }): { engine: 
       loadReject?.(new Error("Worker is unavailable"));
       return loaded;
     }
-    worker = new WorkerCtor(`${opts.assetBase}paradee-worker.mjs`, { type: "module" });
+    const created = new WorkerCtor(`${opts.assetBase}paradee-worker.mjs`, { type: "module" });
+    worker = created;
+    // A worker that fails to import or load (CSP, 404, WebAssembly refused) must fail the load and every waiting turn, and
+    // the next turn starts a fresh worker.
+    const failLoad = (reason: string): void => {
+      clearTimeout(loadTimer);
+      const failure = new Error(reason);
+      loadReject?.(failure);
+      active?.reject(failure);
+      active = undefined;
+      created.terminate();
+      if (worker === created) { worker = undefined; loaded = undefined; }
+    };
+    const loadTimer = setTimeout(() => failLoad("voice worker load timed out"), LOAD_TIMEOUT_MS);
+    created.onerror = (event) => failLoad(`voice worker error: ${event.message ?? "unknown"}`);
     worker.onmessage = (event) => {
       const message = record(event.data);
       if (message === undefined) return;
       if (message["op"] === "loaded") {
+        clearTimeout(loadTimer);
         loadResolve?.();
         return;
       }
       if (message["op"] === "error" && (message["id"] === undefined || active?.id !== message["id"])) {
-        loadReject?.(new Error(String(message["message"] ?? "voice worker load failed")));
+        failLoad(String(message["message"] ?? "voice worker load failed"));
         return;
       }
       if (active === undefined || message["id"] !== active.id) return;
@@ -91,7 +109,11 @@ export function createBrowserVoiceParts(opts: { assetBase: string }): { engine: 
   const engine: VoiceEngine = {
     async synthesize(text, voice, onChunk) {
       await ensureWorker();
-      active?.resolve({ audioSeconds: 0, computeMs: 0 });
+      if (active !== undefined) {
+        worker?.postMessage({ op: "stop" });
+        active.resolve({ audioSeconds: 0, computeMs: 0 });
+        active = undefined;
+      }
       const id = ++nextId;
       return new Promise((resolve, reject) => {
         active = { id, onChunk, resolve, reject };
