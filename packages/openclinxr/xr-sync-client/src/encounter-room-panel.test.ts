@@ -33,7 +33,7 @@ const SNAP = {
   topicMenu: ["history_opqrst", "ecg_request"],
 };
 
-async function joined(rejectKinds: Set<string>) {
+async function joined(rejectKinds: Set<string>, reason = "outside-encounter-phase") {
   const parent = new FakeElement("div");
   const published: EncounterSyncEvidence[] = [];
   let stateListener: ((s: unknown) => void) | undefined;
@@ -47,7 +47,7 @@ async function joined(rejectKinds: Set<string>) {
     utteranceBox: { doc: fakeDoc, parent },
     connectFn: async () => ({
       sessionId: "s",
-      sendIntent: async (kind: string) => (rejectKinds.has(kind) ? { status: "reject", reason: "outside-encounter-phase", seq: 1 } : { status: "ack", seq: 1, serverTs: 0, rttMs: 1 }),
+      sendIntent: async (kind: string) => (rejectKinds.has(kind) ? { status: "reject", reason, seq: 1 } : { status: "ack", seq: 1, serverTs: 0, rttMs: 1 }),
       onState: (fn: (s: unknown) => void) => { stateListener = fn; return () => undefined; },
       leave: async () => undefined,
     }) as never,
@@ -87,6 +87,13 @@ describe("room panel (C36)", () => {
     expect(text(parent, "room-refusal")).toBe("Not accepted: the station is in the note phase.");
     snapshot({ ...SNAP, phase: "encounter", phaseRemainingS: 100 });
     expect(text(parent, "room-refusal")).toBe("");
+  });
+
+  it("any other rejected reason reads `Not accepted: <reason>` whatever the phase", async () => {
+    const { parent, handle, snapshot } = await joined(new Set(["select-actor"]), "unknown-topic");
+    snapshot(SNAP);
+    await handle?.sendTraceAction("p", "ecg_request");
+    expect(text(parent, "room-refusal")).toBe("Not accepted: unknown-topic");
   });
 });
 
