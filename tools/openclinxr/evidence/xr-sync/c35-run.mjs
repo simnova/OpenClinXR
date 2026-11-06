@@ -295,7 +295,9 @@ async function main(argv) {
     check("S7c every typed (3) and sent speech (2 microphone-path, plus the control when it sent) utterance was acked (select-actor, utterance-start, utterance-end)", sends.length >= 5 && sends.every((u) => u.statuses.length === 3 && u.statuses.every((st) => st === "ack")), JSON.stringify(sends.map((u) => u.statuses)));
     const own = await readFile(fileURLToPath(import.meta.url), "utf8");
     const overlay = [new RegExp("utterance" + "Phrases\\s*:"), new RegExp("utterance" + "Fallback\\s*:"), new RegExp("dialogue" + "Seeds\\s*:")].filter((re) => re.test(own));
-    check("S8 overlay absent: the harness starts no server and authors no phrases, fallback or seeds", overlay.length === 0 && /dev:portless/u.test(own), String(overlay.length));
+    const literals = [seed.caption ?? seed.spokenText, entry.utteranceFallback?.line, actor.openingUtterance].filter((v) => typeof v === "string" && v.length > 0);
+    const copied = literals.filter((text) => own.includes(text));
+    check("S8 overlay absent: the harness starts no server, authors no phrase/fallback/seed properties, and its source holds none of the shipped answer, fallback or opening line texts (expected values are read from the shipped bank)", overlay.length === 0 && copied.length === 0 && literals.length === 3 && /dev:portless/u.test(own), JSON.stringify({ overlay: overlay.length, copied: copied.length, literals: literals.length }));
     const other = out.consoleErrors.filter((text) => !isAsset404(text));
     check("S9 no page errors and no console errors other than missing-asset 404s", out.pageErrors.length === 0 && other.length === 0, [...out.pageErrors, ...other].join(" | ") || `${out.consoleErrors.length} asset 404s`);
     const stopped = await stopStack(stack);
