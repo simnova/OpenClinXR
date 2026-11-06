@@ -25,37 +25,12 @@
     "entrypoint": "./headset",
     "names": [
       {
-        "name": "createActorVoice",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "createEnvelopeCueBuilder",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
         "name": "EncounterSyncEvidence",
         "kind": "type",
         "via": "own-test"
       },
       {
         "name": "MESM_VOICE_IDS",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "resolveActorVoice",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "speechTextFromCaption",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "startEncounterSyncFromUrl",
         "kind": "runtime",
         "via": "own-test"
       },
@@ -72,6 +47,41 @@
       {
         "name": "VoiceSlot",
         "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "createActorVoice",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "createEnvelopeCueBuilder",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "downsampleToPcm16",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "pcmRms",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "resolveActorVoice",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "speechTextFromCaption",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "startEncounterSyncFromUrl",
+        "kind": "runtime",
         "via": "own-test"
       }
     ]

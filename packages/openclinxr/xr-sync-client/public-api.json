@@ -24,16 +24,13 @@
       "MESM_VOICE_IDS",
       "pcmRms",
       "resolveActorVoice",
-      "SpeechEvidence",
-      "SpeechRecorder",
       "speechTextFromCaption",
       "startEncounterSyncFromUrl",
       "SyncConnection",
       "UtteranceBoxDeps",
       "VoiceEngine",
       "VoiceSink",
-      "VoiceSlot",
-      "XrSessionLike"
+      "VoiceSlot"
     ]
   }
 }
