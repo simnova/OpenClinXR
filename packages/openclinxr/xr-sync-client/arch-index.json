@@ -35,6 +35,7 @@
     "src/encounter-free-text.test.ts",
     "src/encounter-repeat-prompt.test.ts",
     "src/encounter-replay-station.test.ts",
+    "src/encounter-review-lobby.test.ts",
     "src/encounter-speech.test.ts",
     "src/encounter-trace-intents.test.ts",
     "src/encounter-turns.test.ts",
