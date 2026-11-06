@@ -1504,5 +1504,37 @@
     "r5_decision": "r5: nose back to control per st-vitdark gate G2 (go earned on lip+ear; nose control retained in table); residual set {lip, ear} only, nose keeps cheek multiply; lip b* +0.317 over 2xSD accepted as feather dilution (r4 analysis)"
    }
   }
+  ,
+  {
+   "family": "deep",
+   "status": "staged",
+   "status_note": "r9 is staged until the physician GLB re-bake moves to it",
+   "source_id": "vitruvian_cc0_light_to_african_chroma_statistics_on_old_family",
+   "source_path": "Vitruvian-Project CC0-1.0 Face BaseColor Utility Linear sRGB + African Face BaseColor (store/vitruvian-src/4K) statistics via tools/openclinxr/asset-pipeline/skin/vitruvian_dark/chroma-table.json remapped onto skin-families/old/old-family-v2.png",
+   "source_sha256": "8c4e47034c58b8b81ac666a35fa46cd36f05dc2ce7f4fa3e43e43563e4c95846",
+   "source_licence": "CC0-1.0 explicit (Vitruvian-Project LICENSE at upstream commit c036e5376108dbbb340beb0a3f4ef8ac463e39)",
+   "family_path": "/Volumes/files/openclinxr-assets/store/skin-families/deep/r9/deep-family.png",
+   "family_sha256": "44f36175141a6c5e4ee9b48a16ee3c81eae219c0a7b67744956ac2faf1767b67",
+   "island_box_atlas": [
+    1228,
+    307,
+    2027,
+    1843
+   ],
+   "method": "tools/openclinxr/asset-pipeline/skin/families/vitruvian_deep_family.py r9 = r8 + runtime right-corner lip L taper 48 rows; runtime left-corner lip L taper remains 32 rows; full record in store/skin-families/deep/r9/deep-manifest.json",
+   "deep_manifest_sha256": "b3fd1ba884cf4900720dd599992141d5940c350ed2099749e13bb909139f30fe",
+   "leak": {
+    "label": "deep-r9",
+    "atlas": "/Volumes/files/openclinxr-assets/store/skin-families/deep/r9/deep-family.png",
+    "atlas_sha256": "44f36175141a6c5e4ee9b48a16ee3c81eae219c0a7b67744956ac2faf1767b67",
+    "glb_sha256": "6a572bf1387f0b032f482dc9d64722ed5cee914fe3f015de5b991f773a3376d2",
+    "s_sha256": "8bc57f72d9972d3da39ae3b56e341ec969348fb32b5227cd5f6b56c6d19f0cfb",
+    "r_S": -0.0557,
+    "r_normal_y": 0.0237,
+    "mirror_signed_L": 0.0056,
+    "mirror_abs_L": 0.7701,
+    "measurement": ".openclinxr/openclaw/ceo/st-vitcorner/r9-leak.json"
+   }
+  }
  ]
 }

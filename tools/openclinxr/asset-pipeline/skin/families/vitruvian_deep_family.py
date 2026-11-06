@@ -69,7 +69,7 @@ R8_DECISION = ("r8: lip L weight = soft_inside(full hard lip) * row-factor "
                "(smoothstep 0 at either corner row extreme, 1 at >= N rows "
                "away); lip a*/b* weight = soft_inside(full hard lip) uncut; "
                "ear = r5 feather (soft_inside of full hard ear, no erosion)")
-LIP_L_TAPER_ROWS = 0
+LIP_L_TAPER_ROWS = 32
 
 
 def corner_points(hard: np.ndarray) -> list[tuple[int, int]]:
@@ -104,21 +104,32 @@ def corner_disc_taper(hard: np.ndarray, r0: float = 6.0, r1: float = 10.0) -> np
     return (t * t * (3.0 - 2.0 * t)) * (hard > 0.5).astype(np.float64)
 
 
-def lip_l_row_factor(hard: np.ndarray, n_rows: float) -> np.ndarray:
-    """Row-distance smoothstep for the lip L residual only (r8).
+def lip_l_row_factor(
+    hard: np.ndarray, n_rows_right: float, n_rows_left: float | None = None
+) -> np.ndarray:
+    """Side-specific row-distance smoothsteps for the lip L residual.
 
-    0 on either corner row extreme, 1 at >= n_rows rows away, smoothstep
-    between; n_rows <= 0 returns all ones (no taper, = r5). The factor is
-    row-only: every texel in the same texture row shares it. Corners are the
-    min/max ROWS containing mask texels (r7 axis correction)."""
-    if n_rows <= 0:
-        return np.ones_like(hard)
+    The runtime RIGHT corner is the minimum mask-row extreme and the runtime
+    LEFT corner is the maximum (r7 axis correction). Each side is 0 at its
+    corner, 1 at or beyond its configured row distance, and smoothstep
+    between. A side with N <= 0 contributes factor 1. Passing only the first
+    value retains the legacy symmetric-call behaviour.
+    """
+    if n_rows_left is None:
+        n_rows_left = n_rows_right
     rows = np.where((hard > 0.5).any(axis=1))[0]
     r0, r1 = int(rows.min()), int(rows.max())
     yy = np.mgrid[0:hard.shape[0], 0:hard.shape[1]][0].astype(np.float64)
-    d = np.minimum(np.abs(yy - float(r0)), np.abs(yy - float(r1)))
-    t = np.clip(d / float(n_rows), 0.0, 1.0)
-    return t * t * (3.0 - 2.0 * t)
+
+    def side_factor(distance: np.ndarray, n_rows: float) -> np.ndarray:
+        if n_rows <= 0:
+            return np.ones_like(hard)
+        t = np.clip(distance / float(n_rows), 0.0, 1.0)
+        return t * t * (3.0 - 2.0 * t)
+
+    right = side_factor(np.abs(yy - float(r0)), n_rows_right)
+    left = side_factor(np.abs(yy - float(r1)), n_rows_left)
+    return right * left
 
 
 def sha256_file(p: Path) -> str:
@@ -156,7 +167,13 @@ def main() -> None:
                     help="r7 compat, ignored by r8 (disc taper superseded)")
     ap.add_argument("--lip-l-taper", type=float, default=LIP_L_TAPER_ROWS,
                     help="r8: rows over which the lip L residual fades to 0 at the commissures (0 = off, = r5)")
+    ap.add_argument("--lip-l-taper-right", type=float, default=None,
+                    help="rows for the runtime RIGHT/min-row corner (defaults to --lip-l-taper)")
+    ap.add_argument("--lip-l-taper-left", type=float, default=None,
+                    help="rows for the runtime LEFT/max-row corner (defaults to --lip-l-taper)")
     a = ap.parse_args()
+    lip_l_taper_right = a.lip_l_taper if a.lip_l_taper_right is None else a.lip_l_taper_right
+    lip_l_taper_left = a.lip_l_taper if a.lip_l_taper_left is None else a.lip_l_taper_left
 
     for p in (a.out, a.preview or a.out.parent / "deep-family-preview.png",
               a.manifest or a.out.parent / "deep-manifest.json"):
@@ -227,7 +244,9 @@ def main() -> None:
         # r8: lip a*/b* = r5 full soft_inside (uncut); lip L additionally
         # fades near the commissure rows; ear = r5 feather.
         w_lip_ab = sl.soft_inside(hard["lip"])
-        w_lip_l = w_lip_ab * lip_l_row_factor(hard["lip"], a.lip_l_taper)
+        w_lip_l = w_lip_ab * lip_l_row_factor(
+            hard["lip"], lip_l_taper_right, lip_l_taper_left
+        )
         w_ear = sl.soft_inside(hard["ear"])
         dlip = np.array(dlab["lip"], float)
         out_lab[..., 0] += w_lip_l * dlip[0]
@@ -259,6 +278,8 @@ def main() -> None:
         "r8_decision": R8_DECISION,
         "r7_superseded": "corner-disc taper (uniform a*/b*/L erosion near corner points) exhausted: every taper broke lip b* while G7 stayed flat; r8 tapers the L component only",
         "r8_taper": {"lip_l_taper_rows": a.lip_l_taper if not a.no_residual and a.method == "target" else None,
+                     "lip_l_taper_right_rows": lip_l_taper_right if not a.no_residual and a.method == "target" else None,
+                     "lip_l_taper_left_rows": lip_l_taper_left if not a.no_residual and a.method == "target" else None,
                      "lip_r0_r1_ignored": [a.lip_r0, a.lip_r1],
                      "lip_corner_points_col_row": lip_corners if not a.no_residual and a.method == "target" else [],
                      "hard_texels": hard_counts if not a.no_residual and a.method == "target" else {},

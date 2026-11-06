@@ -48,7 +48,8 @@ def _deep_rel_from_manifest() -> str:
     # r8b: deep lives on a write-once versioned path; the manifest row is the SSOT.
     try:
         rows = json.load(open(HERE / "manifest.json"))["families"]
-        row = next(r for r in rows if r.get("family") == "deep")
+        # r9 is staged until the physician GLB re-bake moves to it.
+        row = next(r for r in rows if r.get("family") == "deep" and r.get("status") != "staged")
         p = Path(row["family_path"])
         try:
             return str(p.relative_to(STORE))
