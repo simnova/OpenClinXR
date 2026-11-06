@@ -16,6 +16,7 @@ export interface LobbySelectionEvidence {
 export interface LobbyEvidence {
   stations: LobbyStationEvidence[];
   selections: LobbySelectionEvidence[];
+  returns: Array<{ status: string; reason: string }>;
 }
 
 interface LobbyRow {
@@ -29,16 +30,38 @@ interface LobbyRow {
 export function createLobbyPicker(deps: {
   box: UtteranceBoxDeps;
   select(stationId: string): Promise<{ status: string; reason?: string }>;
+  returnToLobby(): Promise<{ status: string; reason?: string }>;
 }): { render(snapshot: EncounterSnapshot): void; evidence: LobbyEvidence } {
-  const evidence: LobbyEvidence = { stations: [], selections: [] };
+  const evidence: LobbyEvidence = { stations: [], selections: [], returns: [] };
   const container = deps.box.doc.createElement("div");
   container.id = "review-lobby";
   deps.box.parent.appendChild(container);
+  const back = deps.box.doc.createElement("button");
+  back.id = "return-to-lobby";
+  back.textContent = "Back to review lobby";
+  back.hidden = true;
+  deps.box.parent.appendChild(back);
+  let returning = false;
+  back.addEventListener("click", () => {
+    if (returning) return;
+    returning = true;
+    void (async () => {
+      try {
+        const result = await deps.returnToLobby();
+        evidence.returns.push({ status: result.status, reason: result.reason ?? "" });
+      } catch (error) {
+        evidence.returns.push({ status: "error", reason: error instanceof Error ? error.message : String(error) });
+      } finally {
+        returning = false;
+      }
+    })();
+  });
 
   const render = (snapshot: EncounterSnapshot): void => {
     if (snapshot.mode !== "lobby") {
       container.textContent = "";
       evidence.stations.length = 0;
+      back.hidden = !(snapshot.mode === "replay" && snapshot.replayDone === true);
       return;
     }
     container.textContent = "";
@@ -82,6 +105,7 @@ export function createLobbyPicker(deps: {
       rowDiv.appendChild(reasonDiv);
       container.appendChild(rowDiv);
     }
+    back.hidden = true;
   };
 
   return { render, evidence };

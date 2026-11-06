@@ -10,7 +10,7 @@ import { Client, type Room } from "@colyseus/sdk";
 import type { ConnectOptions } from "./options.js";
 
 /** Client-to-server intent kinds, mirroring the server contract. */
-export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end" | "note-submit" | "select-station" | "return-to-lobby" | "score-station" | "finalize-review";
+export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end" | "note-submit" | "select-station" | "return-to-lobby" | "score-station" | "finalize-review" | "speech-audio";
 
 /** JSON payload carried by one intent. */
 export type IntentPayload = Record<string, unknown>;
@@ -21,6 +21,7 @@ export interface AckResult {
   seq: number;
   serverTs: number;
   rttMs: number;
+  transcript?: { text: string; confidence: number };
 }
 
 /** Resolved outcome for a rejected intent. State is unchanged. */
@@ -210,7 +211,7 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
 
   const settleFrom = (
     source: Room,
-    message: { seq?: unknown; serverTs?: unknown; reason?: unknown },
+    message: { seq?: unknown; serverTs?: unknown; reason?: unknown; transcript?: unknown },
     status: "ack" | "reject",
   ): void => {
     const messageSeq = message.seq;
@@ -225,12 +226,20 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
     clearTimeout(item.timer);
     const rttMs = performance.now() - item.startedAt;
     if (status === "ack") {
-      item.resolve({
+      const resolved: AckResult = {
         status: "ack",
         seq: messageSeq,
         serverTs: typeof message.serverTs === "number" ? message.serverTs : 0,
         rttMs,
-      });
+      };
+      const transcript = message.transcript;
+      if (typeof transcript === "object" && transcript !== null) {
+        const record = transcript as Record<string, unknown>;
+        if (typeof record["text"] === "string" && typeof record["confidence"] === "number" && Number.isFinite(record["confidence"])) {
+          resolved.transcript = { text: record["text"], confidence: record["confidence"] };
+        }
+      }
+      item.resolve(resolved);
     } else {
       item.resolve({
         status: "reject",
@@ -342,6 +351,8 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
       seq += 1;
       const current = seq;
       const startedAt = performance.now();
+      // C33 speech-audio waits on a server-side recognizer round trip.
+      const timeoutMs = kind === "speech-audio" ? 20000 : INTENT_TIMEOUT_MS;
       return new Promise<IntentResult>((resolve, reject) => {
         const timer = setTimeout(() => {
           pending.delete(current);
@@ -349,8 +360,8 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
           if (queuedIndex >= 0) {
             rotationQueue.splice(queuedIndex, 1);
           }
-          reject(new Error(`intent ${current} timed out after ${INTENT_TIMEOUT_MS}ms`));
-        }, INTENT_TIMEOUT_MS);
+          reject(new Error(`intent ${current} timed out after ${timeoutMs}ms`));
+        }, timeoutMs);
         if (rotating) {
           rotationQueue.push({ seq: current, kind, payload, resolve, reject, startedAt, timer });
           return;

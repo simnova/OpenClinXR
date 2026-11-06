@@ -23,6 +23,7 @@ import { parseExamBlueprint } from "./exam-blueprint.js";
 import { parseScenarioCasts, type ScenarioCast } from "./scenario-cast.js";
 import { createReplayCaptionBank, firstUnresolvedReply, type ReplayCaptionBank } from "./replay-captions.js";
 import type { RoomProbeStats } from "./room-types.js";
+import type { SpeechRecognizer } from "./speech-audio.js";
 import { snapshotState } from "./schema.js";
 import type { ConversationTrace } from "./conversation-trace.js";
 import { applyDialogueSeeds } from "./topic-answers.js";
@@ -103,6 +104,11 @@ export interface EncounterServerOptions {
    * Server config only. Omit to disable scoring. Throws at boot on invalid.
    */
   reviewRubric?: { id: string; label: string }[];
+  /**
+   * C33 learner speech recognizer (server config only: the audio never persists).
+   * Null (default) rejects speech-audio with "speech-recognizer-unavailable".
+   */
+  speechRecognizer?: SpeechRecognizer;
 }
 
 /** Handle to a running encounter server with its bound address. */
@@ -185,12 +191,14 @@ export async function createEncounterServer(
   };
   class ConfiguredEncounterRoom extends EncounterRoom {
     protected override stationTiming = timing;
+    protected override speechRecognizer: SpeechRecognizer | null = options.speechRecognizer ?? null;
     protected override stationTraceDir = traceDir;
     protected override stationNoteMaxChars = noteMaxChars;
     protected override stationBinding: StationBinding = binding;
   }
   const server = new Server({
-    transport: new WebSocketTransport({ server: httpServer }),
+    // C33 speech-audio carries up to 480000 PCM bytes per intent; the transport default (4 KB) would drop the room.
+    transport: new WebSocketTransport({ server: httpServer, maxPayload: 1024 * 1024 }),
   });
   if (replayDir !== null) {
     // C10 faculty replay server: the C9 review index + traces are loaded and

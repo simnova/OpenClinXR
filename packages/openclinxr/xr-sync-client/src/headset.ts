@@ -15,5 +15,7 @@ export type {
 export type { ConnectOptions } from "./options.js";
 export { startEncounterSyncFromUrl } from "./encounter-turns.js";
 export type { EncounterSyncEvidence, UtteranceBoxDeps } from "./encounter-turns.js";
+export { downsampleToPcm16, pcmRms } from "./speech-pcm.js";
+export type { SpeechEvidence, SpeechRecorder, XrSessionLike } from "./speech-capture.js";
 export { createActorVoice, createEnvelopeCueBuilder, MESM_VOICE_IDS, resolveActorVoice, speechTextFromCaption } from "./actor-voice.js";
 export type { VoiceEngine, VoiceSink, VoiceSlot } from "./actor-voice.js";

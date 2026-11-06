@@ -6,7 +6,7 @@
  */
 
 /** Client-to-server intent kinds. The only message type that may mutate state. */
-export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end" | "note-submit" | "select-station" | "return-to-lobby" | "score-station" | "finalize-review";
+export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end" | "note-submit" | "select-station" | "return-to-lobby" | "score-station" | "finalize-review" | "speech-audio";
 export const INTENT_KINDS: ReadonlySet<string> = new Set([
   "pose",
   "select-actor",
@@ -17,6 +17,7 @@ export const INTENT_KINDS: ReadonlySet<string> = new Set([
   "return-to-lobby",
   "score-station",
   "finalize-review",
+  "speech-audio",
 ]);
 
 /** Wire envelope for one client intent. Validated before anything is applied. */
@@ -31,6 +32,7 @@ export interface IntentMessage {
 export interface AckMessage {
   seq: number;
   serverTs: number;
+  transcript?: { text: string; confidence: number };
 }
 
 /** Server reply for a rejected intent. State is unchanged when this is sent. */

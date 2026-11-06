@@ -13,6 +13,8 @@ import { createActorVoice, type ActorVoice, type SpokenTurnRecord, type VoiceEng
 import { createBrowserVoiceParts } from "./actor-voice-browser.js";
 import type { ConnectOptions } from "./options.js";
 import { createLobbyPicker, type LobbyEvidence } from "./encounter-lobby.js";
+import { mountSpeechCapture, type SpeechEvidence, type SpeechRecorder, type XrSessionLike } from "./speech-capture.js";
+import { createBrowserSpeechRecorder } from "./speech-recorder-browser.js";
 
 const SPEECH_LOW_CONFIDENCE = "speech_low_confidence";
 
@@ -281,6 +283,8 @@ export interface EncounterSyncEvidence {
   repeatPrompts?: Array<{ actorId: string; turnId: number; retries: number }>;
   /** C32 review-lobby station list and select-station outcomes. */
   lobby?: LobbyEvidence;
+  /** C33 learner speech captures (counts and statuses, never text or audio). */
+  speech?: SpeechEvidence;
 }
 
 /** Structural input/button surface for the learner free-text box (no DOM lib in this package). */
@@ -315,6 +319,8 @@ export interface StartEncounterSyncDeps {
   gazeView?(): GazeView | undefined;
   /** C27 learner free-text box mount; unset mounts nothing. */
   utteranceBox?: UtteranceBoxDeps;
+  /** C33 learner speech capture; unset mounts no hold-to-speak button. */
+  speech?: { recorder?: SpeechRecorder; xrSession?: () => XrSessionLike | null | undefined; inject?: boolean };
   /** C30 on-device actor voice wired to the shell's existing speech slot. */
   voice?: {
     assetBase: string;
@@ -335,8 +341,10 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
   if (flag.replayStation !== undefined) evidence.replayStation = flag.replayStation;
   let sendSelect: (stationId: string) => Promise<{ status: string; reason?: string }> = () =>
     Promise.resolve({ status: "error", reason: "not-joined" });
+  let sendReturn: () => Promise<{ status: string; reason?: string }> = () =>
+    Promise.resolve({ status: "error", reason: "not-joined" });
   const picker = isLobby && deps.utteranceBox !== undefined
-    ? createLobbyPicker({ box: deps.utteranceBox, select: (stationId) => sendSelect(stationId) })
+    ? createLobbyPicker({ box: deps.utteranceBox, select: (stationId) => sendSelect(stationId), returnToLobby: () => sendReturn() })
     : undefined;
   if (picker !== undefined) evidence.lobby = picker.evidence;
   let voice: ActorVoice | undefined;
@@ -406,6 +414,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     evidence.sendSpeech = (actorId, text, confidence) => handle.sendSpeech(actorId, text, confidence);
     evidence.gazedActorId = gazedNow;
     sendSelect = (stationId) => handle.sendIntent("select-station", { stationId });
+    sendReturn = () => handle.sendIntent("return-to-lobby", {});
     if (deps.utteranceBox !== undefined && !isReplayRoom && !isLobby) {
       repeatPrompt = deps.utteranceBox.doc.createElement("div");
       repeatPrompt.id = "repeat-prompt";
@@ -452,6 +461,15 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
         event.preventDefault?.();
         submit();
       });
+      if (deps.speech !== undefined) {
+        const recorder = deps.speech.recorder ?? createBrowserSpeechRecorder();
+        const xr = deps.speech.xrSession === undefined ? {} : { xrSession: deps.speech.xrSession };
+        evidence.speech = mountSpeechCapture({ box: deps.utteranceBox, speech: { recorder, ...xr }, nowMs: deps.nowMs,
+          sendAudio: (pcm): Promise<{ status: string; reason?: string; transcript?: { text: string; confidence: number } }> => handle.sendIntent("speech-audio", { pcm, sampleRate: 16000 }).then((r): { status: string; reason?: string; transcript?: { text: string; confidence: number } } => (r.status === "ack" ? (r.transcript === undefined ? { status: r.status } : { status: r.status, transcript: r.transcript }) : { status: r.status, reason: r.reason })),
+          pickActor: () => { const actor = pickAddressedActor({ actorIds: deps.actorIds(), gazedActorId: gazedNow(), lastSpokeActorId, lastAddressedActorId }); if (actor !== undefined) lastAddressedActorId = actor; return actor; },
+          sendSpeech: (a, t, c) => evidence.sendSpeech!(a, t, c) });
+        if (deps.speech.inject !== true) delete evidence.speech.inject;
+      }
     }
     return handle;
   } catch (error) {

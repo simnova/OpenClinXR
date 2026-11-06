@@ -25,6 +25,7 @@ import { INTENT_KINDS, type AckMessage, type IntentMessage, type RejectMessage }
 // "." surface and existing room.js importers keep working unchanged.
 export type { AckMessage, IntentKind, IntentMessage, RejectMessage } from "./protocol.js";
 import { applyPoseIntent, applySelectActorIntent } from "./learner-intents.js";
+import { handleSpeechAudioIntent, type SpeechRecognizer } from "./speech-audio.js";
 import { createScheduleDriver } from "./scenario-schedule.js";
 import { DEFAULT_NOTE_MAX_CHARS, validateNoteSubmit } from "./patient-note.js";
 import { applyUtteranceIntent } from "./actor-turns.js";
@@ -116,12 +117,11 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   /** C27 scenario-authored fallback line for unmatched free text (null when none). */
   private utteranceFallbackLine: string | null = null;
   private utteranceFallbackMinConfidence = 0;
-  /**
-   * C19 scenario schedule driver for this room's station (timers on the room
-   * clock; null off a cast station). Started at encounter start, cleared at
-   * phase close and room dispose.
-   */
+  /** C19 schedule driver (room clock; null off a cast station). */
   private scheduleDriver: { startEncounter(): void; clear(): void } | null = null;
+  /** C33 learner speech recognizer (server config only; null rejects). */
+  protected speechRecognizer: SpeechRecognizer | null = null;
+  private readonly speechBusy = new Set<string>();
 
   /** Read-only copy of probe stats for the harness. Never sent on the wire. */
   getProbeStats(): RoomProbeStats {
@@ -197,13 +197,8 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       this.tracer.setStationCast(null);
     }
     this.state.learners = new MapSchema<LearnerStateInstance>();
-    // C19: a cast station runs its scenario's eventSchedule on the room
-    // clock (no schedule, no timers off a cast station). Entries with
-    // atSecond >= the encounter length never fire (see the driver).
+    // C19: a cast station runs its schedule on the room clock (see the driver).
     this.state.lastScheduledEventId = "";
-    // C19: a cast station runs its scenario's eventSchedule on the room clock
-    // (null, no timers off a cast station). Entries with atSecond >= the
-    // encounter length never fire (see the driver).
     this.scheduleDriver = createScheduleDriver(this.clock, this.state, this.state.actors, this.tracer, this.turnLog, this.turnOpenedAtMs, { get: () => this.openTurn, set: (turn) => { this.openTurn = turn; } }, cast?.schedule ?? null, this.stationTiming?.encounterSeconds ?? 0);
 
     // C6 station clock from the server binding; client roomOptions.timing /
@@ -412,6 +407,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       this.reject(client, intentSeq, gated);
       return;
     }
+    if (kind === "speech-audio") { handleSpeechAudioIntent({ recognizer: this.speechRecognizer, busy: this.speechBusy, reject: this.reject.bind(this) }, client, learner, intentSeq, payload); return; }
     const bindings = {
       actors: this.state.actors,
       selectedActor: this.selectedActor,

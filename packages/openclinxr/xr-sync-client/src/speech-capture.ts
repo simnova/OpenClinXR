@@ -1,0 +1,131 @@
+// C33 learner speech capture: hold-to-speak button + XR squeeze write PCM to the
+// room and route the transcript through the C29 speech path. Records hold only
+// counts and statuses, never text or audio.
+import type { UtteranceBoxDeps } from "./encounter-turns.js";
+import { downsampleToPcm16, pcmRms } from "./speech-pcm.js";
+
+export interface SpeechRecorder {
+  start(): Promise<void>;
+  stop(): Promise<{ chunks: Float32Array[]; sampleRate: number }>;
+  inject?(pcm: Int16Array): void;
+  source?(): "microphone" | "injected";
+}
+
+export interface XrSessionLike {
+  addEventListener(type: string, listener: () => void): void;
+}
+
+export interface SpeechCaptureRecord {
+  source: "microphone" | "injected";
+  status: string;
+  samples: number;
+  rms: number;
+  releaseToCaptionMs: number;
+  chars: number;
+  confidence: number;
+}
+
+export interface SpeechEvidence {
+  captures: SpeechCaptureRecord[];
+  press(): Promise<void>;
+  release(): Promise<void>;
+  inject?(pcm: Int16Array): void;
+}
+
+export function mountSpeechCapture(deps: {
+  box: UtteranceBoxDeps;
+  speech: { recorder: SpeechRecorder; xrSession?: () => XrSessionLike | null | undefined };
+  nowMs(): number;
+  sendAudio(pcm: Uint8Array): Promise<{ status: string; reason?: string; transcript?: { text: string; confidence: number } }>;
+  pickActor(): string | undefined;
+  sendSpeech(actorId: string | undefined, text: string, confidence: number): Promise<void>;
+  setLearnerCaption?: never;
+}): SpeechEvidence {
+  const captures: SpeechCaptureRecord[] = [];
+  const recorder = deps.speech.recorder;
+  const statusEl = deps.box.doc.createElement("div");
+  statusEl.id = "speech-status";
+  statusEl.textContent = "";
+  deps.box.parent.appendChild(statusEl);
+  const button = deps.box.doc.createElement("button");
+  button.id = "speak-button";
+  button.textContent = "Hold to speak";
+  deps.box.parent.appendChild(button);
+  let recording = false;
+  let source: "microphone" | "injected" = "microphone";
+  let starting: Promise<void> = Promise.resolve();
+  const press = async (): Promise<void> => {
+    if (recording) return;
+    recording = true;
+    statusEl.textContent = "Listening...";
+    try {
+      starting = recorder.start();
+      await starting;
+    } catch (error) {
+      recording = false;
+      const err = error instanceof Error ? error : new Error(String(error));
+      captures.push({ source: recorder.source?.() ?? "microphone", status: `failed:${err.name !== "" && err.name !== "Error" ? err.name : err.message}`, samples: 0, rms: 0, releaseToCaptionMs: 0, chars: 0, confidence: 0 });
+      statusEl.textContent = "Microphone unavailable";
+      return;
+    }
+    source = recorder.source?.() ?? "microphone";
+  };
+  const release = async (): Promise<void> => {
+    if (!recording) return;
+    recording = false;
+    const releasedAt = deps.nowMs();
+    await starting.catch(() => undefined);
+    const stopped = await recorder.stop();
+    const pcm = downsampleToPcm16(stopped.chunks, stopped.sampleRate);
+    const samples = pcm.length;
+    const rms = Math.round(pcmRms(pcm) * 10000) / 10000;
+    if (samples < 1600) {
+      captures.push({ source, status: "too-short", samples, rms, releaseToCaptionMs: 0, chars: 0, confidence: 0 });
+      statusEl.textContent = "";
+      return;
+    }
+    statusEl.textContent = "Recognizing...";
+    let result: { status: string; reason?: string; transcript?: { text: string; confidence: number } };
+    try {
+      result = await deps.sendAudio(new Uint8Array(pcm.buffer, pcm.byteOffset, pcm.byteLength));
+    } catch (error) {
+      captures.push({ source, status: `failed:${error instanceof Error ? error.message : String(error)}`, samples, rms, releaseToCaptionMs: 0, chars: 0, confidence: 0 });
+      statusEl.textContent = "";
+      return;
+    }
+    if (result.status !== "ack") {
+      captures.push({ source, status: `failed:${result.reason}`, samples, rms, releaseToCaptionMs: 0, chars: 0, confidence: 0 });
+      statusEl.textContent = "";
+      return;
+    }
+    const text = result.transcript?.text ?? "";
+    const confidence = result.transcript?.confidence ?? 0;
+    if (result.transcript === undefined || text.trim() === "") {
+      captures.push({ source, status: "empty", samples, rms, releaseToCaptionMs: 0, chars: 0, confidence: 0 });
+      statusEl.textContent = "";
+      return;
+    }
+    const sent = deps.sendSpeech(deps.pickActor(), text, confidence);
+    const captionAt = deps.nowMs();
+    await sent;
+    captures.push({ source, status: "ok", samples, rms, releaseToCaptionMs: captionAt - releasedAt, chars: text.trim().length, confidence });
+    statusEl.textContent = "";
+  };
+  button.addEventListener("pointerdown", () => { void press(); });
+  button.addEventListener("pointerup", () => { void release(); });
+  button.addEventListener("pointercancel", () => { void release(); });
+  const attached = new WeakSet<object>();
+  const attachXr = (): void => {
+    const session = deps.speech.xrSession?.();
+    if (session === null || session === undefined || attached.has(session)) return;
+    attached.add(session);
+    session.addEventListener("squeezestart", () => { void press(); });
+    session.addEventListener("squeezeend", () => { void release(); });
+  };
+  attachXr();
+  const timer = setInterval(attachXr, 500) as unknown as { unref?: unknown };
+  if (typeof timer.unref === "function") (timer.unref as () => void)();
+  const evidence: SpeechEvidence = { captures, press, release };
+  if (recorder.inject !== undefined) evidence.inject = recorder.inject.bind(recorder);
+  return evidence;
+}

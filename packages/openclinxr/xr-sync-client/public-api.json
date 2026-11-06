@@ -17,18 +17,23 @@
       "ConnectOptions",
       "createActorVoice",
       "createEnvelopeCueBuilder",
+      "downsampleToPcm16",
       "EncounterSnapshot",
       "EncounterSyncEvidence",
       "IntentKind",
       "MESM_VOICE_IDS",
+      "pcmRms",
       "resolveActorVoice",
+      "SpeechEvidence",
+      "SpeechRecorder",
       "speechTextFromCaption",
       "startEncounterSyncFromUrl",
       "SyncConnection",
       "UtteranceBoxDeps",
       "VoiceEngine",
       "VoiceSink",
-      "VoiceSlot"
+      "VoiceSlot",
+      "XrSessionLike"
     ]
   }
 }
