@@ -184,7 +184,10 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // 9238432 B live; was 9141538a7622….
   // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
   // 9320372 B live; was 9e1e9552a92d….
-  "mpfb-clinical-physician-adult": "34c5aec8fe30cd47fa924b40bba1660bf4b4c04bf3d8328210603e26c477d83e",
+  // st-vitphys r1 re-pinned 2026-11-06: deep family r8 skin albedo + Vitruvian brown iris as post-export byte stages
+  // (apply_family_skin_albedo.py, apply_vitruvian_eye_texture.py; image bytes only, mesh inventory identical):
+  // 9476168 B live; was 34c5aec8fe30….
+  "mpfb-clinical-physician-adult": "c06b6c065830d0dbafcd076bf66597acec5d396cf2537b3f52982458b813aeba",
 }
 
 type Prov = {

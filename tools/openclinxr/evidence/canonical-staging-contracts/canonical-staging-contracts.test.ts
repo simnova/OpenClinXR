@@ -169,19 +169,21 @@ describe("canonical staging contracts (fake/static units, no browser)", () => {
     // texture bytes only, geometry identical): 9618436 -> 9293412 -> 9238432 B; was 9141538a….
     // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
     // 9238432 -> 9320372 B; was 9e1e9552a92d….….
+    // st-vitphys r1 re-pinned 2026-11-06: deep family r8 skin albedo + Vitruvian brown iris (post-export byte stages, image bytes only,
+    // mesh inventory identical): 9320372 -> 9476168 B; was 34c5aec8fe30….
     // st-palette re-pinned 2026-11-04: sRGB palette fold replaced the scrub_shirt
     // texture (3969ae031; 9618436 -> 9293412 B, geometry identical); was 4b823cbd….
     // st-weld2 re-pinned 2026-11-03: garment topology weld (post-export byte stage;
     // size holds at 9618436); was 921d7a60….
     expect(physician?.assetSha256).toBe(
-      "34c5aec8fe30cd47fa924b40bba1660bf4b4c04bf3d8328210603e26c477d83e",
+      "c06b6c065830d0dbafcd076bf66597acec5d396cf2537b3f52982458b813aeba",
     );
-    expect(physician?.byteCount).toBe(9320372);
+    expect(physician?.byteCount).toBe(9476168);
     expect(expected.expectedClipRevision).toBe("openclinxr_retarget_walk_source");
     expect(expected.expectedAssetSha256).toBe(
-      "34c5aec8fe30cd47fa924b40bba1660bf4b4c04bf3d8328210603e26c477d83e",
+      "c06b6c065830d0dbafcd076bf66597acec5d396cf2537b3f52982458b813aeba",
     );
-    expect(expected.expectedBytes).toBe(9320372);
+    expect(expected.expectedBytes).toBe(9476168);
     // Independent provenance lineage agrees; retired formal_cc0 preserved.
     const provenance = JSON.parse(
       readFileSync(
