@@ -81,7 +81,9 @@ export function createSidecarRecognizer(opts: SidecarRecognizerOptions): {
     });
     // Swallow stdin EPIPE (and any spawn plumbing error) here so it can only
     // surface as a request rejection, never an uncaught exception.
-    next.on("error", (error: Error) => failPending(error));
+    next.on("error", (error: Error) => {
+      if (child === next) failPending(error);
+    });
     next.stdin?.on("error", () => undefined);
     // Drain stderr (model load chatter) so a full pipe never stalls the child.
     next.stderr?.on("data", () => undefined);
@@ -99,7 +101,7 @@ export function createSidecarRecognizer(opts: SidecarRecognizerOptions): {
     return next;
   };
 
-  const request = (pcm: Int16Array): Promise<{ text: string; confidence: number }> =>
+  const request = (pcm: Int16Array, timeoutMs: number, label: string): Promise<{ text: string; confidence: number }> =>
     new Promise<{ text: string; confidence: number }>((resolve, reject) => {
       let proc: ChildProcess;
       try {
@@ -130,8 +132,8 @@ export function createSidecarRecognizer(opts: SidecarRecognizerOptions): {
           }
           child = null;
           buffer = Buffer.alloc(0);
-          reject(new Error("sidecar request timed out after 60 s"));
-        }, opts.requestTimeoutMs ?? REQUEST_TIMEOUT_MS),
+          reject(new Error(`sidecar ${label} timed out after ${timeoutMs} ms`));
+        }, timeoutMs),
       };
       if (typeof entry.timer.unref === "function") entry.timer.unref();
       pending = entry;
@@ -144,8 +146,8 @@ export function createSidecarRecognizer(opts: SidecarRecognizerOptions): {
       });
     });
 
-  const recognize: SpeechRecognizer = async ({ pcm }) => {
-    const run = chain.then(() => request(pcm));
+  const enqueue = (pcm: Int16Array, timeoutMs: number, label: string): Promise<{ text: string; confidence: number }> => {
+    const run = chain.then(() => request(pcm, timeoutMs, label));
     chain = run.then(
       () => undefined,
       () => undefined,
@@ -153,31 +155,13 @@ export function createSidecarRecognizer(opts: SidecarRecognizerOptions): {
     return run;
   };
 
+  const recognize: SpeechRecognizer = ({ pcm }) => enqueue(pcm, opts.requestTimeoutMs ?? REQUEST_TIMEOUT_MS, "request");
+
   return {
     recognize,
+    // The probe covers the model load, so it carries its own (longer) timeout instead of the per-request one.
     ready: async (timeoutMs?: number) => {
-      const limit = timeoutMs ?? opts.probeTimeoutMs ?? DEFAULT_PROBE_TIMEOUT_MS;
-      let timer: NodeJS.Timeout | undefined;
-      try {
-        await Promise.race([
-          recognize({ pcm: new Int16Array(16000), sampleRate: 16000 }),
-          new Promise<never>((_resolve, reject) => {
-            timer = setTimeout(() => {
-              try {
-                child?.kill();
-              } catch {
-                // Already gone; close is idempotent.
-              }
-              child = null;
-              failPending(new Error("sidecar probe timed out"));
-              reject(new Error("sidecar probe timed out"));
-            }, limit);
-            if (typeof timer.unref === "function") timer.unref();
-          }),
-        ]);
-      } finally {
-        if (timer !== undefined) clearTimeout(timer);
-      }
+      await enqueue(new Int16Array(16000), timeoutMs ?? opts.probeTimeoutMs ?? DEFAULT_PROBE_TIMEOUT_MS, "probe");
     },
     close: () => {
       try {
