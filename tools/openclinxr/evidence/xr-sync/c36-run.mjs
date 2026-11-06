@@ -100,6 +100,13 @@ async function stopStack(record) {
   return true;
 }
 
+async function shootPanel(page, path) {
+  try {
+    const box = await page.locator("#room-panel").boundingBox({ timeout: 10000 });
+    if (box === null) return;
+    await page.screenshot({ path, fullPage: true, clip: { x: box.x, y: box.y + await page.evaluate(() => window.scrollY), width: box.width, height: box.height }, timeout: 30000 });
+  } catch { /* evidence only */ }
+}
 async function main(argv) {
   const options = parseArgs(argv);
   const outDir = resolve(options.out);
@@ -196,14 +203,14 @@ async function main(argv) {
       await page.evaluate((value) => { document.getElementById("utterance-input").value = value; document.getElementById("utterance-send").click(); }, TYPED_PHRASE);
       await page.waitForFunction(() => (document.getElementById("room-refusal")?.textContent ?? "") !== "", undefined, { timeout: 15000 }).catch(() => undefined);
       probe.refused = await readPanel(page);
-      await page.locator("#room-panel").screenshot({ path: join(outDir, "c36-doorway-refusal.png") }).catch(() => undefined);
+      await shootPanel(page, join(outDir, "c36-doorway-refusal.png"));
       await page.waitForFunction((before) => document.getElementById("room-countdown")?.textContent !== before, probe.doorwayA.countdown, { timeout: 15000 });
       probe.doorwayB = await readPanel(page);
       // Encounter opens: countdown switches, refusal clears.
       await page.waitForFunction(() => /^Encounter: /u.test(document.getElementById("room-countdown")?.textContent ?? ""), undefined, { timeout: 120000 });
       await page.waitForFunction(() => (document.getElementById("room-refusal")?.textContent ?? "") === "", undefined, { timeout: 15000 }).catch(() => undefined);
       probe.open = await readPanel(page);
-      await page.locator("#room-panel").screenshot({ path: join(outDir, "c36-encounter.png") }).catch(() => undefined);
+      await shootPanel(page, join(outDir, "c36-encounter.png"));
       const patientTurns = async () => (await readPanel(page)).turns.filter((t) => t.actorId === actor.actorId).length;
       const waitTurn = async (count) => {
         await page.waitForFunction(({ id, count }) => globalThis.__openClinXrEncounterSync.turns.filter((t) => t.actorId === id).length >= count, { id: actor.actorId, count }, { timeout: 120000 }).catch(async (error) => { run.diag = { waiting: count, panel: await readPanel(page) }; throw error; });
