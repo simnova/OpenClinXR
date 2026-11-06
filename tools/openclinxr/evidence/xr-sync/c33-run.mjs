@@ -136,6 +136,20 @@ async function main(argv) {
       probe.joined = joined;
       if (joined.state !== "joined" || !joined.buttonText) return { ...probe, final: joined };
       probe.grant = await page.context().grantPermissions(["microphone"]).then(() => "granted", (error) => `grant-failed: ${String(error).slice(0, 120)}`);
+      probe.aimedAtPatient = await page.evaluate(({ target }) => {
+        const camera = globalThis.__openClinXrGazeCamera;
+        const gaze = globalThis.__openClinXrEncounterSync.gazedActorId;
+        if (!camera || !gaze) return false;
+        if (gaze() === target) return true;
+        const eye = camera.getWorldPosition(camera.position.clone());
+        for (let degrees = 0; degrees < 360; degrees += 5) {
+          const radians = (degrees * Math.PI) / 180;
+          camera.lookAt(eye.x + Math.sin(radians), eye.y, eye.z - Math.cos(radians));
+          camera.updateMatrixWorld(true);
+          if (gaze() === target) return true;
+        }
+        return false;
+      }, { target: actor.actorId });
       // Scripted path: inject a known wav, hold the button while it plays, release.
       for (const name of ["hello", "onset", "onset"]) {
         const endBy = Date.now() + 30000;
@@ -176,7 +190,7 @@ async function main(argv) {
     const scripted = probe.scripted ?? [];
     const scriptedCaptures = scripted.map((s) => s.shell.captures.at(-1));
 
-    check("M1 shell joined the room and mounted the hold-to-speak button with the injection hook", final?.state === "joined" && probe.joined?.buttonText === "Hold to speak" && probe.joined?.hasInject === true, JSON.stringify({ state: final?.state, error: final?.error, button: probe.joined?.buttonText, hasInject: probe.joined?.hasInject }));
+    check("M1 shell joined the room, mounted the hold-to-speak button with the injection hook, and the view was aimed at the patient", probe.aimedAtPatient === true && final?.state === "joined" && probe.joined?.buttonText === "Hold to speak" && probe.joined?.hasInject === true, JSON.stringify({ state: final?.state, error: final?.error, button: probe.joined?.buttonText, hasInject: probe.joined?.hasInject }));
     check("M2 three scripted captures: status ok, source injected, samples within 15% of the wav length, non-silent rms", scriptedCaptures.length === 3 && scriptedCaptures.every((c, i) => c?.status === "ok" && c.source === "injected" && Math.abs(c.samples - pcm[scripted[i].name].length) <= pcm[scripted[i].name].length * 0.15 + 8000 && c.rms > 0.005), JSON.stringify(scriptedCaptures));
     const scriptedCalls = serverCalls.slice(0, 3);
     check("M3 the server recognizer received exactly the captured samples at 16 kHz for each scripted capture", scriptedCalls.length === 3 && scriptedCalls.every((call, i) => call.sampleRate === 16000 && call.samples === scriptedCaptures[i]?.samples), JSON.stringify(scriptedCalls));
@@ -191,7 +205,7 @@ async function main(argv) {
 
     const real = probe.real?.captures?.at(-1);
     const realTested = real !== undefined && real.source === "microphone" && real.status !== undefined && !String(real.status).startsWith("failed:Not");
-    run.realMicrophone = { tested: Boolean(realTested), capture: real ?? null, permissionGrant: probe.grant ?? null };
+    run.realMicrophone = { tested: Boolean(real?.status === "ok" && real.rms > 0.005), capture: real ?? null, permissionGrant: probe.grant ?? null };
     run.realMicrophone.note = options.mode === "host" ? "Playwright Chromium getUserMedia hangs on this Mac even with fake-device flags in a plain page (probe: 8 s hang, 3 variants); recorded, not asserted as opened" : "headset microphone";
     check("M7 the real getUserMedia path ran to a recorded outcome (source microphone, status ok with non-silent rms, or a named failure); tested=" + Boolean(real?.status === "ok" && real.rms > 0.005), JSON.stringify({ real, grant: probe.grant, tested: real?.status === "ok" && real.rms > 0.005 }));
 

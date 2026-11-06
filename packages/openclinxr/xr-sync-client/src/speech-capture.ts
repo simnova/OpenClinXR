@@ -23,6 +23,8 @@ export interface SpeechCaptureRecord {
   releaseToCaptionMs: number;
   chars: number;
   confidence: number;
+  /** Mic-open failure message (first 120 chars); absent otherwise. */
+  detail?: string;
 }
 
 export interface SpeechEvidence {
@@ -64,7 +66,7 @@ export function mountSpeechCapture(deps: {
     } catch (error) {
       recording = false;
       const err = error instanceof Error ? error : new Error(String(error));
-      captures.push({ source: recorder.source?.() ?? "microphone", status: `failed:${err.name !== "" && err.name !== "Error" ? err.name : err.message}`, samples: 0, rms: 0, releaseToCaptionMs: 0, chars: 0, confidence: 0 });
+      captures.push({ source: recorder.source?.() ?? "microphone", status: `failed:${err.name !== "" && err.name !== "Error" ? err.name : err.message}`, samples: 0, rms: 0, releaseToCaptionMs: 0, chars: 0, confidence: 0, detail: err.message.slice(0, 120) });
       statusEl.textContent = "Microphone unavailable";
       return;
     }

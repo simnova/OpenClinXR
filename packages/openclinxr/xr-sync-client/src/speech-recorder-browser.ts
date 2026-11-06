@@ -103,6 +103,7 @@ export function createBrowserSpeechRecorder(): SpeechRecorder {
     const injected = pendingInject;
     pendingInject = null;
     injectedActive = injected !== null;
+    bufferSource = undefined;
     chunks = [];
     if (injected !== null) {
       const buffer = context.createBuffer(1, injected.length, 16000);
@@ -174,6 +175,7 @@ export function createBrowserSpeechRecorder(): SpeechRecorder {
     gain?.disconnect();
     mediaSource?.disconnect();
     bufferSource?.disconnect();
+    bufferSource = undefined;
     for (const track of stream?.getTracks() ?? []) track.stop();
     stream = undefined;
     const sampleRate = context?.sampleRate ?? 16000;
