@@ -53,13 +53,16 @@ export function createBrowserVoiceParts(opts: { assetBase: string }): { engine: 
 
   const ensureWorker = (): Promise<void> => {
     if (loaded !== undefined) return loaded;
-    loaded = new Promise<void>((resolve, reject) => { loadResolve = resolve; loadReject = reject; });
     const WorkerCtor = runtime.Worker;
-    if (WorkerCtor === undefined) {
-      loadReject?.(new Error("Worker is unavailable"));
-      return loaded;
+    if (WorkerCtor === undefined) return Promise.reject(new Error("Worker is unavailable"));
+    // A constructor that throws (CSP, bad URL) fails this turn only; nothing is cached, so the next turn tries again.
+    let created: WorkerLike;
+    try {
+      created = new WorkerCtor(`${opts.assetBase}paradee-worker.mjs`, { type: "module" });
+    } catch (error) {
+      return Promise.reject(error instanceof Error ? error : new Error(String(error)));
     }
-    const created = new WorkerCtor(`${opts.assetBase}paradee-worker.mjs`, { type: "module" });
+    loaded = new Promise<void>((resolve, reject) => { loadResolve = resolve; loadReject = reject; });
     worker = created;
     // A worker that fails to import or load (CSP, 404, WebAssembly refused) must fail the load and every waiting turn, and
     // the next turn starts a fresh worker.

@@ -95,4 +95,34 @@ describe("the shell speaks the server's actor turn (C30)", () => {
       holder.Worker = original;
     }
   });
+
+  it("a Worker constructor that throws fails each turn alone: no hang, and the next turn tries again", async () => {
+    const holder = globalThis as unknown as { Worker?: unknown };
+    const original = holder.Worker;
+    let attempts = 0;
+    holder.Worker = class { constructor() { attempts += 1; throw new Error("worker blocked"); } };
+    try {
+      let listener: (s: unknown) => void = () => undefined;
+      const published: EncounterSyncEvidence[] = [];
+      await startEncounterSyncFromUrl({
+        search: "?encounterSync=ws://127.0.0.1:9",
+        actorIds: () => ["p"],
+        register: (payload: Record<string, unknown>) => { const plan = payload["actorTurnPlan"] as { spokenText: string; dialogueEmotionTo: string }; return { caption: plan.spokenText, faceEmotion: plan.dialogueEmotionTo }; },
+        play: () => undefined,
+        publish: (e: EncounterSyncEvidence) => { published.push(e); },
+        nowMs: () => 1,
+        voice: { assetBase: "/mesm-tts/", slotFor: () => undefined, voiceFor: () => undefined },
+        connectFn: async () => ({ sessionId: "s", sendIntent: async () => ({ status: "ack" }), onState: (cb: (s: unknown) => void) => { listener = cb; return () => undefined; }, leave: async () => undefined }) as never,
+      } as never);
+      listener(snap(1, { p: actor({ id: "p", speaking: true, caption: "A: Hello." }) }));
+      listener(snap(2, { p: actor({ id: "p", speaking: true, caption: "A: Again." }) }));
+      await settle();
+      await settle();
+      const records = (published[0] as unknown as { voice: { records: Array<Record<string, unknown>> } }).voice.records;
+      expect(records.map((r) => r["error"])).toEqual(["worker blocked", "worker blocked"]);
+      expect(attempts).toBe(2);
+    } finally {
+      holder.Worker = original;
+    }
+  });
 });

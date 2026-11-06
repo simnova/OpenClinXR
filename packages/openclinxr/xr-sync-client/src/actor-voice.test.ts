@@ -259,13 +259,4 @@ describe("actor voice turn", () => {
     expect(slot.mediaPositionSeconds).toBeUndefined();
     expect(slot.activeSpeech).toBeUndefined();
   });
-  it("the record carries a hash of the spoken text, never the text", async () => {
-    const f = fakes();
-    const voice = createActorVoice({ engine: f.engine, sink: f.sink, slotFor: () => undefined, voiceFor: () => undefined, nowMs: () => 1 });
-    const record = await voice.speakTurn({ actorId: "p", caption: "A: It feels heavy.", turnKey: "k" });
-    let hash = 0x811c9dc5;
-    for (const ch of "It feels heavy.") hash = Math.imul(hash ^ ch.charCodeAt(0), 0x01000193) >>> 0;
-    expect(record.textHash).toBe(hash.toString(16).padStart(8, "0"));
-    expect(JSON.stringify(record)).not.toContain("heavy");
-  });
 });

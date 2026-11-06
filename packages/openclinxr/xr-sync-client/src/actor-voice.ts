@@ -40,8 +40,6 @@ export interface SpokenTurnRecord {
   voiceUsed: string;
   voiceFallback: boolean;
   chars: number;
-  /** FNV-1a 32-bit hash of the spoken text, hex: lets a harness check which line was spoken without the record holding it. */
-  textHash: string;
   /** ms from the turn's arrival at speakTurn to the first synthesized chunk reaching the main thread. */
   firstChunkMs: number | null;
   firstAudioMs: number | null;
@@ -206,15 +204,6 @@ export function createEnvelopeCueBuilder(sampleRate: number): {
   };
 }
 
-export function fnv1a(text: string): string {
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < text.length; i += 1) {
-    hash ^= text.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193) >>> 0;
-  }
-  return hash.toString(16).padStart(8, "0");
-}
-
 function errorText(error: unknown): string {
   return (error instanceof Error ? error.message : String(error)).slice(0, 200);
 }
@@ -242,7 +231,7 @@ export function createActorVoice(deps: {
     const record: SpokenTurnRecord = {
       actorId: input.actorId, turnKey: input.turnKey,
       voiceRequested: voice.requested, voiceUsed: voice.used, voiceFallback: voice.fallback,
-      chars: text.length, textHash: fnv1a(text), firstChunkMs: null, firstAudioMs: null, audioSeconds: 0, computeMs: 0,
+      chars: text.length, firstChunkMs: null, firstAudioMs: null, audioSeconds: 0, computeMs: 0,
       rtf: 0, xRealtime: 0, chunks: 0, cueCount: 0, nonSilentCues: 0,
       peak: 0, error: "", audioClock: "audio",
     };
