@@ -156,6 +156,19 @@ async function main(argv) {
     const driveA = async (page) => {
       await waitJoined(page);
       const probe = { joined: await readShell(page), captures: [] };
+      if (options.mode === "quest") {
+        // The headset audio clock can lag after a wake: wait (bounded) until a fresh AudioContext clock advances, record the wait.
+        probe.audioWarmup = await page.evaluate(async () => {
+          const started = performance.now();
+          const context = new AudioContext();
+          await context.resume();
+          const t0 = context.currentTime;
+          while (context.currentTime - t0 < 0.5 && performance.now() - started < 45000) await new Promise((r) => setTimeout(r, 100));
+          const advanced = context.currentTime - t0;
+          await context.close();
+          return { waitMs: Math.round(performance.now() - started), advancedS: Math.round(advanced * 1000) / 1000 };
+        });
+      }
       probe.grant = await page.context().grantPermissions(["microphone"]).then(() => "granted", (error) => `grant-failed: ${String(error).slice(0, 120)}`);
       for (let i = 0; i < 2; i += 1) {
         const before = (await readShell(page)).captures.length;

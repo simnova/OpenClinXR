@@ -41,6 +41,7 @@ export function createSidecarRecognizer(opts: SidecarRecognizerOptions): {
   let buffer = Buffer.alloc(0);
   let pending: PendingEntry | null = null;
   let chain: Promise<void> = Promise.resolve();
+  let closed = false;
 
   const pump = (): void => {
     if (pending === null) return;
@@ -103,6 +104,10 @@ export function createSidecarRecognizer(opts: SidecarRecognizerOptions): {
 
   const request = (pcm: Int16Array, timeoutMs: number, label: string): Promise<{ text: string; confidence: number }> =>
     new Promise<{ text: string; confidence: number }>((resolve, reject) => {
+      if (closed) {
+        reject(new Error("sidecar closed"));
+        return;
+      }
       let proc: ChildProcess;
       try {
         proc = ensureChild();
@@ -170,6 +175,9 @@ export function createSidecarRecognizer(opts: SidecarRecognizerOptions): {
         // Already gone; close is idempotent.
       }
       child = null;
+      buffer = Buffer.alloc(0);
+      closed = true;
+      failPending(new Error("sidecar closed"));
     },
   };
 }
