@@ -53,6 +53,8 @@ export interface SpokenTurnRecord {
   peak: number;
   /** Which clock drove the mouth: the sink's audio clock, or wall time after the output failed to start within WALL_FALLBACK_MS. */
   audioClock: "audio" | "wall";
+  /** True when this turn's speech was still on the slot when synthesis began, so the audio-derived cues and clock were attached. */
+  attached: boolean;
   played?: number;
   underruns?: number;
   error: string;
@@ -208,6 +210,14 @@ export function createEnvelopeCueBuilder(sampleRate: number): {
   };
 }
 
+/** Engine errors may quote the text they failed on; the record must not: any 10-character window of the caption in the message withholds it. */
+function redacted(message: string, text: string): string {
+  for (let i = 0; i + 10 <= text.length; i += 1) {
+    if (message.includes(text.slice(i, i + 10))) return "engine error (message withheld: it quoted the caption)";
+  }
+  return message;
+}
+
 function errorText(error: unknown): string {
   return (error instanceof Error ? error.message : String(error)).slice(0, 200);
 }
@@ -237,7 +247,7 @@ export function createActorVoice(deps: {
       voiceRequested: voice.requested, voiceUsed: voice.used, voiceFallback: voice.fallback,
       chars: text.length, firstChunkMs: null, firstAudioMs: null, audioSeconds: 0, computeMs: 0,
       rtf: 0, xRealtime: 0, chunks: 0, cueCount: 0, nonSilentCues: 0,
-      peak: 0, error: "", audioClock: "audio",
+      peak: 0, error: "", audioClock: "audio", attached: false,
     };
     if (text === "") {
       records.push(record);
@@ -247,6 +257,7 @@ export function createActorVoice(deps: {
     const owns = (): boolean => slot !== undefined && speech !== undefined && slot.activeSpeech === speech;
     // A newer speech on the slot (a later turn, or an interruption) was not this turn's: the audio still plays, the mouth is not touched.
     const attached = owns();
+    record.attached = attached;
     const builder = createEnvelopeCueBuilder(24000);
     // The sink's audio clock drives the mouth. If the output never starts (the headset's AudioContext clock can stall), the
     // mouth falls back to wall time from the first chunk so captions and lip movement still play; the record says which clock ran.
@@ -315,7 +326,7 @@ export function createActorVoice(deps: {
       // A sink that never reports the end (stalled output) must not hold the next turn or the slot forever.
       endTimer = setTimeout(finishPlayback, result.audioSeconds * 1000 + WALL_FALLBACK_MS + PLAYBACK_GRACE_MS);
     } catch (error) {
-      record.error = errorText(error);
+      record.error = redacted(errorText(error), text);
       deps.sink.end();
       if (slot !== undefined && attached && owns() && speech !== undefined) {
         delete speech.bakedCues;

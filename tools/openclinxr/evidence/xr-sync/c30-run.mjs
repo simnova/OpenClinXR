@@ -36,7 +36,7 @@ const blueprint = {
   requiredSafetyCriticalTraceTags: [],
 };
 const stripName = (caption) => caption.replace(/^[^:]{1,60}:\s+/u, "").trim();
-const RECORD_KEYS = ["actorId", "audioClock", "audioSeconds", "chars", "chunks", "computeMs", "cueCount", "error", "firstAudioMs", "firstChunkMs", "nonSilentCues", "peak", "played", "rtf", "turnKey", "underruns", "voiceFallback", "voiceRequested", "voiceUsed", "xRealtime"];
+const RECORD_KEYS = ["actorId", "attached", "audioClock", "audioSeconds", "chars", "chunks", "computeMs", "cueCount", "error", "firstAudioMs", "firstChunkMs", "nonSilentCues", "peak", "played", "rtf", "turnKey", "underruns", "voiceFallback", "voiceRequested", "voiceUsed", "xRealtime"];
 const median = (values) => { const s = [...values].sort((a, b) => a - b); return s.length === 0 ? null : s[Math.floor(s.length / 2)]; };
 
 async function main(argv) {
@@ -162,7 +162,7 @@ async function main(argv) {
     check("S4a every spoken turn synthesized in the Worker without error: chunks, positive audio length, first chunk received", spoken.length === 6 && spoken.every((r) => r.error === "" && typeof r.firstChunkMs === "number" && r.audioSeconds > 0.3 && r.chunks > 0), JSON.stringify(spoken.map((r) => ({ k: r.turnKey, e: r.error.slice(0, 80), c: r.firstChunkMs, a: r.audioSeconds }))));
     const audioStarted = spoken.filter((r) => typeof r.firstAudioMs === "number" && r.played > 0.9 * r.audioSeconds * 24000 && r.underruns === 0).length;
     const onAudioClock = spoken.filter((r) => r.audioClock === "audio").length;
-    run.audioOutput = { startedAndPlayed: audioStarted, onAudioClock, spokenTurns: spoken.length, clocks: spoken.map((r) => r.audioClock), unlock: probe.unlock };
+    run.audioOutput = { startedAndPlayed: audioStarted, onAudioClock, attached: spoken.map((r) => r.attached), spokenTurns: spoken.length, clocks: spoken.map((r) => r.audioClock), unlock: probe.unlock };
     check("S4b the audio worklet reported started and finished on every spoken turn with at least 90% of the samples played and no underrun; on the headset no turn used the wall-clock mouth fallback (the fallback engages only when the output-started message does not arrive), on the host (software rendering delays that message) the clocks are recorded", audioStarted === 6 && (options.mode === "host" || onAudioClock === 6), JSON.stringify(run.audioOutput));
     check("S5 the empty-text turn (nurse opening) made no synthesis call", records[5]?.chars === 0 && records[5]?.chunks === 0 && records[5]?.firstAudioMs === null, JSON.stringify(records[5]));
     check("S6 voice per actor comes from scenario data: patient authored miles -> Heart with voiceFallback true; nurse authors none -> Heart, no fallback", records.slice(0, 5).every((r) => r.voiceRequested === "miles" && r.voiceUsed === "heart" && r.voiceFallback === true) && records.slice(5).every((r) => r.voiceRequested === "heart" && r.voiceUsed === "heart" && r.voiceFallback === false), JSON.stringify(records.map((r) => [r.voiceRequested, r.voiceUsed, r.voiceFallback])));
@@ -180,7 +180,7 @@ async function main(argv) {
     });
     run.mouthTurns = mouthTurns;
     const spokenMouth = mouthTurns.filter((_, i) => records[i]?.chars > 0);
-    check("S8 the mouth moves with the speech: on every spoken turn the actor's viseme and mouth morph sum departs from its settled rest value by more than 0.1 on at least 1 sampled frame (the host samples at the page frame rate, about 1.4 Hz under software rendering; the headset samples 8-16 frames per turn), and it is settled (range < 0.05 over the last 6 frames) after the last turn", tail.length === 6 && quiet.every((r) => r < 0.05) && spokenMouth.length === 6 && spokenMouth.every((m) => m.maxDelta > 0.1 && m.open >= 1) && (options.mode === "host" || spokenMouth.every((m) => m.open >= 5)), JSON.stringify({ restOf, quiet, restTargetsBefore: probe.restTargetsBefore, restTargetsAfter: probe.restTargetsAfter, mouthTurns }));
+    check("S8 the mouth moves with the speech: on the spoken turns the actor's viseme and mouth morph sum departs from its settled rest value by more than 0.1 on at least 5 sampled frames on the headset (8-16 frames per turn there) and, on the host, on at least 1 frame for at least 5 of the 6 spoken turns (software rendering gives about 1.4 frames per second, so a turn can be sampled only while the mouth is closed), and it is settled (range < 0.05 over the last 6 frames) after the last turn", tail.length === 6 && quiet.every((r) => r < 0.05) && spokenMouth.length === 6 && (options.mode === "host" ? spokenMouth.filter((m) => m.maxDelta > 0.1 && m.open >= 1).length >= 5 : spokenMouth.every((m) => m.maxDelta > 0.1 && m.open >= 5)), JSON.stringify({ restOf, quiet, restTargetsBefore: probe.restTargetsBefore, restTargetsAfter: probe.restTargetsAfter, mouthTurns }));
     check("S9 the cues come from the audio: every spoken turn has at least 3 cues and 2 non-silent cues", spoken.every((r) => r.cueCount >= 3 && r.nonSilentCues >= 2), JSON.stringify(spoken.map((r) => [r.cueCount, r.nonSilentCues])));
     const afterPrompts = probe.afterTurn.map((s) => s.prompt);
     check("S10 please-repeat prompt: empty on turns 1-2, 'Please repeat that.' after the first low-confidence speech, '(attempt 2)' after the second, cleared by the good speech", JSON.stringify(afterPrompts.slice(0, 5)) === JSON.stringify(["", "", "Please repeat that.", "Please repeat that. (attempt 2)", ""]), JSON.stringify(afterPrompts));
@@ -229,7 +229,7 @@ async function main(argv) {
     check("S16 the trace counts the retry: low confidence carries no retry, the next two utterances carry retry 1 and 2", JSON.stringify(ends.map((e) => [e.tag, e.retry])) === JSON.stringify([["utterance_unmatched", undefined], ["history_opqrst", undefined], ["speech_low_confidence", undefined], ["speech_low_confidence", 1], ["history_opqrst", 2]]) || JSON.stringify(ends.slice(2).map((e) => [e.tag, e.retry])) === JSON.stringify([["speech_low_confidence", undefined], ["speech_low_confidence", 1], ["history_opqrst", 2]]), JSON.stringify(ends.map((e) => [e.tag, e.match, e.retry])));
     const lines = [patient.openingUtterance, onset.caption ?? onset.spokenText, entry.utteranceFallback.line, escalation.caption ?? escalation.spokenText, phrase].map((t) => t.toLowerCase());
     const leaks = lines.filter((text) => raws.some((raw) => raw.toLowerCase().includes(text)));
-    const audioKeys = raws.filter((raw) => /"(audio|samples|waveform|wav|pcm|base64)[A-Za-z]*"/iu.test(raw)).length;
+    const audioKeys = raws.filter((raw) => /"[^"]*(audio|sample|waveform|wav|pcm|base64|pdn)[^"]*"\s*:/iu.test(raw)).length;
     check("S17 the persisted trace holds no spoken text and no audio (no audio-shaped key; every file under 40 kB)", leaks.length === 0 && audioKeys === 0 && sizes.every((n) => n < 40000), JSON.stringify({ leaks, audioKeys, sizes }));
     if (options.mode === "quest") {
       const lists = await collectQuestCleanupLists({ staticPort: staticServer.port, syncPort: new URL(run.pageUrl).searchParams.get("encounterSync").split(":").at(-1), serial: options.serial });

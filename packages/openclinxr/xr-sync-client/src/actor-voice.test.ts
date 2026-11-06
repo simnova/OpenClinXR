@@ -78,7 +78,7 @@ describe("envelope cue builder", () => {
     expect(admissible(streamed.cues)).toBe(true);
   });
   it("every stream length from 1 sample to 2000 yields strictly admissible cues (a partial last frame included)", () => {
-    for (let n = 1; n <= 2000; n += 7) {
+    for (let n = 1; n <= 2000; n += 1) {
       const wave = Float32Array.from({ length: n }, (_, i) => (i % 60 < 30 ? 0.3 : 0.001) * Math.sin(i / 3));
       const b = build(wave);
       expect(admissible(b.cues), `length ${n}`).toBe(true);
@@ -154,7 +154,7 @@ describe("actor voice turn", () => {
     expect(slot.mediaPositionSeconds).toBeUndefined();
     expect(slot.activeSpeech).toBeUndefined();
     expect(record).toMatchObject({ played: 12000, underruns: 0 });
-    expect(Object.keys(record).sort()).toEqual(["actorId", "audioClock", "audioSeconds", "chars", "chunks", "computeMs", "cueCount", "error", "firstAudioMs", "firstChunkMs", "nonSilentCues", "peak", "played", "rtf", "turnKey", "underruns", "voiceFallback", "voiceRequested", "voiceUsed", "xRealtime"]);
+    expect(Object.keys(record).sort()).toEqual(["actorId", "attached", "audioClock", "audioSeconds", "chars", "chunks", "computeMs", "cueCount", "error", "firstAudioMs", "firstChunkMs", "nonSilentCues", "peak", "played", "rtf", "turnKey", "underruns", "voiceFallback", "voiceRequested", "voiceUsed", "xRealtime"]);
     expect(voice.records).toEqual([record]);
   });
   it("the cue builder reads each chunk before the sink takes it (the sink may detach the buffer)", async () => {
@@ -207,6 +207,17 @@ describe("actor voice turn", () => {
     expect(f.calls).toContain("sink.end");
     expect(slot.activeSpeech.bakedCues).toBeUndefined();
     expect(slot.mediaPositionSeconds).toBeUndefined();
+  });
+  it("an engine error that quotes the caption is withheld from the record; one that does not is kept", async () => {
+    const f = fakes();
+    const quoting: VoiceEngine = { synthesize: async () => { throw new Error("word outside the lexicon: It feels heavy, like someone"); } };
+    const plain: VoiceEngine = { synthesize: async () => { throw new Error("a word is outside the lexicon"); } };
+    const a = createActorVoice({ engine: quoting, sink: f.sink, slotFor: () => undefined, voiceFor: () => undefined, nowMs: () => 1 });
+    const kept = createActorVoice({ engine: plain, sink: f.sink, slotFor: () => undefined, voiceFor: () => undefined, nowMs: () => 1 });
+    const hidden = await a.speakTurn({ actorId: "p", caption: "A: It feels heavy, like someone is sitting on my chest.", turnKey: "k" });
+    expect(hidden.error).not.toContain("heavy");
+    expect(hidden.error).toContain("withheld");
+    expect((await kept.speakTurn({ actorId: "p", caption: "A: It feels heavy, like someone is sitting on my chest.", turnKey: "k" })).error).toBe("a word is outside the lexicon");
   });
   it("counterweight: a newer speech on the slot is never touched by an older turn's audio", async () => {
     const f = fakes();

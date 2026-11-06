@@ -31,8 +31,8 @@
    "sha256": "5db821f8315660348bedb2d502547f937a988e90c03410eeb7de6a1f524e04be"
   },
   "espeak-refused.mjs": {
-   "bytes": 298,
-   "sha256": "9f06ae2e0f5a081c26738de32eca048eeaa9f76fcd82e990d4d036fdb304500e"
+   "bytes": 375,
+   "sha256": "16bd159216ab7bbb3ceb96c2ab5f2166b6a07ac43fa98e94605ed0769e7fd79a"
   },
   "frontend/espeak_chain.mjs": {
    "bytes": 1240,
