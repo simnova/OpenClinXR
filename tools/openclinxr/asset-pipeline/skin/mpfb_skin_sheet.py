@@ -48,6 +48,16 @@ TEETH_MESH = "openclinxr_fitted_teeth_mpfb_parent_tara_johnson_v1_mesh"
 TEETH_VERTS = 4494
 TEETH_TARGETS = ("viseme_aa", "viseme_PP")
 
+# D1 (st-vitfamily): subject -> skin material names for the albedo-only embed
+# path. Keyed by materialize subject_id (--reference / --eye-colour-reference
+# token), never hard-coded at the call site. The tara full-sheet path above
+# (SKIN_MATERIAL_NAMES / TEETH_*) is untouched.
+SUBJECT_SKIN_MATERIALS = {
+    "ob_patient_aisha": ("mpfb_skin_ob_patient_aisha_v1",),
+    "peds_anxious_parent": SKIN_MATERIAL_NAMES,
+    "parent_tara_johnson_v1": SKIN_MATERIAL_NAMES,
+}
+
 
 def skin_sheet_for_subject(subject_id: str | None) -> dict | None:
     """Return the four sheet paths for this subject, or None when absent."""
@@ -335,6 +345,81 @@ def apply_skin_sheet_to_glb(glb_path: Path, subject_id: str) -> dict:
     }
 
 
+def embed_skin_albedo(
+    glb_in: Path,
+    glb_out: Path,
+    albedo_png: Path,
+    size: int = 4096,
+    skin_material_names: tuple[str, ...] | list[str] | None = None,
+) -> dict:
+    """Albedo-only embed (st-vitfamily D1a): rewrite ONLY the skin material's
+    baseColor image bytes with the composed family albedo, resized to
+    size x size PNG. Every other buffer view is copied byte-identical
+    (BIN rebuilt with offsets fixed, then verified). No mesh, morph, normal,
+    roughness, or extension is touched, so the tara teeth assert does not
+    apply in this mode.
+    """
+    from PIL import Image
+
+    names = tuple(skin_material_names) if skin_material_names else tuple(SUBJECT_SKIN_MATERIALS.get("", ()))
+    if not names:
+        names = ("mpfb_skin_ob_patient_aisha_v1",)
+    document, binary = _read_glb(glb_in)
+    material = next((item for item in document["materials"] if item.get("name") in names), None)
+    if material is None:
+        known = [item.get("name") for item in document["materials"]]
+        raise RuntimeError(f"skin material {list(names)} not in {known}")
+    pbr = material.get("pbrMetallicRoughness") or {}
+    base_tex = (pbr.get("baseColorTexture") or {}).get("index")
+    if base_tex is None:
+        raise RuntimeError(f"skin material {material.get('name')} has no baseColorTexture")
+    albedo_image = document["textures"][base_tex]["source"]
+    albedo_view = document["images"][albedo_image]["bufferView"]
+
+    albedo_sha = hashlib.sha256(Path(albedo_png).read_bytes()).hexdigest()
+    with Image.open(albedo_png) as source:
+        rgb = source.convert("RGB")
+        if rgb.size != (size, size):
+            rgb = rgb.resize((size, size), Image.LANCZOS)
+        buffer = io.BytesIO()
+        rgb.save(buffer, format="PNG")
+    albedo_bytes = buffer.getvalue()
+
+    views = document["bufferViews"]
+    order = sorted(range(len(views)), key=lambda index: views[index].get("byteOffset", 0))
+    payloads_before = {index: _view_bytes(views, binary, index) for index in order}
+    rebuilt = bytearray()
+    for index in order:
+        while len(rebuilt) % 4:
+            rebuilt.append(0)
+        views[index]["byteOffset"] = len(rebuilt)
+        payload = albedo_bytes if index == albedo_view else payloads_before[index]
+        views[index]["byteLength"] = len(payload)
+        rebuilt += payload
+    while len(rebuilt) % 4:
+        rebuilt.append(0)
+    document["buffers"][0]["byteLength"] = len(rebuilt)
+
+    document["images"][albedo_image]["name"] = f"family-albedo-{size}"
+
+    for index, payload in payloads_before.items():
+        if index == albedo_view:
+            continue
+        if _view_bytes(views, rebuilt, index) != payload:
+            raise RuntimeError(f"buffer view {index} changed during the albedo embed")
+    glb_out.write_bytes(_pack_glb(document, bytes(rebuilt)))
+    return {
+        "glb_in": str(glb_in),
+        "glb": str(glb_out),
+        "material": material["name"],
+        "albedo": str(albedo_png),
+        "albedoSha256": albedo_sha,
+        "size": size,
+        "bytes": glb_out.stat().st_size,
+        "sha256": hashlib.sha256(glb_out.read_bytes()).hexdigest(),
+    }
+
+
 def _check() -> None:
     aisha = skin_sheet_for_subject("peds_anxious_parent")
     actor = skin_sheet_for_subject("parent_tara_johnson_v1")
@@ -362,7 +447,29 @@ def main(argv: list[str]) -> None:
         report = apply_skin_sheet_to_glb(Path(argv[1]), argv[2])
         print("SKIN_SHEET_APPLIED " + json.dumps(report))
         return
-    raise SystemExit("usage: mpfb_skin_sheet.py --check | --apply <glb> <subject_id>")
+    if argv[:1] == ["--embed-albedo"] and len(argv) in (4, 5, 6, 7):
+        glb_in, glb_out, albedo = argv[1], argv[2], argv[3]
+        size = 4096
+        names: tuple[str, ...] | None = None
+        for token in argv[4:]:
+            if token.startswith("--size="):
+                size = int(token.split("=", 1)[1])
+            elif token.startswith("--materials="):
+                names = tuple(token.split("=", 1)[1].split(","))
+            elif token.startswith("--subject="):
+                subject = token.split("=", 1)[1]
+                if subject not in SUBJECT_SKIN_MATERIALS:
+                    raise SystemExit(f"unknown embed subject {subject}")
+                names = SUBJECT_SKIN_MATERIALS[subject]
+            else:
+                raise SystemExit(f"unknown option {token}")
+        report = embed_skin_albedo(Path(glb_in), Path(glb_out), Path(albedo), size, names)
+        print("SKIN_ALBEDO_EMBEDDED " + json.dumps(report))
+        return
+    raise SystemExit(
+        "usage: mpfb_skin_sheet.py --check | --apply <glb> <subject_id>"
+        " | --embed-albedo <glb_in> <glb_out> <albedo_png> [--subject=id] [--size=N] [--materials=a,b]"
+    )
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-// Face-realism station runner: executes the 7 case-driven stages in order,
+// Face-realism station runner: executes the 8 case-driven stages in order,
 // each through its landed stage script as a subprocess.
 //
 // Pattern follows hair_editor/run.ts:16-37 (validate -> plan -> run record).
@@ -43,6 +43,7 @@ import {
 } from "./stages-a.js";
 import { runStage4, runStage7 } from "./stages-b.js";
 import { runStage5, runStage6 } from "./stages-d.js";
+import { runAlbedoEmbed } from "./stages-e.js";
 export {
   EYE_SCLERA_SHADE_REL,
   EYE_SHADE_ATTEN,
@@ -196,6 +197,11 @@ export function runFaceRealism(input: unknown): Record<string, unknown> {
     throw new Error("stage 4 record missing: refusing to run checks without it");
   }
   stages.push(runStage(() => runStage7(caseRec, stage4, outDir)));
+  const stage3 = stages.find((stage) => stage.stage === 3);
+  if (stage3 === undefined) {
+    throw new Error("stage 3 record missing: refusing to run the albedo embed without it");
+  }
+  stages.push(runStage(() => runAlbedoEmbed(caseRec, stages, outDir)));
   const seen = new Set<string>();
   const unchainedInputs: Array<{ path: string; sha256: string; prevStageOutputs: StageIO[] }> = [];
   const prevOutputs: StageIO[] = [];
