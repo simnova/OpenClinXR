@@ -417,6 +417,28 @@ def resolve_skins01_mhmat(stem):
     return path if path.is_file() else None
 
 
+# st-vitphys — skin_tone-keyed photographic albedo. deep_warm resolves to the
+# deep family PNG via the single bpy-free resolver module
+# tools/openclinxr/asset-pipeline/skin/families/family_albedo.py (path + sha
+# pinned from the families manifest row, family "deep"): consumed on the same
+# path skins01 maps use (wired into MpfbSkinMasterColor.DiffuseTexture with
+# strength 1.0, so the photographic albedo replaces the tint). The CASE
+# actor's tone selects it; unmapped tones keep the tint-only bake.
+# SKIN_TONE_RGB["deep_warm"] stays as the fallback tint and is NOT removed.
+_FAMILY_ALBEDO_DIR = pathlib.Path(__file__).resolve().parent
+while not (_FAMILY_ALBEDO_DIR / "tools").is_dir():
+    _FAMILY_ALBEDO_DIR = _FAMILY_ALBEDO_DIR.parent
+_FAMILY_ALBEDO_DIR = (
+    _FAMILY_ALBEDO_DIR
+    / "tools/openclinxr/asset-pipeline/skin/families"
+)
+if str(_FAMILY_ALBEDO_DIR) not in sys.path:
+    sys.path.insert(0, str(_FAMILY_ALBEDO_DIR))
+from family_albedo import (  # noqa: E402
+    resolve_family_albedo,
+)
+
+
 def ensure_body_subsurf(human, render_levels=1):
     """Add an unapplied Catmull-Clark SUBSURF so clothes still bind to 13,380 verts.
 
@@ -2371,6 +2393,17 @@ def parse_args():
             "family fallback green. #687: this is also the SUBJECT identity on the "
             "default-macro path — a bake with neither --reference nor --eye-colour-reference "
             "refuses loudly instead of naming itself 'ob_patient_aisha'."
+        ),
+    )
+    parser.add_argument(
+        "--skin-tone",
+        default=None,
+        help=(
+            "st-vitphys: the CASE actor's authored skin_tone token (e.g. the "
+            "ward-delirium senior_resident_ward_v1 deep_warm). Wins over "
+            "phenotype_skin_tone(args.reference) so the albedo reads the CASE "
+            "actor, not the borrowed nurse reference. Omit to keep the "
+            "reference-manifest behavior."
         ),
     )
     parser.add_argument(
@@ -6506,8 +6539,39 @@ def main():
     # baseColorTexture before export.
     from bl_ext.user_default.mpfb.services.materialservice import MaterialService as _MaterialService  # noqa: E402
 
+    # st-vitphys: the tone reads the CASE actor (--skin-tone wins), not the
+    # borrowed nurse reference. A tone-keyed family albedo takes precedence
+    # over the reference-keyed skins01 mhmat on the same photographic path.
+    _skin_tone = args.skin_tone or phenotype_skin_tone(args.reference)
+    _family_albedo = resolve_family_albedo(_skin_tone)
+    if _family_albedo is not None:
+        print(
+            "SKIN_ALBEDO_SOURCE "
+            + json.dumps(
+                {
+                    "tone": _skin_tone,
+                    "source": "family",
+                    "path": str(_family_albedo[0]),
+                    "sha256": _family_albedo[1],
+                    "mhmat_skipped": True,
+                }
+            )
+        )
     _mhmat_stem = SKIN_MHMAT_BY_REFERENCE.get(args.reference) if args.reference else None
+    if _family_albedo is not None:
+        _mhmat_stem = None
     _mhmat_path = resolve_skins01_mhmat(_mhmat_stem) if _mhmat_stem else None
+    if _family_albedo is None:
+        print(
+            "SKIN_ALBEDO_SOURCE "
+            + json.dumps(
+                {
+                    "tone": _skin_tone,
+                    "source": "skins01_mhmat" if _mhmat_path is not None else "tint_only",
+                    "mhmat": str(_mhmat_path) if _mhmat_path is not None else None,
+                }
+            )
+        )
     _skin_mat = _MaterialService.create_v2_skin_material(
         skin_material_name,
         human,
@@ -6525,7 +6589,6 @@ def main():
                 }
             )
         )
-    _skin_tone = phenotype_skin_tone(args.reference)
     _skin_rgb = SKIN_TONE_RGB.get(_skin_tone, SKIN_TONE_RGB["default"])
     _master_color = next(
         (
@@ -6543,6 +6606,39 @@ def main():
         f"SKIN_MATERIAL {skin_material_name} tone={_skin_tone} "
         f"rgb={[round(x, 3) for x in _skin_rgb]} shader=enhanced_skin"
     )
+    if _family_albedo is not None:
+        # st-vitphys: wire the family PNG into DiffuseTexture with strength
+        # 1.0 — the same photographic path create_v2_skin_material uses for a
+        # skins01 mhmat diffuse (the tint above stays as fallback only).
+        from bl_ext.user_default.mpfb.services.nodeservice import NodeService as _NodeService  # noqa: E402
+
+        _fam_texco = _NodeService.create_node(
+            _skin_mat.node_tree, "ShaderNodeTexCoord",
+            name="FamilyAlbedoTexCoord", label="Texture Coordinates",
+            xpos=-901, ypos=425,
+        )
+        _fam_diffuse = _NodeService.create_image_texture_node(
+            _skin_mat.node_tree, name="FamilyAlbedoDiffuse",
+            label="Family Albedo", xpos=-556, ypos=602,
+            image_path_absolute=str(_family_albedo[0]),
+        )
+        _skin_mat.node_tree.links.new(
+            _fam_diffuse.outputs["Color"], _master_color.inputs["DiffuseTexture"]
+        )
+        _skin_mat.node_tree.links.new(
+            _fam_texco.outputs["UV"], _fam_diffuse.inputs["Vector"]
+        )
+        _master_color.inputs["DiffuseTextureStrength"].default_value = 1.0
+        print(
+            "SKIN_FAMILY_ALBEDO "
+            + json.dumps(
+                {
+                    "tone": _skin_tone,
+                    "path": str(_family_albedo[0]),
+                    "sha256": _family_albedo[1],
+                }
+            )
+        )
 
     INNER_MOUTH_DILATE_PX = 128
     # Inner mouth (CEO grade 2026-09-19: open aa shows an upper tooth row with a
@@ -9850,7 +9946,43 @@ def main():
         )
     else:
         bake_png = output.parent / f"{output.stem}.skin-baked.png"
-        baked_img = bake_skin_material_to_texture(human, skin_material_name, str(bake_png), resolution=1024)
+        if _family_albedo is not None:
+            # st-vitphys: tone-keyed family albedo REPLACES the shader bake
+            # (skin-sheet branch precedent above sets baked_img directly). A
+            # DIFFUSE COLOR bake would re-contaminate the provided albedo
+            # with the enhanced_skin SpotColor/VeinColor/EyelidColor layers
+            # (DIAG2), so the sha-verified family PNG is downsampled to the
+            # bake size and wired straight through; the normal bake below is
+            # unchanged (vitfacet recipe).
+            from PIL import Image as _FamilyPILImage  # noqa: E402
+
+            _fam_src = _FamilyPILImage.open(str(_family_albedo[0])).convert("RGB")
+            _fam_size = list(_fam_src.size)
+            _bake_size = [1024, 1024]
+            if _fam_size != _bake_size:
+                _fam_src = _fam_src.resize((_bake_size[0], _bake_size[1]), _FamilyPILImage.LANCZOS)
+            _fam_src.save(str(bake_png))
+            baked_img = bpy.data.images.load(str(bake_png), check_existing=False)
+            try:
+                baked_img.colorspace_settings.name = "sRGB"
+            except TypeError:
+                pass
+            print(
+                "SKIN_FAMILY_ALBEDO_REPLACES_BAKE "
+                + json.dumps(
+                    {
+                        "tone": _skin_tone,
+                        "path": str(_family_albedo[0]),
+                        "sha256": _family_albedo[1],
+                        "familySize": _fam_size,
+                        "bakeSize": _bake_size,
+                        "bakePng": str(bake_png),
+                        "bytes": bake_png.stat().st_size,
+                    }
+                )
+            )
+        else:
+            baked_img = bake_skin_material_to_texture(human, skin_material_name, str(bake_png), resolution=1024)
         if args.reference == "ed_chest_pain_nurse_adult":
             _blender_dir = pathlib.Path(__file__).resolve().parent
             if str(_blender_dir) not in sys.path:

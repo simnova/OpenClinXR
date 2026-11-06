@@ -78,8 +78,8 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "senior_resident_ward_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-          "assetSha256": "34c5aec8fe30cd47fa924b40bba1660bf4b4c04bf3d8328210603e26c477d83e",
-          "byteCount": 9320372
+          "assetSha256": "c06b6c065830d0dbafcd076bf66597acec5d396cf2537b3f52982458b813aeba",
+          "byteCount": 9476168
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:ward_nurse_patel_v1",
@@ -167,11 +167,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-3de25fcd0b1a3ac429cf543859cbacff",
+      "planRevision": "plan-v1-f5bba3f9a8d9fac352198d73d91a14b4",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-3de25fcd0b1a3ac429cf543859cbacff"
+        "acknowledgedPlanRevision": "plan-v1-f5bba3f9a8d9fac352198d73d91a14b4"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);

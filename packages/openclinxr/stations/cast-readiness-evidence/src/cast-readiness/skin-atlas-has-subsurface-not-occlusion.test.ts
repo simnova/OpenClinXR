@@ -5,6 +5,7 @@ import { NodeIO, type Primitive } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import { decodePng } from "../../../../../../tools/openclinxr/evidence/decode-png.js";
 import { listUniqueLiveCastMpfbAssetPaths } from "../../../../../../tools/openclinxr/evidence/live-scenario-actor-cast.js";
+import { measureProvidedSource } from "./provided-albedo-source.js";
 
 /**
  * #343 RETRY — the skin atlas must carry SUBSURFACE tint, not baked occlusion.
@@ -57,6 +58,14 @@ import { listUniqueLiveCastMpfbAssetPaths } from "../../../../../../tools/opencl
  *   - Clinical skin-tone appropriateness (§8d/§8y — not an implementer decision).
  *   - That the tint is visually strong enough at encounter distance — a pixel grade, not a
  *     luminance statistic.
+ *
+ * Clause (2) SUPERSEDED in part by st-vitphys (A2/A6, 2026-11-06) — never deleted
+ * or widened: the deep family PNG now feeding the physician albedo carries
+ * scalp-stubble speckle in the source itself, so the atlas-median form of (2) would
+ * fail an honest provided albedo. Bake-albedo actors keep the median rule unchanged;
+ * provided-source actors (sidecar SKIN_FAMILY_ALBEDO_REPLACES_BAKE, sha-verified)
+ * are measured source-relative via ./provided-albedo-source.js, shared with
+ * mpfb-skin-carries-surface-relief.test.ts.
  */
 
 const REPO_ROOT = repoRoot();
@@ -140,6 +149,11 @@ type Row = {
   medianLuminance: number;
   darkTexelFraction: number;
   blockMeanSd: number;
+  /** st-vitphys A6: set when the sidecar declares a provided albedo source. */
+  providedSource: boolean;
+  sourceShaOk: boolean;
+  sourceNote: string;
+  sourceDarkFraction: number;
 };
 
 async function measure(rel: string): Promise<Row | null> {
@@ -201,6 +215,9 @@ async function measure(rel: string): Promise<Row | null> {
   for (const t of tiles) sd += (t - mean) * (t - mean);
   sd = Math.sqrt(sd / tiles.length);
 
+  // st-vitphys A6: provided-albedo actors are measured source-relative (shared helper).
+  const src = measureProvidedSource(decoded, mask, rel, REPO_ROOT);
+
   return {
     file: rel.split("/").pop()!,
     textureSha: createHash("sha256").update(tex).digest("hex").slice(0, 16),
@@ -209,6 +226,10 @@ async function measure(rel: string): Promise<Row | null> {
     medianLuminance: median,
     darkTexelFraction: dark / values.length,
     blockMeanSd: sd,
+    providedSource: src.declared,
+    sourceShaOk: src.shaOk,
+    sourceNote: src.note,
+    sourceDarkFraction: src.sourceDarkFraction,
   };
 }
 
@@ -271,9 +292,19 @@ describe("an MPFB skin atlas carries subsurface tint, not baked occlusion (#343)
   it("(2) COUNTERWEIGHT (a): no skin texel darker than 0.35x the atlas median (occlusion)", () => {
     requireRows();
     const dark = rows
-      .filter((r) => r.darkTexelFraction > 0)
+      .filter((r) => !r.providedSource && r.darkTexelFraction > 0)
       .map((r) => `${r.file}: darkTexelFraction ${r.darkTexelFraction.toFixed(4)} at median ${r.medianLuminance.toFixed(1)}`);
     expect(dark, "atlases with baked-in dark regions — occlusion painted into base colour").toEqual([]);
+
+    // st-vitphys A6: provided-albedo actors are measured source-relative, never median-relative.
+    const undeclared = rows
+      .filter((r) => r.providedSource && !r.sourceShaOk)
+      .map((r) => `${r.file}: provided source unverified — ${r.sourceNote}`);
+    expect(undeclared, "provided-albedo actors whose source sha/file cannot be verified").toEqual([]);
+    const srcDark = rows
+      .filter((r) => r.providedSource && r.sourceShaOk && r.sourceDarkFraction > 0)
+      .map((r) => `${r.file}: source-relative dark fraction ${r.sourceDarkFraction.toFixed(4)} (${r.sourceNote})`);
+    expect(srcDark, "provided-albedo atlases darker than their own declared source — occlusion painted after the source").toEqual([]);
   });
 
   it("(3) COUNTERWEIGHT (b): no two actors share one skin atlas", () => {

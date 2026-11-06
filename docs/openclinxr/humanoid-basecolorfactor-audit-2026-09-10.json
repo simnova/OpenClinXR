@@ -957,10 +957,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7598,
+    "line": 7696,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7696",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -977,10 +977,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 994,
+    "line": 1018,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:994",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1018",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -997,10 +997,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 996,
+    "line": 1020,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:996",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1020",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -1317,10 +1317,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7598,
+    "line": 7696,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7696",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -1337,10 +1337,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 994,
+    "line": 1018,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:994",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1018",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -1357,10 +1357,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 996,
+    "line": 1020,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:996",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1020",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -1652,10 +1652,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7598,
+    "line": 7696,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7696",
    "bodyLastChanged": "30ef764a486188b82f314b8bfb35e6cebb6e8fad 2026-11-05 st-vitbrowdense r5: the spouse's brows take style 07 at 9400 triangles"
   },
   {
@@ -1672,10 +1672,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 994,
+    "line": 1018,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:994",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1018",
    "bodyLastChanged": "30ef764a486188b82f314b8bfb35e6cebb6e8fad 2026-11-05 st-vitbrowdense r5: the spouse's brows take style 07 at 9400 triangles"
   },
   {
@@ -1692,10 +1692,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 996,
+    "line": 1020,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:996",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1020",
    "bodyLastChanged": "30ef764a486188b82f314b8bfb35e6cebb6e8fad 2026-11-05 st-vitbrowdense r5: the spouse's brows take style 07 at 9400 triangles"
   },
   {
@@ -1957,10 +1957,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7598,
+    "line": 7696,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7696",
    "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
@@ -1977,10 +1977,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 994,
+    "line": 1018,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:994",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1018",
    "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
@@ -1997,10 +1997,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 996,
+    "line": 1020,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:996",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1020",
    "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
@@ -2247,10 +2247,10 @@
     1
    ],
    "hasBaseColorTexture": false,
-   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
+   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7696",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7598,
+    "line": 7696,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
@@ -2265,10 +2265,10 @@
     1
    ],
    "hasBaseColorTexture": false,
-   "reason": "Measured [0.9200000166893005, 0.8999999761581421, 0.8600000143051147, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:994",
+   "reason": "Measured [0.9200000166893005, 0.8999999761581421, 0.8600000143051147, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1018",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 994,
+    "line": 1018,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
@@ -2283,10 +2283,10 @@
     1
    ],
    "hasBaseColorTexture": false,
-   "reason": "Measured [0.8500000238418579, 0.44999998807907104, 0.44999998807907104, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:996",
+   "reason": "Measured [0.8500000238418579, 0.44999998807907104, 0.44999998807907104, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1020",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 996,
+    "line": 1020,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
@@ -2434,10 +2434,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7598,
+    "line": 7696,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7696",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -2454,10 +2454,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 994,
+    "line": 1018,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:994",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1018",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -2474,10 +2474,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 996,
+    "line": 1020,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:996",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1020",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -2753,10 +2753,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7598,
+    "line": 7696,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Authored lash colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
+   "reason": "Authored lash colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7696",
    "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
@@ -2773,10 +2773,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 994,
+    "line": 1018,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
-   "reason": "Authored teeth colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:994",
+   "reason": "Authored teeth colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1018",
    "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
@@ -2793,10 +2793,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 996,
+    "line": 1020,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
-   "reason": "Authored tongue colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:996",
+   "reason": "Authored tongue colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1020",
    "bodyLastChanged": "755e2e816d803389cc51e9157bd5b059f1f04bb1 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
@@ -3094,10 +3094,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7598,
+    "line": 7696,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7696",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -3114,10 +3114,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 994,
+    "line": 1018,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:994",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1018",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -3134,10 +3134,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 996,
+    "line": 1020,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:996",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1020",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -3420,10 +3420,10 @@
     1
    ],
    "hasBaseColorTexture": false,
-   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
+   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7696",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7598,
+    "line": 7696,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
@@ -3723,10 +3723,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7598,
+    "line": 7696,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7696",
    "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
@@ -3743,10 +3743,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 994,
+    "line": 1018,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:994",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1018",
    "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
@@ -3763,10 +3763,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 996,
+    "line": 1020,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:996",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1020",
    "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
@@ -4066,10 +4066,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7598,
+    "line": 7696,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7696",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -4086,10 +4086,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 994,
+    "line": 1018,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:994",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1018",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -4106,10 +4106,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 996,
+    "line": 1020,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:996",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1020",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -4402,10 +4402,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7598,
+    "line": 7696,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7696",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -4422,10 +4422,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 994,
+    "line": 1018,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:994",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1018",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -4442,10 +4442,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 996,
+    "line": 1020,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:996",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1020",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {

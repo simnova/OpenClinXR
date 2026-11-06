@@ -93,11 +93,16 @@ PLAN = {
     # (texture refold); face/hand/joints hold. Asserted live.
 
     "mpfb-clinical-physician-adult.glb": {
-        "bytesAfter": 9320372,
+        "bytesAfter": 9476168,
         "triangleCountAfter": 41718,
         "faceAfter": 10130,
         "handBodyMeshAfter": 12890,
-        "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
+        "note": ("Re-measured 2026-11-06 (st-vitphys r1): family-skin-albedo deep r8 + vitruvian-eye brown post-export byte stages, "
+                 "bytes-only drift (tris 41718 / face 10130 / hand 12890 / joints 137 hold, "
+                 "9320372 -> 9476168 B). Supersedes 0ed4fcfc7. Family source sha256 "
+                 "a063cce36e87cdadfff349e5982f44ed66bec4666b4375cc814768af337efdca. "
+                 "Prior re-measure (st-vitphys r1 r9 attempt, 9320372 -> 9476164 B, superseded before commit) preserved below. "
+                 "Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
                  "Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, "
                  "bytes-only drift (tris 41718 / face 10130 / hand 12890 / joints 137 hold, "
                  "9293412 -> 9238432 B). Superseding commit d5496bf5b (re-bake the six "
