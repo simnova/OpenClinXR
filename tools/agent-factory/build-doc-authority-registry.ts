@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -590,6 +590,124 @@ export function classify(file: string): DocAuthorityEntry {
   };
 }
 
+function countAuthorities(entries: readonly DocAuthorityEntry[]): Record<string, number> {
+  return entries.reduce<Record<string, number>>((acc, entry) => {
+    acc[entry.authority] = (acc[entry.authority] ?? 0) + 1;
+    return acc;
+  }, {});
+}
+
+function writeDocAuthorityRegistry(
+  cwd: string,
+  entries: readonly DocAuthorityEntry[],
+  counts: Record<string, number>,
+): void {
+  const registry = {
+    schemaVersion: "2026-05-27",
+    claimBoundary:
+      "documentation authority registry for agentic navigation only; not product, clinical, Quest, scoring, or production readiness evidence",
+    protectedRule:
+      "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
+    usageRule:
+      "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
+    counts,
+    entries,
+  };
+
+  mkdirSync(path.dirname(path.resolve(cwd, outputJson)), { recursive: true });
+  writeFileSync(path.resolve(cwd, outputJson), `${JSON.stringify(registry, null, 2)}\n`);
+
+  const top = entries.filter(
+    (entry) =>
+      entry.authority === "protected-policy" ||
+      entry.authority === "canonical" ||
+      entry.authority === "active-plan" ||
+      entry.authority === "current-reference",
+  );
+  const temporary = entries.filter(
+    (entry) => entry.authority === "temporary" || entry.authority === "archive-candidate",
+  );
+  const md = `# Doc Authority Registry\n\nDate: 2026-05-27\n\nThis generated registry helps agents avoid treating all Markdown as equal. Protected and canonical files control autonomous work; historical, evidence, temporary, and archive-candidate files are context only unless the active queue links them.\n\n## Protected Rule\n\nProtected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.\n\n## Counts\n\n${Object.entries(counts)
+    .sort()
+    .map(([key, value]) => `- ${key}: ${value}`)
+    .join("\n")}\n\n## Highest-Value Current Navigation\n\n${top
+    .map((entry) => `- \`${entry.path}\` - ${entry.authority}; ${entry.rationale}`)
+    .join("\n")}\n\n## Cleanup Candidates\n\nThese files should be summarized, archived, or explicitly marked historical before agents use them as instructions.\n\n${temporary
+    .map((entry) => `- \`${entry.path}\` - ${entry.authority}; ${entry.rationale}`)
+    .join("\n")}\n`;
+  writeFileSync(path.resolve(cwd, outputMd), md);
+}
+
+export type AppendDocAuthorityOptions = {
+  cwd?: string;
+  paths: readonly string[];
+};
+
+export type AppendDocAuthorityResult = {
+  ok: boolean;
+  exitCode: number;
+  added: string[];
+  refused: string[];
+  total: number;
+};
+
+/**
+ * Targeted registration: classify each named Markdown path with `classify` and merge it into the
+ * committed registry without rescanning. A full scan from a worktree cannot see gitignored
+ * documents, and on main the scan also rewrites rows that were set deliberately (the three
+ * `handoff.md` evidence rows that `check-openclaw-drift.ts` would otherwise refuse). Rows already
+ * registered are left exactly as they are; nothing is removed.
+ */
+export function appendDocAuthorityPaths(options: AppendDocAuthorityOptions): AppendDocAuthorityResult {
+  const cwd = options.cwd ?? defaultRoot;
+  const registryPath = path.resolve(cwd, outputJson);
+  const current = JSON.parse(readFileSync(registryPath, "utf8")) as { entries: DocAuthorityEntry[] };
+  const byPath = new Map(current.entries.map((entry) => [entry.path, entry] as const));
+  const refused: string[] = [];
+  const added: string[] = [];
+  for (const rel of options.paths) {
+    const valid =
+      rel.endsWith(".md") &&
+      !path.isAbsolute(rel) &&
+      !rel.split("/").includes("..") &&
+      !isExcludedPath(rel) &&
+      existsSync(path.resolve(cwd, rel));
+    if (!valid) {
+      refused.push(rel);
+      continue;
+    }
+    if (!byPath.has(rel)) {
+      byPath.set(rel, classify(rel));
+      added.push(rel);
+    }
+  }
+  if (refused.length > 0) {
+    console.error(
+      `[${REGISTRY_LABEL}] REFUSED --append: ${refused.join(", ")} (must be an existing, non-excluded, repo-relative .md path). Nothing was written.`,
+    );
+    return { ok: false, exitCode: 2, added: [], refused, total: current.entries.length };
+  }
+  const entries = [...byPath.values()].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+  writeDocAuthorityRegistry(cwd, entries, countAuthorities(entries));
+  return { ok: true, exitCode: 0, added, refused, total: entries.length };
+}
+
+/** Every value that follows an `--append` flag; the flag may repeat. */
+export function parseDocAuthorityAppends(argv: readonly string[] = process.argv): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < argv.length; i += 1) {
+    if (argv[i] === "--append") {
+      const value = argv[i + 1];
+      if (value === undefined || value.startsWith("--")) {
+        throw new Error("--append requires a repo-relative path");
+      }
+      out.push(value);
+      i += 1;
+    }
+  }
+  return out;
+}
+
 /**
  * Build and (when allowed) write the doc-authority registry pair.
  *
@@ -658,40 +776,7 @@ export function buildDocAuthorityRegistry(
     };
   }
 
-  const registry = {
-    schemaVersion: "2026-05-27",
-    claimBoundary:
-      "documentation authority registry for agentic navigation only; not product, clinical, Quest, scoring, or production readiness evidence",
-    protectedRule:
-      "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
-    usageRule:
-      "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
-    counts,
-    entries,
-  };
-
-  mkdirSync(path.dirname(path.resolve(cwd, outputJson)), { recursive: true });
-  writeFileSync(path.resolve(cwd, outputJson), `${JSON.stringify(registry, null, 2)}\n`);
-
-  const top = entries.filter(
-    (entry) =>
-      entry.authority === "protected-policy" ||
-      entry.authority === "canonical" ||
-      entry.authority === "active-plan" ||
-      entry.authority === "current-reference",
-  );
-  const temporary = entries.filter(
-    (entry) => entry.authority === "temporary" || entry.authority === "archive-candidate",
-  );
-  const md = `# Doc Authority Registry\n\nDate: 2026-05-27\n\nThis generated registry helps agents avoid treating all Markdown as equal. Protected and canonical files control autonomous work; historical, evidence, temporary, and archive-candidate files are context only unless the active queue links them.\n\n## Protected Rule\n\nProtected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.\n\n## Counts\n\n${Object.entries(counts)
-    .sort()
-    .map(([key, value]) => `- ${key}: ${value}`)
-    .join("\n")}\n\n## Highest-Value Current Navigation\n\n${top
-    .map((entry) => `- \`${entry.path}\` - ${entry.authority}; ${entry.rationale}`)
-    .join("\n")}\n\n## Cleanup Candidates\n\nThese files should be summarized, archived, or explicitly marked historical before agents use them as instructions.\n\n${temporary
-    .map((entry) => `- \`${entry.path}\` - ${entry.authority}; ${entry.rationale}`)
-    .join("\n")}\n`;
-  writeFileSync(path.resolve(cwd, outputMd), md);
+  writeDocAuthorityRegistry(cwd, entries, counts);
 
   return {
     ok: true,
@@ -707,6 +792,13 @@ export function buildDocAuthorityRegistry(
 }
 
 async function main(): Promise<void> {
+  const appends = parseDocAuthorityAppends();
+  if (appends.length > 0) {
+    const appended = appendDocAuthorityPaths({ paths: appends });
+    process.exitCode = appended.exitCode;
+    if (appended.ok) console.log(JSON.stringify({ outputJson, added: appended.added, total: appended.total }, null, 2));
+    return;
+  }
   const result = buildDocAuthorityRegistry({ allowShrink: parseAllowShrink() });
   if (!result.ok) {
     process.exitCode = result.exitCode;
