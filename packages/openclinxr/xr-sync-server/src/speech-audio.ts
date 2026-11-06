@@ -66,7 +66,7 @@ export function handleSpeechAudioIntent(
         ctx.reject(client, seq, "speech-recognition-failed");
         return;
       }
-      if (typeof result?.text !== "string" || typeof result?.confidence !== "number" || !Number.isFinite(result.confidence) || result.confidence < 0 || result.confidence > 1) {
+      if (typeof result?.text !== "string" || result.text.length > 2000 || typeof result?.confidence !== "number" || !Number.isFinite(result.confidence) || result.confidence < 0 || result.confidence > 1) {
         ctx.reject(client, seq, "speech-recognition-failed");
         return;
       }

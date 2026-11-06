@@ -3577,9 +3577,9 @@ async function createStationScene(): Promise<StationSceneRuntime> {
         const session = await navigatorWithXr.xr.requestSession("immersive-vr", {
           optionalFeatures: ["local-floor", "bounded-floor", "hand-tracking"],
         });
-        activeXrSession = session;
+        activeXrSession = session; (window as unknown as Record<string, unknown>)["__openClinXrXrSession"] = session;
         session.addEventListener("end", () => {
-          activeXrSession = undefined;
+          activeXrSession = undefined; (window as unknown as Record<string, unknown>)["__openClinXrXrSession"] = undefined;
           immersiveSessionActive = false;
           enterXrButton.disabled = false;
           enterXrButton.textContent = "Enter Full VR";

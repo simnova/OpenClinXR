@@ -54,29 +54,46 @@ export function mountSpeechCapture(deps: {
   button.textContent = "Hold to speak";
   deps.box.parent.appendChild(button);
   let recording = false;
+  let processing = false;
+  let startFailed = false;
+  let holdTimer: ReturnType<typeof setTimeout> | undefined;
   let source: "microphone" | "injected" = "microphone";
   let starting: Promise<void> = Promise.resolve();
   const press = async (): Promise<void> => {
-    if (recording) return;
+    if (recording || processing) return;
     recording = true;
+    startFailed = false;
     statusEl.textContent = "Listening...";
     try {
       starting = recorder.start();
       await starting;
     } catch (error) {
       recording = false;
+      startFailed = true;
       const err = error instanceof Error ? error : new Error(String(error));
       captures.push({ source: recorder.source?.() ?? "microphone", status: `failed:${err.name !== "" && err.name !== "Error" ? err.name : err.message}`, samples: 0, rms: 0, releaseToCaptionMs: 0, chars: 0, confidence: 0, detail: err.message.slice(0, 120) });
       statusEl.textContent = "Microphone unavailable";
       return;
     }
     source = recorder.source?.() ?? "microphone";
+    // The server accepts at most 15 s of audio: release automatically before that.
+    holdTimer = setTimeout(() => { void release(); }, 14000);
   };
   const release = async (): Promise<void> => {
     if (!recording) return;
     recording = false;
+    processing = true;
+    clearTimeout(holdTimer);
     const releasedAt = deps.nowMs();
-    await starting.catch(() => undefined);
+    try {
+      await starting.catch(() => undefined);
+      if (startFailed) return;
+      await finishRelease(releasedAt);
+    } finally {
+      processing = false;
+    }
+  };
+  const finishRelease = async (releasedAt: number): Promise<void> => {
     const stopped = await recorder.stop();
     const pcm = downsampleToPcm16(stopped.chunks, stopped.sampleRate);
     const samples = pcm.length;

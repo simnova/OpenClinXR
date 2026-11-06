@@ -95,7 +95,7 @@ export function createBrowserSpeechRecorder(): SpeechRecorder {
   let gain: GainNodeLike | undefined;
   let bufferSource: BufferSourceLike | undefined;
   let chunks: Float32Array[] = [];
-  const start = async (): Promise<void> => {
+  const startInner = async (): Promise<void> => {
     const ContextCtor = runtime.AudioContext;
     if (ContextCtor === undefined) throw notSupported("AudioContext is unavailable");
     context = new ContextCtor();
@@ -145,8 +145,11 @@ export function createBrowserSpeechRecorder(): SpeechRecorder {
     if (context.audioWorklet !== undefined && WorkletCtor !== undefined && runtime.Blob !== undefined && runtime.URL !== undefined) {
       try {
         const url = runtime.URL.createObjectURL(new runtime.Blob([TAP_SOURCE], { type: "application/javascript" }));
-        await context.audioWorklet.addModule(url);
-        runtime.URL.revokeObjectURL(url);
+        try {
+          await context.audioWorklet.addModule(url);
+        } finally {
+          runtime.URL.revokeObjectURL(url);
+        }
         const tap = new WorkletCtor(context, "c33-tap");
         tap.port.onmessage = (event) => { chunks.push(new Float32Array(event.data)); };
         processor = tap;
@@ -168,19 +171,35 @@ export function createBrowserSpeechRecorder(): SpeechRecorder {
     bufferSource?.start();
     recording = true;
   };
-  const stop = async (): Promise<{ chunks: Float32Array[]; sampleRate: number }> => {
+  const teardown = async (): Promise<number> => {
     recording = false;
     injectedActive = false;
-    processor?.disconnect();
-    gain?.disconnect();
-    mediaSource?.disconnect();
-    bufferSource?.disconnect();
+    for (const node of [processor, gain, mediaSource, bufferSource]) {
+      try { node?.disconnect(); } catch { /* already disconnected */ }
+    }
+    processor = undefined;
+    gain = undefined;
+    mediaSource = undefined;
     bufferSource = undefined;
     for (const track of stream?.getTracks() ?? []) track.stop();
     stream = undefined;
     const sampleRate = context?.sampleRate ?? 16000;
     await context?.close().catch(() => undefined);
     context = undefined;
+    return sampleRate;
+  };
+  // Any failure after the context exists releases the tracks and the context (the microphone must not stay open).
+  const start = async (): Promise<void> => {
+    try {
+      await startInner();
+    } catch (error) {
+      chunks = [];
+      await teardown();
+      throw error;
+    }
+  };
+  const stop = async (): Promise<{ chunks: Float32Array[]; sampleRate: number }> => {
+    const sampleRate = await teardown();
     const result = { chunks, sampleRate };
     chunks = [];
     return result;
