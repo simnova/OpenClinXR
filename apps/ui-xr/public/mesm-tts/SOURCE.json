@@ -1,0 +1,86 @@
+{
+ "id": "mesm-tts-heart-v2f-lite",
+ "source": "https://huggingface.co/mesmertech/mesm-tts",
+ "revision": "aa59535a8c2b1cf7b0229956ceb26d7f62ef7a14",
+ "licence": "Apache-2.0",
+ "teachers": [
+  "hexgrad/Kokoro-82M (Apache-2.0)",
+  "gradium/phonon-31m-en (Apache-2.0)",
+  "sahilmahendrakar/Paradee-8M-v1.1 (Apache-2.0)"
+ ],
+ "fetchedFrom": "web/v2/ at the revision, sha256 verified against web/v2/SHA256SUMS",
+ "files": {
+  "LICENSE": {
+   "bytes": 11358,
+   "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+  },
+  "NOTICE.txt": {
+   "bytes": 1886,
+   "sha256": "1df35dd3f7517ba2932c6c56e837ed55c8bc59a4173966b341e95bc5d39c545d"
+  },
+  "engine/pdn.mjs": {
+   "bytes": 6765,
+   "sha256": "8b5bc5937f7529933bec7c5b55a0617fd17c1eea7e57d9941a52720852a2bf5d"
+  },
+  "engine/pdn.wasm": {
+   "bytes": 135997,
+   "sha256": "03bb25d967a3210eea7338dfca6e0d8b3be35b11eaf0e515b41b905cac1be040"
+  },
+  "engine/pdn_r.wasm": {
+   "bytes": 136294,
+   "sha256": "5db821f8315660348bedb2d502547f937a988e90c03410eeb7de6a1f524e04be"
+  },
+  "espeak-refused.mjs": {
+   "bytes": 298,
+   "sha256": "9f06ae2e0f5a081c26738de32eca048eeaa9f76fcd82e990d4d036fdb304500e"
+  },
+  "frontend/espeak_chain.mjs": {
+   "bytes": 1240,
+   "sha256": "5d2c1c339329c3fa9276e0e00b620ccfed1c6c36fcce001b0513b872a5798593"
+  },
+  "frontend/misaki.js": {
+   "bytes": 1568,
+   "sha256": "84072f9db03f1139448044ca2549271de1e29d9e7b43da09607cd2cc413a5e39"
+  },
+  "frontend/misaki_lite.mjs": {
+   "bytes": 24562,
+   "sha256": "0972110a5a89eda1f73f25ae0c0e8f070443cdf5be6f1daa3e2f68e2caa3f300"
+  },
+  "frontend/tokenizer.json": {
+   "bytes": 3497,
+   "sha256": "77a02c8e164413299b4b4c403b14f8e0e1c1b727db4d46a09d6327b861060a34"
+  },
+  "frontend/tokenizer.mjs": {
+   "bytes": 864,
+   "sha256": "f01427283e594601308c188902ac6bc132c964ab049e78dcfa9c4c57b34a0192"
+  },
+  "frontend/us_gold.fc.txt": {
+   "bytes": 1878013,
+   "sha256": "b487f6d416a655af9287f521424025dccaa84a34f4161543d13179588e1f81eb"
+  },
+  "frontend/us_silver.fc.txt": {
+   "bytes": 1923458,
+   "sha256": "19c0182d144699d3e5101ea7039396cbae7f5945167206161029278071e6dece"
+  },
+  "models/v2f_lite.pdn": {
+   "bytes": 2670520,
+   "sha256": "657c3ca5436768799803ea68fff11ecce88b1a4cd01df153c08d5f82c18a125a"
+  },
+  "paradee-worker.mjs": {
+   "bytes": 1750,
+   "sha256": "11993cd7f0ea5ac64aa18ef8bcf0d59ea3f29a4aabb2f5cef92b152b64279e73"
+  },
+  "paradee.mjs": {
+   "bytes": 8889,
+   "sha256": "3863178f614a00df0ed40182529b336130bd199484a12159990f8b5ee2cf5498"
+  },
+  "player-worklet.js": {
+   "bytes": 1781,
+   "sha256": "deb2488771095f5756a0c20c3426b0ff8a3800853f16fce9cb1b743e21adecfa"
+  }
+ },
+ "omitted": [
+  "frontend/kokoro-phonemize.mjs (imports the phonemizer package: eSpeak NG, GPL-3.0)",
+  "models/v2f.pdn, models/v2g.pdn, frontend/lex shards, the 9 phonon voices (pv engine)"
+ ]
+}

@@ -76,6 +76,7 @@
     "apps/ui-admin/src/*-shot-main.tsx",
     "apps/ui-xr/src/articulating-hob-measure.ts",
     "apps/ui-xr/src/isolated-*.ts",
+    "apps/ui-xr/public/mesm-tts/**",
     "packages/openclinxr/arena/physics-touch-contract/src/cli/**",
     "packages/openclinxr/factory-stations/src/room_chain/**",
     "packages/openclinxr/factory-stations/src/face_realism/run-case.ts",

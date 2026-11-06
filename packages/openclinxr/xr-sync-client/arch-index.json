@@ -29,12 +29,15 @@
   },
   "workspaceDependencies": [],
   "tests": [
+    "src/actor-voice.test.ts",
     "src/client-connect.test.ts",
     "src/encounter-addressed-actor.test.ts",
     "src/encounter-free-text.test.ts",
+    "src/encounter-repeat-prompt.test.ts",
     "src/encounter-speech.test.ts",
     "src/encounter-trace-intents.test.ts",
-    "src/encounter-turns.test.ts"
+    "src/encounter-turns.test.ts",
+    "src/encounter-voice.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/xr-sync-client test",

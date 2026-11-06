@@ -32,6 +32,10 @@ export interface TurnActorState {
   cueId: string;
   /** C17 learner-visible caption of the current reply ("" when silent). */
   caption: string;
+  /** C30 resolved learner-intake trace tag for this reply ("" when none). */
+  intake: string;
+  /** C30 consecutive low-confidence learner speech results including this reply. */
+  retries: number;
 }
 
 /** C17 cast voice for one station: per-actor opening lines (null off a cast station). */
@@ -251,7 +255,10 @@ export function applyUtteranceIntent(
         : "";
   const acknowledgement: EmotionEventKind = "learner_acknowledgement";
   actor.emotion = bindings.tracer.transition(actorId, acknowledgement, turnId, answer?.affect).to;
-  bindings.tracer.push({ seq, kind: "utterance-end", actorId, turnId, ...(resolvedTag === undefined ? {} : { tag: resolvedTag }), ...(matchKind === undefined ? {} : { match: matchKind }), modality: modality === "speech" ? "speech" : "typed", ...(modality === "speech" ? { confidence: Math.round((confidence as number) * 100) / 100 } : {}) });
+  const priorLow = actor.retries;
+  bindings.tracer.push({ seq, kind: "utterance-end", actorId, turnId, ...(resolvedTag === undefined ? {} : { tag: resolvedTag }), ...(matchKind === undefined ? {} : { match: matchKind }), modality: modality === "speech" ? "speech" : "typed", ...(modality === "speech" ? { confidence: Math.round((confidence as number) * 100) / 100 } : {}), ...(priorLow > 0 ? { retry: Math.min(priorLow, 99) } : {}) });
+  actor.intake = resolvedTag ?? "";
+  actor.retries = resolvedTag === SPEECH_LOW_CONFIDENCE_TAG ? priorLow + 1 : 0;
   bindings.setTurnOwner("actor");
   const record: TurnRecord = { turnId, actorId, replyId, startSeq: seq, end: "open", endSeq: null };
   bindings.turnLog.push(record);

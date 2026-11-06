@@ -13,14 +13,22 @@
       "connect"
     ],
     "./headset": [
+      "connect",
       "ConnectOptions",
+      "createActorVoice",
+      "createEnvelopeCueBuilder",
       "EncounterSnapshot",
       "EncounterSyncEvidence",
       "IntentKind",
+      "MESM_VOICE_IDS",
+      "resolveActorVoice",
+      "speechTextFromCaption",
+      "startEncounterSyncFromUrl",
       "SyncConnection",
       "UtteranceBoxDeps",
-      "connect",
-      "startEncounterSyncFromUrl"
+      "VoiceEngine",
+      "VoiceSink",
+      "VoiceSlot"
     ]
   }
 }

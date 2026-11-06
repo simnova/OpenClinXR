@@ -146,6 +146,8 @@ export interface ConversationTraceEvent {
   match?: "exact" | "phrase" | "fallback";
   /** C29, utterance-end only; confidence 0..1 rounded to 2 dp, speech only; never text. */
   modality?: "typed" | "speech"; confidence?: number;
+  /** C30, utterance-end only; consecutive low-confidence results before this one; integer 1..99; never text. */
+  retry?: number;
 }
 
 /** One server-driven actor turn, recomputed from events alone. */
@@ -354,6 +356,7 @@ export interface ReplayableConversationTrace {
     chars?: unknown;
     eventId?: unknown;
     tag?: unknown;
+    retry?: unknown;
   }[];
 }
 
@@ -398,6 +401,16 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
     const confidence = (event as { confidence?: unknown }).confidence;
     if (typeof confidence === "number" && Number.isFinite(confidence) && confidence >= 0 && confidence <= 1) {
       out.confidence = confidence;
+    }
+    const retry = event.retry;
+    if (retry !== undefined) {
+      if (typeof retry !== "number" || !Number.isInteger(retry) || retry < 1 || retry > 99) {
+        throw new Error("replay-bad-trace: malformed retry");
+      }
+      if (event.kind !== "utterance-end") {
+        throw new Error("replay-bad-trace: only an utterance-end may carry retry");
+      }
+      out.retry = retry;
     }
     // Pre-C29 traces carry no modality on an utterance-end: read as typed. Any other malformed field is refused.
     if ((modality !== undefined && out.modality === undefined) || (confidence !== undefined && out.confidence === undefined)) {

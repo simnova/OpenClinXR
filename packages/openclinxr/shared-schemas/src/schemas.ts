@@ -1,4 +1,4 @@
-import { type Static, Type } from "@sinclair/typebox";
+import { Type } from "@sinclair/typebox";
 // Lives in equipment-binding.ts, which exists because this file is at its 500-line zone budget.
 import { SceneEquipmentDecisionsSchema } from "./equipment-binding.js";
 import { SceneStartingRequirementSchema } from "./scene-starting-requirement.js";
@@ -252,6 +252,20 @@ import { ActorPhenotypeSchema } from "./face-phenotype/actor-phenotype.js";
 
 export { ActorPhenotypeSchema };
 
+/** On-device actor TTS voice ids (mesm-tts, Apache-2.0). The shell wires Heart; the others resolve to Heart with a recorded fallback. */
+export const ActorTtsVoiceSchema = Type.Union([
+  Type.Literal("heart"),
+  Type.Literal("wren"),
+  Type.Literal("everly"),
+  Type.Literal("hadley"),
+  Type.Literal("bryony"),
+  Type.Literal("maeve"),
+  Type.Literal("miles"),
+  Type.Literal("trevor"),
+  Type.Literal("edwin"),
+  Type.Literal("hugh"),
+]);
+
 export const ActorCardSchema = Type.Object({
   actorId: Type.String({ minLength: 1 }),
   role: ActorRoleSchema,
@@ -269,6 +283,8 @@ export const ActorCardSchema = Type.Object({
   bodyMechanics: Type.Optional(BodyMechanicsSchema),
   phenotype: Type.Optional(ActorPhenotypeSchema),
   placement: Type.Optional(ActorPlacementSchema),
+  /** Authored on-device TTS voice for this actor; absent means Heart. */
+  ttsVoice: Type.Optional(ActorTtsVoiceSchema),
 });
 
 export const EventScheduleEntrySchema = Type.Object({

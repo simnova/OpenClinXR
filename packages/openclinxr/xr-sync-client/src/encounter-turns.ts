@@ -9,7 +9,11 @@
  */
 import { type EncounterSnapshot, type IntentKind, type SyncConnection, connect } from "./index.js";
 import { type GazeView, gazedActorId, pickAddressedActor } from "./addressed-actor.js";
+import { createActorVoice, type ActorVoice, type SpokenTurnRecord, type VoiceEngine, type VoiceSink, type VoiceSlot } from "./actor-voice.js";
+import { createBrowserVoiceParts } from "./actor-voice-browser.js";
 import type { ConnectOptions } from "./options.js";
+
+const SPEECH_LOW_CONFIDENCE = "speech_low_confidence";
 
 /** One server-authoritative actor turn, as seen on the speaking edge. */
 export interface SyncedActorTurn {
@@ -18,6 +22,8 @@ export interface SyncedActorTurn {
   replyId: string;
   caption: string;
   emotion: string;
+  intake: string;
+  retries: number;
 }
 
 const DIALOGUE_EMOTIONS: ReadonlySet<string> = new Set(["anxious", "concerned", "reassured", "neutral"]);
@@ -43,7 +49,17 @@ export function createActorTurnDetector(): (snapshot: EncounterSnapshot) => Sync
     for (const [actorId, actor] of Object.entries(snapshot.actors ?? {})) {
       if (!actor.speaking || emitted.get(actorId) === snapshot.turnId) continue;
       emitted.set(actorId, snapshot.turnId);
-      turns.push({ turnId: snapshot.turnId, actorId, replyId: actor.replyId, caption: actor.caption ?? "", emotion: actor.emotion });
+      const turn = { turnId: snapshot.turnId, actorId, replyId: actor.replyId, caption: actor.caption ?? "", emotion: actor.emotion } as SyncedActorTurn;
+      if (actor.intake === undefined && actor.retries === undefined) {
+        Object.defineProperties(turn, {
+          intake: { value: "", enumerable: false },
+          retries: { value: 0, enumerable: false },
+        });
+      } else {
+        turn.intake = actor.intake ?? "";
+        turn.retries = actor.retries ?? 0;
+      }
+      turns.push(turn);
     }
     return turns;
   };
@@ -241,6 +257,10 @@ export interface EncounterSyncEvidence {
   sendSpeech?: EncounterSyncHandle["sendSpeech"];
   /** C28: the actor the learner's view names right now (the first thing the typed-text box addresses). */
   gazedActorId?: () => string | undefined;
+  /** C30 on-device actor-voice evidence and user-gesture audio unlock. */
+  voice?: { records: readonly SpokenTurnRecord[]; unlock(): Promise<void>; mouth(actorId: string): number; mouthTargets(actorId: string): Record<string, number>; audioState(): string; error?: string };
+  /** C30 low-confidence actor turns that asked the learner to repeat. */
+  repeatPrompts?: Array<{ actorId: string; turnId: number; retries: number }>;
 }
 
 /** Structural input/button surface for the learner free-text box (no DOM lib in this package). */
@@ -273,6 +293,14 @@ export interface StartEncounterSyncDeps {
   gazeView?(): GazeView | undefined;
   /** C27 learner free-text box mount; unset mounts nothing. */
   utteranceBox?: UtteranceBoxDeps;
+  /** C30 on-device actor voice wired to the shell's existing speech slot. */
+  voice?: {
+    assetBase: string;
+    slotFor(actorId: string): VoiceSlot | undefined;
+    voiceFor(actorId: string): string | undefined;
+    engine?: VoiceEngine;
+    sink?: VoiceSink;
+  };
 }
 
 /** Join when ?encounterSync= is present; resolves after the join settles. No-op (null) without the flag. */
@@ -280,6 +308,28 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
   const flag = encounterSyncUrl(deps.search);
   if (flag === null) return null;
   const evidence: EncounterSyncEvidence = { url: flag.url, state: "joining", sessionId: "", error: "", turns: [] };
+  let voice: ActorVoice | undefined;
+  if (deps.voice !== undefined) {
+    try {
+      const parts = deps.voice.engine !== undefined && deps.voice.sink !== undefined
+        ? undefined
+        : createBrowserVoiceParts({ assetBase: deps.voice.assetBase });
+      const engine = deps.voice.engine ?? parts?.engine;
+      const sink = deps.voice.sink ?? parts?.sink;
+      if (engine === undefined || sink === undefined) throw new Error("actor voice engine and sink are required");
+      voice = createActorVoice({
+        engine,
+        sink,
+        slotFor: deps.voice.slotFor,
+        voiceFor: deps.voice.voiceFor,
+        nowMs: deps.nowMs,
+      });
+      evidence.voice = { records: voice.records, unlock: parts?.unlock ?? (async () => undefined), mouth: (actorId) => voice?.mouth(actorId) ?? 0, mouthTargets: (actorId) => voice?.mouthTargets(actorId) ?? {}, audioState: parts?.audioState ?? (() => "injected") };
+    } catch (error) {
+      evidence.voice = { records: [], unlock: async () => undefined, mouth: () => 0, mouthTargets: () => ({}), audioState: () => "none", error: error instanceof Error ? error.message : String(error) };
+    }
+  }
+  if (deps.utteranceBox !== undefined) evidence.repeatPrompts = [];
   deps.publish(evidence);
   const gazedNow = (): string | undefined => {
     const view = deps.gazeView?.();
@@ -287,6 +337,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
   };
   let lastSpokeActorId: string | undefined;
   let lastAddressedActorId: string | undefined;
+  let repeatPrompt: UtteranceBoxElement | undefined;
   try {
     const handle = await joinEncounterRoom({
       url: flag.url,
@@ -294,10 +345,19 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
       ...(deps.connectFn === undefined ? {} : { connectFn: deps.connectFn }),
       onTurn: (turn, stationId) => {
         lastSpokeActorId = turn.actorId;
+        if (turn.intake === SPEECH_LOW_CONFIDENCE) {
+          if (repeatPrompt !== undefined) repeatPrompt.textContent = turn.retries === 1 ? "Please repeat that." : `Please repeat that. (attempt ${turn.retries})`;
+          evidence.repeatPrompts?.push({ actorId: turn.actorId, turnId: turn.turnId, retries: turn.retries });
+        } else if (repeatPrompt !== undefined) {
+          repeatPrompt.textContent = "";
+        }
         const registered = deps.register(syncedTurnPayload(turn, stationId), `xr-sync:${turn.turnId}:${turn.actorId}`);
         if (registered === undefined) return;
         const spoken = registered.caption !== "";
-        if (spoken) deps.play(turn.actorId, registered.caption, registered.faceEmotion);
+        if (spoken) {
+          deps.play(turn.actorId, registered.caption, registered.faceEmotion);
+          void voice?.speakTurn({ actorId: turn.actorId, caption: registered.caption, turnKey: `${turn.turnId}:${turn.actorId}` });
+        }
         evidence.turns.push({ ...turn, stationId, faceEmotion: registered.faceEmotion, planCaption: registered.caption, playedAtMs: deps.nowMs(), spoken });
       },
     });
@@ -312,6 +372,10 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     evidence.sendSpeech = (actorId, text, confidence) => handle.sendSpeech(actorId, text, confidence);
     evidence.gazedActorId = gazedNow;
     if (deps.utteranceBox !== undefined) {
+      repeatPrompt = deps.utteranceBox.doc.createElement("div");
+      repeatPrompt.id = "repeat-prompt";
+      repeatPrompt.textContent = "";
+      deps.utteranceBox.parent.appendChild(repeatPrompt);
       const caption = deps.utteranceBox.doc.createElement("div");
       caption.id = "learner-caption";
       caption.textContent = "";

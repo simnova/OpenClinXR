@@ -45,6 +45,10 @@ export interface SnapshotActor {
   cueId: string;
   /** C17 learner-visible caption of the current reply ("" when silent). */
   caption?: string;
+  /** C30 resolved learner-intake trace tag for this reply. */
+  intake?: string;
+  /** C30 consecutive low-confidence learner speech results. */
+  retries?: number;
 }
 
 /** Plain view of one synced learner, including intent cursor. */

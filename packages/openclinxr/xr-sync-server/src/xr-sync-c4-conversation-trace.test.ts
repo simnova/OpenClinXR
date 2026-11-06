@@ -239,3 +239,31 @@ describe("xr-sync-server C4 turn content and conversation trace", () => {
     expect(JSON.stringify(trace(server))).not.toContain("learner_dismissive");
   });
 });
+
+describe("C30 retry count in the trace", () => {
+  const evt = (seq: number | null, kind: string, extra: Record<string, unknown> = {}) => ({ seq, kind, actorId: kind === "utterance-start" ? "" : "a", turnId: null, ...extra });
+  const twoTurns = (retry?: unknown, kind = "utterance-end") => ({
+    schema: CONVERSATION_TRACE_SCHEMA,
+    stationId: "",
+    events: [
+      evt(1, "select-actor"),
+      evt(2, "utterance-start"),
+      evt(3, "utterance-end", { turnId: 1, tag: "speech_low_confidence", match: "fallback", modality: "speech", confidence: 0.2 }),
+      evt(null, "turn-completed", { turnId: 1 }),
+      evt(4, "select-actor"),
+      evt(5, "utterance-start"),
+      evt(6, kind, { turnId: 2, tag: "speech_low_confidence", match: "fallback", modality: "speech", confidence: 0.3, ...(retry === undefined ? {} : { retry }) }),
+    ],
+  });
+  it("keeps a valid retry and a trace without one", () => {
+    const kept = replayConversationTrace(twoTurns(1) as never).events.filter((e) => e.kind === "utterance-end");
+    expect(kept.map((e) => (e as { retry?: number }).retry)).toEqual([undefined, 1]);
+    expect(replayConversationTrace(twoTurns() as never).events.filter((e) => e.kind === "utterance-end").map((e) => (e as { retry?: number }).retry)).toEqual([undefined, undefined]);
+  });
+  it("refuses a malformed retry and a retry on an event that is not an utterance-end", () => {
+    for (const bad of [0, -1, 1.5, 100, "1", null]) {
+      expect(() => replayConversationTrace(twoTurns(bad) as never), JSON.stringify(bad)).toThrow(/replay-bad-trace/);
+    }
+    expect(() => replayConversationTrace(twoTurns(1, "utterance-start") as never)).toThrow(/replay-bad-trace/);
+  });
+});

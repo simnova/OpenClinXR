@@ -98,6 +98,7 @@ const MIME = {
   ".jpeg": "image/jpeg",
   ".webp": "image/webp",
   ".bin": "application/octet-stream",
+  ".pdn": "application/octet-stream",
   ".ktx2": "image/ktx2",
   ".wav": "audio/wav",
   ".mp3": "audio/mpeg",
@@ -215,9 +216,9 @@ export async function collectBundleSentry({ appDist, appSrcSyncProbe, extraBanne
   return { hits, chunks: [...chunkFiles].sort() };
 }
 
-export async function runHostProbe({ pageUrl, outDir, drive }) {
+export async function runHostProbe({ pageUrl, outDir, drive, launchArgs = [] }) {
   const { chromium } = await import("playwright");
-  const browser = await chromium.launch({ headless: true, args: ["--disable-features=WebXR"] });
+  const browser = await chromium.launch({ headless: true, args: ["--disable-features=WebXR", ...launchArgs] });
   const pageErrors = [];
   const consoleErrors = [];
   try {
