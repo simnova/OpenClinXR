@@ -88,15 +88,15 @@
   ],
   "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
   "promotionGates": false,
-  "outputSha256": "db2d0030b790b8412cd16bb7b9a4610c8b514888d921bbb34cef2fe92eafb662",
-  "outputBytes": 10219564,
+  "outputSha256": "dc875404893495b77f0b172c7ac6215dd079abefc1580b5584d0713574d44180",
+  "outputBytes": 19095616,
   "fitTimeLower": {
     "garment": "punkduck_female_tight_jeans",
     "sourceObjFaces": 2108,
     "fittedTris": 4216,
     "lowerGateCoverage": 0.9875
   },
-  "generatedAt": "2026-11-04T04:15:57.523359+00:00",
+  "generatedAt": "2026-11-06T01:34:29.791516+00:00",
   "method": "mpfb2_materializer_rebake_on_promoted_cast",
   "albedoBakeWrittenAt": "2026-09-14T22:26:38.364Z",
   "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: ClothesService PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt iterate-optimize --face-preserving --face-preserving-ratio 0.4 then chest-anchor 0.085 m. Shipped 69093 tris / 13927908 B (jeans 1986). Fit-time faces x 2 lives in fitTimeLower; shipped shell-vs-fit is standoff spread. Previous raw pin cfdcd5a3c2828daa / 17002120. Report: female-covering-lower-acquisition-2026-09-12.md. 2026-09-14 tsk_2cdb306c4e7069af: targeted rebake through the producer-path station (bakeProducedHumanoidAlbedo on the shipped bytes, no re-fit): toigo t-shirt factor folded into its 2048x2048 texture and reset to white. Geometry, rig and animations unchanged; outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
@@ -298,5 +298,90 @@
     "textureSha256": "4066911e4dfb2430c37ccb15c050238c5576a431b43a8b415a1e723457c44922",
     "previousEyeSha12": "4659691c7295",
     "note": "st-viteye-r2-H2-brown-case"
+  },
+  "familyAlbedoEmbedR1": {
+    "tool": "tools/openclinxr/asset-pipeline/skin/mpfb_skin_sheet.py",
+    "toolSha256": "ce012230f169a8349c8a9df8722afc8f806544e8529c4ce6a61bf5971c2ae8f5",
+    "mode": "embed_skin_albedo (--embed-albedo --subject=ob_patient_aisha)",
+    "subject": "ob_patient_aisha",
+    "material": "mpfb_skin_ob_patient_aisha_v1",
+    "albedoInput": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run11/stage3-colour-out.png",
+    "albedoSha256": "948b9a3e272dfc3263baa858a7124e4e84ec93ebff1d1ef6cc2b1154a8002e40",
+    "size": 4096,
+    "previousSkinImage": {
+      "name": "mpfb-ob-patient-aisha.skin-baked",
+      "size": [
+        1024,
+        1024
+      ],
+      "sha256": "423dd04117de74131ccadb8c4b8905679505350c316454bed307a37f5dbb5871"
+    },
+    "note": "st-vitfamily: POST-GLB albedo embed per CEO D1; only skin baseColor image bytes rewritten, all other buffer views byte-identical"
+  },
+  "familyAlbedoEmbedR2": {
+    "tool": "tools/openclinxr/asset-pipeline/skin/mpfb_skin_sheet.py",
+    "mode": "embed_skin_albedo (--embed-albedo --subject=ob_patient_aisha)",
+    "subject": "ob_patient_aisha",
+    "material": "mpfb_skin_ob_patient_aisha_v1",
+    "size": 4096,
+    "inputChain": [
+      {
+        "step": "stage3-colour-out (station compose, stored family PNG)",
+        "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run11/stage3-colour-out.png",
+        "sha256": "948b9a3e272dfc3263baa858a7124e4e84ec93ebff1d1ef6cc2b1154a8002e40"
+      },
+      {
+        "step": "D3a brow clear (brow_form.py --brow-form mesh routine + run11 derive_out/mask-brows-L/R.png dilated, feathered alpha confined to masks; then residual dark-texel fill + matched grain)",
+        "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-nobrow3.png",
+        "sha256": "100488a48b0336f29767b1b3fc6cdb21528651d1fc53291d7272e5cf794f6c70"
+      },
+      {
+        "step": "D3b temple-seam feather (per-row island-edge low-freq match, grain kept inside, faded into gutter, rows 680-1180)",
+        "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed.png",
+        "sha256": "05c1eefc59acf46a56cd8279c1966ba31571b99032122e5f577d43875d672817"
+      }
+    ],
+    "albedoInput": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed.png",
+    "albedoSha256": "05c1eefc59acf46a56cd8279c1966ba31571b99032122e5f577d43875d672817",
+    "glbIn": "origin/main mpfb-ob-patient-aisha.glb (pristine, 10219564 B)",
+    "glbOutSha256": "dc875404893495b77f0b172c7ac6215dd079abefc1580b5584d0713574d44180",
+    "glbOutBytes": 19095616,
+    "note": "st-vitfamily D3: POST-GLB albedo embed of brow-cleared + seam-feathered stage-3 albedo; only skin baseColor image bytes rewritten, all other buffer views byte-identical"
+  },
+  "familyAlbedoEmbedR3": {
+    "tool": "tools/openclinxr/asset-pipeline/skin/mpfb_skin_sheet.py",
+    "mode": "embed_skin_albedo (--embed-albedo --subject=ob_patient_aisha)",
+    "subject": "ob_patient_aisha",
+    "material": "mpfb_skin_ob_patient_aisha_v1",
+    "size": 4096,
+    "supersedes": "familyAlbedoEmbedR2 (fixed v1: brow-halo fill visible as streaks per CEO D4; temple stripe alternating +-18L per D4b)",
+    "inputChain": [
+      {
+        "step": "stage3-colour-out (station compose, stored family PNG)",
+        "path": "/Volumes/files/openclinxr-assets/store/face-station-cases/aisha/run11/stage3-colour-out.png",
+        "sha256": "948b9a3e272dfc3263baa858a7124e4e84ec93ebff1d1ef6cc2b1154a8002e40"
+      },
+      {
+        "step": "D3a brow clear (brow_form.py --brow-form mesh routine + run11 derive_out/mask-brows-L/R.png dilated, feathered alpha confined to masks; then residual dark-texel fill + matched grain)",
+        "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-nobrow3.png",
+        "sha256": "100488a48b0336f29767b1b3fc6cdb21528651d1fc53291d7272e5cf794f6c70"
+      },
+      {
+        "step": "D4a exemplar redo from nobrow3 (fixed2: inpaint from forehead ring, feather >= 24 texels)",
+        "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed2.png",
+        "sha256": "4eaa897cd7b6dde3146fe22f7e79b0198bd0295a682880cd30acc1dcc4ed9486"
+      },
+      {
+        "step": "D4b temple hole fill (fixed3: fixed2 + stripe hole fill, brow region identical to fixed2)",
+        "path": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed3.png",
+        "sha256": "e944e07fc8051c7231589f4d28cd8e668c6286028b5bbd6d392f2ad4ac9a603e"
+      }
+    ],
+    "albedoInput": ".openclinxr/openclaw/ceo/st-vitfamily/stage3-colour-fixed3.png",
+    "albedoSha256": "e944e07fc8051c7231589f4d28cd8e668c6286028b5bbd6d392f2ad4ac9a603e",
+    "glbIn": "origin/main mpfb-ob-patient-aisha.glb (pristine db2d0030, 10219564 B)",
+    "glbOutSha256": "a92b9ae5cb0105fc32ab0828446fa79ff1870802e78da4df97502f5831b9ce2e",
+    "glbOutBytes": 19144852,
+    "note": "st-vitfamily D4: POST-GLB albedo embed of brow-inpainted + temple-filled stage-3 albedo; only skin baseColor image bytes rewritten, all other buffer views byte-identical"
   }
 }

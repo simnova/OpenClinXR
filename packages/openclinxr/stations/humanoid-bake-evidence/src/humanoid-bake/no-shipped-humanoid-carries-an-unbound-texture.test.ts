@@ -88,7 +88,12 @@ const PINNED = {
   // (count unchanged): boundBytes 4460213 -> 4567933 (+107720 B, that image re-encode).
   // st-vitpore r2 2026-11-04: patch_glb_skin_shade embeds the 191439 B periodic pore detail
   // normal; core slots stay untouched, boundTextures 6 -> 7 and boundBytes grows exactly 191439 B.
-  "mpfb-ob-patient-aisha.glb":  { fileBytes: 10219564, textures: 7, boundTextures: 7, boundBytes: 4765237, meshes: 10, materials: 17, tris: 73392, joints: 137, animations: 3 },
+  // st-vitfamily r1 R3 re-pinned 2026-11-06: fixed3 (fixed2 exemplar brow inpaint +
+  // D4b temple fill) lossless embed, sha-pinned input e944e07f; fileBytes 19095616 -> 19144852,
+  // boundBytes 13641312 -> 13690549 (+49237 B, PNG re-encode of the filled albedo; geometry/rig/animations verbatim).
+  // Prior st-vitfamily r1: first albedo embed (fileBytes 10219564 -> 19097100,
+  // boundBytes 4765237 -> 13642796);
+  "mpfb-ob-patient-aisha.glb":  { fileBytes: 19144852, textures: 7, boundTextures: 7, boundBytes: 13690549, meshes: 10, materials: 17, tris: 73392, joints: 137, animations: 3 },
   // ci-w11 re-pin 2026-10-30, measured pre-prune (post-afe8abced full-res hair + D2 grade).
   // Old #598: fileBytes 11456228, textures 5, boundTextures 5, boundBytes 4598965, tris 74732.
   // st-palette 2026-11-04: 3969ae031 re-encoded the toigo t-shirt texture (sRGB palette renorm,

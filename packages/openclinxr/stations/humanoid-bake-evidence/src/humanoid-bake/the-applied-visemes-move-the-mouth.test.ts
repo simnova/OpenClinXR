@@ -117,7 +117,11 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // byte stage, one added image + KHR_texture_transform, geometry/BIN verbatim;
   // size 10021840 -> 10213572);
   // was 6643de8199885ac2ccc3fc9aca75dd9c197c33e6659d58ca9934463d8f861421.
-  "mpfb-ob-patient-aisha": "db2d0030b790b8412cd16bb7b9a4610c8b514888d921bbb34cef2fe92eafb662",
+  // st-vitfamily r1 R3 re-pinned 2026-11-06: fixed3 (fixed2 exemplar brow inpaint +
+  // D4b temple fill) lossless embed (input sha e944e07fc8051c72); size 19095616 -> 19144852;
+  // was dc875404893495b77f0b172c7ac6215dd079abefc1580b5584d0713574d44180 (R2 embed).
+  // was db2d0030b790b8412cd16bb7b9a4610c8b514888d921bbb34cef2fe92eafb662.
+  "mpfb-ob-patient-aisha": "a92b9ae5cb0105fc32ab0828446fa79ff1870802e78da4df97502f5831b9ce2e",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
   // table (drift at HEAD, pre-existing); was d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1.
