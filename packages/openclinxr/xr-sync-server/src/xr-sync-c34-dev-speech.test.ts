@@ -16,6 +16,8 @@ import { createEncounterServer, type EncounterServer } from "./index.js";
 //   `xr-sync speech ready model=<model>` BEFORE the `xr-sync listening ...` line. Missing python/script, spawn error, early exit, probe failure,
 //   or XR_SYNC_STT=off -> no recognizer, stdout line `xr-sync speech unavailable: <reason>`, server still listens and joins; speech-audio is
 //   rejected "speech-recognizer-unavailable". It must never crash the process. SIGTERM also kills the sidecar.
+//   XR_SYNC_STT_REQUEST_TIMEOUT_MS overrides the 60 s request timeout. A timed-out request drops the sidecar child; the NEXT request runs on a fresh child
+//   and is not failed by the old child's exit.
 //   SIGTERM during the model probe stops the dev server and kills the sidecar child (no orphan).
 //   Framing (unchanged from the c33 harness sidecar): 4-byte LE length + int16 PCM in, one JSON line {text, confidence} (or {error}) out.
 const FAKE_SCRIPT = `
@@ -87,9 +89,43 @@ const SILENT_SCRIPT = `
 require("node:fs").writeFileSync(process.env.FAKE_PID_FILE, String(process.pid));
 process.stdin.resume();
 `;
+const HANGING_FIRST_SCRIPT = `
+const fs = require("node:fs");
+const f = process.env.FAKE_COUNT_FILE;
+let n = 0; try { n = Number(fs.readFileSync(f, "utf8")); } catch {}
+fs.writeFileSync(f, String(n + 1));
+let frames = 0;
+let buf = Buffer.alloc(0);
+if (n === 0) process.on("SIGTERM", () => { setTimeout(() => process.exit(0), 600); });
+process.stdin.on("data", (chunk) => {
+  buf = Buffer.concat([buf, chunk]);
+  for (;;) {
+    if (buf.length < 4) return;
+    const len = buf.readUInt32LE(0);
+    if (buf.length < 4 + len) return;
+    buf = buf.subarray(4 + len);
+    frames += 1;
+    if (n === 0 && frames >= 2) continue;
+    // The fresh child answers after the old child's delayed exit, so a stale exit handler would fail this request.
+    setTimeout(() => process.stdout.write(JSON.stringify({ text: "after restart", confidence: 0.9 }) + "\\n"), n === 0 ? 0 : 1500);
+  }
+});
+`;
 const alive = (pid: number): boolean => { try { process.kill(pid, 0); return true; } catch { return false; } };
 
 describe("xr-sync-server C34 speech availability", () => {
+  it("a timed-out request drops the sidecar child and the next request succeeds on a fresh child", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "c34-stt-"));
+    dirs.push(dir);
+    const script = join(dir, "hang-first.cjs");
+    await writeFile(script, HANGING_FIRST_SCRIPT);
+    const dev = await bootDev({ XR_SYNC_STT_PYTHON: process.execPath, XR_SYNC_STT_SCRIPT: script, XR_SYNC_STT_REQUEST_TIMEOUT_MS: "2500", FAKE_COUNT_FILE: join(dir, "count") });
+    const { learner } = await snapshotOf(dev.port);
+    expect(await learner.sendIntent("speech-audio" as never, { pcm: pcm(16000), sampleRate: 16000 })).toMatchObject({ status: "reject", reason: "speech-recognition-failed" });
+    expect(await learner.sendIntent("speech-audio" as never, { pcm: pcm(16000), sampleRate: 16000 })).toMatchObject({ status: "ack", transcript: { text: "after restart" } });
+    expect(dev.exited()).toBeUndefined();
+  }, 60000);
+
   it("SIGTERM during the model probe stops the dev server and kills the sidecar", async () => {
     const dir = await mkdtemp(join(tmpdir(), "c34-stt-"));
     dirs.push(dir);

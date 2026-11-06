@@ -14,6 +14,8 @@ export interface SidecarRecognizerOptions {
   model?: string;
   /** Probe (ready()) timeout in ms. Defaults to 180000. */
   probeTimeoutMs?: number;
+  /** Per-request timeout in ms. Defaults to 60000. */
+  requestTimeoutMs?: number;
 }
 
 interface PendingEntry {
@@ -89,7 +91,8 @@ export function createSidecarRecognizer(opts: SidecarRecognizerOptions): {
       pump();
     });
     next.on("exit", (code: number | null, signal: NodeJS.Signals | null) => {
-      if (child === next) child = null;
+      if (child !== next) return;
+      child = null;
       failPending(new Error(`sidecar exited with code ${code ?? signal ?? "unknown"}`));
     });
     child = next;
@@ -128,7 +131,7 @@ export function createSidecarRecognizer(opts: SidecarRecognizerOptions): {
           child = null;
           buffer = Buffer.alloc(0);
           reject(new Error("sidecar request timed out after 60 s"));
-        }, REQUEST_TIMEOUT_MS),
+        }, opts.requestTimeoutMs ?? REQUEST_TIMEOUT_MS),
       };
       if (typeof entry.timer.unref === "function") entry.timer.unref();
       pending = entry;
@@ -212,7 +215,8 @@ export async function bootSidecarRecognizer(
     if (hasSlash(script) && !existsSync(script)) {
       return { recognizer: null, close: () => undefined, reason: `missing script: ${script}` };
     }
-    const sidecar = createSidecarRecognizer({ python, script, model });
+    const requestTimeoutMs = Number(env["XR_SYNC_STT_REQUEST_TIMEOUT_MS"]);
+    const sidecar = createSidecarRecognizer({ python, script, model, ...(Number.isFinite(requestTimeoutMs) && requestTimeoutMs > 0 ? { requestTimeoutMs } : {}) });
     hooks?.onCreated(sidecar.close);
     try {
       await sidecar.ready();
