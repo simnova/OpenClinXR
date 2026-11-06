@@ -164,8 +164,8 @@ async function main(argv) {
       });
       probe.lobbyListed = await page.waitForFunction(() => document.getElementById("lobby-station-slot-a") !== null && document.getElementById("lobby-station-slot-b") !== null, undefined, { timeout: 60000 }).then(() => true, () => false);
       probe.lobbyBefore = await readLobby();
-      // Scripted reviewer input: press the unavailable station first, then the available one (element.click: Playwright locator.click hangs while the page is busy).
-      await page.evaluate(() => { document.getElementById("lobby-station-slot-b")?.click(); });
+      // Scripted reviewer input: press the unavailable station first (a disabled button never dispatches, so the harness re-enables it for the press to prove the handler itself refuses), then the available one (element.click: Playwright locator.click hangs while the page is busy).
+      await page.evaluate(() => { const button = document.getElementById("lobby-station-slot-b"); if (button) { button.disabled = false; button.click(); button.disabled = true; } });
       await sleep(1500);
       probe.lobbyAfterBlockedClick = await readLobby();
       await page.evaluate(() => { document.getElementById("lobby-station-slot-a")?.click(); });

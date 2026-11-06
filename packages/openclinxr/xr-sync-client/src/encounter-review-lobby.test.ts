@@ -71,8 +71,10 @@ describe("?encounterReviewLobby (C32)", () => {
     const available = parent.find("lobby-station-s1")!;
     const unavailable = parent.find("lobby-station-s2")!;
     expect([available.disabled, unavailable.disabled]).toEqual([false, true]);
+    expect([parent.find("repeat-prompt"), parent.find("utterance-input"), parent.find("utterance-send"), parent.find("learner-caption")]).toEqual([undefined, undefined, undefined, undefined]);
     expect(parent.find("lobby-reason-s2")?.textContent).toContain("replay-unresolved-reply: x:seed:forged");
     expect(parent.find("lobby-reason-s1")?.textContent ?? "").toBe("");
+    unavailable.disabled = false;
     unavailable.click();
     expect(sent).toEqual([]);
     available.click();
@@ -91,7 +93,8 @@ describe("?encounterReviewLobby (C32)", () => {
     const { parent, push, published, sent } = await join(LOBBY, "reject");
     push(lobbySnap(rows));
     push(lobbySnap(rows));
-    expect(parent.find("review-lobby")?.children.filter((c) => c.tag === "div" || c.tag === "button").length).toBeLessThanOrEqual(4);
+    const listed = parent.find("review-lobby")!.children;
+    expect(listed.map((row) => row.id)).toEqual(["lobby-row-s1", "lobby-row-s2"]);
     parent.find("lobby-station-s1")!.click();
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(sent.length).toBe(1);
