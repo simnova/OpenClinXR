@@ -88,8 +88,8 @@
  ],
  "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
  "promotionGates": false,
- "outputSha256": "a92b9ae5cb0105fc32ab0828446fa79ff1870802e78da4df97502f5831b9ce2e",
- "outputBytes": 19144852,
+ "outputSha256": "26a6b759e4f79fa8775144b5b568080c4ffbf76dfa633cf77c03c5aaf88ae095",
+ "outputBytes": 19149460,
  "fitTimeLower": {
   "garment": "punkduck_female_tight_jeans",
   "sourceObjFaces": 2108,
