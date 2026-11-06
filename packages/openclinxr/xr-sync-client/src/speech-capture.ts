@@ -76,11 +76,14 @@ export function mountSpeechCapture(deps: {
   const preflightMic = async (): Promise<void> => {
     await Promise.resolve();
     await Promise.resolve();
+    let result: SpeechEvidence["micState"];
     try {
-      mic = (await maybeRecorder.permission?.()) ?? "prompt";
+      result = (await maybeRecorder.permission?.()) ?? "prompt";
     } catch {
-      mic = "prompt";
+      result = "prompt";
     }
+    // A press failure that classified the mic while the query was pending is authoritative.
+    if (mic === "checking") mic = result;
     render();
   };
   void preflightMic();

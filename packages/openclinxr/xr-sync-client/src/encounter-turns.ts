@@ -378,13 +378,14 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
   let lastAddressedActorId: string | undefined;
   let repeatPrompt: UtteranceBoxElement | undefined;
   let speechEvidence: SpeechEvidence | undefined;
+  let serverSpeechSeen: boolean | undefined;
   try {
     const handle = await joinEncounterRoom({
       url: flag.url,
       actorIds: deps.actorIds(),
       ...(flag.replayStation === undefined ? {} : { replayStation: flag.replayStation }),
       reviewLobby: isLobby,
-      onSnapshot: (snapshot) => { picker?.render(snapshot); speechEvidence?.setServerSpeech(snapshot.speechAvailable); },
+      onSnapshot: (snapshot) => { picker?.render(snapshot); serverSpeechSeen = snapshot.speechAvailable; speechEvidence?.setServerSpeech(serverSpeechSeen); },
       ...(deps.connectFn === undefined ? {} : { connectFn: deps.connectFn }),
       onTurn: (turn, stationId) => {
         lastSpokeActorId = turn.actorId;
@@ -469,6 +470,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
           sendAudio: (pcm): Promise<{ status: string; reason?: string; transcript?: { text: string; confidence: number } }> => handle.sendIntent("speech-audio", { pcm, sampleRate: 16000 }).then((r): { status: string; reason?: string; transcript?: { text: string; confidence: number } } => (r.status === "ack" ? (r.transcript === undefined ? { status: r.status } : { status: r.status, transcript: r.transcript }) : { status: r.status, reason: r.reason })),
           pickActor: () => { const actor = pickAddressedActor({ actorIds: deps.actorIds(), gazedActorId: gazedNow(), lastSpokeActorId, lastAddressedActorId }); if (actor !== undefined) lastAddressedActorId = actor; return actor; },
           sendSpeech: (a, t, c) => evidence.sendSpeech!(a, t, c) });
+        speechEvidence.setServerSpeech(serverSpeechSeen);
         evidence.speech = speechEvidence;
         if (deps.speech.inject !== true) delete evidence.speech.inject;
       }

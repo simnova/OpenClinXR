@@ -73,6 +73,7 @@ export function createSidecarRecognizer(opts: SidecarRecognizerOptions): {
 
   const ensureChild = (): ChildProcess => {
     if (child !== null) return child;
+    buffer = Buffer.alloc(0);
     const next = spawn(opts.python, [opts.script, "--serve", model], {
       stdio: ["pipe", "pipe", "pipe"],
     });
@@ -83,11 +84,12 @@ export function createSidecarRecognizer(opts: SidecarRecognizerOptions): {
     // Drain stderr (model load chatter) so a full pipe never stalls the child.
     next.stderr?.on("data", () => undefined);
     next.stdout?.on("data", (chunk: Buffer) => {
+      if (child !== next) return;
       buffer = Buffer.concat([buffer, chunk]);
       pump();
     });
     next.on("exit", (code: number | null, signal: NodeJS.Signals | null) => {
-      child = null;
+      if (child === next) child = null;
       failPending(new Error(`sidecar exited with code ${code ?? signal ?? "unknown"}`));
     });
     child = next;
@@ -117,6 +119,14 @@ export function createSidecarRecognizer(opts: SidecarRecognizerOptions): {
         reject,
         timer: setTimeout(() => {
           if (pending === entry) pending = null;
+          // A late reply from this request must never answer the next one: drop the child and its buffered output.
+          try {
+            child?.kill();
+          } catch {
+            // Already gone.
+          }
+          child = null;
+          buffer = Buffer.alloc(0);
           reject(new Error("sidecar request timed out after 60 s"));
         }, REQUEST_TIMEOUT_MS),
       };
@@ -187,6 +197,7 @@ function hasSlash(path: string): boolean {
 export async function bootSidecarRecognizer(
   env: Record<string, string | undefined>,
   defaults: { script: string },
+  hooks?: { onCreated(close: () => void): void },
 ): Promise<{ recognizer: SpeechRecognizer | null; close: () => void; reason: string }> {
   try {
     if (env["XR_SYNC_STT"] === "off") {
@@ -202,6 +213,7 @@ export async function bootSidecarRecognizer(
       return { recognizer: null, close: () => undefined, reason: `missing script: ${script}` };
     }
     const sidecar = createSidecarRecognizer({ python, script, model });
+    hooks?.onCreated(sidecar.close);
     try {
       await sidecar.ready();
     } catch (error) {

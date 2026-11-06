@@ -34,7 +34,7 @@ const tone = (n: number, rate: number): Float32Array => Float32Array.from({ leng
 type Perm = "granted" | "denied" | "prompt" | "unavailable";
 const flush = async (): Promise<void> => { for (let i = 0; i < 6; i += 1) await Promise.resolve(); };
 
-async function joined(opts: { permission?: Perm | "none"; start?: () => Promise<void>; useDefaultRecorder?: boolean } = {}) {
+async function joined(opts: { permission?: Perm | "none"; start?: () => Promise<void>; useDefaultRecorder?: boolean; initialSnapshot?: Record<string, unknown>; permissionGate?: Promise<void> } = {}) {
   const sent: Array<[string, unknown]> = [];
   const published: EncounterSyncEvidence[] = [];
   const parent = new FakeElement("div");
@@ -43,7 +43,7 @@ async function joined(opts: { permission?: Perm | "none"; start?: () => Promise<
   const recorder = {
     start: async () => { starts.push(1); if (opts.start !== undefined) await opts.start(); },
     stop: async () => ({ chunks: [tone(48000, 48000)], sampleRate: 48000 }),
-    ...(opts.permission === undefined || opts.permission === "none" ? {} : { permission: async () => opts.permission as Perm }),
+    ...(opts.permission === undefined || opts.permission === "none" ? {} : { permission: async () => { await opts.permissionGate; return opts.permission as Perm; } }),
   };
   const listeners = new Map<string, Array<() => void>>();
   const session = { addEventListener: (type: string, fn: () => void) => { listeners.set(type, [...(listeners.get(type) ?? []), fn]); } };
@@ -63,7 +63,7 @@ async function joined(opts: { permission?: Perm | "none"; start?: () => Promise<
         if (kind === "speech-audio") return { status: "ack", seq: 1, serverTs: 0, rttMs: 1, transcript: { text: "when did it start", confidence: 0.8 } };
         return { status: "ack", seq: sent.length, serverTs: 0, rttMs: 1 };
       },
-      onState: (fn: (s: EncounterSnapshot) => void) => { stateListener = fn; return () => undefined; },
+      onState: (fn: (s: EncounterSnapshot) => void) => { stateListener = fn; if (opts.initialSnapshot !== undefined) fn({ serverTick: 0, phase: "doorway", turnId: 0, turnOwner: "none", actors: {}, learners: {}, ...opts.initialSnapshot } as never); return () => undefined; },
       leave: async () => undefined,
     }) as never,
   } as never);
@@ -143,6 +143,28 @@ describe("mic permission preflight (C34)", () => {
     await flush();
     expect(evidence.speech?.micState).toBe(state);
     expect(button.hidden).toBe(hidden);
+  });
+
+  it("a snapshot delivered synchronously at subscribe, before the button exists, still gates push-to-talk", async () => {
+    const { evidence, button, status } = await joined({ permission: "granted", initialSnapshot: { speechAvailable: false } });
+    await flush();
+    expect(evidence.speech?.serverSpeech).toBe("unavailable");
+    expect(button.hidden).toBe(true);
+    expect(status()).toBe("Speech recognition off: type your question");
+  });
+
+  it("a permission query that settles after a press failure does not undo the failure classification", async () => {
+    let openGate: () => void = () => undefined;
+    const permissionGate = new Promise<void>((r) => { openGate = r; });
+    const failure = Object.assign(new Error("blocked"), { name: "NotAllowedError" });
+    const { evidence, button } = await joined({ permission: "granted", permissionGate, start: async () => { throw failure; } });
+    button.fire("pointerdown");
+    await flush();
+    expect(evidence.speech?.micState).toBe("denied");
+    openGate();
+    await flush();
+    expect(evidence.speech?.micState).toBe("denied");
+    expect(button.hidden).toBe(true);
   });
 
   it("the default browser recorder derives permission from navigator", async () => {

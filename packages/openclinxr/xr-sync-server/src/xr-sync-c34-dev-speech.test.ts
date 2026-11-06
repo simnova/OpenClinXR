@@ -1,5 +1,5 @@
 import { type ChildProcess, spawn } from "node:child_process";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -16,6 +16,7 @@ import { createEncounterServer, type EncounterServer } from "./index.js";
 //   `xr-sync speech ready model=<model>` BEFORE the `xr-sync listening ...` line. Missing python/script, spawn error, early exit, probe failure,
 //   or XR_SYNC_STT=off -> no recognizer, stdout line `xr-sync speech unavailable: <reason>`, server still listens and joins; speech-audio is
 //   rejected "speech-recognizer-unavailable". It must never crash the process. SIGTERM also kills the sidecar.
+//   SIGTERM during the model probe stops the dev server and kills the sidecar child (no orphan).
 //   Framing (unchanged from the c33 harness sidecar): 4-byte LE length + int16 PCM in, one JSON line {text, confidence} (or {error}) out.
 const FAKE_SCRIPT = `
 let buf = Buffer.alloc(0);
@@ -82,7 +83,36 @@ async function fakeSidecar(): Promise<string> {
   return script;
 }
 
+const SILENT_SCRIPT = `
+require("node:fs").writeFileSync(process.env.FAKE_PID_FILE, String(process.pid));
+process.stdin.resume();
+`;
+const alive = (pid: number): boolean => { try { process.kill(pid, 0); return true; } catch { return false; } };
+
 describe("xr-sync-server C34 speech availability", () => {
+  it("SIGTERM during the model probe stops the dev server and kills the sidecar", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "c34-stt-"));
+    dirs.push(dir);
+    const script = join(dir, "silent.cjs");
+    const pidFile = join(dir, "pid");
+    await writeFile(script, SILENT_SCRIPT);
+    const child = spawn("../../../node_modules/.bin/tsx", ["src/dev-server.ts"], { cwd: process.cwd(), env: { ...process.env, PORT: String(await freePort()), XR_SYNC_INSTANCE: "c34-term", XR_SYNC_STT_PYTHON: process.execPath, XR_SYNC_STT_SCRIPT: script, FAKE_PID_FILE: pidFile }, stdio: ["ignore", "pipe", "pipe"] });
+    children.push(child);
+    let exitCode: number | null | undefined;
+    child.on("exit", (c) => { exitCode = c; });
+    let sidecarPid = 0;
+    for (let i = 0; i < 600 && sidecarPid === 0; i += 1) {
+      try { sidecarPid = Number(await readFile(pidFile, "utf8")); } catch { /* not written yet */ }
+      if (sidecarPid === 0) await new Promise((r) => setTimeout(r, 100));
+    }
+    expect(sidecarPid).toBeGreaterThan(0);
+    child.kill("SIGTERM");
+    for (let i = 0; i < 100 && exitCode === undefined; i += 1) await new Promise((r) => setTimeout(r, 100));
+    expect(exitCode).toBe(0);
+    for (let i = 0; i < 50 && alive(sidecarPid); i += 1) await new Promise((r) => setTimeout(r, 100));
+    expect(alive(sidecarPid)).toBe(false);
+  }, 60000);
+
   it("createEncounterServer reports speechAvailable from the injected recognizer", async () => {
     const withRecognizer = await createEncounterServer({ speechRecognizer: async () => ({ text: "x", confidence: 0.5 }) } as never);
     servers.push(withRecognizer);

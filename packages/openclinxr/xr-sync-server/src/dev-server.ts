@@ -31,20 +31,9 @@ if (!Number.isInteger(port) || port > 65535) {
 const rawInstance = process.env["XR_SYNC_INSTANCE"] ?? process.argv[2] ?? "local";
 const instance = rawInstance.startsWith("xr-sync-") ? rawInstance : `xr-sync-${rawInstance}`;
 
-const speech = await bootSidecarRecognizer(process.env, {
-  script: fileURLToPath(new URL("../../../../tools/openclinxr/evidence/xr-sync/stt/transcribe.py", import.meta.url)),
-});
-if (speech.recognizer !== null) {
-  console.log(`xr-sync speech ready model=${speech.reason}`);
-} else {
-  console.log(`xr-sync speech unavailable: ${speech.reason}`);
-}
-
-const server = await createEncounterServer(
-  speech.recognizer !== null ? { port, speechRecognizer: speech.recognizer } : { port },
-);
-console.log(`xr-sync listening ws://127.0.0.1:${server.port} instance=${instance}`);
-
+// Signal handlers first: SIGTERM during the (up to 180 s) model probe must still kill the sidecar.
+let closeSpeech: () => void = () => undefined;
+let server: Awaited<ReturnType<typeof createEncounterServer>> | null = null;
 let closing = false;
 async function shutdown(): Promise<void> {
   if (closing) {
@@ -52,8 +41,8 @@ async function shutdown(): Promise<void> {
   }
   closing = true;
   try {
-    speech.close();
-    await server.close();
+    closeSpeech();
+    await server?.close();
   } catch (error) {
     console.error(`xr-sync dev-server: close failed: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
@@ -67,3 +56,22 @@ process.on("SIGTERM", () => {
 process.on("SIGINT", () => {
   void shutdown();
 });
+
+const speech = await bootSidecarRecognizer(
+  process.env,
+  { script: fileURLToPath(new URL("../../../../tools/openclinxr/evidence/xr-sync/stt/transcribe.py", import.meta.url)) },
+  { onCreated: (close) => { closeSpeech = close; } },
+);
+if (speech.recognizer !== null) {
+  console.log(`xr-sync speech ready model=${speech.reason}`);
+} else {
+  console.log(`xr-sync speech unavailable: ${speech.reason}`);
+}
+
+server = await createEncounterServer(
+  speech.recognizer !== null ? { port, speechRecognizer: speech.recognizer } : { port },
+);
+console.log(`xr-sync listening ws://127.0.0.1:${server.port} instance=${instance}`);
+if (closing) {
+  await server.close().catch(() => undefined);
+}
