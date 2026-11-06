@@ -166,13 +166,15 @@ PLAN = {
     # (replace-garment-primitive.ts restores pre-HB-05 full-res prims + proven 60-deg
     # post-export smooth).
     "mpfb-ob-patient-aisha.glb": {
-        "bytesAfter": 19095616,
+        "bytesAfter": 19144852,
         "triangleCountAfter": 73392,
-        "note": ("Re-measured 2026-11-05 (st-vitfamily r1 R2): albedo-embed stage (post-export byte "
+        "note": ("Re-measured 2026-11-06 (st-vitfamily r1 R3 fixed3): albedo-embed stage (post-export byte "
                  "stage, not a rebake; embed_skin_albedo rewrites only the skin material baseColor "
-                 "image bytes to the 4096 brow-cleared + temple-feathered stage3-colour-fixed.png; "
-                 "geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, "
-                 "10219564 -> 19095616 B; supersedes the R1 19097100 B embed). "
+                 "image bytes to the 4096 D4a-exemplar-inpainted + D4b-temple-filled stage3-colour-fixed3.png "
+                 "(sha e944e07fc8051c72); geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, "
+                 "19095616 -> 19144852 B; supersedes the R2 19095616 B embed). "
+                 "Prior st-vitfamily r1 R2: albedo-embed of the 4096 brow-cleared + temple-feathered stage3-colour-fixed.png "
+                 "(10219564 -> 19095616 B; superseded the R1 19097100 B embed). "
                  "Prior st-vitfamily r1: first albedo embed at 19097100 B. "
                  "Prior st-vitbody2 r8: face and body detail TextureInfo values share one 191439 B Vitruvian face tile texture; face scale 90 and stochastic-hex body scale 128 remain independent, removing the rejected Torso payload while geometry counts hold (tris 73392 / face 52778 / joints 137). "
                  "Prior st-vitbody2 r7: the carrier embedded a separate 138314 B Torso crop at scale 118; rejected by native 1:1 anisotropy review and removed. "

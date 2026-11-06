@@ -64,7 +64,6 @@ export const COLOUR_REL =
 export const BEARD_REL =
   "tools/openclinxr/asset-pipeline/skin/face-replay/beard_shadow.py";
 export const FIT_REL = "tools/openclinxr/evidence/face-fit/fit_facefit2.py";
-export const SKIN_SHEET_REL = "tools/openclinxr/asset-pipeline/skin/mpfb_skin_sheet.py";
 export const FIT_DIR_REL = "tools/openclinxr/evidence/face-fit";
 export const SHAPE_REL = "tools/openclinxr/evidence/face-shape-clauses/shape_clauses.py";
 export const FACE_GATE_MODEL_REL = "tools/openclinxr/evidence/landmarks/models/face_landmarker.task";
