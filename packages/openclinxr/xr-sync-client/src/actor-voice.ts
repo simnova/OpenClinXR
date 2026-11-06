@@ -210,16 +210,16 @@ export function createEnvelopeCueBuilder(sampleRate: number): {
   };
 }
 
-/** Engine errors may quote the text they failed on; the record must not: any 10-character window of the caption in the message withholds it. */
-function redacted(message: string, text: string): string {
-  for (let i = 0; i + 10 <= text.length; i += 1) {
-    if (message.includes(text.slice(i, i + 10))) return "engine error (message withheld: it quoted the caption)";
-  }
-  return message;
-}
-
-function errorText(error: unknown): string {
-  return (error instanceof Error ? error.message : String(error)).slice(0, 200);
+/**
+ * Evidence carries an error CATEGORY, never the engine's message: an engine error can quote the text it failed on (a caption),
+ * and a short caption would slip past any quote detector.
+ */
+export function errorCategory(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  if (/outside the lexicon/iu.test(message)) return "word outside the lexicon";
+  if (/timed out/iu.test(message)) return "voice worker load timed out";
+  if (/worker/iu.test(message)) return "voice worker failure";
+  return "voice synthesis failed";
 }
 
 export function createActorVoice(deps: {
@@ -275,6 +275,11 @@ export function createActorVoice(deps: {
       resolveEnded();
     };
     function mediaClock(): number | null {
+      // A newer speech took the slot: this clock must not drive it with this turn's audio position.
+      if (attached && !owns()) {
+        if (slot !== undefined && slot.mediaPositionSeconds === mediaClock) delete slot.mediaPositionSeconds;
+        return null;
+      }
       const audio = deps.sink.positionSeconds();
       if (audio !== null) return audio;
       if (firstChunkAtMs === null || record.firstAudioMs !== null) return null;
@@ -326,7 +331,7 @@ export function createActorVoice(deps: {
       // A sink that never reports the end (stalled output) must not hold the next turn or the slot forever.
       endTimer = setTimeout(finishPlayback, result.audioSeconds * 1000 + WALL_FALLBACK_MS + PLAYBACK_GRACE_MS);
     } catch (error) {
-      record.error = redacted(errorText(error), text);
+      record.error = errorCategory(error);
       deps.sink.end();
       if (slot !== undefined && attached && owns() && speech !== undefined) {
         delete speech.bakedCues;

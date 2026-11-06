@@ -90,7 +90,7 @@ describe("the shell speaks the server's actor turn (C30)", () => {
       await settle();
       await settle();
       const records = (published[0] as unknown as { voice: { records: Array<Record<string, unknown>> } }).voice.records;
-      expect(records.map((r) => r["error"])).toEqual(["voice worker error: import failed", "voice worker error: import failed"]);
+      expect(records.map((r) => r["error"])).toEqual(["voice worker failure", "voice worker failure"]);
       expect(created).toBe(2);
     } finally {
       holder.Worker = original;
@@ -120,7 +120,7 @@ describe("the shell speaks the server's actor turn (C30)", () => {
       await settle();
       await settle();
       const records = (published[0] as unknown as { voice: { records: Array<Record<string, unknown>> } }).voice.records;
-      expect(records.map((r) => r["error"])).toEqual(["worker blocked", "worker blocked"]);
+      expect(records.map((r) => r["error"])).toEqual(["voice worker failure", "voice worker failure"]);
       expect(attempts).toBe(2);
     } finally {
       holder.Worker = original;

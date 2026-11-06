@@ -208,16 +208,30 @@ describe("actor voice turn", () => {
     expect(slot.activeSpeech.bakedCues).toBeUndefined();
     expect(slot.mediaPositionSeconds).toBeUndefined();
   });
-  it("an engine error that quotes the caption is withheld from the record; one that does not is kept", async () => {
+  it("the record carries an error category, never the engine's message (a short caption quoted by the engine cannot leak)", async () => {
     const f = fakes();
-    const quoting: VoiceEngine = { synthesize: async () => { throw new Error("word outside the lexicon: It feels heavy, like someone"); } };
-    const plain: VoiceEngine = { synthesize: async () => { throw new Error("a word is outside the lexicon"); } };
-    const a = createActorVoice({ engine: quoting, sink: f.sink, slotFor: () => undefined, voiceFor: () => undefined, nowMs: () => 1 });
-    const kept = createActorVoice({ engine: plain, sink: f.sink, slotFor: () => undefined, voiceFor: () => undefined, nowMs: () => 1 });
-    const hidden = await a.speakTurn({ actorId: "p", caption: "A: It feels heavy, like someone is sitting on my chest.", turnKey: "k" });
-    expect(hidden.error).not.toContain("heavy");
-    expect(hidden.error).toContain("withheld");
-    expect((await kept.speakTurn({ actorId: "p", caption: "A: It feels heavy, like someone is sitting on my chest.", turnKey: "k" })).error).toBe("a word is outside the lexicon");
+    const make = (message: string) => createActorVoice({ engine: { synthesize: async () => { throw new Error(message); } }, sink: f.sink, slotFor: () => undefined, voiceFor: () => undefined, nowMs: () => 1 });
+    const cases: Array<[string, string]> = [
+      ["word outside the lexicon: Hi there", "word outside the lexicon"],
+      ["voice worker error: import failed", "voice worker failure"],
+      ["voice worker load timed out", "voice worker load timed out"],
+      ["Hi there exploded", "voice synthesis failed"],
+    ];
+    for (const [message, category] of cases) {
+      const record = await make(message).speakTurn({ actorId: "p", caption: "A: Hi there.", turnKey: "k" });
+      expect(record.error).toBe(category);
+    }
+  });
+  it("when a newer speech takes the slot during playback, the old audio clock is removed instead of driving it", async () => {
+    const f = fakes();
+    const slot = slotWithSpeech();
+    const voice = createActorVoice({ engine: f.engine, sink: f.sink, slotFor: () => slot, voiceFor: () => undefined, nowMs: () => 1 });
+    await voice.speakTurn({ actorId: "p", caption: "A: Hello there.", turnKey: "k" });
+    const clock = slot.mediaPositionSeconds;
+    expect(typeof clock).toBe("function");
+    slot.activeSpeech = { text: "newer", startedAtMs: 5, durationMs: 100, phonemeSequence: ["E"] };
+    expect(clock?.()).toBeNull();
+    expect(slot.mediaPositionSeconds).toBeUndefined();
   });
   it("counterweight: a newer speech on the slot is never touched by an older turn's audio", async () => {
     const f = fakes();
