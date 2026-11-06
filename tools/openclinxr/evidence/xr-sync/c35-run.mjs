@@ -203,6 +203,8 @@ async function main(argv) {
       }
       await page.context().grantPermissions(["microphone"]).catch(() => undefined);
       await page.locator("#utterance-input").waitFor({ timeout: 60000 });
+      // The dev stack's station opens with a 1 s doorway phase; intents sent inside it are refused (outside-encounter-phase).
+      await sleep(3000);
       const patientTurns = async () => (await readShell(page)).turns.filter((t) => t.actorId === seed.actorId).length;
       const waitTurn = async (count) => {
         try {
@@ -231,18 +233,26 @@ async function main(argv) {
       for (let i = 0; i < 2; i += 1) {
         await hold(async () => {
           await page.waitForFunction(() => globalThis.__c35Mic.opened > 0 && globalThis.__c35Mic.ctx !== null, undefined, { timeout: 20000 });
-          await sleep(300);
+          await sleep(800);
           await page.evaluate(() => globalThis.__c35Mic.play());
         });
         have += 1;
         await waitTurn(have);
+        // Release the override's AudioContext so later captures do not compete with it for the (software) audio device.
+        await page.evaluate(async () => { await globalThis.__c35Mic.ctx?.close().catch(() => undefined); globalThis.__c35Mic.ctx = null; });
         probe.steps.push({ kind: "override-microphone", shell: await readShell(page), mic: await page.evaluate(() => ({ calls: globalThis.__c35Mic.calls, opened: globalThis.__c35Mic.opened, played: globalThis.__c35Mic.played })) });
       }
-      // Control: the injection hook (the only injected-path turn).
-      await page.evaluate((samples) => globalThis.__openClinXrEncounterSync.speech.inject(Int16Array.from(samples)), pcm);
-      const capturesBefore = (await readShell(page)).captures.length;
-      await hold(async () => undefined);
-      await page.waitForFunction((n) => globalThis.__openClinXrEncounterSync.speech.captures.length > n, capturesBefore, { timeout: 90000 });
+      // Control: the injection hook (the only injected-path turn). A capture that records no samples (too-short) is retried once after a settle.
+      let capturesBefore = 0;
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        await sleep(2000);
+        await page.evaluate((samples) => globalThis.__openClinXrEncounterSync.speech.inject(Int16Array.from(samples)), pcm);
+        capturesBefore = (await readShell(page)).captures.length;
+        await hold(async () => undefined);
+        await page.waitForFunction((n) => globalThis.__openClinXrEncounterSync.speech.captures.length > n, capturesBefore, { timeout: 90000 });
+        probe.controlAttempts = attempt + 1;
+        if ((await readShell(page)).captures.at(-1)?.status !== "too-short") break;
+      }
       // The control's transcript may miss the phrase list or come back empty (recognizer variance): a turn is awaited briefly, not required.
       probe.controlTurn = await page.waitForFunction(({ id, count }) => globalThis.__openClinXrEncounterSync.turns.filter((t) => t.actorId === id).length >= count, { id: seed.actorId, count: have + 1 }, { timeout: 20000 }).then(() => true, () => false);
       if (probe.controlTurn) { have += 1; await waitTurn(have); }
