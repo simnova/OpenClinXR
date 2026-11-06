@@ -1,7 +1,7 @@
 import type { EncounterSnapshot } from "./index.js";
 import type { UtteranceBoxDeps, UtteranceBoxElement } from "./encounter-turns.js";
 
-export function topicLabel(tag: string): string {
+function topicLabel(tag: string): string {
   return tag.replaceAll("_", " ");
 }
 

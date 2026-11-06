@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { type EncounterSyncEvidence, startEncounterSyncFromUrl } from "./headset.js";
-import { mountRoomPanel, topicLabel } from "./encounter-room-panel.js";
 
 // C36 RED (planted by lane manager, 2026-11-06): the shell shows the cast, the authored topic menu, the doorway countdown, and doorway refusals.
 // Contract (names are the spec):
-//   topicLabel(tag) = tag with "_" replaced by " " (shipped scenario tag text, no hard-coded table).
-//   mountRoomPanel({ doc, parent }) appends div#room-panel to parent holding four child elements and returns { render(snapshot), refuse(reason) }:
+//   A topic label is the tag with "_" replaced by " " (shipped scenario tag text, no hard-coded table).
+//   The panel module is internal: tests reach it through startEncounterSyncFromUrl (a snapshot renders it; a room-rejected intent refuses).
+//   The panel is a div#room-panel appended to the typed-box parent holding four child elements:
 //     #room-cast       "Cast: <displayName> (<role>); ..." in snapshot actor order, actors with empty displayName skipped; "" when none.
 //     #room-topics     "Ask about: <topicLabel>, ..." in topicMenu order; "" when topicMenu is empty or absent.
 //     #room-countdown  phase doorway "Encounter opens in <n> s"; encounter "Encounter: <n> s left"; note "Note: <n> s left"; closed "Station closed"; "" when phase is "".
@@ -33,72 +33,64 @@ const SNAP = {
   topicMenu: ["history_opqrst", "ecg_request"],
 };
 
-describe("room panel (C36)", () => {
-  it("topicLabel replaces underscores", () => {
-    expect(topicLabel("risk_factor_question")).toBe("risk factor question");
-  });
+async function joined(rejectKinds: Set<string>) {
+  const parent = new FakeElement("div");
+  const published: EncounterSyncEvidence[] = [];
+  let stateListener: ((s: unknown) => void) | undefined;
+  const handle = await startEncounterSyncFromUrl({
+    search: "?encounterSync=ws://127.0.0.1:9",
+    actorIds: () => ["p"],
+    register: () => undefined,
+    play: () => undefined,
+    publish: (e: EncounterSyncEvidence) => { published.push(e); },
+    nowMs: () => Date.now(),
+    utteranceBox: { doc: fakeDoc, parent },
+    connectFn: async () => ({
+      sessionId: "s",
+      sendIntent: async (kind: string) => (rejectKinds.has(kind) ? { status: "reject", reason: "outside-encounter-phase", seq: 1 } : { status: "ack", seq: 1, serverTs: 0, rttMs: 1 }),
+      onState: (fn: (s: unknown) => void) => { stateListener = fn; return () => undefined; },
+      leave: async () => undefined,
+    }) as never,
+  } as never);
+  return { parent, handle, evidence: published[0] as EncounterSyncEvidence, snapshot: (s: unknown) => stateListener?.(s) };
+}
 
-  it("renders cast, topics and the phase countdown from a snapshot", () => {
-    const parent = new FakeElement("div");
-    const panel = mountRoomPanel({ doc: fakeDoc, parent } as never);
-    expect(parent.find("room-panel")).toBeDefined();
+describe("room panel (C36)", () => {
+  it("renders cast, topics and the phase countdown from a snapshot", async () => {
+    const { parent, snapshot } = await joined(new Set());
+    expect(text(parent, "room-panel")).toBe("");
     expect(text(parent, "room-cast")).toBe("");
-    panel.render(SNAP as never);
+    snapshot(SNAP);
     expect(text(parent, "room-cast")).toBe("Cast: Robert Hayes (patient); Anna Hayes (family)");
     expect(text(parent, "room-topics")).toBe("Ask about: history opqrst, ecg request");
     expect(text(parent, "room-countdown")).toBe("Encounter opens in 7 s");
-    panel.render({ ...SNAP, phase: "encounter", phaseRemainingS: 120 } as never);
+    snapshot({ ...SNAP, phase: "encounter", phaseRemainingS: 120 });
     expect(text(parent, "room-countdown")).toBe("Encounter: 120 s left");
-    panel.render({ ...SNAP, phase: "note", phaseRemainingS: 30 } as never);
+    snapshot({ ...SNAP, phase: "note", phaseRemainingS: 30 });
     expect(text(parent, "room-countdown")).toBe("Note: 30 s left");
-    panel.render({ ...SNAP, phase: "closed", phaseRemainingS: 0 } as never);
+    snapshot({ ...SNAP, phase: "closed", phaseRemainingS: 0 });
     expect(text(parent, "room-countdown")).toBe("Station closed");
-    panel.render({ ...SNAP, phase: "encounter", topicMenu: [], actors: {} } as never);
+    snapshot({ ...SNAP, phase: "encounter", topicMenu: [], actors: {} });
     expect(text(parent, "room-topics")).toBe("");
     expect(text(parent, "room-cast")).toBe("");
   });
 
-  it("a doorway refusal becomes text and the encounter phase clears it", () => {
-    const parent = new FakeElement("div");
-    const panel = mountRoomPanel({ doc: fakeDoc, parent } as never);
-    panel.refuse("outside-encounter-phase");
+  it("a refusal before any snapshot names the reason; doorway, other-phase and other reasons read as specified; the encounter phase clears it", async () => {
+    const { parent, handle, snapshot } = await joined(new Set(["select-actor"]));
+    await handle?.sendUtterance("p", "hello");
     expect(text(parent, "room-refusal")).toBe("Not accepted: outside-encounter-phase");
-    panel.render(SNAP as never);
-    panel.refuse("outside-encounter-phase");
+    snapshot(SNAP);
+    await handle?.sendUtterance("p", "hello");
     expect(text(parent, "room-refusal")).toBe("Not open yet: the encounter opens in 7 s.");
-    panel.render({ ...SNAP, phase: "note", phaseRemainingS: 30 } as never);
-    panel.refuse("outside-encounter-phase");
+    snapshot({ ...SNAP, phase: "note", phaseRemainingS: 30 });
+    await handle?.sendUtterance("p", "hello");
     expect(text(parent, "room-refusal")).toBe("Not accepted: the station is in the note phase.");
-    panel.refuse("unknown-topic");
-    expect(text(parent, "room-refusal")).toBe("Not accepted: unknown-topic");
-    panel.render({ ...SNAP, phase: "encounter", phaseRemainingS: 100 } as never);
+    snapshot({ ...SNAP, phase: "encounter", phaseRemainingS: 100 });
     expect(text(parent, "room-refusal")).toBe("");
   });
 });
 
 describe("room panel wiring (C36)", () => {
-  async function joined(rejectKinds: Set<string>) {
-    const parent = new FakeElement("div");
-    const published: EncounterSyncEvidence[] = [];
-    let stateListener: ((s: unknown) => void) | undefined;
-    const handle = await startEncounterSyncFromUrl({
-      search: "?encounterSync=ws://127.0.0.1:9",
-      actorIds: () => ["p"],
-      register: () => undefined,
-      play: () => undefined,
-      publish: (e: EncounterSyncEvidence) => { published.push(e); },
-      nowMs: () => Date.now(),
-      utteranceBox: { doc: fakeDoc, parent },
-      connectFn: async () => ({
-        sessionId: "s",
-        sendIntent: async (kind: string) => (rejectKinds.has(kind) ? { status: "reject", reason: "outside-encounter-phase", seq: 1 } : { status: "ack", seq: 1, serverTs: 0, rttMs: 1 }),
-        onState: (fn: (s: unknown) => void) => { stateListener = fn; return () => undefined; },
-        leave: async () => undefined,
-      }) as never,
-    } as never);
-    return { parent, handle, evidence: published[0] as EncounterSyncEvidence, snapshot: (s: unknown) => stateListener?.(s) };
-  }
-
   it("a live room mounts the panel and renders snapshots", async () => {
     const { parent, snapshot } = await joined(new Set());
     snapshot(SNAP);

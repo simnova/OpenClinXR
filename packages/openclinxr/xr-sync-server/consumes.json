@@ -48,6 +48,10 @@
         "kind": "runtime"
       },
       {
+        "name": "scenarioBank",
+        "kind": "runtime"
+      },
+      {
         "name": "scenarioDialogueSeedBank",
         "kind": "runtime"
       }
