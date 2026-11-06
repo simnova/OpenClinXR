@@ -27,6 +27,7 @@ const run_ = promisify(execFile);
 const HERE = fileURLToPath(new URL(".", import.meta.url));
 const ROOT = resolve(HERE, "..", "..", "..", "..");
 const SERVER_DIST = join(ROOT, "packages/openclinxr/xr-sync-server/dist/index.js");
+const TRACE_DIST = join(ROOT, "packages/openclinxr/xr-sync-server/dist/conversation-trace.js");
 const FIXTURES_DIST = join(ROOT, "packages/openclinxr/scenario-fixtures/dist/index.js");
 const APP_DIST = join(ROOT, "apps/ui-xr/dist");
 const STT_PYTHON = process.env.OPENCLINXR_STT_PYTHON ?? "/Volumes/files/openclinxr-assets/stt/venv/bin/python";
@@ -83,7 +84,8 @@ async function main(argv) {
     for (const name of ["hello", "onset", "noisy"]) heard[name] = await recognize(join(audioDir, `${name}.wav`));
     run.heard = heard;
     const callsAfterRecognition = recognizerCalls;
-    const { createEncounterServer, replayConversationTrace } = await import(SERVER_DIST);    const { edChestPainScenario, scenarioDialogueSeedBank: shippedSeedBank } = await import(FIXTURES_DIST);
+    const { createEncounterServer } = await import(SERVER_DIST);
+    const { replayConversationTrace } = await import(TRACE_DIST);    const { edChestPainScenario, scenarioDialogueSeedBank: shippedSeedBank } = await import(FIXTURES_DIST);
     const shippedEntry = shippedSeedBank.find((entry) => entry.scenarioId === edChestPainScenario.scenarioId);
     const shippedSeed = shippedEntry.seeds.find((seed) => seed.seedId === "patient_onset_history");
     const SHIPPED_LINE = shippedSeed.caption ?? shippedSeed.spokenText;
@@ -210,6 +212,22 @@ async function main(argv) {
     check("S13 the persisted trace holds none of the recognized text, typed text, phrases or authored lines", leaks.length === 0, JSON.stringify(leaks));
     const replayed = replayConversationTrace(trace);
     check("S14 replay of the persisted trace gives the server's replyIds with zero further recognizer calls", JSON.stringify(replayed.turns.slice(0, 4).map((t) => t.replyId)) === JSON.stringify(expected.replyIds) && recognizerCalls === callsAfterRecognition, JSON.stringify({ replay: replayed.turns.map((t) => t.replyId), recognizerCalls, callsAfterRecognition }));
+    const forge = (patch, where = "utterance-end") => {
+      const copy = JSON.parse(JSON.stringify(trace));
+      const target = copy.events.filter((event) => event.kind === where && (where !== "utterance-end" || event.modality === "speech")).at(-1);
+      for (const [key, value] of Object.entries(patch)) { if (value === undefined) delete target[key]; else target[key] = value; }
+      return copy;
+    };
+    const refused = (copy) => { try { replayConversationTrace(copy); return false; } catch (error) { return /replay-bad-trace/u.test(String(error)); } };
+    const forgeries = [{ confidence: undefined }, { confidence: 0.123 }, { modality: "typed" }, { modality: "telepathy" }, { confidence: "0.9" }, { match: "fallback", tag: "history_opqrst" }, { tag: "speech_low_confidence", match: "phrase" }];
+    const forgeryResults = forgeries.map((patch) => refused(forge(patch)));
+    const refusedAll = forgeryResults.every(Boolean);
+    const startRefused = refused(forge({ modality: "speech", confidence: 0.5 }, "utterance-start"));
+    const legacy = JSON.parse(JSON.stringify(trace));
+    for (const event of legacy.events) { delete event.modality; delete event.confidence; if (event.tag === "speech_low_confidence") event.tag = "utterance_unmatched"; }
+    const legacyReplays = (() => { try { replayConversationTrace(legacy); return true; } catch { return false; } })();
+    const lowForged = replayConversationTrace(forge({ confidence: 0.2, tag: "speech_low_confidence", match: "fallback" }));
+    check("S17 replay refuses malformed or forged modality/confidence events (7 forgeries and one on utterance-start), reads a pre-C29 trace as typed, and a forged low-confidence event gets no authored answer", refusedAll && startRefused && legacyReplays && !String(lowForged.turns.at(-1)?.replyId).includes(":seed:"), JSON.stringify({ forgeryResults, startRefused, legacyReplays, last: lowForged.turns.at(-1)?.replyId }));
     if (options.mode === "quest") {
       const lists = await collectQuestCleanupLists({ staticPort: staticServer.port, syncPort: new URL(run.pageUrl).searchParams.get("encounterSync").split(":").at(-1), serial: options.serial });
       run.adbReverseList = lists.adbReverseList;

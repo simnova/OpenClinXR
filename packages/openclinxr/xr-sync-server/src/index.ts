@@ -9,6 +9,4 @@ export { ENCOUNTER_ROOM_NAME } from "./room.js";
 export type { AckMessage, IntentKind, IntentMessage, RejectMessage } from "./room.js";
 export type { EncounterServer, EncounterServerOptions } from "./server.js";
 export { createEncounterServer } from "./server.js";
-/** Recompute a persisted conversation trace's turns and emotions from its recorded events alone (no recognizer, no scenario text). */
-export { replayConversationTrace } from "./conversation-trace.js";
 export type { TopicAffect } from "./topic-answers.js";

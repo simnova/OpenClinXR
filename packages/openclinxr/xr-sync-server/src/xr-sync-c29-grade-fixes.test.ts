@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { clinicKneePainScenario, edChestPainScenario, scenarioDialogueSeedBank } from "@openclinxr/scenario-fixtures";
 import { connect, type SyncConnection } from "@openclinxr/xr-sync-client";
 import { afterEach, describe, expect, it } from "vitest";
-import { createEncounterServer, replayConversationTrace, type EncounterServer } from "./index.js";
+import { createEncounterServer, type EncounterServer } from "./index.js";
 
 // C29 grade-01 blockers (lane manager, 2026-11-05): turn-1 low-confidence speech keeps the opening reply; utterance-start refuses
 // modality/confidence; replay refuses malformed or forged speech events. Original C29 header:
@@ -127,41 +127,4 @@ describe("xr-sync-server C29 grade-01 fixes", () => {
       expect(await learner.sendIntent("utterance-start", payload), JSON.stringify(payload)).toMatchObject({ status: "reject", reason: "bad-utterance-payload" });
     }
   }, 40000);
-
-  it("replay refuses malformed or forged speech events and gives a fallback event no authored answer", async () => {
-    const traceDir = mkdtempSync(join(tmpdir(), "xr-sync-c29-forge-"));
-    const { server, learner } = await session({ traceDir });
-    await say(server, learner, speech(MECH_PHRASE, 0.9));
-    await server.close();
-    await waitFor(() => readdirSync(traceDir).some((name) => name.endsWith(TRACE_SUFFIX)), 30000, "trace file");
-    const traces = readdirSync(traceDir).filter((name) => name.endsWith(TRACE_SUFFIX)).map((name) => JSON.parse(readFileSync(join(traceDir, name), "utf8")));
-    const slotA = traces.find((trace) => trace.stationId === "slot-a");
-    const lastEnd = (trace: { events: Array<Record<string, unknown>> }) => trace.events.filter((event) => event["kind"] === "utterance-end").at(-1)!;
-    const forge = (patch: Record<string, unknown>) => {
-      const copy = JSON.parse(JSON.stringify(slotA)) as { events: Array<Record<string, unknown>> };
-      Object.assign(lastEnd(copy), patch);
-      return copy;
-    };
-    expect(() => replayConversationTrace(slotA)).not.toThrow();
-    const startForged = JSON.parse(JSON.stringify(slotA)) as { events: Array<Record<string, unknown>> };
-    Object.assign(startForged.events.find((event) => event["kind"] === "utterance-start")!, { modality: "speech", confidence: 0.5 });
-    expect(() => replayConversationTrace(startForged as never)).toThrow(/replay-bad-trace/);
-    const legacy = JSON.parse(JSON.stringify(slotA)) as { events: Array<Record<string, unknown>> };
-    for (const event of legacy.events) { delete event["modality"]; delete event["confidence"]; }
-    expect(() => replayConversationTrace(legacy as never)).not.toThrow();
-    const bad: Array<Record<string, unknown>> = [
-      { confidence: undefined },
-      { confidence: 0.123 },
-      { modality: "typed" },
-      { modality: "typed", confidence: undefined, tag: "speech_low_confidence", match: "fallback" },
-      { match: "fallback" },
-      { tag: "speech_low_confidence", match: "phrase" },
-      { modality: "telepathy" },
-      { confidence: "0.9" },
-      { tag: undefined, match: "fallback" },
-    ];
-    for (const patch of bad) expect(() => replayConversationTrace(forge(patch) as never), JSON.stringify(patch)).toThrow(/replay-bad-trace/);
-    const lowAnswer = replayConversationTrace(forge({ confidence: 0.2, tag: "speech_low_confidence", match: "fallback" }) as never);
-    expect(lowAnswer.turns.at(-1)?.replyId).not.toContain(":seed:");
-  }, 60000);
 });

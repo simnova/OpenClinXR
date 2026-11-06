@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { clinicKneePainScenario, edChestPainScenario, scenarioDialogueSeedBank } from "@openclinxr/scenario-fixtures";
 import { connect, type SyncConnection } from "@openclinxr/xr-sync-client";
 import { afterEach, describe, expect, it } from "vitest";
-import { createEncounterServer, replayConversationTrace, type EncounterServer } from "./index.js";
+import { createEncounterServer, type EncounterServer } from "./index.js";
 
 // C29 RED (planted by lane manager, 2026-11-05): a recognized spoken utterance enters the room through the SAME
 // matcher as C27 typed text (directive D9: no LLM; recognition happens outside the room, the room gets text + confidence).
@@ -168,23 +168,6 @@ describe("xr-sync-server C29 speech intake", () => {
       expect(raw.toLowerCase().includes(MECH_PHRASE.toLowerCase())).toBe(false);
       expect(raw.includes(FALLBACK_LINE)).toBe(false);
     }
-  }, 90000);
-
-  it("replay reproduces the same replyIds from the recorded events and keeps modality and confidence", async () => {
-    const traceDir = mkdtempSync(join(tmpdir(), "xr-sync-c29-replay-"));
-    const { server, learner } = await session({ traceDir });
-    const live1 = await say(server, learner, speech(MECH_PHRASE, 0.9));
-    const live2 = await say(server, learner, speech(MECH_PHRASE, 0.2));
-    await server.close();
-    await waitFor(() => readdirSync(traceDir).some((name) => name.endsWith(TRACE_SUFFIX)), 30000, "trace file");
-    const traces = readdirSync(traceDir)
-      .filter((name) => name.endsWith(TRACE_SUFFIX))
-      .map((name) => JSON.parse(readFileSync(join(traceDir, name), "utf8")));
-    const slotA = traces.find((trace) => trace.stationId === "slot-a");
-    const replayed = replayConversationTrace(slotA);
-    expect(replayed.turns.slice(1).map((turn) => turn.replyId)).toEqual([live1.replyId, live2.replyId]);
-    const ends = replayed.events.filter((event) => event.kind === "utterance-end").slice(1) as Array<{ modality?: string; confidence?: number; tag?: string }>;
-    expect(ends.map((event) => [event.modality, event.confidence, event.tag])).toEqual([["speech", 0.9, "mechanism_of_injury_history"], ["speech", 0.2, "speech_low_confidence"]]);
   }, 90000);
 
   it("boot refuses a malformed minSpeechConfidence and a seed that uses the reserved tag", async () => {

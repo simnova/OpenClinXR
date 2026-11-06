@@ -12,8 +12,7 @@
     "IntentMessage",
     "RejectMessage",
     "TopicAffect",
-    "createEncounterServer",
-    "replayConversationTrace"
+    "createEncounterServer"
   ],
   "exportSummaries": {
     "AckMessage": "Server reply for an applied intent, carrying the round-trip terminus.",
@@ -24,8 +23,7 @@
     "IntentMessage": "Wire envelope for one client intent.",
     "RejectMessage": "Server reply for a rejected intent.",
     "TopicAffect": "Authored dialogue affect carried by one topic-answer seed (mirrors DialogueFixtureSeed[\"affect\"]).",
-    "createEncounterServer": "Boot one encounter room on an HTTP and WebSocket transport, then listen.",
-    "replayConversationTrace": "Recompute a persisted conversation trace's turns and emotions from its recorded events alone (no recognizer, no scenario text)."
+    "createEncounterServer": "Boot one encounter room on an HTTP and WebSocket transport, then listen."
   },
   "workspaceDependencies": [
     "@openclinxr/conversation-policy",
