@@ -9,7 +9,7 @@
  */
 
 import { C3_REPLY_TABLE } from "./conversation-trace.js";
-import { isScheduledReplyId } from "./scheduled-event.js";
+import { scheduledReplyId } from "./scheduled-event.js";
 import { openingCaption, parseScenarioCasts } from "./scenario-cast.js";
 import type { LoadedReplayStation } from "./station-replay-loading.js";
 import { applyDialogueSeeds } from "./topic-answers.js";
@@ -71,7 +71,8 @@ export function createReplayCaptionBank(
         }
         return "";
       }
-      if (isScheduledReplyId(replyId)) {
+      // A scheduled interjection resolves only when the scenario authored that eventId for this actor.
+      if (cast.schedule.some((entry) => entry.actorId === actorId && scheduledReplyId(entry.eventId) === replyId)) {
         return "";
       }
       return null;

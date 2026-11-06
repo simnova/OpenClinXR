@@ -82,7 +82,7 @@ describe("replay captions (C31)", () => {
   it("recomputes opening, authored answer and fallback captions by replyId; the trace holds none of the text", async () => {
     const traceDir = await record();
     const raw = readdirSync(traceDir).map((n) => readFileSync(join(traceDir, n), "utf8")).join("\n").toLowerCase();
-    for (const text of [patient.openingUtterance, onset.caption ?? onset.spokenText ?? "", entry.utteranceFallback.line]) expect(raw.includes(text.toLowerCase())).toBe(false);
+    for (const text of [patient.openingUtterance ?? "", onset.caption ?? onset.spokenText ?? "", entry.utteranceFallback.line].filter((line) => line !== "")) expect(raw.includes(text.toLowerCase())).toBe(false);
     const replay = await boot({ replayDir: traceDir, replayStepMs: 20, scenarios: [CHEST, KNEE], dialogueSeeds: scenarioDialogueSeedBank });
     const turns = await replayCaptions(replay.url);
     expect(turns.map((t) => t[1])).toEqual([`${patient.actorId}:opening`, `${patient.actorId}:seed:patient_onset_history`, expect.stringMatching(/^c3-/)]);
@@ -105,7 +105,7 @@ describe("replay captions (C31)", () => {
     const file = join(traceDir, name);
     const original = readFileSync(file, "utf8");
     const forge = (from: string, to: string) => writeFileSync(file, original.split(from).join(to));
-    for (const [from, to] of [[`${patient.actorId}:seed:patient_onset_history`, `${patient.actorId}:seed:forged`], [`${patient.actorId}:opening`, "stranger:opening"]] as const) {
+    for (const [from, to] of [[`${patient.actorId}:seed:patient_onset_history`, `${patient.actorId}:seed:forged`], [`${patient.actorId}:opening`, "stranger:opening"], [`${patient.actorId}:opening`, "scheduled:not-authored"]] as const) {
       forge(from, to);
       const bad = await boot({ replayDir: traceDir, replayStepMs: 20, scenarios: [CHEST], dialogueSeeds: scenarioDialogueSeedBank });
       await expect(connect(bad.url, { roomOptions: { replayStationId: "slot-a" } })).rejects.toThrow(/replay-unresolved-reply/);
