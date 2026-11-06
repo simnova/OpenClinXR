@@ -33,12 +33,12 @@ const SNAP = {
   topicMenu: ["history_opqrst", "ecg_request"],
 };
 
-async function joined(rejectKinds: Set<string>, reason = "outside-encounter-phase") {
+async function joined(rejectKinds: Set<string>, reason = "outside-encounter-phase", search = "?encounterSync=ws://127.0.0.1:9") {
   const parent = new FakeElement("div");
   const published: EncounterSyncEvidence[] = [];
   let stateListener: ((s: unknown) => void) | undefined;
   const handle = await startEncounterSyncFromUrl({
-    search: "?encounterSync=ws://127.0.0.1:9",
+    search,
     actorIds: () => ["p"],
     register: () => undefined,
     play: () => undefined,
@@ -87,6 +87,29 @@ describe("room panel (C36)", () => {
     expect(text(parent, "room-refusal")).toBe("Not accepted: the station is in the note phase.");
     snapshot({ ...SNAP, phase: "encounter", phaseRemainingS: 100 });
     expect(text(parent, "room-refusal")).toBe("");
+  });
+
+  it("the panel holds exactly #room-cast, #room-topics, #room-countdown, #room-refusal in that order; no topicMenu and a blank phase render empty text", async () => {
+    const { parent, snapshot } = await joined(new Set());
+    const panel = parent.find("room-panel") as FakeElement;
+    expect(panel.children.map((child) => child.id)).toEqual(["room-cast", "room-topics", "room-countdown", "room-refusal"]);
+    snapshot({ serverTick: 1, phase: "", turnId: 0, turnOwner: "none", learners: {}, actors: {} });
+    expect(text(parent, "room-topics")).toBe("");
+    expect(text(parent, "room-countdown")).toBe("");
+  });
+
+  it("replay and lobby rooms mount no panel", async () => {
+    const replay = await joined(new Set(), "x", "?encounterSync=ws://127.0.0.1:9&encounterReplayStation=slot-a");
+    expect(replay.parent.find("room-panel")).toBeUndefined();
+    const lobby = await joined(new Set(), "x", "?encounterSync=ws://127.0.0.1:9&encounterReviewLobby=1");
+    expect(lobby.parent.find("room-panel")).toBeUndefined();
+  });
+
+  it("a rejected speech-audio intent shows the refusal", async () => {
+    const { parent, evidence, snapshot } = await joined(new Set(["speech-audio"]));
+    snapshot(SNAP);
+    await evidence.sendIntent?.("speech-audio" as never, { pcm: [], sampleRate: 16000 });
+    expect(text(parent, "room-refusal")).toBe("Not open yet: the encounter opens in 7 s.");
   });
 
   it("any other rejected reason reads `Not accepted: <reason>` whatever the phase", async () => {
