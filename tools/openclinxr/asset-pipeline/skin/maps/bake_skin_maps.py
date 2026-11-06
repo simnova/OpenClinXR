@@ -37,7 +37,18 @@ argv = argv[argv.index("--") + 1:] if "--" in argv else []
 ap = argparse.ArgumentParser()
 ap.add_argument("--glb", required=True)
 ap.add_argument("--out", required=True)
+ap.add_argument("--body-object", default="mpfb_ob_patient_aisha_body",
+                help="case-insensitive substring selecting the imported body mesh")
+ap.add_argument("--stem", default="aisha", help="actor-specific output filename stem")
+ap.add_argument("--maps", default="wrinkle,curvature,cavity,pore",
+                help="comma-separated maps; curvature,cavity skips wrinkle and pore")
 args = ap.parse_args(argv)
+requested_maps = {value.strip() for value in args.maps.split(",") if value.strip()}
+unknown_maps = requested_maps - {"wrinkle", "curvature", "cavity", "pore"}
+if unknown_maps:
+    ap.error(f"unknown --maps values: {','.join(sorted(unknown_maps))}")
+if not {"curvature", "cavity"}.issubset(requested_maps):
+    ap.error("--maps must include curvature,cavity")
 os.makedirs(args.out, exist_ok=True)
 
 scene = bpy.context.scene
@@ -57,10 +68,10 @@ for o in bpy.context.scene.objects:
     if o.type != "MESH":
         continue
     n = (o.name + " " + (o.data.name if o.data else "")).lower()
-    if "mpfb_ob_patient_aisha_body" in n and o.name.count("_") <= 5:
+    if args.body_object.lower() in n:
         if body is None or len(o.data.vertices) > len(body.data.vertices):
             body = o
-assert body is not None, "aisha body mesh not found after gltf import"
+assert body is not None, f"body mesh containing {args.body_object!r} not found after gltf import"
 body.name = "AISHA_BODY_LOW"
 mesh = body.data
 print(f"LOW body: {body.name} verts={len(mesh.vertices)} faces={len(mesh.polygons)} "
@@ -79,7 +90,9 @@ for o in bpy.context.scene.objects:
     if o.type != "MESH":
         continue
     hay = (o.name + " " + (o.data.name if o.data else "")).lower()
-    if "globe" in hay and "cornea" not in hay:
+    # Realism-eye actors name the globe "globe"; shipped MPFB actors carry the
+    # merged MakeClothes "eyes_low_poly" mesh (both eyes, split by x below).
+    if ("globe" in hay or "eyes_low_poly" in hay) and "cornea" not in hay:
         vs = np.empty(len(o.data.vertices) * 3)
         o.data.vertices.foreach_get("co", vs)
         vs = vs.reshape(-1, 3)
@@ -154,7 +167,19 @@ if high.data.shape_keys:
 # similarity (s, R) solved by Umeyama over head-vert pairs. No procedural
 # wrinkle field: if the similarity check fails the wrinkle map is NOT baked
 # and the blocker is recorded instead.
-MH_DATA = "/private/tmp/mh-skins-ls/mh1/makehuman/data"
+# hm08 base mesh + targets. MPFB ships the same MakeHuman 1.x data (targets
+# gzipped); the old /private/tmp MakeHuman checkout does not survive a reboot.
+MH_DATA = os.environ.get("OPENCLINXR_MH_DATA") or os.path.expanduser(
+    "~/Library/Application Support/Blender/"
+    f"{bpy.app.version[0]}.{bpy.app.version[1]}/extensions/user_default/mpfb/data")
+
+
+def open_mh(path):
+    import gzip
+    if os.path.exists(path):
+        return open(path)
+    return gzip.open(path + ".gz", "rt")
+
 AGE_TARGETS = [
     MH_DATA + "/targets/head/head-age-incr.target",
     MH_DATA + "/targets/eyes/l-eye-bag-incr.target",
@@ -190,7 +215,7 @@ def parse_base_obj(path):
 
 def parse_mh_target(path):
     d = {}
-    for line in open(path):
+    for line in open_mh(path):
         if line.startswith("#") or not line.strip():
             continue
         s = line.split()
@@ -332,8 +357,10 @@ print(f"skin slot: {skin_slot[1].name}")
 # ------------------------------------------------- 1. wrinkle normal 2048 ----
 # Skipped entirely when the age-target transfer is blocked (D2: no
 # procedural fallback is shipped).
-wrinkle_path = os.path.join(args.out, "aisha-wrinkle-normal-2048.png")
-if not WRINKLE_BLOCKED:
+wrinkle_path = os.path.join(args.out, f"{args.stem}-wrinkle-normal-2048.png")
+if "wrinkle" not in requested_maps:
+    print("wrinkle map skipped by --maps")
+elif not WRINKLE_BLOCKED:
     wrinkle_img = new_bake_image("AISHA_WRINKLE_NORMAL", 2048, 2048)
     ensure_image_node(skin_slot[1], wrinkle_img)
     bpy.ops.object.select_all(action="DESELECT")
@@ -393,7 +420,7 @@ body.select_set(True)
 bpy.context.view_layer.objects.active = body
 scene.render.bake.use_selected_to_active = False
 bpy.ops.object.bake(type="EMIT", use_clear=True, margin=8)
-curv_path = os.path.join(args.out, "aisha-curvature-1024.png")
+curv_path = os.path.join(args.out, f"{args.stem}-curvature-1024.png")
 curv_img.filepath_raw = curv_path
 curv_img.file_format = "PNG"
 curv_img.save()
@@ -423,7 +450,7 @@ for i in range(len(orig_mats)):
     body.data.materials[i] = cav_mat
 ensure_image_node(cav_mat, cav_img)  # material irrelevant for AO bake
 bpy.ops.object.bake(type="EMIT", use_clear=True, margin=8)
-cav_path = os.path.join(args.out, "aisha-cavity-1024.png")
+cav_path = os.path.join(args.out, f"{args.stem}-cavity-1024.png")
 cav_img.filepath_raw = cav_path
 cav_img.file_format = "PNG"
 cav_img.save()
@@ -482,12 +509,19 @@ pore_img = new_bake_image("PORE_TILE_NORMAL", 512, 512)
 ensure_image_node(pm, pore_img)
 bpy.context.view_layer.objects.active = plane
 scene.render.bake.use_selected_to_active = False
-bpy.ops.object.bake(type="NORMAL", normal_space="TANGENT", use_clear=True, margin=0)
-pore_path = os.path.join(args.out, "pore-tile-normal-512.png")
+if "pore" in requested_maps:
+    bpy.ops.object.bake(type="NORMAL", normal_space="TANGENT", use_clear=True, margin=0)
+pore_path = os.path.join(
+    args.out,
+    "pore-tile-normal-512.png" if args.stem == "aisha" else f"{args.stem}-pore-tile-normal-512.png",
+)
 pore_img.filepath_raw = pore_path
 pore_img.file_format = "PNG"
-pore_img.save()
-print(f"wrote {pore_path}")
+if "pore" in requested_maps:
+    pore_img.save()
+    print(f"wrote {pore_path}")
+else:
+    print("pore map skipped by --maps")
 
 # ------------------------------------------------- summary -------------------
 def sha(p):
@@ -501,11 +535,12 @@ summary = {
                  "faces": len(mesh.polygons), "mesh_sha": mesh_sha},
     "wrinkle_blocked": WRINKLE_BLOCKED,
     "maps": [
-        *([] if WRINKLE_BLOCKED else
+        *([] if WRINKLE_BLOCKED or "wrinkle" not in requested_maps else
           [{"file": os.path.basename(wrinkle_path), "sha256": sha(wrinkle_path)}]),
         {"file": os.path.basename(curv_path), "sha256": sha(curv_path)},
         {"file": os.path.basename(cav_path), "sha256": sha(cav_path)},
-        {"file": os.path.basename(pore_path), "sha256": sha(pore_path)},
+        *([] if "pore" not in requested_maps else
+          [{"file": os.path.basename(pore_path), "sha256": sha(pore_path)}]),
     ],
 }
 print("BAKE_SUMMARY " + json.dumps(summary))

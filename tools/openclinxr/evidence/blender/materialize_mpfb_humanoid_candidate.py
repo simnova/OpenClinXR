@@ -3966,9 +3966,8 @@ SKIN_SHADE_COMBINED_SHA256 = (
 # regenerated the tile (periodic method) + repacked + updated the station
 # manifest/provenance, but never updated this pin — the embedded bytes and
 # the manifest output agree on 0d7f18ff, so the pin follows them.
-SKIN_SHADE_DETAIL_NORMAL_SRC = str(
-    REPO_ROOT
-    / ".openclinxr/openclaw/ceo/st-vitbody2/tile/reference-face-tile.png"
+SKIN_SHADE_DETAIL_NORMAL_SRC = (
+    "/Volumes/files/openclinxr-assets/store/skin-detail/reference-face-tile-0d7f18ff.png"
 )
 SKIN_SHADE_DETAIL_NORMAL_SHA256 = (
     "0d7f18ff1c6d8129b1f919e9ee0832fcf15e2d7b2a77df803e67c449d99faa5d"
@@ -3987,6 +3986,34 @@ SKIN_SHADE_BODY_DETAIL_NORMAL_SCALE = (128, 128)
 # (strength-independent wash-rig grain), s100 passes both (+0.003/+0.042).
 # Shipped body detail strength 1.0.
 SKIN_SHADE_BODY_DETAIL_NORMAL_STRENGTH = 1.0
+SKIN_SHADE_ACTORS_SRC = (
+    REPO_ROOT / "tools/openclinxr/asset-pipeline/skin/maps/skin-shade-actors.json"
+)
+
+
+def _skin_shade_actor_table():
+    """Load the tracked per-reference carrier inputs from the repo-relative table."""
+    with open(SKIN_SHADE_ACTORS_SRC, encoding="utf-8") as _f:
+        _rows = json.load(_f)
+    if not isinstance(_rows, dict):
+        raise RuntimeError(f"SKINSHADE: actor table is not an object: {SKIN_SHADE_ACTORS_SRC}")
+    return _rows
+
+
+def _skin_shade_actor_row(reference):
+    _rows = _skin_shade_actor_table()
+    if reference not in _rows:
+        raise RuntimeError(f"SKINSHADE: no actor row for reference {reference!r}")
+    _row = _rows[reference]
+    _required = {
+        "skinMaterialName", "bodyMeshName", "curvatureSrc", "curvatureSha256",
+        "cavitySrc", "cavitySha256", "faceDetailNormalStrength",
+        "bodyDetailNormalStrength",
+    }
+    _missing = sorted(_required - set(_row))
+    if _missing:
+        raise RuntimeError(f"SKINSHADE: actor row {reference!r} missing {_missing}")
+    return _row
 # B-mask: texels whose triangle is dominated by a non-head joint read 255
 # (body tile), head-dominated texels read 0 (face tile). Rasterized from the
 # GLB's own skin primitive at 1024^2, dilated 4 px across UV seams.
@@ -4018,7 +4045,7 @@ SKIN_SHADE_BODY_JOINTS = frozenset(
 SKIN_SHADE_BODY_JOINT_PREFIXES = ("finger", "metacarpal")
 
 
-def _skin_shade_body_mask(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
+def _skin_shade_body_mask(path, material_name, body_mesh_name):
     """Rasterize the B body-mask from the GLB's own skin primitive.
 
     Per triangle, the dominant joint (max weight-sum) decides: dominated by a
@@ -4037,10 +4064,30 @@ def _skin_shade_body_mask(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
     _jl = struct.unpack("<I", _data[12:16])[0]
     _gltf = json.loads(_data[20:20 + _jl])
     _blob = _data[20 + _jl + 8:]
-    _mesh = [m for m in _gltf.get("meshes", []) if m.get("name") == "mpfb_ob_patient_aisha_v1_body"]
+    _mesh = [m for m in _gltf.get("meshes", []) if m.get("name") == body_mesh_name]
     if len(_mesh) != 1:
-        raise RuntimeError(f"SKINSHADE: want exactly 1 body mesh, found {len(_mesh)} in {path}")
-    _prim = _mesh[0]["primitives"][0]
+        raise RuntimeError(
+            f"SKINSHADE: want exactly 1 body mesh {body_mesh_name}, found {len(_mesh)} in {path}"
+        )
+    _material_ids = {
+        _i for _i, _m in enumerate(_gltf.get("materials", []))
+        if _m.get("name") == material_name
+    }
+    _prims = [
+        _p for _p in _mesh[0].get("primitives", [])
+        if _p.get("material") in _material_ids
+    ]
+    if not _prims:
+        raise RuntimeError(
+            f"SKINSHADE: no skin primitive for {material_name} in {path}"
+        )
+    # A post-optimization material split may leave a small second primitive
+    # (street actor: 159 vs 10,910 vertices). The largest skin primitive is
+    # the anatomical body surface that carries the armature weights/UV mask.
+    _prim = max(
+        _prims,
+        key=lambda _p: _gltf["accessors"][_p["attributes"]["POSITION"]]["count"],
+    )
 
     def _read(_ai):
         # Accessor-based stride-aware read (same convention as the S1 probe:
@@ -4098,8 +4145,8 @@ def _skin_shade_body_mask(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
     return _PILImage2.fromarray(_mask, mode="L")
 
 
-def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
-    """Embed Aisha's curvature/cavity/body-mask + tiled detail normals and declare the extension.
+def patch_glb_skin_shade(path, reference):
+    """Embed an actor row's curvature/cavity/body-mask + detail normals.
 
     Reads the two store maps (sha-pinned) plus the GLB-derived B body-mask,
     merges R=curvature G=cavity B=body-mask deterministically, appends the PNG
@@ -4119,20 +4166,31 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
     import hashlib as _hashlib
     from PIL import Image as _PILImage
 
+    _row = _skin_shade_actor_row(reference)
+    material_name = _row["skinMaterialName"]
+    _curvature_src = _row["curvatureSrc"]
+    _curvature_sha256 = _row["curvatureSha256"]
+    _cavity_src = _row["cavitySrc"]
+    _cavity_sha256 = _row["cavitySha256"]
+
     for src, want in (
-        (SKIN_SHADE_CURVATURE_SRC, SKIN_SHADE_CURVATURE_SHA256),
-        (SKIN_SHADE_CAVITY_SRC, SKIN_SHADE_CAVITY_SHA256),
+        (_curvature_src, _curvature_sha256),
+        (_cavity_src, _cavity_sha256),
         (SKIN_SHADE_DETAIL_NORMAL_SRC, SKIN_SHADE_DETAIL_NORMAL_SHA256),
         (SKIN_SHADE_BODY_DETAIL_NORMAL_SRC, SKIN_SHADE_BODY_DETAIL_NORMAL_SHA256),
     ):
+        if want == "PENDING_BAKE":
+            raise RuntimeError(
+                f"SKINSHADE: actor row {reference!r} input {src} is PENDING_BAKE — refusing"
+            )
         with open(src, "rb") as f:
             got = _hashlib.sha256(f.read()).hexdigest()
         if got != want:
             raise RuntimeError(
                 f"SKINSHADE: input {src} sha {got} != pinned {want} — refusing"
             )
-    curv = _PILImage.open(SKIN_SHADE_CURVATURE_SRC).convert("L")
-    cav = _PILImage.open(SKIN_SHADE_CAVITY_SRC).convert("L")
+    curv = _PILImage.open(_curvature_src).convert("L")
+    cav = _PILImage.open(_cavity_src).convert("L")
     if curv.size != (1024, 1024) or cav.size != (1024, 1024):
         raise RuntimeError(
             f"SKINSHADE: map sizes {curv.size} {cav.size}, want 1024x1024 — refusing"
@@ -4140,7 +4198,9 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
     import io as _io
 
     buf = _io.BytesIO()
-    _PILImage.merge("RGB", (curv, cav, _skin_shade_body_mask(path, material_name))).save(buf, format="PNG")
+    _PILImage.merge(
+        "RGB", (curv, cav, _skin_shade_body_mask(path, material_name, _row["bodyMeshName"]))
+    ).save(buf, format="PNG")
     png_bytes = buf.getvalue()
     with open(SKIN_SHADE_DETAIL_NORMAL_SRC, "rb") as f:
         detail_png_bytes = f.read()
@@ -4195,7 +4255,11 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
         # indices, so only the skin material's extension is touched. The
         # embedded face bytes must equal the pinned input (verified
         # identical, never regenerated).
-        _strip_names = ("aisha-curv-cav-1024", "vitruvian-pore-detail-normal-256", "vitruvian-body-pore-detail-normal-256")
+        _strip_names = (
+            f"{reference.removeprefix('ob_patient_')}-curv-cav-1024",
+            "vitruvian-pore-detail-normal-256",
+            "vitruvian-body-pore-detail-normal-256",
+        )
         _n_img = len(gltf.get("images", []))
         _n_tex = len(gltf.get("textures", []))
         _n_bv = len(gltf.get("bufferViews", []))
@@ -4238,7 +4302,7 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
             {
                 "bufferView": len(gltf["bufferViews"]) - 1,
                 "mimeType": "image/png",
-                "name": "aisha-curv-cav-1024",
+                "name": f"{reference.removeprefix('ob_patient_')}-curv-cav-1024",
             }
         )
         gltf.setdefault("textures", []).append({"source": len(gltf["images"]) - 1})
@@ -4268,7 +4332,7 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
             }
         },
     }
-    existing["detailNormalStrength"] = SKIN_SHADE_DETAIL_NORMAL_STRENGTH
+    existing["detailNormalStrength"] = _row["faceDetailNormalStrength"]
     existing["bodyDetailNormalTexture"] = {
         "index": detail_texture_index,
         "extensions": {
@@ -4277,7 +4341,7 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
             }
         },
     }
-    existing["bodyDetailNormalStrength"] = SKIN_SHADE_BODY_DETAIL_NORMAL_STRENGTH
+    existing["bodyDetailNormalStrength"] = _row["bodyDetailNormalStrength"]
     if SKIN_SHADE_EXTENSION_NAME not in gltf.get("extensionsUsed", []):
         gltf.setdefault("extensionsUsed", []).append(SKIN_SHADE_EXTENSION_NAME)
     if "KHR_texture_transform" not in gltf.get("extensionsUsed", []):
@@ -4298,9 +4362,9 @@ def patch_glb_skin_shade(path, material_name=SKIN_SHADE_SKIN_MATERIAL):
     print(
         f"GLB_SKINSHADE {path} material {material_name} "
         f"detailTexture {detail_texture_index} detail {_hashlib.sha256(detail_png_bytes).hexdigest()} "
-        f"scale {SKIN_SHADE_DETAIL_NORMAL_SCALE} strength {SKIN_SHADE_DETAIL_NORMAL_STRENGTH} "
+        f"scale {SKIN_SHADE_DETAIL_NORMAL_SCALE} strength {_row['faceDetailNormalStrength']} "
         f"bodyTexture {detail_texture_index} body {_hashlib.sha256(body_png_bytes).hexdigest()} "
-        f"bodyScale {SKIN_SHADE_BODY_DETAIL_NORMAL_SCALE} bodyStrength {SKIN_SHADE_BODY_DETAIL_NORMAL_STRENGTH}"
+        f"bodyScale {SKIN_SHADE_BODY_DETAIL_NORMAL_SCALE} bodyStrength {_row['bodyDetailNormalStrength']}"
     )
 
 
@@ -9996,10 +10060,10 @@ def main():
     # Runs after every GLB rewrite above (teeth retreat, eyeshell unlit,
     # shell rebind, cornea split) so no later stage drops the extension;
     # the seated-rest bind below writes a separate candidate file, never
-    # this actor. Gated to the OB patient: the only actor whose landmark UVs
-    # the hook carries (skin-shade.ts SKIN_*_UV are Aisha-derived).
-    if args.reference == "ob_patient_aisha":
-        patch_glb_skin_shade(str(output))
+    # this actor. The tracked actor table is the producer allowlist; S0 proved
+    # its rows share Aisha's MakeHuman UV identity for the SKIN_*_UV constants.
+    if args.reference in _skin_shade_actor_table():
+        patch_glb_skin_shade(str(output), args.reference)
 
     # #328 census: report the final exported body the same way the planted contract
     # measures it (largest non-garment/non-hidden primitive), plus the macro dict and
