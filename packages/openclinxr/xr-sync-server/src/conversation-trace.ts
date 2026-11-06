@@ -436,6 +436,17 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
     }
     return out;
   });
+  // C30: a recorded retry must equal the actor's run of consecutive speech_low_confidence results before it (saturating at 99);
+  // a trace without retry (pre-C30) is accepted as it stands.
+  const lowStreak = new Map<string, number>();
+  for (const event of events) {
+    if (event.kind !== "utterance-end") continue;
+    const streak = lowStreak.get(event.actorId) ?? 0;
+    if (event.retry !== undefined && event.retry !== Math.min(streak, 99)) {
+      throw new Error("replay-bad-trace: retry does not match the preceding low-confidence results of that actor");
+    }
+    lowStreak.set(event.actorId, event.tag === SPEECH_LOW_CONFIDENCE_TAG ? Math.min(streak + 1, 99) : 0);
+  }
   const cast = readCastContext(trace.cast, "trace");
   const scenarioId = typeof trace.scenarioId === "string" ? trace.scenarioId : (cast?.scenarioId ?? "");
   const { turns, emotions } = reduceConversationEvents(events, cast);

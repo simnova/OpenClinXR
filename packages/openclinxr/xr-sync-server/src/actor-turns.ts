@@ -258,7 +258,7 @@ export function applyUtteranceIntent(
   const priorLow = actor.retries;
   bindings.tracer.push({ seq, kind: "utterance-end", actorId, turnId, ...(resolvedTag === undefined ? {} : { tag: resolvedTag }), ...(matchKind === undefined ? {} : { match: matchKind }), modality: modality === "speech" ? "speech" : "typed", ...(modality === "speech" ? { confidence: Math.round((confidence as number) * 100) / 100 } : {}), ...(priorLow > 0 ? { retry: Math.min(priorLow, 99) } : {}) });
   actor.intake = resolvedTag ?? "";
-  actor.retries = resolvedTag === SPEECH_LOW_CONFIDENCE_TAG ? priorLow + 1 : 0;
+  actor.retries = resolvedTag === SPEECH_LOW_CONFIDENCE_TAG ? Math.min(priorLow + 1, 99) : 0;
   bindings.setTurnOwner("actor");
   const record: TurnRecord = { turnId, actorId, replyId, startSeq: seq, end: "open", endSeq: null };
   bindings.turnLog.push(record);

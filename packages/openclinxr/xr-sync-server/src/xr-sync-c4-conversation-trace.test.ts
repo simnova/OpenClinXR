@@ -266,4 +266,18 @@ describe("C30 retry count in the trace", () => {
     }
     expect(() => replayConversationTrace(twoTurns(1, "utterance-start") as never)).toThrow(/replay-bad-trace/);
   });
+  it("refuses a retry that does not match the actor's preceding low-confidence run, saturates at 99, accepts a legacy trace without retry", () => {
+    const low = (seq: number, retry?: number) => evt(seq, "utterance-end", { turnId: seq, tag: "speech_low_confidence", match: "fallback", modality: "speech", confidence: 0.2, ...(retry === undefined ? {} : { retry }) });
+    const typed = (seq: number, retry?: number) => evt(seq, "utterance-end", { turnId: seq, tag: "history_opqrst", match: "exact", modality: "typed", ...(retry === undefined ? {} : { retry }) });
+    const make = (events: unknown[]) => ({ schema: CONVERSATION_TRACE_SCHEMA, stationId: "", events }) as never;
+    expect(() => replayConversationTrace(make([low(1, 99)])), "retry on the first utterance").toThrow(/replay-bad-trace/);
+    expect(() => replayConversationTrace(make([typed(1, 1)])), "retry on a typed first utterance").toThrow(/replay-bad-trace/);
+    expect(() => replayConversationTrace(make([low(1), low(2, 2)])), "retry 2 after one low result").toThrow(/replay-bad-trace/);
+    expect(() => replayConversationTrace(make([low(1), low(2, 1), typed(3, 3)])), "retry 3 after two low results").toThrow(/replay-bad-trace/);
+    expect(() => replayConversationTrace(make([low(1), low(2, 1), typed(3, 2), typed(4, 1)])), "the run ended at the typed answer").toThrow(/replay-bad-trace/);
+    expect(replayConversationTrace(make([low(1), low(2, 1), typed(3, 2), typed(4)])).events).toHaveLength(4);
+    expect(replayConversationTrace(make([low(1), low(2), typed(3)])).events, "legacy trace without retry").toHaveLength(3);
+    const saturated = [low(1), ...Array.from({ length: 99 }, (_, i) => low(i + 2, Math.min(i + 1, 99))), low(101, 99), typed(102, 99)];
+    expect(replayConversationTrace(make(saturated)).events).toHaveLength(102);
+  });
 });
