@@ -77,6 +77,10 @@ export function resolveActorVoice(requested?: string): { requested: string; used
 }
 
 const CUE_GAP_SECONDS = 0.0005;
+/** A cue's duration for a span: the span less the gap, and never below half the span (a one-sample tail stays positive). */
+function cueDuration(spanSeconds: number): number {
+  return Math.max(spanSeconds - CUE_GAP_SECONDS, spanSeconds / 2);
+}
 const WALL_FALLBACK_MS = 1500;
 const PLAYBACK_GRACE_MS = 1000;
 
@@ -109,10 +113,10 @@ export function createEnvelopeCueBuilder(sampleRate: number): {
     const previous = cues.at(-1);
     const end = run.startSample + run.sampleCount;
     if (previous !== undefined && previous.phoneme === run.phoneme) {
-      previous.durationSeconds = (end - Math.round(previous.atSecond * sampleRate)) / sampleRate - CUE_GAP_SECONDS;
+      previous.durationSeconds = cueDuration((end - Math.round(previous.atSecond * sampleRate)) / sampleRate);
       return;
     }
-    cues.push({ phoneme: run.phoneme, atSecond: run.startSample / sampleRate, durationSeconds: run.sampleCount / sampleRate - CUE_GAP_SECONDS });
+    cues.push({ phoneme: run.phoneme, atSecond: run.startSample / sampleRate, durationSeconds: cueDuration(run.sampleCount / sampleRate) });
   };
 
   const holdClosed = (run: CueRun): void => {

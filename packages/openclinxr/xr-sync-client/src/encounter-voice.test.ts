@@ -42,6 +42,7 @@ describe("the shell speaks the server's actor turn (C30)", () => {
     expect(voice.records[0]).toMatchObject({ actorId: "p", turnKey: "1:p", voiceRequested: "miles", voiceUsed: "heart", voiceFallback: true, chars: 15, error: "" });
     expect(typeof voice.unlock).toBe("function");
     expect(JSON.stringify(voice.records)).not.toContain("heavy");
+    expect(Object.keys(voice.records[0] as object).every((key) => ["actorId", "audioClock", "audioSeconds", "chars", "chunks", "computeMs", "cueCount", "error", "firstAudioMs", "firstChunkMs", "nonSilentCues", "peak", "played", "rtf", "turnKey", "underruns", "voiceFallback", "voiceRequested", "voiceUsed", "xRealtime"].includes(key))).toBe(true);
   });
   it("an actor with no authored voice gets Heart with no fallback; a turn with no caption is recorded by play() only and never synthesized", async () => {
     const r = await rig();

@@ -105,7 +105,11 @@ export function createBrowserVoiceParts(opts: { assetBase: string }): { engine: 
       }
     };
     const espeakUrl = new URL(`${opts.assetBase}espeak-refused.mjs`, runtime.location?.href ?? "http://localhost/").href;
-    worker.postMessage({ op: "load", model: "v2f_lite", lexicon: "full", espeakUrl });
+    try {
+      created.postMessage({ op: "load", model: "v2f_lite", lexicon: "full", espeakUrl });
+    } catch (error) {
+      failLoad(error instanceof Error ? error.message : String(error));
+    }
     return loaded;
   };
 

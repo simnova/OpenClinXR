@@ -36,6 +36,7 @@ const blueprint = {
   requiredSafetyCriticalTraceTags: [],
 };
 const stripName = (caption) => caption.replace(/^[^:]{1,60}:\s+/u, "").trim();
+const RECORD_KEYS = ["actorId", "audioClock", "audioSeconds", "chars", "chunks", "computeMs", "cueCount", "error", "firstAudioMs", "firstChunkMs", "nonSilentCues", "peak", "played", "rtf", "turnKey", "underruns", "voiceFallback", "voiceRequested", "voiceUsed", "xRealtime"];
 const median = (values) => { const s = [...values].sort((a, b) => a - b); return s.length === 0 ? null : s[Math.floor(s.length / 2)]; };
 
 async function main(argv) {
@@ -156,16 +157,16 @@ async function main(argv) {
     const records = final?.records ?? [];
     check("S1 shell joined the room and published voice evidence without an error", final?.state === "joined" && final.records !== null && final.voiceError === "", JSON.stringify({ state: final?.state, error: final?.error, voiceError: final?.voiceError }));
     check("S2 seven server turns reached the shell and seven voice records exist, in turn order", final?.turns === 7 && records.length === 7 && records.every((r, i) => r.turnKey.endsWith(`:${i < 5 ? patient.actorId : nurse.actorId}`)), JSON.stringify({ turns: final?.turns, records: records.map((r) => r.turnKey) }));
-    check("S3 spoken text is the server caption without the name prefix: each record's char count equals the expected authored line (opening, onset answer, fallback x2, onset answer, nurse opening empty, nurse escalation line); the records hold counts only", JSON.stringify(records.map((r) => r.chars)) === JSON.stringify(expectedChars) && records.every((r) => !("text" in r)), JSON.stringify({ got: records.map((r) => r.chars), expected: expectedChars }));
+    check("S3 spoken text is the server caption without the name prefix: each record's char count equals the expected authored line (opening, onset answer, fallback x2, onset answer, nurse opening empty, nurse escalation line); the records carry exactly the whitelisted keys, counts and timings only", JSON.stringify(records.map((r) => r.chars)) === JSON.stringify(expectedChars) && records.every((r) => Object.keys(r).every((key) => RECORD_KEYS.includes(key))), JSON.stringify({ got: records.map((r) => r.chars), expected: expectedChars }));
     const spoken = records.filter((r) => r.chars > 0);
     check("S4a every spoken turn synthesized in the Worker without error: chunks, positive audio length, first chunk received", spoken.length === 6 && spoken.every((r) => r.error === "" && typeof r.firstChunkMs === "number" && r.audioSeconds > 0.3 && r.chunks > 0), JSON.stringify(spoken.map((r) => ({ k: r.turnKey, e: r.error.slice(0, 80), c: r.firstChunkMs, a: r.audioSeconds }))));
     const audioStarted = spoken.filter((r) => typeof r.firstAudioMs === "number" && r.played > 0.9 * r.audioSeconds * 24000 && r.underruns === 0).length;
     const onAudioClock = spoken.filter((r) => r.audioClock === "audio").length;
     run.audioOutput = { startedAndPlayed: audioStarted, onAudioClock, spokenTurns: spoken.length, clocks: spoken.map((r) => r.audioClock), unlock: probe.unlock };
-    check("S4b the audio output started and played every spoken turn to its end with no underrun; on the headset the audio clock (not the wall-clock mouth fallback) drove all six turns, on the host (software rendering delays the output-started message) the clocks are recorded", audioStarted === 6 && (options.mode === "host" || onAudioClock === 6), JSON.stringify(run.audioOutput));
+    check("S4b the audio worklet reported started and finished on every spoken turn with at least 90% of the samples played and no underrun; on the headset no turn used the wall-clock mouth fallback (the fallback engages only when the output-started message does not arrive), on the host (software rendering delays that message) the clocks are recorded", audioStarted === 6 && (options.mode === "host" || onAudioClock === 6), JSON.stringify(run.audioOutput));
     check("S5 the empty-text turn (nurse opening) made no synthesis call", records[5]?.chars === 0 && records[5]?.chunks === 0 && records[5]?.firstAudioMs === null, JSON.stringify(records[5]));
     check("S6 voice per actor comes from scenario data: patient authored miles -> Heart with voiceFallback true; nurse authors none -> Heart, no fallback", records.slice(0, 5).every((r) => r.voiceRequested === "miles" && r.voiceUsed === "heart" && r.voiceFallback === true) && records.slice(5).every((r) => r.voiceRequested === "heart" && r.voiceUsed === "heart" && r.voiceFallback === false), JSON.stringify(records.map((r) => [r.voiceRequested, r.voiceUsed, r.voiceFallback])));
-    check("S7 audio was produced and pushed into the player: the peak of the pushed samples is above 0.02 on every spoken turn (the player and the AudioContext clock ran; a person listening is not part of this check)", spoken.every((r) => r.peak > 0.02), JSON.stringify(spoken.map((r) => r.peak)));
+    check("S7 the synthesized audio is not silent: the peak of the samples pushed to the player is above 0.02 on every spoken turn (that the player ran is S4b; a person listening is not part of this check)", spoken.every((r) => r.peak > 0.02), JSON.stringify(spoken.map((r) => r.peak)));
     const series = probe.series ?? [];
     const tail = series.slice(-6);
     const rangeOf = (rows, col) => { const v = rows.map((r) => r[col]); return v.length === 0 ? 1 : Math.max(...v) - Math.min(...v); };
@@ -183,7 +184,7 @@ async function main(argv) {
     check("S9 the cues come from the audio: every spoken turn has at least 3 cues and 2 non-silent cues", spoken.every((r) => r.cueCount >= 3 && r.nonSilentCues >= 2), JSON.stringify(spoken.map((r) => [r.cueCount, r.nonSilentCues])));
     const afterPrompts = probe.afterTurn.map((s) => s.prompt);
     check("S10 please-repeat prompt: empty on turns 1-2, 'Please repeat that.' after the first low-confidence speech, '(attempt 2)' after the second, cleared by the good speech", JSON.stringify(afterPrompts.slice(0, 5)) === JSON.stringify(["", "", "Please repeat that.", "Please repeat that. (attempt 2)", ""]), JSON.stringify(afterPrompts));
-    check("S11 shell evidence counts the prompts (turn ids and retry counts) and holds no text", JSON.stringify(final?.repeatPrompts?.map((p) => [p.actorId, p.retries])) === JSON.stringify([[patient.actorId, 1], [patient.actorId, 2]]), JSON.stringify(final?.repeatPrompts));
+    check("S11 shell evidence counts the prompts: the entries are exactly actorId, turnId and retries", JSON.stringify(final?.repeatPrompts?.map((p) => [p.actorId, p.retries])) === JSON.stringify([[patient.actorId, 1], [patient.actorId, 2]]) && final.repeatPrompts.every((p) => Object.keys(p).sort().join() === "actorId,retries,turnId"), JSON.stringify(final?.repeatPrompts));
     const latencies = spoken.map((r) => r.firstAudioMs);
     const warm = spoken.slice(1);
     const xr = spoken.map((r) => r.xRealtime);

@@ -77,6 +77,17 @@ describe("envelope cue builder", () => {
     expect(streamed.cues).toEqual(whole.cues);
     expect(admissible(streamed.cues)).toBe(true);
   });
+  it("every stream length from 1 sample to 2000 yields strictly admissible cues (a partial last frame included)", () => {
+    for (let n = 1; n <= 2000; n += 7) {
+      const wave = Float32Array.from({ length: n }, (_, i) => (i % 60 < 30 ? 0.3 : 0.001) * Math.sin(i / 3));
+      const b = build(wave);
+      expect(admissible(b.cues), `length ${n}`).toBe(true);
+      expect(b.cues.length, `length ${n}`).toBeGreaterThan(0);
+    }
+    const tail = build(concat(tone(200, 0.3, 0.4), new Float32Array(1)));
+    expect(admissible(tail.cues)).toBe(true);
+    expect(build(new Float32Array(961)).cues.every((c) => c.durationSeconds > 0)).toBe(true);
+  });
   it("no cue is shorter than 40 ms except the last, and seconds counts the audio pushed", () => {
     const b = build(concat(tone(200, 0.03, 0.4), silence(0.03), tone(200, 0.3, 0.4), noise(0.02, 0.3), silence(0.2)));
     for (const c of b.cues.slice(0, -1)) expect(c.durationSeconds).toBeGreaterThanOrEqual(0.04 - 0.001);
@@ -143,6 +154,7 @@ describe("actor voice turn", () => {
     expect(slot.mediaPositionSeconds).toBeUndefined();
     expect(slot.activeSpeech).toBeUndefined();
     expect(record).toMatchObject({ played: 12000, underruns: 0 });
+    expect(Object.keys(record).sort()).toEqual(["actorId", "audioClock", "audioSeconds", "chars", "chunks", "computeMs", "cueCount", "error", "firstAudioMs", "firstChunkMs", "nonSilentCues", "peak", "played", "rtf", "turnKey", "underruns", "voiceFallback", "voiceRequested", "voiceUsed", "xRealtime"]);
     expect(voice.records).toEqual([record]);
   });
   it("the cue builder reads each chunk before the sink takes it (the sink may detach the buffer)", async () => {
