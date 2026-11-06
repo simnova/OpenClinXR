@@ -21,14 +21,14 @@
  */
 
 import type { Client } from "@colyseus/core";
-import { ArraySchema, MapSchema } from "@colyseus/schema";
+import { MapSchema } from "@colyseus/schema";
 import type { ConversationTraceEvent } from "./conversation-trace.js";
 import { replayBaselineForCast } from "./conversation-trace-cast.js";
 import {
   type FacultyScoreBinding,
   handleReplayReviewIntent,
 } from "./faculty-score.js";
-import { replayRubricCoverageCounts, replayScoreChecked } from "./replay-rubric-coverage.js";
+import { replayScoreChecked } from "./replay-rubric-coverage.js";
 import {
   isReviewLobbyRequest,
   setupLobbyState,
@@ -42,9 +42,11 @@ import {
   rejectReplayGuardedIntent,
 } from "./review-packet.js";
 import { ENCOUNTER_ROOM_NAME, EncounterRoom } from "./room.js";
-import { ActorState, type ActorStateInstance, EncounterState, LearnerState, type LearnerStateInstance, ReplayRubricCoverageState, type ReplayRubricCoverageStateInstance, ReplayRubricState, type ReplayRubricStateInstance } from "./schema.js";
+import { ActorState, type ActorStateInstance, EncounterState, LearnerState, type LearnerStateInstance } from "./schema.js";
+import { setReplayRubricCoverageState, setReplayRubricState } from "./station-replay-rubric-state.js";
 import type { LoadedReplayStation, LoadedStationReplay } from "./station-replay-loading.js";
 import { applyScheduledReplayEvent } from "./station-replay-loading.js";
+import type { ReplayCaptionBank } from "./replay-captions.js";
 
 /** Reject reason every replay-room intent receives (C13 review intents excepted). */
 export { REPLAY_READ_ONLY_REASON } from "./faculty-score.js";
@@ -76,6 +78,8 @@ export interface StationReplayBinding {
   stationFailures: Map<string, string>;
   /** C13 faculty score binding (scoreDir + rubric, server config only). */
   score: FacultyScoreBinding;
+  /** C31 replay caption bank (null when booted without dialogueSeeds: silent). */
+  captions: ReplayCaptionBank | null;
 }
 
 function replayStationIdOf(options: unknown): string {
@@ -96,37 +100,6 @@ function isScoreStationIntent(message: unknown): boolean {
   return message["kind"] === "score-station";
 }
 
-/**
- * Fill replay-room state.replayRubric with the station's scenario checklist
- * (labels reach headset state only, never a persisted file). Null rubric
- * means the station has no scenario rubric: the state carries [].
- */
-function setReplayRubricState(state: { replayRubric: unknown }, rubric: { id: string; label: string }[] | null): void {
-  const rows = new ArraySchema<ReplayRubricStateInstance>();
-  for (const entry of rubric ?? []) {
-    const row = new ReplayRubricState();
-    row.id = entry.id;
-    row.label = entry.label;
-    rows.push(row);
-  }
-  (state as { replayRubric: typeof rows }).replayRubric = rows;
-}
-
-function setReplayRubricCoverageState(
-  state: { replayRubricCoverage: unknown },
-  coverage: Array<{ rubricId: string; observedTags: string[]; missingTags: string[] }> | null,
-  rubric: Array<{ id: string; requiredTraceTags?: string[] }> | null = null,
-): void {
-  const rows = new ArraySchema<ReplayRubricCoverageStateInstance>();
-  for (const entry of replayRubricCoverageCounts(coverage ?? [], rubric ?? undefined)) {
-    const row = new ReplayRubricCoverageState();
-    row.id = entry.id;
-    row.observedCount = entry.observedCount;
-    row.requiredCount = entry.requiredCount;
-    rows.push(row);
-  }
-  (state as { replayRubricCoverage: typeof rows }).replayRubricCoverage = rows;
-}
 
 /**
  * Build the per-server replay room class: one recorded station per room,
@@ -230,6 +203,7 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
         actor.emotion = castBaseline;
         actor.replyId = "";
         actor.cueId = "";
+        actor.caption = "";
         this.state.actors.set(id, actor);
       }
       this.state.learners = new MapSchema<LearnerStateInstance>();
@@ -415,6 +389,7 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
             const actor = this.state.actors.get(this.replayOpenTurn.actorId);
             if (actor) {
               actor.speaking = false;
+              actor.caption = "";
             }
             this.state.lastTurnEnd = entry?.end ?? "closed-by-phase";
             this.replayOpenTurn = null;
@@ -432,6 +407,7 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
             this.state.turnId = entry.turnId;
             actor.speaking = true;
             actor.replyId = entry.replyId;
+            actor.caption = binding.captions?.resolve(this.replayStation?.scenarioId ?? "", actorId, entry.replyId, event.match) ?? "";
             actor.cueId = entry.cueId;
             actor.emotion = this.consumeReplayEmotion();
             this.state.turnOwner = "actor";
@@ -445,6 +421,7 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
             const actor = this.state.actors.get(this.replayOpenTurn.actorId);
             if (actor) {
               actor.speaking = false;
+              actor.caption = "";
               actor.emotion = this.consumeReplayEmotion();
             }
             this.state.lastTurnEnd = entry?.end ?? "interrupted";
@@ -459,6 +436,7 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
             const actor = entry && entry.actorId !== "" ? this.state.actors.get(entry.actorId) : undefined;
             if (actor) {
               actor.speaking = false;
+              actor.caption = "";
             }
             this.state.lastTurnEnd = entry?.end ?? "completed";
             if (this.replayOpenTurn?.turnId === event.turnId) {

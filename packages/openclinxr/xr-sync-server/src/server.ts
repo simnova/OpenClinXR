@@ -21,6 +21,7 @@ import { parseStationTiming, type StationTiming } from "./phase-clock.js";
 import { parseStationIds, type StationBinding } from "./station-rotation.js";
 import { parseExamBlueprint } from "./exam-blueprint.js";
 import { parseScenarioCasts, type ScenarioCast } from "./scenario-cast.js";
+import { createReplayCaptionBank, firstUnresolvedReply, type ReplayCaptionBank } from "./replay-captions.js";
 import type { RoomProbeStats } from "./room-types.js";
 import { snapshotState } from "./schema.js";
 import type { ConversationTrace } from "./conversation-trace.js";
@@ -155,8 +156,8 @@ export async function createEncounterServer(
     }
     scenarioCasts = parseScenarioCasts(options.scenarios, stations ?? []);
   }
-  if (options.dialogueSeeds !== undefined) {
-    if (replayDir !== null || scenarioCasts === null) {
+  if (options.dialogueSeeds !== undefined && replayDir === null) {
+    if (scenarioCasts === null) {
       throw new Error("bad-dialogueSeeds: dialogueSeeds require live scenarios");
     }
     scenarioCasts = applyDialogueSeeds(scenarioCasts, options.dialogueSeeds);
@@ -214,7 +215,26 @@ export async function createEncounterServer(
       throw new Error("bad-replay-config: scenarios (per-station rubric bank) cannot be combined with reviewRubric (server-wide rubric)");
     }
     const scenarioRubrics = options.scenarios !== undefined ? parseScenarioRubricBank(options.scenarios) : null;
-    const replayBinding: StationReplayBinding = { replay, loadError, stepMs, replayDir, stationFailures: replay?.failures ?? new Map(), score: scenarioRubrics !== null ? { scoreDir, rubric: null, scenarioRubrics } : { scoreDir, rubric: parseReviewRubric(options.reviewRubric) } };
+    // C31: a replay server with dialogueSeeds recomputes each replayed turn's
+    // caption from the scenarios + seed bank (live-room inputs, never the
+    // trace). A recorded replyId that resolves to nothing refuses its station.
+    let captions: ReplayCaptionBank | null = null;
+    if (options.dialogueSeeds !== undefined) {
+      if (options.scenarios === undefined) {
+        throw new Error("bad-dialogueSeeds: dialogueSeeds on a replay server require scenarios");
+      }
+      captions = createReplayCaptionBank(options.scenarios, options.dialogueSeeds);
+      if (replay !== null) {
+        for (const [stationId, station] of [...replay.stations]) {
+          const bad = firstUnresolvedReply(captions, station);
+          if (bad !== null) {
+            replay.stations.delete(stationId);
+            replay.failures.set(stationId, `replay-unresolved-reply: ${bad.slice(0, 64)}`);
+          }
+        }
+      }
+    }
+    const replayBinding: StationReplayBinding = { replay, loadError, stepMs, replayDir, stationFailures: replay?.failures ?? new Map(), score: scenarioRubrics !== null ? { scoreDir, rubric: null, scenarioRubrics } : { scoreDir, rubric: parseReviewRubric(options.reviewRubric) }, captions };
     server.define(ENCOUNTER_ROOM_NAME, createStationReplayRoomClass(replayBinding));
   } else {
     server.define(ENCOUNTER_ROOM_NAME, ConfiguredEncounterRoom);

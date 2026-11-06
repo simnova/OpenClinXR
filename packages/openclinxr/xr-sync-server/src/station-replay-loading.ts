@@ -150,6 +150,7 @@ interface RawReplayEvent {
   chars?: unknown;
   eventId?: unknown;
   tag?: unknown;
+  match?: unknown;
 }
 
 interface RawReplayTurn {
@@ -271,6 +272,10 @@ export function loadReplayStationTrace(
     }
     if (typeof item.tag === "string") {
       event.tag = item.tag;
+    }
+    // C31: the recorded free-text match kind (never text) lets a replay recompute a fallback caption.
+    if (item.match === "exact" || item.match === "phrase" || item.match === "fallback") {
+      event.match = item.match;
     }
     events.push(event);
   }

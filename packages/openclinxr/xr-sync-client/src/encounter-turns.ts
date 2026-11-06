@@ -29,10 +29,14 @@ export interface SyncedActorTurn {
 const DIALOGUE_EMOTIONS: ReadonlySet<string> = new Set(["anxious", "concerned", "reassured", "neutral"]);
 
 /** Returns the room url when ?encounterSync= holds a ws:// or wss:// url. */
-export function encounterSyncUrl(search: string): { url: string } | null {
-  const value = new URLSearchParams(search).get("encounterSync");
+export function encounterSyncUrl(search: string): { url: string; replayStation?: string } | null {
+  const params = new URLSearchParams(search);
+  const value = params.get("encounterSync");
   if (value === null || !/^wss?:\/\/[^\s/]+/u.test(value)) return null;
-  return { url: value };
+  const station = params.get("encounterReplayStation");
+  if (station === null) return { url: value };
+  if (!/^[A-Za-z0-9._:-]{1,64}$/u.test(station)) return null;
+  return { url: value, replayStation: station };
 }
 
 /** Stateful detector: one turn per (actor, turnId) when the actor is speaking; turnId restarts per station room. */
@@ -190,6 +194,7 @@ export interface EncounterSyncHandle {
 export interface JoinEncounterRoomOptions {
   url: string;
   actorIds: readonly string[];
+  replayStation?: string;
   onTurn(turn: SyncedActorTurn, stationId: string): void;
   connectFn?: (url: string, options?: ConnectOptions) => Promise<SyncConnection>;
 }
@@ -197,7 +202,7 @@ export interface JoinEncounterRoomOptions {
 /** Join the room and forward each detected actor turn to onTurn. */
 export async function joinEncounterRoom(options: JoinEncounterRoomOptions): Promise<EncounterSyncHandle> {
   const connectFn = options.connectFn ?? connect;
-  const connection = await connectFn(options.url, { roomOptions: { actors: [...options.actorIds] } });
+  const connection = await connectFn(options.url, { roomOptions: { actors: [...options.actorIds], ...(options.replayStation === undefined ? {} : { replayStationId: options.replayStation }) } });
   const detect = createActorTurnDetector();
   const turns: SyncedActorTurn[] = [];
   connection.onState((snapshot) => {
@@ -257,6 +262,8 @@ export interface EncounterSyncEvidence {
   sendSpeech?: EncounterSyncHandle["sendSpeech"];
   /** C28: the actor the learner's view names right now (the first thing the typed-text box addresses). */
   gazedActorId?: () => string | undefined;
+  /** C31: the replayed station id when joined from ?encounterReplayStation= (a replay room rejects every intent). */
+  replayStation?: string;
   /** C30 on-device actor-voice evidence and user-gesture audio unlock. */
   voice?: { records: readonly SpokenTurnRecord[]; unlock(): Promise<void>; mouth(actorId: string): number; mouthTargets(actorId: string): Record<string, number>; audioState(): string; error?: string };
   /** C30 low-confidence actor turns that asked the learner to repeat. */
@@ -307,7 +314,9 @@ export interface StartEncounterSyncDeps {
 export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): Promise<EncounterSyncHandle | null> {
   const flag = encounterSyncUrl(deps.search);
   if (flag === null) return null;
+  const isReplayRoom = flag.replayStation !== undefined;
   const evidence: EncounterSyncEvidence = { url: flag.url, state: "joining", sessionId: "", error: "", turns: [] };
+  if (flag.replayStation !== undefined) evidence.replayStation = flag.replayStation;
   let voice: ActorVoice | undefined;
   if (deps.voice !== undefined) {
     try {
@@ -329,7 +338,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
       evidence.voice = { records: [], unlock: async () => undefined, mouth: () => 0, mouthTargets: () => ({}), audioState: () => "none", error: error instanceof Error ? error.message : String(error) };
     }
   }
-  if (deps.utteranceBox !== undefined) evidence.repeatPrompts = [];
+  if (deps.utteranceBox !== undefined && !isReplayRoom) evidence.repeatPrompts = [];
   deps.publish(evidence);
   const gazedNow = (): string | undefined => {
     const view = deps.gazeView?.();
@@ -342,6 +351,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     const handle = await joinEncounterRoom({
       url: flag.url,
       actorIds: deps.actorIds(),
+      ...(flag.replayStation === undefined ? {} : { replayStation: flag.replayStation }),
       ...(deps.connectFn === undefined ? {} : { connectFn: deps.connectFn }),
       onTurn: (turn, stationId) => {
         lastSpokeActorId = turn.actorId;
@@ -371,7 +381,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     evidence.speechUtterances = handle.speechUtterances;
     evidence.sendSpeech = (actorId, text, confidence) => handle.sendSpeech(actorId, text, confidence);
     evidence.gazedActorId = gazedNow;
-    if (deps.utteranceBox !== undefined) {
+    if (deps.utteranceBox !== undefined && !isReplayRoom) {
       repeatPrompt = deps.utteranceBox.doc.createElement("div");
       repeatPrompt.id = "repeat-prompt";
       repeatPrompt.textContent = "";
