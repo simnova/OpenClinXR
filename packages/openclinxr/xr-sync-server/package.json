@@ -23,6 +23,7 @@
     "@colyseus/schema": "5.0.43",
     "@colyseus/ws-transport": "0.18.4",
     "@openclinxr/conversation-policy": "workspace:*",
+    "@openclinxr/scenario-fixtures": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*"
   },
   "devDependencies": {
@@ -31,8 +32,7 @@
     "typescript": "catalog:",
     "vitest": "catalog:",
     "@cellix/config-vitest": "workspace:*",
-    "@cellix/config-typescript": "workspace:*",
-    "@openclinxr/scenario-fixtures": "workspace:*"
+    "@cellix/config-typescript": "workspace:*"
   },
   "files": [
     "dist"

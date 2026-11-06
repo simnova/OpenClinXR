@@ -216,13 +216,14 @@ export async function collectBundleSentry({ appDist, appSrcSyncProbe, extraBanne
   return { hits, chunks: [...chunkFiles].sort() };
 }
 
-export async function runHostProbe({ pageUrl, outDir, drive, launchArgs = [] }) {
+export async function runHostProbe({ pageUrl, outDir, drive, launchArgs = [], initScript }) {
   const { chromium } = await import("playwright");
   const browser = await chromium.launch({ headless: true, args: ["--disable-features=WebXR", ...launchArgs] });
   const pageErrors = [];
   const consoleErrors = [];
   try {
     const context = await browser.newContext({ viewport: { width: 800, height: 600 } });
+    if (initScript) await context.addInitScript(initScript);
     const page = await context.newPage();
     page.on("pageerror", (error) => pageErrors.push(String(error).slice(0, 300)));
     page.on("console", (message) => {
@@ -257,11 +258,11 @@ export async function runHostProbe({ pageUrl, outDir, drive, launchArgs = [] }) 
   }
 }
 
-export async function runQuestProbe({ pageUrl, outDir, serial, drive }) {
+export async function runQuestProbe({ pageUrl, outDir, serial, drive, initScript }) {
   // Remove our reverses even when launch/connect throws before the inner
   // finally is reached (a connect failure leaked tcp:54054/54055 on 2026-10-30).
   try {
-    return await runQuestProbeInner({ pageUrl, outDir, serial, drive });
+    return await runQuestProbeInner({ pageUrl, outDir, serial, drive, initScript });
   } finally {
     const httpPort = new URL(pageUrl).port;
     const syncPort = (new URL(pageUrl).searchParams.get("sync") ?? new URL(pageUrl).searchParams.get("encounterSync"))?.match(/:(\d+)$/)?.[1];
@@ -272,7 +273,7 @@ export async function runQuestProbe({ pageUrl, outDir, serial, drive }) {
   }
 }
 
-async function runQuestProbeInner({ pageUrl, outDir, serial, drive }) {
+async function runQuestProbeInner({ pageUrl, outDir, serial, drive, initScript }) {
   // Quest mode (NOT executed by the C2 author): Oculus Browser via CDP.
   // Owns a single new target only; never touches foreign tabs.
   const { chromium } = await import("playwright");
@@ -332,6 +333,11 @@ async function runQuestProbeInner({ pageUrl, outDir, serial, drive }) {
       }
     });
     await page.waitForLoadState("load", { timeout: 120000 });
+    if (initScript) {
+      // CDP Page.addScriptToEvaluateOnNewDocument, then reload so the override is in place before any app script runs.
+      await page.addInitScript(initScript);
+      await page.reload({ timeout: 120000, waitUntil: "load" });
+    }
     if (drive) {
       const driven = await drive(page);
       await page.close();

@@ -73,7 +73,8 @@ async function bootDev(env: Record<string, string>): Promise<{ port: number; lin
 async function snapshotOf(port: number): Promise<{ learner: SyncConnection; snapshot: EncounterSnapshot }> {
   const learner = await connect(`ws://127.0.0.1:${port}`, { roomOptions: { actors: ["a1", "a2"] } });
   conns.push(learner);
-  const snapshot = await new Promise<EncounterSnapshot>((resolve) => { learner.onState((s) => resolve(s)); });
+  // C35: the dev stack casts a one-slot station, so speech is accepted only once the 1 s doorway phase has ended.
+  const snapshot = await new Promise<EncounterSnapshot>((resolve) => { learner.onState((s) => { if (s.phase === "encounter") resolve(s); }); });
   return { learner, snapshot };
 }
 const pcm = (samples: number): Uint8Array => new Uint8Array(new Int16Array(samples).fill(500).buffer);

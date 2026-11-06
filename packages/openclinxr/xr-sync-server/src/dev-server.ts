@@ -6,9 +6,15 @@
  * line the portless-dev-run harness parses. Never exported from index.ts:
  * the library entrypoint stays the in-process `createEncounterServer` used by
  * tests and the c*-run harnesses.
+ *
+ * Dev stack (C35): XR_SYNC_SCENARIO selects a shipped scenarioId (default
+ * "ed_chest_pain_priority_v1"); XR_SYNC_ENCOUNTER_SECONDS sets the encounter
+ * slot length in seconds (default 900).
  */
 
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveDevStack } from "./dev-stack.js";
 import { createEncounterServer } from "./server.js";
 import { bootSidecarRecognizer } from "./sidecar-recognizer.js";
 
@@ -57,9 +63,23 @@ process.on("SIGINT", () => {
   void shutdown();
 });
 
+const repoRoot = fileURLToPath(new URL("../../../../", import.meta.url));
+
+const { scenarioBank, scenarioDialogueSeedBank } = await import("@openclinxr/scenario-fixtures");
+let stack;
+try {
+  stack = resolveDevStack(process.env, { scenarioBank, scenarioDialogueSeedBank });
+} catch (error) {
+  fail(error instanceof Error ? error.message : String(error));
+}
+console.log(`xr-sync scenario ready id=${stack.scenarioId} actors=${stack.actorCount}`);
+
 const speech = await bootSidecarRecognizer(
   process.env,
-  { script: fileURLToPath(new URL("../../../../tools/openclinxr/evidence/xr-sync/stt/transcribe.py", import.meta.url)) },
+  {
+    script: join(repoRoot, "tools/openclinxr/evidence/xr-sync/stt/transcribe.py"),
+    python: join(repoRoot, ".openclinxr/stt/venv/bin/python"),
+  },
   { onCreated: (close) => { closeSpeech = close; } },
 );
 if (speech.recognizer !== null) {
@@ -69,7 +89,9 @@ if (speech.recognizer !== null) {
 }
 
 server = await createEncounterServer(
-  speech.recognizer !== null ? { port, speechRecognizer: speech.recognizer } : { port },
+  speech.recognizer !== null
+    ? { port, examBlueprint: stack.examBlueprint, scenarios: stack.scenarios, dialogueSeeds: stack.dialogueSeeds, speechRecognizer: speech.recognizer }
+    : { port, examBlueprint: stack.examBlueprint, scenarios: stack.scenarios, dialogueSeeds: stack.dialogueSeeds },
 );
 console.log(`xr-sync listening ws://127.0.0.1:${server.port} instance=${instance}`);
 if (closing) {

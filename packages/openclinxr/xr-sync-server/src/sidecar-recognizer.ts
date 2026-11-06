@@ -182,8 +182,6 @@ export function createSidecarRecognizer(opts: SidecarRecognizerOptions): {
   };
 }
 
-const DEFAULT_PYTHON = "/Volumes/files/openclinxr-assets/stt/venv/bin/python";
-
 function hasSlash(path: string): boolean {
   return path.includes("/");
 }
@@ -191,14 +189,14 @@ function hasSlash(path: string): boolean {
 /** Boot the sidecar for the dev entrypoint. Never throws. */
 export async function bootSidecarRecognizer(
   env: Record<string, string | undefined>,
-  defaults: { script: string },
+  defaults: { script: string; python: string },
   hooks?: { onCreated(close: () => void): void },
 ): Promise<{ recognizer: SpeechRecognizer | null; close: () => void; reason: string }> {
   try {
     if (env["XR_SYNC_STT"] === "off") {
       return { recognizer: null, close: () => undefined, reason: "disabled by XR_SYNC_STT=off" };
     }
-    const python = env["XR_SYNC_STT_PYTHON"] ?? DEFAULT_PYTHON;
+    const python = env["XR_SYNC_STT_PYTHON"] ?? defaults.python;
     const script = env["XR_SYNC_STT_SCRIPT"] ?? defaults.script;
     const model = env["XR_SYNC_STT_MODEL"] ?? "base.en";
     if (hasSlash(python) && !existsSync(python)) {
