@@ -957,10 +957,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7416,
+    "line": 7598,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7416",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -1317,10 +1317,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7416,
+    "line": 7598,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7416",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -1652,10 +1652,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7416,
+    "line": 7598,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7416",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
    "bodyLastChanged": "30ef764a486188b82f314b8bfb35e6cebb6e8fad 2026-11-05 st-vitbrowdense r5: the spouse's brows take style 07 at 9400 triangles"
   },
   {
@@ -1957,10 +1957,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7416,
+    "line": 7598,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7416",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
    "bodyLastChanged": "d1c44f8cd029c6f0b4b37653cf14bb9a9ce73847 2026-10-30 fix(ci-w11-D1): prune 5.14 MB unbound image payload from five shipped GLBs"
   },
   {
@@ -2247,10 +2247,10 @@
     1
    ],
    "hasBaseColorTexture": false,
-   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7416",
+   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7416,
+    "line": 7598,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
@@ -2434,10 +2434,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7416,
+    "line": 7598,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7416",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -2493,7 +2493,7 @@
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Fitted library garment; no tint authored. Factor absent = glTF default white; the baseColorTexture carries the look. Fit recorded in tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-fit-time.json. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2510,7 +2510,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2530,7 +2530,7 @@
     "literal": "return (0.13, 0.09, 0.07, 1.0)  # near-black"
    },
    "reason": "Role-driven hair colour from embed_library_hair hair_color. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:352",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2545,7 +2545,7 @@
    },
    "kind": "baked albedo: HB-02 per-texel fold of olive_knit_and_cream_casual palette closed_casual x authored weave",
    "decision": "resolved",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2560,7 +2560,7 @@
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2580,7 +2580,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2600,7 +2600,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2620,7 +2620,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2640,7 +2640,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2660,7 +2660,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2680,7 +2680,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2700,7 +2700,7 @@
     "literal": "prin.inputs[\"Base Color\"].default_value = (0.0, 0.0, 0.0, 0.0)"
    },
    "reason": "Hidden cover shell [0,0,0,0] MASK: excluded from the bake atlas per HB-00 REMOVE-at-bake verdict, never baked black.",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2717,7 +2717,7 @@
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2737,7 +2737,7 @@
     "literal": "no numeric literal in tree"
    },
    "reason": "Authored brow colour. Factor IS the albedo (no texture to multiply). Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides.",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2753,11 +2753,11 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7416,
+    "line": 7598,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Authored lash colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7416",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "reason": "Authored lash colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2777,7 +2777,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Authored teeth colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:994",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -2797,7 +2797,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Authored tongue colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:996",
-   "bodyLastChanged": "7eef69c398a3af542e879c67fb521eb71cd96d65 2026-11-04 st-vitpore r2: seamless pore tile, Aisha re-packed on the eye-swapped body"
+   "bodyLastChanged": "49bd0b741523ffee2f3934ececc223284ec91d39 2026-11-05 st-vitbody2 r8: Aisha's body skin takes hex-tiled pore detail at body scale"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3094,10 +3094,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7416,
+    "line": 7598,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7416",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -3420,10 +3420,10 @@
     1
    ],
    "hasBaseColorTexture": false,
-   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7416",
+   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7416,
+    "line": 7598,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "bodyLastChanged": "3969ae031a7e22afa9cc7419a724d0b79376f12a 2026-11-03 st-palette R9: sRGB-correct fold bytes for kevin, physician, gown, aisha"
@@ -3723,10 +3723,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7416,
+    "line": 7598,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7416",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
    "bodyLastChanged": "6d1ae039d27447908220459ebee214d39f56e5de 2026-11-03 Re-express the OB olive as linear and renormalize the maya t-shirt to soft blue"
   },
   {
@@ -4066,10 +4066,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7416,
+    "line": 7598,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7416",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {
@@ -4402,10 +4402,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7416,
+    "line": 7598,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7416",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7598",
    "bodyLastChanged": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c 2026-11-05 st-vitfacet r7: per-actor dermal seed from the output stem; six normal maps distinct; pins regenerated through producers"
   },
   {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.ui-xr-environment-room-capture.v1",
   "kind": "ui_xr_environment_room_capture",
-  "generatedAt": "2026-11-05T22:52:40.688Z",
+  "generatedAt": "2026-11-06T00:04:39.376Z",
   "captureMode": "scene-overview",
   "framingNote": "scene-overview (isGeneratedSceneOverviewCaptureMode) keeps the station shell visible and uses room-scale FOV; not face-detail or clean-humanoid-source-comparator",
   "claimScope": [
@@ -41,9 +41,9 @@
           "floorTopY": 0,
           "cameraInsideRoom": true,
           "cameraWorldPosition": [
-            -2.3121135129612798,
+            -2.3289638476890264,
             2.16,
-            -3.568344102425013
+            -3.568342662845838
           ],
           "proceduralShellMeshesStillVisible": []
         },
@@ -56,16 +56,16 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=-2.74,1.69,2.40 look=-0.81,1.00,-0.02 nearestActor=2.64m rejected=2.7/1.2 interiorMaxZ=2.64 wallThickness=0.000 census=15/14/1 witness=1793917999264.1:19010.700 refine=orbit actors=3/3 standing=2/2 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=69.5 eye=-2.31,2.16,-3.57 look=-0.86,0.95,-0.06",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=-2.74,1.70,2.40 look=-0.77,1.00,-0.03 nearestActor=2.64m rejected=2.7/1.2 interiorMaxZ=2.64 wallThickness=0.000 census=15/14/1 witness=1793922159221.5:25167.200 refine=orbit actors=3/3 standing=2/2 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=69.3 eye=-2.33,2.16,-3.57 look=-0.87,0.95,-0.06",
         "cameraEye": [
-          -2.3121135129612798,
+          -2.3289638476890264,
           2.16,
-          -3.568344102425013
+          -3.568342662845838
         ],
         "cameraLook": [
-          -0.8579164699739382,
-          0.9466706661327348,
-          -0.05760187888212154
+          -0.8747668047016852,
+          0.9492273434316895,
+          -0.057600439302946393
         ],
         "cameraFov": 70,
         "refineTag": "orbit",
@@ -106,7 +106,7 @@
           "contained": 2,
           "total": 2
         },
-        "meanFacingDeg": 69.49221233405949,
+        "meanFacingDeg": 69.31978230574627,
         "framingConstraintsMet": true,
         "nearOcclusion": {
           "fraction": 0,
@@ -159,16 +159,16 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=-3.36,1.68,3.52 look=0.20,1.00,0.16 nearestActor=3.49m rejected= interiorMaxZ=3.77 wallThickness=0.000 census=15/15/0 witness=1793918069133.4:10884.400 refine=keep actors=2/2 standing=2/2 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=39.9 eye=-3.36,1.68,3.52 look=0.25,0.76,0.09",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=-3.36,1.68,3.52 look=0.18,1.00,0.12 nearestActor=3.52m rejected= interiorMaxZ=3.77 wallThickness=0.000 census=15/15/0 witness=1793922270295.1:14408.600 refine=keep actors=2/2 standing=2/2 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=39.9 eye=-3.36,1.68,3.52 look=0.23,0.76,0.10",
         "cameraEye": [
           -3.3621415157318113,
           1.68,
           3.5209732482433314
         ],
         "cameraLook": [
-          0.2471068278795524,
-          0.7643492935720854,
-          0.0925997649330509
+          0.23261602532543502,
+          0.7589000097538493,
+          0.10266498363398828
         ],
         "cameraFov": 70,
         "refineTag": "keep",
@@ -200,7 +200,7 @@
           "contained": 2,
           "total": 2
         },
-        "meanFacingDeg": 39.859511648838385,
+        "meanFacingDeg": 39.85843374988882,
         "framingConstraintsMet": true,
         "nearOcclusion": {
           "fraction": 0,
@@ -238,9 +238,9 @@
           "floorTopY": 0,
           "cameraInsideRoom": true,
           "cameraWorldPosition": [
-            1.5700257458082336,
+            1.9646761580883922,
             1.52,
-            0.5910780159418924
+            0.4574908658540672
           ],
           "proceduralShellMeshesStillVisible": []
         },
@@ -253,16 +253,16 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=2.55,1.68,0.69 look=-0.91,1.00,-0.77 nearestActor=2.63m rejected= interiorMaxZ=0.94 wallThickness=0.000 census=15/15/0 witness=1793918126621.7:18171.900 refine=best-effort-unmet actors=2/3 standing=2/2 constraints=unmet nearOcclusion=0.0000 placardBack=0 meanFacingDeg=53.1 missing=patient_robert_hayes_v1:occluded-3/5 eye=1.57,1.52,0.59 look=-0.90,0.82,-0.73",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=2.55,1.68,0.69 look=-0.91,1.00,-0.77 nearestActor=2.63m rejected= interiorMaxZ=0.94 wallThickness=0.000 census=15/15/0 witness=1793922348978.3:22592.200 refine=best-effort-unmet actors=2/3 standing=2/2 constraints=unmet nearOcclusion=0.0000 placardBack=0 meanFacingDeg=51.2 missing=patient_robert_hayes_v1:occluded-3/5 eye=1.96,1.52,0.46 look=-0.90,0.82,-0.73",
         "cameraEye": [
-          1.5700257458082336,
+          1.9646761580883922,
           1.52,
-          0.5910780159418924
+          0.4574908658540672
         ],
         "cameraLook": [
-          -0.899353794367161,
-          0.821160909271153,
-          -0.7288328471709022
+          -0.8993503926965978,
+          0.8202036005078487,
+          -0.7288277744777119
         ],
         "cameraFov": 70,
         "refineTag": "best-effort-unmet",
@@ -317,7 +317,7 @@
           "contained": 2,
           "total": 2
         },
-        "meanFacingDeg": 53.09490867239348,
+        "meanFacingDeg": 51.24985960902432,
         "framingConstraintsMet": false,
         "nearOcclusion": {
           "fraction": 0,
@@ -355,9 +355,9 @@
           "floorTopY": 0,
           "cameraInsideRoom": true,
           "cameraWorldPosition": [
-            1.5700383450210411,
+            1.5700400152651222,
             1.52,
-            0.5910943427918373
+            0.5910943562620453
           ],
           "proceduralShellMeshesStillVisible": []
         },
@@ -370,16 +370,16 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=2.55,1.68,0.69 look=-0.91,1.00,-0.77 nearestActor=2.63m rejected= interiorMaxZ=0.94 wallThickness=0.000 census=15/15/0 witness=1793918189688.1:18076.900 refine=best-effort-unmet actors=2/3 standing=2/2 constraints=unmet nearOcclusion=0.0000 placardBack=0 meanFacingDeg=53.1 missing=patient_robert_hayes_v1:occluded-3/5 eye=1.57,1.52,0.59 look=-0.90,0.83,-0.73",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=2.55,1.68,0.69 look=-0.91,1.00,-0.77 nearestActor=2.63m rejected= interiorMaxZ=0.94 wallThickness=0.000 census=15/15/0 witness=1793922435350.6:22793.100 refine=best-effort-unmet actors=2/3 standing=2/2 constraints=unmet nearOcclusion=0.0000 placardBack=0 meanFacingDeg=53.1 missing=patient_robert_hayes_v1:occluded-3/5 eye=1.57,1.52,0.59 look=-0.90,0.83,-0.73",
         "cameraEye": [
-          1.5700383450210411,
+          1.5700400152651222,
           1.52,
-          0.5910943427918373
+          0.5910943562620453
         ],
         "cameraLook": [
-          -0.8993411951543535,
-          0.8270646590527861,
-          -0.7288165203209573
+          -0.8993395249102725,
+          0.8268011997197134,
+          -0.7288165068507492
         ],
         "cameraFov": 70,
         "refineTag": "best-effort-unmet",
@@ -434,7 +434,7 @@
           "contained": 2,
           "total": 2
         },
-        "meanFacingDeg": 53.11804090394139,
+        "meanFacingDeg": 53.10645973794388,
         "framingConstraintsMet": false,
         "nearOcclusion": {
           "fraction": 0,
@@ -472,9 +472,9 @@
           "floorTopY": 0,
           "cameraInsideRoom": true,
           "cameraWorldPosition": [
-            -2.6315742261716863,
+            -2.633261639591037,
             1.52,
-            -1.0804908312806678
+            -1.0804931647646263
           ],
           "proceduralShellMeshesStillVisible": []
         },
@@ -487,16 +487,16 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=-3.06,1.68,2.48 look=0.21,1.00,0.11 nearestActor=2.58m rejected=3.1/1.3 interiorMaxZ=2.73 wallThickness=0.000 census=15/14/1 witness=1793918252586.6:25122.800 refine=best-effort-unmet actors=2/3 standing=2/2 constraints=unmet nearOcclusion=0.0000 placardBack=0 meanFacingDeg=79.6 missing=patient_samuel_brooks_v1:occluded-3/5 eye=-2.63,1.52,-1.08 look=0.14,0.82,0.07",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=-3.06,1.68,2.48 look=0.21,1.00,0.11 nearestActor=2.58m rejected=3.1/1.3 interiorMaxZ=2.73 wallThickness=0.000 census=15/14/1 witness=1793922527393.5:32959.400 refine=best-effort-unmet actors=2/3 standing=2/2 constraints=unmet nearOcclusion=0.0000 placardBack=0 meanFacingDeg=79.6 missing=patient_samuel_brooks_v1:occluded-3/5 eye=-2.63,1.52,-1.08 look=0.14,0.83,0.07",
         "cameraEye": [
-          -2.6315742261716863,
+          -2.633261639591037,
           1.52,
-          -1.0804908312806678
+          -1.0804931647646263
         ],
         "cameraLook": [
-          0.14006437136217464,
-          0.8237733966381825,
-          0.06755946581460365
+          0.138376957942824,
+          0.826498188439991,
+          0.06755713233064514
         ],
         "cameraFov": 70,
         "refineTag": "best-effort-unmet",
@@ -568,7 +568,7 @@
           "contained": 2,
           "total": 2
         },
-        "meanFacingDeg": 79.56953137421245,
+        "meanFacingDeg": 79.61766126638635,
         "framingConstraintsMet": false,
         "nearOcclusion": {
           "fraction": 0,
@@ -606,9 +606,9 @@
           "floorTopY": 0,
           "cameraInsideRoom": true,
           "cameraWorldPosition": [
-            1.3822046992233008,
+            1.3862990230114307,
             1.84,
-            1.7454503376812491
+            1.7376948106040238
           ],
           "proceduralShellMeshesStillVisible": []
         },
@@ -621,16 +621,16 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=2.61,1.68,1.85 look=-0.35,1.00,0.06 nearestActor=2.79m rejected=2.6/1.2 interiorMaxZ=2.10 wallThickness=0.000 census=15/14/1 witness=1793918340791.7:25381.700 refine=orbit actors=3/3 standing=1/1 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=50.0 eye=1.38,1.84,1.75 look=-0.31,0.75,0.05",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=2.61,1.68,1.85 look=-0.35,1.00,0.07 nearestActor=2.79m rejected=2.6/1.2 interiorMaxZ=2.10 wallThickness=0.000 census=15/14/1 witness=1793922631628.4:33175.900 refine=orbit actors=3/3 standing=1/1 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=50.1 eye=1.39,1.84,1.74 look=-0.31,0.74,0.04",
         "cameraEye": [
-          1.3822046992233008,
+          1.3862990230114307,
           1.84,
-          1.7454503376812491
+          1.7376948106040238
         ],
         "cameraLook": [
-          -0.3148515756244136,
-          0.7459259876493372,
-          0.04839406283353459
+          -0.3107572518362838,
+          0.7406551955425522,
+          0.04063853575630916
         ],
         "cameraFov": 70,
         "refineTag": "orbit",
@@ -671,7 +671,7 @@
           "contained": 1,
           "total": 1
         },
-        "meanFacingDeg": 50.04939704337679,
+        "meanFacingDeg": 50.129273878530114,
         "framingConstraintsMet": true,
         "nearOcclusion": {
           "fraction": 0,
@@ -765,7 +765,7 @@
           "contained": 2,
           "total": 2
         },
-        "meanFacingDeg": 44.76282866153876,
+        "meanFacingDeg": 44.756910273775325,
         "framingConstraintsMet": true,
         "nearOcclusion": {
           "fraction": 0,
@@ -803,9 +803,9 @@
           "floorTopY": 0,
           "cameraInsideRoom": true,
           "cameraWorldPosition": [
-            1.8211215081025163,
+            1.8991263355469385,
             2.16,
-            2.105134672119281
+            2.1526358474320797
           ],
           "proceduralShellMeshesStillVisible": []
         },
@@ -818,16 +818,16 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=2.31,1.68,2.14 look=-0.49,1.00,0.36 nearestActor=1.74m rejected=2.3/1.5 2.3/1.3 interiorMaxZ=2.38 wallThickness=0.000 census=15/13/2 witness=1793918507865.4:22445.900 refine=orbit actors=3/3 standing=1/1 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=55.5 eye=1.82,2.16,2.11 look=-0.50,0.83,0.20",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=2.31,1.68,2.14 look=-0.49,1.00,0.36 nearestActor=1.74m rejected=2.3/1.5 2.3/1.2 interiorMaxZ=2.38 wallThickness=0.000 census=15/13/2 witness=1793922801609.5:16841.600 refine=orbit actors=3/3 standing=1/1 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=55.8 eye=1.90,2.16,2.15 look=-0.50,0.83,0.19",
         "cameraEye": [
-          1.8211215081025163,
+          1.8991263355469385,
           2.16,
-          2.105134672119281
+          2.1526358474320797
         ],
         "cameraLook": [
-          -0.4979098519856957,
-          0.829933316698234,
-          0.20195481962834366
+          -0.497206069877547,
+          0.8292110636154026,
+          0.18601666652477775
         ],
         "cameraFov": 70,
         "refineTag": "orbit",
@@ -878,7 +878,7 @@
           "contained": 1,
           "total": 1
         },
-        "meanFacingDeg": 55.48784629498016,
+        "meanFacingDeg": 55.78993924012923,
         "framingConstraintsMet": true,
         "nearOcclusion": {
           "fraction": 0,
@@ -916,9 +916,9 @@
           "floorTopY": 0,
           "cameraInsideRoom": true,
           "cameraWorldPosition": [
-            1.9778124095644574,
+            1.9715559396451536,
             1.52,
-            2.641884792904002
+            2.639036718649681
           ],
           "proceduralShellMeshesStillVisible": []
         },
@@ -931,16 +931,16 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=-2.86,1.69,2.75 look=-1.03,1.00,0.11 nearestActor=2.79m rejected=2.9/1.4 interiorMaxZ=2.99 wallThickness=0.000 census=15/14/1 witness=1793918626335.4:28368.300 refine=best-effort-unmet actors=2/3 standing=1/1 constraints=unmet nearOcclusion=0.0000 placardBack=0 meanFacingDeg=69.4 missing=patient_noah_chen_v1:occluded-1/5 eye=1.98,1.52,2.64 look=-1.27,0.94,-0.02",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=-2.86,1.69,2.75 look=-1.02,1.00,0.11 nearestActor=2.78m rejected=2.9/1.4 interiorMaxZ=2.99 wallThickness=0.000 census=15/14/1 witness=1793922889714.6:24945.300 refine=best-effort-unmet actors=2/3 standing=1/1 constraints=unmet nearOcclusion=0.0000 placardBack=0 meanFacingDeg=69.3 missing=patient_noah_chen_v1:occluded-1/5 eye=1.97,1.52,2.64 look=-1.28,0.94,-0.03",
         "cameraEye": [
-          1.9778124095644574,
+          1.9715559396451536,
           1.52,
-          2.641884792904002
+          2.639036718649681
         ],
         "cameraLook": [
-          -1.2688314945590389,
-          0.9410880088564249,
-          -0.022567000583309293
+          -1.2750879644783426,
+          0.943857756109352,
+          -0.025415074837630725
         ],
         "cameraFov": 70,
         "refineTag": "best-effort-unmet",
@@ -1003,7 +1003,7 @@
           "contained": 1,
           "total": 1
         },
-        "meanFacingDeg": 69.38530848639216,
+        "meanFacingDeg": 69.3262757877256,
         "framingConstraintsMet": false,
         "nearOcclusion": {
           "fraction": 0,
@@ -1056,16 +1056,16 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=-3.31,1.68,2.99 look=0.45,1.00,0.13 nearestActor=3.15m rejected=3.3/1.6 interiorMaxZ=3.24 wallThickness=0.000 census=15/14/1 witness=1793918721839.2:17039.500 refine=keep actors=3/3 standing=2/2 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=41.6 eye=-3.31,1.68,2.99 look=0.32,0.83,0.09",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=-3.31,1.68,2.99 look=0.45,1.00,0.15 nearestActor=3.15m rejected=3.3/1.6 interiorMaxZ=3.24 wallThickness=0.000 census=15/14/1 witness=1793922969132.4:21626.200 refine=keep actors=3/3 standing=2/2 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=41.7 eye=-3.31,1.68,2.99 look=0.32,0.82,0.08",
         "cameraEye": [
           -3.311999942779541,
           1.68,
           2.990973163604736
         ],
         "cameraLook": [
-          0.32402393985589173,
-          0.8267114739003625,
-          0.08639143150750228
+          0.3240242057960325,
+          0.8228244085034883,
+          0.08058991526862991
         ],
         "cameraFov": 70,
         "refineTag": "keep",
@@ -1106,7 +1106,7 @@
           "contained": 2,
           "total": 2
         },
-        "meanFacingDeg": 41.6363515141706,
+        "meanFacingDeg": 41.65008831612201,
         "framingConstraintsMet": true,
         "nearOcclusion": {
           "fraction": 0,
@@ -1209,7 +1209,7 @@
           "contained": 2,
           "total": 2
         },
-        "meanFacingDeg": 23.871192445948527,
+        "meanFacingDeg": 23.786673734821928,
         "framingConstraintsMet": true,
         "nearOcclusion": {
           "fraction": 0,
@@ -1248,7 +1248,7 @@
           "cameraInsideRoom": true,
           "cameraWorldPosition": [
             -2.111910726547241,
-            1.6937721946381723,
+            1.6944568404535598,
             2.3309806098767285
           ],
           "proceduralShellMeshesStillVisible": []
@@ -1262,16 +1262,16 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=-2.11,1.69,2.33 look=-0.76,1.00,-0.12 nearestActor=2.07m rejected=2.1/1.7 2.1/1.1 1.1/1.1 interiorMaxZ=2.58 wallThickness=0.000 census=15/12/3 witness=1793918850392.7:15444.200 refine=best-effort-unmet actors=2/3 standing=1/1 constraints=unmet nearOcclusion=0.0000 placardBack=0 meanFacingDeg=32.6 missing=patient_jordan_reed_v1:occluded-0/5 eye=-2.11,1.69,2.33 look=-0.79,0.93,-0.14",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=-2.11,1.69,2.33 look=-0.79,1.00,-0.08 nearestActor=2.03m rejected=2.1/1.7 2.1/1.1 1.1/1.1 interiorMaxZ=2.58 wallThickness=0.000 census=15/12/3 witness=1793923126029.4:13597.900 refine=best-effort-unmet actors=2/3 standing=1/1 constraints=unmet nearOcclusion=0.0000 placardBack=0 meanFacingDeg=32.6 missing=patient_jordan_reed_v1:occluded-0/5 eye=-2.11,1.69,2.33 look=-0.78,0.93,-0.14",
         "cameraEye": [
           -2.111910726547241,
-          1.6937721946381723,
+          1.6944568404535598,
           2.3309806098767285
         ],
         "cameraLook": [
-          -0.7871802693185572,
-          0.9316111482776047,
-          -0.1368025599368457
+          -0.7817851574083827,
+          0.9323614349520727,
+          -0.14416969753992442
         ],
         "cameraFov": 70,
         "refineTag": "best-effort-unmet",
@@ -1333,7 +1333,7 @@
           "contained": 1,
           "total": 1
         },
-        "meanFacingDeg": 32.62721371165218,
+        "meanFacingDeg": 32.58710457545423,
         "framingConstraintsMet": false,
         "nearOcclusion": {
           "fraction": 0,
@@ -1373,7 +1373,7 @@
           "cameraWorldPosition": [
             2.256909880648317,
             2.1500001430511473,
-            -0.9692821908852064
+            -0.9536272405852889
           ],
           "proceduralShellMeshesStillVisible": []
         },
@@ -1386,16 +1386,16 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=2.71,1.68,0.97 look=-0.69,1.00,0.02 nearestActor=2.53m rejected= interiorMaxZ=1.22 wallThickness=0.000 census=15/15/0 witness=1793918937034:21333.600 refine=orbit actors=3/3 standing=2/2 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=87.9 eye=2.26,2.15,-0.97 look=-0.81,0.83,-0.04",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=2.71,1.68,0.97 look=-0.72,1.00,-0.03 nearestActor=2.59m rejected= interiorMaxZ=1.22 wallThickness=0.000 census=15/15/0 witness=1793923191973.4:23675.400 refine=orbit actors=3/3 standing=2/2 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=87.7 eye=2.26,2.15,-0.95 look=-0.81,0.82,-0.02",
         "cameraEye": [
           2.256909880648317,
           2.1500001430511473,
-          -0.9692821908852064
+          -0.9536272405852889
         ],
         "cameraLook": [
           -0.8052991936947529,
-          0.8258917826303019,
-          -0.04037122367092705
+          0.8243303997223301,
+          -0.024716273371009567
         ],
         "cameraFov": 70,
         "refineTag": "orbit",
@@ -1436,7 +1436,7 @@
           "contained": 2,
           "total": 2
         },
-        "meanFacingDeg": 87.89778236001064,
+        "meanFacingDeg": 87.74207433520026,
         "framingConstraintsMet": true,
         "nearOcclusion": {
           "fraction": 0,
@@ -1474,9 +1474,9 @@
           "floorTopY": 0,
           "cameraInsideRoom": true,
           "cameraWorldPosition": [
-            -2.7735011192574177,
+            -2.78197137597999,
             1.52,
-            2.588463908371431
+            2.6074465154125717
           ],
           "proceduralShellMeshesStillVisible": []
         },
@@ -1489,16 +1489,16 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=-4.36,1.68,2.81 look=0.46,1.00,-0.04 nearestActor=4.26m rejected=4.4/1.4 interiorMaxZ=3.06 wallThickness=0.000 census=15/14/1 witness=1793919023504.1:10653.800 refine=orbit actors=2/2 standing=1/1 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=44.0 eye=-2.77,1.52,2.59 look=0.47,0.72,-0.08",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=-4.36,1.68,2.81 look=0.45,1.00,-0.02 nearestActor=4.24m rejected=4.4/1.4 interiorMaxZ=3.06 wallThickness=0.000 census=15/14/1 witness=1793923302365.9:18146.300 refine=orbit actors=2/2 standing=1/1 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=43.8 eye=-2.78,1.52,2.61 look=0.46,0.72,-0.06",
         "cameraEye": [
-          -2.7735011192574177,
+          -2.78197137597999,
           1.52,
-          2.588463908371431
+          2.6074465154125717
         ],
         "cameraLook": [
-          0.4731427848660782,
-          0.7195589272981942,
-          -0.07598788511588095
+          0.4646725281435061,
+          0.7173477538054017,
+          -0.05700527807474051
         ],
         "cameraFov": 70,
         "refineTag": "orbit",
@@ -1511,15 +1511,10 @@
             "actorId": "patient_luis_martinez_v1",
             "crownVisible": true,
             "chestVisible": true,
-            "visibleSampleCount": 4,
+            "visibleSampleCount": 5,
             "sampleCount": 5,
             "visible": true,
-            "blockedSamples": [
-              {
-                "sample": "left_foot",
-                "blockedBy": "openclinxr.station-environment.fixture-slot.patient_chair.leg.2"
-              }
-            ]
+            "blockedSamples": []
           },
           {
             "actorId": "daughter_elena_martinez_v1",
@@ -1548,7 +1543,7 @@
           "contained": 1,
           "total": 1
         },
-        "meanFacingDeg": 43.986290122444245,
+        "meanFacingDeg": 43.802782865053665,
         "framingConstraintsMet": true,
         "nearOcclusion": {
           "fraction": 0,
@@ -1586,9 +1581,9 @@
           "floorTopY": 0,
           "cameraInsideRoom": true,
           "cameraWorldPosition": [
-            1.3353451670856828,
+            1.3347012752898806,
             1.84,
-            -2.2053018925843797
+            -2.2052952796635137
           ],
           "proceduralShellMeshesStillVisible": []
         },
@@ -1601,16 +1596,16 @@
         "floorVisible": false,
         "encounterFloorTheme": "floor_color_derived_from_environmentId_descriptor",
         "captureMode": "scene-overview",
-        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=1.76,1.68,0.96 look=-0.45,1.00,0.46 nearestActor=0.85m rejected=1.8/1.3 interiorMaxZ=1.59 wallThickness=0.000 census=15/14/1 witness=1793919075902.2:20410.700 refine=orbit actors=4/4 standing=3/3 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=64.1 eye=1.34,1.84,-2.21 look=-0.44,0.83,0.46",
+        "cameraFraming": "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342 roomCam(derived)=1.76,1.68,0.96 look=-0.45,1.00,0.46 nearestActor=0.85m rejected=1.8/1.3 interiorMaxZ=1.59 wallThickness=0.000 census=15/14/1 witness=1793923387246.6:24361.100 refine=orbit actors=4/4 standing=3/3 constraints=met nearOcclusion=0.0000 placardBack=0 meanFacingDeg=64.1 eye=1.33,1.84,-2.21 look=-0.44,0.83,0.46",
         "cameraEye": [
-          1.3353451670856828,
+          1.3347012752898806,
           1.84,
-          -2.2053018925843797
+          -2.2052952796635137
         ],
         "cameraLook": [
-          -0.44247957857704506,
-          0.8250147666765412,
-          0.4554008667837667
+          -0.4431234703728472,
+          0.8258025498659587,
+          0.45540747970463247
         ],
         "cameraFov": 70,
         "refineTag": "orbit",
@@ -1687,7 +1682,7 @@
           "contained": 3,
           "total": 3
         },
-        "meanFacingDeg": 64.1444173726176,
+        "meanFacingDeg": 64.11787250299363,
         "framingConstraintsMet": true,
         "nearOcclusion": {
           "fraction": 0,
