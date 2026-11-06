@@ -20,6 +20,10 @@ export const ActorState = schema(
     intake: t.string(),
     /** C30 consecutive low-confidence learner speech results including this reply. */
     retries: t.number(),
+    /** C36 learner-visible actor display name ("" off a cast station). */
+    displayName: t.string(),
+    /** C36 scenario actor role ("" off a cast station). */
+    role: t.string(),
   },
   "ActorState",
 );
@@ -151,7 +155,7 @@ export interface EncounterSnapshot {
   phaseRemainingS: number;
   turnId: number;
   turnOwner: string;
-  actors: Record<string, { id: string; speaking: boolean; emotion: string; replyId: string; cueId: string; caption: string; intake: string; retries: number }>;
+  actors: Record<string, { id: string; speaking: boolean; emotion: string; replyId: string; cueId: string; caption: string; intake: string; retries: number; displayName: string; role: string }>;
   learners: Record<
     string,
     { sessionId: string; headX: number; headY: number; headZ: number; lastSeq: number; speaking: boolean }
@@ -206,7 +210,7 @@ export interface EncounterSnapshot {
 export function snapshotState(state: EncounterStateInstance): EncounterSnapshot {
   const actors: EncounterSnapshot["actors"] = {};
   for (const [id, actor] of state.actors) {
-    actors[id] = { id: actor.id, speaking: actor.speaking, emotion: actor.emotion, replyId: actor.replyId, cueId: actor.cueId, caption: actor.caption, intake: actor.intake, retries: actor.retries };
+    actors[id] = { id: actor.id, speaking: actor.speaking, emotion: actor.emotion, replyId: actor.replyId, cueId: actor.cueId, caption: actor.caption, intake: actor.intake, retries: actor.retries, displayName: actor.displayName, role: actor.role };
   }
   const learners: EncounterSnapshot["learners"] = {};
   for (const [sessionId, learner] of state.learners) {

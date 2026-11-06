@@ -13,6 +13,7 @@ import { createActorVoice, type ActorVoice, type SpokenTurnRecord, type VoiceEng
 import { createBrowserVoiceParts } from "./actor-voice-browser.js";
 import type { ConnectOptions } from "./options.js";
 import { createLobbyPicker, type LobbyEvidence } from "./encounter-lobby.js";
+import { mountRoomPanel, type RoomPanel } from "./encounter-room-panel.js";
 import { mountSpeechCapture, type SpeechEvidence, type SpeechRecorder, type XrSessionLike } from "./speech-capture.js";
 import { createBrowserSpeechRecorder } from "./speech-recorder-browser.js";
 
@@ -205,6 +206,7 @@ export interface JoinEncounterRoomOptions {
   reviewLobby?: boolean;
   onSnapshot?(snapshot: EncounterSnapshot): void;
   onTurn(turn: SyncedActorTurn, stationId: string): void;
+  onRefusal?(kind: string, reason: string): void;
   connectFn?: (url: string, options?: ConnectOptions) => Promise<SyncConnection>;
 }
 
@@ -228,18 +230,23 @@ export async function joinEncounterRoom(options: JoinEncounterRoomOptions): Prom
   const utterances: SentUtterance[] = [];
   const speechUtterances: SentSpeech[] = [];
   let queue: Promise<void> = Promise.resolve();
+  const sendObserved: SyncConnection["sendIntent"] = async (kind, payload) => {
+    const result = await connection.sendIntent(kind, payload);
+    if (result.status === "reject") options.onRefusal?.(kind, result.reason);
+    return result;
+  };
   return {
     sessionId: connection.sessionId,
     intents,
     // One trace action at a time: a second click waits for the first one's three intents.
-    sendTraceAction: (actorId, topicTag) => (queue = queue.then(() => sendTraceActionIntents((kind, payload) => connection.sendIntent(kind, payload), intents, actorId, topicTag))),
+    sendTraceAction: (actorId, topicTag) => (queue = queue.then(() => sendTraceActionIntents((kind, payload) => sendObserved(kind, payload), intents, actorId, topicTag))),
     utterances,
     // Same queue as trace actions: text waits for the open action's three intents and vice versa.
-    sendUtterance: (actorId, text) => (queue = queue.then(() => sendUtteranceIntents((kind, payload) => connection.sendIntent(kind, payload), utterances, actorId, text))),
+    sendUtterance: (actorId, text) => (queue = queue.then(() => sendUtteranceIntents((kind, payload) => sendObserved(kind, payload), utterances, actorId, text))),
     speechUtterances,
-    sendSpeech: (actorId, text, confidence) => (queue = queue.then(() => sendSpeechIntents((kind, payload) => connection.sendIntent(kind, payload), speechUtterances, actorId, text, confidence))),
+    sendSpeech: (actorId, text, confidence) => (queue = queue.then(() => sendSpeechIntents((kind, payload) => sendObserved(kind, payload), speechUtterances, actorId, text, confidence))),
     turns,
-    sendIntent: (kind: IntentKind, payload) => connection.sendIntent(kind, payload),
+    sendIntent: (kind: IntentKind, payload) => sendObserved(kind, payload),
     leave: () => connection.leave(),
   };
 }
@@ -379,14 +386,17 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
   let repeatPrompt: UtteranceBoxElement | undefined;
   let speechEvidence: SpeechEvidence | undefined;
   let serverSpeechSeen: boolean | undefined;
+  let roomPanel: RoomPanel | undefined;
+  let lastSnapshot: EncounterSnapshot | undefined;
   try {
     const handle = await joinEncounterRoom({
       url: flag.url,
       actorIds: deps.actorIds(),
       ...(flag.replayStation === undefined ? {} : { replayStation: flag.replayStation }),
       reviewLobby: isLobby,
-      onSnapshot: (snapshot) => { picker?.render(snapshot); serverSpeechSeen = snapshot.speechAvailable; speechEvidence?.setServerSpeech(serverSpeechSeen); },
+      onSnapshot: (snapshot) => { lastSnapshot = snapshot; roomPanel?.render(snapshot); picker?.render(snapshot); serverSpeechSeen = snapshot.speechAvailable; speechEvidence?.setServerSpeech(serverSpeechSeen); },
       ...(deps.connectFn === undefined ? {} : { connectFn: deps.connectFn }),
+      onRefusal: (_kind, reason) => roomPanel?.refuse(reason),
       onTurn: (turn, stationId) => {
         lastSpokeActorId = turn.actorId;
         if (turn.intake === SPEECH_LOW_CONFIDENCE) {
@@ -418,6 +428,8 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     sendSelect = (stationId) => handle.sendIntent("select-station", { stationId });
     sendReturn = () => handle.sendIntent("return-to-lobby", {});
     if (deps.utteranceBox !== undefined && !isReplayRoom && !isLobby) {
+      roomPanel = mountRoomPanel(deps.utteranceBox);
+      if (lastSnapshot !== undefined) roomPanel.render(lastSnapshot);
       repeatPrompt = deps.utteranceBox.doc.createElement("div");
       repeatPrompt.id = "repeat-prompt";
       repeatPrompt.textContent = "";

@@ -50,6 +50,10 @@ export interface SnapshotActor {
   intake?: string;
   /** C30 consecutive low-confidence learner speech results. */
   retries?: number;
+  /** C36 scenario actor display name ("" off a cast station; absent on old servers). */
+  displayName?: string;
+  /** C36 scenario actor role ("" off a cast station; absent on old servers). */
+  role?: string;
 }
 
 /** Plain view of one synced learner, including intent cursor. */

@@ -2,6 +2,7 @@ import type { ExamBlueprint, Scenario } from "@openclinxr/shared-schemas";
 
 export const DEFAULT_DEV_SCENARIO_ID = "ed_chest_pain_priority_v1";
 export const DEFAULT_DEV_ENCOUNTER_SECONDS = 900;
+export const DEFAULT_DEV_DOORWAY_SECONDS = 1;
 
 export interface DevStackShipped {
   scenarioBank: readonly Scenario[];
@@ -38,6 +39,17 @@ export function resolveDevStack(env: Record<string, string | undefined>, shipped
     }
     seconds = Number(raw);
   }
+  // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates bracket access on env.
+  const rawDoorway = env["XR_SYNC_DOORWAY_SECONDS"];
+  let doorwaySeconds = DEFAULT_DEV_DOORWAY_SECONDS;
+  if (rawDoorway !== undefined && rawDoorway !== "") {
+    if (!/^[1-9][0-9]{0,3}$/.test(rawDoorway) || Number(rawDoorway) > 3600) {
+      throw new Error(
+        `bad-doorway-seconds: XR_SYNC_DOORWAY_SECONDS must be an integer 1-3600 (got ${JSON.stringify(rawDoorway)})`,
+      );
+    }
+    doorwaySeconds = Number(rawDoorway);
+  }
   const examBlueprint: ExamBlueprint = {
     blueprintId: `bp-dev-${id}`,
     title: `Dev stack: ${scenario.title}`,
@@ -50,7 +62,7 @@ export function resolveDevStack(env: Record<string, string | undefined>, shipped
         requiredTraceTags: [],
       },
     ],
-    timing: { doorwaySeconds: 1, encounterSeconds: seconds, noteSeconds: 60, breakAfterStationOrders: [] },
+    timing: { doorwaySeconds, encounterSeconds: seconds, noteSeconds: 60, breakAfterStationOrders: [] },
     requiredTraceTags: [],
     requiredSafetyCriticalTraceTags: [],
   };

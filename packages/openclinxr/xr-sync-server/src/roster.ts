@@ -68,6 +68,8 @@ export function populateActorRoster(actors: Map<string, ActorStateInstance>, opt
     actor.replyId = "";
     actor.cueId = "";
     actor.caption = "";
+    actor.displayName = "";
+    actor.role = "";
     actors.set(id, actor);
   }
 }

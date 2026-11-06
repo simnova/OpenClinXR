@@ -19,11 +19,16 @@ import { afterEach, describe, expect, it } from "vitest";
 //   Sidecar default python is repo-relative (<repo>/.openclinxr/stt/venv/bin/python), never an absolute machine path; the probe timeout default is 180000 ms.
 const REPO = resolve(process.cwd(), "../../..");
 const children: ChildProcess[] = [];
+// C36 Part A: dev-server runs in its own process group so SIGKILL reaches the tsx wrapper's node child and the sidecar.
+function killGroup(child: ChildProcess | undefined): void {
+  if (child?.pid === undefined) return;
+  try { process.kill(-child.pid, "SIGKILL"); } catch { child.kill("SIGKILL"); }
+}
 const dirs: string[] = [];
 const conns: SyncConnection[] = [];
 afterEach(async () => {
   while (conns.length > 0) await conns.pop()?.leave().catch(() => undefined);
-  while (children.length > 0) children.pop()?.kill("SIGKILL");
+  while (children.length > 0) killGroup(children.pop());
   while (dirs.length > 0) await rm(dirs.pop() as string, { recursive: true, force: true });
 });
 async function freePort(): Promise<number> {
@@ -39,7 +44,7 @@ async function freePort(): Promise<number> {
 interface Dev { port: number; out: string[]; err: string[]; child: ChildProcess; exitCode: () => number | null | undefined }
 async function spawnDev(env: Record<string, string>, args: string[] = []): Promise<Dev> {
   const port = await freePort();
-  const child = spawn("../../../node_modules/.bin/tsx", [...args, "src/dev-server.ts"], { cwd: process.cwd(), env: { ...process.env, PORT: String(port), XR_SYNC_INSTANCE: "c35-test", XR_SYNC_STT: "off", ...env }, stdio: ["ignore", "pipe", "pipe"] });
+  const child = spawn("../../../node_modules/.bin/tsx", [...args, "src/dev-server.ts"], { cwd: process.cwd(), env: { ...process.env, PORT: String(port), XR_SYNC_INSTANCE: "c35-test", XR_SYNC_STT: "off", ...env }, stdio: ["ignore", "pipe", "pipe"], detached: true });
   children.push(child);
   const dev: Dev = { port, out: [], err: [], child, exitCode: () => undefined };
   let code: number | null | undefined;

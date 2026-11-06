@@ -34,13 +34,18 @@ process.stdin.on("data", (chunk) => {
 });
 `;
 const children: ChildProcess[] = [];
+// C36 Part A: dev-server runs in its own process group so SIGKILL reaches the tsx wrapper's node child and the sidecar.
+function killGroup(child: ChildProcess | undefined): void {
+  if (child?.pid === undefined) return;
+  try { process.kill(-child.pid, "SIGKILL"); } catch { child.kill("SIGKILL"); }
+}
 const dirs: string[] = [];
 const servers: EncounterServer[] = [];
 const conns: SyncConnection[] = [];
 afterEach(async () => {
   while (conns.length > 0) await conns.pop()?.leave().catch(() => undefined);
   while (servers.length > 0) await servers.pop()?.close().catch(() => undefined);
-  while (children.length > 0) children.pop()?.kill("SIGKILL");
+  while (children.length > 0) killGroup(children.pop());
   while (dirs.length > 0) await rm(dirs.pop() as string, { recursive: true, force: true });
 });
 async function freePort(): Promise<number> {
@@ -55,7 +60,7 @@ async function freePort(): Promise<number> {
 }
 async function bootDev(env: Record<string, string>): Promise<{ port: number; lines: string[]; child: ChildProcess; exited: () => number | null | undefined }> {
   const port = await freePort();
-  const child = spawn("../../../node_modules/.bin/tsx", ["src/dev-server.ts"], { cwd: process.cwd(), env: { ...process.env, PORT: String(port), XR_SYNC_INSTANCE: "c34-test", ...env }, stdio: ["ignore", "pipe", "pipe"] });
+  const child = spawn("../../../node_modules/.bin/tsx", ["src/dev-server.ts"], { cwd: process.cwd(), env: { ...process.env, PORT: String(port), XR_SYNC_INSTANCE: "c34-test", ...env }, stdio: ["ignore", "pipe", "pipe"], detached: true });
   children.push(child);
   const lines: string[] = [];
   let code: number | null | undefined;
@@ -133,7 +138,7 @@ describe("xr-sync-server C34 speech availability", () => {
     const script = join(dir, "silent.cjs");
     const pidFile = join(dir, "pid");
     await writeFile(script, SILENT_SCRIPT);
-    const child = spawn("../../../node_modules/.bin/tsx", ["src/dev-server.ts"], { cwd: process.cwd(), env: { ...process.env, PORT: String(await freePort()), XR_SYNC_INSTANCE: "c34-term", XR_SYNC_STT_PYTHON: process.execPath, XR_SYNC_STT_SCRIPT: script, FAKE_PID_FILE: pidFile }, stdio: ["ignore", "pipe", "pipe"] });
+    const child = spawn("../../../node_modules/.bin/tsx", ["src/dev-server.ts"], { cwd: process.cwd(), env: { ...process.env, PORT: String(await freePort()), XR_SYNC_INSTANCE: "c34-term", XR_SYNC_STT_PYTHON: process.execPath, XR_SYNC_STT_SCRIPT: script, FAKE_PID_FILE: pidFile }, stdio: ["ignore", "pipe", "pipe"], detached: true });
     children.push(child);
     let exitCode: number | null | undefined;
     child.on("exit", (c) => { exitCode = c; });

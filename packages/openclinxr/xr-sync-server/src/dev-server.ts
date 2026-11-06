@@ -9,7 +9,8 @@
  *
  * Dev stack (C35): XR_SYNC_SCENARIO selects a shipped scenarioId (default
  * "ed_chest_pain_priority_v1"); XR_SYNC_ENCOUNTER_SECONDS sets the encounter
- * slot length in seconds (default 900).
+ * slot length in seconds (default 900); XR_SYNC_DOORWAY_SECONDS sets the
+ * doorway phase length (C36, default 1).
  */
 
 import { join } from "node:path";

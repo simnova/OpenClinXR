@@ -29,6 +29,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export interface CastVoiceActor {
   actorId: string;
   displayName: string;
+  /** Scenario actor role ("" when the scenario names none). */
+  role: string;
   /** Scenario openingUtterance ("" when the scenario names none; caption keeps the "<name>: " shape). */
   openingUtterance: string;
 }
@@ -121,7 +123,8 @@ function castForScenario(value: unknown, index: number): ScenarioCast {
         ? (entry["displayName"] as string)
         : id;
       const opening = typeof entry["openingUtterance"] === "string" ? (entry["openingUtterance"] as string) : "";
-      castActors.push({ actorId: id, displayName, openingUtterance: opening });
+      const role = typeof entry["role"] === "string" ? (entry["role"] as string) : "";
+      castActors.push({ actorId: id, displayName, role, openingUtterance: opening });
     }
   }
   const policy = value["emotionPolicy"];
@@ -239,6 +242,7 @@ export function castForStation(casts: ScenarioCast[] | null | undefined, station
  * starts at the scenario emotionPolicy.baseline, else "neutral".
  */
 export function populateCastRoster(actors: Map<string, ActorStateInstance>, cast: ScenarioCast): void {
+  const castById = new Map(cast.castActors.map((entry) => [entry.actorId, entry]));
   for (const id of cast.actorIds) {
     const actor = new ActorState();
     actor.id = id;
@@ -247,6 +251,9 @@ export function populateCastRoster(actors: Map<string, ActorStateInstance>, cast
     actor.replyId = "";
     actor.cueId = "";
     actor.caption = "";
+    const entry = castById.get(id);
+    actor.displayName = entry?.displayName ?? "";
+    actor.role = entry?.role ?? "";
     actors.set(id, actor);
   }
 }

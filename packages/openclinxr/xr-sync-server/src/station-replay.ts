@@ -204,6 +204,8 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
         actor.replyId = "";
         actor.cueId = "";
         actor.caption = "";
+        actor.displayName = "";
+        actor.role = "";
         this.state.actors.set(id, actor);
       }
       this.state.learners = new MapSchema<LearnerStateInstance>();
