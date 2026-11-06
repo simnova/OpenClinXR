@@ -79,12 +79,13 @@ PLAN = {
     # GLB image chunks. Texture bytes only: tris/face/hand/joints hold at their
     # pinned values (asserted live per row by main()).
     "mpfb-clinical-nurse-adult.glb": {
-        "bytesAfter": 8807408,
+        "bytesAfter": 9233948,
         "triangleCountAfter": 38958,
         "faceAfter": 10779,
         "faceBefore": 10779,
         "handBodyMeshAfter": 12833,
-        "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
+        "note": ("Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 8807408 -> 9233948 B. Prior re-measure preserved below. "
+                 "Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
                  "Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, "
                  "bytes-only drift, geometry counts hold (tris 38958 / face 10779 / hand 12833 / "
                  "joints 137 hold, 8775848 -> 8725404 B). Superseding commit d5496bf5b."),
@@ -112,12 +113,13 @@ PLAN = {
     },
     # --- HB-03 rows (partner includes the deliberate r5b brow-only geometry change) ---
     "mpfb-family-partner-adult.glb": {
-        "bytesAfter": 9649116,
+        "bytesAfter": 10077060,
         "triangleCountAfter": 38458,
         "faceBefore": 13429,
         "faceAfter": 13429,
         "handBodyMeshAfter": 13357,
-        "note": ("Re-measured 2026-11-05 (st-vitbrowdense r5b): fitted brow transplant replaces style 10 with the graded style 07 at 9,396 tris, then hair colour is a no-op and the subject-derived roughness breakup is replayed; body 13357 / face 13429 / total 38458 / joints 137 hold after the deliberate brow-only geometry change, 9182096 -> 9649116 B. "
+        "note": ("Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 9649116 -> 10077060 B. Prior re-measure preserved below. "
+                 "Re-measured 2026-11-05 (st-vitbrowdense r5b): fitted brow transplant replaces style 10 with the graded style 07 at 9,396 tris, then hair colour is a no-op and the subject-derived roughness breakup is replayed; body 13357 / face 13429 / total 38458 / joints 137 hold after the deliberate brow-only geometry change, 9182096 -> 9649116 B. "
                  "Prior st-vitrough r4: post-export roughness breakup stage writes a subject-derived skin metallicRoughness texture, 9182096 -> 9196228 B. "
                  "Prior st-vitbrow r4: post-export hair colour stage sets scalp+brow baseColorFactor to the authored black token, JSON chunk only, BIN verbatim, 9182184 -> 9182096 B. "
                  "Prior st-vitdark r9: dark-tail soft floor in the skin BaseColor remap only, 9178752 -> 9182184 B. "
@@ -140,20 +142,22 @@ PLAN = {
                  "git history."),
     },
     "mpfb-gown-adult-patient.glb": {
-        "bytesAfter": 6763692,
+        "bytesAfter": 7196640,
         "triangleCountAfter": 40277,
         "handBodyMeshAfter": 14928,
-        "note": ("Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
+        "note": ("Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 6763692 -> 7196640 B. Prior re-measure preserved below. "
+                 "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical "
                  "(tris 40277 / face 14357 / hand 14928 / joints 138 all hold). Superseding "
                  "commit d1c44f8cd (ci-w11 D1 orphan prune incl. a dead T-shirt material, "
                  "20462724 -> 6763692 B). Prior re-measure (d10314025/4aaf5ba16 supine "
                  "rebake, 1814a43c1 byte-lineage) preserved in git history."),
     },
     "mpfb-peds-patient-child.glb": {
-        "bytesAfter": 10418700,
+        "bytesAfter": 10842652,
         "triangleCountAfter": 77422,
         "handBodyMeshAfter": 26756,
-        "note": ("Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry identical "
+        "note": ("Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 10418700 -> 10842648 B. Prior re-measure preserved below. "
+                 "Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry identical "
                  "(tris 77422 / face 39260 / hand 26756 / joints 137 all hold). Superseding "
                  "commit 6d1ae039d (t-shirt texture renormalized to the soft-blue palette in "
                  "linear space, 10418728 -> 10418700 B). Prior re-measure (ci-w11b d1c44f8cd "
@@ -193,9 +197,10 @@ PLAN = {
                  "1225b8f95) preserved in git history."),
     },
     "mpfb-peds-nurse-kevin.glb": {
-        "bytesAfter": 16105284,
+        "bytesAfter": 16526836,
         "triangleCountAfter": 98102,
-        "note": ("Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
+        "note": ("Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 16105284 -> 16526836 B. Prior re-measure preserved below. "
+                 "Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
                  "Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, "
                  "bytes-only drift, geometry counts hold (tris 98102 / face 46160 / joints 137 hold, "
                  "16074580 -> 16026048 B; asserted by main()). Superseding commit d5496bf5b. "
@@ -209,7 +214,7 @@ PLAN = {
                  "ci-w11b) preserved in git history."),
     },
     "mpfb-peds-parent-aisha.glb": {
-        "bytesAfter": 18446536,
+        "bytesAfter": 18883952,
         "triangleCountAfter": 73012,
         "faceBefore": 33360,
         "faceAfter": 33360,
@@ -222,7 +227,8 @@ PLAN = {
             "and the 137-joint invariant now floor this re-measured source; historical "
             "pre-rebuild face 52778 preserved in previousFaceBefore."),
         "previousFaceBefore": 52778,
-        "note": ("Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). "
+        "note": ("Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 18446536 -> 18883952 B. Prior re-measure preserved below. "
+                 "Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). "
                  "Re-measured 2026-10-30 (ci-w11b): bytes-only drift on the rebuilt source "
                  "(tris 73012 / face 33360 / joints 137 stable since Sep30). Superseding commit "
                  "d1c44f8cd (ci-w11 D1 orphan prune, 19888836 -> 18441636 B). Prior re-measure "

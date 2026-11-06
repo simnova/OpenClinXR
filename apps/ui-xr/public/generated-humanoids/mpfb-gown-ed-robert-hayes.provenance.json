@@ -161,9 +161,12 @@
    "tool": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py"
   }
  ],
+ "sourceNotes": [
+  "2026-11-05 st-vitbody3 r2: post-export skin-shade carrier repack via repack_skin_shade.py; face strength 0.15 (st-vitbody3 r4 sweep pick 0.15/0.25/0.35/0.5, CEO 1:1 grade 2026-11-06), body strength 0.3; curvature 3cb623f1ebb2aa42a1cf966d6ae1226e64c89e1c056f17b190becb0ab96dc4a6, cavity aaee080b58c466eb744ae333e091c90c3186b2042f2e71488b7e8c0a8a412712; geometry, rig, garments, eyes, and animations unchanged."
+ ],
  "optimizationMode": "meshopt_decimated_post_blender_glb (carried over from input)",
- "outputBytes": 8181516,
- "outputSha256": "aecbe936185366bbe4518fc73d62a4fe02c41a4ac8f44f5f955b0ca9055897ba",
+ "outputBytes": 8614420,
+ "outputSha256": "2c4e1c772587a5d5961b74054770795a83deef8cd9929459d941d9b95d9862cf",
  "promotionStatus": "candidate_not_promoted__needs_parent_visual_acceptance_and_root_full_suite",
  "realismGrade": "not_graded",
  "scenarioId": "ed_chest_pain_priority_v1",
@@ -489,9 +492,9 @@
   "mode": "attach on origin bytes (+cylindrical UV, 1 primitive)",
   "inputSha256": "dedcbb3e417e59b28a19d3f5bc73169b3fae98ece580111193d3a092126ae1f5",
   "inputBytes": 8056172,
-  "wovenSha256": "aecbe936185366bbe4518fc73d62a4fe02c41a4ac8f44f5f955b0ca9055897ba",
-  "outputSha256": "aecbe936185366bbe4518fc73d62a4fe02c41a4ac8f44f5f955b0ca9055897ba",
-  "outputBytes": 8181516,
+  "wovenSha256": "2c4e1c772587a5d5961b74054770795a83deef8cd9929459d941d9b95d9862cf",
+  "outputSha256": "2c4e1c772587a5d5961b74054770795a83deef8cd9929459d941d9b95d9862cf",
+  "outputBytes": 8614420,
   "reports": [
    "/Volumes/files/openclinxr-assets/store/st-palette/r4-work/gown-weave-r4.json"
   ],

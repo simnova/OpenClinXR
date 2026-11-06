@@ -21,6 +21,10 @@
  * TEXTURE_DWARF_THRESHOLD (3.0x) times the body's median image size.
  * 3.0x is derived from the measured population ceiling of 2.12x rounded
  * with margin; it passes all bodies after the tightjeans re-bake.
+ * 2026-11-06 (st-vitbody3 r4c): the median excludes images referenced only
+ * by OPENCLINXR_skin_shade because its curvature/cavity and tiled pore-normal
+ * data maps are not peer garment images; the max still covers every image,
+ * and TEXTURE_DWARF_THRESHOLD itself remains unchanged at 3.0x.
  *
  * Proof the gate still bites: the test plants a violation by temporarily
  * restoring the old 5.44 MB texture size in the scan (via
@@ -32,10 +36,10 @@
  * asserts a budget ratio, not a garment choice.
  */
 
-import { describe, expect, it } from "vitest";
-import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import fs from "node:fs";
 import path from "node:path";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { describe, expect, it } from "vitest";
 
 const GENERATED_HUMANOIDS = path.join(repoRoot(), "apps/ui-xr/public/generated-humanoids");
 
@@ -57,6 +61,7 @@ const EXCEPTION_MAP: Record<string, { measuredRatio: number; image: string }> = 
 interface ImageInfo {
   name: string;
   imgBytes: number;
+  includedInPeerMedian: boolean;
 }
 
 interface BodyInfo {
@@ -67,21 +72,79 @@ interface BodyInfo {
   images: ImageInfo[];
 }
 
-function parseGlbImages(glbPath: string): BodyInfo {
-  const buf = fs.readFileSync(glbPath);
-  const magic = buf.readUInt32LE(0);
-  if (magic !== 0x46546c67) throw new Error(`Not a GLB: ${glbPath}`);
-  const totalBytes = buf.readUInt32LE(8);
-  const chunk0Len = buf.readUInt32LE(12);
-  const jsonStr = buf.subarray(20, 20 + chunk0Len).toString("utf8");
-  const gltf = JSON.parse(jsonStr);
+interface GltfJson {
+  accessors?: Array<{ count: number }>;
+  bufferViews?: Array<{ byteLength: number }>;
+  images?: Array<{ name?: string; bufferView?: number; uri?: string }>;
+  materials?: Array<Record<string, unknown>>;
+  meshes?: Array<{ primitives: Array<{ indices?: number }> }>;
+  textures?: Array<{ source?: number }>;
+}
+
+interface TextureReference {
+  skinShade: boolean;
+}
+
+function textureReferencesByIndex(gltf: GltfJson): Map<number, TextureReference[]> {
+  const references = new Map<number, TextureReference[]>();
+
+  function visit(value: unknown, skinShade: boolean): void {
+    if (Array.isArray(value)) {
+      for (const item of value) visit(item, skinShade);
+      return;
+    }
+    if (value === null || typeof value !== "object") return;
+
+    const record = value as Record<string, unknown>;
+    if (Number.isInteger(record["index"])) {
+      const textureIndex = record["index"] as number;
+      const existing = references.get(textureIndex) ?? [];
+      existing.push({ skinShade });
+      references.set(textureIndex, existing);
+    }
+
+    for (const [key, child] of Object.entries(record)) {
+      visit(child, skinShade || key === "OPENCLINXR_skin_shade");
+    }
+  }
+
+  for (const material of gltf.materials ?? []) visit(material, false);
+  return references;
+}
+
+function peerMedianImageIndexes(gltf: GltfJson): Set<number> {
+  const textureReferences = textureReferencesByIndex(gltf);
+  const imageReferences = new Map<number, TextureReference[]>();
+
+  for (const [textureIndex, references] of textureReferences) {
+    const imageIndex = gltf.textures?.[textureIndex]?.source;
+    if (imageIndex === undefined) continue;
+    imageReferences.set(imageIndex, [...(imageReferences.get(imageIndex) ?? []), ...references]);
+  }
+
+  const included = new Set<number>();
+  for (let imageIndex = 0; imageIndex < (gltf.images?.length ?? 0); imageIndex++) {
+    const references = imageReferences.get(imageIndex);
+    // Preserve the prior behavior for unreferenced images.
+    if (references === undefined || references.some((reference) => !reference.skinShade)) {
+      included.add(imageIndex);
+    }
+  }
+  return included;
+}
+
+function bodyInfoFromGltf(gltf: GltfJson, file: string, totalBytes = 0): BodyInfo {
+  const peerMedianIndexes = peerMedianImageIndexes(gltf);
+  const accessors = gltf.accessors ?? [];
+  const bufferViews = gltf.bufferViews ?? [];
 
   let totalTris = 0;
   if (gltf.meshes) {
     for (const mesh of gltf.meshes) {
       for (const prim of mesh.primitives) {
         if (prim.indices !== undefined) {
-          const acc = gltf.accessors[prim.indices];
+          const acc = accessors[prim.indices];
+          if (acc === undefined) throw new Error(`missing accessor ${prim.indices}`);
           totalTris += acc.count / 3;
         }
       }
@@ -90,25 +153,37 @@ function parseGlbImages(glbPath: string): BodyInfo {
 
   const images: ImageInfo[] = [];
   if (gltf.images) {
-    for (let i = 0; i < gltf.images.length; i++) {
-      const img = gltf.images[i];
+    for (const [i, img] of gltf.images.entries()) {
       const name = img.name || `image_${i}`;
       let imgBytes = 0;
       if (img.bufferView !== undefined) {
-        const bv = gltf.bufferViews[img.bufferView];
+        const bv = bufferViews[img.bufferView];
+        if (bv === undefined) throw new Error(`missing buffer view ${img.bufferView}`);
         imgBytes = bv.byteLength;
       } else if (img.uri?.startsWith("data:")) {
         const b64 = img.uri.split(",")[1];
+        if (b64 === undefined) throw new Error(`missing data payload for ${name}`);
         imgBytes = Math.ceil(Buffer.byteLength(b64, "base64") * 3 / 4);
       }
-      images.push({ name, imgBytes });
+      images.push({ name, imgBytes, includedInPeerMedian: peerMedianIndexes.has(i) });
     }
   }
 
   const totalTexture = images.reduce((s, i) => s + i.imgBytes, 0);
   images.sort((a, b) => b.imgBytes - a.imgBytes);
 
-  return { file: path.basename(glbPath), totalBytes, totalTris, totalTexture, images };
+  return { file, totalBytes, totalTris, totalTexture, images };
+}
+
+function parseGlbImages(glbPath: string): BodyInfo {
+  const buf = fs.readFileSync(glbPath);
+  const magic = buf.readUInt32LE(0);
+  if (magic !== 0x46546c67) throw new Error(`Not a GLB: ${glbPath}`);
+  const totalBytes = buf.readUInt32LE(8);
+  const chunk0Len = buf.readUInt32LE(12);
+  const jsonStr = buf.subarray(20, 20 + chunk0Len).toString("utf8");
+  const gltf = JSON.parse(jsonStr) as GltfJson;
+  return bodyInfoFromGltf(gltf, path.basename(glbPath), totalBytes);
 }
 
 function getShippedBodies(): BodyInfo[] {
@@ -133,6 +208,15 @@ function median(values: number[]): number {
   return (lo + hi) / 2;
 }
 
+function peerMedianBytes(body: BodyInfo): number[] {
+  return body.images.filter((image) => image.includedInPeerMedian).map((image) => image.imgBytes);
+}
+
+function maxToPeerMedianRatio(body: BodyInfo): number {
+  const maxBytes = Math.max(...body.images.map((image) => image.imgBytes));
+  return maxBytes / median(peerMedianBytes(body));
+}
+
 describe("no shipped garment texture dwarfs its body's other images", () => {
   const bodies = getShippedBodies();
 
@@ -152,12 +236,12 @@ describe("no shipped garment texture dwarfs its body's other images", () => {
       totalTris: 0,
       totalTexture: 10_000_000,
       images: [
-        { name: "tightjeans", imgBytes: 5_441_511 },
-        { name: "skin", imgBytes: 1_000_000 },
-        { name: "eyes", imgBytes: 600_000 },
+        { name: "tightjeans", imgBytes: 5_441_511, includedInPeerMedian: true },
+        { name: "skin", imgBytes: 1_000_000, includedInPeerMedian: true },
+        { name: "eyes", imgBytes: 600_000, includedInPeerMedian: true },
       ],
     };
-    const med = median(PLANTED_VIOLATION.images.map((i) => i.imgBytes));
+    const med = median(peerMedianBytes(PLANTED_VIOLATION));
     const plantedTop = PLANTED_VIOLATION.images[0];
     if (plantedTop === undefined) throw new Error("missing planted violation image");
     const ratio = plantedTop.imgBytes / med;
@@ -171,19 +255,74 @@ describe("no shipped garment texture dwarfs its body's other images", () => {
     const aishaTj = aisha!.images.find((i) => i.name.toLowerCase().includes("tightjeans"));
     expect(aishaTj).toBeDefined();
     expect(aishaTj!.imgBytes).toBe(1_196_954);
-    const aishaMed = median(aisha!.images.map((i) => i.imgBytes));
+    const aishaMed = median(peerMedianBytes(aisha!));
     const aishaRatio = aishaTj!.imgBytes / aishaMed;
     expect(aishaRatio).toBeLessThanOrEqual(TEXTURE_DWARF_THRESHOLD);
   });
 
+  it("keeps an image shared by base color and skin shade in the peer median", () => {
+    // Synthetic byte lengths are illustrative; only reference classification matters.
+    const fixture = bodyInfoFromGltf({
+      bufferViews: [{ byteLength: 100 }, { byteLength: 300 }, { byteLength: 500 }],
+      images: [
+        { name: "shared", bufferView: 0 },
+        { name: "peer", bufferView: 1 },
+        { name: "top", bufferView: 2 },
+      ],
+      textures: [{ source: 0 }, { source: 1 }, { source: 2 }],
+      materials: [{
+        pbrMetallicRoughness: { baseColorTexture: { index: 0 } },
+        normalTexture: { index: 1 },
+        emissiveTexture: { index: 2 },
+        extensions: {
+          OPENCLINXR_skin_shade: { curvatureTexture: { index: 0 } },
+        },
+      }],
+    }, "_shared_fixture.glb");
+
+    expect(peerMedianBytes(fixture)).toEqual([500, 300, 100]);
+    expect(median(peerMedianBytes(fixture))).toBe(300);
+  });
+
+  it("keeps skin-shade-only maps in the max counterweight", () => {
+    // Synthetic byte lengths are illustrative; only max/median population matters.
+    const fixture = bodyInfoFromGltf({
+      bufferViews: [
+        { byteLength: 100 },
+        { byteLength: 200 },
+        { byteLength: 300 },
+        { byteLength: 1_000 },
+      ],
+      images: [
+        { name: "peer-low", bufferView: 0 },
+        { name: "peer-mid", bufferView: 1 },
+        { name: "peer-high", bufferView: 2 },
+        { name: "skin-shade-only", bufferView: 3 },
+      ],
+      textures: [{ source: 0 }, { source: 1 }, { source: 2 }, { source: 3 }],
+      materials: [{
+        pbrMetallicRoughness: {
+          baseColorTexture: { index: 0 },
+          metallicRoughnessTexture: { index: 1 },
+        },
+        normalTexture: { index: 2 },
+        extensions: {
+          OPENCLINXR_skin_shade: { detailNormalTexture: { index: 3 } },
+        },
+      }],
+    }, "_counterweight_fixture.glb");
+
+    expect(peerMedianBytes(fixture)).toEqual([300, 200, 100]);
+    expect(maxToPeerMedianRatio(fixture)).toBe(5);
+    expect(maxToPeerMedianRatio(fixture)).toBeGreaterThan(TEXTURE_DWARF_THRESHOLD);
+  });
+
   it("every multi-image body passes threshold (no exceptions)", () => {
     const multiImageBodies = bodies.filter((b) => b.images.length > 1);
+    expect(Object.keys(EXCEPTION_MAP)).toHaveLength(0);
 
     for (const body of multiImageBodies) {
-      const med = median(body.images.map((i) => i.imgBytes));
-      const maxImg = body.images[0]; // already sorted desc
-      if (maxImg === undefined) throw new Error(`missing max image for ${body.file}`);
-      const ratio = maxImg.imgBytes / med;
+      const ratio = maxToPeerMedianRatio(body);
       expect(ratio).toBeLessThanOrEqual(TEXTURE_DWARF_THRESHOLD);
     }
   });
@@ -198,10 +337,7 @@ describe("no shipped garment texture dwarfs its body's other images", () => {
 
     let maxRatio = 0;
     for (const body of multiImageBodies) {
-      const med = median(body.images.map((i) => i.imgBytes));
-      const top = body.images[0];
-      if (top === undefined) throw new Error(`missing top image for ${body.file}`);
-      const ratio = top.imgBytes / med;
+      const ratio = maxToPeerMedianRatio(body);
       if (ratio > maxRatio) maxRatio = ratio;
     }
 

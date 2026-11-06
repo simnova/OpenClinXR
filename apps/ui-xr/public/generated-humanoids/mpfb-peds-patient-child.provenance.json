@@ -48,6 +48,7 @@
   "madr_0051_s5_landmark_match_within_bands"
  ],
  "sourceNotes": [
+  "2026-11-05 st-vitbody3 r2: post-export skin-shade carrier repack via repack_skin_shade.py; face strength 0.15 (st-vitbody3 r4 sweep pick 0.15/0.25/0.35/0.5, CEO 1:1 grade 2026-11-06), body strength 0.3; curvature e9e460ae47d8becbd8d4c279f5744e3ca4d364f562504d314a3bd56bf0b914f0, cavity 099ac43c0593aa3cb2872b559347df1e1516012cec99d68d0dce9f604a40f8e7; geometry, rig, garments, eyes, and animations unchanged.",
   "Issue #328 first slice of the transition off Anny-only assets: Anny is the REFERENCE, MPFB2 is the generated body.",
   "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
   "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
@@ -72,8 +73,8 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-11T23:26:23Z",
- "outputSha256": "2f1ebcd1f7b293c9c7047e46cfa1296988f29f8bba14610156fa9d41a475a9b3",
- "outputBytes": 10418700,
+ "outputSha256": "257f821bac2db2f02eec3f16bdf69bdb559c11e9cd34bef639bf1f32ca9b907f",
+ "outputBytes": 10842652,
  "albedoBakeWrittenAt": "2026-09-11T23:26:23Z",
  "albedoBakeNote": "HB-07 attempt 5 full-chain rebake (materialize -> bake-humanoid-albedo.ts -> separate_chest_anchor_joints.mjs; decimation skipped, chosenRungId=raw). Capture-aligned 4096 screen-space unhide after REHIDE; garment-only occluder; sleeve prim4 f79/f190 restored to skin.",
  "command": "blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/materialize/mpfb-peds-patient-child.glb --reference peds_patient_child --actor-role patient | tsx tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts --inputs /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/materialize/mpfb-peds-patient-child.glb --outdir /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo --report /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo-report.json | node tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs --input /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo/mpfb-peds-patient-child.glb --output /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/final/mpfb-peds-patient-child.glb --report /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/chest-anchor.json --half-span-m 0.085",
@@ -139,9 +140,9 @@
   "mode": "renormalize t-shirt on origin bytes (kept photo texels), st-palette landing 2026-11-04",
   "inputSha256": "52ab0569b8172735e6b156af22c79fc0f424ee7fd494314aa8ccb65e0a770c01",
   "inputBytes": 10418728,
-  "wovenSha256": "2f1ebcd1f7b293c9c7047e46cfa1296988f29f8bba14610156fa9d41a475a9b3",
-  "outputSha256": "2f1ebcd1f7b293c9c7047e46cfa1296988f29f8bba14610156fa9d41a475a9b3",
-  "outputBytes": 10418700,
+  "wovenSha256": "257f821bac2db2f02eec3f16bdf69bdb559c11e9cd34bef639bf1f32ca9b907f",
+  "outputSha256": "257f821bac2db2f02eec3f16bdf69bdb559c11e9cd34bef639bf1f32ca9b907f",
+  "outputBytes": 10842652,
   "reports": [
    "/Volumes/files/openclinxr-assets/store/st-palette/r7-work/maya-renorm-r7.json"
   ],

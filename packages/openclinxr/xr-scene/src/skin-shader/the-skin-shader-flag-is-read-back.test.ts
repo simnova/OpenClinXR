@@ -84,6 +84,7 @@ function stubShader(): {
 }
 
 const GLSL_BUILTINS = new Set([
+  "abs",
   "cross",
   "dFdx",
   "dFdy",
@@ -247,6 +248,22 @@ describe("the skin shader flag is read back", () => {
       await expect(portraitMaterialWithFlag({ specularOcclusion: -1 })).rejects.toThrow();
     });
     await expect(portraitMaterialWithFlag(true, null)).rejects.toThrow(/skinShadeCurvatureUrl/);
+  });
+
+  it("refuses a second skin-shade install instead of stacking different options", async () => {
+    await withCurvatureTexture(async () => {
+      const mat = new MeshStandardMaterial({ name: "mpfb_skin_ob_patient_aisha_v1" });
+      const root = new Group();
+      root.add(new Mesh(new BoxGeometry(1, 1, 1), mat));
+      await applyMaterialOverrides(root, [
+        { match: "mpfb_skin", skinShade: { blurMix: 0.3 }, skinShadeCurvatureUrl: CURV_URL },
+      ]);
+      await expect(
+        applyMaterialOverrides(root, [
+          { match: "mpfb_skin", skinShade: { blurMix: 0.8 }, skinShadeCurvatureUrl: CURV_URL },
+        ]),
+      ).rejects.toThrow(/already has skin shade installed/);
+    });
   });
 
   it("G-cavity: the flag path occludes specular and lifts roughness, never the albedo", async () => {
@@ -479,6 +496,7 @@ function tinySkinGltf(
   detailNormalStrength?: number,
   bodyDetailNormalStrength?: number,
   sharedDetailTexture = false,
+  primitiveCount = 1,
 ): string {
   const positions = new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]);
   const indices = new Uint16Array([0, 1, 2]);
@@ -491,7 +509,11 @@ function tinySkinGltf(
     meshes: [
       {
         name: "body",
-        primitives: [{ attributes: { POSITION: 0 }, indices: 1, material: 0 }],
+        primitives: Array.from({ length: primitiveCount }, () => ({
+          attributes: { POSITION: 0 },
+          indices: 1,
+          material: 0,
+        })),
       },
     ],
     materials: [
@@ -581,6 +603,50 @@ function skinMaterialsOf(root: Group): MeshStandardMaterial[] {
 }
 
 describe("the skin shade loader installs the hook from GLB bytes", () => {
+  it("installs one hook when two primitives share one skin-shade material", async () => {
+    const platform = globalThis as unknown as { ProgressEvent?: typeof Event; self?: unknown };
+    if (!platform.ProgressEvent) platform.ProgressEvent = class extends Event {};
+    if (platform.self === undefined) platform.self = globalThis;
+    const fake = new DataTexture(new Uint8Array([128, 128, 128, 255]), 1, 1);
+    const orig = TextureLoader.prototype.load;
+    TextureLoader.prototype.load = ((_url: unknown, onLoad?: (tex: unknown) => void) => {
+      queueMicrotask(() => onLoad?.(fake));
+      return fake;
+    }) as never;
+    try {
+      const gltf = await createSkinShadeGLTFLoader().parseAsync(
+        tinySkinGltf(undefined, undefined, false, 2),
+        "",
+      );
+      const mats = skinMaterialsOf(gltf.scene);
+      expect(mats, "both primitives retain the shared skin material").toHaveLength(2);
+      expect(new Set(mats).size, "the two primitives use one material identity").toBe(1);
+      expect(mats[0]!.version, "applySkinShade installs exactly once on that material").toBe(1);
+
+      const shader = {
+        uniforms: {} as Record<string, { value: unknown }>,
+        vertexShader: ShaderLib.standard.vertexShader,
+        fragmentShader: ShaderLib.standard.fragmentShader,
+      };
+      mats[0]!.onBeforeCompile(shader as never, {} as never);
+      const occurrences = (source: string, needle: string): number =>
+        source.split(needle).length - 1;
+      expect(occurrences(shader.vertexShader, "varying vec3 vSkinSmoothN;")).toBe(1);
+      for (const marker of [
+        "uniform float uSkinTCoef;",
+        "vec2 skinUv = vec2(-1.0, -1.0);",
+        "float skinZoneW = clamp(skinTz + skinLip, 0.0, 1.0);",
+        "normal = normalize(mix(normal, normalize(vSkinSmoothN), uSkinBlurMix));",
+        "reflectedLight.directSpecular *= (1.0 - uSkinSpecOccl * skinCavTex);",
+        "totalEmissiveRadiance += diffuseColor.rgb *",
+      ]) {
+        expect(occurrences(shader.fragmentShader, marker), marker).toBe(1);
+      }
+    } finally {
+      TextureLoader.prototype.load = orig;
+    }
+  });
+
   it("factory: extension-carrying material reports installed, curvature bound to the GLB texture", async () => {
     const platform = globalThis as unknown as { ProgressEvent?: typeof Event; self?: unknown };
     if (!platform.ProgressEvent) platform.ProgressEvent = class extends Event {};
@@ -646,6 +712,31 @@ describe("the skin shade loader installs the hook from GLB bytes", () => {
       expect(detail.matrix.elements[8]).toBe(1);
       expect(shader.fragmentShader).toMatch(
         /texture2D\(uSkinDetailNormalMap, skinDetailUv\)/,
+      );
+      expect(
+        shader.fragmentShader,
+        "face detail normal is suppressed by the existing lip mask",
+      ).toContain(
+        "skinDetailNormal.xy *= uSkinDetailNormalStrength * (1.0 - skinLip);",
+      );
+      expect(shader.fragmentShader, "stretch fade derives the map-UV Jacobian").toContain(
+        "vec2 skinStretchUvDx = dFdx(vMapUv), skinStretchUvDy = dFdy(vMapUv);",
+      );
+      expect(shader.fragmentShader, "stretch fade derives the view-position Jacobian").toContain(
+        "vec3 skinStretchPositionDx = dFdx(-vViewPosition), skinStretchPositionDy = dFdy(-vViewPosition);",
+      );
+      expect(shader.fragmentShader, "stretch fade uses the ruled anisotropy ramp").toContain(
+        "1.0 - smoothstep(4.0, 8.0, skinStretchAnisotropy)",
+      );
+      // GLSL ES has no smoothstep(int, int, float) overload: an integer literal fails the
+      // fragment compile in the browser and the whole skin stops drawing (st-vitbody3 r4d,
+      // 2026-11-06: `smoothstep(4, 8, ...)` -> "no matching overloaded function found").
+      expect(
+        shader.fragmentShader.match(/smoothstep\(\s*-?\d+\s*[,)]|smoothstep\([^,]+,\s*-?\d+\s*,/g) ?? [],
+        "every smoothstep edge in the assembled program is a float literal or expression",
+      ).toEqual([]);
+      expect(shader.fragmentShader, "stretch fade scales the combined detail perturbation").toContain(
+        "skinDetailNormal.xy *= skinStretchFade;",
       );
       expect(
         unresolvedDetailCalls(shader.fragmentShader),

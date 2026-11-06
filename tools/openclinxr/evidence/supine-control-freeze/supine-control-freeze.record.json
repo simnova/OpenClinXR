@@ -5,11 +5,11 @@
     "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": "8816c56eceafd02398077b623975d8948c09549fd9d43bce489040c8c58d42ea",
     "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "c7def44bda87d5d115d53c794f546ec6bf1b5ae655865f00df4262cdf538e6ab",
     "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": "e8896ed8905266c54ec87191a50c48e73e755f9b887a527190b0ed7fba5bca27",
-    "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "e5620a7c8ef8d41aebc4766b9a8375a9c6bf0106cacee268cdd34ea14b9020f3",
-    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "61a2fcbf03b0c9ee510d87c545ad196ed79b794d8f1129c93a91e3743630049c",
-    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "e217d3c96d62b98ba3650e627e6a6e0469714d837370b73d8dcece868ae9950c",
-    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "9141538a76220c8431573ed185a24d5eb710429bca27f9844a8cee99c180d425",
-    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "e52a3e25f86d49bc76d2c32b46c3523b0871feda11d5a7f9fbc09e5c941c8be8"
+    "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "f5c60292cca74033a120172a4473794be9e253a709b8a38c3a929cd7472bffc5",
+    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "47134447a0a5e0fd9f6206e5f5ebe3e7e728b9db527646bd5d830cfbabe7f165",
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "6c908f97c3048adad699edde7f67c7465e33402895cfa2e53cbe92d08af0f20b",
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "c06b6c065830d0dbafcd076bf66597acec5d396cf2537b3f52982458b813aeba",
+    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "9cf92b1e9661060987802676c9c04ae433d783eae2182bc383a8232cea330897"
   },
   "staged": {
     "posture": "supine",
@@ -17,18 +17,18 @@
     "clearanceAboveDeckMeters": 0.25
   },
   "producedFrom": {
-    "observedBy": "st-vitbrowdense r5b worker",
-    "observedAtIso": "2026-11-05T19:41:48.807Z",
-    "reason": "st-vitbrowdense r5b fitted-brow transplant (style 10 -> graded style 07), hair no-op, and replayed subject-derived roughness: family partner 9196228->9649116 B (67540225->61a2fcbf); re-baselined through produceSupineControlFreeze. st-vitrough r4 post-export roughness breakup stage (skin metallicRoughness texture only; geometry unchanged): family partner 9182096->9196228 B (b4195761->67540225); re-baselined through computeSupineControlFreeze. Prior: st-vitbrow r4 post-export hair colour stage (scalp+brow baseColorFactor only, JSON chunk; BIN verbatim): family partner 9182184->9182096 B (1768552e->b4195761); re-baselined through computeSupineControlFreeze. Prior: st-vitdark r9 dark-tail soft floor in the post-export skin remap (skin baseColor only; geometry/BIN verbatim): family partner 9178752->9182184 B (85d98d37->1768552e); re-baselined through computeSupineControlFreeze. Prior: st-vitdark r3 dark-family skin remap (post-export byte stage, skin baseColor only; geometry/BIN verbatim): family partner 9330184->9178752 B (fb37db5e->85d98d37); re-baselined through producer",
+    "observedBy": "st-vitbody3 r4 face 0.15 repin (rebased on st-vitfamily)",
+    "observedAtIso": "2026-11-07T00:00:57.590Z",
+    "reason": "Face detail strength 0.15 repacked 8 shipped GLBs; refresh live byte pins.",
     "byteCountByPath": {
       "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9221980,
       "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9308164,
       "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": 9000208,
-      "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 6763692,
-      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 9649116,
-      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 8775848,
-      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 9293412,
-      "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 16074580
+      "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 7196640,
+      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 10077060,
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 9233948,
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 9476168,
+      "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 16526836
     }
   }
 }

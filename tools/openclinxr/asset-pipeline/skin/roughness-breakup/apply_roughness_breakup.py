@@ -389,23 +389,65 @@ def map_metrics(green: np.ndarray, masks: dict[str, np.ndarray],
 
 def reconstruct_input_doc(doc: dict, record: dict) -> dict:
     restored = copy.deepcopy(doc)
-    if len(restored["bufferViews"]) != record["preExistingBufferViewCount"] + 1:
-        raise RuntimeError("unexpected post-stage bufferView count")
+    if int(record["bufferViewIndex"]) != int(record["preExistingBufferViewCount"]):
+        raise RuntimeError("roughness stage bufferView index does not follow its recorded input")
+    if int(restored["images"][int(record["imageIndex"])]["bufferView"]) != int(
+        record["bufferViewIndex"]
+    ):
+        raise RuntimeError("roughness stage image no longer names its recorded bufferView")
+    if int(restored["textures"][int(record["textureIndex"])]["source"]) != int(
+        record["imageIndex"]
+    ):
+        raise RuntimeError("roughness stage texture no longer names its recorded image")
     for collection, key in (("textures", "textureIndex"), ("images", "imageIndex"),
                             ("bufferViews", "bufferViewIndex")):
         index = int(record[key])
-        if index != len(restored[collection]) - 1:
-            raise RuntimeError(f"stage {collection} entry is not append-only")
-        restored[collection].pop()
+        if index >= len(restored[collection]):
+            raise RuntimeError(f"stage {collection} entry is missing")
+        # This stage and every later byte stage are append-only.  Truncating at
+        # the recorded stage index reconstructs the exact pre-stage collection
+        # even when OPENCLINXR_skin_shade appended more entries afterwards.
+        del restored[collection][index:]
     pbr = restored["materials"][int(record["skinMaterialIndex"])]["pbrMetallicRoughness"]
     pbr.pop("metallicRoughnessTexture", None)
     pbr["roughnessFactor"] = record["inputRoughnessFactor"]
+    for material in restored.get("materials", []):
+        extensions = material.get("extensions", {})
+        extensions.pop("OPENCLINXR_skin_shade", None)
+        if not extensions:
+            material.pop("extensions", None)
+    for key in ("extensionsUsed", "extensionsRequired"):
+        if key not in restored:
+            continue
+        restored[key] = [
+            name for name in restored[key]
+            if name != "OPENCLINXR_skin_shade"
+            and not (
+                name == "KHR_texture_transform"
+                and not any(
+                    isinstance(value, dict) and "KHR_texture_transform" in value
+                    for value in _walk_json(restored)
+                )
+            )
+        ]
+        if not restored[key]:
+            restored.pop(key)
     restored["buffers"][0]["byteLength"] = int(record["inputBufferBytes"])
     extras = restored["asset"]["extras"]
     extras.pop(EXTRAS_KEY, None)
     if not record["inputHadAssetExtras"] and not extras:
         restored["asset"].pop("extras")
     return restored
+
+
+def _walk_json(value: object):
+    yield value
+    if isinstance(value, dict):
+        for child in value.values():
+            yield from _walk_json(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from _walk_json(child)
 
 
 def inspect_stage(raw: bytes, derive: Path, known_good: Path | None = None) -> dict:

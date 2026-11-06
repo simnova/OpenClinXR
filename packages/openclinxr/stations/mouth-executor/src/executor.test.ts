@@ -235,6 +235,15 @@ describe("mouth executor", () => {
         outputSha256: string;
         outputBytes: number;
       };
+      skinShadeCarrier?: {
+        tool: string;
+        toolSha256: string;
+        reference: string;
+        inputSha256: string;
+        inputBytes: number;
+        outputSha256: string;
+        outputBytes: number;
+      };
     };
     const stamp = pre.garmentProvenanceStamp;
     if (!stamp?.inputArchiveSha256 || !stamp?.outputSha256 || !stamp?.tool || !stamp?.toolSha256 || !Array.isArray(stamp?.changes)) {
@@ -494,6 +503,33 @@ describe("mouth executor", () => {
         expect(sha256(wovenBytes)).toBe(weave.outputSha256);
         expect(wovenBytes.length).toBe(weave.outputBytes);
         replayBytes = wovenBytes;
+      }
+      // 3j. Optional skinShadeCarrier post-stage (st-vitbody3 r2/r4b): replay
+      // the carrier producer after the weave instead of rewriting the weave's
+      // own output pin to the later GLB digest.
+      const carrier = pre.skinShadeCarrier;
+      if (carrier) {
+        if (
+          !carrier.tool || !carrier.toolSha256 || !carrier.reference ||
+          !carrier.inputSha256 || !carrier.outputSha256 ||
+          !carrier.inputBytes || !carrier.outputBytes
+        ) {
+          throw new Error("receipt skinShadeCarrier missing fields");
+        }
+        expect(sha256(readFileSync(path.join(REPO, carrier.tool)))).toBe(carrier.toolSha256);
+        expect(carrier.inputSha256).toBe(sha256(replayBytes));
+        expect(carrier.inputBytes).toBe(replayBytes.length);
+        const carrierGlb = path.join(dir, "skin-shade.glb");
+        writeFileSync(carrierGlb, Buffer.from(replayBytes));
+        execFileSync(
+          "mise",
+          ["exec", "--", "python3", path.join(REPO, carrier.tool), carrierGlb, "--reference", carrier.reference],
+          { cwd: REPO, stdio: "pipe", timeout: 300_000 },
+        );
+        const carrierBytes = readFileSync(carrierGlb);
+        expect(sha256(carrierBytes)).toBe(carrier.outputSha256);
+        expect(carrierBytes.length).toBe(carrier.outputBytes);
+        replayBytes = carrierBytes;
       }
       // Final top linkage: the receipt top must equal the last recorded stage output.
       expect(sha256(replayBytes)).toBe(pre.outputSha256);

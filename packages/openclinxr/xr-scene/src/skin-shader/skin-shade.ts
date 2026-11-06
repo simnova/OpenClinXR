@@ -96,11 +96,14 @@ import {
   prepareSkinDetailMaps,
   type ResolvedSkinDetail,
   resolveSkinDetailOptions,
+  type SkinDetailOptions,
   skinShadeBodyCacheFragment,
   skinShadeBodyNormalGlsl,
   skinShadeBodyParsGlsl,
-  type SkinDetailOptions,
 } from "./skin-shade-detail.js";
+import * as L from "./skin-shade-landmarks.js";
+
+export * from "./skin-shade-landmarks.js";
 
 /** Default T-zone coefficient: build_roughness.py --tcoef default 0.08. */
 export const SKIN_TCOEF_DEFAULT = 0.08;
@@ -110,37 +113,6 @@ export const SKIN_LIP_ROUGHNESS = 0.45;
 export const SKIN_ROUGH_BASE = 0.62;
 export const SKIN_ROUGH_MIN = 0.3;
 export const SKIN_ROUGH_MAX = 0.8;
-
-/** Aisha landmark UVs (derive/A/landmarks-uv.json, size 4096, row v*S). */
-export const SKIN_NOSE_UV: readonly [number, number] = [0.86579, 0.51683];
-export const SKIN_NOSTRIL_L_UV: readonly [number, number] = [0.87877, 0.49666];
-export const SKIN_NOSTRIL_R_UV: readonly [number, number] = [0.87877, 0.53701];
-export const SKIN_CHIN_UV: readonly [number, number] = [0.95968, 0.51683];
-export const SKIN_BROW_INNER_L_UV: readonly [number, number] = [0.82466, 0.50067];
-export const SKIN_BROW_INNER_R_UV: readonly [number, number] = [0.82745, 0.53292];
-export const SKIN_LIP_CORNER_L_UV: readonly [number, number] = [0.91006, 0.50143];
-export const SKIN_LIP_CORNER_R_UV: readonly [number, number] = [0.90978, 0.53211];
-/**
- * lip-mid-upper (0.92046, 0.9082) is EXCLUDED: its v jumps 0.39 off the
- * corner/lower-mid line (v~0.517), a seam-side outlier. Lip centre is the
- * corner midpoint, consistent with lip-mid-lower (0.90664, 0.51684).
- */
-export const SKIN_LIP_UV: readonly [number, number] = [
-  (0.91006 + 0.90978) / 2,
-  (0.50143 + 0.53211) / 2,
-];
-
-/** Disk radii as fractions of map size S: build_roughness.py R_NOSE/R_CHIN/R_FOREHEAD. */
-export const SKIN_R_NOSE = 0.035;
-export const SKIN_R_CHIN = 0.03;
-export const SKIN_R_FOREHEAD = 0.055;
-/** Forehead push past the brows: build_roughness.py FOREHEAD_PUSH 0.5. */
-export const SKIN_FOREHEAD_PUSH = 0.5;
-/** Lip/nostril disk radii (recorded implementation constants, sweep-graded). */
-export const SKIN_R_LIP = 0.02;
-export const SKIN_R_NOSTRIL = 0.012;
-/** Mask feather in UV: blur-12 at 4096 ~= 0.0029 (build_roughness.py). */
-export const SKIN_FEATHER_UV = 0.004;
 
 /** Curvature map channel: the bake is grayscale EMIT (R=G=B). */
 export const SKIN_CURVATURE_CHANNEL = "r";
@@ -154,14 +126,16 @@ export const SKIN_CURVATURE_CHANNEL = "r";
 export const SKIN_CAVITY_CHANNEL = "g";
 /** Cavity roughness coefficient: build_roughness.py:114 "+0.08*C". */
 export const SKIN_CAVITY_ROUGHNESS = 0.08;
+export const SKIN_STRETCH_FADE_START = 4.0; // cast p99 of per-tri UV anisotropy, 3.02-4.10 over 8 shaded actors, 2026-11-06 (st-vitbody3 E/r4/uvaniso.py); the partner jaw streak tri at 17.8 sits on the far side
+export const SKIN_STRETCH_FADE_END = 8.0; // 2x START; ramp width is graded at 1:1 by the CEO (nasolabial, mouth corners)
 
 /** Forehead centre, mirroring build_roughness.py (brow-end-inner mid pushed past brows). */
 export function skinForeheadUv(): readonly [number, number] {
-  const midU = (SKIN_BROW_INNER_L_UV[0] + SKIN_BROW_INNER_R_UV[0]) / 2;
-  const midV = (SKIN_BROW_INNER_L_UV[1] + SKIN_BROW_INNER_R_UV[1]) / 2;
+  const midU = (L.SKIN_BROW_INNER_L_UV[0] + L.SKIN_BROW_INNER_R_UV[0]) / 2;
+  const midV = (L.SKIN_BROW_INNER_L_UV[1] + L.SKIN_BROW_INNER_R_UV[1]) / 2;
   return [
-    midU + (midU - SKIN_NOSE_UV[0]) * SKIN_FOREHEAD_PUSH,
-    midV + (midV - SKIN_NOSE_UV[1]) * SKIN_FOREHEAD_PUSH,
+    midU + (midU - L.SKIN_NOSE_UV[0]) * L.SKIN_FOREHEAD_PUSH,
+    midV + (midV - L.SKIN_NOSE_UV[1]) * L.SKIN_FOREHEAD_PUSH,
   ];
 }
 
@@ -282,13 +256,13 @@ uniform vec2 uSkinNosLUv;
 uniform vec2 uSkinNosRUv;
 float skinShadeDisk(vec2 uv, vec2 centre, float radius) {
   float d = distance(uv, centre);
-  return 1.0 - smoothstep(radius - ${SKIN_FEATHER_UV}, radius + ${SKIN_FEATHER_UV}, d);
+  return 1.0 - smoothstep(radius - ${L.SKIN_FEATHER_UV}, radius + ${L.SKIN_FEATHER_UV}, d);
 }
 float skinShadeTZone(vec2 uv) {
   return max(max(
-    skinShadeDisk(uv, uSkinNoseUv, ${SKIN_R_NOSE}),
-    skinShadeDisk(uv, uSkinChinUv, ${SKIN_R_CHIN})),
-    skinShadeDisk(uv, uSkinForeheadUv, ${SKIN_R_FOREHEAD}));
+    skinShadeDisk(uv, uSkinNoseUv, ${L.SKIN_R_NOSE}),
+    skinShadeDisk(uv, uSkinChinUv, ${L.SKIN_R_CHIN})),
+    skinShadeDisk(uv, uSkinForeheadUv, ${L.SKIN_R_FOREHEAD}));
 }
 `;
 }
@@ -301,10 +275,10 @@ vec2 skinUv = vec2(-1.0, -1.0);
 skinUv = vMapUv;
 #endif
 float skinTz = skinShadeTZone(skinUv);
-float skinLip = skinShadeDisk(skinUv, uSkinLipUv, ${SKIN_R_LIP});
+float skinLip = skinShadeDisk(skinUv, uSkinLipUv, ${L.SKIN_R_LIP});
 float skinNos = max(
-  skinShadeDisk(skinUv, uSkinNosLUv, ${SKIN_R_NOSTRIL}),
-  skinShadeDisk(skinUv, uSkinNosRUv, ${SKIN_R_NOSTRIL}));
+  skinShadeDisk(skinUv, uSkinNosLUv, ${L.SKIN_R_NOSTRIL}),
+  skinShadeDisk(skinUv, uSkinNosRUv, ${L.SKIN_R_NOSTRIL}));
 float skinCurv = texture2D(uSkinCurvMap, skinUv).${SKIN_CURVATURE_CHANNEL};
 float skinConvex = clamp((skinCurv - ${SKIN_CURVATURE_FLAT}) * 2.0, 0.0, 1.0);
 float skinCav = clamp((${SKIN_CURVATURE_FLAT} - skinCurv) * 2.0, 0.0, 1.0);
@@ -356,11 +330,30 @@ normal = normalize(mix(normal, normalize(vSkinSmoothN), uSkinBlurMix));
 ${
   detailNormal
     ? `if (uSkinDetailNormalStrength > 0.0) {
+  vec2 skinStretchUvDx = dFdx(vMapUv), skinStretchUvDy = dFdy(vMapUv);
+  vec3 skinStretchPositionDx = dFdx(-vViewPosition), skinStretchPositionDy = dFdy(-vViewPosition);
+  float skinStretchDeterminant = skinStretchUvDx.x * skinStretchUvDy.y - skinStretchUvDx.y * skinStretchUvDy.x;
+  float skinStretchTiny = 1e-12;
+  float skinStretchAnisotropy = 1e20;
+  if (abs(skinStretchDeterminant) >= skinStretchTiny) {
+    vec3 skinStretchJu = (skinStretchPositionDx * skinStretchUvDy.y - skinStretchPositionDy * skinStretchUvDx.y) / skinStretchDeterminant;
+    vec3 skinStretchJv = (-skinStretchPositionDx * skinStretchUvDy.x + skinStretchPositionDy * skinStretchUvDx.x) / skinStretchDeterminant;
+    float skinStretchA = dot(skinStretchJu, skinStretchJu);
+    float skinStretchB = dot(skinStretchJu, skinStretchJv);
+    float skinStretchC = dot(skinStretchJv, skinStretchJv);
+    float skinStretchDiscriminant = sqrt((skinStretchA - skinStretchC) * (skinStretchA - skinStretchC) + 4.0 * skinStretchB * skinStretchB);
+    skinStretchAnisotropy = sqrt((skinStretchA + skinStretchC + skinStretchDiscriminant) / max(skinStretchA + skinStretchC - skinStretchDiscriminant, skinStretchTiny));
+  }
+  float skinStretchFade = abs(skinStretchDeterminant) < skinStretchTiny
+    ? 0.0
+    : 1.0 - smoothstep(${SKIN_STRETCH_FADE_START.toFixed(1)}, ${SKIN_STRETCH_FADE_END.toFixed(1)}, skinStretchAnisotropy);
   vec2 skinDetailUv = (uSkinDetailUvTransform * vec3(vMapUv, 1.0)).xy;
   vec3 skinDetailNormal = texture2D(uSkinDetailNormalMap, skinDetailUv).xyz * 2.0 - 1.0;
-  skinDetailNormal.xy *= uSkinDetailNormalStrength;
+  skinDetailNormal.xy *= uSkinDetailNormalStrength * (1.0 - skinLip);
   skinDetailNormal = normalize(skinDetailNormal);
-${bodyDetailNormal ? skinShadeBodyNormalGlsl() : ""}  mat3 skinDetailFrame = skinShadeCotangentFrame(-vViewPosition, normal, skinDetailUv);
+${bodyDetailNormal ? skinShadeBodyNormalGlsl() : ""}  skinDetailNormal.xy *= skinStretchFade;
+  skinDetailNormal = normalize(skinDetailNormal);
+  mat3 skinDetailFrame = skinShadeCotangentFrame(-vViewPosition, normal, skinDetailUv);
 #if defined(DOUBLE_SIDED) && !defined(FLAT_SHADED)
   skinDetailFrame[0] *= faceDirection;
   skinDetailFrame[1] *= faceDirection;
@@ -421,6 +414,11 @@ export function applySkinShade(
   material: MeshStandardMaterial | MeshPhysicalMaterial,
   options: SkinShadeOptions = {},
 ): MeshStandardMaterial | MeshPhysicalMaterial {
+  if (skinShadeInstalled(material)) {
+    throw new Error(
+      "applySkinShade: material already has skin shade installed — refusing to stack hooks or replace options",
+    );
+  }
   const resolved = resolveSkinShadeOptions(options);
   const tcoef = skinEffectiveTCoef(resolved);
   const forehead = skinForeheadUv();
@@ -442,12 +440,12 @@ export function applySkinShade(
     shader.uniforms["uSkinSpecOccl"] = { value: resolved.specularOcclusion };
     shader.uniforms["uSkinCurvMap"] = { value: resolved.curvatureMap };
     assignSkinDetailUniforms(shader.uniforms, detailMaps, resolved);
-    shader.uniforms["uSkinNoseUv"] = { value: [SKIN_NOSE_UV[0], SKIN_NOSE_UV[1]] };
-    shader.uniforms["uSkinChinUv"] = { value: [SKIN_CHIN_UV[0], SKIN_CHIN_UV[1]] };
+    shader.uniforms["uSkinNoseUv"] = { value: [L.SKIN_NOSE_UV[0], L.SKIN_NOSE_UV[1]] };
+    shader.uniforms["uSkinChinUv"] = { value: [L.SKIN_CHIN_UV[0], L.SKIN_CHIN_UV[1]] };
     shader.uniforms["uSkinForeheadUv"] = { value: [forehead[0], forehead[1]] };
-    shader.uniforms["uSkinLipUv"] = { value: [SKIN_LIP_UV[0], SKIN_LIP_UV[1]] };
-    shader.uniforms["uSkinNosLUv"] = { value: [SKIN_NOSTRIL_L_UV[0], SKIN_NOSTRIL_L_UV[1]] };
-    shader.uniforms["uSkinNosRUv"] = { value: [SKIN_NOSTRIL_R_UV[0], SKIN_NOSTRIL_R_UV[1]] };
+    shader.uniforms["uSkinLipUv"] = { value: [L.SKIN_LIP_UV[0], L.SKIN_LIP_UV[1]] };
+    shader.uniforms["uSkinNosLUv"] = { value: [L.SKIN_NOSTRIL_L_UV[0], L.SKIN_NOSTRIL_L_UV[1]] };
+    shader.uniforms["uSkinNosRUv"] = { value: [L.SKIN_NOSTRIL_R_UV[0], L.SKIN_NOSTRIL_R_UV[1]] };
     if (resolved.lut) {
       shader.uniforms["uSkinLutMap"] = { value: lutTex };
       shader.uniforms["uSkinKeyDirWorld"] = {

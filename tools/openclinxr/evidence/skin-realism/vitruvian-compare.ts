@@ -29,6 +29,10 @@ import {
   sha256File,
 } from "./runtime-portrait-capture.js";
 
+class PageFaultError extends Error {
+  override name = "PageFaultError";
+}
+
 type HeadlessBrowser = {
   newPage(options?: { viewport: { width: number; height: number }; deviceScaleFactor?: number }): Promise<Page>;
 };
@@ -963,10 +967,17 @@ async function main(): Promise<void> {
       [s.original.servedUrl, { bytes: readFileSync(s.original.abs), contentType: "model/gltf-binary" }],
       [s.candidate.servedUrl, { bytes: readFileSync(s.candidate.abs), contentType: "model/gltf-binary" }],
     ]));
+    const pageFaults: string[] = [];
     await createLocalComputeServices({
       browserLaunch: chromium.launch.bind(chromium, { headless: true, args: ["--enable-unsafe-swiftshader", "--use-angle=swiftshader"] }),
     }).sceneCapture.withBrowser("skin-realism:vitruvian-compare", async (launched: unknown) => {
       const page = await (launched as HeadlessBrowser).newPage({ viewport: { width: cli.size, height: cli.size }, deviceScaleFactor: 1 });
+      // A shader compile/link failure only reaches the page console; the frames still write and
+      // the skin silently stops drawing (st-vitbody3 r2 street, r4d smoothstep(int)). Fail the run.
+      page.on("console", (message) => {
+        if (message.type() === "error") pageFaults.push(`console.error: ${message.text().slice(0, 2000)}`);
+      });
+      page.on("pageerror", (error) => pageFaults.push(`pageerror: ${error.message.slice(0, 2000)}`));
       await page.route("**/__vitcompare/**", async (route) => {
         const pathname = new URL(route.request().url()).pathname;
         const file = stagedByUrl.get(pathname);
@@ -1118,6 +1129,11 @@ async function main(): Promise<void> {
         }
       }
     });
+    if (pageFaults.length > 0) {
+      throw new PageFaultError(
+        `page reported ${pageFaults.length} error(s) during capture (shader compile/link or script); frames are not evidence:\n${pageFaults.slice(0, 5).join("\n---\n")}`,
+      );
+    }
   } finally {
     if (server) await stopPortlessDevServer(server.proc);
   }
@@ -1167,7 +1183,12 @@ async function main(): Promise<void> {
   console.log(`vitruvian compare complete: ${path.relative(cwd, path.join(outAbs, "manifest.json"))}`);
 }
 
+// Exit codes: 1 = a gate (G2 etc.) refused the frames; PAGE_FAULT_EXIT_CODE = the page itself
+// errored (shader compile/link, script), so the frames are not evidence. A sweep that is red on
+// G2 by design must not read the same as a broken shader.
+const PAGE_FAULT_EXIT_CODE = 3;
+
 main().catch((error: unknown) => {
   console.error(error instanceof Error ? error.stack ?? error.message : String(error));
-  process.exitCode = 1;
+  process.exitCode = error instanceof PageFaultError ? PAGE_FAULT_EXIT_CODE : 1;
 });

@@ -135,8 +135,11 @@
   "publicRenderCleared": false,
   "publicRenderBlockedBy": "docs/openclinxr/asset-licence-records/row-07-makehuman-base-mesh.json \u2014 the hm08 basemesh AGPL/CC0 contradiction is unresolved upstream"
  },
- "outputSha256": "e5620a7c8ef8d41aebc4766b9a8375a9c6bf0106cacee268cdd34ea14b9020f3",
- "outputBytes": 6763692,
+ "sourceNotes": [
+  "2026-11-05 st-vitbody3 r2: post-export skin-shade carrier repack via repack_skin_shade.py; face strength 0.15 (st-vitbody3 r4 sweep pick 0.15/0.25/0.35/0.5, CEO 1:1 grade 2026-11-06), body strength 0.3; curvature 481be3ba4e4e3bff4adad9e02de7c3c727fee030b48b4fd94805512981a785e0, cavity d18376567b250376e9b2076e4c65862e4e5ec07018508ce4683b1ca91ffc72f9; geometry, rig, garments, eyes, and animations unchanged."
+ ],
+ "outputSha256": "f5c60292cca74033a120172a4473794be9e253a709b8a38c3a929cd7472bffc5",
+ "outputBytes": 7196640,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:06:25.232Z",
@@ -293,8 +296,8 @@
    "at": "2026-10-30T18:55:00Z",
    "inputSha256": "32c56ead912e3202b573aa215f077f1d6bae88edca7c331afe547f16a05bb1c3",
    "inputBytes": 20462500,
-   "outputSha256": "e5620a7c8ef8d41aebc4766b9a8375a9c6bf0106cacee268cdd34ea14b9020f3",
-   "outputBytes": 6763692,
+   "outputSha256": "f5c60292cca74033a120172a4473794be9e253a709b8a38c3a929cd7472bffc5",
+   "outputBytes": 7196640,
    "method": "pruned unreferenced image mpfb-gown-adult-patient (1063690 B) plus the unreferenced T-shirt material carrying T-shirt_basic (392852 B) plus 923 dead accessors; file 20462500 -> 6763692 B",
    "boundInvariantsHeld": "boundTextures 3, boundBytes 2874795, meshes 10, materials 16, tris 40277, joints 138, animations 4",
    "claimScope": "dead image and material bytes removed; no rebake",

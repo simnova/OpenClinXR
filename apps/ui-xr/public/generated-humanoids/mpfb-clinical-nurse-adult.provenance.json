@@ -51,6 +51,7 @@
   "midriff_closed_unless_the_number_says_so"
  ],
  "sourceNotes": [
+  "2026-11-05 st-vitbody3 r2: post-export skin-shade carrier repack via repack_skin_shade.py; face strength 0.15 (st-vitbody3 r4 sweep pick 0.15/0.25/0.35/0.5, CEO 1:1 grade 2026-11-06), body strength 0.3; curvature e4cf868ab5246039f977d58785f9f0ae68116f87c9fd92b8cabf8be328ad3994, cavity 977c99e4e82d2d065cd9ceedb6906421ac5e55c8e5a987650df749d3d02f07cb; geometry, rig, garments, eyes, and animations unchanged.",
   "Issue #403 first adult MPFB2 migration slice: the 19-slot Anny nurse/spouse pair is replaced by two MPFB2 adults generated from the tracked Anny references. The Anny GLBs stay on disk as comparators.",
   "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults \u2014 only age + height are driven by reference measurement this slice.",
   "Exact MADR 0051 \u00a75 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
@@ -69,8 +70,8 @@
  "claimScope": "nurse_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_toigo_blunt_bob_kept",
  "promotionGates": false,
  "generatedAt": "2026-09-12T09:29:57.027Z",
- "outputSha256": "4d9f4e6bb2c8535fcc15ace7ac51125d31d30a7218d2b893a5b1ad8f195cb3f7",
- "outputBytes": 8807408,
+ "outputSha256": "6c908f97c3048adad699edde7f67c7465e33402895cfa2e53cbe92d08af0f20b",
+ "outputBytes": 9233948,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:05:58.471Z",
@@ -218,8 +219,8 @@
    "newNormalSha": "ce591124e61168847d4235ce59c23fc3b7618190eb90559b492633e0b4c64c1a",
    "priorOutputSha256": "a2552b2fff6ab69d372e8d68168478e615905cf496b2ebcc16002b0a3f3e947b",
    "priorOutputBytes": 8725404,
-   "outputGlbSha": "4d9f4e6bb2c8535fcc15ace7ac51125d31d30a7218d2b893a5b1ad8f195cb3f7",
-   "outputGlbBytes": 8807408,
+   "outputGlbSha": "6c908f97c3048adad699edde7f67c7465e33402895cfa2e53cbe92d08af0f20b",
+   "outputGlbBytes": 9233948,
    "rebindCodeSha": "d695844a2838f880271bfd753fe622b212ccf950c927be82407ae0e1d37980fe",
    "normalMetricsCodeSha": "ccdc5ecf1d5f874f157b206bc5d0d48c0d7fdc215c91cc8ae78e57d9c9a89cf4",
    "blenderRuntime": "Blender 5.1.1, Cycles CPU, TANGENT normal bake",

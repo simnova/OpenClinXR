@@ -138,7 +138,7 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // size holds at 18441636); was 57eace5c….
   // st-palette C5 re-pinned 2026-11-04: sRGB-correct weave fold (renormalize t-shirt, replayed
   // in the mouth-executor chain test); 18441636 -> 18446536 B; was b73c9ede….
-  "mpfb-peds-parent-aisha": "d6b4314df5fdc5706821641cf6c2ac34babff8798a54d89f47b38cc9f31b85c3",
+  "mpfb-peds-parent-aisha": "a26b34773d90e7ae209a027e09911de0f0ab0deb04b95f52e356717e72c5091f",
   // #598 re-pinned 2026-08-23: worktree kevin bytes already differed from the prior pin
   // (was 0817dbd1932448185037c35487c9a25f5b9e70cbf6f558fa67098e104a955d72); this slice did
   // not rebake kevin — only re-recorded the on-disk hash so the table matches the tree.
@@ -158,7 +158,7 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // 16026048 B live; was e52a3e25f86d….
   // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
   // 16105284 B live; was 60985034fddf….
-  "mpfb-peds-nurse-kevin": "fca9a98f7e81c74fa6a17b5d234e4694bc6f153153461a4c64924123c053b1be",
+  "mpfb-peds-nurse-kevin": "9cf92b1e9661060987802676c9c04ae433d783eae2182bc383a8232cea330897",
   // #502 re-pinned 2026-08-21: the clinician footwear leopard "Shoe" texture was stripped to
   // the flat dark factor (gown-patient precedent); the viseme morph targets and every other
   // buffer are untouched.
@@ -174,7 +174,7 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // 8725404 B live; was e217d3c96d62….
   // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
   // 8807408 B live; was a2552b2fff6a….
-  "mpfb-clinical-nurse-adult": "4d9f4e6bb2c8535fcc15ace7ac51125d31d30a7218d2b893a5b1ad8f195cb3f7",
+  "mpfb-clinical-nurse-adult": "6c908f97c3048adad699edde7f67c7465e33402895cfa2e53cbe92d08af0f20b",
   // #504 re-pinned 2026-08-21: the physician's coat was pushed out 15 mm (wardrobe layer
   // separation); the viseme morph targets and every other buffer are untouched.
   // #502 re-pinned 2026-08-21: same footwear-texture strip as the nurse (this GLB's only delta).

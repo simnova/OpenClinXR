@@ -121,7 +121,7 @@
    "triangleCountBefore": 119232,
    "triangleCountAfter": 98102,
    "bytesBefore": 14477264,
-   "bytesAfter": 16105284,
+   "bytesAfter": 16526836,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "faceBefore": 46160,
    "faceAfter": 46160,
@@ -148,7 +148,7 @@
      "engine": "Blender EEVEE headless (baked Principled base colour, not Workbench)"
     }
    },
-   "remeasureNote": "Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, bytes-only drift, geometry counts hold (tris 98102 / face 46160 / joints 137 hold, 16074580 -> 16026048 B; asserted by main()). Superseding commit d5496bf5b. Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 15966652 -> 16074580 B). Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants 810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face 46160 / joints 137 hold; still under the 120000 acceptableSingleProp budget). Superseding commit 1225b8f95 (D1 garment smooth: full-res transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, ci-w11b) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 16105284 -> 16526836 B. Prior re-measure preserved below. Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, bytes-only drift, geometry counts hold (tris 98102 / face 46160 / joints 137 hold, 16074580 -> 16026048 B; asserted by main()). Superseding commit d5496bf5b. Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 15966652 -> 16074580 B). Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants 810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face 46160 / joints 137 hold; still under the 120000 acceptableSingleProp budget). Superseding commit 1225b8f95 (D1 garment smooth: full-res transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, ci-w11b) preserved in git history."
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -157,7 +157,7 @@
    "triangleCountBefore": 92430,
    "triangleCountAfter": 73012,
    "bytesBefore": 13222500,
-   "bytesAfter": 18446536,
+   "bytesAfter": 18883952,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "faceBefore": 33360,
    "faceAfter": 33360,
@@ -203,7 +203,7 @@
    "lineageNote": "tightjeans re-bake output; second fp-r0.4 pass (2803b774) then albedo bake (42c42140)",
    "noSurvivingRungReason": "The Sep11 fp-r0.4 rung output did not survive the Sep30 mouth rebuild afe8abced (fitted CC0 teeth 192->7120 tris, coverage-reduced brow 35334->8988 per the #597 strand budget, mesh renaming) plus the Oct mouth program; Oct24 lineage ba3e8229e and Oct25 albedo ceabb545e kept the rebuilt geometry (face 33360 / tris 73012 / joints 137 stable since Sep30). Face-retention ratio 1 and the 137-joint invariant now floor this re-measured source; historical pre-rebuild face 52778 preserved in previousFaceBefore.",
    "previousFaceBefore": 52778,
-   "remeasureNote": "Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). Re-measured 2026-10-30 (ci-w11b): bytes-only drift on the rebuilt source (tris 73012 / face 33360 / joints 137 stable since Sep30). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 19888836 -> 18441636 B). Prior re-measure (deliberate mouth-program rebuild afe8abced / ceabb545e) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 18446536 -> 18883952 B. Prior re-measure preserved below. Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). Re-measured 2026-10-30 (ci-w11b): bytes-only drift on the rebuilt source (tris 73012 / face 33360 / joints 137 stable since Sep30). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 19888836 -> 18441636 B). Prior re-measure (deliberate mouth-program rebuild afe8abced / ceabb545e) preserved in git history."
   },
   {
    "body": "mpfb-viseme-inspect.glb",

@@ -1,0 +1,92 @@
+{
+  "ob_patient_aisha": {
+    "skinMaterialName": "mpfb_skin_ob_patient_aisha_v1",
+    "bodyMeshName": "mpfb_ob_patient_aisha_v1_body",
+    "curvatureSrc": "/Volumes/files/openclinxr-assets/store/skin-maps/aisha-curvature-1024.png",
+    "curvatureSha256": "803293a9bd9ede025590da827d62b081a55ce6c252ec16c17a1492fb6f35268a",
+    "cavitySrc": "/Volumes/files/openclinxr-assets/store/skin-maps/aisha-cavity-1024.png",
+    "cavitySha256": "140345e1001dce61c798565871e8381f534618c1833c7cfca10b8e1e5f580edf",
+    "faceDetailNormalStrength": 0.5,
+    "bodyDetailNormalStrength": 1.0
+  },
+  "ed_chest_pain_nurse_adult": {
+    "skinMaterialName": "mpfb_skin_ed_chest_pain_nurse_adult",
+    "bodyMeshName": "mpfb_ed_chest_pain_nurse_adult_body",
+    "curvatureSrc": "/Volumes/files/openclinxr-assets/store/skin-maps/ed_chest_pain_nurse_adult/ed_chest_pain_nurse_adult-curvature-1024.png",
+    "curvatureSha256": "e4cf868ab5246039f977d58785f9f0ae68116f87c9fd92b8cabf8be328ad3994",
+    "cavitySrc": "/Volumes/files/openclinxr-assets/store/skin-maps/ed_chest_pain_nurse_adult/ed_chest_pain_nurse_adult-cavity-1024.png",
+    "cavitySha256": "977c99e4e82d2d065cd9ceedb6906421ac5e55c8e5a987650df749d3d02f07cb",
+    "faceDetailNormalStrength": 0.15,
+    "bodyDetailNormalStrength": 0.3
+  },
+  "ed_chest_pain_spouse_adult": {
+    "skinMaterialName": "mpfb_skin_ed_chest_pain_spouse_adult",
+    "bodyMeshName": "mpfb_ed_chest_pain_spouse_adult_body",
+    "curvatureSrc": "/Volumes/files/openclinxr-assets/store/skin-maps/ed_chest_pain_spouse_adult/ed_chest_pain_spouse_adult-curvature-1024.png",
+    "curvatureSha256": "39cd7e8327b85c6354f33f696cbca1cbb6cffb1152d1817038267b1645788584",
+    "cavitySrc": "/Volumes/files/openclinxr-assets/store/skin-maps/ed_chest_pain_spouse_adult/ed_chest_pain_spouse_adult-cavity-1024.png",
+    "cavitySha256": "a611cb12de9b69a84c0ff72cc6643b330d58dc39a65d362095b30d11700cd556",
+    "faceDetailNormalStrength": 0.15,
+    "bodyDetailNormalStrength": 0.3
+  },
+  "patient_margaret_ellis_v1": {
+    "skinMaterialName": "mpfb_skin_robert_reference",
+    "bodyMeshName": "mpfb_robert_reference_body",
+    "curvatureSrc": "/Volumes/files/openclinxr-assets/store/skin-maps/patient_margaret_ellis_v1/patient_margaret_ellis_v1-curvature-1024.png",
+    "curvatureSha256": "481be3ba4e4e3bff4adad9e02de7c3c727fee030b48b4fd94805512981a785e0",
+    "cavitySrc": "/Volumes/files/openclinxr-assets/store/skin-maps/patient_margaret_ellis_v1/patient_margaret_ellis_v1-cavity-1024.png",
+    "cavitySha256": "d18376567b250376e9b2076e4c65862e4e5ec07018508ce4683b1ca91ffc72f9",
+    "faceDetailNormalStrength": 0.15,
+    "bodyDetailNormalStrength": 0.3
+  },
+  "patient_robert_hayes_v1": {
+    "skinMaterialName": "mpfb_skin_robert_reference",
+    "bodyMeshName": "mpfb_robert_reference_body",
+    "curvatureSrc": "/Volumes/files/openclinxr-assets/store/skin-maps/patient_robert_hayes_v1/patient_robert_hayes_v1-curvature-1024.png",
+    "curvatureSha256": "3cb623f1ebb2aa42a1cf966d6ae1226e64c89e1c056f17b190becb0ab96dc4a6",
+    "cavitySrc": "/Volumes/files/openclinxr-assets/store/skin-maps/patient_robert_hayes_v1/patient_robert_hayes_v1-cavity-1024.png",
+    "cavitySha256": "aaee080b58c466eb744ae333e091c90c3186b2042f2e71488b7e8c0a8a412712",
+    "faceDetailNormalStrength": 0.15,
+    "bodyDetailNormalStrength": 0.3
+  },
+  "peds_nurse_kevin": {
+    "skinMaterialName": "mpfb_skin_peds_nurse_kevin",
+    "bodyMeshName": "mpfb_peds_nurse_kevin_body",
+    "curvatureSrc": "/Volumes/files/openclinxr-assets/store/skin-maps/peds_nurse_kevin/peds_nurse_kevin-curvature-1024.png",
+    "curvatureSha256": "06d49493b8bd1d665bb887a3452bb6903727737dd3d2121a5da3e09ba682cf12",
+    "cavitySrc": "/Volumes/files/openclinxr-assets/store/skin-maps/peds_nurse_kevin/peds_nurse_kevin-cavity-1024.png",
+    "cavitySha256": "185eeab462ce2c577ee5a6bbe9cd33ca139155ec7e657c98d524e900d0b382b3",
+    "faceDetailNormalStrength": 0.15,
+    "bodyDetailNormalStrength": 0.3
+  },
+  "peds_anxious_parent": {
+    "skinMaterialName": "mpfb_skin_peds_anxious_parent",
+    "bodyMeshName": "mpfb_parent_tara_johnson_v1_body",
+    "curvatureSrc": "/Volumes/files/openclinxr-assets/store/skin-maps/peds_anxious_parent/peds_anxious_parent-curvature-1024.png",
+    "curvatureSha256": "5ab57aa0ab568805491e4c4c3179402a9c7907770d74d00001882a5993c92f2e",
+    "cavitySrc": "/Volumes/files/openclinxr-assets/store/skin-maps/peds_anxious_parent/peds_anxious_parent-cavity-1024.png",
+    "cavitySha256": "b942165bca150e5b2b4fe3c5fce252816b6e21c7cbad26deacb94631ab634ba6",
+    "faceDetailNormalStrength": 0.15,
+    "bodyDetailNormalStrength": 0.3
+  },
+  "peds_patient_child": {
+    "skinMaterialName": "mpfb_skin_peds_patient_child",
+    "bodyMeshName": "mpfb_peds_patient_child_body",
+    "curvatureSrc": "/Volumes/files/openclinxr-assets/store/skin-maps/peds_patient_child/peds_patient_child-curvature-1024.png",
+    "curvatureSha256": "e9e460ae47d8becbd8d4c279f5744e3ca4d364f562504d314a3bd56bf0b914f0",
+    "cavitySrc": "/Volumes/files/openclinxr-assets/store/skin-maps/peds_patient_child/peds_patient_child-cavity-1024.png",
+    "cavitySha256": "099ac43c0593aa3cb2872b559347df1e1516012cec99d68d0dce9f604a40f8e7",
+    "faceDetailNormalStrength": 0.15,
+    "bodyDetailNormalStrength": 0.3
+  },
+  "adult_male_street_casual": {
+    "skinMaterialName": "mpfb_skin_adult_male_street_casual",
+    "bodyMeshName": "mpfb_adult_male_street_casual_body",
+    "curvatureSrc": "/Volumes/files/openclinxr-assets/store/skin-maps/adult_male_street_casual/adult_male_street_casual-curvature-1024.png",
+    "curvatureSha256": "f070d4e39898b2826c75135c70928d451957d30f01df0d80fc87189278a6d179",
+    "cavitySrc": "/Volumes/files/openclinxr-assets/store/skin-maps/adult_male_street_casual/adult_male_street_casual-cavity-1024.png",
+    "cavitySha256": "b1e3513e2d280d2ac756f31f551064873f06c17bc7c27c40401307ef835ee945",
+    "faceDetailNormalStrength": 0.15,
+    "bodyDetailNormalStrength": 0.3
+  }
+}

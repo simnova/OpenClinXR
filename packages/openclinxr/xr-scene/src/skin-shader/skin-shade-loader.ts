@@ -37,7 +37,7 @@ import {
   type GLTFLoaderPlugin,
   type GLTFParser,
 } from "three/addons/loaders/GLTFLoader.js";
-import { applySkinShade, skinShadeInstalled } from "./skin-shade.js";
+import { applySkinShade } from "./skin-shade.js";
 
 /** glTF material extension name = the registered plugin name. */
 export const SKIN_SHADE_EXTENSION_NAME = "OPENCLINXR_skin_shade";
@@ -141,11 +141,13 @@ class SkinShadePlugin implements GLTFLoaderPlugin {
 
   afterRoot(result: GLTF): Promise<void> {
     const jobs: Promise<void>[] = [];
+    const scheduled = new Set<unknown>();
     for (const scene of result.scenes ?? [result.scene]) {
       scene.traverse((object) => {
         const materials = (object as { material?: unknown }).material;
         if (materials === undefined || materials === null) return;
         for (const material of Array.isArray(materials) ? materials : [materials]) {
+          if (scheduled.has(material)) continue;
           const reference = this.parser.associations.get(
             material as Parameters<GLTFParser["associations"]["get"]>[0],
           );
@@ -153,6 +155,7 @@ class SkinShadePlugin implements GLTFLoaderPlugin {
           if (materialIndex === undefined) continue;
           const extension = this.extensionOf(materialIndex);
           if (extension === null) continue;
+          scheduled.add(material);
           jobs.push(this.install(material, materialIndex, extension));
         }
       });
@@ -176,7 +179,6 @@ class SkinShadePlugin implements GLTFLoaderPlugin {
         `OPENCLINXR_skin_shade: material ${materialIndex} is ${(material as { type?: unknown }).type ?? typeof material}, not a standard/physical material — refusing`,
       );
     }
-    if (skinShadeInstalled(material)) return;
     const curvatureMap = await this.curvatureTexture(textureIndex as number);
     const detailInfo = extension.detailNormalTexture;
     const bodyInfo = extension.bodyDetailNormalTexture;

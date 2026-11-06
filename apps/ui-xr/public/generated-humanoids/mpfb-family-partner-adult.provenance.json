@@ -48,6 +48,7 @@
   "madr_0051_s5_landmark_match_within_bands"
  ],
  "sourceNotes": [
+  "2026-11-05 st-vitbody3 r2: post-export skin-shade carrier repack via repack_skin_shade.py; face strength 0.15 (st-vitbody3 r4 sweep pick 0.15/0.25/0.35/0.5, CEO 1:1 grade 2026-11-06), body strength 0.3; curvature 39cd7e8327b85c6354f33f696cbca1cbb6cffb1152d1817038267b1645788584, cavity a611cb12de9b69a84c0ff72cc6643b330d58dc39a65d362095b30d11700cd556; geometry, rig, garments, eyes, and animations unchanged.",
   "Issue #403 first adult MPFB2 migration slice: the 19-slot Anny nurse/spouse pair is replaced by two MPFB2 adults generated from the tracked Anny references. The Anny GLBs stay on disk as comparators.",
   "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
   "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
@@ -69,8 +70,8 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-12T16:29:00Z",
- "outputSha256": "61a2fcbf03b0c9ee510d87c545ad196ed79b794d8f1129c93a91e3743630049c",
- "outputBytes": 9649116,
+ "outputSha256": "47134447a0a5e0fd9f6206e5f5ebe3e7e728b9db527646bd5d830cfbabe7f165",
+ "outputBytes": 10077060,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:06:17.490Z",
@@ -981,8 +982,8 @@
    "stage": "subject_derived_roughness_breakup_v3",
    "tool": "tools/openclinxr/asset-pipeline/skin/roughness-breakup/apply_roughness_breakup.py",
    "inputSha256": "35c88192412205c02cb29daf254c53fff69692fcbe0c00ef99e13e51c7517644",
-   "outputSha256": "61a2fcbf03b0c9ee510d87c545ad196ed79b794d8f1129c93a91e3743630049c",
-   "outputBytes": 9649116,
+   "outputSha256": "47134447a0a5e0fd9f6206e5f5ebe3e7e728b9db527646bd5d830cfbabe7f165",
+   "outputBytes": 10077060,
    "mapSha256": "b52c7cc9b2f154469c228101d62541c2916ff6fd7a2b35b208aaf76d4722b256",
    "deriveInputs": {
     "tools/openclinxr/asset-pipeline/skin/roughness-breakup/derive-inputs/ao.png": "3c407dcaded4eb3b0820f202c40bb80e11043e975ba6accab5150a7439f916f1",

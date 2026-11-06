@@ -51,6 +51,7 @@
   "other_agpl_hair_now_allowed"
  ],
  "sourceNotes": [
+  "2026-11-06 st-vitbody3 r3: post-export skin-shade carrier repack via repack_skin_shade.py; face strength 0.15 (st-vitbody3 r4 sweep pick 0.15/0.25/0.35/0.5, CEO 1:1 grade 2026-11-06), body strength 0.3; curvature f070d4e39898b2826c75135c70928d451957d30f01df0d80fc87189278a6d179, cavity b1e3513e2d280d2ac756f31f551064873f06c17bc7c27c40401307ef835ee945; geometry, rig, garments, eyes, and animations unchanged.",
   "Issue #441 first slice: the street-casual adult male patient moves from the Anny rail to a parametric MPFB bake wearing library garments (D9's clothing/body rows). The resolver swap is a separate slice and is deliberately out of scope \u2014 the four slots still resolve to adult_male_street_casual.glb when this asset lands.",
   "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults \u2014 only age + height are driven by reference measurement this slice.",
   "Exact MADR 0051 \u00a75 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
@@ -88,8 +89,8 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-10T21:58:00Z",
- "outputSha256": "8a1dddfe7ea8f36073c7bd005241612aa048d3c3526f9df3dc9441b591297045",
- "outputBytes": 16831992,
+ "outputSha256": "5b194cb4c6198d22200078a471222a9d01bc29510788dec3796307ecaa964ab6",
+ "outputBytes": 17239104,
  "motionClips": [
   {
    "clipName": "openclinxr_retarget_walk_source",
@@ -283,8 +284,8 @@
    "newNormalSha": "5ce2d299571785acae9508090d9c6493b7fd0fe07efc1f123950afbcc4e2b0d5",
    "priorOutputSha256": "5b30b91bfb27d4fa2e6c369fb691cadde35fb68391885772c227a862cac716c2",
    "priorOutputBytes": 16753616,
-   "outputGlbSha": "8a1dddfe7ea8f36073c7bd005241612aa048d3c3526f9df3dc9441b591297045",
-   "outputGlbBytes": 16831992,
+   "outputGlbSha": "5b194cb4c6198d22200078a471222a9d01bc29510788dec3796307ecaa964ab6",
+   "outputGlbBytes": 17239104,
    "rebindCodeSha": "d695844a2838f880271bfd753fe622b212ccf950c927be82407ae0e1d37980fe",
    "normalMetricsCodeSha": "ccdc5ecf1d5f874f157b206bc5d0d48c0d7fdc215c91cc8ae78e57d9c9a89cf4",
    "blenderRuntime": "Blender 5.1.1, Cycles CPU, TANGENT normal bake",

@@ -3,7 +3,7 @@
   {
    "body": "mpfb-clinical-nurse-adult.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 8807408,
+   "bytesAfter": 9233948,
    "bytesBefore": 12444056,
    "chosenRungId": "raw",
    "faceAfter": 10779,
@@ -20,7 +20,7 @@
    "promotionNote": "HB-07 hole-guard handback: materialize 92118 tris then #695 optimize_glb_meshopt.mjs --simplify-ratio 0.4 --simplify-error 0.001 --simplify-only (92118 -> 41807) then #737 optimize_glb_lash_lod.mjs --ratio 0.12 --error 0.005 (lashes 3237 -> 388, total 38958). HB-03 ladder rungIds have no r0.4; the shipped 39017 body was produced by those two stages (#695 75854 -> 38913, then #737 lashes) and HB-03 recorded it as chosenRungId raw because the live file already was that mesh. Body 12833 vs shipped 12892 (59-tri hole-guard delta). bytesAfter 8396376; re-recorded 8775848 after deliberate byte churn 8e7a1d0c2 (CC-BY scrub extras) + 91aa4b5d3 (walk bind) + 9f2934536 (teeth retreat) — geometry untouched, triangles 38958 unchanged. budgets.propShare 40000 unchanged. Do not ship the 92118 raw materialize. 2026-09-12 hem-fit: same ladder after fit_upper_hem_to_waistband (36 verts, 7.65 mm); tris 38958 / bytesAfter 8775848 after deliberate churn (geometry untouched).",
    "triangleCountAfter": 38958,
    "triangleCountBefore": 92118,
-   "remeasureNote": "Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, bytes-only drift, geometry counts hold (tris 38958 / face 10779 / hand 12833 / joints 137 hold, 8775848 -> 8725404 B). Superseding commit d5496bf5b."
+   "remeasureNote": "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 8807408 -> 9233948 B. Prior re-measure preserved below. Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, bytes-only drift, geometry counts hold (tris 38958 / face 10779 / hand 12833 / joints 137 hold, 8775848 -> 8725404 B). Superseding commit d5496bf5b."
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -47,7 +47,7 @@
   {
    "body": "mpfb-family-partner-adult.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 9649116,
+   "bytesAfter": 10077060,
    "bytesBefore": 10409540,
    "chosenRungId": "raw",
    "faceAfter": 13429,
@@ -78,12 +78,12 @@
     "bake-humanoid-albedo.ts bakeGlbAlbedo"
    ],
    "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
-   "remeasureNote": "Re-measured 2026-11-05 (st-vitbrowdense r5b): fitted brow transplant replaces style 10 with the graded style 07 at 9,396 tris, then hair colour is a no-op and the subject-derived roughness breakup is replayed; body 13357 / face 13429 / total 38458 / joints 137 hold after the deliberate brow-only geometry change, 9182096 -> 9649116 B. Prior st-vitrough r4: post-export roughness breakup stage writes a subject-derived skin metallicRoughness texture, 9182096 -> 9196228 B. Prior st-vitbrow r4: post-export hair colour stage sets scalp+brow baseColorFactor to the authored black token, JSON chunk only, BIN verbatim, 9182184 -> 9182096 B. Prior st-vitdark r9: dark-tail soft floor in the skin BaseColor remap only, 9178752 -> 9182184 B. Prior r3 render-defect correction 9178416 -> 9178752 B; r2 remap 9330184 -> 9178416 B. Prior st-viteye r3 re-measure: commit 931343e6b swapped the Vitruvian iris/sclera image, 9277296 -> 9330184 B. Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 9649116 -> 10077060 B. Prior re-measure preserved below. Re-measured 2026-11-05 (st-vitbrowdense r5b): fitted brow transplant replaces style 10 with the graded style 07 at 9,396 tris, then hair colour is a no-op and the subject-derived roughness breakup is replayed; body 13357 / face 13429 / total 38458 / joints 137 hold after the deliberate brow-only geometry change, 9182096 -> 9649116 B. Prior st-vitrough r4: post-export roughness breakup stage writes a subject-derived skin metallicRoughness texture, 9182096 -> 9196228 B. Prior st-vitbrow r4: post-export hair colour stage sets scalp+brow baseColorFactor to the authored black token, JSON chunk only, BIN verbatim, 9182184 -> 9182096 B. Prior st-vitdark r9: dark-tail soft floor in the skin BaseColor remap only, 9178752 -> 9182184 B. Prior r3 render-defect correction 9178416 -> 9178752 B; r2 remap 9330184 -> 9178416 B. Prior st-viteye r3 re-measure: commit 931343e6b swapped the Vitruvian iris/sclera image, 9277296 -> 9330184 B. Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 39974 / face 14945 / hand 13357 / joints 137 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 10529144 -> 9277296 B). Prior re-measure (fc57e5a9 family normalTexture unbind) preserved in git history."
   },
   {
    "body": "mpfb-gown-adult-patient.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 6763692,
+   "bytesAfter": 7196640,
    "bytesBefore": 18576544,
    "chosenRungId": "raw",
    "faceAfter": 14357,
@@ -101,7 +101,7 @@
    "promotionNote": "no rewrite: the live file already is the densest in-budget rung (40277 <= 80000 preferred)",
    "triangleCountAfter": 40277,
    "triangleCountBefore": 64140,
-   "remeasureNote": "Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 40277 / face 14357 / hand 14928 / joints 138 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune incl. a dead T-shirt material, 20462724 -> 6763692 B). Prior re-measure (d10314025/4aaf5ba16 supine rebake, 1814a43c1 byte-lineage) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 6763692 -> 7196640 B. Prior re-measure preserved below. Re-measured 2026-10-30 (ci-w11b): bytes-only drift, geometry identical (tris 40277 / face 14357 / hand 14928 / joints 138 all hold). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune incl. a dead T-shirt material, 20462724 -> 6763692 B). Prior re-measure (d10314025/4aaf5ba16 supine rebake, 1814a43c1 byte-lineage) preserved in git history."
   },
   {
    "body": "mpfb-gown-inspect.glb",
@@ -160,7 +160,7 @@
   {
    "body": "mpfb-peds-nurse-kevin.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 16105284,
+   "bytesAfter": 16526836,
    "bytesBefore": 14477264,
    "chosenRungId": "r0.1",
    "faceAfter": 46160,
@@ -186,12 +186,12 @@
    "promotionNote": "STOP branch: every in-budget rung (r0.1 at 60513 through r0.005 at 55580) keeps 5503/46160 = 0.1192 of face triangles (88% destroyed) — the ladder passes the totals check but destroys the face, so no rung is promoted and the live GLB is unchanged.",
    "triangleCountAfter": 98102,
    "triangleCountBefore": 119232,
-   "remeasureNote": "Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, bytes-only drift, geometry counts hold (tris 98102 / face 46160 / joints 137 hold, 16074580 -> 16026048 B; asserted by main()). Superseding commit d5496bf5b. Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 15966652 -> 16074580 B). Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants 810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face 46160 / joints 137 hold; still under the 120000 acceptableSingleProp budget). Superseding commit 1225b8f95 (D1 garment smooth: full-res transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, ci-w11b) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 16105284 -> 16526836 B. Prior re-measure preserved below. Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, bytes-only drift, geometry counts hold (tris 98102 / face 46160 / joints 137 hold, 16074580 -> 16026048 B; asserted by main()). Superseding commit d5496bf5b. Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 15966652 -> 16074580 B). Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants 810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face 46160 / joints 137 hold; still under the 120000 acceptableSingleProp budget). Superseding commit 1225b8f95 (D1 garment smooth: full-res transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, ci-w11b) preserved in git history."
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 18446536,
+   "bytesAfter": 18883952,
    "bytesBefore": 17181156,
    "chosenRungId": "fp-r0.4",
    "faceAfter": 33360,
@@ -210,12 +210,12 @@
    "triangleCountBefore": 92430,
    "noSurvivingRungReason": "The Sep11 fp-r0.4 rung output did not survive the Sep30 mouth rebuild afe8abced (fitted CC0 teeth 192->7120 tris, coverage-reduced brow 35334->8988 per the #597 strand budget, mesh renaming) plus the Oct mouth program; Oct24 lineage ba3e8229e and Oct25 albedo ceabb545e kept the rebuilt geometry (face 33360 / tris 73012 / joints 137 stable since Sep30). Face-retention ratio 1 and the 137-joint invariant now floor this re-measured source; historical pre-rebuild face 52778 preserved in previousFaceBefore.",
    "previousFaceBefore": 52778,
-   "remeasureNote": "Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). Re-measured 2026-10-30 (ci-w11b): bytes-only drift on the rebuilt source (tris 73012 / face 33360 / joints 137 stable since Sep30). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 19888836 -> 18441636 B). Prior re-measure (deliberate mouth-program rebuild afe8abced / ceabb545e) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 18446536 -> 18883952 B. Prior re-measure preserved below. Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). Re-measured 2026-10-30 (ci-w11b): bytes-only drift on the rebuilt source (tris 73012 / face 33360 / joints 137 stable since Sep30). Superseding commit d1c44f8cd (ci-w11 D1 orphan prune, 19888836 -> 18441636 B). Prior re-measure (deliberate mouth-program rebuild afe8abced / ceabb545e) preserved in git history."
   },
   {
    "body": "mpfb-peds-patient-child.glb",
    "bodyMeshRule": "hands are skinned regions of the *_body mesh (JOINTS_0/WEIGHTS_0 on every primitive, finger/metacarpal/wrist joints in the single skin); there is no dedicated hand mesh, so hand survival is reported via the body-mesh triangle count",
-   "bytesAfter": 10418700,
+   "bytesAfter": 10842652,
    "bytesBefore": 11348244,
    "chosenRungId": "raw",
    "faceAfter": 39260,
@@ -233,7 +233,7 @@
    "triangleCountAfter": 77422,
    "triangleCountBefore": 77324,
    "hb07Note": "HB-07 attempt 5: triangleCountAfter 77422 -> 77422; bytesAfter 11362908 -> 11362836.",
-   "remeasureNote": "Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry identical (tris 77422 / face 39260 / hand 26756 / joints 137 all hold). Superseding commit 6d1ae039d (t-shirt texture renormalized to the soft-blue palette in linear space, 10418728 -> 10418700 B). Prior re-measure (ci-w11b d1c44f8cd orphan prune) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 10418700 -> 10842648 B. Prior re-measure preserved below. Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry identical (tris 77422 / face 39260 / hand 26756 / joints 137 all hold). Superseding commit 6d1ae039d (t-shirt texture renormalized to the soft-blue palette in linear space, 10418728 -> 10418700 B). Prior re-measure (ci-w11b d1c44f8cd orphan prune) preserved in git history."
   },
   {
    "body": "mpfb-viseme-inspect.glb",

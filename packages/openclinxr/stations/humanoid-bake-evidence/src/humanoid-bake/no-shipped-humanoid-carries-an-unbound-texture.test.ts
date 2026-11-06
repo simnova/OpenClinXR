@@ -101,7 +101,7 @@ const PINNED = {
   // Old #598: fileBytes 11456228, textures 5, boundTextures 5, boundBytes 4598965, tris 74732.
   // st-palette 2026-11-04: 3969ae031 re-encoded the toigo t-shirt texture (sRGB palette renorm,
   // same texture slot, count unchanged): boundBytes 10641749 -> 10646616 (+4867 B, PNG re-encode).
-  "mpfb-peds-parent-aisha.glb": { fileBytes: 19888836, textures: 12, boundTextures: 11, boundBytes: 10646616, meshes: 10, materials: 17, tris: 73012, joints: 137, animations: 2 },
+  "mpfb-peds-parent-aisha.glb": { fileBytes: 18883952, textures: 13, boundTextures: 13, boundBytes: 11083161, meshes: 10, materials: 17, tris: 73012, joints: 137, animations: 2 },
 } as const;
 /** Re-derived 2026-10-30 from measurement, not chosen: pre-prune per-pinned-file orphans are
  * ob 1080156 / pp 744895, so each PINNED file must lose at least 700 KB. The old 7M floor died

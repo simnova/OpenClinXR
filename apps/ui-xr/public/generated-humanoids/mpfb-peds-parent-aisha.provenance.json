@@ -61,6 +61,7 @@
   "scene_placement_readiness"
  ],
  "sourceNotes": [
+  "2026-11-05 st-vitbody3 r2: post-export skin-shade carrier repack via repack_skin_shade.py; face strength 0.15 (st-vitbody3 r4 sweep pick 0.15/0.25/0.35/0.5, CEO 1:1 grade 2026-11-06), body strength 0.3; curvature 5ab57aa0ab568805491e4c4c3179402a9c7907770d74d00001882a5993c92f2e, cavity b942165bca150e5b2b4fe3c5fce252816b6e21c7cbad26deacb94631ab634ba6; geometry, rig, garments, eyes, and animations unchanged.",
   "Issue #388: dedicated peds-parent variant. Same adult-female default-macro body as OB aisha; --actor-role parent so shirt and cargo take muted_rose_and_neutral. Do not recolour mpfb-ob-patient-aisha.glb. Do not gown anyone. Do not runtime-recolour. Do not orchestrate_character.",
   "Issue #519 (2026-08-21): rebaked via materialize_mpfb_humanoid_candidate.py --actor-role parent --eye-colour-reference peds_anxious_parent so eye_iris_colour selects case brown (not family green). Colour came through the #518 selector, not a hand-swapped iris. Maya unrebaked. Garment .mhmat+diffuse (Shoe.png, T-shirt_basic.png) must be staged or footwear/t-shirt textures drop.",
   "Issue #576 (2026-08-23): REBAKED with the case-authored numeric identity reaching the macros. Same invocation (--actor-role parent --eye-colour-reference peds_anxious_parent, no --reference) but materialize now reads the manifest's numeric block (height_cm 166, bmi 24.0, build average_parent, gender_presentation adult_female_parent, age 34) through phenotype_numeric_block + the proven #329 mapping (body_param_stage.derive_macro_dict_from_authored_phenotype): gender 0.0, age 0.6191, weight 0.5024, muscle 0.5; height solved against the DECLARED 1.66 m by the bake-measure-interpolate solver (tol 0.005, every return probe-verified). Measured on the shipped body: stature 1.6527 m (7.3 mm under declared — the footwear grounding lift; the top vertex is the solved 1.6599). Body differs from OB aisha on the profile signature (band-10 delta 0.405 vs the 0.006 floor). Eye stays case brown via the #519 seam; fitted hair/scalp/visemes/FACS unchanged. body_profile remains authored data (maps to no macro).",
@@ -94,8 +95,8 @@
  ],
  "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
  "promotionGates": false,
- "outputSha256": "d6b4314df5fdc5706821641cf6c2ac34babff8798a54d89f47b38cc9f31b85c3",
- "outputBytes": 18446536,
+ "outputSha256": "a26b34773d90e7ae209a027e09911de0f0ab0deb04b95f52e356717e72c5091f",
+ "outputBytes": 18883952,
  "fitTimeLower": {
   "garment": "punkduck_female_tight_jeans",
   "sourceObjFaces": 2108,
@@ -901,7 +902,9 @@
   "tool": "tools/openclinxr/asset-pipeline/makeclothes/attach-weave-base-color-textures.ts",
   "toolSha256": "b5e0ddfae59253fb5d947a10066093a7df984aae4322b3b667c7a007f08507ec",
   "mode": "renormalize t-shirt on origin bytes (kept photo texels)",
-  "targets": ["mat_makeclothes_library_toigo_t_shirt:0.607,0.42,0.485"],
+  "targets": [
+   "mat_makeclothes_library_toigo_t_shirt:0.607,0.42,0.485"
+  ],
   "renormalize": true,
   "replace": false,
   "inputSha256": "b73c9edea2951853e7376faa086593070e954fa08c6bfac345662e05eb931240",
@@ -914,5 +917,17 @@
   ],
   "effective": "t-shirt [0.6055,0.4207,0.4857] vs rose [0.607,0.42,0.485], miss 0.00152",
   "claimScope": "baseColorTexture bytes + baseColorFactor folds only; no geometry, skinning, morph or animation changes"
+ },
+ "skinShadeCarrier": {
+  "tool": "tools/openclinxr/asset-pipeline/skin/maps/repack_skin_shade.py",
+  "toolSha256": "9ce0c5d0bda4b312e4dbf367dc44bcbf9009312758144f7e966785485f29a770",
+  "reference": "peds_anxious_parent",
+  "inputSha256": "d6b4314df5fdc5706821641cf6c2ac34babff8798a54d89f47b38cc9f31b85c3",
+  "inputBytes": 18446536,
+  "outputSha256": "a26b34773d90e7ae209a027e09911de0f0ab0deb04b95f52e356717e72c5091f",
+  "outputBytes": 18883952,
+  "recordedAt": "2026-11-06",
+  "resolutionNote": "st-vitbody3 r4b: records the post-weave skin-shade carrier as its own replayable stage; supersedes the r2 same-commit pin that incorrectly rewrote the predecessor.",
+  "claimScope": "post-export skin-shade images + material extension only"
  }
 }
