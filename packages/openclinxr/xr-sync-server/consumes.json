@@ -40,17 +40,16 @@
         "kind": "runtime"
       },
       {
+        "name": "DialogueFixtureSeed",
+        "kind": "type"
+      },
+      {
         "name": "edChestPainScenario",
         "kind": "runtime"
       },
       {
         "name": "scenarioDialogueSeedBank",
         "kind": "runtime"
-      },
-      {
-        "name": "DialogueFixtureSeed",
-        "kind": "type",
-        "via": "specifier"
       }
     ]
   },

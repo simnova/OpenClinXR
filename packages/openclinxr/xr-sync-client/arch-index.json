@@ -39,6 +39,7 @@
     "src/encounter-review-lobby.test.ts",
     "src/encounter-speech-capture-grade.test.ts",
     "src/encounter-speech-capture.test.ts",
+    "src/encounter-speech-preflight.test.ts",
     "src/encounter-speech.test.ts",
     "src/encounter-trace-intents.test.ts",
     "src/encounter-turns.test.ts",

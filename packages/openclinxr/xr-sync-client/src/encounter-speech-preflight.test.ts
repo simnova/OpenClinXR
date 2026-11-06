@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { type EncounterSnapshot, type EncounterSyncEvidence, startEncounterSyncFromUrl } from "./headset.js";
+import { type EncounterSyncEvidence, startEncounterSyncFromUrl } from "./headset.js";
+
+type EncounterSnapshot = Record<string, unknown>;
 
 // C34 RED (planted by lane manager, 2026-11-06): mic-permission preflight, server-speech gating, typed-box fallback, C33 Part A.
 // Contract (names are the spec):

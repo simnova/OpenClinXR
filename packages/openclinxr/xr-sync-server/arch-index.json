@@ -59,6 +59,7 @@
     "src/xr-sync-c31-replay-captions.test.ts",
     "src/xr-sync-c32-lobby-availability.test.ts",
     "src/xr-sync-c33-speech-audio.test.ts",
+    "src/xr-sync-c34-dev-speech.test.ts",
     "src/xr-sync-c4-conversation-trace.test.ts",
     "src/xr-sync-c5-observer.test.ts",
     "src/xr-sync-c6-phase-clock.test.ts",
