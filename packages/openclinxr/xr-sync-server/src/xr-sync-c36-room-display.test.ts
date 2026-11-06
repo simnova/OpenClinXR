@@ -82,6 +82,8 @@ describe("dev stack doorway seconds (C36)", () => {
     expect(resolveDevStack({ XR_SYNC_DOORWAY_SECONDS: "" }, shipped).examBlueprint.timing.doorwaySeconds).toBe(1);
   });
   it.each(["0", "-3", "1.5", "abc", "3601", "08"])("refuses %s", (value) => {
-    expect(() => resolveDevStack({ XR_SYNC_DOORWAY_SECONDS: value }, shipped)).toThrow(`bad-doorway-seconds: XR_SYNC_DOORWAY_SECONDS must be an integer 1-3600 (got ${JSON.stringify(value)})`);
+    let message = "";
+    try { resolveDevStack({ XR_SYNC_DOORWAY_SECONDS: value }, shipped); } catch (error) { message = (error as Error).message; }
+    expect(message).toBe(`bad-doorway-seconds: XR_SYNC_DOORWAY_SECONDS must be an integer 1-3600 (got ${JSON.stringify(value)})`);
   });
 });
