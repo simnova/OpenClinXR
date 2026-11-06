@@ -212,7 +212,8 @@ async function main(argv) {
     const norm = (text) => text.toLowerCase().replace(/[^a-z0-9 ]/gu, " ").replace(/\s+/gu, " ").trim();
     const caps = pa.captures.map((shell) => shell.captures.at(-1));
     check("D4 two injected push-to-talk captures were recognized by the dev server: status ok, non-silent, words in the learner caption", caps.length === 2 && caps.every((c) => c?.status === "ok" && c.source === "injected" && c.rms > 0.005 && c.chars > 5) && pa.captures.every((shell) => { const t = norm(shell.learnerCaption ?? ""); return /^you said 0 \d\d /u.test(t) && t.includes("chest") && t.includes("pressure"); }), JSON.stringify(caps.map((c) => ({ s: c?.status, chars: c?.chars, conf: c?.confidence, ms: c?.releaseToCaptionMs }))));
-    check("D5 each recognized utterance was sent to the room and acked (select-actor, utterance-start, utterance-end)", pa.final?.speechUtterances?.length === 2 && pa.final.speechUtterances.every((u) => u.statuses.length === 3 && u.statuses.every((s) => s === "ack")), JSON.stringify(pa.final?.speechUtterances));
+    const injectedSends = pa.captures.at(-1)?.speechUtterances ?? [];
+    check("D5 each injected recognized utterance was sent to the room and acked (select-actor, utterance-start, utterance-end)", injectedSends.length === 2 && injectedSends.every((u) => u.statuses.length === 3 && u.statuses.every((s) => s === "ack")), JSON.stringify(injectedSends));
     const latencies = caps.map((c) => c?.releaseToCaptionMs);
     run.latency = { releaseToCaptionMs: latencies, median: median(latencies) };
     check("D6 release-to-caption latency recorded (finite, > 0, < 15 s)", latencies.length === 2 && latencies.every((v) => Number.isFinite(v) && v > 0 && v < 15000), JSON.stringify(run.latency));
