@@ -49,10 +49,16 @@ def cli():
     p.add_argument("--cards", required=True)
     p.add_argument("--atlas", required=True)
     p.add_argument("--out-dir", required=True)
-    p.add_argument("--bake-glb", required=True)
+    p.add_argument("--bake-glb", default=None)
     p.add_argument("--views", default="front,three_quarter_left,side,back")
     p.add_argument("--samples", type=int, default=128)
     p.add_argument("--alpha-cutoff", type=float, default=0.2)
+    p.add_argument("--roughness", type=float, default=None,
+                   help="card Principled roughness (calibration record); default = recipe shading.roughness")
+    p.add_argument("--specular", type=float, default=None,
+                   help="Principled Specular IOR Level (calibration record); default = Blender's 0.5")
+    p.add_argument("--hide-cards", action="store_true",
+                   help="render the body without hair (calibration base); no donor GLB, no strands.npz")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     return p.parse_args(argv)
 
@@ -83,7 +89,7 @@ def card_mesh(cards, name):
     return me
 
 
-def card_material(atlas, roughness, cutoff):
+def card_material(atlas, roughness, cutoff, specular=None):
     m = bpy.data.materials.new("hair_cards" if cutoff is None else "hair_cards_render")
     m.use_nodes = True
     nt = m.node_tree
@@ -96,6 +102,8 @@ def card_material(atlas, roughness, cutoff):
     t.interpolation = "Linear"
     p.inputs["Roughness"].default_value = roughness
     p.inputs["Metallic"].default_value = 0.0
+    if specular is not None:
+        p.inputs["Specular IOR Level"].default_value = specular
     nt.links.new(t.outputs["Color"], p.inputs["Base Color"])
     if cutoff is None:
         nt.links.new(t.outputs["Alpha"], p.inputs["Alpha"])
@@ -131,8 +139,8 @@ def main():
     me = card_mesh(cards, "cards_render")
     ob = bpy.data.objects.new("cards_render", me)
     bpy.context.scene.collection.objects.link(ob)
-    rough = float(rc["shading"]["roughness"])
-    me.materials.append(card_material(Path(a.atlas), rough, a.alpha_cutoff))
+    rough = float(rc["shading"]["roughness"]) if a.roughness is None else a.roughness
+    me.materials.append(card_material(Path(a.atlas), rough, a.alpha_cutoff, a.specular))
 
     # 3: signed clearance to the body
     col = groom.Collider([body])
@@ -144,8 +152,12 @@ def main():
     P = (starts[1] - starts[0]) // 2
     cl = np.concatenate([0.5 * (cards["card_verts"][s:s + 2 * P:2] + cards["card_verts"][s + 1:s + 2 * P:2])
                          for s in starts])
-    np.savez_compressed(out / "strands.npz", positions=cl, offsets=np.arange(0, n * P + 1, P),
-                        signedBodyM=sd, note=np.array("card centrelines, not strands"))
+    loc = (np.array(R) @ (cl - np.array(origin)).T).T     # groom.py head-local frame (grade.py E1)
+    if not a.hide_cards:
+        np.savez_compressed(out / "strands.npz", positions=cl, offsets=np.arange(0, n * P + 1, P),
+                            localPositions=loc, signedBodyM=sd, note=np.array("card centrelines, not strands"))
+    else:
+        ob.hide_render = True
 
     stats = {
         "kind": "hair-cards", "body": str(a.body), "bodySha256": sha(a.body),
@@ -157,7 +169,8 @@ def main():
         "clearance": {"minSignedMmBody": float(sd.min() * 1000), "negativePointsBody": int((sd < 0).sum()),
                       "rule": "every card vertex, groom.Collider([body]).signed (BVH nearest, face-normal sign)"},
         "material": {"model": "Principled BSDF", "baseColor": "atlas RGB (sRGB)", "alpha": "atlas A",
-                     "roughness": rough, "renderAlphaCutoff": a.alpha_cutoff},
+                     "roughness": rough, "renderAlphaCutoff": a.alpha_cutoff,
+                     "specularIorLevel": 0.5 if a.specular is None else a.specular},
         "hiddenObjects": hidden,
     }
 
@@ -175,6 +188,11 @@ def main():
         stats["render"]["views"][v] = {"seconds": time.time() - t1}
         print("VIEW_DONE", v, round(time.time() - t1, 1), flush=True)
 
+    if a.hide_cards or not a.bake_glb:
+        stats["seconds"] = time.time() - t0
+        (out / "stats.json").write_text(json.dumps(stats, indent=2, sort_keys=True))
+        print("CARDS_RENDER_DONE", "no donor", flush=True)
+        return
     # 6: donor GLB
     bpy.data.objects.remove(ob)
     weights = {}
@@ -194,7 +212,7 @@ def main():
     lib.vertex_groups.clear()
     vg = lib.vertex_groups.new(name=head)
     vg.add(list(range(len(dme.vertices))), 1.0, "REPLACE")
-    dme.materials.append(card_material(Path(a.atlas), rough, None))
+    dme.materials.append(card_material(Path(a.atlas), rough, None, a.specular))
     lib.hide_render = False
     lib.hide_viewport = False
     lib.hide_set(False)

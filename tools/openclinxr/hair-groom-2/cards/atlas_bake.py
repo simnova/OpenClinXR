@@ -75,34 +75,38 @@ def card_lengths(cards):
     return np.array(out)
 
 
-def patch(W, d, L, prad, P):
+def patch(W, d, L, prad, P, along=False):
     me = bpy.data.meshes.new("patch")
     bm = bmesh.new()
     x0, x1 = -PATCH_WIDTHS * W / 2, PATCH_WIDTHS * W / 2
-    vs = [bm.verts.new(c) for c in ((x0, 0, 0), (x1, 0, 0), (x1, d, 0), (x0, d, 0))]
+    if along:   # root strip in the card plane, running down the card: roots staggered in v
+        vs = [bm.verts.new(c) for c in ((x0, 0, 0), (x1, 0, 0), (x1, 0, -d), (x0, 0, -d))]
+    else:
+        vs = [bm.verts.new(c) for c in ((x0, 0, 0), (x1, 0, 0), (x1, d, 0), (x0, d, 0))]
     f = bm.faces.new(vs)
     uvl = bm.loops.layers.uv.new(groom.SCALP_UV)
     for lp in f.loops:
         co = lp.vert.co
-        lp[uvl].uv = ((co.x - x0) / (x1 - x0), co.y / d)
+        lp[uvl].uv = ((co.x - x0) / (x1 - x0), (-co.z if along else co.y) / d)
     bm.to_mesh(me)
     bm.free()
     surf = bpy.data.objects.new("patch", me)
     bpy.context.scene.collection.objects.link(surf)
     surf.hide_render = True
     gx = np.arange(x0 + prad / 2, x1, prad)
-    roots = np.stack([gx, np.full_like(gx, d / 2), np.zeros_like(gx)], 1)
+    roots = (np.stack([gx, np.zeros_like(gx), np.full_like(gx, -d / 2)], 1) if along
+             else np.stack([gx, np.full_like(gx, d / 2), np.zeros_like(gx)], 1))
     t = np.linspace(0.0, 1.0, P)
     guides = roots[:, None, :] + np.stack([np.zeros_like(t), np.zeros_like(t), -L * t], 1)[None]
     uv = np.stack([(gx - x0) / (x1 - x0), np.full_like(gx, 0.5)], 1)
     return surf, guides, uv
 
 
-def render_tile(rc, seed, W, d, L, prad, samples, path):
+def render_tile(rc, seed, W, d, L, prad, samples, path, along=False):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     groom.load_assets()
     P = rc["guides"]["pointsPerStrand"]
-    surf, guides, uv = patch(W, d, L, prad, P)
+    surf, guides, uv = patch(W, d, L, prad, P, along)
     gob = groom.make_curves("patch_guides", [P] * len(guides), guides.reshape(-1, 3), uv=uv)
     gob.data.surface = surf
     gob.data.surface_uv_map = groom.SCALP_UV
@@ -119,6 +123,9 @@ def render_tile(rc, seed, W, d, L, prad, samples, path):
     ob.data.materials.append(mat)
     sc = bpy.context.scene
     groom.setup_render(samples)
+    # CPU only: the Metal GPU (+ hybrid CPU) tile renders differed run to run (cards-r2 s4 rerun:
+    # 444,366 atlas px, max 149/255), so the atlas hash was not reproducible
+    sc.cycles.device = "CPU"
     sc.render.resolution_x = sc.render.resolution_y = CELL
     sc.render.film_transparent = True
     sc.view_settings.view_transform = "Standard"
@@ -153,7 +160,11 @@ def main():
     W = float(np.median(cards["card_width_mm"])) / 1000.0
     L = float(np.median(card_lengths(cards)))
     n0 = int((cards["card_layer"] == 0).sum())
-    d = st["scalp"]["areaM2"] / (n0 * W)
+    along = "card_root_depth_mm" in cards.files
+    # cards from strands: the strip is the members' root extent along the card (median over cards),
+    # laid down the card so the tile's roots are staggered in v; v1 layout: one card's scalp share
+    d = (float(np.median(cards["card_root_depth_mm"])) / 1000.0 if along
+         else st["scalp"]["areaM2"] / (n0 * W))
     prad = st["guides"]["poissonRadiusMm"] / 1000.0
     from PIL import Image
     atlas = np.zeros((2 * CELL, 2 * CELL, 4), np.uint8)
@@ -161,7 +172,7 @@ def main():
     for cell in range(TILES):
         seed = int(rc["seed"]) + cell
         tp = out / "tiles" / ("cell%d-seed%d.png" % (cell, seed))
-        info = render_tile(rc, seed, W, d, L, prad, a.samples, tp)
+        info = render_tile(rc, seed, W, d, L, prad, a.samples, tp, along)
         im = np.asarray(Image.open(tp).convert("RGBA"))
         cx, cy = cell % 2, cell // 2
         atlas[cy * CELL:(cy + 1) * CELL, cx * CELL:(cx + 1) * CELL] = im
@@ -179,10 +190,14 @@ def main():
            "seed": int(rc["seed"]), "samples": a.samples,
            "patch": {"rootWidthMm": W * 1000, "lengthMm": L * 1000, "stripDepthMm": d * 1000,
                      "guideSpacingMm": prad * 1000, "layer0Cards": n0,
+                     "rootStripAlongCard": along,
                      "derivation": "W = median card_width_mm; L = median card centreline length; "
-                                   "d = stats.scalp.areaM2 / (layer-0 cards x W); spacing = stats.guides.poissonRadiusMm"},
+                                   + ("d = median card_root_depth_mm (member root extent along the card), strip laid down the card"
+                                      if along else "d = stats.scalp.areaM2 / (layer-0 cards x W)")
+                                   + "; spacing = stats.guides.poissonRadiusMm"},
            "tiles": tiles, "atlas": ap.name, "atlasSha256": sha(ap), "seconds": time.time() - t0,
            "lighting": "uniform white world strength 1.0, no lamps, Standard view transform, film transparent",
+           "device": "CPU (determinism)",
            "material": "groom.hair_material(recipe)"}
     (out / "atlas-record.json").write_text(json.dumps(rec, indent=1))
     print("ATLAS_DONE", rec["atlasSha256"], flush=True)
