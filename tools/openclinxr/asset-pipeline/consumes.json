@@ -77,6 +77,16 @@
   },
   {
     "provider": "@openclinxr/scenario-fixtures",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/scenario-fixtures",
     "entrypoint": "./scenario-bank",
     "names": [
       {

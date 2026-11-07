@@ -1,0 +1,151 @@
+{
+  "version": 1,
+  "decision": "falsified",
+  "reason": "All five L*-calibrated points exceed half the measured warm_light-to-warm_medium dE76 gap, so this fixed-betaM/fixed-Ch analytic model cannot safely source case tone Lab targets.",
+  "falsifier": {
+    "metric": "CIE 1976 dE76",
+    "interToneGap": 10.87118208843914,
+    "thresholdRule": "dE76(tone-report.json warm_light, warm_medium) / 2",
+    "threshold": 5.43559104421957,
+    "briefRoundedThreshold": 5.44
+  },
+  "model": {
+    "name": "Two-layer Kubelka-Munk: finite 0.25 mm epidermis over semi-infinite dermis",
+    "wavelengthGridNm": {
+      "start": 380,
+      "end": 780,
+      "step": 5
+    },
+    "layerComposition": "Finite-layer Kubelka-Munk R/T adding equation; dermis uses the semi-infinite limit; no surface-specular term.",
+    "absorptionAndScattering": "Donner and Jensen equations 3-8; epidermal melanin plus baseline, dermal oxy/deoxy haemoglobin plus baseline, and reduced-scattering power law.",
+    "colour": "CIE 1931 2 degree CMFs and D65 from colour-science 0.4.7; XYZ Y normalized to 100 for a perfect reflector; CIELAB D65.",
+    "deterministic": true,
+    "implementation": "tools/openclinxr/asset-pipeline/skin/families/derive_chromophore_lab.py"
+  },
+  "parameters": {
+    "Cm": {
+      "citation": "Donner & Jensen 2006, EGSR, Table 1: melanin fraction typical range 0-0.5.",
+      "range": [0.0, 0.5]
+    },
+    "betaM": {
+      "value": 0.7,
+      "citation": "Donner & Jensen 2006, EGSR, Figure 3 caption: beta-m fixed at 0.7 (70% eumelanin, 30% pheomelanin).",
+      "range": [0.0, 1.0]
+    },
+    "Ch": {
+      "value": 0.005,
+      "citation": "Donner & Jensen 2006, EGSR, Figure 3 caption: haemoglobin fraction Ch constant at 0.5%; Table 1 typical range 0.001-0.1.",
+      "range": [0.001, 0.1]
+    },
+    "oxygenation": {
+      "value": 0.75,
+      "citation": "Donner & Jensen 2006, EGSR, section 3.4 after equation 7: gamma varies about 0.6-0.8 and is fixed to 0.75 in their model.",
+      "range": [0.6, 0.8]
+    }
+  },
+  "sources": [
+    {
+      "author": "Steven L. Jacques",
+      "year": 1998,
+      "venue": "Oregon Medical Laser Center News, Skin Optics",
+      "locator": "sections 1.1, 1.4, 2.1 and 2.4",
+      "use": "baseline skin absorption 0.244 + 85.3 exp(-(lambda-154)/66.2) cm^-1 and volume-fraction chromophore mixing",
+      "url": "https://omlc.org/news/jan98/skinoptics.html"
+    },
+    {
+      "author": "Steven L. Jacques",
+      "year": 2013,
+      "venue": "Physics in Medicine and Biology 58:R37-R61",
+      "locator": "equations 8-11",
+      "use": "melanosome absorption convention and eumelanin/pheomelanin absorption review; cites Jacques 1998 baseline used by Donner and Jensen",
+      "url": "https://omlc.org/news/dec14/Jacques_PMB2013/Jacques_PMB2013.pdf"
+    },
+    {
+      "author": "Craig Donner and Henrik Wann Jensen",
+      "year": 2006,
+      "venue": "Eurographics Symposium on Rendering",
+      "locator": "equations 3-8, Table 1, Figure 3, section 3.5",
+      "use": "Cm/beta-m/Ch parameterisation, fixed values, physiological ranges, absorption, scattering, layer thickness"
+    },
+    {
+      "author": "Motonori Doi, Norihiro Tanaka and Shoji Tominaga",
+      "year": 2004,
+      "venue": "Second European Conference on Colour in Graphics, Imaging, and Vision",
+      "locator": "equation 1",
+      "use": "two-layer Kubelka-Munk reflectance/transmittance composition",
+      "url": "https://doi.org/10.2352/CGIV.2004.2.1.art00078"
+    },
+    {
+      "author": "Scott Prahl (compiler); W. B. Gratzer and N. Kollias (data)",
+      "year": 1999,
+      "venue": "Oregon Medical Laser Center",
+      "locator": "tabulated molar extinction coefficients and conversion paragraph",
+      "use": "oxy- and deoxy-haemoglobin molar extinction and 150 g/L whole-blood conversion",
+      "url": "https://omlc.org/spectra/hemoglobin/summary.html"
+    }
+  ],
+  "dataFiles": [
+    {
+      "name": "Prahl haemoglobin HTML table",
+      "url": "https://omlc.org/spectra/hemoglobin/summary.html",
+      "sha256": "c5b3a312f3c8e135bf69845ba11afa94d92db0a3f784d344d92afcf9dc290c66",
+      "licence": "No explicit redistribution licence found on the source page; not vendored. The derivation fetches and SHA-pins it at runtime."
+    },
+    {
+      "name": "colour-science CIE 1931 2 degree CMFs and D65 datasets",
+      "package": "colour-science==0.4.7",
+      "url": "https://files.pythonhosted.org/packages/6d/9e/ce54e33f383d7e1432be9fb39557477779ccb155c60033c491609936dacf/colour_science-0.4.7-py3-none-any.whl",
+      "sha256": "fe2383d86e507fc11a4b5206ff31a7399031e0dce527e22ec06eeb491d45d9a7",
+      "licence": "BSD-3-Clause",
+      "redistributed": false
+    }
+  ],
+  "knownGood": [
+    {
+      "id": "anchor:warm_light",
+      "measuredLab": [58.37, 9.05, 16.01],
+      "derivedLab": [58.370000000000005, 3.7825036371164633, 9.002266498006573],
+      "Cm": 0.15309775216395177,
+      "dE76": 8.766689612844313
+    },
+    {
+      "id": "anchor:warm_medium",
+      "measuredLab": [49.26, 13.89, 19.44],
+      "derivedLab": [49.25999999999999, 3.2656135067433145, 8.708899050381746],
+      "Cm": 0.27729444005121906,
+      "dE76": 15.100798520243654
+    },
+    {
+      "id": "family:young:forehead",
+      "measuredLab": [62.61, 9.6, 16.68],
+      "derivedLab": [62.61, 4.048888642616156, 9.185999251835764],
+      "Cm": 0.11560070029914976,
+      "dE76": 9.32603262462458
+    },
+    {
+      "id": "family:middle:forehead",
+      "measuredLab": [75.48, 12.49, 21.68],
+      "derivedLab": [75.48, 3.915157003927472, 9.209442274330847],
+      "Cm": 0.04457059202920928,
+      "dE76": 15.134158133062462
+    },
+    {
+      "id": "family:old:forehead",
+      "measuredLab": [68.71, 16.8, 27.46],
+      "derivedLab": [68.71, 4.219764493424649, 9.405975593280779],
+      "Cm": 0.07573292446470334,
+      "dE76": 22.004774997243498
+    }
+  ],
+  "tableRows": [],
+  "endToEnd": {
+    "caseDriven": false,
+    "fixture": "packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts",
+    "token": "warm_medium",
+    "reason": "No case can be driven: the chromophore model was falsified before table emission."
+  },
+  "notTested": [
+    "No beta-m or Ch alternative was tuned or tested because F3 requires stopping on the first sourced fixed-value falsification.",
+    "No chromophore table rows, family pick, runner-up margin, albedo, shader, LUT, or rendered appearance were produced."
+  ]
+}
