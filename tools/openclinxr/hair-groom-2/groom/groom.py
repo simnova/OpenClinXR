@@ -62,7 +62,7 @@ EYE_FROM_TOP = 0.37
 FOCAL_MM = 85.0
 SENSOR_MM = 36.0
 RES = 1024
-VIEW_AZIMUTH_DEG = {"front": 0.0, "three_quarter_left": 45.0, "side": 90.0}
+VIEW_AZIMUTH_DEG = {"front": 0.0, "three_quarter_left": 45.0, "side": 90.0, "back": 180.0}
 
 
 def cli():
@@ -431,6 +431,12 @@ def march_guide(root, normal, origin, R, centre, collider, rc):
     sh_z = f["shoulderFieldBelowHeadOriginMm"] / 1000.0
     back_target = f["combRailBackTargetMm"] / 1000.0
     hug = f.get("scalpHugGain", 0.0)
+    tuck = rc.get("earTuck")
+    # behind the part (root more than partFadeBackMm behind the head centre) the two
+    # sides are drawn toward the midline so the back is one curtain, not a split
+    conv = rc["part"].get("backConvergeGain", 0.0)
+    conv_w = rc["part"].get("backConvergeWidthMm", 40.0) / 1000.0
+    back_root = rel[1] > rc["part"]["partFadeBackMm"] / 1000.0
     table = np.array(rc["scalp"]["hairlineMmAboveHeadOriginByAzimuthDeg"], dtype=float)
     p = p + Vector(normal) * (f["rootLiftMm"] / 1000.0)
     d = (Vector(normal) * ROOT_NORMAL_WEIGHT + away * rc["part"]["partAwayGain"] * w_part
@@ -461,6 +467,17 @@ def march_guide(root, normal, origin, R, centre, collider, rc):
         y_rel = lp[1] - centre[1]
         if anterior and abs(lp[0]) >= RAIL_CLEARED * rail and y_rel < back_target:
             steer += back * (f["combRailBackGain"] * g * min(1.0, (back_target - y_rel) / RAIL_BACK_RAMP_M))
+        # ear tuck: a strand reaching the ear band (head-local z) ahead of the ear's back
+        # edge (behindYMm) is steered back, ramping in over rampMm above the ear top, so
+        # it passes behind the ear and leaves the ear visible
+        if tuck and abs(lp[0]) > tuck["minAbsXMm"] / 1000.0 and lp[1] < tuck["behindYMm"] / 1000.0:
+            top, bot = tuck["topZMm"] / 1000.0, tuck["bottomZMm"] / 1000.0
+            ramp = tuck["rampMm"] / 1000.0
+            if bot < lp[2] < top + ramp:
+                w = min(1.0, (top + ramp - lp[2]) / ramp)
+                steer += back * (tuck["gain"] * g * w)
+        if conv > 0.0 and back_root and abs(lp[0]) < conv_w:
+            steer += -away * (conv * g * (1.0 - abs(lp[0]) / conv_w))
         if lp[2] < sh_z:
             steer += (-back if frontish else back * BACK_FIELD_RATIO) * (f["shoulderForwardGain"] * g)
         d = (d + steer * ds).normalized()
