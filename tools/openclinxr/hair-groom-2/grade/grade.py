@@ -1,4 +1,4 @@
-# Rubric instrument v3 for hair-groom-2 (tools/openclinxr/hair-groom-2/briefs/accuracy-rubric.md).
+# Rubric instrument v3 (+ v3.1 I12-I14) for hair-groom-2 (tools/openclinxr/hair-groom-2/briefs/accuracy-rubric.md).
 # Usage: <blender python> grade.py <round-dir> [out-dir]. Writes measures.json to out-dir (default: round-dir).
 # A round dir holds front.png, three_quarter_left.png, side.png, back.png (+ stats.json, strands.npz when produced by
 # groom.py). v2 items (A, B, C) are computed exactly as in v2; v3 adds the back-view items D1-D5 (vs target-back-a1)
@@ -83,9 +83,73 @@ def masks(A, f, view):
     rb = A[..., 0] - A[..., 2]
     cs = ch[r0:r1, c0:c1].reshape(-1, 3).mean(0); Ls = float(L[r0:r1, c0:c1].mean()); RBs = float(rb[r0:r1, c0:c1].mean())
     skin = (np.linalg.norm(ch - cs, axis=-1) < 0.08) & (L >= 0.68 * Ls) & (rb >= 0.6 * RBs)
+    skin &= ~hair_textured(L, skin, f, (r0, r1, c0, c1))
     shirt_green = (A[..., 1] - A[..., 0]) > 0.02
     hair = (L < 0.47) & ~skin & ~shirt_green
     return L, hair, skin
+
+
+TEX_SIGMA, TEX_ERODE, TEX_MULT = 3.0, 3, 2.0  # texture window (I6 sigma), interior erosion, multiple of the cheek p99
+TEX_CORE = 14                                  # diamond radius: core width 29 > A1 pass limit 2 x 14 canonical px
+
+
+def hair_textured(L, skin, f, cheek):
+    # I12 (v3.1): skin-coloured hair. Light or tan hair (cards-r1 crown) passes the cheek-calibrated colour rule, so
+    # skin candidates above the brow line (canonical row BROW - 10, A2's lower bound) are dropped when they carry
+    # strand texture over a region wider than any passing part. Texture = local RMS of (L - gaussian 1 px) over the
+    # 3 px-eroded skin candidates (gaussian 3 px window, the I6 sigma; erosion keeps the mixed edge px out). A px is
+    # textured above 2x the 99th percentile of the same measure in the image's own cheek box (per-image calibration
+    # as I4; 2x = A1's multiple). Textured regions count only if they hold a core that survives erosion by a diamond
+    # of radius 14 canonical px (width 29 > 28 = A1's pass limit, 2x the target part width 17.6 px / s 1.255 = 14.0
+    # canonical px), so a part line that A1 could pass is never removed; the whole connected textured region around
+    # such a core is then removed (geodesic reconstruction). Skin-candidate islands above the brow line that touch the
+    # removed region and do not connect to the cheek box through skin (untextured card faces, the region's eroded
+    # rim) go with it; bare-scalp specks away from a removed region are untouched (A11).
+    m = erode(skin, f.px(TEX_ERODE))
+    s = TEX_SIGMA * f.s
+    hp = (L - gblur(L, f.s)) * m
+    w = gblur(m.astype(float), s)
+    t = np.sqrt(gblur(hp * hp, s) / np.maximum(w, 1e-6))
+    r0, r1, c0, c1 = cheek
+    ck = t[r0:r1, c0:c1][m[r0:r1, c0:c1]]
+    zone = np.zeros_like(skin); zone[:max(0, f.r(BROW - 10))] = True
+    thr = TEX_MULT * np.percentile(ck, 99)
+    T = (t > thr) & (w > 0.05) & zone
+    g = erode(T, f.px(TEX_CORE))
+    if not g.any():
+        return g
+    g = reconstruct(g, T)
+    seed = np.zeros_like(skin); seed[r0:r1, c0:c1] = skin[r0:r1, c0:c1]
+    main = reconstruct(seed, skin & ~g)
+    # the 3 px window spreads card texture up to 3 sigma (9 px) into adjacent smooth skin (the bare part): px of the
+    # removed region within that reach of the cheek-connected skin, smooth at 1 px window, connected to it, go back
+    t1 = np.sqrt(gblur(hp * hp, f.s) / np.maximum(gblur(m.astype(float), f.s), 1e-6))
+    band = g & dilate(main, f.px(3 * TEX_SIGMA)) & (t1 <= thr)
+    g &= ~(reconstruct(main | band, main | band) & band)
+    rest = skin & ~g
+    island = rest & ~reconstruct(seed & rest, rest) & zone
+    return g | reconstruct(island & dilate(g, 1), island)
+
+
+def reconstruct(seed, within):
+    # geodesic reconstruction: everything in `within` 4-connected to `seed`
+    g = seed & within
+    while True:
+        n = g
+        for _ in range(16):
+            n = dilate(n, 1) & within
+        if (n == g).all():
+            return g
+        g = n
+
+
+def dilate(m, n):
+    m = m.copy()
+    for _ in range(n):
+        q = m.copy()
+        q[1:] |= m[:-1]; q[:-1] |= m[1:]; q[:, 1:] |= m[:, :-1]; q[:, :-1] |= m[:, 1:]
+        m = q
+    return m
 
 
 def gblur(x, s):
@@ -426,6 +490,72 @@ def measure_e1(strands_path):
     return o
 
 
+def card_round(rd):
+    # a card round: stats.json kind 'hair-cards' (render_cards.py); its strands.npz holds card centrelines, not strands
+    p = os.path.join(rd, 'stats.json')
+    st = json.load(open(p)) if os.path.exists(p) else {}
+    return st if st.get('kind') == 'hair-cards' else None
+
+
+def card_side_silhouette(rd, st, rows=1600):
+    # I13: A3 for a card round whose side render is cut by the frame. The side silhouette is re-drawn below the frame
+    # from the card geometry: card triangles (stats.cards -> cards.npz, world m) sampled at >= 2 per canonical px, kept
+    # where the atlas alpha >= the render's alpha cutoff (stats.material.renderAlphaCutoff), depth-tested against the
+    # body and garment triangles (body-geo.npz beside cards.npz, bodySha256 must equal stats.bodySha256; the low-poly
+    # proxy is excluded), projected through the groom side camera (stats.render.camera, azimuth 90; head-plane y from
+    # frames.json side; camera x centre = mean card-root x). The A3 20-canonical-px rule then runs on that silhouette.
+    # Frame check, not fitted: per-row geometric vs image hair count over canonical rows 640-1000.
+    cards = os.path.join(WT, st['cards']); geo = os.path.join(os.path.dirname(cards), 'body-geo.npz')
+    if not os.path.exists(cards) or not os.path.exists(geo):
+        return dict(error='missing %s' % (cards if not os.path.exists(cards) else geo))
+    c = np.load(cards); b = np.load(geo)
+    if str(b['bodySha256']) != st['bodySha256']:
+        return dict(error='body-geo.npz bodySha256 differs from stats.bodySha256')
+    cam = st['render']['camera']; cut = float(st['material']['renderAlphaCutoff'])
+    al = np.asarray(Image.open(os.path.join(WT, st['atlas'])))[..., 3].astype(float) / 255; H, W = al.shape
+    dist, zc, tx, ty = cam['distM'], cam['targetZ'], float(c['card_root'][:, 0].mean()), HEAD_Y
+
+    def proj(P):
+        d = (tx + dist) - P[:, 0]; k = dist / d / K
+        return 512 - (P[:, 2] - zc) * k, 511.5 + (P[:, 1] - ty) * k, d
+
+    def samples(T, attr=None):
+        r, cc, _ = proj(T.reshape(-1, 3)); r = r.reshape(-1, 3); cc = cc.reshape(-1, 3)
+        nn = np.clip(np.ceil(np.maximum(np.ptp(r, 1), np.ptp(cc, 1)) * 2).astype(int), 2, None)
+        for n in np.unique(nn):
+            sel = np.where(nn == n)[0]
+            u, v = np.meshgrid(np.linspace(0, 1, n + 1), np.linspace(0, 1, n + 1)); m = (u + v) <= 1
+            Wb = np.stack([1 - u[m] - v[m], u[m], v[m]], 1)
+            P = np.einsum('kj,fjd->fkd', Wb, T[sel]).reshape(-1, 3)
+            Q = np.einsum('kj,fjd->fkd', Wb, attr[sel]).reshape(-1, attr.shape[-1]) if attr is not None else None
+            yield P, Q
+
+    def pix(P):
+        r, cc, d = proj(P); ri = np.floor(r).astype(int); ci = np.floor(cc).astype(int)
+        ok = (ri >= 0) & (ri < rows) & (ci >= 0) & (ci < 1024)
+        return ri[ok], ci[ok], d[ok]
+
+    occ = [i for i, n in enumerate(b['meshNames']) if not str(n).endswith('low-poly')]
+    zb = np.full((rows, 1024), np.inf)
+    for P, _ in samples(b['verts'][b['tris'][np.isin(b['triMesh'], occ)]]):
+        ri, ci, d = pix(P); np.minimum.at(zb, (ri, ci), d)
+    sil = np.zeros((rows, 1024), bool)
+    F = c['card_tris']
+    for P, Q in samples(c['card_verts'][F], c['card_uv'][F]):
+        a = al[np.clip(((1 - Q[:, 1]) * H).astype(int), 0, H - 1), np.clip((Q[:, 0] * W).astype(int), 0, W - 1)]
+        ri, ci, d = pix(P[a >= cut]); vis = d < zb[ri, ci]; sil[ri[vis], ci[vis]] = True
+    cnt = sil.sum(1)
+    _, hair, _ = masks(load(os.path.join(rd, ROUND['side'])), Frame(), 'side'); ic = hair.sum(1)
+    chk = np.abs(cnt[640:1001] - ic[640:1001])
+    for r in range(600, rows):
+        if cnt[r] < 20:
+            return dict(row=r - 1, z=ZC + (511.5 - (r - 0.5)) * K, countAtFrameBottom=int(cnt[1023]),
+                        frameCheckMeanAbsPx=float(chk.mean()), frameCheckMaxAbsPx=int(chk.max()),
+                        countsEvery40Rows=[(int(q), int(cnt[q]), int(ic[q])) for q in range(600, 1024, 40)],
+                        cameraXCentre=tx, alphaCutoff=cut)
+    return dict(error='silhouette still >= 20 px at geometric row %d' % (rows - 1))
+
+
 tf = {v: Frame(FR[v]['s'], FR[v]['dx'], FR[v]['dy']) for v in TARGETS}
 rf = round_frames()
 T = {v: MEASURE[v](load(os.path.join(TG, TARGETS[v])), tf[v]) for v in TARGETS}
@@ -451,8 +581,19 @@ item('A1', mult <= 2.0, 'part/face at hairline %.4f vs target %.4f = %.2fx' % (r
      '<= 2x target')
 item('A2', rF['A2']['frac'] <= 0.01, 'hair px below hairline %d = %.2f%% of band (target %.2f%%)' % (
     rF['A2']['hairPx'], 100 * rF['A2']['frac'], 100 * tF['A2']['frac']), '<= 1% of band')
-dz = (rS['A3']['z'] - tS['A3']['z']) * 1000
-item('A3', abs(dz) <= 25, 'side hair bottom z %.3f m vs target %.3f m = %+.1f mm' % (rS['A3']['z'], tS['A3']['z'], dz), '+-25 mm')
+CARD = card_round(RD)
+if CARD and rS['A3']['censored']:
+    rS['A3']['cardSilhouette'] = cs_ = card_side_silhouette(RD, CARD)
+    if cs_.get('z') is None:
+        item('A3', False, 'card round, side silhouette censored and not measurable from geometry: %s' % cs_['error'], 'I13')
+    else:
+        dz = (cs_['z'] - tS['A3']['z']) * 1000
+        item('A3', abs(dz) <= 25, 'card round (I13): geometric side silhouette bottom z %.3f m (row %d) vs target %.3f m = %+.1f mm; '
+             'frame check rows 640-1000 mean |geom - image| %.1f px/row' % (cs_['z'], cs_['row'], tS['A3']['z'], dz, cs_['frameCheckMeanAbsPx']),
+             '+-25 mm')
+else:
+    dz = (rS['A3']['z'] - tS['A3']['z']) * 1000
+    item('A3', abs(dz) <= 25, 'side hair bottom z %.3f m vs target %.3f m = %+.1f mm' % (rS['A3']['z'], tS['A3']['z'], dz), '+-25 mm')
 a4 = max(rF['A4']['L']['frac'], rF['A4']['R']['frac'])
 item('A4', a4 <= 0.01, 'hair over chest boxes L %.2f%% R %.2f%% (target L %.2f%% R %.2f%%)' % (
     100 * rF['A4']['L']['frac'], 100 * rF['A4']['R']['frac'], 100 * tF['A4']['L']['frac'], 100 * tF['A4']['R']['frac']), '<= 1% each box')
@@ -505,12 +646,16 @@ else:
              D1_TILT, 100 * rB['D1']['fracTiltOver'], len(rB['D1']['tiltedTiles']), rB['D1']['tiles'], 100 * tB['D1']['fracTiltOver'],
              rB['D1']['medianAbsTiltDeg'], tB['D1']['medianAbsTiltDeg'], *rB['D1']['region']),
          '<= 2x target fraction')
-    d2 = {k: rB['D2'][k]['medianWidthCanonPx'] / tB['D2'][k]['medianWidthCanonPx'] for k in 'LR'}
-    item('D2', max(d2.values()) <= 2.0,
-         'translucent edge width (median over rows %d-%d) L %.1f px vs target %.1f (%.2fx), R %.1f px vs target %.1f (%.2fx)' % (
-             rB['D2']['rows'][0], rB['D2']['rows'][1] - 1, rB['D2']['L']['medianWidthCanonPx'], tB['D2']['L']['medianWidthCanonPx'], d2['L'],
-             rB['D2']['R']['medianWidthCanonPx'], tB['D2']['R']['medianWidthCanonPx'], d2['R']),
-         '<= 2x target, each side')
+    d2 = {k: rB['D2'][k]['medianWidthCanonPx'] / tB['D2'][k]['medianWidthCanonPx'] if rB['D2'][k]['rows'] else float('nan') for k in 'LR'}
+    if not all(rB['D2'][k]['rows'] for k in 'LR'):  # no row had a backdrop >= 0.1 brighter than the core on that side
+        item('D2', False, 'translucent edge width not measurable: rows with a backdrop >= 0.1 above the core lum %.3f: L %d, R %d' % (
+            rB['D2']['coreLum'], rB['D2']['L']['rows'], rB['D2']['R']['rows']), 'measurable each side, then <= 2x target')
+    else:
+        item('D2', max(d2.values()) <= 2.0,
+             'translucent edge width (median over rows %d-%d) L %.1f px vs target %.1f (%.2fx), R %.1f px vs target %.1f (%.2fx)' % (
+                 rB['D2']['rows'][0], rB['D2']['rows'][1] - 1, rB['D2']['L']['medianWidthCanonPx'], tB['D2']['L']['medianWidthCanonPx'], d2['L'],
+                 rB['D2']['R']['medianWidthCanonPx'], tB['D2']['R']['medianWidthCanonPx'], d2['R']),
+             '<= 2x target, each side')
     item('D3', rB['D3']['frac'] <= 0.01,
          'horizontal-edge px in shoulder-band hair %.2f%% (%d of %d; rows/cols %s) vs target %.2f%%; outline max width step %.0f vs target %.0f px/10 rows (reported)' % (
              100 * rB['D3']['frac'], rB['D3']['horizEdgePx'], rB['D3']['hairPx'], rB['D3']['horizEdgeRowsCols'], 100 * tB['D3']['frac'],
@@ -525,10 +670,11 @@ else:
          'widest pale crown run %.1f px at row %d vs target %.1f px [box rows %d-%d cols %d-%d]' % (
              rB['D5']['maxRunCanonPx'], rB['D5']['atRow'], tB['D5']['maxRunCanonPx'], *rB['D5']['box']),
          '<= 2x target')
-E1 = measure_e1(os.path.join(RD, 'strands.npz')) if os.path.exists(os.path.join(RD, 'strands.npz')) else None
+E1 = measure_e1(os.path.join(RD, 'strands.npz')) if os.path.exists(os.path.join(RD, 'strands.npz')) and not CARD else None
 for side in 'LR':
     if E1 is None:
-        item('E1.' + side, False, 'no strands.npz', 'strands.npz required')
+        item('E1.' + side, False, 'card round: strands.npz holds card centrelines, no strand roots' if CARD else 'no strands.npz',
+             'strands.npz required')
         continue
     e = E1[side]
     item('E1.' + side, e['aboveEar']['ratioToReference'] >= 0.5 and e['sideburn']['ratioToReference'] >= 0.5,
@@ -542,7 +688,7 @@ strands = os.path.join(RD, 'strands.npz')
 extra = {}
 if os.path.exists(strands):
     d = np.load(strands); P = d['positions']; o = d['offsets']; tips = P[o[1:] - 1][:, 2]
-    extra['strandTipsZ'] = dict(median=float(np.median(tips)), p10=float(np.percentile(tips, 10)), p90=float(np.percentile(tips, 90)),
+    extra['cardCentrelineTipsZ' if CARD else 'strandTipsZ'] = dict(median=float(np.median(tips)), p10=float(np.percentile(tips, 10)), p90=float(np.percentile(tips, 90)),
                                 targetHairBottomZ=tS['A3']['z'])
 out = dict(rubric='v3', e1=E1, round=os.path.relpath(RD, WT) if RD.startswith(WT) else RD, frames=dict(round={v: rf[v].d() for v in rf},
            target={v: tf[v].d() for v in tf}), numericItems=items, numericPass=sum(v['result'] == 'PASS' for v in items.values()),
