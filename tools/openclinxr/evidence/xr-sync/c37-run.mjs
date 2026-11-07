@@ -173,7 +173,7 @@ async function main(argv) {
       };
     };
     const iwerBundleText = emulated ? await readFile(IWER_BUNDLE, "utf8") : null;
-    const combinedInitScript = emulated ? { content: `${iwerBundleText};(${iwerGlue.toString()})();(${initScript.toString()})();` } : null;
+    const combinedInitScript = emulated ? { content: `${iwerBundleText};(${iwerGlue.toString()})();globalThis.__c37Errors=[];addEventListener("error",(event)=>{globalThis.__c37Errors.push(String((event.error&&event.error.stack)||event.message));});(${initScript.toString()})();` } : null;
     const probeFn = (drive) => (emulated ? runHostProbe({ pageUrl, outDir, drive, launchArgs, initScript: combinedInitScript }) : (options.mode === "host" ? runHostProbe({ pageUrl, outDir, drive, launchArgs, initScript }) : runQuestProbe({ pageUrl, outDir, serial: options.serial, drive, initScript })));
     const readMenu = (page) => page.evaluate(() => {
       const e = globalThis.__openClinXrEncounterSync;
@@ -233,7 +233,7 @@ async function main(argv) {
         await page.waitForFunction((count) => globalThis.__openClinXrEncounterSync.turns.length >= count, turnsBeforeSelect + 1, { timeout: 120000 });
         have = await page.evaluate(() => globalThis.__openClinXrEncounterSync.turns.length);
       }
-      const domTaps = emulated ? [menuTags.find((t) => t !== SPOKEN_TAG && !probe.xr.selectIntents.map((i) => i.topicTag).includes(t))] : TAPS;
+      const domTaps = emulated ? [menuTags.find((t) => t !== SPOKEN_TAG && t !== scenario.requiredTraceTags.find((x) => menuTags.includes(x)))] : TAPS;
       for (const tag of domTaps) {
         await page.evaluate((id) => document.getElementById(id).click(), `topic-${tag}`);
         await page.waitForFunction((count) => globalThis.__openClinXrEncounterSync.turns.length >= count, have + 1, { timeout: 120000 });
@@ -257,7 +257,7 @@ async function main(argv) {
         await page.evaluate(({ id }) => globalThis.__openClinXrEncounterSync.sendUtterance(id, "Hello, I am the student doctor."), { id: speakerId });
         await page.waitForFunction((id) => globalThis.__openClinXrEncounterSync.turns.at(-1)?.actorId === id, speakerId, { timeout: 60000 });
         await sleep(800);
-        probe.aimed = true;
+        probe.aimed = await page.evaluate((id) => globalThis.__openClinXrEncounterSync.turns.at(-1)?.actorId === id, speakerId);
         have = await page.evaluate(() => globalThis.__openClinXrEncounterSync.turns.length);
       }
       await page.evaluate((samples) => { globalThis.__c37Mic.wav = samples; }, pcm);
@@ -276,6 +276,7 @@ async function main(argv) {
       await shootPanel(page, join(outDir, "c37-menu-final.png"));
       if (emulated) {
         probe.xr.endedAfterTurns = await page.evaluate(() => globalThis.__c37Xr.ended);
+        probe.xr.errorStacks = await page.evaluate(() => globalThis.__c37Errors.slice(0, 400));
         probe.xr.sessionActive = await page.evaluate(() => globalThis.__c37Xr.sessions.length === 1 && globalThis.__c37Xr.ended === 0);
         probe.xr.nullAxes = await page.evaluate(() => globalThis.__c37Xr.sessions.some((session) => Array.from(session.inputSources ?? []).some((source) => Array.from(source.gamepad?.axes ?? []).some((axis) => axis === null))));
       }
@@ -308,7 +309,10 @@ async function main(argv) {
     check("H3 at least one button shows a seed phrase and one shows a tag, all labels are distinct, and a shipped label differs from the prettified tag", menuTags.some(hasLabelPhrase) && menuTags.some((t) => !hasLabelPhrase(t)) && new Set(menuTags.map(expectedLabel)).size === menuTags.length && menuTags.some((t) => expectedLabel(t) !== t.replaceAll("_", " ")), JSON.stringify(run.expected.labels));
     check("H4 every button starts data-asked=false", (p.start?.buttons ?? []).every((b) => b.asked === "false"), JSON.stringify((p.start?.buttons ?? []).map((b) => b.asked)));
     check(emulated ? "H5 the speaking actor answered a typed opener, so the shell addresses it" : "H5 the view was aimed at the speaking actor before the taps", p.aimed === true, String(p.aimed));
-    const expectedTags = emulated ? [...(p.afterSpeech?.intents ?? []).map((i) => i.topicTag), SPOKEN_TAG] : [...TAPS, SPOKEN_TAG];
+    // Emulated: the page's controller select completes the first required tag of the shipped scenario; the DOM tap is the harness's own choice; speech resolves from the nurse's shipped seed.
+    const SELECT_TAG = scenario.requiredTraceTags.find((t) => menuTags.includes(t));
+    const DOM_TAP_TAG = menuTags.find((t) => t !== SPOKEN_TAG && t !== SELECT_TAG);
+    const expectedTags = emulated ? [SELECT_TAG, DOM_TAP_TAG, SPOKEN_TAG] : [...TAPS, SPOKEN_TAG];
     const expectedTaps = expectedTags.slice(0, -1);
     if (emulated) {
       check("H6 after two taps exactly the tapped buttons read data-asked=true", JSON.stringify([...askedOf(p.afterTaps)].sort()) === JSON.stringify([...expectedTaps].sort()), JSON.stringify(askedOf(p.afterTaps)));
@@ -331,7 +335,7 @@ async function main(argv) {
       check("E2 exactly 1 XR session entered and 0 ended after the turns", p.xr?.sessionCount === 1 && p.xr?.endedAfterTurns === 0, JSON.stringify({ sessionCount: p.xr?.sessionCount, endedAfterEnter: p.xr?.endedAfterEnter, endedAfterTurns: p.xr?.endedAfterTurns }));
       check("E3 the head pose read back differs from identity (orientation.y > 0.05)", (p.xr?.headPose?.y ?? 0) > 0.05, JSON.stringify(p.xr?.headPose));
       check("E4 the controller select produced at least one acked intent", selectTags.length >= 1 && (p.afterSpeech?.intents ?? []).some((i) => selectTags.includes(i.topicTag) && (i.statuses ?? []).join() === "ack,ack,ack"), JSON.stringify(selectTags));
-      check("E5 the select tag set and the spoken tag are disjoint and all are in finalAsked", !selectTags.includes(SPOKEN_TAG) && [...selectTags, SPOKEN_TAG].every((t) => finalAsked.includes(t)), JSON.stringify({ selectTags, spoken: SPOKEN_TAG, finalAsked }));
+      check("E5 the controller select tag is the shipped first required tag, differs from the spoken tag, and both are in finalAsked", JSON.stringify(selectTags) === JSON.stringify([SELECT_TAG]) && SELECT_TAG !== SPOKEN_TAG && !selectTags.includes(SPOKEN_TAG) && [...selectTags, SPOKEN_TAG].every((t) => finalAsked.includes(t)), JSON.stringify({ selectTags, spoken: SPOKEN_TAG, finalAsked }));
       check("E6 finalAsked holds exactly the select, DOM tap and spoken tags and matches the review observed set", finalAsked.length === 3 && JSON.stringify([...finalAsked].sort()) === JSON.stringify([...expectedTags].sort()) && JSON.stringify([...finalAsked].sort()) === JSON.stringify([...reviewObserved].sort()), JSON.stringify({ finalAsked, expectedTags, reviewObserved }));
     }
     const finalButtons = p.afterSpeech?.buttons ?? [];
@@ -342,16 +346,35 @@ async function main(argv) {
     check("H10 the harness source holds none of the shipped tags or phrases (expected values come from the shipped bank)", copied.length === 0, copied.join(", "));
     // IWER's Quest 3 controller gamepad lists placeholder axes as null; the shell's per-frame gamepad evidence rounds every axis, so each frame
     // throws `Cannot read properties of null (reading 'toFixed')`. A real Quest reports 0 for those axes. Emulated runs tolerate exactly that signature and count it.
-    const nullAxisSignature = (text) => /^TypeError: Cannot read properties of null \(reading 'toFixed'\)\n\s+at \w+ \(.*\)\n(?:.*\n)*?\s+at Array\.map/u.test(text);
+    // Proof per error, from the page's own error events (stack included): an error is tolerated only when (a) IWER's input-source gamepad has null axes, (b) its message is the null toFixed TypeError,
+    // (c) its first frame lies in code that calls toFixed and a later frame lies in code that names rawAxes (the shell's per-frame gamepad axis rounding), both read from the served bundle.
     const nullAxes = p.xr?.nullAxes === true;
-    // A pageerror carries only name+message (no stack), so a bare message is tolerated only when the same run also shows (a) IWER's controller gamepad has null axes
-    // and (b) a console error whose stack is the shell's per-frame axis rounding (rounding helper frame, then an Array.map frame). Console errors must match with their stack.
-    const exactNullAxisMessage = (text) => emulated && nullAxes && text === "TypeError: Cannot read properties of null (reading 'toFixed')";
-    const stackNullAxis = (text) => emulated && nullAxes && nullAxisSignature(text);
-    const stackProven = out.consoleErrors.some(stackNullAxis);
-    const emulatorNullAxis = (text) => exactNullAxisMessage(text) ? stackProven : stackNullAxis(text);
-    run.emulatorArtifacts = emulated ? { nullAxes, stackProven, nullAxisPageErrors: out.pageErrors.filter(emulatorNullAxis).length, nullAxisConsoleErrors: out.consoleErrors.filter(emulatorNullAxis).length } : undefined;
-    const other = out.consoleErrors.filter((text) => !isAsset404(text) && !emulatorNullAxis(text));
+    const bundleCache = new Map();
+    const frameSource = async (frame) => {
+      const match = /http:\/\/[^\s)]+\/assets\/([^\s):\/]+\.js):(\d+):(\d+)/u.exec(frame);
+      if (match === null) return "";
+      if (!bundleCache.has(match[1])) bundleCache.set(match[1], (await readFile(join(APP_DIST, "assets", match[1]), "utf8")).split("\n"));
+      const line = bundleCache.get(match[1])[Number(match[2]) - 1] ?? "";
+      const col = Number(match[3]) - 1;
+      return line.slice(Math.max(0, col - 160), col + 160);
+    };
+    const provenAxisRounding = async (stack) => {
+      const frames = stack.split("\n").filter((line) => /^\s+at /u.test(line));
+      if (!nullAxes || emulated !== true || !stack.startsWith("TypeError: Cannot read properties of null (reading 'toFixed')") || frames.length < 3) return false;
+      const sources = await Promise.all(frames.slice(0, 6).map(frameSource));
+      return sources[0].includes("toFixed") && sources.slice(1).some((text) => text.includes("rawAxes"));
+    };
+    const stackVerdicts = emulated ? await Promise.all((p.xr?.errorStacks ?? []).map(provenAxisRounding)) : [];
+    const stackNullAxisCount = stackVerdicts.filter(Boolean).length;
+    const toFixedMessage = "TypeError: Cannot read properties of null (reading 'toFixed')";
+    const barePageErrors = out.pageErrors.filter((text) => text === toFixedMessage).length;
+    const unprovenStacks = (p.xr?.errorStacks ?? []).filter((_, i) => !stackVerdicts[i]);
+    // Every bare page error must be matched by a proven stack from the same page; any unproven stack is a failure.
+    const emulatorNullAxis = (text) => emulated && text === toFixedMessage && barePageErrors === stackNullAxisCount && unprovenStacks.length === 0;
+    const stackProven = stackNullAxisCount > 0;
+    const consoleStackOnly = (text) => emulated && text.startsWith(toFixedMessage) && stackProven && unprovenStacks.length === 0;
+    run.emulatorArtifacts = emulated ? { nullAxes, stackProven, provenStacks: stackNullAxisCount, unprovenStacks: unprovenStacks.length, barePageErrors, nullAxisConsoleErrors: out.consoleErrors.filter(consoleStackOnly).length } : undefined;
+    const other = out.consoleErrors.filter((text) => !isAsset404(text) && !consoleStackOnly(text));
     const otherPageErrors = out.pageErrors.filter((text) => !emulatorNullAxis(text));
     check("H11 no page errors and no console errors other than missing-asset 404s", otherPageErrors.length === 0 && other.length === 0, [...otherPageErrors, ...other].join(" | ") || `${out.consoleErrors.length} console errors tolerated (asset 404s${emulated ? " and the IWER null-axis signature" : ""})`);
     if (options.mode === "quest") {
