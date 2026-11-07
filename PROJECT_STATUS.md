@@ -23,11 +23,11 @@ Archive1676 immutable entries verified. LOW_TOKEN: /Users/patrick/.codex/benchma
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-10-23 | CEO — Aisha part groom stalled. part-open8 stays the keeper.**
+**2026-11-07 | hair-groom-2 — v1 strand groom retired; part-open8 is no longer a keeper.**
 
-part-sheet1 decision-row absolute error is 86 (part-open8 is 43). Row 96 is 24 px on part-sheet1 and 36 px on part-open8 (target 15). Row 92 on part-sheet1 is a 1024 px skin run. Do not parent from part-sheet1. Handoff: operator-hair-muse4h.md. No part-r45. Keeper: hair-hillclimb worktree tools/openclinxr/evidence/hair-muse4h/part-open8/treated.npz.
+The v1 part campaign (part-r13..r44, part-open1..9) moved strand coordinates by LLM-written rules (D1, D9) and stalled 2026-10-23. Its keeper part-open8 is retired: no worker parents from it. Hair now follows tools/openclinxr/hair-groom-2/DESIGN.md on branch wt/hair-groom-2 (not merged): Phase 0a re-acquires the hair01 cache (absent on this machine) and gives the two adult males a male style, Phase 0c grades the full library before any card work, Phase 1 shows v1 cards in Model Vetting Studio. History: operator-hair-muse4h.md.
 
-SWEEP: workers=0 hair-part-sheet1 stop-gate bothy=NOT DETERMINED
+SWEEP: workers=0 hair-groom-2 design-only bothy=NOT DETERMINED
 
 <!-- WAKE-BLUF:END -->
 

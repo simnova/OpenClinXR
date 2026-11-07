@@ -7,7 +7,7 @@
     "agent-methodology": 118,
     "current-reference": 202,
     "archive-candidate": 137,
-    "evidence": 206,
+    "evidence": 209,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5855,6 +5855,13 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
+      "path": "tools/openclinxr/hair-groom-2/reviews/adversarial_round3_report.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
       "path": "tools/openclinxr/hair-groom-2/reviews/comprehension_report.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
@@ -5870,6 +5877,20 @@
     },
     {
       "path": "tools/openclinxr/hair-groom-2/reviews/reaudit_round2_report.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/reviews/redteam_round3_report.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/reviews/zoomout_round3_report.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
