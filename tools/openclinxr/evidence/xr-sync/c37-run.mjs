@@ -25,6 +25,7 @@ const SIDECAR_DIST = join(ROOT, "packages/openclinxr/xr-sync-server/dist/sidecar
 const COVERAGE_DIST = join(ROOT, "packages/openclinxr/xr-sync-server/dist/trace-tag-coverage.js");
 const FIXTURES_DIST = join(ROOT, "packages/openclinxr/scenario-fixtures/dist/index.js");
 const APP_DIST = join(ROOT, "apps/ui-xr/dist");
+const IWER_BUNDLE = join(ROOT, "apps/arena/ui-xr-iwsdk-spike/node_modules/iwer/build/iwer.min.js");
 const STT_PYTHON = process.env.OPENCLINXR_STT_PYTHON ?? "/Volumes/files/openclinxr-assets/stt/venv/bin/python";
 const TIMING = { doorwaySeconds: 1, encounterSeconds: 300, noteSeconds: 1, breakAfterStationOrders: [] };
 const JOIN_TIMEOUT_MS = 240000;
@@ -67,12 +68,35 @@ async function shootPanel(page, path) {
     await page.screenshot({ path, fullPage: true, clip: { x: box.x, y: box.y + await page.evaluate(() => window.scrollY), width: box.width, height: box.height }, timeout: 30000 });
   } catch { /* evidence only */ }
 }
+function iwerGlue() {
+  const device = new IWER.XRDevice(IWER.metaQuest3);
+  device.installRuntime({ forceInstall: true });
+  globalThis.__c37Xr = { device, sessions: [], ended: 0 };
+  const xr = navigator.xr;
+  const originalRequestSession = xr.requestSession.bind(xr);
+  xr.requestSession = async function requestSession(...args) {
+    const session = await originalRequestSession(...args);
+    globalThis.__c37Xr.sessions.push(session);
+    session.addEventListener("end", () => {
+      globalThis.__c37Xr.ended += 1;
+    });
+    return session;
+  };
+}
+
 async function main(argv) {
-  const options = parseArgs(argv);
+  const parsedArgv = [...argv];
+  let emulated = false;
+  const modeFlag = parsedArgv.indexOf("--mode");
+  if (modeFlag !== -1 && parsedArgv[modeFlag + 1] === "emulated") {
+    parsedArgv[modeFlag + 1] = "host";
+    emulated = true;
+  }
+  const options = parseArgs(parsedArgv);
   const outDir = resolve(options.out);
   await mkdir(outDir, { recursive: true });
   const traceDir = await mkdtemp(join(tmpdir(), "xr-sync-c37-trace-"));
-  const run = { mode: options.mode, serial: options.mode === "quest" ? options.serial : null, script: "c37", assertions: [], pageErrors: [], consoleErrors: [], notEvidenceFor: { soundHeardByPerson: true, clinicalValidity: true, phraseReadsWellAsLabel: true } };
+  const run = { mode: emulated ? "emulated" : options.mode, serial: options.mode === "quest" ? options.serial : null, script: "c37", assertions: [], pageErrors: [], consoleErrors: [], notEvidenceFor: { soundHeardByPerson: true, clinicalValidity: true, phraseReadsWellAsLabel: true } };
   const check = (name, pass, detail = "") => {
     run.assertions.push({ name, pass: Boolean(pass), detail: String(detail) });
     if (!pass) process.exitCode = 1;
@@ -147,7 +171,9 @@ async function main(argv) {
         ctl.played += 1;
       };
     };
-    const probeFn = (drive) => (options.mode === "host" ? runHostProbe({ pageUrl, outDir, drive, launchArgs, initScript }) : runQuestProbe({ pageUrl, outDir, serial: options.serial, drive, initScript }));
+    const iwerBundleText = emulated ? await readFile(IWER_BUNDLE, "utf8") : null;
+    const combinedInitScript = emulated ? { content: `${iwerBundleText};(${iwerGlue.toString()})();(${initScript.toString()})();` } : null;
+    const probeFn = (drive) => (emulated ? runHostProbe({ pageUrl, outDir, drive, launchArgs, initScript: combinedInitScript }) : (options.mode === "host" ? runHostProbe({ pageUrl, outDir, drive, launchArgs, initScript }) : runQuestProbe({ pageUrl, outDir, serial: options.serial, drive, initScript })));
     const readMenu = (page) => page.evaluate(() => {
       const e = globalThis.__openClinXrEncounterSync;
       const buttons = [...document.querySelectorAll("#room-topics button")].map((b) => ({ id: b.id, text: b.textContent, asked: b.getAttribute("data-asked"), bg: b.style.background }));
@@ -178,7 +204,33 @@ async function main(argv) {
         return false;
       }, { target: patientId });
       let have = 0;
-      for (const tag of TAPS) {
+      if (emulated) {
+        probe.xr = {};
+        probe.xr.supported = await page.evaluate(() => navigator.xr.isSessionSupported("immersive-vr"));
+        await page.waitForFunction(() => { const button = document.getElementById("enter-xr-button"); return button !== null && !button.disabled; }, undefined, { timeout: 60000 });
+        await page.click("#enter-xr-button");
+        await page.waitForFunction(() => globalThis.__c37Xr.sessions.length === 1 && document.getElementById("enter-xr-button").textContent === "Exit Full VR", undefined, { timeout: 60000 });
+        probe.xr = {
+          supported: probe.xr.supported,
+          sessionCount: await page.evaluate(() => globalThis.__c37Xr.sessions.length),
+          endedAfterEnter: await page.evaluate(() => globalThis.__c37Xr.ended),
+        };
+        const remote = (method, params) => page.evaluate(([m, p]) => globalThis.__c37Xr.device.remote.dispatch(m, p), [method, params]);
+        await remote("set_connected", { device: "controller-right", connected: true });
+        await remote("animate_to", { device: "headset", position: { x: 0, y: 1.6, z: 0 }, orientation: { x: 0, y: 0.1305, z: 0, w: 0.9914 }, duration: 0.5 });
+        await sleep(800);
+        const headTransform = await remote("get_transform", { device: "headset" });
+        probe.xr.headPose = JSON.parse(JSON.stringify(headTransform.orientation));
+        const turnsBeforeSelect = await page.evaluate(() => globalThis.__openClinXrEncounterSync.turns.length);
+        await remote("_select_press", { device: "controller-right" });
+        await remote("_select_release", { device: "controller-right" });
+        await page.waitForFunction(() => (globalThis.__openClinXrEncounterSync.intents ?? []).length >= 1, undefined, { timeout: 30000 });
+        probe.xr.selectIntents = await page.evaluate(() => JSON.parse(JSON.stringify(globalThis.__openClinXrEncounterSync.intents)));
+        await page.waitForFunction((count) => globalThis.__openClinXrEncounterSync.turns.length >= count, turnsBeforeSelect + 1, { timeout: 120000 });
+        have = await page.evaluate(() => globalThis.__openClinXrEncounterSync.turns.length);
+      }
+      const domTaps = emulated ? [menuTags.find((t) => t !== SPOKEN_TAG && !probe.xr.selectIntents.map((i) => i.topicTag).includes(t))] : TAPS;
+      for (const tag of domTaps) {
         await page.evaluate((id) => document.getElementById(id).click(), `topic-${tag}`);
         await page.waitForFunction((count) => globalThis.__openClinXrEncounterSync.turns.length >= count, have + 1, { timeout: 120000 });
         have += 1;
@@ -200,6 +252,10 @@ async function main(argv) {
       await sleep(1000);
       probe.afterSpeech = await readMenu(page);
       await shootPanel(page, join(outDir, "c37-menu-final.png"));
+      if (emulated) {
+        probe.xr.endedAfterTurns = await page.evaluate(() => globalThis.__c37Xr.ended);
+        probe.xr.sessionActive = await page.evaluate(() => globalThis.__c37Xr.sessions.length === 1 && globalThis.__c37Xr.ended === 0);
+      }
       return probe;
     };
     const out = await probeFn(drive);
@@ -229,19 +285,43 @@ async function main(argv) {
     check("H3 at least one button shows a seed phrase and one shows a tag, all labels are distinct, and a shipped label differs from the prettified tag", menuTags.some(hasLabelPhrase) && menuTags.some((t) => !hasLabelPhrase(t)) && new Set(menuTags.map(expectedLabel)).size === menuTags.length && menuTags.some((t) => expectedLabel(t) !== t.replaceAll("_", " ")), JSON.stringify(run.expected.labels));
     check("H4 every button starts data-asked=false", (p.start?.buttons ?? []).every((b) => b.asked === "false"), JSON.stringify((p.start?.buttons ?? []).map((b) => b.asked)));
     check("H5 the view was aimed at the patient before the taps", p.aimed === true, String(p.aimed));
-    check("H6 after two taps exactly the tapped buttons read data-asked=true", JSON.stringify([...askedOf(p.afterTaps)].sort()) === JSON.stringify([...TAPS].sort()), JSON.stringify(askedOf(p.afterTaps)));
-    check("H7 the page sent the two taps as trace actions with those topicTags, both acked", JSON.stringify((p.afterSpeech?.intents ?? []).map((i) => i.topicTag)) === JSON.stringify(TAPS) && (p.afterSpeech?.intents ?? []).every((i) => i.statuses.join() === "ack,ack,ack"), JSON.stringify(p.afterSpeech?.intents));
+    const expectedTags = emulated ? [...(p.afterSpeech?.intents ?? []).map((i) => i.topicTag), SPOKEN_TAG] : [...TAPS, SPOKEN_TAG];
+    const expectedTaps = expectedTags.slice(0, -1);
+    if (emulated) {
+      check("H6 after two taps exactly the tapped buttons read data-asked=true", JSON.stringify([...askedOf(p.afterTaps)].sort()) === JSON.stringify([...expectedTaps].sort()), JSON.stringify(askedOf(p.afterTaps)));
+      check("H7 the page sent the two taps as trace actions with those topicTags, both acked", JSON.stringify((p.afterSpeech?.intents ?? []).map((i) => i.topicTag)) === JSON.stringify(expectedTaps) && (p.afterSpeech?.intents ?? []).every((i) => i.statuses.join() === "ack,ack,ack"), JSON.stringify(p.afterSpeech?.intents));
+    } else {
+      check("H6 after two taps exactly the tapped buttons read data-asked=true", JSON.stringify([...askedOf(p.afterTaps)].sort()) === JSON.stringify([...TAPS].sort()), JSON.stringify(askedOf(p.afterTaps)));
+      check("H7 the page sent the two taps as trace actions with those topicTags, both acked", JSON.stringify((p.afterSpeech?.intents ?? []).map((i) => i.topicTag)) === JSON.stringify(TAPS) && (p.afterSpeech?.intents ?? []).every((i) => i.statuses.join() === "ack,ack,ack"), JSON.stringify(p.afterSpeech?.intents));
+    }
     const ends = (trace.events ?? []).filter((e) => e.kind === "utterance-end");
-    check("H8 the persisted trace holds the tap tags in order, then the spoken turn's tag (speech modality, matched)", JSON.stringify(ends.map((e) => e.tag)) === JSON.stringify([...TAPS, SPOKEN_TAG]) && ends.at(-1)?.modality === "speech", JSON.stringify(ends.map((e) => [e.tag, e.modality, e.match, e.confidence])));
-    check("H9 the page's asked set equals the review's observed set (traceTagCoverage on the persisted trace, note tag excluded)", JSON.stringify([...finalAsked].sort()) === JSON.stringify([...reviewObserved].sort()) && finalAsked.length === TAPS.length + 1, JSON.stringify({ finalAsked, reviewObserved }));
+    if (emulated) {
+      check("H8 the persisted trace holds the tap tags in order, then the spoken turn's tag (speech modality, matched)", JSON.stringify(ends.map((e) => e.tag)) === JSON.stringify(expectedTags) && ends.at(-1)?.modality === "speech", JSON.stringify(ends.map((e) => [e.tag, e.modality, e.match, e.confidence])));
+      check("H9 the page's asked set equals the review's observed set (traceTagCoverage on the persisted trace, note tag excluded)", JSON.stringify([...new Set(expectedTags)].sort()) === JSON.stringify([...finalAsked].sort()) && JSON.stringify([...finalAsked].sort()) === JSON.stringify([...reviewObserved].sort()) && finalAsked.length === new Set(expectedTags).size, JSON.stringify({ finalAsked, reviewObserved }));
+    } else {
+      check("H8 the persisted trace holds the tap tags in order, then the spoken turn's tag (speech modality, matched)", JSON.stringify(ends.map((e) => e.tag)) === JSON.stringify([...TAPS, SPOKEN_TAG]) && ends.at(-1)?.modality === "speech", JSON.stringify(ends.map((e) => [e.tag, e.modality, e.match, e.confidence])));
+      check("H9 the page's asked set equals the review's observed set (traceTagCoverage on the persisted trace, note tag excluded)", JSON.stringify([...finalAsked].sort()) === JSON.stringify([...reviewObserved].sort()) && finalAsked.length === TAPS.length + 1, JSON.stringify({ finalAsked, reviewObserved }));
+    }
+    if (emulated) {
+      const selectTags = (p.xr?.selectIntents ?? []).map((i) => i.topicTag);
+      check("E1 isSessionSupported(\"immersive-vr\") true", p.xr?.supported === true, String(p.xr?.supported));
+      check("E2 exactly 1 XR session entered and 0 ended after the turns", p.xr?.sessionCount === 1 && p.xr?.endedAfterTurns === 0, JSON.stringify({ sessionCount: p.xr?.sessionCount, endedAfterEnter: p.xr?.endedAfterEnter, endedAfterTurns: p.xr?.endedAfterTurns }));
+      check("E3 the head pose read back differs from identity (orientation.y > 0.05)", (p.xr?.headPose?.y ?? 0) > 0.05, JSON.stringify(p.xr?.headPose));
+      check("E4 the controller select produced at least one acked intent", selectTags.length >= 1 && (p.afterSpeech?.intents ?? []).some((i) => selectTags.includes(i.topicTag) && (i.statuses ?? []).join() === "ack,ack,ack"), JSON.stringify(selectTags));
+    }
     const finalButtons = p.afterSpeech?.buttons ?? [];
     check("H12 after the turns each button shows the display form: asked buttons lead with a check mark and carry a background, unasked buttons neither", finalButtons.length === menuTags.length && finalButtons.every((b, i) => b.text === displayOf(menuTags[i], b.asked === "true") && (b.asked === "true" ? b.bg !== "" : b.bg === "")) && finalButtons.some((b) => b.asked === "true") && finalButtons.some((b) => b.asked !== "true"), JSON.stringify(finalButtons.map((b) => [b.text, b.bg])));
     const ownSource = await readFile(fileURLToPath(import.meta.url), "utf8");
     const literals = [...menuTags, ...bank.seeds.flatMap((s) => s.utterancePhrases ?? [])].filter((t) => t.length > 6);
     const copied = literals.filter((text) => ownSource.includes(`"${text}"`) || ownSource.includes(`'${text}'`));
     check("H10 the harness source holds none of the shipped tags or phrases (expected values come from the shipped bank)", copied.length === 0, copied.join(", "));
-    const other = out.consoleErrors.filter((text) => !isAsset404(text));
-    check("H11 no page errors and no console errors other than missing-asset 404s", out.pageErrors.length === 0 && other.length === 0, [...out.pageErrors, ...other].join(" | ") || `${out.consoleErrors.length} asset 404s`);
+    // IWER's Quest 3 controller gamepad lists placeholder axes as null; the shell's per-frame gamepad evidence rounds every axis, so each frame
+    // throws `Cannot read properties of null (reading 'toFixed')`. A real Quest reports 0 for those axes. Emulated runs tolerate exactly that signature and count it.
+    const emulatorNullAxis = (text) => emulated && /Cannot read properties of null \(reading 'toFixed'\)/u.test(text);
+    run.emulatorArtifacts = emulated ? { nullAxisToFixedPageErrors: out.pageErrors.filter(emulatorNullAxis).length, nullAxisToFixedConsoleErrors: out.consoleErrors.filter(emulatorNullAxis).length } : undefined;
+    const other = out.consoleErrors.filter((text) => !isAsset404(text) && !emulatorNullAxis(text));
+    const otherPageErrors = out.pageErrors.filter((text) => !emulatorNullAxis(text));
+    check("H11 no page errors and no console errors other than missing-asset 404s", otherPageErrors.length === 0 && other.length === 0, [...otherPageErrors, ...other].join(" | ") || `${out.consoleErrors.length} console errors tolerated (asset 404s${emulated ? " and the IWER null-axis signature" : ""})`);
     if (options.mode === "quest") {
       const lists = await collectQuestCleanupLists({ staticPort: staticServer.port, syncPort: new URL(pageUrl).searchParams.get("encounterSync").split(":").at(-1), serial: options.serial });
       run.adbReverseList = lists.adbReverseList;
