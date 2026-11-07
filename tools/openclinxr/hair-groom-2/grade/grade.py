@@ -556,6 +556,38 @@ def card_side_silhouette(rd, st, rows=1600):
     return dict(error='silhouette still >= 20 px at geometric row %d' % (rows - 1))
 
 
+def measure_e1_cards(cards_path, groom_dir, step_mm=1.0):
+    # I15: E1 on a card round. Card root edge = the two vertices of each card with card_uv v = 0 (cards are built with
+    # v running root -> tip; their midpoint is card_root). World -> groom head-local frame: the rigid transform fitted
+    # (Kabsch) from the source groom round's strands.npz positions to its localPositions (stats.groomRound; residual
+    # reported). Each root edge is sampled every 1 mm; density = root-edge length (mm) in the patch per cm2 of body
+    # surface (body_back.json areas, |x| >= 40 mm as for strands). E1 is a patch / temporal-reference ratio within one
+    # hair set, so the per-card strand count cancels if cards carry strands at a constant density per width: a card
+    # set that leaves the sideburn bare scores 0, one with root edges there at the reference density scores ~1.
+    bb = json.load(open(os.path.join(HERE, 'body_back.json')))
+    d = np.load(os.path.join(groom_dir, 'strands.npz')); P = d['positions'][::20].astype(float); Q = d['localPositions'][::20].astype(float)
+    pm, qm = P.mean(0), Q.mean(0); U, _, Vt = np.linalg.svd((Q - qm).T @ (P - pm)); Rm = U @ Vt; t = qm - pm @ Rm.T
+    resid = float(np.abs((P @ Rm.T + t) - Q).max() * 1000)
+    c = np.load(cards_path); V, uv, vc = c['card_verts'], c['card_uv'], c['vert_card']
+    rv = np.where(uv[:, 1] == 0.0)[0]; rv = rv[np.argsort(vc[rv], kind='stable')]
+    if len(rv) != 2 * int(vc.max() + 1):
+        return None, 'root edge not 2 vertices per card (%d for %d cards)' % (len(rv), vc.max() + 1)
+    A, B = (V[rv[0::2]] @ Rm.T + t) * 1000, (V[rv[1::2]] @ Rm.T + t) * 1000
+    ln = np.linalg.norm(B - A, axis=1); n = np.maximum(1, np.ceil(ln / step_mm)).astype(int)
+    pts = np.concatenate([A[i] + (B[i] - A[i]) * ((np.arange(n[i]) + 0.5) / n[i])[:, None] for i in range(len(A))])
+    wts = np.repeat(ln / n, n)
+    o = dict(rule='card root-edge length (mm) per cm2', groomFrameFitResidMm=resid, cards=int(len(A)), rootEdgeMmTotal=float(ln.sum()))
+    for name, sg in (('L', 1.0), ('R', -1.0)):
+        q = pts * np.array([sg, 1, 1]); res = {}
+        for k, b in bb['patches'][name].items():
+            m = (q[:, 0] >= 40.0) & (q[:, 1] >= b['y'][0]) & (q[:, 1] < b['y'][1]) & (q[:, 2] >= b['z'][0]) & (q[:, 2] < b['z'][1])
+            res[k] = dict(y=b['y'], z=b['z'], areaMm2=b['areaMm2'], rootEdgeMm=float(wts[m].sum()), perCm2=100.0 * float(wts[m].sum()) / b['areaMm2'])
+        for k in ('aboveEar', 'sideburn'):
+            res[k]['ratioToReference'] = res[k]['perCm2'] / res['reference']['perCm2'] if res['reference']['perCm2'] else 0.0
+        o[name] = res
+    return o, None
+
+
 tf = {v: Frame(FR[v]['s'], FR[v]['dx'], FR[v]['dy']) for v in TARGETS}
 rf = round_frames()
 T = {v: MEASURE[v](load(os.path.join(TG, TARGETS[v])), tf[v]) for v in TARGETS}
@@ -572,7 +604,7 @@ items = {}
 
 
 def item(i, ok, value, src):
-    items[i] = dict(result='PASS' if ok else 'FAIL', value=value, threshold=src)
+    items[i] = dict(result='INCONCLUSIVE' if ok is None else 'PASS' if ok else 'FAIL', value=value, threshold=src)
 
 
 tF, rF, tS, rS, tQ, rQ = T['front'], R['front'], T['side'], R['side'], T['three_quarter'], R['three_quarter']
@@ -648,7 +680,9 @@ else:
          '<= 2x target fraction')
     d2 = {k: rB['D2'][k]['medianWidthCanonPx'] / tB['D2'][k]['medianWidthCanonPx'] if rB['D2'][k]['rows'] else float('nan') for k in 'LR'}
     if not all(rB['D2'][k]['rows'] for k in 'LR'):  # no row had a backdrop >= 0.1 brighter than the core on that side
-        item('D2', False, 'translucent edge width not measurable: rows with a backdrop >= 0.1 above the core lum %.3f: L %d, R %d' % (
+        # I14: no row with a backdrop >= 0.1 above the core means no translucency was measured (a light core, e.g. tan
+        # cards); that is no evidence of a sheet either way, so the grader scores D2 visually (as the v2 visual items)
+        item('D2', None, 'INCONCLUSIVE, grader scores visually: no row has a backdrop >= 0.1 above the core lum %.3f (rows L %d, R %d)' % (
             rB['D2']['coreLum'], rB['D2']['L']['rows'], rB['D2']['R']['rows']), 'measurable each side, then <= 2x target')
     else:
         item('D2', max(d2.values()) <= 2.0,
@@ -670,17 +704,20 @@ else:
          'widest pale crown run %.1f px at row %d vs target %.1f px [box rows %d-%d cols %d-%d]' % (
              rB['D5']['maxRunCanonPx'], rB['D5']['atRow'], tB['D5']['maxRunCanonPx'], *rB['D5']['box']),
          '<= 2x target')
-E1 = measure_e1(os.path.join(RD, 'strands.npz')) if os.path.exists(os.path.join(RD, 'strands.npz')) and not CARD else None
+E1, E1_ERR = None, None
+if CARD:
+    E1, E1_ERR = measure_e1_cards(os.path.join(WT, CARD['cards']), os.path.join(WT, CARD['groomRound']))
+elif os.path.exists(os.path.join(RD, 'strands.npz')):
+    E1 = measure_e1(os.path.join(RD, 'strands.npz'))
 for side in 'LR':
     if E1 is None:
-        item('E1.' + side, False, 'card round: strands.npz holds card centrelines, no strand roots' if CARD else 'no strands.npz',
-             'strands.npz required')
+        item('E1.' + side, False, E1_ERR or 'no strands.npz', 'cards.npz root edges (I15) required' if CARD else 'strands.npz required')
         continue
     e = E1[side]
     item('E1.' + side, e['aboveEar']['ratioToReference'] >= 0.5 and e['sideburn']['ratioToReference'] >= 0.5,
-         'root density above ear %.1f/cm2, sideburn %.1f/cm2 vs temporal reference %.1f/cm2 = %.2f / %.2f (numeric half; visual half scored by the grader)' % (
-             e['aboveEar']['perCm2'], e['sideburn']['perCm2'], e['reference']['perCm2'], e['aboveEar']['ratioToReference'],
-             e['sideburn']['ratioToReference']),
+         '%s above ear %.1f/cm2, sideburn %.1f/cm2 vs temporal reference %.1f/cm2 = %.2f / %.2f (numeric half; visual half scored by the grader)' % (
+             'card root-edge mm (I15)' if CARD else 'root density', e['aboveEar']['perCm2'], e['sideburn']['perCm2'], e['reference']['perCm2'],
+             e['aboveEar']['ratioToReference'], e['sideburn']['ratioToReference']),
          'each >= 0.5 x reference')
 
 
@@ -697,4 +734,5 @@ os.makedirs(OUT_DIR, exist_ok=True)
 json.dump(out, open(os.path.join(OUT_DIR, 'measures.json'), 'w'), indent=1, default=lambda x: x.item() if hasattr(x, 'item') else str(x))
 for k_ in sorted(items):
     print('%-8s %s  %s  [%s]' % (k_, items[k_]['result'], items[k_]['value'], items[k_]['threshold']))
-print('NUMERIC %d/%d' % (out['numericPass'], out['numericCount']))
+_inc = sum(v['result'] == 'INCONCLUSIVE' for v in items.values())
+print('NUMERIC %d/%d' % (out['numericPass'], out['numericCount']) + (' (%d INCONCLUSIVE, grader scores visually)' % _inc if _inc else ''))
