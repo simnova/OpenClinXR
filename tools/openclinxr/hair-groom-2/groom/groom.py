@@ -51,7 +51,7 @@ SCALP_UV = "UVMap"                 # spherical scalp UV; the bundled assets read
 SCALP_CUTS = 4                     # flat edge cuts on hairline-adjacent body faces before masking
 CANDIDATE_FACTOR = 30              # dart-throwing candidates per requested guide
 POISSON_RADIUS_FACTOR = 0.75       # dart radius = factor * sqrt(scalp area / guide count)
-ROOT_NORMAL_WEIGHT = 0.35          # weight of the scalp normal in a guide's first direction
+ROOT_NORMAL_WEIGHT = 0.35          # default weight of the scalp normal in a guide's first direction (recipe fall.rootNormalWeight)
 ROOT_DOWN_WEIGHT = 0.25            # weight of world-down in a guide's first direction
 BACK_FIELD_RATIO = 0.5             # back roots get this fraction of the forward shoulder gain, backward
 ESCAPE_STEPS = 40                  # outward march steps for a point the projection cannot settle
@@ -431,6 +431,18 @@ def march_guide(root, normal, origin, R, centre, collider, rc):
     sh_z = f["shoulderFieldBelowHeadOriginMm"] / 1000.0
     back_target = f["combRailBackTargetMm"] / 1000.0
     hug = f.get("scalpHugGain", 0.0)
+    hug_ant = f.get("scalpHugAnteriorOnly", True)
+    hug_min_z = f.get("scalpHugMinZMm", 0.0) / 1000.0
+    hug_off = f.get("scalpHugOffsetMm", f["volumeMm"]) / 1000.0
+    hug_half_w = f.get("scalpHugCrownHalfWidthMm", 1e6) / 1000.0
+    # the shoulder field acts between shoulderFieldBelowHeadOriginMm and
+    # shoulderFieldBottomMm; below it strands hang under gravity alone
+    sh_bot = f.get("shoulderFieldBottomMm", -1e6) / 1000.0
+    # below backHugBelowMm strands are drawn forward onto the back (body/garment
+    # collision stops them), so the sheet thins toward the tips instead of hanging
+    # as a vertical slab
+    bh_z = f.get("backHugBelowMm", -1e6) / 1000.0
+    bh_gain = f.get("backHugGain", 0.0)
     tuck = rc.get("earTuck")
     # behind the part (root more than partFadeBackMm behind the head centre) the two
     # sides are drawn toward the midline so the back is one curtain, not a split
@@ -439,13 +451,15 @@ def march_guide(root, normal, origin, R, centre, collider, rc):
     back_root = rel[1] > rc["part"]["partFadeBackMm"] / 1000.0
     table = np.array(rc["scalp"]["hairlineMmAboveHeadOriginByAzimuthDeg"], dtype=float)
     p = p + Vector(normal) * (f["rootLiftMm"] / 1000.0)
-    d = (Vector(normal) * ROOT_NORMAL_WEIGHT + away * rc["part"]["partAwayGain"] * w_part
+    d = (Vector(normal) * f.get("rootNormalWeight", ROOT_NORMAL_WEIGHT)
+         + away * rc["part"]["partAwayGain"] * w_part
          + down * ROOT_DOWN_WEIGHT).normalized()
     pts = [Vector(root), p.copy()]
     arc = (p - Vector(root)).length
     while arc < L:
         lp = to_local(p, origin, R)
         steer = Vector((0, 0, 0))
+        off_here = vol
         g_scale = 1.0
         if anterior and lp[2] > sh_z and abs(lp[0]) < rail:
             lack = (rail - abs(lp[0])) / rail
@@ -455,13 +469,19 @@ def march_guide(root, normal, origin, R, centre, collider, rc):
         # the comb rail suppresses gravity near the part, so a strand would leave the
         # curved scalp on a straight tangent; over the scalp (above the hairline table)
         # it is drawn back toward the body to the volume offset (scalpHugGain)
-        if hug > 0.0 and anterior and abs(lp[0]) < rail:
+        # scalpHugAnteriorOnly false: every strand over the scalp is drawn down (crown too)
+        # posterior strands are hugged only above scalpHugMinZMm (head-local), so the
+        # crown lies flat without wrapping the nape onto the neck
+        if hug > 0.0 and ((anterior and abs(lp[0]) < rail) or (not hug_ant and lp[2] > hug_min_z and abs(lp[0]) < hug_half_w)):
             r2 = lp - centre
             haz = math.degrees(math.atan2(abs(r2[0]), -r2[1]))
             if lp[2] > np.interp(haz, table[:, 0], table[:, 1]) / 1000.0:
+                # over the scalp the hugged layer may sit closer than volumeMm
+                # (scalpHugOffsetMm), so the head top stays flat (rubric C1)
+                off_here = hug_off
                 sb, _, nb = collider[0].signed(p)
-                if nb is not None and sb > vol:
-                    steer += -nb * (hug * g * min(1.0, (sb - vol) / vol))
+                if nb is not None and sb > hug_off:
+                    steer += -nb * (hug * g * min(1.0, (sb - hug_off) / hug_off))
         # anterior hair that has cleared the face laterally is drawn back to the cheek
         # plane (combRailBackTargetMm, head-centre y) so it hangs beside, not ahead of, the face
         y_rel = lp[1] - centre[1]
@@ -478,11 +498,13 @@ def march_guide(root, normal, origin, R, centre, collider, rc):
                 steer += back * (tuck["gain"] * g * w)
         if conv > 0.0 and back_root and abs(lp[0]) < conv_w:
             steer += -away * (conv * g * (1.0 - abs(lp[0]) / conv_w))
-        if lp[2] < sh_z:
+        if sh_bot < lp[2] < sh_z:
             steer += (-back if frontish else back * BACK_FIELD_RATIO) * (f["shoulderForwardGain"] * g)
+        if bh_gain > 0.0 and lp[2] < bh_z:
+            steer += -back * (bh_gain * g)
         d = (d + steer * ds).normalized()
         q = p + d * ds
-        q = push_out(q, collider, vol)
+        q = push_out(q, collider, off_here)
         step = q - p
         if step.length > 1e-9:
             d = step.normalized()

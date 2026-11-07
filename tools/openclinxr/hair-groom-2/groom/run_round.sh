@@ -15,4 +15,6 @@ cp "$RECIPE" "$EV/recipe.json"
   --recipe "$EV/recipe.json" --out-dir "$EV" --samples "${2:-128}" \
   --views "${VIEWS:-front,three_quarter_left,side}" ${GROOM_ARGS:-} 2>&1 | grep -E 'VIEW_DONE|GROOM_DONE|Error|Traceback|line [0-9]'
 PYTHONPATH="$HOME/Library/Application Support/Blender/5.2/scripts/modules" "$BPY" "$G/sheet.py" \
-  --target "$W/tools/openclinxr/evidence/hair-eval/fixtures/target.png" --round-dir "$EV"
+  --target "$W/tools/openclinxr/hair-groom-2/targets/target-front-a1.png" --round-dir "$EV"
+PYTHONPATH="$HOME/Library/Application Support/Blender/5.2/scripts/modules" "$BPY" "$G/standoff.py" "$EV"
+PYTHONPATH="$HOME/Library/Application Support/Blender/5.2/scripts/modules" "$BPY" "$W/tools/openclinxr/hair-groom-2/grade/grade.py" "$EV" "$EV" | tail -32
