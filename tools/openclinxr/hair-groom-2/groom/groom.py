@@ -74,6 +74,7 @@ def cli():
     p.add_argument("--samples", type=int, default=96)
     p.add_argument("--seed-offset", type=int, default=0)
     p.add_argument("--stop-after", choices=STAGES, default=None, help="debug: truncate the child chain")
+    p.add_argument("--debug-hide-hair", action="store_true", help="debug: render without the groom")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     return p.parse_args(argv)
 
@@ -292,15 +293,17 @@ def sample_roots(scalp, n, seed):
 
 # ---------------------------------------------------------------- guides
 class Collider:
-    def __init__(self, objs):
+    def __init__(self, objs=(), open_cloth=False, bms=()):
         verts, polys = [], []
-        for o in objs:
-            bm = world_bmesh(o)
+        owned = [world_bmesh(o) for o in objs]
+        for bm in list(owned) + list(bms):
             off = len(verts)
             verts.extend(v.co.copy() for v in bm.verts)
             polys.extend([v.index + off for v in f.verts] for f in bm.faces)
+        for bm in owned:
             bm.free()
         self.tree = BVHTree.FromPolygons(verts, polys)
+        self.open_cloth = open_cloth
 
     def signed(self, p):
         loc, nrm, _, d = self.tree.find_nearest(p)
@@ -319,10 +322,67 @@ def push_out(p, colliders, offset):
         s, loc, nrm = c.signed(p)
         if loc is None or s >= offset:
             continue
-        if k > 0 and abs(s) > GARMENT_PUSH_RADIUS_M:
+        if c.open_cloth and abs(s) > GARMENT_PUSH_RADIUS_M:
             continue
         p = loc + nrm * offset
     return p
+
+
+class ConvexShell:
+    """Solid convex hull as half-spaces. signed(p) = max over face planes of the
+    plane distance: exact depth inside, a lower bound of the distance outside, so
+    the sign never depends on which face BVH nearest-search picks (a thin hull's
+    edges flipped it for points across the head)."""
+    open_cloth = False
+
+    def __init__(self, hb):
+        c = sum((v.co for v in hb.verts), Vector()) / len(hb.verts)
+        n, d = [], []
+        for f in hb.faces:
+            nn = f.normal.copy()
+            if nn.length < 1e-9:
+                continue
+            q = f.calc_center_median()
+            if nn.dot(q - c) < 0:
+                nn = -nn
+            n.append(nn[:])
+            d.append(nn.dot(q))
+        self.n, self.d = np.array(n), np.array(d)
+
+    def signed(self, p):
+        v = self.n @ np.array(p[:]) - self.d
+        i = int(np.argmax(v))
+        nrm = Vector(self.n[i])
+        return float(v[i]), Vector(p) - nrm * float(v[i]), nrm
+
+
+def ear_shells(body, origin, R, rc):
+    """Closed convex hull of the body vertices in a head-local box around each ear
+    (recipe earShell: |x| >= minAbsXMm, y and z ranges in mm from the head-bone origin).
+    Strands collide with it as a solid, so they drape over the helix and the ear-head
+    groove as one smooth surface instead of following the ear relief."""
+    es = rc.get("earShell")
+    if not es:
+        return [], []
+    bm = world_bmesh(body)
+    loc = [(v.co.copy(), to_local(v.co, origin, R)) for v in bm.verts]
+    bm.free()
+    x0 = es["minAbsXMm"] / 1000.0
+    (y0, y1), (z0, z1) = [np.array(es[k]) / 1000.0 for k in ("yRangeMm", "zRangeMm")]
+    shells, info = [], []
+    for side in (1.0, -1.0):
+        pts = [co for co, q in loc if q[0] * side >= x0 and y0 <= q[1] <= y1 and z0 <= q[2] <= z1]
+        hb = bmesh.new()
+        for co in pts:
+            hb.verts.new(co)
+        res = bmesh.ops.convex_hull(hb, input=hb.verts[:])
+        bmesh.ops.delete(hb, geom=[v for v in res["geom_interior"] if isinstance(v, bmesh.types.BMVert)], context="VERTS")
+        bmesh.ops.delete(hb, geom=[v for v in hb.verts if not v.link_faces], context="VERTS")
+        hb.normal_update()
+        shells.append(ConvexShell(hb))
+        info.append({"side": "L" if side > 0 else "R", "verts": len(pts), "faces": len(hb.faces)})
+        hb.free()
+    return shells, info
 
 
 def settle_on_body(p, body, offset):
@@ -370,6 +430,8 @@ def march_guide(root, normal, origin, R, centre, collider, rc):
     vol = f["volumeMm"] / 1000.0
     sh_z = f["shoulderFieldBelowHeadOriginMm"] / 1000.0
     back_target = f["combRailBackTargetMm"] / 1000.0
+    hug = f.get("scalpHugGain", 0.0)
+    table = np.array(rc["scalp"]["hairlineMmAboveHeadOriginByAzimuthDeg"], dtype=float)
     p = p + Vector(normal) * (f["rootLiftMm"] / 1000.0)
     d = (Vector(normal) * ROOT_NORMAL_WEIGHT + away * rc["part"]["partAwayGain"] * w_part
          + down * ROOT_DOWN_WEIGHT).normalized()
@@ -384,6 +446,16 @@ def march_guide(root, normal, origin, R, centre, collider, rc):
             steer += away * (f["combRailGain"] * g * lack)
             g_scale = (abs(lp[0]) / rail) ** 2
         steer += down * (g * g_scale)
+        # the comb rail suppresses gravity near the part, so a strand would leave the
+        # curved scalp on a straight tangent; over the scalp (above the hairline table)
+        # it is drawn back toward the body to the volume offset (scalpHugGain)
+        if hug > 0.0 and anterior and abs(lp[0]) < rail:
+            r2 = lp - centre
+            haz = math.degrees(math.atan2(abs(r2[0]), -r2[1]))
+            if lp[2] > np.interp(haz, table[:, 0], table[:, 1]) / 1000.0:
+                sb, _, nb = collider[0].signed(p)
+                if nb is not None and sb > vol:
+                    steer += -nb * (hug * g * min(1.0, (sb - vol) / vol))
         # anterior hair that has cleared the face laterally is drawn back to the cheek
         # plane (combRailBackTargetMm, head-centre y) so it hangs beside, not ahead of, the face
         y_rel = lp[1] - centre[1]
@@ -560,7 +632,7 @@ def add_light(name, loc, target, power, size):
     bpy.context.scene.collection.objects.link(ob)
 
 
-def camera_rig(origin, R, centre, ztop, eye_z):
+def camera_rig(origin, R, centre, ztop, eye_z, lights=None):
     tgt_xy = origin + Vector(R[1]) * centre[1]
     zc = eye_z - (0.5 - EYE_FROM_TOP) * FRAME_HEIGHT_M
     dist = (FRAME_HEIGHT_M / 2.0) / math.tan(math.atan(SENSOR_MM / 2.0 / FOCAL_MM))
@@ -573,10 +645,14 @@ def camera_rig(origin, R, centre, ztop, eye_z):
     cam = bpy.data.objects.new("cam", cd)
     bpy.context.scene.collection.objects.link(cam)
     bpy.context.scene.camera = cam
+    # watts from recipe "lighting" (defaults = groom-r1 rig); the studio level is set
+    # so skin, not hair, is not over-exposed against the neutral world
+    lw = {"keyW": 220.0, "fillW": 90.0, "rimW": 160.0}
+    lw.update(lights or {})
     key = tgt + Vector((-0.9, -1.4, 0.8))
-    add_light("key", key, tgt, 220.0, 1.0)
-    add_light("fill", tgt + Vector((1.2, -1.2, 0.2)), tgt, 90.0, 1.5)
-    add_light("rim", tgt + Vector((0.4, 1.3, 0.9)), tgt, 160.0, 0.8)
+    add_light("key", key, tgt, lw["keyW"], 1.0)
+    add_light("fill", tgt + Vector((1.2, -1.2, 0.2)), tgt, lw["fillW"], 1.5)
+    add_light("rim", tgt + Vector((0.4, 1.3, 0.9)), tgt, lw["rimW"], 0.8)
 
     def place(az_deg):
         a = math.radians(az_deg)
@@ -603,7 +679,9 @@ def main():
         raise RuntimeError("scalp islands = %d, centre part needs 2" % islands)
     roots, uvs, nrms, prad = sample_roots(scalp, rc["guides"]["count"], seed)
     body_only = Collider([body])
-    collider = [body_only] + ([Collider(garments)] if garments else [])
+    shells, shell_info = ear_shells(body, origin, R, rc)
+    collider = [body_only] + shells + ([Collider(garments, open_cloth=True)] if garments else [])
+    collider_roots = [body_only] + ([Collider(garments, open_cloth=True)] if garments else [])
     P = rc["guides"]["pointsPerStrand"]
     guides, lens = [], []
     for r, n in zip(roots, nrms):
@@ -633,11 +711,13 @@ def main():
     # final signed-distance push (fixed offset), all points
     clr = rc["clearanceMm"] / 1000.0
     pushed = 0
+    is_root = np.zeros(len(pos), bool)
+    is_root[off[:-1]] = True   # roots sit on the scalp; the ear shell must not lift them
     for _ in range(PUSH_PASSES):
         moved = 0
         for i in range(len(pos)):
             p = Vector(pos[i])
-            q = push_out(p, collider, clr)
+            q = push_out(p, collider_roots if is_root[i] else collider, clr)
             if (q - p).length > 0.0:
                 pos[i] = q
                 moved += 1
@@ -659,6 +739,8 @@ def main():
     hob = make_curves("groom_hair", sizes, pos, radius=rad)
     mat, model = hair_material(rc)
     hob.data.materials.append(mat)
+    if a.debug_hide_hair:
+        hob.hide_render = True
     pos_hash = hashlib.sha256(np.ascontiguousarray(pos, dtype=np.float32).tobytes()).hexdigest()
     # G2: signed distance to body only and to body+garments
     dmin_body, dmin_all = 1e9, 1e9
@@ -667,7 +749,7 @@ def main():
     for i in range(len(pos)):
         p = Vector(pos[i])
         sb, _, _ = body_only.signed(p)
-        sa = min(c.signed(p)[0] for c in collider)
+        sa = min(c.signed(p)[0] for c in collider_roots)
         sd_body[i] = sb
         dmin_body = min(dmin_body, sb)
         dmin_all = min(dmin_all, sa)
@@ -704,14 +786,15 @@ def main():
         "positionsSha256": pos_hash,
         "clearance": {"pushedPoints": int(pushed), "minSignedMmBody": dmin_body * 1000,
                       "minSignedMmBodyGarments": dmin_all * 1000, "negativePointsBody": int(neg)},
+        "earShell": {"recipe": rc.get("earShell"), "hulls": shell_info},
         "groomSeconds": groom_s,
     }
     views = [v for v in a.views.split(",") if v]
     if views:
         devs = setup_render(a.samples)
-        place, cam = camera_rig(origin, R, centre, ztop_local, eye_z)
+        place, cam = camera_rig(origin, R, centre, ztop_local, eye_z, rc.get("lighting"))
         stats["render"] = {"engine": "CYCLES", "devices": devs, "samples": a.samples, "denoise": True,
-                           "hairModel": model, "curveShape": "THICK", "resolution": RES, "camera": cam,
+                           "hairModel": model, "lighting": rc.get("lighting"), "curveShape": "THICK", "resolution": RES, "camera": cam,
                            "views": {}}
         for v in views:
             place(VIEW_AZIMUTH_DEG[v])

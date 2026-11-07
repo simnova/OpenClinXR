@@ -3,7 +3,7 @@
   "name": "straight_centre_part_collarbone",
   "seed": 1107,
   "guides": { "count": 420, "pointsPerStrand": 32, "marchStepMm": 3.0 },
-  "children": { "densityPerM2": 1200000, "interpolationGuides": 4 },
+  "children": { "densityPerM2": 1600000, "interpolationGuides": 4 },
   "scalp": {
     "hairlineMmAboveHeadOriginByAzimuthDeg": [[0, 100], [40, 96], [70, 65], [90, 55], [110, 30], [140, -25], [180, -50]],
     "minUpwardNormal": -0.35
@@ -14,11 +14,12 @@
     "rootLiftMm": 2.0,
     "volumeMm": 10.0,
     "gravityPerM": 55.0,
-    "combRailMm": 90.0,
+    "combRailMm": 78.0,
     "combRailGain": 0.9,
     "combRailBackTargetMm": -40,
     "combRailBackGain": 0.6,
     "relaxIterations": 12,
+    "scalpHugGain": 1.0,
     "shoulderForwardGain": 0.35,
     "shoulderFieldBelowHeadOriginMm": -60,
     "frontAzimuthMaxDeg": 125
@@ -27,7 +28,9 @@
   "curl": { "factor": 0.0 },
   "frizz": { "factor": 0.25, "distanceMm": 0.8, "shape": 0.7 },
   "trim": { "randomOffset": 0.07 },
-  "shading": { "model": "HUANG", "melanin": 0.97, "melaninRedness": 0.2, "roughness": 0.3, "radialRoughness": 0.3, "coat": 0.0, "randomColor": 0.05, "randomRoughness": 0.1 },
-  "strand": { "rootRadiusMm": 0.045, "tipRadiusMm": 0.02 },
+  "shading": { "model": "HUANG", "melanin": 1.0, "melaninRedness": 0.05, "roughness": 0.3, "radialRoughness": 0.3, "coat": 0.0, "randomColor": 0.05, "randomRoughness": 0.1 },
+  "lighting": { "keyW": 55.0, "fillW": 45.0, "rimW": 40.0 },
+  "strand": { "rootRadiusMm": 0.055, "tipRadiusMm": 0.035 },
+  "earShell": { "minAbsXMm": 50, "yRangeMm": [-35, 40], "zRangeMm": [-20, 50] },
   "clearanceMm": 3.0
 }
