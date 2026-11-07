@@ -1,6 +1,8 @@
-# Rubric instrument v2 for hair-groom-2 (tools/openclinxr/hair-groom-2/briefs/accuracy-rubric.md).
+# Rubric instrument v3 for hair-groom-2 (tools/openclinxr/hair-groom-2/briefs/accuracy-rubric.md).
 # Usage: <blender python> grade.py <round-dir> [out-dir]. Writes measures.json to out-dir (default: round-dir).
-# A round dir holds front.png, three_quarter_left.png, side.png (+ stats.json, strands.npz when produced by groom.py).
+# A round dir holds front.png, three_quarter_left.png, side.png, back.png (+ stats.json, strands.npz when produced by
+# groom.py). v2 items (A, B, C) are computed exactly as in v2; v3 adds the back-view items D1-D5 (vs target-back-a1)
+# and the root-coverage items E1.L / E1.R (strands.npz roots against body_back.json patches).
 # Every region is defined once in the CANONICAL pixel frame (the groom renderer's camera, 1024^2) and mapped into an
 # image by a frame (s, dx, dy): row_img = s*row + dy, col_img = s*col + dx. Rounds use the identity frame unless the
 # round dir carries frame.json ({view: {s, dx, dy}}); the a1 targets use grade/frames.json (frame_fit.py).
@@ -286,10 +288,154 @@ def round_frames():
     return {v: Frame(**{k: j[v][k] for k in ('s', 'dx', 'dy')}) if v in j else Frame() for v in ROUND}
 
 
+# ---- v3: back view (D1-D5) -------------------------------------------------------------
+# canonical regions (rows/cols in the groom back render, azimuth 180); the target maps through frames.json 'back'
+D1_REGION, D1_TILE, D1_TILT = (200, 600, 430, 590), 16, 10.0  # seam region, tile px, strand tilt off vertical (deg)
+D2_ROWS, D2_WIN, D2_OUT = (640, 1000), (90, 30), 20           # rows; window outside/inside the opaque edge; backdrop px
+D2_CORE = (640, 1000, 450, 570)                                # opaque hair core box (core luminance)
+D3_BAND = (540, 720)                                           # shoulder band: contains both images' hair/shoulder junction
+D4_ROWS, D4_RIM = (140, 330), 50                               # crown rows; rim band width from each outline edge
+D5_BOX, D5_EDGE, D5_PALE = (130, 200, 480, 545), 6, 0.25       # crown box; skip rows within 6 px of the hair top; pale L
+BACK_DARK, BACK_OPAQUE = 0.20, 0.25                            # opaque-hair luminance for the D2 edge walk / D3 mask
+
+
+def run_len(v):
+    best = cur = 0
+    for x in v:
+        cur = cur + 1 if x else 0
+        best = max(best, cur)
+    return best
+
+
+def measure_back(A, f, ref=None):
+    # ref: the target's measures (None when measuring the target itself); D3 and D4 take their cut values from it.
+    L = A @ W709
+    neutral = (A.max(-1) - A.min(-1)) < 0.015           # studio background is exactly grey in round and target
+    o = {}
+    # D1 strand orientation: structure tensor per tile; tilt = strand direction off vertical (gradient off horizontal)
+    gy, gx = np.gradient(gblur(L, 1.0 * f.s))
+    Jxx, Jyy, Jxy = gblur(gx * gx, f.s), gblur(gy * gy, f.s), gblur(gx * gy, f.s)
+    r0, r1, c0, c1 = f.box(D1_REGION); T_ = f.px(D1_TILE); tiles = []
+    for r in range(r0, r1 - T_ + 1, T_):
+        for c in range(c0, c1 - T_ + 1, T_):
+            xx, yy, xy = Jxx[r:r + T_, c:c + T_].sum(), Jyy[r:r + T_, c:c + T_].sum(), Jxy[r:r + T_, c:c + T_].sum()
+            th = 0.5 * np.degrees(np.arctan2(2 * xy, xx - yy))
+            tiles.append((r, c, float(((th + 90) % 180) - 90)))
+    tl = np.array([t[2] for t in tiles])
+    bad = [(t[0], t[1], round(t[2], 1)) for t in tiles if abs(t[2]) > D1_TILT]
+    o['D1'] = dict(region=[r0, r1, c0, c1], tilePx=T_, tiles=len(tiles), fracTiltOver=float(np.mean(np.abs(tl) > D1_TILT)),
+                   medianAbsTiltDeg=float(np.median(np.abs(tl))), tiltedTiles=bad,
+                   maxAbsTiltBelowCanonical280=float(np.max([abs(t[2]) for t in tiles if f.rc(t[0]) >= 280] or [0])))
+    # D2 translucent outer sheets: per row and side, px within the edge window whose luminance sits 30-70% of the way
+    # from the local backdrop (garment/background, outermost px of the window) to the opaque hair core
+    q0, q1, d0, d1 = f.box(D2_CORE); Lc = float(np.median(L[q0:q1, d0:d1]))
+    dark = L < BACK_DARK; widths = {'L': [], 'R': []}
+    for r in range(f.r(D2_ROWS[0]), min(1024, f.r(D2_ROWS[1]))):
+        c = f.c(512); a = c
+        while a > 0 and dark[r, max(0, a - 4):a].any():
+            a -= 1
+        b = c
+        while b < 1023 and dark[r, b + 1:b + 5].any():
+            b += 1
+        for side, e, sg in (('L', a, -1), ('R', b, 1)):
+            lo, hi = (e - f.px(D2_WIN[0]), e + f.px(D2_WIN[1])) if sg < 0 else (e - f.px(D2_WIN[1]), e + f.px(D2_WIN[0]))
+            if lo < 0 or hi > 1024:
+                continue
+            seg = L[r, lo:hi]
+            Lo = float(np.median(seg[:f.px(D2_OUT)] if sg < 0 else seg[-f.px(D2_OUT):]))
+            if Lo - Lc < 0.1:
+                continue
+            al = (Lo - seg) / (Lo - Lc)
+            widths[side].append(float(np.sum((al >= 0.3) & (al <= 0.7)) / f.s))
+    o['D2'] = dict(rows=[f.r(D2_ROWS[0]), min(1024, f.r(D2_ROWS[1]))], coreLum=Lc,
+                   **{k: dict(rows=len(v), medianWidthCanonPx=float(np.median(v)) if v else None,
+                              p90WidthCanonPx=float(np.percentile(v, 90)) if v else None) for k, v in widths.items()})
+    # D3 shoulder shelf: horizontal edges inside the opaque hair (straight hanging strands make vertical edges only)
+    Lb = gblur(L, 1.5 * f.s); hy, hx = np.gradient(Lb)
+    m = erode(L < BACK_OPAQUE, f.px(8))
+    m[:max(0, f.r(D3_BAND[0]))] = False; m[min(1024, f.r(D3_BAND[1])):] = False
+    ay, ax = np.abs(hy[m]), np.abs(hx[m])
+    g0 = float(np.percentile(ay, 99)) if ref is None else ref['D3']['g0']
+    hz = np.zeros_like(m); hz[m] = (ay > g0) & (ay > ax)
+    hr, hc = np.where(hz)
+    o['D3'] = dict(rows=[f.r(D3_BAND[0]), f.r(D3_BAND[1])], hairPx=int(m.sum()), g0=g0, horizEdgePx=int(hz.sum()),
+                   frac=float(hz.sum() / max(1, m.sum())),
+                   horizEdgeRowsCols=[int(np.percentile(hr, 5)), int(np.percentile(hr, 95)), int(np.percentile(hc, 5)), int(np.percentile(hc, 95))] if len(hr) else None)
+    # D3 report-only: hair outline width per 10 canonical rows over the band (the flare), max step
+    wd = []
+    for rc in range(D3_BAND[0], D3_BAND[1] + 1, 10):
+        r = f.r(rc); c = f.c(512); a = c
+        while a > 0 and dark[r, max(0, a - 4):a].any():
+            a -= 1
+        b = c
+        while b < 1023 and dark[r, b + 1:b + 5].any():
+            b += 1
+        wd.append((rc, round((b - a) / f.s, 1)))
+    o['D3']['outlineWidthCanonPx'] = wd
+    o['D3']['maxWidthStepPer10Rows'] = float(np.max(np.diff([w for _, w in wd])))
+    # D4 copper rim: px in the outer rim band (50 canonical px in from each outline edge, crown rows) warmer (R-B) than
+    # the target's rim-band 99th percentile
+    hairish = ~neutral & (L < 0.6)
+    rb = A[..., 0] - A[..., 2]; vals, boxes = [], []
+    for rc in range(D4_ROWS[0], D4_ROWS[1] + 1):
+        r = f.r(rc); cs = np.where(hairish[r])[0]
+        if len(cs) < 10:
+            continue
+        a, b = cs.min(), cs.max(); w = f.px(D4_RIM)
+        for lo, hi in ((a, a + w), (b - w + 1, b + 1)):
+            sel = hairish[r, lo:hi]
+            vals.append(rb[r, lo:hi][sel])
+    vals = np.concatenate(vals)
+    rb99 = float(np.percentile(vals, 99)) if ref is None else ref['D4']['rb99']
+    o['D4'] = dict(rows=[f.r(D4_ROWS[0]), f.r(D4_ROWS[1])], rimPx=int(len(vals)), rb99=rb99, meanRminusB=float(vals.mean()),
+                   warmPx=int(np.sum(vals > rb99)), frac=float(np.mean(vals > rb99)))
+    # D5 pale crown: widest run of pale (L >= 0.25), non-background px per row in the crown box, starting 6 px below
+    # the hair top; value = max over rows of a 5-row running median (canonical px)
+    r0, r1, c0, c1 = f.box(D5_BOX)
+    top = int(np.where((~neutral[r0:r1, c0:c1] & (L[r0:r1, c0:c1] < 0.47)).any(1))[0].min()) + r0
+    rs = range(top + f.px(D5_EDGE), r1)
+    pale = (L >= D5_PALE) & ~neutral
+    runs = np.array([run_len(pale[r, c0:c1]) / f.s for r in rs])
+    med = np.array([np.median(runs[max(0, i - 2):i + 3]) for i in range(len(runs))])
+    i = int(np.argmax(med))
+    box = L[r0:r1, c0:c1]
+    o['D5'] = dict(box=[r0, r1, c0, c1], hairTopRow=top, firstRow=top + f.px(D5_EDGE), maxRunCanonPx=float(med[i]),
+                   atRow=int(list(rs)[i]), rawRunsCanonPx=[round(float(x), 1) for x in runs],
+                   crownHairMedianLum=float(np.median(box[(box < 0.47) & ~neutral[r0:r1, c0:c1]])))
+    return o
+
+
+def measure_e1(strands_path):
+    # E1 root coverage: roots (first point of each strand, groom.py head-local frame, mm) per patch and side, against
+    # the body surface area of the patch (body_back.json, back_probe.py). Density ratio = patch / reference patch.
+    bb = json.load(open(os.path.join(HERE, 'body_back.json')))
+    d = np.load(strands_path)
+    roots = d['localPositions'][d['offsets'][:-1]] * 1000.0
+    o = {}
+    for name, sg in (('L', 1.0), ('R', -1.0)):
+        q = roots * np.array([sg, 1, 1]); res = {}
+        for k, b in bb['patches'][name].items():
+            m = (q[:, 0] >= 40.0) & (q[:, 1] >= b['y'][0]) & (q[:, 1] < b['y'][1]) & (q[:, 2] >= b['z'][0]) & (q[:, 2] < b['z'][1])
+            res[k] = dict(y=b['y'], z=b['z'], areaMm2=b['areaMm2'], roots=int(m.sum()), perCm2=100.0 * m.sum() / b['areaMm2'])
+        for k in ('aboveEar', 'sideburn'):
+            res[k]['ratioToReference'] = res[k]['perCm2'] / res['reference']['perCm2'] if res['reference']['perCm2'] else 0.0
+        lat = (q[:, 0] >= 40.0) & (q[:, 1] >= bb['patches'][name]['sideburn']['y'][0]) & (q[:, 1] < bb['ear'][name]['yBackMm'])
+        res['lowestLateralRootZMm'] = float(q[lat, 2].min()) if lat.any() else None
+        res['ear'] = bb['ear'][name]
+        o[name] = res
+    return o
+
+
 tf = {v: Frame(FR[v]['s'], FR[v]['dx'], FR[v]['dy']) for v in TARGETS}
 rf = round_frames()
 T = {v: MEASURE[v](load(os.path.join(TG, TARGETS[v])), tf[v]) for v in TARGETS}
 R = {v: MEASURE[v](load(os.path.join(RD, ROUND[v])), rf[v]) for v in ROUND}
+_fj = os.path.join(RD, 'frame.json')
+_fb = json.load(open(_fj)).get('back') if os.path.exists(_fj) else None
+tf['back'] = Frame(FR['back']['s'], FR['back']['dx'], FR['back']['dy'])
+rf['back'] = Frame(**{k: _fb[k] for k in ('s', 'dx', 'dy')}) if _fb else Frame()
+T['back'] = measure_back(load(os.path.join(TG, 'target-back-a1.png')), tf['back'])
+R['back'] = measure_back(load(os.path.join(RD, 'back.png')), rf['back'], T['back']) if os.path.exists(os.path.join(RD, 'back.png')) else None
 
 # ---- items -------------------------------------------------------------------
 items = {}
@@ -348,13 +494,57 @@ lift = rS['C1']['medianOffsetMm'] - tS['C1']['medianOffsetMm']
 item('C1', lift <= 6.0, 'hair top above scalp, front head-top median %.1f mm vs target %.1f mm = %+.1f mm' % (
     rS['C1']['medianOffsetMm'], tS['C1']['medianOffsetMm'], lift), '<= target + 6 mm')
 
+# ---- v3 items ----------------------------------------------------------------------------------
+tB, rB = T['back'], R['back']
+if rB is None:
+    for i in ('D1', 'D2', 'D3', 'D4', 'D5'):
+        item(i, False, 'no back.png in the round dir', 'back.png required (v3 INPUT)')
+else:
+    item('D1', rB['D1']['fracTiltOver'] <= 2 * tB['D1']['fracTiltOver'],
+         'tiles with strands > %.0f deg off vertical %.1f%% (%d of %d) vs target %.1f%%; median |tilt| %.1f vs %.1f deg [region rows %d-%d cols %d-%d]' % (
+             D1_TILT, 100 * rB['D1']['fracTiltOver'], len(rB['D1']['tiltedTiles']), rB['D1']['tiles'], 100 * tB['D1']['fracTiltOver'],
+             rB['D1']['medianAbsTiltDeg'], tB['D1']['medianAbsTiltDeg'], *rB['D1']['region']),
+         '<= 2x target fraction')
+    d2 = {k: rB['D2'][k]['medianWidthCanonPx'] / tB['D2'][k]['medianWidthCanonPx'] for k in 'LR'}
+    item('D2', max(d2.values()) <= 2.0,
+         'translucent edge width (median over rows %d-%d) L %.1f px vs target %.1f (%.2fx), R %.1f px vs target %.1f (%.2fx)' % (
+             rB['D2']['rows'][0], rB['D2']['rows'][1] - 1, rB['D2']['L']['medianWidthCanonPx'], tB['D2']['L']['medianWidthCanonPx'], d2['L'],
+             rB['D2']['R']['medianWidthCanonPx'], tB['D2']['R']['medianWidthCanonPx'], d2['R']),
+         '<= 2x target, each side')
+    item('D3', rB['D3']['frac'] <= 0.01,
+         'horizontal-edge px in shoulder-band hair %.2f%% (%d of %d; rows/cols %s) vs target %.2f%%; outline max width step %.0f vs target %.0f px/10 rows (reported)' % (
+             100 * rB['D3']['frac'], rB['D3']['horizEdgePx'], rB['D3']['hairPx'], rB['D3']['horizEdgeRowsCols'], 100 * tB['D3']['frac'],
+             rB['D3']['maxWidthStepPer10Rows'], tB['D3']['maxWidthStepPer10Rows']),
+         '<= 1% (edge cut = target p99 |d/drow|)')
+    item('D4', rB['D4']['frac'] <= 0.02,
+         'rim-band px warmer than target rim p99 (R-B > %.3f) %.2f%% (%d of %d) vs target %.2f%% [rows %d-%d, %d px rim]' % (
+             tB['D4']['rb99'], 100 * rB['D4']['frac'], rB['D4']['warmPx'], rB['D4']['rimPx'], 100 * tB['D4']['frac'],
+             rB['D4']['rows'][0], rB['D4']['rows'][1], D4_RIM),
+         '<= 2%')
+    item('D5', rB['D5']['maxRunCanonPx'] <= 2 * tB['D5']['maxRunCanonPx'],
+         'widest pale crown run %.1f px at row %d vs target %.1f px [box rows %d-%d cols %d-%d]' % (
+             rB['D5']['maxRunCanonPx'], rB['D5']['atRow'], tB['D5']['maxRunCanonPx'], *rB['D5']['box']),
+         '<= 2x target')
+E1 = measure_e1(os.path.join(RD, 'strands.npz')) if os.path.exists(os.path.join(RD, 'strands.npz')) else None
+for side in 'LR':
+    if E1 is None:
+        item('E1.' + side, False, 'no strands.npz', 'strands.npz required')
+        continue
+    e = E1[side]
+    item('E1.' + side, e['aboveEar']['ratioToReference'] >= 0.5 and e['sideburn']['ratioToReference'] >= 0.5,
+         'root density above ear %.1f/cm2, sideburn %.1f/cm2 vs temporal reference %.1f/cm2 = %.2f / %.2f (numeric half; visual half scored by the grader)' % (
+             e['aboveEar']['perCm2'], e['sideburn']['perCm2'], e['reference']['perCm2'], e['aboveEar']['ratioToReference'],
+             e['sideburn']['ratioToReference']),
+         'each >= 0.5 x reference')
+
+
 strands = os.path.join(RD, 'strands.npz')
 extra = {}
 if os.path.exists(strands):
     d = np.load(strands); P = d['positions']; o = d['offsets']; tips = P[o[1:] - 1][:, 2]
     extra['strandTipsZ'] = dict(median=float(np.median(tips)), p10=float(np.percentile(tips, 10)), p90=float(np.percentile(tips, 90)),
                                 targetHairBottomZ=tS['A3']['z'])
-out = dict(rubric='v2', round=os.path.relpath(RD, WT) if RD.startswith(WT) else RD, frames=dict(round={v: rf[v].d() for v in rf},
+out = dict(rubric='v3', e1=E1, round=os.path.relpath(RD, WT) if RD.startswith(WT) else RD, frames=dict(round={v: rf[v].d() for v in rf},
            target={v: tf[v].d() for v in tf}), numericItems=items, numericPass=sum(v['result'] == 'PASS' for v in items.values()),
            numericCount=len(items), round_measures=R, target_measures=T, **extra)
 os.makedirs(OUT_DIR, exist_ok=True)

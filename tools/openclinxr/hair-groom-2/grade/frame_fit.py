@@ -10,6 +10,12 @@
 #   front : image-to-image fit of the jaw skin edges (both sides) of the reference round's front render to the target.
 #   three_quarter: the target camera azimuth differs from ours (eye spacing / eye-chin height 0.35 vs 0.40), so a
 #           similarity is fitted by least squares to four hand-measured landmarks (both pupils, lip line, chin).
+#   back  : body-landmark fit (v3). The shipped body's skull silhouette in the canonical back camera (body_back.json from
+#           back_probe.py, canonical rows 142-330: head top to above the ear tops) is fitted to the target's hair
+#           outline (luminance < 0.35) with the hair top pinned to the skull top; the target hair lies flat on the
+#           scalp (C1 target -2.2 mm), so a constant hair thickness t (canonical px, free) absorbs the rest. dx keeps the
+#           midline (col 512) fixed. Check: the body's garment shoulder contour mapped by the same frame vs the
+#           target's shoulder contour (different garment; reported, not fitted).
 import json, os, sys
 import numpy as np
 from PIL import Image
@@ -122,5 +128,45 @@ pred = np.array([[sol[0] * r + sol[2], sol[0] * c + sol[1]] for r, c in LM_C])
 out['three_quarter'] = dict(s=float(sol[0]), dx=float(sol[1]), dy=float(sol[2]),
                             fit=dict(landmarks_canonical=LM_C.tolist(), landmarks_target=LM_T.tolist(),
                                      residualPx=np.abs(pred - LM_T).round(1).tolist()))
+# ---- back (v3) ----
+bb = json.load(open(os.path.join(HERE, 'body_back.json')))
+br = {int(k): v for k, v in bb['back']['bodyRows'].items()}
+gr = {int(k): v for k, v in bb['back']['garmentRows'].items()}
+TB = load(os.path.join(TG, 'target-back-a1.png')); LB = TB @ W709
+darkb = LB < 0.35
+fgb = ((TB.max(-1) - TB.min(-1)) > 0.025) | darkb
+ttop = int(np.where(darkb.any(1))[0].min())
+rows_c = [r for r in range(142, 331, 2) if r in br]
+def ext_b(r):
+    c = np.where(darkb[r])[0]
+    return (c.min(), c.max()) if len(c) else None
+bestb = None
+for s_ in np.arange(0.85, 1.25, 0.0025):
+    for t in np.arange(-6, 16, 0.5):
+        dy = ttop - s_ * (min(br) - t); dx = 512 - s_ * 512
+        err = []
+        for r in rows_c:
+            e = ext_b(int(round(s_ * r + dy)))
+            if e is None:
+                continue
+            a, b = br[r]
+            err += [abs(e[0] - (s_ * (a - t) + dx)), abs(e[1] - (s_ * (b + t) + dx))]
+        if len(err) < 1.6 * len(rows_c):
+            continue
+        me = float(np.mean(err))
+        if bestb is None or me < bestb[0]:
+            bestb = (me, float(s_), float(t), float(dy), float(dx))
+me, sb, tb, dyb, dxb = bestb
+chk = []
+for cc in (100, 150, 200, 250, 774, 824, 874, 924):
+    rc = min(r for r, (a, b) in gr.items() if a <= cc <= b)
+    ct = int(round(sb * cc + dxb))
+    chk.append(dict(canonicalCol=cc, canonicalRow=rc, predictedTargetRow=round(sb * rc + dyb, 1), targetCol=ct,
+                    measuredTargetRow=int(np.where(fgb[:, ct])[0].min())))
+out['back'] = dict(s=sb, dy=dyb, dx=dxb, fit=dict(method='skull silhouette (body_back.json) to target hair outline, hair top pinned',
+                                                  canonicalRows=[rows_c[0], rows_c[-1]], hairThicknessCanonicalPx=tb,
+                                                  meanAbsErrPx=me, targetHairTopRow=ttop, canonicalSkullTopRow=min(br)),
+                   shoulderCheck=dict(note='garment top contour, body garment vs target garment (different garments); not fitted',
+                                      points=chk, meanAbsErrPx=float(np.mean([abs(c['predictedTargetRow'] - c['measuredTargetRow']) for c in chk]))))
 json.dump(out, open(os.path.join(HERE, 'frames.json'), 'w'), indent=1)
 print(json.dumps(out, indent=1))
