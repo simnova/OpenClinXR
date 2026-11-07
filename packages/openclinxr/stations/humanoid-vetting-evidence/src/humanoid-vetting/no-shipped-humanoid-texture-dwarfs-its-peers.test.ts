@@ -53,10 +53,19 @@ const TEXTURE_DWARF_THRESHOLD = 3.0;
  * delete this entry — that is the self-retiring mechanism.
  *
  * FIXED (#0) 2026-09-12: both entries deleted after tightjeans re-bake
- * with JPEG q85 (1,196,954 B). All bodies now pass below threshold.
- * EXCEPTION_MAP is empty.
+ * with JPEG q85 (1,196,954 B).
+ *
+ * 2026-11-06 (st-vitbody3): ONE entry, mpfb-ob-patient-aisha.glb. Its
+ * 4096 family albedo (9,557,603 B) ships unre-encoded per operator direction
+ * 2026-11-06 ~19:55: "realism first, release size constraints, size
+ * optimization becomes separate pipeline steps". The size-optimization stage
+ * (separate card) retires this entry. measuredRatio is the r4c-rule ratio
+ * read off the shipped GLB (main rule before r4c: 13.30). The entry fails if
+ * the ratio rises above measuredRatio or drops to the threshold or below.
  */
-const EXCEPTION_MAP: Record<string, { measuredRatio: number; image: string }> = {};
+const EXCEPTION_MAP: Record<string, { measuredRatio: number; image: string }> = {
+  "mpfb-ob-patient-aisha.glb": { measuredRatio: 7.984937599941184, image: "family-albedo-4096" },
+};
 
 interface ImageInfo {
   name: string;
@@ -317,13 +326,30 @@ describe("no shipped garment texture dwarfs its body's other images", () => {
     expect(maxToPeerMedianRatio(fixture)).toBeGreaterThan(TEXTURE_DWARF_THRESHOLD);
   });
 
-  it("every multi-image body passes threshold (no exceptions)", () => {
+  it("every multi-image body passes threshold except the one recorded entry", () => {
     const multiImageBodies = bodies.filter((b) => b.images.length > 1);
-    expect(Object.keys(EXCEPTION_MAP)).toHaveLength(0);
+    // Widening this list is wrong; the size-optimization stage shrinks it to [].
+    expect(Object.keys(EXCEPTION_MAP)).toEqual(["mpfb-ob-patient-aisha.glb"]);
 
     for (const body of multiImageBodies) {
       const ratio = maxToPeerMedianRatio(body);
-      expect(ratio).toBeLessThanOrEqual(TEXTURE_DWARF_THRESHOLD);
+      const exception = EXCEPTION_MAP[body.file];
+      if (exception === undefined) {
+        expect(ratio, body.file).toBeLessThanOrEqual(TEXTURE_DWARF_THRESHOLD);
+        continue;
+      }
+      expect(body.images[0]?.name, `${body.file} top image`).toBe(exception.image);
+      expect(
+        ratio,
+        `${body.file} now passes ${TEXTURE_DWARF_THRESHOLD}x: delete its EXCEPTION_MAP entry`,
+      ).toBeGreaterThan(TEXTURE_DWARF_THRESHOLD);
+      expect(
+        ratio,
+        `${body.file} grew past its recorded ${exception.measuredRatio}x: shrink the image, do not raise the entry`,
+      ).toBeLessThanOrEqual(exception.measuredRatio + 1e-9);
+    }
+    for (const file of Object.keys(EXCEPTION_MAP)) {
+      expect(multiImageBodies.map((b) => b.file), `stale EXCEPTION_MAP entry ${file}`).toContain(file);
     }
   });
 
@@ -332,8 +358,9 @@ describe("no shipped garment texture dwarfs its body's other images", () => {
     // 3.0x is ~1.4x above ceiling with margin for normal variation.
     // Provenance: measured 2026-09-12 on all multi-image bodies;
     // max ratio was 2.12x. After the tightjeans re-bake (FIXED #0),
-    // no exceptions remain.
-    const multiImageBodies = bodies.filter((b) => b.images.length > 1);
+    // no exceptions remain. 2026-11-06: EXCEPTION_MAP bodies are excluded
+    // here; the test above bounds them separately.
+    const multiImageBodies = bodies.filter((b) => b.images.length > 1 && !(b.file in EXCEPTION_MAP));
 
     let maxRatio = 0;
     for (const body of multiImageBodies) {
