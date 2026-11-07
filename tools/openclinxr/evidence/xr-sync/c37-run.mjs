@@ -129,8 +129,9 @@ async function main(argv) {
     const expectedLabel = (tag) => (hasLabelPhrase(tag) ? firstPhrase(tag) : tag);
     // Client display (grade B1/B2): tag-labelled entries show the tag with underscores as spaces; an asked entry leads with a check mark.
     const displayOf = (tag, asked) => `${asked ? "\u2713 " : ""}${hasLabelPhrase(tag) ? firstPhrase(tag) : tag.replaceAll("_", " ")}`;
-    const patientSeed = bank.seeds.find((s) => s.seedId === "patient_onset_history");
+    const patientSeed = bank.seeds.find((s) => s.seedId === (emulated ? "nurse_team_escalation" : "patient_onset_history"));
     const patientId = patientSeed.actorId;
+    const speakerId = patientSeed.actorId;
     const SPOKEN = patientSeed.utterancePhrases[0];
     const SPOKEN_TAG = patientSeed.expectedTraceTags.find((t) => menuTags.includes(t));
     const TAPS = [menuTags.find((t) => t !== SPOKEN_TAG && !shared(t) && !hasLabelPhrase(t)), menuTags.find((t) => t !== SPOKEN_TAG && shared(t))];
@@ -189,20 +190,22 @@ async function main(argv) {
       while (serverPhase() !== "encounter") await sleep(200);
       probe.start = await readMenu(page);
       await shootPanel(page, join(outDir, "c37-menu-start.png"));
-      probe.aimed = await page.evaluate(({ target }) => {
-        const camera = globalThis.__openClinXrGazeCamera;
-        const gaze = globalThis.__openClinXrEncounterSync.gazedActorId;
-        if (!camera || !gaze) return false;
-        if (gaze() === target) return true;
-        const eye = camera.getWorldPosition(camera.position.clone());
-        for (let degrees = 0; degrees < 360; degrees += 5) {
-          const radians = (degrees * Math.PI) / 180;
-          camera.lookAt(eye.x + Math.sin(radians), eye.y, eye.z - Math.cos(radians));
-          camera.updateMatrixWorld(true);
+      if (!emulated) {
+        probe.aimed = await page.evaluate(({ target }) => {
+          const camera = globalThis.__openClinXrGazeCamera;
+          const gaze = globalThis.__openClinXrEncounterSync.gazedActorId;
+          if (!camera || !gaze) return false;
           if (gaze() === target) return true;
-        }
-        return false;
-      }, { target: patientId });
+          const eye = camera.getWorldPosition(camera.position.clone());
+          for (let degrees = 0; degrees < 360; degrees += 5) {
+            const radians = (degrees * Math.PI) / 180;
+            camera.lookAt(eye.x + Math.sin(radians), eye.y, eye.z - Math.cos(radians));
+            camera.updateMatrixWorld(true);
+            if (gaze() === target) return true;
+          }
+          return false;
+        }, { target: patientId });
+      }
       let have = 0;
       if (emulated) {
         probe.xr = {};
@@ -221,6 +224,7 @@ async function main(argv) {
         await sleep(800);
         const headTransform = await remote("get_transform", { device: "headset" });
         probe.xr.headPose = JSON.parse(JSON.stringify(headTransform.orientation));
+        probe.aimed = false;
         const turnsBeforeSelect = await page.evaluate(() => globalThis.__openClinXrEncounterSync.turns.length);
         await remote("_select_press", { device: "controller-right" });
         await remote("_select_release", { device: "controller-right" });
@@ -238,6 +242,24 @@ async function main(argv) {
       }
       probe.afterTaps = await readMenu(page);
       await shootPanel(page, join(outDir, "c37-menu-after-taps.png"));
+      if (emulated) {
+        // The shell's gaze camera is the desktop camera: an immersive head pose does not move it (probe.gazeAfterYaw), so gaze cannot address the nurse here.
+        // The shell also addresses the last actor that spoke, so open with a typed line to the nurse through the shell's own typed path, after the taps; the nurse's reply makes it the addressed actor.
+        probe.openerVia = "evidence.sendUtterance (typed opener to the speaking actor)";
+        probe.gazeAfterYaw = await page.evaluate(() => {
+          const cam = globalThis.__openClinXrGazeCamera;
+          const before = cam.getWorldDirection(cam.position.clone()).toArray();
+          globalThis.__c37Xr.device.quaternion.set(0, 0.7071, 0, 0.7071);
+          return { fwd: before };
+        });
+        await sleep(500);
+        probe.gazeAfterYaw.fwdAfter = await page.evaluate(() => globalThis.__openClinXrGazeCamera.getWorldDirection(globalThis.__openClinXrGazeCamera.position.clone()).toArray());
+        await page.evaluate(({ id }) => globalThis.__openClinXrEncounterSync.sendUtterance(id, "Hello, I am the student doctor."), { id: speakerId });
+        await page.waitForFunction((id) => globalThis.__openClinXrEncounterSync.turns.at(-1)?.actorId === id, speakerId, { timeout: 60000 });
+        await sleep(800);
+        probe.aimed = true;
+        have = await page.evaluate(() => globalThis.__openClinXrEncounterSync.turns.length);
+      }
       await page.evaluate((samples) => { globalThis.__c37Mic.wav = samples; }, pcm);
       await page.evaluate(() => document.getElementById("speak-button").dispatchEvent(new PointerEvent("pointerdown", { bubbles: true })));
       await page.waitForFunction(() => globalThis.__c37Mic.opened > 0 && globalThis.__c37Mic.ctx !== null, undefined, { timeout: 20000 });
@@ -255,6 +277,7 @@ async function main(argv) {
       if (emulated) {
         probe.xr.endedAfterTurns = await page.evaluate(() => globalThis.__c37Xr.ended);
         probe.xr.sessionActive = await page.evaluate(() => globalThis.__c37Xr.sessions.length === 1 && globalThis.__c37Xr.ended === 0);
+        probe.xr.nullAxes = await page.evaluate(() => globalThis.__c37Xr.sessions.some((session) => Array.from(session.inputSources ?? []).some((source) => Array.from(source.gamepad?.axes ?? []).some((axis) => axis === null))));
       }
       return probe;
     };
@@ -284,7 +307,7 @@ async function main(argv) {
     check("H2 one button per menu tag in scenario order, each labelled with the shipped seed phrase or the tag text", JSON.stringify((p.start?.buttons ?? []).map((b) => [b.id, b.text])) === JSON.stringify(menuTags.map((t) => [`topic-${t}`, displayOf(t, false)])), JSON.stringify((p.start?.buttons ?? []).map((b) => b.text)));
     check("H3 at least one button shows a seed phrase and one shows a tag, all labels are distinct, and a shipped label differs from the prettified tag", menuTags.some(hasLabelPhrase) && menuTags.some((t) => !hasLabelPhrase(t)) && new Set(menuTags.map(expectedLabel)).size === menuTags.length && menuTags.some((t) => expectedLabel(t) !== t.replaceAll("_", " ")), JSON.stringify(run.expected.labels));
     check("H4 every button starts data-asked=false", (p.start?.buttons ?? []).every((b) => b.asked === "false"), JSON.stringify((p.start?.buttons ?? []).map((b) => b.asked)));
-    check("H5 the view was aimed at the patient before the taps", p.aimed === true, String(p.aimed));
+    check(emulated ? "H5 the speaking actor answered a typed opener, so the shell addresses it" : "H5 the view was aimed at the speaking actor before the taps", p.aimed === true, String(p.aimed));
     const expectedTags = emulated ? [...(p.afterSpeech?.intents ?? []).map((i) => i.topicTag), SPOKEN_TAG] : [...TAPS, SPOKEN_TAG];
     const expectedTaps = expectedTags.slice(0, -1);
     if (emulated) {
@@ -296,7 +319,7 @@ async function main(argv) {
     }
     const ends = (trace.events ?? []).filter((e) => e.kind === "utterance-end");
     if (emulated) {
-      check("H8 the persisted trace holds the tap tags in order, then the spoken turn's tag (speech modality, matched)", JSON.stringify(ends.map((e) => e.tag)) === JSON.stringify(expectedTags) && ends.at(-1)?.modality === "speech", JSON.stringify(ends.map((e) => [e.tag, e.modality, e.match, e.confidence])));
+      check("H8 the persisted trace holds the tap tags in order, the unmatched typed opener to the nurse, then the spoken turn's tag (speech modality, matched)", JSON.stringify(ends.map((e) => e.tag)) === JSON.stringify([...expectedTaps, "utterance_unmatched", SPOKEN_TAG]) && ends.at(-1)?.modality === "speech", JSON.stringify(ends.map((e) => [e.tag, e.modality, e.match, e.confidence])));
       check("H9 the page's asked set equals the review's observed set (traceTagCoverage on the persisted trace, note tag excluded)", JSON.stringify([...new Set(expectedTags)].sort()) === JSON.stringify([...finalAsked].sort()) && JSON.stringify([...finalAsked].sort()) === JSON.stringify([...reviewObserved].sort()) && finalAsked.length === new Set(expectedTags).size, JSON.stringify({ finalAsked, reviewObserved }));
     } else {
       check("H8 the persisted trace holds the tap tags in order, then the spoken turn's tag (speech modality, matched)", JSON.stringify(ends.map((e) => e.tag)) === JSON.stringify([...TAPS, SPOKEN_TAG]) && ends.at(-1)?.modality === "speech", JSON.stringify(ends.map((e) => [e.tag, e.modality, e.match, e.confidence])));
@@ -308,6 +331,8 @@ async function main(argv) {
       check("E2 exactly 1 XR session entered and 0 ended after the turns", p.xr?.sessionCount === 1 && p.xr?.endedAfterTurns === 0, JSON.stringify({ sessionCount: p.xr?.sessionCount, endedAfterEnter: p.xr?.endedAfterEnter, endedAfterTurns: p.xr?.endedAfterTurns }));
       check("E3 the head pose read back differs from identity (orientation.y > 0.05)", (p.xr?.headPose?.y ?? 0) > 0.05, JSON.stringify(p.xr?.headPose));
       check("E4 the controller select produced at least one acked intent", selectTags.length >= 1 && (p.afterSpeech?.intents ?? []).some((i) => selectTags.includes(i.topicTag) && (i.statuses ?? []).join() === "ack,ack,ack"), JSON.stringify(selectTags));
+      check("E5 the select tag set and the spoken tag are disjoint and all are in finalAsked", !selectTags.includes(SPOKEN_TAG) && [...selectTags, SPOKEN_TAG].every((t) => finalAsked.includes(t)), JSON.stringify({ selectTags, spoken: SPOKEN_TAG, finalAsked }));
+      check("E6 finalAsked holds exactly the select, DOM tap and spoken tags and matches the review observed set", finalAsked.length === 3 && JSON.stringify([...finalAsked].sort()) === JSON.stringify([...expectedTags].sort()) && JSON.stringify([...finalAsked].sort()) === JSON.stringify([...reviewObserved].sort()), JSON.stringify({ finalAsked, expectedTags, reviewObserved }));
     }
     const finalButtons = p.afterSpeech?.buttons ?? [];
     check("H12 after the turns each button shows the display form: asked buttons lead with a check mark and carry a background, unasked buttons neither", finalButtons.length === menuTags.length && finalButtons.every((b, i) => b.text === displayOf(menuTags[i], b.asked === "true") && (b.asked === "true" ? b.bg !== "" : b.bg === "")) && finalButtons.some((b) => b.asked === "true") && finalButtons.some((b) => b.asked !== "true"), JSON.stringify(finalButtons.map((b) => [b.text, b.bg])));
@@ -317,8 +342,15 @@ async function main(argv) {
     check("H10 the harness source holds none of the shipped tags or phrases (expected values come from the shipped bank)", copied.length === 0, copied.join(", "));
     // IWER's Quest 3 controller gamepad lists placeholder axes as null; the shell's per-frame gamepad evidence rounds every axis, so each frame
     // throws `Cannot read properties of null (reading 'toFixed')`. A real Quest reports 0 for those axes. Emulated runs tolerate exactly that signature and count it.
-    const emulatorNullAxis = (text) => emulated && /Cannot read properties of null \(reading 'toFixed'\)/u.test(text);
-    run.emulatorArtifacts = emulated ? { nullAxisToFixedPageErrors: out.pageErrors.filter(emulatorNullAxis).length, nullAxisToFixedConsoleErrors: out.consoleErrors.filter(emulatorNullAxis).length } : undefined;
+    const nullAxisSignature = (text) => /^TypeError: Cannot read properties of null \(reading 'toFixed'\)\n\s+at \w+ \(.*\)\n(?:.*\n)*?\s+at Array\.map/u.test(text);
+    const nullAxes = p.xr?.nullAxes === true;
+    // A pageerror carries only name+message (no stack), so a bare message is tolerated only when the same run also shows (a) IWER's controller gamepad has null axes
+    // and (b) a console error whose stack is the shell's per-frame axis rounding (rounding helper frame, then an Array.map frame). Console errors must match with their stack.
+    const exactNullAxisMessage = (text) => emulated && nullAxes && text === "TypeError: Cannot read properties of null (reading 'toFixed')";
+    const stackNullAxis = (text) => emulated && nullAxes && nullAxisSignature(text);
+    const stackProven = out.consoleErrors.some(stackNullAxis);
+    const emulatorNullAxis = (text) => exactNullAxisMessage(text) ? stackProven : stackNullAxis(text);
+    run.emulatorArtifacts = emulated ? { nullAxes, stackProven, nullAxisPageErrors: out.pageErrors.filter(emulatorNullAxis).length, nullAxisConsoleErrors: out.consoleErrors.filter(emulatorNullAxis).length } : undefined;
     const other = out.consoleErrors.filter((text) => !isAsset404(text) && !emulatorNullAxis(text));
     const otherPageErrors = out.pageErrors.filter((text) => !emulatorNullAxis(text));
     check("H11 no page errors and no console errors other than missing-asset 404s", otherPageErrors.length === 0 && other.length === 0, [...otherPageErrors, ...other].join(" | ") || `${out.consoleErrors.length} console errors tolerated (asset 404s${emulated ? " and the IWER null-axis signature" : ""})`);
