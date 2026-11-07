@@ -35,3 +35,11 @@ B8 strand_detail::as A10, against the front render's own value (≥ 70% of it).
 
 ## REPORT
 SCORE::n/28 / per item id PASS|FAIL value [rows/cols] / TOP3::the three failing items most likely fixable next and the image region showing each.
+
+## INSTRUMENT (frozen 2026-11-07 after the r6 baseline, 21/28)
+I1::numeric items are computed by `tools/openclinxr/hair-groom-2/grade/grade.py <round-dir> [out-dir]` (Blender python). It reproduced the baseline grader's measures.json exactly on groom-r1/r6. Producer and grader use the same script; the grader still scores the visual items independently.
+I2::A3 clavicle height = mean z of the shipped body's clavicle bones, `grade/clavicle.json` (z ≈ 1.351 m) [meas:grade/clavicle_probe.py].
+I3::A1 part width is measured at the first midline row below the hair top where skin appears (the hairline wedge), as a face-width ratio. Its width 20-40 rows higher is recorded but does not decide the item.
+I4::A12/B7 count only chromatic hair pixels, saturation ≥ 0.10 (ungated, the target itself scores 18.6%).
+I5::A5 render hair mask and A10 high-pass sigma: as implemented in grade.py.
+I6::the garment signed distance in stats.json is not used (open cloth); clearance is body-only.
