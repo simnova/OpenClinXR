@@ -37,6 +37,11 @@ import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer }
 import { POSED_WORLD_BOX_SOURCE } from "./lib/posed-world-bounds.js";
 import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
+  readOrMeasureStagingAllStationReport,
+  registerStagingAllStationProducer,
+  runSingleStagingAllStationProducer,
+} from "./staging-all-station-pass.js";
+import {
   buildRoomCaptureUrl,
   ROOM_CAPTURE_MODE,
   waitForStationShell,
@@ -113,9 +118,6 @@ type ArtifactPayload = {
   report: ActorPropIntersectionReport;
 };
 
-let cachedReport: ActorPropIntersectionReport | null = null;
-let measureInFlight: Promise<ActorPropIntersectionReport> | null = null;
-
 function preFixPath(): string {
   return path.join(PROP_INTERSECTION_EVIDENCE_DIR, PRE_FIX_NAME);
 }
@@ -127,58 +129,39 @@ export async function inspectActorPropIntersection(input?: {
   scenarioIds?: string[];
   writePreFix?: boolean;
 }): Promise<ActorPropIntersectionReport> {
-  if (!input?.force && !input?.writePreFix && cachedReport) return cachedReport;
-  if (!input?.force && !input?.writePreFix && measureInFlight) return measureInFlight;
-
-  measureInFlight = (async () => {
-    if (!input?.force && !input?.writePreFix && !input?.scenarioIds) {
-      if (process.env["OPENCLINXR_ACTOR_PROP_USE_DISK"] === "1") {
-        const fromDisk = await tryReadArtifact(preFixPath());
-        if (fromDisk) {
-          cachedReport = fromDisk;
-          return fromDisk;
-        }
-      }
-    }
-
-    const report = await measureLivePropIntersection({
-      baseUrl: input?.baseUrl,
-      scenarioIds: input?.scenarioIds,
-    });
-
-    if (input?.writePreFix) {
-      await writePropDump(report, {
-        outputPath: preFixPath(),
-        label: input?.label ?? "pre-fix",
-      });
-    }
-
-    if (!input?.scenarioIds) {
-      cachedReport = report;
-    }
-    return report;
-  })();
-
-  try {
-    return await measureInFlight;
-  } finally {
-    measureInFlight = null;
+  if (!input?.force && !input?.writePreFix && !input?.scenarioIds && !input?.baseUrl) {
+    return readOrMeasureStagingAllStationReport("actor-prop-intersection");
   }
+
+  const report = await measureLivePropIntersection({
+    baseUrl: input?.baseUrl,
+    scenarioIds: input?.scenarioIds,
+  });
+  if (input?.writePreFix) {
+    await writePropDump(report, {
+      outputPath: preFixPath(),
+      label: input?.label ?? "pre-fix",
+    });
+  }
+  return report;
 }
 
-async function tryReadArtifact(filePath: string): Promise<ActorPropIntersectionReport | null> {
+async function tryReadArtifact(
+  filePath: string,
+  treeStamp?: MeasurementTreeStamp,
+): Promise<ActorPropIntersectionReport | null> {
   return tryReadStampedArtifact(filePath, (parsed) => {
     const report = (parsed["report"] ?? parsed) as ActorPropIntersectionReport | undefined;
     if (report?.stations && Array.isArray(report.stations) && report.stations.length > 0) {
       return report;
     }
     return null;
-  });
+  }, treeStamp ? { currentStamp: treeStamp } : undefined);
 }
 
 export async function writePropDump(
   report: ActorPropIntersectionReport,
-  input?: { outputPath?: string; label?: string },
+  input?: { outputPath?: string; label?: string; treeStamp?: MeasurementTreeStamp },
 ): Promise<string> {
   const outputPath = input?.outputPath ?? preFixPath();
   await mkdir(path.dirname(outputPath), { recursive: true });
@@ -201,7 +184,7 @@ export async function writePropDump(
       "exam_equivalence",
     ],
     report,
-  }) satisfies ArtifactPayload;
+  }, input?.treeStamp) satisfies ArtifactPayload;
   await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
   process.stdout.write(`actor-prop-intersection: wrote ${outputPath}\n`);
   return outputPath;
@@ -211,124 +194,91 @@ async function measureLivePropIntersection(input: {
   baseUrl?: string | undefined;
   scenarioIds?: string[] | undefined;
 }): Promise<ActorPropIntersectionReport> {
-  const scenarios =
-    input.scenarioIds && input.scenarioIds.length > 0
-      ? input.scenarioIds
-      : await listShippedScenarioManifestIds();
-
-  if (scenarios.length === 0) {
-    throw new Error("inspectActorPropIntersection: listShippedScenarioManifestIds returned empty");
-  }
-
-  let server: PortlessDevServer | undefined;
-  let ownedServer = false;
-  try {
-    const baseUrl =
-      input.baseUrl
-      ?? (await (async () => {
-        ownedServer = true;
-        server = await spawnPortlessDevServer({
-          filter: "@openclinxr/ui-xr",
-          readyTimeoutMs: 180_000,
-        });
-        return server.url;
-      })());
-
-    const browser = await chromium.launch({ headless: true });
-    try {
-      const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-      try {
-        const stations: StationPropIntersection[] = [];
-        for (const scenarioId of scenarios) {
-          process.stdout.write(`actor-prop-intersection: goto ${scenarioId}\n`);
-          const url = buildRoomCaptureUrl(baseUrl, scenarioId, ROOM_CAPTURE_MODE);
-          await page.goto(url, { waitUntil: "load", timeout: 180_000 });
-          await waitForStationShell(page, 180_000);
-          await waitForFrames(page, 8, 120_000);
-          // #183 samples only after EVERY recorded asset settles to loaded|failed —
-          // same settled-readiness gate as #281, never at register time.
-          await waitForRecordedAssetsSettled(page, 180_000);
-          await assertRecordedAssetsSettled(page);
-          await page.waitForTimeout(900);
-          const live = await readLivePropIntersectionFromPage(page);
-          const sid = live.scenarioId || scenarioId;
-          const collisions = live.collisions.map((c) => ({ ...c, scenarioId: sid }));
-          const station: StationPropIntersection = {
-            scenarioId: sid,
-            environmentId: live.environmentId,
-            propCount: live.propCount,
-            actorCount: live.actorCount,
-            collisions,
-          };
-          stations.push(station);
-          const hits = collisions.filter(
-            (c) =>
-              c.actorPosture === "standing"
-              && c.overlapFractionXZ >= INSIDE_OVERLAP_FRACTION_THRESHOLD
-              && c.verticalStraddle,
-          );
-          process.stdout.write(
-            `  ${sid} env=${station.environmentId} props=${station.propCount} `
-            + `actors=${station.actorCount} pairs=${collisions.length} `
-            + `inside=${hits.length}\n`,
-          );
-          for (const h of hits) {
-            process.stdout.write(
-              `    HIT ${h.actorId} ∩ ${h.propId}[${h.propSource}] `
-              + `f=${h.overlapFractionXZ.toFixed(3)} straddle=${h.verticalStraddle}\n`,
-            );
-          }
-        }
-
-        const collisionCount = stations.reduce(
-          (n, s) =>
-            n
-            + s.collisions.filter(
-              (c) =>
-                c.actorPosture === "standing"
-                && c.overlapFractionXZ >= INSIDE_OVERLAP_FRACTION_THRESHOLD
-                && c.verticalStraddle,
-            ).length,
-          0,
-        );
-
-        return {
-          stations,
-          insideOverlapFractionThreshold: INSIDE_OVERLAP_FRACTION_THRESHOLD,
-          collisionCount,
-          propInclusionPolicy: {
-            included: [
-              "architecture_fixtures (work_surface, door_leaf, wall_board, overbed_surface, exam_surface)",
-              "procedural_layout_props (monitor/desk/cart fixture else-branch)",
-              "family_chair / parent_chair / visitor_chair (standing-through seat)",
-              "non_support equipment mounts (openClinXrEquipmentId not in PATIENT_SUPPORT set)",
-              "roomProp roots tagged openClinXrEquipmentId that are not patient supports",
-            ],
-            excluded: [
-              "patient supports owned by #169 (patient_chair, stretcher, bed, exam_table_equipment, post_op_bed, pediatric_stretcher, chairs_equipment as patient seat)",
-              "learner_start and isMarkerCube=true (0.18 m spawn anchors)",
-              "shell structure floor/walls/ceiling/wall-trim",
-              "actor humanoid meshes",
-              "HUD / debug / nameplate overlays when identifiable by name",
-            ],
-          },
-        };
-      } finally {
-        await page.close().catch(() => undefined);
-      }
-    } finally {
-      await browser.close().catch(() => undefined);
-    }
-  } finally {
-    if (ownedServer && server) {
-      try {
-        await stopPortlessDevServer(server.proc);
-      } catch {
-        // ignore
-      }
-    }
-  }
+  return runSingleStagingAllStationProducer("actor-prop-intersection", input);
 }
+
+async function measurePropIntersectionPage(
+  page: Page,
+  scenarioId: string,
+): Promise<StationPropIntersection> {
+  await waitForStationShell(page, 180_000);
+  await waitForFrames(page, 8, 120_000);
+  await waitForRecordedAssetsSettled(page, 180_000);
+  await assertRecordedAssetsSettled(page);
+  await page.waitForTimeout(900);
+  const live = await readLivePropIntersectionFromPage(page);
+  const sid = live.scenarioId || scenarioId;
+  const collisions = live.collisions.map((collision) => ({ ...collision, scenarioId: sid }));
+  const station: StationPropIntersection = {
+    scenarioId: sid,
+    environmentId: live.environmentId,
+    propCount: live.propCount,
+    actorCount: live.actorCount,
+    collisions,
+  };
+  const hits = collisions.filter(
+    (collision) =>
+      collision.actorPosture === "standing"
+      && collision.overlapFractionXZ >= INSIDE_OVERLAP_FRACTION_THRESHOLD
+      && collision.verticalStraddle,
+  );
+  process.stdout.write(
+    `  ${sid} env=${station.environmentId} props=${station.propCount} `
+    + `actors=${station.actorCount} pairs=${collisions.length} inside=${hits.length}\n`,
+  );
+  return station;
+}
+
+export function buildActorPropIntersectionReport(
+  stations: StationPropIntersection[],
+): ActorPropIntersectionReport {
+  const collisionCount = stations.reduce(
+    (count, station) => count + station.collisions.filter(
+      (collision) =>
+        collision.actorPosture === "standing"
+        && collision.overlapFractionXZ >= INSIDE_OVERLAP_FRACTION_THRESHOLD
+        && collision.verticalStraddle,
+    ).length,
+    0,
+  );
+  return {
+    stations,
+    insideOverlapFractionThreshold: INSIDE_OVERLAP_FRACTION_THRESHOLD,
+    collisionCount,
+    propInclusionPolicy: {
+      included: [
+        "architecture_fixtures (work_surface, door_leaf, wall_board, overbed_surface, exam_surface)",
+        "procedural_layout_props (monitor/desk/cart fixture else-branch)",
+        "family_chair / parent_chair / visitor_chair (standing-through seat)",
+        "non_support equipment mounts (openClinXrEquipmentId not in PATIENT_SUPPORT set)",
+        "roomProp roots tagged openClinXrEquipmentId that are not patient supports",
+      ],
+      excluded: [
+        "patient supports owned by #169 (patient_chair, stretcher, bed, exam_table_equipment, post_op_bed, pediatric_stretcher, chairs_equipment as patient seat)",
+        "learner_start and isMarkerCube=true (0.18 m spawn anchors)",
+        "shell structure floor/walls/ceiling/wall-trim",
+        "actor humanoid meshes",
+        "HUD / debug / nameplate overlays when identifiable by name",
+      ],
+    },
+  };
+}
+
+registerStagingAllStationProducer({
+  id: "actor-prop-intersection",
+  listScenarioIds: listShippedScenarioManifestIds,
+  measurePage: measurePropIntersectionPage,
+  buildReport: (_scenarioIds, rows) =>
+    buildActorPropIntersectionReport(rows as StationPropIntersection[]),
+  readArtifact: (treeStamp) => tryReadArtifact(preFixPath(), treeStamp),
+  writeArtifact: async (report, treeStamp) => {
+    await writePropDump(report as ActorPropIntersectionReport, {
+      outputPath: preFixPath(),
+      label: "combined-measure",
+      treeStamp,
+    });
+  },
+});
 
 async function waitForFrames(page: Page, minFrames: number, timeoutMs: number): Promise<void> {
   await page.waitForFunction(

@@ -16,21 +16,21 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "./lib/slotted-playwright.js";
-import { listShippedCastScenarioIds } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
+  type MeasurementTreeStamp,
   tryReadStampedArtifact,
   withTreeStamp,
-  type MeasurementTreeStamp,
 } from "./lib/measurement-tree-stamp.js";
+import type { Page } from "./lib/slotted-playwright.js";
 import {
-  ROOM_CAPTURE_MODE,
-  buildRoomCaptureUrl,
+  readOrMeasureStagingAllStationReport,
+  registerStagingAllStationProducer,
+  runSingleStagingAllStationProducer,
+} from "./staging-all-station-pass.js";
+import {
   readLivePostureGeometryFromPage,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
-import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 
 export const FLOOR_CONTACT_DIR = ".openclinxr/evidence/actor-floor-contact";
 export const FLOOR_CONTACT_NAME = "actor-floor-contact-all-stations.json";
@@ -61,12 +61,15 @@ type ArtifactPayload = {
   report: ActorFloorContactReport;
 };
 
-/** In-process cache so three vitest cases share one measure pass. */
-let cachedReport: ActorFloorContactReport | null = null;
-let measureInFlight: Promise<ActorFloorContactReport> | null = null;
-
 function artifactPath(): string {
   return path.join(FLOOR_CONTACT_DIR, FLOOR_CONTACT_NAME);
+}
+
+async function listFloorContactScenarioIds(): Promise<string[]> {
+  const { listShippedCastScenarioIds } = await import(
+    "../../../packages/openclinxr/asset-registry/src/actor-casting.js"
+  );
+  return listShippedCastScenarioIds();
 }
 
 /**
@@ -80,37 +83,21 @@ export async function measureActorFloorContact(input?: {
   /** Optional subset for local diagnosis; production path always uses full bank. */
   scenarioIds?: string[] | undefined;
 }): Promise<ActorFloorContactReport> {
-  if (!input?.force && cachedReport) return cachedReport;
-  if (!input?.force && measureInFlight) return measureInFlight;
-
-  measureInFlight = (async () => {
-    if (!input?.force && !input?.scenarioIds) {
-      const fromDisk = await tryReadArtifact();
-      if (fromDisk) {
-        cachedReport = fromDisk;
-        return fromDisk;
-      }
-    }
-
-    const report = await measureLiveAllStations({
-      baseUrl: input?.baseUrl,
-      scenarioIds: input?.scenarioIds,
-    });
-    await writeFloorContactDump(report, { label: input?.label ?? "measure" });
-    if (!input?.scenarioIds) {
-      cachedReport = report;
-    }
-    return report;
-  })();
-
-  try {
-    return await measureInFlight;
-  } finally {
-    measureInFlight = null;
+  if (!input?.force && !input?.scenarioIds && !input?.baseUrl) {
+    return readOrMeasureStagingAllStationReport("actor-floor-contact-all-stations");
   }
+
+  const report = await measureLiveAllStations({
+    baseUrl: input?.baseUrl,
+    scenarioIds: input?.scenarioIds,
+  });
+  await writeFloorContactDump(report, { label: input?.label ?? "measure" });
+  return report;
 }
 
-async function tryReadArtifact(): Promise<ActorFloorContactReport | null> {
+async function tryReadArtifact(
+  treeStamp?: MeasurementTreeStamp,
+): Promise<ActorFloorContactReport | null> {
   // #141: refuse stale stamps (missing/mismatch → null → re-measure). Fresh stamps still serve.
   return tryReadStampedArtifact(artifactPath(), (parsed) => {
     const report = parsed["report"] as ActorFloorContactReport | undefined;
@@ -124,12 +111,12 @@ async function tryReadArtifact(): Promise<ActorFloorContactReport | null> {
       return report;
     }
     return null;
-  });
+  }, treeStamp ? { currentStamp: treeStamp } : undefined);
 }
 
 export async function writeFloorContactDump(
   report: ActorFloorContactReport,
-  input?: { outputPath?: string; label?: string },
+  input?: { outputPath?: string; label?: string; treeStamp?: MeasurementTreeStamp },
 ): Promise<string> {
   const outputPath = input?.outputPath ?? artifactPath();
   await mkdir(path.dirname(outputPath), { recursive: true });
@@ -149,7 +136,7 @@ export async function writeFloorContactDump(
       "quest_readiness",
     ],
     report,
-  }) satisfies ArtifactPayload;
+  }, input?.treeStamp) satisfies ArtifactPayload;
   await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
   process.stdout.write(`floor-contact: wrote ${outputPath}\n`);
   return outputPath;
@@ -159,87 +146,49 @@ async function measureLiveAllStations(input: {
   baseUrl?: string | undefined;
   scenarioIds?: string[] | undefined;
 }): Promise<ActorFloorContactReport> {
-  const scenarios =
-    input.scenarioIds && input.scenarioIds.length > 0
-      ? input.scenarioIds
-      : listShippedCastScenarioIds();
-
-  if (scenarios.length === 0) {
-    throw new Error("measureActorFloorContact: listShippedCastScenarioIds returned empty");
-  }
-
-  let server: PortlessDevServer | undefined;
-  let ownedServer = false;
-  try {
-    const baseUrl =
-      input.baseUrl
-      ?? (await (async () => {
-        ownedServer = true;
-        server = await spawnPortlessDevServer({
-          filter: "@openclinxr/ui-xr",
-          readyTimeoutMs: 180_000,
-        });
-        return server.url;
-      })());
-
-    const browser = await chromium.launch({ headless: true });
-    try {
-      const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-      try {
-        const actors: ActorFloorContact[] = [];
-        for (const scenarioId of scenarios) {
-          process.stdout.write(`floor-contact: goto ${scenarioId}\n`);
-          const url = buildRoomCaptureUrl(baseUrl, scenarioId, ROOM_CAPTURE_MODE);
-          await page.goto(url, { waitUntil: "load", timeout: 180_000 });
-          await waitForStationShell(page, 180_000);
-          await waitForHumanoidsAndFrames(page, 8, 180_000);
-          // #446: sampling-instant race (same class as #259) — waitForHumanoidsAndFrames
-          // returns as soon as ONE skinned mesh exists, but a heavier cast GLB (OB nurse
-          // is 21.5 MB vs partner 8.6 MB) may still be loading. Mid-load the slot's
-          // primitive scaffold is hidden but measurable, and its capsule bottom sits at
-          // slot-local y≈-0.02 — at the OB framing's elevated nurse slot (y=0.42) that
-          // reads as a 0.41 m floater while the loaded humanoid stands at ≈0 (measured).
-          // Wait for all assets to settle before sampling; a failed asset counts as
-          // settled, so a genuinely-broken load still surfaces as a defect.
-          await waitForSceneAssetsSettled(page, 60_000);
-          await page.waitForTimeout(900);
-          const live = await readLivePostureGeometryFromPage(page);
-          // Prefer URL scenario id if the page report is empty/wrong.
-          const sid = live.scenarioId || scenarioId;
-          for (const a of live.actors) {
-            const row: ActorFloorContact = {
-              scenarioId: sid,
-              actorId: a.actorId,
-              lowestVertexY: a.lowestVertexY,
-              declaredPosture: String(a.declaredPosture ?? "unknown"),
-              framesAdvanced: a.framesAdvanced,
-            };
-            actors.push(row);
-            process.stdout.write(
-              `  ${row.scenarioId}/${row.actorId} posture=${row.declaredPosture} y0=${row.lowestVertexY.toFixed(3)} frames=${row.framesAdvanced}\n`,
-            );
-          }
-          if (live.actors.length === 0) {
-            process.stdout.write(`  WARN: no actors measured for ${scenarioId}\n`);
-          }
-        }
-        return { scenarios: [...scenarios], actors };
-      } finally {
-        await page.close().catch(() => undefined);
-      }
-    } finally {
-      await browser.close().catch(() => undefined);
-    }
-  } finally {
-    if (ownedServer && server) {
-      try {
-        await stopPortlessDevServer(server.proc);
-      } catch {
-        // ignore
-      }
-    }
-  }
+  return runSingleStagingAllStationProducer("actor-floor-contact-all-stations", input);
 }
+
+async function measureFloorContactPage(
+  page: Page,
+  scenarioId: string,
+): Promise<ActorFloorContact[]> {
+  await waitForStationShell(page, 180_000);
+  await waitForHumanoidsAndFrames(page, 8, 180_000);
+  await waitForSceneAssetsSettled(page, 60_000);
+  await page.waitForTimeout(900);
+  const live = await readLivePostureGeometryFromPage(page);
+  const sid = live.scenarioId || scenarioId;
+  return live.actors.map((actor) => ({
+    scenarioId: sid,
+    actorId: actor.actorId,
+    lowestVertexY: actor.lowestVertexY,
+    declaredPosture: String(actor.declaredPosture ?? "unknown"),
+    framesAdvanced: actor.framesAdvanced,
+  }));
+}
+
+export function buildActorFloorContactReport(
+  scenarios: string[],
+  actorRows: ActorFloorContact[][],
+): ActorFloorContactReport {
+  return { scenarios: [...scenarios], actors: actorRows.flat() };
+}
+
+registerStagingAllStationProducer({
+  id: "actor-floor-contact-all-stations",
+  listScenarioIds: listFloorContactScenarioIds,
+  measurePage: measureFloorContactPage,
+  buildReport: (scenarioIds, rows) =>
+    buildActorFloorContactReport(scenarioIds, rows as ActorFloorContact[][]),
+  readArtifact: tryReadArtifact,
+  writeArtifact: async (report, treeStamp) => {
+    await writeFloorContactDump(report as ActorFloorContactReport, {
+      label: "combined-measure",
+      treeStamp,
+    });
+  },
+});
 
 async function waitForHumanoidsAndFrames(
   page: Page,
@@ -270,6 +219,31 @@ async function waitForHumanoidsAndFrames(
     { minFrames },
     { timeout: timeoutMs },
   );
+}
+
+async function waitForSceneAssetsSettled(page: Page, timeoutMs: number): Promise<void> {
+  const started = Date.now();
+  try {
+    await page.waitForFunction(
+      () => {
+        const win = browserPageWindow as unknown as {
+          __openClinXrSceneAssetEvidence?: { pendingCount?: number; assets?: unknown[] };
+        };
+        const evidence = win.__openClinXrSceneAssetEvidence;
+        return Boolean(
+          evidence
+          && Array.isArray(evidence.assets)
+          && evidence.assets.length > 0
+          && (evidence.pendingCount ?? 0) === 0,
+        );
+      },
+      {},
+      { timeout: Math.min(timeoutMs, 60_000) },
+    );
+  } catch {
+    const remaining = timeoutMs - (Date.now() - started);
+    if (remaining > 0) await page.waitForTimeout(Math.min(remaining, 30_000));
+  }
 }
 
 async function main(): Promise<void> {

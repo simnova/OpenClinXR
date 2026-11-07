@@ -29,16 +29,18 @@ import { existsSync } from "node:fs";
 import { mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "./lib/slotted-playwright.js";
-import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
+  type MeasurementTreeStamp,
   tryReadStampedArtifact,
   withTreeStamp,
-  type MeasurementTreeStamp,
 } from "./lib/measurement-tree-stamp.js";
+import type { Page } from "./lib/slotted-playwright.js";
 import {
-  ROOM_CAPTURE_MODE,
-  buildRoomCaptureUrl,
+  readOrMeasureStagingAllStationReport,
+  registerStagingAllStationProducer,
+  runSingleStagingAllStationProducer,
+} from "./staging-all-station-pass.js";
+import {
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
 
@@ -107,9 +109,6 @@ type ArtifactPayload = {
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const generatedRoot = path.join(repoRoot, "apps/ui-xr/public/xr-assets/generated");
 
-let cachedReport: ActorFurnitureClearanceReport | null = null;
-let measureInFlight: Promise<ActorFurnitureClearanceReport> | null = null;
-
 function preFixPath(): string {
   return path.join(CLEARANCE_EVIDENCE_DIR, PRE_FIX_NAME);
 }
@@ -154,58 +153,39 @@ export async function inspectActorFurnitureClearance(input?: {
   scenarioIds?: string[];
   writePreFix?: boolean;
 }): Promise<ActorFurnitureClearanceReport> {
-  if (!input?.force && !input?.writePreFix && cachedReport) return cachedReport;
-  if (!input?.force && !input?.writePreFix && measureInFlight) return measureInFlight;
-
-  measureInFlight = (async () => {
-    if (!input?.force && !input?.writePreFix && !input?.scenarioIds) {
-      if (process.env["OPENCLINXR_ACTOR_FURNITURE_USE_DISK"] === "1") {
-        const fromDisk = await tryReadArtifact(preFixPath());
-        if (fromDisk) {
-          cachedReport = fromDisk;
-          return fromDisk;
-        }
-      }
-    }
-
-    const report = await measureLiveClearance({
-      baseUrl: input?.baseUrl,
-      scenarioIds: input?.scenarioIds,
-    });
-
-    if (input?.writePreFix) {
-      await writeClearanceDump(report, {
-        outputPath: preFixPath(),
-        label: input?.label ?? "pre-fix",
-      });
-    }
-
-    if (!input?.scenarioIds) {
-      cachedReport = report;
-    }
-    return report;
-  })();
-
-  try {
-    return await measureInFlight;
-  } finally {
-    measureInFlight = null;
+  if (!input?.force && !input?.writePreFix && !input?.scenarioIds && !input?.baseUrl) {
+    return readOrMeasureStagingAllStationReport("actor-furniture-clearance");
   }
+
+  const report = await measureLiveClearance({
+    baseUrl: input?.baseUrl,
+    scenarioIds: input?.scenarioIds,
+  });
+  if (input?.writePreFix) {
+    await writeClearanceDump(report, {
+      outputPath: preFixPath(),
+      label: input?.label ?? "pre-fix",
+    });
+  }
+  return report;
 }
 
-async function tryReadArtifact(filePath: string): Promise<ActorFurnitureClearanceReport | null> {
+async function tryReadArtifact(
+  filePath: string,
+  treeStamp?: MeasurementTreeStamp,
+): Promise<ActorFurnitureClearanceReport | null> {
   return tryReadStampedArtifact(filePath, (parsed) => {
     const report = (parsed["report"] ?? parsed) as ActorFurnitureClearanceReport | undefined;
     if (report?.stations && Array.isArray(report.stations) && report.stations.length > 0) {
       return report;
     }
     return null;
-  });
+  }, treeStamp ? { currentStamp: treeStamp } : undefined);
 }
 
 export async function writeClearanceDump(
   report: ActorFurnitureClearanceReport,
-  input?: { outputPath?: string; label?: string },
+  input?: { outputPath?: string; label?: string; treeStamp?: MeasurementTreeStamp },
 ): Promise<string> {
   const outputPath = input?.outputPath ?? preFixPath();
   await mkdir(path.dirname(outputPath), { recursive: true });
@@ -227,7 +207,7 @@ export async function writeClearanceDump(
       "exam_equivalence",
     ],
     report,
-  }) satisfies ArtifactPayload;
+  }, input?.treeStamp) satisfies ArtifactPayload;
   await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
   process.stdout.write(`actor-furniture-clearance: wrote ${outputPath}\n`);
   return outputPath;
@@ -237,81 +217,59 @@ async function measureLiveClearance(input: {
   baseUrl?: string | undefined;
   scenarioIds?: string[] | undefined;
 }): Promise<ActorFurnitureClearanceReport> {
-  const scenarios =
-    input.scenarioIds && input.scenarioIds.length > 0
-      ? input.scenarioIds
-      : await listShippedScenarioManifestIds();
-
-  if (scenarios.length === 0) {
-    throw new Error("inspectActorFurnitureClearance: listShippedScenarioManifestIds returned empty");
-  }
-
-  let server: PortlessDevServer | undefined;
-  let ownedServer = false;
-  try {
-    const baseUrl =
-      input.baseUrl
-      ?? (await (async () => {
-        ownedServer = true;
-        server = await spawnPortlessDevServer({
-          filter: "@openclinxr/ui-xr",
-          readyTimeoutMs: 180_000,
-        });
-        return server.url;
-      })());
-
-    const browser = await chromium.launch({ headless: true });
-    try {
-      const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-      try {
-        const stations: StationClearance[] = [];
-        for (const scenarioId of scenarios) {
-          process.stdout.write(`actor-furniture-clearance: goto ${scenarioId}\n`);
-          const url = buildRoomCaptureUrl(baseUrl, scenarioId, ROOM_CAPTURE_MODE);
-          await page.goto(url, { waitUntil: "load", timeout: 180_000 });
-          await waitForStationShell(page, 180_000);
-          await waitForFrames(page, 8, 120_000);
-          await page.waitForTimeout(900);
-          const live = await readLiveClearanceFromPage(page);
-          const sid = live.scenarioId || scenarioId;
-          const row: StationClearance = {
-            scenarioId: sid,
-            environmentId: live.environmentId,
-            hasCeiling: live.hasCeiling,
-            patientSupportSurfaceCount: live.patientSupportSurfaceCount,
-            supportSurfaces: live.supportSurfaces,
-            actors: live.actors.map((a) => ({ ...a, scenarioId: sid })),
-          };
-          stations.push(row);
-          const inside = row.actors.filter((a) => a.isInsideFurniture).map((a) => a.actorId);
-          process.stdout.write(
-            `  ${row.scenarioId} env=${row.environmentId} ceiling=${row.hasCeiling} `
-            + `support=${row.patientSupportSurfaceCount} `
-            + `inside=[${inside.join(",") || "none"}]\n`,
-          );
-        }
-
-        return {
-          stations,
-          control: pickControl(stations),
-          insideOverlapFractionThreshold: INSIDE_OVERLAP_FRACTION_THRESHOLD,
-        };
-      } finally {
-        await page.close().catch(() => undefined);
-      }
-    } finally {
-      await browser.close().catch(() => undefined);
-    }
-  } finally {
-    if (ownedServer && server) {
-      try {
-        await stopPortlessDevServer(server.proc);
-      } catch {
-        // ignore
-      }
-    }
-  }
+  return runSingleStagingAllStationProducer("actor-furniture-clearance", input);
 }
+
+async function measureFurnitureClearancePage(
+  page: Page,
+  scenarioId: string,
+): Promise<StationClearance> {
+  await waitForStationShell(page, 180_000);
+  await waitForFrames(page, 8, 120_000);
+  await page.waitForTimeout(900);
+  const live = await readLiveClearanceFromPage(page);
+  const sid = live.scenarioId || scenarioId;
+  const station: StationClearance = {
+    scenarioId: sid,
+    environmentId: live.environmentId,
+    hasCeiling: live.hasCeiling,
+    patientSupportSurfaceCount: live.patientSupportSurfaceCount,
+    supportSurfaces: live.supportSurfaces,
+    actors: live.actors.map((actor) => ({ ...actor, scenarioId: sid })),
+  };
+  const inside = station.actors.filter((actor) => actor.isInsideFurniture).map((actor) => actor.actorId);
+  process.stdout.write(
+    `  ${station.scenarioId} env=${station.environmentId} ceiling=${station.hasCeiling} `
+    + `support=${station.patientSupportSurfaceCount} inside=[${inside.join(",") || "none"}]\n`,
+  );
+  return station;
+}
+
+export function buildActorFurnitureClearanceReport(
+  stations: StationClearance[],
+): ActorFurnitureClearanceReport {
+  return {
+    stations,
+    control: pickControl(stations),
+    insideOverlapFractionThreshold: INSIDE_OVERLAP_FRACTION_THRESHOLD,
+  };
+}
+
+registerStagingAllStationProducer({
+  id: "actor-furniture-clearance",
+  listScenarioIds: listShippedScenarioManifestIds,
+  measurePage: measureFurnitureClearancePage,
+  buildReport: (_scenarioIds, rows) =>
+    buildActorFurnitureClearanceReport(rows as StationClearance[]),
+  readArtifact: (treeStamp) => tryReadArtifact(preFixPath(), treeStamp),
+  writeArtifact: async (report, treeStamp) => {
+    await writeClearanceDump(report as ActorFurnitureClearanceReport, {
+      outputPath: preFixPath(),
+      label: "combined-measure",
+      treeStamp,
+    });
+  },
+});
 
 function pickControl(stations: StationClearance[]): ActorClearance | null {
   const standing = stations.flatMap((s) =>

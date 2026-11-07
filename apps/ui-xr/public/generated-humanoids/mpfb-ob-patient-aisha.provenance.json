@@ -88,7 +88,7 @@
   ],
   "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
   "promotionGates": false,
-  "outputSha256": "26a6b759e4f79fa8775144b5b568080c4ffbf76dfa633cf77c03c5aaf88ae095",
+  "outputSha256": "483821ad1b214e0b8003f3dac2c5958b8500f77a0cbabaa403f48888131ed06b",
   "outputBytes": 19149460,
   "fitTimeLower": {
     "garment": "punkduck_female_tight_jeans",
@@ -444,5 +444,17 @@
     "inputGlbSha": "db2d0030b790b8412cd16bb7b9a4610c8b514888d921bbb34cef2fe92eafb662",
     "newSkinSha12": "26a6b759e4f7",
     "note": "st-vitfamily D7 final: fixed8 (brow-clear + temple-feather + ghost-arch redo); full input chain in familyAlbedoEmbedR4"
+  },
+  "skinShadeCarrier": {
+    "tool": "tools/openclinxr/asset-pipeline/skin/maps/repack_skin_shade.py",
+    "toolSha256": "9ce0c5d0bda4b312e4dbf367dc44bcbf9009312758144f7e966785485f29a770",
+    "reference": "ob_patient_aisha",
+    "inputSha256": "26a6b759e4f79fa8775144b5b568080c4ffbf76dfa633cf77c03c5aaf88ae095",
+    "inputBytes": 19149460,
+    "outputSha256": "483821ad1b214e0b8003f3dac2c5958b8500f77a0cbabaa403f48888131ed06b",
+    "outputBytes": 19149460,
+    "recordedAt": "2026-11-06",
+    "resolutionNote": "st-vitbody3 r4b: records the post-weave skin-shade carrier as its own replayable stage; supersedes the r2 same-commit pin that incorrectly rewrote the predecessor.",
+    "claimScope": "post-export skin-shade images + material extension only"
   }
 }

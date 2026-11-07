@@ -104,7 +104,7 @@ export function measureDirectComputeLaunches(root = workspaceRoot()): DirectComp
 }
 
 /** Exact post-migration measurement. This ceiling may only shrink. */
-export const DIRECT_COMPUTE_LAUNCH_CEILING = 139;
+export const DIRECT_COMPUTE_LAUNCH_CEILING = 137;
 /** Before spawn-blender.ts and room_generate/generate.ts moved behind the facade. */
 export const DIRECT_COMPUTE_LAUNCH_INITIAL_COUNT = 143;
 
