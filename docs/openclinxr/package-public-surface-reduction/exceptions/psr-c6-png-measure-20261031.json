@@ -109,6 +109,14 @@
       "owner": "OpenCode sessions ses_e6d00f64bffeKTB2j9Jk4fOIdG and ses_e6ce96841ffeg7XFAtJvGoLm7L (st-png-measure worker: extraction, \".\" and \"./evidence-capture\") and Claude Code session 05f69286-355d-4923-aa10-e899b6077534 (tools-test-split lane: the class-pure \"./evidence-png\" split); committed 6accd99ca; none by the reviewer",
       "reviewedBy": "OpenCode session ses_e6bb8e4a4ffeyLjjZCcqOZ0Cs1 (Muse Spark independent reviewer st-png-c6-review; authored none of the 8 names; exact review of commit 6accd99ca, tree 863daccbb, clean worktree, 2026-10-31; recomputed with the repo measureSurface + rootQuantiles: HEAD 77 roots/181 entrypoints/1267 rootSymbols/median 16/p90 38/maxRoot 116/duplicateNames 56, base e4bc038c2 76/178/1262/17/40/116/54; verdict APPROVE)",
       "reason": "p90 40 -> 38 is an arithmetic consequence of adding one 5-symbol root to the sample, with zero removals and no shrinkage claimed. The prior p90 cover (psr-c6-shrink-b, measured 40) is stale by exact-measured mismatch, so this entry re-covers p90 at its current measured value. Threshold stays 25. Snapshot-only; any drift re-refuses."
+    },
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1275,
+      "threshold": 1000,
+      "owner": "st-vittri worker (three skin-triplanar-detail root exports; none authored by the reviewer)",
+      "reviewedBy": "Codex gpt-5.6-sol independent API/C6 review (not an author): API session 01a1b673-fc3f-7111-94a3-e1474021fe6f approved 3/3 names; C6 session 01a1b67d-8d31-7a21-8b70-45d3c6188e53 recomputed rootExports 1275 = parent 9ca704aa8 1272 + exactly applyMaterialOverrides, SKIN_TRIPLANAR_DETAIL, skinTriplanarCpuMirror; median 16, p90 38, maxRoot 116, duplicateNames 56 unchanged; threshold remains 1000; 2026-11-07",
+      "reason": "Residual 1275 = the independently reviewed exact 1272 (psr-c6-xr-dialogue-consumer-split) + exactly three @openclinxr/xr-scene root exports admitted by skin-triplanar-detail-v1: applyMaterialOverrides, SKIN_TRIPLANAR_DETAIL, skinTriplanarCpuMirror. Each is declared in public-api.json/consumes.json and bound through the triplanar skin test via the package entrypoint, which keeps xr-scene testInternalImports at its ceiling 10. No unrelated symbol is admitted. Threshold stays 1000. Snapshot-only; any later count drift re-refuses."
     }
   ],
   "sourceManifest": {

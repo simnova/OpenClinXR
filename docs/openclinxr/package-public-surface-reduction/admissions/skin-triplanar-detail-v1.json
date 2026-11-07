@@ -1,0 +1,42 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "skin-triplanar-detail-v1",
+  "reviewedBy": "Codex gpt-5.6-sol independent API review st-vittri/REVIEW-api.md (read-only, not an author), 2026-11-07",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "ae76317a8f1b0aabe74bb18093164fbfbcc2ff6fe513576b138723ee045169ff",
+  "packages": [
+    "packages/openclinxr/xr-scene"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "applyMaterialOverrides",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "st-vittri-worker",
+      "rationale": "R1/R2/T5/T6 compile the production skin shader through its sole material-installation path; no production consumer outside xr-scene, stated reason: it is the only way a test reaches the compiled shader.",
+      "reviewedBy": "Codex gpt-5.6-sol independent API review st-vittri/REVIEW-api.md (read-only, not an author), 2026-11-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "SKIN_TRIPLANAR_DETAIL",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "st-vittri-worker",
+      "rationale": "R4/T9/T10/T11 pin the face/body tiles-per-metre, the 0.09 mm^2 cited cell area and the 18-cycle tile peak through the package entrypoint; one frozen record instead of four constants.",
+      "reviewedBy": "Codex gpt-5.6-sol independent API review st-vittri/REVIEW-api.md (read-only, not an author), 2026-11-07"
+    },
+    {
+      "package": "packages/openclinxr/xr-scene",
+      "entrypoint": ".",
+      "symbol": "skinTriplanarCpuMirror",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "st-vittri-worker",
+      "rationale": "R4/T8 exercise the CPU mirror of the GLSL plane coordinate, dominant plane and detail deviation through the entrypoint; one frozen record instead of three functions.",
+      "reviewedBy": "Codex gpt-5.6-sol independent API review st-vittri/REVIEW-api.md (read-only, not an author), 2026-11-07"
+    }
+  ]
+}

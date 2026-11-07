@@ -52,6 +52,9 @@ export {
   bootIsolatedSubjectLab,
 } from "./isolated-subject-lab.js";
 export {
+  applyMaterialOverrides,
+} from "./isolated-subject-material-variants.js";
+export {
   bootLearnerExamFormFromApi,
   createLearnerExamFormRunState,
   learnerExamResumeNextStation,
@@ -74,8 +77,12 @@ export {
   sleeveDeformCueForAssetPath,
 } from "./real-garment-evidence-surfaces.js";
 export {
-  createVirtualDeviceActorAffordance,
-} from "./virtual-device-actor.js";
+  SKIN_TRIPLANAR_DETAIL,
+  skinTriplanarCpuMirror,
+} from "./skin-shader/skin-shade-triplanar.js";
 export {
   installStationLayoutView,
 } from "./station-layout-view.js";
+export {
+  createVirtualDeviceActorAffordance,
+} from "./virtual-device-actor.js";

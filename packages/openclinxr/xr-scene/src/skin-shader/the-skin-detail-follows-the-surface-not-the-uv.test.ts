@@ -18,20 +18,13 @@ import {
   TextureLoader,
 } from "three";
 import { beforeAll, describe, expect, it } from "vitest";
-import { applyMaterialOverrides } from "../isolated-subject-material-variants.js";
+import { applyMaterialOverrides, SKIN_TRIPLANAR_DETAIL, skinTriplanarCpuMirror } from "../index.js";
+
+type SkinVec2 = readonly [number, number];
+type SkinVec3 = readonly [number, number, number];
+
 import { measureShippedBodyTilePeriod } from "./measure-body-tile-period.js";
 import { measureTriplanarFrequency } from "./measure-triplanar-frequency.js";
-import {
-  dominantSkinTriplanarPlane,
-  SKIN_BODY_CELL_AREA_MM2,
-  SKIN_BODY_DETAIL_TILES_PER_METRE,
-  SKIN_BODY_TILE_PEAK_CYCLES,
-  SKIN_FACE_DETAIL_TILES_PER_METRE,
-  type SkinVec2,
-  type SkinVec3,
-  skinDetailObjectDeviation,
-  skinTriplanarPlaneCoordinate,
-} from "./skin-shade-triplanar.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, "../../../../..");
@@ -255,9 +248,9 @@ function dominantPlaneCoordinates(triangle: Triangle): Triangle["uvs"] {
     (axis) =>
       (triangle.normals[0][axis]! + triangle.normals[1][axis]! + triangle.normals[2][axis]!) / 3,
   ) as unknown as SkinVec3;
-  const plane = dominantSkinTriplanarPlane(averageNormal);
+  const plane = skinTriplanarCpuMirror.dominantPlane(averageNormal);
   return triangle.positions.map((position) =>
-    skinTriplanarPlaneCoordinate(position, plane, SKIN_FACE_DETAIL_TILES_PER_METRE),
+    skinTriplanarCpuMirror.planeCoordinate(position, plane, SKIN_TRIPLANAR_DETAIL.faceTilesPerMetre),
   ) as unknown as Triangle["uvs"];
 }
 
@@ -318,8 +311,8 @@ describe("skin detail follows the bind-pose surface instead of stretched UVs", (
     expect(street.dominantJoints).toEqual(["oris01", "jaw", "jaw"]);
     expect(coordinateAnisotropy(street.positions, street.uvs)).toBeLessThan(4.0);
     expect(coordinateAnisotropy(street.positions, dominantPlaneCoordinates(street))).toBeLessThanOrEqual(4.0);
-    expect(SKIN_FACE_DETAIL_TILES_PER_METRE).toBe(80.14228915458304);
-    expect(SKIN_BODY_DETAIL_TILES_PER_METRE).toBeCloseTo(185.1851851851852, 12);
+    expect(SKIN_TRIPLANAR_DETAIL.faceTilesPerMetre).toBe(80.14228915458304);
+    expect(SKIN_TRIPLANAR_DETAIL.bodyTilesPerMetre).toBeCloseTo(185.1851851851852, 12);
   });
 
   it("T5: detail perturbs the incoming normal instead of replacing it", () => {
@@ -357,7 +350,7 @@ describe("skin detail follows the bind-pose surface instead of stretched UVs", (
 
   it("T8: zero object-space detail deviation leaves the incoming normal unchanged", () => {
     const bindNormal = [0.267261, 0.534522, 0.801784] as const;
-    expect(skinDetailObjectDeviation(bindNormal, bindNormal)).toEqual([0, 0, 0]);
+    expect(skinTriplanarCpuMirror.detailObjectDeviation(bindNormal, bindNormal)).toEqual([0, 0, 0]);
     expect(fragmentShader).toContain(
       "vec3 skinDetailObjectDeviation = skinDetailObjectNormal - skinBindNormal;",
     );
@@ -371,11 +364,11 @@ describe("skin detail follows the bind-pose surface instead of stretched UVs", (
     expect(measurement.imageSha256.slice(0, 8)).toBe("0d7f18ff");
     expect([measurement.width, measurement.height]).toEqual([256, 256]);
     expect(measurement.peaks.map((peak) => peak.frequencyCyclesPerTile)).toEqual([18, 21, 24]);
-    expect(measurement.peaks[0].frequencyCyclesPerTile).toBe(SKIN_BODY_TILE_PEAK_CYCLES);
+    expect(measurement.peaks[0].frequencyCyclesPerTile).toBe(SKIN_TRIPLANAR_DETAIL.bodyTilePeakCycles);
     const measuredTilesPerMetre =
-      (1 / Math.sqrt(SKIN_BODY_CELL_AREA_MM2 * 1e-6)) /
+      (1 / Math.sqrt(SKIN_TRIPLANAR_DETAIL.bodyCellAreaMm2 * 1e-6)) /
       measurement.peaks[0].frequencyCyclesPerTile;
-    expect(Math.abs(measuredTilesPerMetre - SKIN_BODY_DETAIL_TILES_PER_METRE)).toBeLessThanOrEqual(
+    expect(Math.abs(measuredTilesPerMetre - SKIN_TRIPLANAR_DETAIL.bodyTilesPerMetre)).toBeLessThanOrEqual(
       1e-9,
     );
   });
@@ -384,16 +377,16 @@ describe("skin detail follows the bind-pose surface instead of stretched UVs", (
     const measurement = await measureTriplanarFrequency();
     expect(measurement.face.triangleCount).toBe(5460);
     expect(measurement.face.edgeCount).toBe(16380);
-    expect(Math.abs(measurement.face.tilesPerMetre - SKIN_FACE_DETAIL_TILES_PER_METRE)).toBeLessThanOrEqual(
+    expect(Math.abs(measurement.face.tilesPerMetre - SKIN_TRIPLANAR_DETAIL.faceTilesPerMetre)).toBeLessThanOrEqual(
       1e-9,
     );
   });
 
   it("T10 PLANTED: the body frequency is physically derived from cell area and tile period", () => {
     const expected =
-      (1 / Math.sqrt(SKIN_BODY_CELL_AREA_MM2 * 1e-6)) / SKIN_BODY_TILE_PEAK_CYCLES;
-    expect(SKIN_BODY_CELL_AREA_MM2).toBe(0.09);
-    expect(SKIN_BODY_DETAIL_TILES_PER_METRE).toBe(expected);
+      (1 / Math.sqrt(SKIN_TRIPLANAR_DETAIL.bodyCellAreaMm2 * 1e-6)) / SKIN_TRIPLANAR_DETAIL.bodyTilePeakCycles;
+    expect(SKIN_TRIPLANAR_DETAIL.bodyCellAreaMm2).toBe(0.09);
+    expect(SKIN_TRIPLANAR_DETAIL.bodyTilesPerMetre).toBe(expected);
     assertPhysicalBodyFrequencySource(triplanarSource);
 
     const physicalFormula =

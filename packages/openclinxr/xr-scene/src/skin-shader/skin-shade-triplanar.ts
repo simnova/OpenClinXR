@@ -83,6 +83,28 @@ export function skinDetailObjectDeviation(detail: SkinVec3, bind: SkinVec3): Ski
 }
 
 /** Varyings and whiteout reorientation shared by the face and body tiles. */
+/**
+ * The pinned triplanar detail constants as one frozen record, for consumers outside this module
+ * (the package tests read them through the entrypoint). Each value's provenance is on its source
+ * constant above; this record adds no number of its own.
+ */
+export const SKIN_TRIPLANAR_DETAIL = Object.freeze({
+  faceTilesPerMetre: SKIN_FACE_DETAIL_TILES_PER_METRE,
+  bodyTilesPerMetre: SKIN_BODY_DETAIL_TILES_PER_METRE,
+  bodyCellAreaMm2: SKIN_BODY_CELL_AREA_MM2,
+  bodyTilePeakCycles: SKIN_BODY_TILE_PEAK_CYCLES,
+});
+
+/**
+ * CPU mirror of the GLSL triplanar math (plane coordinate, dominant plane, detail deviation),
+ * built from the same constants as the shader strings so the two cannot drift.
+ */
+export const skinTriplanarCpuMirror = Object.freeze({
+  planeCoordinate: skinTriplanarPlaneCoordinate,
+  dominantPlane: dominantSkinTriplanarPlane,
+  detailObjectDeviation: skinDetailObjectDeviation,
+});
+
 export function skinShadeTriplanarVaryingsGlsl(): string {
   return `varying vec3 vSkinBindPos;
 varying vec3 vSkinBindN;

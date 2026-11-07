@@ -243,7 +243,17 @@
         "via": "own-test"
       },
       {
+        "name": "SKIN_TRIPLANAR_DETAIL",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "applyCleanEncounterVisualReviewActorFraming",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "applyMaterialOverrides",
         "kind": "runtime",
         "via": "own-test"
       },
@@ -264,6 +274,11 @@
       {
         "name": "mountStationEnvironmentForRuntime",
         "kind": "runtime"
+      },
+      {
+        "name": "skinTriplanarCpuMirror",
+        "kind": "runtime",
+        "via": "own-test"
       }
     ]
   },
