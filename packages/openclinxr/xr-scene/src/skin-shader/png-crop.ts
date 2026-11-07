@@ -6,8 +6,8 @@
  * tools/. Supports 8-bit RGB/RGBA only — the portrait captures are RGB(A).
  */
 
-import { inflateSync } from "node:zlib";
 import { readFileSync } from "node:fs";
+import { inflateSync } from "node:zlib";
 
 export type DecodedPng = { w: number; h: number; chans: number; data: Uint8Array };
 

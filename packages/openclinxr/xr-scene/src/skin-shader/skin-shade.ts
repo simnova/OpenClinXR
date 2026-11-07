@@ -102,6 +102,13 @@ import {
   skinShadeBodyParsGlsl,
 } from "./skin-shade-detail.js";
 import * as L from "./skin-shade-landmarks.js";
+import {
+  skinShadeTriplanarAxisVertexGlsl,
+  skinShadeTriplanarNormalGlsl,
+  skinShadeTriplanarParsGlsl,
+  skinShadeTriplanarVaryingsGlsl,
+  skinShadeTriplanarVertexGlsl,
+} from "./skin-shade-triplanar.js";
 
 export * from "./skin-shade-landmarks.js";
 
@@ -126,9 +133,6 @@ export const SKIN_CURVATURE_CHANNEL = "r";
 export const SKIN_CAVITY_CHANNEL = "g";
 /** Cavity roughness coefficient: build_roughness.py:114 "+0.08*C". */
 export const SKIN_CAVITY_ROUGHNESS = 0.08;
-export const SKIN_STRETCH_FADE_START = 4.0; // cast p99 of per-tri UV anisotropy, 3.02-4.10 over 8 shaded actors, 2026-11-06 (st-vitbody3 E/r4/uvaniso.py); the partner jaw streak tri at 17.8 sits on the far side
-export const SKIN_STRETCH_FADE_END = 8.0; // 2x START; ramp width is graded at 1:1 by the CEO (nasolabial, mouth corners)
-
 /** Forehead centre, mirroring build_roughness.py (brow-end-inner mid pushed past brows). */
 export function skinForeheadUv(): readonly [number, number] {
   const midU = (L.SKIN_BROW_INNER_L_UV[0] + L.SKIN_BROW_INNER_R_UV[0]) / 2;
@@ -237,15 +241,7 @@ ${
     ? `uniform sampler2D uSkinDetailNormalMap; uniform float uSkinDetailNormalStrength;
 uniform mat3 uSkinDetailUvTransform;
 ${bodyDetailNormal ? skinShadeBodyParsGlsl() : ""}
-mat3 skinShadeCotangentFrame(vec3 eyePosition, vec3 surfaceNormal, vec2 uv) {
-  vec3 eyeDx = dFdx(eyePosition), eyeDy = dFdy(eyePosition);
-  vec2 uvDx = dFdx(uv), uvDy = dFdy(uv);
-  vec3 eyeDyPerp = cross(eyeDy, surfaceNormal), eyeDxPerp = cross(surfaceNormal, eyeDx);
-  vec3 tangent = eyeDyPerp * uvDx.x + eyeDxPerp * uvDy.x, bitangent = eyeDyPerp * uvDx.y + eyeDxPerp * uvDy.y;
-  float determinant = max(dot(tangent, tangent), dot(bitangent, bitangent));
-  float inverseScale = determinant == 0.0 ? 0.0 : inversesqrt(determinant);
-  return mat3(tangent * inverseScale, bitangent * inverseScale, surfaceNormal);
-}`
+${skinShadeTriplanarParsGlsl()}`
     : ""
 }
 uniform vec2 uSkinNoseUv;
@@ -329,37 +325,7 @@ export function skinShadeNormalGlsl(detailNormal = false, bodyDetailNormal = fal
 normal = normalize(mix(normal, normalize(vSkinSmoothN), uSkinBlurMix));
 ${
   detailNormal
-    ? `if (uSkinDetailNormalStrength > 0.0) {
-  vec2 skinStretchUvDx = dFdx(vMapUv), skinStretchUvDy = dFdy(vMapUv);
-  vec3 skinStretchPositionDx = dFdx(-vViewPosition), skinStretchPositionDy = dFdy(-vViewPosition);
-  float skinStretchDeterminant = skinStretchUvDx.x * skinStretchUvDy.y - skinStretchUvDx.y * skinStretchUvDy.x;
-  float skinStretchTiny = 1e-12;
-  float skinStretchAnisotropy = 1e20;
-  if (abs(skinStretchDeterminant) >= skinStretchTiny) {
-    vec3 skinStretchJu = (skinStretchPositionDx * skinStretchUvDy.y - skinStretchPositionDy * skinStretchUvDx.y) / skinStretchDeterminant;
-    vec3 skinStretchJv = (-skinStretchPositionDx * skinStretchUvDy.x + skinStretchPositionDy * skinStretchUvDx.x) / skinStretchDeterminant;
-    float skinStretchA = dot(skinStretchJu, skinStretchJu);
-    float skinStretchB = dot(skinStretchJu, skinStretchJv);
-    float skinStretchC = dot(skinStretchJv, skinStretchJv);
-    float skinStretchDiscriminant = sqrt((skinStretchA - skinStretchC) * (skinStretchA - skinStretchC) + 4.0 * skinStretchB * skinStretchB);
-    skinStretchAnisotropy = sqrt((skinStretchA + skinStretchC + skinStretchDiscriminant) / max(skinStretchA + skinStretchC - skinStretchDiscriminant, skinStretchTiny));
-  }
-  float skinStretchFade = abs(skinStretchDeterminant) < skinStretchTiny
-    ? 0.0
-    : 1.0 - smoothstep(${SKIN_STRETCH_FADE_START.toFixed(1)}, ${SKIN_STRETCH_FADE_END.toFixed(1)}, skinStretchAnisotropy);
-  vec2 skinDetailUv = (uSkinDetailUvTransform * vec3(vMapUv, 1.0)).xy;
-  vec3 skinDetailNormal = texture2D(uSkinDetailNormalMap, skinDetailUv).xyz * 2.0 - 1.0;
-  skinDetailNormal.xy *= uSkinDetailNormalStrength * (1.0 - skinLip);
-  skinDetailNormal = normalize(skinDetailNormal);
-${bodyDetailNormal ? skinShadeBodyNormalGlsl() : ""}  skinDetailNormal.xy *= skinStretchFade;
-  skinDetailNormal = normalize(skinDetailNormal);
-  mat3 skinDetailFrame = skinShadeCotangentFrame(-vViewPosition, normal, skinDetailUv);
-#if defined(DOUBLE_SIDED) && !defined(FLAT_SHADED)
-  skinDetailFrame[0] *= faceDirection;
-  skinDetailFrame[1] *= faceDirection;
-#endif
-  normal = normalize(skinDetailFrame * skinDetailNormal);
-}`
+    ? skinShadeTriplanarNormalGlsl(bodyDetailNormal ? skinShadeBodyNormalGlsl() : "")
     : ""
 }
 `;
@@ -456,7 +422,15 @@ export function applySkinShade(
     shader.vertexShader = shader.vertexShader
       .replace(
         "#include <common>",
-        "#include <common>\nvarying vec3 vSkinSmoothN;",
+        `#include <common>\nvarying vec3 vSkinSmoothN;${detailMaps.hasDetailNormal ? `\n${skinShadeTriplanarVaryingsGlsl()}` : ""}`,
+      )
+      .replace(
+        "#include <begin_vertex>",
+        `#include <begin_vertex>${detailMaps.hasDetailNormal ? `\n${skinShadeTriplanarVertexGlsl()}` : ""}`,
+      )
+      .replace(
+        "#include <skinning_vertex>",
+        `#include <skinning_vertex>${detailMaps.hasDetailNormal ? `\n${skinShadeTriplanarAxisVertexGlsl()}` : ""}`,
       )
       .replace("#include <fog_vertex>", `#include <fog_vertex>\n${skinShadeVertexGlsl()}`);
     shader.fragmentShader = shader.fragmentShader

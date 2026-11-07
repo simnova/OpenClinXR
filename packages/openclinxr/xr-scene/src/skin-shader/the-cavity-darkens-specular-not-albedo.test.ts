@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 // so testInternalImports holds at 10 with no new public exports. The
 // hook-level cavity asserts live in the-skin-shader-flag-is-read-back.test.ts,
 // which already pays that file's single reachable import.
-import { countChangedPx, decodePngFile, type CropRect } from "./png-crop.js";
+import { type CropRect, countChangedPx, decodePngFile } from "./png-crop.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const reportPath = join(here, "specular-report.json");
